@@ -1,3 +1,8 @@
+# We don't display this demo below in AFR console
+if(AFR_METADATA_MODE)
+    return()
+endif()
+
 # Posix demo
 afr_demo_module(posix)
 
