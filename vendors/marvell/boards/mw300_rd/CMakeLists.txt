@@ -1,4 +1,4 @@
-set(mw320_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/marvell/WMSDK/mw320")
+set(mw320_dir "${AFR_VENDORS_DIR}/marvell/WMSDK/mw320")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
@@ -49,7 +49,7 @@ target_compile_definitions(
 set(SDK_VERSION_INTERNAL "\"v1.2.r6.p1\"")
 set(SDK_VERSION ${SDK_VERSION_INTERNAL})
 
-set(global-cflags-y
+set(compiler_flags
 	"-mcpu=cortex-m4"
 	"-mthumb"
 	"-g"
@@ -68,31 +68,17 @@ set(global-cflags-y
 	"-Wno-sign-compare"
 	"-Wno-type-limits"
 	"-std=c99"
-	"-DSDK_VERSION=${SDK_VERSION}"
-)
-
-# ARM Cortex M4 flags
-set(tc-lflags-tc-cortex-m4-y
-	"-mcpu=cortex-m4"
-	"-mthumb"
-	"-g"
-	"-Os"
-	"-fdata-sections"
-	"-ffunction-sections"
-	"-ffreestanding"
-	"-MMD"
-	"-Wall"
-	"-fno-strict-aliasing"
-	"-fno-common"
 	"-mfloat-abi=softfp"
 	"-mfpu=fpv4-sp-d16"
 	"-D__FPU_PRESENT"
-)
+	"-DSDK_VERSION=${SDK_VERSION}"
+        -include ${mw320_dir}/sdk/src/incl/autoconf.h
+) 
 
 target_compile_options(
     AFR::compiler::mcu_port
     INTERFACE ${global-cflags-y} ${tc-lflags-tc-cortex-m4-y}
-    	-include ${mw320_dir}/sdk/src/incl/autoconf.h
+    	
 )
 
 # Global include directories
@@ -159,24 +145,32 @@ target_sources(
 	  "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
 	  "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
 	  "${mw320_dir}/sdk/external/FreeRTOS/portable/MemMang/heap_marvell.c"
-	  "${mw320_dir}/sdk/external/FreeRTOS//Source/FreeRTOS-openocd.c"
+	  "${mw320_dir}/sdk/external/FreeRTOS/Source/FreeRTOS-openocd.c"
 )
 
-target_include_directories(
-    AFR::kernel::mcu_port
-    INTERFACE
-        "${simplelink_dir}/source"
-        "${board_dir}/config_files"
-        "${board_dir}/application_code/ti_code"
-        # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
-        ${compiler_specific_include}
+set(
+    kernel_inc_directories
+    "${mw320_dir}/sdk/src"
+    "${mw320_dir}/sdk/src/incl"
+    "${mw320_dir}/sdk/src/incl/libc/arm_gcc"
+    "${mw320_dir}/sdk/src/incl/sdk"
+    "${mw320_dir}/sdk/src/incl/sdk/drivers"
+    "${mw320_dir}/sdk/src/incl/sdk/drivers/wlan"
+    "${mw320_dir}/sdk/src/incl/sdk/drivers/mw300"
+    "${mw320_dir}/sdk/src/incl/sdk/drivers/mw300/regs"
+    "${mw320_dir}/sdk/src/drivers/common/hardfault"
+    "${mw320_dir}/sdk/src/boards"
+    "${mw320_dir}/sdk/src/incl/platform/net/freertos-plus-tcp"
+    "${mw320_dir}/sdk/src/wlan/wifidriver"
+    "${mw320_dir}/sdk/src/wlan/wifidriver/incl"
+    "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
+    "${mw320_dir}/sdk/src/incl/platform/os/freertos"
 )
-target_link_libraries(
-    AFR::kernel::mcu_port
-    INTERFACE
-        AFR::posix
-        AFR::posix_headers
+
+# Global include directories
+target_include_directories(
+     AFR::kernel::mcu_port
+     INTERFACE ${kernel_inc_directories}
 )
 
 # POSIX
@@ -227,7 +221,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${afr_ports_dir}/secure_sockets/aws_secure_sockets.c"
+    INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
 )
 
 # -------------------------------------------------------------------------------------------------
