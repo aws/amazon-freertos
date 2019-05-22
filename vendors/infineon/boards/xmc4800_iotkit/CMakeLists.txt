@@ -263,8 +263,11 @@ target_link_libraries(
         AFR::utils
 )
 
-find_program( gcc_objectcopy arm-none-eabi-objcopy)
+if(AFR_METADATA_MODE)
+    return()
+endif()
 
+find_program(gcc_objectcopy arm-none-eabi-objcopy)
 find_program(gcc_size arm-none-eabi-size)
 
 if(NOT gcc_objectcopy )
