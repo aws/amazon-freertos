@@ -114,7 +114,6 @@ set( linker_flags
      "-nostartfiles"
      "-Xlinker"
      "--gc-sections"
-     "-specs=nano.specs"
      "-specs=nosys.specs"
      "-Wl,-Map,aws_demos.map"
      ${compiler_arm_options}

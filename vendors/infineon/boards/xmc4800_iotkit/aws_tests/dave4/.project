@@ -1414,41 +1414,6 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_tests/common/application_code/main.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/unity/src/unity.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/src/unity.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/unity/src/unity.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/src/unity.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/unity/src/unity_internals.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/src/unity_internals.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</locationURI>
-		</link>
-		<link>
 			<name>modules/libraries/3rdparty/mbedtls/library/aes.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/mbedtls/library/aes.c</locationURI>
@@ -2179,6 +2144,41 @@
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/3rdparty/unity/src/unity.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/src/unity.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/unity/src/unity.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/src/unity.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/unity/src/unity_internals.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/src/unity_internals.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/3rdparty/tinycbor/cborpretty.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
@@ -2219,116 +2219,7 @@
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources>
-		<filter>
-			<id>1535977722759</id>
-			<name>application_code/common_test</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-third_party</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535977722759</id>
-			<name>application_code/common_test</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-ota</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535977722775</id>
-			<name>application_code/common_test</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-posix</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535977722790</id>
-			<name>application_code/common_test</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-freertos_tcp</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535977722806</id>
-			<name>application_code/common_test</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-defender</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521505584147</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-GCC</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521505584162</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-MemMang</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521504809188</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521311288481</id>
-			<name>lib/aws/FreeRTOS/portable/GCC</name>
-			<type>13</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-ARM_CM4F</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1522922269500</id>
-			<name>lib/aws/FreeRTOS/portable/MemMang</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-heap_4.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535986092273</id>
-			<name>lib/third_party/XMCLib/2.1.20/CMSIS/Infineon</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-XMC4800_series</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535986108091</id>
-			<name>lib/third_party/XMCLib/2.1.20/CMSIS/Infineon/XMC4800_series/Source</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-GCC</arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
+	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>AFR_HOME</name>
