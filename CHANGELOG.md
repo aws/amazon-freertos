@@ -1,5 +1,69 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.8 05/21/2019
+### New Featuress
+### New Boards: Marvell MW320 and MW322
+- Marvell boards MW320 and MW322 are now qualified for Amazon FreeRTOS.
+- Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
+
+#### FreeRTOS Kernel V10.2.0
+- Kernel version for Amazon FreeRTOS is updated to V10.2.0.
+- Add Support for RISC-V.
+- Add Support for ARMv8M.
+
+### Updates
+
+#### Greengrass Discovery V1.0.4
+- Include C runtime header for snprintf.
+- Sanity check the number of bytes written.
+- Thing name can be a non-string literal.
+
+#### MQTT Agent V1.1.5
+- Set the socket to block on sends with a timeout in prvSetupConnection.
+
+#### Secure Sockets for FreeRTOS+TCP V1.1.6
+- ulApplicationGetNextSequenceNumber is now thread safe without stopping the scheduler.
+- Leave the scheduler running during PKCS #11 calls.
+
+#### Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+- lib/wifi: fix issue with WiFi configuration for non-null strings, and fix scanning failure under certain disconnect scenarios. 
+- ib/FreeRTOS-Plus-TCP: do not send eNetworkDownEvent to stack if interface is already down.
+- mbedtls: configurable options for controlling dynamic memory allocations.
+- lib/third_party: update ESP-IDF to latest v3.1.3 release.
+- NetworkInterface: check interface state before sending packets to WiFi driver.
+- Fix WIFI_GetMac returning wrong mac address.
+
+#### PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.1
+- Fix Cypress build error with IDE.
+
+#### PKCS #11 PAL for Cypress CYW954907AEVAL1F development kit V1.0.1
+- Fix Cypress build error with  IDE.
+
+#### FreeRTOS+TCP V2.0.11
+- Make RST packet handling more robust.
+- Make TCP window high and low watermark thresholds runtime configurable.
+- Fix parsing of the last option in a DHCP response packet.
+- Fix TCP window size calculation.
+- Allow the DNS cache to be programmatically cleared.
+- Free the memory allocated by the pcap_compile routine in the WinPCap network interface module.
+
+#### Shadow V1.0.6
+- Add a debug message in the event that JSMN runs out of memory trying to parse JSON.    
+- Print a debug message for any JSMN error, not just 'JSMN_ERROR_NOMEM'.
+
+#### PKCS #11 PAL for Windows Simulator V1.0.4
+- Update to permit multithreaded read from object storage.
+
+#### OTA Agent V1.0.2
+- Update documentation.
+
+#### TLS V1.1.4
+- TLS_Send now handles the error condition when space is not avaiable.	
+- Convert errors in TLS wrapper to negative error codes.
+
+#### Curiosity PIC32MZEF Linker Update for XC32 Compiler
+- The latest XC32 compiler (version 2.15) does not allow multiple definitions by default. Explicitly enabling multiple definitions in aws_tests and aws_demos projects for now. 
+
 ## V1.4.7 02/18/2019
 ### New Features
 ### New Boards: Cypress CYW43907 and CYW54907
@@ -9,7 +73,7 @@
 - Kernel version for Amazon FreeRTOS is updated to 10.1.1.
 - Update all object handles (TaskHandle_t, QueueHandle_t, etc.) to be unique types instead of void pointers, improving type safety.
 - Add Xtensa port.
-- Updated to the latest trace recorder code.
+- Update to the latest trace recorder code.
 - Update lint checked MISRA compliance to use the latest MISRA standard.
 - Add configUSE_POSIX_ERRNO to enable per task POSIX style errno functionality.
 

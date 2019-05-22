@@ -1,0 +1,31 @@
+# Copyright (C) 2018 Marvell International Ltd.
+# All Rights Reserved.
+
+# This file defines useful debug commands
+
+# Function to reset the board
+define reset
+monitor reset halt
+monitor chip_fixup
+end
+document reset
+Resets the board
+end
+
+# Function to restore hard fault context
+define hf_restore
+set *(uint16_t *) 0x100000 = 0x4700
+set $r0 = 0xfffffffd
+set $pc = 0x100000
+si
+end
+document hf_restore
+Restores cpu context to the instruction that caused the hard fault
+end
+
+define wdt_disable
+set *(uint32_t *) 0x480A007c |= (1 << 23)
+end
+document wdt_disable
+Disables watchdog timer clock
+end
