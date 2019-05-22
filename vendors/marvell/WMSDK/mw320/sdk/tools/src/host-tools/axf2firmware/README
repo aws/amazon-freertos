@@ -1,0 +1,17 @@
+
+axf2firmware conversion utility
+===============================
+
+Utility axf2firmware converts normal axf image (generated as a result of SDK
+compilation process) to custom binary image which will be used for firmware
+update process. This custom binary image has various sanity check mechanism
+for magic number verification, checksum for every data block etc.
+
+Compilation
+===========
+
+$ cd sdk/tools/src/host-tools/axf2firmware/
+$ make SDK_PATH=/path/to/wmsdk_bundle-3.y.z
+
+This will generate axf2firmware binary image
+
