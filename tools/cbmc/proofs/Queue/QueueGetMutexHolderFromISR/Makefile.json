@@ -1,0 +1,27 @@
+{
+  "ENTRY": "QueueGetMutexHolderFromISR",
+  "CBMCFLAGS": [
+    "--unwind 1",
+    "--signed-overflow-check",
+    "--pointer-overflow-check",
+    "--unsigned-overflow-check"
+  ],
+  "OBJS": [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/queue.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto"
+  ],
+  "DEF": [
+    "'configASSERT(X)=__CPROVER_assert(X, \"Assertion Error\")'",
+    "'configPRECONDITION(X)=__CPROVER_assume(X)'",
+    "configUSE_TRACE_FACILITY=0",
+    "configGENERATE_RUN_TIME_STATS=0"
+  ],
+  "INC": [
+    "."
+  ],
+  "GENERATE_HEADER": [
+    "queue_datastructure.h"
+  ]
+}
+
