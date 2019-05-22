@@ -106,7 +106,7 @@ target_compile_options(
 
 
 #Linker script path
-set( linker_script "${xmclib_dir}/CMSIS/Infineon/XMC4800_series/Source/GCC/XMC4800x2048.ld" )
+set( linker_script "${xmc4800_aws_dir}/dave4/XMC4800x2048.ld" )
 
 #All linker options
 set( linker_flags
