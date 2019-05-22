@@ -34,7 +34,7 @@
 #define IOT_MQTT_RESPONSE_WAIT_MS (1000)
 
 /* Global logging configuration. */
-#define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO
+/* #define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO */
 
 /* Uncomment one of these definitions to override the log level configuration for
  * a specific library. */
@@ -42,17 +42,10 @@
 /*#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO */
 /*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
 /*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
-#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
 
 /* Set the task pool stack size and priority */
 #define IOT_THREAD_DEFAULT_STACK_SIZE    3840
 #define IOT_THREAD_DEFAULT_PRIORITY      5
-
-/* Define additional serializer initialization functions for the BLE Module on ESP. */
-extern bool IotBleMqtt_InitSerialize( void );
-extern void IotBleMqtt_CleanupSerialize( void );
-#define _IotMqtt_InitSerializeAdditional IotBleMqtt_InitSerialize
-#define _IotMqtt_CleanupSerializeAdditional IotBleMqtt_CleanupSerialize
 
 #define DEFAULT_NETWORK AWSIOT_NETWORK_TYPE_WIFI
 #define BLE_SUPPORTED 0

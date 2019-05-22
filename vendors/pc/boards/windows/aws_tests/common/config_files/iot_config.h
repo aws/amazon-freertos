@@ -34,7 +34,7 @@
 #define IOT_MQTT_RESPONSE_WAIT_MS            ( 1000 )
 
 /* Global logging configuration. */
-#define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO
+#define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_NONE
 
 /* Taskpool configuration. */
 #define IOT_TASKPOOLS                        ( 4 )
@@ -45,7 +45,7 @@
 /*#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO*/
 /*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO*/
 /*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO*/
-#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
+/*#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO*/
 
 /* Set the task pool stack size and priority */
 #define IOT_THREAD_DEFAULT_STACK_SIZE        2048
