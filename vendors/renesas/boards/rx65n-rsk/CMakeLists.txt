@@ -257,17 +257,3 @@ target_link_libraries(
         AFR::freertos_plus_tcp
         AFR::utils
 )
-
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
-)
-
-# Disable serializer
-afr_module_dependencies(
-    serializer
-    PRIVATE
-        3rdparty::dummy
-)

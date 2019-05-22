@@ -1367,6 +1367,61 @@
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_api.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/defender/src/aws_iot_defender_api.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_collector.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/defender/src/aws_iot_defender_collector.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_v1.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/defender/src/aws_iot_defender_v1.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/private/aws_iot_defender_internal.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/defender/src/private/aws_iot_defender_internal.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/include/aws_iot_defender.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/defender/include/aws_iot_defender.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/include/iot_serializer.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/standard/serializer/include/iot_serializer.h</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -1430,6 +1485,11 @@
 			<name>modules/libraries/aws/shadow/include/aws_iot_shadow.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/aws/shadow/include/aws_iot_shadow.h</locationURI>
+		</link>
+		<link>
+			<name>demos/defender/aws_iot_demo_defender.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
 		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
@@ -2270,6 +2330,36 @@
 			<name>modules/libraries/3rdparty/pkcs11/pkcs11t.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborparser.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/3rdparty/jsmn/jsmn.h</name>
