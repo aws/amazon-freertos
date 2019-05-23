@@ -57,7 +57,7 @@ target_compile_options(
 )
 
 # Linker flags
-set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk/aws_demos/src/Xilinx.spec -Wl,-T -Wl,${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk/aws_demos/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib  -Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,-lrsa,--end-group )
+set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk/aws_demos/src/Xilinx.spec -Wl,-T -Wl,${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk/aws_demos/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib   )
 
 target_link_options(
     AFR::compiler::mcu_port
@@ -197,16 +197,19 @@ add_executable(
     "${board_dir}/application_code/main.c"
     $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
 )
+
 target_link_libraries(
     ${exe_target}
     PRIVATE
         AFR::utils
         AFR::freertos_plus_tcp
-        ${link_extra_flags}
-        "${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib/librsa.a"
-        "${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib/libxil.a"
-        "${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib/libxilffs.a"
-
 )
 
+# The kernel is the root dependency, linking the library flags like this ensures it adds the flags last in the command line
 
+set(link_extra_flags -Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,-lrsa,--end-group)
+
+target_link_libraries(
+    AFR::kernel::mcu_port
+        INTERFACE ${link_extra_flags}
+)
