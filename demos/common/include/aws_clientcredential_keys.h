@@ -1,8 +1,6 @@
 #ifndef AWS_CLIENT_CREDENTIAL_KEYS_H
 #define AWS_CLIENT_CREDENTIAL_KEYS_H
 
-#include <stdint.h>
-
 /*
  * @brief PEM-encoded client certificate.
  *

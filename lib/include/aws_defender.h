@@ -163,4 +163,21 @@ char const * DEFENDER_ErrAsString( DefenderErr_t /*eErrNum*/ );
  */
 char const * DEFENDER_ReportStatusAsString( DefenderReportStatus_t /*eStatusNum*/ );
 
+/**
+ * @brief MQTT topic string templates for Defender metrics.
+ */
+#define defenderMQTT_TOPIC_PUBLISH_CBOR     "$aws/things/%s/defender/metrics/cbor"
+#define defenderMQTT_TOPIC_ACCEPTED_CBOR    "$aws/things/%s/defender/metrics/cbor/accepted"
+#define defenderMQTT_TOPIC_REJECTED_CBOR    "$aws/things/%s/defender/metrics/cbor/rejected"
+#define defenderMQTT_TOPIC_PUBLISH_JSON     "$aws/things/%s/defender/metrics/json"
+#define defenderMQTT_TOPIC_ACCEPTED_JSON    "$aws/things/%s/defender/metrics/json/accepted"
+#define defenderMQTT_TOPIC_REJECTED_JSON    "$aws/things/%s/defender/metrics/json/rejected"
+
+/**
+ * @brief Builds device-specific MQTT topic names for Defender.
+ *
+ * @return String pointer to be freed via call to vPortFree.
+ */
+char * DEFENDER_GetMqttTopicString( char* pcTopicTemplate );
+
 #endif /* end of include guard: AWS_DEFENDER_H */

@@ -23,14 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-
 #ifndef __AWS_CLIENTCREDENTIAL__H__
 #define __AWS_CLIENTCREDENTIAL__H__
-
-/*
- * @brief Include for device certificate and private key
- */
-#include "aws_clientcredential_keys.h"
 
 /*
  * @brief MQTT Broker endpoint.

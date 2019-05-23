@@ -183,7 +183,7 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
         democonfigMQTT_AGENT_CONNECT_FLAGS,   /* Connection flags. */
         pdFALSE,                              /* Deprecated. */
         clientcredentialMQTT_BROKER_PORT,     /* Port number on which the MQTT broker is listening. Can be overridden by ALPN connection flag. */
-        clientcredentialIOT_THING_NAME,       /* Client Identifier of the MQTT client. It must be unique per broker. */
+        ( const uint8_t * ) clientcredentialIOT_THING_NAME, /* Client Identifier of the MQTT client. It must be unique per broker. */
         0,                                    /* The length of the client Id, filled in later as not const. */
         pdFALSE,                              /* Deprecated. */
         NULL,                                 /* User data supplied to the callback. Can be NULL. */
