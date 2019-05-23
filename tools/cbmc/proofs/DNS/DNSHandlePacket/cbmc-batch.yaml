@@ -1,4 +1,4 @@
 jobos: ubuntu16
 cbmcflags: '=--object-bits;7;--32;--bounds-check;--pointer-check;--unwind;1;--unwinding-assertions='
-goto: DNSHandlePacket.goto
+goto: DNShandlePacket.goto
 expected: SUCCESSFUL
