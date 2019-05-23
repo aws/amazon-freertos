@@ -198,7 +198,7 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
     /* Check that basic configuration has been completed. These settings are
      * given special treatment here since the Hellow World demo is what we
      * recommend developers to run first. */
-    if( xConnectParameters.pucClientId == NULL || xConnectParameters.pcURL == NULL )
+    if( ( xConnectParameters.pucClientId == NULL ) || ( xConnectParameters.pcURL == NULL ) )
     {
         configPRINTF( ( "ERROR: you must configure the MQTT client name and broker URL.\r\n" ) );
         configASSERT( xConnectParameters.pcURL != NULL );
@@ -216,18 +216,18 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
             /* Fill in the MQTTAgentConnectParams_t member that is not const,
              * and therefore could not be set in the initializer (where
              * xConnectParameters is declared in this function). */
-            xConnectParameters.usClientIdLength = ( uint16_t )strlen( ( const char * )xConnectParameters.pucClientId );
+            xConnectParameters.usClientIdLength = ( uint16_t ) strlen( ( const char * ) xConnectParameters.pucClientId );
 
             /* Connect to the broker. */
             configPRINTF( ( "MQTT echo attempting to connect to %s.\r\n", clientcredentialMQTT_BROKER_ENDPOINT ) );
             xReturned = MQTT_AGENT_Connect( xMQTTHandle,
-                &xConnectParameters,
-                democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT );
+                                            &xConnectParameters,
+                                            democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT );
 
             if( xReturned != eMQTTAgentSuccess )
             {
                 /* Could not connect, so delete the MQTT client. */
-                ( void )MQTT_AGENT_Delete( xMQTTHandle );
+                ( void ) MQTT_AGENT_Delete( xMQTTHandle );
                 configPRINTF( ( "ERROR:  MQTT echo failed to connect with error %d.\r\n", xReturned ) );
             }
             else

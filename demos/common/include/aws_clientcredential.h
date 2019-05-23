@@ -40,7 +40,7 @@
 #define clientcredentialMQTT_BROKER_ENDPOINT         NULL
 
 /*
- * @brief Host name. 
+ * @brief Host name.
  *
  * @todo Set this to the unique name of your IoT Thing.
  */

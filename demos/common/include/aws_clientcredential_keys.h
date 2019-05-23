@@ -6,7 +6,7 @@
 /*
  * @brief PEM-encoded client certificate.
  *
- * @todo If you are running one of the Amazon FreeRTOS demo projects, set this 
+ * @todo If you are running one of the Amazon FreeRTOS demo projects, set this
  * to the certificate that will be used for TLS client authentication.
  *
  * @note Must include the PEM header and footer:
@@ -19,11 +19,11 @@
 /*
  * @brief PEM-encoded issuer certificate for AWS IoT Just In Time Registration (JITR).
  *
- * @todo If you are using AWS IoT Just in Time Registration (JITR), set this to 
+ * @todo If you are using AWS IoT Just in Time Registration (JITR), set this to
  * the issuer (Certificate Authority) certificate of the client certificate above.
  *
- * @note This setting is required by JITR because the issuer is used by the AWS 
- * IoT gateway for routing the device's initial request. (The device client 
+ * @note This setting is required by JITR because the issuer is used by the AWS
+ * IoT gateway for routing the device's initial request. (The device client
  * certificate must always be sent as well.) For more information about JITR, see:
  *  https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html,
  *  https://aws.amazon.com/blogs/iot/just-in-time-registration-of-device-certificates-on-aws-iot/.

@@ -241,7 +241,7 @@ static int prvCheckCertificate( void * pvCtx,
             /* Convert the month. */
             lCompilationMonth =
                 ( ( strstr( cMonths, cCompilationMonth ) - cMonths ) /
-                ( tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ) ) + 1;
+                  ( tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ) ) + 1;
 
             /* Check the month. */
             if( pxCertificate->valid_to.mon < lCompilationMonth )
