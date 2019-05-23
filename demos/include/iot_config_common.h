@@ -90,6 +90,8 @@
     #define IotMetrics_MallocIpAddress           pvPortMalloc
     #define IotMetrics_FreeIpAddress             vPortFree
 
+    #define IotTaskPool_MallocTaskPool           pvPortMalloc
+    #define IotTaskPool_FreeTaskPool             vPortFree
     #define IotTaskPool_MallocJob                pvPortMalloc
     #define IotTaskPool_FreeJob                  vPortFree
     #define IotTaskPool_MallocTimerEvent         pvPortMalloc

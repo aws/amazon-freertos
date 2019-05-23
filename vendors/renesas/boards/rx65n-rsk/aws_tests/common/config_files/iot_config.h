@@ -24,14 +24,8 @@
 #ifndef IOT_CONFIG_H_
 #define IOT_CONFIG_H_
 
-/* Standard include. */
-#include <stdbool.h>
-
-/* Library logging configuration. */
-#define IOT_LOG_LEVEL_GLOBAL    IOT_LOG_NONE
-
-/* Set the task pool stack size and priority on Renesas. */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    5 * configMINIMAL_STACK_SIZE
+/* Platform thread stack size. */
+#define IOT_THREAD_DEFAULT_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
