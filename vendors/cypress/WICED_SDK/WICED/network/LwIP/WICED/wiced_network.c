@@ -608,12 +608,12 @@ wiced_result_t wiced_ip_up( wiced_interface_t interface, wiced_network_config_t 
 
 #if LWIP_IPV6
     /* Wait until the address has been properly advertised */
-    while ( ip6_addr_istentative( netif_ip6_addr_state( &IP_HANDLE(interface), 0 )))
-    {
+    /*while ( ip6_addr_istentative( netif_ip6_addr_state( &IP_HANDLE(interface), 0 )))
+    {*/
         /* Give LwIP time to change the state */
-        WPRINT_NETWORK_DEBUG(( "Waiting for IPv6 address validation\n"));
+        /*WPRINT_NETWORK_DEBUG(( "Waiting for IPv6 address validation\n"));
         host_rtos_delay_milliseconds( ND6_TMR_INTERVAL );
-    }
+    }*/
 
     if ( ip6_addr_isvalid( netif_ip6_addr_state( &IP_HANDLE(interface), 0 )))
     {
