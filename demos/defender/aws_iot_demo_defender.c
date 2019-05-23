@@ -95,7 +95,7 @@ int vStartDefenderDemo( bool awsIotMqttMode,
 	( void ) pNetworkServerInfo;
 	( void ) pNetworkCredentialInfo;
 	( void ) pNetworkInterface;
-		
+
     /* Initialize the MQTT library. */
     mqttInitStatus = IotMqtt_Init();
 
@@ -254,14 +254,14 @@ static Socket_t _createSocketToEchoServer()
                                                            configECHO_SERVER_ADDR3 );
 
     socket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
-    AwsIotDemo_Assert( socket != SOCKETS_INVALID_SOCKET );
+    configASSERT( socket != SOCKETS_INVALID_SOCKET );
 
     /* Set a time out so a missing reply does not cause the task to block indefinitely. */
     SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_RCVTIMEO, &xReceiveTimeOut, sizeof( xReceiveTimeOut ) );
     SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_SNDTIMEO, &xSendTimeOut, sizeof( xSendTimeOut ) );
 
     error = SOCKETS_Connect( socket, &echoServerAddress, sizeof( echoServerAddress ) );
-    AwsIotDemo_Assert( error == 0 );
+    configASSERT( error == 0 );
 
     return socket;
 }

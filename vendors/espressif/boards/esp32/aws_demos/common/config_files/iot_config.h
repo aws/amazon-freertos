@@ -27,39 +27,51 @@
 /* Standard include. */
 #include <stdbool.h>
 
+/* How long the MQTT library will wait for PINGRESPs or PUBACKs. */
+#define IOT_MQTT_RESPONSE_WAIT_MS            ( 10000 )
+
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
 
-#define IOT_MQTT_RESPONSE_WAIT_MS (10000)
+/* Shadow demo configuration. The demo publishes periodic Shadow updates and responds
+ * to changing Shadows. */
+#define AWS_IOT_DEMO_SHADOW_UPDATE_COUNT        ( 20 )   /* Number of updates to publish. */
+#define AWS_IOT_DEMO_SHADOW_UPDATE_PERIOD_MS    ( 3000 ) /* Period of Shadow updates. */
 
-/* Global logging configuration. */
-#define IOT_LOG_LEVEL_GLOBAL                 IOT_LOG_INFO
+/* Library logging configuration. IOT_LOG_LEVEL_GLOBAL provides a global log
+ * level for all libraries; the library-specific settings override the global
+ * setting. If both the library-specific and global settings are undefined,
+ * no logs will be printed. */
+#define IOT_LOG_LEVEL_GLOBAL                    IOT_LOG_INFO
+#define IOT_LOG_LEVEL_DEMO                      IOT_LOG_INFO
+#define IOT_LOG_LEVEL_PLATFORM                  IOT_LOG_NONE
+#define IOT_LOG_LEVEL_NETWORK                   IOT_LOG_INFO
+#define IOT_LOG_LEVEL_TASKPOOL                  IOT_LOG_NONE
+#define IOT_LOG_LEVEL_MQTT                      IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_SHADOW                IOT_LOG_INFO
+#define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_INFO
 
-/* Uncomment one of these definitions to override the log level configuration for
- * a specific library. */
-/*#define IOT_LOG_LEVEL_PLATFORM               IOT_LOG_INFO */
-/*#define IOT_LOG_LEVEL_NETWORK                IOT_LOG_INFO */
-/*#define IOT_LOG_LEVEL_MQTT                   IOT_LOG_INFO */
-/*#define AWS_IOT_LOG_LEVEL_SHADOW             IOT_LOG_INFO */
-#define IOT_LOG_LEVEL_DEMO                   IOT_LOG_INFO
-
-/* Set the task pool stack size and priority */
+/* Platform thread stack size and priority. */
 #define IOT_THREAD_DEFAULT_STACK_SIZE    3840
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
-/* Define additional serializer initialization functions for the BLE Module on ESP. */
+/* This board supports MQTT-over-BLE, which uses a different serializer than normal
+ * MQTT 3.1.1. Enable the serializer overrides of the MQTT library. */
+#define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
+
+/* Provide additional serializer initialization functions. */
 extern bool IotBleMqtt_InitSerialize( void );
 extern void IotBleMqtt_CleanupSerialize( void );
 #define _IotMqtt_InitSerializeAdditional      IotBleMqtt_InitSerialize
 #define _IotMqtt_CleanupSerializeAdditional   IotBleMqtt_CleanupSerialize
 
+/* Provide a function to retrieve the serializer function pointers in the MQTT demo. */
 typedef struct IotMqttSerializer IotMqttSerializer_t;
-extern const IotMqttSerializer_t* getSerializerOverride( void );
-#define IOT_MQTT_SERIALIZER_OVERRIDE          getSerializerOverride()
+extern const IotMqttSerializer_t * getSerializerOverride( void );
+#define IOT_MQTT_SERIALIZER_OVERRIDE    getSerializerOverride()
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
 #endif /* ifndef IOT_CONFIG_H_ */
-

@@ -21,8 +21,8 @@
 
 /* This file contains default configuration settings for the demos on FreeRTOS. */
 
-#ifndef _IOT_CONFIG_COMMON_H_
-#define _IOT_CONFIG_COMMON_H_
+#ifndef IOT_CONFIG_COMMON_H_
+#define IOT_CONFIG_COMMON_H_
 
 /* FreeRTOS include. */
 #include "FreeRTOS.h"
@@ -33,14 +33,39 @@
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
 
-/* Standard library function overrides. */
-#define IotLogging_Puts( str )                 configPRINTF( ( "%s\r\n", str ) )
-#define IotContainers_Assert( expression )     configASSERT( expression )
-#define IotMqtt_Assert( expression )           configASSERT( expression )
+/* This config file is for the demos; disable any test code. */
+#define IOT_BUILD_TESTS    ( 0 )
 
-#define AwsIotDefender_Assert( expression )    configASSERT( expression )
+/* Logging puts function. */
+#define IotLogging_Puts( str )                 configPRINTF( ( "%s\r\n", str ) )
+
+/* Enable asserts in libraries by default. */
+#ifndef IOT_METRICS_ENABLE_ASSERTS
+    #define IOT_METRICS_ENABLE_ASSERTS         ( 1 )
+#endif
+#ifndef IOT_CONTAINERS_ENABLE_ASSERTS
+    #define IOT_CONTAINERS_ENABLE_ASSERTS      ( 1 )
+#endif
+#ifndef IOT_TASKPOOL_ENABLE_ASSERTS
+    #define IOT_TASKPOOL_ENABLE_ASSERTS        ( 1 )
+#endif
+#ifndef IOT_MQTT_ENABLE_ASSERTS
+    #define IOT_MQTT_ENABLE_ASSERTS            ( 1 )
+#endif
+#ifndef AWS_IOT_SHADOW_ENABLE_ASSERTS
+    #define AWS_IOT_SHADOW_ENABLE_ASSERTS      ( 1 )
+#endif
+#ifndef AWS_IOT_DEFENDER_ENABLE_ASSERTS
+    #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
+#endif
+
+/* Assert functions. */
 #define IotMetrics_Assert( expression )        configASSERT( expression )
-#define AwsIotDemo_Assert( expression )        configASSERT( expression )
+#define IotContainers_Assert( expression )     configASSERT( expression )
+#define IotTaskPool_Assert( expression )       configASSERT( expression )
+#define IotMqtt_Assert( expression )           configASSERT( expression )
+#define AwsIotShadow_Assert( expression )      configASSERT( expression )
+#define AwsIotDefender_Assert( expression )    configASSERT( expression )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef IOT_STATIC_MEMORY_ONLY
@@ -60,6 +85,11 @@
 /* Memory allocation function configuration for the MQTT and Defender library.
  * These libraries will be affected by IOT_STATIC_MEMORY_ONLY. */
 #if IOT_STATIC_MEMORY_ONLY == 0
+    #define IotMetrics_MallocTcpConnection       pvPortMalloc
+    #define IotMetrics_FreeTcpConnection         vPortFree
+    #define IotMetrics_MallocIpAddress           pvPortMalloc
+    #define IotMetrics_FreeIpAddress             vPortFree
+
     #define IotTaskPool_MallocJob                pvPortMalloc
     #define IotTaskPool_FreeJob                  vPortFree
     #define IotTaskPool_MallocTimerEvent         pvPortMalloc
@@ -74,16 +104,6 @@
     #define IotMqtt_MallocSubscription           pvPortMalloc
     #define IotMqtt_FreeSubscription             vPortFree
 
-    #define AwsIotDefender_MallocReport          pvPortMalloc
-    #define AwsIotDefender_FreeReport            vPortFree
-    #define AwsIotDefender_MallocTopic           pvPortMalloc
-    #define AwsIotDefender_FreeTopic             vPortFree
-
-    #define IotMetrics_MallocTcpConnection       pvPortMalloc
-    #define IotMetrics_FreeTcpConnection         vPortFree
-    #define IotMetrics_MallocIpAddress           pvPortMalloc
-    #define IotMetrics_FreeIpAddress             vPortFree
-
     #define IotSerializer_MallocCborEncoder      pvPortMalloc
     #define IotSerializer_FreeCborEncoder        vPortFree
     #define IotSerializer_MallocCborParser       pvPortMalloc
@@ -92,81 +112,38 @@
     #define IotSerializer_FreeCborValue          vPortFree
     #define IotSerializer_MallocDecoderObject    pvPortMalloc
     #define IotSerializer_FreeDecoderObject      vPortFree
+
+    #define AwsIotShadow_MallocOperation         pvPortMalloc
+    #define AwsIotShadow_FreeOperation           vPortFree
+    #define AwsIotShadow_MallocString            pvPortMalloc
+    #define AwsIotShadow_FreeString              vPortFree
+    #define AwsIotShadow_MallocSubscription      pvPortMalloc
+    #define AwsIotShadow_FreeSubscription        vPortFree
+
+    #define AwsIotDefender_MallocReport          pvPortMalloc
+    #define AwsIotDefender_FreeReport            vPortFree
+    #define AwsIotDefender_MallocTopic           pvPortMalloc
+    #define AwsIotDefender_FreeTopic             vPortFree
 #endif /* if IOT_STATIC_MEMORY_ONLY == 0 */
 
-/* Static memory configuration. */
-#if IOT_STATIC_MEMORY_ONLY == 1
-    #ifndef IOT_MESSAGE_BUFFERS
-        #define IOT_MESSAGE_BUFFERS                    ( 8 )
-    #endif
-    #ifndef IOT_MESSAGE_BUFFER_SIZE
-        #define IOT_MESSAGE_BUFFER_SIZE                ( 4096 )
-    #endif
-    #ifndef IOT_MQTT_CONNECTIONS
-        #define IOT_MQTT_CONNECTIONS                   ( 2 )
-    #endif
-    #ifndef IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS
-        #define IOT_MQTT_MAX_IN_PROGRESS_OPERATIONS    ( 10 )
-    #endif
-    #ifndef IOT_MQTT_SUBSCRIPTIONS
-        #define IOT_MQTT_SUBSCRIPTIONS                 ( 16 )
-    #endif
-#endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
-
-/* Enable asserts in libraries. */
-#ifndef IOT_CONTAINERS_ENABLE_ASSERTS
-    #define IOT_CONTAINERS_ENABLE_ASSERTS      ( 1 )
+/* Default platform thread stack size and priority. */
+#ifndef IOT_THREAD_DEFAULT_STACK_SIZE
+    #define IOT_THREAD_DEFAULT_STACK_SIZE    2048
 #endif
-#ifndef IOT_MQTT_ENABLE_ASSERTS
-    #define IOT_MQTT_ENABLE_ASSERTS            ( 1 )
-#endif
-#ifndef AWS_IOT_DEFENDER_ENABLE_ASSERTS
-    #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
-#endif
-#ifndef IOT_METRICS_ENABLE_ASSERTS
-    #define IOT_METRICS_ENABLE_ASSERTS         ( 1 )
+#ifndef IOT_THREAD_DEFAULT_PRIORITY
+    #define IOT_THREAD_DEFAULT_PRIORITY      tskIDLE_PRIORITY
 #endif
 
 /* Platform network configuration. */
-#ifndef IOT_NETWORK_RECEIVE_BUFFER_SIZE
-    #define IOT_NETWORK_RECEIVE_BUFFER_SIZE    ( 1024 )
-#endif
-#ifndef IOT_NETWORK_SHORT_TIMEOUT_MS
-    #define IOT_NETWORK_SHORT_TIMEOUT_MS       ( 100 )
-#endif
-
-/* Priority of network receive task. */
 #ifndef IOT_NETWORK_RECEIVE_TASK_PRIORITY
-    #define IOT_NETWORK_RECEIVE_TASK_PRIORITY    ( tskIDLE_PRIORITY + 1 )
+    #define IOT_NETWORK_RECEIVE_TASK_PRIORITY      ( tskIDLE_PRIORITY + 1 )
 #endif
-
-/* Stack size of the network receive task. */
 #ifndef IOT_NETWORK_RECEIVE_TASK_STACK_SIZE
-    #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    ( 5 * configMINIMAL_STACK_SIZE )
+    #define IOT_NETWORK_RECEIVE_TASK_STACK_SIZE    IOT_THREAD_DEFAULT_STACK_SIZE
 #endif
 
-/* Default iot thread stack_size. */
-#ifndef IOT_THREAD_DEFAULT_STACK_SIZE
-    #define IOT_THREAD_DEFAULT_STACK_SIZE    configMINIMAL_STACK_SIZE
-#endif
-
-/* Default iot thread priority. */
-#ifndef IOT_THREAD_DEFAULT_PRIORITY
-    #define IOT_THREAD_DEFAULT_PRIORITY    tskIDLE_PRIORITY
-#endif
-
-/* MQTT library configuration. */
-#ifndef AWS_IOT_MQTT_ENABLE_METRICS
-    #define AWS_IOT_MQTT_ENABLE_METRICS    ( 1 )
-#endif
-#ifndef IOT_MQTT_RESPONSE_WAIT_MS
-    #define IOT_MQTT_RESPONSE_WAIT_MS      ( 1000 )
-#endif
-#ifndef IOT_MQTT_RETRY_MS_CEILING
-    #define IOT_MQTT_RETRY_MS_CEILING      ( 60000 )
-#endif
-
-/* Platform and SDK name for AWS MQTT metrics. Only used when AWS_IOT_MQTT_ENABLE_METRICS is 1. */
+/* Platform and SDK name for AWS IoT MQTT metrics. Only used when
+ * AWS_IOT_MQTT_ENABLE_METRICS is 1. */
 #define IOT_SDK_NAME             "AmazonFreeRTOS"
 #ifdef configPLATFORM_NAME
     #define IOT_PLATFORM_NAME    configPLATFORM_NAME
@@ -174,15 +151,13 @@
     #define IOT_PLATFORM_NAME    "Unknown"
 #endif
 
-/* Required settings for the MQTT demos. */
-#define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
-
-/* By default, set override serializer to NULL to not override the serializer */
+/* Serializer used in MQTT demo. */
 #ifndef IOT_MQTT_SERIALIZER_OVERRIDE
     #define IOT_MQTT_SERIALIZER_OVERRIDE    ( NULL )
 #endif
 
-#define IOT_BUILD_TESTS                     ( 0 )
+/* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
+#define IotMetricsConnectionId_t            void *
 
 /* Configuration for defender demo: set format to CBOR. */
 #define AWS_IOT_DEFENDER_FORMAT             AWS_IOT_DEFENDER_FORMAT_CBOR
@@ -190,9 +165,7 @@
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
 #define AWS_IOT_DEFENDER_USE_LONG_TAG       ( 1 )
 
-/* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
-#define IotMetricsConnectionId_t            void *
-
+/* Demo runner configuration. */
 #include "aws_demo_config.h"
 
-#endif /* ifndef _IOT_CONFIG_COMMON_H_ */
+#endif /* ifndef IOT_CONFIG_COMMON_H_ */
