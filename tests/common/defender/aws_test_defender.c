@@ -363,11 +363,11 @@ static void prvTestSubscribeHelper( MQTTAgentHandle_t pxMQTTAgent,
 {
     MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
-        .pucTopic = NULL,
-        .usTopicLength = 0,
-        .xQoS = eMQTTQoS0,
+        .pucTopic                 = NULL,
+        .usTopicLength            = 0,
+        .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
-        .pxPublishCallback = testAcceptCallback,
+        .pxPublishCallback        = testAcceptCallback,
     };
     TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
     MQTTAgentReturnCode_t eSubscriptionResult = eMQTTAgentFailure;
@@ -420,11 +420,11 @@ static void prvTestPublishHelper( MQTTAgentHandle_t pxMQTTAgent,
 {
     MQTTAgentPublishParams_t xPubRecParams =
     {
-        .pucTopic = NULL,
+        .pucTopic      = NULL,
         .usTopicLength = 0,
-        .xQoS = eMQTTQoS0,
-        .pvData = pucData,
-        .ulDataLength = ulDataLength,
+        .xQoS          = eMQTTQoS0,
+        .pvData        = pucData,
+        .ulDataLength  = ulDataLength,
     };
     TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
     MQTTAgentReturnCode_t ePublishResult = eMQTTAgentFailure;
@@ -439,13 +439,13 @@ static void prvTestPublishHelper( MQTTAgentHandle_t pxMQTTAgent,
     }
 
     TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == ePublishResult,
-        "Failed to publish to pucTopic" );
+                         "Failed to publish to pucTopic" );
 }
 
 static void PublishCborToDevDef( MQTTAgentHandle_t pxMQTTAgent,
                                  CBORHandle_t xReport )
 {
-    prvTestPublishHelper( pxMQTTAgent, 
+    prvTestPublishHelper( pxMQTTAgent,
                           xReport->pxBufferStart,
                           xReport->pxMapEnd - xReport->pxBufferStart + 1,
                           defenderMQTT_TOPIC_PUBLISH_CBOR );

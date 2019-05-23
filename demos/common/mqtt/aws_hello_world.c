@@ -179,17 +179,17 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
     BaseType_t xReturn = pdFAIL;
     MQTTAgentConnectParams_t xConnectParameters =
     {
-        clientcredentialMQTT_BROKER_ENDPOINT, /* The URL of the MQTT broker to connect to. */
-        democonfigMQTT_AGENT_CONNECT_FLAGS,   /* Connection flags. */
-        pdFALSE,                              /* Deprecated. */
-        clientcredentialMQTT_BROKER_PORT,     /* Port number on which the MQTT broker is listening. Can be overridden by ALPN connection flag. */
+        clientcredentialMQTT_BROKER_ENDPOINT,               /* The URL of the MQTT broker to connect to. */
+        democonfigMQTT_AGENT_CONNECT_FLAGS,                 /* Connection flags. */
+        pdFALSE,                                            /* Deprecated. */
+        clientcredentialMQTT_BROKER_PORT,                   /* Port number on which the MQTT broker is listening. Can be overridden by ALPN connection flag. */
         ( const uint8_t * ) clientcredentialIOT_THING_NAME, /* Client Identifier of the MQTT client. It must be unique per broker. */
-        0,                                    /* The length of the client Id, filled in later as not const. */
-        pdFALSE,                              /* Deprecated. */
-        NULL,                                 /* User data supplied to the callback. Can be NULL. */
-        NULL,                                 /* Callback used to report various events. Can be NULL. */
-        NULL,                                 /* Certificate used for secure connection. Can be NULL. */
-        0                                     /* Size of certificate used for secure connection. */
+        0,                                                  /* The length of the client Id, filled in later as not const. */
+        pdFALSE,                                            /* Deprecated. */
+        NULL,                                               /* User data supplied to the callback. Can be NULL. */
+        NULL,                                               /* Callback used to report various events. Can be NULL. */
+        NULL,                                               /* Certificate used for secure connection. Can be NULL. */
+        0                                                   /* Size of certificate used for secure connection. */
     };
 
     /* Check this function has not already been executed. */

@@ -178,6 +178,6 @@ char const * DEFENDER_ReportStatusAsString( DefenderReportStatus_t /*eStatusNum*
  *
  * @return String pointer to be freed via call to vPortFree.
  */
-char * DEFENDER_GetMqttTopicString( char* pcTopicTemplate );
+char * DEFENDER_GetMqttTopicString( char * pcTopicTemplate );
 
 #endif /* end of include guard: AWS_DEFENDER_H */
