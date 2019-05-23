@@ -4,10 +4,16 @@ set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
     set(exe_target aws_tests)
+    set(xilinx_xsdk_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/xsdk")
+    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common/config_files")
 else()
     set(board_dir "${board_demos_dir}")
     set(exe_target aws_demos)
+    set(xilinx_xsdk_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk")
+    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
 endif()
+
+
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
@@ -25,8 +31,8 @@ afr_set_board_metadata(RECOMMENDED_IDE "XSDK")
 afr_set_board_metadata(IDE_XSDK_NAME "Xilinx SDK")
 afr_set_board_metadata(IDE_XSDK_COMPILER "GCC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
-afr_set_board_metadata(IDE_XSDK_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(IDE_XSDK_PROJECT_LOCATION ${xilinx_xsdk_dir})
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION ${xilinx_config_dir})
 
 #
 
@@ -57,7 +63,11 @@ target_compile_options(
 )
 
 # Linker flags
-set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk/aws_demos/src/Xilinx.spec -Wl,-T -Wl,${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk/aws_demos/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib   )
+if(AFR_IS_TESTING)
+    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${xilinx_xsdk_dir}/aws_tests/src/Xilinx.spec -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_tests/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib )
+else()
+    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${xilinx_xsdk_dir}/aws_demos/src/Xilinx.spec -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_demos/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib )
+endif()
 
 target_link_options(
     AFR::compiler::mcu_port
@@ -184,7 +194,6 @@ afr_module_dependencies(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
-# TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/xilinx_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
