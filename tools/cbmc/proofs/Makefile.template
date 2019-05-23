@@ -41,6 +41,11 @@ CBMCFLAGS = \
   $(C_CBMCFLAGS) $(O_CBMCFLAGS) $(H_CBMCFLAGS) \
   # empty
 
+INSTFLAGS = \
+  $(INSTFLAGS2) \
+  $(C_INSTFLAGS) $(O_INSTFLAGS) $(H_INSTFLAGS) \
+  # empty
+
 # ____________________________________________________________________
 # Rules
 #
@@ -82,7 +87,7 @@ $(ENTRY)3.goto: $(ENTRY)2.goto
 		> $(ENTRY)3.txt 2>&1
 
 $(ENTRY)4.goto: $(ENTRY)3.goto
-	$(GOTO_INSTRUMENT) --slice-global-inits @RULE_INPUT@ @RULE_OUTPUT@ \
+	$(GOTO_INSTRUMENT) $(INSTFLAGS) --slice-global-inits @RULE_INPUT@ @RULE_OUTPUT@ \
 		> $(ENTRY)4.txt 2>&1
 
 $(ENTRY).goto: $(ENTRY)4.goto
