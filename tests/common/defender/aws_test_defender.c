@@ -359,7 +359,7 @@ static void MqttAgentConnectToDevDef( MQTTAgentHandle_t pxMQTTAgent )
 }
 
 static void prvTestSubscribeHelper( MQTTAgentHandle_t pxMQTTAgent,
-                                    char* pcTopicTemplate )
+                                    char * pcTopicTemplate )
 {
     MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
