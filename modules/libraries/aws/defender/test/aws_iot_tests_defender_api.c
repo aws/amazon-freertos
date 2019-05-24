@@ -50,7 +50,7 @@
 #include "platform/iot_metrics.h"
 
 /* Total time to wait for a state to be true. */
-#define _WAIT_STATE_TOTAL_SECONDS    5
+#define _WAIT_STATE_TOTAL_SECONDS    15
 
 /* Time interval for defender agent to publish metrics. It will be throttled if too frequent. */
 /* TODO: if we can change "thingname" in each test, this can be lowered. */
