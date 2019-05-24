@@ -432,7 +432,7 @@ static bool _wifiEnable( void )
 #else
     if ( ret == true )
     {
-        if( IotBleWifiProv_Start() != pdTRUE )
+        if( IotBleWifiProv_Init() != pdTRUE )
         {
             ret = false;
         }

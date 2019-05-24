@@ -394,6 +394,21 @@
 			<locationURI>AFR_HOME/demos/demo_runner/aws_demo.c</locationURI>
 		</link>
 		<link>
+			<name>demos/network_manager/aws_iot_network_manager.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/network_manager/aws_iot_network_manager.c</locationURI>
+		</link>
+		<link>
+			<name>demos/network_manager/aws_iot_demo_network.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/network_manager/aws_iot_demo_network.c</locationURI>
+		</link>
+		<link>
+			<name>demos/network_manager/iot_network_manager_private.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/network_manager/iot_network_manager_private.h</locationURI>
+		</link>
+		<link>
 			<name>demos/demo_runner/iot_demo_afr.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/demo_runner/iot_demo_afr.c</locationURI>
@@ -1302,21 +1317,6 @@
 			<name>application_code/main.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/common/application_code/main.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/aws_iot_demo_network.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/network_manager/aws_iot_demo_network.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/aws_iot_network_manager.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/network_manager/aws_iot_network_manager.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/iot_network_manager_private.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/network_manager/iot_network_manager_private.h</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/3rdparty/mbedtls/library/aes.c</name>

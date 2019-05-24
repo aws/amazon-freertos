@@ -121,7 +121,6 @@ typedef struct IotBleWifiProvService
     SemaphoreHandle_t lock;          /**< A lock to protect the WiFi provisioning service. */
     uint16_t numNetworks;            /**< The number of networks. */
     int16_t connectedIdx;            /**< The index of the network that is connected. */
-    bool init;                       /**< A flag to indicate if the service has been initialized. */
 
     IotBleListNetworkRequest_t   listNetworkRequest;
     IotBleAddNetworkRequest_t    addNetworkRequest;
@@ -152,29 +151,17 @@ typedef struct IotBleWifiProvService
  */
 
 /**
- * @brief Initialize the wifi provisioning service.
+ * @brief Initialize wifi provisioning over BLE service.
  *
- * Creates GATT service and characteristics required for WiFi provisioning over BLE. User needs to call it once
- * before starting the BLE advertisement.
- *
+ * Creates necessary data structures for the service. Opens ble data transfer channel and listens
+ * for incoming messages from the channel. 
+ * 
  * @return true if the initialization succeeded.
  *         false if the initialization failed.
  */
 /* @[declare_iotblewifiprov_init] */
 bool IotBleWifiProv_Init( void );
 /* @[declare_iotblewifiprov_init] */
-
-/**
- * @brief Starts WiFi provisioning service.
- * Starts the BLE service to provision new WIFI networks. Registers a callback invoked whenever a new network is provisioned.
- *
- *
- * @return true if successfully started
- *         false if start failed
- */
-/* @[declare_iotblewifiprov_start] */
-bool IotBleWifiProv_Start( void );
-/* @[declare_iotblewifiprov_start] */
 
 /**
  * @brief Gets the total number of provisioned networks.
@@ -227,11 +214,9 @@ bool IotBleWifiProv_EraseAllNetworks( void );
 /**
  * @brief Tear down WIFI provisioning service
  *
- * Deletes the GATT service and deletes the background task which connects to saved WiFi networks.
- * @return true if delete succeeds, false otherwise.
  */
 /* @[declare_iotblewifiprov_delete] */
-bool IotBleWifiProv_Delete( void );
+void IotBleWifiProv_Deinit( void );
 /* @[declare_iotblewifiprov_delete] */
 
 #endif /* _AWS_BLE_WIFI_PROVISIONING_H_ */

@@ -29,10 +29,6 @@
  */
 
 #include <string.h>
-
-
-#include "iot_config.h"
-
 #include "iot_ble_config.h"
 #include "iot_ble_wifi_provisioning.h"
 #include "iot_serializer.h"
@@ -1479,47 +1475,35 @@ static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void
 
 bool IotBleWifiProv_Init( void )
 {
-    bool ret = true;
-    if( wifiProvisioning.init == false )
+    bool ret = false;
+    
+    wifiProvisioning.lock = xSemaphoreCreateBinary();
+    if( wifiProvisioning.lock != NULL )
     {
-        wifiProvisioning.lock = xSemaphoreCreateBinary();
-        
-        if( wifiProvisioning.lock != NULL )
-        {
-            xSemaphoreGive( wifiProvisioning.lock );
-        }
-        else
-        {
+	xSemaphoreGive( wifiProvisioning.lock );
+	ret = true;
+    }
+    else
+    {
+	ret = false;
+    }
+
+    if( ret == true )
+    {
+	wifiProvisioning.numNetworks = _getNumSavedNetworks();
+
+	wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
+	if( wifiProvisioning.pChannel != NULL )
+	{
+	     ( void ) IotBleDataTransfer_SetCallback( wifiProvisioning.pChannel, _callback, NULL );
+	}
+	else
+	{
             ret = false;
-        }
-        wifiProvisioning.init = true;
+	}
     }
 
     return ret;
-}
-
-/*-----------------------------------------------------------*/
-
-
-
-bool IotBleWifiProv_Start( void )
-{
-    bool status = false;
-
-    if( wifiProvisioning.init == true )
-    {
-        wifiProvisioning.numNetworks = _getNumSavedNetworks();
-        
-        wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
-        if( wifiProvisioning.pChannel != NULL )
-        {
-            IotBleDataTransfer_SetCallback( wifiProvisioning.pChannel, _callback, NULL );
-            status = true;
-        }
-
-    }
-
-    return status;
 }
 
 /*--------------------------------------------------------------------------------*/
@@ -1576,28 +1560,21 @@ bool IotBleWifiProv_EraseAllNetworks( void )
 
 /*-----------------------------------------------------------*/
 
-bool IotBleWifiProv_Delete( void )
+void IotBleWifiProv_Deinit( void )
 {
-    bool ret = true;
-
-    if( wifiProvisioning.init == true )
+    if( wifiProvisioning.pChannel != NULL )
     {
-        if( wifiProvisioning.pChannel != NULL )
-        {
-            IotBleDataTransfer_Close( wifiProvisioning.pChannel );
-            IotBleDataTransfer_Reset( wifiProvisioning.pChannel );
-        }
-
-        //Delete service.
-        if( wifiProvisioning.lock != NULL )
-        {
-            vSemaphoreDelete( wifiProvisioning.lock );
-        }
-
-         memset( &wifiProvisioning, 0x00, sizeof( IotBleWifiProvService_t ) );
+        IotBleDataTransfer_Close( wifiProvisioning.pChannel );
+        IotBleDataTransfer_Reset( wifiProvisioning.pChannel );
     }
 
-    return ret;
+    //Delete service.
+    if( wifiProvisioning.lock != NULL )
+    {
+       vSemaphoreDelete( wifiProvisioning.lock );
+    }
+
+    memset( &wifiProvisioning, 0x00, sizeof( IotBleWifiProvService_t ) );
 }
 
 /* Provide access to private members for testing. */
