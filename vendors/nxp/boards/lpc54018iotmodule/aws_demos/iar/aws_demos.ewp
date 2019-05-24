@@ -223,6 +223,8 @@
 					<state>USE_RTOS=1</state>
 					<state>FSL_RTOS_FREE_RTOS</state>
 					<state>A_LITTLE_ENDIAN</state>
+					<state>_DLIB_FILE_DESCRIPTOR=1</state>
+					<state>__little_endian__=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -390,6 +392,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\mqtt\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\defender\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include</state>
@@ -399,6 +403,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\pkcs11\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\pkcs11</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1885,6 +1890,18 @@
 			</file>
 		</group>
 		<group>
+			<name>network_manager</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\iot_network_manager_private.h</name>
+			</file>
+		</group>
+		<group>
 			<name>include</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\include\aws_demo.h</name>
@@ -1912,6 +1929,12 @@
 			</file>
 		</group>
 		<group>
+			<name>defender</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c</name>
+			</file>
+		</group>
+		<group>
 			<name>greengrass_connectivity</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c</name>
@@ -1924,27 +1947,9 @@
 			</file>
 		</group>
 		<group>
-			<name>posix</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\posix\aws_posix_demo.c</name>
-			</file>
-		</group>
-		<group>
 			<name>shadow</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c</name>
-			</file>
-		</group>
-		<group>
-			<name>network_manager</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\iot_network_manager_private.h</name>
 			</file>
 		</group>
 	</group>
@@ -2186,6 +2191,36 @@
 					</group>
 				</group>
 				<group>
+					<name>serializer</name>
+					<group>
+						<name>src</name>
+						<group>
+							<name>cbor</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c</name>
+							</file>
+						</group>
+						<group>
+							<name>json</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_decoder.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_encoder.c</name>
+							</file>
+						</group>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\serializer\include\iot_serializer.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
 					<name>freertos_plus_posix</name>
 					<group>
 						<name>source</name>
@@ -2245,6 +2280,36 @@
 			</group>
 			<group>
 				<name>aws</name>
+				<group>
+					<name>defender</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_api.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_collector.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_mqtt.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_v1.c</name>
+						</file>
+						<group>
+							<name>private</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\defender\src\private\aws_iot_defender_internal.h</name>
+							</file>
+						</group>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\defender\include\aws_iot_defender.h</name>
+						</file>
+					</group>
+				</group>
 				<group>
 					<name>greengrass</name>
 					<group>
@@ -2756,6 +2821,27 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\pkcs11\pkcs11t.h</name>
+					</file>
+				</group>
+				<group>
+					<name>tinycbor</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborpretty.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborencoder.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborerrorstrings.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborparser.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborparser_dup_string.c</name>
 					</file>
 				</group>
 				<group>
