@@ -392,6 +392,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\aws\shadow\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include</state>
+					<state>$PROJ_DIR$\..\..\ports\posix</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\pkcs11\mbedtls</state>
@@ -1769,6 +1772,12 @@
 								<name>$PROJ_DIR$\..\..\ports\wifi\aws_wifi.c</name>
 							</file>
 						</group>
+						<group>
+							<name>posix</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\ports\posix\FreeRTOS_POSIX_portable.h</name>
+							</file>
+						</group>
 					</group>
 					<group>
 						<name>aws_demos</name>
@@ -1892,6 +1901,15 @@
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\include\iot_demo_runner.h</name>
 			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\include\iot_demo_logging.h</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\include\iot_config_common.h</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\include\aws_iot_demo_network.h</name>
+			</file>
 		</group>
 		<group>
 			<name>greengrass_connectivity</name>
@@ -1906,24 +1924,27 @@
 			</file>
 		</group>
 		<group>
+			<name>posix</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\posix\aws_posix_demo.c</name>
+			</file>
+		</group>
+		<group>
 			<name>shadow</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c</name>
 			</file>
 		</group>
 		<group>
-			<name>tcp</name>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c</name>
-			</file>
-			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h</name>
-			</file>
-		</group>
-		<group>
 			<name>network_manager</name>
 			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c</name>
+			</file>
+			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\..\demos\network_manager\iot_network_manager_private.h</name>
 			</file>
 		</group>
 	</group>
@@ -1992,6 +2013,9 @@
 							<name>private</name>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\common\include\private\iot_logging.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\common\include\private\iot_taskpool_internal.h</name>
 							</file>
 						</group>
 						<file>
@@ -2090,12 +2114,6 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\common\taskpool\iot_taskpool.c</name>
 						</file>
-						<group>
-							<name>private</name>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\common\taskpool\private\iot_taskpool_internal.h</name>
-							</file>
-						</group>
 					</group>
 				</group>
 				<group>
@@ -2165,6 +2183,63 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_validate.c</name>
 						</file>
+					</group>
+				</group>
+				<group>
+					<name>freertos_plus_posix</name>
+					<group>
+						<name>source</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h</name>
+						</file>
+						<group>
+							<name>portable</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\portable\FreeRTOS_POSIX_portable_default.h</name>
+							</file>
+						</group>
 					</group>
 				</group>
 			</group>
@@ -2736,6 +2811,51 @@
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\wifi\include\aws_wifi.h</name>
 					</file>
+				</group>
+			</group>
+			<group>
+				<name>posix</name>
+				<group>
+					<name>include</name>
+					<group>
+						<name>FreeRTOS_POSIX</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\errno.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\fcntl.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\mqueue.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\pthread.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\sched.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\semaphore.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\signal.h</name>
+						</file>
+						<group>
+							<name>sys</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\sys\types.h</name>
+							</file>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\time.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\unistd.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\utils.h</name>
+						</file>
+					</group>
 				</group>
 			</group>
 		</group>
