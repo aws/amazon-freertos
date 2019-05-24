@@ -11,6 +11,7 @@ afr_module_sources(
         "${AFR_DEMOS_DIR}/demo_runner/aws_demo.c"
         "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
         "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
+        "${AFR_DEMOS_DIR}/network_manager/iot_network_manager_private.h"
         "${AFR_DEMOS_DIR}/demo_runner/iot_demo_afr.c"
         "${AFR_DEMOS_DIR}/demo_runner/iot_demo_runner.c"
         "${AFR_DEMOS_DIR}/include/aws_demo.h"
