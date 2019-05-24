@@ -607,6 +607,8 @@ wiced_result_t wiced_ip_up( wiced_interface_t interface, wiced_network_config_t 
     }
 
 #if LWIP_IPV6
+    /*The code commented below causes reboot in the cypress tests. Further investigation
+    is required for the root cause of the reboot.*/
     /* Wait until the address has been properly advertised */
     /*while ( ip6_addr_istentative( netif_ip6_addr_state( &IP_HANDLE(interface), 0 )))
     {*/
