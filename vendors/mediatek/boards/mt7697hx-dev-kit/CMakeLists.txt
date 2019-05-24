@@ -369,11 +369,13 @@ target_include_directories(
        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls"
 )
 
-afr_module_dependencies(
+ afr_module_dependencies(
     AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::tls
-)
+     INTERFACE
+         AFR::tls
+ )
+
+
 
 
 # -------------------------------------------------------------------------------------------------
@@ -417,8 +419,9 @@ target_link_libraries(
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libkservice_CM4_MT7687_Keil.lib"
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminicli_CM4_Keil.lib"
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminisupp_CM4_Keil.lib"
-
         ${link_extra_flags}
+        AFR::crypto
+        AFR::pkcs11
 )
 
 add_custom_command(
