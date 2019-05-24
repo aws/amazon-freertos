@@ -34,7 +34,7 @@
 	"$(FREERTOS)/lib/defender/src",
 	"$(FREERTOS)/lib/defender/metrics",
 	"$(FREERTOS)/lib/defender/report",
-	"../../include"
+	"$(FREERTOS)/tools/cbmc/include"
     ],
 
     "CBMCFLAGS ": [
