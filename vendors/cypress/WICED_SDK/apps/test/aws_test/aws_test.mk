@@ -64,6 +64,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)test/include \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \
                     $(AFR_THIRDPARTY_PATH)unity/src \
                     $(AFR_THIRDPARTY_PATH)unity/extras/fixture/src \
+                    $(AFR_THIRDPARTY_PATH)tinycbor \
                     $(AFR_STANDARD_PATH)tls/test \
                     $(AFR_STANDARD_PATH)crypto/include \
                     $(AFR_PORTS_MODULES_PATH)pkcs11/include \
@@ -72,13 +73,14 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)test/include \
                     $(AFR_PORTS_MODULES_PATH)mbedtls/include \
                     $(AFR_PORTS_MODULES_PATH)wifi/include \
                     $(AFR_PORTS_MODULES_PATH)wifi/test \
+                    $(AFR_PORTS_MODULES_PATH)posix/include \
                     $(AFR_STANDARD_PATH)provisioning/include \
-                    $(AMAZON_FREERTOS_PATH)demos/network_manager \
                     $(AFR_STANDARD_PATH)mqtt/include \
                     $(AFR_STANDARD_PATH)mqtt/include/types \
                     $(AFR_STANDARD_PATH)mqtt/src \
                     $(AFR_STANDARD_PATH)mqtt/src/private \
                     $(AFR_STANDARD_PATH)mqtt/test/access \
+                    $(AFR_STANDARD_PATH)serializer/include \
                     $(AFR_AWS_PATH)shadow/include \
                     $(AFR_AWS_PATH)shadow/include/types \
                     $(AFR_AWS_PATH)shadow/src \
@@ -86,6 +88,14 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)test/include \
                     $(AFR_AWS_PATH)greengrass/include     \
                     $(AFR_AWS_PATH)greengrass/src \
                     $(AFR_AWS_PATH)greengrass/test \
+                    $(AFR_AWS_PATH)defender/include \
+                    $(AFR_AWS_PATH)defender/src \
+                    $(AFR_AWS_PATH)defender/src/private \
+                    $(AFR_STANDARD_PATH)freertos_plus_posix/include \
+                    $(AFR_STANDARD_PATH)freertos_plus_tcp/include \
+                    $(AFR_STANDARD_PATH)freertos_plus_tcp/test \
+                    $(AFR_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC/ \
+                    $(AFR_STANDARD_PATH)freertos_plus_posix/include/portable/cypress/$(PLATFORM) \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_tests/common/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch \
@@ -102,6 +112,12 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)test/src/iot_tests_network.c \
                       $(AFR_THIRDPARTY_PATH)unity/src/unity.c \
                       $(AFR_THIRDPARTY_PATH)unity/extras/fixture/src/unity_fixture.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder.c\
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder_close_container_checked.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborerrorstrings.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser_dup_string.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
                       $(AFR_PORTS_MODULES_PATH)wifi/test/aws_test_wifi.c \
                       $(AFR_STANDARD_PATH)tls/test/aws_test_tls.c \
                       $(AFR_PORTS_MODULES_PATH)secure_sockets/test/aws_test_tcp.c \
@@ -119,6 +135,11 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_AWS_PATH)shadow/test/system/aws_iot_tests_shadow_system.c \
                       $(AFR_AWS_PATH)greengrass/test/aws_test_greengrass_discovery.c \
                       $(AFR_AWS_PATH)greengrass/test/aws_test_helper_secure_connect.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_api.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_collector.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_v1.c \
+                      $(AFR_AWS_PATH)defender/test/aws_iot_tests_defender_api.c \
                       $(AFR_STANDARD_PATH)tls/test/aws_test_tls.c \
                       $(AFR_STANDARD_PATH)crypto/test/aws_test_crypto.c \
                       $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
@@ -126,7 +147,32 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_STANDARD_PATH)common/platform/iot_clock_afr.c \
                       $(AFR_STANDARD_PATH)common/platform/iot_network_afr.c \
                       $(AFR_STANDARD_PATH)common/platform/iot_threads_afr.c \
+                      $(AFR_STANDARD_PATH)common/test/iot_test_platform_clock.c \
+                      $(AFR_STANDARD_PATH)common/test/iot_test_platform_threads.c \
+                      $(AFR_STANDARD_PATH)common/test/aws_memory_leak.c \
+                      $(AFR_STANDARD_PATH)common/test/iot_tests_taskpool.c \
+                      $(AFR_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
+                      $(AFR_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
+                      $(AFR_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_decoder.c \
+                      $(AFR_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_encoder.c \
+                      $(AFR_STANDARD_PATH)serializer/test/iot_test_serializer_cbor.c \
+                      $(AFR_STANDARD_PATH)serializer/test/iot_test_serializer_json.c \
                       $(AFR_STANDARD_PATH)common/iot_init.c \
+                      $(AFR_STANDARD_PATH)common/iot_json_utils.c \
+                      $(AFR_STANDARD_PATH)metrics/src/iot_metrics.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/test/aws_test_freertos_tcp.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/test/aws_freertos_tcp_test_access_dns_define.h \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/test/aws_freertos_tcp_test_access_tcp_define.h \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_UDP_IP.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_Sockets.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_ARP.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_DHCP.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_DNS.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_IP.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_TCP_IP.c \
+                      $(AFR_STANDARD_PATH)freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c \
+                      
                     
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

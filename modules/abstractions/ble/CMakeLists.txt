@@ -2,8 +2,8 @@ afr_module(NAME ble)
 
 afr_set_lib_metadata(ID "ble")
 # Need to update from PM
-afr_set_lib_metadata(DESCRIPTION "This library implements an abstraction layer for Bluetooth Low Energy features such as setup, configuration, provisioning, security and power management")
-afr_set_lib_metadata(DISPLAY_NAME "Bluetooth Low Energy")
+afr_set_lib_metadata(DESCRIPTION "Please add description for BLE")
+afr_set_lib_metadata(DISPLAY_NAME "BLE Management")
 afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
@@ -21,7 +21,6 @@ afr_module_sources(
         "${src_dir}/services/device_information/iot_ble_device_information.c"
         "${src_dir}/services/mqtt_ble/iot_ble_data_transfer.c"
         "${src_dir}/services/mqtt_ble/iot_network_ble.c"
-        "${src_dir}/services/wifi_provisioning/iot_ble_wifi_provisioning.c"
 )
 
 afr_module_include_dirs(
@@ -31,14 +30,13 @@ afr_module_include_dirs(
     PRIVATE
         "${inc_dir}/private"
         "${test_dir}"
-        "${AFR_MODULES_STANDARD_DIR}/mqtt/include"
         "${AFR_MODULES_STANDARD_DIR}/serializer/include"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::wifi
+        AFR::common
         AFR::ble::mcu_port
 )
 
@@ -49,10 +47,52 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/aws_test_ble.c"
         "${test_dir}/aws_test_ble_end_to_end.c"
-        "${test_dir}/aws_test_wifi_provisioning.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::ble
 )
+
+afr_module(NAME ble_wifi_provisioning)
+afr_set_lib_metadata(ID "ble_wifi_provisioning")
+afr_set_lib_metadata(DESCRIPTION "WiFi Provisioning over BLE")
+afr_set_lib_metadata(DISPLAY_NAME "BLE WiFi provisioning")
+afr_set_lib_metadata(CATEGORY "Provisioning")
+afr_set_lib_metadata(VERSION "1.0.0")
+afr_set_lib_metadata(IS_VISIBLE "false")
+
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        "${src_dir}/services/wifi_provisioning/iot_ble_wifi_provisioning.c"
+)
+
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC "${inc_dir}"
+    PRIVATE
+        "${test_dir}"
+)
+
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
+        AFR::serializer
+        AFR::ble
+        AFR::wifi
+)
+
+# BLE test
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_test_wifi_provisioning.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::ble_wifi_provisioning
+)
+

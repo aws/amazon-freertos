@@ -203,6 +203,23 @@ target_include_directories(
     INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
 )
 
+# POSIX
+afr_mcu_port(posix)
+
+target_sources(
+    AFR::posix::mcu_port
+    INTERFACE "${lpc54018_ports_dir}/posix/FreeRTOS_POSIX_portable.h"
+)
+
+target_include_directories(
+    AFR::posix::mcu_port
+    INTERFACE "${lpc54018_ports_dir}/posix"
+)
+
+target_link_libraries(
+    AFR::posix::mcu_port
+    INTERFACE AFR::freertos_plus_posix
+)
 
 # WiFi
 afr_mcu_port(wifi)
@@ -273,11 +290,4 @@ target_link_libraries(
     PRIVATE
         AFR::wifi
         AFR::utils
-)
-
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
 )

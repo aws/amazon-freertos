@@ -43,14 +43,16 @@
 #define testrunnerFULL_GGD_HELPER_ENABLED          0
 #define testrunnerFULL_SHADOWv4_ENABLED            0
 #define testrunnerFULL_SHADOW_ENABLED              0
-#define testrunnerFULL_MQTTv4_ENABLED              1
+#define testrunnerFULL_MQTTv4_ENABLED              0
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED    0
 #define testrunnerFULL_MQTT_AGENT_ENABLED          0
 #define testrunnerFULL_MQTT_ENABLED                0
 #define testrunnerFULL_MQTT_ALPN_ENABLED           0
+#define testrunnerFULL_DEFENDER_ENABLED            1
 #define testrunnerFULL_WIFI_ENABLED                0
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_TLS_ENABLED                 0
 #define testrunnerFULL_TASKPOOL_ENABLED            0
+#define testrunnerFULL_SERIALIZER_ENABLED          0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

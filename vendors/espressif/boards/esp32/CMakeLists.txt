@@ -170,7 +170,6 @@ else()
     set(
         extra_exe_sources
         "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
-        ${NETWORK_MANAGER_SOURCES}
     )
 endif()
 

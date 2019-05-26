@@ -61,4 +61,12 @@
     #define socketsconfigDEFAULT_RECV_TIMEOUT    ( 10000 )
 #endif
 
+/**
+ * @brief By default, metircs of secure socket is disabled.
+ *
+ */
+#ifndef AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED
+    #define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED    ( 0 )
+#endif
+
 #endif /* AWS_INC_SECURE_SOCKETS_CONFIG_DEFAULTS_H_ */

@@ -27,7 +27,7 @@
 #include "task.h"
 #include "iot_init.h"
 #include "aws_clientcredential.h"
-
+#include "platform/iot_metrics.h"
 #include "aws_secure_sockets.h"
 
 #include "unity_fixture.h"
@@ -36,6 +36,7 @@
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
 #include "platform/iot_network_afr.h"
+#include "platform/iot_metrics.h"
 
 #include "iot_serializer.h"
 
@@ -46,8 +47,10 @@
 
 #include "aws_test_tcp.h"
 
+#include "platform/iot_metrics.h"
+
 /* Total time to wait for a state to be true. */
-#define _WAIT_STATE_TOTAL_SECONDS    5
+#define _WAIT_STATE_TOTAL_SECONDS    15
 
 /* Time interval for defender agent to publish metrics. It will be throttled if too frequent. */
 /* TODO: if we can change "thingname" in each test, this can be lowered. */

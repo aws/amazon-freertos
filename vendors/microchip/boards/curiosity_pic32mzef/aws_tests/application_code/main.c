@@ -47,7 +47,7 @@
 #define mainDEVICE_NICK_NAME                "Microchip_Demo"
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 8 )
 /* The default IP and MAC address used by the demo.  The address configuration

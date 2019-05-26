@@ -40,9 +40,6 @@
 #include "iot_ble.h"
 #include "iot_ble_internal.h"
 #include "iot_ble_device_information.h"
-#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-    #include "iot_ble_wifi_provisioning.h"
-#endif
 #include "iot_ble_data_transfer.h"
 
 #if ( IOT_BLE_ADVERTISING_UUID_SIZE == 2 )
@@ -328,13 +325,6 @@ BTStatus_t _startAllServices()
     BaseType_t error;
 
     error = IotBleDeviceInfo_Init();
-
-    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-        if( error == pdPASS )
-        {
-            error = IotBleWifiProv_Init();
-        }
-    #endif
 
     if( error == pdPASS )
     {

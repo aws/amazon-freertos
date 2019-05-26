@@ -51,7 +51,7 @@ set( defined_symbols
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE
-    ${defined_symbols}>
+    ${defined_symbols}
 )
 
 #Set Compiler Debug options
@@ -106,7 +106,7 @@ target_compile_options(
 
 
 #Linker script path
-set( linker_script "${xmclib_dir}/CMSIS/Infineon/XMC4800_series/Source/GCC/XMC4800x2048.ld" )
+set( linker_script "${xmc4800_aws_dir}/dave4/XMC4800x2048.ld" )
 
 #All linker options
 set( linker_flags
@@ -114,7 +114,6 @@ set( linker_flags
      "-nostartfiles"
      "-Xlinker"
      "--gc-sections"
-     "-specs=nano.specs"
      "-specs=nosys.specs"
      "-Wl,-Map,aws_demos.map"
      ${compiler_arm_options}
@@ -244,9 +243,6 @@ afr_glob_src(board_src DIRECTORY "${xmc4800_aws_dir}/common/application_code/inf
 afr_glob_src(newlib DIRECTORY "${xmclib_dir}/Newlib")
 afr_glob_src(config_src DIRECTORY "${xmc4800_aws_dir}/common/config_files")
 
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
-
 add_executable( 
     ${exe_target}
     ${board_src}
@@ -254,7 +250,6 @@ add_executable(
     ${newlib}
     ${esp_at_lib}
     "${xmc4800_aws_dir}/common/application_code/main.c"
-    $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
 )
 
 target_link_libraries(
@@ -264,15 +259,11 @@ target_link_libraries(
         AFR::utils
 )
 
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
-)
+if(AFR_METADATA_MODE)
+    return()
+endif()
 
-find_program( gcc_objectcopy arm-none-eabi-objcopy)
-
+find_program(gcc_objectcopy arm-none-eabi-objcopy)
 find_program(gcc_size arm-none-eabi-size)
 
 if(NOT gcc_objectcopy )

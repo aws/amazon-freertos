@@ -21,13 +21,18 @@ afr_set_board_metadata(DISPLAY_NAME "Renesas Starter Kit+ for RX65N-2MB")
 afr_set_board_metadata(DESCRIPTION "The Renesas Starter Kit+ for RX65N-2MB connects to AWS IoT Cloud using Ethernet")
 afr_set_board_metadata(VENDOR_NAME "Renesas")
 afr_set_board_metadata(FAMILY_NAME "RX65N")
+afr_set_board_metadata(IS_ACTIVE "TRUE")
 afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(DATA_RAM_MEMORY "640KB")
 afr_set_board_metadata(PROGRAM_MEMORY "2MB")
 afr_set_board_metadata(SUPPORTED_IDE "E2Studio")
+afr_set_board_metadata(RECOMMENDED_IDE "E2Studio")
 afr_set_board_metadata(IDE_E2Studio_NAME "e2 studio")
 afr_set_board_metadata(IDE_E2Studio_COMPILER "CCRX")
-afr_set_board_metadata(IDE_E2Studio_RECOMMENDED "true")
+
+afr_set_board_metadata(IDE_E2Studio_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/e2studio")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -256,18 +261,4 @@ target_link_libraries(
     PRIVATE
         AFR::freertos_plus_tcp
         AFR::utils
-)
-
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
-)
-
-# Disable device defender
-afr_module_dependencies(
-    serializer
-    PRIVATE
-        3rdparty::dummy
 )

@@ -394,6 +394,21 @@
 			<locationURI>AFR_HOME/demos/demo_runner/aws_demo.c</locationURI>
 		</link>
 		<link>
+			<name>demos/network_manager/aws_iot_network_manager.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/network_manager/aws_iot_network_manager.c</locationURI>
+		</link>
+		<link>
+			<name>demos/network_manager/aws_iot_demo_network.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/network_manager/aws_iot_demo_network.c</locationURI>
+		</link>
+		<link>
+			<name>demos/network_manager/iot_network_manager_private.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/network_manager/iot_network_manager_private.h</locationURI>
+		</link>
+		<link>
 			<name>demos/demo_runner/iot_demo_afr.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/demo_runner/iot_demo_afr.c</locationURI>
@@ -754,6 +769,61 @@
 			<locationURI>AFR_HOME/modules/libraries/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_api.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_api.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_collector.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_collector.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_mqtt.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/aws_iot_defender_v1.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/aws_iot_defender_v1.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/src/private/aws_iot_defender_internal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/src/private/aws_iot_defender_internal.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/aws/defender/include/aws_iot_defender.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/aws/defender/include/aws_iot_defender.h</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/standard/serializer/include/iot_serializer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/standard/serializer/include/iot_serializer.h</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -817,6 +887,11 @@
 			<name>modules/libraries/aws/shadow/include/aws_iot_shadow.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/aws/shadow/include/aws_iot_shadow.h</locationURI>
+		</link>
+		<link>
+			<name>demos/defender/aws_iot_demo_defender.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
 		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
@@ -1242,21 +1317,6 @@
 			<name>application_code/main.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/common/application_code/main.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/aws_iot_demo_network.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/network_manager/aws_iot_demo_network.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/aws_iot_network_manager.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/network_manager/aws_iot_network_manager.c</locationURI>
-		</link>
-		<link>
-			<name>demos/network_manager/iot_network_manager_private.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/demos/network_manager/iot_network_manager_private.h</locationURI>
 		</link>
 		<link>
 			<name>modules/libraries/3rdparty/mbedtls/library/aes.c</name>
@@ -1989,6 +2049,36 @@
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborpretty.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborencoder.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborparser.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
+		</link>
+		<link>
+			<name>modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/modules/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
+		</link>
+		<link>
 			<name>modules/libraries/3rdparty/jsmn/jsmn.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/jsmn/jsmn.h</locationURI>
@@ -1999,80 +2089,7 @@
 			<locationURI>AFR_HOME/modules/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources>
-		<filter>
-			<id>1529570010381</id>
-			<name>lib/aws</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-FreeRTOS-Plus-TCP</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521505584147</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-GCC</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521505584162</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-MemMang</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521504809188</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-*.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1521311288481</id>
-			<name>lib/aws/FreeRTOS/portable/GCC</name>
-			<type>13</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-ARM_CM4F</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1522922269500</id>
-			<name>lib/aws/FreeRTOS/portable/MemMang</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-heap_4.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535985386194</id>
-			<name>lib/third_party/XMCLib/2.1.20/CMSIS/Infineon</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-XMC4800_series</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1535985402855</id>
-			<name>lib/third_party/XMCLib/2.1.20/CMSIS/Infineon/XMC4800_series/Source</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-GCC</arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
+	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>AFR_HOME</name>
