@@ -198,11 +198,13 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
     /* Check that basic configuration has been completed. These settings are
      * given special treatment here since the Hellow World demo is what we
      * recommend developers to run first. */
-    if( ( xConnectParameters.pucClientId == NULL ) || ( xConnectParameters.pcURL == NULL ) )
+    if( ( xConnectParameters.pucClientId == NULL ) ||
+        ( strcmp( "", ( const char * ) xConnectParameters.pucClientId ) == 0 ) ||
+        ( xConnectParameters.pcURL == NULL ) ||
+        ( strcmp( "", xConnectParameters.pcURL ) == 0 ) )
     {
         configPRINTF( ( "ERROR: you must configure the MQTT client name and broker URL.\r\n" ) );
-        configASSERT( xConnectParameters.pcURL != NULL );
-        configASSERT( xConnectParameters.pucClientId != NULL );
+        configASSERT( pdFALSE );
     }
     else
     {

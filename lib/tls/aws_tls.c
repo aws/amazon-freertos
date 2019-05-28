@@ -498,7 +498,8 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
      * Add a JITR device issuer certificate, if present.
      */
     if( ( 0 == xResult ) &&
-        ( NULL != pcJitrCertificate ) )
+        ( NULL != pcJitrCertificate ) &&
+        ( 0 != strcmp( "", pcJitrCertificate ) ) )
     {
         /* Decode the JITR issuer. The device client certificate will get
          * inserted as the first certificate in this chain below. */
