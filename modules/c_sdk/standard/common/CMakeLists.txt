@@ -15,11 +15,8 @@ afr_module_sources(
     PRIVATE
         # Common files
         "${src_dir}/iot_init.c"
-        "${src_dir}/iot_json_utils.c"
         "${inc_dir}/aws_appversion32.h"
-        "${inc_dir}/aws_json_utils.h"
         "${inc_dir}/iot_init.h"
-        "${inc_dir}/iot_json_utils.h"
         "${inc_dir}/iot_linear_containers.h"
 
         # Logging
@@ -30,33 +27,17 @@ afr_module_sources(
         "${inc_dir}/iot_logging_setup.h"
 
         # Platform
-        "${src_dir}/platform/iot_clock_afr.c"
-        "${src_dir}/platform/iot_network_afr.c"
-        "${src_dir}/platform/iot_threads_afr.c"
-        "${inc_dir}/platform/iot_metrics.h"
-        "${inc_dir}/platform/iot_clock.h"
-        "${inc_dir}/platform/iot_network.h"
-        "${inc_dir}/platform/iot_network_afr.h"
-        "${inc_dir}/platform/iot_network_ble.h"
-        "${inc_dir}/platform/iot_platform_types_afr.h"
-        "${inc_dir}/platform/iot_threads.h"
-        "${inc_dir}/types/iot_platform_types.h"
-        "${inc_dir}/types/iot_network_types.h"
+        "${inc_dir}/types/iot_network_types.h"  # TODO, should this belong to platform?
 
         # Static memory
-        "${src_dir}/static_memory/aws_iot_static_memory_defender.c"
-        "${src_dir}/static_memory/aws_iot_static_memory_shadow.c"
-        "${src_dir}/static_memory/iot_static_memory_common.c"
-        "${src_dir}/static_memory/iot_static_memory_metrics.c"
-        "${src_dir}/static_memory/iot_static_memory_mqtt.c"
-        "${src_dir}/static_memory/iot_static_memory_serializer.c"
-        "${src_dir}/static_memory/iot_static_memory_taskpool.c"
+        "${src_dir}/iot_static_memory_common.c"
 
         # Task pool
         "${src_dir}/taskpool/iot_taskpool.c"
-        "${src_dir}/include/private/iot_taskpool_internal.h"
-        "${inc_dir}/types/iot_taskpool_types.h"
+        "${src_dir}/taskpool/iot_taskpool_static_memory.c"
         "${inc_dir}/iot_taskpool.h"
+        "${inc_dir}/types/iot_taskpool_types.h"
+        "${inc_dir}/private/iot_taskpool_internal.h"
 )
 
 afr_module_include_dirs(
@@ -68,7 +49,7 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        AFR::secure_sockets
+        AFR::platform
 )
 
 # test for common module

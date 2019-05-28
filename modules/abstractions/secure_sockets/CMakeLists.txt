@@ -15,7 +15,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
         # Requires standard/common/include/private/aws_lib_init.h
-        "${AFR_MODULES_STANDARD_DIR}/common/include/private"
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
 )
 
 afr_module_dependencies(
@@ -48,7 +48,6 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}/aws_test_tcp.c"
-        "${AFR_TEST_DIR}/include/aws_test_tcp.h"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

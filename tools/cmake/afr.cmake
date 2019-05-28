@@ -9,15 +9,15 @@ set(CMAKE_STATIC_LIBRARY_PREFIX "")
 # Set some global path variables.
 get_filename_component(__root_dir "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "Amazon FreeRTOS source root.")
-set(AFR_KERNEL_DIR "${AFR_ROOT_DIR}/freertos_kernel" CACHE INTERNAL "Amazon FreeRTOS kernel root.")
+set(AFR_KERNEL_DIR "${AFR_ROOT_DIR}/freertos_kernel" CACHE INTERNAL "FreeRTOS kernel root.")
 set(AFR_MODULES_DIR "${AFR_ROOT_DIR}/modules" CACHE INTERNAL "Amazon FreeRTOS modules root.")
-set(AFR_MODULES_STANDARD_DIR "${AFR_ROOT_DIR}/modules/libraries/standard" CACHE INTERNAL "Amazon FreeRTOS standard libraries root.")
-set(AFR_MODULES_AWS_DIR "${AFR_ROOT_DIR}/modules/libraries/aws" CACHE INTERNAL "Amazon FreeRTOS aws libraries root.")
-set(AFR_MODULES_PORTS_DIR "${AFR_ROOT_DIR}/modules/ports" CACHE INTERNAL "Amazon FreeRTOS portable libraries root.")
+set(AFR_MODULES_C_SDK_DIR "${AFR_ROOT_DIR}/modules/c_sdk" CACHE INTERNAL "C-SDK libraries root.")
+set(AFR_MODULES_FREERTOS_PLUS_DIR "${AFR_ROOT_DIR}/modules/freertos_plus" CACHE INTERNAL "FreeRTOS-Plus libraries root.")
+set(AFR_MODULES_ABSTRACTIONS_DIR "${AFR_ROOT_DIR}/modules/abstractions" CACHE INTERNAL "Abstractions layers root.")
 set(AFR_DEMOS_DIR "${AFR_ROOT_DIR}/demos" CACHE INTERNAL "Amazon FreeRTOS demos root.")
-set(AFR_TEST_DIR "${AFR_ROOT_DIR}/test" CACHE INTERNAL "Amazon FreeRTOS test helpers root.")
+set(AFR_TESTS_DIR "${AFR_ROOT_DIR}/tests" CACHE INTERNAL "Amazon FreeRTOS common tests and framework root.")
 set(AFR_VENDORS_DIR "${AFR_ROOT_DIR}/vendors" CACHE INTERNAL "vendors content root.")
-set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/libraries/3rdparty" CACHE INTERNAL "3rdparty libraries root.")
+set(AFR_3RDPARTY_DIR "${AFR_MODULES_DIR}/3rdparty" CACHE INTERNAL "3rdparty libraries root.")
 
 # TODO, Network manager will temporarily be built into the demo executables (remove later).
 set(NETWORK_MANAGER_SOURCES

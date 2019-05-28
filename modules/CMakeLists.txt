@@ -40,14 +40,14 @@ afr_module_include_dirs(
 )
 
 # Add other modules.
-file(GLOB afr_modules_standard "${AFR_MODULES_DIR}/libraries/standard/*")
-file(GLOB afr_modules_aws "${AFR_MODULES_DIR}/libraries/aws/*")
-file(GLOB afr_modules_ports "${AFR_MODULES_DIR}/ports/*")
-foreach(module IN LISTS afr_modules_standard afr_modules_aws afr_modules_ports)
+file(GLOB afr_modules_csdk "${AFR_MODULES_DIR}/c_sdk/*/*")
+file(GLOB afr_modules_freertos_plus "${AFR_MODULES_DIR}/freertos_plus/*/*")
+file(GLOB afr_modules_abstractions "${AFR_MODULES_DIR}/abstractions/*")
+foreach(module IN LISTS afr_modules_csdk afr_modules_freertos_plus afr_modules_abstractions)
     if(IS_DIRECTORY "${module}" AND EXISTS "${module}/CMakeLists.txt")
         afr_add_subdirectory("${module}")
     endif()
 endforeach()
 
 # Add 3rdparty modules.
-add_subdirectory("${AFR_MODULES_DIR}/libraries/3rdparty")
+add_subdirectory("${AFR_MODULES_DIR}/3rdparty")

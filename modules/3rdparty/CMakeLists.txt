@@ -25,7 +25,7 @@ target_include_directories(
     PUBLIC
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
         "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
 )
 target_link_libraries(
     afr_3rdparty_mbedtls

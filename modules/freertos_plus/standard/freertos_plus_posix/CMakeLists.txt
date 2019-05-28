@@ -30,7 +30,7 @@ afr_module_include_dirs(
     INTERFACE
         "${inc_dir}"
         # Requires common/include/private/aws_doubly_linked_list.h
-        "${AFR_MODULES_STANDARD_DIR}/common/include/private"
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
 )
 
 # Test

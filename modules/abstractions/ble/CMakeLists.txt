@@ -30,7 +30,7 @@ afr_module_include_dirs(
     PRIVATE
         "${inc_dir}/private"
         "${test_dir}"
-        "${AFR_MODULES_STANDARD_DIR}/serializer/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/serializer/include"
 )
 
 afr_module_dependencies(
@@ -95,4 +95,3 @@ afr_module_dependencies(
     INTERFACE
         AFR::ble_wifi_provisioning
 )
-

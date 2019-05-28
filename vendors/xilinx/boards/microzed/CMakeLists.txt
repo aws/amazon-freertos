@@ -64,9 +64,15 @@ target_compile_options(
 
 # Linker flags
 if(AFR_IS_TESTING)
-    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${xilinx_xsdk_dir}/aws_tests/src/Xilinx.spec -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_tests/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib )
+    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none
+        -specs=${xilinx_xsdk_dir}/aws_tests/src/Xilinx.spec
+        -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_tests/src/lscript.ld
+        -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib)
 else()
-    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${xilinx_xsdk_dir}/aws_demos/src/Xilinx.spec -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_demos/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib )
+    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none
+        -specs=${xilinx_xsdk_dir}/aws_demos/src/Xilinx.spec
+        -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_demos/src/lscript.ld
+        -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib)
 endif()
 
 target_link_options(
@@ -161,7 +167,7 @@ target_include_directories(
 afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE 
+    INTERFACE
         "${AFR_MODULES_PORTS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
         "${AFR_MODULES_STANDARD_DIR}/tls/src/aws_tls.c"
         "${AFR_MODULES_STANDARD_DIR}/crypto/src/aws_crypto.c"

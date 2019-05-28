@@ -19,5 +19,4 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::secure_sockets
-        AFR::metrics
 )

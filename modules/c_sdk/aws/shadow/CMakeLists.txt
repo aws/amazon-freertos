@@ -21,6 +21,7 @@ afr_module_sources(
         "${src_dir}/aws_iot_shadow_api.c"
         "${src_dir}/aws_iot_shadow_operation.c"
         "${src_dir}/aws_iot_shadow_parser.c"
+        "${src_dir}/aws_iot_shadow_static_memory.c"
         "${src_dir}/aws_iot_shadow_subscription.c"
         "${inc_dir}/aws_iot_shadow.h"
 )
@@ -51,7 +52,7 @@ afr_module_sources(
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/mqtt/test/access"
+        "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/test/access"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

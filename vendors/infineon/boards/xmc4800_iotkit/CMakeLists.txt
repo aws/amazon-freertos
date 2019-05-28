@@ -22,7 +22,7 @@ endif()
 
 afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Kit")
 afr_set_board_metadata(DISPLAY_NAME "XMC4800 IoT Connectivity Kit")
-afr_set_board_metadata(DESCRIPTION "Development kit for ARM® Cortex®-M4 based XMC4800 MCU")
+afr_set_board_metadata(DESCRIPTION "Development kit for ARMï¿½ Cortexï¿½-M4 based XMC4800 MCU")
 afr_set_board_metadata(VENDOR_NAME "Infineon")
 afr_set_board_metadata(FAMILY_NAME "XMC4x00")
 afr_set_board_metadata(CODE_SIGNER "null")
@@ -42,7 +42,7 @@ afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/
 afr_mcu_port(compiler)
 
 
-#Set defined symbols for compiler and assembler 
+#Set defined symbols for compiler and assembler
 set( defined_symbols
      XMC4800_F100x2048
 )
@@ -106,7 +106,7 @@ target_compile_options(
 
 
 #Linker script path
-set( linker_script "${xmc4800_aws_dir}/dave4/XMC4800x2048.ld" )
+set( linker_script "${xmc4800_dir}/XMC4800x2048.ld" )
 
 #All linker options
 set( linker_flags
@@ -243,7 +243,7 @@ afr_glob_src(board_src DIRECTORY "${xmc4800_aws_dir}/common/application_code/inf
 afr_glob_src(newlib DIRECTORY "${xmclib_dir}/Newlib")
 afr_glob_src(config_src DIRECTORY "${xmc4800_aws_dir}/common/config_files")
 
-add_executable( 
+add_executable(
     ${exe_target}
     ${board_src}
     ${config_src}

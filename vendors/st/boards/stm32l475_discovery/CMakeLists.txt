@@ -1,7 +1,7 @@
 set(stm32l475_dir "${AFR_VENDORS_DIR}/st/stm32l475_discovery")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
@@ -27,7 +27,7 @@ afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
 afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
 
 afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/ac6")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings

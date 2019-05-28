@@ -301,7 +301,7 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
         "${AFR_KERNEL_DIR}"
-        "${AFR_TEST_DIR}"
+        "${AFR_TESTS_DIR}"
     )
 
     # Write all sources and include dirs.

@@ -20,7 +20,7 @@ afr_module_include_dirs(
     PUBLIC
         "${inc_dir}"
         # Requires standard/common/include/types/iot_network_types.h
-        "${AFR_MODULES_STANDARD_DIR}/common/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
 )
 
 afr_module_dependencies(

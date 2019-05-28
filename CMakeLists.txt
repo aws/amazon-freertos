@@ -46,7 +46,7 @@ add_subdirectory("${AFR_BOARD_PATH}")
 # Initialize all modules.
 add_subdirectory("modules")
 add_subdirectory("demos")
-add_subdirectory("test")
+add_subdirectory("tests")
 
 # Resolve dependencies.
 afr_resolve_dependencies()

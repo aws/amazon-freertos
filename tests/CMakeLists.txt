@@ -4,8 +4,8 @@
 # Base test target
 afr_test_module(base)
 
-set(src_dir "${AFR_TEST_DIR}/src")
-set(inc_dir "${AFR_TEST_DIR}/include")
+set(src_dir "${AFR_TESTS_DIR}/common/src")
+set(inc_dir "${AFR_TESTS_DIR}/common/include")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
