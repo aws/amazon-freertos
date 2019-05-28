@@ -72,7 +72,11 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_AWS_PATH)shadow/include/types \
                     $(AFR_AWS_PATH)greengrass/include     \
                     $(AFR_AWS_PATH)greengrass/src \
-
+                    $(AFR_AWS_PATH)defender/include \
+                    $(AFR_AWS_PATH)defender/src \
+                    $(AFR_AWS_PATH)defender/src/private \
+                    $(AFR_STANDARD_PATH)serializer/include \
+                    $(AFR_THIRDPARTY_PATH)tinycbor \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/main.c \
@@ -86,6 +90,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/mqtt/aws_mqtt_ble_hello_world.c \
                       $(AMAZON_FREERTOS_PATH)demos/mqtt/iot_demo_mqtt.c \
                       $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
+                      $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
+                      $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \
                       $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
@@ -95,6 +101,23 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_STANDARD_PATH)common/platform/iot_network_afr.c \
                       $(AFR_STANDARD_PATH)common/platform/iot_threads_afr.c \
                       $(AFR_STANDARD_PATH)common/iot_init.c \
+                      $(AFR_STANDARD_PATH)common/iot_json_utils.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_api.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_collector.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
+                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_v1.c \
+                      $(AFR_STANDARD_PATH)metrics/src/iot_metrics.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder.c\
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder_close_container_checked.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborerrorstrings.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborparser_dup_string.c \
+                      $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
+                      $(AFR_STANDARD_PATH)metrics/src/aws_secure_sockets_wrapper_metrics.c \
+                      $(AFR_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
+                      $(AFR_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
+                      $(AFR_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_decoder.c \
+                      $(AFR_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_encoder.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws
