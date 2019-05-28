@@ -21,6 +21,7 @@
 
 #include <string.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include "FreeRTOS.h"
 
 #include "projdefs.h"
