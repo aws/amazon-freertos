@@ -40,8 +40,6 @@
 
 #include "iot_serializer.h"
 
-#include "cbor.h"
-
 /* Defender internal includes. */
 #include "aws_iot_defender_internal.h"
 
@@ -71,11 +69,11 @@
 /* Define a decoder based on chosen format. */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
 
-    #define _Decoder    _IotSerializerCborDecoder /**< Global defined in aws_iot_serializer.h . */
+    #define _Decoder    _IotSerializerCborDecoder/**< Global defined in aws_iot_serializer.h . */
 
 #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
 
-    #define _Decoder    _AwsIotSerializerJsonDecoder /**< Global defined in aws_iot_serializer.h . */
+    #define _Decoder    _IotSerializerJsonDecoder/**< Global defined in aws_iot_serializer.h . */
 
 #endif
 
@@ -214,7 +212,7 @@ TEST_TEAR_DOWN( Full_DEFENDER )
 TEST_GROUP_RUNNER( Full_DEFENDER )
 {
     IotMetrics_Init();
-    
+
     /*
      * Setup: none
      * Action: call Start API with invliad IoT endpoint
@@ -633,10 +631,13 @@ static void _copyDataCallbackFunction( void * param1,
     /* Print out rejected message to stdout. */
     if( pCallbackInfo->eventType == AWS_IOT_DEFENDER_METRICS_REJECTED )
     {
-        CborParser cborParser;
-        CborValue cborValue;
-        cbor_parser_init( pCallbackInfo->pPayload, pCallbackInfo->payloadLength, 0, &cborParser, &cborValue );
-        cbor_value_to_pretty( stdout, &cborValue );
+        /* Not every compiler supports stdout */
+
+        /* CborParser cborParser;
+         * CborValue cborValue;
+         *
+         * cbor_parser_init( pCallbackInfo->pPayload, pCallbackInfo->payloadLength, 0, &cborParser, &cborValue );
+         * cbor_value_to_pretty( stdout, &cborValue ); */
     }
 
     /* Copy data from pCallbackInfo to _callbackInfo. */
