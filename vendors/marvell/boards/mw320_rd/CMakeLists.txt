@@ -235,6 +235,26 @@ target_include_directories(
        "${AFR_3RDPARTY_DIR}/pkcs11"
        "${AFR_MODULES_STANDARD_DIR}/crypto/include"
 )
+
+# POSIX
+afr_mcu_port(posix)
+
+target_sources(
+    AFR::posix::mcu_port
+    INTERFACE "${lpc54018_ports_dir}/posix/FreeRTOS_POSIX_portable.h"
+)
+
+target_include_directories(
+    AFR::posix::mcu_port
+    INTERFACE "${lpc54018_ports_dir}/posix"
+)
+
+target_link_libraries(
+    AFR::posix::mcu_port
+    INTERFACE AFR::freertos_plus_posix
+)
+
+
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
@@ -262,6 +282,7 @@ target_include_directories(
 target_link_libraries(
     ${exe_target}
     PRIVATE
+        AFR::utils
         ${default_modules}
         -T${global-linkerscript-y}
 )
