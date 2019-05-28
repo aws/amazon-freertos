@@ -1,0 +1,45 @@
+# Copyright (C) 2018 Marvell International Ltd.
+# All Rights Reserved.
+
+#target extended-remote localhost:3333
+target extended-remote | python sdk/tools/OpenOCD/openocd.py
+
+monitor halt
+
+source sdk/tools/OpenOCD/gdbcommands
+
+set remote hardware-breakpoint-limit 6
+set remote hardware-watchpoint-limit 4
+mem 0x1F000000 0x1FFFFFFF ro nocache
+set mem inaccessible-by-default off
+
+set history filename gdb_history
+set history save
+
+echo Connected to the board...\n
+echo Use command 'debug' to debug an application from main()\n
+echo Use command 'xip-debug' to debug an xip application from main()\n
+echo Continue using gdb for 'live debug'\n
+
+# Function to reset the board, load and debug the application from main()
+# Can be used multiple times in same session
+define debug
+reset
+load
+tb main
+continue
+end
+document debug
+Resets the board, loads the application and stops at main()
+end
+
+# Function to reset the board, debug the xip application from main()
+# Can be used multiple times in same session
+define xip-debug
+reset
+tb main
+continue
+end
+document xip-debug
+Resets the board and stops at (xip) application main()
+end

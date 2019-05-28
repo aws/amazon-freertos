@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Demo V1.4.7
+ * Amazon FreeRTOS Device Defender Demo V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -181,7 +181,7 @@ static void prvLogReportStatus( DefenderReportStatus_t eReportStatus )
     switch( eReportStatus )
     {
         case eDefenderRepSuccess:
-            configPRINTF( ( "Device Defender Acknowledged the report.\r\n" ) );
+            configPRINTF( ( "Device Defender acknowledged the report.\r\n" ) );
             break;
 
         case eDefenderRepInit:
@@ -189,12 +189,12 @@ static void prvLogReportStatus( DefenderReportStatus_t eReportStatus )
             break;
 
         case eDefenderRepRejected:
-            configPRINTF( ( "Device defender service received and rejected the "
+            configPRINTF( ( "Device Defender service received and rejected the "
                             "metrics report.\r\n" ) );
             break;
 
         case eDefenderRepNoAck:
-            configPRINTF( ( "Device defender servie did not acknowledge the metrics "
+            configPRINTF( ( "Device Defender service did not acknowledge the metrics "
                             "within the expected time.\r\n" ) );
             break;
 
