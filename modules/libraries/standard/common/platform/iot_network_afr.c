@@ -598,13 +598,15 @@ IotNetworkError_t IotNetworkAfr_Destroy( void * pConnection )
     }
     else
     {
-        /* Wait for the receive task to exit if not being called from the
-         * receive task. Then, destroy the connection. */
-        ( void ) xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
-                                      _FLAG_RECEIVE_TASK_EXITED,
-                                      pdTRUE,
-                                      pdTRUE,
-                                      portMAX_DELAY );
+        /* If a receive task was created, wait for it to exit. */
+        if( pNetworkConnection->receiveTask != NULL )
+        {
+            ( void ) xEventGroupWaitBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
+                                          _FLAG_RECEIVE_TASK_EXITED,
+                                          pdTRUE,
+                                          pdTRUE,
+                                          portMAX_DELAY );
+        }
 
         _destroyConnection( pNetworkConnection );
     }
