@@ -56,6 +56,9 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/serializer/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/greengrass/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/shadow/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/posix/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../ports/posix"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/freertos_plus_posix/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/mbedtls"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/pkcs11"/>
