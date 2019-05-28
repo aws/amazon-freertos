@@ -130,7 +130,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         CK_BYTE * pxEcParams = NULL; /* DER-encoding of an ANSI X9.62 Parameters value */
 
 #define EC_PARAMS_LENGTH    10
-#define EC_D_LENGTH         256
+#define EC_D_LENGTH         32
 
         pxD = pvPortMalloc( EC_D_LENGTH );
 
