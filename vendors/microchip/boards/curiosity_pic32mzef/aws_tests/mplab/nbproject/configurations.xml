@@ -879,7 +879,7 @@
 				</logicalFolder>
 			</logicalFolder>
 		</logicalFolder>
-		<logicalFolder name="" projectFiles="true" displayName="Linker Files">
+		<logicalFolder name="LinkerScript" displayName="LinkerScript" projectFiles="true">
 			<itemPath>../common/application_code/microchip_code/app_mz.ld</itemPath>
 		</logicalFolder>
 	</logicalFolder>
@@ -916,7 +916,7 @@
 				<makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
 				<makeCustomizationPreStep/>
 				<makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
-				<makeCustomizationPostStep>xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin &amp;&amp; python ../../../../../../demos/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+				<makeCustomizationPostStep>${MP_CC_DIR}/xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin &amp;&amp; python ../../../../../../demos/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
 				<makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
 				<makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
 				<makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
