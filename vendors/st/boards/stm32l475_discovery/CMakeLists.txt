@@ -2,10 +2,13 @@ set(stm32l475_dir "${AFR_VENDORS_DIR}/st/stm32l475_discovery")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
 set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
+    set(aws_credentials_include "${AFR_TEST_DIR}/include")
 else()
     set(board_dir "${board_demos_dir}")
+    set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -97,14 +100,17 @@ set(
     "${stm32l475_dir}/CMSIS/Device/ST/STM32L4xx/Include"
     "${stm32l475_dir}/STM32L4xx_HAL_Driver/Inc"
     "${stm32l475_dir}/STM32L4xx_HAL_Driver/Inc/Legacy"
-    "${board_dir}/config_files"
     "${board_dir}/application_code"
     "${board_dir}/application_code/st_code"
     "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
 )
+
 target_include_directories(
     AFR::kernel::mcu_port
-    INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
+    INTERFACE
+        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
+        "${aws_credentials_include}"
+        "${board_dir}/config_files"
 )
 
 # WiFi
