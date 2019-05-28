@@ -241,12 +241,12 @@ afr_mcu_port(posix)
 
 target_sources(
     AFR::posix::mcu_port
-    INTERFACE "${lpc54018_ports_dir}/posix/FreeRTOS_POSIX_portable.h"
+    INTERFACE "${mw320_dir}/posix/FreeRTOS_POSIX_portable.h"
 )
 
 target_include_directories(
     AFR::posix::mcu_port
-    INTERFACE "${lpc54018_ports_dir}/posix"
+    INTERFACE "${mw320_dir}/posix"
 )
 
 target_link_libraries(
