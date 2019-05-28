@@ -307,7 +307,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
     /* Provision the device with malformed client credential certificate. */
     xParams.ulClientPrivateKeyType = CKK_RSA;
     xParams.pcClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
-    xParams.ulClientPrivateKeyLength = 1 + strlen( xParams.pcClientPrivateKey );
+    xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pcClientPrivateKey );
     xParams.pcClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_MALFORMED;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_PEM_MALFORMED_LENGTH;
 
