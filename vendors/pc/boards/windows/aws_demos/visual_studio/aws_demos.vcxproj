@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{C686325E-3261-42F7-AEB1-DDE5280E1CEB}</ProjectGuid>
+    <ProjectName>aws_demos</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\Debug\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <TypeLibraryName>.\Debug/WIN32.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common\config_files;..\common\application_code;..\..\ports\posix;..\..\..\..\..\..\demos\include;..\..\..\..\..\..\demos\network_manager;..\..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\..\modules\libraries\standard\common\include;..\..\..\..\..\..\modules\libraries\standard\common\include\private;..\..\..\..\..\..\modules\libraries\standard\cbor\src;..\..\..\..\..\..\modules\libraries\standard\crypto\include;..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include;..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include;..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\..\modules\libraries\standard\provisioning\include;..\..\..\..\..\..\modules\libraries\standard\mqtt\include;..\..\..\..\..\..\modules\libraries\standard\serializer\include;..\..\..\..\..\..\modules\libraries\standard\tls\include;..\..\..\..\..\..\modules\libraries\standard\utils\include;..\..\..\..\..\..\modules\libraries\aws\defender\include;..\..\..\..\..\..\modules\libraries\aws\greengrass\include;..\..\..\..\..\..\modules\libraries\aws\shadow\include;..\..\..\..\..\..\modules\libraries\aws\ota\include;..\..\..\..\..\..\modules\libraries\aws\ota\src;..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include;..\..\..\..\..\..\modules\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\..\modules\libraries\3rdparty\jsmn;..\..\..\..\..\..\modules\libraries\3rdparty\pkcs11;..\..\..\..\..\..\modules\libraries\3rdparty\unity\src;..\..\..\..\..\..\modules\libraries\3rdparty\unity\extras\fixture\src;..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor;..\..\..\..\..\..\modules\libraries\3rdparty\win_pcap;..\..\..\..\..\..\modules\ports\pkcs11\include;..\..\..\..\..\..\modules\ports\posix\include;..\..\..\..\..\..\modules\ports\pkcs11\mbedtls;..\..\..\..\..\..\modules\ports\secure_sockets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>
+      </MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>.\Debug/</ProgramDataBaseFileName>
+      <WarningLevel>Level4</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DisableLanguageExtensions>false</DisableLanguageExtensions>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalOptions>/wd4127 /wd4200 /wd4204 /wd4210 %(AdditionalOptions)</AdditionalOptions>
+      <BrowseInformation>true</BrowseInformation>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <ExceptionHandling>false</ExceptionHandling>
+      <CompileAs>CompileAsC</CompileAs>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c09</Culture>
+    </ResourceCompile>
+    <Link>
+      <OutputFile>.\Debug/aws_demos.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\Debug/WIN32.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalDependencies>wpcap.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\..\..\..\modules\libraries\3rdparty\win_pcap</AdditionalLibraryDirectories>
+      <Profile>false</Profile>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>.\Debug/WIN32.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_application_version.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_ble_gatt_server_demo.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_clientcredential.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_clientcredential_keys.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_demo.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_iot_demo_network.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_ota_codesigner_certificate.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\aws_wifi_connect_task.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\iot_ble_numericComparison.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\iot_config_common.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\iot_demo_logging.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\include\iot_demo_runner.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\network_manager\iot_network_manager_private.h" />
+    <ClInclude Include="..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\atomic.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\event_groups.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\FreeRTOS.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\list.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\message_buffer.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\mpu_prototypes.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\mpu_wrappers.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\portable.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\projdefs.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\queue.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\semphr.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\stack_macros.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\stream_buffer.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\task.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\include\timers.h" />
+    <ClInclude Include="..\..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\jsmn\jsmn.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\aes.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\asn1write.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\base64.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\bignum.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\blowfish.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\bn_mul.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\camellia.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ccm.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\certs.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\cipher.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\cipher_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\cmac.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\compat-1.3.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\config.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ctr_drbg.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\debug.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\des.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\dhm.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ecdh.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ecdsa.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ecjpake.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ecp.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ecp_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\entropy.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\entropy_poll.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\error.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\gcm.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\havege.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\md.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\md2.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\md4.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\md5.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\md_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\memory_buffer_alloc.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\net.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\oid.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\padlock.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\pem.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\pk.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\pkcs5.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\platform.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\platform_time.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\rsa.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\rsa_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\sha1.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\sha256.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\sha512.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ssl.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cache.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ciphersuites.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cookie.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ssl_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ticket.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\threading.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\timing.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\version.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\x509.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\x509_crl.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\x509_crt.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\assert_p.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cbor.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborconstants_p.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\compilersupport_p.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\extract_number_p.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\math_support_p.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tracealyzer_recorder\Include\trcHardwarePort.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tracealyzer_recorder\Include\trcKernelPort.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tracealyzer_recorder\Include\trcPortDefines.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\3rdparty\tracealyzer_recorder\Include\trcRecorder.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\defender\include\aws_defender.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\defender\include\aws_iot_defender.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\defender\src\private\aws_iot_defender_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\greengrass\include\aws_ggd_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\greengrass\include\aws_greengrass_discovery.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\greengrass\src\aws_helper_secure_connect.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\ota\include\aws_iot_ota_agent.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\ota\include\aws_ota_agent.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\ota\include\aws_ota_types.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\ota\src\aws_ota_agent_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\ota\src\aws_ota_cbor.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\ota\src\aws_ota_cbor_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\ota\src\aws_ota_pal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\include\aws_iot_shadow.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\include\aws_shadow.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\include\types\aws_iot_shadow_types.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_shadow_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\private\aws_iot_shadow_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_appversion32.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_json_utils.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\aws_logging_task.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_init.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_json_utils.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_linear_containers.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_logging_setup.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\iot_taskpool.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\private\aws_default_root_certificates.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\private\aws_doubly_linked_list.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\private\aws_lib_init.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\private\iot_error.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\private\iot_logging.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\include\private\iot_static_memory.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\common\taskpool\private\iot_taskpool_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\crypto\include\aws_crypto.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_ARP.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_DHCP.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_DNS.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_errno_TCP.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_IP.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_IP_Private.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_Sockets.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_Stream_Buffer.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_TCP_IP.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_TCP_WIN.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\FreeRTOS_UDP_IP.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\IPTraceMacroDefaults.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\NetworkBufferManagement.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\include\NetworkInterface.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\portable\Compiler\MSVC\pack_struct_end.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\portable\Compiler\MSVC\pack_struct_start.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\include\aws_mqtt_agent.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\include\aws_mqtt_agent_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\include\aws_mqtt_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\include\aws_mqtt_lib.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\include\iot_mqtt.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\include\types\iot_mqtt_types.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\private\iot_mqtt_internal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\provisioning\include\aws_dev_mode_key_provisioning.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\serializer\include\iot_serializer.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\tls\include\aws_tls.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\libraries\standard\utils\include\aws_system_init.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\pkcs11\include\aws_pkcs11.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\pkcs11\mbedtls\threading_alt.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\errno.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\fcntl.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\mqueue.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\pthread.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\sched.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\semaphore.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\signal.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\sys\types.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\time.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\unistd.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\posix\include\FreeRTOS_POSIX\utils.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\secure_sockets\include\aws_secure_sockets.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\secure_sockets\include\aws_secure_sockets_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\..\modules\ports\secure_sockets\include\aws_secure_sockets_wrapper_metrics.h" />
+    <ClInclude Include="..\..\ports\posix\FreeRTOS_POSIX_portable.h" />
+    <ClInclude Include="..\common\application_code\aws_demo_logging.h" />
+    <ClInclude Include="..\common\config_files\aws_bufferpool_config.h" />
+    <ClInclude Include="..\common\config_files\aws_demo_config.h" />
+    <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
+    <ClInclude Include="..\common\config_files\aws_iot_network_config.h" />
+    <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
+    <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\common\config_files\aws_ota_agent_config.h" />
+    <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
+    <ClInclude Include="..\common\config_files\aws_secure_sockets_config.h" />
+    <ClInclude Include="..\common\config_files\aws_shadow_config.h" />
+    <ClInclude Include="..\common\config_files\FreeRTOSConfig.h" />
+    <ClInclude Include="..\common\config_files\FreeRTOSIPConfig.h" />
+    <ClInclude Include="..\common\config_files\iot_config.h" />
+    <ClInclude Include="..\common\config_files\trcConfig.h" />
+    <ClInclude Include="..\common\config_files\trcSnapshotConfig.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\aws_demo.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\aws_demo_network_addr.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\aws_demo_version.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\iot_demo_afr.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\demo_runner\iot_demo_runner.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\network_manager\aws_iot_network_manager.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\ota\aws_iot_ota_update_demo.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c" />
+    <ClCompile Include="..\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\event_groups.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\list.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\port.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\queue.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\stream_buffer.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\tasks.c" />
+    <ClCompile Include="..\..\..\..\..\..\freertos_kernel\timers.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\jsmn\jsmn.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\aes.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\aesni.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\arc4.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\asn1parse.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\asn1write.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\base64.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\bignum.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\blowfish.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\camellia.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ccm.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\certs.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cipher.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cipher_wrap.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cmac.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ctr_drbg.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\debug.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\des.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\dhm.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecdh.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecdsa.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecjpake.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecp.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecp_curves.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\entropy.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\entropy_poll.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\error.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\gcm.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\havege.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\hmac_drbg.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md2.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md4.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md5.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md_wrap.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\net_sockets.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\oid.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\padlock.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pem.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pk.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkcs12.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkcs5.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkparse.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkwrite.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pk_wrap.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\platform.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\platform_util.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ripemd160.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\rsa.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\rsa_internal.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha1.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha256.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha512.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cache.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_ciphersuites.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cli.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cookie.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_srv.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_ticket.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_tls.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\threading.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\timing.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\version.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\version_features.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509write_crt.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509write_csr.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_create.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_crl.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_crt.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_csr.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\xtea.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborencoder.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborerrorstrings.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborparser.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tinycbor\cborpretty.c">
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tracealyzer_recorder\trcKernelPort.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\3rdparty\tracealyzer_recorder\trcSnapshotRecorder.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_api.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_collector.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_mqtt.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\defender\src\aws_iot_defender_v1.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\greengrass\src\aws_greengrass_discovery.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\greengrass\src\aws_helper_secure_connect.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\ota\src\aws_iot_ota_agent.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\ota\src\aws_ota_cbor.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_api.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_operation.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_parser.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_subscription.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_shadow.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_init.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\iot_json_utils.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\logging\iot_logging.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_clock_afr.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_network_afr.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_threads_afr.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\common\taskpool\iot_taskpool.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\crypto\src\aws_crypto.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_ARP.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_DHCP.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_DNS.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_IP.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_Sockets.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_Stream_Buffer.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_TCP_IP.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_TCP_WIN.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_2.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\metrics\src\aws_secure_sockets_wrapper_metrics.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\metrics\src\iot_metrics.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\aws_mqtt_agent.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_api.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_network.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_operation.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_serialize.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_subscription.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_validate.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\provisioning\src\aws_dev_mode_key_provisioning.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_decoder.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\serializer\src\json\aws_iot_serializer_json_encoder.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\tls\src\aws_tls.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\libraries\standard\utils\src\aws_system_init.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\ports\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
+    <ClCompile Include="..\..\..\..\..\..\modules\ports\secure_sockets\freertos_plus_tcp\aws_secure_sockets.c" />
+    <ClCompile Include="..\..\ports\ota\aws_ota_pal.c" />
+    <ClCompile Include="..\..\ports\pkcs11\aws_pkcs11_pal.c" />
+    <ClCompile Include="..\common\application_code\aws_demo_logging.c" />
+    <ClCompile Include="..\common\application_code\aws_entropy_hardware_poll.c" />
+    <ClCompile Include="..\common\application_code\aws_run-time-stats-utils.c" />
+    <ClCompile Include="..\common\application_code\main.c" />
+  </ItemGroup>
+</Project>

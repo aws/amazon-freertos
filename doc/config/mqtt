@@ -1,0 +1,39 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "MQTT"
+PROJECT_BRIEF = "MQTT 3.1.1 client library"
+
+# Library documentation output directory.
+HTML_OUTPUT = mqtt
+
+# Generate documentation for MQTT packet serializer overrides.
+PREDEFINED += "IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES=1"
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/mqtt.tag
+
+# Directories containing library source code.
+INPUT = doc \
+        doc/lib \
+        lib/include \
+        lib/include/types \
+        lib/include/private \
+        lib/source/mqtt \
+        demos/ \
+        tests/ \
+        tests/mqtt/unit \
+        tests/mqtt/access \
+        tests/mqtt/system
+
+# Library file names.
+FILE_PATTERNS = *mqtt*.c *mqtt*.h *mqtt*.txt
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main \
+           doc/tag/logging.tag=../logging \
+           doc/tag/static_memory.tag=../static_memory \
+           doc/tag/platform.tag=../platform \
+           doc/tag/linear_containers.tag=../linear_containers

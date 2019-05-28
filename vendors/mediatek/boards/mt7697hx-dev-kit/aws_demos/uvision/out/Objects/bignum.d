@@ -1,0 +1,14 @@
+.\out\objects\bignum.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\bignum.c
+.\out\objects\bignum.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/config.h
+.\out\objects\bignum.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/check_config.h
+.\out\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+.\out\objects\bignum.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/bignum.h
+.\out\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\objects\bignum.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h
+.\out\objects\bignum.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h
+.\out\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\objects\bignum.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/platform.h
+.\out\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\out\objects\bignum.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h

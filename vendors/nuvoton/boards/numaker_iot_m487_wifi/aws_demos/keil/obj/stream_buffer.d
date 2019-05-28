@@ -1,0 +1,14 @@
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\stream_buffer.c
+.\obj\stream_buffer.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\stream_buffer.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\FreeRTOS.h
+.\obj\stream_buffer.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_demos\common\config_files\FreeRTOSConfig.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\projdefs.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\portable.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F\portmacro.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\mpu_wrappers.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\task.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\list.h
+.\obj\stream_buffer.o: ..\..\..\..\..\..\freertos_kernel\include\stream_buffer.h

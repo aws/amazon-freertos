@@ -1,0 +1,12 @@
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\list.c
+.\obj\list.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\include\FreeRTOS.h
+.\obj\list.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\obj\list.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\obj\list.o: ..\..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_demos\common\config_files\FreeRTOSConfig.h
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\include\projdefs.h
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\include\portable.h
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F\portmacro.h
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\include\mpu_wrappers.h
+.\obj\list.o: ..\..\..\..\..\..\freertos_kernel\include\list.h

@@ -1,0 +1,109 @@
+/**
+@mainpage
+
+## Introduction
+
+The Secure Sockets interface is based on the Berkeley sockets interface with the addition of a secure communication option by TLS protocol. At this time, only client APIs are supported.
+
+The Amazon FreeRTOS Secure Socket API allows you to create embedded applications that communicate securely. It is designed for easy onboarding of software developers from various network programming backgrounds. The reference implementation for Secure Sockets supports TLS and TCP/IP over Ethernet and Wi-Fi. 
+
+## Secure Sockets Library dependencies
+
+@dot "Secure Sockets Library dependencies"
+digraph library_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    high_level[label="Secure Sockets Library", fillcolor="#aed8a9ff"];
+    low_level1[label="FreeRTOS+TCP", fillcolor="#e89025ff"];
+    low_level2[label="TLS Layer", fillcolor="#e89025ff"];
+    low_low_level2[label="mbedTLS", fillcolor="#e89025ff"];
+    high_level -> low_level1 [style="dashed"];
+    high_level -> low_level2 [style="dashed"];
+    low_level2 -> low_low_level2 [style="dashed"];
+}
+@enddot
+
+*/
+
+/**
+@configpage{SecureSockets,library}
+
+@section socketsconfigBYTE_ORDER
+@brief Byte order of the target MCU must be defined. For detail, please refer to [Endian](https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/endian.html) in freertos.org
+
+Valid values are pdLITTLE_ENDIAN and pdBIG_ENDIAN.
+
+If this configuration is not set, compiler will generate an error warning about it, which is written in @ref aws_secure_sockets_config_defaults.h
+
+@configpossible `pdLITTLE_ENDIAN` (little endian) or `pdBIG_ENDIAN` (big endian)<br>
+@configrecommended must be set correctly for the MCU<br>
+@configdefault `None`
+
+@section socketsconfigDEFAULT_SEND_TIMEOUT
+@brief Default socket send timeout.
+
+The user can change the send timeout for a socket using the @ref SOCKETS_SetSockOpt API
+with the SOCKETS_SO_SNDTIMEO option.
+
+The unit is milliseconds that @ref SOCKETS_Send should wait before timing out.
+Setting to 0 causes send to wait forever.
+
+This configuration is defined in  @ref aws_secure_sockets_config_defaults.h
+
+@configpossible `Any positive integer`<br>
+@configdefault `10000`
+
+@section socketsconfigDEFAULT_RECV_TIMEOUT
+@brief Default socket receive timeout.
+
+The user can change the receive timeout for a socket using the @ref SOCKETS_SetSockOpt API
+with the SOCKETS_SO_RCVTIMEO option.
+
+The unit is milliseconds that @ref SOCKETS_Recv should wait before timing out.
+Setting to 0 causes receive to wait forever.
+
+This configuration is defined in  @ref aws_secure_sockets_config_defaults.h
+
+@configpossible `Any positive integer`<br>
+@configdefault `10000`
+*/
+
+/**
+@functionspage{SecureSockets,library}
+- @subpage secure_sockets_function_primary
+- @subpage secure_sockets_function_helper
+@page secure_sockets_function_primary Primary Functions
+- @functionname{secure_sockets_function_socket}
+- @functionname{secure_sockets_function_connect}
+- @functionname{secure_sockets_function_recv}
+- @functionname{secure_sockets_function_send}
+- @functionname{secure_sockets_function_shutdown}
+- @functionname{secure_sockets_function_close}
+- @functionname{secure_sockets_function_setsockopt}
+- @functionname{secure_sockets_function_gethostbyname}
+@page secure_sockets_function_helper Helper Functions
+- @subpage SOCKETS_htonl
+- @subpage SOCKETS_ntohl
+- @subpage SOCKETS_htons
+- @subpage SOCKETS_ntohs
+- @subpage SOCKETS_inet_addr_quick
+- @subpage SOCKETS_inet_ntoa
+*/
+
+/**
+@functionpage{SOCKETS_Socket,secure_sockets,socket,aws_secure_sockets.h}
+@functionpage{SOCKETS_Connect,secure_sockets,connect,aws_secure_sockets.h}
+@functionpage{SOCKETS_Recv,secure_sockets,recv,aws_secure_sockets.h}
+@functionpage{SOCKETS_Send,secure_sockets,send,aws_secure_sockets.h}
+@functionpage{SOCKETS_Shutdown,secure_sockets,shutdown,aws_secure_sockets.h}
+@functionpage{SOCKETS_Close,secure_sockets,close,aws_secure_sockets.h}
+@functionpage{SOCKETS_SetSockOpt,secure_sockets,setsockopt,aws_secure_sockets.h}
+@functionpage{SOCKETS_GetHostByName,secure_sockets,gethostbyname,aws_secure_sockets.h}
+*/
+
+/**
+@handles{SecureSockets,library}
+
+@paramstructs{SecureSockets}
+*/

@@ -1,0 +1,5 @@
+--cpu Cortex-M4.fp -g --16 --apcs=interwork --pd "__MICROLIB SETA 1"
+-IC:\Keil_v5\ARM\RV31\INC
+-IC:\Keil_v5\ARM\CMSIS\Include
+--pd "__UVISION_VERSION SETA 527"
+--list .\lst\startup_m480.lst --xref -o .\obj\startup_m480.o --depend .\obj\startup_m480.d "..\..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Source\ARM\startup_M480.s"

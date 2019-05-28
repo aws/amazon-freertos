@@ -1,0 +1,14 @@
+.\out\objects\asn1write.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\asn1write.c
+.\out\objects\asn1write.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/config.h
+.\out\objects\asn1write.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/check_config.h
+.\out\objects\asn1write.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+.\out\objects\asn1write.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h
+.\out\objects\asn1write.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/asn1.h
+.\out\objects\asn1write.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+.\out\objects\asn1write.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/bignum.h
+.\out\objects\asn1write.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\objects\asn1write.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\out\objects\asn1write.o: ../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls/platform.h
+.\out\objects\asn1write.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\objects\asn1write.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+.\out\objects\asn1write.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h

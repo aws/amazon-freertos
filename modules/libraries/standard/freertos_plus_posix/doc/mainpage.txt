@@ -1,0 +1,27 @@
+/**
+@mainpage Overview
+@brief 
+The Portable Operating System Interface (POSIX) is a family of standards specified by the IEEE Computer Society for maintaining compatibility between operating systems. With FreeRTOS+POSIX, an existing POSIX compliant application can be easily ported to FreeRTOS ecosystem, and thus leveraging the entire AWS IoT service stack.<br><br>
+
+FreeRTOS+POSIX partially implements IEEE Std 1003.1-2017 Edition The Open Group Technical Standard Base Specifications, Issue 7. It currently supports:<br>
+
+- errno.h
+- fcntl.h
+- mqueue.h
+- pthread.h
+- sched.h
+- semaphore.h
+- signal.h
+- sys/types.h
+- time.h
+- unistd.h
+
+Please see each above header file for detailed FreeRTOS+POSIX implementation of POSIX.
+
+To adopt FreeRTOS+POSIX in your project, these porting related header files are needed.
+| FreeRTOS platform specific POSIX configuration | High Level Description |
+| :--------------------------------------------- | :--------------------- |
+| FreeRTOS_POSIX.h.                              | This header file brings in dependencies required by FreeRTOS+POSIX. This file must be included before all other FreeRTOS+POSIX includes. |
+| FreeRTOS_POSIX_portable_default.h              | Defaults for port-specific configuration of FreeRTOS+POSIX. |
+| FreeRTOS_POSIX_portable.h                      | Port-specific configuration overwrite of FreeRTOS+POSIX. As an example, /lib/FreeRTOS-Plus-POSIX/include/portable/pc/windows/FreeRTOS_POSIX_portable.h, Windows simulator uses the defaults, thus does not need to overwrite anything. |
+*/

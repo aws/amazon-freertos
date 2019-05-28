@@ -1,0 +1,104 @@
+/**
+@mainpage
+@anchor iotble
+@brief BLE library.
+
+> Amazon FreeRTOS supports publishing and subscribing to MQTT topics over Bluetooth Low Energy (BLE) through a proxy device, such as a mobile phone. With the Amazon FreeRTOS BLE library, your microcontroller can securely communicate with the AWS IoT MQTT broker.
+
+@image html blediagram.png width=40%
+
+Using the Mobile SDKs for Amazon FreeRTOS Bluetooth Devices, you can write native mobile applications that communicate with the embedded applications on your microcontroller over BLE. For more information about the mobile SDKs, see [Mobile SDKs for Amazon FreeRTOS Bluetooth Devices](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-ble-mobile.html).
+
+In addition to supporting MQTT, the Amazon FreeRTOS BLE library includes services for configuring Wi-Fi networks. The Amazon FreeRTOS BLE library also includes some middleware and lower-level APIs for more direct control over your BLE stack. The source files for the Amazon FreeRTOS BLE library are located in [AmazonFreeRTOS/lib/bluetooth_low_energy](https://github.com/aws/amazon-freertos/tree/feature/ble-beta/lib/bluetooth_low_energy).
+
+Amazon FreeRTOS BLE Architecture
+The Amazon FreeRTOS BLE library is made up of three layers: services, middleware, and low-level wrappers.
+
+@image html BLE-architecture.png width=40%
+
+@dependencies{ble,ble library}
+@dot "BLE direct dependencies"
+digraph ble_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph
+    {
+        ble[label="BLE", fillcolor="#cc00ccff"];
+    }
+    subgraph
+    {
+        node[fillcolor="#aed8a9ff"];
+        rank = same;
+        linear_containers[label="List/Queue", URL="@ref linear_containers"];
+    }
+    subgraph
+    {
+        rank = same;
+        platform_network[label="Network", fillcolor="#e89025ff", URL="@ref platform_network"];
+        platform_clock[label="Clock", fillcolor="#e89025ff", URL="@ref platform_clock"];
+    }
+    ble -> linear_containers;
+    ble -> platform_clock;
+    ble -> platform_network;
+}
+@enddot
+
+Currently, the BLE library has the following dependencies:
+- The linear containers (list/queue) library for maintaining the data structures for scheduled and in-progress BLE operations.
+- The platform layer provides an interface to the operating system for thread management, timers, clock functions, network access, etc.
+
+In addition to the components above, the BLE library may also depend on C standard library headers.
+*/
+
+/**
+@page ble_tests Tests
+@brief Tests written for the BLE library.
+
+The BLE tests reside in the `???` directory. They are divided into the following subdirectories:
+- `system`: BLE system and stress tests. Stress tests may run for a long time, so they are not run unless the `-l` option is passed to the test executable.
+- `unit`: BLE unit tests. These tests do not require a network connection.
+
+The current BLE tests use the [Unity test framework](http://www.throwtheswitch.org/unity/).
+*/
+
+/**
+@configpage{ble,BLE library}
+
+Amazon FreeRTOS BLE Library Configuration File
+
+Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an aws_ble_config.h header file, in which configuration parameters are defined. Undefined configuration parameters take the default values specified in lib\include\private\aws_ble_config_defaults.h.
+
+*/
+
+/**
+@enums{ble,BLE library}
+@paramstructs{ble,BLE library}
+@handles{ble,BLE library}
+@functionpointers{ble,BLE library}
+@structs{ble,BLE library}
+*/
+
+/**
+@functionspage{ble,BLE library}
+
+- @subpage iotble_functions <br>
+  @copybrief iotble_functions
+- @subpage iotbledeviceinfo_functions <br>
+  @copybrief iotbledeviceinfo_functions
+- @subpage iotblewifiprov_functions <br>
+  @copybrief iotblewifiprov_functions
+- @subpage iotblemqtt_functions <br>
+  @copybrief iotblemqtt_functions
+*/
+
+/**
+@constantspage{ble,BLE library}
+
+- @subpage iotbledeviceinfo_constants <br>
+  @copybrief iotbledeviceinfo_constants
+- @subpage iotblewifiprov_constants <br>
+  @copybrief iotblewifiprov_constants
+- @subpage iotblemqtt_constants <br>
+  @copybrief iotblemqtt_constants
+*/

@@ -1,0 +1,16 @@
+.\out\objects\system_mt7687.o: ..\common\application_code\mediatek_code\source\system_mt7687.c
+.\out\objects\system_mt7687.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include/mt7687.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Include/core_cm4.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Include/core_cmInstr.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Include/core_cmFunc.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Include/core_cmSimd.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include/system_mt7687.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include/mt7687_cm4_hw_memmap.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc/type_def.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include/memory_attribute.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include/exception_mt7687.h
+.\out\objects\system_mt7687.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc/top.h
+.\out\objects\system_mt7687.o: ../common/application_code/mediatek_code/include/flash_map.h
+.\out\objects\system_mt7687.o: ../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc/hal_cache_hw.h
