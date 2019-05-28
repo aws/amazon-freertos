@@ -50,6 +50,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define socketsconfigDEFAULT_RECV_TIMEOUT    ( 10000 )
 
 /**
+ * @brief Enable metrics of secure socket.
+ */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED    ( 1 )
+
+/**
  * @brief The file name for the root of trust certificate.
  */
 #define socketsconfigSECURE_FILE_NAME_ROOTCA            "/certs/RootCA.crt"
