@@ -37,6 +37,8 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::mqtt
+    PRIVATE
+        AFR::serializer
 )
 
 # Shadow test

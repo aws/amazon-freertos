@@ -59,8 +59,8 @@
  */
 #define _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER    0
 
-static IotNetworkServerInfoAfr_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-static IotNetworkCredentialsAfr_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static IotNetworkServerInfo_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
 static Socket_t _createSocketToEchoServer();
@@ -209,9 +209,9 @@ static void _startDefender()
     startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
 
     /* Only set ALPN protocol if the connected port is 443. */
-    if( ( ( IotNetworkServerInfoAfr_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
+    if( ( ( IotNetworkServerInfo_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
     {
-        ( ( IotNetworkCredentialsAfr_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
+        ( ( IotNetworkCredentials_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
     }
 
     /* Set network interface. */

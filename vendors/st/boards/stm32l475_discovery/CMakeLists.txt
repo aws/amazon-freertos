@@ -100,7 +100,7 @@ set(
     "${board_dir}/config_files"
     "${board_dir}/application_code"
     "${board_dir}/application_code/st_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
 )
 target_include_directories(
     AFR::kernel::mcu_port
@@ -177,7 +177,7 @@ target_link_libraries(
     PRIVATE
         AFR::wifi
         AFR::utils
-        -T"${board_dir}/../ac6/STM32L475VGTx_FLASH.ld"
+        -T"${board_dir}/STM32L475VGTx_FLASH.ld"
 )
 
 if(AFR_METADATA_MODE)

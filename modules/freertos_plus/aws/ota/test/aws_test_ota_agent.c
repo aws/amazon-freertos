@@ -136,8 +136,8 @@ TEST_GROUP( Full_OTA_AGENT );
 TEST_SETUP( Full_OTA_AGENT )
 {
     IotMqttError_t connectStatus = IOT_MQTT_STATUS_PENDING;
-    IotNetworkServerInfoAfr_t serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
-    IotNetworkCredentialsAfr_t credentials = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
+    IotNetworkServerInfo_t serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
+    IotNetworkCredentials_t credentials = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
 

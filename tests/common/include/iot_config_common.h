@@ -205,9 +205,9 @@ extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
 #define IOT_TEST_MQTT_SERIALIZER    IotTestNetwork_GetSerializer()
 
 /* Forward declarations of network types used in the tests. */
-typedef struct IotNetworkConnectionAfr    IotTestNetworkConnection_t;
-typedef struct IotNetworkServerInfoAfr    IotTestNetworkServerInfo_t;
-typedef struct IotNetworkCredentialsAfr   IotTestNetworkCredentials_t;
+typedef struct IotNetworkConnection    IotTestNetworkConnection_t;
+typedef struct IotNetworkServerInfo    IotTestNetworkServerInfo_t;
+typedef struct IotNetworkCredentials   IotTestNetworkCredentials_t;
 
 /* Define test network initializers. */
 #define IOT_TEST_NETWORK_CONNECTION_INITIALIZER     IOT_NETWORK_CONNECTION_AFR_INITIALIZER

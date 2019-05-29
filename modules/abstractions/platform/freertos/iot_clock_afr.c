@@ -37,16 +37,16 @@
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_PLATFORM
-    #define _LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_PLATFORM
+    #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_PLATFORM
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
     #endif
 #endif
 
-#define _LIBRARY_LOG_NAME    ( "CLOCK" )
+#define LIBRARY_LOG_NAME    ( "CLOCK" )
 #include "iot_logging_setup.h"
 
 /*-----------------------------------------------------------*/

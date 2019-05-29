@@ -39,10 +39,10 @@
 #include "iot_mqtt.h"
 
 /* Server info, End point and port #. */
-static const IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static const IotNetworkServerInfo_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
 
 /* Secure connection info. */
-static IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static IotNetworkCredentials_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
@@ -133,7 +133,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
             }
 
             /* According to C99 standard, it should transfer from any pointer to void pointer.
-             * In this case, it is "IotNetworkServerInfoAfr_t const *".
+             * In this case, it is "IotNetworkServerInfo_t const *".
              * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
              */
             pDemoContext->networkConnectedCallback( true,
@@ -166,7 +166,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 }
 
                 /* According to C99 standard, it should transfer from any pointer to void pointer.
-                 * In this case, it is "IotNetworkServerInfoAfr_t const *".
+                 * In this case, it is "IotNetworkServerInfo_t const *".
                  * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
                  */
                 pDemoContext->networkConnectedCallback( true,
@@ -299,7 +299,7 @@ void runDemoTask( void * pArgument )
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     int status;
-    
+
     status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )

@@ -5,7 +5,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PUBLIC
+    PRIVATE
         "${inc_dir}/platform/iot_metrics.h"
         "${inc_dir}/platform/iot_clock.h"
         "${inc_dir}/platform/iot_network.h"
@@ -55,4 +55,18 @@ afr_module_dependencies(
     INTERFACE
         AFR::common
         AFR::secure_sockets
+)
+
+# test for platform module
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/iot_test_platform_clock.c"
+        "${test_dir}/iot_test_platform_threads.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::platform
 )

@@ -43,16 +43,16 @@
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_NETWORK
-    #define _LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_NETWORK
+    #define LIBRARY_LOG_LEVEL        IOT_LOG_LEVEL_NETWORK
 #else
     #ifdef IOT_LOG_LEVEL_GLOBAL
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
     #else
-        #define _LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+        #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
     #endif
 #endif
 
-#define _LIBRARY_LOG_NAME    ( "NET" )
+#define LIBRARY_LOG_NAME    ( "NET" )
 #include "iot_logging_setup.h"
 
 /* Provide a default value for the number of milliseconds for a socket poll.
@@ -220,12 +220,12 @@ static void _networkReceiveTask( void * pArgument )
  *
  * @return #IOT_NETWORK_SUCCESS or #IOT_NETWORK_SYSTEM_ERROR.
  */
-static IotNetworkError_t _tlsSetup( const IotNetworkCredentialsAfr_t * pAfrCredentials,
+static IotNetworkError_t _tlsSetup( const IotNetworkCredentials_t * pAfrCredentials,
                                     Socket_t tcpSocket,
                                     const char * pHostName,
                                     size_t hostnameLength )
 {
-    _IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
+    IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
     int32_t socketStatus = SOCKETS_ERROR_NONE;
 
     /* ALPN options for AWS IoT. */
@@ -241,7 +241,7 @@ static IotNetworkError_t _tlsSetup( const IotNetworkCredentialsAfr_t * pAfrCrede
     if( socketStatus != SOCKETS_ERROR_NONE )
     {
         IotLogError( "Failed to set secured option for new connection." );
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
     /* Set ALPN option. */
@@ -256,7 +256,7 @@ static IotNetworkError_t _tlsSetup( const IotNetworkCredentialsAfr_t * pAfrCrede
         if( socketStatus != SOCKETS_ERROR_NONE )
         {
             IotLogError( "Failed to set ALPN option for new connection." );
-            _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
         }
     }
 
@@ -272,7 +272,7 @@ static IotNetworkError_t _tlsSetup( const IotNetworkCredentialsAfr_t * pAfrCrede
         if( socketStatus != SOCKETS_ERROR_NONE )
         {
             IotLogError( "Failed to set SNI option for new connection." );
-            _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
         }
     }
 
@@ -288,11 +288,11 @@ static IotNetworkError_t _tlsSetup( const IotNetworkCredentialsAfr_t * pAfrCrede
         if( socketStatus != SOCKETS_ERROR_NONE )
         {
             IotLogError( "Failed to set server certificate option for new connection." );
-            _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+            IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
         }
     }
 
-    _IOT_FUNCTION_EXIT_NO_CLEANUP();
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
@@ -301,7 +301,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
                                         void * pCredentialInfo,
                                         void ** pConnection )
 {
-    _IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
+    IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
     Socket_t tcpSocket = SOCKETS_INVALID_SOCKET;
     int32_t socketStatus = SOCKETS_ERROR_NONE;
     SocketsSockaddr_t serverAddress = { 0 };
@@ -311,8 +311,8 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     _networkConnection_t * pNewNetworkConnection = NULL;
 
     /* Cast function parameters to correct types. */
-    const IotNetworkServerInfoAfr_t * pServerInfo = pConnectionInfo;
-    const IotNetworkCredentialsAfr_t * pAfrCredentials = pCredentialInfo;
+    const IotNetworkServerInfo_t * pServerInfo = pConnectionInfo;
+    const IotNetworkCredentials_t * pAfrCredentials = pCredentialInfo;
     _networkConnection_t ** pNetworkConnection = ( _networkConnection_t ** ) pConnection;
 
     /* Check host name length against the maximum length allowed by Secure
@@ -323,7 +323,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     {
         IotLogError( "Host name length exceeds %d, which is the maximum allowed.",
                      securesocketsMAX_DNS_NAME_LENGTH );
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_BAD_PARAMETER );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_BAD_PARAMETER );
     }
 
     pNewNetworkConnection = pvPortMalloc( sizeof( _networkConnection_t ) );
@@ -331,7 +331,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     if( pNewNetworkConnection == NULL )
     {
         IotLogError( "Failed to allocate memory for new network connection." );
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_NO_MEMORY );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_NO_MEMORY );
     }
 
     /* Clear the connection information. */
@@ -345,7 +345,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     if( tcpSocket == SOCKETS_INVALID_SOCKET )
     {
         IotLogError( "Failed to create new socket." );
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
     /* Set up connection encryption if credentials are provided. */
@@ -355,7 +355,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
 
         if( status != IOT_NETWORK_SUCCESS )
         {
-            _IOT_GOTO_CLEANUP();
+            IOT_GOTO_CLEANUP();
         }
     }
 
@@ -368,7 +368,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     if( serverAddress.ulAddress == 0 )
     {
         IotLogError( "Failed to resolve %s.", pServerInfo->pHostName );
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
     socketStatus = SOCKETS_Connect( tcpSocket,
@@ -378,7 +378,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     if( socketStatus != SOCKETS_ERROR_NONE )
     {
         IotLogError( "Failed to establish new connection." );
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
     /* Set a long timeout for receive. */
@@ -391,10 +391,10 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
     if( socketStatus != SOCKETS_ERROR_NONE )
     {
         IotLogError( "Failed to set socket receive timeout." );
-        _IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
-    _IOT_FUNCTION_CLEANUP_BEGIN();
+    IOT_FUNCTION_CLEANUP_BEGIN();
 
     /* Clean up on failure. */
     if( status != IOT_NETWORK_SUCCESS )
@@ -428,7 +428,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
         *pNetworkConnection = pNewNetworkConnection;
     }
 
-    _IOT_FUNCTION_CLEANUP_END();
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/

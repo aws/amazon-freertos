@@ -88,8 +88,8 @@ static char _ECHO_SERVER_ADDRESS[ _MAX_ADDRESS_LENGTH ];
 
 static const AwsIotDefenderCallback_t _EMPTY_CALLBACK = { .function = NULL, .param1 = NULL };
 
-static IotNetworkServerInfoAfr_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-static IotNetworkCredentialsAfr_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static IotNetworkServerInfo_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 /*------------------ global variables -----------------------------*/
 
@@ -169,7 +169,7 @@ TEST_SETUP( Full_DEFENDER )
     };
 
     /* Reset server info. */
-    _DEFENDER_SERVER_INFO = ( IotNetworkServerInfoAfr_t ) AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    _DEFENDER_SERVER_INFO = ( IotNetworkServerInfo_t ) AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
 
     /* Set network information. */
     _startInfo.mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
@@ -178,9 +178,9 @@ TEST_SETUP( Full_DEFENDER )
     _startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
 
     /* Only set ALPN protocol if the connected port is 443. */
-    if( ( ( IotNetworkServerInfoAfr_t * ) ( _startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
+    if( ( ( IotNetworkServerInfo_t * ) ( _startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
     {
-        ( ( IotNetworkCredentialsAfr_t * ) ( _startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
+        ( ( IotNetworkCredentials_t * ) ( _startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
     }
 
     /* Set network interface. */
@@ -214,7 +214,7 @@ TEST_TEAR_DOWN( Full_DEFENDER )
 TEST_GROUP_RUNNER( Full_DEFENDER )
 {
     IotMetrics_Init();
-    
+
     /*
      * Setup: none
      * Action: call Start API with invliad IoT endpoint
@@ -345,7 +345,7 @@ TEST( Full_DEFENDER, SetMetrics_with_invalid_metrics_group )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_INVALID_INPUT, error );
 
     /* Assert metrics flag in each metrics group remains 0. */
-    for( i = 0; i < _DEFENDER_METRICS_GROUP_COUNT; i++ )
+    for( i = 0; i < DEFENDER_METRICS_GROUP_COUNT; i++ )
     {
         TEST_ASSERT_EQUAL( 0, _AwsIotDefenderMetrics.metricsFlag[ i ] );
     }

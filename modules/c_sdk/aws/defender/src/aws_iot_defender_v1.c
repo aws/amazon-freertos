@@ -37,8 +37,8 @@ extern uint64_t _AwsIotDefenderReportId;
 /* Defender agent's status, initialized with eDefenderRepInit. */
 static DefenderReportStatus_t _status = eDefenderRepInit;
 
-static IotNetworkServerInfoAfr_t _AWS_IOT_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-static IotNetworkCredentialsAfr_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static IotNetworkServerInfo_t _AWS_IOT_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 /*-----------------------------------------------------------*/
 
@@ -153,9 +153,9 @@ DefenderErr_t DEFENDER_Start( void )
     startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
 
     /* Only set ALPN protocol if the connected port is 443. */
-    if( ( ( IotNetworkServerInfoAfr_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
+    if( ( ( IotNetworkServerInfo_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
     {
-        ( ( IotNetworkCredentialsAfr_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
+        ( ( IotNetworkCredentials_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
     }
 
     /* Set network interface. */

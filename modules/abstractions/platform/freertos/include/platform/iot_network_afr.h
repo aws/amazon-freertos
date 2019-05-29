@@ -49,58 +49,6 @@
 typedef struct _networkConnection IotNetworkConnectionAfr_t;
 
 /**
- * @brief Information on the remote server for connection setup.
- *
- * Passed to #IotNetworkAfr_Create as `pConnectionInfo`.
- *
- * All instances of #IotNetworkServerInfoAfr_t should be initialized with
- * #IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER or #AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER.
- */
-typedef struct IotNetworkServerInfoAfr
-{
-    const char * pHostName; /**< @brief Server host name. Must be NULL-terminated. */
-    uint16_t port;          /**< @brief Server port in host-order. */
-} IotNetworkServerInfoAfr_t;
-
-/**
- * @brief Contains the credentials necessary for connection setup with Amazon
- * FreeRTOS Secure Sockets.
- *
- * Passed to #IotNetworkAfr_Create as `pCredentialInfo`.
- *
- * All instances of #IotNetworkCredentialsAfr_t should be initialized with either
- * #IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER or #AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER.
- */
-typedef struct IotNetworkCredentialsAfr
-{
-    /**
-     * @brief Set this to a non-NULL value to use ALPN.
-     *
-     * This string must be NULL-terminated.
-     *
-     * See [this link]
-     * (https://aws.amazon.com/blogs/iot/mqtt-with-tls-client-authentication-on-port-443-why-it-is-useful-and-how-it-works/)
-     * for more information.
-     */
-    const char * pAlpnProtos;
-
-    /**
-     * @brief Disable server name indication (SNI) for a TLS session.
-     */
-    bool disableSni;
-
-    /* PEM-encoded credentials. */
-    const char * pRootCa;     /**< @brief PEM-encoded root certicate, `NULL` to use system defaults. */
-    const char * pClientCert; /**< @brief PEM-encoded client certificate. */
-    const char * pPrivateKey; /**< @brief PEM-encoded client certicate private key. */
-
-    /* Sizes of credentials. */
-    size_t rootCaSize;     /**< @brief Size of root certicate. Ignored if `pRootCa` is `NULL`. */
-    size_t clientCertSize; /**< @brief Size of `pClientCert`. */
-    size_t privateKeySize; /**< @brief Size of `pPrivateKey`. */
-} IotNetworkCredentialsAfr_t;
-
-/**
  * @brief Provides a default value for an #IotNetworkConnectionAfr_t.
  *
  * All instances of #IotNetworkConnectionAfr_t should be initialized with
@@ -114,7 +62,7 @@ typedef struct IotNetworkCredentialsAfr
 #define IOT_NETWORK_CONNECTION_AFR_INITIALIZER     { 0 }
 
 /**
- * @brief Generic initializer for an #IotNetworkServerInfoAfr_t.
+ * @brief Generic initializer for an #IotNetworkServerInfo_t.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
@@ -122,7 +70,7 @@ typedef struct IotNetworkCredentialsAfr
 #define IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER    { 0 }
 
 /**
- * @brief Initialize an #IotNetworkServerInfoAfr_t for use with AWS IoT.
+ * @brief Initialize an #IotNetworkServerInfo_t for use with AWS IoT.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
@@ -134,7 +82,7 @@ typedef struct IotNetworkCredentialsAfr
     }
 
 /**
- * @brief Generic initializer for an #IotNetworkCredentialsAfr_t.
+ * @brief Generic initializer for an #IotNetworkCredentials_t.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
@@ -142,20 +90,21 @@ typedef struct IotNetworkCredentialsAfr
 #define IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER    { 0 }
 
 /**
- * @brief Initialize an #IotNetworkCredentialsAfr_t for use with AWS IoT.
+ * @brief Initialize an #IotNetworkCredentials_t for use with AWS IoT.
  *
  * @note This initializer may change at any time in future versions, but its
  * name will remain the same.
  */
 #define AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER            \
     {                                                          \
-        .disableSni = false,                                   \
         .pAlpnProtos = socketsAWS_IOT_ALPN_MQTT,               \
+        .maxFragmentLength = 0,                                \
+        .disableSni = false,                                   \
         .pRootCa = NULL,                                       \
-        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
-        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
         .rootCaSize = 0,                                       \
+        .pClientCert = keyCLIENT_CERTIFICATE_PEM,              \
         .clientCertSize = sizeof( keyCLIENT_CERTIFICATE_PEM ), \
+        .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,              \
         .privateKeySize = sizeof( keyCLIENT_PRIVATE_KEY_PEM )  \
     }
 

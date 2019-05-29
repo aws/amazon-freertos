@@ -136,7 +136,7 @@ static IotSerializerError_t _serializeDisconnect( uint8_t * const pBuffer,
 static IotSerializerError_t _serializePingRequest( uint8_t * const pBuffer,
                                                 size_t * const pSize );
 
-#if _LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
+#if LIBRARY_LOG_LEVEL > AWS_IOT_LOG_NONE
 
 /**
  * @brief If logging is enabled, define a log configuration that only prints the log
