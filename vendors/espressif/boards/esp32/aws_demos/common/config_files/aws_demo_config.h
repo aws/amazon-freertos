@@ -49,7 +49,7 @@
 #define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
 #define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_WIFI )
 
-#if defined( CONFIG_MQTT_BLE_DEMO_ENABLED )
+#if defined( CONFIG_MQTT_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
     #define democonfigNETWORK_TYPES                          ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 #endif
