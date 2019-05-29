@@ -1,9 +1,0 @@
-.\obj\ecp_curves.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecp_curves.c
-.\obj\ecp_curves.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls/config.h
-.\obj\ecp_curves.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls/check_config.h
-.\obj\ecp_curves.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
-.\obj\ecp_curves.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls/ecp.h
-.\obj\ecp_curves.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls/bignum.h
-.\obj\ecp_curves.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
-.\obj\ecp_curves.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\obj\ecp_curves.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h

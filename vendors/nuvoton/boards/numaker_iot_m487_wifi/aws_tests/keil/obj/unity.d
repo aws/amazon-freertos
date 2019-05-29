@@ -1,9 +1,0 @@
-.\obj\unity.o: ..\..\..\..\..\..\modules\libraries\3rdparty\unity\src\unity.c
-.\obj\unity.o: ..\..\..\..\..\..\modules\libraries\3rdparty\unity\src\unity.h
-.\obj\unity.o: ..\..\..\..\..\..\modules\libraries\3rdparty\unity\src\unity_internals.h
-.\obj\unity.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\setjmp.h
-.\obj\unity.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
-.\obj\unity.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\obj\unity.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
-.\obj\unity.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-.\obj\unity.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h

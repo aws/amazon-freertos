@@ -1,9 +1,0 @@
-.\obj\error.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\error.c
-.\obj\error.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls/config.h
-.\obj\error.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls/check_config.h
-.\obj\error.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
-.\obj\error.o: ..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include\mbedtls/platform.h
-.\obj\error.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
-.\obj\error.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\obj\error.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\time.h
-.\obj\error.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
