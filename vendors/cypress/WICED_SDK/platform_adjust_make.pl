@@ -42,9 +42,9 @@ use warnings;
 # 3. If any new .cproject file added with new app or with new platform, that need to be
 #    included in @projfiles array with full path.
 
-my @projfiles=("../../../../../tests/cypress/CYW954907AEVAL1F/wicedstudio/.cproject",
-               "../../../../../demos/cypress/CYW954907AEVAL1F/wicedstudio/.cproject",
-               "../../../../../tests/cypress/CYW943907AEVAL1F/wicedstudio/.cproject", "../../../../../demos/cypress/CYW943907AEVAL1F/wicedstudio/.cproject");
+my @projfiles=("../boards/CYW943907AEVAL1F/aws_demos/wicedstudio/.cproject",
+               "../boards/CYW943907AEVAL1F/aws_tests/wicedstudio/.cproject",
+               "../boards/CYW954907AEVAL1F/aws_demos/wicedstudio/.cproject", "../boards/CYW954907AEVAL1F/aws_tests/wicedstudio/.cproject");
 my @execfiles;
 my ($cmd, $status);
 if ($^O =~ m/darwin/i) {
