@@ -1,0 +1,34 @@
+{
+  "ENTRY": "TaskIncrementTick",
+  "DEF":
+  [
+    { "default":
+      [
+        "FREERTOS_MODULE_TEST",
+        "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'"
+      ]
+    },
+    { "useTickHook1":
+      [
+        "FREERTOS_MODULE_TEST",
+        "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'",
+        "configUSE_TICK_HOOK=1"
+      ]
+    }
+  ],
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--unwindset prvInitialiseTaskLists.0:8,vListInsert.0:2,xTaskIncrementTick.0:4"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/tasks.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/tools/cbmc/proofs/TaskPool/TaskIncrementTick/"
+  ]
+}
