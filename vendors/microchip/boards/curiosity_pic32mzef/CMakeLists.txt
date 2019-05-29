@@ -359,7 +359,7 @@ if(AFR_IS_TESTING)
         COMMAND "echo" "Running Post-build step"
         COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
         COMMAND "echo" "Running Hexmate to combine bootloader with image"
-        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
+        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -Omplab.production.unified.hex
     )
 else()
     add_custom_command(
@@ -367,10 +367,10 @@ else()
         COMMAND "echo" "Running Post-build step"
         COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
         COMMAND "echo" "Running xc32-objcopy"
-        COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin
+        COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/mplab.production.bin
         COMMAND "echo" "Creating binary image"
-        COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.intermediate.bin -p MCHP-Curiosity-PIC32MZEF
+        COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/mplab.production.bin -p MCHP-Curiosity-PIC32MZEF
         COMMAND "echo" "Running Hexmate to combine bootloader with image"
-        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -O${exe_target}_image.hex
+        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -Omplab.production.unified.hex
     )
 endif()
