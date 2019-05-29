@@ -916,7 +916,7 @@
 				<makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
 				<makeCustomizationPreStep/>
 				<makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
-				<makeCustomizationPostStep>${MP_CC_DIR}/xc32-objcopy -I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin &amp;&amp; python ../../../../../../demos/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+				<makeCustomizationPostStep>python ../../../../../../demos/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ../../../../../../demos/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
 				<makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
 				<makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
 				<makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
