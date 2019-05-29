@@ -1,0 +1,21 @@
+{
+  "ENTRY": "TaskSuspendAll",
+  "DEF":
+  [
+    "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'"
+  ],
+  "CBMCFLAGS":
+  [
+      "--unwind 1"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/tasks.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/tools/cbmc/proofs/TaskPool/TaskSuspendAll/"
+  ]
+}
