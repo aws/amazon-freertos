@@ -82,9 +82,8 @@
  *
  * This function should be called once by the application to initialize the one single instance of the system task pool.
  * An application should initialize the system task pool early in the boot sequence, before initializing any other library
- * that uses the system task pool. such as MQTT, Shadow, Defender, etc.. An application should also initialize the system
- * task pool before posting any jobs. Early initialization it typically easy to accomplish by creating the system task pool
- * before the scheduler is started.
+ * and before posting any jobs. Early initialization it typically easy to accomplish by creating the system task pool
+ * before starting the scheduler.
  *
  * This function does not allocate memory to hold the task pool data structures and state, but it
  * may allocate memory to hold the dependent entities and data structures, e.g. the threads of the task

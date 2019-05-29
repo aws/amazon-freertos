@@ -1401,7 +1401,7 @@ static void _signalShutdown( _taskPool_t * const pTaskPool,
     /* Set the exit condition. */
     pTaskPool->maxThreads = 0;
 
-    /* Broadcast to all active threads to wake-up. Active threads do check the exit condition right after wakeing up. */
+    /* Broadcast to all active threads to wake-up. Active threads do check the exit condition right after waking up. */
     for( count = 0; count < threads; ++count )
     {
         IotSemaphore_Post( &pTaskPool->dispatchSignal );
