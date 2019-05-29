@@ -1351,7 +1351,7 @@ static void _recycleJob( _taskPoolCache_t * const pCache,
         pJob->userCallback = NULL;
         pJob->pUserContext = NULL;
 
-        /* Reset the status for added debugability. */
+        /* Reset the status for added debuggability. */
         pJob->status = IOT_TASKPOOL_STATUS_UNDEFINED;
 
         IotListDouble_InsertTail( &pCache->freeList, &pJob->link );
@@ -1374,7 +1374,7 @@ static void _destroyJob( _taskPoolJob_t * const pJob )
     pJob->userCallback = NULL;
     pJob->pUserContext = NULL;
 
-    /* Reset the status for added debugability. */
+    /* Reset the status for added debuggability. */
     pJob->status = IOT_TASKPOOL_STATUS_UNDEFINED;
 
     /* Only dispose of dynamically allocated jobs. */
