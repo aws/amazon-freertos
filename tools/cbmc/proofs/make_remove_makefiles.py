@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# unpatching changes for the CBMC proofs.
+# Removing the generated Makefiles and cbmc-batch.yaml files.
 #
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -22,21 +22,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import subprocess
 import os
-import sys
-from glob import glob
 
-from patches_constants import PATCHES_DIR
+from make_cbmc_batch_files import remove_cbmc_yaml_files
 
-try:
-    os.remove(os.path.join(PATCHES_DIR, "patched"))
-except FileNotFoundError:
-    print("Nothing to do here.")
-    sys.exit(0)
-for tmpfile in glob(os.path.join(PATCHES_DIR, "*.patch")):
-    print("unpatch", tmpfile)
-    result = subprocess.run(["git", "apply", "-R", tmpfile],
-                            cwd=os.path.join("..", "..", ".."))
-    if result.returncode:
-        print("Unpatching failed: {}".format(tmpfile))
+def main():
+    try:
+        os.remove("Makefile.common")
+    except FileNotFoundError:
+        pass
+
+    for root, _, files in os.walk("."):
+        # We do not want to remove hand-written Makefiles, so
+        # only remove Makefiles that are in the same directory as
+        # a Makefile.json. Such Makefiles are generated from the
+        # JSON file.
+        if "Makefile.json" in files:
+            try:
+                os.remove(os.path.join(root, "Makefile"))
+            except FileNotFoundError:
+                pass
+
+if __name__ == "__main__":
+    remove_cbmc_yaml_files()
+    main()
