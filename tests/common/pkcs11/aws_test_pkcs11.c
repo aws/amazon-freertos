@@ -226,15 +226,17 @@ TEST_TEAR_DOWN( Full_PKCS11_RSA )
 
 TEST_GROUP_RUNNER( Full_PKCS11_RSA )
 {
-    prvBeforeRunningTests();
+    #if ( pkcs11testRSA_KEY_SUPPORT == 1 )
+        prvBeforeRunningTests();
 
-    /* RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GenerateKeyPair ); */ /* Generating RSA keys is not supported. */
-    RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectFindObject );
-    RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_FindObjectMultiThread );
-    RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue );
-    RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_Sign );
+        /* RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_GenerateKeyPair ); */ /* Generating RSA keys is not supported. */
+        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectFindObject );
+        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_FindObjectMultiThread );
+        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue );
+        RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_Sign );
 
-    prvAfterRunningTests();
+        prvAfterRunningTests();
+    #endif
 }
 
 
@@ -1215,23 +1217,29 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
 
 /* Valid ECDSA private key. */
 static const char cValidECDSAPrivateKey[] =
-    "-----BEGIN PRIVATE KEY-----\n"
-    "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg8gHhd5ELAooWRQls\n"
-    "PfpcQREiLrvEb3oLioicMYdUmrmhRANCAATFgks3zNgbMWJ7IXg43GTYEJjwjh9B\n"
-    "Ol84nJZJgKpq3zfG00Qqg7EHfcU/bYwlefuuPbhggu7W5EusWQfalxGQ\n"
-    "-----END PRIVATE KEY-----";
+    "-----BEGIN EC PRIVATE KEY-----\n"
+    "MHcCAQEEIACZbHljxOFuBeEKRcMijfbVcDzBxa8M4T5jElsElFQ5oAoGCCqGSM49\n"
+    "AwEHoUQDQgAEzghp+QstUhOmzKBGEL7uBjsaBbyaNTMLXKLSW78+bdoP9bKTOrqi\n"
+    "Kk9GzFk9ChthHFsx+T7UFithbYWtRf0Zww==\n"
+    "-----END EC PRIVATE KEY-----";
 
 /* Valid ECDSA certificate. */
 static const char cValidECDSACertificate[] =
     "-----BEGIN CERTIFICATE-----\n"
-    "MIIBVDCB+6ADAgECAgkAoJ9fIf9ayYswCgYIKoZIzj0EAwIwHTEbMBkGA1UEAwwS\n"
-    "bm9ib2R5QG5vd2hlcmUuY29tMB4XDTE4MDMwODIyNDIzNFoXDTE5MDMwODIyNDIz\n"
-    "NFowHTEbMBkGA1UEAwwSbm9ib2R5QG5vd2hlcmUuY29tMFkwEwYHKoZIzj0CAQYI\n"
-    "KoZIzj0DAQcDQgAExYJLN8zYGzFieyF4ONxk2BCY8I4fQTpfOJyWSYCqat83xtNE\n"
-    "KoOxB33FP22MJXn7rj24YILu1uRLrFkH2pcRkKMkMCIwCwYDVR0PBAQDAgeAMBMG\n"
-    "A1UdJQQMMAoGCCsGAQUFBwMDMAoGCCqGSM49BAMCA0gAMEUCIQDhXUT02TsIlzBe\n"
-    "Aw9pLCowZ+6dPY1igspplUqZcuDAKQIgN6j5s7x5AudklULRuFyBQBlkVR35IdWs\n"
-    "zu/xp2COg9g=\n"
+    "MIICbjCCAhQCCQDqQDa2NeYOhTAKBggqhkjOPQQDAjCBvjELMAkGA1UEBhMCVVMx\n"
+    "EzARBgNVBAgMCldhc2hpbmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxGDAWBgNVBAoM\n"
+    "D0FtYXpvbiBGcmVlUlRPUzEhMB8GA1UECwwYUEtDUyAjMTEgVGVzdCBDcmVkZW50\n"
+    "aWFsMSgwJgYDVQQDDB9ET05UX1VTRV9USElTX0tFWV9JTl9BX1JFQUxfQVBQMSEw\n"
+    "HwYJKoZIhvcNAQkBFhJub2JvZHlAbm93aGVyZS5jb20wHhcNMTkwNTI5MjE1NjAw\n"
+    "WhcNMjkwNTI2MjE1NjAwWjCBvjELMAkGA1UEBhMCVVMxEzARBgNVBAgMCldhc2hp\n"
+    "bmd0b24xEDAOBgNVBAcMB1NlYXR0bGUxGDAWBgNVBAoMD0FtYXpvbiBGcmVlUlRP\n"
+    "UzEhMB8GA1UECwwYUEtDUyAjMTEgVGVzdCBDcmVkZW50aWFsMSgwJgYDVQQDDB9E\n"
+    "T05UX1VTRV9USElTX0tFWV9JTl9BX1JFQUxfQVBQMSEwHwYJKoZIhvcNAQkBFhJu\n"
+    "b2JvZHlAbm93aGVyZS5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATOCGn5\n"
+    "Cy1SE6bMoEYQvu4GOxoFvJo1MwtcotJbvz5t2g/1spM6uqIqT0bMWT0KG2EcWzH5\n"
+    "PtQWK2Ftha1F/RnDMAoGCCqGSM49BAMCA0gAMEUCIQCs1n3p+fOZxjZT+fnm3MQf\n"
+    "IhxppLKnUggV42SAMpSneQIgdufH9clHZgrd9HVpRlIumy3sIMNEu9fzC9XZsSu8\n"
+    "yQ8=\n"
     "-----END CERTIFICATE-----";
 
 void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
@@ -1664,15 +1672,14 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
     CK_OBJECT_CLASS xClass;
     CK_BYTE xEcPointExpected[] =
     {
-        0x04, 0x41, 0x04, 0xc5, 0x82, 0x4b, 0x37, 0xcc, 0xd8, 0x1b, 0x31, 0x62, 0x7b,
-        0x21, 0x78, 0x38, 0xdc, 0x64, 0xd8, 0x10, 0x98, 0xf0, 0x8e, 0x1f, 0x41, 0x3a,
-        0x5f, 0x38, 0x9c, 0x96, 0x49, 0x80, 0xaa, 0x6a, 0xdf, 0x37, 0xc6, 0xd3, 0x44,
-        0x2a, 0x83, 0xb1, 0x07, 0x7d, 0xc5, 0x3f, 0x6d, 0x8c, 0x25, 0x79, 0xfb, 0xae,
-        0x3d, 0xb8, 0x60, 0x82, 0xee, 0xd6, 0xe4, 0x4b, 0xac, 0x59, 0x07, 0xda, 0x97,
-        0x11, 0x90
+        0x04, 0x41, 0x04, 0xce, 0x08, 0x69, 0xf9, 0x0b, 0x2d, 0x52, 0x13, 0xa6, 0xcc, 0xa0, 0x46, 0x10,
+        0xbe, 0xee, 0x06, 0x3b, 0x1a, 0x05, 0xbc, 0x9a, 0x35, 0x33, 0x0b, 0x5c, 0xa2, 0xd2, 0x5b, 0xbf,
+        0x3e, 0x6d, 0xda, 0x0f, 0xf5, 0xb2, 0x93, 0x3a, 0xba, 0xa2, 0x2a, 0x4f, 0x46, 0xcc, 0x59, 0x3d,
+        0x0a, 0x1b, 0x61, 0x1c, 0x5b, 0x31, 0xf9, 0x3e, 0xd4, 0x16, 0x2b, 0x61, 0x6d, 0x85, 0xad, 0x45,
+        0xfd, 0x19, 0xc3
     };
-    CK_BYTE xCertificateValueExpected[ 0x158 ];
-    CK_BYTE xCertificateValue[ 0x158 ];
+    CK_BYTE xCertificateValueExpected[ 626 ];
+    CK_BYTE xCertificateValue[ 626 ];
     CK_BYTE xEcPoint[ sizeof( xEcPointExpected ) ] = { 0 };
     size_t xLength = sizeof( xCertificateValueExpected );
     int lConversionReturn;
@@ -1684,7 +1691,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
 
     if( lConversionReturn != 0 )
     {
-        configPRINTF( ( "Failed to convert the EC certificate from PEM to DER. This test should fail. Error code %d \r\n", lConversionReturn ) );
+        configPRINTF( ( "Failed to convert the EC certificate from PEM to DER. Error code %d \r\n", lConversionReturn ) );
     }
 
     prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
@@ -1940,8 +1947,8 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
     CK_ATTRIBUTE xTemplate;
     CK_BYTE xEcParamsExpected[] = pkcs11DER_ENCODED_OID_P256;
     CK_BYTE xEcParams[ sizeof( xEcParamsExpected ) ];
-    CK_BYTE xCertificateValueExpected[ 0x158 ];
-    CK_BYTE xCertificateValue[ 0x158 ];
+    CK_BYTE xCertificateValueExpected[ 626 ];
+    CK_BYTE xCertificateValue[ 626 ];
     size_t xLength = sizeof( xCertificateValueExpected );
     int lConversionReturn;
 
@@ -1952,7 +1959,7 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
 
     if( lConversionReturn != 0 )
     {
-        configPRINTF( ( "Failed to convert the ECDSA certificate from PEM to DER. This test should fail. Error code %d \r\n", lConversionReturn ) );
+        configPRINTF( ( "Failed to convert the ECDSA certificate from PEM to DER. Error code %d \r\n", lConversionReturn ) );
     }
 
     memcpy( &xSession, pxMultiTaskParam->pvTaskData, sizeof( CK_SESSION_HANDLE ) );
