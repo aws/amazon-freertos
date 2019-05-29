@@ -177,11 +177,6 @@ class OtaAfrProject:
             if (startMQTTdemo in line) and ("//" not in line) and ("/*" not in line):
                 line = line.replace(startMQTTdemo, startotaUpdateDemo)
             sys.stdout.write(line)
-            # if vStartotaUpdateDemoTask in line:
-            #     line = line.replace("/* ", "")
-            #     line = line.replace(" */", "")
-            # print(line) will place an extra newline character in the file.
-
 
     def __setTestRunnerForOtaDemo(self):
         """
