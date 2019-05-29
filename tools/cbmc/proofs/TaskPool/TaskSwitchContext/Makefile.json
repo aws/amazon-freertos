@@ -1,0 +1,24 @@
+{
+  "ENTRY": "TaskSwitchContext",
+  "DEF":
+  [
+    "FREERTOS_MODULE_TEST",
+    "'portGET_HIGHEST_PRIORITY(uxTopPriority, uxReadyPriorities)=__CPROVER_assume( uxTopPriority < configMAX_PRIORITIES )'",
+    "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'"
+  ],
+  "CBMCFLAGS":
+  [
+      "--unwind 1",
+      "--unwindset prvInitialiseTaskLists.0:8,xPrepareTaskLists.0:8,vListInsert.0:2"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/tasks.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/tools/cbmc/proofs/TaskPool/TaskSwitchContext/"
+  ]
+}
