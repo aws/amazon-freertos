@@ -42,10 +42,6 @@
     #define DEMO_entryFUNCTION                              RunMqttDemo
 #elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION                              RunShadowDemo
-#elif defined(CONFIG_MQTT_BLE_DEMO_ENABLED)
-    #define DEMO_entryFUNCTION                              RunBLEMqttEchoDemo
-    #define DEMO_networkConnectedCallback                   BLEMqttEchoDemoNetworkConnectedCallback
-    #define DEMO_networkDisconnectedCallback                BLEMqttEchoDemoNetworkDisconnectedCallback
 #elif defined(CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartGreenGrassDiscoveryTask
 #elif defined(CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED)
