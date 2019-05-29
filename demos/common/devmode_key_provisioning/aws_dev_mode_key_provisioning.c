@@ -265,7 +265,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
             xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
             xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
             xPrivateKeyTemplate.xLabel.pValue = ( CK_VOID_PTR ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
-            xPrivateKeyTemplate.xLabel.ulValueLen = ( CK_ULONG ) sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
+            xPrivateKeyTemplate.xLabel.ulValueLen = ( CK_ULONG ) strlen( ( const char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
             xPrivateKeyTemplate.xCanSign.type = CKA_SIGN;
             xPrivateKeyTemplate.xCanSign.pValue = &xTrue;
             xPrivateKeyTemplate.xCanSign.ulValueLen = sizeof( CK_BBOOL );
