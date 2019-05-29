@@ -251,7 +251,7 @@ typedef struct _taskPoolJob * IotTaskPoolJob_t;
  * @brief Callback type for a user callback.
  *
  * This type identifies the user callback signature to execute a task pool job. This callback will be invoked
- * by the task pool threads with the `pUserContext` parameter, as speficied by the user when
+ * by the task pool threads with the `pUserContext` parameter, as specified by the user when
  * calling @ref IotTaskPool_Schedule.
  *
  */
