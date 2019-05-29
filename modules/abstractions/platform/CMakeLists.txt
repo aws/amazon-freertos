@@ -6,10 +6,10 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        "${inc_dir}/iot_metrics.h"
-        "${inc_dir}/iot_clock.h"
-        "${inc_dir}/iot_network.h"
-        "${inc_dir}/iot_threads.h"
+        "${inc_dir}/platform/iot_metrics.h"
+        "${inc_dir}/platform/iot_clock.h"
+        "${inc_dir}/platform/iot_network.h"
+        "${inc_dir}/platform/iot_threads.h"
         "${inc_dir}/types/iot_platform_types.h"
 )
 
@@ -40,9 +40,9 @@ afr_module_sources(
         "${src_dir}/iot_network_afr.c"
         "${src_dir}/iot_threads_afr.c"
         "${src_dir}/aws_secure_sockets_wrapper_metrics.c"  # TODO, should we refactor this away?
-        "${src_dir}/include/iot_network_afr.h"
-        "${src_dir}/include/iot_network_ble.h"
-        "${src_dir}/include/iot_platform_types_afr.h"
+        "${src_dir}/include/platform/iot_network_afr.h"
+        "${src_dir}/include/platform/iot_network_ble.h"
+        "${src_dir}/include/platform/iot_platform_types_afr.h"
 )
 
 afr_module_include_dirs(
