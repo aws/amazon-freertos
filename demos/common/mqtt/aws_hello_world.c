@@ -196,7 +196,7 @@ static BaseType_t prvCreateClientAndConnectToBroker( void )
     configASSERT( xMQTTHandle == NULL );
 
     /* Check that basic configuration has been completed. These settings are
-     * given special treatment here since the Hellow World demo is what we
+     * given special treatment here since the Hello World demo is what we
      * recommend developers to run first. */
     if( ( xConnectParameters.pucClientId == NULL ) ||
         ( strcmp( "", ( const char * ) xConnectParameters.pucClientId ) == 0 ) ||
