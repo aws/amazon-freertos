@@ -410,7 +410,6 @@ void vDevModeKeyProvisioning( void )
     {
         configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key.\r\n" ) );
         configASSERT( pdFALSE );
-        return;
     }
     else
     {
@@ -424,7 +423,6 @@ void vDevModeKeyProvisioning( void )
     {
         configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device certificate.\r\n" ) );
         configASSERT( pdFALSE );
-        return;
     }
     else
     {
