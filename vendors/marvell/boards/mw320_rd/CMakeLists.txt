@@ -50,43 +50,43 @@ set(SDK_VERSION_INTERNAL "\"v1.2.r6.p1\"")
 set(SDK_VERSION ${SDK_VERSION_INTERNAL})
 
 set(global-cflags-y
-	"-mcpu=cortex-m4"
-	"-mthumb"
-	"-g"
-	"-Os"
-	"-fdata-sections"
-	"-ffunction-sections"
-	"-ffreestanding"
-	"-MMD"
-	"-Wall"
-	"-fno-strict-aliasing"
-	"-fno-common"
-	"-Wextra"
-	"-Wno-unused-parameter"
-	"-Wno-empty-body"
-	"-Wno-missing-field-initializers"
-	"-Wno-sign-compare"
-	"-Wno-type-limits"
-	"-std=c99"
-	"-DSDK_VERSION=${SDK_VERSION}"
+    "-mcpu=cortex-m4"
+    "-mthumb"
+    "-g"
+    "-Os"
+    "-fdata-sections"
+    "-ffunction-sections"
+    "-ffreestanding"
+    "-MMD"
+    "-Wall"
+    "-fno-strict-aliasing"
+    "-fno-common"
+    "-Wextra"
+    "-Wno-unused-parameter"
+    "-Wno-empty-body"
+    "-Wno-missing-field-initializers"
+    "-Wno-sign-compare"
+    "-Wno-type-limits"
+    "-std=c99"
+    "-DSDK_VERSION=${SDK_VERSION}"
 )
 
 # ARM Cortex M4 flags
 set(tc-lflags-tc-cortex-m4-y
-	"-mcpu=cortex-m4"
-	"-mthumb"
-	"-g"
-	"-Os"
-	"-fdata-sections"
-	"-ffunction-sections"
-	"-ffreestanding"
-	"-MMD"
-	"-Wall"
-	"-fno-strict-aliasing"
-	"-fno-common"
-	"-mfloat-abi=softfp"
-	"-mfpu=fpv4-sp-d16"
-	"-D__FPU_PRESENT"
+    "-mcpu=cortex-m4"
+    "-mthumb"
+    "-g"
+    "-Os"
+    "-fdata-sections"
+    "-ffunction-sections"
+    "-ffreestanding"
+    "-MMD"
+    "-Wall"
+    "-fno-strict-aliasing"
+    "-fno-common"
+    "-mfloat-abi=softfp"
+    "-mfpu=fpv4-sp-d16"
+    "-D__FPU_PRESENT"
 )
 
 target_compile_options(
@@ -97,23 +97,23 @@ target_compile_options(
 
 # Global include directories
 target_include_directories(
-     AFR::compiler::mcu_port
-     INTERFACE
-         "${mw320_dir}/sdk/src"
-	 "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/"
-	 "${board_dir}/config_files"
+    AFR::compiler::mcu_port
+    INTERFACE
+        "${mw320_dir}/sdk/src"
+        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/"
+        "${board_dir}/config_files"
 )
 
 # Linker flags
 # gcc specific extra linker flags
 set(tc-lflags-y
-	"-nostartfiles"
-	"-Wl,--wrap,malloc"
-	"-Wl,--wrap,free"
-	"-Wl,--wrap,calloc"
-	"-Wl,--wrap,realloc"
-	"-Wl,--wrap,printf"
-	"-Wl,--wrap,fprintf"
+    "-nostartfiles"
+    "-Wl,--wrap,malloc"
+    "-Wl,--wrap,free"
+    "-Wl,--wrap,calloc"
+    "-Wl,--wrap,realloc"
+    "-Wl,--wrap,printf"
+    "-Wl,--wrap,fprintf"
 )
 
 # Xlinker flags
@@ -152,12 +152,12 @@ list(REMOVE_ITEM driver_src "${mw320_dir}/sdk/src/libc/src/strtox.c")
 target_sources(
      AFR::kernel::mcu_port
      INTERFACE
-          ${driver_src}
-	  #${driver_headers}
-	  "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
-	  "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
-	  "${mw320_dir}/sdk/external/FreeRTOS/portable/MemMang/heap_marvell.c"
-	  "${mw320_dir}/sdk/external/FreeRTOS/Source/FreeRTOS-openocd.c"
+        ${driver_src}
+        #${driver_headers}
+        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
+        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
+        "${mw320_dir}/sdk/external/FreeRTOS/portable/MemMang/heap_marvell.c"
+        "${mw320_dir}/sdk/external/FreeRTOS/Source/FreeRTOS-openocd.c"
 )
 
 set(
@@ -177,8 +177,9 @@ set(
     "${mw320_dir}/sdk/src/wlan/wifidriver/incl"
     "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
     "${mw320_dir}/sdk/src/incl/platform/os/freertos"
-    "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/include"
-    "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
+    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
+    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
 )
 
 # Global include directories
@@ -199,8 +200,8 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/mw300_rd/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/mw300_rd/NetworkInterface.c"
 )
 
 # PKCS11
@@ -225,15 +226,15 @@ target_link_libraries(
 )
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_PORTS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
+    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
 )
 
 target_include_directories(
     AFR::secure_sockets::mcu_port
     INTERFACE
-       "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
        "${AFR_3RDPARTY_DIR}/pkcs11"
-       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
 )
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
@@ -254,9 +255,9 @@ add_executable(
 target_include_directories(
     ${exe_target}
     PUBLIC
-       "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
        "${AFR_3RDPARTY_DIR}/pkcs11"
-       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
 )
 
 target_link_libraries(
