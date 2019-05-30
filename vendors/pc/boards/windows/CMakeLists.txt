@@ -1,6 +1,6 @@
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
@@ -24,7 +24,7 @@ afr_set_board_metadata(IDE_VisualStudio_COMPILER "MSVC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
 afr_set_board_metadata(IDE_VisualStudio_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/visual_studio")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -63,7 +63,7 @@ target_include_directories(
         "${board_dir}/config_files"
         "${board_dir}/application_code"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+        ""$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>""
 )
 target_link_libraries(
     AFR::kernel::mcu_port

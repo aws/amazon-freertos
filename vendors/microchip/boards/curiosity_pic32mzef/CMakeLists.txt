@@ -1,8 +1,8 @@
 set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
 set(harmony_dir "${mchp_dir}/harmony/v2.05")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")

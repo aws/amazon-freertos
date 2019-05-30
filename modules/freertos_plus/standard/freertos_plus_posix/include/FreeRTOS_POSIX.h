@@ -35,7 +35,7 @@
 
 /* FreeRTOS+POSIX platform-specific configuration headers. */
 #include "FreeRTOS_POSIX_portable.h"
-#include "portable/FreeRTOS_POSIX_portable_default.h"
+#include "FreeRTOS_POSIX_portable_default.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"

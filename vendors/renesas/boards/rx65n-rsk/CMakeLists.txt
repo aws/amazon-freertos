@@ -31,7 +31,7 @@ afr_set_board_metadata(IDE_E2Studio_NAME "e2 studio")
 afr_set_board_metadata(IDE_E2Studio_COMPILER "CCRX")
 
 afr_set_board_metadata(IDE_E2Studio_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/e2studio")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 
 # -------------------------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR
 afr_mcu_port(compiler)
 
 #set(compiler_flags
-#    -isa=rxv2 -fpu -branch=32 -preinclude="implicitlyinclude.h" 
+#    -isa=rxv2 -fpu -branch=32 -preinclude="implicitlyinclude.h"
 #    -nomessage=11174,21644,20010,23034,23035,20177,23033 -output=obj  -debug -nologo
 #    -obj_path=${workspace_loc:/${ProjName}/${ConfigName}}
 #)
@@ -57,7 +57,7 @@ target_compile_options(
 
 #set(assembler_flags
 #    -isa=rxv2 -fpu -debug -nologo
-#    -output=${workspace_loc:/${ProjName}/${ConfigName}} 
+#    -output=${workspace_loc:/${ProjName}/${ConfigName}}
 #)
 
 # Assembler flags
@@ -68,7 +68,7 @@ target_compile_options(
 )
 
 #set(linker_flags
-#    -noprelink -form=absolute -nomessage -vect=_undefined_interrupt_source_isr -list=${exe_target}.map 
+#    -noprelink -form=absolute -nomessage -vect=_undefined_interrupt_source_isr -list=${exe_target}.map
 #    -nooptimize -rom=D=R,D_1=R_1,D_2=R_2 -nologo
 #)
 
@@ -192,7 +192,7 @@ set(kernel_inc_dirs
     "${AFR_KERNEL_DIR}/portable/Renesas/RX600v2"
     "${rx65nrsk_aws_dir}/common/config_files"
     "${rx65nrsk_aws_dir}/common/application_code/renesas_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    ""$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>""
 )
 
 target_include_directories(

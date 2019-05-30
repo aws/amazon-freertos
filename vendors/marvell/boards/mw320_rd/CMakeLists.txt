@@ -1,7 +1,7 @@
 set(mw320_dir "${AFR_VENDORS_DIR}/marvell/WMSDK/mw320")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
     set(exe_target aws_tests)
@@ -92,7 +92,7 @@ set(tc-lflags-tc-cortex-m4-y
 target_compile_options(
     AFR::compiler::mcu_port
     INTERFACE ${global-cflags-y} ${tc-lflags-tc-cortex-m4-y}
-    -include ${mw320_dir}/sdk/src/incl/autoconf.h   	
+    -include ${mw320_dir}/sdk/src/incl/autoconf.h
 )
 
 # Global include directories

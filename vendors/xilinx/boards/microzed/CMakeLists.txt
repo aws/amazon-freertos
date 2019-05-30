@@ -1,16 +1,16 @@
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
     set(exe_target aws_tests)
     set(xilinx_xsdk_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/xsdk")
-    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common/config_files")
+    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/config_files")
 else()
     set(board_dir "${board_demos_dir}")
     set(exe_target aws_demos)
     set(xilinx_xsdk_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk")
-    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 endif()
 
 
@@ -113,7 +113,7 @@ target_include_directories(
         "${AFR_MODULES_PORTS_DIR}/wifi/include"
         "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+        ""$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>""
         ${compiler_specific_include}
 )
 target_link_libraries(

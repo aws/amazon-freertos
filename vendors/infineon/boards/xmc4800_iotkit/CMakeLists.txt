@@ -34,7 +34,7 @@ afr_set_board_metadata(IDE_DAVE_NAME "DAVE")
 afr_set_board_metadata(IDE_DAVE_COMPILER "GCC")
 
 afr_set_board_metadata(IDE_DAVE_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/infineon/boards/xmc4800_iotkit/aws_demos/dave4")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/infineon/boards/xmc4800_iotkit/aws_demos/common/config_files")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -178,7 +178,7 @@ set(kernel_includes
     ${board_includes}
     ${compiler_includes}
     "${AFR_KERNEL_DIR}/include"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    ""$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>""
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
     "${xmc4800_aws_dir}/common/config_files"
 )

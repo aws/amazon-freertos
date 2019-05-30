@@ -22,7 +22,7 @@ afr_module_sources(
         "${inc_dir}/FreeRTOS_POSIX.h"
         "${inc_dir}/FreeRTOS_POSIX_types.h"
         "${inc_dir}/FreeRTOS_POSIX_internal.h"
-        "${inc_dir}/portable/FreeRTOS_POSIX_portable_default.h"
+        "${inc_dir}/FreeRTOS_POSIX_portable_default.h"
 )
 
 afr_module_include_dirs(
