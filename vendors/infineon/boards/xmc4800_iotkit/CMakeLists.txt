@@ -171,16 +171,16 @@ set( board_includes
      "${xmclib_dir}/drivers/inc"
      "${xmclib_dir}/third_party/ESP_AT_Lib/src/include"
      "${xmclib_dir}/CMSIS/Infineon/XMC4800_series/Include"
-     "${xmc4800_aws_dir}/common/application_code/infineon_code"
+     "${xmc4800_aws_dir}/application_code/infineon_code"
 
 )
 set(kernel_includes
     ${board_includes}
     ${compiler_includes}
     "${AFR_KERNEL_DIR}/include"
-    ""$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>""
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
-    "${xmc4800_aws_dir}/common/config_files"
+    "${xmc4800_aws_dir}/config_files"
 )
 
 target_include_directories(
@@ -239,9 +239,9 @@ endif()
 
 
 afr_glob_src(esp_at_lib RECURSE DIRECTORY "${xmclib_dir}/third_party/ESP_AT_Lib/src")
-afr_glob_src(board_src DIRECTORY "${xmc4800_aws_dir}/common/application_code/infineon_code")
+afr_glob_src(board_src DIRECTORY "${xmc4800_aws_dir}/application_code/infineon_code")
 afr_glob_src(newlib DIRECTORY "${xmclib_dir}/Newlib")
-afr_glob_src(config_src DIRECTORY "${xmc4800_aws_dir}/common/config_files")
+afr_glob_src(config_src DIRECTORY "${xmc4800_aws_dir}/config_files")
 
 add_executable(
     ${exe_target}
@@ -249,7 +249,7 @@ add_executable(
     ${config_src}
     ${newlib}
     ${esp_at_lib}
-    "${xmc4800_aws_dir}/common/application_code/main.c"
+    "${xmc4800_aws_dir}/application_code/main.c"
 )
 
 target_link_libraries(
