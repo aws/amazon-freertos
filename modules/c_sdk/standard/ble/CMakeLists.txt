@@ -1,4 +1,4 @@
-afr_module(NAME ble)
+afr_module()
 
 afr_set_lib_metadata(ID "ble")
 # Need to update from PM
@@ -8,7 +8,7 @@ afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
 
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}")
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/src")
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
@@ -17,10 +17,16 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/iot_ble_gap.c"
         "${src_dir}/iot_ble_gatt.c"
-
         "${src_dir}/services/device_information/iot_ble_device_information.c"
         "${src_dir}/services/mqtt_ble/iot_ble_data_transfer.c"
         "${src_dir}/services/mqtt_ble/iot_network_ble.c"
+        "${inc_dir}/private/iot_ble_internal.h"
+        "${inc_dir}/iot_ble_config_defaults.h"
+        "${inc_dir}/iot_ble_data_transfer.h"
+        "${inc_dir}/iot_ble_device_information.h"
+        "${inc_dir}/iot_ble_mqtt_serialize.h"
+        "${inc_dir}/iot_ble_wifi_provisioning.h"
+        "${inc_dir}/iot_ble.h"
 )
 
 afr_module_include_dirs(
@@ -30,28 +36,14 @@ afr_module_include_dirs(
     PRIVATE
         "${inc_dir}/private"
         "${test_dir}"
-        "${AFR_MODULES_C_SDK_DIR}/standard/serializer/include"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
+        AFR::ble_hal
         AFR::common
-        AFR::ble::mcu_port
-)
-
-# BLE test
-afr_test_module()
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${test_dir}/aws_test_ble.c"
-        "${test_dir}/aws_test_ble_end_to_end.c"
-)
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        AFR::ble
+        AFR::serializer
 )
 
 afr_module(NAME ble_wifi_provisioning)
@@ -88,10 +80,12 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        "${test_dir}/aws_test_ble_end_to_end.c"
         "${test_dir}/aws_test_wifi_provisioning.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        AFR::ble
         AFR::ble_wifi_provisioning
 )

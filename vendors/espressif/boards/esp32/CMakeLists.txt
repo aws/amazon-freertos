@@ -32,7 +32,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
-    set(aws_credentials_include "${AFR_TESTS_DIR}/include")
+    set(aws_credentials_include "${AFR_TESTS_DIR}/common/include")
 else()
     set(board_dir "${board_demos_dir}")
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
@@ -88,16 +88,16 @@ target_sources(
 # BLE
 set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
 
-afr_mcu_port(ble)
+afr_mcu_port(ble_hal)
 target_sources(
-    AFR::ble::mcu_port
+    AFR::ble_hal::mcu_port
     INTERFACE
         "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
 )
 target_include_directories(
-    AFR::ble::mcu_port
+    AFR::ble_hal::mcu_port
     INTERFACE
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
@@ -182,7 +182,7 @@ target_include_directories(
     ${exe_target}
     PUBLIC
         $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-        $<TARGET_PROPERTY:AFR::ble::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
 )
 target_link_libraries(
     ${exe_target}
