@@ -176,8 +176,8 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/cmake"
         "${AFR_ROOT_DIR}/CMakeLists.txt"
         "${AFR_ROOT_DIR}/PreLoad.cmake"
-        "${AFR_ROOT_DIR}/modules/CMakeLists.txt"
-        "${AFR_ROOT_DIR}/modules/libraries/3rdparty/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/libraries/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/libraries/3rdparty/CMakeLists.txt"
         "${AFR_ROOT_DIR}/demos/CMakeLists.txt"
     )
     foreach(cmake_file IN LISTS AFR_METADATA_CMAKE_FILES)

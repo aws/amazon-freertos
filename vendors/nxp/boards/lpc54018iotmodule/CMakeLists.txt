@@ -193,7 +193,7 @@ set(kernel_inc_dirs
     "${AFR_KERNEL_DIR}/include"
     "${lpc54018_aws_dir}/common/config_files"
     "${lpc54018_aws_dir}/common/application_code/nxp_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
     # Compiler specific includes.
     ${compiler_specific_include}
 )

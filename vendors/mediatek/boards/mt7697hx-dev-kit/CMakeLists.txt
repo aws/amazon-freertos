@@ -212,7 +212,7 @@ target_include_directories(
         "${board_dir}/application_code/mediatek_code"
         "${board_dir}/application_code/mediatek_code/include"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
+        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
 

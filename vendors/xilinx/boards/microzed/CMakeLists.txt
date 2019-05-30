@@ -113,7 +113,7 @@ target_include_directories(
         "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
+        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
         ${compiler_specific_include}
 )
 target_link_libraries(

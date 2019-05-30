@@ -178,7 +178,7 @@ set(kernel_includes
     ${board_includes}
     ${compiler_includes}
     "${AFR_KERNEL_DIR}/include"
-    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
     "${AFR_3RDPARTY_DIR}/mbedtls/include"
     "${xmc4800_aws_dir}/config_files"
 )

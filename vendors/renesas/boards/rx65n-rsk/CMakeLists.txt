@@ -192,7 +192,7 @@ set(kernel_inc_dirs
     "${AFR_KERNEL_DIR}/portable/Renesas/RX600v2"
     "${rx65nrsk_aws_dir}/common/config_files"
     "${rx65nrsk_aws_dir}/common/application_code/renesas_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR}/common/include,${AFR_DEMOS_DIR}/include>"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
 target_include_directories(
