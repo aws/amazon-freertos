@@ -32,6 +32,7 @@
 
 /* Standard includes. */
 #include <stdio.h>
+#include <string.h>
 
 /* Metrics include. */
 #include "platform/iot_metrics.h"
@@ -59,7 +60,7 @@
                                   void * pContext );
 
     static void _metricsAddTcpConnection( Socket_t xSocket,
-                                          SocketsSockaddr_t * pxAddress )
+                                          SocketsSockaddr_t * pxAddress );
 
 /*------------------- Global Variables ------------------------*/
 
