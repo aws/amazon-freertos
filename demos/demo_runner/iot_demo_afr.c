@@ -39,10 +39,10 @@
 #include "iot_mqtt.h"
 
 /* Server info, End point and port #. */
-static IotNetworkServerInfoAfr_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkServerInfo_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
 
 /* Secure connection info. */
-static IotNetworkCredentialsAfr_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static IotNetworkCredentials_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
@@ -291,7 +291,7 @@ void runDemoTask( void * pArgument )
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     int status;
-    
+
     status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )

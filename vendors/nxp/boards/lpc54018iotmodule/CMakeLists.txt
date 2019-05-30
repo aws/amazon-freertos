@@ -40,7 +40,7 @@ afr_set_board_metadata(IDE_MCUXpresso_COMPILER "GCC")
 
 afr_set_board_metadata(IDE_IAREmbeddedWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/iar")
 afr_set_board_metadata(IDE_MCUXpresso_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/mcuxpresso")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -193,7 +193,7 @@ set(kernel_inc_dirs
     "${AFR_KERNEL_DIR}/include"
     "${lpc54018_aws_dir}/common/config_files"
     "${lpc54018_aws_dir}/common/application_code/nxp_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
     # Compiler specific includes.
     ${compiler_specific_include}
 )

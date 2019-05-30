@@ -1,16 +1,16 @@
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
     set(exe_target aws_tests)
     set(xilinx_xsdk_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/xsdk")
-    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common/config_files")
+    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/config_files")
 else()
     set(board_dir "${board_demos_dir}")
     set(exe_target aws_demos)
     set(xilinx_xsdk_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/xsdk")
-    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+    set(xilinx_config_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 endif()
 
 
@@ -64,9 +64,15 @@ target_compile_options(
 
 # Linker flags
 if(AFR_IS_TESTING)
-    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${xilinx_xsdk_dir}/aws_tests/src/Xilinx.spec -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_tests/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib )
+    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none
+        -specs=${board_dir}/Xilinx.spec
+        -Wl,-T -Wl,${board_dir}/lscript.ld
+        -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib)
 else()
-    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=${xilinx_xsdk_dir}/aws_demos/src/Xilinx.spec -Wl,-T -Wl,${xilinx_xsdk_dir}/aws_demos/src/lscript.ld -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib )
+    set(linker_flags -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none
+        -specs=${board_dir}/Xilinx.spec
+        -Wl,-T -Wl,${board_dir}/lscript.ld
+        -L${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/lib)
 endif()
 
 target_link_options(
@@ -99,15 +105,15 @@ target_include_directories(
         "${board_dir}/application_code/xilinx_code"
         "${AFR_VENDORS_DIR}/xilinx/aws_bsp/ps7_cortexa9_0/include"
         "${AFR_KERNEL_DIR}/portable/GCC/ARM_CA9"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/include"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
-        "${AFR_MODULES_STANDARD_DIR}/tls/include"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
         "${AFR_3RDPARTY_DIR}/pkcs11"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
-        "${AFR_MODULES_PORTS_DIR}/wifi/include"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
         ${compiler_specific_include}
 )
 target_link_libraries(
@@ -121,8 +127,8 @@ target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/threading_alt.h"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -132,7 +138,7 @@ target_link_libraries(
 target_include_directories(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/crypto/include/"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include/"
 )
 
 
@@ -141,18 +147,18 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c"
 )
 
 
 target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
 )
 
 
@@ -161,10 +167,10 @@ target_include_directories(
 afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE 
-        "${AFR_MODULES_PORTS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
-        "${AFR_MODULES_STANDARD_DIR}/tls/src/aws_tls.c"
-        "${AFR_MODULES_STANDARD_DIR}/crypto/src/aws_crypto.c"
+    INTERFACE
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/aws_tls.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/aws_crypto.c"
 )
 
 target_include_directories(
@@ -172,12 +178,10 @@ target_include_directories(
     INTERFACE
        "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-       "${AFR_ROOT_DIR}/modules/ports/wifi/include"
-       "${AFR_MODULES_STANDARD_DIR}/common/include"
-       "${AFR_MODULES_STANDARD_DIR}/tls/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
        "${AFR_3RDPARTY_DIR}/mbedtls/include"
-       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
-       "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls"
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
 )
 
 afr_module_dependencies(

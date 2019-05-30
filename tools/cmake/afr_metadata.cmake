@@ -176,8 +176,8 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/cmake"
         "${AFR_ROOT_DIR}/CMakeLists.txt"
         "${AFR_ROOT_DIR}/PreLoad.cmake"
-        "${AFR_ROOT_DIR}/modules/CMakeLists.txt"
-        "${AFR_ROOT_DIR}/modules/libraries/3rdparty/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/libraries/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/libraries/3rdparty/CMakeLists.txt"
         "${AFR_ROOT_DIR}/demos/CMakeLists.txt"
     )
     foreach(cmake_file IN LISTS AFR_METADATA_CMAKE_FILES)
@@ -301,7 +301,7 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
         "${AFR_KERNEL_DIR}"
-        "${AFR_TEST_DIR}"
+        "${AFR_TESTS_DIR}"
     )
 
     # Write all sources and include dirs.

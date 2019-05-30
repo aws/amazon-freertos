@@ -1,14 +1,11 @@
 set(stm32l475_dir "${AFR_VENDORS_DIR}/st/stm32l475_discovery")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
-
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
-    set(aws_credentials_include "${AFR_TEST_DIR}/include")
 else()
     set(board_dir "${board_demos_dir}")
-    set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -30,7 +27,7 @@ afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
 afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
 
 afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/ac6")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -102,14 +99,13 @@ set(
     "${stm32l475_dir}/STM32L4xx_HAL_Driver/Inc/Legacy"
     "${board_dir}/application_code"
     "${board_dir}/application_code/st_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
 target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
         $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
-        "${aws_credentials_include}"
         "${board_dir}/config_files"
 )
 
@@ -183,7 +179,7 @@ target_link_libraries(
     PRIVATE
         AFR::wifi
         AFR::utils
-        -T"${board_dir}/../ac6/STM32L475VGTx_FLASH.ld"
+        -T"${board_dir}/STM32L475VGTx_FLASH.ld"
 )
 
 if(AFR_METADATA_MODE)

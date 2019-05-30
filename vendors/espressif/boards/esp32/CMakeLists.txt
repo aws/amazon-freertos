@@ -26,13 +26,13 @@ target_link_options(
 # -------------------------------------------------------------------------------------------------
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
-    set(aws_credentials_include "${AFR_TEST_DIR}/include")
+    set(aws_credentials_include "${AFR_TESTS_DIR}/include")
 else()
     set(board_dir "${board_demos_dir}")
     set(aws_credentials_include "${AFR_DEMOS_DIR}/include")
@@ -61,7 +61,7 @@ set(
     "${board_dir}/application_code/espressif_code/mbedtls/port/include"
     "${board_dir}/application_code/espressif_code/smartconfig_ack/include"
     "${board_dir}/application_code/espressif_code/tcpip_adapter/include"
-    "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/GCC"
+    "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
 )
 target_include_directories(
     AFR::kernel::mcu_port
@@ -88,16 +88,16 @@ target_sources(
 # BLE
 set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
 
-afr_mcu_port(ble)
+afr_mcu_port(ble_hal)
 target_sources(
-    AFR::ble::mcu_port
+    AFR::ble_hal::mcu_port
     INTERFACE
         "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
 )
 target_include_directories(
-    AFR::ble::mcu_port
+    AFR::ble_hal::mcu_port
     INTERFACE
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
@@ -120,8 +120,8 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c"
 )
 
 # Secure sockets
@@ -164,7 +164,7 @@ target_link_libraries(
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TEST_DIR}/src/iot_tests_network.c")
+    set(extra_exe_sources "${AFR_TESTS_DIR}/common/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
     set(
@@ -182,7 +182,7 @@ target_include_directories(
     ${exe_target}
     PUBLIC
         $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-        $<TARGET_PROPERTY:AFR::ble::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
+        $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
 )
 target_link_libraries(
     ${exe_target}
@@ -201,7 +201,8 @@ endif()
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
 
-set_source_files_properties(${AFR_MODULES_DIR}/greengrass/aws_greengrass_discovery.c
+set_source_files_properties(
+    ${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
     ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
     ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
@@ -233,8 +234,8 @@ set(IDF_TARGET esp32)
 set(ENV{IDF_PATH} ${esp_idf_dir})
 
 # Fetch sdkconfig.defaults and modify the custom partition table csv path
-file(READ "${board_dir}/../sdkconfig.defaults" file_sdkconfig_default)
-string(REGEX REPLACE "partitions_example.csv" "${board_dir}/../make/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
+file(READ "${board_dir}/sdkconfig.defaults" file_sdkconfig_default)
+string(REGEX REPLACE "partitions_example.csv" "${board_dir}/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
 file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
 set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
 # Set sdkconfig generation path inside build

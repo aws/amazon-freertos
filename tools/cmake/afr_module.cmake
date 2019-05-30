@@ -13,7 +13,7 @@ endforeach()
 
 # Global variables.
 set(AFR_MODULES               "" CACHE INTERNAL "List of Amazon FreeRTOS modules.")
-set(AFR_MODULES_PORT          "" CACHE INTERNAL "List of porting layer modules for Amazon FreeRTOS from vendors.")
+set(AFR_MODULES_PORT          "" CACHE INTERNAL "List of porting layer targets defined from vendors.")
 set(AFR_MODULES_PUBLIC        "" CACHE INTERNAL "List of public Amazon FreeRTOS modules.")
 set(AFR_MODULES_BUILD         "" CACHE INTERNAL "List of Amazon FreeRTOS modules to build.")
 set(AFR_MODULES_ENABLED       "" CACHE INTERNAL "List of enabled Amazon FreeRTOS modules.")
@@ -66,11 +66,6 @@ function(afr_module)
             ${module_name}
             PUBLIC AFR::kernel
         )
-    endif()
-
-    # Test dependencies.
-    if(AFR_IS_TESTING AND NOT AFR_MODULE_${module_name}_IS_INTERFACE)
-        afr_module_include_dirs(${module_name} PRIVATE "${AFR_TEST_DIR}/include")
     endif()
 
     # Set current module name.

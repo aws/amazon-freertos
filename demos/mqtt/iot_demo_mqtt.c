@@ -75,26 +75,26 @@
  * This prefix is also used to generate topic names and topic filters used in this
  * demo.
  */
-#define _CLIENT_IDENTIFIER_PREFIX                 "iotdemo"
+#define CLIENT_IDENTIFIER_PREFIX                 "iotdemo"
 
 /**
  * @brief The longest client identifier that an MQTT server must accept (as defined
  * by the MQTT 3.1.1 spec) is 23 characters. Add 1 to include the length of the NULL
  * terminator.
  */
-#define _CLIENT_IDENTIFIER_MAX_LENGTH             ( 24 )
+#define CLIENT_IDENTIFIER_MAX_LENGTH             ( 24 )
 
 /**
  * @brief The keep-alive interval used for this demo.
  *
  * An MQTT ping request will be sent periodically at this interval.
  */
-#define _KEEP_ALIVE_SECONDS                       ( 60 )
+#define KEEP_ALIVE_SECONDS                       ( 60 )
 
 /**
  * @brief The timeout for MQTT operations in this demo.
  */
-#define _MQTT_TIMEOUT_MS                          ( 5000 )
+#define MQTT_TIMEOUT_MS                          ( 5000 )
 
 /**
  * @brief The Last Will and Testament topic name in this demo.
@@ -102,76 +102,76 @@
  * The MQTT server will publish a message to this topic name if this client is
  * unexpectedly disconnected.
  */
-#define _WILL_TOPIC_NAME                          IOT_DEMO_MQTT_TOPIC_PREFIX "/will"
+#define WILL_TOPIC_NAME                          IOT_DEMO_MQTT_TOPIC_PREFIX "/will"
 
 /**
- * @brief The length of #_WILL_TOPIC_NAME.
+ * @brief The length of #WILL_TOPIC_NAME.
  */
-#define _WILL_TOPIC_NAME_LENGTH                   ( ( uint16_t ) ( sizeof( _WILL_TOPIC_NAME ) - 1 ) )
+#define WILL_TOPIC_NAME_LENGTH                   ( ( uint16_t ) ( sizeof( WILL_TOPIC_NAME ) - 1 ) )
 
 /**
- * @brief The message to publish to #_WILL_TOPIC_NAME.
+ * @brief The message to publish to #WILL_TOPIC_NAME.
  */
-#define _WILL_MESSAGE                             "MQTT demo unexpectedly disconnected."
+#define WILL_MESSAGE                             "MQTT demo unexpectedly disconnected."
 
 /**
- * @brief The length of #_WILL_MESSAGE.
+ * @brief The length of #WILL_MESSAGE.
  */
-#define _WILL_MESSAGE_LENGTH                      ( ( size_t ) ( sizeof( _WILL_MESSAGE ) - 1 ) )
+#define WILL_MESSAGE_LENGTH                      ( ( size_t ) ( sizeof( WILL_MESSAGE ) - 1 ) )
 
 /**
  * @brief How many topic filters will be used in this demo.
  */
-#define _TOPIC_FILTER_COUNT                       ( 4 )
+#define TOPIC_FILTER_COUNT                       ( 4 )
 
 /**
  * @brief The length of each topic filter.
  *
  * For convenience, all topic filters are the same length.
  */
-#define _TOPIC_FILTER_LENGTH                      ( ( uint16_t ) ( sizeof( IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/1" ) - 1 ) )
+#define TOPIC_FILTER_LENGTH                      ( ( uint16_t ) ( sizeof( IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/1" ) - 1 ) )
 
 /**
  * @brief Format string of the PUBLISH messages in this demo.
  */
-#define _PUBLISH_PAYLOAD_FORMAT                   "Hello world %d!"
+#define PUBLISH_PAYLOAD_FORMAT                   "Hello world %d!"
 
 /**
  * @brief Size of the buffer that holds the PUBLISH messages in this demo.
  */
-#define _PUBLISH_PAYLOAD_BUFFER_LENGTH            ( sizeof( _PUBLISH_PAYLOAD_FORMAT ) + 2 )
+#define PUBLISH_PAYLOAD_BUFFER_LENGTH            ( sizeof( PUBLISH_PAYLOAD_FORMAT ) + 2 )
 
 /**
  * @brief The maximum number of times each PUBLISH in this demo will be retried.
  */
-#define _PUBLISH_RETRY_LIMIT                      ( 10 )
+#define PUBLISH_RETRY_LIMIT                      ( 10 )
 
 /**
  * @brief A PUBLISH message is retried if no response is received within this
  * time.
  */
-#define _PUBLISH_RETRY_MS                         ( 1000 )
+#define PUBLISH_RETRY_MS                         ( 1000 )
 
 /**
  * @brief The topic name on which acknowledgement messages for incoming publishes
  * should be published.
  */
-#define _ACKNOWLEDGEMENT_TOPIC_NAME               IOT_DEMO_MQTT_TOPIC_PREFIX "/acknowledgements"
+#define ACKNOWLEDGEMENT_TOPIC_NAME               IOT_DEMO_MQTT_TOPIC_PREFIX "/acknowledgements"
 
 /**
- * @brief The length of #_ACKNOWLEDGEMENT_TOPIC_NAME.
+ * @brief The length of #ACKNOWLEDGEMENT_TOPIC_NAME.
  */
-#define _ACKNOWLEDGEMENT_TOPIC_NAME_LENGTH        ( ( uint16_t ) ( sizeof( _ACKNOWLEDGEMENT_TOPIC_NAME ) - 1 ) )
+#define ACKNOWLEDGEMENT_TOPIC_NAME_LENGTH        ( ( uint16_t ) ( sizeof( ACKNOWLEDGEMENT_TOPIC_NAME ) - 1 ) )
 
 /**
  * @brief Format string of PUBLISH acknowledgement messages in this demo.
  */
-#define _ACKNOWLEDGEMENT_MESSAGE_FORMAT           "Client has received PUBLISH %.*s from server."
+#define ACKNOWLEDGEMENT_MESSAGE_FORMAT           "Client has received PUBLISH %.*s from server."
 
 /**
  * @brief Size of the buffers that hold acknowledgement messages in this demo.
  */
-#define _ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH    ( sizeof( _ACKNOWLEDGEMENT_MESSAGE_FORMAT ) + 2 )
+#define ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH    ( sizeof( ACKNOWLEDGEMENT_MESSAGE_FORMAT ) + 2 )
 
 /*-----------------------------------------------------------*/
 
@@ -238,7 +238,7 @@ static void _mqttSubscriptionCallback( void * param1,
     size_t messageNumberIndex = 0, messageNumberLength = 1;
     IotSemaphore_t * pPublishesReceived = ( IotSemaphore_t * ) param1;
     const char * pPayload = pPublish->u.message.info.pPayload;
-    char pAcknowledgementMessage[ _ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH ] = { 0 };
+    char pAcknowledgementMessage[ ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH ] = { 0 };
     IotMqttPublishInfo_t acknowledgementInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
     /* Print information about the incoming PUBLISH message. */
@@ -282,8 +282,8 @@ static void _mqttSubscriptionCallback( void * param1,
 
         /* Generate an acknowledgement message. */
         acknowledgementLength = snprintf( pAcknowledgementMessage,
-                                          _ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH,
-                                          _ACKNOWLEDGEMENT_MESSAGE_FORMAT,
+                                          ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH,
+                                          ACKNOWLEDGEMENT_MESSAGE_FORMAT,
                                           ( int ) messageNumberLength,
                                           pPayload + messageNumberIndex );
 
@@ -298,12 +298,12 @@ static void _mqttSubscriptionCallback( void * param1,
         {
             /* Set the members of the publish info for the acknowledgement message. */
             acknowledgementInfo.qos = IOT_MQTT_QOS_1;
-            acknowledgementInfo.pTopicName = _ACKNOWLEDGEMENT_TOPIC_NAME;
-            acknowledgementInfo.topicNameLength = _ACKNOWLEDGEMENT_TOPIC_NAME_LENGTH;
+            acknowledgementInfo.pTopicName = ACKNOWLEDGEMENT_TOPIC_NAME;
+            acknowledgementInfo.topicNameLength = ACKNOWLEDGEMENT_TOPIC_NAME_LENGTH;
             acknowledgementInfo.pPayload = pAcknowledgementMessage;
             acknowledgementInfo.payloadLength = ( size_t ) acknowledgementLength;
-            acknowledgementInfo.retryMs = _PUBLISH_RETRY_MS;
-            acknowledgementInfo.retryLimit = _PUBLISH_RETRY_LIMIT;
+            acknowledgementInfo.retryMs = PUBLISH_RETRY_MS;
+            acknowledgementInfo.retryLimit = PUBLISH_RETRY_LIMIT;
 
             /* Send the acknowledgement for the received message. This demo program
              * will not be notified on the status of the acknowledgement because
@@ -337,6 +337,40 @@ static void _mqttSubscriptionCallback( void * param1,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Initialize the MQTT library.
+ *
+ * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
+ * `EXIT_FAILURE` otherwise.
+ */
+static int _initializeDemo( void )
+{
+    int status = EXIT_SUCCESS;
+    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
+
+    mqttInitStatus = IotMqtt_Init();
+
+    if( mqttInitStatus != IOT_MQTT_SUCCESS )
+    {
+        /* Failed to initialize MQTT library. */
+        status = EXIT_FAILURE;
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Clean up the MQTT library.
+ */
+static void _cleanupDemo( void )
+{
+    IotMqtt_Cleanup();
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Establish a new connection to the MQTT server.
  *
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
@@ -364,7 +398,7 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     IotMqttNetworkInfo_t networkInfo = IOT_MQTT_NETWORK_INFO_INITIALIZER;
     IotMqttConnectInfo_t connectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     IotMqttPublishInfo_t willInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
-    char pClientIdentifierBuffer[ _CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
+    char pClientIdentifierBuffer[ CLIENT_IDENTIFIER_MAX_LENGTH ] = { 0 };
 
     /* Set the members of the network info not set by the initializer. This
      * struct provided information on the transport layer to the MQTT connection. */
@@ -373,23 +407,23 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
     networkInfo.pNetworkInterface = pNetworkInterface;
 
-#if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-    networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
-#endif
+    #if ( IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 ) && defined( IOT_DEMO_MQTT_SERIALIZER )
+        networkInfo.pSerializer = IOT_DEMO_MQTT_SERIALIZER;
+    #endif
 
     /* Set the members of the connection info not set by the initializer. */
     connectInfo.awsIotMqttMode = awsIotMqttMode;
     connectInfo.cleanSession = true;
-    connectInfo.keepAliveSeconds = _KEEP_ALIVE_SECONDS;
+    connectInfo.keepAliveSeconds = KEEP_ALIVE_SECONDS;
     connectInfo.pWillInfo = &willInfo;
 
     /* Set the members of the Last Will and Testament (LWT) message info. The
      * MQTT server will publish the LWT message if this client disconnects
      * unexpectedly. */
-    willInfo.pTopicName = _WILL_TOPIC_NAME;
-    willInfo.topicNameLength = _WILL_TOPIC_NAME_LENGTH;
-    willInfo.pPayload = _WILL_MESSAGE;
-    willInfo.payloadLength = _WILL_MESSAGE_LENGTH;
+    willInfo.pTopicName = WILL_TOPIC_NAME;
+    willInfo.topicNameLength = WILL_TOPIC_NAME_LENGTH;
+    willInfo.pPayload = WILL_MESSAGE;
+    willInfo.payloadLength = WILL_MESSAGE_LENGTH;
 
     /* Use the parameter client identifier if provided. Otherwise, generate a
      * unique client identifier. */
@@ -404,8 +438,8 @@ static int _establishMqttConnection( bool awsIotMqttMode,
          * generate this unique client identifier by appending a timestamp to a common
          * prefix. */
         status = snprintf( pClientIdentifierBuffer,
-                           _CLIENT_IDENTIFIER_MAX_LENGTH,
-                           _CLIENT_IDENTIFIER_PREFIX "%lu",
+                           CLIENT_IDENTIFIER_MAX_LENGTH,
+                           CLIENT_IDENTIFIER_PREFIX "%lu",
                            ( long unsigned int ) IotClock_GetTimeMs() );
 
         /* Check for errors from snprintf. */
@@ -434,7 +468,7 @@ static int _establishMqttConnection( bool awsIotMqttMode,
 
         connectStatus = IotMqtt_Connect( &networkInfo,
                                          &connectInfo,
-                                         _MQTT_TIMEOUT_MS,
+                                         MQTT_TIMEOUT_MS,
                                          pMqttConnection );
 
         if( connectStatus != IOT_MQTT_SUCCESS )
@@ -471,14 +505,14 @@ static int _modifySubscriptions( IotMqttConnection_t mqttConnection,
     int status = EXIT_SUCCESS;
     int32_t i = 0;
     IotMqttError_t subscriptionStatus = IOT_MQTT_STATUS_PENDING;
-    IotMqttSubscription_t pSubscriptions[ _TOPIC_FILTER_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+    IotMqttSubscription_t pSubscriptions[ TOPIC_FILTER_COUNT ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     /* Set the members of the subscription list. */
-    for( i = 0; i < _TOPIC_FILTER_COUNT; i++ )
+    for( i = 0; i < TOPIC_FILTER_COUNT; i++ )
     {
         pSubscriptions[ i ].qos = IOT_MQTT_QOS_1;
         pSubscriptions[ i ].pTopicFilter = pTopicFilters[ i ];
-        pSubscriptions[ i ].topicFilterLength = _TOPIC_FILTER_LENGTH;
+        pSubscriptions[ i ].topicFilterLength = TOPIC_FILTER_LENGTH;
         pSubscriptions[ i ].callback.pCallbackContext = pCallbackParameter;
         pSubscriptions[ i ].callback.function = _mqttSubscriptionCallback;
     }
@@ -488,9 +522,9 @@ static int _modifySubscriptions( IotMqttConnection_t mqttConnection,
     {
         subscriptionStatus = IotMqtt_TimedSubscribe( mqttConnection,
                                                      pSubscriptions,
-                                                     _TOPIC_FILTER_COUNT,
+                                                     TOPIC_FILTER_COUNT,
                                                      0,
-                                                     _MQTT_TIMEOUT_MS );
+                                                     MQTT_TIMEOUT_MS );
 
         /* Check the status of SUBSCRIBE. */
         switch( subscriptionStatus )
@@ -502,7 +536,7 @@ static int _modifySubscriptions( IotMqttConnection_t mqttConnection,
             case IOT_MQTT_SERVER_REFUSED:
 
                 /* Check which subscriptions were rejected before exiting the demo. */
-                for( i = 0; i < _TOPIC_FILTER_COUNT; i++ )
+                for( i = 0; i < TOPIC_FILTER_COUNT; i++ )
                 {
                     if( IotMqtt_IsSubscribed( mqttConnection,
                                               pSubscriptions[ i ].pTopicFilter,
@@ -534,9 +568,9 @@ static int _modifySubscriptions( IotMqttConnection_t mqttConnection,
     {
         subscriptionStatus = IotMqtt_TimedUnsubscribe( mqttConnection,
                                                        pSubscriptions,
-                                                       _TOPIC_FILTER_COUNT,
+                                                       TOPIC_FILTER_COUNT,
                                                        0,
-                                                       _MQTT_TIMEOUT_MS );
+                                                       MQTT_TIMEOUT_MS );
 
         /* Check the status of UNSUBSCRIBE. */
         if( subscriptionStatus != IOT_MQTT_SUCCESS )
@@ -579,7 +613,7 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
     IotMqttError_t publishStatus = IOT_MQTT_STATUS_PENDING;
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
     IotMqttCallbackInfo_t publishComplete = IOT_MQTT_CALLBACK_INFO_INITIALIZER;
-    char pPublishPayload[ _PUBLISH_PAYLOAD_BUFFER_LENGTH ] = { 0 };
+    char pPublishPayload[ PUBLISH_PAYLOAD_BUFFER_LENGTH ] = { 0 };
 
     /* The MQTT library should invoke this callback when a PUBLISH message
      * is successfully transmitted. */
@@ -587,10 +621,10 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
 
     /* Set the common members of the publish info. */
     publishInfo.qos = IOT_MQTT_QOS_1;
-    publishInfo.topicNameLength = _TOPIC_FILTER_LENGTH;
+    publishInfo.topicNameLength = TOPIC_FILTER_LENGTH;
     publishInfo.pPayload = pPublishPayload;
-    publishInfo.retryMs = _PUBLISH_RETRY_MS;
-    publishInfo.retryLimit = _PUBLISH_RETRY_LIMIT;
+    publishInfo.retryMs = PUBLISH_RETRY_MS;
+    publishInfo.retryLimit = PUBLISH_RETRY_LIMIT;
 
     /* Loop to PUBLISH all messages of this demo. */
     for( publishCount = 0;
@@ -609,12 +643,12 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
         publishComplete.pCallbackContext = ( void * ) publishCount;
 
         /* Choose a topic name (round-robin through the array of topic names). */
-        publishInfo.pTopicName = pTopicNames[ publishCount % _TOPIC_FILTER_COUNT ];
+        publishInfo.pTopicName = pTopicNames[ publishCount % TOPIC_FILTER_COUNT ];
 
         /* Generate the payload for the PUBLISH. */
         status = snprintf( pPublishPayload,
-                           _PUBLISH_PAYLOAD_BUFFER_LENGTH,
-                           _PUBLISH_PAYLOAD_FORMAT,
+                           PUBLISH_PAYLOAD_BUFFER_LENGTH,
+                           PUBLISH_PAYLOAD_FORMAT,
                            ( int ) publishCount );
 
         /* Check for errors from snprintf. */
@@ -662,7 +696,7 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
             for( i = 0; i < IOT_DEMO_MQTT_PUBLISH_BURST_SIZE; i++ )
             {
                 if( IotSemaphore_TimedWait( pPublishReceivedCounter,
-                                            _MQTT_TIMEOUT_MS ) == false )
+                                            MQTT_TIMEOUT_MS ) == false )
                 {
                     IotLogError( "Timed out waiting for incoming PUBLISH messages." );
                     status = EXIT_FAILURE;
@@ -690,7 +724,7 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
         for( i = 0; i < IOT_DEMO_MQTT_PUBLISH_BURST_SIZE; i++ )
         {
             if( IotSemaphore_TimedWait( pPublishReceivedCounter,
-                                        _MQTT_TIMEOUT_MS ) == false )
+                                        MQTT_TIMEOUT_MS ) == false )
             {
                 IotLogError( "Timed out waiting for incoming PUBLISH messages." );
                 status = EXIT_FAILURE;
@@ -707,37 +741,6 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
 
     return status;
 }
-
-/**
- * @brief Initialize the MQTT library.
- *
- * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
- * `EXIT_FAILURE` otherwise.
- */
-static int _initializeDemo( void )
-{
-    int ret = EXIT_SUCCESS;
-    IotMqttError_t mqttInitStatus = IOT_MQTT_SUCCESS;
-
-    /* Initialize the MQTT library. */
-    mqttInitStatus = IotMqtt_Init();
-    if( mqttInitStatus != IOT_MQTT_SUCCESS )
-    {
-        ret = EXIT_FAILURE;
-    }
-
-    return ret;
-}
-
-/**
- * @brief Clean up the  the MQTT library.
- */
-static void _cleanupDemo( void )
-{
-    IotMqtt_Cleanup();
-}
-
-
 
 /*-----------------------------------------------------------*/
 
@@ -772,7 +775,7 @@ int RunMqttDemo( bool awsIotMqttMode,
     IotSemaphore_t publishesReceived;
 
     /* Topics used as both topic filters and topic names in this demo. */
-    const char * pTopics[ _TOPIC_FILTER_COUNT ] =
+    const char * pTopics[ TOPIC_FILTER_COUNT ] =
     {
         IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/1",
         IOT_DEMO_MQTT_TOPIC_PREFIX "/topic/2",

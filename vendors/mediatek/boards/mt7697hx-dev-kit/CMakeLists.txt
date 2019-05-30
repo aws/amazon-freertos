@@ -1,6 +1,6 @@
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 set(demos_uvision_dir ${CMAKE_CURRENT_LIST_DIR}/aws_demos/uvision/)
 set(tests_uvision_dir ${CMAKE_CURRENT_LIST_DIR}/aws_tests/uvision/)
 
@@ -35,7 +35,7 @@ afr_set_board_metadata(IDE_uVision_COMPILER "ARMCC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
 afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/uvision")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -212,19 +212,19 @@ target_include_directories(
         "${board_dir}/application_code/mediatek_code"
         "${board_dir}/application_code/mediatek_code/include"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
-        "${AFR_MODULES_STANDARD_DIR}/mqtt/include"
-        "${AFR_MODULES_STANDARD_DIR}/common/include"
+        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
 
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
         "${AFR_3RDPARTY_DIR}/lwip/src/include"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable"
         "${AFR_3RDPARTY_DIR}/pkcs11"
-        "${AFR_ROOT_DIR}/modules/ports/secure_sockets/include"
-        "${AFR_MODULES_STANDARD_DIR}/common/include/private"
-        "${AFR_MODULES_STANDARD_DIR}/utils/include"
-        "${AFR_MODULES_STANDARD_DIR}/provisioning/include"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/provisioning/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
         "${board_dir}/config_files"
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
         ${compiler_specific_include}
@@ -331,8 +331,8 @@ target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
-        "${AFR_MODULES_STANDARD_DIR}/crypto/src/aws_crypto.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/aws_crypto.c"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -342,7 +342,7 @@ target_link_libraries(
 target_include_directories(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/crypto/include/"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include/"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/inc"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/inc"
         "${board_dir}/application_code/mediatek_code/include"
@@ -353,20 +353,20 @@ afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE
-        "${AFR_ROOT_DIR}/modules/ports/secure_sockets/lwip/aws_secure_sockets.c"
-        "${AFR_ROOT_DIR}/modules/libraries/standard/tls/src/aws_tls.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/aws_tls.c"
 )
 target_include_directories(
     AFR::secure_sockets::mcu_port
     INTERFACE
        "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-       "${AFR_ROOT_DIR}/modules/ports/wifi/include"
-       "${AFR_MODULES_STANDARD_DIR}/common/include"
-       "${AFR_MODULES_STANDARD_DIR}/tls/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
+       "${AFR_MODULES_C_SDK_DIR}/common/include"
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
        "${AFR_3RDPARTY_DIR}/mbedtls/include"
-       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
-       "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls"
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
 )
 
  afr_module_dependencies(
