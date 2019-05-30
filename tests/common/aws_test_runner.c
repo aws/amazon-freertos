@@ -151,10 +151,6 @@ static void RunTests( void )
         RUN_TEST_GROUP( Quarantine_TLS );
     #endif
 
-    #if ( testrunnerFULL_CBOR_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_CBOR );
-    #endif
-
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_DEFENDER );
     #endif

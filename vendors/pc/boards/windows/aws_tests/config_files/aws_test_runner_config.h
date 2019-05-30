@@ -38,8 +38,7 @@
 #define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED    testrunnerUNSUPPORTED
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
-#define testrunnerFULL_TASKPOOL_ENABLED               1
-#define testrunnerFULL_CBOR_ENABLED                   0
+#define testrunnerFULL_TASKPOOL_ENABLED               0
 #define testrunnerFULL_CRYPTO_ENABLED                 0
 #define testrunnerFULL_FREERTOS_TCP_ENABLED           0
 #define testrunnerFULL_DEFENDER_ENABLED               0
