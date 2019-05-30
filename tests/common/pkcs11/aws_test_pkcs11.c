@@ -87,7 +87,7 @@ CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
 /* Function Prototypes. */
 CK_RV prvBeforeRunningTests( void );
-void prvAfterRunningTests( void );
+void prvAfterRunningTests_NoObject( void );
 
 /* Test buffer size definitions. */
 #define SHA256_DIGEST_SIZE      32
@@ -141,7 +141,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_StartFinish )
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_GetSlotList );
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession );
 
-    prvAfterRunningTests();
+    prvAfterRunningTests_NoObject();
 }
 
 TEST_SETUP( Full_PKCS11_NoObject )
@@ -187,7 +187,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_NoObject )
     RUN_TEST_CASE( Full_PKCS11_NoObject, AFQP_GenerateRandomMultiThread );
 
 
-    prvAfterRunningTests();
+    prvAfterRunningTests_NoObject();
 }
 
 TEST_SETUP( Full_PKCS11_RSA )
@@ -235,7 +235,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_RSA )
         RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue );
         RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_Sign );
 
-        prvAfterRunningTests();
+        prvAfterRunningTests_NoObject();
     #endif
 }
 
@@ -290,7 +290,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
 
-        prvAfterRunningTests();
+        prvAfterRunningTests_NoObject();
     #endif /* if ( pkcs11testEC_KEY_SUPPORT == 1 ) */
 }
 
@@ -339,12 +339,14 @@ CK_RV prvBeforeRunningTests( void )
     return xResult;
 }
 
-void prvAfterRunningTests( void )
+void prvAfterRunningTests_NoObject( void )
 {
-    /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
-    vDevModeKeyProvisioning();
-    xCurrentCredentials = eClientCredential;
-    xInitializePKCS11();
+    #if ( pkcs11testCREATE_OBJECT_SUPPORT == 1 )
+        /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
+        vDevModeKeyProvisioning();
+        xCurrentCredentials = eClientCredential;
+        xInitializePKCS11();
+    #endif
 }
 
 
@@ -2131,25 +2133,7 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
     CK_OBJECT_HANDLE xPrivateKey;
     CK_OBJECT_HANDLE xCertificate;
     CK_OBJECT_HANDLE xPublicKey;
-    int lMbedTLSResult;
-    mbedtls_ecp_keypair * pxEcdsaContext = NULL;
-    mbedtls_pk_context xEcdsaContext;
 
-    mbedtls_pk_init( &xEcdsaContext );
-
-    if( TEST_PROTECT() )
-    {
-        lMbedTLSResult = mbedtls_pk_parse_key( &xEcdsaContext,
-                                               ( const unsigned char * ) cValidECDSAPrivateKey,
-                                               sizeof( cValidECDSAPrivateKey ),
-                                               NULL,
-                                               0 );
-        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to parse the imported ECDSA private key." );
-
-        pxEcdsaContext = ( mbedtls_ecp_keypair * ) xEcdsaContext.pk_ctx;
-    }
-
-    /* TODO: Don't make the threads if this first parse fails. But it shouldn't fail since this is a hardcoded key... */
     prvProvisionEcTestCredentials( &xPrivateKey, &xCertificate, &xPublicKey );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
@@ -2161,7 +2145,6 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
             TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 session." );
         }
 
-        xSignStructs[ xTaskNumber ].pxEcdsaContext = pxEcdsaContext;
         xSignStructs[ xTaskNumber ].xPrivateKey = xPrivateKey;
         xSignStructs[ xTaskNumber ].xPublicKey = xPublicKey;
         xGlobalTaskParams[ xTaskNumber ].pvTaskData = &xSignStructs[ xTaskNumber ];
@@ -2169,7 +2152,6 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
 
     prvMultiThreadHelper( ( void * ) prvECSignVerifyMultiThreadTask );
 
-    mbedtls_pk_free( &xEcdsaContext );
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {
