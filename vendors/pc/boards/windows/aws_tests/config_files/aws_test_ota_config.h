@@ -39,9 +39,9 @@
  * here is relative to the Amazon FreeRTOS root. If you are debugging locally, Visual Studio may have
  * your path set as the project directory. In that case this can be changed to:
  *
- * #define otatestpalCERTIFICATE_FILE  "..\\..\\..\\..\\..\\..\\modules\\libraries\\aws\\ota\\test\\test_files\\ecdsa-sha256-signer.crt.pem"
+ * #define otatestpalCERTIFICATE_FILE  "..\\..\\..\\..\\..\\libraries\\freertos_plus\\aws\\ota\\test\\test_files\\ecdsa-sha256-signer.crt.pem"
  */
-#define otatestpalCERTIFICATE_FILE    "modules\\libraries\\aws\\ota\\test\\test_files\\ecdsa-sha256-signer.crt.pem"
+#define otatestpalCERTIFICATE_FILE    "libraries\\freertos_plus\\aws\\ota\\test\\test_files\\ecdsa-sha256-signer.crt.pem"
 
  /**
  * @brief Some devices have a hard-coded name for the firmware image to boot.
