@@ -24,57 +24,5 @@
  */
 
 /*
- * This file implements common logic for portable secure sockets implemntations.
- * It updates metrics of sockets in relevant socket functions.
+ * TODO: This file is supposed to be deleted. Keep it for now to not break any IDE project file.
  */
-
-/* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in aws_secure_sockets_wrapper_metrics.h */
-#define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
-
-/* Secure Sockets includes. */
-#include "aws_secure_sockets.h"
-
-/* Metrics includes. */
-#include "platform/iot_metrics.h"
-
-#undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
-
-#if AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED == 1
-
-/*-----------------------------------------------------------*/
-
-    BaseType_t Sockets_MetricsInit( void )
-    {
-        BaseType_t result = SOCKETS_Init();
-
-        if( result == pdTRUE )
-        {
-            result = IotMetrics_Init() ? pdTRUE : pdFALSE;
-        }
-
-        return result;
-    }
-
-/*-----------------------------------------------------------*/
-
-    int32_t Sockets_MetricsConnect( Socket_t xSocket,
-                                    SocketsSockaddr_t * pxAddress,
-                                    Socklen_t xAddressLength )
-    {
-        int32_t result = SOCKETS_Connect( xSocket, pxAddress, xAddressLength );
-
-        return result;
-    }
-
-/*-----------------------------------------------------------*/
-
-    int32_t Sockets_MetricsShutdown( Socket_t xSocket,
-                                     uint32_t ulHow )
-    {
-        int32_t result = SOCKETS_Shutdown( xSocket, ulHow );
-
-        return result;
-    }
-
-#endif /* ifdef AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED */
