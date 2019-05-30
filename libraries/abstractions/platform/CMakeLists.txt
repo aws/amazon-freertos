@@ -39,7 +39,6 @@ afr_module_sources(
         "${src_dir}/iot_metrics.c"
         "${src_dir}/iot_network_afr.c"
         "${src_dir}/iot_threads_afr.c"
-        "${src_dir}/aws_secure_sockets_wrapper_metrics.c"  # TODO, should we refactor this away?
         "${src_dir}/include/platform/iot_network_afr.h"
         "${src_dir}/include/platform/iot_network_ble.h"
         "${src_dir}/include/platform/iot_platform_types_afr.h"
