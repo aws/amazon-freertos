@@ -88,6 +88,7 @@ CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 /* Function Prototypes. */
 CK_RV prvBeforeRunningTests( void );
 void prvAfterRunningTests_NoObject( void );
+void prvAfterRunningTests_Object( void );
 
 /* Test buffer size definitions. */
 #define SHA256_DIGEST_SIZE      32
@@ -186,7 +187,6 @@ TEST_GROUP_RUNNER( Full_PKCS11_NoObject )
     RUN_TEST_CASE( Full_PKCS11_NoObject, AFQP_GenerateRandom );
     RUN_TEST_CASE( Full_PKCS11_NoObject, AFQP_GenerateRandomMultiThread );
 
-
     prvAfterRunningTests_NoObject();
 }
 
@@ -235,7 +235,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_RSA )
         RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue );
         RUN_TEST_CASE( Full_PKCS11_RSA, AFQP_Sign );
 
-        prvAfterRunningTests_NoObject();
+        prvAfterRunningTests_Object();
     #endif
 }
 
@@ -290,7 +290,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
 
-        prvAfterRunningTests_NoObject();
+        prvAfterRunningTests_Object();
     #endif /* if ( pkcs11testEC_KEY_SUPPORT == 1 ) */
 }
 
@@ -339,14 +339,40 @@ CK_RV prvBeforeRunningTests( void )
     return xResult;
 }
 
+/* If no changes to PKCS #11 objects have been made during the test,
+ *  just make sure that the PKCS #11 module is initialized and in a good state.
+ */
 void prvAfterRunningTests_NoObject( void )
 {
-    #if ( pkcs11testCREATE_OBJECT_SUPPORT == 1 )
-        /* Re-provision the device with default RSA certs so that subsequent tests are not changed. */
+    xInitializePKCS11();
+}
+
+/* If these tests may have manipulated the PKCS #11 objects
+ * (private key, public keys and/or certificates), run this routine afterwards
+ * to make sure that credentials are in a good state for the other test groups. */
+void prvAfterRunningTests_Object( void )
+{
+    /* Check if the test label is the same as the run-time label. */
+
+    /* If labels are the same, then we are assuming that this device does not
+     * have a secure element. */
+    if( ( 0 == strcmp( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) &&
+        ( 0 == strcmp( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+    {
+        /* Blow away the old credentials and replace
+         * them with known-good AWS IoT credentials. */
+        xDestroyCredentials( xGlobalSession );
+
+        /* Re-provision the device with default certs
+         * so that subsequent tests are not changed. */
         vDevModeKeyProvisioning();
         xCurrentCredentials = eClientCredential;
-        xInitializePKCS11();
-    #endif
+    }
+
+    /* If the labels are different, then test credentials
+     * and application credentials are stored in separate
+     * slots which were not modified, so nothing special
+     * needs to be done. */
 }
 
 
@@ -2151,7 +2177,6 @@ TEST( Full_PKCS11_EC, AFQP_SignVerifyMultiThread )
     }
 
     prvMultiThreadHelper( ( void * ) prvECSignVerifyMultiThreadTask );
-
 
     for( xTaskNumber = 0; xTaskNumber < pkcs11testMULTI_THREAD_TASK_COUNT; xTaskNumber++ )
     {
