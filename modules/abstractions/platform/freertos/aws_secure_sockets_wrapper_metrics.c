@@ -64,17 +64,6 @@
     {
         int32_t result = SOCKETS_Connect( xSocket, pxAddress, xAddressLength );
 
-        if( result == SOCKETS_ERROR_NONE )
-        {
-            IotMetricsTcpConnection_t connection;
-
-            connection.id = ( IotMetricsConnectionId_t ) xSocket;
-            connection.remotePort = pxAddress->usPort;
-            connection.remoteIp = pxAddress->ulAddress;
-
-            IotMetrics_AddTcpConnection( &connection );
-        }
-
         return result;
     }
 
@@ -84,11 +73,6 @@
                                      uint32_t ulHow )
     {
         int32_t result = SOCKETS_Shutdown( xSocket, ulHow );
-
-        if( result == SOCKETS_ERROR_NONE )
-        {
-            IotMetrics_RemoveTcpConnection( ( IotMetricsConnectionId_t ) xSocket );
-        }
 
         return result;
     }
