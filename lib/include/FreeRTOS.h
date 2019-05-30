@@ -241,6 +241,18 @@ extern "C" {
 	#define configASSERT_DEFINED 1
 #endif
 
+/* configPRECONDITION should be resolve to configASSERT.
+   The CBMC proofs need a way to track assumptions and assertions.
+   A configPRECONDITION statement should express an implicit invariant or assumption made.
+   A configASSERT statement should express an invariant that must hold explicit before calling
+   the code. */
+#ifndef configPRECONDITION
+	#define configPRECONDITION( x ) configASSERT(X)
+	#define configPRECONDITION_DEFINED 0
+#else
+	#define configPRECONDITION_DEFINED 1
+#endif
+
 /* The timers module relies on xTaskGetSchedulerState(). */
 #if configUSE_TIMERS == 1
 
