@@ -89,7 +89,7 @@ target_link_libraries(
 target_include_directories(
     AFR::compiler::mcu_port
     INTERFACE
-        "${lpc54018_aws_dir}/common/config_files"
+        "${lpc54018_aws_dir}/config_files"
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -191,8 +191,8 @@ target_sources(
 set(kernel_inc_dirs
     ${lpc54018_includes}
     "${AFR_KERNEL_DIR}/include"
-    "${lpc54018_aws_dir}/common/config_files"
-    "${lpc54018_aws_dir}/common/application_code/nxp_code"
+    "${lpc54018_aws_dir}/config_files"
+    "${lpc54018_aws_dir}/application_code/nxp_code"
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
     # Compiler specific includes.
     ${compiler_specific_include}
@@ -270,8 +270,8 @@ else()
     set(exe_target aws_demos)
 endif()
 
-afr_glob_src(board_code_src DIRECTORY "${lpc54018_aws_dir}/common/application_code/nxp_code")
-afr_glob_src(config_files_src DIRECTORY "${lpc54018_aws_dir}/common/config_files")
+afr_glob_src(board_code_src DIRECTORY "${lpc54018_aws_dir}/application_code/nxp_code")
+afr_glob_src(config_files_src DIRECTORY "${lpc54018_aws_dir}/config_files")
 
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
@@ -279,7 +279,7 @@ afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 add_executable(${exe_target}
     ${board_code_src}
     ${config_files_src}
-    "${lpc54018_aws_dir}/common/application_code/main.c"
+    "${lpc54018_aws_dir}/application_code/main.c"
     # TODO, It is unknown why hw_poll.c has to be included here
     "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
     $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
