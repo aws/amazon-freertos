@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.1.4
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS+POSIX V1.0.3
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,24 +23,22 @@
  * http://www.FreeRTOS.org
  */
 
+ /**
+  * @file FreeRTOS_POSIX_portable.h
+  * @brief Port-specific configuration of FreeRTOS+POSIX.
+  */
 
-/**
- * @file aws_ggd_config.h
- * @brief GGD config options.
+#ifndef _FREERTOS_POSIX_PORTABLE_H_
+#define _FREERTOS_POSIX_PORTABLE_H_
+
+/* Following POSIX types are supported by the tool chain. 
+ * This disables FreeRTOS definitions.
  */
+#define posixconfigENABLE_CLOCKID_T         0
+#define posixconfigENABLE_MODE_T            0
+#define posixconfigENABLE_TIME_T            0
+#define posixconfigENABLE_TIMER_T           0
+#define posixconfigENABLE_ITIMERSPEC        0
+#define posixconfigENABLE_TIMESPEC          0
 
-#ifndef _AWS_GGD_CONFIG_H_
-#define _AWS_GGD_CONFIG_H_
-
-
-/**
- * @brief The number of your network interface here.
- */
-#define ggdconfigCORE_NETWORK_INTERFACE     ( 0 )
-
-/**
- * @brief Size of the array used by jsmn to store the tokens.
- */
-#define ggdconfigJSON_MAX_TOKENS            ( 128 )
-
-#endif /* _AWS_GGD_CONFIG_H_ */
+#endif /* _FREERTOS_POSIX_PORTABLE_H_ */

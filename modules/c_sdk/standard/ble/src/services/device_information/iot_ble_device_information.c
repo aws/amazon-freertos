@@ -76,6 +76,11 @@ static IotBleDeviceInfoService_t _service =
         .ucType = eBTuuidType128                       \
     }
 
+#define IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID_TYPE              \
+    {                                                            \
+        .uu.uu128 = IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID,      \
+        .ucType = eBTuuidType128                                 \
+    }
 /**
  * @brief UUID for Device Information Service.
  *
@@ -95,6 +100,7 @@ typedef enum
     _ATTR_CHAR_VERSION,
     _ATTR_CHAR_MTU,
     _ATTR_CHAR_DESCR_MTU,
+    _ATTR_CHAR_PLATFROM_NAME,
     _ATTR_NUMBER
 } _attr_t;
 
@@ -138,6 +144,15 @@ static const BTAttribute_t _pAttributeTable[] =
         {
             .xUuid        = IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID_TYPE,
             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+        }
+    },
+    {
+        .xAttributeType = eBTDbCharacteristic,
+        .xCharacteristic =
+        {
+            .xUuid        = IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID_TYPE,
+            .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
+            .xProperties  = ( eBTPropRead )
         }
     }
 };
@@ -205,6 +220,16 @@ static void _MTUChangedCallback( uint16_t connId,
                                  uint16_t usMtu );
 
 /**
+ * @brief Callback invoked when GATT client reads Broker Endpoint Characteristic
+ *
+ * Returns the IOT Broker Endpoint provisioned for the device in a JSON payload as response.
+ *
+ * @param[in] pEventParam Write/Read request param to the attribute
+ *
+ */
+static void _deviceInfoPlatformNameCharCallback( IotBleAttributeEvent_t * pEventParam );
+
+/**
  * @brief Callback invoked on a BLE connect and disconnect event
  *
  * Stores the connection ID of the BLE client for sending notifications.
@@ -226,7 +251,8 @@ static const IotBleAttributeEventCallback_t pxCallBackArray[ _ATTR_NUMBER ] =
     _deviceInfoVersionCharCallback,
     _deviceInfoBrokerEndpointCharCallback,
     _deviceInfoMTUCharCallback,
-    _deviceInfoCCFGCallback
+    _deviceInfoCCFGCallback,
+    _deviceInfoPlatformNameCharCallback
 };
 
 
@@ -307,7 +333,7 @@ void _deviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam )
 
 /*-----------------------------------------------------------*/
 
-void _deviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam )
+static void _deviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
     IotBleAttributeData_t attrData = { 0 };
     IotBleEventResponse_t resp;
@@ -377,6 +403,36 @@ void _deviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
         resp.attrDataOffset = 0;
         resp.eventStatus = eBTStatusSuccess;
         resp.rspErrorStatus = eBTRspErrorNone;
+        IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+static void _deviceInfoPlatformNameCharCallback( IotBleAttributeEvent_t * pEventParam )
+{
+    IotBleAttributeData_t attrData = { 0 };
+    IotBleEventResponse_t resp =
+    {
+        .eventStatus    = eBTStatusSuccess,
+	.attrDataOffset = 0,
+	.pAttrData      = &attrData,
+        .rspErrorStatus = eBTRspErrorNone
+    };
+    size_t length = 0;
+
+    if( pEventParam->xEventType == eBLERead )
+    {
+
+#ifdef configPLATFORM_NAME
+       length = strlen( configPLATFORM_NAME );
+       if( pEventParam->pParamRead->offset <= length )
+       {
+            attrData.pData = ( uint8_t * ) configPLATFORM_NAME + pEventParam->pParamRead->offset;
+            attrData.size  =  length - pEventParam->pParamRead->offset;
+       }
+#endif
+        attrData.handle = pEventParam->pParamRead->attrHandle;
         IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
 }

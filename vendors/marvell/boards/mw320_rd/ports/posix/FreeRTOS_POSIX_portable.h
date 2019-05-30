@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.4.7
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS+POSIX V1.0.3
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,21 +24,27 @@
  */
 
 /**
- * @file aws_bufferpool_config.h
- * @brief Buffer Pool config options.
+ * @file FreeRTOS_POSIX_portable.h
+ * @brief Port-specific configuration of FreeRTOS+POSIX.
  */
 
-#ifndef _AWS_BUFFER_POOL_CONFIG_H_
-#define _AWS_BUFFER_POOL_CONFIG_H_
+#ifndef _FREERTOS_POSIX_PORTABLE_H_
+#define _FREERTOS_POSIX_PORTABLE_H_
 
-/**
- * @brief The number of buffers in the static buffer pool.
- */
-#define bufferpoolconfigNUM_BUFFERS    ( 8 )
+/* Microchip includes. */
+#include <sys/types.h>
 
-/**
- * @brief The size of each buffer in the static buffer pool.
- */
-#define bufferpoolconfigBUFFER_SIZE    ( 1024 + 128 )
+/* Microchip already typedefs the following types. */
+#define posixconfigENABLE_MODE_T        0
+#define posixconfigENABLE_PID_T         0
+#define posixconfigENABLE_SSIZE_T       0
+#define posixconfigENABLE_USECONDS_T    0
+/* Microchip -mnewlib compiler option supports these types. */
+#define posixconfigENABLE_TIMESPEC      0
+#define posixconfigENABLE_ITIMERSPEC    0
+#define posixconfigENABLE_CLOCKID_T     0
+#define posixconfigENABLE_TIME_T        0
+#define posixconfigENABLE_TIMER_T       0
 
-#endif /* _AWS_BUFFER_POOL_CONFIG_H_ */
+
+#endif /* _FREERTOS_POSIX_PORTABLE_H_ */

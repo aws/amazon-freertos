@@ -47,6 +47,7 @@
 #define IOT_BLE_DEVICE_INFO_VERSION_UUID            { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Firmware version. */
 #define IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID    { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Broker endpoint. */
 #define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief MTU size. */
+#define IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID      { 0x04, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Device platform name. */
 #define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID    0x2902                                                  /**< @brief Client configuration. */
 /* @[define_ble_constants_device_info] */
 
@@ -57,7 +58,8 @@ typedef enum
 {
     IOT_BLE_DEVICE_INFO_VERSION_CHAR = 0,           /**< IOT_BLE_DEVICE_INFO_VERSION_CHAR Exposes the services version for the device */
     IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR, /**< IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR Exposes the IOT broker endpoint with which the device is provisioned */
-    IOT_BLE_DEVICE_INFO_MTU_CHAR,                   /**< IOT_BLE_DEVICE_INFO_MTU_CHAR Expose the BLE MTU for the device */
+    IOT_BLE_DEVICE_INFO_MTU_CHAR,                   /**< IOT_BLE_DEVICE_INFO_MTU_CHAR Expose the BLE MTU for the device. */
+    IOT_BLE_DEVICE_INFO_PLATFOM_NAME_CHAR           /**< IOT_BLE_DEVICE_INFO_PLATFORM_NAME_CHAR Exposes the device platform name. */
 } IotBleDeviceInfoCharacteristic_t;
 
 /**

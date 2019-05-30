@@ -39,7 +39,7 @@
 #include "iot_mqtt.h"
 
 /* Server info, End point and port #. */
-static const IotNetworkServerInfo_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkServerInfo_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
 
 /* Secure connection info. */
 static IotNetworkCredentials_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
@@ -132,13 +132,9 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 credentials.pAlpnProtos = NULL;
             }
 
-            /* According to C99 standard, it should transfer from any pointer to void pointer.
-             * In this case, it is "IotNetworkServerInfo_t const *".
-             * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
-             */
             pDemoContext->networkConnectedCallback( true,
                                                     clientcredentialIOT_THING_NAME,
-                                                    ( void * ) &serverInfo,
+                                                    &serverInfo,
                                                     &credentials,
                                                     pNetworkInterface );
         }
@@ -165,13 +161,9 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                     credentials.pAlpnProtos = NULL;
                 }
 
-                /* According to C99 standard, it should transfer from any pointer to void pointer.
-                 * In this case, it is "IotNetworkServerInfo_t const *".
-                 * But IAR compiler considers this is an incomplatible type, thus explictly casting to void *
-                 */
                 pDemoContext->networkConnectedCallback( true,
                                                         clientcredentialIOT_THING_NAME,
-                                                        ( void * ) &serverInfo,
+                                                        &serverInfo,
                                                         &credentials,
                                                         pNetworkInterface );
             }

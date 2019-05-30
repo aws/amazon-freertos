@@ -188,6 +188,24 @@ target_include_directories(
     INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_includes}>
 )
 
+#Posix
+afr_mcu_port(posix)
+
+target_sources(
+    AFR::posix::mcu_port
+    INTERFACE "${xmc4800_ports_dir}/posix/FreeRTOS_POSIX_portable.h"
+)
+
+target_include_directories(
+    AFR::posix::mcu_port
+    INTERFACE "${xmc4800_ports_dir}/posix"
+)
+
+target_link_libraries(
+    AFR::posix::mcu_port
+    INTERFACE AFR::freertos_plus_posix
+)
+
 # WiFi
 afr_mcu_port(wifi)
 target_sources(

@@ -392,11 +392,6 @@
 			<locationURI>PARENT-2-BASE_DIR_ROOT/demos/mqtt/CMakeLists.txt</locationURI>
 		</link>
 		<link>
-			<name>demos/mqtt/aws_mqtt_ble_hello_world.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-BASE_DIR_ROOT/demos/mqtt/aws_mqtt_ble_hello_world.c</locationURI>
-		</link>
-		<link>
 			<name>demos/mqtt/iot_demo_mqtt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-BASE_DIR_ROOT/demos/mqtt/iot_demo_mqtt.c</locationURI>

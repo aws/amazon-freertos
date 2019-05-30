@@ -236,6 +236,7 @@ target_include_directories(
        "${AFR_3RDPARTY_DIR}/pkcs11"
        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
 )
+
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
@@ -263,6 +264,7 @@ target_include_directories(
 target_link_libraries(
     ${exe_target}
     PRIVATE
+        AFR::utils
         ${default_modules}
         -T${global-linkerscript-y}
 )

@@ -65,7 +65,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configUSE_MUTEXES                          1
 #define configUSE_RECURSIVE_MUTEXES                1
 #define configQUEUE_REGISTRY_SIZE                  0
-#define configUSE_APPLICATION_TASK_TAG             0
+#define configUSE_APPLICATION_TASK_TAG             1
 #define configUSE_COUNTING_SEMAPHORES              1
 #define configUSE_ALTERNATIVE_API                  0
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS    3      /* FreeRTOS+FAT requires 2 pointers if a CWD is supported. */
@@ -279,5 +279,8 @@ extern uint32_t ulRand();
 
 /* Header required for the tracealyzer recorder library. */
 /* #include "trcRecorder.h" */
+
+/* Enable following configuration to use FreeRTOS POSIX ERRNO */
+#define configUSE_POSIX_ERRNO                 ( 1 )
 
 #endif /* FREERTOS_CONFIG_H */

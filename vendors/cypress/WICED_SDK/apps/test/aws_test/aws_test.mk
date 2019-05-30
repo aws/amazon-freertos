@@ -140,7 +140,6 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
                       $(AFR_AWS_PATH)defender/src/aws_iot_defender_v1.c \
                       $(AFR_AWS_PATH)defender/test/aws_iot_tests_defender_api.c \
-                      $(AFR_STANDARD_PATH)tls/test/aws_test_tls.c \
                       $(AFR_STANDARD_PATH)crypto/test/aws_test_crypto.c \
                       $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AFR_STANDARD_PATH)common/taskpool/iot_taskpool.c \
@@ -160,6 +159,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_STANDARD_PATH)common/iot_init.c \
                       $(AFR_STANDARD_PATH)common/iot_json_utils.c \
                       $(AFR_STANDARD_PATH)metrics/src/iot_metrics.c \
+                      $(AFR_STANDARD_PATH)metrics/src/aws_secure_sockets_wrapper_metrics.c \
                       $(AFR_STANDARD_PATH)freertos_plus_tcp/test/aws_test_freertos_tcp.c \
                       $(AFR_STANDARD_PATH)freertos_plus_tcp/test/aws_freertos_tcp_test_access_dns_define.h \
                       $(AFR_STANDARD_PATH)freertos_plus_tcp/test/aws_freertos_tcp_test_access_tcp_define.h \
