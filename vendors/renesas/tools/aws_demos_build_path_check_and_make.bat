@@ -9,10 +9,10 @@ set verbose=0
 
 if exist ".\aws_demos_build_path_check.bat" (
     set ide=csp
-    set pj=.\
+    set pj=.\..\..\..\..\..\vendors\renesas\boards\rx65n-rsk\aws_tests\
 ) else if exist "..\aws_demos_build_path_check_and_make.bat" (
     set ide=e2
-    set pj=..\
+    set pj=..\..\..\..\..\..\vendors\renesas\boards\rx65n-rsk\aws_tests\
 ) else (
     echo\
     echo Error: Unable to find the project folder.
@@ -50,9 +50,9 @@ echo\
 echo %qu%Checking source code tree...%qu%
 
 if %ide%==csp (
-    set FN=%CD%\..\..\..\..\modules\standard\freertos-plus-tcp\source\portable\NetworkInterface\RX\NetworkInterface.c
+    set FN=%CD%\..\..\..\..\libraries\freertos_plus\standard\freertos-plus-tcp\source\portable\NetworkInterface\RX\NetworkInterface.c
 ) else if %ide%==e2 (
-    set FN=%CD%\.\modules\standard\freertos-plus-tcp\source\portable\NetworkInterface\RX\NetworkInterface.obj
+    set FN=%CD%\.\libraries\freertos_plus\standard\freertos-plus-tcp\source\portable\NetworkInterface\RX\NetworkInterface.obj
 )
 if %verbose%==1 echo Maximum Path is "%FN%"
 set FX=%FN:~259%

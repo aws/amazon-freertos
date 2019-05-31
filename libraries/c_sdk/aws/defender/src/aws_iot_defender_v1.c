@@ -32,8 +32,6 @@
 
 #include "platform/iot_network_afr.h"
 
-extern uint64_t _AwsIotDefenderReportId;
-
 /* Defender agent's status, initialized with eDefenderRepInit. */
 static DefenderReportStatus_t _status = eDefenderRepInit;
 
@@ -194,7 +192,8 @@ DefenderReportStatus_t DEFENDER_ReportStatusGet( void )
 
 int32_t GetLastReportId( void )
 {
-    return ( int32_t ) _AwsIotDefenderReportId;
+	/* This function is not supported anymore. */
+    return 0;
 }
 
 /*-----------------------------------------------------------*/
