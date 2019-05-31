@@ -89,7 +89,7 @@ static void _initJobsCache( _taskPoolCache_t * const pCache );
  * @param[in] pJob The job to initialize.
  * @param[in] userCallback The user callback for the job.
  * @param[in] pUserContext The context tp be passed to the callback.
- * @param[in] isStatic A flag to indicate whether the job is statically or synamically allocated.
+ * @param[in] isStatic A flag to indicate whether the job is statically or dynamically allocated.
  */
 static void _initializeJob( _taskPoolJob_t * const pJob,
                             IotTaskPoolRoutine_t userCallback,
@@ -97,7 +97,7 @@ static void _initializeJob( _taskPoolJob_t * const pJob,
                             bool isStatic );
 
 /**
- * @brief Extracts and initializes one instance of a job from the cache or, if there is none available, it allocates and initialized a new one.
+ * @brief Extracts and initializes one instance of a job from the cache or, if there is none available, it allocates and initializes a new one.
  *
  * @param[in] pCache The instance of the cache to extract the job from.
  */
@@ -146,7 +146,7 @@ static int32_t _timerEventCompare( const IotLink_t * const pTimerEventLink1,
  * Reschedules the timer for handling deferred jobs to the next timeout.
  *
  * param[in] pTimer The timer to reschedule.
- * param[in] pFirstTimerEvent The timer event that carries the timeout and job inforamtion.
+ * param[in] pFirstTimerEvent The timer event that carries the timeout and job information.
  */
 static void _rescheduleDeferredJobsTimer( IotTimer_t * const pTimer,
                                           _taskPoolTimerEvent_t * const pFirstTimerEvent );
@@ -217,7 +217,7 @@ static void _signalShutdown( _taskPool_t * const pTaskPool,
 /**
  * Places a job in the dispatch queue.
  *
- * @param[in] pTaskPool The task pool to scheduel the job with.
+ * @param[in] pTaskPool The task pool to schedule the job with.
  * @param[in] pJob The job to schedule.
  * @param[in] flags The job flags.
  *
@@ -945,10 +945,10 @@ static IotTaskPoolError_t _initTaskPoolControlStructures( const IotTaskPoolInfo_
     bool timerInit = false;
 
     /* Zero out all data structures. */
-    memset( ( void * ) pTaskPool, 0x00, sizeof( IotTaskPool_t ) );
+    memset( ( void * ) pTaskPool, 0x00, sizeof( _taskPool_t ) );
 
     /* Initialize a job data structures that require no de-initialization.
-     * All other data structures carry a value of 'NULL' before initailization.
+     * All other data structures carry a value of 'NULL' before initialization.
      */
     IotDeQueue_Create( &pTaskPool->dispatchQueue );
     IotListDouble_Create( &pTaskPool->timerEventsList );
@@ -1044,7 +1044,7 @@ static IotTaskPoolError_t _createTaskPool( const IotTaskPoolInfo_t * const pInfo
     IotTaskPool_Assert( pInfo->minThreads == pTaskPool->minThreads );
     IotTaskPool_Assert( pInfo->maxThreads == pTaskPool->maxThreads );
 
-    /* The task pool will initialize the minimum number of threads reqeusted by the user upon start. */
+    /* The task pool will initialize the minimum number of threads requested by the user upon start. */
     /* When a thread is created, it will signal a semaphore to signify that it is about to wait on incoming */
     /* jobs. A thread can be woken up for exit or for new jobs only at that point in time.  */
     /* The exit condition is setting the maximum number of threads to 0. */
@@ -1124,7 +1124,7 @@ static void _taskPoolWorker( void * pUserContext )
     /* Signal that this worker completed initialization and it is ready to receive notifications. */
     IotSemaphore_Post( &pTaskPool->startStopSignal );
 
-    /* OUTER LOOP: it controls the lifetiem of the worker thread: exit condition for a worker thread
+    /* OUTER LOOP: it controls the lifetime of the worker thread: exit condition for a worker thread
      * is setting maxThreads to zero. A worker thread is running until the maximum number of allowed
      * threads is not zero and the active threads are less than the maximum number of allowed threads.
      */
@@ -1162,9 +1162,9 @@ static void _taskPoolWorker( void * pUserContext )
             }
 
             /* Check if this thread needs to exit because 'max threads' quota was exceeded.
-             * In that case, let is run once, so we can support the case for scheduling 'high priority'
+             * In that case, let it run once, so we can support the case for scheduling 'high priority'
              * jobs that causes exceeding the max threads quota for the purpose of executing
-             * the high-piority task. */
+             * the high-priority task. */
             if( pTaskPool->activeThreads > pTaskPool->maxThreads )
             {
                 IotLogDebug( "Worker thread will exit because maximum quota was exceeded." );
@@ -1178,10 +1178,12 @@ static void _taskPoolWorker( void * pUserContext )
             /* Check if this thread needs to exit  because the worker woke up after a timeout. */
             else if( jobAvailable == false )
             {
-                /* If there was a timeout, shrink back the task pool to the minimum nunber of threads. */
+                /* If there was a timeout, shrink back the task pool to the minimum number of threads. */
                 if( pTaskPool->activeThreads > pTaskPool->minThreads )
                 {
-                    /* After waking up from a timeout, the thread will try and pick up a new job, but . */
+                    /* After waking up from a timeout, the thread will try and pick up a new job.
+                     * But if there is no job available, the thread will exit to ensure that
+                     * the taskpool does not have more than minimum number of active threads. */
                     IotLogDebug( "Worker will exit because task pool is shrinking." );
 
                     /* Decrease the number of active threads pro-actively. */
@@ -1323,7 +1325,7 @@ static _taskPoolJob_t * _fetchOrAllocateJob( _taskPoolCache_t * const pCache )
         }
         else
         {
-            /* Log alocation failure for troubleshooting purposes. */
+            /* Log allocation failure for troubleshooting purposes. */
             IotLogInfo( "Failed to allocate job." );
         }
     }
@@ -1349,7 +1351,7 @@ static void _recycleJob( _taskPoolCache_t * const pCache,
     /* We will recycle the job if there is space in the cache. */
     if( pCache->freeCount < IOT_TASKPOOL_JOBS_RECYCLE_LIMIT )
     {
-        /* Destroy user data, for added safety&security. */
+        /* Destroy user data, for added safety & security. */
         pJob->userCallback = NULL;
         pJob->pUserContext = NULL;
 
@@ -1403,7 +1405,7 @@ static void _signalShutdown( _taskPool_t * const pTaskPool,
     /* Set the exit condition. */
     pTaskPool->maxThreads = 0;
 
-    /* Broadcast to all active threads to wake-up. Active threads do check the exit condition right after wakein up. */
+    /* Broadcast to all active threads to wake-up. Active threads do check the exit condition right after waking up. */
     for( count = 0; count < threads; ++count )
     {
         IotSemaphore_Post( &pTaskPool->dispatchSignal );
@@ -1428,7 +1430,7 @@ static IotTaskPoolError_t _scheduleInternal( _taskPool_t * const pTaskPool,
     pTaskPool->activeJobs++;
 
     /* If all threads are busy, try and create a new one. Failing to create a new thread
-     * only has performance implications on correctly exeuting th scheduled job.
+     * only has performance implications on correctly executing the scheduled job.
      */
     uint32_t activeThreads = pTaskPool->activeThreads;
 
@@ -1504,7 +1506,7 @@ static IotTaskPoolError_t _scheduleInternal( _taskPool_t * const pTaskPool,
     else
     {
         /* Scheduling can only fail to allocate a new worker, which is an error
-         * only for high prority tasks. */
+         * only for high priority tasks. */
         IotTaskPool_Assert( mustGrow == true );
 
         /* Revert updating the number of active jobs. */
@@ -1555,12 +1557,12 @@ static IotTaskPoolError_t _tryCancelInternal( _taskPool_t * const pTaskPool,
             break;
 
         case IOT_TASKPOOL_STATUS_COMPLETED:
-            /* Log mesggesong purposes. */
+            /* Log message for debugging purposes. */
             IotLogWarn( "Attempt to cancel a job that is already executing, or canceled." );
             break;
 
         default:
-            /* Log mesggesong purposes. */
+            /* Log message for debugging purposes. */
             IotLogError( "Attempt to cancel a job with an undefined state." );
             break;
     }
