@@ -301,15 +301,6 @@
     <Filter Include="libraries\c_sdk\aws\defender\src\private">
       <UniqueIdentifier>{d3f62329-fae2-4e90-b521-4ef430404b77}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\aws\greengrass">
-      <UniqueIdentifier>{400e6c4e-f025-43df-ab2d-12e4e210691c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\greengrass\include">
-      <UniqueIdentifier>{04ed9baa-7425-4f5f-a2e0-1bec1ab667f6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\greengrass\src">
-      <UniqueIdentifier>{c9b6fc2e-271e-4081-bee5-cc509645a101}</UniqueIdentifier>
-    </Filter>
     <Filter Include="libraries\c_sdk\aws\shadow">
       <UniqueIdentifier>{33248a2b-de65-4c91-9a00-4e2ae0e7d625}</UniqueIdentifier>
     </Filter>
@@ -327,6 +318,15 @@
     </Filter>
     <Filter Include="demos\posix">
       <UniqueIdentifier>{f862289b-b0ef-4f6c-9a32-37175c02616a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\aws\greengrass">
+      <UniqueIdentifier>{5725afd7-0535-409a-a08b-db27b8300fd3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\aws\greengrass\include">
+      <UniqueIdentifier>{4b9b7217-58ef-463c-a38f-ecebb7109a04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\aws\greengrass\src">
+      <UniqueIdentifier>{9475faed-5d1f-4aa1-a26d-2357b1f7088b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -966,15 +966,6 @@
     <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h">
       <Filter>libraries\c_sdk\aws\defender\src\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\include\aws_ggd_config_defaults.h">
-      <Filter>libraries\c_sdk\aws\greengrass\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\include\aws_greengrass_discovery.h">
-      <Filter>libraries\c_sdk\aws\greengrass\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\src\aws_helper_secure_connect.h">
-      <Filter>libraries\c_sdk\aws\greengrass\src</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_iot_shadow.h">
       <Filter>libraries\c_sdk\aws\shadow\include</Filter>
     </ClInclude>
@@ -989,6 +980,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\private\aws_iot_shadow_internal.h">
       <Filter>libraries\c_sdk\aws\shadow\src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1484,12 +1484,6 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c">
       <Filter>libraries\c_sdk\aws\defender\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\src\aws_greengrass_discovery.c">
-      <Filter>libraries\c_sdk\aws\greengrass\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\src\aws_helper_secure_connect.c">
-      <Filter>libraries\c_sdk\aws\greengrass\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c">
       <Filter>libraries\c_sdk\aws\shadow\src</Filter>
     </ClCompile>
@@ -1510,6 +1504,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\posix\aws_posix_demo.c">
       <Filter>demos\posix</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
