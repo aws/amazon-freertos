@@ -17,10 +17,10 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/iot_ble_gap.c"
         "${src_dir}/iot_ble_gatt.c"
+        "${src_dir}/iot_ble_internal.h"
         "${src_dir}/services/device_information/iot_ble_device_information.c"
         "${src_dir}/services/mqtt_ble/iot_ble_data_transfer.c"
         "${src_dir}/services/mqtt_ble/iot_network_ble.c"
-        "${inc_dir}/private/iot_ble_internal.h"
         "${inc_dir}/iot_ble_config_defaults.h"
         "${inc_dir}/iot_ble_data_transfer.h"
         "${inc_dir}/iot_ble_device_information.h"
