@@ -15,5 +15,5 @@ afr_set_board_metadata(RECOMMENDED_IDE "CMakeBuildSystem")
 afr_set_board_metadata(IDE_CMakeBuildSystem_NAME "CMakeBuildSystem")
 afr_set_board_metadata(IDE_CMakeBuildSystem_COMPILER "GCC")
 
-afr_set_board_metadata(IDE_CMakeBuildSystem_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/espressif/boards/esp32")
+afr_set_board_metadata(IDE_CMakeBuildSystem_PROJECT_LOCATION "null")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/espressif/boards/esp32/aws_demos/common/config_files")

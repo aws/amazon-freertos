@@ -23,7 +23,7 @@ afr_set_board_metadata(IDE_VisualStudio_NAME "Visual Studio")
 afr_set_board_metadata(IDE_VisualStudio_COMPILER "MSVC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
-afr_set_board_metadata(IDE_VisualStudio_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/visual_studio")
+afr_set_board_metadata(IDE_VisualStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/pc/windows/visual_studio")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------

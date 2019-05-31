@@ -24,9 +24,11 @@ afr_set_board_metadata(PROGRAM_MEMORY "2MB")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
 afr_set_board_metadata(SUPPORTED_IDE "Eclipse")
 afr_set_board_metadata(RECOMMENDED_IDE "Eclipse")
-afr_set_board_metadata(IDE_SystemWorkbench_NAME "Eclipse")
-afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
-afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
+afr_set_board_metadata(IDE_Eclipse_NAME "Eclipse")
+afr_set_board_metadata(IDE_Eclipse_COMPILER "GCC")
+
+afr_set_board_metadata(IDE_Eclipse_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/marvell/mw320_rd/eclipse")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/marvell/boards/mw320_rd/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings

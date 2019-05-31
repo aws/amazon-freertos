@@ -47,12 +47,6 @@ afr_module_dependencies(
 )
 
 afr_module(NAME ble_wifi_provisioning)
-afr_set_lib_metadata(ID "ble_wifi_provisioning")
-afr_set_lib_metadata(DESCRIPTION "WiFi Provisioning over BLE")
-afr_set_lib_metadata(DISPLAY_NAME "BLE WiFi provisioning")
-afr_set_lib_metadata(CATEGORY "Provisioning")
-afr_set_lib_metadata(VERSION "1.0.0")
-afr_set_lib_metadata(IS_VISIBLE "false")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
