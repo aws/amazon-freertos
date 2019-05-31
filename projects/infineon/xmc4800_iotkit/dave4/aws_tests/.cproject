@@ -29,46 +29,48 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.optimization.level.2044193130" name="Optimization level" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.base.option.optimization.level.optimize" valueType="enumerated"/>
 								<option id="com.ifx.xmc4000.compiler.option.misc.mfloat.1517610586" name="Floating point" superClass="com.ifx.xmc4000.compiler.option.misc.mfloat" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.base.option.other.mfloat.softfp" valueType="enumerated"/>
 								<option id="com.ifx.xmc4000.compiler.option.include.paths.898122737" name="Include paths (-I)" superClass="com.ifx.xmc4000.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../XMCLib/2.1.20/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../XMCLib/2.1.20/drivers/inc"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../XMCLib/2.1.20/third_party/ESP_AT_Lib/src/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../XMCLib/2.1.20/CMSIS/Infineon/XMC4800_series/Include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/application_code/infineon_code"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../test/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/config_files"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/common/include/private"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/provisioning/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/crypto/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/common/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/secure_sockets/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/tls/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/wifi/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/utils/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/mqtt/test/access"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/mqtt/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/mqtt/src"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/defender/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/serializer/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/greengrass/test"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/greengrass/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/greengrass/src"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/shadow/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/shadow/src"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/posix/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../ports/posix"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/freertos_plus_posix/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/defender/src/private"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/mbedtls"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/pkcs11"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/unity/src"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/unity/extras/fixture/src"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/tinycbor"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/jsmn"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/drivers/inc"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/third_party/ESP_AT_Lib/src/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/CMSIS/Infineon/XMC4800_series/Include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/boards/xmc4800_iotkit/aws_tests/application_code/infineon_code"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../tests/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/boards/xmc4800_iotkit/aws_tests/config_files"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include/private"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/provisioning/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/crypto/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/platform/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/platform/freertos/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/secure_sockets/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/tls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/wifi/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/defender/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/mqtt/test/access"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/mqtt/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/mqtt/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/serializer/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/test"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/posix/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/boards/xmc4800_iotkit/ports/posix"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/defender/src/private"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/unity/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/unity/extras/fixture/src"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
 								</option>
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def.2079822681" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="XMC4800_F100x2048"/>
@@ -106,8 +108,8 @@
 								<option id="com.ifx.xmc4000.appLinker.option.misc.fpu.845005892" name="Fpu (-mfpu)" superClass="com.ifx.xmc4000.appLinker.option.misc.fpu" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.base.option.mfpu.fpv4-sp-d16" valueType="enumerated"/>
 								<option id="com.ifx.xmc4000.appLinker.option.misc.mfloat.404924723" name="Floating point" superClass="com.ifx.xmc4000.appLinker.option.misc.mfloat" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.base.option.other.mfloat.softfp" valueType="enumerated"/>
 								<option id="com.ifx.xmc4000.appLinker.option.nosys.specs.1292356966" name="Provide default newlib system calls (-specs=nosys.specs)" superClass="com.ifx.xmc4000.appLinker.option.nosys.specs" useByScannerDiscovery="false" value="true" valueType="boolean"/>
-								<option id="com.ifx.xmc4000.appLinker.option.scriptfile.2019570872" name="Script file (-T)" superClass="com.ifx.xmc4000.appLinker.option.scriptfile" useByScannerDiscovery="false" value="../XMC4800x2048.ld" valueType="string"/>
-								<option id="com.ifx.xmc4000.appLinker.option.newlib.1730989427" superClass="com.ifx.xmc4000.appLinker.option.newlib" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.c.link.option.newlib.standard" valueType="enumerated"/>
+								<option id="com.ifx.xmc4000.appLinker.option.scriptfile.2019570872" name="Script file (-T)" superClass="com.ifx.xmc4000.appLinker.option.scriptfile" useByScannerDiscovery="false" value="..\XMC4800x2048.ld" valueType="string"/>
+								<option id="com.ifx.xmc4000.appLinker.option.newlib.291533349" name="Runtime library" superClass="com.ifx.xmc4000.appLinker.option.newlib" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.c.link.option.newlib.standard" valueType="enumerated"/>
 								<inputType id="com.ifx.xmc4000.appLinker.inputType.889950663" name="ARM-GCC for XMC Linker Input Type" superClass="com.ifx.xmc4000.appLinker.inputType">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -233,10 +235,10 @@
 		<project-mappings/>
 	</storageModule>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Release">
+		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/aws_tests"/>
 		</configuration>
-		<configuration configurationName="Debug">
+		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/aws_tests"/>
 		</configuration>
 	</storageModule>
