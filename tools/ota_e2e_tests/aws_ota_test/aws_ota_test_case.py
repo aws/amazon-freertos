@@ -69,8 +69,10 @@ class OtaTestCase( object ):
         This method should be overwritten if flashing version 0.9.0 is not desired.
         """
         self._otaProject.setApplicationVersion(0, 9, 0)
-        self._otaProject.buildProject()
-        self._flashComm.flashAndRead()
+        buildReturnCode = self._otaProject.buildProject()
+        flashReturnCode = self._flashComm.flashAndRead()
+
+        return buildReturnCode + flashReturnCode
 
     def teardown(self):
         """ Tear down the OTA test.
@@ -98,9 +100,13 @@ class OtaTestCase( object ):
         logAppendage = ''
         try:
             # Run the implemented setup.
-            self.setup()
+            returnCodes = self.setup()
+
             # Run the actual test.
-            testResult = self.run()
+            if all(p == 0 for p in returnCodes):
+                testResult = self.run()
+            else:
+                testResult = OtaTestResult(testName=self._name, result=OtaTestResult.ERROR, reason='Building or flashing failed. Please check the logs.')
         except Exception:
             logAppendage = traceback.format_exc()
             print(logAppendage)
