@@ -1,5 +1,5 @@
 {
-  "ENTRY": "DNSHandlePacket",
+  "ENTRY": "DNShandlePacket",
   "CBMCFLAGS": "--unwind 1",
   "OBJS":
   [
