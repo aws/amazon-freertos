@@ -76,7 +76,7 @@ class OtaAfrProject:
 
         if boardConfig['demos_or_tests'] == 'demos':
 
-            OtaAfrProject.DEMO_RUNNER_PATH = self._boardProjectPath + '/common/config_files/aws_demo_config.h'
+            OtaAfrProject.DEMO_RUNNER_PATH = self._boardProjectPath + '/config_files/aws_demo_config.h'
             OtaAfrProject.CLIENT_CREDENTIAL_PATH = 'demos/include/aws_clientcredential.h'
             OtaAfrProject.APPLICATION_VERSION_PATH = 'demos/include/aws_application_version.h'
             OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = 'demos/include/aws_clientcredential_keys.h'
@@ -130,6 +130,7 @@ class OtaAfrProject:
         print('Building project {}...'.format(self._buildConfig['project_dir']))
         for command in buildCommands:
             command = command.format(**self._buildConfig)
+            print("====> Executing Command: " + command)
             subprocess.Popen(command + ' >> build_output.txt 2>&1', shell=True).wait()
 
         output = self._buildConfig['output']
@@ -241,7 +242,7 @@ class OtaAfrProject:
         """
         self.__setIdentifierInFile(
             { '#define mqttconfigENABLE_DEBUG_LOGS': '1' },
-            os.path.join(self._projectRootDir, self._boardProjectPath, 'common', 'config_files', 'aws_mqtt_config.h')
+            os.path.join(self._projectRootDir, self._boardProjectPath, 'config_files', 'aws_mqtt_config.h')
         )
 
     def setFreeRtosConfigNetworkInterface(self, networkInterface):
@@ -253,7 +254,7 @@ class OtaAfrProject:
             {
                 '#define configNETWORK_INTERFACE_TO_USE': str(networkInterface)
             },
-            os.path.join(self._projectRootDir, self._boardProjectPath, 'common', 'config_files', 'FreeRTOSConfig.h')
+            os.path.join(self._projectRootDir, self._boardProjectPath, 'config_files', 'FreeRTOSConfig.h')
         )
         
     def setClientCredentialForThingName(self, thingName):

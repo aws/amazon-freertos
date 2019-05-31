@@ -79,6 +79,7 @@ class FlashSerialComm:
         print('Flashing test application to board...')
         for command in flashCommands:
             command = command.format(**self._flashConfig)
+            print("====> Executing Command: " + command)
             subprocess.Popen(command, shell=True).wait()
         print('Done with flash commands. Now running...')
 
