@@ -313,18 +313,6 @@
     <Filter Include="libraries\3rdparty\tinycbor">
       <UniqueIdentifier>{19a6dfce-3018-4e0c-b5a8-603ec020c2ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\aws\greengrass">
-      <UniqueIdentifier>{45f53ecc-70bc-4e3e-af98-7b0afb2fb32e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\greengrass\include">
-      <UniqueIdentifier>{dfe6102a-456e-40a9-ae4b-dc6c76801c01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\greengrass\test">
-      <UniqueIdentifier>{39e5045c-f4d0-4fa3-9e3a-eb1c357eb647}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\greengrass\src">
-      <UniqueIdentifier>{2ec285d1-3364-4445-b644-3d7a0a18ed9b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="libraries\3rdparty\jsmn">
       <UniqueIdentifier>{82886353-decc-41d2-853d-ddaf1b547259}</UniqueIdentifier>
     </Filter>
@@ -369,6 +357,18 @@
     </Filter>
     <Filter Include="ports\ota">
       <UniqueIdentifier>{5f1cd4f3-04e5-468d-ba77-28d67ce8d389}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\aws\greengrass">
+      <UniqueIdentifier>{41f76170-f738-43e7-a27b-ebc4ffe9e6f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\aws\greengrass\include">
+      <UniqueIdentifier>{987419d8-80f6-49f6-bd7a-dfcbe50d5e9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\aws\greengrass\src">
+      <UniqueIdentifier>{2307d945-719f-4fc8-9b61-731c52dff28b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\aws\greengrass\test">
+      <UniqueIdentifier>{6e83f83b-174b-4c75-94b9-3ed0bad9f4bd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -981,21 +981,6 @@
     <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tinycbor\math_support_p.h">
       <Filter>libraries\3rdparty\tinycbor</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\include\aws_ggd_config_defaults.h">
-      <Filter>libraries\c_sdk\aws\greengrass\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\include\aws_greengrass_discovery.h">
-      <Filter>libraries\c_sdk\aws\greengrass\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\src\aws_helper_secure_connect.h">
-      <Filter>libraries\c_sdk\aws\greengrass\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\test\aws_greengrass_discovery_test_access_declare.h">
-      <Filter>libraries\c_sdk\aws\greengrass\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\test\aws_greengrass_discovery_test_access_define.h">
-      <Filter>libraries\c_sdk\aws\greengrass\test</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
       <Filter>libraries\3rdparty\jsmn</Filter>
     </ClInclude>
@@ -1061,6 +1046,21 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h">
       <Filter>libraries\freertos_plus\aws\ota\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_greengrass_discovery_test_access_declare.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_greengrass_discovery_test_access_define.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1610,18 +1610,6 @@
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c">
       <Filter>libraries\3rdparty\tinycbor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\src\aws_greengrass_discovery.c">
-      <Filter>libraries\c_sdk\aws\greengrass\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\src\aws_helper_secure_connect.c">
-      <Filter>libraries\c_sdk\aws\greengrass\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\test\aws_test_greengrass_discovery.c">
-      <Filter>libraries\c_sdk\aws\greengrass\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\greengrass\test\aws_test_helper_secure_connect.c">
-      <Filter>libraries\c_sdk\aws\greengrass\test</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
       <Filter>libraries\3rdparty\jsmn</Filter>
     </ClCompile>
@@ -1675,6 +1663,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c">
       <Filter>ports\ota</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
+      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
