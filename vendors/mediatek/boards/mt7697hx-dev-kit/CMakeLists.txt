@@ -92,7 +92,7 @@ target_compile_options(
 )
 
 # Linker flags
-set(linker_flags --cpu Cortex-M4.fp --library_type=microlib --diag_suppress 6340,6329,6314 --strict --scatter "${board_uvision_dir}/flash.sct" --entry Reset_Handler --first __isr_vector --summary_stderr --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols )
+set(linker_flags --cpu Cortex-M4.fp --library_type=microlib --diag_suppress 6340,6329,6314 --strict --scatter "${AFR_ROOT_DIR}/projects/mediatek/mt7697hx-dev-kit/uvision/aws_tests/flash.sct" --entry Reset_Handler --first __isr_vector --summary_stderr --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols )
 
 target_link_options(
     AFR::compiler::mcu_port
@@ -362,7 +362,7 @@ target_include_directories(
        "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
        "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
-       "${AFR_MODULES_C_SDK_DIR}/common/include"
+       "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
        "${AFR_3RDPARTY_DIR}/mbedtls/include"
        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
@@ -393,7 +393,7 @@ add_executable(
     ${board_code_src}
     ${config_files}
     $<IF:${AFR_IS_TESTING}, ,${network_manager_src}>
-    "${board_uvision_dir}/startup_mt7687.s"
+    "${AFR_ROOT_DIR}/projects/mediatek/mt7697hx-dev-kit/uvision/aws_tests/startup_mt7687.s"
     "${board_dir}/application_code/main.c"
     "${board_dir}/application_code/lwipopts.c"
     "${board_dir}/application_code/mediatek_code/source/sys_init.c"
