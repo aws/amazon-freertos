@@ -117,6 +117,8 @@ static BaseType_t xNetworkConnected = pdFALSE;
 
 static void prvNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext )
 {
+    ( void ) pvContext;
+
     if( xNetworkState == eNetworkStateEnabled )
     {
         /* Release the semaphore, to indicate other tasks that a network is available */
@@ -224,7 +226,7 @@ void vRunOTAUpdateDemo( void )
             }
 
             xConnectInfo.cleanSession = true;
-            xConnectInfo.clientIdentifierLength = strlen( clientcredentialIOT_THING_NAME );
+            xConnectInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
             xConnectInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
             /* Connect to the broker. */
             if( IotMqtt_Connect( &( xConnection.xNetworkInfo ),
