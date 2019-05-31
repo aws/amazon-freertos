@@ -34,47 +34,48 @@
 								<option defaultValue="gnu.c.optimization.level.none" id="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level.226248843" name="Optimization Level" superClass="fr.ac6.managedbuild.gnu.c.compiler.option.optimization.level" useByScannerDiscovery="false" value="fr.ac6.managedbuild.gnu.c.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.debugging.level.722772844" name="Debug Level" superClass="gnu.c.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.c.compiler.option.include.paths.1847441575" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/B-L475E-IOT01"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/Common"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/es_wifi"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/hts221"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/lis3mdl"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/lps22hb"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/lsm6dsl"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/mx25r6435f"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/BSP/Components/vl53l0x"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/CMSIS/Device/ST/STM32L4xx/Include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/STM32L4xx_HAL_Driver/Inc"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../stm32l475_discovery/STM32L4xx_HAL_Driver/Inc/Legacy"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/config_files"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/application_code"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../common/application_code/st_code"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../demos/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../demos/network_manager"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/ble/include/private"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/common/include/private"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/provisioning/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/crypto/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/wifi/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/common/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/secure_sockets/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/tls/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/utils/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/mqtt/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/defender/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/standard/serializer/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/greengrass/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/aws/shadow/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/mbedtls/include/mbedtls"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/ports/pkcs11/mbedtls"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/pkcs11"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/tinycbor"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../../modules/libraries/3rdparty/jsmn"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/B-L475E-IOT01"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/Common"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/es_wifi"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/hts221"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/lis3mdl"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/lps22hb"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/lsm6dsl"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/mx25r6435f"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/BSP/Components/vl53l0x"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/CMSIS/Include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/CMSIS/Device/ST/STM32L4xx/Include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/STM32L4xx_HAL_Driver/Inc"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/stm32l475_discovery/STM32L4xx_HAL_Driver/Inc/Legacy"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/boards/stm32l475_discovery/aws_demos/application_code"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/boards/stm32l475_discovery/aws_demos/application_code/st_code"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/st/boards/stm32l475_discovery/aws_demos/config_files"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/network_manager"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include/private"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/provisioning/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/crypto/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/wifi/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/platform/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/platform/freertos/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/secure_sockets/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/tls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/defender/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/mqtt/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/serializer/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/shadow/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/pkcs11/mbedtls"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/pkcs11"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/tinycbor"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/jsmn"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.def.symbols.1779062689" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="USE_HAL_DRIVER"/>
@@ -99,7 +100,7 @@
 								<option id="gnu.cpp.compiler.option.debugging.level.780850999" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 							</tool>
 							<tool id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.550678436" name="MCU GCC Linker" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker">
-								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.1253248058" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" useByScannerDiscovery="false" value="../STM32L475VGTx_FLASH.ld" valueType="string"/>
+								<option id="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script.1253248058" name="Linker Script (-T)" superClass="fr.ac6.managedbuild.tool.gnu.cross.c.linker.script" useByScannerDiscovery="false" value="${ProjDirPath}/../../../../../vendors/st/boards/stm32l475_discovery/aws_demos/STM32L475VGTx_FLASH.ld" valueType="string"/>
 								<option id="gnu.c.link.option.libs.1678432391" name="Libraries (-l)" superClass="gnu.c.link.option.libs" useByScannerDiscovery="false"/>
 								<option id="gnu.c.link.option.paths.1953927300" name="Library search path (-L)" superClass="gnu.c.link.option.paths" useByScannerDiscovery="false"/>
 								<option id="gnu.c.link.option.ldflags.685268909" name="Linker flags" superClass="gnu.c.link.option.ldflags" useByScannerDiscovery="false" value="-specs=nosys.specs -z muldefs" valueType="string"/>
@@ -140,7 +141,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="lib/aws/ota/portable/vendor|lib/aws/ota/portable/ti|lib/aws/ota/portable/pc|lib/aws/ota/portable/microchip|Application/Common/rfu.c|Application/Common/network.c|Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/gcc|Libraries/ThirdParty/printf-stdarg/printf-stdarg.c|Application/User/subscribe_publish_sample.c|Application/Common/iot_flash_config.c|Application/Common/aws_iot_test_metering.c|Libraries/ThirdParty/tracealyzer_recorder|Application/Common/printf.c|Application/Common/timer.c|Application/Common/subscribe_publish_sensor_values.c|Application/Common/network_st_wrapper.c|Application/Common/aws_iot_test_basic_connectivity.c|Application/Common/sensors_data.c|Application/Common/firewall_wrapper.c|Application/Common/timedate.c|Application/Common/mbedtls_patch.c|Application/Common/heap.c|Application/Common/metering.c|Libraries/FreeRTOS-Plus-TCP/Source" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Application/Common/rfu.c|Application/Common/network.c|Drivers/CMSIS/Device/ST/STM32L4xx/Source/Templates/gcc|Libraries/ThirdParty/printf-stdarg/printf-stdarg.c|Application/User/subscribe_publish_sample.c|Application/Common/iot_flash_config.c|Application/Common/aws_iot_test_metering.c|Libraries/ThirdParty/tracealyzer_recorder|Application/Common/printf.c|Application/Common/timer.c|Application/Common/subscribe_publish_sensor_values.c|Application/Common/network_st_wrapper.c|Application/Common/aws_iot_test_basic_connectivity.c|Application/Common/sensors_data.c|Application/Common/firewall_wrapper.c|Application/Common/timedate.c|Application/Common/mbedtls_patch.c|Application/Common/heap.c|Application/Common/metering.c|Libraries/FreeRTOS-Plus-TCP/Source" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

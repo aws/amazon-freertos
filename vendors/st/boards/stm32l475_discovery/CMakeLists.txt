@@ -26,7 +26,7 @@ afr_set_board_metadata(IDE_SystemWorkbench_NAME "System Workbench for STM32")
 afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
 afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
 
-afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/st/stm32l475_discovery/ac6")
+afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/st/stm32l475_discovery/ac6/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------

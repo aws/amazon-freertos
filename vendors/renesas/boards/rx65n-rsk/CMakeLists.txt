@@ -30,7 +30,7 @@ afr_set_board_metadata(RECOMMENDED_IDE "E2Studio")
 afr_set_board_metadata(IDE_E2Studio_NAME "e2 studio")
 afr_set_board_metadata(IDE_E2Studio_COMPILER "CCRX")
 
-afr_set_board_metadata(IDE_E2Studio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/renesas/rx65n-rsk/e2studio")
+afr_set_board_metadata(IDE_E2Studio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/renesas/rx65n-rsk/e2studio/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 
@@ -155,12 +155,12 @@ set(FIT_include
     "${renesas_dir}/FIT/RDP_v1.15_modified/r_s12ad_rx/src/targets/rx65x"
 )
 
-afr_glob_src(smc_gen_src DIRECTORY "${rx65nrsk_aws_dir}/e2studio/src/smc_gen" RECURSE)
+afr_glob_src(smc_gen_src DIRECTORY "${rx65nrsk_aws_dir}/src/smc_gen" RECURSE)
 
 set(smc_gen_include
-    "${rx65nrsk_aws_dir}/e2studio/src/smc_gen/r_config"
-    "${rx65nrsk_aws_dir}/e2studio/src/smc_gen/general"
-    "${rx65nrsk_aws_dir}/e2studio/src/smc_gen/r_pincfg"
+    "${rx65nrsk_aws_dir}/src/smc_gen/r_config"
+    "${rx65nrsk_aws_dir}/src/smc_gen/general"
+    "${rx65nrsk_aws_dir}/src/smc_gen/r_pincfg"
 )
 
 # Kernel
@@ -190,8 +190,8 @@ set(kernel_inc_dirs
     ${FIT_include}
     ${smc_gen_include}
     "${AFR_KERNEL_DIR}/portable/Renesas/RX600v2"
-    "${rx65nrsk_aws_dir}/common/config_files"
-    "${rx65nrsk_aws_dir}/common/application_code/renesas_code"
+    "${rx65nrsk_aws_dir}/config_files"
+    "${rx65nrsk_aws_dir}/application_code/renesas_code"
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
@@ -243,8 +243,8 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX "abs")
 
-afr_glob_src(board_code_src DIRECTORY "${rx65nrsk_aws_dir}/common/application_code/renesas_code")
-afr_glob_src(config_files_src DIRECTORY "${rx65nrsk_aws_dir}/common/config_files")
+afr_glob_src(board_code_src DIRECTORY "${rx65nrsk_aws_dir}/application_code/renesas_code")
+afr_glob_src(config_files_src DIRECTORY "${rx65nrsk_aws_dir}/config_files")
 
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
@@ -252,7 +252,7 @@ afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 add_executable(${exe_target}
     ${board_code_src}
     ${config_files_src}
-    "${rx65nrsk_aws_dir}/common/application_code/main.c"
+    "${rx65nrsk_aws_dir}/application_code/main.c"
     $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
 )
 

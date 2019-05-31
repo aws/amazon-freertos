@@ -1429,6 +1429,11 @@
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/third_party/ESP_AT_Lib/src/include/system/esp_sys_win32.h</locationURI>
 		</link>
 		<link>
+			<name>vendors/infineon/boards/xmc4800_iotkit/XMC4800x2048.ld</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/XMC4800x2048.ld</locationURI>
+		</link>
+		<link>
 			<name>application_code/main.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/application_code/main.c</locationURI>

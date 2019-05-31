@@ -38,8 +38,8 @@ afr_set_board_metadata(IDE_IAR_NAME "IAR Embedded Workbench")
 afr_set_board_metadata(IDE_IAR_COMPILER "IAR-ARM")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
-afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/ccs")
-afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/iar")
+afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/ccs/aws_demos")
+afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/iar/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
@@ -193,3 +193,16 @@ add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
 )
+
+find_program(tiobj2bin tiobj2bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
+find_program(mkhex4bin mkhex4bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
+find_program(armofd armofd PATHS "${AFR_COMPILER_DIR}")
+find_program(armhex armhex PATHS "${AFR_COMPILER_DIR}")
+if(tiobj2bin)
+    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${tiobj2bin}" "${CMAKE_BINARY_DIR}/${exe_target}.out" "${CMAKE_BINARY_DIR}/${exe_target}.bin"
+                "${armofd}" "${armhex}" "${mkhex4bin}"
+    )
+endif()

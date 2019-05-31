@@ -139,17 +139,19 @@ void vApplicationDaemonTaskStartupHook( void )
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. This function must be called after
      * initializing the TI File System using WIFI_On. */
+    WIFI_On();
     vDevModeKeyProvisioning();
     prvProvisionRootCA();
 
     /* Initialize the AWS Libraries system. */
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Show the possible security alerts that will affect re-flashing the device. 
-         * When the number of security alerts reaches the threshold, the device file system is locked and 
-         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed 
+        /* Show the possible security alerts that will affect re-flashing the device.
+         * When the number of security alerts reaches the threshold, the device file system is locked and
+         * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed
          * here for debugging purposes. */
         prvShowTiCc3220SecurityAlertCounts();
+        WIFI_Off();
 
         configPRINTF( ( "Running Demos.\r\n" ) );
         DEMO_RUNNER_RunDemos();
@@ -199,69 +201,6 @@ CK_RV prvProvisionRootCA( void )
     }
 
     return xResult;
-}
-
-
-/* ----------------------------------------------------------*/
-
-/**
- * @brief Connect the Wi-Fi acess point specifed in aws_clientcredential.h
- *
- */
-static void prvWifiConnect( void )
-{
-    WIFIReturnCode_t xWifiStatus;
-    WIFINetworkParams_t xNetworkParams;
-    uint8_t ucTempIp[ 4 ];
-
-    /* Initialize Network params. */
-    xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
-    xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
-    xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
-    xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
-    xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
-    xNetworkParams.cChannel = 0;
-
-    /* Connect to Wi-Fi. */
-    xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
-
-    if( xWifiStatus == eWiFiSuccess )
-    {
-        configPRINTF( ( "Wi-Fi connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xWifiStatus = WIFI_GetIP( ucTempIp );
-
-        if( eWiFiSuccess == xWifiStatus )
-        {
-            configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
-                            ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
-        }
-    }
-    else
-    {
-        /* If the Wi-Fi fails to connect, then the logic in ti_code/network_if.c asks
-         * the user for a open SSID to connect to instead. The code in this else-statement
-         * is for consistency between in the demos for each board. */
-
-        /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
-
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
-
-        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
-        {
-            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-        }
-
-        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
-    }
 }
 
 /*-----------------------------------------------------------*/
