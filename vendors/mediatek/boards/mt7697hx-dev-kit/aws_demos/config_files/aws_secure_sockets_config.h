@@ -50,6 +50,11 @@
 #define socketsconfigDEFAULT_RECV_TIMEOUT    ( 20000 )
 
 /**
+ * @brief Enable metrics of secure socket.
+ */
+#define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED    ( 1 )
+
+/**
  * @brief Default max socket number support
  */
 #define socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS     6
