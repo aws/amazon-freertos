@@ -38,6 +38,8 @@ class OtaTestResult:
     """
     PASS = 'PASS'
     FAIL = 'FAIL'
+    ERROR = 'ERROR'
+
     def __init__(self, *, testName, result, reason, board=''):
         self.board = ''
         self.testName = testName
