@@ -1,6 +1,7 @@
 afr_module()
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
@@ -11,30 +12,6 @@ afr_module_sources(
         "${inc_dir}/platform/iot_network.h"
         "${inc_dir}/platform/iot_threads.h"
         "${inc_dir}/types/iot_platform_types.h"
-)
-
-afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    PUBLIC
-        "${inc_dir}"
-        $<TARGET_PROPERTY:AFR::${AFR_CURRENT_MODULE}::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
-)
-
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    PRIVATE AFR::${AFR_CURRENT_MODULE}::mcu_port
-)
-
-# TODO, link to platform_freertos by default for now, should we remove this?
-afr_mcu_port(platform DEPENDS AFR::platform_freertos)
-
-# Link to this INTERFACE target to use the default implementation based on FreeRTOS.
-afr_module(NAME platform_freertos INTERFACE)
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos")
-
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
         "${src_dir}/iot_clock_afr.c"
         "${src_dir}/iot_metrics.c"
         "${src_dir}/iot_network_afr.c"
@@ -46,12 +23,14 @@ afr_module_sources(
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    INTERFACE "${src_dir}/include"
+    PUBLIC
+        "${inc_dir}"
+        "${src_dir}/include"
 )
 
 afr_module_dependencies(
-    platform_freertos
-    INTERFACE
+    ${AFR_CURRENT_MODULE}
+    PUBLIC
         AFR::common
         AFR::secure_sockets
 )
