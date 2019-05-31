@@ -14,6 +14,15 @@
 /*
  * Get Random number generator.
  */
+
+/* The random number generation solution presented in this file is
+* for demonstration purposes only. It is not recommended to go into production with
+* the logic presented here. The current solution takes entropy from ADC white noise signal and uses it
+* as input seed to generate a random number from the RNG HW.
+* For production development, it is recommended to use a source which will be
+* truly random in nature.
+*/
+
  #define PRNG_KEY_SIZE  (0x20UL)
  
 static volatile int  g_PRNG_done;
@@ -176,17 +185,12 @@ static void trng_get(unsigned char *pConversionData)
 int mbedtls_hardware_poll( void *data,
                     unsigned char *output, size_t len, size_t *olen )
 {
-#if 0
-    unsigned long timer = xTaskGetTickCount();
-	  ((void) data);
-    *olen = 0;
- 
-    if( len < sizeof(unsigned long) )
-        return( 0 );
- 
-    memcpy( output, &timer, sizeof(unsigned long) );
-    *olen = sizeof(unsigned long);
-#else
+
+    /* Enabling ADC and sampling the internal voltage to come out one random seed,
+    * then input this seed to HW PRNG to generate one random number.
+    * This random seed is the combination of sequence of ADC band-gap white noise.
+    * Current mechanism could pass the NIST certification suit.
+    */
     unsigned char tmpBuff[PRNG_KEY_SIZE];
     size_t cur_length = 0;
     ((void) data);
