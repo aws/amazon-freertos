@@ -1,0 +1,48 @@
+{
+  "ENTRY": "prvUnlockQueue",
+  "LOCK_BOUND": 2,
+  "CBMCFLAGS": [
+    "--unwind 1",
+    "--signed-overflow-check",
+    "--pointer-overflow-check",
+    "--unsigned-overflow-check",
+    "--unwindset prvUnlockQueue.0:{LOCK_BOUND},prvUnlockQueue.1:{LOCK_BOUND}"
+  ],
+  "OBJS": [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/queue.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto"
+  ],
+  "DEF": [
+    {
+      "noQueueSets" : [
+        "'configASSERT(X)=__CPROVER_assert(X, \"Assertion Error\")'",
+        "'configPRECONDITION(X)=__CPROVER_assume(X)'",
+        "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'",
+        "configUSE_TRACE_FACILITY=0",
+        "configGENERATE_RUN_TIME_STATS=0",
+        "LOCK_BOUND={LOCK_BOUND}",
+        "configUSE_QUEUE_SETS=0"
+
+      ]
+    },
+    {
+      "QueueSets" : [
+        "'configASSERT(X)=__CPROVER_assert(X, \"Assertion Error\")'",
+        "'configPRECONDITION(X)=__CPROVER_assume(X)'",
+        "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'",
+        "configUSE_TRACE_FACILITY=0",
+        "configGENERATE_RUN_TIME_STATS=0",
+        "LOCK_BOUND={LOCK_BOUND}",
+        "configUSE_QUEUE_SETS=1"
+      ]
+    }
+  ],
+  "INC": [
+    "."
+  ],
+  "GENERATE_HEADER":[
+    "queue_datastructure.h"
+  ]
+}
+
