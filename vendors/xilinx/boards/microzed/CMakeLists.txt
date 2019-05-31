@@ -205,7 +205,7 @@ afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 add_executable(
     ${exe_target}
     ${board_code_src}
-    "${board_dir}/application_code/xilinx_code/FreeRTOS_Tick_config.c"
+    "${board_dir}/application_code/xilinx_code/FreeRTOS_tick_config.c"
     ${config_files}
     "${board_dir}/application_code/main.c"
     $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
