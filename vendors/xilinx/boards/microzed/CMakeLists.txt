@@ -128,18 +128,12 @@ target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
-    INTERFACE 3rdparty::mbedtls
-)
-
-target_include_directories(
-    AFR::pkcs11::mcu_port
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include/"
+    INTERFACE 
+        AFR::pkcs11_mbedtls
+        AFR::tls
 )
 
 
@@ -155,44 +149,35 @@ target_sources(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c"
 )
 
-
 target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
 )
 
-
-
 # Secure sockets
 afr_mcu_port(secure_sockets)
+
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/aws_tls.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/aws_crypto.c"
-)
-
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-       "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
-       "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-       "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
-       "${AFR_3RDPARTY_DIR}/mbedtls/include"
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
-       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
+    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
 )
 
 afr_module_dependencies(
     secure_sockets_freertos_tcp
     INTERFACE
         AFR::freertos_plus_tcp
-        AFR::tls
         AFR::crypto
         AFR::pkcs11
+        AFR::tls
 )
+
+target_include_directories(
+    AFR::secure_sockets::mcu_port
+    INTERFACE
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
+)
+
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
@@ -216,7 +201,7 @@ target_link_libraries(
     ${exe_target}
     PRIVATE
         AFR::utils
-        AFR::freertos_plus_tcp
+        AFR::secure_sockets_freertos_tcp
 )
 
 # The kernel is the root dependency, linking the library flags like this ensures it adds the flags last in the command line
@@ -225,5 +210,6 @@ set(link_extra_flags -Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,-lrsa,--end-grou
 
 target_link_libraries(
     AFR::kernel::mcu_port
-        INTERFACE ${link_extra_flags}
+    INTERFACE 
+        ${link_extra_flags}
 )
