@@ -404,31 +404,21 @@ void vDevModeKeyProvisioning( void )
 
     xParams.ulClientPrivateKeyType = CKK_RSA;
     xParams.pcClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.pcClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
 
     if( ( NULL == xParams.pcClientPrivateKey ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pcClientPrivateKey ) ) )
+        ( 0 == strcmp( "", ( const char * ) xParams.pcClientPrivateKey ) ) ||
+        ( NULL == xParams.pcClientCertificate ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pcClientCertificate ) ) )
     {
-        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key.\r\n" ) );
+        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key and certificate.\r\n" ) );
         configASSERT( pdFALSE );
     }
     else
     {
         xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pcClientPrivateKey );
-    }
-
-    xParams.pcClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
-
-    if( ( NULL == xParams.pcClientCertificate ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pcClientCertificate ) ) )
-    {
-        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device certificate.\r\n" ) );
-        configASSERT( pdFALSE );
-    }
-    else
-    {
         xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pcClientCertificate );
+        vAlternateKeyProvisioning( &xParams );
     }
-
-    vAlternateKeyProvisioning( &xParams );
 }
 /*-----------------------------------------------------------*/
