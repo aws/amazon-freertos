@@ -49,6 +49,7 @@ add_subdirectory("demos")
 add_subdirectory("tests")
 
 # Resolve dependencies.
+afr_status("=========================Resolving dependencies==========================")
 afr_resolve_dependencies()
 
 # -------------------------------------------------------------------------------------------------
