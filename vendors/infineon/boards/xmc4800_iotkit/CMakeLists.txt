@@ -267,6 +267,7 @@ add_executable(
     ${config_src}
     ${newlib}
     ${esp_at_lib}
+    ${linker_script}
     "${xmc4800_aws_dir}/application_code/main.c"
 )
 
