@@ -28,7 +28,6 @@ afr_module_include_dirs(
     INTERFACE
         "${AFR_DEMOS_DIR}/include"
         "${AFR_DEMOS_DIR}/network_manager"
-        "${AFR_MODULES_PORTS_DIR}/ble/include/private"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
