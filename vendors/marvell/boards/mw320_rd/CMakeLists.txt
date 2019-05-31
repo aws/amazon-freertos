@@ -27,7 +27,7 @@ afr_set_board_metadata(RECOMMENDED_IDE "Eclipse")
 afr_set_board_metadata(IDE_Eclipse_NAME "Eclipse")
 afr_set_board_metadata(IDE_Eclipse_COMPILER "GCC")
 
-afr_set_board_metadata(IDE_Eclipse_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/marvell/mw320_rd/eclipse")
+afr_set_board_metadata(IDE_Eclipse_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/marvell/mw320_rd/eclipse/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/marvell/boards/mw320_rd/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
