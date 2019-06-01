@@ -24,17 +24,17 @@ afr_module_dependencies(
 )
 
 # Link to this INTERFACE target to use the default implementation based on FreeRTOS-Plus-TCP.
-afr_module(NAME secure_sockets_freertos_tcp INTERFACE)
+afr_module(NAME secure_sockets_freertos_plus_tcp INTERFACE)
 
 set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 
 afr_module_sources(
-    secure_sockets_freertos_tcp INTERFACE
+    secure_sockets_freertos_plus_tcp INTERFACE
     "${src_dir}/aws_secure_sockets.c"
 )
 
 afr_module_dependencies(
-    secure_sockets_freertos_tcp
+    secure_sockets_freertos_plus_tcp
     INTERFACE
         AFR::freertos_plus_tcp
         AFR::tls

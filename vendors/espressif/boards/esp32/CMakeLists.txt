@@ -128,10 +128,7 @@ target_sources(
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::secure_sockets_freertos_tcp
-        AFR::pkcs11
-        AFR::tls
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
 if(AFR_IS_TESTING)

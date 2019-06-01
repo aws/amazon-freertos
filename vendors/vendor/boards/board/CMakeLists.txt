@@ -185,11 +185,11 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 
 # Secure sockets
 # afr_mcu_port(secure_sockets)
-# Link to AFR::secure_sockets_freertos_tcp if you want use default implementation based on
+# Link to AFR::secure_sockets_freertos_plus_tcp if you want use default implementation based on
 # FreeRTOS-Plus-TCP.
 # target_link_libraries(
-#     AFR::pkcs11::mcu_port
-#     INTERFACE AFR::secure_sockets_freertos_tcp
+#     AFR::secure_sockets::mcu_port
+#     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 # )
 # Or provide your own implementation.
 # target_sources(

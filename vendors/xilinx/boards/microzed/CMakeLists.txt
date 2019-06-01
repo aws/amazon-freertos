@@ -131,7 +131,7 @@ target_sources(
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
-    INTERFACE 
+    INTERFACE
         AFR::pkcs11_mbedtls
         AFR::tls
 )
@@ -157,27 +157,10 @@ target_include_directories(
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
-
-target_sources(
+target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
-
-afr_module_dependencies(
-    secure_sockets_freertos_tcp
-    INTERFACE
-        AFR::freertos_plus_tcp
-        AFR::crypto
-        AFR::pkcs11
-        AFR::tls
-)
-
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
-)
-
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
@@ -201,7 +184,6 @@ target_link_libraries(
     ${exe_target}
     PRIVATE
         AFR::utils
-        AFR::secure_sockets_freertos_tcp
 )
 
 # The kernel is the root dependency, linking the library flags like this ensures it adds the flags last in the command line
@@ -210,6 +192,6 @@ set(link_extra_flags -Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,-lrsa,--end-grou
 
 target_link_libraries(
     AFR::kernel::mcu_port
-    INTERFACE 
+    INTERFACE
         ${link_extra_flags}
 )

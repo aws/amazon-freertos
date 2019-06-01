@@ -235,7 +235,7 @@ target_include_directories(
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_tcp
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
 # -------------------------------------------------------------------------------------------------

@@ -217,16 +217,9 @@ target_include_directories(
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
-)
-
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::secure_sockets_freertos_tcp
-        AFR::tls
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
 # POSIX
@@ -338,7 +331,6 @@ set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
 find_program(xc32_bin2hex xc32-bin2hex PATHS "${AFR_COMPILER_DIR}")
 find_program(xc32_objcopy xc32-objcopy PATHS "${AFR_COMPILER_DIR}")
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 
 # Locate microchip hexmate.
 set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
