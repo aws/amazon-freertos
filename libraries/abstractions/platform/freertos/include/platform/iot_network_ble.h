@@ -39,6 +39,11 @@
 #define IOT_NETWORK_INTERFACE_BLE    ( &( IotNetworkBle ) )
 
 /**
+ * @brief Stubs initilizer function
+ */
+#define AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER {}
+
+/**
  * @brief An implementation of #IotNetworkInterface_t::create for Amazon FreeRTOS
  * Secure Sockets.
  */

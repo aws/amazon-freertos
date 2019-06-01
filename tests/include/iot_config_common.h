@@ -189,7 +189,9 @@ extern int snprintf( char *,
 #endif
 
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
-#define IOT_TEST_NETWORK_HEADER        "platform/iot_network_afr.h"
+#ifndef IOT_TEST_NETWORK_HEADER
+    #define IOT_TEST_NETWORK_HEADER        "platform/iot_network_afr.h"
+#endif
 
 /* All tests use a secured connection. */
 #define IOT_TEST_SECURED_CONNECTION    ( 1 )
