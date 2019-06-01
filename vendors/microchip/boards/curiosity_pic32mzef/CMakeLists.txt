@@ -345,25 +345,22 @@ endif()
 # We may have to re-build the bootloader hex file?
 set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X.production.hex)
 
-
-if(AFR_IS_TESTING)
+set(output_hex_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+set(output_bin_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.production.bin")
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "echo" "Running Post-build step"
+    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+    COMMAND "echo" "Running Hexmate to combine bootloader with image"
+    COMMAND "${hexmate_path}" ${output_hex_file}  ${bl_hex_file} -O${exe_target}.production.unified.hex
+)
+if(NOT AFR_IS_TESTING)
+    set(ota_image_generator "${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py")
     add_custom_command(
         TARGET ${exe_target} POST_BUILD
-        COMMAND "echo" "Running Post-build step"
-        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
-        COMMAND "echo" "Running Hexmate to combine bootloader with image"
-        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -Omplab.production.unified.hex
-    )
-else()
-    add_custom_command(
-        TARGET ${exe_target} POST_BUILD
-        COMMAND "echo" "Running Post-build step"
-        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
         COMMAND "echo" "Running xc32-objcopy"
-        COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/mplab.production.bin
+        COMMAND "${xc32_objcopy}" -I ihex ${output_hex_file} -O binary "${output_bin_file}"
         COMMAND "echo" "Creating binary image"
-        COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/mplab.production.bin -p MCHP-Curiosity-PIC32MZEF
-        COMMAND "echo" "Running Hexmate to combine bootloader with image"
-        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -Omplab.production.unified.hex
+        COMMAND "python" "${ota_image_generator}" -b "${output_bin_file}" -p MCHP-Curiosity-PIC32MZEF
     )
 endif()
