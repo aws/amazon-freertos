@@ -88,12 +88,12 @@ static IotNetworkInterface_t xNetworkInterface =
 #if WIFI_ENABLED || ETH_ENABLED
 static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext )
 {
-    _IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
+    IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
     BaseType_t xNetworkCreated = pdFALSE;
     IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
     static IotNetworkConnectionAfr_t * pConnection = NULL;
-    IotNetworkServerInfoAfr_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-    IotNetworkCredentialsAfr_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+    IotNetworkServerInfo_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+    IotNetworkCredentials_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
     IotMqttNetworkInfo_t* pxNetworkIface = &( pxNetworkContext->xNetworkInfo );
 
     /* Disable ALPN if not using port 443. */
@@ -107,7 +107,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
-        _IOT_SET_AND_GOTO_CLEANUP( pdFALSE );
+        IOT_SET_AND_GOTO_CLEANUP( pdFALSE );
     }
     else
     {
@@ -122,7 +122,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
     pxNetworkIface->pNetworkInterface = &xNetworkInterface;
     pxNetworkContext->pvNetworkConnection = ( void* ) pConnection;
 
-    _IOT_FUNCTION_CLEANUP_BEGIN();
+    IOT_FUNCTION_CLEANUP_BEGIN();
 
     if( status != pdTRUE )
     {
@@ -133,7 +133,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
         }
     }
 
-    _IOT_FUNCTION_CLEANUP_END();
+    IOT_FUNCTION_CLEANUP_END();
 }
 #endif
 

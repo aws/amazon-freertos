@@ -1,9 +1,10 @@
+# We don't display this demo below in AFR console
+if(AFR_METADATA_MODE)
+    return()
+endif()
+
 # Posix demo
 afr_demo_module(posix)
-
-afr_set_demo_metadata(ID "POSIX_DEMO")
-afr_set_demo_metadata(DESCRIPTION "An example that demonstrates Posix")
-afr_set_demo_metadata(DISPLAY_NAME "Posix Demo")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}

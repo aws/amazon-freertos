@@ -5,7 +5,7 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "In-source build is not allowed, please use a separate build folder.")
 endif()
 
-project(amazon-freertos VERSION 1.4.7)
+project(amazon-freertos VERSION 1.5)
 
 # Import global configurations.
 include("tools/cmake/afr.cmake")
@@ -44,11 +44,12 @@ add_subdirectory("${AFR_BOARD_PATH}")
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # Initialize all modules.
-add_subdirectory("modules")
+add_subdirectory("libraries")
 add_subdirectory("demos")
-add_subdirectory("test")
+add_subdirectory("tests")
 
 # Resolve dependencies.
+afr_status("=========================Resolving dependencies==========================")
 afr_resolve_dependencies()
 
 # -------------------------------------------------------------------------------------------------

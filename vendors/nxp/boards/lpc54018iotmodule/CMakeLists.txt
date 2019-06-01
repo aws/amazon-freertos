@@ -38,9 +38,9 @@ afr_set_board_metadata(IDE_IAREmbeddedWorkbench_COMPILER "IAR")
 afr_set_board_metadata(IDE_MCUXpresso_NAME "MCUXpresso")
 afr_set_board_metadata(IDE_MCUXpresso_COMPILER "GCC")
 
-afr_set_board_metadata(IDE_IAREmbeddedWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/iar")
-afr_set_board_metadata(IDE_MCUXpresso_PROJECT_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/mcuxpresso")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files")
+afr_set_board_metadata(IDE_IAREmbeddedWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nxp/lpc54018iotmodule/iar/aws_demos")
+afr_set_board_metadata(IDE_MCUXpresso_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nxp/lpc54018iotmodule/mcuxpresso/aws_demos")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -89,7 +89,7 @@ target_link_libraries(
 target_include_directories(
     AFR::compiler::mcu_port
     INTERFACE
-        "${lpc54018_aws_dir}/common/config_files"
+        "${lpc54018_aws_dir}/config_files"
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -191,9 +191,9 @@ target_sources(
 set(kernel_inc_dirs
     ${lpc54018_includes}
     "${AFR_KERNEL_DIR}/include"
-    "${lpc54018_aws_dir}/common/config_files"
-    "${lpc54018_aws_dir}/common/application_code/nxp_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    "${lpc54018_aws_dir}/config_files"
+    "${lpc54018_aws_dir}/application_code/nxp_code"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
     # Compiler specific includes.
     ${compiler_specific_include}
 )
@@ -203,6 +203,23 @@ target_include_directories(
     INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
 )
 
+# POSIX
+afr_mcu_port(posix)
+
+target_sources(
+    AFR::posix::mcu_port
+    INTERFACE "${lpc54018_ports_dir}/posix/FreeRTOS_POSIX_portable.h"
+)
+
+target_include_directories(
+    AFR::posix::mcu_port
+    INTERFACE "${lpc54018_ports_dir}/posix"
+)
+
+target_link_libraries(
+    AFR::posix::mcu_port
+    INTERFACE AFR::freertos_plus_posix
+)
 
 # WiFi
 afr_mcu_port(wifi)
@@ -253,8 +270,8 @@ else()
     set(exe_target aws_demos)
 endif()
 
-afr_glob_src(board_code_src DIRECTORY "${lpc54018_aws_dir}/common/application_code/nxp_code")
-afr_glob_src(config_files_src DIRECTORY "${lpc54018_aws_dir}/common/config_files")
+afr_glob_src(board_code_src DIRECTORY "${lpc54018_aws_dir}/application_code/nxp_code")
+afr_glob_src(config_files_src DIRECTORY "${lpc54018_aws_dir}/config_files")
 
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
@@ -262,7 +279,7 @@ afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 add_executable(${exe_target}
     ${board_code_src}
     ${config_files_src}
-    "${lpc54018_aws_dir}/common/application_code/main.c"
+    "${lpc54018_aws_dir}/application_code/main.c"
     # TODO, It is unknown why hw_poll.c has to be included here
     "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
     $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
@@ -273,11 +290,4 @@ target_link_libraries(
     PRIVATE
         AFR::wifi
         AFR::utils
-)
-
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
 )
