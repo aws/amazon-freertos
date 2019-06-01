@@ -31,13 +31,10 @@
 #ifndef IOT_BLE_WIFI_PROVISIONING_H_
 #define IOT_BLE_WIFI_PROVISIONING_H_
 
-#include "FreeRTOS.h"
-#include "FreeRTOSConfig.h"
-#include "task.h"
-#include "semphr.h"
 #include "iot_ble.h"
 #include "iot_ble_data_transfer.h"
 #include "aws_wifi.h"
+#include "platform/iot_threads.h"
 
 
 /**
@@ -118,9 +115,9 @@ typedef enum
 typedef struct IotBleWifiProvService
 {
     IotBleDataTransferChannel_t * pChannel;    /**< A pointer to the ble connection object. */
-    SemaphoreHandle_t lock;          /**< A lock to protect the WiFi provisioning service. */
-    uint16_t numNetworks;            /**< The number of networks. */
-    int16_t connectedIdx;            /**< The index of the network that is connected. */
+    IotSemaphore_t lock;                       /**< Lock to gauarentee only a single request is processed at a time. */
+    uint16_t numNetworks;                      /**< Keeps track of total number of networks stored. */
+    int16_t connectedIdx;                      /**< Keeps track of the flash index of the network that is connected. */
 
     IotBleListNetworkRequest_t   listNetworkRequest;
     IotBleAddNetworkRequest_t    addNetworkRequest;

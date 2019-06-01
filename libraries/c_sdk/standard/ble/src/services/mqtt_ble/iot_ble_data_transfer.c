@@ -29,15 +29,24 @@
  */
 
 /* Build using a config header, if provided. */
-#ifdef IOT_CONFIG_FILE
-    #include IOT_CONFIG_FILE
-#endif
+#include "iot_config.h"
 #include "FreeRTOS.h"
 #include "iot_ble_config.h"
+
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_DATA_TRANSFER" )
+#include "iot_logging_setup.h"
+
+
 #include "iot_ble.h"
 #include "iot_ble_data_transfer.h"
 #include "platform/iot_threads.h"
-
 
 #define _SERVICE_UUID( SERVICE_ID )         { 0x00, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
 #define _CONTROL_CHAR_UUID( SERVICE_ID )    { 0x01, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
@@ -448,7 +457,7 @@ static bool _resizeChannelBuffer( IotBleDataChannelBuffer_t *pChannelBuffer,  si
         }
         else
         {
-            configPRINTF(( "Failed to allocate a buffer of size %d.\r\n", initialLength ));
+            IotLogError( "Failed to allocate a buffer of size %d", initialLength );
             result = false;
         }
     }
@@ -469,7 +478,7 @@ static bool _resizeChannelBuffer( IotBleDataChannelBuffer_t *pChannelBuffer,  si
             }
             else
             {
-                configPRINTF(( "Failed to re-allocate a buffer of size %d.\r\n", ( 2 * pChannelBuffer->bufferLength ) ));
+                IotLogError(  "Failed to re-allocate a buffer of size %d.\r\n", ( 2 * pChannelBuffer->bufferLength ) );
                 result = false;
             }
         }
@@ -586,7 +595,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
     {
         resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
         
-	pService = _getServiceFromHandle( pEventParam->pParamRead->attrHandle );
+	    pService = _getServiceFromHandle( pEventParam->pParamRead->attrHandle );
         if( pService->channel.isOpen == true )
         {
             length = ( pService->channel.sendBuffer.head - pService->channel.sendBuffer.tail );
@@ -617,7 +626,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
             }
             else
             {        
-                configPRINTF(( "Failed to send large object chunk through ble connection.\r\n" ));
+                IotLogError( "Failed to send large object chunk through ble connection" );
             }
         }
 	else
@@ -675,7 +684,7 @@ static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam )
             }
             else
             {
-                configPRINTF(( "RX failed, unable to allocate buffer to read data.\r\n" ));
+                IotLogError( "RX failed, unable to allocate buffer to read data" );
             }
         }
 
@@ -806,7 +815,7 @@ static void _connectionCallback( BTStatus_t status,
             for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
             {
                 IotBleDataTransfer_Close( &_services[index].channel );
-		_services[index].isReady = false;
+		        _services[index].isReady = false;
             }
 
             transmitLength = _TRANSMIT_LENGTH( IOT_BLE_PREFERRED_MTU_SIZE );
@@ -823,7 +832,7 @@ static void _MTUChangedCallback( uint16_t connId,
     /* Change the MTU size for the connection */
     if( transmitLength != length )
     {
-        configPRINTF( ( "MTU changed, changing transmit length for data transfer service from %d to %d\n", transmitLength, length ) );
+        IotLogInfo( "MTU changed, changing transmit length for data transfer service from %d to %d\n", transmitLength, length );
         transmitLength = length;
     }
 }
@@ -841,7 +850,7 @@ bool _registerCallbacks()
     status = IotBle_RegisterEventCb(eBLEConnection, callback);
     if( status != eBTStatusSuccess )
     {
-        configPRINTF(( "Failed to register connection callback, status = %d.r\n", status ));
+        IotLogError( "Failed to register connection callback, status = %d", status );
         ret = false;
     }
 
@@ -852,7 +861,7 @@ bool _registerCallbacks()
         status = IotBle_RegisterEventCb( eBLEMtuChanged, callback );
         if( status != eBTStatusSuccess )
         {
-            configPRINTF(( "Failed to register MTU changed callback, status = %d.\r\n",status ));
+            IotLogError( "Failed to register MTU changed callback, status = %d",status );
             ret = false;
         }
     }
@@ -875,7 +884,7 @@ static bool _initializeService( IotBleDataTransferService_t* pService, const BTA
     status = IotBle_CreateService(&pService->gattService, (IotBleAttributeEventCallback_t *)_callbacks);
     if (status != eBTStatusSuccess)
     {
-        configPRINTF(("Failed to create GATT service for service id %d, error = %d\r\n.", pService->identifier, status));
+        IotLogError( "Failed to create GATT service for service id %d, error = %d.", pService->identifier, status );
         ret = false;
     }
 
@@ -897,7 +906,7 @@ static bool _initializeChannel( IotBleDataTransferChannel_t* pChannel )
     }
     else
     {
-        configPRINTF(( "Failed to create semaphore for send buffer.\r\n" ));
+        IotLogError( "Failed to create semaphore for send buffer." );
     }
 
     return ret;
@@ -922,7 +931,7 @@ bool IotBleDataTransfer_Init( void )
             ret = _initializeChannel( &_services[index].channel );
             if (ret == false)
             {
-                configPRINTF(("Failed to initialize channel for service id: %d\r\n.", _services[index].identifier));
+                IotLogError( "Failed to initialize channel for service id: %d.", _services[index].identifier );
                 break;
             }
             else
@@ -930,7 +939,7 @@ bool IotBleDataTransfer_Init( void )
                 ret = _initializeService( &_services[index], _attributeTable[ index ] );
                 if (ret == false)
                 {
-                    configPRINTF(( "Failed to initialize channel for service id: %d\r\n.", _services[index].identifier ));
+                    IotLogError( "Failed to initialize channel for service id: %d.", _services[index].identifier );
                     break;
                 }
             }
@@ -1081,7 +1090,7 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const ui
             }
             else
             {
-                configPRINTF( ( "TX failed, GATT notification failed.\r\n" ) );
+                IotLogError( "TX failed, GATT notification failed." );
             }
         }
         else
@@ -1105,26 +1114,26 @@ size_t IotBleDataTransfer_Send( IotBleDataTransferChannel_t * pChannel, const ui
                         }
                         else
                         {
-                            configPRINTF( ( "TX Failed, Failed to allocate send buffer.\r\n" ) );
+                            IotLogError( "TX Failed, Failed to allocate send buffer." );
                             IotSemaphore_Post( &pChannel->sendComplete );
                         }
                     } 
                 }
                 else
                 {
-                    configPRINTF( ( "TX Failed, GATT notification failed.\r\n" ) );
+                    IotLogError( "TX Failed, GATT notification failed." );
                     IotSemaphore_Post( &pChannel->sendComplete );
                 }
             }
             else
             {
-                 configPRINTF( ( "TX Failed, channel timed out.\r\n" ) );
+                IotLogError( "TX Failed, channel timed out." );
             }
         }
     }
     else
     {
-        configPRINTF( ( "TX Failed, channel closed.\r\n" ) );
+        IotLogError( "TX Failed, channel closed." );
     }
 
     return( messageLength - remainingLength );

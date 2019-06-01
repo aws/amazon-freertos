@@ -29,12 +29,23 @@
  */
 
 #include  <stdbool.h>
-#include "FreeRTOS.h"
+#include "iot_config.h"
 #include "iot_ble_config.h"
+#include "FreeRTOS.h"
+
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "NET_BLE" )
+#include "iot_logging_setup.h"
+
 #include "platform/iot_network_ble.h"
 #include "platform/iot_threads.h"
 #include "iot_ble_data_transfer.h"
-
 
 #define _CONTAINER( type, pConnection, channelName )  ( ( type * ) ( void * ) ( ( ( uint8_t * ) ( pConnection ) ) - offsetof( type, channelName ) ) )
 
@@ -108,14 +119,14 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
                 }
                 else
                 {
-                    configPRINTF(( "Failed to create BLE network connection after 10s.\r\n" ));
+                    IotLogError( "Failed to create BLE network connection after %d milliseconds.", IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS );
                     IotBleDataTransfer_Reset( pChannel );
                     IotSemaphore_Destroy( &pBleConnection->ready );
                 }
             }
             else
             {
-                configPRINTF(( "Failed to create BLE network connection, semaphore create failed.\r\n" ));
+                IotLogError( "Failed to create BLE network connection, cannot create network connection semaphore." );
             }
         }
 

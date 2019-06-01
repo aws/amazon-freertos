@@ -29,10 +29,24 @@
  */
 
 #include <string.h>
+
+#include "iot_config.h"
 #include "iot_ble_config.h"
+
+#include "iot_taskpool.h"
+
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "WIFI_PROV" )
+#include "iot_logging_setup.h"
+
 #include "iot_ble_wifi_provisioning.h"
 #include "iot_serializer.h"
-#include "iot_taskpool.h"
 
 /**
  * @cond DOXYGEN_IGNORE
@@ -230,7 +244,7 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
     if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        configPRINTF( ( "Failed to initialize the decoder, error = %d, object type = %d\n", ret, decoderObj.type ) );
+        IotLogError( "Failed to initialize the decoder, error = %d, object type = %d", ret, decoderObj.type );
         result = false;
     }
 
@@ -246,7 +260,7 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
         }
         else
         {
-            configPRINTF( ( "Failed to get max Networks parameter, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Failed to find message type, error = %d, value type = %d", ret, value.type );
             result = false;
         }
     }
@@ -264,8 +278,11 @@ static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransfe
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
     {
         IotBleDataTransfer_PeekReceiveBuffer( pChannel, &pBuffer, &length );
+
         if( _getRequestType( pBuffer, length, &requestType ) == true )
         {
+            IotLogDebug( "Received message type: %d, length %d", requestType, length );
+            
             switch( requestType )
             {
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
@@ -284,38 +301,13 @@ static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransfe
                     _handleDeleteNetworkRequest( pBuffer, length );
                     break;
                 default:
-                    configPRINTF(( "Invalid request type ( %d ) received.\r\n", requestType ));
+                    IotLogWarn( "Invalid request type ( %d ) received, discarding the message", requestType );
                     break;
             }
-        }
-        else
-        {
-            configPRINTF(( "Failed to get request type from the message.\r\n" ));
         }
         /* Do an empty read to flush the buffer. */
         IotBleDataTransfer_Receive( pChannel, NULL, length );
     }
-}
-
-/*-----------------------------------------------------------*/
-
-static uint32_t _getNumSavedNetworks( void )
-{
-    uint32_t idx;
-    WIFIReturnCode_t WifiRet;
-    WIFINetworkProfile_t profile;
-
-    for( idx = 0; idx < IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS; idx++ )
-    {
-        WifiRet = WIFI_NetworkGet( &profile, idx );
-
-        if( WifiRet != eWiFiSuccess )
-        {
-            break;
-        }
-    }
-
-    return idx;
 }
 
 static bool _deserializeListNetworkRequest( const uint8_t * pData,
@@ -331,7 +323,7 @@ static bool _deserializeListNetworkRequest( const uint8_t * pData,
     if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        configPRINTF( ( "Failed to initialize the decoder, error = %d, object type = %d\n", ret, decoderObj.type ) );
+        IotLogError( "Failed to initialize the decoder, error = %d, object type = %d", ret, decoderObj.type );
         result = false;
     }
 
@@ -342,16 +334,16 @@ static bool _deserializeListNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            configPRINTF( ( "Failed to get max Networks parameter, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Failed to get max Networks parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
         {
             if( ( value.u.value.u.signedInt <= 0 ) || ( value.u.value.u.signedInt > IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS ) )
             {
-                configPRINTF( ( "WARN: Networks %d exceeds configured value, truncating to  %d max network\n",
+               IotLogWarn( "Networks %d exceeds configured value, truncating to  %d max network\n",
                                 (uint16_t)value.u.value.u.signedInt,
-                                IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS) );
+                                IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS );
                 pListNetworkRequest->maxNetworks = IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS;
             }
             else
@@ -368,7 +360,7 @@ static bool _deserializeListNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            configPRINTF( ( "Failed to get timeout parameter, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Failed to get timeout parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
@@ -392,13 +384,17 @@ static bool _handleListNetworkRequest( const uint8_t * pData,
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
-    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == pdTRUE )
+    if( IotSemaphore_TryWait( &wifiProvisioning.lock ) == true )
     {
         memset( &wifiProvisioning.listNetworkRequest, 0x00, sizeof( IotBleListNetworkRequest_t ) );
+        
         status = _deserializeListNetworkRequest( pData, length, &wifiProvisioning.listNetworkRequest );
 
         if( status == true )
         {
+            IotLogDebug( "List network request parameters: max networks = %d, timeout = %d",
+                          wifiProvisioning.listNetworkRequest.maxNetworks,
+                          wifiProvisioning.listNetworkRequest.timeoutMs );
 
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _listNetworkTask,
@@ -409,26 +405,26 @@ static bool _handleListNetworkRequest( const uint8_t * pData,
                 taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
-                    configPRINTF(("Failed to schedule taskpool job for list network request \r\n"));
+                    IotLogError( "Failed to schedule taskpool job for list network request" );
                     IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
                     status = false;
                 }
             }
             else
             {
-                configPRINTF(("Failed to allocate taskpool job for list network request \r\n"));
+                IotLogError( "Failed to allocate taskpool job for list network request" );
                 status = false;
             }
         }
 
         if( status == false )
         {
-            xSemaphoreGive( wifiProvisioning.lock );
+            IotSemaphore_Post( &wifiProvisioning.lock );
         }
     }
     else
     {
-        configPRINTF( ( "Failed to process the list request. Already a request is being processed.\n" ) );
+        IotLogError( "Failed to process the list network request, another list network request in progress." );
         status = false;
     }
 
@@ -448,7 +444,7 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
     if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        configPRINTF( ( "Failed to initialize the decoder, error = %d, object type = %d\n", ret, decoderObj.type ) );
+        IotLogError( "Failed to initialize the decoder, error = %d, object type = %d", ret, decoderObj.type );
         result = false;
     }
 
@@ -461,17 +457,17 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
         {
-            configPRINTF( ( "Failed to get SSID parameter, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Failed to get SSID parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
         {
             if( value.u.value.u.string.length >= wificonfigMAX_SSID_LEN )
             {
-                configPRINTF( ( "SSID, %.*s, exceeds maximum length %d\n",
+                IotLogError( "SSID, %.*s, exceeds maximum length %d",
                                 value.u.value.u.string.length,
                                 ( const char * ) value.u.value.u.string.pString,
-                                wificonfigMAX_SSID_LEN ) );
+                                wificonfigMAX_SSID_LEN );
                 result = false;
             }
             else
@@ -493,16 +489,16 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_BYTE_STRING ) )
         {
-            configPRINTF( ( "Failed to get BSSID parameter, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Failed to get BSSID parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
         {
             if( value.u.value.u.string.length != wificonfigMAX_BSSID_LEN )
             {
-                configPRINTF( ( "Parameter BSSID length (%d) does not match BSSID length %d\n",
+                IotLogError( "Parameter BSSID length (%d) does not match BSSID length %d",
                                 value.u.value.u.string.length,
-                                wificonfigMAX_BSSID_LEN ) );
+                                wificonfigMAX_BSSID_LEN );
                 result = false;
             }
             else
@@ -519,7 +515,7 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            configPRINTF( ( "Failed to get WIFI xSecurity parameter, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Failed to get WIFI xSecurity parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
@@ -537,17 +533,17 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_TEXT_STRING ) )
         {
-            configPRINTF( ( "Failed to get password parameter, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Failed to get password parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
         {
             if( value.u.value.u.string.length >= wificonfigMAX_PASSPHRASE_LEN )
             {
-                configPRINTF( ( "SSID, %.*s, exceeds maximum length %d\n",
+                IotLogError( "SSID, %.*s, exceeds maximum length %d",
                                 value.u.value.u.string.length,
                                 ( const char * ) value.u.value.u.string.pString,
-                                wificonfigMAX_SSID_LEN ) );
+                                wificonfigMAX_SSID_LEN );
                 result = false;
             }
             else
@@ -566,7 +562,7 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            configPRINTF( ( "Failed to get network index parameter, error = %d, value type = %d.\n", ret, value.type ) );
+            IotLogError( "Failed to get network index parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
@@ -578,7 +574,7 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                configPRINTF( ( "Network index parameter ( %d ) is out of range.\n", value.u.value.u.signedInt ) );
+                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -595,12 +591,12 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         }
         else if( ret == IOT_SERIALIZER_NOT_FOUND )
         {
-            configPRINTF( ( "No connect flag specified, using default value connect: %d\n", IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT ) );
+            IotLogInfo( "Connect flag not set in requeust, using default value always connect = %d", IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT );
             pAddNetworkRequest->connect = IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT;
         }
         else
         {
-            configPRINTF( ( "Error in getting connect flag, error = %d, value type = %d\n", ret, value.type ) );
+            IotLogError( "Error in getting connect flag, error = %d, value type = %d", ret, value.type );
             result = false;
         }
     }
@@ -619,13 +615,19 @@ static bool _handleSaveNetworkRequest( const uint8_t * pData,
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
-    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == pdTRUE )
+    if( IotSemaphore_TryWait( &wifiProvisioning.lock ) == true )
     {
         memset( &wifiProvisioning.addNetworkRequest, 0x00, sizeof( IotBleAddNetworkRequest_t ) );
         status = _deserializeAddNetworkRequest( pData, length, &wifiProvisioning.addNetworkRequest );
 
         if (status == true)
         {
+            IotLogDebug( "Add network request parameters, SSID: %.*s, index: %d, connect: %d",
+                          wifiProvisioning.addNetworkRequest.network.ucSSIDLength,
+                          wifiProvisioning.addNetworkRequest.network.cSSID,
+                          wifiProvisioning.addNetworkRequest.savedIdx,
+                          wifiProvisioning.addNetworkRequest.connect );
+
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _addNetworkTask,
                                                          NULL,
@@ -635,28 +637,27 @@ static bool _handleSaveNetworkRequest( const uint8_t * pData,
                 taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
-                    configPRINTF(("Failed to schedule taskpool job for add network request \r\n"));
+                    IotLogError( "Failed to schedule taskpool job for add network request" );
                     IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
-                    xSemaphoreGive(wifiProvisioning.lock);
                     status = false;
                 }
             }
             else
             {
-                configPRINTF(("Failed to allocate taskpool job for add network request \r\n"));
+                IotLogError( "Failed to allocate taskpool job for add network request" );
                 status = false;
             }
         }
 
         if( status == false )
         {
-            xSemaphoreGive(wifiProvisioning.lock);
+            IotSemaphore_Post( &wifiProvisioning.lock );
 
         }
     }
     else
     {
-        configPRINTF( ( "Failed to process the add network request. Already a request is being processed.\n" ) );
+        IotLogError( "Failed to process the add network request. Already a request is being processed" );
         status = false;
     }
 
@@ -677,7 +678,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
     if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        configPRINTF( ( "Failed to initialize decoder, error = %d, object type = %d\n", ret, decoderObj.type ) );
+        IotLogError( "Failed to initialize decoder, error = %d, object type = %d", ret, decoderObj.type );
         result = false;
     }
 
@@ -688,7 +689,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            configPRINTF( ( "Failed to get network index parameter, error = %d, value type = %d.\n", ret, value.type ) );
+            IotLogError( "Failed to get network index parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
@@ -700,7 +701,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                configPRINTF( ( "Network index parameter ( %d ) is out of range.\n", value.u.value.u.signedInt ) );
+                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -713,7 +714,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            configPRINTF( ( "Failed to get new network index parameter, error = %d, value type = %d.\n", ret, value.type ) );
+            IotLogError( "Failed to get new network index parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
@@ -725,7 +726,7 @@ static bool _deserializeEditNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                configPRINTF( ( "New Network index parameter ( %d ) is out of range.\n", value.u.value.u.signedInt ) );
+                IotLogError( "New Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -745,13 +746,16 @@ static bool _handleEditNetworkRequest( const uint8_t * pData,
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
-    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == true )
+    if( IotSemaphore_TryWait( &wifiProvisioning.lock ) == true )
     {
         memset( &wifiProvisioning.editNetworkRequest, 0x00, sizeof( IotBleEditNetworkRequest_t ) );
         status = _deserializeEditNetworkRequest( pData, length, &wifiProvisioning.editNetworkRequest );
 
         if( status == true )
         {
+            IotLogDebug( "Edit network request parameters, Current index: %d, new index: %d",
+                          wifiProvisioning.editNetworkRequest.curIdx,
+                          wifiProvisioning.editNetworkRequest.newIdx );
 
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _editNetworkTask,
@@ -762,7 +766,7 @@ static bool _handleEditNetworkRequest( const uint8_t * pData,
                 taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
-                    configPRINTF(("Failed to schedule taskpool job for edit network request \r\n"));
+                    IotLogError( "Failed to schedule taskpool job for edit network request" );
                     IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
                     status = false;
                 }
@@ -770,18 +774,18 @@ static bool _handleEditNetworkRequest( const uint8_t * pData,
         }
         else
         {
-            configPRINTF(( "Failed to allocate taskpool job for edit network request \r\n" ));
+            IotLogError( "Failed to allocate taskpool job for edit network request" );
             status = false;
         }
 
         if( status == false )
         {
-            xSemaphoreGive(wifiProvisioning.lock);
+            IotSemaphore_Post( &wifiProvisioning.lock );
         }
     }
     else
     {
-        configPRINTF( ( "Failed to process the edit network request. Already a request is being processed.\n" ) );
+        IotLogError( "Failed to process the edit network request. Already a request is being processed" );
         status = false;
     }
 
@@ -801,7 +805,7 @@ static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
     if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
         ( decoderObj.type != IOT_SERIALIZER_CONTAINER_MAP ) )
     {
-        configPRINTF( ( "Failed to initialize decoder, error = %d, object type = %d\n", ret, decoderObj.type ) );
+        IotLogError( "Failed to initialize decoder, error = %d, object type = %d", ret, decoderObj.type );
         result = false;
     }
 
@@ -812,7 +816,7 @@ static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
         if( ( ret != IOT_SERIALIZER_SUCCESS ) ||
             ( value.type != IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
-            configPRINTF( ( "Failed to get network index parameter, error = %d, value type = %d.\n", ret, value.type ) );
+            IotLogError( "Failed to get network index parameter, error = %d, value type = %d", ret, value.type );
             result = false;
         }
         else
@@ -824,7 +828,7 @@ static bool _deserializeDeleteNetworkRequest( const uint8_t * pData,
             }
             else
             {
-                configPRINTF( ( "Network index parameter ( %d ) is out of range.\n", value.u.value.u.signedInt ) );
+                IotLogError( "Network index parameter ( %d ) is out of range", value.u.value.u.signedInt );
                 result = false;
             }
         }
@@ -844,13 +848,15 @@ static bool _handleDeleteNetworkRequest( const uint8_t * pData,
     IotTaskPoolError_t taskStatus = IOT_TASKPOOL_SUCCESS;
     IotTaskPoolJob_t job = IOT_TASKPOOL_JOB_INITIALIZER;
 
-    if( xSemaphoreTake( wifiProvisioning.lock, 0 ) == true )
+    if( IotSemaphore_TryWait( &wifiProvisioning.lock ) == true )
     {
         memset( &wifiProvisioning.deleteNetworkRequest, 0x00, sizeof( IotBleDeleteNetworkRequest_t ) );
         status = _deserializeDeleteNetworkRequest( pData, length, &wifiProvisioning.deleteNetworkRequest );
 
         if (status == true)
         {
+            IotLogDebug( "Edit network request parameters, index: %d",
+                          wifiProvisioning.deleteNetworkRequest.idx );
 
             taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
                                                          _deleteNetworkTask,
@@ -861,26 +867,26 @@ static bool _handleDeleteNetworkRequest( const uint8_t * pData,
                 taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
                 if (taskStatus != IOT_TASKPOOL_SUCCESS)
                 {
-                    configPRINTF(("Failed to schedule taskpool job for delete network request \r\n"));
+                    IotLogError( "Failed to schedule taskpool job for delete network request" );
                     IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
                     status = false;
                 }
             }
             else
             {
-                configPRINTF(("Failed to allocate taskpool job for delete network request \r\n"));
+                IotLogError( "Failed to allocate taskpool job for delete network request" );
                 status = false;
             }
         }
 
         if( status == false )
         {
-            xSemaphoreGive(wifiProvisioning.lock);
+            IotSemaphore_Post( &wifiProvisioning.lock );
         }
     }
     else
     {
-        configPRINTF( ( "Failed to process the delete network request. Already a request is being processed.\n" ) );
+        IotLogError( "Failed to process the delete network request. Already a request is being processed" );
         status = false;
     }
 
@@ -1063,6 +1069,7 @@ static void _sendStatusResponse( int32_t responseType, WIFIReturnCode_t status )
 
     if( ret == IOT_SERIALIZER_SUCCESS )
     {
+        IotLogDebug( "Serialized message length %d", mesgLen );
         pBuffer = pvPortMalloc( mesgLen );
 
         if( pBuffer != NULL )
@@ -1080,12 +1087,12 @@ static void _sendStatusResponse( int32_t responseType, WIFIReturnCode_t status )
         
         if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, pBuffer, mesgLen ) != mesgLen )
         {
-            configPRINTF((" Failed to send status response through ble connection.\r\n" ));
+            IotLogError( "Failed to send status response through ble connection" );
         }
     }
     else
     {
-        configPRINTF( ( "Failed to serialize status response, error = %d\n", ret ) );
+        IotLogError( "Failed to serialize status response, error = %d\n", ret );
     }
 
     if( pBuffer != NULL )
@@ -1256,9 +1263,16 @@ WIFIReturnCode_t _insertNetwork( uint16_t index,
         for( x = 0; x < numElementsToShift; x++ )
         {
             ret = _popNetwork( index, &profile );
-            configASSERT( ret == eWiFiSuccess );
-            ret = _appendNetwork( &profile );
-            configASSERT( ret == eWiFiSuccess );
+            if( ret == eWiFiSuccess )
+            {
+                ret = _appendNetwork( &profile );
+            }
+
+            if( ret != eWiFiSuccess )
+            {
+                IotLogError( "Failed to mobe newtwork at index %d", index );
+                break;
+            }
         }
     }
 
@@ -1302,13 +1316,12 @@ static void _sendSavedNetwork( int32_t responseType,
     {
         if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, message, messageLen ) != messageLen )
         {
-            configPRINTF((" Failed to send saved networks through ble connection.\r\n" ));
+            IotLogError( "Failed to send saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, pSavedNetwork->cSSID );
         }
     }
     else
     {
-        configPRINTF( ( "Failed to send network profile, SSID:%*s\n",
-                        pSavedNetwork->ucSSIDLength, pSavedNetwork->cSSID ) );
+        IotLogError( "Failed to serialize saved network ( SSID:%.*s )", pSavedNetwork->ucSSIDLength, pSavedNetwork->cSSID );
     }
 
     if( message != NULL )
@@ -1352,13 +1365,12 @@ static void _sendScanNetwork( int32_t responseType, WIFIScanResult_t * pScanNetw
     {
         if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, message, messageLen ) != messageLen )
         {
-            configPRINTF((" Failed to send scanned networks through ble connection.\r\n" ));
+            IotLogError( "Failed to send scanned network network ( SSID:%s )", pScanNetwork->cSSID );
         }
     }
     else
     {
-        configPRINTF( ( "Failed to send network profile, SSID:%s\n",
-                        pScanNetwork->cSSID ) );
+        IotLogError( "Failed to serialze scanned network network ( SSID:%s )", pScanNetwork->cSSID );
     }
 
     if( message != NULL )
@@ -1403,7 +1415,7 @@ void _listNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUse
         _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, status );
     }
 
-    xSemaphoreGive( wifiProvisioning.lock );
+    IotSemaphore_Post( &wifiProvisioning.lock );
     IotTaskPool_RecycleJob( taskPool, job );
 }
 
@@ -1426,13 +1438,13 @@ static void _addNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void 
         }
         else
         {
-            configPRINTF(("Failed to add a new network, max networks limit (%d) reached.\r\n", IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS));
+            IotLogError( "Failed to add a new network, max networks limit (%d) reached", IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS );
             ret = eWiFiFailure;
         }
     }
 
     _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_RESP, ret );
-    xSemaphoreGive( wifiProvisioning.lock );
+    IotSemaphore_Post( &wifiProvisioning.lock );
     IotTaskPool_RecycleJob( taskPool, job );
 }
 
@@ -1449,12 +1461,12 @@ static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, vo
     {
         if( wifiProvisioning.connectedIdx == IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX )
         {
-            ( void )WIFI_Disconnect();
+            ( void ) WIFI_Disconnect();
         }
     }
     _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_RESP, ret );
 
-    xSemaphoreGive(wifiProvisioning.lock);
+    IotSemaphore_Post( &wifiProvisioning.lock );
     IotTaskPool_RecycleJob( taskPool, job );
 }
 
@@ -1467,40 +1479,52 @@ static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void
     WIFIReturnCode_t ret = eWiFiFailure;
     ret = _moveNetwork( wifiProvisioning.editNetworkRequest.curIdx, wifiProvisioning.editNetworkRequest.newIdx );
     _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_RESP, ret );
-    xSemaphoreGive( wifiProvisioning.lock );
+    IotSemaphore_Post( &wifiProvisioning.lock );
     IotTaskPool_RecycleJob( taskPool, job );
 }
 
 /*-----------------------------------------------------------*/
 
+static uint32_t _getNumSavedNetworks( void )
+{
+    uint32_t idx;
+    WIFIReturnCode_t WifiRet;
+    WIFINetworkProfile_t profile;
+
+    for( idx = 0; idx < IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS; idx++ )
+    {
+        WifiRet = WIFI_NetworkGet( &profile, idx );
+
+        if( WifiRet != eWiFiSuccess )
+        {
+            break;
+        }
+    }
+
+    return idx;
+}
+
+/*-----------------------------------------------------------*/
+
+
 bool IotBleWifiProv_Init( void )
 {
     bool ret = false;
     
-    wifiProvisioning.lock = xSemaphoreCreateBinary();
-    if( wifiProvisioning.lock != NULL )
-    {
-	xSemaphoreGive( wifiProvisioning.lock );
-	ret = true;
-    }
-    else
-    {
-	ret = false;
-    }
-
+    ret = IotSemaphore_Create( &wifiProvisioning.lock, 1, 1 );
     if( ret == true )
     {
-	wifiProvisioning.numNetworks = _getNumSavedNetworks();
+	    wifiProvisioning.numNetworks = _getNumSavedNetworks();
 
-	wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
-	if( wifiProvisioning.pChannel != NULL )
-	{
-	     ( void ) IotBleDataTransfer_SetCallback( wifiProvisioning.pChannel, _callback, NULL );
-	}
-	else
-	{
+        wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
+        if( wifiProvisioning.pChannel != NULL )
+        {
+            ( void ) IotBleDataTransfer_SetCallback( wifiProvisioning.pChannel, _callback, NULL );
+        }
+        else
+        {
             ret = false;
-	}
+        }
     }
 
     return ret;
@@ -1534,26 +1558,19 @@ bool IotBleWifiProv_EraseAllNetworks( void )
     bool ret = true;
     WIFIReturnCode_t WiFiRet;
 
-    if( xSemaphoreTake( wifiProvisioning.lock, portMAX_DELAY ) == true )
+    IotSemaphore_Wait( &wifiProvisioning.lock );
+    while( wifiProvisioning.numNetworks > 0 )
     {
-        while( wifiProvisioning.numNetworks > 0 )
+        WiFiRet = _popNetwork( 0, NULL );
+
+        if( WiFiRet != eWiFiSuccess )
         {
-            WiFiRet = _popNetwork( 0, NULL );
-
-            if( WiFiRet != eWiFiSuccess )
-            {
-                configPRINTF( ( "Failed to delete WIFI network, error = %d\n", WiFiRet ) );
-                ret = false;
-                break;
-            }
+            IotLogError( "Failed to delete WIFI network, error = %d", WiFiRet );
+            ret = false;
+            break;
         }
-
-        xSemaphoreGive( wifiProvisioning.lock );
     }
-    else
-    {
-        ret = false;
-    }
+    IotSemaphore_Post( &wifiProvisioning.lock );
 
     return ret;
 }
@@ -1569,10 +1586,7 @@ void IotBleWifiProv_Deinit( void )
     }
 
     //Delete service.
-    if( wifiProvisioning.lock != NULL )
-    {
-       vSemaphoreDelete( wifiProvisioning.lock );
-    }
+    IotSemaphore_Destroy( &wifiProvisioning.lock );
 
     memset( &wifiProvisioning, 0x00, sizeof( IotBleWifiProvService_t ) );
 }
