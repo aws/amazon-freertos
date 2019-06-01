@@ -367,12 +367,23 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
 static void prvDefaultOTACompleteCallback( OTA_JobEvent_t eEvent );
 
 /* Default Custom Callback handler if not provided to OTA_AgentInit_internal() */
+
 static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON, uint32_t ulMsgLen );
 
+/* Default Reset Device handler if not provided to OTA_AgentInit_internal() */
 
 static OTA_Err_t prvPAL_DefaultResetDevice( uint32_t ulServerFileID );
+
+/* Default Get Platform Image State handler if not provided to OTA_AgentInit_internal() */
+
 static OTA_PAL_ImageState_t prvPAL_DefaultGetPlatformImageState( uint32_t ulServerFileID );
+
+/* Default Set Platform Image State handler if not provided to OTA_AgentInit_internal() */
+
 static OTA_Err_t prvPAL_DefaultSetPlatformImageState( uint32_t ulServerFileID, OTA_ImageState_t eState );
+
+/* Default Activate New Image handler if not provided to OTA_AgentInit_internal() */
+
 static OTA_Err_t prvPAL_DefaultActivateNewImage( uint32_t ulServerFileID );
 
 /* A helper function to cleanup resources during OTA agent shutdown. */
@@ -565,11 +576,11 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait )
 {
-    DEFINE_OTA_METHOD_NAME( "OTA_AgentInit_internal" );
+    DEFINE_OTA_METHOD_NAME( "OTA_AgentInit" );
     OTA_PAL_Callbacks_t defaultCallbacks = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER;
     defaultCallbacks.xCompleteCallback = xFunc;
 
-    OTA_AgentInit_internal( pvClient, pcThingName, &defaultCallbacks, xTicksToWait );
+    return OTA_AgentInit_internal( pvClient, pcThingName, &defaultCallbacks, xTicksToWait );
 }
 
 OTA_State_t OTA_AgentInit_internal( void * pvClient,
@@ -598,43 +609,92 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
         {
             xOTA_Agent.xPALCallbacks.xAbort = xCallbacks->xAbort;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xAbort = prvPAL_Abort;
+        }
+        
         if( xCallbacks->xActivateNewImage != NULL )
         {
             xOTA_Agent.xPALCallbacks.xActivateNewImage = xCallbacks->xActivateNewImage;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xActivateNewImage = prvPAL_DefaultActivateNewImage;
+        }
+
         if( xCallbacks->xCloseFile != NULL )
         {
             xOTA_Agent.xPALCallbacks.xCloseFile = xCallbacks->xCloseFile;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCloseFile = prvPAL_CloseFile;
+        }
+
         if( xCallbacks->xCreateFileForRx != NULL )
         {
             xOTA_Agent.xPALCallbacks.xCreateFileForRx = xCallbacks->xCreateFileForRx;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCreateFileForRx = prvPAL_CreateFileForRx;
+        }
+
         if( xCallbacks->xGetPlatformImageState != NULL )
         {
             xOTA_Agent.xPALCallbacks.xGetPlatformImageState = xCallbacks->xGetPlatformImageState;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xGetPlatformImageState = prvPAL_DefaultGetPlatformImageState;
+        }
+
         if( xCallbacks->xResetDevice != NULL )
         {
             xOTA_Agent.xPALCallbacks.xResetDevice = xCallbacks->xResetDevice;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xResetDevice = prvPAL_DefaultResetDevice;
+        }
+
         if( xCallbacks->xSetPlatformImageState != NULL )
         {
             xOTA_Agent.xPALCallbacks.xSetPlatformImageState = xCallbacks->xSetPlatformImageState;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xSetPlatformImageState = prvPAL_DefaultSetPlatformImageState;
+        }
+
         if( xCallbacks->xWriteBlock != NULL )
         {
             xOTA_Agent.xPALCallbacks.xWriteBlock = xCallbacks->xWriteBlock;
         }
-        /* Set the function to be called after an OTA job is complete or starting test mode. */
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xWriteBlock = prvPAL_WriteBlock;
+        }
+
         if( xCallbacks->xCompleteCallback != NULL )
         {
             xOTA_Agent.xPALCallbacks.xCompleteCallback = xCallbacks->xCompleteCallback;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCompleteCallback = prvDefaultOTACompleteCallback;
+        }
+
         if( xCallbacks->xCustomJobCallback != NULL )
         {
             xOTA_Agent.xPALCallbacks.xCustomJobCallback = xCallbacks->xCustomJobCallback;
         }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCustomJobCallback = prvDefaultCustomJobCallback;
+        }
+
     }
 
     /* Reset our statistics counters. */
