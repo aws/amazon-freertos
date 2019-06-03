@@ -428,3 +428,10 @@ add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
 )
+
+# TODO: Serializer is disabled temporarily because tinycbor doesn't compile on mediatek
+afr_module_dependencies(
+    serializer
+    PRIVATE
+        3rdparty::dummy
+)
