@@ -28,7 +28,7 @@
 #include <stdbool.h>
 
 /* Platform thread stack size and priority. */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    3840
+#define IOT_THREAD_DEFAULT_STACK_SIZE    5000
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
 /* Provide additional serializer initialization functions. */
