@@ -1,0 +1,33 @@
+{
+  "ENTRY": "QueueReceive",
+  "LOCK_BOUND": 2,
+  "QUEUE_RECEIVE_BOUND": 3,
+  "CBMCFLAGS": [
+    "--unwind 1",
+    "--signed-overflow-check",
+    "--pointer-overflow-check",
+    "--unsigned-overflow-check",
+    "--unwindset xQueueReceive.0:{QUEUE_RECEIVE_BOUND},prvUnlockQueue.0:{LOCK_BOUND},prvUnlockQueue.1:{LOCK_BOUND}",
+    "--nondet-static"
+  ],
+  "OBJS": [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/queue.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto",
+    "$(FREERTOS)/tools/cbmc/proofs/CBMCStubLibrary/tasksStubs.goto"
+  ],
+  "DEF": [
+    "configUSE_TRACE_FACILITY=0",
+    "configGENERATE_RUN_TIME_STATS=0",
+    "INCLUDE_xTaskGetSchedulerState=1",
+    "QUEUE_RECEIVE_BOUND={QUEUE_RECEIVE_BOUND}",
+    "LOCK_BOUND={LOCK_BOUND}"
+  ],
+  "INC": [
+    "."
+  ],
+  "GENERATE_HEADER": [
+    "queue_datastructure.h"
+  ]
+}
+
