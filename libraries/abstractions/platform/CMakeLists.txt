@@ -16,25 +16,6 @@ afr_module_sources(
         "${src_dir}/include/platform/iot_platform_types_afr.h"
 )
 
-if(TARGET AFR::wifi::mcu_port)
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    PRIVATE
-    "${inc_dir}/platform/iot_metrics.h"
-    "${src_dir}/iot_metrics.c"
-    "${src_dir}/iot_network_afr.c"
-    "${src_dir}/include/platform/iot_network_afr.h"
-)
-endif()
-
-if(TARGET AFR::ble_hal::mcu_port)
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    PRIVATE
-    "${src_dir}/include/platform/iot_network_ble.h"       
-)
-endif()
-
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC
@@ -47,14 +28,30 @@ afr_module_dependencies(
     PUBLIC
         AFR::common
 )
+
 if(TARGET AFR::wifi::mcu_port)
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    PUBLIC
-        AFR::secure_sockets
-)
+    afr_module_sources(
+        ${AFR_CURRENT_MODULE}
+        PRIVATE
+        "${inc_dir}/platform/iot_metrics.h"
+        "${src_dir}/iot_metrics.c"
+        "${src_dir}/iot_network_afr.c"
+        "${src_dir}/include/platform/iot_network_afr.h"
+    )
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::secure_sockets
+    )
 endif()
 
+if(TARGET AFR::ble_hal::mcu_port)
+    afr_module_sources(
+        ${AFR_CURRENT_MODULE}
+        PRIVATE
+        "${src_dir}/include/platform/iot_network_ble.h"
+    )
+endif()
 
 # test for platform module
 afr_test_module()

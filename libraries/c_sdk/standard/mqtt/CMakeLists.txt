@@ -77,6 +77,7 @@ afr_module_sources(
         "${test_dir}/unit/iot_tests_mqtt_receive.c"
         "${test_dir}/unit/iot_tests_mqtt_subscription.c"
         "${test_dir}/unit/iot_tests_mqtt_validate.c"
+        "${test_dir}/system/iot_tests_mqtt_system.c"
         ${extra_test_mqtt_sources}
 )
 
@@ -85,7 +86,6 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}/aws_test_mqtt_agent.c"
-        "${test_dir}/system/iot_tests_mqtt_system.c"
 )
 endif()
 

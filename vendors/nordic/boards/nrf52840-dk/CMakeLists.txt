@@ -46,7 +46,7 @@ set(
     BOARD_PCA10056
     CONFIG_GPIO_AS_PINRESET
     ENABLE_DEBUG_LOG_SUPPORT
-    FLOAT_ABI_HARD 
+    FLOAT_ABI_HARD
     INITIALIZE_USER_SECTIONS
     NO_VTOR_CONFIG
     NRF_SD_BLE_API_VERSION=6
@@ -68,10 +68,10 @@ target_compile_definitions(
 set(c_flags "-fmessage-length=0" "-fno-diagnostics-show-caret" "-mcpu=cortex-m4" "-mlittle-endian" "-mfloat-abi=hard" "-mfpu=fpv4-sp-d16" "-mthumb" "-mtp=soft" "-munaligned-access" "-nostdinc" "-quiet" "-std=gnu99" "-gdwarf-4" "-g3" "-gpubnames" "-fomit-frame-pointer" "-fno-dwarf2-cfi-asm" "-fno-builtin" "-ffunction-sections" "-fdata-sections" "-fshort-enums" "-fno-common")
 set(linker_flags "-X" "--omagic" "-eReset_Handler" "--defsym=__vfprintf=__vfprintf_long_long" "--defsym=__vfscanf=__vfscanf_long_long" "-EL"
 "-T${CMAKE_BINARY_DIR}/aws_tests.ld"
-"-Map Output/Debug/Exe/aws_tests.map" 
-"-u_vectors" 
+"-Map Output/Debug/Exe/aws_tests.map"
+"-u_vectors"
 "-o Output/Debug/Exe/aws_tests.elf"
-"--emit-relocs" 
+"--emit-relocs"
 --start-group "@/home/ANT.AMAZON.COM/hbouvier/Desktop/afr-dev/amazon-freertos/vendors/nordic/boards/nrf52840-dk/aws_tests/ses/Output/aws_tests Debug/Obj/aws_tests.ind" --end-group
 )
 
@@ -86,7 +86,7 @@ target_compile_options(
 # Linker flags
 target_link_options(
     AFR::compiler::mcu_port
-    INTERFACE 
+    INTERFACE
         ${linker_flags}
 )
 
@@ -182,7 +182,7 @@ set(
     "${nrf5_sdk}/modules/nrfx"
     "${nrf5_sdk}/modules/nrfx/drivers/include"
     "${nrf5_sdk}/modules/nrfx/hal"
-    "${nrf5_sdk}/modules/nrfx/mdk"   
+    "${nrf5_sdk}/modules/nrfx/mdk"
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
