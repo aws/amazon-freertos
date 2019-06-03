@@ -44,12 +44,12 @@ if(TARGET AFR::pkcs11::mcu_port)
     )
 endif()
 
-if(${BLE_SUPPORTED})
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-       AFR::ble_wifi_provisioning
-)
+if(TARGET AFR::wifi::mcu_port AND TARGET AFR::ble_hal::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+        AFR::ble_wifi_provisioning
+    )
 endif()
 
 # Add other modules.
