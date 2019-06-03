@@ -5,7 +5,6 @@ set(
     COMPONENT_ADD_INCLUDEDIRS
     include
     ../../../config_files
-    ${AMAZON_FREERTOS_FREERTOS_PLUS_DIR}/standard/freertos_plus_posix/include
     ${AMAZON_FREERTOS_KERNEL_DIR}/include
     ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include
 )

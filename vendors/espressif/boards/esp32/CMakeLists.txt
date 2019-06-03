@@ -95,6 +95,7 @@ target_sources(
         "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_internals.h"
 )
 target_include_directories(
     AFR::ble_hal::mcu_port
