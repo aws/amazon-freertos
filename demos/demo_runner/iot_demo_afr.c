@@ -31,12 +31,16 @@
 #include "aws_clientcredential.h"
 #include "iot_demo_logging.h"
 #include "platform/iot_network_afr.h"
-#include "platform/iot_network_ble.h"
 #include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
 #include "aws_demo.h"
 #include "iot_init.h"
 #include "iot_mqtt.h"
+
+#if BLE_ENABLED
+    #include "platform/iot_network_ble.h"
+    extern const IotMqttSerializer_t IotBleMqttSerializer;
+#endif
 
 /* Server info, End point and port #. */
 static IotNetworkServerInfo_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
@@ -51,11 +55,6 @@ static IotSemaphore_t demoNetworkSemaphore;
 
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
-
-
-#if BLE_ENABLED
-    extern const IotMqttSerializer_t IotBleMqttSerializer;
-#endif
 
 /*-----------------------------------------------------------*/
 
