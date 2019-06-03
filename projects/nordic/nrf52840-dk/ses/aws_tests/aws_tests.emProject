@@ -733,18 +733,10 @@
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/timer/app_timer.h" />
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/timer/app_timer_freertos.c" />
           </folder>
-          <folder
-            Name="uart"
-            exclude=""
-            filter="*.*"
-            path="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/uart"
-            recurse="No" />
-          <folder
-            Name="util"
-            exclude=""
-            filter="*.*"
-            path="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/util"
-            recurse="No" />
+          <folder Name="uart">
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/uart/app_uart.h" />
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/uart/app_uart_fifo.c" />
+          </folder>
           <folder Name="hardfault">
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault/hardfault.h" />
             <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault/hardfault_genhf.h" />
@@ -754,6 +746,12 @@
                 <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/hardfault/nrf52/handler/hardfault_handler_gcc.c" />
               </folder>
             </folder>
+          </folder>
+          <folder Name="util">
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_error.c" />
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_error_weak.c" />
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/util/app_util_platform.c" />
+            <file file_name="../../../../../vendors/nordic/nRF5_SDK_15.2.0/components/libraries/util/nrf_assert.c" />
           </folder>
         </folder>
         <folder Name="softdevice">
