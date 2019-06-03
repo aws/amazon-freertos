@@ -34,7 +34,7 @@
 #include <stdbool.h>
 
 /* Network interface includes. */
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_ble.h"
 #include "iot_mqtt.h"
 
 /* Test framework includes. */

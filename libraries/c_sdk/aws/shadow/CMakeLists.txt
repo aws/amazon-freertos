@@ -14,10 +14,6 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_shadow.c"
-        "${src_dir}/aws_shadow_config_defaults.h"
-        "${inc_dir}/aws_shadow.h"
-
         "${src_dir}/aws_iot_shadow_api.c"
         "${src_dir}/aws_iot_shadow_operation.c"
         "${src_dir}/aws_iot_shadow_parser.c"
@@ -25,6 +21,16 @@ afr_module_sources(
         "${src_dir}/aws_iot_shadow_subscription.c"
         "${inc_dir}/aws_iot_shadow.h"
 )
+
+if(TARGET AFR::wifi::mcu_port)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        "${src_dir}/aws_shadow.c"
+        "${src_dir}/aws_shadow_config_defaults.h"
+        "${inc_dir}/aws_shadow.h"
+)
+endif()
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
@@ -46,11 +52,19 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_shadow.c"
-        "${test_dir}/system/aws_iot_tests_shadow_system.c"
         "${test_dir}/unit/aws_iot_tests_shadow_api.c"
         "${test_dir}/unit/aws_iot_tests_shadow_parser.c"
 )
+
+if(TARGET AFR::wifi::mcu_port)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_test_shadow.c"
+        "${test_dir}/system/aws_iot_tests_shadow_system.c"
+)
+endif()
+
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
