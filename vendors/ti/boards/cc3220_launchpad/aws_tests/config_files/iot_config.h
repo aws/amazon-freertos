@@ -28,6 +28,10 @@
 #define IOT_THREAD_DEFAULT_STACK_SIZE    2048
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
+/* Set the number loop iterations in the task pool tests. This value is smaller than
+ * the default. */
+#define TEST_TASKPOOL_ITERATIONS         50
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
