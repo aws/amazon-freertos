@@ -1173,9 +1173,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_demo.h</name>
+			<name>demos/include/aws_application_version.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_demo.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_clientcredential.h</name>
@@ -1188,19 +1188,19 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_clientcredential_keys.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_application_version.h</name>
+			<name>demos/include/aws_demo.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_application_version.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_demo.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/iot_demo_runner.h</name>
+			<name>demos/include/aws_iot_demo_network.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_runner.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_iot_demo_network.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/iot_demo_logging.h</name>
+			<name>demos/include/aws_ota_codesigner_certificate.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_logging.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_ota_codesigner_certificate.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/iot_config_common.h</name>
@@ -1208,9 +1208,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_config_common.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_iot_demo_network.h</name>
+			<name>demos/include/iot_demo_logging.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/demos/include/aws_iot_demo_network.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_logging.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/iot_demo_runner.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_runner.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
