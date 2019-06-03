@@ -1948,7 +1948,11 @@ Queue_t * const pxQueue = xQueue;
 
 	taskENTER_CRITICAL();
 	{
-		uxReturn = pxQueue->uxLength - pxQueue->uxMessagesWaiting;
+		if(pxQueue->uxMessagesWaiting <= pxQueue->uxLength){
+			uxReturn = pxQueue->uxLength - pxQueue->uxMessagesWaiting;
+		}else{
+			uxReturn = 0;
+		}
 	}
 	taskEXIT_CRITICAL();
 
