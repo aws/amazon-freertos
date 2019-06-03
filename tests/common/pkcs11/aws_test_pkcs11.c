@@ -42,6 +42,7 @@
 #include "aws_pkcs11_mbedtls.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "aws_test_pkcs11_config.h"
+#include "mbedtls/x509_crt.h"
 
 #if ( pkcs11testRSA_KEY_SUPPORT == 0 ) && ( pkcs11testEC_KEY_SUPPORT == 0 )
     #error "RSA or Elliptic curve keys (or both) must be supported."
@@ -2015,19 +2016,13 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
     CK_ATTRIBUTE xTemplate;
     CK_BYTE xEcParamsExpected[] = pkcs11DER_ENCODED_OID_P256;
     CK_BYTE xEcParams[ sizeof( xEcParamsExpected ) ];
-    CK_BYTE xCertificateValueExpected[ 626 ];
-    CK_BYTE xCertificateValue[ 626 ];
-    size_t xLength = sizeof( xCertificateValueExpected );
-    int lConversionReturn;
+    CK_BYTE xCertificateValue[ 1000 ];  /* TODO: Probably need a max cert length supported per-port. */
+    int lMbedReturn; 
+    mbedtls_x509_crt xMbedCert;
 
-    lConversionReturn = PKI_ConvertPEMToDER( ( const unsigned char * ) cValidECDSACertificate,
-                                             sizeof( cValidECDSACertificate ),
-                                             xCertificateValueExpected,
-                                             &xLength );
-
-    if( lConversionReturn != 0 )
+    if( lMbedReturn != 0 )
     {
-        configPRINTF( ( "Failed to convert the ECDSA certificate from PEM to DER. Error code %d \r\n", lConversionReturn ) );
+        configPRINTF( ( "Failed to convert the ECDSA certificate from PEM to DER. Error code %d \r\n", lMbedReturn ) );
     }
 
     memcpy( &xSession, pxMultiTaskParam->pvTaskData, sizeof( CK_SESSION_HANDLE ) );
@@ -2064,13 +2059,21 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
         if( xResult != CKR_OK )
         {
             configPRINTF( ( "GetAttributeValue multi-thread task failed to get certificate.  Error: %d  Count: %d \r\n", xResult, xCount ) );
+            xResult = 1;
             break;
         }
-
-        if( memcmp( xCertificateValue, xCertificateValueExpected, sizeof( xCertificateValue ) ) )
+        
+        /* Check that the certificate parses. */
+        mbedtls_x509_crt_init( &xMbedCert );
+        if ( lMbedReturn == 0 )
         {
-            configPRINTF( ( "GetAttributeValue multi-thread task found the wrong certificate value.  Invalid object handle returned. Count: %d \r\n", xCount ) );
-            configPRINTF( ( "First 3 bytes of incorrect certificate found are %d, %d, %d \r\n", ( int ) xCertificateValue[ 0 ], ( int ) xCertificateValue[ 1 ], ( int ) xCertificateValue[ 2 ] ) );
+            lMbedReturn = mbedtls_x509_crt_parse( &xMbedCert, xTemplate.pValue, xTemplate.ulValueLen );
+        }
+
+        if( lMbedReturn != 0 )
+        {
+            configPRINTF( ( "GetAttributeValue multi-thread task found an invalid certificate value. Parse error: %d,  Count: %d \r\n", lMbedReturn, xCount ) );
+            configPRINTF( ( "First 3 bytes of invalid certificate found are %d, %d, %d \r\n", ( int ) xCertificateValue[ 0 ], ( int ) xCertificateValue[ 1 ], ( int ) xCertificateValue[ 2 ] ) );
             xResult = 1;
             break;
         }
