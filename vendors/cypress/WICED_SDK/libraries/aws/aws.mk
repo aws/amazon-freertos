@@ -34,16 +34,15 @@
 NAME := aws
 
 export AMAZON_FREERTOS_PATH := ../../../../../
-export AFR_THIRDPARTY_PATH := ../../../../../modules/libraries/3rdparty/
-export AFR_THIRDPARTY_PATH := ../../../../../modules/libraries/3rdparty/
-export AFR_STANDARD_PATH := ../../../../../modules/libraries/standard/
-export AFR_AWS_PATH := ../../../../../modules/libraries/aws/
-export AFR_PORTS_MODULES_PATH := ../../../../../modules/ports/
+export AFR_THIRDPARTY_PATH := ../../../../../libraries/3rdparty/
+export AFR_C_SDK_STANDARD_PATH := ../../../../../libraries/c_sdk/standard/
+export AFR_C_SDK_AWS_PATH := ../../../../../libraries/c_sdk/aws/
+export AFR_ABSTRACTIONS_PATH := ../../../../../libraries/abstractions/
+export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../libraries/freertos_plus/standard/
+export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../libraries/freertos_plus/aws/
 
-#$(AFR_STANDARD_PATH)mqtt/src/iot_ble_mqtt_serialize.c                                     \
-#$(AFR_AWS_PATH)lib/bufferpool/aws_bufferpool_static_thread_safe.c
-$(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c        \
-                    $(AFR_AWS_PATH)greengrass/src/aws_helper_secure_connect.c       \
+$(NAME)_SOURCES :=  $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_greengrass_discovery.c        \
+                    $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src/aws_helper_secure_connect.c       \
                     $(AFR_THIRDPARTY_PATH)jsmn/jsmn.c                               \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/aes.c                     \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/aesni.c                   \
@@ -117,40 +116,41 @@ $(NAME)_SOURCES :=  $(AFR_AWS_PATH)greengrass/src/aws_greengrass_discovery.c    
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509_csr.c                \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509write_crt.c           \
                     $(AFR_THIRDPARTY_PATH)mbedtls/library/x509write_csr.c           \
-                    $(AFR_STANDARD_PATH)mqtt/src/aws_mqtt_agent.c                                             \
-                    $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_api.c                                               \
-                    $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_network.c                                           \
-                    $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_operation.c                                         \
-                    $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_serialize.c                                         \
-                    $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_subscription.c                                      \
-                    $(AFR_STANDARD_PATH)mqtt/src/iot_mqtt_validate.c                                          \
-                    $(AFR_PORTS_MODULES_PATH)secure_sockets/lwip/aws_secure_sockets.c                         \
-                    $(AFR_AWS_PATH)shadow/src/aws_shadow.c                                                    \
-                    $(AFR_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
-                    $(AFR_AWS_PATH)shadow/src/aws_iot_shadow_operation.c                                      \
-                    $(AFR_AWS_PATH)shadow/src/aws_iot_shadow_parser.c                                         \
-                    $(AFR_AWS_PATH)shadow/src/aws_iot_shadow_subscription.c                                   \
-                    $(AFR_STANDARD_PATH)tls/src/aws_tls.c                                                     \
-                    $(AFR_STANDARD_PATH)utils/src/aws_system_init.c                                           \
-                    $(AFR_STANDARD_PATH)common/platform/iot_threads_afr.c                                     \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/aws_mqtt_agent.c                                             \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_api.c                                               \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_network.c                                           \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_operation.c                                         \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_serialize.c                                         \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_subscription.c                                      \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_validate.c                                          \
+                    $(AFR_ABSTRACTIONS_PATH)secure_sockets/lwip/aws_secure_sockets.c                         \
+                    $(AFR_C_SDK_AWS_PATH)shadow/src/aws_shadow.c                                                    \
+                    $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_api.c                                            \
+                    $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_operation.c                                      \
+                    $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_parser.c                                         \
+                    $(AFR_C_SDK_AWS_PATH)shadow/src/aws_iot_shadow_subscription.c                                   \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/src/aws_tls.c                                                     \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/src/aws_system_init.c                                           \
+                    $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_afr.c                                     \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/wifi/aws_wifi.c           \
-                    $(AFR_PORTS_MODULES_PATH)pkcs11/mbedtls/aws_pkcs11_mbedtls.c                              \
-                    $(AFR_STANDARD_PATH)crypto/src/aws_crypto.c                                               \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls/aws_pkcs11_mbedtls.c                              \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/src/aws_crypto.c                                               \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/aws_pkcs11_pal.c   \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/ports/pkcs11/hw_poll.c
 
-$(NAME)_INCLUDES := $(AFR_STANDARD_PATH)mqtt/include \
-                    $(AFR_STANDARD_PATH)mqtt/include/types \
-                    $(AFR_AWS_PATH)/shadow/include \
-                    $(AFR_AWS_PATH)/shadow/include/types \
-                    $(AFR_AWS_PATH)/greengrass/include     \
-                    $(AFR_AWS_PATH)/greengrass/src         \
-                    $(AFR_STANDARD_PATH)provisioning/include \
-                    $(AFR_STANDARD_PATH)tls/include \
-                    $(AFR_STANDARD_PATH)utils/include \
-                    $(AFR_STANDARD_PATH)crypto/include \
-                    $(AFR_STANDARD_PATH)common/include \
-                    $(AFR_STANDARD_PATH)common/include/platform \
+$(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
+                    $(AFR_C_SDK_AWS_PATH)/shadow/include \
+                    $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
+                    $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \
+                    $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/src         \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/include \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/include \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include \
+                    $(AFR_ABSTRACTIONS_PATH)platform/include/platform \
+                    $(AFR_ABSTRACTIONS_PATH)platform/freertos/include/platform \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
                     $(AFR_THIRDPARTY_PATH)unity/src
