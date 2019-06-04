@@ -58,7 +58,6 @@
 #define testrunnerFULL_OTA_CBOR_ENABLED               0
 #define testrunnerFULL_OTA_AGENT_ENABLED              0
 #define testrunnerFULL_OTA_PAL_ENABLED                0
-#define testrunnerOTA_END_TO_END_ENABLED              0
 #define testrunnerFULL_SERIALIZER_ENABLED             0
 #define testrunnerUTIL_PLATFORM_CLOCK_ENABLED         0
 #define testrunnerUTIL_PLATFORM_THREADS_ENABLED       0

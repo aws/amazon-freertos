@@ -66,7 +66,7 @@ const AppVersion32_t xAppFirmwareVersion = {
 /* Startup defines. */
 #define mainSTARTUP_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 4 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
@@ -80,9 +80,9 @@ static char ll_msg_buf_[MAX_MSG_LEN] = "Hello_world";
 psm_hnd_t psm_hnd;
 flash_desc_t fl;
 
-/* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network 
- * connections are declared below. If you are using an Ethernet connection on your MCU 
- * device it is recommended to use the FreeRTOS+TCP stack. The default values are 
+/* Static arrays for FreeRTOS-Plus-TCP stack initialization for Ethernet network
+ * connections are declared below. If you are using an Ethernet connection on your MCU
+ * device it is recommended to use the FreeRTOS+TCP stack. The default values are
  * defined in FreeRTOSConfig.h. */
 
 /* Default MAC address configuration.  The application creates a virtual network
@@ -186,7 +186,7 @@ void wm_printf(const char *format, ...)
     UART_WriteLine(UART0_ID, (uint8_t *) ll_msg_buf_);
 }
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
+ * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
  * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
@@ -286,7 +286,7 @@ int os_init()
 
 static void prvMiscInitialization( void )
 {
-    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be 
+    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be
      * running, here
      */
     int ret;
@@ -313,19 +313,6 @@ static void prvMiscInitialization( void )
 }
 /*-----------------------------------------------------------*/
 
-#if testrunnerOTA_END_TO_END_ENABLED
-/* OTA self test failure timer callback function */
-static void ota_self_test_timer_cb(os_timer_arg_t arg)
-{
-
-    configPRINT("OTA timer callback : \r\n");
-    os_timer_deactivate(&ota_timer);
-    configPRINTF(("\r\n Invalid OTA Image Update self test failed rolling back"));
-    prvPAL_SetPlatformImageState(eOTA_ImageState_Rejected);
-    prvPAL_ResetDevice();
-}
-#endif
-
 void vStartupHook( void *pvParameters)
 {
     /* FIX ME: Perform any hardware initialization, that require the RTOS to be
@@ -333,25 +320,6 @@ void vStartupHook( void *pvParameters)
 
     configPRINT("\r\nApplication Daemon Startup \r\n");
 
-#if testrunnerOTA_END_TO_END_ENABLED
-    /* Following code is needed in case of OTA self testing*/
-    OTA_PAL_ImageState_t image_state;
-    image_state = prvPAL_GetPlatformImageState();
-    if(image_state == eOTA_PAL_ImageState_PendingCommit) {
-        configPRINT("Periodic Timer Created\r\n");
-        /* Create a  periodic timer */
-        int rv = os_timer_create(&ota_timer,
-             "OTA self test timer",
-		         os_msec_to_ticks(OTA_SELF_TEST_TIMEOUT),
-		         &ota_self_test_timer_cb,
-		         NULL,
-		         OS_TIMER_ONE_SHOT,
-		         OS_TIMER_AUTO_ACTIVATE);
-        if (rv != WM_SUCCESS) {
-            configPRINT("Unable to create OTA self test timer");
-        }
-    }
-#endif
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
@@ -445,10 +413,10 @@ uint32_t ulStaticIPAddress, ulStaticNetMask;
 
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
-    /* FIX ME: If your application is using Ethernet network connections and the 
-     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the 
-     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been 
-     * imported into the project. If you are not using Ethernet see the 
+    /* FIX ME: If your application is using Ethernet network connections and the
+     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
+     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
+     * imported into the project. If you are not using Ethernet see the
      * vApplicationDaemonTaskStartupHook function. */
     if (eNetworkEvent == eNetworkUp) {
         configPRINT("\r\nNetwork connection successful.\r\n");
@@ -582,7 +550,7 @@ void vApplicationIdleHook( void )
 
         return xReturn;
     }
-	
+
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
 
@@ -627,7 +595,7 @@ void vAssertCalled(const char * pcFile,
     {
         /* FIX ME: If necessary, update to applicable registration name. */
 
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }
