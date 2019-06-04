@@ -195,3 +195,24 @@ target_link_libraries(
     INTERFACE
         ${link_extra_flags}
 )
+
+
+set(bootgen  "${AFR_COMPILER_DIR}/../../../../../bin/bootgen.bat")
+
+if(AFR_IS_TESTING)
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "echo" "Running Post-build step"
+    COMMAND "${bootgen}" -w -image "${board_dir}/aws_tests.bif" -arch zynq -o BOOT.bin
+)
+else()
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "echo" "Running Post-build step"
+    COMMAND "${bootgen}" -w -image "${board_dir}/aws_demos.bif" -arch zynq -o BOOT.bin
+)
+endif()
+
+
+
+
