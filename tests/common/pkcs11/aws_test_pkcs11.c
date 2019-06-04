@@ -283,7 +283,6 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
         #if ( pkcs11testCREATE_OBJECT_SUPPORT == 1 )
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys );
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValue );
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Sign );
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
@@ -292,6 +291,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
 
@@ -1396,7 +1396,7 @@ void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                     CK_OBJECT_HANDLE_PTR pxCertificateHandle,
                                     CK_OBJECT_HANDLE_PTR pxPublicKeyHandle )
 {
-    #if ( pkcs11testCREATE_OBJECT_SUPPORT == 0 )
+    #if ( pkcs11testCREATE_OBJECT_SUPPORT != 0 )
         prvProvisionCredentialsWithKeyImport( pxPrivateKeyHandle, pxCertificateHandle, pxPublicKeyHandle );
     #else
         prvProvisionCredentialsWithGenerateKeyPair( pxPrivateKeyHandle, pxCertificateHandle, pxPublicKeyHandle );
