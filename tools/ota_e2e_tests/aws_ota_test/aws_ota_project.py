@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 import fileinput
@@ -34,7 +34,9 @@ class OtaAfrProject:
     Attributes:
         _buildConfig(dict): Build configuration from 'build_config' field in board.json.
         _projectRootDir(str): The root of the Amazon FreeRTOS project i.e. $AFR_ROOT/demos or $AFR_ROOT/tests.
-        _boardPortablePath(str): the vendor/board path of the Amazon FreeRTOS project.
+        _boardProjectPath(str): the vendor/board/project specific path for building Amazon FreeRTOS.
+        _buildProject(str): the name of the build project, which can be either 'demos' or 'tests'.
+        _bootloaderSequenceNumber(int): the sequence number of bootloader.
     Methods:
         initializeOtaProject()
         buildProject()
@@ -56,7 +58,7 @@ class OtaAfrProject:
         otaProject.buildProject()
     """
 
-    DEMO_RUNNER_PATH = None
+    RUNNER_PATH = None
     CLIENT_CREDENTIAL_PATH = None
     APPLICATION_VERSION_PATH = None
     CLIENT_CREDENTIAL_KEYS_PATH = None
@@ -67,39 +69,34 @@ class OtaAfrProject:
     OTA_FACTORY_IMAGE_GENERATOR_PATH = None
 
     def __init__(self, boardConfig):
-        self._boardConfig = boardConfig
         self._buildConfig = boardConfig['build_config']
         self._projectRootDir = boardConfig['afr_root']
-        self._boardPortablePath = boardConfig['vendor_board_path']
-        self._boardProjectPath = self._boardPortablePath + '/aws_' +  boardConfig['demos_or_tests']
+        self._buildProject = boardConfig['demos_or_tests']
+        self._boardProjectPath = boardConfig['vendor_board_path'] + '/aws_' +  self._buildProject
         self._bootloaderSequenceNumber = 0
 
-        if boardConfig['demos_or_tests'] == 'demos':
-
-            OtaAfrProject.DEMO_RUNNER_PATH = self._boardProjectPath + '/config_files/aws_demo_config.h'
-            OtaAfrProject.CLIENT_CREDENTIAL_PATH = 'demos/include/aws_clientcredential.h'
-            OtaAfrProject.APPLICATION_VERSION_PATH = 'demos/include/aws_application_version.h'
-            OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = 'demos/include/aws_clientcredential_keys.h'
-            OtaAfrProject.OTA_CODESIGNER_CERTIFICATE_PATH = 'demos/include/aws_ota_codesigner_certificate.h'
-            OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = 'demos/ota/bootloader/utility/user-config/ota-descriptor.config'
-            OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = 'demos/ota/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
-            OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = 'demos/ota/bootloader/utility/factory_image_generator.py'
-
-            # OtaAfrProject.OTA_UPDATE_DEMO_PATH = 'demos/common/ota/aws_ota_update_demo.c' // TODO: need to figure out the changes for non prod version to work.
+        OtaAfrProject.RUNNER_PATH = self._boardProjectPath + '/config_files/aws_demo_config.h'
+        OtaAfrProject.CLIENT_CREDENTIAL_PATH = self._buildProject + '/include/aws_clientcredential.h'
+        OtaAfrProject.APPLICATION_VERSION_PATH = self._buildProject + '/include/aws_application_version.h'
+        OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = self._buildProject + '/include/aws_clientcredential_keys.h'
+        OtaAfrProject.OTA_CODESIGNER_CERTIFICATE_PATH = 'demos/include/aws_ota_codesigner_certificate.h'
+        OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = 'demos/ota/bootloader/utility/user-config/ota-descriptor.config'
+        OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = 'demos/ota/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
+        OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = 'demos/ota/bootloader/utility/factory_image_generator.py'
+        # OtaAfrProject.OTA_UPDATE_DEMO_PATH = 'demos/ota/aws_ota_update_demo.c' // TODO: need to figure out the changes for non prod version to work.
 
     def initializeOtaProject(self):
         """Initialize the Amazon FreeRTOS project for OTA.
         """
-        base = self._boardConfig['demos_or_tests']
-        if base == 'demos':
+        if self._buildProject == 'demos':
             self.__setDemoRunnerForOtaDemo()
-        elif base == 'tests':
+        elif self._buildProject == 'tests':
             self.__setTestRunnerForOtaDemo()
         else:
             raise Exception('ERROR: Invalid project root \"{}\". The valid values are \"demos\" and \"tests\".'.format(base))
 
     def generateFactoryImage(self):
-        # If this board uses the Amazon FreeRTOS reference bootlaoder, then we want to 
+        # If this board uses the Amazon FreeRTOS reference bootlaoder, then we want to
         # build and flash the factory image.
         if self._buildConfig.get('use_reference_bootloader', False):
             factoryImageGenCommand = \
@@ -112,7 +109,7 @@ class OtaAfrProject:
                 factoryImageGenCommand,
                 shell=True
             )
-                
+
 
     def buildProject(self):
         """Build the Amazon FreeRTOS project represented by this object.
@@ -164,18 +161,18 @@ class OtaAfrProject:
         )
 
     def copyCodesignerCertificateToBootloader(self, certificate):
-        """Copies the input certificate to a file named: aws_ota_codesigner_certificate.pem under 
-        demos/common/ota/bootloader/utility/codesigner_cert_utility.
+        """Copies the input certificate to a file named: aws_ota_codesigner_certificate.pem under
+        demos/ota/bootloader/utility/codesigner_cert_utility.
         """
         with open(os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH), 'w') as f:
-            f.write(certificate)            
+            f.write(certificate)
 
     def __setDemoRunnerForOtaDemo(self):
         """
-        Updates the aws_demo_runner.c to disable the default MQTT Echo demo and enable the OTA 
+        Updates the aws_demo_runner.c to disable the default MQTT Echo demo and enable the OTA
         update demo.
         """
-        demoRunnerFilePath = os.path.join(self._projectRootDir, OtaAfrProject.DEMO_RUNNER_PATH)
+        demoRunnerFilePath = os.path.join(self._projectRootDir, OtaAfrProject.RUNNER_PATH)
         print("demoRunnerFilePath: " + demoRunnerFilePath)
 
         startMQTTdemo = "#define CONFIG_MQTT_DEMO_ENABLED"
@@ -194,17 +191,17 @@ class OtaAfrProject:
                 '#define testrunnerFULL_TCP_ENABLED': '0',
                 '#define testrunnerOTA_END_TO_END_ENABLED': '1'
             },
-            os.path.join(self._projectRootDir, self._boardPortablePath, 'common', 'config_files', 'aws_test_runner_config.h')
+            os.path.join(self._projectRootDir, OtaAfrProject.RUNNER_PATH)
         )
-        
-    
+
+
     def setClientCredentialsForWifi(self, ssid, password, security):
         """
-        Updates the aws_clientcredential.h file for the wifi configurations defined in 
+        Updates the aws_clientcredential.h file for the wifi configurations defined in
         the board.json
         """
         self.__setIdentifierInFile(
-            { 
+            {
                 '#define clientcredentialWIFI_SSID': '\"' + ssid + '\"',
                 '#define clientcredentialWIFI_PASSWORD': '\"' + password + '\"',
                 '#define clientcredentialWIFI_SECURITY': security
@@ -220,16 +217,16 @@ class OtaAfrProject:
             awsIotEndpointPort(str): Optionally sets clientcredentialMQTT_BROKER_PORT, if specified.
         """
         self.__setIdentifierInFile(
-            { 
+            {
                 'static const char clientcredentialMQTT_BROKER_ENDPOINT[] =': '\"' + awsIotEndpoint + '\";',
                 '#define clientcredentialMQTT_BROKER_PORT' : awsIotEndpointPort
             },
             os.path.join(self._projectRootDir, OtaAfrProject.CLIENT_CREDENTIAL_PATH)
         )
-        
+
     def __setIdentifierInFile(self, prefixToValue, filePath):
         """
-        Set the indentied value, from prefix the input prefixToValue map, in the file path 
+        Set the indentied value, from prefix the input prefixToValue map, in the file path
         specified.
         If the value in the prefixToValue dictionary is None then the prefix is ignored if encountered.
         Args:
@@ -262,7 +259,7 @@ class OtaAfrProject:
             },
             os.path.join(self._projectRootDir, self._boardProjectPath, 'config_files', 'FreeRTOSConfig.h')
         )
-        
+
     def setClientCredentialForThingName(self, thingName):
         """Set aws_clientcredential.h with the input thingName.
         """
@@ -286,7 +283,7 @@ class OtaAfrProject:
         """Set aws_application_version.h with the input version.
         """
         self.__setIdentifierInFile(
-            { 
+            {
                 '#define APP_VERSION_MAJOR': major,
                 '#define APP_VERSION_MINOR': minor,
                 '#define APP_VERSION_BUILD': bugfix
@@ -303,9 +300,9 @@ class OtaAfrProject:
             if (signerCertificateTag in line):
                 line = '{} {}\n'.format(signerCertificateTag, '\"' + certificate.replace('\n', '\\n') + '\";')
             sys.stdout.write(line)
-            
+
     def setOtaUpdateDemoForRootCA(self):
-        """Sets the secure connection certificate in the MQTT connection parameters 
+        """Sets the secure connection certificate in the MQTT connection parameters
         in the OTA update demo.
         """
         self.__setIdentifierInFile(
@@ -317,7 +314,7 @@ class OtaAfrProject:
         )
 
     def setOtaUpdateDemoForNullCertificate(self):
-        """Sets the secure connection certificate in the MQTT connection parameters 
+        """Sets the secure connection certificate in the MQTT connection parameters
         in the OTA update demo.
         """
         self.__setIdentifierInFile(
@@ -339,7 +336,7 @@ class OtaAfrProject:
         )
 
     def addRootCAToClientCredentialKeys(self, certificate):
-        """Adds the Beta endpoint's root Certificate Authority to aws_clientcredential_keys.h. 
+        """Adds the Beta endpoint's root Certificate Authority to aws_clientcredential_keys.h.
         The root CA was retrieved with openssl s_client -showcerts -connect iotmoonraker.us-east-1.beta.funkypineapple.io:8883
         """
         clientCertificateKeysPath = os.path.join(self._projectRootDir, OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH)
