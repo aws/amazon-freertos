@@ -22,7 +22,7 @@ afr_module_sources(
         "${inc_dir}/aws_iot_shadow.h"
 )
 
-if(TARGET AFR::wifi::mcu_port)
+if(TARGET AFR::secure_sockets::mcu_port)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
@@ -57,7 +57,7 @@ afr_module_sources(
         "${test_dir}/system/aws_iot_tests_shadow_system.c"
 )
 
-if(TARGET AFR::wifi::mcu_port)
+if(TARGET AFR::secure_sockets::mcu_port)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
