@@ -48,7 +48,7 @@
     #error "RSA or Elliptic curve keys (or both) must be supported."
 #endif
 
-#if ( pkcs11testCREATE_OBJECT_SUPPORT == 0 ) && ( pkcs11testGENERATE_KEYPAIR_SUPPORT == 0 )
+#if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 0 ) && ( pkcs11testGENERATE_KEYPAIR_SUPPORT == 0 )
     #error "Either key pair import or key pair generation must be supported."
 #endif
 
@@ -280,7 +280,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
     #if ( pkcs11testEC_KEY_SUPPORT == 1 )
         prvBeforeRunningTests();
 
-        #if ( pkcs11testCREATE_OBJECT_SUPPORT == 1 )
+        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys );
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObject );
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValue );
@@ -1396,7 +1396,7 @@ void prvProvisionEcTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                     CK_OBJECT_HANDLE_PTR pxCertificateHandle,
                                     CK_OBJECT_HANDLE_PTR pxPublicKeyHandle )
 {
-    #if ( pkcs11testCREATE_OBJECT_SUPPORT != 0 )
+    #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT != 0 )
         prvProvisionCredentialsWithKeyImport( pxPrivateKeyHandle, pxCertificateHandle, pxPublicKeyHandle );
     #else
         prvProvisionCredentialsWithGenerateKeyPair( pxPrivateKeyHandle, pxCertificateHandle, pxPublicKeyHandle );
