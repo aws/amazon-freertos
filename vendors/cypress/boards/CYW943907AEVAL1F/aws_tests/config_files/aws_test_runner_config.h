@@ -38,7 +38,6 @@
 #define testrunnerFULL_OTA_CBOR_ENABLED               testrunnerUNSUPPORTED
 #define testrunnerFULL_OTA_AGENT_ENABLED              testrunnerUNSUPPORTED
 #define testrunnerFULL_OTA_PAL_ENABLED                testrunnerUNSUPPORTED
-#define testrunnerOTA_END_TO_END_ENABLED              testrunnerUNSUPPORTED
 #define testrunnerFULL_MEMORYLEAK_ENABLED             testrunnerUNSUPPORTED
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
