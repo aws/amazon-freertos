@@ -74,11 +74,69 @@
 /*
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
  */
-#define pkcs11testCREATE_OBJECT_SUPPORT       ( 1 )
+#define pkcs11testIMPORT_PRIVATE_KEY_SUPPORT       ( 1 )
 
 /*
  * @brief Set to 1 if generating a device private-public key pair via C_GenerateKeyPair. 0 if not.
  */
 #define pkcs11testGENERATE_KEYPAIR_SUPPORT    ( 1 )
+
+/**
+ * @brief The PKCS #11 label for device private key for test.
+ *
+ * For devices with on-chip storage, this should match the non-test label.
+ * For devices with secure elements or hardware limitations, this may be defined
+ * to a different label to preserve AWS IoT credentials for other test suites.
+ */
+#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
+
+/**
+ * @brief The PKCS #11 label for device public key.
+ *
+ * For devices with on-chip storage, this should match the non-test label.
+ * For devices with secure elements or hardware limitations, this may be defined
+ * to a different label to preserve AWS IoT credentials for other test suites.
+ */
+#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+
+/**
+ * @brief The PKCS #11 label for the device certificate.
+ *
+ * For devices with on-chip storage, this should match the non-test label.
+ * For devices with secure elements or hardware limitations, this may be defined
+ * to a different label to preserve AWS IoT credentials for other test suites.
+ */
+#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS
+
+/**
+ * @brief The PKCS #11 label for the object to be used for code verification.
+ *
+ * Used by over-the-air update code to verify an incoming signed image.
+ *
+ * For devices with on-chip storage, this should match the non-test label.
+ * For devices with secure elements or hardware limitations, this may be defined
+ * to a different label to preserve AWS IoT credentials for other test suites.
+ */
+#define pkcs11testLABEL_CODE_VERIFICATION_KEY            pkcs11configLABEL_CODE_VERIFICATION_KEY
+
+/**
+ * @brief The PKCS #11 label for Just-In-Time-Provisioning.
+ *
+ * The certificate corresponding to the issuer of the device certificate
+ * (pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS) when using the JITR or
+ * JITP flow.
+ *
+ * For devices with on-chip storage, this should match the non-test label.
+ * For devices with secure elements or hardware limitations, this may be defined
+ * to a different label to preserve AWS IoT credentials for other test suites.
+ */
+#define pkcs11testLABEL_JITP_CERTIFICATE                 pkcs11configLABEL_JITP_CERTIFICATE
+
+/**
+ * @brief The PKCS #11 label for the AWS Trusted Root Certificate.
+ *
+ * @see aws_default_root_certificates.h
+ */
+#define pkcs11testLABEL_ROOT_CERTIFICATE                 pkcs11configLABEL_ROOT_CERTIFICATE
 
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */
