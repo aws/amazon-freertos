@@ -61,14 +61,14 @@ static const BTUuid_t _serverUUID =
 static IotBleAdvertisementParams_t _scanRespParams =
 {
     .includeTxPower    = true,
-    .nameType        = BTGattAdvNameNone,
+    .nameType          = BTGattAdvNameNone,
     .setScanRsp        = true,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
     .minInterval       = IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN,
     .maxInterval       = IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX,
-    .serviceDataLen    =                                0,
+    .serviceDataLen    = 0,
     .pServiceData      = NULL,
-    .manufacturerLen   =                                0,
+    .manufacturerLen   = 0,
     .pManufacturerData = NULL,
     .pUUID1            = NULL,
     .pUUID2            = NULL
@@ -77,14 +77,14 @@ static IotBleAdvertisementParams_t _scanRespParams =
 static IotBleAdvertisementParams_t _advParams =
 {
     .includeTxPower    = false,
-    .nameType        = BTGattAdvNameShort,
+    .nameType          = BTGattAdvNameShort,
     .setScanRsp        = false,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
     .minInterval       = 0,
     .maxInterval       = 0,
-    .serviceDataLen    =                                0,
+    .serviceDataLen    = 0,
     .pServiceData      = NULL,
-    .manufacturerLen   =                                0,
+    .manufacturerLen   = 0,
     .pManufacturerData = NULL,
     .pUUID1            = ( BTUuid_t * ) &_advUUID,
     .pUUID2            = NULL
@@ -328,10 +328,10 @@ BTStatus_t _startAllServices()
 
     if( error == pdPASS )
     {
-    	if( IotBleDataTransfer_Init() == false )
-	{
-	    error = pdFAIL;
-	}
+        if( IotBleDataTransfer_Init() == false )
+        {
+            error = pdFAIL;
+        }
     }
 
     if( error != pdPASS )
@@ -636,9 +636,9 @@ BTStatus_t IotBle_Init( void )
     /* Initialize advertisement and scan response. */
     if( status == eBTStatusSuccess )
     {
-		#if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 1 )
-        IotBle_SetCustomAdvCb(&_advParams, &_scanRespParams );
-		#endif
+        #if ( IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG == 1 )
+            IotBle_SetCustomAdvCb( &_advParams, &_scanRespParams );
+        #endif
 
         status = _setAdvData( &_advParams );
 

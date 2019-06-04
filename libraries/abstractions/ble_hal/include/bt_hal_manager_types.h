@@ -48,7 +48,7 @@
  * @brief Size in byte of BT/BLE addresses.
  */
 #define btADDRESS_LEN        6
-#define btKEY_MAX_LEN    16
+#define btKEY_MAX_LEN        16
 
 /**
  * @brief UUID types.

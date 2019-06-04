@@ -76,11 +76,12 @@ static IotBleDeviceInfoService_t _service =
         .ucType = eBTuuidType128                       \
     }
 
-#define IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID_TYPE              \
-    {                                                            \
-        .uu.uu128 = IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID,      \
-        .ucType = eBTuuidType128                                 \
+#define IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID_TYPE         \
+    {                                                       \
+        .uu.uu128 = IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID, \
+        .ucType = eBTuuidType128                            \
     }
+
 /**
  * @brief UUID for Device Information Service.
  *
@@ -337,15 +338,14 @@ static void _deviceInfoBrokerEndpointCharCallback( IotBleAttributeEvent_t * pEve
 {
     IotBleAttributeData_t attrData = { 0 };
     IotBleEventResponse_t resp;
-    uint8_t *pData;
+    uint8_t * pData;
     size_t length;
 
     if( pEventParam->xEventType == eBLERead )
     {
-        
         pData = ( uint8_t * ) clientcredentialMQTT_BROKER_ENDPOINT + pEventParam->pParamRead->offset;
         length = strlen( clientcredentialMQTT_BROKER_ENDPOINT ) - pEventParam->pParamRead->offset;
-        
+
         attrData.handle = pEventParam->pParamRead->attrHandle;
         attrData.pData = pData;
         attrData.size = length;
@@ -415,23 +415,23 @@ static void _deviceInfoPlatformNameCharCallback( IotBleAttributeEvent_t * pEvent
     IotBleEventResponse_t resp =
     {
         .eventStatus    = eBTStatusSuccess,
-	.attrDataOffset = 0,
-	.pAttrData      = &attrData,
+        .attrDataOffset = 0,
+        .pAttrData      = &attrData,
         .rspErrorStatus = eBTRspErrorNone
     };
     size_t length = 0;
 
     if( pEventParam->xEventType == eBLERead )
     {
+        #ifdef configPLATFORM_NAME
+            length = strlen( configPLATFORM_NAME );
 
-#ifdef configPLATFORM_NAME
-       length = strlen( configPLATFORM_NAME );
-       if( pEventParam->pParamRead->offset <= length )
-       {
-            attrData.pData = ( uint8_t * ) configPLATFORM_NAME + pEventParam->pParamRead->offset;
-            attrData.size  =  length - pEventParam->pParamRead->offset;
-       }
-#endif
+            if( pEventParam->pParamRead->offset <= length )
+            {
+                attrData.pData = ( uint8_t * ) configPLATFORM_NAME + pEventParam->pParamRead->offset;
+                attrData.size = length - pEventParam->pParamRead->offset;
+            }
+        #endif
         attrData.handle = pEventParam->pParamRead->attrHandle;
         IotBle_SendResponse( &resp, pEventParam->pParamRead->connId, pEventParam->pParamRead->transId );
     }
