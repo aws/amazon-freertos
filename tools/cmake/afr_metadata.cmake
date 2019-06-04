@@ -166,7 +166,6 @@ function(afr_write_metadata)
     set(enabledModules ${AFR_MODULES_ENABLED_USER} ${AFR_MODULES_ENABLED_DEPS})
     file(APPEND "${module_dependencies_file}" "enabledModules#${enabledModules}\n")
 
-    set(3rdparty_list "")
     set(src_all "")
     set(src_console "")
     set(inc_all "")
@@ -177,8 +176,8 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/cmake"
         "${AFR_ROOT_DIR}/CMakeLists.txt"
         "${AFR_ROOT_DIR}/PreLoad.cmake"
-        "${AFR_ROOT_DIR}/modules/CMakeLists.txt"
-        "${AFR_ROOT_DIR}/modules/libraries/3rdparty/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/libraries/CMakeLists.txt"
+        "${AFR_ROOT_DIR}/libraries/3rdparty/CMakeLists.txt"
         "${AFR_ROOT_DIR}/demos/CMakeLists.txt"
     )
     foreach(cmake_file IN LISTS AFR_METADATA_CMAKE_FILES)
@@ -219,13 +218,6 @@ function(afr_write_metadata)
                 string(REGEX REPLACE [[\$<COMPILE_LANGUAGE:[A-Z]+>]] 1 inc_list "${inc_list}")
             endif()
         endif()
-        foreach(dep IN LISTS dependencies_list)
-            string(FIND ${dep} 3rdparty:: __idx)
-            if(__idx EQUAL 0 AND NOT ${dep} IN_LIST 3rdparty_list)
-                list(APPEND 3rdparty_list ${dep})
-            endif()
-        endforeach()
-        list(REMOVE_DUPLICATES 3rdparty_list)
 
         list(APPEND src_all ${src_list})
         list(APPEND inc_all ${inc_list})
@@ -278,9 +270,8 @@ function(afr_write_metadata)
 
     # Add third party data
     list(APPEND src_console ${src_all})
-    foreach(3rdparty_target IN LISTS 3rdparty_list)
-        string(LENGTH "3rdparty::" len)
-        string(SUBSTRING "${3rdparty_target}" ${len} -1 3rdparty_name)
+    foreach(3rdparty_name IN LISTS 3RDPARTY_MODULES_ENABLED)
+        set(3rdparty_target "3rdparty::${3rdparty_name}")
         list(APPEND src_console "${AFR_3RDPARTY_DIR}/${3rdparty_name}")
         get_target_property(lib_type ${3rdparty_target} TYPE)
         if("${lib_type}" STREQUAL "INTERFACE_LIBRARY")
@@ -310,7 +301,7 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
         "${AFR_KERNEL_DIR}"
-        "${AFR_TEST_DIR}"
+        "${AFR_TESTS_DIR}"
     )
 
     # Write all sources and include dirs.
@@ -348,9 +339,9 @@ afr_define_metadata(BOARD DATA_RAM_MEMORY "Data RAM size.")
 afr_define_metadata(BOARD PROGRAM_MEMORY "Program memory size.")
 afr_define_metadata(BOARD CODE_SIGNER "Code signer platform.")
 afr_define_metadata(BOARD SUPPORTED_IDE "Supported IDE." INHERITED)
+afr_define_metadata(BOARD RECOMMENDED_IDE "Recommended IDE." INHERITED)
 afr_define_metadata(BOARD IS_ACTIVE "Is the board Active to be displayed on Amazon FreeRTOS Console")
-afr_define_metadata(BOARD DEMO_COMMON_LOCATION "Location of vendor's commons in demos")
-afr_define_metadata(BOARD THIRD_PARTY_LIB_LOCATION "Location of third party library files")
+afr_define_metadata(BOARD AWS_DEMOS_CONFIG_FILES_LOCATION "Location of vendor's config files")
 
 afr_define_metadata(LIB ID "Library name.")
 afr_define_metadata(LIB DISPLAY_NAME "Library name displayed on the Amazon FreeRTOS Console.")

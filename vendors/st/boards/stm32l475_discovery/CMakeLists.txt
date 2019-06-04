@@ -1,7 +1,7 @@
 set(stm32l475_dir "${AFR_VENDORS_DIR}/st/stm32l475_discovery")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
@@ -26,8 +26,8 @@ afr_set_board_metadata(IDE_SystemWorkbench_NAME "System Workbench for STM32")
 afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
 afr_set_board_metadata(IDE_SystemWorkbench_RECOMMENDED "TRUE")
 
-afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/ac6")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/st/stm32l475_discovery/ac6/aws_demos")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -97,14 +97,16 @@ set(
     "${stm32l475_dir}/CMSIS/Device/ST/STM32L4xx/Include"
     "${stm32l475_dir}/STM32L4xx_HAL_Driver/Inc"
     "${stm32l475_dir}/STM32L4xx_HAL_Driver/Inc/Legacy"
-    "${board_dir}/config_files"
     "${board_dir}/application_code"
     "${board_dir}/application_code/st_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
+
 target_include_directories(
     AFR::kernel::mcu_port
-    INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
+    INTERFACE
+        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${kernel_inc_dirs}>
+        "${board_dir}/config_files"
 )
 
 # WiFi
@@ -155,18 +157,20 @@ endif()
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/st_code")
-
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 if(AFR_IS_TESTING)
 add_executable(
     ${exe_target}
     ${board_code_src}
+    ${config_files}
     "${board_dir}/application_code/main.c"
 )
 else()
 add_executable(
     ${exe_target}
     ${board_code_src}
+    ${config_files}
     ${network_manager_src}
     "${board_dir}/application_code/main.c"
 )
@@ -177,7 +181,7 @@ target_link_libraries(
     PRIVATE
         AFR::wifi
         AFR::utils
-        -T"${board_dir}/../ac6/STM32L475VGTx_FLASH.ld"
+        -T"${board_dir}/STM32L475VGTx_FLASH.ld"
 )
 
 if(AFR_METADATA_MODE)

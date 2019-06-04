@@ -21,13 +21,18 @@ afr_set_board_metadata(DISPLAY_NAME "Renesas Starter Kit+ for RX65N-2MB")
 afr_set_board_metadata(DESCRIPTION "The Renesas Starter Kit+ for RX65N-2MB connects to AWS IoT Cloud using Ethernet")
 afr_set_board_metadata(VENDOR_NAME "Renesas")
 afr_set_board_metadata(FAMILY_NAME "RX65N")
+afr_set_board_metadata(IS_ACTIVE "TRUE")
 afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(DATA_RAM_MEMORY "640KB")
 afr_set_board_metadata(PROGRAM_MEMORY "2MB")
 afr_set_board_metadata(SUPPORTED_IDE "E2Studio")
+afr_set_board_metadata(RECOMMENDED_IDE "E2Studio")
 afr_set_board_metadata(IDE_E2Studio_NAME "e2 studio")
 afr_set_board_metadata(IDE_E2Studio_COMPILER "CCRX")
-afr_set_board_metadata(IDE_E2Studio_RECOMMENDED "true")
+
+afr_set_board_metadata(IDE_E2Studio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/renesas/rx65n-rsk/e2studio/aws_demos")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
+
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -38,7 +43,7 @@ afr_set_board_metadata(IDE_E2Studio_RECOMMENDED "true")
 afr_mcu_port(compiler)
 
 #set(compiler_flags
-#    -isa=rxv2 -fpu -branch=32 -preinclude="implicitlyinclude.h" 
+#    -isa=rxv2 -fpu -branch=32 -preinclude="implicitlyinclude.h"
 #    -nomessage=11174,21644,20010,23034,23035,20177,23033 -output=obj  -debug -nologo
 #    -obj_path=${workspace_loc:/${ProjName}/${ConfigName}}
 #)
@@ -52,7 +57,7 @@ target_compile_options(
 
 #set(assembler_flags
 #    -isa=rxv2 -fpu -debug -nologo
-#    -output=${workspace_loc:/${ProjName}/${ConfigName}} 
+#    -output=${workspace_loc:/${ProjName}/${ConfigName}}
 #)
 
 # Assembler flags
@@ -63,7 +68,7 @@ target_compile_options(
 )
 
 #set(linker_flags
-#    -noprelink -form=absolute -nomessage -vect=_undefined_interrupt_source_isr -list=${exe_target}.map 
+#    -noprelink -form=absolute -nomessage -vect=_undefined_interrupt_source_isr -list=${exe_target}.map
 #    -nooptimize -rom=D=R,D_1=R_1,D_2=R_2 -nologo
 #)
 
@@ -150,12 +155,12 @@ set(FIT_include
     "${renesas_dir}/FIT/RDP_v1.15_modified/r_s12ad_rx/src/targets/rx65x"
 )
 
-afr_glob_src(smc_gen_src DIRECTORY "${rx65nrsk_aws_dir}/e2studio/src/smc_gen" RECURSE)
+afr_glob_src(smc_gen_src DIRECTORY "${rx65nrsk_aws_dir}/src/smc_gen" RECURSE)
 
 set(smc_gen_include
-    "${rx65nrsk_aws_dir}/e2studio/src/smc_gen/r_config"
-    "${rx65nrsk_aws_dir}/e2studio/src/smc_gen/general"
-    "${rx65nrsk_aws_dir}/e2studio/src/smc_gen/r_pincfg"
+    "${rx65nrsk_aws_dir}/src/smc_gen/r_config"
+    "${rx65nrsk_aws_dir}/src/smc_gen/general"
+    "${rx65nrsk_aws_dir}/src/smc_gen/r_pincfg"
 )
 
 # Kernel
@@ -185,9 +190,9 @@ set(kernel_inc_dirs
     ${FIT_include}
     ${smc_gen_include}
     "${AFR_KERNEL_DIR}/portable/Renesas/RX600v2"
-    "${rx65nrsk_aws_dir}/common/config_files"
-    "${rx65nrsk_aws_dir}/common/application_code/renesas_code"
-    "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+    "${rx65nrsk_aws_dir}/config_files"
+    "${rx65nrsk_aws_dir}/application_code/renesas_code"
+    "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
 target_include_directories(
@@ -215,22 +220,22 @@ afr_mcu_port(freertos_plus_tcp)
 target_sources(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c"
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/ether_callback.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/RX/NetworkInterface.c"
 )
 
 target_include_directories(
     AFR::freertos_plus_tcp::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/freertos_plus_tcp/source/portable/Compiler/Renesas"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/Renesas"
 )
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_tcp
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -238,8 +243,8 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX "abs")
 
-afr_glob_src(board_code_src DIRECTORY "${rx65nrsk_aws_dir}/common/application_code/renesas_code")
-afr_glob_src(config_files_src DIRECTORY "${rx65nrsk_aws_dir}/common/config_files")
+afr_glob_src(board_code_src DIRECTORY "${rx65nrsk_aws_dir}/application_code/renesas_code")
+afr_glob_src(config_files_src DIRECTORY "${rx65nrsk_aws_dir}/config_files")
 
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
@@ -247,7 +252,7 @@ afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 add_executable(${exe_target}
     ${board_code_src}
     ${config_files_src}
-    "${rx65nrsk_aws_dir}/common/application_code/main.c"
+    "${rx65nrsk_aws_dir}/application_code/main.c"
     $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
 )
 
@@ -256,18 +261,4 @@ target_link_libraries(
     PRIVATE
         AFR::freertos_plus_tcp
         AFR::utils
-)
-
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
-)
-
-# Disable device defender
-afr_module_dependencies(
-    serializer
-    PRIVATE
-        3rdparty::dummy
 )

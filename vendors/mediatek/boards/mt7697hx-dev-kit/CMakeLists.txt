@@ -1,6 +1,6 @@
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 set(demos_uvision_dir ${CMAKE_CURRENT_LIST_DIR}/aws_demos/uvision/)
 set(tests_uvision_dir ${CMAKE_CURRENT_LIST_DIR}/aws_tests/uvision/)
 
@@ -14,17 +14,14 @@ else()
     set(exe_target aws_demos)
 endif()
 
-#Ensure Defender is not included in build
-set (AFR_MODULE_defender 0)
-
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "mt7697hx-dev-kit")
-afr_set_board_metadata(DISPLAY_NAME "MT7697Hx Development Kit")
-afr_set_board_metadata(DESCRIPTION "MT7697Hx Development Kit")
+afr_set_board_metadata(ID "MT7697Hx-Dev-Kit")
+afr_set_board_metadata(DISPLAY_NAME "MT7697Hx-Dev-Kit")
+afr_set_board_metadata(DESCRIPTION "Development kit for USI MT7697Hx")
 afr_set_board_metadata(VENDOR_NAME "MediaTek")
-afr_set_board_metadata(FAMILY_NAME "MT76x7 Series")
+afr_set_board_metadata(FAMILY_NAME "MT7697Hx")
 afr_set_board_metadata(DATA_RAM_MEMORY "352KB")
 afr_set_board_metadata(PROGRAM_MEMORY "4MB")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
@@ -34,8 +31,8 @@ afr_set_board_metadata(IDE_uVision_NAME "Keil uVision")
 afr_set_board_metadata(IDE_uVision_COMPILER "ARMCC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
-afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/uvision")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/mediatek/mt7697hx-dev-kit/uvision/aws_demos")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -45,32 +42,34 @@ target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
     -D__MICROLIB
-    -D_REENT_SMALL 
-    -DPRODUCT_VERSION=7687 
-    -DMTK_BLE_SMTCN_ENABLE 
-    -DMTK_BT_LWIP_ENABLE 
-    -DMTK_BLE_BQB_TEST_ENABLE 
-    -DMTK_BLE_CLI_ENABLE 
-    -DMTK_BLE_BQB_CLI_ENABLE 
-    -DMTK_HCI_CONSOLE_MIX_ENABLE 
-    -DMTK_MINISUPP_ENABLE 
-    -DMTK_BSPEXT_ENABLE 
-    -DMTK_HAL_LOWPOWER_ENABLE 
-    -DMTK_LWIP_CLI_ENABLE 
-    -DMTK_HTTPCLIENT_SSL_ENABLE 
-    -DMTK_IPERF_ENABLE 
-    -DMTK_SMTCN_ENABLE 
-    -DMTK_CLI_TEST_MODE_ENABLE 
-    -DMTK_WIFI_REPEATER_ENABLE 
-    -DCONFIG_REPEATER 
-    -DMTK_DEBUG_LEVEL_NONE 
-    -DMTK_WIFI_PRIVILEGE_ENABLE 
-    -DSUPPORT_MBEDTLS 
-    -D__MTK_BLE_ONLY_ENABLE__ 
-    -DMTK_SINGLE_SKU_SUPPORT 
-    -DHAL_DFS_MODULE_ENABLED 
-    -DLWIP_NO_STDINT_H=1 
+    -D_REENT_SMALL
+    -DPRODUCT_VERSION=7687
+    -DMTK_BLE_SMTCN_ENABLE
+    -DMTK_BT_LWIP_ENABLE
+    -DMTK_BLE_BQB_TEST_ENABLE
+    -DMTK_BLE_CLI_ENABLE
+    -DMTK_BLE_BQB_CLI_ENABLE
+    -DMTK_HCI_CONSOLE_MIX_ENABLE
+    -DMTK_MINISUPP_ENABLE
+    -DMTK_BSPEXT_ENABLE
+    -DMTK_HAL_LOWPOWER_ENABLE
+    -DMTK_LWIP_CLI_ENABLE
+    -DMTK_HTTPCLIENT_SSL_ENABLE
+    -DMTK_IPERF_ENABLE
+    -DMTK_SMTCN_ENABLE
+    -DMTK_CLI_TEST_MODE_ENABLE
+    -DMTK_WIFI_REPEATER_ENABLE
+    -DCONFIG_REPEATER
+    -DMTK_DEBUG_LEVEL_NONE
+    -DMTK_WIFI_PRIVILEGE_ENABLE
+    -DSUPPORT_MBEDTLS
+    -D__MTK_BLE_ONLY_ENABLE__
+    -DMTK_SINGLE_SKU_SUPPORT
+    -DHAL_DFS_MODULE_ENABLED
+    -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
+    # Needed by tinycbor to determine byte order
+    __little_endian__=1
 )
 target_compile_definitions(
     AFR::compiler::mcu_port
@@ -92,7 +91,7 @@ target_compile_options(
 )
 
 # Linker flags
-set(linker_flags --cpu Cortex-M4.fp --library_type=microlib --diag_suppress 6340,6329,6314 --strict --scatter "${board_uvision_dir}/flash.sct" --entry Reset_Handler --first __isr_vector --summary_stderr --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols )
+set(linker_flags --cpu Cortex-M4.fp --library_type=microlib --diag_suppress 6340,6329,6314 --strict --scatter "${AFR_ROOT_DIR}/projects/mediatek/mt7697hx-dev-kit/uvision/aws_tests/flash.sct" --entry Reset_Handler --first __isr_vector --summary_stderr --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols )
 
 target_link_options(
     AFR::compiler::mcu_port
@@ -186,7 +185,7 @@ target_sources(
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/src/sdio_gen3/connsys_driver.c"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/src/sdio_gen3/connsys_util.c"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/src/sdio_gen3/context_dump.c"
- 
+
         # Tracelyzer recorder files
         $<IF:${AFR_IS_TESTING}, "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcKernelPort.c" , >
         $<IF:${AFR_IS_TESTING}, "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcSnapshotRecorder.c" , >
@@ -212,19 +211,19 @@ target_include_directories(
         "${board_dir}/application_code/mediatek_code"
         "${board_dir}/application_code/mediatek_code/include"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
-        "${AFR_MODULES_STANDARD_DIR}/mqtt/include"
-        "${AFR_MODULES_STANDARD_DIR}/common/include"
-        
+        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
+
         "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
         "${AFR_3RDPARTY_DIR}/lwip/src/include"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable"
         "${AFR_3RDPARTY_DIR}/pkcs11"
-        "${AFR_ROOT_DIR}/modules/ports/secure_sockets/include"
-        "${AFR_MODULES_STANDARD_DIR}/common/include/private"
-        "${AFR_MODULES_STANDARD_DIR}/utils/include"
-        "${AFR_MODULES_STANDARD_DIR}/provisioning/include"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/provisioning/include"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
         "${board_dir}/config_files"
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
         ${compiler_specific_include}
@@ -284,7 +283,7 @@ target_sources(
     "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/mld6.c"
     "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/nd6.c"
     "${AFR_3RDPARTY_DIR}/lwip/src/netif/ethernet.c"
-    
+
     # MediaTek SDK Wifi Files
     "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/dhcpd/src/dhcpd.c"
     "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/third_party/ping/src/ping.c"
@@ -318,7 +317,7 @@ target_include_directories(
         "${board_dir}/application_code/mediatek_code/include"
 )
 
-# WiFi on MTK requires Secure Sockets 
+# WiFi on MTK requires Secure Sockets
 target_link_libraries(
     AFR::wifi::mcu_port
     INTERFACE
@@ -331,8 +330,8 @@ target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
-        "${AFR_MODULES_STANDARD_DIR}/crypto/src/aws_crypto.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/aws_crypto.c"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -342,7 +341,7 @@ target_link_libraries(
 target_include_directories(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${AFR_MODULES_STANDARD_DIR}/crypto/include/"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include/"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/inc"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/inc"
         "${board_dir}/application_code/mediatek_code/include"
@@ -352,28 +351,30 @@ target_include_directories(
 afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE 
-        "${AFR_ROOT_DIR}/modules/ports/secure_sockets/lwip/aws_secure_sockets.c"
-        "${AFR_ROOT_DIR}/modules/libraries/standard/tls/src/aws_tls.c"
+    INTERFACE
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/aws_tls.c"
 )
 target_include_directories(
     AFR::secure_sockets::mcu_port
     INTERFACE
        "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-       "${AFR_ROOT_DIR}/modules/ports/wifi/include"
-       "${AFR_MODULES_STANDARD_DIR}/common/include"
-       "${AFR_MODULES_STANDARD_DIR}/tls/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
+       "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
        "${AFR_3RDPARTY_DIR}/mbedtls/include"
-       "${AFR_MODULES_STANDARD_DIR}/crypto/include"
-       "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls"
+       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
+       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
 )
 
-afr_module_dependencies(
+ afr_module_dependencies(
     AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::tls
-)
+     INTERFACE
+         AFR::tls
+ )
+
+
 
 
 # -------------------------------------------------------------------------------------------------
@@ -391,7 +392,7 @@ add_executable(
     ${board_code_src}
     ${config_files}
     $<IF:${AFR_IS_TESTING}, ,${network_manager_src}>
-    "${board_uvision_dir}/startup_mt7687.s"
+    "${AFR_ROOT_DIR}/projects/mediatek/mt7697hx-dev-kit/uvision/aws_tests/startup_mt7687.s"
     "${board_dir}/application_code/main.c"
     "${board_dir}/application_code/lwipopts.c"
     "${board_dir}/application_code/mediatek_code/source/sys_init.c"
@@ -417,12 +418,12 @@ target_link_libraries(
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libkservice_CM4_MT7687_Keil.lib"
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminicli_CM4_Keil.lib"
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminisupp_CM4_Keil.lib"
-
         ${link_extra_flags}
+        AFR::crypto
+        AFR::pkcs11
 )
 
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
 )
-

@@ -3,20 +3,22 @@ include("${CMAKE_CURRENT_LIST_DIR}/find_compiler.cmake")
 set(CMAKE_SYSTEM_NAME Generic)
 
 # Find TI for ARM.
-afr_find_compiler(TI_ARM_CL armcl)
+afr_find_compiler(AFR_COMPILER_CC armcl)
+set(AFR_COMPILER_CXX "${AFR_COMPILER_CC}" CACHE INTERNAL "")
+set(AFR_COMPILER_ASM "${AFR_COMPILER_CC}" CACHE INTERNAL "")
 
 # Specify the cross compiler.
-set(CMAKE_C_COMPILER ${TI_ARM_CL} CACHE FILEPATH "C compiler")
-set(CMAKE_CXX_COMPILER ${TI_ARM_CL} CACHE FILEPATH "C++ compiler")
-set(CMAKE_ASM_COMPILER ${TI_ARM_CL} CACHE FILEPATH "ASM compiler")
+set(CMAKE_C_COMPILER ${AFR_COMPILER_CC} CACHE FILEPATH "C compiler")
+set(CMAKE_CXX_COMPILER ${AFR_COMPILER_CXX} CACHE FILEPATH "C++ compiler")
+set(CMAKE_ASM_COMPILER ${AFR_COMPILER_ASM} CACHE FILEPATH "ASM compiler")
 
 # Disable compiler checks.
 set(CMAKE_C_COMPILER_FORCED TRUE)
 set(CMAKE_CXX_COMPILER_FORCED TRUE)
 
 # Add target system root to cmake find path.
-get_filename_component(TI_ARM_BIN "${TI_ARM_CL}" DIRECTORY)
-get_filename_component(CMAKE_FIND_ROOT_PATH "${TI_ARM_BIN}" DIRECTORY)
+get_filename_component(AFR_COMPILER_DIR "${AFR_COMPILER_CC}" DIRECTORY)
+get_filename_component(CMAKE_FIND_ROOT_PATH "${AFR_COMPILER_DIR}" DIRECTORY)
 
 # Don't look for executable in target system prefix.
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
@@ -24,6 +26,9 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 # Look for includes and libraries only in the target system prefix.
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+
+# Helper variables to abstracts some common compiler flags.
+set(AFR_COMPILER_NO_WARNINGS "--no_warnings" CACHE INTERNAL "")
 
 # Set up TI compiler default flags and lib settings.
 set(CMAKE_C_FLAGS_INIT "--c99")

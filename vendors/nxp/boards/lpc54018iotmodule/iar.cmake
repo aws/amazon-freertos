@@ -38,7 +38,7 @@ set(assembler_flags "-s+" "-M{}" "-w-" "-j" "-DDEBUG" "-DMXL12835F" "--cpu" "Cor
 
 set(linker_flags
     "--config_def" "XIP_IMAGE=1"
-    "--config" "${lpc54018_aws_dir}/iar/LPC54018_spifi_flash_data.icf"
+    "--config" "${lpc54018_dir}/iar/LPC54018_spifi_flash_data.icf"
     "--semihosting" "--entry" "__iar_program_start" "--vfe" 
     "--text_out" "locale"
 )

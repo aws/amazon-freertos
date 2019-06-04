@@ -71,10 +71,11 @@ def is_source_file(file_name):
 
 def is_checked_file_pattern(file_name):
     checked_patterns = [
-        r"demos/common/",
-        r"lib/.*aws_",
-        r"lib/.*\.c",
-        r"tests/common/",
+        r"demos/",
+        r"modules/libraries/standard/.*",
+        r"modules/libraries/aws/.*",
+        r"modules/ports/.*",
+        r"test*/",
     ]
     for checked_pattern in checked_patterns:
         if re.findall(checked_pattern, file_name):

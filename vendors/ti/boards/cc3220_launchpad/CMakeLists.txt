@@ -1,7 +1,7 @@
 set(simplelink_dir "${AFR_VENDORS_DIR}/ti/SimpleLink_CC32xx/v2_10_00_04")
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests/common")
+set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
     set(exe_target aws_tests)
@@ -38,9 +38,9 @@ afr_set_board_metadata(IDE_IAR_NAME "IAR Embedded Workbench")
 afr_set_board_metadata(IDE_IAR_COMPILER "IAR-ARM")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
-afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/ccs")
-afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/iar")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/ccs/aws_demos")
+afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/iar/aws_demos")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -98,7 +98,7 @@ target_include_directories(
         "${board_dir}/config_files"
         "${board_dir}/application_code/ti_code"
         # Need aws_clientcredential.h
-        "$<IF:${AFR_IS_TESTING},${AFR_TEST_DIR},${AFR_DEMOS_DIR}>/include"
+        "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
         ${compiler_specific_include}
 )
 target_link_libraries(
@@ -143,7 +143,6 @@ target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${AFR_MODULES_PORTS_DIR}/pkcs11/mbedtls/threading_alt.h"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -194,3 +193,16 @@ add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
 )
+
+find_program(tiobj2bin tiobj2bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
+find_program(mkhex4bin mkhex4bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
+find_program(armofd armofd PATHS "${AFR_COMPILER_DIR}")
+find_program(armhex armhex PATHS "${AFR_COMPILER_DIR}")
+if(tiobj2bin)
+    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${tiobj2bin}" "${CMAKE_BINARY_DIR}/${exe_target}.out" "${CMAKE_BINARY_DIR}/${exe_target}.bin"
+                "${armofd}" "${armhex}" "${mkhex4bin}"
+    )
+endif()

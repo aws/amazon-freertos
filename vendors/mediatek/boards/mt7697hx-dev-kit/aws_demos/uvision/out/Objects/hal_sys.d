@@ -1,9 +1,0 @@
-.\out\objects\hal_sys.o: ..\..\..\..\..\..\vendors\mediatek\sdk\driver\chip\mt7687\src\common\hal_sys.c
-.\out\objects\hal_sys.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\out\objects\hal_sys.o: ../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc/hal_sys.h
-.\out\objects\hal_sys.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
-.\out\objects\hal_sys.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
-.\out\objects\hal_sys.o: ../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include/low_hal_wdt.h
-.\out\objects\hal_sys.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include/mt7687_cm4_hw_memmap.h
-.\out\objects\hal_sys.o: ../../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc/type_def.h
-.\out\objects\hal_sys.o: ../../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include/memory_attribute.h

@@ -79,12 +79,12 @@
  *
  * An MQTT ping request will be sent periodically at this interval.
  */
-#define _KEEP_ALIVE_SECONDS    ( 60 )
+#define KEEP_ALIVE_SECONDS    ( 60 )
 
 /**
  * @brief The timeout for Shadow and MQTT operations in this demo.
  */
-#define _TIMEOUT_MS            ( 5000 )
+#define TIMEOUT_MS            ( 5000 )
 
 /**
  * @brief Format string representing a Shadow document with a "desired" state.
@@ -93,23 +93,23 @@
  * token must be unique at any given time, but may be reused once the update is
  * completed. For this demo, a timestamp is used for a client token.
  */
-#define _SHADOW_DESIRED_JSON     \
+#define SHADOW_DESIRED_JSON      \
     "{"                          \
     "\"state\":{"                \
     "\"desired\":{"              \
-    "\"powerOn\":%.1d"           \
+    "\"powerOn\":%01d"           \
     "}"                          \
     "},"                         \
-    "\"clientToken\":\"%.6llu\"" \
+    "\"clientToken\":\"%06lu\""  \
     "}"
 
 /**
- * @brief The expected size of #_SHADOW_DESIRED_JSON.
+ * @brief The expected size of #SHADOW_DESIRED_JSON.
  *
- * Because all the format specifiers in #_SHADOW_DESIRED_JSON include a length,
+ * Because all the format specifiers in #SHADOW_DESIRED_JSON include a length,
  * its full size is known at compile-time.
  */
-#define _EXPECTED_DESIRED_JSON_SIZE    ( sizeof( _SHADOW_DESIRED_JSON ) - 4 )
+#define EXPECTED_DESIRED_JSON_SIZE    ( sizeof( SHADOW_DESIRED_JSON ) - 3 )
 
 /**
  * @brief Format string representing a Shadow document with a "reported" state.
@@ -118,23 +118,23 @@
  * token must be unique at any given time, but may be reused once the update is
  * completed. For this demo, a timestamp is used for a client token.
  */
-#define _SHADOW_REPORTED_JSON    \
+#define SHADOW_REPORTED_JSON     \
     "{"                          \
     "\"state\":{"                \
     "\"reported\":{"             \
-    "\"powerOn\":%.1d"           \
+    "\"powerOn\":%01d"           \
     "}"                          \
     "},"                         \
-    "\"clientToken\":\"%.6llu\"" \
+    "\"clientToken\":\"%06lu\""  \
     "}"
 
 /**
- * @brief The expected size of #_SHADOW_REPORTED_JSON.
+ * @brief The expected size of #SHADOW_REPORTED_JSON.
  *
- * Because all the format specifiers in #_SHADOW_REPORTED_JSON include a length,
+ * Because all the format specifiers in #SHADOW_REPORTED_JSON include a length,
  * its full size is known at compile-time.
  */
-#define _EXPECTED_REPORTED_JSON_SIZE    ( sizeof( _SHADOW_REPORTED_JSON ) - 4 )
+#define EXPECTED_REPORTED_JSON_SIZE    ( sizeof( SHADOW_REPORTED_JSON ) - 3 )
 
 /*-----------------------------------------------------------*/
 
@@ -274,7 +274,7 @@ static void _shadowDeltaCallback( void * pCallbackContext,
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
-    static char pUpdateDocument[ _EXPECTED_REPORTED_JSON_SIZE + 1 ] = { 0 };
+    static char pUpdateDocument[ EXPECTED_REPORTED_JSON_SIZE + 1 ] = { 0 };
 
     /* Check if there is a different "powerOn" state in the Shadow. */
     deltaFound = _getDelta( pCallbackParam->u.callback.pDocument,
@@ -313,17 +313,17 @@ static void _shadowDeltaCallback( void * pCallbackContext,
         updateDocument.pThingName = pCallbackParam->pThingName;
         updateDocument.thingNameLength = pCallbackParam->thingNameLength;
         updateDocument.u.update.pUpdateDocument = pUpdateDocument;
-        updateDocument.u.update.updateDocumentLength = _EXPECTED_REPORTED_JSON_SIZE;
+        updateDocument.u.update.updateDocumentLength = EXPECTED_REPORTED_JSON_SIZE;
 
         /* Generate a Shadow document for the reported state. To keep the client
          * token within 6 characters, it is modded by 1000000. */
         updateDocumentLength = snprintf( pUpdateDocument,
-                                         _EXPECTED_REPORTED_JSON_SIZE + 1,
-                                         _SHADOW_REPORTED_JSON,
-                                         currentState,
-                                         ( long long unsigned ) IotClock_GetTimeMs() % 1000000 );
+                                         EXPECTED_REPORTED_JSON_SIZE + 1,
+                                         SHADOW_REPORTED_JSON,
+                                         ( int ) currentState,
+                                         ( long unsigned ) ( IotClock_GetTimeMs() % 1000000 ) );
 
-        if( ( size_t ) updateDocumentLength != _EXPECTED_REPORTED_JSON_SIZE )
+        if( ( size_t ) updateDocumentLength != EXPECTED_REPORTED_JSON_SIZE )
         {
             IotLogError( "Failed to generate reported state document for Shadow update." );
         }
@@ -424,7 +424,7 @@ static void _shadowUpdatedCallback( void * pCallbackContext,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Initialize the MQTT library and the Shadow library.
+ * @brief Initialize the the MQTT library and the Shadow library.
  *
  * @return `EXIT_SUCCESS` if all libraries were successfully initialized;
  * `EXIT_FAILURE` otherwise.
@@ -477,7 +477,7 @@ static int _initializeDemo( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Clean up the MQTT library and the Shadow library.
+ * @brief Clean up the the MQTT library and the Shadow library.
  */
 static void _cleanupDemo( void )
 {
@@ -529,14 +529,10 @@ static int _establishMqttConnection( const char * pIdentifier,
         networkInfo.u.setup.pNetworkCredentialInfo = pNetworkCredentialInfo;
         networkInfo.pNetworkInterface = pNetworkInterface;
 
-#if IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1
-        networkInfo.pMqttSerializer = IOT_MQTT_SERIALIZER_OVERRIDE;
-#endif
-
         /* Set the members of the connection info not set by the initializer. */
         connectInfo.awsIotMqttMode = true;
         connectInfo.cleanSession = true;
-        connectInfo.keepAliveSeconds = _KEEP_ALIVE_SECONDS;
+        connectInfo.keepAliveSeconds = KEEP_ALIVE_SECONDS;
 
         /* AWS IoT recommends the use of the Thing Name as the MQTT client ID. */
         connectInfo.pClientIdentifier = pIdentifier;
@@ -550,7 +546,7 @@ static int _establishMqttConnection( const char * pIdentifier,
         /* Establish the MQTT connection. */
         connectStatus = IotMqtt_Connect( &networkInfo,
                                          &connectInfo,
-                                         _TIMEOUT_MS,
+                                         TIMEOUT_MS,
                                          pMqttConnection );
 
         if( connectStatus != IOT_MQTT_SUCCESS )
@@ -645,7 +641,7 @@ static void _clearShadowDocument( IotMqttConnection_t mqttConnection,
                                              pThingName,
                                              thingNameLength,
                                              0,
-                                             _TIMEOUT_MS );
+                                             TIMEOUT_MS );
 
     /* Check for return values of "SUCCESS" and "NOT FOUND". Both of these values
      * mean that the Shadow document is now empty. */
@@ -689,13 +685,13 @@ static int _sendShadowUpdates( IotSemaphore_t * pDeltaSemaphore,
 
     /* A buffer containing the update document. It has static duration to prevent
      * it from being placed on the call stack. */
-    static char pUpdateDocument[ _EXPECTED_DESIRED_JSON_SIZE + 1 ] = { 0 };
+    static char pUpdateDocument[ EXPECTED_DESIRED_JSON_SIZE + 1 ] = { 0 };
 
     /* Set the common members of the Shadow update document info. */
     updateDocument.pThingName = pThingName;
     updateDocument.thingNameLength = thingNameLength;
     updateDocument.u.update.pUpdateDocument = pUpdateDocument;
-    updateDocument.u.update.updateDocumentLength = _EXPECTED_DESIRED_JSON_SIZE;
+    updateDocument.u.update.updateDocumentLength = EXPECTED_DESIRED_JSON_SIZE;
 
     /* Publish Shadow updates at a set period. */
     for( i = 1; i <= AWS_IOT_DEMO_SHADOW_UPDATE_COUNT; i++ )
@@ -706,14 +702,14 @@ static int _sendShadowUpdates( IotSemaphore_t * pDeltaSemaphore,
         /* Generate a Shadow desired state document, using a timestamp for the client
          * token. To keep the client token within 6 characters, it is modded by 1000000. */
         status = snprintf( pUpdateDocument,
-                           _EXPECTED_DESIRED_JSON_SIZE + 1,
-                           _SHADOW_DESIRED_JSON,
-                           desiredState,
-                           ( long long unsigned ) IotClock_GetTimeMs() % 1000000 );
+                           EXPECTED_DESIRED_JSON_SIZE + 1,
+                           SHADOW_DESIRED_JSON,
+                           ( int ) desiredState,
+                           ( long unsigned ) ( IotClock_GetTimeMs() % 1000000 ) );
 
         /* Check for errors from snprintf. The expected value is the length of
          * the desired JSON document less the format specifier for the state. */
-        if( ( size_t ) status != _EXPECTED_DESIRED_JSON_SIZE )
+        if( ( size_t ) status != EXPECTED_DESIRED_JSON_SIZE )
         {
             IotLogError( "Failed to generate desired state document for Shadow update"
                          " %d of %d.", i, AWS_IOT_DEMO_SHADOW_UPDATE_COUNT );
@@ -739,7 +735,7 @@ static int _sendShadowUpdates( IotSemaphore_t * pDeltaSemaphore,
         updateStatus = AwsIotShadow_TimedUpdate( mqttConnection,
                                                  &updateDocument,
                                                  AWS_IOT_SHADOW_FLAG_KEEP_SUBSCRIPTIONS,
-                                                 _TIMEOUT_MS );
+                                                 TIMEOUT_MS );
 
         /* Check the status of the Shadow update. */
         if( updateStatus != AWS_IOT_SHADOW_SUCCESS )
@@ -759,7 +755,7 @@ static int _sendShadowUpdates( IotSemaphore_t * pDeltaSemaphore,
                         AWS_IOT_DEMO_SHADOW_UPDATE_COUNT );
 
             /* Wait for the delta callback to change its state before continuing. */
-            if( IotSemaphore_TimedWait( pDeltaSemaphore, _TIMEOUT_MS ) == false )
+            if( IotSemaphore_TimedWait( pDeltaSemaphore, TIMEOUT_MS ) == false )
             {
                 IotLogError( "Timed out waiting on delta callback to change state." );
 
@@ -802,7 +798,7 @@ int RunShadowDemo( bool awsIotMqttMode,
     IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
     /* Length of Shadow Thing Name. */
-    const size_t thingNameLength = strlen( pIdentifier );
+    size_t thingNameLength = 0;
 
     /* Allows the Shadow update function to wait for the delta callback to complete
      * a state change before continuing. */
@@ -815,8 +811,30 @@ int RunShadowDemo( bool awsIotMqttMode,
      * to AWS IoT, so this value is hardcoded to true whenever needed. */
     ( void ) awsIotMqttMode;
 
+    /* Determine the length of the Thing Name. */
+    if( pIdentifier != NULL )
+    {
+        thingNameLength = strlen( pIdentifier );
+
+        if( thingNameLength == 0 )
+        {
+            IotLogError( "The length of the Thing Name (identifier) must be nonzero." );
+
+            status = EXIT_FAILURE;
+        }
+    }
+    else
+    {
+        IotLogError( "A Thing Name (identifier) must be provided for the Shadow demo." );
+
+        status = EXIT_FAILURE;
+    }
+
     /* Initialize the libraries required for this demo. */
-    status = _initializeDemo();
+    if( status == EXIT_SUCCESS )
+    {
+        status = _initializeDemo();
+    }
 
     if( status == EXIT_SUCCESS )
     {

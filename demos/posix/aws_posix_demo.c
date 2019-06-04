@@ -279,6 +279,12 @@ int vStartPOSIXDemo( bool awsIotMqttMode,
     int i = 0;
     int iStatus = 0;
 
+    ( void ) awsIotMqttMode;
+    ( void ) pIdentifier;
+    ( void ) pNetworkServerInfo;
+    ( void ) pNetworkCredentialInfo;
+    ( void ) pNetworkInterface;
+
     /* Handles of the threads and related resources. */
     DispatcherThreadResources_t pxDispatcher = { 0 };
     WorkerThreadResources_t pxWorkers[ MQUEUE_NUMBER_OF_WORKERS ] = { { 0 } };
@@ -299,7 +305,7 @@ int vStartPOSIXDemo( bool awsIotMqttMode,
     {
         /* Prepare a unique queue name for each worker. */
         char qName[] = MQUEUE_WORKER_QNAME_BASE;
-        qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] = qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] + i;
+        qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] = qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] + ( char ) i;
 
         /* Open a queue with --
          * O_CREAT -- create a message queue.
@@ -349,7 +355,7 @@ int vStartPOSIXDemo( bool awsIotMqttMode,
     for( i = 0; i < MQUEUE_NUMBER_OF_WORKERS; i++ )
     {
         char qName[] = MQUEUE_WORKER_QNAME_BASE;
-        qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] = qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] + i;
+        qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] = qName[ MQUEUE_WORKER_QNAME_BASE_LEN - 1 ] + ( char ) i;
 
         if( pxWorkers[ i ].xInboxID != NULL )
         {

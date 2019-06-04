@@ -28,24 +28,13 @@
 
 #include "aws_demo_config.h"
 
-/* Choose your demo here. By design only one demo can be selected at a time. If
+/*  By design only one demo can be selected at a time. If
     you choose more than one only the first choice will be run. If you require
-    more than one demo to run at the same time you should create a combined
-    demo and run both the required demo tasks from your demo entry function  
+    more than one demo to run at the same time you can create a new combined
+    demo and run both the required demo tasks from your demo entry function as
+    2 separate tasks
 
-   To run a particular demo you need to define one of these. 
-   Only one demo can be configured at a time
-
-            CONFIG_MQTT_DEMO_ENABLED
-            CONFIG_SHADOW_DEMO_ENABLED
-            CONFIG_MQTT_BLE_DEMO_ENABLED
-            CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
-            CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
-            CONFIG_DEFENDER_DEMO_ENABLED
-            CONFIG_POSIX_DEMO_ENABLED
-            CONFIG_OTA_UPDATE_DEMO_ENABLED
-            CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
-            CONFIG_BLE_NUMERIC_COMPARISON_DEMO_ENABLED
+    The define to choose the demo to run is in aws_demo_config.h included above.
 */
 
 /* Individual demo task entry definitions */
@@ -53,10 +42,6 @@
     #define DEMO_entryFUNCTION                              RunMqttDemo
 #elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION                              RunShadowDemo
-#elif defined(CONFIG_MQTT_BLE_DEMO_ENABLED)
-    #define DEMO_entryFUNCTION                              RunBLEMqttEchoDemo
-    #define DEMO_networkConnectedCallback                   BLEMqttEchoDemoNetworkConnectedCallback
-    #define DEMO_networkDisconnectedCallback                BLEMqttEchoDemoNetworkDisconnectedCallback
 #elif defined(CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vStartGreenGrassDiscoveryTask
 #elif defined(CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED)

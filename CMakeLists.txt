@@ -44,11 +44,12 @@ add_subdirectory("${AFR_BOARD_PATH}")
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # Initialize all modules.
-add_subdirectory("modules")
+add_subdirectory("libraries")
 add_subdirectory("demos")
-add_subdirectory("test")
+add_subdirectory("tests")
 
 # Resolve dependencies.
+afr_status("=========================Resolving dependencies==========================")
 afr_resolve_dependencies()
 
 # -------------------------------------------------------------------------------------------------

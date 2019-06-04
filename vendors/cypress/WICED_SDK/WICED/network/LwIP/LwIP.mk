@@ -57,7 +57,7 @@ GLOBAL_DEFINES += $(NAME)_VERSION=$$(SLASH_QUOTE_START)v$(VERSION)$$(SLASH_QUOTE
 ifeq ($(TOOLCHAIN_TYPE),gcc)
 GLOBAL_CFLAGS += -Wno-address
 endif
-export AFR_THIRDPARTY_PATH := ../../../../../../modules/libraries/3rdparty/
+export AFR_THIRDPARTY_PATH := ../../../../../../libraries/3rdparty/
 
 GLOBAL_INCLUDES := $(AFR_THIRDPARTY_PATH)lwip/src/include \
                    $(AFR_THIRDPARTY_PATH)lwip/src/portable \
