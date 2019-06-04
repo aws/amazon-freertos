@@ -23,6 +23,116 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>freertos_kernel/event_groups.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/event_groups.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/list.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/list.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/queue.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/queue.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/stream_buffer.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/stream_buffer.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/tasks.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/tasks.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/timers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/timers.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/FreeRTOS.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/FreeRTOS.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/atomic.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/deprecated_definitions.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/deprecated_definitions.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/event_groups.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/event_groups.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/list.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/list.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/message_buffer.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/message_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/mpu_prototypes.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/mpu_prototypes.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/mpu_wrappers.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/mpu_wrappers.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/portable.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/portable.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/projdefs.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/projdefs.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/queue.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/queue.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/semphr.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/semphr.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/stack_macros.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/stack_macros.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/stream_buffer.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/stream_buffer.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/task.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/task.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/timers.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/include/timers.h</locationURI>
+		</link>
+		<link>
 			<name>vendors/nxp/LPC54018/system_LPC54018.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/LPC54018/system_LPC54018.c</locationURI>
@@ -136,21 +246,6 @@
 			<name>vendors/nxp/LPC54018/drivers/mflash_file.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/LPC54018/drivers/mflash_file.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/nxp/LPC54018/mcuxpresso/startup_lpc54018.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/startup_lpc54018.c</locationURI>
-		</link>
-		<link>
-			<name>linkscripts//data.ldt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/linkscripts/data.ldt</locationURI>
-		</link>
-		<link>
-			<name>linkscripts//main_text.ldt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/linkscripts/main_text.ldt</locationURI>
 		</link>
 		<link>
 			<name>vendors/nxp/LPC54018/middleware/usb/device/usb_device_dci.c</name>
@@ -728,6 +823,16 @@
 			<locationURI>BASE_DIR/vendors/nxp/LPC54018/utilities/virtual_com.c</locationURI>
 		</link>
 		<link>
+			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/nxp/LPC54018/mcuxpresso/startup_lpc54018.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/startup_lpc54018.c</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/portable/GCC/ARM_CM4F/port.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/freertos_kernel/portable/GCC/ARM_CM4F/port.c</locationURI>
@@ -738,514 +843,14 @@
 			<locationURI>BASE_DIR/freertos_kernel/portable/GCC/ARM_CM4F/portmacro.h</locationURI>
 		</link>
 		<link>
-			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
+			<name>linkscripts/data.ldt</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/linkscripts/data.ldt</locationURI>
 		</link>
 		<link>
-			<name>vendors/nxp/boards/lpc54018iotmodule/ports/wifi/aws_wifi.c</name>
+			<name>linkscripts/main_text.ldt</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/wifi/aws_wifi.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/aws_pkcs11_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/hw_poll.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/hw_poll.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/aws_secure_sockets.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/aws_secure_sockets.c</locationURI>
-		</link>
-		<link>
-			<name>tools/certificate_configuration/PEMfileToCString.html</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/tools/certificate_configuration/PEMfileToCString.html</locationURI>
-		</link>
-		<link>
-			<name>tools/certificate_configuration/CertificateConfigurator.html</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/tools/certificate_configuration/CertificateConfigurator.html</locationURI>
-		</link>
-		<link>
-			<name>tools/certificate_configuration/js/generator.js</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/tools/certificate_configuration/js/generator.js</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/event_groups.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/event_groups.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/list.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/list.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/queue.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/queue.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/stream_buffer.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/stream_buffer.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/tasks.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/tasks.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/timers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/timers.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/FreeRTOS.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/FreeRTOS.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/atomic.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/atomic.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/deprecated_definitions.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/deprecated_definitions.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/event_groups.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/event_groups.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/list.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/list.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/message_buffer.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/message_buffer.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/mpu_prototypes.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/mpu_prototypes.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/mpu_wrappers.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/mpu_wrappers.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/portable.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/portable.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/projdefs.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/projdefs.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/queue.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/queue.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/semphr.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/semphr.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/stack_macros.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/stack_macros.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/stream_buffer.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/stream_buffer.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/task.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/task.h</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/include/timers.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/freertos_kernel/include/timers.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/iot_init.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/iot_init.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/iot_json_utils.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/iot_json_utils.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/aws_appversion32.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/aws_appversion32.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/aws_json_utils.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/aws_json_utils.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/iot_init.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/iot_init.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/iot_json_utils.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/iot_json_utils.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/iot_linear_containers.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/iot_linear_containers.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/logging/aws_logging_task_dynamic_buffers.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/logging/iot_logging.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/logging/iot_logging.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/private/iot_logging.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/private/iot_logging.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/aws_logging_task.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/aws_logging_task.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/iot_logging_setup.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/iot_logging_setup.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/platform/iot_clock_afr.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/platform/iot_clock_afr.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/platform/iot_network_afr.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/platform/iot_network_afr.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/platform/iot_threads_afr.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/platform/iot_threads_afr.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/platform/iot_metrics.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/platform/iot_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/platform/iot_clock.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/platform/iot_clock.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/platform/iot_network.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/platform/iot_network.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/platform/iot_network_afr.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/platform/iot_network_afr.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/platform/iot_network_ble.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/platform/iot_network_ble.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/platform/iot_platform_types_afr.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/platform/iot_platform_types_afr.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/platform/iot_threads.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/platform/iot_threads.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/types/iot_platform_types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/types/iot_platform_types.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/types/iot_network_types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/types/iot_network_types.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/static_memory/aws_iot_static_memory_defender.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/static_memory/aws_iot_static_memory_defender.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/static_memory/aws_iot_static_memory_shadow.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/static_memory/aws_iot_static_memory_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/static_memory/iot_static_memory_common.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/static_memory/iot_static_memory_common.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/static_memory/iot_static_memory_metrics.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/static_memory/iot_static_memory_metrics.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/static_memory/iot_static_memory_mqtt.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/static_memory/iot_static_memory_mqtt.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/static_memory/iot_static_memory_serializer.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/static_memory/iot_static_memory_serializer.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/static_memory/iot_static_memory_taskpool.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/static_memory/iot_static_memory_taskpool.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/taskpool/iot_taskpool.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/taskpool/iot_taskpool.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/taskpool/private/iot_taskpool_internal.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/taskpool/private/iot_taskpool_internal.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/types/iot_taskpool_types.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/types/iot_taskpool_types.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/common/include/iot_taskpool.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/common/include/iot_taskpool.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/crypto/src/aws_crypto.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/crypto/src/aws_crypto.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/crypto/include/aws_crypto.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/crypto/include/aws_crypto.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/metrics/src/aws_secure_sockets_wrapper_metrics.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/metrics/src/aws_secure_sockets_wrapper_metrics.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/metrics/src/iot_metrics.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/metrics/src/iot_metrics.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/mqtt/src/aws_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/mqtt/src/iot_mqtt_api.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/mqtt/src/iot_mqtt_api.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/mqtt/src/iot_mqtt_network.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/mqtt/src/iot_mqtt_network.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/mqtt/src/iot_mqtt_operation.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/mqtt/src/iot_mqtt_serialize.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/mqtt/src/iot_mqtt_serialize.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/mqtt/src/iot_mqtt_subscription.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/mqtt/src/iot_mqtt_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/mqtt/src/iot_mqtt_validate.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/tls/src/aws_tls.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/tls/src/aws_tls.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/tls/include/aws_tls.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/tls/include/aws_tls.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/utils/src/aws_system_init.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/utils/src/aws_system_init.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/standard/utils/include/aws_system_init.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/standard/utils/include/aws_system_init.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/greengrass/src/aws_helper_secure_connect.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/greengrass/src/aws_helper_secure_connect.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/greengrass/src/aws_helper_secure_connect.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/greengrass/src/aws_helper_secure_connect.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/greengrass/include/aws_ggd_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/greengrass/include/aws_ggd_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/greengrass/include/aws_greengrass_discovery.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/src/aws_shadow.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/src/aws_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/src/aws_shadow_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/include/aws_shadow.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/include/aws_shadow.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/src/aws_iot_shadow_api.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/src/aws_iot_shadow_api.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/src/aws_iot_shadow_operation.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/src/aws_iot_shadow_operation.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/src/aws_iot_shadow_parser.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/src/aws_iot_shadow_parser.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/src/aws_iot_shadow_subscription.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/src/aws_iot_shadow_subscription.c</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/aws/shadow/include/aws_iot_shadow.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/aws/shadow/include/aws_iot_shadow.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/pkcs11/include/aws_pkcs11.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/ports/pkcs11/include/aws_pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/ports/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/pkcs11/mbedtls/threading_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/ports/pkcs11/mbedtls/threading_alt.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/secure_sockets/include/aws_secure_sockets.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/ports/secure_sockets/include/aws_secure_sockets.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/secure_sockets/include/aws_secure_sockets_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/ports/secure_sockets/include/aws_secure_sockets_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/ports/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</locationURI>
-		</link>
-		<link>
-			<name>modules/ports/wifi/include/aws_wifi.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/ports/wifi/include/aws_wifi.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/linkscripts/main_text.ldt</locationURI>
 		</link>
 		<link>
 			<name>demos/demo_runner/aws_demo_version.c</name>
@@ -1258,6 +863,21 @@
 			<locationURI>BASE_DIR/demos/demo_runner/aws_demo.c</locationURI>
 		</link>
 		<link>
+			<name>demos/network_manager/aws_iot_network_manager.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/network_manager/aws_iot_network_manager.c</locationURI>
+		</link>
+		<link>
+			<name>demos/network_manager/aws_iot_demo_network.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/network_manager/aws_iot_demo_network.c</locationURI>
+		</link>
+		<link>
+			<name>demos/network_manager/iot_network_manager_private.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/network_manager/iot_network_manager_private.h</locationURI>
+		</link>
+		<link>
 			<name>demos/demo_runner/iot_demo_afr.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/demo_runner/iot_demo_afr.c</locationURI>
@@ -1268,9 +888,9 @@
 			<locationURI>BASE_DIR/demos/demo_runner/iot_demo_runner.c</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_demo.h</name>
+			<name>demos/include/aws_application_version.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/demos/include/aws_demo.h</locationURI>
+			<locationURI>BASE_DIR/demos/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/aws_clientcredential.h</name>
@@ -1283,9 +903,29 @@
 			<locationURI>BASE_DIR/demos/include/aws_clientcredential_keys.h</locationURI>
 		</link>
 		<link>
-			<name>demos/include/aws_application_version.h</name>
+			<name>demos/include/aws_demo.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/demos/include/aws_application_version.h</locationURI>
+			<locationURI>BASE_DIR/demos/include/aws_demo.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_iot_demo_network.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/include/aws_iot_demo_network.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/aws_ota_codesigner_certificate.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/include/aws_ota_codesigner_certificate.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/iot_config_common.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/include/iot_config_common.h</locationURI>
+		</link>
+		<link>
+			<name>demos/include/iot_demo_logging.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/include/iot_demo_logging.h</locationURI>
 		</link>
 		<link>
 			<name>demos/include/iot_demo_runner.h</name>
@@ -1293,19 +933,304 @@
 			<locationURI>BASE_DIR/demos/include/iot_demo_runner.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/iot_init.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/iot_init.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/aws_appversion32.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/aws_appversion32.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/iot_linear_containers.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/logging/iot_logging.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/logging/iot_logging.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/private/iot_logging.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/private/iot_logging.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/aws_logging_task.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/aws_logging_task.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/iot_logging_setup.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_logging_setup.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/iot_taskpool.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_taskpool.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/iot_clock.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/platform/iot_clock.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/iot_network.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/platform/iot_network.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/iot_threads.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_clock_afr.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_clock_afr.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/iot_network_afr.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_network_afr.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/aws_secure_sockets.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/secure_sockets/aws_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/tls/src/aws_tls.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/src/aws_tls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/include/aws_tls.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/src/aws_crypto.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/src/aws_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/include/aws_crypto.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/include/aws_crypto.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/hw_poll.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/hw_poll.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/wifi/include/aws_wifi.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/wifi/include/aws_wifi.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/nxp/boards/lpc54018iotmodule/ports/wifi/aws_wifi.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/wifi/aws_wifi.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/aws_system_init.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/utils/src/aws_system_init.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/aws_system_init.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/utils/include/aws_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
+		</link>
+		<link>
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
-		</link>
-		<link>
-			<name>demos/mqtt/aws_hello_world.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/mqtt/aws_hello_world.c</locationURI>
-		</link>
-		<link>
-			<name>demos/mqtt/aws_subscribe_publish_loop.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/mqtt/aws_subscribe_publish_loop.c</locationURI>
 		</link>
 		<link>
 			<name>demos/mqtt/iot_demo_mqtt.c</name>
@@ -1313,1405 +1238,866 @@
 			<locationURI>BASE_DIR/demos/mqtt/iot_demo_mqtt.c</locationURI>
 		</link>
 		<link>
-			<name>demos/shadow/aws_shadow_lightbulb_on_off.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/shadow/aws_shadow_lightbulb_on_off.c</locationURI>
-		</link>
-		<link>
-			<name>demos/shadow/aws_iot_demo_shadow.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/shadow/aws_iot_demo_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
-		</link>
-		<link>
-			<name>demos/tcp/aws_tcp_echo_client_single_tasks.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
-		</link>
-		<link>
 			<name>application_code/nxp_code/board.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/board.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/board.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/clock_config.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/clock_config.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/clock_config.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/pin_mux.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/pin_mux.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/pin_mux.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/wlan_qca400x.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/wlan_qca400x.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/wlan_qca400x.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/wlan_qcom.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/wlan_qcom.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/wlan_qcom.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/board.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/board.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/board.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/clock_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/clock_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/clock_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/pin_mux.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/pin_mux.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/pin_mux.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/nxp_code/wlan_qcom.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/nxp_code/wlan_qcom.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/wlan_qcom.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/FreeRTOSConfig.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/FreeRTOSConfig.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/FreeRTOSConfig.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/FreeRTOSIPConfig.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/FreeRTOSIPConfig.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_bufferpool_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_bufferpool_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_bufferpool_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_demo_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_demo_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_demo_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_ggd_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_ggd_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_ggd_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_iot_network_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_iot_network_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_mqtt_agent_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_mqtt_agent_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_mqtt_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_mqtt_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_mqtt_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_pkcs11_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_pkcs11_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_secure_sockets_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_secure_sockets_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_shadow_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_shadow_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_shadow_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_wifi_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/aws_wifi_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/config_files/iot_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/iot_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/common/application_code/main.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/main.c</locationURI>
 		</link>
 		<link>
-			<name>demos/network_manager/aws_iot_network_manager.c</name>
+			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/demos/network_manager/aws_iot_network_manager.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/aes.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/aes.c</name>
+			<name>libraries/3rdparty/mbedtls/library/aesni.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/aes.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/aesni.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/aesni.c</name>
+			<name>libraries/3rdparty/mbedtls/library/arc4.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/aesni.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/arc4.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/arc4.c</name>
+			<name>libraries/3rdparty/mbedtls/library/asn1parse.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/arc4.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/asn1parse.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/asn1parse.c</name>
+			<name>libraries/3rdparty/mbedtls/library/asn1write.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/asn1parse.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/asn1write.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/asn1write.c</name>
+			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/asn1write.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/base64.c</name>
+			<name>libraries/3rdparty/mbedtls/library/bignum.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/bignum.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/bignum.c</name>
+			<name>libraries/3rdparty/mbedtls/library/blowfish.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/bignum.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/blowfish.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/blowfish.c</name>
+			<name>libraries/3rdparty/mbedtls/library/camellia.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/blowfish.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/camellia.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/camellia.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ccm.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/camellia.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ccm.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ccm.c</name>
+			<name>libraries/3rdparty/mbedtls/library/certs.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ccm.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/certs.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/certs.c</name>
+			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/certs.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/cipher.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/cipher.c</name>
+			<name>libraries/3rdparty/mbedtls/library/cipher_wrap.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/cipher.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/cipher_wrap.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/cipher_wrap.c</name>
+			<name>libraries/3rdparty/mbedtls/library/cmac.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/cipher_wrap.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/cmac.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/cmac.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ctr_drbg.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/cmac.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ctr_drbg.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ctr_drbg.c</name>
+			<name>libraries/3rdparty/mbedtls/library/debug.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ctr_drbg.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/debug.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/debug.c</name>
+			<name>libraries/3rdparty/mbedtls/library/des.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/debug.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/des.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/des.c</name>
+			<name>libraries/3rdparty/mbedtls/library/dhm.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/des.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/dhm.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/dhm.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ecdh.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/dhm.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecdh.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ecdh.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ecdsa.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ecdh.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecdsa.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ecdsa.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ecjpake.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ecdsa.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecjpake.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ecjpake.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ecp.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ecjpake.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecp.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ecp.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ecp_curves.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ecp.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ecp_curves.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ecp_curves.c</name>
+			<name>libraries/3rdparty/mbedtls/library/entropy.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ecp_curves.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/entropy.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/entropy.c</name>
+			<name>libraries/3rdparty/mbedtls/library/entropy_poll.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/entropy.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/entropy_poll.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/entropy_poll.c</name>
+			<name>libraries/3rdparty/mbedtls/library/error.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/entropy_poll.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/error.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/error.c</name>
+			<name>libraries/3rdparty/mbedtls/library/gcm.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/error.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/gcm.c</name>
+			<name>libraries/3rdparty/mbedtls/library/havege.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/havege.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/havege.c</name>
+			<name>libraries/3rdparty/mbedtls/library/hmac_drbg.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/havege.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/hmac_drbg.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/hmac_drbg.c</name>
+			<name>libraries/3rdparty/mbedtls/library/md.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/hmac_drbg.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/md.c</name>
+			<name>libraries/3rdparty/mbedtls/library/md2.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/md.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md2.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/md2.c</name>
+			<name>libraries/3rdparty/mbedtls/library/md4.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/md2.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md4.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/md4.c</name>
+			<name>libraries/3rdparty/mbedtls/library/md5.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/md4.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/md5.c</name>
+			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/md_wrap.c</name>
+			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
+			<name>libraries/3rdparty/mbedtls/library/net_sockets.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/net_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/net_sockets.c</name>
+			<name>libraries/3rdparty/mbedtls/library/oid.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/net_sockets.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/oid.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/oid.c</name>
+			<name>libraries/3rdparty/mbedtls/library/padlock.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/oid.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/padlock.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/padlock.c</name>
+			<name>libraries/3rdparty/mbedtls/library/pem.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/padlock.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pem.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/pem.c</name>
+			<name>libraries/3rdparty/mbedtls/library/pk.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/pem.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pk.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/pk.c</name>
+			<name>libraries/3rdparty/mbedtls/library/pk_wrap.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/pk.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pk_wrap.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/pk_wrap.c</name>
+			<name>libraries/3rdparty/mbedtls/library/pkcs12.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/pk_wrap.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pkcs12.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/pkcs12.c</name>
+			<name>libraries/3rdparty/mbedtls/library/pkcs5.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/pkcs12.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pkcs5.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/pkcs5.c</name>
+			<name>libraries/3rdparty/mbedtls/library/pkparse.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/pkcs5.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pkparse.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/pkparse.c</name>
+			<name>libraries/3rdparty/mbedtls/library/pkwrite.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/pkparse.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/pkwrite.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/pkwrite.c</name>
+			<name>libraries/3rdparty/mbedtls/library/platform.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/pkwrite.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/platform.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/platform.c</name>
+			<name>libraries/3rdparty/mbedtls/library/platform_util.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/platform.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/platform_util.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/platform_util.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ripemd160.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/platform_util.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ripemd160.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ripemd160.c</name>
+			<name>libraries/3rdparty/mbedtls/library/rsa.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ripemd160.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/rsa.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/rsa.c</name>
+			<name>libraries/3rdparty/mbedtls/library/rsa_internal.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/rsa.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/rsa_internal.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/rsa_internal.c</name>
+			<name>libraries/3rdparty/mbedtls/library/sha1.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/rsa_internal.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/sha1.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/sha1.c</name>
+			<name>libraries/3rdparty/mbedtls/library/sha256.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/sha1.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/sha256.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/sha256.c</name>
+			<name>libraries/3rdparty/mbedtls/library/sha512.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/sha256.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/sha512.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/sha512.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_cache.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/sha512.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_cache.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ssl_cache.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ssl_cache.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_cli.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_cli.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ssl_cli.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_cookie.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ssl_cli.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_cookie.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ssl_cookie.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_srv.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ssl_cookie.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_srv.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ssl_srv.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_ticket.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ssl_srv.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_ticket.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ssl_ticket.c</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ssl_ticket.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/ssl_tls.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/ssl_tls.c</name>
+			<name>libraries/3rdparty/mbedtls/library/threading.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/ssl_tls.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/threading.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/threading.c</name>
+			<name>libraries/3rdparty/mbedtls/library/timing.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/threading.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/timing.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/timing.c</name>
+			<name>libraries/3rdparty/mbedtls/library/version.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/timing.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/version.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/version.c</name>
+			<name>libraries/3rdparty/mbedtls/library/version_features.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/version.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/version_features.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/version_features.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/version_features.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/x509.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/x509.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_create.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/x509.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/x509_create.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/x509_create.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_crl.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/x509_create.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/x509_crl.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/x509_crl.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_crt.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/x509_crl.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/x509_crt.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/x509_crt.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_csr.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/x509_crt.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/x509_csr.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/x509_csr.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509write_crt.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/x509_csr.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/x509write_crt.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/x509write_crt.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509write_csr.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/x509write_crt.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/x509write_csr.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/x509write_csr.c</name>
+			<name>libraries/3rdparty/mbedtls/library/xtea.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/x509write_csr.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/library/xtea.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aesni.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/aesni.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/aesni.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/aesni.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/base64.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/base64.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/base64.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/bignum.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/base64.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/bignum.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/bignum.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/blowfish.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/bignum.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/blowfish.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/blowfish.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/blowfish.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/camellia.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/camellia.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/camellia.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ccm.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/camellia.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ccm.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ccm.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/certs.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ccm.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/cipher.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/cipher.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/cipher.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/cipher.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/compat-1.3.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/compat-1.3.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/compat-1.3.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/compat-1.3.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/config.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/config.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/config.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/debug.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/debug.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/debug.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/des.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/debug.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/des.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/des.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/dhm.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/des.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/dhm.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/dhm.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecdh.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/dhm.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ecdh.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ecdh.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecdsa.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ecdh.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ecdsa.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ecdsa.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecjpake.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ecdsa.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ecjpake.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ecjpake.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecp.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ecjpake.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ecp.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ecp.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecp_internal.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ecp.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ecp_internal.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ecp_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/entropy.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ecp_internal.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/entropy.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/entropy.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/entropy_poll.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/entropy.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/entropy_poll.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/entropy_poll.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/error.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/entropy_poll.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/error.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/havege.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/md.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/md.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md2.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/md.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/md2.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/md2.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md4.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/md2.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/md4.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/md4.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md5.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/md4.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/md5.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/md5.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md_internal.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/md5.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/md_internal.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/md_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/memory_buffer_alloc.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/md_internal.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/memory_buffer_alloc.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/memory_buffer_alloc.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/net.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/memory_buffer_alloc.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/net.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/net.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/net.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/oid.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/padlock.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/padlock.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/padlock.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pem.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/padlock.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pem.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/pem.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pk.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/pem.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pk.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/pk.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/pk.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs5.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/pkcs5.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/pkcs5.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/pkcs5.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/platform.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/platform.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_time.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/platform.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/platform_time.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/platform_time.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/platform_time.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/rsa.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/rsa.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/rsa.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/rsa_internal.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/rsa.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/rsa_internal.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/rsa_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/sha1.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/rsa_internal.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/sha1.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/sha1.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/sha256.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/sha1.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/sha256.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/sha256.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/sha512.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/sha256.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/sha512.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/sha512.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/sha512.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ssl.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_cache.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cache.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cache.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_ciphersuites.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cache.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ciphersuites.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ciphersuites.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_cookie.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ciphersuites.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cookie.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cookie.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_internal.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cookie.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ssl_internal.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_ticket.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_internal.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ticket.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ticket.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/threading.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ticket.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/threading.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/threading.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/timing.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/threading.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/timing.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/timing.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/version.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/timing.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/version.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/version.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/version.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/x509.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/x509.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509_crl.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/x509.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/x509_crl.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/x509_crl.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509_crt.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/x509_crl.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/x509_crt.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/x509_crt.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509_csr.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/x509_crt.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/x509_csr.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/x509_csr.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/x509_csr.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
+			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/jsmn/jsmn.h</name>
+			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/jsmn/jsmn.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/jsmn/jsmn.c</name>
+			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/jsmn/jsmn.c</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/pkcs11/pkcs11.h</name>
+			<name>libraries/3rdparty/jsmn/jsmn.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/jsmn/jsmn.h</locationURI>
 		</link>
 		<link>
-			<name>modules/libraries/3rdparty/pkcs11/pkcs11f.h</name>
+			<name>libraries/3rdparty/jsmn/jsmn.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
-		</link>
-		<link>
-			<name>modules/libraries/3rdparty/pkcs11/pkcs11t.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/modules/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
+			<locationURI>BASE_DIR/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources>
-		<filter>
-			<id>1523257887577</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-bufferpool</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887583</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-crypto</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887588</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-FreeRTOS</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887593</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-greengrass</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887600</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-include</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887620</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-mqtt</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887626</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-shadow</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887632</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-tls</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887637</id>
-			<name>lib/aws</name>
-			<type>9</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-utils</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523257887643</id>
-			<name>lib/aws</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-directories.txt</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523254825877</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>13</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-GCC</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523254825885</id>
-			<name>lib/aws/FreeRTOS/portable</name>
-			<type>13</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-MemMang</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523255071898</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-aws_mqtt_lib_private.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523255071902</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-aws_mqtt_lib_private.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523255071907</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-aws_greengrass_lib_private.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523255071911</id>
-			<name>lib/aws/include/private</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-aws_greengrass_lib_private.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523387108496</id>
-			<name>lib/third_party/mcu_vendor/CMSIS</name>
-			<type>13</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-system_LPC54018*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523387108501</id>
-			<name>lib/third_party/mcu_vendor/CMSIS</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-LPC54018.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523387108506</id>
-			<name>lib/third_party/mcu_vendor/CMSIS</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-LPC54018_features.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523387108512</id>
-			<name>lib/third_party/mcu_vendor/CMSIS</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_device_registers.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589563</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-mflash_drv*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589568</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-mflash_file*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589572</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_clock*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589577</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_common*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589581</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_dma*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589586</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_emc*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589590</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_flexcomm*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589595</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_gpio*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589599</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_inputmux*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589604</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_iocon.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589608</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_pint*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589620</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_power*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589624</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_reset*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589629</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_rng.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589634</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_sha*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589639</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_spi_dma*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589643</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_spi.*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589648</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_spifi*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377589653</id>
-			<name>lib/third_party/mcu_vendor/drivers</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_usart.*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523381933875</id>
-			<name>lib/third_party/mcu_vendor/libs</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-libpower_hardabi.a</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523381933881</id>
-			<name>lib/third_party/mcu_vendor/libs</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-libpower_softabi.a</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523382097312</id>
-			<name>lib/third_party/mcu_vendor/startup</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-startup_lpc54018.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377062623</id>
-			<name>lib/third_party/mcu_vendor/utilities</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_ucwxp.inf</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377062627</id>
-			<name>lib/third_party/mcu_vendor/utilities</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-virtual_com_readme.pdf</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377062632</id>
-			<name>lib/third_party/mcu_vendor/utilities</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_shell*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523377062637</id>
-			<name>lib/third_party/mcu_vendor/utilities</name>
-			<type>6</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-fsl_notifier*</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523254908180</id>
-			<name>lib/aws/FreeRTOS/portable/GCC</name>
-			<type>13</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-ARM_CM4F</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523254931520</id>
-			<name>lib/aws/FreeRTOS/portable/MemMang</name>
-			<type>13</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-heap_4.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523376164873</id>
-			<name>lib/third_party/mcu_vendor/middleware/osa</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-usb_osa_freertos.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523376164878</id>
-			<name>lib/third_party/mcu_vendor/middleware/osa</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-usb_osa_freertos.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523376164883</id>
-			<name>lib/third_party/mcu_vendor/middleware/osa</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-usb_osa.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523292908284</id>
-			<name>lib/third_party/mcu_vendor/middleware/wifi_qca/port</name>
-			<type>10</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-boards</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523376106149</id>
-			<name>lib/third_party/mcu_vendor/middleware/usb/device/include</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-usb_device.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523375958209</id>
-			<name>lib/third_party/mcu_vendor/middleware/usb/device/source</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-usb_device_dci.h</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523375958214</id>
-			<name>lib/third_party/mcu_vendor/middleware/usb/device/source</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-false-false-usb_device_dci.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523376034337</id>
-			<name>lib/third_party/mcu_vendor/middleware/usb/device/source/lpcip</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-usb_device_lpcip3511.c</arguments>
-			</matcher>
-		</filter>
-		<filter>
-			<id>1523376034343</id>
-			<name>lib/third_party/mcu_vendor/middleware/usb/device/source/lpcip</name>
-			<type>5</type>
-			<matcher>
-				<id>org.eclipse.ui.ide.multiFilter</id>
-				<arguments>1.0-name-matches-true-false-usb_device_lpcip3511.h</arguments>
-			</matcher>
-		</filter>
-	</filteredResources>
+	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>BASE_DIR</name>
-			<value>$%7BPARENT-6-PROJECT_LOC%7D</value>
+			<value>$%7BPARENT-5-PROJECT_LOC%7D</value>
 		</variable>
 	</variableList>
 </projectDescription>

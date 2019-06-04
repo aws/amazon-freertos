@@ -204,6 +204,11 @@ target_include_directories(
 )
 
 # POSIX
+
+# TODO: Compile error with mcuxpresso tool chain
+# "time_t" is already defined in the redlib
+if(${AFR_TOOLCHAIN} STREQUAL "arm-iar")
+
 afr_mcu_port(posix)
 
 target_sources(
@@ -220,6 +225,8 @@ target_link_libraries(
     AFR::posix::mcu_port
     INTERFACE AFR::freertos_plus_posix
 )
+
+endif()
 
 # WiFi
 afr_mcu_port(wifi)
@@ -291,3 +298,12 @@ target_link_libraries(
         AFR::wifi
         AFR::utils
 )
+
+# TODO: tinycbor cannot compile because inttypes.h doesn't exist
+if(${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
+afr_module_dependencies(
+    serializer
+    PRIVATE
+        3rdparty::dummy
+)
+endif()
