@@ -14,10 +14,10 @@ endif()
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "mw320")
-    include("MW320.cmake")
+    include("mw320.cmake")
 endif()
 if("${AFR_BOARD_NAME}" STREQUAL "mw322")
-    include("MW322.cmake")
+    include("mw322.cmake")
 endif()
 
 # -------------------------------------------------------------------------------------------------
