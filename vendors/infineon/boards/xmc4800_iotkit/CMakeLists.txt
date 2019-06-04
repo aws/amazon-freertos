@@ -68,7 +68,7 @@ set( compiler_arm_options "-mfloat-abi=softfp" "-mcpu=cortex-m4" "-mfpu=fpv4-sp-
 
 #Set other compiler options and flags
 set( compiler_misc_options
-     "-std=gnu99"
+     "-std=c99"
      "-c"
      "-fmessage-length=0"
 )

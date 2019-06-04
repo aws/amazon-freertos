@@ -31,14 +31,28 @@
 #ifndef _FREERTOS_POSIX_PORTABLE_H_
 #define _FREERTOS_POSIX_PORTABLE_H_
 
-/* Following POSIX types are supported by the tool chain. 
- * This disables FreeRTOS definitions.
- */
-#define posixconfigENABLE_CLOCKID_T         0
+#include <sys/types.h>
+
 #define posixconfigENABLE_MODE_T            0
+
+/*
+ * Following POSIX config overrides are required for older GCC versions. 
+ */
+#ifdef __clockid_t_defined
+#define posixconfigENABLE_CLOCKID_T         0
+#endif
+
+#ifdef __time_t_defined
 #define posixconfigENABLE_TIME_T            0
+#endif
+
+#ifdef __timer_t_defined
 #define posixconfigENABLE_TIMER_T           0
+#endif
+
+#ifdef __timespec_defined
 #define posixconfigENABLE_ITIMERSPEC        0
 #define posixconfigENABLE_TIMESPEC          0
+#endif
 
 #endif /* _FREERTOS_POSIX_PORTABLE_H_ */
