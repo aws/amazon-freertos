@@ -336,9 +336,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--C99</MiscControls>
-              <Define>PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1 AMAZON_FREERTOS_ENABLE_UNIT_TESTS</Define>
+              <Define>PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1 __little_endian__=1 AMAZON_FREERTOS_ENABLE_UNIT_TESTS</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/lwip/src/portable/mediatek/include;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip/src/portable;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/freertos_plus/standard/provisioning/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/3rdparty/lwip/src/include/lwip;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/jsmn;</IncludePath>
+              <IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/lwip/src/portable/mediatek/include;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip/src/portable;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/freertos_plus/standard/provisioning/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/3rdparty/lwip/src/include/lwip;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/jsmn</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1700,6 +1700,51 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>libraries/c_sdk/aws/defender/src/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_defender_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_collector.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_v1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/aws/defender/src/private/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_defender_internal.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/aws/defender/include/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_defender.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/include/aws_iot_defender.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>libraries/c_sdk/standard/mqtt/src/</GroupName>
           <Files>
             <File>
@@ -1741,6 +1786,121 @@
               <FileName>aws_mqtt_agent.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/standard/serializer/src/cbor/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_serializer_tinycbor_decoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_serializer_tinycbor_encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/standard/serializer/src/json/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_serializer_json_decoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_serializer_json_encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/standard/serializer/src/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_serializer_static_memory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_json_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/standard/serializer/include/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_serializer.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/include/iot_serializer.h</FilePath>
+            </File>
+            <File>
+              <FileName>iot_json_utils.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/include/iot_json_utils.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/aws/shadow/src/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_shadow_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_operation.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_parser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_static_memory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_shadow_subscription.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_shadow.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_shadow_config_defaults.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/aws/shadow/include/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_shadow.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</FilePath>
+            </File>
+            <File>
+              <FileName>aws_shadow.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/include/aws_shadow.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1790,6 +1950,51 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>libraries/c_sdk/aws/defender/test/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_tests_defender_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/aws/shadow/test/unit/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_tests_shadow_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_tests_shadow_parser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_parser.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/aws/shadow/test/system/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_iot_tests_shadow_system.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/test/system/aws_iot_tests_shadow_system.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/c_sdk/aws/shadow/test/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_test_shadow.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/shadow/test/aws_test_shadow.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>libraries/c_sdk/standard/common/test/</GroupName>
           <Files>
             <File>
@@ -1830,6 +2035,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>libraries/c_sdk/standard/mqtt/test/system/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_tests_mqtt_system.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>libraries/c_sdk/standard/mqtt/test/</GroupName>
           <Files>
             <File>
@@ -1840,12 +2055,17 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/standard/mqtt/test/system/</GroupName>
+          <GroupName>libraries/c_sdk/standard/serializer/test/</GroupName>
           <Files>
             <File>
-              <FileName>iot_tests_mqtt_system.c</FileName>
+              <FileName>iot_tests_serializer_cbor.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</FilePath>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_tests_serializer_json.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2896,6 +3116,41 @@
               <FileName>pkcs11t.h</FileName>
               <FileType>5</FileType>
               <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/3rdparty/tinycbor/</GroupName>
+          <Files>
+            <File>
+              <FileName>cborpretty.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/tinycbor/cborpretty.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborencoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborencoder_close_container_checked.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborerrorstrings.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/tinycbor/cborerrorstrings.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborparser.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser.c</FilePath>
+            </File>
+            <File>
+              <FileName>cborparser_dup_string.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/tinycbor/cborparser_dup_string.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -14,9 +14,6 @@ else()
     set(exe_target aws_demos)
 endif()
 
-#Ensure Defender is not included in build
-set(AFR_MODULE_defender 0 CACHE INTERNAL "")
-
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
@@ -71,6 +68,8 @@ target_compile_definitions(
     -DHAL_DFS_MODULE_ENABLED
     -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
+    # Needed by tinycbor to determine byte order
+    __little_endian__=1
 )
 target_compile_definitions(
     AFR::compiler::mcu_port
@@ -427,11 +426,4 @@ target_link_libraries(
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
-)
-
-# TODO: Serializer is disabled temporarily because tinycbor doesn't compile on mediatek
-afr_module_dependencies(
-    serializer
-    PRIVATE
-        3rdparty::dummy
 )
