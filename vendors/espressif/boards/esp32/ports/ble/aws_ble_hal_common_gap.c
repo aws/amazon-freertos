@@ -46,7 +46,7 @@ BTProperties_t xProperties;
 uint32_t ulGAPEvtMngHandle;
 static BTCallbacks_t xBTCallbacks;
 
-static BTSecurityLevel_t prvConvertESPauthModeToSecurityLevel(esp_ble_auth_req_t xAuthMode);
+static BTSecurityLevel_t prvConvertESPauthModeToSecurityLevel( esp_ble_auth_req_t xAuthMode );
 BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks );
 BTStatus_t prvBtManagerCleanup( void );
 BTStatus_t prvBTEnable( uint8_t ucGuestMode );
@@ -67,7 +67,8 @@ BTStatus_t prvBTCreateBondOutOfBand( const BTBdaddr_t * pxBdAddr,
                                      const BTOutOfBandData_t * pxOobData );
 BTStatus_t prvBTCancelBond( const BTBdaddr_t * pxBdAddr );
 BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr );
-BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState );
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr,
+                                    bool * bConnectionState );
 BTStatus_t prvBTPinReply( const BTBdaddr_t * pxBdAddr,
                           uint8_t ucAccept,
                           uint8_t ucPinLen,
@@ -131,7 +132,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BTSecurityLevel_t xSecurityLevel;
-	BTBondState_t xBondedState;
+    BTBondState_t xBondedState;
 
     switch( event )
     {
@@ -227,34 +228,36 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
          * case ESP_GAP_BLE_GET_BOND_DEV_COMPLETE_EVT:*/
         case ESP_GAP_BLE_AUTH_CMPL_EVT:
             xBondedState = eBTbondStateNone;
-			if( param->ble_security.auth_cmpl.success == true )
-			{
-				xStatus = eBTStatusSuccess;
-				xSecurityLevel = prvConvertESPauthModeToSecurityLevel(param->ble_security.auth_cmpl.auth_mode);
 
-				if( xProperties.bBondable == true )
-				{
-					xBondedState = eBTbondStateBonded;
-					if( xBTCallbacks.pxBondedCb != NULL )
-					{
-						xBTCallbacks.pxBondedCb( xStatus,
-												 ( BTBdaddr_t * ) &param->ble_security.auth_cmpl.bd_addr,
-												 true );
-					}
-				}
-			}
-			else
-			{
-				xStatus = eBTStatusFail;
-				xSecurityLevel = eBTSecLevelNoSecurity;
-			}
+            if( param->ble_security.auth_cmpl.success == true )
+            {
+                xStatus = eBTStatusSuccess;
+                xSecurityLevel = prvConvertESPauthModeToSecurityLevel( param->ble_security.auth_cmpl.auth_mode );
+
+                if( xProperties.bBondable == true )
+                {
+                    xBondedState = eBTbondStateBonded;
+
+                    if( xBTCallbacks.pxBondedCb != NULL )
+                    {
+                        xBTCallbacks.pxBondedCb( xStatus,
+                                                 ( BTBdaddr_t * ) &param->ble_security.auth_cmpl.bd_addr,
+                                                 true );
+                    }
+                }
+            }
+            else
+            {
+                xStatus = eBTStatusFail;
+                xSecurityLevel = eBTSecLevelNoSecurity;
+            }
 
             if( xBTCallbacks.pxPairingStateChangedCb != NULL )
             {
                 xBTCallbacks.pxPairingStateChangedCb( xStatus,
                                                       ( BTBdaddr_t * ) &param->ble_security.auth_cmpl.bd_addr,
                                                       xBondedState,
-													  xSecurityLevel,
+                                                      xSecurityLevel,
                                                       0 );
             }
 
@@ -262,6 +265,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 
         case ESP_GAP_BLE_KEY_EVT:
             break;
+
         case ESP_GAP_BLE_PASSKEY_NOTIF_EVT:
 
             if( xBTCallbacks.pxSspRequestCb != NULL )
@@ -269,11 +273,12 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                 xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) &param->ble_security.ble_req.bd_addr,
                                              NULL,
                                              0,
-											 eBTsspVariantPasskeyNotification,
+                                             eBTsspVariantPasskeyNotification,
                                              0 );
             }
 
             break;
+
         case ESP_GAP_BLE_PASSKEY_REQ_EVT:
 
             if( xBTCallbacks.pxSspRequestCb != NULL )
@@ -281,12 +286,12 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                 xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) &param->ble_security.ble_req.bd_addr,
                                              NULL,
                                              0,
-											 eBTsspVariantPasskeyEntry,
+                                             eBTsspVariantPasskeyEntry,
                                              0 );
             }
 
-
             break;
+
         case ESP_GAP_BLE_NC_REQ_EVT:
 
             if( xBTCallbacks.pxSspRequestCb != NULL )
@@ -294,11 +299,12 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                 xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) &param->ble_security.ble_req.bd_addr,
                                              NULL,
                                              0,
-											 eBTsspVariantPasskeyConfirmation,
-											 param->ble_security.key_notif.passkey );
+                                             eBTsspVariantPasskeyConfirmation,
+                                             param->ble_security.key_notif.passkey );
             }
 
             break;
+
         case ESP_GAP_BLE_SEC_REQ_EVT:
 
             if( xBTCallbacks.pxSspRequestCb != NULL )
@@ -311,87 +317,156 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             }
 
             break;
+
         default:
             break;
     }
-
 }
 
 /*
-BTAuthFailureReason_t prvESPFailPairingReasonsToBTAuthFailingReasons(uint8_t ucESPFailPairing)
+ * BTAuthFailureReason_t prvESPFailPairingReasonsToBTAuthFailingReasons(uint8_t ucESPFailPairing)
+ * {
+ *  BTAuthFailureReason_t xFailAuth;
+ *
+ *  switch(ucESPFailPairing)
+ *  {
+ *      case BTA_DM_AUTH_SMP_PASSKEY_FAIL      :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_OOB_FAIL                :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_PAIR_AUTH_FAIL          :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_CONFIRM_VALUE_FAIL       :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_PAIR_NOT_SUPPORT        :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_ENC_KEY_SIZE            :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_INVALID_CMD             :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_UNKNOWN_ERR       :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_REPEATED_ATTEMPT       :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_INVALID_PARAMETERS      :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_INTERNAL_ERR          :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_UNKNOWN_IO     :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_INIT_FAIL      :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_CONFIRM_FAIL :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_BUSY     :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_ENC_FAIL      :xFailAuth =  break;
+ *      case BTA_DM_AUTH_SMP_RSP_TIMEOUT :xFailAuth =  break;
+ *      default:xFailAuth break;
+ *  }
+ * } */
+
+BTStatus_t prvConvertESPStatusToBTStatus( esp_bt_status_t xESPStatus )
 {
-	BTAuthFailureReason_t xFailAuth;
+    BTStatus_t xStatus;
 
-	switch(ucESPFailPairing)
-	{
-		case BTA_DM_AUTH_SMP_PASSKEY_FAIL      :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_OOB_FAIL                :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_PAIR_AUTH_FAIL          :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_CONFIRM_VALUE_FAIL       :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_PAIR_NOT_SUPPORT        :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_ENC_KEY_SIZE            :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_INVALID_CMD             :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_UNKNOWN_ERR       :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_REPEATED_ATTEMPT       :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_INVALID_PARAMETERS      :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_INTERNAL_ERR          :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_UNKNOWN_IO     :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_INIT_FAIL      :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_CONFIRM_FAIL :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_BUSY     :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_ENC_FAIL      :xFailAuth =  break;
-		case BTA_DM_AUTH_SMP_RSP_TIMEOUT :xFailAuth =  break;
-		default:xFailAuth break;
-	}
-} */
+    switch( xESPStatus )
+    {
+        case ESP_BT_STATUS_SUCCESS:
+            xStatus = eBTStatusSuccess;
+            break;
 
-BTStatus_t prvConvertESPStatusToBTStatus(esp_bt_status_t xESPStatus )
-{
-	BTStatus_t xStatus;
-	switch(xESPStatus)
-	{
-		case ESP_BT_STATUS_SUCCESS                              :xStatus = eBTStatusSuccess;break;
-		case ESP_BT_STATUS_FAIL                                 :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_NOT_READY                            :xStatus = eBTStatusNotReady;break;
-		case ESP_BT_STATUS_NOMEM                                :xStatus = eBTStatusNoMem;break;
-		case ESP_BT_STATUS_BUSY                                 :xStatus = eBTStatusBusy;break;
-		case ESP_BT_STATUS_DONE                                 :xStatus = eBTStatusDone;break;
-		case ESP_BT_STATUS_UNSUPPORTED                          :xStatus = eBTStatusUnsupported;break;
-		case ESP_BT_STATUS_PARM_INVALID                         :xStatus = eBTStatusParamInvalid;break;
-		case ESP_BT_STATUS_UNHANDLED                            :xStatus = eBTStatusUnHandled;break;
-		case ESP_BT_STATUS_AUTH_FAILURE                         :xStatus = eBTStatusAuthFailure;break;
-		case ESP_BT_STATUS_RMT_DEV_DOWN                         :xStatus = eBTStatusRMTDevDown;break;
-		case ESP_BT_STATUS_AUTH_REJECTED                        :xStatus = eBTStatusAuthRejected;break;
-		case ESP_BT_STATUS_INVALID_STATIC_RAND_ADDR             :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_PENDING                              :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_UNACCEPT_CONN_INTERVAL               :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_PARAM_OUT_OF_RANGE                   :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_TIMEOUT                              :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_PEER_LE_DATA_LEN_UNSUPPORTED         :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_CONTROL_LE_DATA_LEN_UNSUPPORTED      :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_ERR_ILLEGAL_PARAMETER_FMT            :xStatus = eBTStatusFail;break;
-		case ESP_BT_STATUS_MEMORY_FULL                          :xStatus = eBTStatusFail;break;
-		default:xStatus = eBTStatusFail;break;
-	}
+        case ESP_BT_STATUS_FAIL:
+            xStatus = eBTStatusFail;
+            break;
 
-	return xStatus;
+        case ESP_BT_STATUS_NOT_READY:
+            xStatus = eBTStatusNotReady;
+            break;
+
+        case ESP_BT_STATUS_NOMEM:
+            xStatus = eBTStatusNoMem;
+            break;
+
+        case ESP_BT_STATUS_BUSY:
+            xStatus = eBTStatusBusy;
+            break;
+
+        case ESP_BT_STATUS_DONE:
+            xStatus = eBTStatusDone;
+            break;
+
+        case ESP_BT_STATUS_UNSUPPORTED:
+            xStatus = eBTStatusUnsupported;
+            break;
+
+        case ESP_BT_STATUS_PARM_INVALID:
+            xStatus = eBTStatusParamInvalid;
+            break;
+
+        case ESP_BT_STATUS_UNHANDLED:
+            xStatus = eBTStatusUnHandled;
+            break;
+
+        case ESP_BT_STATUS_AUTH_FAILURE:
+            xStatus = eBTStatusAuthFailure;
+            break;
+
+        case ESP_BT_STATUS_RMT_DEV_DOWN:
+            xStatus = eBTStatusRMTDevDown;
+            break;
+
+        case ESP_BT_STATUS_AUTH_REJECTED:
+            xStatus = eBTStatusAuthRejected;
+            break;
+
+        case ESP_BT_STATUS_INVALID_STATIC_RAND_ADDR:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_PENDING:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_UNACCEPT_CONN_INTERVAL:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_PARAM_OUT_OF_RANGE:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_TIMEOUT:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_PEER_LE_DATA_LEN_UNSUPPORTED:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_CONTROL_LE_DATA_LEN_UNSUPPORTED:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_ERR_ILLEGAL_PARAMETER_FMT:
+            xStatus = eBTStatusFail;
+            break;
+
+        case ESP_BT_STATUS_MEMORY_FULL:
+            xStatus = eBTStatusFail;
+            break;
+
+        default:
+            xStatus = eBTStatusFail;
+            break;
+    }
+
+    return xStatus;
 }
 
-BTSecurityLevel_t prvConvertESPauthModeToSecurityLevel(esp_ble_auth_req_t xAuthMode)
+BTSecurityLevel_t prvConvertESPauthModeToSecurityLevel( esp_ble_auth_req_t xAuthMode )
 {
-	BTSecurityLevel_t xSecurityLevel = eBTSecLevelNoSecurity;
+    BTSecurityLevel_t xSecurityLevel = eBTSecLevelNoSecurity;
 
-	if(((xAuthMode & ESP_LE_AUTH_REQ_SC_ONLY) != 0)&&((xAuthMode & ESP_LE_AUTH_REQ_MITM) != 0))
-	{
-		xSecurityLevel = eBTSecLevelSecureConnect;
-	}else if((xAuthMode & ESP_LE_AUTH_REQ_MITM) != 0) /* only legacy MITM has been used */
-	{
-		xSecurityLevel = eBTSecLevelAuthenticatedPairing;
-	}else
-	{
-		xSecurityLevel = eBTSecLevelUnauthenticatedPairing;
-	}
-	return xSecurityLevel;
+    if( ( ( xAuthMode & ESP_LE_AUTH_REQ_SC_ONLY ) != 0 ) && ( ( xAuthMode & ESP_LE_AUTH_REQ_MITM ) != 0 ) )
+    {
+        xSecurityLevel = eBTSecLevelSecureConnect;
+    }
+    else if( ( xAuthMode & ESP_LE_AUTH_REQ_MITM ) != 0 ) /* only legacy MITM has been used */
+    {
+        xSecurityLevel = eBTSecLevelAuthenticatedPairing;
+    }
+    else
+    {
+        xSecurityLevel = eBTSecLevelUnauthenticatedPairing;
+    }
+
+    return xSecurityLevel;
 }
 
 /*-----------------------------------------------------------*/
@@ -482,7 +557,7 @@ BTStatus_t prvBTGetAllDeviceProperties()
 }
 
 /*-----------------------------------------------------------*/
-BTStatus_t prvGetBondableDeviceList(void)
+BTStatus_t prvGetBondableDeviceList( void )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     int usNbDevices;
@@ -491,37 +566,42 @@ BTStatus_t prvGetBondableDeviceList(void)
     BTProperty_t xBondedDevices;
     esp_err_t xESPStatus;
 
-	usNbDevices = esp_ble_get_bond_device_num();
-	pxESPDevlist =  pvPortMalloc(sizeof(esp_ble_bond_dev_t)*usNbDevices);
-	xBondedDevices.pvVal =  pvPortMalloc(sizeof(BTBdaddr_t)*usNbDevices);
-	if(pxESPDevlist != NULL)
-	{
-		xESPStatus = esp_ble_get_bond_device_list(&usNbDevices, pxESPDevlist);
-		if(xESPStatus == ESP_OK)
-		{
-			for(usIndex = 0; usIndex < usNbDevices; usIndex++)
-			{
-				memcpy(&((BTBdaddr_t *)xBondedDevices.pvVal)[usIndex], &pxESPDevlist[usIndex].bd_addr, sizeof(BTBdaddr_t));
-			}
-			xBondedDevices.xLen = usNbDevices;
-			xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
+    usNbDevices = esp_ble_get_bond_device_num();
+    pxESPDevlist = pvPortMalloc( sizeof( esp_ble_bond_dev_t ) * usNbDevices );
+    xBondedDevices.pvVal = pvPortMalloc( sizeof( BTBdaddr_t ) * usNbDevices );
 
-			xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xBondedDevices);
-			vPortFree(pxESPDevlist);
-			vPortFree(xBondedDevices.pvVal);
-		}else
-		{
-			xStatus = eBTStatusFail;
-		}
-	}else
-	{
-		xBondedDevices.xLen = 0;
-		xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
-		xBondedDevices.pvVal = NULL;
-		xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xBondedDevices);
-	}
+    if( pxESPDevlist != NULL )
+    {
+        xESPStatus = esp_ble_get_bond_device_list( &usNbDevices, pxESPDevlist );
 
-	return xStatus;
+        if( xESPStatus == ESP_OK )
+        {
+            for( usIndex = 0; usIndex < usNbDevices; usIndex++ )
+            {
+                memcpy( &( ( BTBdaddr_t * ) xBondedDevices.pvVal )[ usIndex ], &pxESPDevlist[ usIndex ].bd_addr, sizeof( BTBdaddr_t ) );
+            }
+
+            xBondedDevices.xLen = usNbDevices;
+            xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
+
+            xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xBondedDevices );
+            vPortFree( pxESPDevlist );
+            vPortFree( xBondedDevices.pvVal );
+        }
+        else
+        {
+            xStatus = eBTStatusFail;
+        }
+    }
+    else
+    {
+        xBondedDevices.xLen = 0;
+        xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
+        xBondedDevices.pvVal = NULL;
+        xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xBondedDevices );
+    }
+
+    return xStatus;
 }
 
 
@@ -536,9 +616,10 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
 
         switch( xType )
         {
-        	case eBTpropertyAdapterBondedDevices:
-        		xStatus = prvGetBondableDeviceList();
-        		break;
+            case eBTpropertyAdapterBondedDevices:
+                xStatus = prvGetBondableDeviceList();
+                break;
+
             case eBTpropertyBdname:
                 xStatus = eBTStatusUnsupported;
                 break;
@@ -556,27 +637,29 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
                 break;
 
             case eBTpropertyBondable:
-            	xReturnedProperty.xLen = sizeof(bool);
-            	xReturnedProperty.xType = eBTpropertyBondable;
-            	xReturnedProperty.pvVal = (void *)&xProperties.bBondable;
+                xReturnedProperty.xLen = sizeof( bool );
+                xReturnedProperty.xType = eBTpropertyBondable;
+                xReturnedProperty.pvVal = ( void * ) &xProperties.bBondable;
 
-            	xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xReturnedProperty);
+                xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xReturnedProperty );
                 break;
 
             case eBTpropertyIO:
-            	xReturnedProperty.xLen = sizeof(BTIOtypes_t);
-            	xReturnedProperty.xType = eBTpropertyIO;
-            	xReturnedProperty.pvVal = (void *)&xProperties.xPropertyIO;
+                xReturnedProperty.xLen = sizeof( BTIOtypes_t );
+                xReturnedProperty.xType = eBTpropertyIO;
+                xReturnedProperty.pvVal = ( void * ) &xProperties.xPropertyIO;
 
-            	xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xReturnedProperty);
+                xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xReturnedProperty );
                 break;
-            case eBTpropertySecureConnectionOnly:
-            	xReturnedProperty.xLen = sizeof(bool);
-            	xReturnedProperty.xType = eBTpropertySecureConnectionOnly;
-            	xReturnedProperty.pvVal = (void *)&xProperties.bSecureConnectionOnly;
 
-            	xBTCallbacks.pxAdapterPropertiesCb(eBTStatusSuccess, 1, &xReturnedProperty);
-            	break;
+            case eBTpropertySecureConnectionOnly:
+                xReturnedProperty.xLen = sizeof( bool );
+                xReturnedProperty.xType = eBTpropertySecureConnectionOnly;
+                xReturnedProperty.pvVal = ( void * ) &xProperties.bSecureConnectionOnly;
+
+                xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xReturnedProperty );
+                break;
+
             default:
                 xStatus = eBTStatusUnsupported;
         }
@@ -650,8 +733,8 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
 
         case eBTpropertyBondable:
 
-            xProperties.bBondable =  *( ( bool * ) pxProperty->pvVal ); /* update flag */
-            xStatus = prvToggleBondableFlag(xProperties.bBondable);
+            xProperties.bBondable = *( ( bool * ) pxProperty->pvVal ); /* update flag */
+            xStatus = prvToggleBondableFlag( xProperties.bBondable );
 
             if( ( xBTCallbacks.pxAdapterPropertiesCb != NULL ) && ( xStatus == eBTStatusSuccess ) )
             {
@@ -662,8 +745,8 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
 
         case eBTpropertyIO:
 
-        	xProperties.xPropertyIO = *( ( BTIOtypes_t * ) pxProperty->pvVal );
-        	xStatus = prvSetIOs(xProperties.xPropertyIO);
+            xProperties.xPropertyIO = *( ( BTIOtypes_t * ) pxProperty->pvVal );
+            xStatus = prvSetIOs( xProperties.xPropertyIO );
 
             if( ( xBTCallbacks.pxAdapterPropertiesCb != NULL ) && ( xStatus == eBTStatusSuccess ) )
             {
@@ -671,15 +754,18 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
             }
 
             break;
+
         case eBTpropertySecureConnectionOnly:
-        	xProperties.bSecureConnectionOnly = *( ( bool * ) pxProperty->pvVal ); /* update flag */
-        	xStatus = prvToggleSecureConnectionOnlyMode(xProperties.bSecureConnectionOnly);
+            xProperties.bSecureConnectionOnly = *( ( bool * ) pxProperty->pvVal ); /* update flag */
+            xStatus = prvToggleSecureConnectionOnlyMode( xProperties.bSecureConnectionOnly );
 
             if( ( xBTCallbacks.pxAdapterPropertiesCb != NULL ) && ( xStatus == eBTStatusSuccess ) )
             {
                 xBTCallbacks.pxAdapterPropertiesCb( xStatus, 1, ( BTProperty_t * ) pxProperty );
             }
+
             break;
+
         default:
             xStatus = eBTStatusUnsupported;
     }
@@ -754,7 +840,8 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr , bool * bConnectionState )
+BTStatus_t prvBTGetConnectionState( const BTBdaddr_t * pxBdAddr,
+                                    bool * bConnectionState )
 {
     return 0;
 }
@@ -779,20 +866,25 @@ BTStatus_t prvBTSspReply( const BTBdaddr_t * pxBdAddr,
     BTStatus_t xStatus = eBTStatusSuccess;
     esp_err_t xESPstatus = ESP_OK;
 
-    switch(xVariant)
+    switch( xVariant )
     {
-    case eBTsspVariantPasskeyConfirmation:
-    	xESPstatus =  esp_ble_confirm_reply(( uint8_t * ) ( pxBdAddr->ucAddress ), ucAccept);
-    	break;
-    case eBTsspVariantPasskeyEntry:
-    	xESPstatus = esp_ble_passkey_reply(( uint8_t * ) ( pxBdAddr->ucAddress ), ucAccept, ulPasskey );
-    	break;
-    case eBTsspVariantConsent:
-    	xESPstatus = esp_ble_gap_security_rsp( ( uint8_t * ) ( pxBdAddr->ucAddress ), ucAccept );
-    	break;
-    case eBTsspVariantPasskeyNotification:
-    	break;
-    default:break;
+        case eBTsspVariantPasskeyConfirmation:
+            xESPstatus = esp_ble_confirm_reply( ( uint8_t * ) ( pxBdAddr->ucAddress ), ucAccept );
+            break;
+
+        case eBTsspVariantPasskeyEntry:
+            xESPstatus = esp_ble_passkey_reply( ( uint8_t * ) ( pxBdAddr->ucAddress ), ucAccept, ulPasskey );
+            break;
+
+        case eBTsspVariantConsent:
+            xESPstatus = esp_ble_gap_security_rsp( ( uint8_t * ) ( pxBdAddr->ucAddress ), ucAccept );
+            break;
+
+        case eBTsspVariantPasskeyNotification:
+            break;
+
+        default:
+            break;
     }
 
     if( xESPstatus != ESP_OK )

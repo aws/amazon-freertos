@@ -481,7 +481,7 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxAddServiceBlob )( uint8_t ucServerIf,
-                                       BTService_t * pxService);
+                                       BTService_t * pxService );
 
     /**
      * @brief Create a new service.
@@ -593,7 +593,7 @@ typedef struct
      *
      * Triggers BTServiceStartedCallback_t.
      * A service become discoverable after being started.
-	 *
+     *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
      *
@@ -611,7 +611,7 @@ typedef struct
      * @brief Stops a local service if supported by the underlying stack.
      *
      * Triggers BTServiceStoppedCallback_t.
-	 * @NOTE: Not a mandatory API as not every stack supports it.
+     * @NOTE: Not a mandatory API as not every stack supports it.
      *
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.

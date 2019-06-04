@@ -68,6 +68,7 @@ NRF_BLE_GATT_DEF( xGattHandler );
 bool bGattInitialized = false;
 const uint8_t aws_ble_hal_gatt_serverCCCD_UUID[] = { 0, 0, 0x29, 0x02, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A };
 const uint16_t aws_ble_hal_gatt_serverCCCD_UUID_2BYTES = 0x2902;
+
 /* This table is needed to overcome a restriction imposed by the softdevice API that all additions of services, characteristics and descriptors must
  * be sequential, i.e. to add a characteristic to a service you must add it immediately after you added a service. So we fill this table firstly and
  * we actually add these entities only on prvBTStartService call.
@@ -228,7 +229,7 @@ static BTStatus_t prvBTSendResponse( uint16_t usConnId,
                                      BTStatus_t xStatus,
                                      BTGattResponse_t * pxResponse );
 static BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
-                                     BTService_t * pxService);
+                                     BTService_t * pxService );
 
 static BTGattServerInterface_t xGATTserverInterface =
 {
@@ -387,54 +388,47 @@ BTStatus_t prvBTAddIncludedService( uint8_t ucServerIf,
 
 
 BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
-                              BTService_t * pxService)
+                              BTService_t * pxService )
 {
-  uint16_t usAttrIndex = 0;
-  BTStatus_t xStatus = eBTStatusSuccess;
-  uint16_t usServiceHandle;
+    uint16_t usAttrIndex = 0;
+    BTStatus_t xStatus = eBTStatusSuccess;
+    uint16_t usServiceHandle;
 
-  for( usAttrIndex = 1; usAttrIndex < pxService->xNumberOfAttributes - 1; usAttrIndex++)
-  {
-      switch(pxService->pxBLEAttributes[usAttrIndex].xAttributeType)
-      {    
-          case eBTDbPrimaryService:
-          {
-              xStatus = eBTStatusFail;
-              break;
-          }
-          case eBTDbSecondaryService:
-          {
-              xStatus = eBTStatusFail;
-              break;
-          }
-          case eBTDbIncludedService:
-          {
+    for( usAttrIndex = 1; usAttrIndex < pxService->xNumberOfAttributes - 1; usAttrIndex++ )
+    {
+        switch( pxService->pxBLEAttributes[ usAttrIndex ].xAttributeType )
+        {
+            case eBTDbPrimaryService:
+                xStatus = eBTStatusFail;
+                break;
 
-              break;
-          }
-        
-          case eBTDbCharacteristicDecl:
-          {
-              xStatus = eBTStatusFail;
-              break;
-          }
-          case eBTDbCharacteristic:
-          {
-              prvBTAddCharacteristic(ucServerIf, 
-                                     usServiceHandle, 
-                                     &pxService->pxBLEAttributes[usAttrIndex].xCharacteristic.xUuid,
-                                     pxService->pxBLEAttributes[usAttrIndex].xCharacteristic.xProperties,
-                                     pxService->pxBLEAttributes[usAttrIndex].xCharacteristic.xPermissions);
-              break;
-          }
-          case eBTDbDescriptor:
-          {
-              break;
-          }
-          default:break;
-      }
-  }
+            case eBTDbSecondaryService:
+                xStatus = eBTStatusFail;
+                break;
 
+            case eBTDbIncludedService:
+
+                break;
+
+            case eBTDbCharacteristicDecl:
+                xStatus = eBTStatusFail;
+                break;
+
+            case eBTDbCharacteristic:
+                prvBTAddCharacteristic( ucServerIf,
+                                        usServiceHandle,
+                                        &pxService->pxBLEAttributes[ usAttrIndex ].xCharacteristic.xUuid,
+                                        pxService->pxBLEAttributes[ usAttrIndex ].xCharacteristic.xProperties,
+                                        pxService->pxBLEAttributes[ usAttrIndex ].xCharacteristic.xPermissions );
+                break;
+
+            case eBTDbDescriptor:
+                break;
+
+            default:
+                break;
+        }
+    }
 }
 
 BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
@@ -473,7 +467,7 @@ BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
         add_char_params.p_user_descr = NULL;          /**< Pointer to user descriptor if needed*/
         add_char_params.p_presentation_format = NULL; /**< Pointer to characteristic format if needed*/
 
-        add_char_params.is_defered_read = true; /* NOTE: This field is set due to client waits for a callback when char is read */
+        add_char_params.is_defered_read = true;       /* NOTE: This field is set due to client waits for a callback when char is read */
         add_char_params.is_defered_write = false;
 
         prvAFRToNordicReadPerms( &xPermissions, &add_char_params.read_access );
@@ -550,7 +544,7 @@ BTStatus_t prvBTSetVal( BTGattResponse_t * pxValue )
     {
         NRF_LOG_ERROR( "Error %d HVX \n\r", xErrCode );
     }
-    
+
     xStatus = BTNRFError( xErrCode );
     return xStatus;
 }
@@ -576,7 +570,7 @@ BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
 
     /* Check if we try to add a CCCD */
     if( ( ( pxUuid->ucType == eBTuuidType128 ) && ( memcmp( pxUuid->uu.uu128, aws_ble_hal_gatt_serverCCCD_UUID, 16 ) == 0 ) ) ||
-        ( ( pxUuid->ucType == eBTuuidType16 ) && (pxUuid->uu.uu16 == aws_ble_hal_gatt_serverCCCD_UUID_2BYTES  ) ) )
+        ( ( pxUuid->ucType == eBTuuidType16 ) && ( pxUuid->uu.uu16 == aws_ble_hal_gatt_serverCCCD_UUID_2BYTES ) ) )
     {
         ble_uuid.type = BLE_UUID_TYPE_BLE;
         ble_uuid.uuid = BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG;
@@ -668,7 +662,7 @@ BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
 
     if( xStatus == eBTStatusSuccess )
     {
-       NRF_LOG_INFO( "Descr Added to HAL table with handle %d %x \n\r", xGattTable[ xGattTableSize - 1 ].handle );
+        NRF_LOG_INFO( "Descr Added to HAL table with handle %d %x \n\r", xGattTable[ xGattTableSize - 1 ].handle );
 
         if( xGattServerCb.pxDescriptorAddedCb )
         {
@@ -720,7 +714,7 @@ ret_code_t prvStartServiceAddDescriptors( uint16_t usCurrentCharNumber,
             }
 
             NRF_LOG_INFO( "Descriptor Added to SD table with handle %d %x \n\r",
-                               xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
+                          xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
         }
     }
 
@@ -761,7 +755,7 @@ ret_code_t prvStartServiceAddCharacteristics( uint16_t usCurrentServiceNumber )
             }
 
             NRF_LOG_INFO( "Charachtersitic Added to SD table with handle %d %x \n\r",
-                               xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
+                          xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
 
             xErrCode = prvStartServiceAddDescriptors( i, sd_handle.cccd_handle );
 
@@ -813,7 +807,7 @@ BTStatus_t prvBTStartService( uint8_t ucServerIf,
     if( xErrCode == NRF_SUCCESS )
     {
         NRF_LOG_INFO( "Service Added to SD table with handle %d %x \n\r ",
-                           xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
+                      xGattToSDMapping[ xGattMappingTablesSize - 1 ].softdevice_handle );
 
         xErrCode = prvStartServiceAddCharacteristics( usCurrentServiceNumber );
     }
@@ -924,11 +918,13 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
             authreply.params.read.p_data = pxResponse->xAttrValue.pucValue;
 
             authreply.params.read.update = 1; /* NOTE: This flag is considered only on write event */
-            if (xStatus == eBTStatusSuccess){
+
+            if( xStatus == eBTStatusSuccess )
+            {
                 authreply.params.read.gatt_status = BLE_GATT_STATUS_SUCCESS;
-            } 
+            }
             else
-            { 
+            {
                 authreply.params.read.gatt_status = BLE_GATT_STATUS_ATTERR_READ_NOT_PERMITTED;
             }
 
@@ -949,11 +945,13 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
             authreply.params.write.p_data = pxResponse->xAttrValue.pucValue;
 
             authreply.params.write.update = 1;
-            if (xStatus == eBTStatusSuccess){
+
+            if( xStatus == eBTStatusSuccess )
+            {
                 authreply.params.write.gatt_status = BLE_GATT_STATUS_SUCCESS;
-            } 
+            }
             else
-            { 
+            {
                 authreply.params.write.gatt_status = BLE_GATT_STATUS_ATTERR_WRITE_NOT_PERMITTED;
             }
 

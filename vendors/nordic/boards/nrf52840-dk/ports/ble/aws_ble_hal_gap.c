@@ -54,15 +54,15 @@
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 uint16_t usConnHandle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 
-#define BLE_ADVERTISING_DEF_NO_STATIC(_name)                                                                  \
-ble_advertising_t _name;                                                                     \
-NRF_SDH_BLE_OBSERVER(_name ## _ble_obs,                                                             \
-                     BLE_ADV_BLE_OBSERVER_PRIO,                                                     \
-                     ble_advertising_on_ble_evt, &_name);                                           \
-NRF_SDH_SOC_OBSERVER(_name ## _soc_obs,                                                             \
-                     BLE_ADV_SOC_OBSERVER_PRIO,                                                     \
-                     ble_advertising_on_sys_evt, &_name)
-BLE_ADVERTISING_DEF_NO_STATIC( xAdvertisingHandle );       /**< Advertising module instance. */
+#define BLE_ADVERTISING_DEF_NO_STATIC( _name )                  \
+    ble_advertising_t _name;                                    \
+    NRF_SDH_BLE_OBSERVER( _name ## _ble_obs,                    \
+                          BLE_ADV_BLE_OBSERVER_PRIO,            \
+                          ble_advertising_on_ble_evt, &_name ); \
+    NRF_SDH_SOC_OBSERVER( _name ## _soc_obs,                    \
+                          BLE_ADV_SOC_OBSERVER_PRIO,            \
+                          ble_advertising_on_sys_evt, &_name )
+BLE_ADVERTISING_DEF_NO_STATIC( xAdvertisingHandle ); /**< Advertising module instance. */
 bool prvAdvRestart = false;
 
 NRF_SDH_BLE_OBSERVER( m_ble_observer, aws_ble_gap_configAPP_BLE_OBSERVER_PRIO, prvGAPeventHandler, NULL );
@@ -75,13 +75,13 @@ BTUuid_t xAppUuid =
     .uu.uu16 = ( uint16_t ) 0x00
 };
 
-BTConnectionParams_t xLatestDesiredConnectionParams = 
+BTConnectionParams_t xLatestDesiredConnectionParams =
 {
-    .pxBdAddr = NULL,
+    .pxBdAddr      = NULL,
     .ulMinInterval = 0,
     .ulMaxInterval = 0,
-    .ulLatency = 0,
-    .ulTimeout = 0
+    .ulLatency     = 0,
+    .ulTimeout     = 0
 };
 
 uint32_t prvRamStart = 0;
@@ -226,10 +226,10 @@ static void prvBTFreeAdvData( ble_advdata_t * xAdvData );
 
 /** @breef Save parameters of the latest connection */
 static void prvSetLatestConnParams( const BTBdaddr_t * pxBdAddr,
-                                          uint32_t ulMinInterval,
-                                          uint32_t ulMaxInterval,
-                                          uint32_t ulLatency,
-                                          uint32_t ulTimeout);
+                                    uint32_t ulMinInterval,
+                                    uint32_t ulMaxInterval,
+                                    uint32_t ulLatency,
+                                    uint32_t ulTimeout );
 
 BTBleAdapter_t xBTLeAdapter =
 {
@@ -338,13 +338,15 @@ ret_code_t prvPeerManagerInit( void )
         xErrCode = pm_sec_params_set( &xSecurityParameters );
         BT_NRF_PRINT_ERROR( pm_sec_params_set, xErrCode );
     }
-#ifdef TEST1
-    if( xErrCode == NRF_SUCCESS )
-    {
-        xErrCode = pm_peers_delete();
-        BT_NRF_PRINT_ERROR( pm_sec_params_set, xErrCode );
-    }
-#endif
+
+    #ifdef TEST1
+        if( xErrCode == NRF_SUCCESS )
+        {
+            xErrCode = pm_peers_delete();
+            BT_NRF_PRINT_ERROR( pm_sec_params_set, xErrCode );
+        }
+    #endif
+
     if( xErrCode == NRF_SUCCESS )
     {
         xErrCode = pm_register( prvPmEventHandler );
@@ -399,7 +401,8 @@ BTStatus_t prvBTUnregisterBleApp( uint8_t ucAdapterIf )
         /* No app is registered */
         xErrCode == NRF_ERROR_INVALID_PARAM;
     }
-    xErrCode = ble_conn_params_stop();    
+
+    xErrCode = ble_conn_params_stop();
     prvBTFreeAdvData( &prvAdvData );
     prvBTFreeAdvData( &prvScanResponseData );
 
@@ -512,19 +515,20 @@ ret_code_t prvStartAdv()
 
     if( prvAdvRestart )
     {
-        xStatus = prvResumeAdvertisement(BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED); 
+        xStatus = prvResumeAdvertisement( BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED );
     }
     else
     {
         prvAdvRestart = true;
         xStatus = ble_advertising_start( &xAdvertisingHandle, BLE_ADV_MODE_FAST );
     }
-    
-    if( NRF_SUCCESS ==  xStatus )
+
+    if( NRF_SUCCESS == xStatus )
     {
-      bIsAdvertising = true;
+        bIsAdvertising = true;
     }
-     return xStatus;
+
+    return xStatus;
 }
 
 ret_code_t prvStopAdv()
@@ -548,9 +552,9 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
         xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, usGattConnHandle );
     }
 
-    if(xStatus != eBTStatusSuccess)
+    if( xStatus != eBTStatusSuccess )
     {
-        configPRINTF(("Failed to start advertisement.\n"));
+        configPRINTF( ( "Failed to start advertisement.\n" ) );
     }
 
     return xStatus;
@@ -566,13 +570,16 @@ BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 
     bIsAdvertising = false;
     xErrCode = prvStopAdv();
+
     /* User can inadvertentely try to stop advertising when it is already stopped,
-    * for example when connection is established and SD stopped advertising itself.
-    * In this case we are going to get NRF_ERROR_INVALID_STATE, but this is fine */
-    if (xErrCode == NRF_ERROR_INVALID_STATE) {
+     * for example when connection is established and SD stopped advertising itself.
+     * In this case we are going to get NRF_ERROR_INVALID_STATE, but this is fine */
+    if( xErrCode == NRF_ERROR_INVALID_STATE )
+    {
         xErrCode = NRF_SUCCESS;
-        NRF_LOG_WARNING("Attempt to stop an already stopped advertising");
+        NRF_LOG_WARNING( "Attempt to stop an already stopped advertising" );
     }
+
     BT_NRF_PRINT_ERROR( sd_ble_gap_adv_stop, xErrCode );
     xStatus = BTNRFError( xErrCode );
     return xStatus;
@@ -727,10 +734,11 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
 
     xAdvData->flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
 
-    if(( pxParams->ucNameType ==  BTGattAdvNameComplete)||( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof(IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME)-1))
+    if( ( pxParams->ucNameType == BTGattAdvNameComplete ) || ( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1 ) )
     {
         xAdvData->name_type = BLE_ADVDATA_FULL_NAME;
-    }else if( pxParams->ucNameType ==  BTGattAdvNameShort)
+    }
+    else if( pxParams->ucNameType == BTGattAdvNameShort )
     {
         xAdvData->name_type = BLE_ADVDATA_SHORT_NAME;
         xAdvData->short_name_len = IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE;
@@ -1155,10 +1163,10 @@ ret_code_t prvConnectionParamsInit( void )
 /*-----------------------------------------------------------*/
 
 static void prvSetLatestConnParams( const BTBdaddr_t * pxBdAddr,
-                                          uint32_t ulMinInterval,
-                                          uint32_t ulMaxInterval,
-                                          uint32_t ulLatency,
-                                          uint32_t ulTimeout)
+                                    uint32_t ulMinInterval,
+                                    uint32_t ulMaxInterval,
+                                    uint32_t ulLatency,
+                                    uint32_t ulTimeout )
 {
     xLatestDesiredConnectionParams.pxBdAddr = pxBdAddr;
     xLatestDesiredConnectionParams.ulLatency = ulLatency;
@@ -1178,7 +1186,7 @@ BTStatus_t prvBTConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
     ble_gap_conn_params_t xConnParams;
     BTStatus_t xStatus;
 
-    prvSetLatestConnParams( pxBdAddr, ulMinInterval, ulMaxInterval, ulLatency, ulTimeout);
+    prvSetLatestConnParams( pxBdAddr, ulMinInterval, ulMaxInterval, ulLatency, ulTimeout );
 
     memset( &xConnParams, 0, sizeof( xConnParams ) );
     xConnParams.min_conn_interval = ulMinInterval;

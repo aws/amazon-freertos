@@ -41,7 +41,7 @@
  * Currently only one server instance is supported.
  *
  */
-#define IOT_BLE_SERVER_UUID                { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
+#define IOT_BLE_SERVER_UUID    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 
 /**
  *
@@ -54,17 +54,17 @@
  *
  */
 #ifndef IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK
- #define IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK    0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A
+    #define IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK    0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A
 #endif
- #define IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID    0x00, 0xFF
- #define IOT_BLE_DEVICE_INFO_SERVICE_UUID  {IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
+#define IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID        0x00, 0xFF
+#define IOT_BLE_DEVICE_INFO_SERVICE_UUID             { IOT_BLE_DEVICE_INFO_SERVICE_BASE_UUID, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }
 
 
 /**
  * @brief Set to true if user wants to send its own advertisement message.
  */
 #ifndef IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG
-    #define IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG        ( 0 )
+    #define IOT_BLE_SET_CUSTOM_ADVERTISEMENT_MSG    ( 0 )
 #endif
 
 
@@ -73,35 +73,35 @@
  * @brief Define the UUID that is going to be advertised.
  *
  */
-#if (!defined(IOT_BLE_ADVERTISING_UUID)) || ( !defined(IOT_BLE_ADVERTISING_UUID_SIZE))
-	#ifdef IOT_BLE_ADVERTISING_UUID
-	#error "IOT_BLE_ADVERTISING_UUID_SIZE need to be defined"
-	#endif
-	#ifdef IOT_BLE_ADVERTISING_UUID_SIZE
-	#error "IOT_BLE_ADVERTISING_UUID need to be defined"
-	#endif
-#define IOT_BLE_ADVERTISING_UUID IOT_BLE_DEVICE_INFO_SERVICE_UUID
-#define IOT_BLE_ADVERTISING_UUID_SIZE 16
+#if ( !defined( IOT_BLE_ADVERTISING_UUID ) ) || ( !defined( IOT_BLE_ADVERTISING_UUID_SIZE ) )
+    #ifdef IOT_BLE_ADVERTISING_UUID
+        #error "IOT_BLE_ADVERTISING_UUID_SIZE need to be defined"
+    #endif
+    #ifdef IOT_BLE_ADVERTISING_UUID_SIZE
+        #error "IOT_BLE_ADVERTISING_UUID need to be defined"
+    #endif
+    #define IOT_BLE_ADVERTISING_UUID         IOT_BLE_DEVICE_INFO_SERVICE_UUID
+    #define IOT_BLE_ADVERTISING_UUID_SIZE    16
 #endif
 
 /**
  * @brief Define the connection interval.
  *
  */
-#if (!defined(IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN)) || ( !defined(IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX))
-	#ifdef IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN
-	#error "IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX need to be defined"
-	#endif
-	#ifdef IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX
-	#error "IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN need to be defined"
-	#endif
-#define IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN 0x20
-#define IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX 0x40
+#if ( !defined( IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN ) ) || ( !defined( IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX ) )
+    #ifdef IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN
+        #error "IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX need to be defined"
+    #endif
+    #ifdef IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX
+        #error "IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN need to be defined"
+    #endif
+    #define IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN    0x20
+    #define IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX    0x40
 #endif
 
 /**< The advertising interval (in units of 0.625 ms. This value corresponds to 187.5 ms). */
 #ifndef IOT_BLE_ADVERTISING_INTERVAL
-#define IOT_BLE_ADVERTISING_INTERVAL                     300                                
+    #define IOT_BLE_ADVERTISING_INTERVAL    300
 #endif
 
 /**
@@ -109,7 +109,7 @@
  *
  */
 #ifndef IOT_BLE_ADVERTISING_APPEARANCE
-#define IOT_BLE_ADVERTISING_APPEARANCE 0
+    #define IOT_BLE_ADVERTISING_APPEARANCE    0
 #endif
 
 /**
@@ -117,7 +117,7 @@
  * This define needs to be of type BTIOtypes_t.
  */
 #ifndef IOT_BLE_INPUT_OUTPUT
-#define IOT_BLE_INPUT_OUTPUT eBTIODisplayYesNo
+    #define IOT_BLE_INPUT_OUTPUT    eBTIODisplayYesNo
 #endif
 
 /**
@@ -126,7 +126,7 @@
  *
  */
 #ifndef IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE
-#define IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE      4
+    #define IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE    4
 #endif
 
 /**
@@ -135,7 +135,7 @@
  *
  */
 #ifndef IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME
-#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME                      "BLE"
+    #define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME    "BLE"
 #endif
 
 /**
@@ -146,7 +146,7 @@
  *
  */
 #ifndef IOT_BLE_PREFERRED_MTU_SIZE
-#define IOT_BLE_PREFERRED_MTU_SIZE               ( 512 )
+    #define IOT_BLE_PREFERRED_MTU_SIZE    ( 512 )
 #endif
 
 /**
@@ -155,7 +155,7 @@
  * By default bonding will be enabled on all device.
  */
 #ifndef IOT_BLE_ENABLE_BONDING
-#define IOT_BLE_ENABLE_BONDING                   ( 1 )
+    #define IOT_BLE_ENABLE_BONDING    ( 1 )
 #endif
 
 /**
@@ -164,7 +164,7 @@
  * By default secure connection will be enable on all device.
  */
 #ifndef IOT_BLE_ENABLE_SECURE_CONNECTION
-#define IOT_BLE_ENABLE_SECURE_CONNECTION         ( 1 )
+    #define IOT_BLE_ENABLE_SECURE_CONNECTION    ( 1 )
 #endif
 
 /* Config if set, requires encryption to access services and characteristics */
@@ -173,7 +173,7 @@
  * @brief Configuration to force encryption to access all characteristics of services.
  */
 #ifndef IOT_BLE_ENCRYPTION_REQUIRED
-#define IOT_BLE_ENCRYPTION_REQUIRED              ( 1 )
+    #define IOT_BLE_ENCRYPTION_REQUIRED    ( 1 )
 #endif
 
 /**
@@ -183,14 +183,14 @@
  * device will use just works pairing.
  */
 #ifndef IOT_BLE_ENABLE_NUMERIC_COMPARISON
-#define IOT_BLE_ENABLE_NUMERIC_COMPARISON        ( 1 )
+    #define IOT_BLE_ENABLE_NUMERIC_COMPARISON    ( 1 )
 #endif
 
 /**
  * @brief Timeout in seconds used for BLE numeric comparison.
  */
 #ifndef IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC
-#define IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC   ( 30 )
+    #define IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC    ( 30 )
 #endif
 
 /**
@@ -199,7 +199,7 @@
  * By default WIFI provisioning will be disabled.
  */
 #ifndef IOT_BLE_ENABLE_WIFI_PROVISIONING
-#define IOT_BLE_ENABLE_WIFI_PROVISIONING         ( 0 )
+    #define IOT_BLE_ENABLE_WIFI_PROVISIONING    ( 0 )
 #endif
 
 /**
@@ -208,79 +208,79 @@
  * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t).
  */
 #ifndef IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
-    #define IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS                  ( 10 )
+    #define IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS    ( 10 )
 #endif
 
 
- /* @brief Controls the number of network that can be saved using WIFI provisionning.
+/* @brief Controls the number of network that can be saved using WIFI provisionning.
  *
  * The number should be set according to amount of flash space available on the device.
  * The size increase in multiple of sizeof(WIFINetworkProfile_t).
  */
 #ifndef IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS
-    #define IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS               ( 8 )
+    #define IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS    ( 8 )
 #endif
 
 /**
  * @brief Set to true if user wants to add its own custom services.
  */
 #ifndef IOT_BLE_ADD_CUSTOM_SERVICES
-    #define IOT_BLE_ADD_CUSTOM_SERVICES        ( 0 )
+    #define IOT_BLE_ADD_CUSTOM_SERVICES    ( 0 )
 #endif
 
 /**
  * @brief Maximum number of device this device can be bonded with.
  */
 #ifndef IOT_BLE_MAX_BONDED_DEVICES
-#define IOT_BLE_MAX_BONDED_DEVICES                ( 5 )
+    #define IOT_BLE_MAX_BONDED_DEVICES    ( 5 )
 #endif
 
-#if ( IOT_BLE_ENCRYPTION_REQUIRED == 1  )
-#if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1)
-#define IOT_BLE_CHAR_READ_PERM             eBTPermReadEncryptedMitm
-#define IOT_BLE_CHAR_WRITE_PERM            eBTPermWriteEncryptedMitm
+#if ( IOT_BLE_ENCRYPTION_REQUIRED == 1 )
+    #if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
+        #define IOT_BLE_CHAR_READ_PERM     eBTPermReadEncryptedMitm
+        #define IOT_BLE_CHAR_WRITE_PERM    eBTPermWriteEncryptedMitm
+    #else
+        #define IOT_BLE_CHAR_READ_PERM     eBTPermReadEncrypted
+        #define IOT_BLE_CHAR_WRITE_PERM    eBTPermWriteEncrypted
+    #endif
 #else
-#define IOT_BLE_CHAR_READ_PERM             eBTPermReadEncrypted
-#define IOT_BLE_CHAR_WRITE_PERM            eBTPermWriteEncrypted
-#endif
-#else
-#define IOT_BLE_CHAR_READ_PERM             eBTPermRead
-#define IOT_BLE_CHAR_WRITE_PERM            eBTPermWrite
+    #define IOT_BLE_CHAR_READ_PERM         eBTPermRead
+    #define IOT_BLE_CHAR_WRITE_PERM        eBTPermWrite
 #endif
 
-#define IOT_BLE_MESG_ENCODER           ( _IotSerializerCborEncoder )
-#define IOT_BLE_MESG_DECODER           ( _IotSerializerCborDecoder )
+#define IOT_BLE_MESG_ENCODER               ( _IotSerializerCborEncoder )
+#define IOT_BLE_MESG_DECODER               ( _IotSerializerCborDecoder )
 
 /**
  * @brief Waiting time between checks for connection established.
  */
 #ifndef IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS
-#define IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS                ( 1000 * IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC )
+    #define IOT_BLE_MQTT_CREATE_CONNECTION_WAIT_MS    ( 1000 * IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC )
 #endif
 
 /**
  * @brief Number of retries if connection is not established.
  */
 #ifndef IOT_BLE_MQTT_CREATE_CONNECTION_RETRY
-#define IOT_BLE_MQTT_CREATE_CONNECTION_RETRY                ( 60 )
+    #define IOT_BLE_MQTT_CREATE_CONNECTION_RETRY    ( 60 )
 #endif
 
 /*
  * @brief UUID mask for data transfer services.
  */
-#define IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK  0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9
+#define IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK                 0xC3, 0x4C, 0x04, 0x48, 0x02, 0xA0, 0xA9, 0x40, 0x2E, 0xD7, 0x6A, 0x16, 0xD7, 0xA9
 
 /**
  * @brief Type for MQTT data transfer service.
  *  Type will be part of the service UUID.
  */
-#define IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT  0x00
+#define IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT                 0x00
 
 /**
  * @brief Type for wifi provisioning data transfer service.
  * Type will be part of the service UUID.
  */
-#define IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING  0x01
+#define IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING    0x01
 
 /**
  * @brief Number of data transfer services.
@@ -288,16 +288,16 @@
  * removing the existing ones.
  */
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-#define  IOT_BLE_NUM_DATA_TRANSFER_SERVICES                     ( 2 )
+    #define  IOT_BLE_NUM_DATA_TRANSFER_SERVICES    ( 2 )
 #else
-#define IOT_BLE_NUM_DATA_TRANSFER_SERVICES                      ( 1 )
+    #define IOT_BLE_NUM_DATA_TRANSFER_SERVICES     ( 1 )
 #endif
 
 /**
  *@brief Size of the buffer to store pending bytes to be sent out through data transfer service.
  */
 #ifndef IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE
-#define IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE       ( 1024 )
+    #define IOT_BLE_DATA_TRANSFER_TX_BUFFER_SIZE    ( 1024 )
 #endif
 
 /**
@@ -305,15 +305,14 @@
  * The buffer size grows exponentially ( powers of 2 ).
  */
 #ifndef IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE
-#define IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE       ( 1024 )
+    #define IOT_BLE_DATA_TRANSFER_RX_BUFFER_SIZE    ( 1024 )
 #endif
 
 /**
  * @brief The  timeout in milliseconds for sending a message through data transfer service.
  */
 #ifndef IOT_BLE_DATA_TRANSFER_TIMEOUT_MS
-#define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS          ( 2000 )
+    #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS    ( 2000 )
 #endif
 
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */
-
