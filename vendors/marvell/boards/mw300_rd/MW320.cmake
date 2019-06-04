@@ -1,5 +1,5 @@
-afr_set_board_metadata(ID "MW300")
-afr_set_board_metadata(DISPLAY_NAME "mw300_rd")
+afr_set_board_metadata(ID "MW320")
+afr_set_board_metadata(DISPLAY_NAME "MW320")
 afr_set_board_metadata(DESCRIPTION "Marvell Board for AmazonFreeRTOS")
 afr_set_board_metadata(VENDOR_NAME "Marvell")
 afr_set_board_metadata(FAMILY_NAME "Wireless Microcontroller")
