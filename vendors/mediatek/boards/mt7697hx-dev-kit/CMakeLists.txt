@@ -14,9 +14,6 @@ else()
     set(exe_target aws_demos)
 endif()
 
-#Ensure Defender is not included in build
-set(AFR_MODULE_defender 0 CACHE INTERNAL "")
-
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
