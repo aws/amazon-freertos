@@ -33,6 +33,6 @@
 
 NAME := Wiced_Network_LwIP_FreeRTOS
 
-export AFR_THIRDPARTY_PATH := ../../../../../../../../modules/libraries/3rdparty/
+export AFR_THIRDPARTY_PATH := ../../../../../../../../libraries/3rdparty/
 GLOBAL_INCLUDES += .
 $(NAME)_SOURCES := $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch/sys_arch.c
