@@ -133,7 +133,6 @@ target_link_libraries(
     AFR::pkcs11::mcu_port
     INTERFACE
         AFR::pkcs11_mbedtls
-        AFR::tls
 )
 
 
@@ -187,7 +186,6 @@ target_link_libraries(
 )
 
 # The kernel is the root dependency, linking the library flags like this ensures it adds the flags last in the command line
-
 set(link_extra_flags -Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,-lrsa,--end-group)
 
 target_link_libraries(
