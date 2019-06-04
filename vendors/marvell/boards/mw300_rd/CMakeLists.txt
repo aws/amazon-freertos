@@ -13,22 +13,12 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "MW320")
-afr_set_board_metadata(DISPLAY_NAME "mw300_rd")
-afr_set_board_metadata(DESCRIPTION "Marvell Board for AmazonFreeRTOS")
-afr_set_board_metadata(VENDOR_NAME "Marvell")
-afr_set_board_metadata(FAMILY_NAME "Wireless Microcontroller")
-afr_set_board_metadata(IS_ACTIVE "TRUE")
-afr_set_board_metadata(DATA_RAM_MEMORY "512KB")
-afr_set_board_metadata(PROGRAM_MEMORY "2MB")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
-afr_set_board_metadata(SUPPORTED_IDE "Eclipse")
-afr_set_board_metadata(RECOMMENDED_IDE "Eclipse")
-afr_set_board_metadata(IDE_Eclipse_NAME "Eclipse")
-afr_set_board_metadata(IDE_Eclipse_COMPILER "GCC")
-
-afr_set_board_metadata(IDE_Eclipse_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/marvell/mw320_rd/eclipse/aws_demos")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/marvell/boards/mw320_rd/aws_demos/config_files")
+if("${AFR_BOARD_NAME}" STREQUAL "MW320")
+    include("MW320.cmake")
+endif()
+if("${AFR_BOARD_NAME}" STREQUAL "MW322")
+    include("MW322.cmake")
+endif()
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
