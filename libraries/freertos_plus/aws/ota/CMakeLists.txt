@@ -69,11 +69,16 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/aws_test_ota_agent.c"
         "${test_dir}/aws_test_ota_pal.c"
+        "demos/ota/aws_iot_ota_update_demo.c"
+        "demos/network_manager/aws_iot_demo_network.c"
+        "demos/network_manager/aws_iot_network_manager.c"
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}"
+        "demos/include"
+        "demos/network_manager"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
