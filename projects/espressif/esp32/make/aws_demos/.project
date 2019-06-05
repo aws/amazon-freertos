@@ -42,6 +42,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>demos</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/demos</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -55,6 +60,11 @@
 			<name>ports</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/ports</locationURI>
+		</link>
+		<link>
+			<name>application_code/config_files</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_demos/config_files</locationURI>
 		</link>
 		<link>
 			<name>common/application_code</name>
