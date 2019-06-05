@@ -288,6 +288,8 @@
               <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c" />
             </folder>
+            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c" />
+            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c" />
           </folder>
           <folder Name="ble">
             <file file_name="../../../../../libraries/c_sdk/standard/ble/CMakeLists.txt" />
