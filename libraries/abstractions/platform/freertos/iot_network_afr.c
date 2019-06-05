@@ -528,7 +528,13 @@ size_t IotNetworkAfr_Receive( void * pConnection,
                                      bytesRemaining,
                                      0 );
 
-        if( socketStatus <= 0 )
+        if( socketStatus == SOCKETS_EWOULDBLOCK )
+        {
+            /* The return value EWOULDBLOCK means no data was received within
+             * the socket timeout. Ignore it and try again. */
+            continue;
+        }
+        else if( socketStatus <= 0 )
         {
             IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
             break;
