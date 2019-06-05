@@ -30,7 +30,6 @@
 
 typedef struct ProvisioningParams_t
 {
-    uint32_t ulClientPrivateKeyType;
     uint8_t * pucClientPrivateKey;
     uint32_t ulClientPrivateKeyLength;
     uint8_t * pucClientCertificate;
@@ -47,7 +46,6 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
                             size_t xPrivateKeyLength,
-                            CK_KEY_TYPE xPrivateKeyType,
                             uint8_t * pucLabel,
                             CK_OBJECT_HANDLE_PTR pxObjectHandle );
 

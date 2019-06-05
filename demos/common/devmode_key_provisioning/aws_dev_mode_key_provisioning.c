@@ -104,7 +104,6 @@ const uint32_t clientcredentialCLIENT_PRIVATE_KEY_LENGTH = sizeof( clientcredent
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
                             size_t xPrivateKeyLength,
-                            CK_KEY_TYPE xPrivateKeyType,
                             uint8_t * pucLabel,
                             CK_OBJECT_HANDLE_PTR pxObjectHandle )
 {
@@ -112,7 +111,8 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_BBOOL xTokenStorage = CK_TRUE;
-
+    mbedtls_pk_type_t xMbedKeyType;
+    CK_KEY_TYPE xPrivateKeyType;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -121,6 +121,32 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
     mbedtls_pk_init( &xMbedPkContext );
     lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucPrivateKey, xPrivateKeyLength, NULL, 0 );
+
+    if ( lMbedResult != 0 )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
+    /* Determine whether the key to be imported is RSA or EC. */
+    if ( xResult == CKR_OK )
+    {
+        xMbedKeyType = mbedtls_pk_get_type( &xMbedPkContext );
+
+        if ( xMbedKeyType == MBEDTLS_PK_RSA )
+        {
+            xPrivateKeyType = CKK_RSA;
+        }
+        else if ( xMbedKeyType == MBEDTLS_PK_ECDSA || xMbedKeyType == MBEDTLS_PK_ECKEY || xMbedKeyType == MBEDTLS_PK_ECKEY_DH )
+        {
+            xPrivateKeyType = CKK_EC;
+        }
+        else
+        {
+            xPrivateKeyType = 0xFFFFFFFF;
+            xResult = CKR_ARGUMENTS_BAD;
+        }
+    }
+
 
     /* EC Keys. */
     if( xPrivateKeyType == CKK_EC )
@@ -735,7 +761,6 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         xResult = xProvisionPrivateKey( xSession,
                                         pxParams->pucClientPrivateKey,
                                         pxParams->ulClientPrivateKeyLength,
-                                        pxParams->ulClientPrivateKeyType,
                                         ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                         &xObject );
     }
@@ -783,7 +808,6 @@ void vDevModeKeyProvisioning( void )
 {
     ProvisioningParams_t xParams;
 
-    xParams.ulClientPrivateKeyType = CKK_RSA;
     xParams.pucClientPrivateKey = ( uint8_t * ) clientcredentialCLIENT_PRIVATE_KEY_PEM;
     xParams.ulClientPrivateKeyLength = clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
     xParams.pucClientCertificate = ( uint8_t * ) clientcredentialCLIENT_CERTIFICATE_PEM;
