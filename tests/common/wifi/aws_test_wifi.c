@@ -619,8 +619,6 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
-    RUN_TEST_CASE( Full_WiFi,
-                   AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
 
     /* Null parameter tests. */
@@ -2445,87 +2443,4 @@ static void prvConnectionTask( void * pvParameters )
     }
 
     vTaskDelete( NULL ); /* Delete this task. */
-}
-
-/**
- * @brief Spawn two threads to connect and disconnect at the same time. This is
- * to verify thread safety in the Wi-Fi driver API.
- */
-TEST( Full_WiFi, AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce )
-{
-    BaseType_t xTaskCreateResult;
-    char cBuffer[ 256 ];
-    int16_t sBufferLength = 256;
-    testwifiTaskParams_t xTaskParams[ testwifiNUM_TASKS ];
-    uint16_t usIndex;
-    uint32_t ulResultEventMask;
-
-    if( TEST_PROTECT() )
-    {
-        /* Create an event group for tasks finishing testing. */
-        xTaskFinishEventGroupHandle = xEventGroupCreate();
-        configASSERT( xTaskFinishEventGroupHandle != NULL );
-
-        /* Even group for task connection and disconnection synchronization. */
-        xTaskConnectDisconnectSyncEventGroupHandle = xEventGroupCreate();
-        configASSERT( xTaskConnectDisconnectSyncEventGroupHandle != NULL );
-
-        /* Create the task that connect at the same time. */
-        for( usIndex = 0; usIndex < testwifiNUM_TASKS; usIndex++ )
-        {
-            xTaskParams[ usIndex ].usTaskId = usIndex;
-            xTaskParams[ usIndex ].xWiFiStatus = eWiFiFailure;
-            xTaskCreateResult = xTaskCreate(
-                prvConnectionTask, "WiFiConnectionTask", testwifiTASK_STACK_SIZE,
-                &xTaskParams[ usIndex ], testwifiTASK_PRIORITY,
-                &( xTaskParams[ usIndex ].xTaskHandle ) );
-
-            if( xTaskCreateResult != pdPASS )
-            {
-                configPRINTF(
-                    ( "Wi-Fi connection task %d creation failed.\r\n", usIndex ) );
-            }
-
-            TEST_ASSERT_EQUAL_INT32( pdPASS, xTaskCreateResult );
-        }
-
-        /* Wait for all of the tasks to finish. */
-        ulResultEventMask = xEventGroupWaitBits(
-            xTaskFinishEventGroupHandle, testwifiTASK_FINISH_MASK, pdTRUE, pdTRUE,
-            testwifiMULTITASK_TEST_TIMEOUT );
-
-        if( ulResultEventMask != testwifiTASK_FINISH_MASK )
-        {
-            configPRINTF(
-                ( "Timed out waiting for all connection/disconnection tasks to "
-                  "finish.\r\n" ) );
-        }
-
-        /* Check the task status and assert test results. */
-        for( usIndex = 0; usIndex < testwifiNUM_TASKS; usIndex++ )
-        {
-            snprintf( cBuffer, sBufferLength, "Task %d failed.\r\n", usIndex );
-            TEST_WIFI_ASSERT_REQUIRED_API_MSG(
-                xTaskParams[ usIndex ].xWiFiStatus == eWiFiSuccess,
-                xTaskParams[ usIndex ].xWiFiStatus, cBuffer );
-        }
-    }
-    else
-    {
-        TEST_FAIL();
-    }
-
-    /* Clean up the task finish event group. */
-    if( xTaskFinishEventGroupHandle != NULL )
-    {
-        vEventGroupDelete( xTaskFinishEventGroupHandle );
-        xTaskFinishEventGroupHandle = NULL;
-    }
-
-    /* Clean up the connection and disconnection sync event groups. */
-    if( xTaskConnectDisconnectSyncEventGroupHandle != NULL )
-    {
-        vEventGroupDelete( xTaskConnectDisconnectSyncEventGroupHandle );
-        xTaskConnectDisconnectSyncEventGroupHandle = NULL;
-    }
 }

@@ -771,10 +771,8 @@ TEST_GROUP_RUNNER( Full_TCP )
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_ShutdownInvalidParams );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_ShutdownWithoutReceiving );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Recv_On_Unconnected_Socket );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Connect_InvalidParams );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Connect_InvalidAddressLength );
-    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Socket_TCP );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_SetSockOpt_RCVTIMEO );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_NonBlocking_Test );
@@ -796,12 +794,10 @@ TEST_GROUP_RUNNER( Full_TCP )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownInvalidParams );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownWithoutReceiving );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_On_Unconnected_Socket );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_TRUSTED_SERVER_CERTIFICATE );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidParams );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidAddressLength );
-        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
         /* SECURE_SOCKETS_Socket_TCP DNE. */
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_RCVTIMEO );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_NonBlocking_Test );
@@ -819,6 +815,16 @@ TEST_GROUP_RUNNER( Full_TCP )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect );
     #endif /* if ( tcptestSECURE_SERVER == 1 ) */
+
+    /* Thread safety tests */
+    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
+    
+    #if ( tcptestSECURE_SERVER == 1 )
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
+    #endif /* if ( tcptestSECURE_SERVER == 1 ) */
+    
 }
 
 /*-------------------------------------------------------------------*/
