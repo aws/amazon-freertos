@@ -358,24 +358,38 @@ static void MqttAgentConnectToDevDef( MQTTAgentHandle_t pxMQTTAgent )
                          "Failed to connect agent to broker" );
 }
 
-static void SubscribeToAcceptCbor( MQTTAgentHandle_t pxMQTTAgent )
+static void prvTestSubscribeHelper( MQTTAgentHandle_t pxMQTTAgent,
+                                    char * pcTopicTemplate )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
-                         "/defender/metrics/cbor/accepted";
     MQTTAgentSubscribeParams_t xSubscriptionParams =
     {
-        .pucTopic                 = pucTopic,
-        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
+        .pucTopic                 = NULL,
+        .usTopicLength            = 0,
         .xQoS                     = eMQTTQoS0,
         .pvPublishCallbackContext = NULL,
         .pxPublishCallback        = testAcceptCallback,
     };
     TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t eSubscriptionResult =
-        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
+    MQTTAgentReturnCode_t eSubscriptionResult = eMQTTAgentFailure;
+
+    xSubscriptionParams.pucTopic = DEFENDER_GetMqttTopicString( pcTopicTemplate );
+
+    if( NULL != xSubscriptionParams.pucTopic )
+    {
+        xSubscriptionParams.usTopicLength = ( uint16_t ) strlen( xSubscriptionParams.pucTopic );
+        eSubscriptionResult = MQTT_AGENT_Subscribe( pxMQTTAgent,
+                                                    &xSubscriptionParams,
+                                                    xTimeout );
+        vPortFree( ( void * ) xSubscriptionParams.pucTopic );
+    }
 
     TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
                          "Failed to subscribe to pucTopic" );
+}
+
+static void SubscribeToAcceptCbor( MQTTAgentHandle_t pxMQTTAgent )
+{
+    prvTestSubscribeHelper( pxMQTTAgent, defenderMQTT_TOPIC_ACCEPTED_CBOR );
 }
 
 static MQTTBool_t testAcceptCallback( void * pvPublishCallbackContext,
@@ -388,22 +402,7 @@ static MQTTBool_t testAcceptCallback( void * pvPublishCallbackContext,
 
 static void SubscribeToRejectCbor( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
-                         "/defender/metrics/cbor/rejected";
-    MQTTAgentSubscribeParams_t xSubscriptionParams =
-    {
-        .pucTopic                 = pucTopic,
-        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
-        .xQoS                     = eMQTTQoS0,
-        .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = testRejectCallback,
-    };
-    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t eSubscriptionResult =
-        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
-
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
-                         "Failed to subscribe to pucTopic" );
+    prvTestSubscribeHelper( pxMQTTAgent, defenderMQTT_TOPIC_REJECTED_CBOR );
 }
 
 static MQTTBool_t testRejectCallback( void * pvPublishCallbackContext,
@@ -414,30 +413,42 @@ static MQTTBool_t testRejectCallback( void * pvPublishCallbackContext,
     return eMQTTFalse;
 }
 
-static void PublishCborToDevDef( MQTTAgentHandle_t pxMQTTAgent,
-                                 CBORHandle_t xReport )
+static void prvTestPublishHelper( MQTTAgentHandle_t pxMQTTAgent,
+                                  uint8_t * pucData,
+                                  uint32_t ulDataLength,
+                                  char * pcTopicTemplate )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/"
-                         clientcredentialIOT_THING_NAME
-                         "/defender/metrics/cbor";
-    uint8_t const * pucBuffer = xReport->pxBufferStart;
-    int lBufLen = xReport->pxMapEnd - xReport->pxBufferStart + 1;
-
     MQTTAgentPublishParams_t xPubRecParams =
     {
-        .pucTopic      = pucTopic,
-        .usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic ),
+        .pucTopic      = NULL,
+        .usTopicLength = 0,
         .xQoS          = eMQTTQoS0,
-        .pvData        = pucBuffer,
-        .ulDataLength  = lBufLen,
+        .pvData        = pucData,
+        .ulDataLength  = ulDataLength,
     };
     TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
+    MQTTAgentReturnCode_t ePublishResult = eMQTTAgentFailure;
 
-    MQTTAgentReturnCode_t ePublishResult =
-        MQTT_AGENT_Publish( pxMQTTAgent, &xPubRecParams, xTimeout );
+    xPubRecParams.pucTopic = DEFENDER_GetMqttTopicString( pcTopicTemplate );
+
+    if( NULL != xPubRecParams.pucTopic )
+    {
+        xPubRecParams.usTopicLength = ( uint16_t ) strlen( xPubRecParams.pucTopic );
+        ePublishResult = MQTT_AGENT_Publish( pxMQTTAgent, &xPubRecParams, xTimeout );
+        vPortFree( ( void * ) xPubRecParams.pucTopic );
+    }
 
     TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == ePublishResult,
                          "Failed to publish to pucTopic" );
+}
+
+static void PublishCborToDevDef( MQTTAgentHandle_t pxMQTTAgent,
+                                 CBORHandle_t xReport )
+{
+    prvTestPublishHelper( pxMQTTAgent,
+                          xReport->pxBufferStart,
+                          xReport->pxMapEnd - xReport->pxBufferStart + 1,
+                          defenderMQTT_TOPIC_PUBLISH_CBOR );
 }
 
 /*----------------------------------------------------------------------------*/
@@ -476,65 +487,21 @@ TEST( Full_DEFENDER, endpoint_accepts_json_example_report )
 
 static void SubscribeToAcceptJson( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
-                         "/defender/metrics/json/accepted";
-    MQTTAgentSubscribeParams_t xSubscriptionParams =
-    {
-        .pucTopic                 = pucTopic,
-        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
-        .xQoS                     = eMQTTQoS0,
-        .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = testAcceptCallback,
-    };
-    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t eSubscriptionResult =
-        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
-
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
-                         "Failed to subscribe to pucTopic" );
+    prvTestSubscribeHelper( pxMQTTAgent, defenderMQTT_TOPIC_ACCEPTED_JSON );
 }
 
 static void SubscribeToRejectJson( MQTTAgentHandle_t pxMQTTAgent )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/" clientcredentialIOT_THING_NAME
-                         "/defender/metrics/json/rejected";
-    MQTTAgentSubscribeParams_t xSubscriptionParams =
-    {
-        .pucTopic                 = pucTopic,
-        .usTopicLength            = ( uint16_t ) strlen( ( char * ) pucTopic ),
-        .xQoS                     = eMQTTQoS0,
-        .pvPublishCallbackContext = NULL,
-        .pxPublishCallback        = testRejectCallback,
-    };
-    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t eSubscriptionResult =
-        MQTT_AGENT_Subscribe( pxMQTTAgent, &xSubscriptionParams, xTimeout );
-
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == eSubscriptionResult,
-                         "Failed to subscribe to pucTopic" );
+    prvTestSubscribeHelper( pxMQTTAgent, defenderMQTT_TOPIC_REJECTED_JSON );
 }
 
 static void PublishJsonToDevDef( MQTTAgentHandle_t pxMQTTAgent,
                                  char const * pcReport )
 {
-    uint8_t * pucTopic = ( uint8_t * ) "$aws/things/"
-                         clientcredentialIOT_THING_NAME
-                         "/defender/metrics/json";
-
-    MQTTAgentPublishParams_t xPubRecParams =
-    {
-        .pucTopic      = pucTopic,
-        .usTopicLength = ( uint16_t ) strlen( ( char * ) pucTopic ),
-        .xQoS          = eMQTTQoS0,
-        .pvData        = pcReport,
-        .ulDataLength  = ( uint16_t ) strlen( pcReport ),
-    };
-    TickType_t const xTimeout = pdMS_TO_TICKS( 10000 );
-    MQTTAgentReturnCode_t ePublishResult =
-        MQTT_AGENT_Publish( pxMQTTAgent, &xPubRecParams, xTimeout );
-
-    TEST_ASSERT_MESSAGE( eMQTTAgentSuccess == ePublishResult,
-                         "Failed to publish JSON pcReport to pucTopic" );
+    prvTestPublishHelper( pxMQTTAgent,
+                          ( uint8_t * ) pcReport,
+                          strlen( pcReport ),
+                          defenderMQTT_TOPIC_PUBLISH_JSON );
 }
 
 /*----------------------------------------------------------------------------*/

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Generation of Makefile.json from Configurations.json for CBMC proofs.
+# Creating the CBMC proofs from Configurations.json.
 #
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -22,6 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import collections
 import json
 import logging
 import os
@@ -29,8 +30,7 @@ import pathlib
 import shutil
 import textwrap
 
-logging.basicConfig(format="{script}: %(levelname)s %(message)s".format(
-    script=os.path.basename(__file__)))
+from make_proof_makefiles import load_json_config_file
 
 LOGGER = logging.getLogger("ComputeConfigurations")
 
@@ -98,9 +98,8 @@ def prolog():
 
 
 def process(folder, files):
-    with open(os.path.join(folder, "Configurations.json"), "r") as source:
-        content = "".join([line for line in source if not line.startswith("#")])
-        json_content = json.loads(content)
+    json_content = load_json_config_file(os.path.join(folder,
+                                                      "Configurations.json"))
     try:
         def_list = json_content["DEF"]
     except KeyError:
@@ -109,7 +108,8 @@ def process(folder, files):
     for config in def_list:
         logging.debug(config)
         try:
-            configname = list(config.keys())[0]
+            configname = [name for name in config.keys()
+                          if name != "EXPECTED"][0]
             configbody = config[configname]
         except (AttributeError, IndexError) as e:
             LOGGER.error(e)
@@ -138,14 +138,26 @@ def process(folder, files):
             LOGGER.error("Could not find a harness in folder %s.", folder)
             LOGGER.error("This folder is not processed do the end!")
             return
-        current_config = dict(json_content)
+        # The order of keys must be maintained as otherwise the
+        # make_proof_makefiles script might fail.
+        current_config = collections.OrderedDict(json_content)
         current_config["DEF"] = configbody
+        if "EXPECTED" in config.keys():
+            current_config["EXPECTED"] = config["EXPECTED"]
+        else:
+            current_config["EXPECTED"] = True
         with open(os.path.join(new_config_folder, "Makefile.json"),
                   "w") as output_file:
             json.dump(current_config, output_file, indent=2)
 
 
-if __name__ == '__main__':
+def main():
     for fldr, _, fyles in os.walk("."):
         if "Configurations.json" in fyles:
             process(fldr, fyles)
+
+
+if __name__ == '__main__':
+    logging.basicConfig(format="{script}: %(levelname)s %(message)s".format(
+        script=os.path.basename(__file__)))
+    main()
