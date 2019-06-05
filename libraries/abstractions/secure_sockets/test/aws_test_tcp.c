@@ -1967,8 +1967,8 @@ TEST( Full_TCP, AFQP_SOCKETS_Connect_InvalidAddressLength )
     /* AddressLength 0. */
     prvConnect_InvalidAddressLength( eNonsecure, 0 );
 
-    /* AddressLength 100. */
-    prvConnect_InvalidAddressLength( eNonsecure, 100 );
+    /* AddressLength 1000. */
+    prvConnect_InvalidAddressLength( eNonsecure, 1000 );
 
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
@@ -1981,8 +1981,8 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidAddressLength )
     /* AddressLength 0. */
     prvConnect_InvalidAddressLength( eSecure, 0 );
 
-    /* AddressLength 100. */
-    prvConnect_InvalidAddressLength( eSecure, 100 );
+    /* AddressLength 1000. */
+    prvConnect_InvalidAddressLength( eSecure, 1000 );
 
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
