@@ -95,7 +95,7 @@
 #define configUSE_DAEMON_TASK_STARTUP_HOOK         0
 
 /* Misc */
-#define configUSE_APPLICATION_TASK_TAG             0
+#define configUSE_APPLICATION_TASK_TAG             1
 
 
 /* Interrupt nesting behaviour configuration. */
