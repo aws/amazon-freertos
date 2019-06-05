@@ -85,7 +85,7 @@ static EventGroupHandle_t xSyncEventGroup;
 CK_SESSION_HANDLE xGlobalSession;
 CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
 
-#define pkcs11testINVALID_SLOT_ID    -1
+#define pkcs11testINVALID_SLOT_ID    ( CK_SLOT_ID )-1
 
 
 extern CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
