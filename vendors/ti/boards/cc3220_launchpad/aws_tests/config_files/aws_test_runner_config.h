@@ -39,10 +39,9 @@
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
 #define testrunnerFULL_TASKPOOL_ENABLED            0
-#define testrunnerFULL_MQTT_ENABLED                1
 #define testrunnerFULL_MQTT_STRESS_TEST_ENABLED    0
 #define testrunnerFULL_MQTT_AGENT_ENABLED          0
-#define testrunnerFULL_MQTTv4_ENABLED              0
+#define testrunnerFULL_MQTTv4_ENABLED              1
 #define testrunnerFULL_TCP_ENABLED                 0
 #define testrunnerFULL_GGD_ENABLED                 0
 #define testrunnerFULL_GGD_HELPER_ENABLED          0

@@ -220,14 +220,17 @@ static void _mqttOperation_tryDestroy( void * pData )
     }
     else
     {
-        /* Decrement reference count and destroy operation if possible. */
-        if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+        if( ( pOperation->u.operation.flags & IOT_MQTT_FLAG_WAITABLE ) == 0 )
         {
-            _IotMqtt_DestroyOperation( pOperation );
-        }
-        else
-        {
-            EMPTY_ELSE_MARKER;
+            /* Decrement reference count and destroy operation if possible. */
+            if( _IotMqtt_DecrementOperationReferences( pOperation, true ) == true )
+            {
+                _IotMqtt_DestroyOperation( pOperation );
+            }
+            else
+            {
+                EMPTY_ELSE_MARKER;
+            }
         }
     }
 }
