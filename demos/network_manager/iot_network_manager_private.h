@@ -66,6 +66,8 @@
  */
 #define ETH_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
 
+#define TCPIP_NETWORK_ENABLED ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_TCP_IP ) != 0 )
+
 /**
  * @brief Initializer for a subscription handle.
  */
@@ -132,9 +134,32 @@ uint32_t AwsIotNetworkManager_GetConfiguredNetworks( void );
 uint32_t AwsIotNetworkManager_GetEnabledNetworks( void );
 
 /**
- * @brief Get the network interface for a network type.
+ * @brief Get the network interface for a given network.
+ * The network interface can be used to create/delete a network connection, send/receive data over the connection.
+ * 
+ * @param[in] networkType The type of the network
+ * @return  NetworkInterface stucture for the network type.
+ * 
  */
 const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType ); 
+
+/**
+ * @brief Gets the credentials associated with the network.
+ * Credentials can then be passed in to the network interface create API to create a secure connection over the network.
+ * 
+ * @param[in] networkType Type of the network
+ * @return  Blob representing the credentials associated with a network. NULL if no credentials are provided. 
+ */
+void * AwsIotNetworkManager_GetCredentials( uint32_t networkType );
+
+/**
+ * @brief Gets the connection parameters associated with a network.
+ * Connection parameters can the be passed in to the network interface create API to create a connection over the network.
+ * 
+ * @param[in] networkType Type of the network
+ * @return Blob representing the parameters for connection over a network.
+ */
+void * AwsIotNetworkManager_GetConnectionParams( uint32_t networkType );
 
 /**
  * API to enable network manager for different networks
@@ -145,6 +170,7 @@ uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes );
 
 /**
  * API to disable network manager for different networks
+ * 
  * @param ulNetworkTypes Network types
  * @return FLag indicating the network types disabled
  */

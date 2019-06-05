@@ -153,11 +153,6 @@
     #define IOT_PLATFORM_NAME    "Unknown"
 #endif
 
-/* Serializer used in MQTT demo. */
-#ifndef IOT_MQTT_SERIALIZER_OVERRIDE
-    #define IOT_MQTT_SERIALIZER_OVERRIDE    ( NULL )
-#endif
-
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
 #define IotMetricsConnectionId_t            void *
 

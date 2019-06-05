@@ -31,7 +31,6 @@
 #include <string.h>
 
 #include "FreeRTOS.h"
-#include "semphr.h"
 
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
@@ -42,20 +41,24 @@
 /** Platform level includes **/
 #include "platform/iot_threads.h"
 #include "platform/iot_clock.h"
-#include "platform/iot_network_ble.h"
-#include "platform/iot_network_afr.h"
+
 
 #if BLE_ENABLED
-
 #include "iot_ble_config.h"
 #include "iot_ble.h"
-#include <iot_ble_numericComparison.h>
+#include "iot_ble_numericComparison.h"
+#include "platform/iot_network_ble.h"
 #endif
 
 #if WIFI_ENABLED
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
 #endif
+
+#if TCPIP_NETWORK_ENABLED
+#include "platform/iot_network_afr.h"
+#endif
+
 
 #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
 #include "iot_ble_wifi_provisioning.h"
@@ -74,16 +77,21 @@
 
 
 /**
- * @brief Structure wraps the type and state of each networks enabled.
+ * @brief Structure holds information for each network and the runtime state of it.
  */
 typedef struct IotNMNetwork
 {
-    IotLink_t link;
-    uint32_t type;
-    AwsIotNetworkState_t state;
-    const IotNetworkInterface_t *networkInterface;
+    IotLink_t                   link;
+    uint32_t                    type;
+    AwsIotNetworkState_t        state;
+    const IotNetworkInterface_t * pNetworkInterface;
+    void                        * pConnectionParams;
+    void                        * pCredentials;
 } IotNMNetwork_t;
 
+/**
+ * @brief Structure holds information for each of the network state change subscription.
+ */
 typedef struct IotNMSubscription
 {
     IotLink_t link;
@@ -92,6 +100,9 @@ typedef struct IotNMSubscription
     void *pContext;
 } IotNMSubscription_t;
 
+/**
+ * @brief Network manager object, holds the list of supported networks and the list of network state change subscriptions.
+ */
 typedef struct IotNetworkManager
 {
     IotListDouble_t subscriptions;          
@@ -177,34 +188,59 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
  */
 static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
 
+/**
+ * @brief Initialize TCP/IP credentials for WIFI and ethernet networks.
+ */
+static void _initializeTCPIPCredentials( void );
 
 #if BLE_ENABLED
+
+/**
+ * @brief Configuration and state for a BLE Network.
+ */
 static IotNMNetwork_t bleNetwork =
 {
-    .type            = AWSIOT_NETWORK_TYPE_BLE,
-    .link            = IOT_LINK_INITIALIZER,
-    .state           = eNetworkStateUnknown,
-    .networkInterface = IOT_NETWORK_INTERFACE_BLE
+    .type              = AWSIOT_NETWORK_TYPE_BLE,
+    .link              = IOT_LINK_INITIALIZER,
+    .state             = eNetworkStateUnknown,
+    .pNetworkInterface = IOT_NETWORK_INTERFACE_BLE,
+    .pCredentials      = NULL,
+    .pConnectionParams = NULL
 };
 #endif
 
+/**
+ * @brief The credentials placeholder for a TCP/IP network.  
+ *
+ */
+static IotNetworkCredentials_t tcpIPCredentials = { 0 };
+
+/*
+ * @brief Connection parameters placeholder for a TCP/IP network.
+ */
+static IotNetworkServerInfo_t  tcpIPConnectionParams = { 0 };
+
 #if WIFI_ENABLED
-IotNMNetwork_t wifiNetwork =
+static IotNMNetwork_t wifiNetwork =
 { 
-    .type            = AWSIOT_NETWORK_TYPE_WIFI,
-    .link            = IOT_LINK_INITIALIZER,
-    .state           = eNetworkStateUnknown,
-    .networkInterface = IOT_NETWORK_INTERFACE_AFR
+    .type              = AWSIOT_NETWORK_TYPE_WIFI,
+    .link              = IOT_LINK_INITIALIZER,
+    .state             = eNetworkStateUnknown,
+    .pNetworkInterface = IOT_NETWORK_INTERFACE_AFR,
+    .pCredentials      = &tcpIPCredentials,
+    .pConnectionParams = &tcpIPConnectionParams
 };
 #endif 
 
 #if ETH_ENABLED
-IotNMNetwork_t ethNetwork =
+static IotNMNetwork_t ethNetwork =
 {
     .type             = AWSIOT_NETWORK_TYPE_ETH,
     .link             = IOT_LINK_INITIALIZER,
     .state            = eNetworkStateUnknown,
-    .networkInterface = IOT_NETWORK_INTERFACE_AFR
+    .pNetworkInterface = IOT_NETWORK_INTERFACE_AFR,
+    .pCredentials      = &tcpIPCredentials,
+    .pConnectionParams = &tcpIPConnectionParams
 };
 #endif 
 
@@ -608,8 +644,37 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
     IotMutex_Unlock( &networkManager.nmLock );
 }
 
-/*-----------------------------------------------------------*/
+static void _initializeTCPIPCredentials( void )
+{
 
+#if TCPIP_NETWORK_ENABLED
+    
+    tcpIPConnectionParams.pHostName = clientcredentialMQTT_BROKER_ENDPOINT;  
+    tcpIPConnectionParams.port      = clientcredentialMQTT_BROKER_PORT;
+    
+    if( tcpIPConnectionParams.port == 443 )
+    {
+        tcpIPCredentials.pAlpnProtos  = socketsAWS_IOT_ALPN_MQTT;
+    }
+    else
+    {
+        tcpIPCredentials.pAlpnProtos  = NULL;
+    }
+    
+    tcpIPCredentials.maxFragmentLength = 0;
+    tcpIPCredentials.disableSni        = false;
+    tcpIPCredentials.pRootCa           = NULL;
+    tcpIPCredentials.rootCaSize        = 0;
+    tcpIPCredentials.pClientCert       = keyCLIENT_CERTIFICATE_PEM;
+    tcpIPCredentials.clientCertSize    = sizeof( keyCLIENT_CERTIFICATE_PEM );
+    tcpIPCredentials.pPrivateKey       = keyCLIENT_PRIVATE_KEY_PEM;
+    tcpIPCredentials.privateKeySize    = sizeof( keyCLIENT_PRIVATE_KEY_PEM );
+
+#endif
+
+}
+
+/*-----------------------------------------------------------*/
 
 BaseType_t AwsIotNetworkManager_Init( void )
 {
@@ -640,24 +705,28 @@ BaseType_t AwsIotNetworkManager_Init( void )
             IotListDouble_Create( &networkManager.pendingInvocations );
             
 #if WIFI_ENABLED
-           IotListDouble_InsertTail( &networkManager.networks, &wifiNetwork.link );
+            IotListDouble_InsertTail( &networkManager.networks, &wifiNetwork.link );
 
-           WIFIReturnCode_t retCode = WIFI_RegisterNetworkStateChangeEventCallback( _onNetworkStateChangeCallback );
-           /* One time registration of network event callback with the Wi-Fi driver */
-           if ( ( retCode != eWiFiSuccess ) && ( retCode != eWiFiNotSupported ) )
-           {
+            WIFIReturnCode_t retCode = WIFI_RegisterNetworkStateChangeEventCallback( _onNetworkStateChangeCallback );
+            /* One time registration of network event callback with the Wi-Fi driver */
+            if ( ( retCode != eWiFiSuccess ) && ( retCode != eWiFiNotSupported ) )
+            {
                 error = pdFALSE;
-           } 
-#endif
-#if BLE_ENABLED
-            IotListDouble_InsertTail( &networkManager.networks, &bleNetwork.link );
-            /* Registration of network event callback for BLE is handled within _bleEnable() */
+            } 
 #endif
 
 #if ETH_ENABLED
             IotListDouble_InsertTail( &networkManager.networks, &ethNetwork.link );
 #endif
-         }
+            
+#if BLE_ENABLED
+            IotListDouble_InsertTail( &networkManager.networks, &bleNetwork.link );
+            /* Registration of network event callback for BLE is handled within _bleEnable() */
+#endif
+
+            _initializeTCPIPCredentials();
+
+        }
     }
 
     return error;
@@ -849,7 +918,6 @@ uint32_t AwsIotNetworkManager_DisableNetwork( uint32_t networkTypes )
     return disabled;
 }
 
-
 const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType )
 {
     IotNMNetwork_t *pNetwork;
@@ -861,9 +929,46 @@ const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t
         pNetwork = IotLink_Container( IotNMNetwork_t, pLink, link );
         if( pNetwork->type == networkType )
         {
-            pInterface = pNetwork->networkInterface;
+            pInterface = pNetwork->pNetworkInterface;
         }
     }
 
     return pInterface;
+}
+
+void * AwsIotNetworkManager_GetCredentials( uint32_t networkType )
+{
+    void *pCredentials = NULL;
+    IotLink_t* pLink;
+    IotNMNetwork_t *pNetwork;
+
+    IotContainers_ForEach( &networkManager.networks, pLink )
+    {
+        pNetwork = IotLink_Container( IotNMNetwork_t, pLink, link );
+        if( pNetwork->type == networkType )
+        {
+            pCredentials = pNetwork->pCredentials;
+        }
+    }
+
+    return pCredentials;
+}
+
+void * AwsIotNetworkManager_GetConnectionParams( uint32_t networkType )
+{
+    void *pConnectionParams = NULL;
+    IotLink_t* pLink;
+    IotNMNetwork_t *pNetwork;
+
+    IotContainers_ForEach( &networkManager.networks, pLink )
+    {
+        pNetwork = IotLink_Container( IotNMNetwork_t, pLink, link );
+        if( pNetwork->type == networkType )
+        {
+            pConnectionParams = pNetwork->pConnectionParams;
+        }
+    }
+
+    return pConnectionParams;
+
 }
