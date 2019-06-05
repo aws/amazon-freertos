@@ -222,7 +222,7 @@ typedef void (* BTClassicDevicePropertiesCallback_t)( BTStatus_t xStatus,
 typedef void ( * BTClassicRemoteDevicePropertiesCallback_t )( BTStatus_t xStatus,
                                                               BTBdaddr_t * pxBdAddr,
                                                               uint32_t ulNumProperties,
-                                                              BTClassicProperty_t *pxProperties);
+                                                              BTClassicProperty_t * pxProperties );
 
 /** New device discovered callback */
 

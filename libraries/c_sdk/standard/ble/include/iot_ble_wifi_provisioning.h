@@ -114,16 +114,15 @@ typedef enum
  */
 typedef struct IotBleWifiProvService
 {
-    IotBleDataTransferChannel_t * pChannel;    /**< A pointer to the ble connection object. */
-    IotSemaphore_t lock;                       /**< Lock to gauarentee only a single request is processed at a time. */
-    uint16_t numNetworks;                      /**< Keeps track of total number of networks stored. */
-    int16_t connectedIdx;                      /**< Keeps track of the flash index of the network that is connected. */
+    IotBleDataTransferChannel_t * pChannel; /**< A pointer to the ble connection object. */
+    IotSemaphore_t lock;                    /**< Lock to gauarentee only a single request is processed at a time. */
+    uint16_t numNetworks;                   /**< Keeps track of total number of networks stored. */
+    int16_t connectedIdx;                   /**< Keeps track of the flash index of the network that is connected. */
 
-    IotBleListNetworkRequest_t   listNetworkRequest;
-    IotBleAddNetworkRequest_t    addNetworkRequest;
-    IotBleEditNetworkRequest_t   editNetworkRequest;
+    IotBleListNetworkRequest_t listNetworkRequest;
+    IotBleAddNetworkRequest_t addNetworkRequest;
+    IotBleEditNetworkRequest_t editNetworkRequest;
     IotBleDeleteNetworkRequest_t deleteNetworkRequest;
-
 } IotBleWifiProvService_t;
 
 /**
@@ -151,8 +150,8 @@ typedef struct IotBleWifiProvService
  * @brief Initialize wifi provisioning over BLE service.
  *
  * Creates necessary data structures for the service. Opens ble data transfer channel and listens
- * for incoming messages from the channel. 
- * 
+ * for incoming messages from the channel.
+ *
  * @return true if the initialization succeeded.
  *         false if the initialization failed.
  */

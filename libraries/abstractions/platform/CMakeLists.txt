@@ -29,7 +29,7 @@ afr_module_dependencies(
         AFR::common
 )
 
-if(TARGET AFR::wifi::mcu_port)
+if(TARGET AFR::secure_sockets::mcu_port)
     afr_module_sources(
         ${AFR_CURRENT_MODULE}
         PRIVATE
