@@ -984,7 +984,6 @@ void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
         xResult = xProvisionPrivateKey( xGlobalSession,
                                         ( uint8_t * ) cValidRSAPrivateKey,
                                         sizeof( cValidRSAPrivateKey ),
-                                        CKK_RSA,
                                         ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                         pxPrivateKeyHandle );
 
@@ -1302,7 +1301,6 @@ void prvProvisionCredentialsWithKeyImport( CK_OBJECT_HANDLE_PTR pxPrivateKeyHand
         xResult = xProvisionPrivateKey( xGlobalSession,
                                         ( uint8_t * ) cValidECDSAPrivateKey,
                                         sizeof( cValidECDSAPrivateKey ),
-                                        CKK_EC,
                                         ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                         pxPrivateKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC private key." );
@@ -1423,7 +1421,6 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys )
     xResult = xProvisionPrivateKey( xGlobalSession,
                                     ( uint8_t * ) cValidECDSAPrivateKey,
                                     sizeof( cValidECDSAPrivateKey ),
-                                    CKK_EC,
                                     ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                     &xPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC private key." );

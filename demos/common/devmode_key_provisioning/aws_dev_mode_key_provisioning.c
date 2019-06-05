@@ -62,25 +62,6 @@
 
 /*-----------------------------------------------------------*/
 
-/* For convenience and to enable rapid evaluation the keys are stored in const
- * strings, see aws_clientcredential_keys.h.  THIS IS NOT GOOD PRACTICE FOR
- * PRODUCTION SYSTEMS WHICH MUST STORE KEYS SECURELY.  The variables declared
- * here are externed in aws_clientcredential_keys.h for access by other
- * modules. */
-const char clientcredentialCLIENT_CERTIFICATE_PEM[] = keyCLIENT_CERTIFICATE_PEM;
-const char * clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
-const char clientcredentialCLIENT_PRIVATE_KEY_PEM[] = keyCLIENT_PRIVATE_KEY_PEM;
-
-/*
- * Length of device certificate included from aws_clientcredential_keys.h .
- */
-const uint32_t clientcredentialCLIENT_CERTIFICATE_LENGTH = sizeof( clientcredentialCLIENT_CERTIFICATE_PEM );
-
-/*
- * Length of device private key included from aws_clientcredential_keys.h .
- */
-const uint32_t clientcredentialCLIENT_PRIVATE_KEY_LENGTH = sizeof( clientcredentialCLIENT_PRIVATE_KEY_PEM );
-
 
 /* Key provisioning helper defines. */
 #define provisioningPRIVATE_KEY_TEMPLATE_COUNT         4
@@ -122,21 +103,21 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     mbedtls_pk_init( &xMbedPkContext );
     lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucPrivateKey, xPrivateKeyLength, NULL, 0 );
 
-    if ( lMbedResult != 0 )
+    if( lMbedResult != 0 )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
 
     /* Determine whether the key to be imported is RSA or EC. */
-    if ( xResult == CKR_OK )
+    if( xResult == CKR_OK )
     {
         xMbedKeyType = mbedtls_pk_get_type( &xMbedPkContext );
 
-        if ( xMbedKeyType == MBEDTLS_PK_RSA )
+        if( xMbedKeyType == MBEDTLS_PK_RSA )
         {
             xPrivateKeyType = CKK_RSA;
         }
-        else if ( xMbedKeyType == MBEDTLS_PK_ECDSA || xMbedKeyType == MBEDTLS_PK_ECKEY || xMbedKeyType == MBEDTLS_PK_ECKEY_DH )
+        else if( ( xMbedKeyType == MBEDTLS_PK_ECDSA ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY_DH ) )
         {
             xPrivateKeyType = CKK_EC;
         }
@@ -146,7 +127,6 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
             xResult = CKR_ARGUMENTS_BAD;
         }
     }
-
 
     /* EC Keys. */
     if( xPrivateKeyType == CKK_EC )
@@ -754,6 +734,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                          pxParams->ulClientCertificateLength,
                                          ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                                          &xObject );
+        if ( xResult != CKR_OK || xObject == CK_INVALID_HANDLE )
+        {
+            configPRINTF( ("ERROR: Failed to provision device certificate. %d \r\n", xResult ));
+        }
     }
 
     if( xResult == CKR_OK )
@@ -763,6 +747,28 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                         pxParams->ulClientPrivateKeyLength,
                                         ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                         &xObject );
+        if ( xResult != CKR_OK || xObject == CK_INVALID_HANDLE )
+        {
+            configPRINTF( ("ERROR: Failed to provision device private key. %d \r\n", xResult) );
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        if( pxParams->ulJITPCertifiateLength != 0 )
+        {
+            xResult = xProvisionCertificate( xSession,
+                                             pxParams->pucJITPCertificate,
+                                             pxParams->ulJITPCertifiateLength,
+                                             ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
+                                             &xObject );
+
+            if( xResult == CKR_DEVICE_MEMORY )
+            {
+                xResult = CKR_OK;
+                configPRINTF( ( "Warning: Device does not have memory allocated for JITP certificate.  Certificate from aws_clientcredential_keys.h will be used for JITR. \r\n" ) );
+            }
+        }
     }
 
     if( xResult == CKR_OK )
@@ -808,12 +814,38 @@ void vDevModeKeyProvisioning( void )
 {
     ProvisioningParams_t xParams;
 
-    xParams.pucClientPrivateKey = ( uint8_t * ) clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    xParams.ulClientPrivateKeyLength = clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
-    xParams.pucClientCertificate = ( uint8_t * ) clientcredentialCLIENT_CERTIFICATE_PEM;
-    xParams.ulClientCertificateLength = clientcredentialCLIENT_CERTIFICATE_LENGTH;
+    xParams.pucClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.pucClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
+    xParams.pucJITPCertificate = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
 
-    vAlternateKeyProvisioning( &xParams );
+    /* If using a JITR flow, a JITR certificate must be supplied. If using credentials generated by
+     * AWS, this certificate is not needed. */
+    if( ( NULL == xParams.pucJITPCertificate ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
+    {
+        xParams.ulJITPCertifiateLength = 0;
+        configPRINTF( ( "No JITP certificate supplied (JITP certificate is not necessary when using AWS issued credentials). \r\n" ) );
+    }
+    else
+    {
+        xParams.ulJITPCertifiateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
+    }
+
+    if( ( NULL == xParams.pucClientPrivateKey ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) ||
+        ( NULL == xParams.pucClientCertificate ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
+    {
+        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key and certificate.\r\n" ) );
+        configASSERT( pdFALSE );
+    }
+    else
+    {
+        xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
+        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pucClientCertificate );
+        vAlternateKeyProvisioning( &xParams );
+    }
+
 }
 
 /*-----------------------------------------------------------*/
