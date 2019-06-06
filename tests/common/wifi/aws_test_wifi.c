@@ -810,9 +810,6 @@ TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
     {
         xWiFiStatus = WIFI_SetMode( eWiFiModeNotSupported );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1031,9 +1028,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_InvalidDomainName )
 
         /* Assert that the IP address is NOT found. */
         TEST_ASSERT_EQUAL_INT32( *( ( uint32_t * ) ucIPAddr ), 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1066,9 +1060,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
 
         /* Assert that the IP address is NOT found. */
         TEST_ASSERT_EQUAL_INT32( *( ( uint32_t * ) ucIPAddr ), 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1117,9 +1108,6 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber )
         /* Ports are allowed to decide to return success or failure depending on
          * their driver for a scan number of zero. */
         WIFI_Scan( xScanResults, 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1254,9 +1242,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteNonExistingNetwork )
         /* Delete non-existing network. */
         xWiFiStatus = WIFI_NetworkDelete( usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess == xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1297,9 +1282,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork )
         /* Get non-existing network. */
         xWiFiStatus = WIFI_NetworkGet( &xNetworkProfile, usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1325,9 +1307,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
             xWiFiStatus = WIFI_NetworkGet( &xNetworkProfile, usIndex );
             TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1402,9 +1381,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
                 TEST_ASSERT_EQUAL_INT32( 0, lCompResults );
             }
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1422,9 +1398,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks )
         {
             WIFI_NetworkDelete( usIndex );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1560,9 +1533,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Set the network parameters with valid parameters */
@@ -1576,9 +1546,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null password. */
@@ -1590,9 +1557,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null password for open security network. */
@@ -1627,9 +1591,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1657,9 +1618,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1687,9 +1645,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1709,9 +1664,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
     if( TEST_PROTECT() )
     {
         WIFI_ConfigureAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1731,9 +1683,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
     if( TEST_PROTECT() )
     {
         WIFI_ConfigureAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1756,9 +1705,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
             xNetworkParams.cChannel = ulIndex;
             WIFI_ConfigureAP( &xNetworkParams );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1801,9 +1747,6 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
     {
         xWiFiStatus = WIFI_Ping( NULL, testwifiPING_COUNT, testwifiPING_INTERVAL_MS );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1937,9 +1880,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidPassword )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -1973,9 +1913,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2009,9 +1946,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
         /* It is allowed that some ports will infer the security type from the Wi-Fi
          * scan. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Truly invalid security type. */
@@ -2022,9 +1956,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
         /* It is allowed that some ports will infer the security type from the Wi-Fi
          * scan. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2047,9 +1978,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels )
             xNetworkParams.cChannel = ulIndex;
             WIFI_ConnectAP( &xNetworkParams );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2077,9 +2005,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2118,9 +2043,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2153,9 +2075,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID )
         /* This may not return failure if the max SSID length is copied in the port.
          */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2177,9 +2096,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword )
         /* This may not return faulure if the max passphrase length is copied in the
          * port. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2201,9 +2117,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
     {
         /* May not return false. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
