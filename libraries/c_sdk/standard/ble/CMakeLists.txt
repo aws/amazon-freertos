@@ -2,7 +2,7 @@ afr_module()
 
 afr_set_lib_metadata(ID "ble")
 # Need to update from PM
-afr_set_lib_metadata(DESCRIPTION "Please add description for BLE")
+afr_set_lib_metadata(DESCRIPTION "This library implements an abstraction layer for Bluetooth Low Energy GAP and GATT protocols")
 afr_set_lib_metadata(DISPLAY_NAME "BLE Management")
 afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")

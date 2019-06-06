@@ -16,7 +16,7 @@ set(AFR_MODULE_defender 0 CACHE INTERNAL "")
 # -------------------------------------------------------------------------------------------------
 
 afr_set_board_metadata(ID "nrf52840-dk")
-afr_set_board_metadata(DISPLAY_NAME "NRF52")
+afr_set_board_metadata(DISPLAY_NAME "nRF52840 DK")
 afr_set_board_metadata(DESCRIPTION "Nordic nrf52840-dk Development Kit")
 afr_set_board_metadata(VENDOR_NAME "Nordic")
 afr_set_board_metadata(FAMILY_NAME "NRF52")

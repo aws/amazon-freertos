@@ -83,7 +83,7 @@ target_compile_options(
 add_library(3rdparty::tinycbor ALIAS afr_3rdparty_tinycbor)
 
 # tracealyzer - Trace record library from FreeRTOS
-afr_3rdparty_module(tracealyzer)
+afr_3rdparty_module(tracealyzer_recorder)
 target_sources(
     3rdparty::tracealyzer INTERFACE
     "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcKernelPort.c"
