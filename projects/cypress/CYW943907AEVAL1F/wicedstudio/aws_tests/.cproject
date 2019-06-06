@@ -118,15 +118,15 @@
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets">
 		<buildTargets>
 			<target name="clean HOST_OS=Win32" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-				<buildCommand>${ProjDirPath}/../../../../WICED_SDK/make.exe</buildCommand>
+				<buildCommand>${ProjDirPath}/../../../../../vendors/cypress/WICED_SDK/make.exe</buildCommand>
 				<buildArguments/>
-				<buildTarget>clean HOST_OS=Win32</buildTarget>
+				<buildTarget>clean </buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
 			</target>
 			<target name="test.aws_test-CYW943907AEVAL1F-FreeRTOS-LwIP HOST_OS=Win32 download run" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
-				<buildCommand>../../../WICED_SDK/make.exe</buildCommand>
+				<buildCommand>${ProjDirPath}/../../../../../vendors/cypress/WICED_SDK/make.exe</buildCommand>
 				<buildArguments/>
 				<buildTarget>test.aws_test-CYW943907AEVAL1F-FreeRTOS-LwIP HOST_OS=Win32 download run</buildTarget>
 				<stopOnError>true</stopOnError>
