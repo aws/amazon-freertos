@@ -204,7 +204,7 @@ cbmc-batch.yaml:
 	@echo "jobos: ubuntu16" >> $@
 	@echo "cbmcflags: $(call encode_options,$(CBMCFLAGS) --unwinding-assertions)" >> $@
 	@echo "goto: $(ENTRY).goto" >> $@
-	@echo "expected: SUCCESSFUL" >> $@
+	@echo "expected: $(H_EXPECTED)" >> $@
 
 ################################################################
 """
