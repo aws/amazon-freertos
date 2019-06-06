@@ -91,7 +91,11 @@ target_compile_options(
 )
 
 # Linker flags
-set(linker_flags --cpu Cortex-M4.fp --library_type=microlib --diag_suppress 6340,6329,6314 --strict --scatter "${AFR_ROOT_DIR}/projects/mediatek/mt7697hx-dev-kit/uvision/aws_tests/flash.sct" --entry Reset_Handler --first __isr_vector --summary_stderr --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols )
+set(
+    linker_flags --cpu Cortex-M4.fp --library_type=microlib --diag_suppress 6340,6329,6314 --strict
+    --scatter "${board_dir}/flash.sct" --entry Reset_Handler --first __isr_vector --summary_stderr
+    --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols
+)
 
 target_link_options(
     AFR::compiler::mcu_port
@@ -392,7 +396,7 @@ add_executable(
     ${board_code_src}
     ${config_files}
     $<IF:${AFR_IS_TESTING}, ,${network_manager_src}>
-    "${AFR_ROOT_DIR}/projects/mediatek/mt7697hx-dev-kit/uvision/aws_tests/startup_mt7687.s"
+    "${board_dir}/startup_mt7687.s"
     "${board_dir}/application_code/main.c"
     "${board_dir}/application_code/lwipopts.c"
     "${board_dir}/application_code/mediatek_code/source/sys_init.c"
