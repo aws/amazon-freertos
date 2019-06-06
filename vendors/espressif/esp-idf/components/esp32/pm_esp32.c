@@ -261,11 +261,7 @@ void IRAM_ATTR esp_pm_impl_switch_mode(pm_mode_t mode,
 {
     bool need_switch = false;
     uint32_t mode_mask = BIT(mode);
-    if (xPortInIsrContext()) {
-        portENTER_CRITICAL_ISR(&s_switch_lock);
-    } else {
-        portENTER_CRITICAL(&s_switch_lock);
-    }
+    portENTER_CRITICAL_SAFE(&s_switch_lock);
     uint32_t count;
     if (lock_or_unlock == MODE_LOCK) {
         count = ++s_mode_lock_counts[mode];
@@ -292,11 +288,7 @@ void IRAM_ATTR esp_pm_impl_switch_mode(pm_mode_t mode,
         s_last_mode_change_time = now;
 #endif // WITH_PROFILING
     }
-    if (xPortInIsrContext()) {
-        portEXIT_CRITICAL_ISR(&s_switch_lock);
-    } else {
-        portEXIT_CRITICAL(&s_switch_lock);
-    }
+    portEXIT_CRITICAL_SAFE(&s_switch_lock);
     if (need_switch && new_mode != s_mode) {
         do_switch(new_mode);
     }

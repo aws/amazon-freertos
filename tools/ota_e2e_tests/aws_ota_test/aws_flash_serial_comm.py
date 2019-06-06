@@ -97,7 +97,7 @@ class FlashSerialComm:
         """
         retryCount = 0
         testOutput = ''
-        returnCodes = None
+        returnCodes = []
 
         while (not testOutput) and retryCount < self._flashConfig['flash_num_retry']:
             # Clear the serial log before each new program of the board.
