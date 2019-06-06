@@ -137,7 +137,7 @@ class OtaAfrProject:
         output = self._buildConfig['output']
         if not os.path.exists(output):
             print("ERROR: Could not find the output binary, the build might have failed.")
-            print('Searched for build output at: {}'.format(self._buildConfig['output']))
+            print('Searched for build output at: {} and the current working directory is: '.format(self._buildConfig['output']), os.getcwd())
             raise Exception("Error building project check build_output.txt")
         print('Build finished, output: {}'.format(self._buildConfig['output']))
 
