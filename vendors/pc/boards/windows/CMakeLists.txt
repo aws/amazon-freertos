@@ -68,7 +68,7 @@ target_include_directories(
 target_link_libraries(
     AFR::kernel::mcu_port
     INTERFACE
-        3rdparty::tracealyzer
+        3rdparty::tracealyzer_recorder
 )
 
 # POSIX
@@ -109,7 +109,7 @@ target_include_directories(
 )
 target_link_libraries(
     AFR::freertos_plus_tcp::mcu_port
-    INTERFACE 3rdparty::winpcap
+    INTERFACE 3rdparty::win_pcap
 )
 
 # Secure sockets
