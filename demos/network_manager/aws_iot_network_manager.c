@@ -53,6 +53,7 @@
 #if WIFI_ENABLED
 #include "aws_wifi.h"
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 #endif
 
 #if TCPIP_NETWORK_ENABLED
