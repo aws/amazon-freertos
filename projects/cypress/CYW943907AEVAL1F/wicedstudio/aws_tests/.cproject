@@ -120,7 +120,7 @@
 			<target name="clean HOST_OS=Win32" path="" targetID="org.eclipse.cdt.build.MakeTargetBuilder">
 				<buildCommand>${ProjDirPath}/../../../../../vendors/cypress/WICED_SDK/make.exe</buildCommand>
 				<buildArguments/>
-				<buildTarget>clean </buildTarget>
+				<buildTarget>clean HOST_OS=Win32</buildTarget>
 				<stopOnError>true</stopOnError>
 				<useDefaultCommand>true</useDefaultCommand>
 				<runAllBuilders>true</runAllBuilders>
