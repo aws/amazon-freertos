@@ -423,7 +423,13 @@ target_link_libraries(
         AFR::pkcs11
 )
 
+find_program(fromelf fromelf.exe PATHS "${AFR_COMPILER_DIR}")
+set(output_bin_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.bin")
+set(output_axf_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.axf")
+
 add_custom_command(
     TARGET ${exe_target} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
+    COMMAND "echo" "Creating .bin file"
+    COMMAND "${fromelf}" --bin -o ${output_bin_file} ${output_axf_file}
 )

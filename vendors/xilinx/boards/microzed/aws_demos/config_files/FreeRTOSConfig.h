@@ -67,7 +67,7 @@
 #define configUSE_MUTEXES                          1
 #define configUSE_RECURSIVE_MUTEXES                1
 #define configQUEUE_REGISTRY_SIZE                  8
-#define configUSE_APPLICATION_TASK_TAG             0
+#define configUSE_APPLICATION_TASK_TAG             1
 #define configUSE_COUNTING_SEMAPHORES              1
 #define configUSE_QUEUE_SETS					1
 #define configUSE_ALTERNATIVE_API                  0

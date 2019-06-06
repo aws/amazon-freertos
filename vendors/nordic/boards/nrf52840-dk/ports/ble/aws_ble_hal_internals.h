@@ -79,7 +79,7 @@ extern BTUuid_t xAppUuid;
 extern bool bIsAdvertising;
 extern BTGattServerCallbacks_t xGattServerCb;
 extern ble_advertising_t xAdvertisingHandle;
-extern ret_code_t prvResumeAdvertisement(uint8_t ucAdvMode);
+extern ret_code_t prvResumeAdvertisement( uint8_t ucAdvMode );
 const void * prvBTGetGattServerInterface();
 void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                          void * p_context );
@@ -98,6 +98,7 @@ ret_code_t prvAFRUUIDtoNordic( BTUuid_t * pxAFRUuid,
                                ble_uuid_t * pxNordicUUID );
 
 ret_code_t prvStopAdv();
+
 /**
  * @brief Returns the softdevice handle for a given inner GATT handle
  * @param handle inner GATT handle
@@ -150,11 +151,11 @@ static inline const BTStatus_t BTNRFError( const ret_code_t xErrCode )
     return xStatus;
 }
 
-#define BT_NRF_PRINT_ERROR( function, errorcode )                                                                                         \
-    if( ( errorcode ) != NRF_SUCCESS )                                                                                                    \
-    {                                                                                                                                     \
+#define BT_NRF_PRINT_ERROR( function, errorcode )                                                                                  \
+    if( ( errorcode ) != NRF_SUCCESS )                                                                                             \
+    {                                                                                                                              \
         NRF_LOG_ERROR( "Error, cannot execute " # function ", err_code: %d, %s\n", ( errorcode ), nrf_strerror_get( errorcode ) ); \
-    }                                                                                                                                     \
+    }                                                                                                                              \
 
 
 

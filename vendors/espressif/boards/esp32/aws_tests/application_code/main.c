@@ -326,7 +326,7 @@ static esp_err_t prvBLEStackInit( void )
 * We disable BLE when not used in test to free up memory.
 */
 #if ( (testrunnerFULL_BLE_ENABLED == 1) ||(testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1) )
-
+    configPRINTF( ( "Initializing BLE stack.\n" ) );
     ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
 
     xRet = esp_bt_controller_init( &xBtCfg );
@@ -337,16 +337,16 @@ static esp_err_t prvBLEStackInit( void )
     }
     else
     {
-        configPRINTF( ( "Failed to initialize bt controller, err = %d", xRet ) );
+        configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
     }
 
     if( xRet == ESP_OK )
     {
-        xRet = esp_bluedroid_init();
+         xRet = esp_bluedroid_init();
     }
     else
     {
-        configPRINTF( ( "Failed to initialize bluedroid stack, err = %d", xRet ) );
+        configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
     }
 
     if( xRet == ESP_OK )

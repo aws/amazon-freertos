@@ -30,19 +30,12 @@
 
 #include "aws_clientcredential.h"
 #include "iot_demo_logging.h"
-#include "platform/iot_network_afr.h"
-#include "platform/iot_network_ble.h"
 #include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
 #include "aws_demo.h"
 #include "iot_init.h"
 #include "iot_mqtt.h"
 
-/* Server info, End point and port #. */
-static IotNetworkServerInfo_t serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-
-/* Secure connection info. */
-static IotNetworkCredentials_t credentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
@@ -54,21 +47,21 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
 
 #if BLE_ENABLED
-    extern const IotMqttSerializer_t IotBleMqttSerializer;
+extern const IotMqttSerializer_t IotBleMqttSerializer;
 #endif
 
 /*-----------------------------------------------------------*/
 
-const IotMqttSerializer_t * getSerializerOverride( void )
+const IotMqttSerializer_t * demoGetMqttSerializer( void )
 {
     const IotMqttSerializer_t * ret = NULL;
 
-    #if BLE_ENABLED
-        if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
-        {
-            ret = &IotBleMqttSerializer;
-        }
-    #endif
+#if BLE_ENABLED
+    if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
+    {
+        ret = &IotBleMqttSerializer;
+    }
+#endif
 
     return ret;
 }
@@ -115,7 +108,9 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                            AwsIotNetworkState_t state,
                                            void * pContext )
 {
-    const IotNetworkInterface_t * pNetworkInterface;
+    const IotNetworkInterface_t * pNetworkInterface = NULL;
+    void *pConnectionParams = NULL, *pCredentials = NULL;
+
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
     if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
@@ -125,17 +120,14 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
         if( pDemoContext->networkConnectedCallback != NULL )
         {
-            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
-            /* ALPN only works over port 443. Disable it otherwise. */
-            if( serverInfo.port != 443 )
-            {
-                credentials.pAlpnProtos = NULL;
-            }
-
+            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
+            pConnectionParams = AwsIotNetworkManager_GetConnectionParams( network );
+            pCredentials      = AwsIotNetworkManager_GetCredentials( network ),
+    
             pDemoContext->networkConnectedCallback( true,
                                                     clientcredentialIOT_THING_NAME,
-                                                    &serverInfo,
-                                                    &credentials,
+                                                    pConnectionParams,
+                                                    pCredentials,
                                                     pNetworkInterface );
         }
     }
@@ -154,17 +146,13 @@ static void _onNetworkStateChangeCallback( uint32_t network,
             if( pDemoContext->networkConnectedCallback != NULL )
             {
                 pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
-
-                /* ALPN only works over port 443. Disable it otherwise. */
-                if( serverInfo.port != 443 )
-                {
-                    credentials.pAlpnProtos = NULL;
-                }
-
+                pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
+                pCredentials      = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
+                
                 pDemoContext->networkConnectedCallback( true,
                                                         clientcredentialIOT_THING_NAME,
-                                                        &serverInfo,
-                                                        &credentials,
+                                                        pConnectionParams,
+                                                        pCredentials,
                                                         pNetworkInterface );
             }
         }
@@ -290,6 +278,7 @@ void runDemoTask( void * pArgument )
 
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
+    void *pConnectionParams = NULL, *pCredentials = NULL;
     int status;
 
     status = _initialize( pContext );
@@ -299,17 +288,14 @@ void runDemoTask( void * pArgument )
         IotLogInfo( "Successfully initialized the demo. Network type for the demo: %d", demoConnectedNetwork );
 
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
+        pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
+        pCredentials      = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
 
-        /* ALPN only works over port 443. Disable it otherwise. */
-        if( serverInfo.port != 443 )
-        {
-            credentials.pAlpnProtos = NULL;
-        }
         /* Run the demo. */
         status = pContext->demoFunction( true,
                                 clientcredentialIOT_THING_NAME,
-                                ( void * ) &serverInfo,
-                                &credentials,
+                                pConnectionParams,
+                                pCredentials,
                                 pNetworkInterface );
 
         /* Log the demo status. */

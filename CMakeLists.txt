@@ -5,7 +5,10 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "In-source build is not allowed, please use a separate build folder.")
 endif()
 
-project(amazon-freertos VERSION 1.5)
+project(amazon-freertos)
+set(PROJECT_VERSION "201906.00")
+set(PROJECT_VERSION_MAJOR "201906")
+set(PROJECT_VERSION_MINOR "00")
 
 # Import global configurations.
 include("tools/cmake/afr.cmake")

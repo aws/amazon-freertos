@@ -68,8 +68,8 @@ extern void IotBleMqtt_CleanupSerialize( void );
 
 /* Provide a function to retrieve the serializer function pointers in the MQTT demo. */
 typedef struct IotMqttSerializer IotMqttSerializer_t;
-extern const IotMqttSerializer_t * getSerializerOverride( void );
-#define IOT_MQTT_SERIALIZER_OVERRIDE    getSerializerOverride()
+extern const IotMqttSerializer_t * demoGetMqttSerializer( void );
+#define IOT_DEMO_MQTT_SERIALIZER   demoGetMqttSerializer()
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"

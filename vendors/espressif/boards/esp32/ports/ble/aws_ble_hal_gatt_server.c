@@ -173,47 +173,48 @@ void prvGATTeventHandler( esp_gatts_cb_event_t event,
     switch( event )
     {
         case ESP_GATTS_REG_EVT:
-			ulGattServerIFhandle = gatts_if;
+            ulGattServerIFhandle = gatts_if;
 
-			if( xGattServerCb.pxRegisterServerCb != NULL )
-			{
-				if( param->reg.status != ESP_OK )
-				{
-					xStatus = eBTStatusFail;
-					bInterfaceCreated = false;
-				}
-				else
-				{
-					bInterfaceCreated = true;
-				}
+            if( xGattServerCb.pxRegisterServerCb != NULL )
+            {
+                if( param->reg.status != ESP_OK )
+                {
+                    xStatus = eBTStatusFail;
+                    bInterfaceCreated = false;
+                }
+                else
+                {
+                    bInterfaceCreated = true;
+                }
 
-				xGattServerCb.pxRegisterServerCb( xStatus, ulGattServerIFhandle, &xServerUuidCb );
-			}
+                xGattServerCb.pxRegisterServerCb( xStatus, ulGattServerIFhandle, &xServerUuidCb );
+            }
 
             break;
 
         case ESP_GATTS_CREATE_EVT:
 
-			if( xGattServerCb.pxServiceAddedCb != NULL )
-			{
-				if( param->create.status != ESP_OK )
-				{
-					xStatus = eBTStatusFail;
-				}
+            if( xGattServerCb.pxServiceAddedCb != NULL )
+            {
+                if( param->create.status != ESP_OK )
+                {
+                    xStatus = eBTStatusFail;
+                }
 
-				xGattSrvcId.xId.ucInstId = param->create.service_id.id.inst_id;
-				prvCopyFromESPUUI(&xGattSrvcId.xId.xUuid,  &param->create.service_id.id.uuid);
+                xGattSrvcId.xId.ucInstId = param->create.service_id.id.inst_id;
+                prvCopyFromESPUUI( &xGattSrvcId.xId.xUuid, &param->create.service_id.id.uuid );
 
-				if( param->create.service_id.is_primary == true )
-				{
-					xGattSrvcId.xServiceType = eBTServiceTypePrimary;
-				}else
-				{
-					xGattSrvcId.xServiceType = eBTServiceTypeSecondary;
-				}
+                if( param->create.service_id.is_primary == true )
+                {
+                    xGattSrvcId.xServiceType = eBTServiceTypePrimary;
+                }
+                else
+                {
+                    xGattSrvcId.xServiceType = eBTServiceTypeSecondary;
+                }
 
-				xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, &xGattSrvcId, param->create.service_handle );
-			}
+                xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, &xGattSrvcId, param->create.service_handle );
+            }
 
             break;
 
@@ -332,10 +333,12 @@ void prvGATTeventHandler( esp_gatts_cb_event_t event,
             break;
 
         case ESP_GATTS_UNREG_EVT:
-            if(xGattServerCb.pxUnregisterServerCb != NULL )
+
+            if( xGattServerCb.pxUnregisterServerCb != NULL )
             {
                 xGattServerCb.pxUnregisterServerCb( xStatus, ulGattServerIFhandle );
             }
+
             break;
 
         case ESP_GATTS_CONNECT_EVT:
@@ -459,7 +462,7 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
         }
         else
         {
-        	bInterfaceCreated = false;
+            bInterfaceCreated = false;
         }
     }
 
@@ -473,14 +476,14 @@ BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
     BTStatus_t xStatus = eBTStatusSuccess;
 
 
-	if( pxCallbacks != NULL )
-	{
-		xGattServerCb = *pxCallbacks;
-	}
-	else
-	{
-		xStatus = eBTStatusParamInvalid;
-	}
+    if( pxCallbacks != NULL )
+    {
+        xGattServerCb = *pxCallbacks;
+    }
+    else
+    {
+        xStatus = eBTStatusParamInvalid;
+    }
 
     if( xStatus == eBTStatusSuccess )
     {
@@ -538,10 +541,10 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
 
     xESPstatus = esp_ble_gatts_create_service( ucServerIf, &xService, usNumHandles );
 
-	if( xESPstatus != ESP_OK )
-	{
-		xStatus = eBTStatusFail;
-	}
+    if( xESPstatus != ESP_OK )
+    {
+        xStatus = eBTStatusFail;
+    }
 
     return xStatus;
 }
@@ -742,21 +745,21 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
     rsp.attr_value.len = pxResponse->xAttrValue.xLen;
     rsp.attr_value.offset = pxResponse->xAttrValue.usOffset;
 
-    if(pxResponse->xAttrValue.xLen  <= ESP_GATT_MAX_ATTR_LEN )
+    if( pxResponse->xAttrValue.xLen <= ESP_GATT_MAX_ATTR_LEN )
     {
-    	memcpy( rsp.attr_value.value, pxResponse->xAttrValue.pucValue, pxResponse->xAttrValue.xLen );
+        memcpy( rsp.attr_value.value, pxResponse->xAttrValue.pucValue, pxResponse->xAttrValue.xLen );
 
-		xESPstatus = esp_ble_gatts_send_response( ulGattServerIFhandle, usConnId, ulTransId, xReturnStatus, &rsp );
+        xESPstatus = esp_ble_gatts_send_response( ulGattServerIFhandle, usConnId, ulTransId, xReturnStatus, &rsp );
 
-		if( xESPstatus != ESP_OK )
-		{
-			xReturnStatus = eBTStatusFail;
-		}
-    }else
-    {
-		xReturnStatus = eBTStatusFail;
+        if( xESPstatus != ESP_OK )
+        {
+            xReturnStatus = eBTStatusFail;
+        }
     }
-
+    else
+    {
+        xReturnStatus = eBTStatusFail;
+    }
 
     return xReturnStatus;
 }

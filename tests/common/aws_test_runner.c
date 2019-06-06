@@ -188,11 +188,6 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_FREERTOS_TCP );
     #endif
 
-    #if ( testrunnerOTA_END_TO_END_ENABLED == 1 )
-        extern void vStartOTAUpdateDemoTask( void );
-        vStartOTAUpdateDemoTask();
-    #endif
-
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_Serializer_CBOR );
         RUN_TEST_GROUP( Full_Serializer_JSON );

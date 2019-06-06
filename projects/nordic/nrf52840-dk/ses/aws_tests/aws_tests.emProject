@@ -275,10 +275,6 @@
               <file file_name="../../../../../libraries/c_sdk/standard/serializer/include/iot_serializer.h" />
             </folder>
             <folder Name="src">
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c" />
-            </folder>
-            <folder Name="test">
               <folder Name="cbor">
                 <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c" />
                 <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c" />
@@ -288,6 +284,12 @@
                 <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c" />
               </folder>
             </folder>
+            <folder Name="test">
+              <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c" />
+              <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c" />
+            </folder>
+            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c" />
+            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c" />
           </folder>
           <folder Name="ble">
             <file file_name="../../../../../libraries/c_sdk/standard/ble/CMakeLists.txt" />

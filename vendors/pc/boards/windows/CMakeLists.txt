@@ -68,7 +68,7 @@ target_include_directories(
 target_link_libraries(
     AFR::kernel::mcu_port
     INTERFACE
-        3rdparty::tracealyzer
+        3rdparty::tracealyzer_recorder
 )
 
 # POSIX
@@ -109,7 +109,7 @@ target_include_directories(
 )
 target_link_libraries(
     AFR::freertos_plus_tcp::mcu_port
-    INTERFACE 3rdparty::winpcap
+    INTERFACE 3rdparty::win_pcap
 )
 
 # Secure sockets
@@ -135,6 +135,7 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 # Build an OTA test that only builds on Windows.
 afr_module_sources(

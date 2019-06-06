@@ -515,7 +515,7 @@ BTGattAdvertismentParams_t xAdvertisementConfigA =
 {
     .usAdvertisingEventProperties = BTAdvInd,
     .bIncludeTxPower              = true,
-    .ucNameType                   = BTGattAdvNameComplete,
+    .ucNameType                   = BTGattAdvNameNone,
     .bSetScanRsp                  = false,
     .ulAppearance                 = 0,
     .ulMinInterval                = bletestsMAX_ADVERTISEMENT_INTERVAL / 2,
@@ -530,7 +530,7 @@ BTGattAdvertismentParams_t xAdvertisementConfigB =
 {
     .usAdvertisingEventProperties = BTAdvInd,
     .bIncludeTxPower              = true,
-    .ucNameType                   = BTGattAdvNameComplete,
+    .ucNameType                   = BTGattAdvNameShort,
     .bSetScanRsp                  = true,
     .ulAppearance                 = 0,
     .ulMinInterval                = bletestsMAX_ADVERTISEMENT_INTERVAL / 2,
@@ -1303,8 +1303,8 @@ TEST( Full_BLE, BLE_Advertising_SetAvertisementData )
     prvSetAdvertisement( &xAdvertisementConfigB,
                          usServiceDataLen,
                          pcServiceData,
-                         &xSrvcB.pxBLEAttributes[ 0 ].xServiceUUID,
-                         xNbServices );
+                         NULL,
+                         0 );
 }
 
 void prvSetGetProperty( BTProperty_t * pxProperty,

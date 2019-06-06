@@ -16,18 +16,18 @@ set(AFR_MODULE_defender 0 CACHE INTERNAL "")
 # -------------------------------------------------------------------------------------------------
 
 afr_set_board_metadata(ID "nrf52840-dk")
-afr_set_board_metadata(DISPLAY_NAME "NRF52")
+afr_set_board_metadata(DISPLAY_NAME "nRF52840 DK")
 afr_set_board_metadata(DESCRIPTION "Nordic nrf52840-dk Development Kit")
 afr_set_board_metadata(VENDOR_NAME "Nordic")
 afr_set_board_metadata(FAMILY_NAME "NRF52")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
-afr_set_board_metadata(SUPPORTED_IDE "Segger studio")
-afr_set_board_metadata(RECOMMENDED_IDE "Segger studio")
-afr_set_board_metadata(IDE_VisualStudio_NAME "Visual Studio")
-afr_set_board_metadata(IDE_VisualStudio_COMPILER "segger-arm-gcc")
+afr_set_board_metadata(SUPPORTED_IDE "SeggerStudio")
+afr_set_board_metadata(RECOMMENDED_IDE "SeggerStudio")
+afr_set_board_metadata(IDE_SeggerStudio_NAME "SEGGER Embedded Studio")
+afr_set_board_metadata(IDE_SeggerStudio_COMPILER "segger-arm-gcc")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
 
-afr_set_board_metadata(IDE_VisualStudio_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/ses")
+afr_set_board_metadata(IDE_SeggerStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nordic/nrf52840-dk/ses/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 

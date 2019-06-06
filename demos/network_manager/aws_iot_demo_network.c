@@ -30,10 +30,17 @@
  */
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
+
 #include "aws_iot_demo_network.h"
-#include "platform/iot_network_afr.h"
-#include "platform/iot_network_ble.h"
 #include "private/iot_error.h"
+
+#if TCPIP_NETWORK_ENABLED
+#include "platform/iot_network_afr.h"
+#endif
+
+#if BLE_ENABLED
+#include "platform/iot_network_ble.h"
+#endif
 
 #if BLE_ENABLED
 
@@ -58,7 +65,7 @@ extern const IotMqttSerializer_t IotBleMqttSerializer;
  * @param[in] pxNetworkContext Network context for the connection.
  * @return pdTRUE if the connection is created successfully
  */
-static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext );
+static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext,  uint32_t networkType );
 #endif
 
 /**
@@ -74,6 +81,7 @@ static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkCo
  */
 static IotMqttNetworkInfo_t xDefaultNetworkInterface = IOT_MQTT_NETWORK_INFO_INITIALIZER;
 
+#if TCPIP_NETWORK_ENABLED
 static IotNetworkInterface_t xNetworkInterface =
 {
 		.create = NULL,
@@ -85,25 +93,20 @@ static IotNetworkInterface_t xNetworkInterface =
 };
 
 
-#if WIFI_ENABLED || ETH_ENABLED
-static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext )
+
+static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t networkType )
 {
     IOT_FUNCTION_ENTRY( BaseType_t, pdTRUE);
     BaseType_t xNetworkCreated = pdFALSE;
     IotNetworkError_t xStatus = IOT_NETWORK_SUCCESS;
     static IotNetworkConnectionAfr_t * pConnection = NULL;
-    IotNetworkServerInfo_t xServerInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-    IotNetworkCredentials_t xCredentials = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+    void *pConnectionParams = AwsIotNetworkManager_GetConnectionParams( networkType );
+    void *pCredentials = AwsIotNetworkManager_GetCredentials( networkType );
     IotMqttNetworkInfo_t* pxNetworkIface = &( pxNetworkContext->xNetworkInfo );
 
-    /* Disable ALPN if not using port 443. */
-    if( clientcredentialMQTT_BROKER_PORT != 443 )
-    {
-        xCredentials.pAlpnProtos = NULL;
-    }
 
     /* Establish a TCP connection to the MQTT server. */
-    xStatus =  IotNetworkAfr_Create(&xServerInfo, &xCredentials, (void**)&pConnection);
+    xStatus =  IotNetworkAfr_Create( pConnectionParams, pCredentials, (void**)&pConnection );
 
     if( xStatus != IOT_NETWORK_SUCCESS )
     {
@@ -156,7 +159,7 @@ static uint32_t prxCreateNetworkConnection(MqttConnectionContext_t* pxNetworkCon
 #if WIFI_ENABLED
 	if ((ulConnectedNetworks & AWSIOT_NETWORK_TYPE_WIFI) == AWSIOT_NETWORK_TYPE_WIFI)
 	{
-		if (prxCreateSecureSocketConnection(pxNetworkContext) == pdTRUE)
+		if (prxCreateSecureSocketConnection(pxNetworkContext, AWSIOT_NETWORK_TYPE_WIFI ) == pdTRUE)
 		{
 			return AWSIOT_NETWORK_TYPE_WIFI;
 		}
@@ -166,7 +169,7 @@ static uint32_t prxCreateNetworkConnection(MqttConnectionContext_t* pxNetworkCon
 #if ETH_ENABLED
 	if ((ulConnectedNetworks & AWSIOT_NETWORK_TYPE_ETH) == AWSIOT_NETWORK_TYPE_ETH)
 	{
-		if (prxCreateSecureSocketConnection(pxNetworkContext) == pdTRUE)
+		if (prxCreateSecureSocketConnection(pxNetworkContext, AWSIOT_NETWORK_TYPE_ETH) == pdTRUE)
 		{
 			return AWSIOT_NETWORK_TYPE_ETH;
 		}
