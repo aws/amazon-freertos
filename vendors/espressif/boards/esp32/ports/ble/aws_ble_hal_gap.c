@@ -693,6 +693,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     uint8_t ucMessageRaw[ ESP_BLE_ADV_DATA_LEN_MAX ];
     uint8_t ucFlags;
     uint8_t ucTxPower;
+    esp_err_t xESPErr = ESP_OK;
 
     if( ( pxParams->ucNameType == BTGattAdvNameComplete ) || ( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1 ) )
     {
@@ -786,11 +787,21 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
         if( pxParams->bSetScanRsp == true )
         {
-            esp_ble_gap_config_scan_rsp_data_raw( ucMessageRaw, ucMessageIndex );
+        	xESPErr = esp_ble_gap_config_scan_rsp_data_raw( ucMessageRaw, ucMessageIndex );
+            if( xESPErr != ESP_OK)
+            {
+            	configPRINTF( ( "Failed to configure scan response.\n" ) );
+            	xStatus = eBTStatusFail;
+            }
         }
         else
         {
-            esp_ble_gap_config_adv_data_raw( ucMessageRaw, ucMessageIndex );
+        	xESPErr = esp_ble_gap_config_adv_data_raw( ucMessageRaw, ucMessageIndex );
+            if( xESPErr != ESP_OK)
+            {
+            	configPRINTF( ( "Failed to configure Advertisement message.\n" ) );
+            	xStatus = eBTStatusFail;
+            }
         }
     }
 

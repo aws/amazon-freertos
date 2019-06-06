@@ -43,13 +43,14 @@ class runTest:
 				 "8a7f1168-48af-4efb-83b5-e679f932000a":  None,
 				 "8a7f1168-48af-4efb-83b5-e679f932000b":  None	}
 
-	DUT_NAME = "BT"
+	DUT_NAME = "TEST"
 
 	TEST_GROUP = "Full_BLE"
 	TEST_NAME_PREFIX = "RaspberryPI"
 
+	SHORT_LOCAL_NAME_SIZE = 4
 	ADVERTISEMENT_TEST_TIMEOUT = 120
-	STOP_ADVERTISEMENT_TEST_TIMEOUT = 3000 #3 seconds
+	STOP_ADVERTISEMENT_TEST_TIMEOUT = 6000 #6 seconds
 	SIMPLE_CONNECTION_TEST_TIMEOUT = 120
 	SERVICE_DISCOVERY_TEST_TIMEOUT = 120
 	PAIRING_TEST_TIMEOUT = 120
@@ -279,19 +280,22 @@ class runTest:
 				sys.stdout.flush()
 				return False
 
-			if (runTest.DUT_SERVICEB_UUID not in UUIDs):
-				print("Advertisement test: Waiting for serviceB UUID")
-				sys.stdout.flush()
-				return False
+			#Remove test for service B. Advertisement messages were too small.
+            #Should look into improving this part if it can be done.
+			#if (runTest.DUT_SERVICEB_UUID not in UUIDs):
+			#	print("Advertisement test: Waiting for serviceB UUID")
+			#	sys.stdout.flush()
+			#	return False
 
 		name = 	bleAdapter.getPropertie(testDevice, "Name")
-		if(bleAdapter.getPropertie(testDevice, "Name") == None):
+		if(name == None):
 			print("Advertisement test: Waiting name")
 			sys.stdout.flush()
 			return False
 		else:
-			if (runTest.DUT_NAME != name):
-				print("Advertisement test: Waiting for name")
+			#Names can be cached. So the complete local name may still be in memory. Check the 4 first letter which constitutes the short name
+			if (runTest.DUT_NAME != name[:runTest.SHORT_LOCAL_NAME_SIZE]):
+				print("Advertisement test: name is incorrect: " + name)
 				sys.stdout.flush()
 				return False
 
