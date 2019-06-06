@@ -26,6 +26,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>WMSDK</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/marvell/WMSDK</locationURI>
+		</link>
+		<link>
 			<name>application_code</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/marvell/boards/mw300_rd/aws_tests/application_code</locationURI>
