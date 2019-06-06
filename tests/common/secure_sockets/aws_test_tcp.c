@@ -507,8 +507,7 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
                 }
             }
         }
-    }
-    while( pdFALSE == xIsConnected );
+    } while( pdFALSE == xIsConnected );
 
     return xResult;
 }
@@ -614,8 +613,7 @@ static BaseType_t prvShutdownHelper( Socket_t xSocket )
                                     pcRxBuffer,         /* The buffer into which the received data will be written. */
                                     tcptestBUFFER_SIZE, /* The size of the buffer provided to receive the data. */
                                     0 );
-        }
-        while( xResult >= 0 );
+        } while( xResult >= 0 );
 
         xResult = 0;
     }
@@ -1205,8 +1203,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             }
 
             xEndTime = xTaskGetTickCount();
-        }
-        while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
+        } while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
 
         TEST_ASSERT_EQUAL_INT32_MESSAGE( xMessageLength, xNumBytesReceived, "Data was not received \r\n" );
 
@@ -1345,8 +1342,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     do
     {
         xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    }
-    while( xResult >= 0 );
+    } while( xResult >= 0 );
 
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
@@ -1389,8 +1385,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     do
     {
         xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    }
-    while( xResult >= 0 );
+    } while( xResult >= 0 );
 
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
