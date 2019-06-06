@@ -11,10 +11,7 @@ pyserial = "^3.4"
 junit-xml = "^1.8"
 boto3 = "^1.9"
 pyopenssl = "^18.0.0"
-<<<<<<< HEAD
 future = "^0.17.1"
-=======
->>>>>>> 894285d85b32cea68912b7097f552b416da4d240
 
 [tool.poetry.dev-dependencies]
 
