@@ -72,7 +72,7 @@
 /*
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
  */
-#define pkcs11testIMPORT_PRIVATE_KEY_SUPPORT       ( 1 )
+#define pkcs11testIMPORT_PRIVATE_KEY_SUPPORT       ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED )
 
 /*
  * @brief Set to 1 if generating a device private-public key pair via C_GenerateKeyPair. 0 if not.

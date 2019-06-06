@@ -75,8 +75,10 @@
 
 /*
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
+ *
+ * TODO: devModeKeyProvsioningconfigIMPORT_PRIVATE_KEYS_SUPPORTED is redundant to this.
  */
-#define pkcs11testCREATE_OBJECT_SUPPORT       ( 1 )
+#define pkcs11testIMPORT_PRIVATE_KEY_SUPPORT       ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED )
 
 /*
  * @brief Set to 1 if generating a device private-public key pair via C_GenerateKeyPair. 0 if not.
@@ -140,7 +142,6 @@
  * @see aws_default_root_certificates.h
  */
 #define pkcs11testLABEL_ROOT_CERTIFICATE                 pkcs11configLABEL_ROOT_CERTIFICATE
-
 
 
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */

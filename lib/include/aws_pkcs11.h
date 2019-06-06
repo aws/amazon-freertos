@@ -150,12 +150,21 @@ typedef struct PKCS11_GenerateKeyPrivateTemplate
 } PKCS11_GenerateKeyPrivateTemplate_t, * PKCS11_GenerateKeyPrivateTemplatePtr_t;
 
 
-#define pkcs11INVALID_OBJECT_HANDLE        0
-#define pkcs11INVALID_MECHANISM            0xFFFFFFFF
+#define pkcs11INVALID_OBJECT_HANDLE    0
+#define pkcs11INVALID_MECHANISM        0xFFFFFFFF
 
-#define pkcs11MAX_LABEL_LENGTH             32 /* 31 characters + 1 null terminator. */
+#define pkcs11MAX_LABEL_LENGTH         32     /* 31 characters + 1 null terminator. */
 
-#define pkcs11DER_ENCODED_OID_P256         { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
+#define pkcs11DER_ENCODED_OID_P256     { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
+
+/**
+ * @brief Set to 1 if importing private keys is supported.
+ *
+ * If private key import is not supported, this value should be defined 0 in aws_pkcs11_config.h
+ */
+#ifndef pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED
+    #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    1
+#endif
 
 /*
  * DigestInfo :: = SEQUENCE{

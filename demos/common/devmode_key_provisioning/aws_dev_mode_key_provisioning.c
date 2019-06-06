@@ -60,13 +60,6 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/oid.h"
 
-/*-----------------------------------------------------------*/
-
-
-/* Key provisioning helper defines. */
-#define provisioningPRIVATE_KEY_TEMPLATE_COUNT         4
-#define provisioningCERTIFICATE_TEMPLATE_COUNT         3
-#define provisioningROOT_CERTIFICATE_TEMPLATE_COUNT    3
 
 /*-----------------------------------------------------------*/
 
@@ -727,6 +720,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
+#if(pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1)
     if( xResult == CKR_OK )
     {
         xResult = xProvisionCertificate( xSession,
@@ -752,6 +746,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             configPRINTF( ("ERROR: Failed to provision device private key. %d \r\n", xResult) );
         }
     }
+#endif
 
     if( xResult == CKR_OK )
     {
@@ -845,7 +840,6 @@ void vDevModeKeyProvisioning( void )
         xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pucClientCertificate );
         vAlternateKeyProvisioning( &xParams );
     }
-
 }
 
 /*-----------------------------------------------------------*/
