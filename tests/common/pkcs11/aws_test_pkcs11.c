@@ -1344,7 +1344,7 @@ void prvProvisionCredentialsWithGenerateKeyPair( CK_OBJECT_HANDLE_PTR pxPrivateK
     /* Check if there is an EC private key in there already. */
     xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, pxPrivateKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find private key." );
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PRIVATE_KEY, pxPublicKeyHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, pxPublicKeyHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find public key." );
 
     if( *pxPrivateKeyHandle != CK_INVALID_HANDLE )
@@ -2095,52 +2095,68 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
     memcpy( &xSession, pxMultiTaskParam->pvTaskData, sizeof( CK_SESSION_HANDLE ) );
 
     xResult = xFindObjectWithLabelAndClass( xSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xPrivateKey );
+
+    if( ( xResult != CKR_OK ) || ( xPrivateKey == CK_INVALID_HANDLE ) )
+    {
+        xResult = 1;
+        configPRINTF( ( "Failed to find private key.  Return Value: %d  Handle: %d \r\n", xResult, xPrivateKey ) );
+    }
+
     xResult = xFindObjectWithLabelAndClass( xSession, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, CKO_CERTIFICATE, &xCertificate );
 
-    for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
+    if( ( xResult != CKR_OK ) || ( xCertificate == CK_INVALID_HANDLE ) )
     {
-        xTemplate.type = CKA_EC_PARAMS;
-        xTemplate.pValue = xEcParams;
-        xTemplate.ulValueLen = sizeof( xEcParams );
+        xResult = 1;
+        configPRINTF( ( "Failed to find certificate key.  Return Value: %d  Handle: %d \r\n", xResult, xCertificate ) );
+    }
 
-        xResult = pxGlobalFunctionList->C_GetAttributeValue( xSession, xPrivateKey, &xTemplate, 1 );
-
-        if( xResult != CKR_OK )
+    if( xResult == CKR_OK )
+    {
+        for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
         {
-            configPRINTF( ( "GetAttributeValue multithread test failed to get private key's EC Params.  Error: %d  Count: %d \r\n", xResult, xCount ) );
-            break;
-        }
+            xTemplate.type = CKA_EC_PARAMS;
+            xTemplate.pValue = xEcParams;
+            xTemplate.ulValueLen = sizeof( xEcParams );
 
-        if( memcmp( xEcParams, xEcParamsExpected, sizeof( xEcParams ) ) )
-        {
-            configPRINTF( ( "GetAttributeValue multithread test returned an incorrect value for EC Params.  Error: %d  Count: %d \r\n", xResult, xCount ) );
-            xResult = 1;
-            break;
-        }
+            xResult = pxGlobalFunctionList->C_GetAttributeValue( xSession, xPrivateKey, &xTemplate, 1 );
 
-        xTemplate.type = CKA_VALUE;
-        xTemplate.pValue = xCertificateValue;
-        xTemplate.ulValueLen = sizeof( xCertificateValue );
-        xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xCertificate, &xTemplate, 1 );
+            if( xResult != CKR_OK )
+            {
+                configPRINTF( ( "GetAttributeValue multithread test failed to get private key's EC Params.  Error: %d  Count: %d \r\n", xResult, xCount ) );
+                break;
+            }
 
-        if( xResult != CKR_OK )
-        {
-            configPRINTF( ( "GetAttributeValue multi-thread task failed to get certificate.  Error: %d  Count: %d \r\n", xResult, xCount ) );
-            xResult = 1;
-            break;
-        }
+            if( memcmp( xEcParams, xEcParamsExpected, sizeof( xEcParams ) ) )
+            {
+                configPRINTF( ( "GetAttributeValue multithread test returned an incorrect value for EC Params.  Error: %d  Count: %d \r\n", xResult, xCount ) );
+                xResult = 1;
+                break;
+            }
 
-        /* Check that the certificate parses. */
-        mbedtls_x509_crt_init( &xMbedCert );
+            xTemplate.type = CKA_VALUE;
+            xTemplate.pValue = xCertificateValue;
+            xTemplate.ulValueLen = sizeof( xCertificateValue );
+            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xCertificate, &xTemplate, 1 );
 
-        lMbedReturn = mbedtls_x509_crt_parse( &xMbedCert, xTemplate.pValue, xTemplate.ulValueLen );
+            if( xResult != CKR_OK )
+            {
+                configPRINTF( ( "GetAttributeValue multi-thread task failed to get certificate.  Error: %d  Count: %d \r\n", xResult, xCount ) );
+                xResult = 1;
+                break;
+            }
 
-        if( lMbedReturn != 0 )
-        {
-            configPRINTF( ( "GetAttributeValue multi-thread task found an invalid certificate value. Parse error: %d,  Count: %d \r\n", lMbedReturn, xCount ) );
-            configPRINTF( ( "First 3 bytes of invalid certificate found are %d, %d, %d \r\n", ( int ) xCertificateValue[ 0 ], ( int ) xCertificateValue[ 1 ], ( int ) xCertificateValue[ 2 ] ) );
-            xResult = 1;
-            break;
+            /* Check that the certificate parses. */
+            mbedtls_x509_crt_init( &xMbedCert );
+
+            lMbedReturn = mbedtls_x509_crt_parse( &xMbedCert, xTemplate.pValue, xTemplate.ulValueLen );
+
+            if( lMbedReturn != 0 )
+            {
+                configPRINTF( ( "GetAttributeValue multi-thread task found an invalid certificate value. Parse error: %d,  Count: %d \r\n", lMbedReturn, xCount ) );
+                configPRINTF( ( "First 3 bytes of invalid certificate found are %d, %d, %d \r\n", ( int ) xCertificateValue[ 0 ], ( int ) xCertificateValue[ 1 ], ( int ) xCertificateValue[ 2 ] ) );
+                xResult = 1;
+                break;
+            }
         }
     }
 
