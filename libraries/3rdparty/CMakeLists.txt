@@ -85,22 +85,22 @@ add_library(3rdparty::tinycbor ALIAS afr_3rdparty_tinycbor)
 # tracealyzer - Trace record library from FreeRTOS
 afr_3rdparty_module(tracealyzer_recorder)
 target_sources(
-    3rdparty::tracealyzer INTERFACE
+    3rdparty::tracealyzer_recorder INTERFACE
     "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcKernelPort.c"
     "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcSnapshotRecorder.c"
 )
 target_include_directories(
-    3rdparty::tracealyzer INTERFACE
+    3rdparty::tracealyzer_recorder INTERFACE
     "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
 )
 
 # WinPcap - pcap port for windows
-afr_3rdparty_module(winpcap)
-target_include_directories(3rdparty::winpcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap")
+afr_3rdparty_module(win_pcap)
+target_include_directories(3rdparty::win_pcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap")
 if(MSVC)
-    target_link_libraries(3rdparty::winpcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/wpcap.lib")
+    target_link_libraries(3rdparty::win_pcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/wpcap.lib")
 elseif(MINGW)
-    target_link_libraries(3rdparty::winpcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/libwpcap.a")
+    target_link_libraries(3rdparty::win_pcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/libwpcap.a")
 endif()
 
 # unity - test framework
