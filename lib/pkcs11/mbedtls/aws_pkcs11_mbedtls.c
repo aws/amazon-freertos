@@ -552,7 +552,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         {
             if( NULL != keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM )
             {
-                *ppucCertData = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
+                *ppucCertData = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
             }
             else
             {
@@ -1621,8 +1621,20 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 
 
 /**
- * @brief Provides import and storage of a single client certificate and
- * associated private key.
+ * @brief Create a PKCS #11 certificate, public key, or private key object
+ * by importing it into device storage.
+ *
+ *
+ *
+ * @param[in] xSession                   Handle of a valid PKCS #11 session.
+ * @param[in] pxTemplate                 List of attributes of the object to
+ *                                       be created.
+ * @param[in] ulCount                    Number of attributes in pxTemplate.
+ * @param[out] pxObject                  Pointer to the location where the created
+ *                                       object's handle will be placed.
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                              CK_ATTRIBUTE_PTR pxTemplate,
@@ -1694,6 +1706,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
 
 /**
  * @brief Query the value of the specified cryptographic object attribute.
+ * @param[in] xSession                   Handle of a valid PKCS #11 session.
+ * @param[in] xObject                    
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                                                   CK_OBJECT_HANDLE xObject,
