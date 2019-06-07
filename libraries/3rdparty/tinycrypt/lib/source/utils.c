@@ -66,9 +66,8 @@ int _compare(const uint8_t *a, const uint8_t *b, size_t size)
 	const uint8_t *tempa = a;
 	const uint8_t *tempb = b;
 	uint8_t result = 0;
-    unsigned int i ;
 
-	for (i= 0; i < size; i++) {
+	for (unsigned int i = 0; i < size; i++) {
 		result |= tempa[i] ^ tempb[i];
 	}
 	return result;
