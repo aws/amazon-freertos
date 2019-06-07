@@ -37,9 +37,10 @@
 #include "aws_ota_pal_test_access_declare.h"
 #include "aws_ota_pal.h"
 #include "aws_ota_agent.h"
-#include "aws_pkcs11.h"
+#include "aws_pkcs11_config.h"
 #include "aws_ota_codesigner_certificate.h"
 #include "aws_test_ota_config.h"
+#include "aws_dev_mode_key_provisioning.h"
 
 /* The Texas Instruments CC3220SF has special requirements on its file system security.
  * We enable code specially for testing the OTA PAL layer for this device. */
@@ -228,12 +229,6 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
     }
 }
 
-extern CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
-                                    uint8_t * pucCodeSignCertificate,
-                                    size_t xCertificateLength,
-                                    uint8_t * pucLabel,
-                                    CK_OBJECT_HANDLE_PTR xObjectHandle );
-
 CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
                                        size_t xCertificateLength,
                                        uint8_t * pucLabel )
@@ -251,7 +246,7 @@ CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
 
     if( CKR_OK == xResult )
     {
-        xResult = xFunctionList->C_Initialize( NULL );
+        xResult = xInitializePKCS11();
     }
 
     if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )

@@ -28,6 +28,7 @@
 #include "FreeRTOS.h"
 #include "aws_system_init.h"
 #include "aws_secure_sockets.h"
+#include "aws_crypto.h"
 
 
 /*-----------------------------------------------------------*/
@@ -38,6 +39,8 @@
 BaseType_t SYSTEM_Init( void )
 {
     BaseType_t xResult = pdPASS;
+    
+    CRYPTO_Init();
 
     if( xResult == pdPASS )
     {

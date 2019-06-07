@@ -65,17 +65,10 @@ static const uint32_t tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM_LENGTH = sizeof( t
  */
 static const uint32_t tlstestCLIENT_BYOC_CERTIFICATE_PEM_LENGTH = sizeof( tlstestCLIENT_BYOC_CERTIFICATE_PEM );
 static const uint32_t tlstestCLIENT_BYOC_PRIVATE_KEY_PEM_LENGTH = sizeof( tlstestCLIENT_BYOC_PRIVATE_KEY_PEM );
+
 /*-----------------------------------------------------------*/
 
 TEST_GROUP( Full_TLS );
-TEST_GROUP( Quarantine_TLS );
-
-TEST_SETUP( Quarantine_TLS )
-{
-}
-TEST_TEAR_DOWN( Quarantine_TLS )
-{
-}
 
 TEST_SETUP( Full_TLS )
 {
@@ -87,15 +80,11 @@ TEST_TEAR_DOWN( Full_TLS )
 
 TEST_GROUP_RUNNER( Full_TLS )
 {
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
-}
-
-TEST_GROUP_RUNNER( Quarantine_TLS )
-{
-    RUN_TEST_CASE( Quarantine_TLS, AFQP_TLS_ConnectEC );
-    RUN_TEST_CASE( Quarantine_TLS, AFQP_TLS_ConnectBYOCCredentials );
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
 }
 
 /*-----------------------------------------------------------*/
@@ -173,6 +162,10 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
             TEST_ASSERT_LESS_THAN_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket connect succeeded while it was expected to fail." );
         }
     }
+    else
+    {
+    	TEST_FAIL();
+    }
 
     /* Make sure to close the socket. */
     if( TEST_PROTECT() )
@@ -184,11 +177,23 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
             xSocketOpen = pdFALSE;
         }
     }
+    else
+    {
+    	TEST_FAIL();
+    }
 
-    /* Regardless of whatever failed above, re-provision the
-     * device with default RSA certs so that subsequent tests
-     * are not changed. */
-    vDevModeKeyProvisioning();
+    if (TEST_PROTECT())
+    {
+		/* Regardless of whatever failed above, re-provision the
+		 * device with default RSA certs so that subsequent tests
+		 * are not changed. */
+		vDevModeKeyProvisioning();
+    }
+    else
+    {
+    	TEST_FAIL();
+    }
+
 }
 /*-----------------------------------------------------------*/
 
@@ -295,16 +300,16 @@ TEST( Full_TLS, AFQP_TLS_ConnectRSA )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Quarantine_TLS, AFQP_TLS_ConnectEC )
+TEST( Full_TLS, AFQP_TLS_ConnectEC )
 {
     ProvisioningParams_t xParams;
 
     /* Provision the device with P-256 elliptic curve key/certs. */
-    xParams.ulClientPrivateKeyType = CKK_EC;
-    xParams.pcClientPrivateKey = ( uint8_t * ) tlstestCLIENT_PRIVATE_KEY_PEM_EC;
+    xParams.pucClientPrivateKey = ( uint8_t * ) tlstestCLIENT_PRIVATE_KEY_PEM_EC;
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_PRIVATE_KEY_LENGTH_EC;
-    xParams.pcClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_EC;
+    xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_EC;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_LENGTH_EC;
+    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
 
     prvConnectWithProvisioning( &( xParams ),
                                 pdTRUE /* The connect operation should succeed. */
@@ -317,10 +322,9 @@ TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
     ProvisioningParams_t xParams;
 
     /* Provision the device with malformed client credential certificate. */
-    xParams.ulClientPrivateKeyType = CKK_RSA;
-    xParams.pcClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
-    xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pcClientPrivateKey );
-    xParams.pcClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_MALFORMED;
+    xParams.pucClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
+    xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_MALFORMED;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_PEM_MALFORMED_LENGTH;
 
     prvExpectFailAfterDataSentWithProvisioning( &( xParams ) );
@@ -332,26 +336,26 @@ TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
     ProvisioningParams_t xParams;
 
     /* Provision the device with malformed client credential certificate. */
-    xParams.ulClientPrivateKeyType = CKK_RSA;
-    xParams.pcClientPrivateKey = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM;
+    xParams.pucClientPrivateKey = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM;
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM_LENGTH;
-    xParams.pcClientCertificate = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM;
+    xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM;
     xParams.ulClientCertificateLength = tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM_LENGTH;
+    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
 
     prvExpectFailAfterDataSentWithProvisioning( &( xParams ) );
 }
 /*-----------------------------------------------------------*/
 
-TEST( Quarantine_TLS, AFQP_TLS_ConnectBYOCCredentials )
+TEST( Full_TLS, AFQP_TLS_ConnectBYOCCredentials )
 {
     ProvisioningParams_t xParams;
 
     /* Provision the device with BYOC credentials. */
-    xParams.ulClientPrivateKeyType = CKK_EC;
-    xParams.pcClientPrivateKey = ( uint8_t * ) tlstestCLIENT_BYOC_PRIVATE_KEY_PEM;
+    xParams.pucClientPrivateKey = ( uint8_t * ) tlstestCLIENT_BYOC_PRIVATE_KEY_PEM;
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_BYOC_PRIVATE_KEY_PEM_LENGTH;
-    xParams.pcClientCertificate = ( uint8_t * ) tlstestCLIENT_BYOC_CERTIFICATE_PEM;
+    xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_BYOC_CERTIFICATE_PEM;
     xParams.ulClientCertificateLength = tlstestCLIENT_BYOC_CERTIFICATE_PEM_LENGTH;
+    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
 
     prvConnectWithProvisioning( &( xParams ),
                                 pdTRUE /* The connect operation should succeed. */
