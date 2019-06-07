@@ -230,7 +230,7 @@ static bool _scheduleNextRetry( _mqttOperation_t * pOperation )
     {
         scheduleDelay = pOperation->u.operation.retry.nextPeriod;
 
-        /* Double the retry peiod, subject to a ceiling value. */
+        /* Double the retry period, subject to a ceiling value. */
         pOperation->u.operation.retry.nextPeriod *= 2;
 
         if( pOperation->u.operation.retry.nextPeriod > IOT_MQTT_RETRY_MS_CEILING )
@@ -1120,10 +1120,10 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
 
     /* Find and remove the first matching element in the list. */
     IotMutex_Lock( &( pMqttConnection->referencesMutex ) );
-    pResultLink = IotListDouble_RemoveFirstMatch( &( pMqttConnection->pendingResponse ),
-                                                  NULL,
-                                                  _mqttOperation_match,
-                                                  &param );
+    pResultLink = IotListDouble_FindFirstMatch( &( pMqttConnection->pendingResponse ),
+                                                NULL,
+                                                _mqttOperation_match,
+                                                &param );
 
     /* Check if a match was found. */
     if( pResultLink != NULL )
@@ -1179,13 +1179,14 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
         EMPTY_ELSE_MARKER;
     }
 
-    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
-
     if( pResult != NULL )
     {
         IotLogDebug( "(MQTT connection %p) Found operation %s." ,
                      pMqttConnection,
                      IotMqtt_OperationType( type ) );
+
+        /* Remove the matched operation from the list. */
+        IotListDouble_Remove( &( pResult->link ) );
     }
     else
     {
@@ -1193,6 +1194,8 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
                      pMqttConnection,
                      IotMqtt_OperationType( type ) );
     }
+
+    IotMutex_Unlock( &( pMqttConnection->referencesMutex ) );
 
     return pResult;
 }

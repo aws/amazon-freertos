@@ -19,11 +19,14 @@ afr_glob_src(mbedtls_src DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls" RECURSE)
 add_library(
     afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
     ${mbedtls_src}
+    "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
 )
 target_include_directories(
     afr_3rdparty_mbedtls
     PUBLIC
         "${AFR_3RDPARTY_DIR}/mbedtls/include"
+        "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
 )
 target_link_libraries(
     afr_3rdparty_mbedtls
@@ -47,6 +50,7 @@ target_include_directories(
 
 # tinycbor - CBOR implementation
 set(tinycbor_src
+    "${AFR_3RDPARTY_DIR}/tinycbor/cborpretty.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborencoder_close_container_checked.c"
     "${AFR_3RDPARTY_DIR}/tinycbor/cborerrorstrings.c"
@@ -79,24 +83,24 @@ target_compile_options(
 add_library(3rdparty::tinycbor ALIAS afr_3rdparty_tinycbor)
 
 # tracealyzer - Trace record library from FreeRTOS
-afr_3rdparty_module(tracealyzer)
+afr_3rdparty_module(tracealyzer_recorder)
 target_sources(
-    3rdparty::tracealyzer INTERFACE
+    3rdparty::tracealyzer_recorder INTERFACE
     "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcKernelPort.c"
     "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/trcSnapshotRecorder.c"
 )
 target_include_directories(
-    3rdparty::tracealyzer INTERFACE
-    "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/include"
+    3rdparty::tracealyzer_recorder INTERFACE
+    "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
 )
 
 # WinPcap - pcap port for windows
-afr_3rdparty_module(winpcap)
-target_include_directories(3rdparty::winpcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap")
+afr_3rdparty_module(win_pcap)
+target_include_directories(3rdparty::win_pcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap")
 if(MSVC)
-    target_link_libraries(3rdparty::winpcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/wpcap.lib")
+    target_link_libraries(3rdparty::win_pcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/wpcap.lib")
 elseif(MINGW)
-    target_link_libraries(3rdparty::winpcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/libwpcap.a")
+    target_link_libraries(3rdparty::win_pcap INTERFACE "${AFR_3RDPARTY_DIR}/win_pcap/libwpcap.a")
 endif()
 
 # unity - test framework

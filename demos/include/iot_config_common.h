@@ -30,6 +30,9 @@
 /* Use platform types on FreeRTOS. */
 #include "platform/iot_platform_types_afr.h"
 
+/* Used to get the cloud broker endpoint for FreeRTOS. */
+#include "aws_clientcredential.h"
+
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
 
@@ -58,6 +61,9 @@
 #ifndef AWS_IOT_DEFENDER_ENABLE_ASSERTS
     #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
 #endif
+#ifndef IOT_BLE_ENABLE_ASSERTS
+    #define IOT_BLE_ENABLE_ASSERTS             ( 1 )
+#endif
 
 /* Assert functions. */
 #define IotMetrics_Assert( expression )        configASSERT( expression )
@@ -66,6 +72,7 @@
 #define IotMqtt_Assert( expression )           configASSERT( expression )
 #define AwsIotShadow_Assert( expression )      configASSERT( expression )
 #define AwsIotDefender_Assert( expression )    configASSERT( expression )
+#define IotBle_Assert( expression )            configASSERT( expression )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef IOT_STATIC_MEMORY_ONLY
@@ -80,6 +87,8 @@
 #define IotThreads_Free      vPortFree
 #define IotLogging_Malloc    pvPortMalloc
 #define IotLogging_Free      vPortFree
+#define IotBle_Malloc        pvPortMalloc
+#define IotBle_Free          vPortFree
 /* #define IotLogging_StaticBufferSize */
 
 /* Memory allocation function configuration for the MQTT and Defender library.
@@ -152,6 +161,15 @@
 #else
     #define IOT_PLATFORM_NAME    "Unknown"
 #endif
+
+/* Cloud endpoint to which the device connects to. */
+#define IOT_CLOUD_ENDPOINT                    clientcredentialMQTT_BROKER_ENDPOINT
+
+/**
+ * @brief Unique identifier used to recognize a device by the cloud.
+ * This could be SHA-256 of the device certificate.
+ */
+#define IOT_DEVICE_IDENTIFIER                ""
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
 #define IotMetricsConnectionId_t            void *

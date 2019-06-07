@@ -27,7 +27,10 @@
 #include "projdefs.h"
 #include "task.h"
 #include "iot_init.h"
+
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
+
 #include "platform/iot_metrics.h"
 #include "aws_secure_sockets.h"
 

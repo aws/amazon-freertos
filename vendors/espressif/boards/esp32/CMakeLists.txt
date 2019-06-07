@@ -159,6 +159,7 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)

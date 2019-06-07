@@ -42,6 +42,17 @@
 #include "iot_ble_device_information.h"
 #include "iot_ble_data_transfer.h"
 
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_GAP" )
+#include "iot_logging_setup.h"
+
+
 #if ( IOT_BLE_ADVERTISING_UUID_SIZE == 2 )
     #define BT_ADV_UUID_TYPE    eBTuuidType16
 #else
@@ -508,13 +519,13 @@ BTStatus_t IotBle_Init( void )
             else
             {
                 status = eBTStatusNoMem;
-                configPRINTF( ( "Cannot create mutex.\n" ) );
+                IotLogError( "Cannot create mutex." );
             }
         }
         else
         {
             status = eBTStatusNoMem;
-            configPRINTF( ( "Cannot create mutex.\n" ) );
+            IotLogError( "Cannot create mutex." );
         }
 
         if( status == eBTStatusSuccess )
@@ -526,7 +537,7 @@ BTStatus_t IotBle_Init( void )
             else
             {
                 status = eBTStatusNoMem;
-                configPRINTF( ( "Cannot create semaphore.\n" ) );
+                IotLogError( "Cannot create semaphore." );
             }
         }
 
@@ -573,12 +584,12 @@ BTStatus_t IotBle_Init( void )
 
                 if( status != eBTStatusSuccess )
                 {
-                    configPRINTF( ( "Callback error in property %d, error returned %d \n", index, status ) );
+                    IotLogError( "Callback error in property %d, error returned %d.", index, status );
                 }
             }
             else
             {
-                configPRINTF( ( "Unable to set device property %d, error returned %d \n", index, status ) );
+                IotLogError( "Unable to set device property %d, error returned %d.", index, status );
                 break;
             }
         }
@@ -604,13 +615,13 @@ BTStatus_t IotBle_Init( void )
             else
             {
                 status = eBTStatusFail;
-                configPRINTF( ( "Cannot initialize GATT interface\n" ) );
+                IotLogError( "Cannot initialize GATT interface." );
             }
         }
         else
         {
             status = eBTStatusFail;
-            configPRINTF( ( "Cannot get GATT server interface\n" ) );
+            IotLogError( "Cannot get GATT server interface." );
         }
     }
 
@@ -709,7 +720,7 @@ BTStatus_t IotBle_RegisterEventCb( IotBleEvents_t xEvent,
 
     if( status == eBTStatusSuccess )
     {
-        pNewEvent = pvPortMalloc( sizeof( _bleSubscrEventListElement_t ) );
+        pNewEvent = IotBle_Malloc( sizeof( _bleSubscrEventListElement_t ) );
 
         if( pNewEvent != NULL )
         {
@@ -755,7 +766,7 @@ BTStatus_t IotBle_UnRegisterEventCb( IotBleEvents_t event,
     if( status == eBTStatusSuccess )
     {
         IotListDouble_Remove( &pEventIndex->eventList );
-        vPortFree( pEventIndex );
+        IotBle_Free( pEventIndex );
     }
 
     IotMutex_Unlock( &_BTInterface.threadSafetyMutex );

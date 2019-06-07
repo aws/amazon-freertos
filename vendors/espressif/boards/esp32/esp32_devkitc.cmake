@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "Espressif-ESP32-DevKitC")
+afr_set_board_metadata(ID "ESP32-DevKitC")
 afr_set_board_metadata(DISPLAY_NAME "ESP32-DevKitC")
 afr_set_board_metadata(DESCRIPTION "Development board produced by Espressif that comes in two variants either with ESP-WROOM-32 or ESP32-WROVER module")
 afr_set_board_metadata(VENDOR_NAME "Espressif")

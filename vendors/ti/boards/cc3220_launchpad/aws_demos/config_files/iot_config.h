@@ -27,8 +27,6 @@
 /* Standard include. */
 #include <stdbool.h>
 
-#define IOT_NETWORK_SOCKET_POLL_MS    ( 10000 )
-
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )

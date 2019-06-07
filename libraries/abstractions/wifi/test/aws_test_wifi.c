@@ -573,64 +573,42 @@ static void prvFinishWiFiTesting( void )
     }
 }
 
-static void prvWIFIinit(void)
+/* Unity TEST initializations. */
+TEST_GROUP( Full_WiFi );
+
+TEST_SETUP( Full_WiFi )
 {
     int32_t lI = 0;
     int8_t cScanSize = 10;
     WIFIReturnCode_t xWiFiStatus;
     WIFIScanResult_t xScanResults[ 10 ] = { 0 };
 
-    if( TEST_PROTECT() )
+    /* Disconnect first before running any Wi-Fi test. */
+    xWiFiStatus = WIFI_Disconnect();
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
+
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    configPRINTF(
+        ( "WiFi Networks and strength: \r\n" ) );
+
+    for( lI = 0; lI < cScanSize; lI++ )
     {
-        /* Disconnect first before running any Wi-Fi test. */
-        xWiFiStatus = WIFI_Disconnect();
-        TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-        xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
-
-        TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-        configPRINTF(
-            ( "WiFi Networks and strength: \r\n" ) );
-
-        for( lI = 0; lI < cScanSize; lI++ )
-        {
-            configPRINTF( ( "    %s: %d\r\n",
-                            xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
-        }
-
-        configPRINTF(
-            ( "End of WiFi Networks\r\n" ) );
-
-        vTaskDelay( testwifiCONNECTION_DELAY );
+        configPRINTF( ( "    %s: %d\r\n",
+                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
     }
-    else
-    {
-        TEST_FAIL();
-    }
-}
 
-/* Unity TEST initializations. */
-TEST_GROUP( Full_WiFi );
-TEST_GROUP( Quarantine_WiFi );
+    configPRINTF(
+        ( "End of WiFi Networks\r\n" ) );
 
-TEST_SETUP( Quarantine_WiFi )
-{
-}
-TEST_TEAR_DOWN( Quarantine_WiFi )
-{
-}
-
-TEST_SETUP( Full_WiFi )
-{
-
+    vTaskDelay( testwifiCONNECTION_DELAY );
 }
 
 TEST_TEAR_DOWN( Full_WiFi )
 {
-	prvWIFIinit();
 }
-
 
 TEST_GROUP_RUNNER( Full_WiFi )
 {
@@ -647,10 +625,7 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiReset );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
-<<<<<<< HEAD:libraries/abstractions/wifi/test/aws_test_wifi.c
-=======
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
->>>>>>> master:tests/common/wifi/aws_test_wifi.c
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
 
     /* Null parameter tests. */
@@ -690,51 +665,17 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels );
 
-    prvFinishWiFiTesting();
-}
-
-TEST_GROUP( Full_WiFiConfigureAP );
-
-TEST_SETUP( Full_WiFiConfigureAP )
-{
-
-}
-
-TEST_TEAR_DOWN( Full_WiFiConfigureAP )
-{
-	prvWIFIinit();
-}
-
-
-TEST_GROUP_RUNNER( Full_WiFiConfigureAP )
-{
-#if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
-	RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
-#endif
-    prvFinishWiFiTesting();
-}
-
-TEST_GROUP_RUNNER( Quarantine_WiFi )
-{
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConfigureAP );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP );
-    RUN_TEST_CASE( Quarantine_WiFi,
-                   AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce );
+    #if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
+        RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
+    #endif
 
     prvFinishWiFiTesting();
 }
@@ -869,9 +810,6 @@ TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
     {
         xWiFiStatus = WIFI_SetMode( eWiFiModeNotSupported );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
     /* Some ports will use an assert for invalid parameters instead of returning a failure code. 
        Because of this there is no else { TEST_FAIL(); } appended to this if( TEST_PROTECT() ) block. 
@@ -1093,9 +1031,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_InvalidDomainName )
 
         /* Assert that the IP address is NOT found. */
         TEST_ASSERT_EQUAL_INT32( *( ( uint32_t * ) ucIPAddr ), 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1128,9 +1063,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
 
         /* Assert that the IP address is NOT found. */
         TEST_ASSERT_EQUAL_INT32( *( ( uint32_t * ) ucIPAddr ), 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1179,9 +1111,6 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber )
         /* Ports are allowed to decide to return success or failure depending on
          * their driver for a scan number of zero. */
         WIFI_Scan( xScanResults, 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1316,9 +1245,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteNonExistingNetwork )
         /* Delete non-existing network. */
         xWiFiStatus = WIFI_NetworkDelete( usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess == xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1359,9 +1285,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork )
         /* Get non-existing network. */
         xWiFiStatus = WIFI_NetworkGet( &xNetworkProfile, usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1387,9 +1310,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
             xWiFiStatus = WIFI_NetworkGet( &xNetworkProfile, usIndex );
             TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1464,9 +1384,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
                 TEST_ASSERT_EQUAL_INT32( 0, lCompResults );
             }
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1484,9 +1401,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks )
         {
             WIFI_NetworkDelete( usIndex );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1590,7 +1504,7 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode )
  * network created by it on your phone and configure. You should expect it to
  * return eWiFiSuccess.
  */
-TEST( Quarantine_WiFi, AFQP_WiFiConfigureAP )
+TEST( Full_WiFi, AFQP_WiFiConfigureAP )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1612,7 +1526,7 @@ TEST( Quarantine_WiFi, AFQP_WiFiConfigureAP )
 /**
  * @brief Call WIFI_ConfigureAP with NULL parameters and verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1622,9 +1536,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Set the network parameters with valid parameters */
@@ -1638,9 +1549,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null password. */
@@ -1652,9 +1560,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null password for open security network. */
@@ -1675,7 +1580,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
 /**
  * @brief Configure the AP with an invalid security type an verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1689,9 +1594,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1699,7 +1601,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
  * @brief Configure the SoftAP with a SSID exceeding the maximum SSID length and
  * verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
 {
     char cLengthExceedingSSID[ wificonfigMAX_SSID_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1719,9 +1621,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1729,7 +1628,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
  * @brief Configure the SoftAP with a password exceeding the maximum password
  * length and verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 {
     char cLengthExceedingPassword[ wificonfigMAX_PASSPHRASE_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1749,16 +1648,13 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
 /**
  * @brief Configure the SoftAP with a zero length SSID and verify stability.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1771,16 +1667,13 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
     if( TEST_PROTECT() )
     {
         WIFI_ConfigureAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
 /**
  * @brief Configure the SoftAP with a zero length password and verify stability.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1793,9 +1686,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
     if( TEST_PROTECT() )
     {
         WIFI_ConfigureAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1803,7 +1693,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
  * @brief Configure the SoftAP over all channels specified in
  * testwifiMAX_CHANNEL_NUMBER and verify stability.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     uint32_t ulIndex;
@@ -1818,9 +1708,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
             xNetworkParams.cChannel = ulIndex;
             WIFI_ConfigureAP( &xNetworkParams );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1863,9 +1750,6 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
     {
         xWiFiStatus = WIFI_Ping( NULL, testwifiPING_COUNT, testwifiPING_INTERVAL_MS );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1999,9 +1883,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidPassword )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2035,9 +1916,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2071,9 +1949,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
         /* It is allowed that some ports will infer the security type from the Wi-Fi
          * scan. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Truly invalid security type. */
@@ -2084,9 +1959,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
         /* It is allowed that some ports will infer the security type from the Wi-Fi
          * scan. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2109,9 +1981,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels )
             xNetworkParams.cChannel = ulIndex;
             WIFI_ConnectAP( &xNetworkParams );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2139,9 +2008,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2180,9 +2046,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2215,9 +2078,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID )
         /* This may not return failure if the max SSID length is copied in the port.
          */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2239,9 +2099,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword )
         /* This may not return faulure if the max passphrase length is copied in the
          * port. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2263,9 +2120,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
     {
         /* May not return false. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2274,7 +2128,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
  * credentials defined in this test over and over and verify we are still
  * connected.
  */
-TEST( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP )
+TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
 {
     BaseType_t xIsConnected;
     BaseType_t xMaxRetries = 6;
@@ -2373,6 +2227,7 @@ TEST( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP )
         TEST_FAIL();
     }
 }
+<<<<<<< HEAD
 
 /**
  * @brief Connection loop task. This function will connect then disconnect
@@ -2693,3 +2548,5 @@ TEST( Quarantine_WiFi, AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce )
         xTaskConnectDisconnectSyncEventGroupHandle = NULL;
     }
 }
+=======
+>>>>>>> origin/release-1.5

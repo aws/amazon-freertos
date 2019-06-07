@@ -1,56 +1,53 @@
-afr_module(NAME posix KERNEL)
-
-afr_glob_src(posix_std_headers DIRECTORY "${AFR_MODULES_DIR}/include/FreeRTOS_POSIX" RECURSE)
-afr_module_sources(
-    posix PUBLIC ${posix_std_headers}
-)
-
-# If you need to make sure the this POSIX include dir is put in front of other include directories,
-# you can use generator expression and target_include_directories with BEFORE, e.g.,
-# target_include_directories(
-#     <target> BEFORE
-#     PUBLIC $<TARGET_PROPERTY:AFR::posix,INTERFACE_INCLUDE_DIRECTORIES>
-# )
-afr_module_include_dirs(
-    posix
-    PUBLIC
-        "${AFR_MODULES_DIR}/include/FreeRTOS_POSIX"
-        $<${AFR_IS_TESTING}:$<TARGET_PROPERTY:AFR::posix::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>>
-    PRIVATE
-        $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-)
-
-afr_module_dependencies(
-    posix
-    PRIVATE
-        AFR::posix::mcu_port
-        AFR::compiler::mcu_port
-)
-
 # Link to this INTERFACE target to use the default implementation based on FreeRTOS.
-afr_module(NAME freertos_plus_posix INTERFACE INTERNAL)
+afr_module(INTERFACE)
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
+set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
+set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
-    freertos_plus_posix
+    ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_clock.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_mqueue.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_barrier.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_cond.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_pthread_mutex.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_sched.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_semaphore.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_timer.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_unistd.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/source/FreeRTOS_POSIX_utils.c"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX.h"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/FreeRTOS_POSIX_internal.h"
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/portable/FreeRTOS_POSIX_portable_default.h"
+        "${src_dir}/FreeRTOS_POSIX_clock.c"
+        "${src_dir}/FreeRTOS_POSIX_mqueue.c"
+        "${src_dir}/FreeRTOS_POSIX_pthread_barrier.c"
+        "${src_dir}/FreeRTOS_POSIX_pthread.c"
+        "${src_dir}/FreeRTOS_POSIX_pthread_cond.c"
+        "${src_dir}/FreeRTOS_POSIX_pthread_mutex.c"
+        "${src_dir}/FreeRTOS_POSIX_sched.c"
+        "${src_dir}/FreeRTOS_POSIX_semaphore.c"
+        "${src_dir}/FreeRTOS_POSIX_timer.c"
+        "${src_dir}/FreeRTOS_POSIX_unistd.c"
+        "${src_dir}/FreeRTOS_POSIX_utils.c"
+        "${inc_dir}/FreeRTOS_POSIX.h"
+        "${inc_dir}/FreeRTOS_POSIX_types.h"
+        "${inc_dir}/FreeRTOS_POSIX_internal.h"
+        "${inc_dir}/FreeRTOS_POSIX_portable_default.h"
 )
 
 afr_module_include_dirs(
-    freertos_plus_posix
+    ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include"
+        "${inc_dir}"
+        # Requires common/include/private/aws_doubly_linked_list.h
+        "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
+)
+
+# Test
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_test_posix_clock.c"
+        "${test_dir}/aws_test_posix_mqueue.c"
+        "${test_dir}/aws_test_posix_pthread.c"
+        "${test_dir}/aws_test_posix_semaphore.c"
+        "${test_dir}/aws_test_posix_stress.c"
+        "${test_dir}/aws_test_posix_timer.c"
+        "${test_dir}/aws_test_posix_unistd.c"
+        "${test_dir}/aws_test_posix_utils.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE AFR::posix
 )

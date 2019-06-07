@@ -39,6 +39,7 @@
 
 /* Credentials include. */
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 
 /**
  * @brief Represents a network connection that uses Amazon FreeRTOS Secure Sockets.
