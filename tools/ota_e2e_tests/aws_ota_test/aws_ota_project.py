@@ -222,7 +222,7 @@ class OtaAfrProject:
         """
         self.__setIdentifierInFile(
             {
-                '#define clientcredentialMQTT_BROKER_ENDPOINT ': '\"' + awsIotEndpoint + '\"',
+                '#define clientcredentialMQTT_BROKER_ENDPOINT': '\"' + awsIotEndpoint + '\"',
                 '#define clientcredentialMQTT_BROKER_PORT' : awsIotEndpointPort
             },
             os.path.join(self._projectRootDir, OtaAfrProject.CLIENT_CREDENTIAL_PATH)
