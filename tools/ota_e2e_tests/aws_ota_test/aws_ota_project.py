@@ -136,7 +136,7 @@ class OtaAfrProject:
             print('====> Command run completed with the return code: ', proc.returncode)
             returnCodes.append(proc.returncode)
 
-        sleep(5)
+        sleep(5) # added the sleep just to give enough time for the binaries to be generated properly and having unecessary exception.
         output = self._buildConfig['output']
         if not os.path.exists(output):
             print("ERROR: Could not find the output binary, the build might have failed.")
