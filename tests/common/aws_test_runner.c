@@ -70,7 +70,6 @@ static void RunTests( void )
     #if ( testrunnerFULL_WIFI_ENABLED == 1 )
         RUN_TEST_GROUP( Full_WiFi );
         RUN_TEST_GROUP( Full_WiFiConfigureAP );
-        RUN_TEST_GROUP( Quarantine_WiFi );
     #endif
 
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
@@ -83,7 +82,6 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_TCP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TCP );
-        RUN_TEST_GROUP( Quarantine_TCP );
     #endif
 
     #if ( testrunnerFULL_GGD_ENABLED == 1 )
