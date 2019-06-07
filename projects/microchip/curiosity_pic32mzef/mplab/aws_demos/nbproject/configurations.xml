@@ -853,7 +853,6 @@
       </logicalFolder>
     </logicalFolder>
   </logicalFolder>
-  <sourceRootList/>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="pic32mz_ef_curiosity" type="2">
