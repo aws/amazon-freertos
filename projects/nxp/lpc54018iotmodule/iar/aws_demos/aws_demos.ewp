@@ -674,7 +674,7 @@
 				</option>
 				<option>
 					<name>AUserIncludes</name>
-					<state>$PROJ_DIR$/../../../../../vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files</state>
+					<state>$PROJ_DIR$/../../../../../vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files</state>
 				</option>
 				<option>
 					<name>AExtraOptionsCheckV2</name>
