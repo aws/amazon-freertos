@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.10
+ * FreeRTOS+TCP V2.0.11
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -692,7 +692,7 @@ static void prvTCPReturnPacket( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescri
 TCPPacket_t * pxTCPPacket;
 IPHeader_t *pxIPHeader;
 EthernetHeader_t *pxEthernetHeader;
-uint32_t ulFrontSpace, ulSpace, ulSourceAddress, ulWinSize, ulOutstanding;
+uint32_t ulFrontSpace, ulSpace, ulSourceAddress, ulWinSize;
 TCPWindow_t *pxTCPWindow;
 NetworkBufferDescriptor_t xTempBuffer;
 /* For sending, a pseudo network buffer will be used, as explained above. */
@@ -752,16 +752,7 @@ NetworkBufferDescriptor_t xTempBuffer;
 			}
 
 			/* Take the minimum of the RX buffer space and the RX window size. */
-			ulOutstanding = pxTCPWindow->rx.ulHighestSequenceNumber - pxTCPWindow->rx.ulCurrentSequenceNumber;
-			if( pxTCPWindow->xSize.ulRxWindowLength >= ulOutstanding )
-			{
-				ulSpace = pxTCPWindow->xSize.ulRxWindowLength - ulOutstanding;
-				ulSpace = FreeRTOS_min_uint32( ulSpace, ulFrontSpace );
-			}
-			else
-			{
-				ulSpace = 0ul;
-			}
+			ulSpace = FreeRTOS_min_uint32( pxTCPWindow->xSize.ulRxWindowLength, ulFrontSpace );
 
 			if( ( pxSocket->u.xTCP.bits.bLowWater != pdFALSE_UNSIGNED ) || ( pxSocket->u.xTCP.bits.bRxStopped != pdFALSE_UNSIGNED ) )
 			{
