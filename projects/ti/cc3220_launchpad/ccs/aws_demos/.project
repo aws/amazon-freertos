@@ -868,6 +868,16 @@
 			<locationURI>BASE_DIR_ROOT/demos/shadow/aws_iot_demo_shadow.c</locationURI>
 		</link>
 		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
+		</link>
+		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_tasks.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/ti_code/CC3220SF_LAUNCHXL.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/CC3220SF_LAUNCHXL.c</locationURI>
