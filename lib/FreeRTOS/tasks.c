@@ -1163,7 +1163,7 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
 			/* If null is passed in here then it is the calling task that is
 			being deleted. */
 			pxTCB = prvGetTCBFromHandle( xTaskToDelete );
-			
+
 			/* Remove task from the ready list. */
 			if( listIS_CONTAINED_WITHIN( &( pxReadyTasksLists[ ( pxTCB )->uxPriority ] ), &( ( pxTCB )->xStateListItem ) == pdTRUE )
 			{
