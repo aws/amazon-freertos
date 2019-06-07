@@ -36,9 +36,16 @@
 #include "mbedtls/sha1.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/x509_crt.h"
+/* Threading mutex implementations for mbedTLS. */
+#include "mbedtls/threading.h"
+#include "threading_alt.h"
 
 /* C runtime includes. */
 #include <string.h>
+
+
+
+#define CRYPTO_PRINT( X )    vLoggingPrintf X
 
 /**
  * @brief Internal signature verification context structure
@@ -51,9 +58,9 @@ typedef struct SignatureVerificationState
     mbedtls_sha256_context xSHA256Context;
 } SignatureVerificationState_t, * SignatureVerificationStatePtr_t;
 
-/*
- * Helper routines
- */
+/*-----------------------------------------------------------*/
+/*------ Helper functions for FreeRTOS heap management ------*/
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Implements libc calloc semantics using the FreeRTOS heap
@@ -70,6 +77,99 @@ static void * prvCalloc( size_t xNmemb,
 
     return pvNew;
 }
+
+
+/*-----------------------------------------------------------*/
+/*--------- mbedTLS threading functions for FreeRTOS --------*/
+/*--------------- See MBEDTLS_THREADING_ALT -----------------*/
+/*-----------------------------------------------------------*/
+
+/**
+* @brief Implementation of mbedtls_mutex_init for thread-safety.
+*
+*/
+void aws_mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex )
+{
+    mutex->mutex = xSemaphoreCreateMutex();
+
+    if ( mutex->mutex != NULL )
+    {
+        mutex->is_valid = 1;
+    }
+    else
+    {
+        mutex->is_valid = 0;
+        CRYPTO_PRINT( ("Failed to initialize mbedTLS mutex.\r\n") );
+    }
+    
+}
+
+/**
+* @brief Implementation of mbedtls_mutex_free for thread-safety.
+*
+*/
+void aws_mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex )
+{
+    if ( mutex->is_valid == 1 )
+    {
+        vSemaphoreDelete( mutex->mutex );
+        mutex->is_valid = 0;
+    }
+}
+
+/**
+* @brief Implementation of mbedtls_mutex_lock for thread-safety.
+*
+* @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+* MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+*/
+int aws_mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex )
+{
+    int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
+
+    if ( mutex->is_valid == 1 )
+    {
+        if ( xSemaphoreTake( mutex->mutex, portMAX_DELAY ) )
+        {
+            ret = 0;
+        }
+        else
+        {
+            ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+            CRYPTO_PRINT( ("Failed to obtain mbedTLS mutex.\r\n") );
+        }
+    }
+
+    return ret;
+}
+
+/**
+* @brief Implementation of mbedtls_mutex_unlock for thread-safety.
+*
+* @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+* MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+*/
+int aws_mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex )
+{
+    int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
+
+    if ( mutex->is_valid == 1 )
+    {
+        if ( xSemaphoreGive( mutex->mutex ) )
+        {
+            ret = 0;
+        }
+        else
+        {
+            ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
+            CRYPTO_PRINT( ("Failed to unlock mbedTLS mutex.\r\n") );
+        }
+    }
+
+    return ret;
+}
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Verifies a cryptographic signature based on the signer
@@ -138,15 +238,31 @@ static BaseType_t prvVerifySignature( char * pcSignerCertificate,
  * Interface routines
  */
 
+void CRYPTO_Init( void )
+{
+    CRYPTO_ConfigureHeap();
+    CRYPTO_ConfigureThreading();
+}
+
 /**
  * @brief Overrides CRT heap callouts to use FreeRTOS instead
  */
 void CRYPTO_ConfigureHeap( void )
 {
     /*
-     * Ensure that the FreeRTOS heap is used
+     * Ensure that the FreeRTOS heap is used.
      */
     mbedtls_platform_set_calloc_free( prvCalloc, vPortFree ); /*lint !e534 This function always return 0. */
+}
+
+
+void CRYPTO_ConfigureThreading( void )
+{
+    /* Configure mbedtls to use FreeRTOS mutexes. */
+    mbedtls_threading_set_alt( aws_mbedtls_mutex_init,
+                               aws_mbedtls_mutex_free,
+                               aws_mbedtls_mutex_lock,
+                               aws_mbedtls_mutex_unlock );
 }
 
 /**
@@ -157,7 +273,7 @@ BaseType_t CRYPTO_SignatureVerificationStart( void ** ppvContext,
                                               BaseType_t xHashAlgorithm )
 {
     BaseType_t xResult = pdTRUE;
-    SignatureVerificationStatePtr_t pxCtx = NULL;
+    SignatureVerificationState_t * pxCtx = NULL;
 
     /*
      * Allocate the context
@@ -204,7 +320,7 @@ void CRYPTO_SignatureVerificationUpdate( void * pvContext,
                                          const uint8_t * pucData,
                                          size_t xDataLength )
 {
-    SignatureVerificationStatePtr_t pxCtx = ( SignatureVerificationStatePtr_t ) pvContext; /*lint !e9087 Allow casting void* to other types. */
+    SignatureVerificationState_t * pxCtx = ( SignatureVerificationStatePtr_t ) pvContext; /*lint !e9087 Allow casting void* to other types. */
 
     /*
      * Add the data to the hash of the requested type

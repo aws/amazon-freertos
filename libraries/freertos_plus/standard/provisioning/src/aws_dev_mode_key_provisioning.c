@@ -47,154 +47,509 @@
 #include "aws_pkcs11_config.h"
 
 /* Client credential includes. */
-#include "aws_clientcredential_keys.h"
+#include "aws_clientcredential.h"
 #include "aws_default_root_certificates.h"
 
-/* Key provisioning includes. */
+/* Key provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
 
+/* Utilities include. */
+#include "aws_pki_utils.h"
+
 /* mbedTLS includes. */
-#include "mbedtls/base64.h"
-/*-----------------------------------------------------------*/
+#include "mbedtls/pk.h"
+#include "mbedtls/oid.h"
 
-/* Key provisioning helper defines. */
-#define provisioningPRIVATE_KEY_TEMPLATE_COUNT         4
-#define provisioningCERTIFICATE_TEMPLATE_COUNT         3
-#define provisioningROOT_CERTIFICATE_TEMPLATE_COUNT    3
 
 /*-----------------------------------------------------------*/
 
-CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
-                              CK_SLOT_ID * pxSlotId,
-                              CK_SESSION_HANDLE * pxSession )
+/* \brief Provisions a private key using PKCS #11 library.
+ *
+ * \param[in] xSession             An initialized session handle.
+ * \param[in] pucPrivateKey        Pointer to private key.  Key may either be PEM formatted
+ *                                 or ASN.1 DER encoded.
+ * \param[in] xPrivateKeyLength    Length of the data at pucPrivateKey.
+ * \param[in] pucLabel             PKCS #11 CKA_LABEL value to be used for key lookup.
+ * \param[out] pxObjectHandle      The object handle of PKCS #11 private key created.
+ *
+ * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
+ * Note that PKCS #11 error codes are positive.
+ */
+CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
+                            uint8_t * pucPrivateKey,
+                            size_t xPrivateKeyLength,
+                            uint8_t * pucLabel,
+                            CK_OBJECT_HANDLE_PTR pxObjectHandle )
 {
-    CK_RV xResult = 0;
-    CK_C_GetFunctionList xCkGetFunctionList = NULL;
-    CK_ULONG xCount = 1;
+    CK_RV xResult = CKR_OK;
+    CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_BBOOL xTokenStorage = CK_TRUE;
+    mbedtls_pk_type_t xMbedKeyType;
+    CK_KEY_TYPE xPrivateKeyType;
 
-    ( void ) ( pxSession );
+    xResult = C_GetFunctionList( &pxFunctionList );
 
-    /* Ensure that the PKCS#11 module is initialized. */
-    if( 0 == xResult )
+    int lMbedResult = 0;
+    mbedtls_pk_context xMbedPkContext;
+
+    mbedtls_pk_init( &xMbedPkContext );
+    lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucPrivateKey, xPrivateKeyLength, NULL, 0 );
+
+    if( lMbedResult != 0 )
     {
-        xCkGetFunctionList = C_GetFunctionList;
-        xResult = xCkGetFunctionList( ppxFunctionList );
+        xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if( 0 == xResult )
-    {
-        xResult = ( *ppxFunctionList )->C_Initialize( NULL );
-    }
-
-    /* Get the default private key storage ID. */
-    if( ( 0 == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
-    {
-        xResult = ( *ppxFunctionList )->C_GetSlotList( CK_TRUE,
-                                                       pxSlotId,
-                                                       &xCount );
-    }
-
+    /* Determine whether the key to be imported is RSA or EC. */
     if( xResult == CKR_OK )
     {
-        xResult = ( *ppxFunctionList )->C_OpenSession( *pxSlotId,
-                                                       CKF_SERIAL_SESSION,
-                                                       NULL,
-                                                       NULL,
-                                                       pxSession );
+        xMbedKeyType = mbedtls_pk_get_type( &xMbedPkContext );
+
+        if( xMbedKeyType == MBEDTLS_PK_RSA )
+        {
+            xPrivateKeyType = CKK_RSA;
+        }
+        else if( ( xMbedKeyType == MBEDTLS_PK_ECDSA ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY_DH ) )
+        {
+            xPrivateKeyType = CKK_EC;
+        }
+        else
+        {
+            xPrivateKeyType = 0xFFFFFFFF;
+            xResult = CKR_ARGUMENTS_BAD;
+        }
     }
+
+    /* EC Keys. */
+    if( xPrivateKeyType == CKK_EC )
+    {
+        PKCS11_PrivateEcKeyTemplate_t xPrivateKeyTemplate;
+        CK_BYTE * pxD;               /* Private value D. */
+        CK_BYTE * pxEcParams = NULL; /* DER-encoding of an ANSI X9.62 Parameters value */
+
+#define EC_PARAMS_LENGTH    10
+#define EC_D_LENGTH         32
+
+        pxD = pvPortMalloc( EC_D_LENGTH );
+
+        if( ( pxD == NULL ) )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+
+        if( xResult == CKR_OK )
+        {
+            mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) xMbedPkContext.pk_ctx;
+            lMbedResult = mbedtls_mpi_write_binary( &( pxKeyPair->d ), pxD, EC_D_LENGTH );
+
+            if( pxKeyPair->grp.id == MBEDTLS_ECP_DP_SECP256R1 )
+            {
+                pxEcParams = ( CK_BYTE * ) ( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
+            }
+            else
+            {
+                xResult = CKR_CURVE_NOT_SUPPORTED;
+            }
+
+            if( xResult == CKR_OK )
+            {
+                xPrivateKeyTemplate.xObjectClass.type = CKA_CLASS;
+                xPrivateKeyTemplate.xObjectClass.pValue = &xPrivateKeyClass;
+                xPrivateKeyTemplate.xObjectClass.ulValueLen = sizeof( xPrivateKeyClass );
+                xPrivateKeyTemplate.xKeyType.type = CKA_KEY_TYPE;
+                xPrivateKeyTemplate.xKeyType.pValue = &xPrivateKeyType;
+                xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
+                xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
+                xPrivateKeyTemplate.xLabel.pValue = pucLabel;
+                xPrivateKeyTemplate.xLabel.ulValueLen = strlen( ( const char * ) pucLabel );
+                xPrivateKeyTemplate.xEcParams.type = CKA_EC_PARAMS;
+                xPrivateKeyTemplate.xEcParams.pValue = pxEcParams;
+                xPrivateKeyTemplate.xEcParams.ulValueLen = EC_PARAMS_LENGTH;
+                xPrivateKeyTemplate.xValue.type = CKA_VALUE;
+                xPrivateKeyTemplate.xValue.pValue = pxD;
+                xPrivateKeyTemplate.xValue.ulValueLen = EC_D_LENGTH;
+                xPrivateKeyTemplate.xTokenObject.type = CKA_TOKEN;
+                xPrivateKeyTemplate.xTokenObject.pValue = &xTokenStorage;
+                xPrivateKeyTemplate.xTokenObject.ulValueLen = sizeof( xTokenStorage );
+
+                xResult = pxFunctionList->C_CreateObject( xSession,
+                                                          ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                                                          sizeof( PKCS11_PrivateEcKeyTemplate_t ) / sizeof( CK_ATTRIBUTE ),
+                                                          pxObjectHandle );
+            }
+        }
+
+        if( pxD != NULL )
+        {
+            vPortFree( pxD );
+        }
+    }
+
+    /* RSA Keys. */
+    if( xPrivateKeyType == CKK_RSA )
+    {
+        PKCS11_PrivateRsaKeyTemplate_t xPrivateKeyTemplate;
+        mbedtls_rsa_context * xRsaContext = xMbedPkContext.pk_ctx;
+        CK_BBOOL xTrue = CK_TRUE;
+        CK_BYTE * pxModulus;
+        CK_BYTE * pxE;
+        CK_BYTE * pxD;
+        CK_BYTE * pxPrime1;
+        CK_BYTE * pxPrime2;
+        CK_BYTE * pxExp1;
+        CK_BYTE * pxExp2;
+        CK_BYTE * pxCoefficient;
+#define MODULUS_LENGTH        256
+#define E_LENGTH              3
+#define D_LENGTH              256
+#define PRIME_1_LENGTH        128
+#define PRIME_2_LENGTH        128
+#define EXPONENT_1_LENGTH     128
+#define EXPONENT_2_LENGTH     128
+#define COEFFICIENT_LENGTH    128
+
+        /* Adding one to all of the lengths because ASN1 may pad a leading 0 byte
+         * to numbers that could be interpreted as negative */
+        pxModulus = pvPortMalloc( MODULUS_LENGTH + 1 );
+        pxE = pvPortMalloc( E_LENGTH + 1 );
+        pxD = pvPortMalloc( D_LENGTH + 1 );
+        pxPrime1 = pvPortMalloc( PRIME_1_LENGTH + 1 );
+        pxPrime2 = pvPortMalloc( PRIME_2_LENGTH + 1 );
+        pxExp1 = pvPortMalloc( EXPONENT_1_LENGTH + 1 );
+        pxExp2 = pvPortMalloc( EXPONENT_2_LENGTH + 1 );
+        pxCoefficient = pvPortMalloc( COEFFICIENT_LENGTH + 1 );
+
+        if( ( pxModulus == NULL ) || ( pxE == NULL ) || ( pxD == NULL ) || ( pxPrime1 == NULL ) || ( pxPrime2 == NULL ) || ( pxExp1 == NULL ) || ( pxExp2 == NULL ) )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+
+        if( xResult == CKR_OK )
+        {
+            lMbedResult = mbedtls_rsa_export_raw( xRsaContext,
+                                                  pxModulus, MODULUS_LENGTH + 1,
+                                                  pxPrime1, PRIME_1_LENGTH + 1,
+                                                  pxPrime2, PRIME_2_LENGTH + 1,
+                                                  pxD, D_LENGTH + 1,
+                                                  pxE, E_LENGTH + 1 );
+
+            if( lMbedResult != 0 )
+            {
+                configPRINTF( ( "Failed to parse RSA private key components. \r\n" ) );
+                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+            }
+
+            /* Export Exponent 1, Exponent 2, Coefficient. */
+            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DP, pxExp1, EXPONENT_1_LENGTH + 1 );
+            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DQ, pxExp2, EXPONENT_2_LENGTH + 1 );
+            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->QP, pxCoefficient, COEFFICIENT_LENGTH + 1 );
+
+            if( lMbedResult != 0 )
+            {
+                configPRINTF( ( "Failed to parse RSA private key Chinese Remainder Theorem variables. \r\n" ) );
+                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+            }
+        }
+
+        if( xResult == CKR_OK )
+        {
+            /* When importing the fields, the pointer is incremented by 1
+             * to remove the leading 0 padding (if it existed) and the original field length is used */
+            xPrivateKeyTemplate.xObjectClass.type = CKA_CLASS;
+            xPrivateKeyTemplate.xObjectClass.pValue = &xPrivateKeyClass;
+            xPrivateKeyTemplate.xObjectClass.ulValueLen = sizeof( xPrivateKeyClass );
+            xPrivateKeyTemplate.xKeyType.type = CKA_KEY_TYPE;
+            xPrivateKeyTemplate.xKeyType.pValue = &xPrivateKeyType;
+            xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
+            xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
+            xPrivateKeyTemplate.xLabel.pValue = ( CK_VOID_PTR ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+            xPrivateKeyTemplate.xLabel.ulValueLen = ( CK_ULONG ) strlen( ( const char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
+            xPrivateKeyTemplate.xCanSign.type = CKA_SIGN;
+            xPrivateKeyTemplate.xCanSign.pValue = &xTrue;
+            xPrivateKeyTemplate.xCanSign.ulValueLen = sizeof( CK_BBOOL );
+            xPrivateKeyTemplate.xModulus.type = CKA_MODULUS;
+            xPrivateKeyTemplate.xModulus.pValue = pxModulus + 1;
+            xPrivateKeyTemplate.xModulus.ulValueLen = MODULUS_LENGTH;
+            xPrivateKeyTemplate.xPrivateExponent.type = CKA_PRIVATE_EXPONENT;
+            xPrivateKeyTemplate.xPrivateExponent.pValue = pxD + 1;
+            xPrivateKeyTemplate.xPrivateExponent.ulValueLen = D_LENGTH;
+            xPrivateKeyTemplate.xPublicExponent.type = CKA_PUBLIC_EXPONENT;
+            xPrivateKeyTemplate.xPublicExponent.pValue = pxE + 1;
+            xPrivateKeyTemplate.xPublicExponent.ulValueLen = E_LENGTH;
+            xPrivateKeyTemplate.xPrime1.type = CKA_PRIME_1;
+            xPrivateKeyTemplate.xPrime1.pValue = pxPrime1 + 1;
+            xPrivateKeyTemplate.xPrime1.ulValueLen = PRIME_1_LENGTH;
+            xPrivateKeyTemplate.xPrime2.type = CKA_PRIME_2;
+            xPrivateKeyTemplate.xPrime2.pValue = pxPrime2 + 1;
+            xPrivateKeyTemplate.xPrime2.ulValueLen = PRIME_2_LENGTH;
+            xPrivateKeyTemplate.xExp1.type = CKA_EXPONENT_1;
+            xPrivateKeyTemplate.xExp1.pValue = pxExp1 + 1;
+            xPrivateKeyTemplate.xExp1.ulValueLen = EXPONENT_1_LENGTH;
+            xPrivateKeyTemplate.xExp2.type = CKA_EXPONENT_2;
+            xPrivateKeyTemplate.xExp2.pValue = pxExp2 + 1;
+            xPrivateKeyTemplate.xExp2.ulValueLen = EXPONENT_2_LENGTH;
+            xPrivateKeyTemplate.xCoefficient.type = CKA_COEFFICIENT;
+            xPrivateKeyTemplate.xCoefficient.pValue = pxCoefficient + 1;
+            xPrivateKeyTemplate.xCoefficient.ulValueLen = COEFFICIENT_LENGTH;
+            xPrivateKeyTemplate.xTokenObject.type = CKA_TOKEN;
+            xPrivateKeyTemplate.xTokenObject.pValue = &xTokenStorage;
+            xPrivateKeyTemplate.xTokenObject.ulValueLen = sizeof( xTokenStorage );
+        }
+
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                                                  sizeof( PKCS11_PrivateRsaKeyTemplate_t ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxObjectHandle );
+
+        if( NULL != pxModulus )
+        {
+            vPortFree( pxModulus );
+        }
+
+        if( NULL != pxE )
+        {
+            vPortFree( pxE );
+        }
+
+        if( NULL != pxD )
+        {
+            vPortFree( pxD );
+        }
+
+        if( NULL != pxPrime1 )
+        {
+            vPortFree( pxPrime1 );
+        }
+
+        if( NULL != pxPrime2 )
+        {
+            vPortFree( pxPrime2 );
+        }
+
+        if( NULL != pxExp1 )
+        {
+            vPortFree( pxExp1 );
+        }
+
+        if( NULL != pxExp2 )
+        {
+            vPortFree( pxExp2 );
+        }
+
+        if( NULL != pxCoefficient )
+        {
+            vPortFree( pxCoefficient );
+        }
+    }
+
+    mbedtls_pk_free( &xMbedPkContext );
 
     return xResult;
 }
+
+
+CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
+                           uint8_t * pucKey,
+                           size_t xKeyLength,
+                           CK_KEY_TYPE xPublicKeyType,
+                           uint8_t * pucPublicKeyLabel,
+                           CK_OBJECT_HANDLE_PTR pxPublicKeyHandle )
+{
+    CK_RV xResult;
+    CK_BBOOL xTrue = CK_TRUE;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_OBJECT_CLASS xClass = CKO_PUBLIC_KEY;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    int lMbedResult = 0;
+    mbedtls_pk_context xMbedPkContext;
+
+    mbedtls_pk_init( &xMbedPkContext );
+    lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucKey, xKeyLength, NULL, 0 );
+
+    if( lMbedResult != 0 )
+    {
+        lMbedResult = mbedtls_pk_parse_public_key( &xMbedPkContext, pucKey, xKeyLength );
+    }
+
+    if( xPublicKeyType == CKK_RSA )
+    {
+        CK_BYTE xPublicExponent[] = { 0x01, 0x00, 0x01 };
+        CK_BYTE xModulus[ MODULUS_LENGTH + 1 ] = { 0 };
+
+        lMbedResult = mbedtls_rsa_export_raw( ( mbedtls_rsa_context * ) xMbedPkContext.pk_ctx,
+                                              ( unsigned char * ) &xModulus, MODULUS_LENGTH + 1,
+                                              NULL, 0,
+                                              NULL, 0,
+                                              NULL, 0,
+                                              NULL, 0 );
+        CK_ATTRIBUTE xPublicKeyTemplate[] =
+        {
+            { CKA_CLASS,           &xClass,           sizeof( CK_OBJECT_CLASS )                    },
+            { CKA_KEY_TYPE,        &xPublicKeyType,   sizeof( CK_KEY_TYPE )                        },
+            { CKA_TOKEN,           &xTrue,            sizeof( xTrue )                              },
+            { CKA_MODULUS,         &xModulus + 1,     MODULUS_LENGTH                               }, /* Extra byte allocated at beginning for 0 padding. */
+            { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                              },
+            { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )                    },
+            { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+        };
+
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  ( CK_ATTRIBUTE_PTR ) xPublicKeyTemplate,
+                                                  sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxPublicKeyHandle );
+    }
+    else if( xPublicKeyType == CKK_EC )
+    {
+        CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
+        size_t xLength;
+        CK_BYTE xEcPoint[ 256 ] = { 0 };
+
+        mbedtls_ecdsa_context * pxEcdsaContext;
+        pxEcdsaContext = ( mbedtls_ecdsa_context * ) xMbedPkContext.pk_ctx;
+
+        /* DER encoded EC point. Leave 2 bytes for the tag and length. */
+        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp, &pxEcdsaContext->Q,
+                                                      MBEDTLS_ECP_PF_UNCOMPRESSED, &xLength,
+                                                      xEcPoint + 2, sizeof( xEcPoint ) - 2 );
+        xEcPoint[ 0 ] = 0x04; /* Octet string. */
+        xEcPoint[ 1 ] = ( CK_BYTE ) xLength;
+
+        CK_ATTRIBUTE xPublicKeyTemplate[] =
+        {
+            { CKA_CLASS,     &xClass,           sizeof( xClass )                             },
+            { CKA_KEY_TYPE,  &xPublicKeyType,   sizeof( xPublicKeyType )                     },
+            { CKA_TOKEN,     &xTrue,            sizeof( xTrue )                              },
+            { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                              },
+            { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )                          },
+            { CKA_EC_POINT,  xEcPoint,          xLength + 2                                  },
+            { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+        };
+
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  ( CK_ATTRIBUTE_PTR ) xPublicKeyTemplate,
+                                                  sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxPublicKeyHandle );
+    }
+    else
+    {
+        xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+        configPRINTF( ( "Invalid key type. Supported options are CKK_RSA and CKK_EC" ) );
+    }
+
+    mbedtls_pk_free( &xMbedPkContext );
+
+    return xResult;
+}
+
+
 /*-----------------------------------------------------------*/
 
-/* @brief Converts PEM documents into DER formatted byte arrays.
- * This is a helper function from mbedTLS util pem2der.c
- * (https://github.com/ARMmbed/mbedtls/blob/development/programs/util/pem2der.c#L75)
- *
- * \param pucInput[in]       Pointer to PEM object
- * \param xLen[in]           Length of PEM object
- * \param pucOutput[out]     Pointer to buffer where DER oboject will be placed
- * \param pxOlen[in/out]     Pointer to length of DER buffer.  This value is updated
- *                          to contain the actual length of the converted DER object.
- *
- * \return 0 if successful.  Negative if conversion failed.  If buffer is not
- * large enough to hold converted object, pxOlen is still updated but -1 is returned.
- *
- */
-int convert_pem_to_der( const unsigned char * pucInput,
-                        size_t xLen,
-                        unsigned char * pucOutput,
-                        size_t * pxOlen )
+CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
+                                    uint8_t * pucPrivateKeyLabel,
+                                    uint8_t * pucPublicKeyLabel,
+                                    CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                                    CK_OBJECT_HANDLE_PTR pxPublicKeyHandle )
 {
-    int lRet;
-    const unsigned char * pucS1;
-    const unsigned char * pucS2;
-    const unsigned char * pucEnd = pucInput + xLen;
-    size_t xOtherLen = 0;
-
-    pucS1 = ( unsigned char * ) strstr( ( const char * ) pucInput, "-----BEGIN" );
-
-    if( pucS1 == NULL )
+    CK_RV xResult;
+    CK_MECHANISM xMechanism =
     {
-        return( -1 );
-    }
+        CKM_RSA_PKCS_KEY_PAIR_GEN, NULL_PTR, 0
+    };
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_ULONG xModulusBits = 2048;
+    CK_BYTE xPublicExponent[] = { 0x01, 0x00, 0x01 };
+    CK_BYTE xSubject[] = { 0x01, 0x02 };
 
-    pucS2 = ( unsigned char * ) strstr( ( const char * ) pucInput, "-----END" );
-
-    if( pucS2 == NULL )
+    CK_BBOOL xTrue = CK_TRUE;
+    CK_ATTRIBUTE xPublicKeyTemplate[] =
     {
-        return( -1 );
-    }
+        { CKA_ENCRYPT,         &xTrue,            sizeof( xTrue )                              },
+        { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                              },
+        { CKA_MODULUS_BITS,    &xModulusBits,     sizeof( xModulusBits )                       },
+        { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )                    },
+        { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+    };
 
-    pucS1 += 10;
-
-    while( pucS1 < pucEnd && *pucS1 != '-' )
+    CK_ATTRIBUTE xPrivateKeyTemplate[] =
     {
-        pucS1++;
-    }
+        { CKA_TOKEN,   &xTrue,             sizeof( xTrue )                               },
+        { CKA_PRIVATE, &xTrue,             sizeof( xTrue )                               },
+        { CKA_SUBJECT, xSubject,           sizeof( xSubject )                            },
+        { CKA_DECRYPT, &xTrue,             sizeof( xTrue )                               },
+        { CKA_SIGN,    &xTrue,             sizeof( xTrue )                               },
+        { CKA_LABEL,   pucPrivateKeyLabel, strlen( ( const char * ) pucPrivateKeyLabel ) }
+    };
 
-    while( pucS1 < pucEnd && *pucS1 == '-' )
-    {
-        pucS1++;
-    }
+    xResult = C_GetFunctionList( &pxFunctionList );
 
-    if( *pucS1 == '\r' )
-    {
-        pucS1++;
-    }
+    xResult = pxFunctionList->C_GenerateKeyPair( xSession,
+                                                 &xMechanism,
+                                                 xPublicKeyTemplate,
+                                                 sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                 xPrivateKeyTemplate, sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                 pxPublicKeyHandle,
+                                                 pxPrivateKeyHandle );
 
-    if( *pucS1 == '\n' )
-    {
-        pucS1++;
-    }
-
-    if( ( pucS2 <= pucS1 ) || ( pucS2 > pucEnd ) )
-    {
-        return( -1 );
-    }
-
-    lRet = mbedtls_base64_decode( NULL, 0, &xOtherLen, ( const unsigned char * ) pucS1, pucS2 - pucS1 );
-
-    if( lRet == MBEDTLS_ERR_BASE64_INVALID_CHARACTER )
-    {
-        return( lRet );
-    }
-
-    if( xOtherLen > *pxOlen )
-    {
-        return( -1 );
-    }
-
-    if( ( lRet = mbedtls_base64_decode( pucOutput, xOtherLen, &xOtherLen, ( const unsigned char * ) pucS1,
-                                        pucS2 - pucS1 ) ) != 0 )
-    {
-        return( lRet );
-    }
-
-    *pxOlen = xOtherLen;
-
-    return( 0 );
+    return xResult;
 }
+
+/*-----------------------------------------------------------*/
+
+CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
+                                   uint8_t * pucPrivateKeyLabel,
+                                   uint8_t * pucPublicKeyLabel,
+                                   CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
+                                   CK_OBJECT_HANDLE_PTR pxPublicKeyHandle )
+{
+    CK_RV xResult;
+    CK_MECHANISM xMechanism =
+    {
+        CKM_EC_KEY_PAIR_GEN, NULL_PTR, 0
+    };
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256; /* prime256v1 */
+
+    /*   CK_BYTE xValue[] = { 0x00, 0x04, 0x9e, 0xf3, 0xa6, 0x35, 0xb3,
+     *     0xee, 0xff, 0xe6, 0x70, 0x52, 0x72, 0x92, 0x10, 0xf5, 0x39, 0xbb, 0xf7, 0x52, 0xde, 0x34, 0xe1,
+     *     0xd0, 0xa1, 0x5e, 0x3e, 0xe0, 0x18, 0x64, 0xe5, 0x53, 0x1e, 0x27, 0x5e, 0xf4, 0x54, 0x76, 0x1b,
+     *     0x64, 0x2a, 0x3d, 0x1a, 0xa8, 0x2a, 0x61, 0x58, 0x47, 0x7f, 0x94, 0x6b, 0xad, 0x6c, 0x87, 0x5a,
+     *     0xa5, 0x94, 0x55, 0xa4, 0xab, 0x27, 0x4b, 0x6d, 0xd4, 0x15, 0xb1 };        */
+    CK_KEY_TYPE xKeyType = CKK_EC;
+
+    CK_BBOOL xTrue = CK_TRUE;
+    CK_ATTRIBUTE xPublicKeyTemplate[] =
+    {
+        { CKA_KEY_TYPE,  &xKeyType,         sizeof( xKeyType )                           },
+        { CKA_VERIFY,    &xTrue,            sizeof( xTrue )                              },
+        { CKA_EC_PARAMS, xEcParams,         sizeof( xEcParams )                          },
+        { CKA_LABEL,     pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
+    };
+
+    CK_ATTRIBUTE xPrivateKeyTemplate[] =
+    {
+        { CKA_KEY_TYPE, &xKeyType,          sizeof( xKeyType )                            },
+        { CKA_TOKEN,    &xTrue,             sizeof( xTrue )                               },
+        { CKA_PRIVATE,  &xTrue,             sizeof( xTrue )                               },
+        { CKA_SIGN,     &xTrue,             sizeof( xTrue )                               },
+        { CKA_LABEL,    pucPrivateKeyLabel, strlen( ( const char * ) pucPrivateKeyLabel ) }
+    };
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    xResult = pxFunctionList->C_GenerateKeyPair( xSession,
+                                                 &xMechanism,
+                                                 xPublicKeyTemplate,
+                                                 sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                 xPrivateKeyTemplate, sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                 pxPublicKeyHandle,
+                                                 pxPrivateKeyHandle );
+
+    return xResult;
+}
+
 /*-----------------------------------------------------------*/
 
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
@@ -205,23 +560,35 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
 {
     PKCS11_CertificateTemplate_t xCertificateTemplate;
     CK_OBJECT_CLASS xCertificateClass = CKO_CERTIFICATE;
+    CK_CERTIFICATE_TYPE xCertificateType = CKC_X_509;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_RV xResult;
     uint8_t * pucDerObject = NULL;
     int32_t lConversionReturn = 0;
     size_t xDerLen = 0;
+    CK_BBOOL xTokenStorage = CK_TRUE;
 
+    CK_BYTE xSubject[] = "TestSubject";
 
     /* Initialize the client certificate template. */
     xCertificateTemplate.xObjectClass.type = CKA_CLASS;
     xCertificateTemplate.xObjectClass.pValue = &xCertificateClass;
     xCertificateTemplate.xObjectClass.ulValueLen = sizeof( xCertificateClass );
+    xCertificateTemplate.xSubject.type = CKA_SUBJECT;
+    xCertificateTemplate.xSubject.pValue = xSubject;
+    xCertificateTemplate.xSubject.ulValueLen = strlen( ( const char * ) xSubject );
     xCertificateTemplate.xValue.type = CKA_VALUE;
     xCertificateTemplate.xValue.pValue = ( CK_VOID_PTR ) pucCertificate;
     xCertificateTemplate.xValue.ulValueLen = ( CK_ULONG ) xCertificateLength;
     xCertificateTemplate.xLabel.type = CKA_LABEL;
     xCertificateTemplate.xLabel.pValue = ( CK_VOID_PTR ) pucLabel;
-    xCertificateTemplate.xLabel.ulValueLen = sizeof( pucLabel );
+    xCertificateTemplate.xLabel.ulValueLen = strlen( ( const char * ) pucLabel );
+    xCertificateTemplate.xCertificateType.type = CKA_CERTIFICATE_TYPE;
+    xCertificateTemplate.xCertificateType.pValue = &xCertificateType;
+    xCertificateTemplate.xCertificateType.ulValueLen = sizeof( CK_CERTIFICATE_TYPE );
+    xCertificateTemplate.xTokenObject.type = CKA_TOKEN;
+    xCertificateTemplate.xTokenObject.pValue = &xTokenStorage;
+    xCertificateTemplate.xTokenObject.ulValueLen = sizeof( xTokenStorage );
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -230,171 +597,215 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
         /* Convert the certificate to DER format if it was in PEM. */
         /* The DER key should be about 3/4 the size of the PEM key, so mallocing the PEM key size is sufficient. */
         pucDerObject = pvPortMalloc( xCertificateTemplate.xValue.ulValueLen );
-        lConversionReturn = 0;
         xDerLen = xCertificateTemplate.xValue.ulValueLen;
 
         if( pucDerObject != NULL )
         {
-            lConversionReturn = convert_pem_to_der( xCertificateTemplate.xValue.pValue,
-                                                    xCertificateTemplate.xValue.ulValueLen,
-                                                    pucDerObject,
-                                                    &xDerLen );
-        }
-        else
-        {
-            xResult = CKR_DEVICE_MEMORY;
-        }
+            lConversionReturn = PKI_ConvertPEMToDER( xCertificateTemplate.xValue.pValue,
+                                                     xCertificateTemplate.xValue.ulValueLen,
+                                                     pucDerObject,
+                                                     &xDerLen );
 
-        if( lConversionReturn == 0 )
-        {
-            /* Set the template pointers to refer to the DER converted objects. */
-            xCertificateTemplate.xValue.pValue = pucDerObject;
-            xCertificateTemplate.xValue.ulValueLen = xDerLen;
-        }
-        else
-        {
-            configPRINTF( ( "ERROR: Failed to provision certificate %d \r\n", lConversionReturn ) );
-        }
-
-        /* Create an object using the encoded client certificate. */
-        if( CKR_OK == xResult )
-        {
-            configPRINTF( ( "Write certificate...\r\n" ) );
-
-            xResult = pxFunctionList->C_CreateObject( xSession,
-                                                      ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
-                                                      sizeof( xCertificateTemplate ) / sizeof( CK_ATTRIBUTE ),
-                                                      pxObjectHandle );
-        }
-
-        if( xResult != CKR_OK )
-        {
-            configPRINTF( ( "ERROR: Failed to provision certificate %d \r\n", xResult ) );
-        }
-
-        if( pucDerObject != NULL )
-        {
-            vPortFree( pucDerObject );
-        }
-    }
-
-    return xResult;
-}
-/*-----------------------------------------------------------*/
-
-CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
-                        ProvisioningParams_t * pxParams )
-{
-    CK_RV xResult;
-    CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
-    CK_KEY_TYPE xPrivateKeyType = ( CK_KEY_TYPE ) pxParams->ulClientPrivateKeyType;
-    CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_OBJECT_HANDLE xObject = 0;
-    uint8_t * pucDerObject = NULL;
-    int32_t lConversionReturn = 0;
-    size_t xDerLen = 0;
-
-    PKCS11_KeyTemplate_t xPrivateKeyTemplate;
-
-    xResult = C_GetFunctionList( &pxFunctionList );
-
-    /* Initialize the device private key template. */
-    xPrivateKeyTemplate.xObjectClass.type = CKA_CLASS;
-    xPrivateKeyTemplate.xObjectClass.pValue = &xPrivateKeyClass;
-    xPrivateKeyTemplate.xObjectClass.ulValueLen = sizeof( xPrivateKeyClass );
-    xPrivateKeyTemplate.xKeyType.type = CKA_KEY_TYPE;
-    xPrivateKeyTemplate.xKeyType.pValue = &xPrivateKeyType;
-    xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
-    xPrivateKeyTemplate.xValue.type = CKA_VALUE;
-    xPrivateKeyTemplate.xValue.pValue = ( CK_VOID_PTR ) pxParams->pcClientPrivateKey;
-    xPrivateKeyTemplate.xValue.ulValueLen = ( CK_ULONG ) pxParams->ulClientPrivateKeyLength;
-    xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
-    xPrivateKeyTemplate.xLabel.pValue = ( CK_VOID_PTR ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
-    xPrivateKeyTemplate.xLabel.ulValueLen = ( CK_ULONG ) sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
-
-
-    xResult = xProvisionCertificate( xSession,
-                                     pxParams->pcClientCertificate,
-                                     pxParams->ulClientCertificateLength,
-                                     ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                     &xObject );
-
-    /* Create an object using the encoded private key. */
-    if( CKR_OK == xResult )
-    {
-        /* Convert the private to DER format if it was in PEM. */
-        /* The DER key should be about 3/4 the size of the PEM key, so mallocing the PEM key size is sufficient. */
-        pucDerObject = pvPortMalloc( xPrivateKeyTemplate.xValue.ulValueLen );
-        lConversionReturn = 0;
-        xDerLen = xPrivateKeyTemplate.xValue.ulValueLen;
-
-        if( pucDerObject != NULL )
-        {
-            lConversionReturn = convert_pem_to_der( xPrivateKeyTemplate.xValue.pValue,
-                                                    xPrivateKeyTemplate.xValue.ulValueLen,
-                                                    pucDerObject,
-                                                    &xDerLen );
-
-            if( lConversionReturn != 0 )
+            if( 0 != lConversionReturn )
             {
-                configPRINTF( ( "ERROR: Failed to parse private key %d \r\n", lConversionReturn ) );
+                xResult = CKR_ARGUMENTS_BAD;
             }
         }
         else
         {
             xResult = CKR_DEVICE_MEMORY;
         }
-
-        if( lConversionReturn == 0 )
-        {
-            /* Set the template pointers to refer to the DER converted objects. */
-            xPrivateKeyTemplate.xValue.pValue = pucDerObject;
-            xPrivateKeyTemplate.xValue.ulValueLen = xDerLen;
-        }
-
-        if( xResult == CKR_OK )
-        {
-            configPRINTF( ( "Write device private key...\r\n" ) );
-
-            xResult = pxFunctionList->C_CreateObject( xSession,
-                                                      ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
-                                                      sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-                                                      &xObject );
-        }
-
-        if( pucDerObject != NULL )
-        {
-            vPortFree( pucDerObject );
-        }
     }
 
-    if( xResult != CKR_OK )
+    if( xResult == CKR_OK )
     {
-        configPRINTF( ( "ERROR: Failed to provision private key %d.\r\n", xResult ) );
+        /* Set the template pointers to refer to the DER converted objects. */
+        xCertificateTemplate.xValue.pValue = pucDerObject;
+        xCertificateTemplate.xValue.ulValueLen = xDerLen;
+    }
+
+    /* Create an object using the encoded client certificate. */
+    if( xResult == CKR_OK )
+    {
+        configPRINTF( ( "Write code signing certificate...\r\n" ) );
+
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
+                                                  sizeof( xCertificateTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxObjectHandle );
+    }
+
+    if( pucDerObject != NULL )
+    {
+        vPortFree( pucDerObject );
     }
 
     return xResult;
 }
+
+CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
+{
+    CK_RV xResult;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_OBJECT_HANDLE xObjectHandle;
+    CK_BYTE * pxLabel;
+    uint32_t uiIndex = 0;
+    CK_BYTE * pxPkcsLabels[] =
+    {
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+        ( CK_BYTE * ) pkcs11configLABEL_CODE_VERIFICATION_KEY,
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+    };
+    CK_OBJECT_CLASS xClass[] =
+    {
+        CKO_CERTIFICATE,
+        CKO_PUBLIC_KEY,
+        CKO_PRIVATE_KEY,
+        CKO_PUBLIC_KEY
+    };
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    for( ; uiIndex < sizeof( pxPkcsLabels ) / sizeof( pxPkcsLabels[ 0 ] ); uiIndex++ )
+    {
+        pxLabel = pxPkcsLabels[ uiIndex ];
+
+        xResult = xFindObjectWithLabelAndClass( xSession,
+                                                ( const char * ) pxLabel,
+                                                xClass[ uiIndex ],
+                                                &xObjectHandle );
+
+        if( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
+        {
+            while( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
+            {
+                xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
+
+                /* PKCS #11 allows a module to maintain multiple objects with the same
+                 * label and type. The intent of this loop is to try to delete all of them.
+                 * However, to avoid getting stuck, we won't try to find another object
+                 * of the same label/type if the previous delete failed. */
+                if( xResult == CKR_OK )
+                {
+                    xResult = xFindObjectWithLabelAndClass( xSession,
+                                                            ( const char * ) pxLabel,
+                                                            xClass[ uiIndex ],
+                                                            &xObjectHandle );
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+
+        if( xResult == CKR_FUNCTION_NOT_SUPPORTED )
+        {
+            break;
+        }
+    }
+
+    return xResult;
+}
+
+/*-----------------------------------------------------------*/
+
+CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
+                        ProvisioningParams_t * pxParams )
+{
+    CK_RV xResult;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_OBJECT_HANDLE xObject = 0;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+        if( xResult == CKR_OK )
+        {
+            xResult = xProvisionCertificate( xSession,
+                                             pxParams->pucClientCertificate,
+                                             pxParams->ulClientCertificateLength,
+                                             ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                             &xObject );
+
+            if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+            {
+                configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
+            }
+        }
+
+        if( xResult == CKR_OK )
+        {
+            xResult = xProvisionPrivateKey( xSession,
+                                            pxParams->pucClientPrivateKey,
+                                            pxParams->ulClientPrivateKeyLength,
+                                            ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            &xObject );
+
+            if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+            {
+                configPRINTF( ( "ERROR: Failed to provision device private key. %d \r\n", xResult ) );
+            }
+        }
+    #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
+
+    if( xResult == CKR_OK )
+    {
+        if( pxParams->ulJITPCertifiateLength != 0 )
+        {
+            xResult = xProvisionCertificate( xSession,
+                                             pxParams->pucJITPCertificate,
+                                             pxParams->ulJITPCertifiateLength,
+                                             ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
+                                             &xObject );
+
+            if( xResult == CKR_DEVICE_MEMORY )
+            {
+                xResult = CKR_OK;
+                configPRINTF( ( "Warning: Device does not have memory allocated for JITP certificate.  Certificate from aws_clientcredential_keys.h will be used for JITR. \r\n" ) );
+            }
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        configPRINTF( ( "Device credential provisioning succeeded.\r\n" ) );
+    }
+    else
+    {
+        configPRINTF( ( "Device credential provisioning failed.\r\n" ) );
+    }
+
+    return xResult;
+}
+
 /*-----------------------------------------------------------*/
 
 void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 {
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
-    CK_SLOT_ID xSlotId = 0;
     CK_SESSION_HANDLE xSession = 0;
 
+    xResult = C_GetFunctionList( &pxFunctionList );
+
     /* Initialize the PKCS Module */
-    xResult = xInitializePkcsSession( &pxFunctionList,
-                                      &xSlotId,
-                                      &xSession );
+    if( xResult == CKR_OK )
+    {
+        xResult = xInitializePkcs11Session( &xSession );
+    }
 
     if( xResult == CKR_OK )
     {
-        xResult = xProvisionDevice( xSession, xParams );
-    }
+        #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+            xDestroyCredentials( xSession );
+        #endif
 
-    pxFunctionList->C_CloseSession( xSession );
+        xResult = xProvisionDevice( xSession, xParams );
+
+        pxFunctionList->C_CloseSession( xSession );
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -402,23 +813,37 @@ void vDevModeKeyProvisioning( void )
 {
     ProvisioningParams_t xParams;
 
-    xParams.ulClientPrivateKeyType = CKK_RSA;
-    xParams.pcClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
-    xParams.pcClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
+    xParams.pucClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.pucClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
+    xParams.pucJITPCertificate = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
 
-    if( ( NULL == xParams.pcClientPrivateKey ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pcClientPrivateKey ) ) ||
-        ( NULL == xParams.pcClientCertificate ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pcClientCertificate ) ) )
+    /* If using a JITR flow, a JITR certificate must be supplied. If using credentials generated by
+     * AWS, this certificate is not needed. */
+    if( ( NULL == xParams.pucJITPCertificate ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
+    {
+        xParams.ulJITPCertifiateLength = 0;
+        configPRINTF( ( "No JITP certificate supplied (JITP certificate is not necessary when using AWS issued credentials). \r\n" ) );
+    }
+    else
+    {
+        xParams.ulJITPCertifiateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
+    }
+
+    if( ( NULL == xParams.pucClientPrivateKey ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) ||
+        ( NULL == xParams.pucClientCertificate ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
     {
         configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key and certificate.\r\n" ) );
         configASSERT( pdFALSE );
     }
     else
     {
-        xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pcClientPrivateKey );
-        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pcClientCertificate );
+        xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
+        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pucClientCertificate );
         vAlternateKeyProvisioning( &xParams );
     }
 }
+
 /*-----------------------------------------------------------*/

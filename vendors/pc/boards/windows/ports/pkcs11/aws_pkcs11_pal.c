@@ -49,6 +49,9 @@
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
 
+#define PKCS11_PAL_PRINT( X )    vLoggingPrintf X
+
+
 enum eObjectHandles
 {
     eInvalidHandle = 0, /* According to PKCS #11 spec, 0 is never a valid object handle. */
@@ -127,7 +130,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
  *
  * Port-specific file write for cryptographic information.
  *
- * @param[in] pxLabel       The label of the object to be stored.
+ * @param[in] pxLabel       Attribute containing label of the object to be stored.
  * @param[in] pucData       The object data to be saved
  * @param[in] pulDataSize   Size (in bytes) of object data.
  *
@@ -156,7 +159,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         /* Create the file. */
         hFile = CreateFileA( pcFileName,
                              GENERIC_WRITE,
-                             0,
+                             FILE_SHARE_READ,
                              NULL,
                              CREATE_ALWAYS,
                              FILE_ATTRIBUTE_NORMAL,
@@ -165,6 +168,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         if( INVALID_HANDLE_VALUE == hFile )
         {
             ulStatus = GetLastError();
+            PKCS11_PAL_PRINT( ( "ERROR: Unable to create file %d \r\n", ulStatus ) );
             xHandle = eInvalidHandle;
         }
 
@@ -305,6 +309,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( INVALID_HANDLE_VALUE == hFile )
         {
             ulDriverReturn = GetLastError();
+            PKCS11_PAL_PRINT( ( "ERROR: Unable to open file %d \r\n", ulDriverReturn ) );
             ulReturn = CKR_FUNCTION_FAILED;
         }
 
@@ -331,6 +336,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                    ( LPDWORD ) ( &ulSize ),
                                    NULL ) )
             {
+                PKCS11_PAL_PRINT( ( "ERROR: Unable to read file \r\n" ) );
                 ulReturn = CKR_FUNCTION_FAILED;
             }
         }

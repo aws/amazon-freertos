@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets for FreeRTOS+TCP V1.1.5
+ * Amazon FreeRTOS Secure Sockets for FreeRTOS+TCP V1.1.6
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -549,11 +549,10 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
     static StaticSemaphore_t xStaticSemaphore;
     static SemaphoreHandle_t xSessionLock = NULL;
     CK_ULONG ulCount = 0;
-    CK_SLOT_ID * pxSlotIds = NULL;
+    CK_SLOT_ID *pxSlotIds = NULL;
 
     /* Check if one-time initialization of the lock is needed.*/
     portENTER_CRITICAL();
-
     if( NULL == xSessionLock )
     {
         xSessionLock = xSemaphoreCreateMutexStatic( &xStaticSemaphore );
@@ -564,21 +563,20 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 
     /* Check if one-time initialization of the crypto handle is needed.*/
     xSemaphoreTake( xSessionLock, portMAX_DELAY );
-
     if( 0 == xPkcs11Session )
     {
         /* One-time initialization. */
 
         /* Ensure that the PKCS#11 module is initialized. We don't keep the
-         * scheduler stopped here, since we don't want to make assumptions about hardware
-         * requirements for accessing a crypto module. */
+        scheduler stopped here, since we don't want to make assumptions about hardware
+        requirements for accessing a crypto module. */
 
         pxCkGetFunctionList = C_GetFunctionList;
         xResult = pxCkGetFunctionList( &pxPkcs11FunctionList );
 
         if( CKR_OK == xResult )
         {
-            xResult = pxPkcs11FunctionList->C_Initialize( NULL );
+            xResult = xInitializePKCS11();
         }
 
         /* Get the crypto token slot count. */
@@ -592,7 +590,7 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
         /* Allocate memory to store the token slots. */
         if( CKR_OK == xResult )
         {
-            pxSlotIds = ( CK_SLOT_ID * ) pvPortMalloc( sizeof( CK_SLOT_ID ) * ulCount );
+            pxSlotIds = ( CK_SLOT_ID * )pvPortMalloc( sizeof( CK_SLOT_ID ) * ulCount );
 
             if( NULL == pxSlotIds )
             {

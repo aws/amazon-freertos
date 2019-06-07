@@ -33,6 +33,7 @@
 #include "task.h"
 #include "aws_clientcredential_keys.h"
 #include "aws_default_root_certificates.h"
+#include "aws_pki_utils.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/platform.h"
@@ -67,7 +68,7 @@
  * @param[out] xMbedX509CA Server certificate context for mbedTLS.
  * @param[out] xMbedX509Cli Client certificate context for mbedTLS.
  * @param[out] mbedPkAltCtx RSA crypto implementation context for mbedTLS.
- * @param[out] xP11FunctionList PKCS#11 function list structure.
+ * @param[out] pxP11FunctionList PKCS#11 function list structure.
  * @param[out] xP11Session PKCS#11 session context.
  * @param[out] xP11PrivateKey PKCS#11 private key context.
  */
@@ -93,13 +94,15 @@ typedef struct TLSContext
     mbedtls_pk_info_t xMbedPkInfo;
 
     /* PKCS#11. */
-    CK_FUNCTION_LIST_PTR xP11FunctionList;
+    CK_FUNCTION_LIST_PTR pxP11FunctionList;
     CK_SESSION_HANDLE xP11Session;
     CK_OBJECT_HANDLE xP11PrivateKey;
+    CK_KEY_TYPE xKeyType;
 } TLSContext_t;
 
-
 #define TLS_PRINT( X )    vLoggingPrintf X
+
+/*-----------------------------------------------------------*/
 
 /*
  * Helper routines.
@@ -120,15 +123,17 @@ static void prvFreeContext( TLSContext_t * pxCtx )
         mbedtls_ssl_config_free( &pxCtx->xMbedSslConfig );
 
         /* Cleanup PKCS#11. */
-        if( ( NULL != pxCtx->xP11FunctionList ) &&
-            ( NULL != pxCtx->xP11FunctionList->C_CloseSession ) )
+        if( ( NULL != pxCtx->pxP11FunctionList ) &&
+            ( NULL != pxCtx->pxP11FunctionList->C_CloseSession ) )
         {
-            pxCtx->xP11FunctionList->C_CloseSession( pxCtx->xP11Session ); /*lint !e534 This function always return CKR_OK. */
+            pxCtx->pxP11FunctionList->C_CloseSession( pxCtx->xP11Session ); /*lint !e534 This function always return CKR_OK. */
         }
 
         pxCtx->xTLSHandshakeSuccessful = pdFALSE;
     }
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Network send callback shim.
@@ -148,6 +153,8 @@ static int prvNetworkSend( void * pvContext,
     return ( int ) pxCtx->xNetworkSend( pxCtx->pvCallerContext, pucData, xDataLength );
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Network receive callback shim.
  *
@@ -166,6 +173,8 @@ static int prvNetworkRecv( void * pvContext,
     return ( int ) pxCtx->xNetworkRecv( pxCtx->pvCallerContext, pucReceiveBuffer, xReceiveLength );
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Callback that wraps PKCS#11 for pseudo-random number generation.
  *
@@ -182,7 +191,7 @@ static int prvGenerateRandomBytes( void * pvCtx,
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
     BaseType_t xResult;
 
-    xResult = pxCtx->xP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+    xResult = pxCtx->pxP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
 
     if( xResult != 0 )
     {
@@ -192,6 +201,8 @@ static int prvGenerateRandomBytes( void * pvCtx,
 
     return xResult;
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Callback that enforces a worst-case expiration check on TLS server
@@ -266,6 +277,7 @@ static int prvCheckCertificate( void * pvCtx,
     return 0;
 }
 
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Sign a cryptographic hash with the private key.
@@ -287,44 +299,126 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
-                                         int ( * piRng )( void *,
-                                                          unsigned char *,
-                                                          size_t ), /*lint !e955 This parameter is unused. */
+                                         int ( *piRng )( void *,
+                                                         unsigned char *,
+                                                         size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
-    BaseType_t xResult = 0;
-    TLSContext_t * pxSession = ( TLSContext_t * ) pvContext;
+    CK_RV xResult = 0;
+    int lFinalResult = 0;
+    TLSContext_t * pxTLSContext = ( TLSContext_t * ) pvContext;
     CK_MECHANISM xMech = { 0 };
+    CK_BYTE xToBeSigned[ 256 ];
+    uint8_t ucTemp[ 64 ] = { 0 }; /* A temporary buffer for the pre-formatted signature. */
+    CK_ULONG xToBeSignedLen = sizeof( xToBeSigned );
 
     /* Unreferenced parameters. */
     ( void ) ( piRng );
     ( void ) ( pvRng );
     ( void ) ( xMdAlg );
 
-    /* Use the PKCS#11 module to sign. */
-    xMech.mechanism = CKM_SHA256;
+    /* Sanity check buffer length. */
+    if( xHashLen > sizeof( xToBeSigned ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
 
-    xResult = ( BaseType_t ) C_SignInit( pxSession->xP11Session,
-                                         &xMech,
-                                         pxSession->xP11PrivateKey );
+    /* If applicable, format the hash data to be signed. */
+    if( CKK_RSA == pxTLSContext->xKeyType )
+    {
+        xMech.mechanism = CKM_RSA_PKCS;
+        vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
+        xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
+    }
+    else if( CKK_EC == pxTLSContext->xKeyType )
+    {
+        xMech.mechanism = CKM_ECDSA;
+        memcpy( xToBeSigned, pucHash, xHashLen );
+        xToBeSignedLen = xHashLen;
+    }
+    else
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
 
     if( 0 == xResult )
     {
-        xResult = ( BaseType_t ) C_Sign( ( CK_SESSION_HANDLE ) pxSession->xP11Session,
-                                         ( CK_BYTE_PTR ) pucHash, /*lint !e9005 The interfaces are from 3rdparty libraries, we are not suppose to change them. */
-                                         ( CK_ULONG ) xHashLen,
-                                         pucSig,
-                                         ( CK_ULONG_PTR ) pxSigLen );
+        /* Use the PKCS#11 module to sign. */
+        xResult = pxTLSContext->pxP11FunctionList->C_SignInit( pxTLSContext->xP11Session,
+                                                               &xMech,
+                                                               pxTLSContext->xP11PrivateKey );
+    }
+
+    if( 0 == xResult )
+    {
+        *pxSigLen = sizeof( xToBeSigned );
+        xResult = pxTLSContext->pxP11FunctionList->C_Sign( ( CK_SESSION_HANDLE ) pxTLSContext->xP11Session,
+                                                           xToBeSigned,
+                                                           xToBeSignedLen,
+                                                           pucSig,
+                                                           ( CK_ULONG_PTR ) pxSigLen );
+    }
+
+    if( CKK_EC == pxTLSContext->xKeyType )
+    {
+        uint8_t * pucSigPtr;
+
+        /* PKCS #11 for P256 returns a 64-byte signature with 32 bytes for R and 32 bytes for S.
+         * This must be converted to an ASN1 encoded array. */
+        configASSERT( *pxSigLen == 64 );
+        memcpy( ucTemp, pucSig, *pxSigLen );
+
+        pucSig[ 0 ] = 0x30; /* Sequence. */
+        pucSig[ 1 ] = 0x44; /* The minimum length the signature could be. */
+        pucSig[ 2 ] = 0x02; /* Integer. */
+
+        if( ucTemp[ 0 ] & 0x80 )
+        {
+            pucSig[ 1 ]++;
+            pucSig[ 3 ] = 0x21;
+            pucSig[ 4 ] = 0x0;
+            memcpy( &pucSig[ 5 ], ucTemp, 32 );
+            pucSigPtr = pucSig + 33 + 4;
+        }
+        else
+        {
+            pucSig[ 3 ] = 0x20;
+            memcpy( &pucSig[ 4 ], ucTemp, 32 );
+            pucSigPtr = pucSig + 32 + 4;
+        }
+
+        pucSigPtr[ 0 ] = 0x02; /* Integer. */
+        pucSigPtr++;
+
+        if( ucTemp[ 32 ] & 0x80 )
+        {
+            pucSig[ 1 ]++;
+            pucSigPtr[ 0 ] = 0x21;
+            pucSigPtr[ 1 ] = 0x00;
+            pucSigPtr += 2;
+
+            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+        }
+        else
+        {
+            pucSigPtr[ 0 ] = 0x20;
+            pucSigPtr++;
+            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+        }
+
+        *pxSigLen = ( CK_ULONG ) pucSig[ 1 ] + 2;
     }
 
     if( xResult != 0 )
     {
         TLS_PRINT( ( "ERROR: Failure in signing callback: %d \r\n", xResult ) );
-        xResult = TLS_ERROR_SIGN;
+        lFinalResult = TLS_ERROR_SIGN;
     }
 
-    return xResult;
+    return lFinalResult;
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Helper for setting up potentially hardware-based cryptographic context
@@ -337,74 +431,89 @@ static int prvPrivateKeySigningCallback( void * pvContext,
 static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 {
     BaseType_t xResult = 0;
-    CK_SLOT_ID xSlotId = 0;
-    CK_ULONG xCount = 1;
-    CK_ATTRIBUTE xTemplate = { 0 };
+    CK_SLOT_ID * pxSlotIds = NULL;
+    CK_ULONG xCount = 0;
+    CK_ATTRIBUTE xTemplate[ 2 ];
     CK_OBJECT_HANDLE xCertObj = 0;
     CK_BYTE * pxCertificate = NULL;
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
-    CK_KEY_TYPE xKeyType = ( CK_KEY_TYPE ) ~0;
     char * pcJitrCertificate = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
 
     /* Initialize the mbed contexts. */
     mbedtls_x509_crt_init( &pxCtx->xMbedX509Cli );
 
-    /* Get the default private key storage ID. */
+    /* Get the PKCS #11 module/token slot count. */
     if( CKR_OK == xResult )
     {
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_GetSlotList( CK_TRUE,
-                                                                         &xSlotId,
-                                                                         &xCount );
+        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetSlotList( CK_TRUE,
+                                                                          NULL,
+                                                                          &xCount );
     }
 
-    /* Start a private session with the P#11 module. */
+    /* Allocate memory to store the token slots. */
+    if( CKR_OK == xResult )
+    {
+        pxSlotIds = ( CK_SLOT_ID * ) pvPortMalloc( sizeof( CK_SLOT_ID ) * xCount );
+
+        if( NULL == pxSlotIds )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+    }
+
+    /* Get all of the available private key slot identities. */
+    if( CKR_OK == xResult )
+    {
+        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetSlotList( CK_TRUE,
+                                                                          pxSlotIds,
+                                                                          &xCount );
+    }
+
+    /* Start a private session with the P#11 module using the first
+     * enumerated slot. */
     if( 0 == xResult )
     {
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_OpenSession( xSlotId,
-                                                                         CKF_SERIAL_SESSION,
-                                                                         NULL,
-                                                                         NULL,
-                                                                         &pxCtx->xP11Session );
+        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
+                                                                          CKF_SERIAL_SESSION,
+                                                                          NULL,
+                                                                          NULL,
+                                                                          &pxCtx->xP11Session );
+    }
+
+    /* Put the module in authenticated mode. */
+    if( 0 == xResult )
+    {
+        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_Login( pxCtx->xP11Session,
+                                                                    CKU_USER,
+                                                                    ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
+                                                                    sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
     /* Get the handle of the device private key. */
-    if( 0 == xResult )
-    {
-        xTemplate.type = CKA_LABEL;
-        xTemplate.ulValueLen = sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
-        xTemplate.pValue = &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_FindObjectsInit( pxCtx->xP11Session,
-                                                                             &xTemplate,
-                                                                             1 );
-    }
+    xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
+                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            CKO_PRIVATE_KEY,
+                                            &pxCtx->xP11PrivateKey );
 
-    if( 0 == xResult )
+    if( pxCtx->xP11PrivateKey == pkcs11INVALID_OBJECT_HANDLE )
     {
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_FindObjects( pxCtx->xP11Session,
-                                                                         &pxCtx->xP11PrivateKey,
-                                                                         1,
-                                                                         &xCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_FindObjectsFinal( pxCtx->xP11Session );
+        TLS_PRINT( ( "ERROR: Private key not found. " ) );
     }
 
     if( xResult == CKR_OK )
     {
-        xTemplate.type = CKA_KEY_TYPE;
-        xTemplate.pValue = &xKeyType;
-        xTemplate.ulValueLen = sizeof( CK_KEY_TYPE );
-        xResult = pxCtx->xP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
-                                                                pxCtx->xP11PrivateKey,
-                                                                &xTemplate,
-                                                                1 );
+        xTemplate[ 0 ].type = CKA_KEY_TYPE;
+        xTemplate[ 0 ].pValue = &pxCtx->xKeyType;
+        xTemplate[ 0 ].ulValueLen = sizeof( CK_KEY_TYPE );
+        xResult = pxCtx->pxP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
+                                                                 pxCtx->xP11PrivateKey,
+                                                                 xTemplate,
+                                                                 1 );
     }
 
     if( xResult == CKR_OK )
     {
-        switch( xKeyType )
+        switch( pxCtx->xKeyType )
         {
             case CKK_RSA:
                 xKeyAlgo = MBEDTLS_PK_RSA;
@@ -429,46 +538,36 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
         pxCtx->xMbedPkCtx.pk_ctx = pxCtx;
     }
 
-    if( 0 == xResult )
+    if( xResult == CKR_OK )
     {
-        /* Enumerate the first client certificate. */
-        xTemplate.type = CKA_LABEL;
-        xTemplate.ulValueLen = sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS );
-        xTemplate.pValue = &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_FindObjectsInit( pxCtx->xP11Session,
-                                                                             &xTemplate,
-                                                                             1 );
+        /* Get the handle of the device client certificate. */
+        xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
+                                                pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                                CKO_CERTIFICATE,
+                                                &xCertObj );
     }
 
-    if( 0 == xResult )
+    if( xCertObj == pkcs11INVALID_OBJECT_HANDLE )
     {
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_FindObjects( pxCtx->xP11Session,
-                                                                         &xCertObj,
-                                                                         1,
-                                                                         &xCount );
-    }
-
-    if( 0 == xResult )
-    {
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_FindObjectsFinal( pxCtx->xP11Session );
+        TLS_PRINT( ( "No device certificate found." ) );
     }
 
     if( 0 == xResult )
     {
         /* Query the device certificate size. */
-        xTemplate.type = CKA_VALUE;
-        xTemplate.ulValueLen = 0;
-        xTemplate.pValue = NULL;
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
-                                                                               xCertObj,
-                                                                               &xTemplate,
-                                                                               1 );
+        xTemplate[ 0 ].type = CKA_VALUE;
+        xTemplate[ 0 ].ulValueLen = 0;
+        xTemplate[ 0 ].pValue = NULL;
+        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
+                                                                                xCertObj,
+                                                                                xTemplate,
+                                                                                1 );
     }
 
     if( 0 == xResult )
     {
         /* Create a buffer for the certificate. */
-        pxCertificate = ( CK_BYTE_PTR ) pvPortMalloc( xTemplate.ulValueLen ); /*lint !e9079 Allow casting void* to other types. */
+        pxCertificate = ( CK_BYTE_PTR ) pvPortMalloc( xTemplate[ 0 ].ulValueLen ); /*lint !e9079 Allow casting void* to other types. */
 
         if( NULL == pxCertificate )
         {
@@ -479,11 +578,11 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     if( 0 == xResult )
     {
         /* Export the certificate. */
-        xTemplate.pValue = pxCertificate;
-        xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
-                                                                               xCertObj,
-                                                                               &xTemplate,
-                                                                               1 );
+        xTemplate[ 0 ].pValue = pxCertificate;
+        xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
+                                                                                xCertObj,
+                                                                                xTemplate,
+                                                                                1 );
     }
 
     /* Decode the client certificate. */
@@ -491,7 +590,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     {
         xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509Cli,
                                           ( const unsigned char * ) pxCertificate,
-                                          xTemplate.ulValueLen );
+                                          xTemplate[ 0 ].ulValueLen );
     }
 
     /*
@@ -524,6 +623,11 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
         vPortFree( pxCertificate );
     }
 
+    if( NULL != pxSlotIds )
+    {
+        vPortFree( pxSlotIds );
+    }
+
     if( CKR_OK != xResult )
     {
         TLS_PRINT( ( "ERROR: Loading credentials from flash into TLS context failed with error %d.\r\n", xResult ) );
@@ -531,6 +635,8 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 
     return xResult;
 }
+
+/*-----------------------------------------------------------*/
 
 /*
  * Interface routines.
@@ -563,12 +669,12 @@ BaseType_t TLS_Init( void ** ppvContext,
 
         /* Get the function pointer list for the PKCS#11 module. */
         xCkGetFunctionList = C_GetFunctionList;
-        xResult = ( BaseType_t ) xCkGetFunctionList( &pxCtx->xP11FunctionList );
+        xResult = ( BaseType_t ) xCkGetFunctionList( &pxCtx->pxP11FunctionList );
 
         /* Ensure that the PKCS #11 module is initialized. */
         if( 0 == xResult )
         {
-            xResult = ( BaseType_t ) pxCtx->xP11FunctionList->C_Initialize( NULL );
+            xResult = ( BaseType_t ) xInitializePKCS11();
 
             /* It is ok if the module was previously initialized. */
             if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
