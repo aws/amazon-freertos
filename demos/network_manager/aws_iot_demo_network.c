@@ -242,6 +242,15 @@ void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext
         }
 #endif
 
+#if ETH_ENABLED
+        if (pxNetworkContext->ulNetworkType == AWSIOT_NETWORK_TYPE_ETH)
+        {
+            IotNetworkAfr_Close(pxNetworkContext->pvNetworkConnection);
+            IotNetworkAfr_Destroy(pxNetworkContext->pvNetworkConnection);
+            xDeleted = pdTRUE;
+        }
+#endif
+
         if( xDeleted )
         {
             pxNetworkContext->pvNetworkConnection = NULL;

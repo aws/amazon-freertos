@@ -158,8 +158,6 @@ add_executable(
     "${board_demos_dir}/application_code/aws_demo_logging.h"
     "${board_demos_dir}/application_code/aws_entropy_hardware_poll.c"
     "${board_demos_dir}/application_code/aws_run-time-stats-utils.c"
-    # Need to add cborpretty.c
-    "${AFR_3RDPARTY_DIR}/tinycbor/cborpretty.c"
     ${extra_src}
 )
 target_include_directories(
