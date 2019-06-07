@@ -13,6 +13,69 @@ target_include_directories(
     "${AFR_3RDPARTY_DIR}/jsmn"
 )
 
+# lwip
+add_library(
+    afr_3rdparty_lwip STATIC EXCLUDE_FROM_ALL
+)
+target_sources(
+    afr_3rdparty_lwip
+    PRIVATE
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/netif/ethernetif.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch/sys_arch.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/lwip_log.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/netbuf.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/netdb.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/netifapi.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/sockets.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/api/tcpip.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/def.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/dns.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/inet_chksum.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/init.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/mem.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/memp.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/netif.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/raw.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/stats.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/sys.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp_in.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/timeouts.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/udp.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/pbuf.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp_out.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ip.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/autoip.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/dhcp.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/icmp.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/igmp.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/ip4.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/ip4_addr.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/ip4_frag.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/etharp.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/dhcp6.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ethip6.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/icmp6.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/inet6.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ip6.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ip6_addr.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ip6_frag.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/mld6.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/nd6.c"
+        "${AFR_3RDPARTY_DIR}/lwip/src/netif/ethernet.c"
+)
+target_include_directories(
+    afr_3rdparty_lwip
+    PUBLIC
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
+        "${AFR_3RDPARTY_DIR}/lwip/src/include"
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
+)
+add_library(3rdparty::lwip ALIAS afr_3rdparty_lwip)
+
 # mbedtls - TLS protocol implementation
 afr_glob_src(mbedtls_src DIRECTORY "${AFR_3RDPARTY_DIR}/mbedtls" RECURSE)
 # Build to static library to save some time.

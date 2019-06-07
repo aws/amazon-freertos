@@ -219,9 +219,6 @@ target_include_directories(
         "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
 
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
-        "${AFR_3RDPARTY_DIR}/lwip/src/include"
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
         "${AFR_3RDPARTY_DIR}/pkcs11"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
@@ -239,54 +236,6 @@ afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
     INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
-
-    # LWIP files
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/netif/ethernetif.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch/sys_arch.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/lwip_log.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/netbuf.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/netdb.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/netifapi.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/sockets.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/api/tcpip.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/def.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/dns.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/inet_chksum.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/init.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/mem.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/memp.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/netif.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/raw.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/stats.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/sys.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp_in.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/timeouts.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/udp.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/pbuf.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/tcp_out.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ip.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/autoip.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/dhcp.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/icmp.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/igmp.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/ip4.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/ip4_addr.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/ip4_frag.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv4/etharp.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/dhcp6.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ethip6.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/icmp6.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/inet6.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ip6.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ip6_addr.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/ip6_frag.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/mld6.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/core/ipv6/nd6.c"
-    "${AFR_3RDPARTY_DIR}/lwip/src/netif/ethernet.c"
 
     # MediaTek SDK Wifi Files
     "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/dhcpd/src/dhcpd.c"
@@ -316,8 +265,6 @@ target_include_directories(
         "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/minisupp/inc"
         "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/third_party/ping/inc"
         "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/dhcpd/inc"
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-        "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
         "${board_dir}/application_code/mediatek_code/include"
 )
 
@@ -326,6 +273,7 @@ target_link_libraries(
     AFR::wifi::mcu_port
     INTERFACE
         AFR::secure_sockets::mcu_port
+        3rdparty::lwip
 )
 
 # PKCS11
@@ -351,31 +299,12 @@ target_include_directories(
         "${board_dir}/application_code/mediatek_code/include"
 )
 
-#Secure sockets
+# Secure sockets
 afr_mcu_port(secure_sockets)
-target_sources(
+target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/lwip/aws_secure_sockets.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/aws_tls.c"
-)
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-       "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
-       "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-       "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
-       "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
-       "${AFR_3RDPARTY_DIR}/mbedtls/include"
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
-       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
-)
-
- afr_module_dependencies(
-    AFR::secure_sockets::mcu_port
-     INTERFACE
-         AFR::tls
+        AFR::secure_sockets_lwip
  )
 
 

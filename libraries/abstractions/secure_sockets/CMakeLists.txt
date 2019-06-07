@@ -42,6 +42,24 @@ afr_module_dependencies(
         AFR::pkcs11
 )
 
+# Link to this INTERFACE target to use the default implementation based on lwip.
+afr_module(NAME secure_sockets_lwip INTERFACE)
+
+set(src_dir "${CMAKE_CURRENT_LIST_DIR}/lwip")
+
+afr_module_sources(
+    secure_sockets_lwip
+    INTERFACE
+        "${src_dir}/aws_secure_sockets.c"
+)
+
+afr_module_dependencies(
+    secure_sockets_lwip
+    INTERFACE
+        AFR::tls
+        3rdparty::lwip
+)
+
 # Secure sockets test
 afr_test_module()
 afr_module_sources(
