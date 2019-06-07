@@ -1953,6 +1953,15 @@
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c</name>
 			</file>
 		</group>
+		<group>
+			<name>tcp</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h</name>
+			</file>
+		</group>
 	</group>
 	<group>
 		<name>libraries</name>
