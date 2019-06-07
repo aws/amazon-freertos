@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi for LPC54018 IoT Module V1.0.3
+ * Amazon FreeRTOS Wi-Fi for LPC54018 IoT Module V1.0.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of

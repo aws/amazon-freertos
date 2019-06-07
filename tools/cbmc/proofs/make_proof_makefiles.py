@@ -116,18 +116,23 @@ def prolog():
         include statement, including Makefile.common.
     """)
 
-
-def dump_makefile(dyr, system):
-    with open(os.path.join(dyr, "Makefile.json")) as handle:
+def load_json_config_file(file):
+    with open(file) as handle:
         lines = handle.read().splitlines()
-    no_comments = "\n".join([line for line in lines if line and line[0] != "#"])
+    no_comments = "\n".join([line for line in lines 
+                             if line and not line.lstrip().startswith("#")])
     try:
         data = json.loads(no_comments,
                           object_pairs_hook=collections.OrderedDict)
     except json.decoder.JSONDecodeError:
         traceback.print_exc()
-        logging.error("parsing file %s", os.path.join(dyr, "Makefile.json"))
-        exit(1)
+        logging.error("parsing file %s", file)
+        sys.exit(1)
+    return data
+
+
+def dump_makefile(dyr, system):
+    data = load_json_config_file(os.path.join(dyr, "Makefile.json"))
 
     makefile = collections.OrderedDict()
     so_far = collections.OrderedDict()
@@ -139,7 +144,12 @@ def dump_makefile(dyr, system):
             makefile[name] = " ".join(new_value)
         else:
             makefile[name] = compute(value, so_far, system, name, dyr)
-
+    
+    if (("EXPECTED" not in makefile.keys()) or
+            str(makefile["EXPECTED"]).lower() == "true"):
+        makefile["EXPECTED"] = "SUCCESSFUL"
+    elif(str(makefile["EXPECTED"]).lower() == "false"):
+        makefile["EXPECTED"] = "FAILURE"
     makefile = ["H_%s = %s" % (k, v) for k, v in makefile.items()]
 
     # Deal with the case of a harness being nested several levels under
@@ -151,9 +161,9 @@ def dump_makefile(dyr, system):
         handle.write(("""{contents}
 
 {include} {common_dir_path}Makefile.common""").format(
-                contents="\n".join(makefile),
-                include=_platform_choices[system]["makefile-inc"],
-                common_dir_path=common_dir_path))
+            contents="\n".join(makefile),
+            include=_platform_choices[system]["makefile-inc"],
+            common_dir_path=common_dir_path))
 
 
 def compute(value, so_far, system, key, harness, appending=False):
@@ -372,6 +382,7 @@ def wrap(string):
 def main():
     args = get_args()
     set_up_logging(args)
+
     for root, _, fyles in os.walk("."):
         if "Makefile.json" in fyles:
             dump_makefile(root, args.system)

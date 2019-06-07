@@ -198,13 +198,13 @@ define encode_options
 '=$(shell echo $(1) | sed 's/ ,/ /g' | sed 's/ /;/g')='
 endef
 
-cbmc-batch.yaml: Makefile ../Makefile.common
+cbmc-batch.yaml:
 	@echo "Building $@"
 	@$(RM) $@
 	@echo "jobos: ubuntu16" >> $@
 	@echo "cbmcflags: $(call encode_options,$(CBMCFLAGS) --unwinding-assertions)" >> $@
 	@echo "goto: $(ENTRY).goto" >> $@
-	@echo "expected: SUCCESSFUL" >> $@
+	@echo "expected: $(H_EXPECTED)" >> $@
 
 ################################################################
 """

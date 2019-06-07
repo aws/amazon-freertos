@@ -1,59 +1,41 @@
-afr_module(INTERNAL)
-
-set(src_dir "${CMAKE_CURRENT_LIST_DIR}/source")
-set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
-set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
+afr_module(NAME freertos_plus_tcp INTERNAL)
 
 afr_module_sources(
-    ${AFR_CURRENT_MODULE}
+    freertos_plus_tcp
     PRIVATE
-        "${src_dir}/FreeRTOS_ARP.c"
-        "${src_dir}/FreeRTOS_DHCP.c"
-        "${src_dir}/FreeRTOS_DNS.c"
-        "${src_dir}/FreeRTOS_IP.c"
-        "${src_dir}/FreeRTOS_Sockets.c"
-        "${src_dir}/FreeRTOS_Stream_Buffer.c"
-        "${src_dir}/FreeRTOS_TCP_IP.c"
-        "${src_dir}/FreeRTOS_TCP_WIN.c"
-        "${src_dir}/FreeRTOS_UDP_IP.c"
-        "${inc_dir}/FreeRTOS_ARP.h"
-        "${inc_dir}/FreeRTOS_DHCP.h"
-        "${inc_dir}/FreeRTOS_DNS.h"
-        "${inc_dir}/FreeRTOS_errno_TCP.h"
-        "${inc_dir}/FreeRTOSIPConfigDefaults.h"
-        "${inc_dir}/FreeRTOS_IP.h"
-        "${inc_dir}/FreeRTOS_IP_Private.h"
-        "${inc_dir}/FreeRTOS_Sockets.h"
-        "${inc_dir}/FreeRTOS_Stream_Buffer.h"
-        "${inc_dir}/FreeRTOS_TCP_IP.h"
-        "${inc_dir}/FreeRTOS_TCP_WIN.h"
-        "${inc_dir}/FreeRTOS_UDP_IP.h"
-        "${inc_dir}/IPTraceMacroDefaults.h"
-        "${inc_dir}/NetworkBufferManagement.h"
-        "${inc_dir}/NetworkInterface.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_IP.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_Sockets.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/source/FreeRTOS_UDP_IP.c"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_ARP.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_DHCP.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_DNS.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_errno_TCP.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOSIPConfigDefaults.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_IP.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_IP_Private.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_Sockets.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_Stream_Buffer.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_TCP_IP.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_TCP_WIN.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/FreeRTOS_UDP_IP.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/IPTraceMacroDefaults.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/NetworkBufferManagement.h"
+        "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include/NetworkInterface.h"
 
 )
 
 afr_module_include_dirs(
-    ${AFR_CURRENT_MODULE}
-    PUBLIC "${inc_dir}"
-    PRIVATE "${test_dir}"
+    freertos_plus_tcp
+    PUBLIC "${AFR_MODULES_DIR}/FreeRTOS-Plus-TCP/include"
 )
 
 afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    PUBLIC AFR::${AFR_CURRENT_MODULE}::mcu_port
-)
-
-afr_test_module()
-
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-        "${test_dir}/aws_test_freertos_tcp.c"
-)
-
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE AFR::freertos_plus_tcp
+    freertos_plus_tcp PRIVATE
+    AFR::freertos_plus_tcp::mcu_port
 )

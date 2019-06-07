@@ -647,6 +647,10 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiReset );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
+<<<<<<< HEAD:libraries/abstractions/wifi/test/aws_test_wifi.c
+=======
+    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
+>>>>>>> master:tests/common/wifi/aws_test_wifi.c
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
 
     /* Null parameter tests. */
@@ -869,6 +873,9 @@ TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
     {
         TEST_FAIL();
     }
+    /* Some ports will use an assert for invalid parameters instead of returning a failure code. 
+       Because of this there is no else { TEST_FAIL(); } appended to this if( TEST_PROTECT() ) block. 
+       This applies to all invalid parameter tests in this file. */
 }
 
 /**
