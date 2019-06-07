@@ -1163,15 +1163,22 @@ static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB )
 			/* If null is passed in here then it is the calling task that is
 			being deleted. */
 			pxTCB = prvGetTCBFromHandle( xTaskToDelete );
-
+			
 			/* Remove task from the ready list. */
-			if( uxListRemove( &( pxTCB->xStateListItem ) ) == ( UBaseType_t ) 0 )
+			if( listIS_CONTAINED_WITHIN( &( pxReadyTasksLists[ ( pxTCB )->uxPriority ] ), &( ( pxTCB )->xStateListItem ) == pdTRUE )
 			{
-				taskRESET_READY_PRIORITY( pxTCB->uxPriority );
+				if( uxListRemove( &( pxTCB->xStateListItem ) ) == ( UBaseType_t ) 0 )
+				{
+					taskRESET_READY_PRIORITY( pxTCB->uxPriority );
+				}
+				else
+				{
+					mtCOVERAGE_TEST_MARKER();
+				}
 			}
 			else
 			{
-				mtCOVERAGE_TEST_MARKER();
+				( void ) uxListRemove( &( pxTCB->xStateListItem ) );
 			}
 
 			/* Is the task waiting on an event also? */
