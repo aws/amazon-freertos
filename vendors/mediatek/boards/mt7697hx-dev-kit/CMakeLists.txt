@@ -225,7 +225,6 @@ target_include_directories(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/provisioning/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
-        "${board_dir}/config_files"
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
         ${compiler_specific_include}
 )
@@ -253,6 +252,11 @@ target_sources(
     "${AFR_VENDORS_DIR}/mediatek/sdk/driver/board/mt76x7_hdk/ept/src/bsp_gpio_ept_config.c"
     "${AFR_VENDORS_DIR}/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/src/bsp_flash_config.c"
 
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/lwipopts.c"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/netif/ethernetif.c"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch/sys_arch.c"
+    "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/lwip_log.c"
+
 )
 
 target_include_directories(
@@ -266,6 +270,8 @@ target_include_directories(
         "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/third_party/ping/inc"
         "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/dhcpd/inc"
         "${board_dir}/application_code/mediatek_code/include"
+        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
+
 )
 
 # WiFi on MTK requires Secure Sockets
@@ -327,7 +333,6 @@ add_executable(
     $<IF:${AFR_IS_TESTING}, ,${network_manager_src}>
     "${board_dir}/startup_mt7687.s"
     "${board_dir}/application_code/main.c"
-    "${board_dir}/application_code/lwipopts.c"
     "${board_dir}/application_code/mediatek_code/source/sys_init.c"
     "${board_dir}/application_code/mediatek_code/source/system_mt7687.c"
     "${board_dir}/application_code/mediatek_code/source/ept_gpio_var.c"
@@ -343,7 +348,6 @@ add_executable(
 target_link_libraries(
     ${exe_target}
     PRIVATE
-        AFR::wifi::mcu_port
         AFR::utils
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libwifi_CM4_Keil.lib"
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libhal_core_CM4_Keil.lib"
@@ -352,8 +356,7 @@ target_link_libraries(
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminicli_CM4_Keil.lib"
         "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminisupp_CM4_Keil.lib"
         ${link_extra_flags}
-        AFR::crypto
-        AFR::pkcs11
+        AFR::wifi
 )
 
 find_program(fromelf fromelf.exe PATHS "${AFR_COMPILER_DIR}")

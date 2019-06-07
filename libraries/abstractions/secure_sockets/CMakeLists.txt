@@ -57,6 +57,7 @@ afr_module_dependencies(
     secure_sockets_lwip
     INTERFACE
         AFR::tls
+        AFR::wifi
         3rdparty::lwip
 )
 

@@ -20,9 +20,7 @@ add_library(
 target_sources(
     afr_3rdparty_lwip
     PRIVATE
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/netif/ethernetif.c"
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch/sys_arch.c"
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/lwip_log.c"
+
         "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
         "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
@@ -70,9 +68,13 @@ target_sources(
 target_include_directories(
     afr_3rdparty_lwip
     PUBLIC
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable/mediatek/include"
         "${AFR_3RDPARTY_DIR}/lwip/src/include"
+        "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
         "${AFR_3RDPARTY_DIR}/lwip/src/portable"
+)
+target_link_libraries(
+    afr_3rdparty_lwip
+    PRIVATE AFR::kernel
 )
 add_library(3rdparty::lwip ALIAS afr_3rdparty_lwip)
 
