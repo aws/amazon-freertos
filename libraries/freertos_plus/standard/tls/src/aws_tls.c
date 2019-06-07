@@ -665,6 +665,12 @@ BaseType_t TLS_Connect( void * pvContext )
                                                MBEDTLS_SSL_IS_CLIENT,
                                                MBEDTLS_SSL_TRANSPORT_STREAM,
                                                MBEDTLS_SSL_PRESET_DEFAULT );
+
+
+        if( 0 != xResult )
+        {
+            TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %d \r\n", xResult ) );
+        }
     }
 
     if( 0 == xResult )
