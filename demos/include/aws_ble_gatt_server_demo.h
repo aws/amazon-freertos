@@ -31,7 +31,9 @@
 #define AWS_BLE_GATT_SERVER_DEMO_H_
 
 #include "FreeRTOS.h"
-
+/* The config header is always included first. */
+#include "iot_config.h"
+#include "platform/iot_network.h"
 /**
  * @brief  GATT service, characteristics and descriptor UUIDs used by the sample.
  */
@@ -84,7 +86,11 @@ typedef enum
  *
  * @return pdTRUE if the GATT Service is succesfully initialized, pdFALSE otherwise
  */
-BaseType_t vGattDemoSvcInit( void );
+BaseType_t vGattDemoSvcInit( bool awsIotMqttMode,
+        const char * pIdentifier,
+        void * pNetworkServerInfo,
+        void * pNetworkCredentialInfo,
+        const IotNetworkInterface_t * pNetworkInterface  );
 /**
  * @brief Starts the GATT demo service.
  */
