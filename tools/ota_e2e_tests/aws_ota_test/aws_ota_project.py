@@ -27,6 +27,8 @@ import fileinput
 import sys
 import subprocess
 import os
+from time import sleep
+
 
 class OtaAfrProject:
     """OtaAfrProject represents the Amazon FreeRTOS code base for OTA.
@@ -134,6 +136,7 @@ class OtaAfrProject:
             print('====> Command run completed with the return code: ', proc.returncode)
             returnCodes.append(proc.returncode)
 
+        sleep(5) # added the sleep just to give enough time for the binaries to be generated properly and having unecessary exception.
         output = self._buildConfig['output']
         if not os.path.exists(output):
             print("ERROR: Could not find the output binary, the build might have failed.")
@@ -219,7 +222,7 @@ class OtaAfrProject:
         """
         self.__setIdentifierInFile(
             {
-                'static const char clientcredentialMQTT_BROKER_ENDPOINT[] =': '\"' + awsIotEndpoint + '\";',
+                '#define clientcredentialMQTT_BROKER_ENDPOINT': '\"' + awsIotEndpoint + '\"',
                 '#define clientcredentialMQTT_BROKER_PORT' : awsIotEndpointPort
             },
             os.path.join(self._projectRootDir, OtaAfrProject.CLIENT_CREDENTIAL_PATH)

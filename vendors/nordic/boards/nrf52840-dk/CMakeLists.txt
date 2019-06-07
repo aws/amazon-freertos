@@ -200,9 +200,14 @@ afr_mcu_port(ble_hal)
 target_sources(
     AFR::ble_hal::mcu_port
     INTERFACE
+        "${afr_ports_dir}/ble/aws_ble_event_manager_config.h"
+        "${afr_ports_dir}/ble/aws_ble_gap_config.h"
         "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_dis.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_dis.h"
         "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_internals.h"
 )
 target_include_directories(
     AFR::ble_hal::mcu_port

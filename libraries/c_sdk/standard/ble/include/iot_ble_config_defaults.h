@@ -312,7 +312,26 @@
  * @brief The  timeout in milliseconds for sending a message through data transfer service.
  */
 #ifndef IOT_BLE_DATA_TRANSFER_TIMEOUT_MS
-    #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS    ( 2000 )
+    #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS       ( 2000 )
+#endif
+
+/**
+ * @brief Default configuration for memory allocation of data transfer service buffers.
+ */
+#ifndef IotBle_MallocDataBuffer
+    #define IotBle_MallocDataBuffer                malloc
+#endif
+
+#ifndef IotBle_FreeDataBuffer
+    #define IotBle_FreeDataBuffer                  free
+#endif
+
+/**
+ * @brief Default configuration for assert statements.
+ */
+#ifndef IotBle_Assert
+    #include <assert.h>
+    #define IotBle_Assert( expression )    assert( expression ) 
 #endif
 
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

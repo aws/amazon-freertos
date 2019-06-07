@@ -32,8 +32,9 @@
 
 #include "iot_config.h"
 #include "iot_ble_config.h"
-
+#include "iot_serializer.h"
 #include "iot_taskpool.h"
+#include "iot_ble_wifi_provisioning.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
@@ -42,11 +43,8 @@
     #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
 #endif
 
-#define LIBRARY_LOG_NAME         ( "WIFI_PROV" )
+#define LIBRARY_LOG_NAME         ( "BLE_WIFI_PROV" )
 #include "iot_logging_setup.h"
-
-#include "iot_ble_wifi_provisioning.h"
-#include "iot_serializer.h"
 
 /**
  * @cond DOXYGEN_IGNORE
