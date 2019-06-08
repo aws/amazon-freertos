@@ -85,6 +85,8 @@ target_link_libraries(
         3rdparty::jsmn
         3rdparty::pkcs11
         3rdparty::tinycbor
+        # Require this for bootloader
+        3rdparty::tinycrypt
 )
 
 
