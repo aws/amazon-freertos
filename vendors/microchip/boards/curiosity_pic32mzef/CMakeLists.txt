@@ -247,6 +247,7 @@ target_sources(
     AFR::ota::mcu_port
     INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
     INTERFACE "${afr_ports_dir}/ota/aws_nvm.c"
+    INTERFACE "${afr_ports_dir}/ota/aws_nvm.h"
 )
 
 # -------------------------------------------------------------------------------------------------

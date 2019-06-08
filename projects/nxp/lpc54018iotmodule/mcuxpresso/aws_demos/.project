@@ -1238,6 +1238,26 @@
 			<locationURI>BASE_DIR/demos/mqtt/iot_demo_mqtt.c</locationURI>
 		</link>
 		<link>
+			<name>demos/defender/aws_iot_demo_defender.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/defender/aws_iot_demo_defender.c</locationURI>
+		</link>
+		<link>
+			<name>demos/shadow/aws_iot_demo_shadow.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/shadow/aws_iot_demo_shadow.c</locationURI>
+		</link>
+		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
+		</link>
+		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_tasks.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/nxp_code/board.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code/board.c</locationURI>

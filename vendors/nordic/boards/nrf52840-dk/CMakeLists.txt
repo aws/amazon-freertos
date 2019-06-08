@@ -193,6 +193,15 @@ target_include_directories(
         "${board_dir}/config_files"
 )
 
+target_link_libraries(
+    AFR::kernel::mcu_port
+    INTERFACE
+        3rdparty::jsmn
+        3rdparty::pkcs11
+        # Require this for bootloader
+        3rdparty::tinycrypt
+)
+
 # BLE
 set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
 
