@@ -138,7 +138,7 @@ typedef struct xTASK_STATUS
 {
 	TaskHandle_t xHandle;			/* The handle of the task to which the rest of the information in the structure relates. */
 	const char *pcTaskName;			/* A pointer to the task's name.  This value will be invalid if the task was deleted since the structure was populated! */ /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
-	UBaseType_t xTaskNumber;		/* A number unique to the task. */
+	UBaseType_t uxTaskNumber;		/* A number unique to the task. */
 	eTaskState eCurrentState;		/* The state in which the task existed when the structure was populated. */
 	UBaseType_t uxCurrentPriority;	/* The priority at which the task was running (may be inherited) when the structure was populated. */
 	UBaseType_t uxBasePriority;		/* The priority to which the task will return if the task's current priority has been inherited to avoid unbounded priority inversion when obtaining a mutex.  Only valid if configUSE_MUTEXES is defined as 1 in FreeRTOSConfig.h. */
