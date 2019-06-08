@@ -44,6 +44,10 @@
       <logicalFolder name="shadow" displayName="shadow" projectFiles="true">
         <itemPath>../../../../../demos/shadow/aws_iot_demo_shadow.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="tcp" displayName="tcp" projectFiles="true">
+        <itemPath>../../../../../demos/tcp/aws_tcp_echo_client_single_task.c</itemPath>
+        <itemPath>../../../../../demos/tcp/aws_tcp_echo_client_single_tasks.h</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="freertos_kernel"
                    displayName="freertos_kernel"

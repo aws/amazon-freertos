@@ -1985,6 +1985,21 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>demos/tcp/</GroupName>
+          <Files>
+            <File>
+              <FileName>aws_tcp_echo_client_single_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_tcp_echo_client_single_tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_tasks.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/</GroupName>
           <Files>
             <File>
