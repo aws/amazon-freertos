@@ -196,6 +196,7 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.c"
+        "${afr_ports_dir}/pkcs11/pkcs11_nvm.h"
 )
 
 
