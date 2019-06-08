@@ -23,11 +23,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>CC3220SF.ccxml</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/CC3220SF.ccxml</locationURI>
-		</link>
-		<link>
 			<name>freertos_kernel/event_groups.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/event_groups.c</locationURI>
@@ -176,26 +171,6 @@
 			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/portable/CCS/ARM_CM3/port.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/port.c</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/portable/CCS/ARM_CM3/portasm.asm</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/portasm.asm</locationURI>
-		</link>
-		<link>
-			<name>freertos_kernel/portable/CCS/ARM_CM3/portmacro.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/portmacro.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</name>
@@ -413,26 +388,6 @@
 			<locationURI>BASE_DIR_ROOT/demos/include/iot_demo_runner.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/aws_pkcs11_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
@@ -513,11 +468,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/include/platform/iot_clock.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/iot_clock.h</locationURI>
@@ -543,6 +493,21 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_clock_afr.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
@@ -553,24 +518,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_network_afr.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</name>
@@ -591,6 +541,26 @@
 			<name>vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/aws_secure_sockets.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/aws_secure_sockets.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/include/aws_wifi.h</name>
@@ -643,11 +613,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/defender/include/aws_iot_defender.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
@@ -681,6 +646,11 @@
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -723,21 +693,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/include/iot_json_utils.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</locationURI>
@@ -766,6 +721,21 @@
 			<name>libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>

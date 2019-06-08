@@ -1218,56 +1218,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/include/iot_demo_runner.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/st/boards/stm32l475_discovery/ports/pkcs11/aws_pkcs11_pal.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/crypto/src/aws_crypto.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/crypto/src/aws_crypto.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/crypto/include/aws_crypto.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/crypto/include/aws_crypto.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/wifi/include/aws_wifi.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/wifi/include/aws_wifi.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/st/boards/stm32l475_discovery/ports/wifi/aws_wifi.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/wifi/aws_wifi.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
@@ -1348,11 +1298,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/include/platform/iot_clock.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/platform/iot_clock.h</locationURI>
@@ -1378,6 +1323,21 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/iot_clock_afr.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
@@ -1388,24 +1348,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/iot_network_afr.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</name>
@@ -1436,6 +1381,56 @@
 			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/tls/include/aws_tls.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/src/aws_crypto.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/crypto/src/aws_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/include/aws_crypto.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/crypto/include/aws_crypto.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/st/boards/stm32l475_discovery/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/wifi/include/aws_wifi.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/wifi/include/aws_wifi.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/st/boards/stm32l475_discovery/ports/wifi/aws_wifi.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/wifi/aws_wifi.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/aws_system_init.c</name>
@@ -1478,11 +1473,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/defender/include/aws_iot_defender.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
@@ -1516,6 +1506,11 @@
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -1558,21 +1553,6 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/serializer/include/iot_json_utils.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</locationURI>
@@ -1601,6 +1581,21 @@
 			<name>libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
