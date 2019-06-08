@@ -369,7 +369,7 @@
             <TextAddressRange>0x00000000</TextAddressRange>
             <DataAddressRange>0x20000000</DataAddressRange>
             <pXoBase></pXoBase>
-            <ScatterFile>.\flash.sct</ScatterFile>
+            <ScatterFile>..\..\..\..\..\vendors\mediatek\boards\mt7697hx-dev-kit\aws_demos\flash.sct</ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
             <Misc>--entry Reset_Handler --first __isr_vector</Misc>
@@ -2085,12 +2085,12 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>projects/mediatek/mt7697hx-dev-kit/uvision/aws_tests/</GroupName>
+          <GroupName>projects/mediatek/mt7697hx-dev-kit/uvision/aws_demos/</GroupName>
           <Files>
             <File>
               <FileName>startup_mt7687.s</FileName>
               <FileType>2</FileType>
-              <FilePath>../aws_tests/startup_mt7687.s</FilePath>
+              <FilePath>../aws_demos/startup_mt7687.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -2105,7 +2105,7 @@
             <File>
               <FileName>lwipopts.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/application_code/lwipopts.c</FilePath>
+              <FilePath>../../../../../libraries/3rdparty/lwip/src/portable/mediatek/lwipopts.c</FilePath>
             </File>
           </Files>
         </Group>
