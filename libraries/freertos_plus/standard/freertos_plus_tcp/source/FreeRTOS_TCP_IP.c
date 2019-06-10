@@ -1692,6 +1692,7 @@ uint32_t ulDataGot, ulDistance;
 TCPWindow_t *pxTCPWindow;
 NetworkBufferDescriptor_t *pxNewBuffer;
 int32_t lStreamPos;
+configASSERT(pxSocket);
 
 	if( ( *ppxNetworkBuffer ) != NULL )
 	{
