@@ -214,18 +214,3 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/unity")
     )
     target_compile_definitions(3rdparty::unity INTERFACE UNITY_INCLUDE_CONFIG_H)
 endif()
-
-# cmock - mock framework
-if(EXISTS "${AFR_3RDPARTY_DIR}/cmock")
-    afr_3rdparty_module(cmock)
-    target_sources(
-        3rdparty::cmock INTERFACE
-        "${AFR_3RDPARTY_DIR}/cmock/src/cmock.c"
-        "${AFR_3RDPARTY_DIR}/cmock/src/cmock.h"
-        "${AFR_3RDPARTY_DIR}/cmock/src/cmock_internals.h"
-    )
-    target_include_directories(
-        3rdparty::cmock INTERFACE
-        "${AFR_3RDPARTY_DIR}/cmock/src"
-    )
-endif()
