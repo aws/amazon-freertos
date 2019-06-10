@@ -51,7 +51,11 @@ else()
     set(__toolchain "${CMAKE_C_COMPILER_ID}")
     string(TOLOWER "${__toolchain}" __toolchain)
 endif()
-set(AFR_TOOLCHAIN ${__toolchain} CACHE INTERNAL "Toolchain to build Amazon FreeRTOS.")
+# This variable can be passed from outside to overwrite the default value. Required by IDE project
+# generator and Amazon FreeRTOS console.
+if(NOT DEFINED CACHE{AFR_TOOLCHAIN})
+    set(AFR_TOOLCHAIN ${__toolchain} CACHE INTERNAL "Toolchain to build Amazon FreeRTOS.")
+endif()
 
 # Provide an option to enable tests. Also set an helper variable to use in generator expression.
 option(AFR_ENABLE_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
