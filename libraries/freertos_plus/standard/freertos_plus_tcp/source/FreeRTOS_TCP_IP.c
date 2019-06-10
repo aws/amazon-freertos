@@ -2914,6 +2914,8 @@ uint16_t xRemotePort;
 uint32_t ulSequenceNumber;
 uint32_t ulAckNumber;
 BaseType_t xResult = pdPASS;
+configASSERT(pxNetworkBuffer);
+configASSERT(pxNetworkBuffer->pucEthernetBuffer);
 
 	/* Check for a minimum packet size. */
 	if( pxNetworkBuffer->xDataLength >= ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_TCP_HEADER ) )
