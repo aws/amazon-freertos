@@ -2665,6 +2665,8 @@ int32_t lRxSpace;
  */
 static BaseType_t prvTCPHandleState( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer )
 {
+configASSERT(pxSocket);
+configASSERT(ppxNetworkBuffer);
 TCPPacket_t *pxTCPPacket = ( TCPPacket_t * ) ( (*ppxNetworkBuffer)->pucEthernetBuffer );
 TCPHeader_t *pxTCPHeader = &( pxTCPPacket->xTCPHeader );
 BaseType_t xSendLength = 0;
