@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 import boto3
@@ -201,7 +201,7 @@ class OtaAwsAgent:
         """Signs the firmware with key firmwareFileName.
         Returns the signer job ID, which is also the key of signed image.
         Args:
-            profileName(str): The name of the signing profile to create or to use if it already exists. 
+            profileName(str): The name of the signing profile to create or to use if it already exists.
                 This is added a parameter in case tests want to use different certificates to sign.
             firmwareFileName(str): The name of the firmware, the key in the unsigned s3 bucket.
             awsSignerCertArn(str): The ARN of the signer certificates in ACM.
@@ -542,7 +542,7 @@ class OtaAwsAgent:
                 print("Timeout on OTA Update's job.")
             # Clean up incomplete jobs.
             self.cancelJob(jobId)
-        print("OTA Update's job status: " + jobStatus.status)
+
         # Clean up the OTA Update
         self.deleteOtaUpdate(otaUpdateId)
         return jobStatus
@@ -726,7 +726,7 @@ class AWSS3Bucket:
                     }
                 )
             self._s3_client.BucketVersioning(self.s3_name).enable();
-            
+
         # If the bucket exists we want to make sure it is in the right region for the AWS development stage.
         if response and self._stageParams:
             if response['ResponseMetadata']['HTTPHeaders']['x-amz-bucket-region'] != 'us-east-1':
