@@ -41,7 +41,7 @@ class OtaTestResult:
     """
     PASS    = 'PASS'   # The test executed and passed.
     FAIL    = 'FAIL'   # The test executed but failed.
-    ERROR   = 'ERROR' # The test may or may not execute due to test script error.
+    ERROR   = 'ERROR'  # The test may or may not execute due to test script error.
 
     __HEADER    = '\033[95m'
     __OKBLUE    = '\033[94m'
@@ -65,10 +65,11 @@ class OtaTestResult:
         self.jobStatus = jobStatus
         self.summary = summary
 
-    def print(self):
+    def print(self, elapsed):
         print(self.__RESULT_COLOR[self.result] + 'OTA E2E TEST RESULT: ' + self.result)
         print(self.__OKBLUE + 'IOT JOB STATUS: ' + (self.jobStatus if self.jobStatus else 'No IoT Job Status'))
         print(self.__OKBLUE + 'OTA E2E TEST RESULT SUMMARY: ' + (self.summary if self.summary else 'No Test Summary') + self.__ENDC)
+        print(self.__BOLD + 'Time Elapsed: ' + str(int(elapsed / 60)) + " Minutes and " + str(int(elapsed % 60)) + " Seconds"  + self.__ENDC)
 
     def testResultFromJobStatus(testName, jobStatus, isPositive):
         """Quickly turn the Test result from OtaAwsAgent into a OtaTest Result.
