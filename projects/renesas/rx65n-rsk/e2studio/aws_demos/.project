@@ -1502,6 +1502,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/demos/shadow/aws_iot_demo_shadow.c</locationURI>
 		</link>
 		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
+		</link>
+		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_tasks.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
+		</link>
+		<link>
 			<name>config_files/FreeRTOSConfig.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_demos/config_files/FreeRTOSConfig.h</locationURI>

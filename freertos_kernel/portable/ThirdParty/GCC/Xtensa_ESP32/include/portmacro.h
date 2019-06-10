@@ -229,6 +229,22 @@ void vPortCPUReleaseMutex(portMUX_TYPE *mux);
 #define portENTER_CRITICAL_ISR(mux)    vPortCPUAcquireMutexTimeout(mux, portMUX_NO_TIMEOUT)
 #define portEXIT_CRITICAL_ISR(mux)     vPortCPUReleaseMutex(mux)
 
+#define portENTER_CRITICAL_SAFE(mux)  do {                                             \
+                                         if (xPortInIsrContext()) {                    \
+                                             portENTER_CRITICAL_ISR(mux);              \
+                                         } else {                                      \
+                                             portENTER_CRITICAL(mux);                  \
+                                         }                                             \
+                                      } while(0)
+
+#define portEXIT_CRITICAL_SAFE(mux)  do {                                              \
+                                         if (xPortInIsrContext()) {                    \
+                                             portEXIT_CRITICAL_ISR(mux);               \
+                                         } else {                                      \
+                                             portEXIT_CRITICAL(mux);                   \
+                                         }                                             \
+                                      } while(0)
+
 
 // Critical section management. NW-TODO: replace XTOS_SET_INTLEVEL with more efficient version, if any?
 // These cannot be nested. They should be used with a lot of care and cannot be called from interrupt level.

@@ -35,6 +35,7 @@
 
 /* Credential includes. */
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 #include "aws_test_tls.h"
 
 /* Provisioning include. */
@@ -317,8 +318,8 @@ TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
 
     /* Provision the device with malformed client credential certificate. */
     xParams.ulClientPrivateKeyType = CKK_RSA;
-    xParams.pcClientPrivateKey = ( uint8_t * ) clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    xParams.ulClientPrivateKeyLength = clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
+    xParams.pcClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pcClientPrivateKey );
     xParams.pcClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_MALFORMED;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_PEM_MALFORMED_LENGTH;
 

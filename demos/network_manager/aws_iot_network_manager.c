@@ -42,6 +42,8 @@
 #include "platform/iot_threads.h"
 #include "platform/iot_clock.h"
 
+#include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 
 #if BLE_ENABLED
 #include "iot_ble_config.h"
@@ -52,7 +54,6 @@
 
 #if WIFI_ENABLED
 #include "aws_wifi.h"
-#include "aws_clientcredential.h"
 #endif
 
 #if TCPIP_NETWORK_ENABLED

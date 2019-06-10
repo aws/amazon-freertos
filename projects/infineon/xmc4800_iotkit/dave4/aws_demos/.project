@@ -1024,6 +1024,16 @@
 			<locationURI>AFR_HOME/demos/shadow/aws_iot_demo_shadow.c</locationURI>
 		</link>
 		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
+		</link>
+		<link>
+			<name>demos/tcp/aws_tcp_echo_client_single_tasks.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/infineon_code/console_io.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/aws_demos/application_code/infineon_code/console_io.c</locationURI>

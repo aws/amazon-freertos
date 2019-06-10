@@ -238,6 +238,8 @@ TEST( UTIL_Platform_Threads, IotThreads_MutexTest )
     /* Wait for signal to continue */
     while( ti.testValue == 0 )
     {
+        /* Force while loop reload condition every iteration. */
+        vTaskDelay( configTICK_RATE_HZ / 10 );
     }
 
     if( ti.testValue != 1 )
@@ -252,6 +254,8 @@ TEST( UTIL_Platform_Threads, IotThreads_MutexTest )
 
     while( ti.testValue == 0 )
     {
+        /* Force while loop reload condition every iteration. */
+        vTaskDelay( configTICK_RATE_HZ / 10 );
     }
 
     if( ti.testValue != 2 )

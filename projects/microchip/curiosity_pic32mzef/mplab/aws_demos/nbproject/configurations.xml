@@ -44,6 +44,10 @@
       <logicalFolder name="shadow" displayName="shadow" projectFiles="true">
         <itemPath>../../../../../demos/shadow/aws_iot_demo_shadow.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="tcp" displayName="tcp" projectFiles="true">
+        <itemPath>../../../../../demos/tcp/aws_tcp_echo_client_single_task.c</itemPath>
+        <itemPath>../../../../../demos/tcp/aws_tcp_echo_client_single_tasks.h</itemPath>
+      </logicalFolder>
     </logicalFolder>
     <logicalFolder name="freertos_kernel"
                    displayName="freertos_kernel"
@@ -904,7 +908,7 @@
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
         <makeCustomizationPreStep></makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
-        <makeCustomizationPostStep>python ../../../../../demos/ota/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ../../../../../demos/ota/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+        <makeCustomizationPostStep>python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>

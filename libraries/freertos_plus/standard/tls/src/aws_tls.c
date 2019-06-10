@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS TLS V1.1.3
+ * Amazon FreeRTOS TLS V1.1.4
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,7 @@
 #include "aws_pkcs11.h"
 #include "aws_pkcs11_config.h"
 #include "task.h"
-#include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 #include "aws_default_root_certificates.h"
 
 /* mbedTLS includes. */
@@ -212,6 +212,7 @@ static int prvCheckCertificate( void * pvCtx,
     int lCompilationYear = 0;
 
 #define tlsCOMPILER_DATE_STRING_MONTH_LENGTH    4
+#define tlsDATE_STRING_FIELD_COUNT              3
     char cCompilationMonth[ tlsCOMPILER_DATE_STRING_MONTH_LENGTH ];
     int lCompilationMonth = 0;
     int lCompilationDay = 0;
@@ -222,38 +223,44 @@ static int prvCheckCertificate( void * pvCtx,
     ( void ) ( lPathCount );
 
     /* Parse the date string fields. */
-    sscanf( __DATE__,
-            "%3s %d %d",
-            cCompilationMonth,
-            &lCompilationDay,
-            &lCompilationYear );
-    cCompilationMonth[ tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ] = '\0';
-
-    /* Check for server expiration. First check the year. */
-    if( pxCertificate->valid_to.year < lCompilationYear )
+    if( tlsDATE_STRING_FIELD_COUNT == sscanf( __DATE__,
+                                              "%3s %d %d",
+                                              cCompilationMonth,
+                                              &lCompilationDay,
+                                              &lCompilationYear ) )
     {
-        *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
-    }
-    else if( pxCertificate->valid_to.year == lCompilationYear )
-    {
-        /* Convert the month. */
-        lCompilationMonth =
-            ( ( strstr( cMonths, cCompilationMonth ) - cMonths ) /
-              ( tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ) ) + 1;
+        cCompilationMonth[ tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ] = '\0';
 
-        /* Check the month. */
-        if( pxCertificate->valid_to.mon < lCompilationMonth )
+        /* Check for server expiration. First check the year. */
+        if( pxCertificate->valid_to.year < lCompilationYear )
         {
             *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
         }
-        else if( pxCertificate->valid_to.mon == lCompilationMonth )
+        else if( pxCertificate->valid_to.year == lCompilationYear )
         {
-            /* Check the day. */
-            if( pxCertificate->valid_to.day < lCompilationDay )
+            /* Convert the month. */
+            lCompilationMonth =
+                ( ( strstr( cMonths, cCompilationMonth ) - cMonths ) /
+                  ( tlsCOMPILER_DATE_STRING_MONTH_LENGTH - 1 ) ) + 1;
+
+            /* Check the month. */
+            if( pxCertificate->valid_to.mon < lCompilationMonth )
             {
                 *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
             }
+            else if( pxCertificate->valid_to.mon == lCompilationMonth )
+            {
+                /* Check the day. */
+                if( pxCertificate->valid_to.day < lCompilationDay )
+                {
+                    *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
+                }
+            }
         }
+    }
+    else
+    {
+        *pulFlags |= MBEDTLS_X509_BADCERT_EXPIRED;
     }
 
     return 0;
@@ -337,6 +344,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     CK_BYTE * pxCertificate = NULL;
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
     CK_KEY_TYPE xKeyType = ( CK_KEY_TYPE ) ~0;
+    char * pcJitrCertificate = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
 
     /* Initialize the mbed contexts. */
     mbedtls_x509_crt_init( &pxCtx->xMbedX509Cli );
@@ -490,14 +498,15 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
      * Add a JITR device issuer certificate, if present.
      */
     if( ( 0 == xResult ) &&
-        ( NULL != clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM ) )
+        ( NULL != pcJitrCertificate ) &&
+        ( 0 != strcmp( "", pcJitrCertificate ) ) )
     {
         /* Decode the JITR issuer. The device client certificate will get
          * inserted as the first certificate in this chain below. */
         xResult = mbedtls_x509_crt_parse(
             &pxCtx->xMbedX509Cli,
-            ( const unsigned char * ) clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM,
-            1 + strlen( clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM ) );
+            ( const unsigned char * ) pcJitrCertificate,
+            1 + strlen( pcJitrCertificate ) );
     }
 
     /*
@@ -656,6 +665,7 @@ BaseType_t TLS_Connect( void * pvContext )
                                                MBEDTLS_SSL_IS_CLIENT,
                                                MBEDTLS_SSL_TRANSPORT_STREAM,
                                                MBEDTLS_SSL_PRESET_DEFAULT );
+
 
         if( 0 != xResult )
         {

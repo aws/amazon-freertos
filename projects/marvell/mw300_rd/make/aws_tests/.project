@@ -26,14 +26,24 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>WMSDK</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/marvell/WMSDK</locationURI>
+		</link>
+		<link>
+			<name>application_code</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/marvell/boards/mw300_rd/aws_tests/application_code</locationURI>
+		</link>
+		<link>
 			<name>build</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/build</locationURI>
 		</link>
 		<link>
-			<name>common</name>
+			<name>config_files</name>
 			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/marvell/boards/mw300_rd/aws_tests/config_files</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel</name>
@@ -54,16 +64,6 @@
 			<name>tests</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/tests</locationURI>
-		</link>
-		<link>
-			<name>common/application_code</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/config_files</name>
-			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_tests/config_files</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/event_groups.c</name>
@@ -124,16 +124,6 @@
 			<name>libraries/freertos_plus</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code</name>
-			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_tests/application_code/espressif_code</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/main.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_tests/application_code/main.c</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/FreeRTOS.h</name>

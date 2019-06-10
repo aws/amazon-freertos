@@ -1,10 +1,5 @@
-# We don't display the 2 demos below in AFR console
-if(AFR_METADATA_MODE)
-    return()
-endif()
-
 # TCP echo demo
-afr_demo_module(tcp_client)
+afr_demo_module(tcp)
 
 afr_set_demo_metadata(ID "TCP_ECHO_CLIENT_DEMO")
 afr_set_demo_metadata(DESCRIPTION "An example on how to use the secure sockets layer to connect to \
