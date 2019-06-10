@@ -46,6 +46,8 @@ class OtaTestDummyTest( OtaTestCase ):
 
     def setup(self):
         print('Ran OtaTestDummyTest::setup.')
+        # Adding empty list for return to indicate the successful setup.
+        return []
 
     def teardown(self):
         print('Ran OtaTestDummyTest::teardown.')

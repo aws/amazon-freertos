@@ -51,6 +51,10 @@
                 <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/driver/usart/src/dynamic</sourceRootElem>
                 <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/system/int/src</sourceRootElem>
                 <sourceRootElem>../../../../../libraries/3rdparty/tinycrypt/lib/source</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/crypto/tinycrypt</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/flash/portable/microchip/curiosity_pic32mzef</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/loader</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/logging</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
