@@ -3,11 +3,6 @@ afr_module()
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
-afr_module_sources(
-    ${AFR_CURRENT_MODULE}
-    PRIVATE "${inc_dir}/aws_pkcs11.h"
-)
-
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
@@ -38,6 +33,7 @@ afr_module_dependencies(
     pkcs11_mbedtls
     INTERFACE
         AFR::crypto
+        AFR::pkcs11_implementation
         3rdparty::mbedtls
 )
 
