@@ -16,14 +16,13 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/jsmn")
 endif()
 
 # lwip
-if(EXISTS "${AFR_3RDPARTY_DIR}/lwip")
+if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows")
     add_library(
         afr_3rdparty_lwip STATIC EXCLUDE_FROM_ALL
     )
     target_sources(
         afr_3rdparty_lwip
         PRIVATE
-
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
