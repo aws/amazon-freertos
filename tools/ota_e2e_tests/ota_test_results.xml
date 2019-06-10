@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<testsuites disabled="0" errors="0" failures="0" tests="1" time="0.0">
+	<testsuite disabled="0" errors="0" failures="0" name="espressif_esp32_cmake" package="espressif_esp32_cmake" skipped="0" tests="1" time="0">
+		<testcase classname="espressif_esp32_cmake.OTAEndToEndTests" name="OtaTestGreaterVersion"/>
+	</testsuite>
+</testsuites>

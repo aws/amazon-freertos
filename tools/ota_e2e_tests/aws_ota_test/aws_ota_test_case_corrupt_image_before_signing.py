@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case import *
@@ -33,10 +33,11 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
     NAME = "OtaTestCorruptImageBeforeSigning"
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestCorruptImageBeforeSigning, self).__init__(
-            OtaTestCorruptImageBeforeSigning.NAME, 
+            OtaTestCorruptImageBeforeSigning.NAME,
+            False,
             boardConfig,
-            otaProject, 
-            otaAwsAgent, 
+            otaProject,
+            otaAwsAgent,
             flashComm
         )
 
@@ -51,7 +52,7 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
 
     def getName(self):
         return self._name
-    
+
     def run(self):
         # Upload the bad image to s3.
         self._otaAwsAgent.uploadFirmwareToS3Bucket(
@@ -72,7 +73,7 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
                                 'version': self._otaAwsAgent.getS3ObjectVersion(self.bad_image_fn)
                             }
                         },
-                        'codeSigning': { 
+                        'codeSigning': {
                             "startSigningJobParameter": {
                                 'signingProfileName': "%s%s"%(self._otaConfig['aws_signer_certificate_arn'][-10:], self._otaAwsAgent._boardName[:10]),
                                 'signingProfileParameter': {
@@ -118,9 +119,3 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
             )
 
         return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
-
-    def getTestResult(self, jobStatus, log):
-        if (jobStatus.status == 'FAILED'):
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.PASS, jobStatus)
-        else:
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.FAIL, jobStatus)

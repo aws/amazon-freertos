@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case import *
@@ -31,16 +31,17 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
     NAME = 'OtaTestBackToBackDownloads'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestBackToBackDownloads, self).__init__(
-            OtaTestBackToBackDownloads.NAME, 
+            OtaTestBackToBackDownloads.NAME,
+            True,
             boardConfig,
-            otaProject, 
-            otaAwsAgent, 
+            otaProject,
+            otaAwsAgent,
             flashComm
         )
 
     def getName(self):
         return self._name
-    
+
     def __stopTest(self, jobStatus):
         self._flashComm.stopSerialRead()
         return self.getTestResult(jobStatus, self._flashComm.getSerialLog())
@@ -73,15 +74,5 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
         if jobStatus.status != 'SUCCEEDED':
             return self.__stopTest(jobStatus)
 
-        return OtaTestResult(
-            testName=self._name,
-            result=OtaTestResult.PASS,
-            reason="all builds and downloads succeeded."
-        )
-
-
-    def getTestResult(self, jobStatus, log):
-        if (jobStatus.status == 'SUCCEEDED'):
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.PASS, jobStatus)
-        else:
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.FAIL, jobStatus)
+        self._flashComm.stopSerialRead()
+        return self.getTestResult(jobStatus, self._flashComm.getSerialLog())

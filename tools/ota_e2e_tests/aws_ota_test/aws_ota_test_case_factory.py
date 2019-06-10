@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case_greater_version import OtaTestGreaterVersion
@@ -36,6 +36,7 @@ from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_incorrect_platform import OtaTestIncorrectPlatform
 from .aws_ota_test_case_back_to_back_downloads import OtaTestBackToBackDownloads
 from .aws_ota_test_case_incorrect_wifi_password import OtaTestIncorrectWifiPassword
+from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_dummy_test import OtaTestDummyTest
 
 """
@@ -55,6 +56,7 @@ AllOtaTestCases = {
     OtaTestMissingFilename.NAME : OtaTestMissingFilename,
     OtaTestBackToBackDownloads.NAME : OtaTestBackToBackDownloads,
     OtaTestIncorrectWifiPassword.NAME : OtaTestIncorrectWifiPassword,
+    OtaTestMissingFilename.NAME: OtaTestMissingFilename,
     OtaTestDummyTest.NAME : OtaTestDummyTest
 }
 

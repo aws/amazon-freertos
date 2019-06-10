@@ -1,0 +1,1146 @@
+-- Checking Python dependencies...
+Python requirements from /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/requirements.txt are satisfied.
+-- Building for target esp32
+-- Component names: soc log heap freertos vfs newlib driver tcpip_adapter xtensa-debug-module app_trace partition_table app_update spi_flash mbedtls micro-ecc bootloader_support ethernet nvs_flash pthread smartconfig_ack wpa_supplicant esp32 cxx amazon-freertos-common bootloader bt console esp_adc_cal esptool_py expat wear_levelling sdmmc fatfs nghttp openssl spiffs ulp
+-- Component paths: /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/soc;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/log;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/heap;/Volumes/Unix/afr_workspace/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code/freertos;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/vfs;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/newlib;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/driver;/Volumes/Unix/afr_workspace/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code/tcpip_adapter;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/xtensa-debug-module;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/app_trace;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/partition_table;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/app_update;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/spi_flash;/Volumes/Unix/afr_workspace/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code/mbedtls;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/micro-ecc;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bootloader_support;/Volumes/Unix/afr_workspace/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code/ethernet;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/nvs_flash;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/pthread;/Volumes/Unix/afr_workspace/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code/smartconfig_ack;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/wpa_supplicant;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/cxx;/Volumes/Unix/afr_workspace/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code/amazon-freertos-common;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bootloader;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/console;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp_adc_cal;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esptool_py;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/expat;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/wear_levelling;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/sdmmc;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/fatfs;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/nghttp;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/openssl;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/spiffs;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/ulp
+Creating config file /Volumes/Unix/afr_workspace/esp-build/sdkconfig...
+-- IDF_VER: v3.1.3-25-g36733db8d
+-- Project version: v1.4.7-1287-g8e08fd45
+-- Adding linker script /Volumes/Unix/afr_workspace/esp-build/vendors/espressif/boards/esp32/esp-idf/esp32/esp32_out.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.common.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.rom.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.peripherals.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.rom.libgcc.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.rom.spiram_incompatible_fns.ld
+-- Component libraries: 
+=========================Resolving dependencies==========================
+module disabled: posix
+reason:          posix::mcu_port is not defined by vendor.
+dependency path: posix->posix::mcu_port
+
+
+====================Configuration for Amazon FreeRTOS====================
+  Version:                 201906.00
+  Git version:             v1.4.7-1287-g8e08fd45
+
+Target microcontroller:
+  vendor:                  Espressif
+  board:                   ESP-WROVER-KIT
+  description:             Development board produced by Espressif that has support for 
+                           LCD, MicroSD card, and USB JTAG interface. It comes in two 
+                           variants either with ESP-WROOM-32 or ESP32-WROVER module.
+  family:                  ESP32
+  data ram size:           520KB
+  program memory size:     4MB
+
+Host platform:
+  OS:                      Darwin-16.7.0
+  Toolchain:               xtensa-esp32
+  Toolchain path:          /Applications/esp/xtensa-esp32-elf
+  CMake generator:         Unix Makefiles
+
+Amazon FreeRTOS modules:
+  Modules to build:        ble, ble_wifi_provisioning, common, crypto, defender, 
+                           freertos_plus_tcp, greengrass, kernel, mqtt, ota, pkcs11, 
+                           platform, provisioning, secure_sockets, serializer, shadow, 
+                           tls, wifi
+  Enabled by user:         ble, ble_wifi_provisioning, defender, greengrass, mqtt, ota, 
+                           pkcs11, platform, secure_sockets, shadow, wifi
+  Enabled by dependency:   ble_hal, common, crypto, demo_base, freertos, freertos_plus_
+                           tcp, kernel, pkcs11_mbedtls, provisioning, secure_sockets_
+                           freertos_plus_tcp, serializer, tls, utils
+  3rdparty dependencies:   jsmn, mbedtls, pkcs11, tinycbor
+  Available demos:         demo_ble, demo_ble_numeric_comparison, demo_defender, 
+                           demo_greengrass_connectivity, demo_mqtt, demo_ota, 
+                           demo_shadow, demo_tcp, demo_wifi_provisioning
+  Available tests:         
+=========================================================================
+
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Volumes/Unix/afr_workspace/esp-build
+[  0%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_tinycbor.dir/tinycbor/cborpretty.c.obj
+[  1%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_tinycbor.dir/tinycbor/cborencoder.c.obj
+[  1%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_tinycbor.dir/tinycbor/cborencoder_close_container_checked.c.obj
+[  1%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_tinycbor.dir/tinycbor/cborerrorstrings.c.obj
+[  1%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_tinycbor.dir/tinycbor/cborparser.c.obj
+[  1%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_tinycbor.dir/tinycbor/cborparser_dup_string.c.obj
+[  1%] Linking C static library afr_3rdparty_tinycbor.a
+[  1%] Built target afr_3rdparty_tinycbor
+Scanning dependencies of target afr_kernel
+[  1%] Building C object CMakeFiles/afr_kernel.dir/freertos_kernel/event_groups.c.obj
+[  1%] Building C object CMakeFiles/afr_kernel.dir/freertos_kernel/list.c.obj
+[  1%] Building C object CMakeFiles/afr_kernel.dir/freertos_kernel/queue.c.obj
+[  1%] Building C object CMakeFiles/afr_kernel.dir/freertos_kernel/stream_buffer.c.obj
+[  1%] Building C object CMakeFiles/afr_kernel.dir/freertos_kernel/tasks.c.obj
+[  1%] Building C object CMakeFiles/afr_kernel.dir/freertos_kernel/timers.c.obj
+[  1%] Linking C static library afr_kernel.a
+[  1%] Built target afr_kernel
+Scanning dependencies of target afr_3rdparty_mbedtls
+[  1%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/aes.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/aesni.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/arc4.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/asn1parse.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/asn1write.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/base64.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/bignum.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/blowfish.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/camellia.c.obj
+[  2%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ccm.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/certs.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/cipher.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/cipher_wrap.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/cmac.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ctr_drbg.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/debug.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/des.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/dhm.c.obj
+[  3%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ecdh.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ecdsa.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ecjpake.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ecp.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ecp_curves.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/entropy.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/entropy_poll.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/error.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/gcm.c.obj
+[  4%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/havege.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/hmac_drbg.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/md.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/md2.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/md4.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/md5.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/md_wrap.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/memory_buffer_alloc.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/net_sockets.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/oid.c.obj
+[  5%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/padlock.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/pem.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/pk.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/pk_wrap.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/pkcs12.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/pkcs5.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/pkparse.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/pkwrite.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/platform.c.obj
+[  6%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/platform_util.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ripemd160.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/rsa.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/rsa_internal.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/sha1.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/sha256.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/sha512.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ssl_cache.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ssl_ciphersuites.c.obj
+[  7%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ssl_cli.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ssl_cookie.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ssl_srv.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ssl_ticket.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/ssl_tls.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/threading.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/timing.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/version.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/version_features.c.obj
+[  8%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/x509.c.obj
+[  9%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/x509_create.c.obj
+[  9%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/x509_crl.c.obj
+[  9%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/x509_crt.c.obj
+[  9%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/x509_csr.c.obj
+[  9%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/x509write_crt.c.obj
+[  9%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/x509write_csr.c.obj
+[  9%] Building C object libraries/3rdparty/CMakeFiles/afr_3rdparty_mbedtls.dir/mbedtls/library/xtea.c.obj
+[  9%] Linking C static library afr_3rdparty_mbedtls.a
+[  9%] Built target afr_3rdparty_mbedtls
+Scanning dependencies of target afr_crypto
+[ 10%] Building C object CMakeFiles/afr_crypto.dir/libraries/freertos_plus/standard/crypto/src/aws_crypto.c.obj
+[ 10%] Linking C static library afr_crypto.a
+[ 10%] Built target afr_crypto
+Scanning dependencies of target afr_pkcs11
+[ 10%] Building C object CMakeFiles/afr_pkcs11.dir/vendors/espressif/boards/esp32/ports/pkcs11/aws_pkcs11_pal.c.obj
+[ 10%] Building C object CMakeFiles/afr_pkcs11.dir/libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c.obj
+[ 10%] Linking C static library afr_pkcs11.a
+[ 10%] Built target afr_pkcs11
+Scanning dependencies of target afr_tls
+[ 10%] Building C object CMakeFiles/afr_tls.dir/libraries/freertos_plus/standard/tls/src/aws_tls.c.obj
+[ 10%] Linking C static library afr_tls.a
+[ 10%] Built target afr_tls
+Scanning dependencies of target afr_freertos_plus_tcp
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Sockets.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c.obj
+[ 11%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c.obj
+[ 12%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c.obj
+[ 12%] Building C object CMakeFiles/afr_freertos_plus_tcp.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c.obj
+[ 12%] Linking C static library afr_freertos_plus_tcp.a
+[ 12%] Built target afr_freertos_plus_tcp
+Scanning dependencies of target afr_secure_sockets
+[ 12%] Building C object CMakeFiles/afr_secure_sockets.dir/libraries/abstractions/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c.obj
+[ 12%] Building C object CMakeFiles/afr_secure_sockets.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c.obj
+[ 12%] Building C object CMakeFiles/afr_secure_sockets.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c.obj
+[ 12%] Linking C static library afr_secure_sockets.a
+[ 12%] Built target afr_secure_sockets
+Scanning dependencies of target afr_platform
+[ 12%] Building C object CMakeFiles/afr_platform.dir/libraries/abstractions/platform/freertos/iot_clock_afr.c.obj
+[ 12%] Building C object CMakeFiles/afr_platform.dir/libraries/abstractions/platform/freertos/iot_threads_afr.c.obj
+[ 13%] Building C object CMakeFiles/afr_platform.dir/libraries/abstractions/platform/freertos/iot_metrics.c.obj
+[ 13%] Building C object CMakeFiles/afr_platform.dir/libraries/abstractions/platform/freertos/iot_network_afr.c.obj
+[ 13%] Linking C static library afr_platform.a
+[ 13%] Built target afr_platform
+Scanning dependencies of target afr_common
+[ 13%] Building C object CMakeFiles/afr_common.dir/libraries/c_sdk/standard/common/iot_init.c.obj
+[ 13%] Building C object CMakeFiles/afr_common.dir/libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c.obj
+[ 13%] Building C object CMakeFiles/afr_common.dir/libraries/c_sdk/standard/common/logging/iot_logging.c.obj
+[ 13%] Building C object CMakeFiles/afr_common.dir/libraries/c_sdk/standard/common/iot_static_memory_common.c.obj
+[ 13%] Building C object CMakeFiles/afr_common.dir/libraries/c_sdk/standard/common/taskpool/iot_taskpool.c.obj
+[ 13%] Building C object CMakeFiles/afr_common.dir/libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c.obj
+[ 13%] Linking C static library afr_common.a
+[ 13%] Built target afr_common
+Scanning dependencies of target afr_serializer
+[ 14%] Building C object CMakeFiles/afr_serializer.dir/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c.obj
+[ 14%] Building C object CMakeFiles/afr_serializer.dir/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c.obj
+[ 14%] Building C object CMakeFiles/afr_serializer.dir/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c.obj
+[ 14%] Building C object CMakeFiles/afr_serializer.dir/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c.obj
+[ 14%] Building C object CMakeFiles/afr_serializer.dir/libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c.obj
+[ 14%] Building C object CMakeFiles/afr_serializer.dir/libraries/c_sdk/standard/serializer/src/iot_json_utils.c.obj
+[ 14%] Linking C static library afr_serializer.a
+[ 14%] Built target afr_serializer
+Scanning dependencies of target afr_ble
+[ 14%] Building C object CMakeFiles/afr_ble.dir/libraries/c_sdk/standard/ble/src/iot_ble_gap.c.obj
+[ 14%] Building C object CMakeFiles/afr_ble.dir/libraries/c_sdk/standard/ble/src/iot_ble_gatt.c.obj
+[ 14%] Building C object CMakeFiles/afr_ble.dir/libraries/c_sdk/standard/ble/src/services/device_information/iot_ble_device_information.c.obj
+[ 15%] Building C object CMakeFiles/afr_ble.dir/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_ble_data_transfer.c.obj
+[ 15%] Building C object CMakeFiles/afr_ble.dir/libraries/c_sdk/standard/ble/src/services/mqtt_ble/iot_network_ble.c.obj
+[ 15%] Building C object CMakeFiles/afr_ble.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 15%] Building C object CMakeFiles/afr_ble.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gap.c.obj
+[ 15%] Building C object CMakeFiles/afr_ble.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 15%] Linking C static library afr_ble.a
+[ 15%] Built target afr_ble
+Scanning dependencies of target afr_mqtt
+[ 15%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c.obj
+[ 16%] Building C object CMakeFiles/afr_mqtt.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 17%] Building C object CMakeFiles/afr_mqtt.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gap.c.obj
+[ 17%] Building C object CMakeFiles/afr_mqtt.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 17%] Linking C static library afr_mqtt.a
+[ 17%] Built target afr_mqtt
+Scanning dependencies of target afr_ota
+[ 17%] Building C object CMakeFiles/afr_ota.dir/libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c.obj
+[ 17%] Building C object CMakeFiles/afr_ota.dir/libraries/freertos_plus/aws/ota/src/aws_ota_cbor.c.obj
+[ 17%] Building C object CMakeFiles/afr_ota.dir/libraries/3rdparty/mbedtls/library/base64.c.obj
+[ 17%] Building C object CMakeFiles/afr_ota.dir/vendors/espressif/boards/esp32/ports/ota/aws_ota_pal.c.obj
+[ 17%] Building C object CMakeFiles/afr_ota.dir/vendors/espressif/boards/esp32/ports/ota/aws_esp_ota_ops.c.obj
+[ 17%] Building C object CMakeFiles/afr_ota.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 18%] Building C object CMakeFiles/afr_ota.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gap.c.obj
+[ 18%] Building C object CMakeFiles/afr_ota.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 18%] Building C object CMakeFiles/afr_ota.dir/libraries/3rdparty/jsmn/jsmn.c.obj
+[ 18%] Linking C static library afr_ota.a
+[ 18%] Built target afr_ota
+Scanning dependencies of target afr_greengrass
+[ 18%] Building C object CMakeFiles/afr_greengrass.dir/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c.obj
+[ 18%] Building C object CMakeFiles/afr_greengrass.dir/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c.obj
+[ 18%] Building C object CMakeFiles/afr_greengrass.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 18%] Building C object CMakeFiles/afr_greengrass.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gap.c.obj
+[ 18%] Building C object CMakeFiles/afr_greengrass.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 18%] Building C object CMakeFiles/afr_greengrass.dir/libraries/3rdparty/jsmn/jsmn.c.obj
+[ 19%] Linking C static library afr_greengrass.a
+[ 19%] Built target afr_greengrass
+Scanning dependencies of target afr_shadow
+[ 19%] Building C object CMakeFiles/afr_shadow.dir/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c.obj
+[ 19%] Building C object CMakeFiles/afr_shadow.dir/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c.obj
+[ 20%] Building C object CMakeFiles/afr_shadow.dir/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c.obj
+[ 20%] Building C object CMakeFiles/afr_shadow.dir/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c.obj
+[ 20%] Building C object CMakeFiles/afr_shadow.dir/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c.obj
+[ 20%] Building C object CMakeFiles/afr_shadow.dir/libraries/c_sdk/aws/shadow/src/aws_shadow.c.obj
+[ 20%] Building C object CMakeFiles/afr_shadow.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 20%] Building C object CMakeFiles/afr_shadow.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gap.c.obj
+[ 20%] Building C object CMakeFiles/afr_shadow.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 20%] Linking C static library afr_shadow.a
+[ 20%] Built target afr_shadow
+Scanning dependencies of target afr_defender
+[ 20%] Building C object CMakeFiles/afr_defender.dir/libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c.obj
+[ 20%] Building C object CMakeFiles/afr_defender.dir/libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c.obj
+[ 20%] Building C object CMakeFiles/afr_defender.dir/libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c.obj
+[ 20%] Building C object CMakeFiles/afr_defender.dir/libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c.obj
+[ 20%] Building C object CMakeFiles/afr_defender.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 20%] Building C object CMakeFiles/afr_defender.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gap.c.obj
+[ 20%] Building C object CMakeFiles/afr_defender.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 20%] Linking C static library afr_defender.a
+[ 20%] Built target afr_defender
+Scanning dependencies of target afr_wifi
+[ 21%] Building C object CMakeFiles/afr_wifi.dir/vendors/espressif/boards/esp32/ports/wifi/aws_wifi.c.obj
+[ 21%] Building C object CMakeFiles/afr_wifi.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c.obj
+[ 21%] Building C object CMakeFiles/afr_wifi.dir/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32/NetworkInterface.c.obj
+[ 21%] Linking C static library afr_wifi.a
+[ 21%] Built target afr_wifi
+Scanning dependencies of target afr_ble_wifi_provisioning
+[ 21%] Building C object CMakeFiles/afr_ble_wifi_provisioning.dir/libraries/c_sdk/standard/ble/src/services/wifi_provisioning/iot_ble_wifi_provisioning.c.obj
+[ 21%] Building C object CMakeFiles/afr_ble_wifi_provisioning.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 21%] Building C object CMakeFiles/afr_ble_wifi_provisioning.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gap.c.obj
+[ 22%] Building C object CMakeFiles/afr_ble_wifi_provisioning.dir/vendors/espressif/boards/esp32/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 22%] Linking C static library afr_ble_wifi_provisioning.a
+[ 22%] Built target afr_ble_wifi_provisioning
+Scanning dependencies of target afr_provisioning
+[ 22%] Building C object CMakeFiles/afr_provisioning.dir/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c.obj
+[ 22%] Linking C static library afr_provisioning.a
+[ 22%] Built target afr_provisioning
+Scanning dependencies of target idf_component_soc
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/cpu_util.c.obj
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/gpio_periph.c.obj
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/rtc_clk.c.obj
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/rtc_init.c.obj
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/rtc_periph.c.obj
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/rtc_pm.c.obj
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/rtc_sleep.c.obj
+[ 22%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/rtc_time.c.obj
+[ 23%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/soc_memory_layout.c.obj
+[ 23%] Building C object vendors/espressif/boards/esp32/esp-idf/soc/CMakeFiles/idf_component_soc.dir/esp32/spi_periph.c.obj
+[ 23%] Linking C static library libsoc.a
+[ 23%] Built target idf_component_soc
+Scanning dependencies of target idf_component_log
+[ 23%] Building C object vendors/espressif/boards/esp32/esp-idf/log/CMakeFiles/idf_component_log.dir/log.c.obj
+[ 23%] Linking C static library liblog.a
+[ 23%] Built target idf_component_log
+Scanning dependencies of target idf_component_heap
+[ 23%] Building C object vendors/espressif/boards/esp32/esp-idf/heap/CMakeFiles/idf_component_heap.dir/heap_caps.c.obj
+[ 23%] Building C object vendors/espressif/boards/esp32/esp-idf/heap/CMakeFiles/idf_component_heap.dir/heap_caps_init.c.obj
+[ 23%] Building C object vendors/espressif/boards/esp32/esp-idf/heap/CMakeFiles/idf_component_heap.dir/heap_trace.c.obj
+[ 23%] Building C object vendors/espressif/boards/esp32/esp-idf/heap/CMakeFiles/idf_component_heap.dir/multi_heap.c.obj
+[ 23%] Linking C static library libheap.a
+[ 23%] Built target idf_component_heap
+Scanning dependencies of target idf_component_freertos
+[ 25%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/extra.c.obj
+[ 25%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/ringbuf.c.obj
+[ 25%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/FreeRTOS-openocd.c.obj
+[ 25%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/port.c.obj
+[ 25%] Building ASM object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/portasm.S.obj
+[ 25%] Building ASM object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/xtensa_context.S.obj
+[ 25%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/xtensa_init.c.obj
+[ 25%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/xtensa_intr.c.obj
+[ 25%] Building ASM object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/xtensa_intr_asm.S.obj
+[ 26%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/xtensa_overlay_os_hook.c.obj
+[ 26%] Building ASM object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/xtensa_vector_defaults.S.obj
+[ 26%] Building ASM object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/portable/ThirdParty/GCC/Xtensa_ESP32/xtensa_vectors.S.obj
+[ 26%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/event_groups.c.obj
+[ 26%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/list.c.obj
+[ 26%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/queue.c.obj
+[ 26%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/stream_buffer.c.obj
+[ 26%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/tasks.c.obj
+[ 26%] Building C object vendors/espressif/boards/esp32/esp-idf/freertos/CMakeFiles/idf_component_freertos.dir/__/__/__/__/__/__/__/freertos_kernel/timers.c.obj
+[ 27%] Linking C static library libfreertos.a
+[ 27%] Built target idf_component_freertos
+Scanning dependencies of target idf_component_vfs
+[ 27%] Building C object vendors/espressif/boards/esp32/esp-idf/vfs/CMakeFiles/idf_component_vfs.dir/vfs.c.obj
+[ 27%] Building C object vendors/espressif/boards/esp32/esp-idf/vfs/CMakeFiles/idf_component_vfs.dir/vfs_uart.c.obj
+[ 27%] Linking C static library libvfs.a
+[ 27%] Built target idf_component_vfs
+Scanning dependencies of target idf_component_newlib
+[ 27%] Building C object vendors/espressif/boards/esp32/esp-idf/newlib/CMakeFiles/idf_component_newlib.dir/locks.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/newlib/CMakeFiles/idf_component_newlib.dir/reent_init.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/newlib/CMakeFiles/idf_component_newlib.dir/select.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/newlib/CMakeFiles/idf_component_newlib.dir/syscall_table.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/newlib/CMakeFiles/idf_component_newlib.dir/syscalls.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/newlib/CMakeFiles/idf_component_newlib.dir/time.c.obj
+[ 28%] Linking C static library libnewlib.a
+[ 28%] Built target idf_component_newlib
+Scanning dependencies of target idf_component_driver
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/gpio.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/i2c.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/i2s.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/ledc.c.obj
+[ 28%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/mcpwm.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/pcnt.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/periph_ctrl.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/rmt.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/rtc_module.c.obj
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/driver/rtc_module.c: In function 'touch_pad_filter_start':
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/driver/rtc_module.c:964:15: warning: passing argument 5 of 'xTimerCreate' from incompatible pointer type [-Wincompatible-pointer-types]
+         NULL, touch_pad_filter_cb);
+               ^
+In file included from /Volumes/Unix/afr_workspace/vendors/espressif/boards/esp32/aws_demos/application_code/espressif_code/freertos/include/freertos/timers.h:1:0,
+                 from /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/driver/rtc_module.c:36:
+/Volumes/Unix/afr_workspace/freertos_kernel/include/timers.h:228:16: note: expected 'TimerCallbackFunction_t {aka void (*)(struct tmrTimerControl *)}' but argument is of type 'void (*)(void *)'
+  TimerHandle_t xTimerCreate( const char * const pcTimerName,   /*lint !e971 Unqualified char types are allowed for strings and single characters only. */
+                ^
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/sdio_slave.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/sdmmc_host.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/sdmmc_transaction.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/sdspi_crc.c.obj
+[ 29%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/sdspi_host.c.obj
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/sdspi_transaction.c.obj
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/sigmadelta.c.obj
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/spi_common.c.obj
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/spi_master.c.obj
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/spi_slave.c.obj
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/timer.c.obj
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/driver/CMakeFiles/idf_component_driver.dir/uart.c.obj
+[ 30%] Linking C static library libdriver.a
+[ 30%] Built target idf_component_driver
+Scanning dependencies of target idf_component_tcpip_adapter
+[ 30%] Building C object vendors/espressif/boards/esp32/esp-idf/tcpip_adapter/CMakeFiles/idf_component_tcpip_adapter.dir/tcpip_adapter.c.obj
+[ 31%] Linking C static library libtcpip_adapter.a
+[ 31%] Built target idf_component_tcpip_adapter
+Scanning dependencies of target idf_component_xtensa-debug-module
+[ 31%] Building C object vendors/espressif/boards/esp32/esp-idf/xtensa-debug-module/CMakeFiles/idf_component_xtensa-debug-module.dir/eri.c.obj
+[ 31%] Building C object vendors/espressif/boards/esp32/esp-idf/xtensa-debug-module/CMakeFiles/idf_component_xtensa-debug-module.dir/trax.c.obj
+[ 32%] Linking C static library libxtensa-debug-module.a
+[ 32%] Built target idf_component_xtensa-debug-module
+Scanning dependencies of target idf_component_app_trace
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/app_trace/CMakeFiles/idf_component_app_trace.dir/app_trace.c.obj
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/app_trace/CMakeFiles/idf_component_app_trace.dir/app_trace_util.c.obj
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/app_trace/CMakeFiles/idf_component_app_trace.dir/host_file_io.c.obj
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/app_trace/CMakeFiles/idf_component_app_trace.dir/gcov/gcov_rtio.c.obj
+[ 32%] Linking C static library libapp_trace.a
+[ 32%] Built target idf_component_app_trace
+Scanning dependencies of target idf_component_app_update
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/app_update/CMakeFiles/idf_component_app_update.dir/esp_ota_ops.c.obj
+[ 32%] Linking C static library libapp_update.a
+[ 32%] Built target idf_component_app_update
+Scanning dependencies of target idf_component_spi_flash
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/spi_flash/CMakeFiles/idf_component_spi_flash.dir/cache_utils.c.obj
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/spi_flash/CMakeFiles/idf_component_spi_flash.dir/flash_mmap.c.obj
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/spi_flash/CMakeFiles/idf_component_spi_flash.dir/flash_ops.c.obj
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/spi_flash/CMakeFiles/idf_component_spi_flash.dir/partition.c.obj
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/spi_flash/CMakeFiles/idf_component_spi_flash.dir/spi_flash_rom_patch.c.obj
+[ 32%] Linking C static library libspi_flash.a
+[ 32%] Built target idf_component_spi_flash
+Scanning dependencies of target idf_component_mbedtls
+[ 32%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/aes.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/aesni.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/arc4.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/asn1parse.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/asn1write.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/base64.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/bignum.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/blowfish.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/camellia.c.obj
+[ 33%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ccm.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/certs.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/cipher.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/cipher_wrap.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/cmac.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ctr_drbg.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/debug.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/des.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/dhm.c.obj
+[ 34%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ecdh.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ecdsa.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ecjpake.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ecp.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ecp_curves.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/entropy.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/entropy_poll.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/error.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/gcm.c.obj
+[ 35%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/havege.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/hmac_drbg.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/md.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/md2.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/md4.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/md5.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/md_wrap.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/net_sockets.c.obj
+[ 36%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/oid.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/padlock.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/pem.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/pk.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/pk_wrap.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/pkcs12.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/pkcs5.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/pkparse.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/pkwrite.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/platform.c.obj
+[ 37%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/platform_util.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ripemd160.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/rsa.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/rsa_internal.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/sha1.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/sha256.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/sha512.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ssl_cache.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c.obj
+[ 38%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ssl_cli.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ssl_cookie.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ssl_srv.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ssl_ticket.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/ssl_tls.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/threading.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/timing.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/version.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/version_features.c.obj
+[ 39%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/x509.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/x509_create.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/x509_crl.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/x509_crt.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/x509_csr.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/x509write_crt.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/x509write_csr.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/__/__/__/__/__/__/__/libraries/3rdparty/mbedtls/library/xtea.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/port/esp_bignum.c.obj
+[ 40%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/port/esp_hardware.c.obj
+[ 41%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/port/esp_mem.c.obj
+[ 41%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/port/esp_sha1.c.obj
+[ 41%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/port/esp_sha256.c.obj
+[ 41%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/port/esp_sha512.c.obj
+[ 41%] Building C object vendors/espressif/boards/esp32/esp-idf/mbedtls/CMakeFiles/idf_component_mbedtls.dir/port/mbedtls_debug.c.obj
+[ 41%] Linking C static library libmbedtls.a
+[ 41%] Built target idf_component_mbedtls
+Scanning dependencies of target idf_component_micro-ecc
+[ 41%] Building C object vendors/espressif/boards/esp32/esp-idf/micro-ecc/CMakeFiles/idf_component_micro-ecc.dir/micro-ecc/uECC.c.obj
+[ 41%] Linking C static library libmicro-ecc.a
+[ 41%] Built target idf_component_micro-ecc
+Scanning dependencies of target idf_component_bootloader_support
+[ 41%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/bootloader_clock.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/bootloader_common.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/bootloader_flash.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/bootloader_random.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/bootloader_sha.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/bootloader_utility.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/efuse.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/esp_image_format.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/flash_encrypt.c.obj
+[ 42%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/flash_partitions.c.obj
+[ 43%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/flash_qio_mode.c.obj
+[ 43%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/secure_boot.c.obj
+[ 43%] Building C object vendors/espressif/boards/esp32/esp-idf/bootloader_support/CMakeFiles/idf_component_bootloader_support.dir/src/secure_boot_signatures.c.obj
+[ 43%] Linking C static library libbootloader_support.a
+[ 43%] Built target idf_component_bootloader_support
+Scanning dependencies of target idf_component_ethernet
+[ 43%] Building C object vendors/espressif/boards/esp32/esp-idf/ethernet/CMakeFiles/idf_component_ethernet.dir/port.c.obj
+[ 43%] Linking C static library libethernet.a
+[ 43%] Built target idf_component_ethernet
+Scanning dependencies of target idf_component_nvs_flash
+[ 43%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_api.cpp.obj
+[ 43%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_encr.cpp.obj
+[ 43%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_item_hash_list.cpp.obj
+[ 43%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_ops.cpp.obj
+[ 43%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_page.cpp.obj
+[ 43%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_pagemanager.cpp.obj
+[ 43%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_storage.cpp.obj
+[ 44%] Building CXX object vendors/espressif/boards/esp32/esp-idf/nvs_flash/CMakeFiles/idf_component_nvs_flash.dir/src/nvs_types.cpp.obj
+[ 44%] Linking CXX static library libnvs_flash.a
+[ 44%] Built target idf_component_nvs_flash
+Scanning dependencies of target idf_component_pthread
+[ 44%] Building C object vendors/espressif/boards/esp32/esp-idf/pthread/CMakeFiles/idf_component_pthread.dir/pthread.c.obj
+[ 44%] Building C object vendors/espressif/boards/esp32/esp-idf/pthread/CMakeFiles/idf_component_pthread.dir/pthread_cond_var.c.obj
+[ 44%] Building C object vendors/espressif/boards/esp32/esp-idf/pthread/CMakeFiles/idf_component_pthread.dir/pthread_local_storage.c.obj
+[ 44%] Linking C static library libpthread.a
+[ 44%] Built target idf_component_pthread
+Scanning dependencies of target idf_component_smartconfig_ack
+[ 44%] Building C object vendors/espressif/boards/esp32/esp-idf/smartconfig_ack/CMakeFiles/idf_component_smartconfig_ack.dir/smartconfig_ack.c.obj
+[ 45%] Linking C static library libsmartconfig_ack.a
+[ 45%] Built target idf_component_smartconfig_ack
+Scanning dependencies of target idf_component_wpa_supplicant
+[ 45%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/port/os_xtensa.c.obj
+[ 45%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/aes-cbc.c.obj
+[ 45%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/aes-internal-dec.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/aes-internal-enc.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/aes-internal.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/aes-unwrap.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/aes-wrap.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/bignum.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/crypto_internal-cipher.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/crypto_internal-modexp.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/crypto_internal-rsa.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/crypto_internal.c.obj
+[ 46%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/des-internal.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/dh_group5.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/dh_groups.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/md4-internal.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/md5-internal.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/md5.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/ms_funcs.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/rc4.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/sha1-internal.c.obj
+[ 47%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/sha1-pbkdf2.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/sha1.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/sha256-internal.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/crypto/sha256.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_aes-cbc.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_aes-unwrap.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_aes-wrap.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_crypto_internal-cipher.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_crypto_internal-modexp.c.obj
+[ 48%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_crypto_internal.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_sha256-internal.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/fast_crypto/fast_sha256.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/chap.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap_common.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap_mschapv2.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap_peap.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap_peap_common.c.obj
+[ 50%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap_tls.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap_tls_common.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/eap_ttls.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/eap_peer/mschapv2.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/asn1.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/bignum.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/pkcs1.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/pkcs5.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/pkcs8.c.obj
+[ 51%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/rsa.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tls_internal.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_client.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_client_read.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_client_write.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_common.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_cred.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_record.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_server.c.obj
+[ 52%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_server_read.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/tlsv1_server_write.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/tls/x509v3.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/utils/base64.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wpa2/utils/ext_password.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/eap_common.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/uuid.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_attr_build.c.obj
+[ 53%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_attr_parse.c.obj
+[ 54%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_attr_process.c.obj
+[ 54%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_common.c.obj
+[ 54%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_dev_attr.c.obj
+[ 54%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_enrollee.c.obj
+[ 54%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_registrar.c.obj
+[ 54%] Building C object vendors/espressif/boards/esp32/esp-idf/wpa_supplicant/CMakeFiles/idf_component_wpa_supplicant.dir/src/wps/wps_validate.c.obj
+[ 54%] Linking C static library libwpa_supplicant.a
+[ 54%] Built target idf_component_wpa_supplicant
+[ 55%] Generating linker script...
+[ 55%] Built target esp32_linker_script
+Scanning dependencies of target idf_component_esp32
+[ 55%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/brownout.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/cache_err_int.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/clk.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/coexist.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/core_dump.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/cpu_start.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/crosscore_int.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/dbg_stubs.c.obj
+[ 56%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/dport_access.c.obj
+[ 56%] Building ASM object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/dport_panic_highint_hdl.S.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/esp_err_to_name.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/esp_timer.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/esp_timer_esp32.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/ets_timer_legacy.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/event_default_handlers.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/event_loop.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/fast_crypto_ops.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/freertos_hooks.c.obj
+[ 57%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/gdbstub.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/hw_random.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/int_wdt.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/intr_alloc.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/ipc.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/lib_printf.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/panic.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/phy_init.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/pm_esp32.c.obj
+[ 58%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/pm_locks.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/pm_trace.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/restore.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/sleep_modes.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/spiram.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/spiram_psram.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/stack_check.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/system_api.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/task_wdt.c.obj
+[ 59%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/wifi_init.c.obj
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/wifi_os_adapter.c.obj
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:423:22: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._queue_delete = vQueueDelete,
+                      ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:423:22: note: (near initialization for 'g_wifi_osi_funcs._queue_delete')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:429:29: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._queue_recv_from_isr = xQueueReceiveFromISR,
+                             ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:429:29: note: (near initialization for 'g_wifi_osi_funcs._queue_recv_from_isr')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:430:27: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._queue_msg_waiting = uxQueueMessagesWaiting,
+                           ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:430:27: note: (near initialization for 'g_wifi_osi_funcs._queue_msg_waiting')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:431:28: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._event_group_create = xEventGroupCreate,
+                            ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:431:28: note: (near initialization for 'g_wifi_osi_funcs._event_group_create')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:432:28: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._event_group_delete = vEventGroupDelete,
+                            ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:432:28: note: (near initialization for 'g_wifi_osi_funcs._event_group_delete')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:433:30: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._event_group_set_bits = xEventGroupSetBits,
+                              ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:433:30: note: (near initialization for 'g_wifi_osi_funcs._event_group_set_bits')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:434:32: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._event_group_clear_bits = xEventGroupClearBits,
+                                ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:434:32: note: (near initialization for 'g_wifi_osi_funcs._event_group_clear_bits')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:438:21: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._task_delete = vTaskDelete,
+                     ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:438:21: note: (near initialization for 'g_wifi_osi_funcs._task_delete')
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:441:31: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     ._task_get_current_task = xTaskGetCurrentTaskHandle,
+                               ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/wifi_os_adapter.c:441:31: note: (near initialization for 'g_wifi_osi_funcs._task_get_current_task')
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/hwcrypto/aes.c.obj
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/esp32/CMakeFiles/idf_component_esp32.dir/hwcrypto/sha.c.obj
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/hwcrypto/sha.c: In function 'esp_sha_unlock_engine':
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/hwcrypto/sha.c:201:39: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+     SemaphoreHandle_t *engine_state = sha_get_engine_state(sha_type);
+                                       ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/hwcrypto/sha.c: In function 'esp_sha_read_digest_state':
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/hwcrypto/sha.c:234:43: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+         SemaphoreHandle_t *engine_state = sha_get_engine_state(sha_type);
+                                           ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/hwcrypto/sha.c: In function 'esp_sha_block':
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/hwcrypto/sha.c:269:43: warning: initialization from incompatible pointer type [-Wincompatible-pointer-types]
+         SemaphoreHandle_t *engine_state = sha_get_engine_state(sha_type);
+                                           ^
+[ 60%] Linking C static library libesp32.a
+[ 60%] Built target idf_component_esp32
+Scanning dependencies of target idf_component_cxx
+[ 60%] Building CXX object vendors/espressif/boards/esp32/esp-idf/cxx/CMakeFiles/idf_component_cxx.dir/cxx_exception_stubs.cpp.obj
+[ 60%] Building CXX object vendors/espressif/boards/esp32/esp-idf/cxx/CMakeFiles/idf_component_cxx.dir/cxx_guards.cpp.obj
+[ 60%] Linking CXX static library libcxx.a
+[ 60%] Built target idf_component_cxx
+Scanning dependencies of target idf_component_bt
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bt.c.obj
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_a2dp_api.c.obj
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_avrc_api.c.obj
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_blufi_api.c.obj
+[ 60%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_bt_device.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_bt_main.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_gap_ble_api.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_gap_bt_api.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_gatt_common_api.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_gattc_api.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_gatts_api.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_hf_client_api.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/api/esp_spp_api.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/ar/bta_ar.c.obj
+[ 61%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_aact.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_act.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_api.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_cfg.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_ci.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_main.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_sbc.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/av/bta_av_ssm.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_act.c.obj
+[ 62%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_api.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_cfg.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_ci.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_co.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_main.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_pm.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/dm/bta_dm_sco.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gatt_common.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gattc_act.c.obj
+[ 63%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gattc_api.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gattc_cache.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gattc_ci.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gattc_co.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gattc_main.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gattc_utils.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gatts_act.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gatts_api.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gatts_co.c.obj
+[ 64%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gatts_main.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/gatt/bta_gatts_utils.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/hh/bta_hh_act.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/hh/bta_hh_api.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/hh/bta_hh_cfg.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/hh/bta_hh_le.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/hh/bta_hh_main.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/hh/bta_hh_utils.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/jv/bta_jv_act.c.obj
+[ 65%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/jv/bta_jv_api.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/jv/bta_jv_cfg.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/jv/bta_jv_main.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/sdp/bta_sdp.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/sdp/bta_sdp_act.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/sdp/bta_sdp_api.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/sdp/bta_sdp_cfg.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/sys/bta_sys_conn.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/sys/bta_sys_main.c.obj
+[ 66%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/bta/sys/utl.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_alarm.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_ble_storage.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_config.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_dev.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_dm.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_main.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_manage.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_profile_queue.c.obj
+[ 67%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_sec.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_sm.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_storage.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_task.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/core/btc_util.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/esp/blufi/blufi_prf.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/esp/blufi/blufi_protocol.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/a2dp/bta_av_co.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/a2dp/btc_a2dp.c.obj
+[ 68%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/a2dp/btc_a2dp_control.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/a2dp/btc_a2dp_sink.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/a2dp/btc_a2dp_source.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/a2dp/btc_av.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/avrc/btc_avrc.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/gap/btc_gap_ble.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/gap/btc_gap_bt.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/gatt/btc_gatt_common.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/gatt/btc_gatt_util.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/gatt/btc_gattc.c.obj
+[ 69%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/gatt/btc_gatts.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/btc/profile/std/spp/btc_spp.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/device/bdaddr.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/device/controller.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/device/interop.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/alloc.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/bitalloc-sbc.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/bitalloc.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/bitstream-decode.c.obj
+[ 70%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/decoder-oina.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/decoder-private.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/decoder-sbc.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/dequant.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/framing-sbc.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/framing.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/oi_codec_version.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/synthesis-8-generated.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/synthesis-dct8.c.obj
+[ 71%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/decoder/srce/synthesis-sbc.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_analysis.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_dct.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_dct_coeffs.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_enc_bit_alloc_mono.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_enc_bit_alloc_ste.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_enc_coeffs.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_encoder.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/external/sbc/encoder/srce/sbc_packing.c.obj
+[ 72%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/hci/buffer_allocator.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/hci/hci_audio.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/hci/hci_hal_h4.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/hci/hci_layer.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/hci/hci_packet_factory.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/hci/hci_packet_parser.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/hci/packet_fragmenter.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/main/bte_init.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/main/bte_main.c.obj
+[ 73%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/alarm.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/allocator.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/buffer.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/config.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/fixed_queue.c.obj
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c: In function 'fixed_queue_try_dequeue':
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c:192:22: warning: passing argument 1 of 'osi_sem_take' from incompatible pointer type [-Wincompatible-pointer-types]
+     if (osi_sem_take(queue->dequeue_sem, 0) != 0) {
+                      ^
+In file included from /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c:26:0:
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/include/osi/semaphore.h:38:5: note: expected 'struct QueueDefinition **' but argument is of type 'osi_sem_t {aka struct QueueDefinition *}'
+ int osi_sem_take(osi_sem_t *sem, uint32_t timeout);
+     ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c: In function 'fixed_queue_try_remove_from_queue':
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c:246:26: warning: passing argument 1 of 'osi_sem_take' from incompatible pointer type [-Wincompatible-pointer-types]
+             osi_sem_take(queue->dequeue_sem, 0) == 0) {
+                          ^
+In file included from /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c:26:0:
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/include/osi/semaphore.h:38:5: note: expected 'struct QueueDefinition **' but argument is of type 'osi_sem_t {aka struct QueueDefinition *}'
+ int osi_sem_take(osi_sem_t *sem, uint32_t timeout);
+     ^
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c:253:22: warning: passing argument 1 of 'osi_sem_give' from incompatible pointer type [-Wincompatible-pointer-types]
+         osi_sem_give(queue->enqueue_sem);
+                      ^
+In file included from /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/fixed_queue.c:26:0:
+/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bt/bluedroid/osi/include/osi/semaphore.h:40:6: note: expected 'struct QueueDefinition **' but argument is of type 'osi_sem_t {aka struct QueueDefinition *}'
+ void osi_sem_give(osi_sem_t *sem);
+      ^
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/future.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/hash_functions.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/hash_map.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/list.c.obj
+[ 75%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/mutex.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/osi.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/osi/semaphore.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/a2dp/a2d_api.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/a2dp/a2d_sbc.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avct/avct_api.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avct/avct_ccb.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avct/avct_l2c.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avct/avct_lcb.c.obj
+[ 76%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avct/avct_lcb_act.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_ad.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_api.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_ccb.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_ccb_act.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_l2c.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_msg.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_scb.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avdt/avdt_scb_act.c.obj
+[ 77%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_api.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_bld_ct.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_bld_tg.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_opt.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_pars_ct.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_pars_tg.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_sdp.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/avrc/avrc_utils.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_acl.c.obj
+[ 78%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_addr.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_adv_filter.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_batchscan.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_bgconn.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_cont_energy.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_gap.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_multi_adv.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_ble_privacy.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_dev.c.obj
+[ 79%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_devctl.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_inq.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_main.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_pm.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_sco.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btm/btm_sec.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btu/btu_hcif.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btu/btu_init.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/btu/btu_task.c.obj
+[ 80%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gap/gap_api.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gap/gap_ble.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gap/gap_conn.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gap/gap_utils.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/att_protocol.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_api.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_attr.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_auth.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_cl.c.obj
+[ 81%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_db.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_main.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_sr.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/gatt/gatt_utils.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/hcic/hciblecmds.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/hcic/hcicmds.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_api.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_ble.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_csm.c.obj
+[ 82%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_fcr.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_link.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_main.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_ucd.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2c_utils.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/l2cap/l2cap_client.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/port_api.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/port_rfc.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/port_utils.c.obj
+[ 83%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/rfc_l2cap_if.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/rfc_mx_fsm.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/rfc_port_fsm.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/rfc_port_if.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/rfc_ts_frames.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/rfcomm/rfc_utils.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/sdp/sdp_api.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/sdp/sdp_db.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/sdp/sdp_discovery.c.obj
+[ 84%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/sdp/sdp_main.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/sdp/sdp_server.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/sdp/sdp_utils.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/aes.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/p_256_curvepara.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/p_256_ecc_pp.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/p_256_multprecision.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_act.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_api.c.obj
+[ 85%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_br_main.c.obj
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_cmac.c.obj
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_keys.c.obj
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_l2c.c.obj
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_main.c.obj
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/bt/CMakeFiles/idf_component_bt.dir/bluedroid/stack/smp/smp_utils.c.obj
+[ 86%] Linking C static library libbt.a
+[ 86%] Built target idf_component_bt
+Scanning dependencies of target idf_component_console
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/console/CMakeFiles/idf_component_console.dir/commands.c.obj
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/console/CMakeFiles/idf_component_console.dir/split_argv.c.obj
+[ 86%] Building C object vendors/espressif/boards/esp32/esp-idf/console/CMakeFiles/idf_component_console.dir/argtable3/argtable3.c.obj
+[ 87%] Building C object vendors/espressif/boards/esp32/esp-idf/console/CMakeFiles/idf_component_console.dir/linenoise/linenoise.c.obj
+[ 87%] Linking C static library libconsole.a
+[ 87%] Built target idf_component_console
+Scanning dependencies of target idf_component_esp_adc_cal
+[ 87%] Building C object vendors/espressif/boards/esp32/esp-idf/esp_adc_cal/CMakeFiles/idf_component_esp_adc_cal.dir/esp_adc_cal.c.obj
+[ 87%] Linking C static library libesp_adc_cal.a
+[ 87%] Built target idf_component_esp_adc_cal
+Scanning dependencies of target idf_component_expat
+[ 87%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/library/xmlparse.c.obj
+[ 88%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/library/xmlrole.c.obj
+[ 88%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/library/xmltok.c.obj
+[ 88%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/library/xmltok_impl.c.obj
+[ 88%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/library/xmltok_ns.c.obj
+[ 88%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/port/chardata.c.obj
+[ 88%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/port/expat_element.c.obj
+[ 88%] Building C object vendors/espressif/boards/esp32/esp-idf/expat/CMakeFiles/idf_component_expat.dir/port/minicheck.c.obj
+[ 88%] Linking C static library libexpat.a
+[ 88%] Built target idf_component_expat
+Scanning dependencies of target idf_component_wear_levelling
+[ 88%] Building CXX object vendors/espressif/boards/esp32/esp-idf/wear_levelling/CMakeFiles/idf_component_wear_levelling.dir/Partition.cpp.obj
+[ 88%] Building CXX object vendors/espressif/boards/esp32/esp-idf/wear_levelling/CMakeFiles/idf_component_wear_levelling.dir/SPI_Flash.cpp.obj
+[ 89%] Building CXX object vendors/espressif/boards/esp32/esp-idf/wear_levelling/CMakeFiles/idf_component_wear_levelling.dir/WL_Ext_Perf.cpp.obj
+[ 89%] Building CXX object vendors/espressif/boards/esp32/esp-idf/wear_levelling/CMakeFiles/idf_component_wear_levelling.dir/WL_Ext_Safe.cpp.obj
+[ 89%] Building CXX object vendors/espressif/boards/esp32/esp-idf/wear_levelling/CMakeFiles/idf_component_wear_levelling.dir/WL_Flash.cpp.obj
+[ 89%] Building CXX object vendors/espressif/boards/esp32/esp-idf/wear_levelling/CMakeFiles/idf_component_wear_levelling.dir/crc32.cpp.obj
+[ 89%] Building CXX object vendors/espressif/boards/esp32/esp-idf/wear_levelling/CMakeFiles/idf_component_wear_levelling.dir/wear_levelling.cpp.obj
+[ 89%] Linking CXX static library libwear_levelling.a
+[ 89%] Built target idf_component_wear_levelling
+Scanning dependencies of target idf_component_sdmmc
+[ 89%] Building C object vendors/espressif/boards/esp32/esp-idf/sdmmc/CMakeFiles/idf_component_sdmmc.dir/sdmmc_cmd.c.obj
+[ 89%] Linking C static library libsdmmc.a
+[ 89%] Built target idf_component_sdmmc
+Scanning dependencies of target idf_component_fatfs
+[ 89%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/diskio.c.obj
+[ 89%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/diskio_rawflash.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/diskio_sdmmc.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/diskio_wl.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/ff.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/ffsystem.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/ffunicode.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/vfs_fat.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/vfs_fat_sdmmc.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/fatfs/CMakeFiles/idf_component_fatfs.dir/src/vfs_fat_spiflash.c.obj
+[ 90%] Linking C static library libfatfs.a
+[ 90%] Built target idf_component_fatfs
+Scanning dependencies of target idf_component_nghttp
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_buf.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_callbacks.c.obj
+[ 90%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_debug.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_frame.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_hd.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_hd_huffman.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_hd_huffman_data.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_helper.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_http.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_map.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_mem.c.obj
+[ 91%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_npn.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_option.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_outbound_item.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_pq.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_priority_spec.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_queue.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_rcbuf.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_session.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_stream.c.obj
+[ 92%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_submit.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/nghttp2/lib/nghttp2_version.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/nghttp/CMakeFiles/idf_component_nghttp.dir/port/http_parser.c.obj
+[ 93%] Linking C static library libnghttp.a
+[ 93%] Built target idf_component_nghttp
+Scanning dependencies of target idf_component_openssl
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/library/ssl_cert.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/library/ssl_lib.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/library/ssl_methods.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/library/ssl_pkey.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/library/ssl_stack.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/library/ssl_x509.c.obj
+[ 93%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/platform/ssl_pm.c.obj
+[ 94%] Building C object vendors/espressif/boards/esp32/esp-idf/openssl/CMakeFiles/idf_component_openssl.dir/platform/ssl_port.c.obj
+[ 94%] Linking C static library libopenssl.a
+[ 94%] Built target idf_component_openssl
+Scanning dependencies of target idf_component_spiffs
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/spiffs/CMakeFiles/idf_component_spiffs.dir/esp_spiffs.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/spiffs/CMakeFiles/idf_component_spiffs.dir/spiffs_api.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/spiffs/CMakeFiles/idf_component_spiffs.dir/spiffs/src/spiffs_cache.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/spiffs/CMakeFiles/idf_component_spiffs.dir/spiffs/src/spiffs_check.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/spiffs/CMakeFiles/idf_component_spiffs.dir/spiffs/src/spiffs_gc.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/spiffs/CMakeFiles/idf_component_spiffs.dir/spiffs/src/spiffs_hydrogen.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/spiffs/CMakeFiles/idf_component_spiffs.dir/spiffs/src/spiffs_nucleus.c.obj
+[ 95%] Linking C static library libspiffs.a
+[ 95%] Built target idf_component_spiffs
+Scanning dependencies of target idf_component_ulp
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/ulp/CMakeFiles/idf_component_ulp.dir/ulp.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/esp-idf/ulp/CMakeFiles/idf_component_ulp.dir/ulp_macro.c.obj
+[ 95%] Linking C static library libulp.a
+[ 95%] Built target idf_component_ulp
+Scanning dependencies of target aws_demos
+[ 95%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/aws_demos/application_code/main.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/wifi_provisioning/aws_wifi_connect_task.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/libraries/freertos_plus/standard/utils/src/aws_system_init.c.obj
+[ 95%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/ports/ble/aws_ble_hal_common_gap.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/ports/ble/aws_ble_hal_gap.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/ports/ble/aws_ble_hal_gatt_server.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/ble/aws_ble_gatt_server_demo.c.obj
+/Volumes/Unix/afr_workspace/demos/ble/aws_ble_gatt_server_demo.c:273:19: warning: 'vGattDemoSvcHook' defined but not used [-Wunused-function]
+ static BaseType_t vGattDemoSvcHook( void )
+                   ^
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/demo_runner/aws_demo_network_addr.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/demo_runner/aws_demo_version.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/demo_runner/aws_demo.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/network_manager/aws_iot_network_manager.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/network_manager/aws_iot_demo_network.c.obj
+[ 96%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/demo_runner/iot_demo_afr.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/demo_runner/iot_demo_runner.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/ble/iot_ble_numericComparison.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/defender/aws_iot_demo_defender.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/mqtt/iot_demo_mqtt.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/ota/aws_iot_ota_update_demo.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/shadow/aws_iot_demo_shadow.c.obj
+[ 97%] Building C object vendors/espressif/boards/esp32/CMakeFiles/aws_demos.dir/__/__/__/__/demos/tcp/aws_tcp_echo_client_single_task.c.obj
+[ 97%] Linking CXX executable ../../../../aws_demos
+[ 97%] Built target aws_demos
+[ 98%] Generating ../../../../../../partition_table/partition-table.bin
+[ 98%] Built target partition_table
+[ 98%] Generating ../../../../../aws_demos.bin
+esptool.py v2.6
+[ 98%] Built target app
+[ 98%] Built target gen_secure_boot_signing_key
+[ 98%] Creating directories for 'bootloader'
+[ 98%] No download step for 'bootloader'
+[ 98%] No patch step for 'bootloader'
+[ 98%] No update step for 'bootloader'
+[ 98%] Performing configure step for 'bootloader'
+-- Building for target esp32
+-- Component names: soc esp32 log bootloader spi_flash micro-ecc bootloader_support main esptool_py partition_table
+-- Component paths: /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/soc;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/log;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bootloader;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/spi_flash;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/micro-ecc;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bootloader_support;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bootloader/subproject/main;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esptool_py;/Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/partition_table
+-- Test component names: 
+-- Test component paths: 
+-- IDF_VER: v3.1.3-25-g36733db8d
+-- Project version: v1.4.7-1287-g8e08fd45
+-- Component libraries: 
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bootloader/subproject/main/esp32.bootloader.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/bootloader/subproject/main/esp32.bootloader.rom.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.rom.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.rom.spiram_incompatible_fns.ld
+-- Adding linker script /Volumes/Unix/afr_workspace/vendors/espressif/esp-idf/components/esp32/ld/esp32.peripherals.ld
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Volumes/Unix/afr_workspace/esp-build/bootloader
+[ 98%] Performing build step for 'bootloader'
+[  5%] Built target idf_component_log
+[ 10%] Built target idf_component_micro-ecc
+[ 48%] Built target idf_component_bootloader_support
+[ 53%] Built target idf_component_main
+[ 82%] Built target idf_component_soc
+[ 87%] Built target idf_component_spi_flash
+[ 89%] Built target dummy_main_src
+[ 92%] Linking C executable bootloader.elf
+[ 97%] Built target bootloader.elf
+[100%] Generating ../bootloader.bin
+esptool.py v2.6
+[100%] Built target bootloader
+[ 98%] No install step for 'bootloader'
+[ 98%] Completed 'bootloader'
+[ 98%] Built target bootloader
+[100%] Generating ../../../../../../ota_data_initial.bin
+[100%] Built target blank_ota_data

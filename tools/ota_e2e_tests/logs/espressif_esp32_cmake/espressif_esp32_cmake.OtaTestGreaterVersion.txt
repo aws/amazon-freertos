@@ -1,0 +1,79 @@
+ets Jun  8 2016 00:22:57
+
+rst:0x10 (RTCWDT_RTC_RESET),boot:0x3e (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0018,len:4
+load:0x3fff001c,len:6228
+load:0x40078000,len:11276
+load:0x40080000,len:6084
+entry 0x4008032c
+[0;32mI (29) boot: ESP-IDF v3.1.3-25-g36733db8d 2nd stage bootloader[0m
+[0;32mI (29) boot: compile time 23:30:34[0m
+[0;32mI (33) boot: Enabling RNG early entropy source...[0m
+[0;32mI (35) boot: SPI Speed      : 40MHz[0m
+[0;32mI (39) boot: SPI Mode       : DIO[0m
+[0;32mI (43) boot: SPI Flash Size : 4MB[0m
+[0;32mI (47) boot: Partition Table:[0m
+[0;32mI (50) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (58) boot:  0 nvs              WiFi data        01 02 00010000 00006000[0m
+[0;32mI (65) boot:  1 otadata          OTA data         01 00 00016000 00002000[0m
+[0;32mI (73) boot:  2 phy_init         RF data          01 01 00018000 00001000[0m
+[0;32mI (80) boot:  3 ota_0            OTA app          00 10 00020000 00177000[0m
+[0;32mI (87) boot:  4 ota_1            OTA app          00 11 001a0000 00177000[0m
+[0;32mI (95) boot:  5 storage          WiFi data        01 02 00317000 00010000[0m
+[0;32mI (102) boot: End of partition table[0m
+[0;32mI (107) boot: No factory image, trying OTA 0[0m
+[0;32mI (156) esp_image: segment 0: paddr=0x00020020 vaddr=0x3f400020 size=0x39ab8 (236216) map[0m
+[0;32mI (239) esp_image: segment 1: paddr=0x00059ae0 vaddr=0x3ffc0000 size=0x03060 ( 12384) load[0m
+[0;32mI (244) esp_image: segment 2: paddr=0x0005cb48 vaddr=0x40080000 size=0x00400 (  1024) load[0m
+[0;32mI (246) esp_image: segment 3: paddr=0x0005cf50 vaddr=0x40080400 size=0x030c0 ( 12480) load[0m
+[0;32mI (260) esp_image: segment 4: paddr=0x00060018 vaddr=0x400d0018 size=0xef610 (980496) map[0m
+[0;32mI (607) esp_image: segment 5: paddr=0x0014f630 vaddr=0x400834c0 size=0x13500 ( 79104) load[0m
+[0;32mI (653) boot: Loaded app from partition at offset 0x20000[0m
+[0;32mI (653) boot: ota rollback check done[0m
+[0;32mI (653) boot: Disabling RNG early entropy source...[0m
+[0;32mI (658) cpu_start: Pro cpu up.[0m
+[0;32mI (661) cpu_start: Single core mode[0m
+[0;32mI (666) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (673) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM[0m
+[0;32mI (679) heap_init: At 3FFD3088 len 0000CF78 (51 KiB): DRAM[0m
+[0;32mI (685) heap_init: At 3FFE0440 len 00003BC0 (14 KiB): D/IRAM[0m
+[0;32mI (691) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM[0m
+[0;32mI (698) heap_init: At 400969C0 len 00009640 (37 KiB): IRAM[0m
+[0;32mI (704) cpu_start: Pro cpu start user code[0m
+[0;32mI (50) cpu_start: Starting scheduler on PRO CPU.[0m
+[0;32mI (77) uart: queue free spaces: 10[0m
+0 2 [main] Write certificate...
+[0;32mI (87) PKCS11: Initializing NVS partition: "storage"[0m
+1 8 [main] Write device private key...
+[0;32mI (407) BTDM_INIT: BT controller compile version [3828e65]
+[0m
+[0;32mI (407) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE[0m
+[0;33mW (407) phy_init: failed to load RF calibration data (0x1102), falling back to full calibration[0m
+[0;32mI (597) phy: phy_version: 4008, c9ae59f, Jan 25 2019, 16:54:06, 0, 2[0m
+2 90 [iot_thread] [INFO ][INIT][900] SDK successfully initialized.
+I (997) wifi: wifi driver task: 3ffdc824, prio:23, stack:3584, core=0
+I (997) wifi: wifi firmware version: dbb148a
+I (997) wifi: config NVS flash: enabled
+I (997) wifi: config nano formating: disabled
+[0;32mI (1007) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE[0m
+[0;32mI (1007) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE[0m
+I (1037) wifi: Init dynamic tx buffer num: 32
+I (1037) wifi: Init data frame dynamic rx buffer num: 32
+I (1037) wifi: Init management frame dynamic rx buffer num: 32
+I (1047) wifi: Init static rx buffer size: 1600
+I (1047) wifi: Init static rx buffer num: 10
+I (1047) wifi: Init dynamic rx buffer num: 32
+I (1067) wifi: mode : sta (30:ae:a4:4b:4a:b4)
+[0;32mI (1067) WIFI: SYSTEM_EVENT_STA_START[0m
+[0;32mI (3477) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 201[0m
+[0;32mI (6887) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 201[0m
+[0;32mI (11297) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 201[0m
+[0;32mI (17707) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 201[0m
+[0;32mI (28117) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 201[0m
+[0;32mI (46527) WIFI: SYSTEM_EVENT_STA_DISCONNECTED: 201[0m
+3 4646 [iot_thread] [ERROR][DEMO][46460] Failed to intialize all the networks configured for the device.
+4 4646 [iot_thread] [INFO ][INIT][46460] SDK cleanup done.
+5 4646 [iot_thread] [ERROR][DEMO][46460] Failed to initialize the demo. exiting...
