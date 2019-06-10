@@ -32,30 +32,30 @@ class OtaTestResult:
         jobStatus(str): The job status from AWS IoT, containing both status and status reason provided by devices.
         summary(str): The summary for the test result.
     Methods:
-        testResultFromJobStatus(passOrFail, jobStatus)
+        testResultFromJobStatus(passOrFail, jobStatus, isPositive)
     Example:
         passingResult = OtaTestResult(OtaTestResult.PASS, 'TI', 'OtaTestGreaterVersion', 'SUCCEEDED (accepted v0.9.1)', 'accepted v0.9.1')
         failingResult = OtaTestResult(OtaTestResult.FAIL, 'TI', 'OtaTestGreaterVersion')
         errorResult = OtaTestResult(OtaTestResult.ERROR, 'TI')
         errorResult = OtaTestResult(OtaTestResult.ERROR, 'TI', 'OtaTestGreaterVersion')
     """
-    PASS = 'PASS'   # The test executed and passed.
-    FAIL = 'FAIL'   # The test executed but failed.
-    ERROR = 'ERROR' # The test may or may not execute due to test script error.
+    PASS    = 'PASS'   # The test executed and passed.
+    FAIL    = 'FAIL'   # The test executed but failed.
+    ERROR   = 'ERROR' # The test may or may not execute due to test script error.
 
-    __HEADER = '\033[95m'
-    __OKBLUE = '\033[94m'
-    __OKGREEN = '\033[92m'
-    __WARNING = '\033[93m'
-    __FAIL = '\033[91m'
-    __ENDC = '\033[0m'
-    __BOLD = '\033[1m'
+    __HEADER    = '\033[95m'
+    __OKBLUE    = '\033[94m'
+    __OKGREEN   = '\033[92m'
+    __WARNING   = '\033[93m'
+    __FAIL      = '\033[91m'
+    __ENDC      = '\033[0m'
+    __BOLD      = '\033[1m'
     __UNDERLINE = '\033[4m'
 
     __RESULT_COLOR = {
-        PASS: __OKGREEN,
-        FAIL: __FAIL,
-        ERROR: __WARNING,
+        PASS:   __OKGREEN,
+        FAIL:   __FAIL,
+        ERROR:  __WARNING,
     }
 
     def __init__(self, *, result, board='', testName='', jobStatus=None, summary=''):
