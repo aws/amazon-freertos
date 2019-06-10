@@ -727,6 +727,7 @@ NetworkBufferDescriptor_t xTempBuffer;
 
 	if( pxNetworkBuffer != NULL )
 	{
+		if(pxNetworkBuffer->pucEthernetBuffer != NULL) {
 		pxTCPPacket = ( TCPPacket_t * ) ( pxNetworkBuffer->pucEthernetBuffer );
 		pxIPHeader = &pxTCPPacket->xIPHeader;
 		pxEthernetHeader = &pxTCPPacket->xEthernetHeader;
@@ -953,6 +954,8 @@ NetworkBufferDescriptor_t xTempBuffer;
 		{
 			/* Nothing to do: the buffer has been passed to DMA and will be released after use */
 		}
+	 }/* if( pxNetworkBuffer->pucEthernetBuffer != NULL ) */
+
 	} /* if( pxNetworkBuffer != NULL ) */
 }
 /*-----------------------------------------------------------*/
