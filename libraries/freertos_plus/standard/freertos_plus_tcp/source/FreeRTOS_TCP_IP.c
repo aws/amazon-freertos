@@ -1684,6 +1684,7 @@ BaseType_t xResize;
  */
 static int32_t prvTCPPrepareSend( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer, UBaseType_t uxOptionsLength )
 {
+configASSERT(pxSocket);
 int32_t lDataLen;
 uint8_t *pucEthernetBuffer, *pucSendData;
 TCPPacket_t *pxTCPPacket;
@@ -2665,6 +2666,8 @@ int32_t lRxSpace;
  */
 static BaseType_t prvTCPHandleState( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer )
 {
+configASSERT(pxSocket);
+configASSERT(ppxNetworkBuffer);
 TCPPacket_t *pxTCPPacket = ( TCPPacket_t * ) ( (*ppxNetworkBuffer)->pucEthernetBuffer );
 TCPHeader_t *pxTCPHeader = &( pxTCPPacket->xTCPHeader );
 BaseType_t xSendLength = 0;
