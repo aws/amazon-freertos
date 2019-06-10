@@ -26,6 +26,7 @@ http://www.FreeRTOS.org
 from abc import abstractmethod
 from collections import namedtuple
 import os
+import time
 import errno
 import traceback
 
@@ -84,6 +85,7 @@ class OtaTestCase( object ):
     def runTest(self):
         """Run this OTA test case.
         """
+        start = time.time()
         print('---------- Running '+ self._boardConfig['name'] + ' : ' + self._name + ' ----------')
 
         # Run the implemented runTest function
@@ -102,8 +104,6 @@ class OtaTestCase( object ):
             print(logAppendage)
             testResult = OtaTestResult(testName=self._name, result=OtaTestResult.ERROR, summary='Exception found during test execution. Please check logs.')
 
-        testResult.print()
-
         # The test is finished save the log to the board's folder
         self.createTestLog(logAppendage)
 
@@ -111,6 +111,12 @@ class OtaTestCase( object ):
         self.teardown()
 
         print('---------- Finished '+ self._boardConfig['name'] + ' : ' + self._name + ' ----------')
+        end = time.time()
+
+        time.sleep(3) # Wait for the device log flashes completely.
+
+        testResult.print(int(end - start))
+
         return testResult
 
     def createTestLog(self, appendage=''):
