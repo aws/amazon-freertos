@@ -298,12 +298,3 @@ target_link_libraries(
         AFR::wifi
         AFR::utils
 )
-
-# TODO: tinycbor cannot compile because inttypes.h doesn't exist
-if(${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
-afr_module_dependencies(
-    serializer
-    PRIVATE
-        3rdparty::dummy
-)
-endif()
