@@ -42,10 +42,6 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
     def getName(self):
         return self._name
 
-    def __stopTest(self, jobStatus):
-        self._flashComm.stopSerialRead()
-        return self.getTestResult(jobStatus, self._flashComm.getSerialLog())
-
     def __buildAndOtaInputVersion(self, x, y, z):
         # Build x.y.z for download
         self._otaProject.setApplicationVersion(x, y, z)
@@ -61,18 +57,16 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
         # Build 0.9.1 for download
         jobStatus = self.__buildAndOtaInputVersion(0, 9, 1)
         if jobStatus.status != 'SUCCEEDED':
-            return self.__stopTest(jobStatus)
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
 
         # Build 0.9.2 for download
         jobStatus = self.__buildAndOtaInputVersion(0, 9, 2)
         if jobStatus.status != 'SUCCEEDED':
-            return self.__stopTest(jobStatus)
-
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
 
         # Build 0.9.3 for download
         jobStatus = self.__buildAndOtaInputVersion(0, 9, 3)
         if jobStatus.status != 'SUCCEEDED':
-            return self.__stopTest(jobStatus)
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
 
-        self._flashComm.stopSerialRead()
-        return self.getTestResult(jobStatus, self._flashComm.getSerialLog())
+        return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)

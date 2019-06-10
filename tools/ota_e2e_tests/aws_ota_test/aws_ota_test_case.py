@@ -35,7 +35,7 @@ class OtaTestCase( object ):
     """OTA Test Case abstract class.
     Attributes:
         _name(str): Name of the testcase.
-        _positive(bool): Positive or nagative of the testcase.
+        _positive(bool): Positive or negative of the testcase.
         _otaConfig(dict): 'ota_config' in board.json.
         _otaProject(obj:OtaAfrProject): Amazon FreeRTOS source code resource.
         _otaAwsAgent(obj:OtaAwsAgent): AWS CLI for OTA resource.
