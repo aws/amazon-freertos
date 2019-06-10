@@ -189,7 +189,7 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/tinycrypt")
     target_include_directories(
         3rdparty::tinycrypt INTERFACE
         "${AFR_3RDPARTY_DIR}/tinycrypt/asn1"
-        "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include/tinycrypt"
+        "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
     )
 endif()
 
