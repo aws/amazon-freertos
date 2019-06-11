@@ -160,8 +160,6 @@ def createJunitTestResults(boardToResults, fileName):
             testCase = TestCase(otaTestResult.testName, classname=board + '.OTAEndToEndTests')
             testCases.append(testCase)
             if otaTestResult.result == OtaTestResult.FAIL:
-                print('Adding failure info')
-                print(otaTestResult.summary)
                 testCases[-1].add_failure_info(message=otaTestResult.summary)
             elif otaTestResult.result == OtaTestResult.ERROR:
                 testCases[-1].add_skipped_info(message=otaTestResult.summary)
