@@ -36,7 +36,6 @@ from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_incorrect_platform import OtaTestIncorrectPlatform
 from .aws_ota_test_case_back_to_back_downloads import OtaTestBackToBackDownloads
 from .aws_ota_test_case_incorrect_wifi_password import OtaTestIncorrectWifiPassword
-from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_dummy_test import OtaTestDummyTest
 
 """
@@ -56,7 +55,6 @@ AllOtaTestCases = {
     OtaTestMissingFilename.NAME : OtaTestMissingFilename,
     OtaTestBackToBackDownloads.NAME : OtaTestBackToBackDownloads,
     OtaTestIncorrectWifiPassword.NAME : OtaTestIncorrectWifiPassword,
-    OtaTestMissingFilename.NAME: OtaTestMissingFilename,
     OtaTestDummyTest.NAME : OtaTestDummyTest
 }
 

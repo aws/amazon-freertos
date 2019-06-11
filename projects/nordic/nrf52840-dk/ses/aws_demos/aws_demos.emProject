@@ -359,10 +359,6 @@
             </folder>
             <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_threads_afr.c" />
           </folder>
-          <folder Name="test">
-            <file file_name="../../../../../libraries/abstractions/platform/test/iot_test_platform_clock.c" />
-            <file file_name="../../../../../libraries/abstractions/platform/test/iot_test_platform_threads.c" />
-          </folder>
         </folder>
         <folder Name="ble_hal">
           <file file_name="../../../../../libraries/abstractions/ble_hal/CMakeLists.txt" />

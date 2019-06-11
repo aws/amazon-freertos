@@ -27,7 +27,6 @@ from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
 import boto3
 import os
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestIncorrectPlatform( OtaTestCase ):
     NAME = "OtaTestIncorrectPlatform"
@@ -50,9 +49,6 @@ class OtaTestIncorrectPlatform( OtaTestCase ):
             self._incorrectPlatform = 'AmazonFreeRTOS-TI-CC3220SF'
             self._signingAlgorithm = 'RSA'
             self._hashingAlgorithm = 'SHA1'
-
-    def getName(self):
-        return self._name
 
     def run(self):
         # Increase the version of the OTA image.

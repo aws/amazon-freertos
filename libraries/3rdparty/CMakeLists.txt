@@ -181,10 +181,12 @@ endif()
 # tinycrypt standard header
 if(EXISTS "${AFR_3RDPARTY_DIR}/tinycrypt")
     afr_3rdparty_module(tinycrypt)
-    afr_glob_src(tinycrypt_src DIRECTORY "${AFR_3RDPARTY_DIR}/tinycrypt" RECURSE)
+    afr_glob_src(tinycrypt_src_lib DIRECTORY "${AFR_3RDPARTY_DIR}/tinycrypt/lib" RECURSE)
+    afr_glob_src(tinycrypt_src_asn1 DIRECTORY "${AFR_3RDPARTY_DIR}/tinycrypt/asn1" RECURSE)
     target_sources(
         3rdparty::tinycrypt INTERFACE
-        ${tinycrypt_src}
+        ${tinycrypt_src_lib}
+        ${tinycrypt_src_asn1}
     )
     target_include_directories(
         3rdparty::tinycrypt INTERFACE

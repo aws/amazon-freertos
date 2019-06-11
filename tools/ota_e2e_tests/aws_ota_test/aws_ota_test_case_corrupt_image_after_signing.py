@@ -25,7 +25,6 @@ http://www.FreeRTOS.org
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
-from .aws_ota_test_result import OtaTestResult
 import json
 
 class OtaTestCorruptImageAfterSigning( OtaTestCase ):

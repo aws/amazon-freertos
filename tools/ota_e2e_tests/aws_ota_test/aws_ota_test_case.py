@@ -144,5 +144,5 @@ class OtaTestCase( object ):
         Args:
             otaUpdateId(str): AWS IoT OTA Update ID to poll for completion status.
         """
-        jobStatus = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
-        return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
+        jobStatus, summary = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
+        return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)

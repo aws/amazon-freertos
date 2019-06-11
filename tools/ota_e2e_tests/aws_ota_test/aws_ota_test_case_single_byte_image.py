@@ -25,7 +25,6 @@ http://www.FreeRTOS.org
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestSingleByteImage( OtaTestCase ):
     NAME = "OtaTestSingleByteImage"
@@ -44,9 +43,6 @@ class OtaTestSingleByteImage( OtaTestCase ):
         outfile = open(self.singleByteFileName, 'wb')
         charToWrite = "a"
         outfile.write(charToWrite.encode())
-
-    def getName(self):
-        return self._name
 
     def run(self):
         # Upload the bad image to s3.

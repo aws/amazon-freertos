@@ -68,6 +68,7 @@ __Example value:__ 60000
 - @functionname{wifi_function_wifi_setpmmode}
 - @functionname{wifi_function_wifi_getpmmode}
 - @functionname{wifi_function_wifi_isconnected}
+- @functionname{wifi_function_wifi_registernetworkstatechangeeventcallback}
 */
 
 /**
@@ -92,6 +93,7 @@ __Example value:__ 60000
 @functionpage{WIFI_SetPMMode,wifi,wifi_setpmmode,aws_wifi.h}
 @functionpage{WIFI_GetPMMode,wifi,wifi_getpmmode,aws_wifi.h}
 @functionpage{WIFI_IsConnected,wifi,wifi_isconnected,aws_wifi.h}
+@functionpage{WIFI_RegisterNetworkStateChangeEventCallback,wifi,wifi_registernetworkstatechangeeventcallback,aws_wifi.h}
 
 */
 

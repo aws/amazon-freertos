@@ -25,7 +25,6 @@ http://www.FreeRTOS.org
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
     """This test uploads and OTA's a non-runnable image before code signing.
@@ -49,9 +48,6 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
         for i in range(0, 2500):
           outfile.write(oroboros.encode())
         outfile.close()
-
-    def getName(self):
-        return self._name
 
     def run(self):
         # Upload the bad image to s3.
