@@ -3346,3 +3346,8 @@ BaseType_t xResult = pdFALSE;
 	#include "iot_freertos_tcp_test_access_tcp_define.h"
 #endif
 
+/* Provide access to private members for verification. */
+#ifdef FREERTOS_TCP_ENABLE_VERIFICATION
+	#include "aws_freertos_tcp_verification_access_tcp_define.h"
+#endif
+
