@@ -1,22 +1,10 @@
 #ifndef AWS_PKCS11_MBEDTLS
 #define AWS_PKCS11_MBEDTLS
 
-/**
- * @brief Structure for saving Find Object template information
- *
- * This structure is malloc'ed in FindObjectsInit, used to find a
- * match in FindObjects, and freed in FindObjectsFinal.
- */
-typedef struct SearchableAttributes_t
-{
-    char cLabel[ pkcs11MAX_LABEL_LENGTH ];
-    CK_BBOOL xLabelIsValid;
-    CK_OBJECT_CLASS xClass;
-    CK_BBOOL xClassIsValid;
-} SearchableAttributes_t;
+#define pkcs11INVALID_MECHANISM        0xFFFFFFFF
 
+#define pkcs11MAX_LABEL_LENGTH         32     /* 31 characters + 1 null terminator. */
 
-void PKI_mbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
-                                         uint8_t * pxMbedSignature );
+#define pkcs11DER_ENCODED_OID_P256     { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
 
 #endif /* AWS_PKCS11_MBEDTLS include guard. */

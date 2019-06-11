@@ -3,9 +3,6 @@
 #include "aws_pkcs11_config.h"
 #include "FreeRTOS.h"
 
-/* mbedTLS includes. */
-#include "mbedtls/pk.h"
-
 /* C runtime includes. */
 #include <stdio.h>
 #include <stdint.h>

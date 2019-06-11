@@ -35,6 +35,8 @@ typedef struct ProvisioningParams_t
     uint32_t ulClientPrivateKeyLength;
     uint8_t * pucClientCertificate;
     uint32_t ulClientCertificateLength;
+    uint8_t * pucJITPCertificate;
+    uint32_t ulJITPCertifiateLength;
 } ProvisioningParams_t;
 
 void vDevModeKeyProvisioning( void );

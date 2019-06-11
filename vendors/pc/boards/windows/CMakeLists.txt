@@ -170,4 +170,5 @@ target_link_libraries(
     PRIVATE
         AFR::freertos_plus_tcp
         AFR::utils
+        AFR::provisioning
 )
