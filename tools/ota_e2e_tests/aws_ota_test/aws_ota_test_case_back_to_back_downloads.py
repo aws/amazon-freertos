@@ -39,9 +39,6 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
             flashComm
         )
 
-    def getName(self):
-        return self._name
-
     def __buildAndOtaInputVersion(self, x, y, z):
         # Build x.y.z for download
         self._otaProject.setApplicationVersion(x, y, z)

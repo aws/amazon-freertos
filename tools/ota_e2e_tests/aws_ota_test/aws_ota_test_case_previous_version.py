@@ -25,7 +25,6 @@ http://www.FreeRTOS.org
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestPreviousVersion( OtaTestCase ):
     NAME = 'OtaTestPreviousVersion'
@@ -38,9 +37,6 @@ class OtaTestPreviousVersion( OtaTestCase ):
             otaAwsAgent,
             flashComm
         )
-
-    def getName(self):
-        return self._name
 
     def run(self):
         # Decrease the version of the OTA image.

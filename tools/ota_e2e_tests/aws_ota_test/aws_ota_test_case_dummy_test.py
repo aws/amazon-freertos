@@ -42,9 +42,6 @@ class OtaTestDummyTest( OtaTestCase ):
             flashComm
         )
 
-    def getName(self):
-        return self._name
-
     def setup(self):
         print('Ran OtaTestDummyTest::setup.')
         # Adding empty list for return to indicate the successful setup.
