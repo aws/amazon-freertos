@@ -80,7 +80,7 @@ class OtaTestResult:
         Returns an OtaTestResult.
         """
         if isPositive:
-            passOrFail = OtaTestResult.FAIL if jobStatus.status == 'SUCCEEDED' else OtaTestResult.FAIL
+            passOrFail = OtaTestResult.PASS if jobStatus.status == 'SUCCEEDED' else OtaTestResult.FAIL
         else:
             passOrFail = OtaTestResult.FAIL if jobStatus.status == 'SUCCEEDED' else OtaTestResult.PASS
 
