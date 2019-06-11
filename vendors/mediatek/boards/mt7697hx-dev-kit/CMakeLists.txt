@@ -274,11 +274,10 @@ target_include_directories(
 
 )
 
-# WiFi on MTK requires Secure Sockets
+# WiFi
 target_link_libraries(
     AFR::wifi::mcu_port
     INTERFACE
-        AFR::secure_sockets::mcu_port
         3rdparty::lwip
 )
 

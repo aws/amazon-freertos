@@ -85,6 +85,8 @@ target_link_libraries(
         3rdparty::jsmn
         3rdparty::pkcs11
         3rdparty::tinycbor
+        # Require this for bootloader
+        3rdparty::tinycrypt
 )
 
 
@@ -196,6 +198,7 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.c"
+        "${afr_ports_dir}/pkcs11/pkcs11_nvm.h"
 )
 
 
@@ -244,6 +247,7 @@ target_sources(
     AFR::ota::mcu_port
     INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
     INTERFACE "${afr_ports_dir}/ota/aws_nvm.c"
+    INTERFACE "${afr_ports_dir}/ota/aws_nvm.h"
 )
 
 # -------------------------------------------------------------------------------------------------

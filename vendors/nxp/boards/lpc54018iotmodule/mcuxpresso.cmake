@@ -3,7 +3,7 @@
 # -------------------------------------------------------------------------------------------------
 
 set(compiler_defined_symbols
-    __REDLIB__
+    __NEWLIB__
     MXL12835F
     __USE_CMSIS
     BOARD_DEBUG_UART_TYPE=DEBUG_CONSOLE_DEVICE_TYPE_USBCDC
@@ -29,7 +29,7 @@ set(compiler_defined_symbols
 
 set(common_flags "-mcpu=cortex-m4" "-mfpu=fpv4-sp-d16" "-mfloat-abi=hard" "-mthumb")
 
-set(c_flags "-std=gnu99" "-O0" "-fno-common" "-g" "-Wall" "-c" "-ffunction-sections" "-fdata-sections" "-ffreestanding" "-fno-builtin" "-fomit-frame-pointer" "-specs=redlib.specs" "-MMD" "-MP")
+set(c_flags "-std=gnu99" "-O0" "-fno-common" "-g" "-Wall" "-c" "-ffunction-sections" "-fdata-sections" "-ffreestanding" "-fno-builtin" "-fomit-frame-pointer" "-specs=newlib.specs" "-MMD" "-MP")
 
 set(asm_flags "-c" "-x" "assembler-with-cpp")
 

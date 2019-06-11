@@ -77,6 +77,10 @@
         <folder Name="shadow">
           <file file_name="../../../../../demos/shadow/aws_iot_demo_shadow.c" />
         </folder>
+        <folder Name="posix">
+          <file file_name="../../../../../demos/posix/aws_posix_demo.c" />
+          <file file_name="../../../../../demos/posix/CMakeLists.txt" />
+        </folder>
       </folder>
       <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_demos/application_code/main.c" />
     </folder>
@@ -260,6 +264,8 @@
                 <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c" />
               </folder>
             </folder>
+            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c" />
+            <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c" />
           </folder>
           <folder Name="ble">
             <file file_name="../../../../../libraries/c_sdk/standard/ble/CMakeLists.txt" />
