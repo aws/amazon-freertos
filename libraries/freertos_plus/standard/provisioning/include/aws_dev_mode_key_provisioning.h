@@ -46,7 +46,6 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
                             size_t xPrivateKeyLength,
-                            CK_KEY_TYPE xPrivateKeyType,
                             uint8_t * pucLabel,
                             CK_OBJECT_HANDLE_PTR pxObjectHandle );
 
