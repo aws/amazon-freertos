@@ -83,9 +83,9 @@ class OtaAfrProject:
         OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = self._buildProject + '/include/aws_clientcredential_keys.h'
         OtaAfrProject.OTA_CODESIGNER_CERTIFICATE_PATH = 'demos/include/aws_ota_codesigner_certificate.h'
         if 'microchip' in self._boardProjectPath:
-            OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = self._buildConfig['vendor_board_path'] + '/bootloader/bootloader/utility/user-config/ota-descriptor.config'
-            OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = self._buildConfig['vendor_board_path'] + '/bootloader/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
-            OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = self._buildConfig['vendor_board_path'] + '/bootloader/bootloader/utility/factory_image_generator.py'
+            OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/user-config/ota-descriptor.config'
+            OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
+            OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/factory_image_generator.py'
         # OtaAfrProject.OTA_UPDATE_DEMO_PATH = 'demos/ota/aws_ota_update_demo.c' // TODO: need to figure out the changes for non prod version to work.
 
     def initializeOtaProject(self):
