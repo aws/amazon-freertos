@@ -82,9 +82,10 @@ class OtaAfrProject:
         OtaAfrProject.APPLICATION_VERSION_PATH = self._buildProject + '/include/aws_application_version.h'
         OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = self._buildProject + '/include/aws_clientcredential_keys.h'
         OtaAfrProject.OTA_CODESIGNER_CERTIFICATE_PATH = 'demos/include/aws_ota_codesigner_certificate.h'
-        OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = 'vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/user-config/ota-descriptor.config'
-        OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = 'vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
-        OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = 'vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/factory_image_generator.py'
+        if 'microchip' in self._boardProjectPath:
+            OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = self._buildConfig['vendor_board_path'] + '/bootloader/bootloader/utility/user-config/ota-descriptor.config'
+            OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = self._buildConfig['vendor_board_path'] + '/bootloader/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
+            OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = self._buildConfig['vendor_board_path'] + '/bootloader/bootloader/utility/factory_image_generator.py'
         # OtaAfrProject.OTA_UPDATE_DEMO_PATH = 'demos/ota/aws_ota_update_demo.c' // TODO: need to figure out the changes for non prod version to work.
 
     def initializeOtaProject(self):
@@ -100,7 +101,7 @@ class OtaAfrProject:
     def generateFactoryImage(self):
         # If this board uses the Amazon FreeRTOS reference bootlaoder, then we want to
         # build and flash the factory image.
-        if self._buildConfig.get('use_reference_bootloader', False):
+        if self._buildConfig.get('use_reference_bootloader', False) and OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH:
             factoryImageGenCommand = \
                 'python ' + os.path.join(self._projectRootDir, OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH) + ' ' + \
                 '-b ' + self._buildConfig['output'] + ' ' + \
@@ -154,19 +155,21 @@ class OtaAfrProject:
 
     def __incrementBootloaderSequenceNumber(self):
         self._bootloaderSequenceNumber += 1
-        self.__setIdentifierInFile(
-            {
-                'SEQUENCE_NUMBER': '= ' + str(self._bootloaderSequenceNumber)
-            },
-            os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH)
-        )
+        if OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH:
+            self.__setIdentifierInFile(
+                {
+                    'SEQUENCE_NUMBER': '= ' + str(self._bootloaderSequenceNumber)
+                },
+                os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH)
+            )
 
     def copyCodesignerCertificateToBootloader(self, certificate):
         """Copies the input certificate to a file named: aws_ota_codesigner_certificate.pem under
         demos/ota/bootloader/utility/codesigner_cert_utility.
         """
-        with open(os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH), 'w') as f:
-            f.write(certificate)
+        if OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH:
+            with open(os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH), 'w') as f:
+                f.write(certificate)
 
     def __setDemoRunnerForOtaDemo(self):
         """
