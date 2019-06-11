@@ -101,7 +101,7 @@ class OtaAfrProject:
     def generateFactoryImage(self):
         # If this board uses the Amazon FreeRTOS reference bootlaoder, then we want to
         # build and flash the factory image.
-        if self._buildConfig.get('use_reference_bootloader', False) and OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH is not None:
+        if self._buildConfig.get('use_reference_bootloader', False) and OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH:
             factoryImageGenCommand = \
                 'python ' + os.path.join(self._projectRootDir, OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH) + ' ' + \
                 '-b ' + self._buildConfig['output'] + ' ' + \
@@ -155,7 +155,7 @@ class OtaAfrProject:
 
     def __incrementBootloaderSequenceNumber(self):
         self._bootloaderSequenceNumber += 1
-        if OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH is not None:
+        if OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH:
             self.__setIdentifierInFile(
                 {
                     'SEQUENCE_NUMBER': '= ' + str(self._bootloaderSequenceNumber)
@@ -167,7 +167,7 @@ class OtaAfrProject:
         """Copies the input certificate to a file named: aws_ota_codesigner_certificate.pem under
         demos/ota/bootloader/utility/codesigner_cert_utility.
         """
-        if OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH is not None:
+        if OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH:
             with open(os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH), 'w') as f:
                 f.write(certificate)
 
