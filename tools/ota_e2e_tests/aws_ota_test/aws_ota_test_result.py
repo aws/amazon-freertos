@@ -71,7 +71,7 @@ class OtaTestResult:
         print(self.__OKBLUE + 'OTA E2E TEST RESULT SUMMARY: ' + (self.summary if self.summary else 'No Test Summary') + self.__ENDC)
         print(self.__BOLD + 'Time Elapsed: ' + str(int(elapsed / 60)) + " Minutes and " + str(int(elapsed % 60)) + " Seconds"  + self.__ENDC)
 
-    def testResultFromJobStatus(testName, jobStatus, isPositive):
+    def testResultFromJobStatus(testName, jobStatus, isPositive, summary):
         """Quickly turn the Test result from OtaAwsAgent into a OtaTest Result.
         Args:
             testName(str): The name of the test case.
@@ -80,9 +80,9 @@ class OtaTestResult:
         Returns an OtaTestResult.
         """
         if isPositive:
-            passOrFail = OtaTestResult.PASS if jobStatus.status == 'SUCCEEDED' else OtaTestResult.FAIL
+            passOrFail = OtaTestResult.FAIL if jobStatus.status == 'SUCCEEDED' else OtaTestResult.FAIL
         else:
             passOrFail = OtaTestResult.FAIL if jobStatus.status == 'SUCCEEDED' else OtaTestResult.PASS
 
-        return OtaTestResult(result=passOrFail, testName=testName, jobStatus=jobStatus.status + ' (' + jobStatus.reason + ')' if jobStatus else "")
+        return OtaTestResult(result=passOrFail, testName=testName, jobStatus=jobStatus.status + ' (' + jobStatus.reason + ')' if jobStatus else "", summary= summary)
     staticmethod = testResultFromJobStatus
