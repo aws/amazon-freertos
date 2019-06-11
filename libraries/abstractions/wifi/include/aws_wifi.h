@@ -315,8 +315,7 @@ WIFIReturnCode_t WIFI_NetworkGet( WIFINetworkProfile_t * pxNetworkProfile,
  *                      If wificonfigMAX_NETWORK_PROFILES is the index, then all
  *                      network profiles will be deleted.
  *
- * @return eWiFiSuccess if successful, failure code otherwise. If successful, the
- * interface IP address is copied into the IP address buffer.
+ * @return eWiFiSuccess if successful, failure code otherwise.
  *
  * @code
  * uint16_t usIndex = 2; //Delete profile at index 2
@@ -469,10 +468,11 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 
 
 /**
- * @brief Registers application handler for network state change events
- * @param[in] xCallback Application Handler for network state change
- * @param[in] pvContext Context passed in as it is to the application handler
- * @return
+ * @brief Registers application callback for network state change events from WiFi layer.
+ *
+ * @param[in] xCallback Application callback for network state change events.
+ *
+ * return eWiFiSuccess if application callback registration was succesfull, failure code if otherwise.
  */
 WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback );
 
