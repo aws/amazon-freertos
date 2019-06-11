@@ -48,6 +48,7 @@
 
 /* Client credential includes. */
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 #include "aws_default_root_certificates.h"
 
 /* Key provisioning include. */
