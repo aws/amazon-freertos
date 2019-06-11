@@ -25,10 +25,9 @@ http://www.FreeRTOS.org
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestMissingFilename( OtaTestCase ):
-    NAME = 'OtaTestMissingImageName'
+    NAME = 'OtaTestMissingFilename'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestMissingFilename, self).__init__(
             OtaTestMissingFilename.NAME,

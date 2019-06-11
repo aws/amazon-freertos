@@ -26,7 +26,6 @@ http://www.FreeRTOS.org
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
 import os
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestUntrustedCertificate( OtaTestCase ):
     NAME = "OtaTestUntrustedCertificate"
@@ -44,9 +43,6 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
         self._bogusSignerArn = "%s"%self._otaConfig['aws_untrusted_signer_certificate_arn']
         # Set a semi-unique 'signing type' name based on the invalid certificate's ARN to avoid conflicts.
         self._signingProfileName = "%s%s"%(self._bogusSignerArn[-10:], self._otaAwsAgent._boardName[:10])
-
-    def getName(self):
-        return self._name
 
     def run(self):
         # Increase the version of the OTA image.
