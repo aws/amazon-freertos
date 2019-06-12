@@ -515,6 +515,7 @@ class OtaAwsAgent:
             timeout(int): The timeout in seconds to poll for.
         """
         seconds = 0
+        summary = None
 
         # Get the AWS Iot Job ID
         response = {}
@@ -540,12 +541,13 @@ class OtaAwsAgent:
         if jobStatus.status not in finishedJobStatuses:
             if seconds >= timeout :
                 print("Timeout on OTA Update's job.")
+                summary = 'Timeout on OTA Update\'s job.'
             # Clean up incomplete jobs.
             self.cancelJob(jobId)
 
         # Clean up the OTA Update
         self.deleteOtaUpdate(otaUpdateId)
-        return jobStatus
+        return jobStatus, summary
 
     def deleteOtaUpdate(self, otaUpdateId):
         """

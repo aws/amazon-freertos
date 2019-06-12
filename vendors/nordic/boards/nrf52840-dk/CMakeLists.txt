@@ -226,13 +226,14 @@ target_include_directories(
 )
 
 # OTA
-# Need to get this validated
 afr_mcu_port(ota)
 target_sources(
     AFR::ota::mcu_port
     INTERFACE
         "${afr_ports_dir}/ota/aws_ota_pal.c"
         "${afr_ports_dir}/ota/asn1utility.c"
+        "${afr_ports_dir}/ota/asn1utility.h"
+        "${afr_ports_dir}/ota/aws_ota_pal_settings.h"
 )
 # POSIX
 afr_mcu_port(posix)

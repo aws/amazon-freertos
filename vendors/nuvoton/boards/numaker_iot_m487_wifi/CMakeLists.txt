@@ -21,19 +21,19 @@ set (AFR_MODULE_defender 0)
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "numaker_iot_m487_wifi")
-afr_set_board_metadata(DISPLAY_NAME "numaker_iot_m487_wifi Development Kit")
-afr_set_board_metadata(DESCRIPTION "numaker_iot_m487_wifi Development Kit")
+afr_set_board_metadata(DISPLAY_NAME "NuMaker-IoT-M487")
+afr_set_board_metadata(DESCRIPTION "Development Kit for NuMaker-IoT-M487 wifi series")
 afr_set_board_metadata(VENDOR_NAME "Nuvoton")
 afr_set_board_metadata(FAMILY_NAME "numaker_iot_m487_wifi Series")
 afr_set_board_metadata(DATA_RAM_MEMORY "160KB")
 afr_set_board_metadata(PROGRAM_MEMORY "512KB")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
+afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(SUPPORTED_IDE "uVision")
 afr_set_board_metadata(RECOMMENDED_IDE "uVision")
 afr_set_board_metadata(IDE_uVision_NAME "Keil uVision")
 afr_set_board_metadata(IDE_uVision_COMPILER "ARMCC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
-afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/keil")
+afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nuvoton/numaker_iot_m487_wifi/keil/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
@@ -257,6 +257,10 @@ afr_module_dependencies(
     PRIVATE
         3rdparty::dummy
 )
+
+if(AFR_METADATA_MODE)
+    return()
+endif()
 
 # Convert afx file to bin file
 afr_find_compiler(ARM_KEIL_FROMELF fromelf.exe)
