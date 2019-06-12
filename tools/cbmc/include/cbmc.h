@@ -25,3 +25,26 @@ enum CBMC_LOOP_CONDITION { CBMC_LOOP_BREAK, CBMC_LOOP_CONTINUE, CBMC_LOOP_RETURN
 
 #define __CPROVER_printf_ptr(var) { uint8_t *ValueOf_ ## var = (uint8_t *) var; }
 #define __CPROVER_printf2_ptr(str,exp) { uint8_t *ValueOf_ ## str = (uint8_t *) (exp); }
+
+/* CBMC assert to test pvPortMalloc result when xWantedSize is 0. Mostly used to report
+ * full coverage on pvPortMalloc, but use with caution as it might complicate debugging
+ */
+#define __CPROVER_assert_zero_allocation() __CPROVER_assert( pvPortMalloc(0) == NULL, "pvPortMalloc allows zero-allocated memory.")
+
+/* xWantedSize is not bounded in this function, but there might be a need to bound it in the future.
+ * In theory, CBMC malloc allows to allocate an arbitrary amount of data. This will not be true for
+ * embedded devices.
+ */
+void *pvPortMalloc( size_t xWantedSize )
+{
+	if ( xWantedSize == 0 )
+	{
+		return NULL;
+	}
+	return nondet_bool() ? malloc( xWantedSize ) : NULL;
+}
+
+void vPortFree( void *pv )
+{
+	free(pv);
+}
