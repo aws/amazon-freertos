@@ -21,8 +21,8 @@ set (AFR_MODULE_defender 0)
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 afr_set_board_metadata(ID "numaker_iot_m487_wifi")
-afr_set_board_metadata(DISPLAY_NAME "numaker_iot_m487_wifi Development Kit")
-afr_set_board_metadata(DESCRIPTION "numaker_iot_m487_wifi Development Kit")
+afr_set_board_metadata(DISPLAY_NAME "NuMaker-IoT-M487")
+afr_set_board_metadata(DESCRIPTION "Development Kit for NuMaker-IoT-M487 wifi series")
 afr_set_board_metadata(VENDOR_NAME "Nuvoton")
 afr_set_board_metadata(FAMILY_NAME "numaker_iot_m487_wifi Series")
 afr_set_board_metadata(DATA_RAM_MEMORY "160KB")
