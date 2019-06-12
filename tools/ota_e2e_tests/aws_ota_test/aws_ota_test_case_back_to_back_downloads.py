@@ -47,23 +47,23 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
         # Start an OTA Update.
         otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig)
         # Poll on completion
-        jobStatus = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
-        return jobStatus
+        jobStatus, summary = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
+        return jobStatus, summary
 
     def run(self):
         # Build 0.9.1 for download
-        jobStatus = self.__buildAndOtaInputVersion(0, 9, 1)
+        jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 1)
         if jobStatus.status != 'SUCCEEDED':
-            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
 
         # Build 0.9.2 for download
-        jobStatus = self.__buildAndOtaInputVersion(0, 9, 2)
+        jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 2)
         if jobStatus.status != 'SUCCEEDED':
-            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
 
         # Build 0.9.3 for download
-        jobStatus = self.__buildAndOtaInputVersion(0, 9, 3)
+        jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 3)
         if jobStatus.status != 'SUCCEEDED':
-            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
 
-        return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive)
+        return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
