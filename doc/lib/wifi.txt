@@ -94,12 +94,11 @@ __Example value:__ 60000
 @functionpage{WIFI_GetPMMode,wifi,wifi_getpmmode,aws_wifi.h}
 @functionpage{WIFI_IsConnected,wifi,wifi_isconnected,aws_wifi.h}
 @functionpage{WIFI_RegisterNetworkStateChangeEventCallback,wifi,wifi_registernetworkstatechangeeventcallback,aws_wifi.h}
-
 */
 
 /**
 @enums{WiFi,library}
 
-@paramstructs{WiFi}
+@paramstructs{WiFi, wifi}
 @returnstructs{WiFi}
 */
