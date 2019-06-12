@@ -1,26 +1,36 @@
 #!/usr/bin/env python3
 
-import subprocess
+import logging
 import os
+import subprocess
 import sys
+from glob import glob
 
-if os.path.isfile('patched'):
-    sys.exit()
+from patches_constants import PATCHES_DIR
 
-patchfiles = [filename for filename in os.listdir('.')
-              if filename.endswith('.patch') ]
+def patch():
+    if os.path.isfile("patched"):
+        sys.exit()
 
-tmpdir = 'c:\\temp\\' if sys.platform == 'win32' else '/tmp/'
-for patchfile in patchfiles:
-    tmpfile = tmpdir + patchfile
-    print("Patch file: {}".format(patchfile))
-    with open(patchfile) as inp, open(tmpfile, "w", newline="\n") as outp:
-        outp.write(inp.read())
-    cwd = os.getcwd()
-    result = subprocess.run(["git", "apply", tmpfile], cwd='../../..')
-    if result.returncode:
-        print("Patch failed: {}".format(patchfile))
+    applied_patches = []
+    failed_patches = []
+    for tmpfile in glob(os.path.join(PATCHES_DIR, "*.patch")):
+        print("patch", tmpfile)
+        result = subprocess.run(["git", "apply", tmpfile],
+                                cwd=os.path.join("..", "..", ".."))
+        if result.returncode:
+            failed_patches.append(tmpfile)
+            logging.error("patching failed: %s", tmpfile)
+        else:
+            applied_patches.append(tmpfile)
 
-with open('patched', 'w') as outp:
-    outp.write('')
+    with open(os.path.join(PATCHES_DIR, "patched"), "w") as outp:
+        print("Success:", file=outp)
+        print("\n".join(map(lambda x: "\t" + x, applied_patches)), file=outp)
 
+        print("Failure:", file=outp)
+        print("\n".join(map(lambda x: "\t" + x, failed_patches)), file=outp)
+
+
+if __name__ == "__main__":
+    patch()

@@ -63,13 +63,6 @@ asn1crypto = ">=0.21.0"
 cffi = ">=1.8,<1.11.3 || >1.11.3"
 six = ">=1.4.1"
 
-[package.extras]
-docs = ["sphinx (>=1.6.5,<1.8.0 || >1.8.0)", "sphinx-rtd-theme"]
-docstest = ["doc8", "pyenchant (>=1.6.11)", "twine (>=1.12.0)", "sphinxcontrib-spelling (>=4.0.1)"]
-idna = ["idna (>=2.1)"]
-pep8test = ["flake8", "flake8-import-order", "pep8-naming"]
-test = ["pytest (>=3.6.0,<3.9.0 || >3.9.0,<3.9.1 || >3.9.1,<3.9.2 || >3.9.2)", "pretend", "iso8601", "pytz", "hypothesis (>=1.11.4,<3.79.2 || >3.79.2)"]
-
 [[package]]
 category = "main"
 description = "Docutils -- Python Documentation Utilities"
@@ -77,6 +70,14 @@ name = "docutils"
 optional = false
 python-versions = "*"
 version = "0.14"
+
+[[package]]
+category = "main"
+description = "Clean single-source support for Python 3 and 2"
+name = "future"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
+version = "0.17.1"
 
 [[package]]
 category = "main"
@@ -116,10 +117,6 @@ version = "18.0.0"
 [package.dependencies]
 cryptography = ">=2.2.1"
 six = ">=1.5.2"
-
-[package.extras]
-docs = ["sphinx", "sphinx-rtd-theme"]
-test = ["flaky", "pretend", "pytest (>=3.0.1)"]
 
 [[package]]
 category = "main"
@@ -169,12 +166,8 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4"
 version = "1.24.1"
 
-[package.extras]
-secure = ["ipaddress", "certifi", "idna (>=2.0.0)", "cryptography (>=1.3.4)", "pyOpenSSL (>=0.14)"]
-socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
-
 [metadata]
-content-hash = "70e232708810b6ac5f36effabb06e374dc4c160f01016dc092ca35a75d65259a"
+content-hash = "a493b45944185151f7745f3760fccccbac00f985e1596cb594e857b64a0ef5a2"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -184,6 +177,7 @@ botocore = ["1b226b3fa08e57d126cfa23ddbc02b4253adbecca510a3534bd71c56a3fcb0ec", 
 cffi = ["0b5f895714a7a9905148fc51978c62e8a6cbcace30904d39dcd0d9e2265bb2f6", "27cdc7ba35ee6aa443271d11583b50815c4bb52be89a909d0028e86c21961709", "2d4a38049ea93d5ce3c7659210393524c1efc3efafa151bd85d196fa98fce50a", "3262573d0d60fc6b9d0e0e6e666db0e5045cbe8a531779aa0deb3b425ec5a282", "358e96cfffc185ab8f6e7e425c7bb028931ed08d65402fbcf3f4e1bff6e66556", "37c7db824b5687fbd7ea5519acfd054c905951acc53503547c86be3db0580134", "39b9554dfe60f878e0c6ff8a460708db6e1b1c9cc6da2c74df2955adf83e355d", "42b96a77acf8b2d06821600fa87c208046decc13bd22a4a0e65c5c973443e0da", "5b37dde5035d3c219324cac0e69d96495970977f310b306fa2df5910e1f329a1", "5d35819f5566d0dd254f273d60cf4a2dcdd3ae3003dfd412d40b3fe8ffd87509", "5df73aa465e53549bd03c819c1bc69fb85529a5e1a693b7b6cb64408dd3970d1", "7075b361f7a4d0d4165439992d0b8a3cdfad1f302bf246ed9308a2e33b046bd3", "7678b5a667b0381c173abe530d7bdb0e6e3b98e062490618f04b80ca62686d96", "7dfd996192ff8a535458c17f22ff5eb78b83504c34d10eefac0c77b1322609e2", "8a3be5d31d02c60f84c4fd4c98c5e3a97b49f32e16861367f67c49425f955b28", "9812e53369c469506b123aee9dcb56d50c82fad60c5df87feb5ff59af5b5f55c", "9b6f7ba4e78c52c1a291d0c0c0bd745d19adde1a9e1c03cb899f0c6efd6f8033", "a85bc1d7c3bba89b3d8c892bc0458de504f8b3bcca18892e6ed15b5f7a52ad9d", "aa6b9c843ad645ebb12616de848cc4e25a40f633ccc293c3c9fe34107c02c2ea", "bae1aa56ee00746798beafe486daa7cfb586cd395c6ce822ba3068e48d761bc0", "bae96e26510e4825d5910a196bf6b5a11a18b87d9278db6d08413be8ea799469", "bd78df3b594013b227bf31d0301566dc50ba6f40df38a70ded731d5a8f2cb071", "c2711197154f46d06f73542c539a0ff5411f1951fab391e0a4ac8359badef719", "d998c20e3deed234fca993fd6c8314cb7cbfda05fd170f1bd75bb5d7421c3c5a", "df4f840d77d9e37136f8e6b432fecc9d6b8730f18f896e90628712c793466ce6", "f5653c2581acb038319e6705d4e3593677676df14b112f13e0b5b44b6a18df1a", "f7c7aa485a2e2250d455148470ffd0195eecc3d845122635202d7467d6f7b4cf", "f9e2c66a6493147de835f207f198540a56b26745ce4f272fbc7c2f2cfebeb729"]
 cryptography = ["05b3ded5e88747d28ee3ef493f2b92cbb947c1e45cf98cfef22e6d38bb67d4af", "06826e7f72d1770e186e9c90e76b4f84d90cdb917b47ff88d8dc59a7b10e2b1e", "08b753df3672b7066e74376f42ce8fc4683e4fd1358d34c80f502e939ee944d2", "2cd29bd1911782baaee890544c653bb03ec7d95ebeb144d714b0f5c33deb55c7", "31e5637e9036d966824edaa91bf0aa39dc6f525a1c599f39fd5c50340264e079", "42fad67d7072216a49e34f923d8cbda9edacbf6633b19a79655e88a1b4857063", "4946b67235b9d2ea7d31307be9d5ad5959d6c4a8f98f900157b47abddf698401", "522fdb2809603ee97a4d0ef2f8d617bc791eb483313ba307cb9c0a773e5e5695", "6f841c7272645dd7c65b07b7108adfa8af0aaea57f27b7f59e01d41f75444c85", "7d335e35306af5b9bc0560ca39f740dfc8def72749645e193dd35be11fb323b3", "8504661ffe324837f5c4607347eeee4cf0fcad689163c6e9c8d3b18cf1f4a4ad", "9260b201ce584d7825d900c88700aa0bd6b40d4ebac7b213857bd2babee9dbca", "9a30384cc402eac099210ab9b8801b2ae21e591831253883decdb4513b77a3cd", "9e29af877c29338f0cab5f049ccc8bd3ead289a557f144376c4fbc7d1b98914f", "ab50da871bc109b2d9389259aac269dd1b7c7413ee02d06fe4e486ed26882159", "b13c80b877e73bcb6f012813c6f4a9334fcf4b0e96681c5a15dac578f2eedfa0", "bfe66b577a7118e05b04141f0f1ed0959552d45672aa7ecb3d91e319d846001e", "e091bd424567efa4b9d94287a952597c05d22155a13716bf5f9f746b9dc906d3", "fa2b38c8519c5a3aa6e2b4e1cf1a549b54acda6adb25397ff542068e73d1ed00"]
 docutils = ["02aec4bd92ab067f6ff27a38a38a41173bf01bed8f89157768c1573f53e474a6", "51e64ef2ebfb29cae1faa133b3710143496eca21c530f3f71424d77687764274", "7a4bd47eaf6596e1295ecb11361139febe29b084a87bf005bf899f9a42edc3c6"]
+future = ["67045236dcfd6816dc439556d009594abf643e5eb48992e36beac09c2ca659b8"]
 jmespath = ["6a81d4c9aa62caf061cb517b4d9ad1dd300374cd4706997aff9cd6aedd61fc64", "f11b4461f425740a1d908e9a3f7365c3d2e569f6ca68a2ff8bc5bcd9676edd63"]
 junit-xml = ["602f1c480a19d64edb452bf7632f76b5f2cb92c1938c6e071dcda8ff9541dc21"]
 pycparser = ["a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"]

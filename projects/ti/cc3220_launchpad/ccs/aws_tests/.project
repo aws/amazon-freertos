@@ -358,14 +358,9 @@
 			<locationURI>BASE_DIR_ROOT/tests/common/iot_tests_network.c</locationURI>
 		</link>
 		<link>
-			<name>tests/include/aws_test_framework.h</name>
+			<name>tests/include/aws_application_version.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/tests/include/aws_test_framework.h</locationURI>
-		</link>
-		<link>
-			<name>tests/include/aws_test_runner.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/tests/include/aws_test_runner.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/tests/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>tests/include/aws_clientcredential.h</name>
@@ -376,6 +371,36 @@
 			<name>tests/include/aws_clientcredential_keys.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/tests/include/aws_clientcredential_keys.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_runner.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/include/aws_test_runner.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_framework.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/include/aws_test_framework.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_tcp.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/include/aws_test_tcp.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_utils.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/include/aws_test_utils.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_unity_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/include/aws_unity_config.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/iot_config_common.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/tests/include/iot_config_common.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>

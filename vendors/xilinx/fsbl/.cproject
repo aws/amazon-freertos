@@ -20,7 +20,7 @@
 							<targetPlatform binaryParser="com.xilinx.sdk.managedbuilder.XELF.arm.a53.x32" id="xilinx.armv7.target.gnu.base.debug.962680730" isAbstract="false" name="Debug Platform" superClass="xilinx.armv7.target.gnu.base.debug"/>
 							<builder buildPath="${workspace_loc:/fsbl}/Debug" enableAutoBuild="true" id="xilinx.gnu.armv7.toolchain.builder.debug.1588400362" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="GNU make" superClass="xilinx.gnu.armv7.toolchain.builder.debug"/>
 							<tool id="xilinx.gnu.armv7.c.toolchain.assembler.debug.415184891" name="ARM v7 gcc assembler" superClass="xilinx.gnu.armv7.c.toolchain.assembler.debug">
-								<option id="xilinx.gnu.both.asm.option.include.paths.356122081" name="Include Paths (-I)" superClass="xilinx.gnu.both.asm.option.include.paths" valueType="includePath"/>
+								<option id="xilinx.gnu.both.asm.option.include.paths.356122081" name="Include Paths (-I)" superClass="xilinx.gnu.both.asm.option.include.paths"/>
 								<inputType id="xilinx.gnu.assembler.input.589574230" superClass="xilinx.gnu.assembler.input"/>
 							</tool>
 							<tool id="xilinx.gnu.armv7.c.toolchain.compiler.debug.728144316" name="ARM v7 gcc compiler" superClass="xilinx.gnu.armv7.c.toolchain.compiler.debug">
@@ -56,8 +56,8 @@
 								</option>
 								<option id="xilinx.gnu.c.linker.option.lscript.1114433186" name="Linker Script" superClass="xilinx.gnu.c.linker.option.lscript" value="../src/lscript.ld" valueType="string"/>
 								<option id="xilinx.gnu.c.link.option.ldflags.180364309" name="Linker Flags" superClass="xilinx.gnu.c.link.option.ldflags" value=" -mcpu=cortex-a9 -mfpu=vfpv3 -mfloat-abi=hard -Wl,-build-id=none -specs=Xilinx.spec" valueType="string"/>
-								<option id="xilinx.gnu.c.link.option.libs.2054724134" name="Libraries (-l)" superClass="xilinx.gnu.c.link.option.libs" valueType="libs"/>
-								<option id="xilinx.gnu.c.link.option.paths.47307104" name="Library search path (-L)" superClass="xilinx.gnu.c.link.option.paths" valueType="libPaths"/>
+								<option id="xilinx.gnu.c.link.option.libs.2054724134" name="Libraries (-l)" superClass="xilinx.gnu.c.link.option.libs"/>
+								<option id="xilinx.gnu.c.link.option.paths.47307104" name="Library search path (-L)" superClass="xilinx.gnu.c.link.option.paths"/>
 								<inputType id="xilinx.gnu.linker.input.614336174" superClass="xilinx.gnu.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -180,5 +180,12 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.xilinx.managedbuilder.ui.ARMA53X32GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/fsbl"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/fsbl"/>
+		</configuration>
+	</storageModule>
 </cproject>

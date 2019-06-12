@@ -25,7 +25,7 @@ afr_set_board_metadata(VENDOR_NAME "Xilinx")
 afr_set_board_metadata(FAMILY_NAME "Zynq-7000")
 afr_set_board_metadata(DATA_RAM_MEMORY "1GB")
 afr_set_board_metadata(PROGRAM_MEMORY "128MB")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
+afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(SUPPORTED_IDE "XSDK")
 afr_set_board_metadata(RECOMMENDED_IDE "XSDK")
 afr_set_board_metadata(IDE_XSDK_NAME "Xilinx SDK")
@@ -131,9 +131,8 @@ target_sources(
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
-    INTERFACE 
+    INTERFACE
         AFR::pkcs11_mbedtls
-        AFR::tls
 )
 
 
@@ -157,27 +156,10 @@ target_include_directories(
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
-
-target_sources(
+target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
-
-afr_module_dependencies(
-    secure_sockets_freertos_tcp
-    INTERFACE
-        AFR::freertos_plus_tcp
-        AFR::crypto
-        AFR::pkcs11
-        AFR::tls
-)
-
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
-)
-
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
@@ -201,15 +183,34 @@ target_link_libraries(
     ${exe_target}
     PRIVATE
         AFR::utils
-        AFR::secure_sockets_freertos_tcp
 )
 
 # The kernel is the root dependency, linking the library flags like this ensures it adds the flags last in the command line
-
 set(link_extra_flags -Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,-lrsa,--end-group)
 
 target_link_libraries(
     AFR::kernel::mcu_port
-    INTERFACE 
+    INTERFACE
         ${link_extra_flags}
 )
+
+
+set(bootgen  "${AFR_COMPILER_DIR}/../../../../../bin/bootgen.bat")
+
+if(AFR_IS_TESTING)
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "echo" "Running Post-build step"
+    COMMAND "${bootgen}" -w -image "${board_dir}/aws_tests.bif" -arch zynq -o BOOT.bin
+)
+else()
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "echo" "Running Post-build step"
+    COMMAND "${bootgen}" -w -image "${board_dir}/aws_demos.bif" -arch zynq -o BOOT.bin
+)
+endif()
+
+
+
+

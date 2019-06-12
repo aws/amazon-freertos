@@ -53,8 +53,8 @@ void prvGATTeventHandler( esp_gatts_cb_event_t event,
                           esp_ble_gatts_cb_param_t * param );
 void prvCopytoESPUUID( esp_bt_uuid_t * pxESPuuid,
                        BTUuid_t * pxUuid );
-BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO);
-BTStatus_t prvToggleBondableFlag( bool bEnable);
-BTStatus_t prvToggleSecureConnectionOnlyMode(bool bEnable);
+BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO );
+BTStatus_t prvToggleBondableFlag( bool bEnable );
+BTStatus_t prvToggleSecureConnectionOnlyMode( bool bEnable );
 
 #endif /* ifndef _AWS_BLE_INTERNALS_H_ */

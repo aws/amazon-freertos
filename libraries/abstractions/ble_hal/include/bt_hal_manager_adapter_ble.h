@@ -81,9 +81,9 @@ typedef enum
 
 typedef enum
 {
-	BTGattAdvNameNone,
-	BTGattAdvNameShort,
-	BTGattAdvNameComplete,
+    BTGattAdvNameNone,
+    BTGattAdvNameShort,
+    BTGattAdvNameComplete,
 } BTGattAdvName_t;
 
 /*TODO enum for usAdvertisingEventProperties */
@@ -94,8 +94,8 @@ typedef struct
     BTGattAdvName_t ucNameType;
     bool bSetScanRsp;
     uint32_t ulAppearance;
-    uint32_t ulMinInterval;    /* Min connection interval, set to 0 to ignore. */
-    uint32_t ulMaxInterval;    /* Max connection interval, set to 0 to ignore. */
+    uint32_t ulMinInterval; /* Min connection interval, set to 0 to ignore. */
+    uint32_t ulMaxInterval; /* Max connection interval, set to 0 to ignore. */
     uint8_t ucChannelMap;
     uint8_t ucTxPower;
     uint8_t ucTimeout;
@@ -751,7 +751,7 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxMultiAdvEnable )( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t *xAdvParams );
+                                       BTGattAdvertismentParams_t * xAdvParams );
 
     /**
      *
@@ -762,7 +762,7 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxMultiAdvUpdate )( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t *advParams );
+                                       BTGattAdvertismentParams_t * advParams );
 
     /**
      *

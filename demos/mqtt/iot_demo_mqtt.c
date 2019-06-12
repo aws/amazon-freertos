@@ -408,7 +408,7 @@ static int _establishMqttConnection( bool awsIotMqttMode,
     networkInfo.pNetworkInterface = pNetworkInterface;
 
     #if ( IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES == 1 ) && defined( IOT_DEMO_MQTT_SERIALIZER )
-        networkInfo.pSerializer = IOT_DEMO_MQTT_SERIALIZER;
+        networkInfo.pMqttSerializer = IOT_DEMO_MQTT_SERIALIZER;
     #endif
 
     /* Set the members of the connection info not set by the initializer. */

@@ -43,8 +43,8 @@
 #include "aws_clientcredential.h"
 #include "aws_ota_agent_internal.h"
 
-/* Amazon FreeRTOS network include. */
-#include "platform/iot_network_afr.h"
+/* Test network header include. */
+#include IOT_TEST_NETWORK_HEADER
 
 /* Configuration for this test. */
 #include "aws_test_ota_config.h"

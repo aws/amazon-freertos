@@ -68,7 +68,7 @@ target_include_directories(
 target_link_libraries(
     AFR::kernel::mcu_port
     INTERFACE
-        3rdparty::tracealyzer
+        3rdparty::tracealyzer_recorder
 )
 
 # POSIX
@@ -109,14 +109,14 @@ target_include_directories(
 )
 target_link_libraries(
     AFR::freertos_plus_tcp::mcu_port
-    INTERFACE 3rdparty::winpcap
+    INTERFACE 3rdparty::win_pcap
 )
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_tcp
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
 # OTA
@@ -135,6 +135,7 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 # Build an OTA test that only builds on Windows.
 afr_module_sources(
@@ -157,8 +158,6 @@ add_executable(
     "${board_demos_dir}/application_code/aws_demo_logging.h"
     "${board_demos_dir}/application_code/aws_entropy_hardware_poll.c"
     "${board_demos_dir}/application_code/aws_run-time-stats-utils.c"
-    # Need to add cborpretty.c
-    "${AFR_3RDPARTY_DIR}/tinycbor/cborpretty.c"
     ${extra_src}
 )
 target_include_directories(

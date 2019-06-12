@@ -14,14 +14,15 @@ afr_module_sources(
         "${AFR_DEMOS_DIR}/network_manager/iot_network_manager_private.h"
         "${AFR_DEMOS_DIR}/demo_runner/iot_demo_afr.c"
         "${AFR_DEMOS_DIR}/demo_runner/iot_demo_runner.c"
-        "${AFR_DEMOS_DIR}/include/aws_demo.h"
+        "${AFR_DEMOS_DIR}/include/aws_application_version.h"
         "${AFR_DEMOS_DIR}/include/aws_clientcredential.h"
         "${AFR_DEMOS_DIR}/include/aws_clientcredential_keys.h"
-        "${AFR_DEMOS_DIR}/include/aws_application_version.h"
-        "${AFR_DEMOS_DIR}/include/iot_demo_runner.h"
-        "${AFR_DEMOS_DIR}/include/iot_demo_logging.h"
-        "${AFR_DEMOS_DIR}/include/iot_config_common.h"
+        "${AFR_DEMOS_DIR}/include/aws_demo.h"
         "${AFR_DEMOS_DIR}/include/aws_iot_demo_network.h"
+        "${AFR_DEMOS_DIR}/include/aws_ota_codesigner_certificate.h"
+        "${AFR_DEMOS_DIR}/include/iot_config_common.h"
+        "${AFR_DEMOS_DIR}/include/iot_demo_logging.h"
+        "${AFR_DEMOS_DIR}/include/iot_demo_runner.h"
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
@@ -33,16 +34,22 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::kernel
-        AFR::provisioning
         AFR::common
 )
+if(TARGET AFR::pkcs11::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            AFR::provisioning
+    )
+endif()
 
-if(${BLE_SUPPORTED})
-afr_module_dependencies(
-    ${AFR_CURRENT_MODULE}
-    INTERFACE
-       AFR::ble_wifi_provisioning
-)
+if(TARGET AFR::wifi::mcu_port AND TARGET AFR::ble_hal::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+        AFR::ble_wifi_provisioning
+    )
 endif()
 
 # Add other modules.

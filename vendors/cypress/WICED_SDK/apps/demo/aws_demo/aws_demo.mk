@@ -37,51 +37,54 @@ GLOBAL_DEFINES := WICED_AMAZON_FREERTOS_SDK
 #GLOBAL_DEFINES += WLAN_FIRMWARE_PRNG_SEED
 
 export AMAZON_FREERTOS_PATH := ../../../../../../
-export AFR_THIRDPARTY_PATH := ../../../../../../modules/libraries/3rdparty/
-export AFR_STANDARD_PATH := ../../../../../../modules/libraries/standard/
-export AFR_AWS_PATH := ../../../../../../modules/libraries/aws/
-export AFR_PORTS_MODULES_PATH := ../../../../../../modules/ports/
+export AFR_THIRDPARTY_PATH := ../../../../../../libraries/3rdparty/
+export AFR_C_SDK_STANDARD_PATH := ../../../../../../libraries/c_sdk/standard/
+export AFR_C_SDK_AWS_PATH := ../../../../../../libraries/c_sdk/aws/
+export AFR_FREERTOS_PLUS_STANDARD_PATH = ../../../../../../libraries/freertos_plus/standard/
+export AFR_FREERTOS_PLUS_AWS_PATH = ../../../../../../libraries/freertos_plus/aws/
+export AFR_ABSTRACTIONS_PATH := ../../../../../../libraries/abstractions/
 
 GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
-                    $(AFR_STANDARD_PATH)common/include \
-                    $(AFR_STANDARD_PATH)common/include/platform \
-                    $(AFR_STANDARD_PATH)common/taskpool/private \
-                    $(AFR_STANDARD_PATH)common/include/private \
-                    $(AFR_STANDARD_PATH)common/include/types \
-                    $(AFR_STANDARD_PATH)utils/include       \
-                    $(AFR_PORTS_MODULES_PATH)wifi/include  \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include \
+                    $(AFR_ABSTRACTIONS_PATH)platform/include  \
+                    $(AFR_ABSTRACTIONS_PATH)platform/freertos/include \
+                    $(AFR_C_SDK_STANDARD_PATH)common/taskpool/private \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include/private \
+                    $(AFR_C_SDK_STANDARD_PATH)common/include/types \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include       \
+                    $(AFR_ABSTRACTIONS_PATH)wifi/include  \
                     $(AFR_THIRDPARTY_PATH)jsmn \
                     $(AFR_THIRDPARTY_PATH)pkcs11 \
                     $(AFR_THIRDPARTY_PATH)lwip/src/include/lwip \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \
-                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/config_files \
+                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/config_files \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch \
-                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/cypress_code/include \
-                    $(AFR_STANDARD_PATH)provisioning/include \
-                    $(AFR_PORTS_MODULES_PATH)pkcs11/include  \
-                    $(AFR_PORTS_MODULES_PATH)pkcs11/mbedtls  \
-                    $(AFR_PORTS_MODULES_PATH)secure_sockets/include  \
+                    $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/cypress_code/include \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/include \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/include  \
+                    $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
+                    $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
-                    $(AFR_STANDARD_PATH)mqtt/include \
-                    $(AFR_STANDARD_PATH)mqtt/include/types \
-                    $(AFR_STANDARD_PATH)freertos_plus_tcp/include \
-                    $(AFR_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC \
-                    $(AFR_AWS_PATH)shadow/include \
-                    $(AFR_AWS_PATH)shadow/include/types \
-                    $(AFR_AWS_PATH)greengrass/include     \
-                    $(AFR_AWS_PATH)greengrass/src \
-                    $(AFR_AWS_PATH)defender/include \
-                    $(AFR_AWS_PATH)defender/src \
-                    $(AFR_AWS_PATH)defender/src/private \
-                    $(AFR_STANDARD_PATH)serializer/include \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
+                    $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/include \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)freertos_plus_tcp/source/portable/Compiler/GCC \
+                    $(AFR_C_SDK_AWS_PATH)shadow/include \
+                    $(AFR_C_SDK_AWS_PATH)shadow/include/types \
+                    $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/include     \
+                    $(AFR_FREERTOS_PLUS_AWS_PATH)greengrass/src \
+                    $(AFR_C_SDK_AWS_PATH)defender/include \
+                    $(AFR_C_SDK_AWS_PATH)defender/src \
+                    $(AFR_C_SDK_AWS_PATH)defender/src/private \
+                    $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_THIRDPARTY_PATH)tinycbor \
 
 #$(info $(AMAZON_FREERTOS_PATH))
-$(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/main.c \
-                      $(AFR_STANDARD_PATH)common/logging/aws_logging_task_dynamic_buffers.c \
-                      $(AFR_STANDARD_PATH)common/logging/iot_logging.c \
+$(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_runner.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_afr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
@@ -91,36 +94,35 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
                       $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \
-                      $(AFR_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \
-                      $(AFR_STANDARD_PATH)common/taskpool/iot_taskpool.c \
-                      $(AFR_STANDARD_PATH)common/platform/iot_clock_afr.c \
-                      $(AFR_STANDARD_PATH)common/platform/iot_network_afr.c \
-                      $(AFR_STANDARD_PATH)common/platform/iot_threads_afr.c \
-                      $(AFR_STANDARD_PATH)common/iot_init.c \
-                      $(AFR_STANDARD_PATH)common/iot_json_utils.c \
-                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_api.c \
-                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_collector.c \
-                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
-                      $(AFR_AWS_PATH)defender/src/aws_iot_defender_v1.c \
-                      $(AFR_STANDARD_PATH)metrics/src/iot_metrics.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_afr.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_afr.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_afr.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
+                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/iot_json_utils.c \
+                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_api.c \
+                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_collector.c \
+                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
+                      $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_v1.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_metrics.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder.c\
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborencoder_close_container_checked.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborerrorstrings.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborparser.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborparser_dup_string.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
-                      $(AFR_STANDARD_PATH)metrics/src/aws_secure_sockets_wrapper_metrics.c \
-                      $(AFR_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
-                      $(AFR_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
-                      $(AFR_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_decoder.c \
-                      $(AFR_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_encoder.c \
+                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
+                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
+                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_decoder.c \
+                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_encoder.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws
 
-APPLICATION_DCT := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/common/application_code/cypress_code/app_dct.c
+APPLICATION_DCT := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/cypress_code/app_dct.c
 
 WICED_AMAZON_FREERTOS_SDK := 1

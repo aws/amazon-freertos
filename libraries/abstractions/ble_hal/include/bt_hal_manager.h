@@ -239,13 +239,13 @@ typedef struct
 typedef struct
 {
     uint8_t ucBleDevAddr[ btADDRESS_LEN ]; /**< LE Bluetooth Device Address */
-    uint8_t ucC192[ btKEY_MAX_LEN ];      /**< Simple Pairing Hash C-192 */
-    uint8_t ucR192[ btKEY_MAX_LEN];      /**< Simple Pairing Randomizer R-192 */
-    uint8_t ucC256[ btKEY_MAX_LEN ];      /**< Simple Pairing Hash C-256 */
-    uint8_t ucR256[ btKEY_MAX_LEN ];      /**< Simple Pairing Randomizer R-256 */
-    uint8_t ucSm_tk[ btKEY_MAX_LEN ];     /**< Security Manager TK Value */
-    uint8_t ucLe_sc_c[ btKEY_MAX_LEN ];   /**< LE Secure Connections Random Value */
-    uint8_t ucLe_sc_r[ btKEY_MAX_LEN ];   /**< LE Secure Connections Random Value */
+    uint8_t ucC192[ btKEY_MAX_LEN ];       /**< Simple Pairing Hash C-192 */
+    uint8_t ucR192[ btKEY_MAX_LEN ];       /**< Simple Pairing Randomizer R-192 */
+    uint8_t ucC256[ btKEY_MAX_LEN ];       /**< Simple Pairing Hash C-256 */
+    uint8_t ucR256[ btKEY_MAX_LEN ];       /**< Simple Pairing Randomizer R-256 */
+    uint8_t ucSm_tk[ btKEY_MAX_LEN ];      /**< Security Manager TK Value */
+    uint8_t ucLe_sc_c[ btKEY_MAX_LEN ];    /**< LE Secure Connections Random Value */
+    uint8_t ucLe_sc_r[ btKEY_MAX_LEN ];    /**< LE Secure Connections Random Value */
 } BTOutOfBandData_t;
 
 /**
@@ -681,10 +681,11 @@ typedef struct
      *
      * @param[in] pxBdAddr BT Address of device.
      * @param[in] bConnectionState true if connnected false if not connected
-
+     *
      * @return Fail if there is no connection.
      */
-    BTStatus_t ( * pxGetConnectionState )( const BTBdaddr_t * pxBdAddr , bool * bConnectionState );
+    BTStatus_t ( * pxGetConnectionState )( const BTBdaddr_t * pxBdAddr,
+                                           bool * bConnectionState );
 
     /**
      * @brief BT Legacy PinKey Reply.

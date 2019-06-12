@@ -34,62 +34,68 @@
 #include "iot_linear_containers.h"
 
 /* Place holder for saving Char descriptors into memory. */
-typedef struct {
-	uint8_t data;
-	BTUuid_t charDescrUuid;
-	BTUuid_t parentServiceUuid;
-	BTUuid_t parentCharacteristicUuid;
-	uint8_t instId;
-}_bleCharDescriptorReccord_t;
+typedef struct
+{
+    uint8_t data;
+    BTUuid_t charDescrUuid;
+    BTUuid_t parentServiceUuid;
+    BTUuid_t parentCharacteristicUuid;
+    uint8_t instId;
+} _bleCharDescriptorReccord_t;
 
-typedef struct {
-	BTBdaddr_t bdAddr;
-	size_t charDescriptorListSize;
-	_bleCharDescriptorReccord_t pCharDescriptorList[];
-}_bleBondingDataFile_t;
+typedef struct
+{
+    BTBdaddr_t bdAddr;
+    size_t charDescriptorListSize;
+    _bleCharDescriptorReccord_t pCharDescriptorList[];
+} _bleBondingDataFile_t;
 
-typedef struct {
-	IotLink_t characDescrList;
-	BTCharacteristicDescr_t * pCharDescr;
-}_bleCharDescriptorListElement_t;
+typedef struct
+{
+    IotLink_t characDescrList;
+    BTCharacteristicDescr_t * pCharDescr;
+} _bleCharDescriptorListElement_t;
 /* End of place holder. */
 
-typedef struct{
-	IotLink_t serviceList;
-	BTService_t * pService;
+typedef struct
+{
+    IotLink_t serviceList;
+    BTService_t * pService;
     IotBleAttributeEventCallback_t * pEventsCallbacks;
-	uint16_t endHandle;
-}BLEServiceListElement_t;
+    uint16_t endHandle;
+} BLEServiceListElement_t;
 
-typedef struct{
-	IotLink_t eventList;
-	IotBleEventsCallbacks_t subscribedEventCb;
-}_bleSubscrEventListElement_t;
+typedef struct
+{
+    IotLink_t eventList;
+    IotBleEventsCallbacks_t subscribedEventCb;
+} _bleSubscrEventListElement_t;
 
-typedef struct{
-	void * pPendingServiceEvent;
+typedef struct
+{
+    void * pPendingServiceEvent;
 
-	/*  @TODO prepare write works for only on  one simultaneous connection */
-	/*  @TODO pending indication response with a global only works for one simultaneous connection */
-	uint16_t handlePendingIndicationResponse;
-	uint8_t serverIf;
-        IotListDouble_t serviceListHead;
-	IotListDouble_t connectionListHead;	
-	IotListDouble_t subscrEventListHead[eNbEvents];    /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */	
-	uint16_t handlePendingPrepareWrite;
-        IotBle_StartAdvCallback_t pStartAdvCb;
-	BTInterface_t * pBTInterface;
-	BTBleAdapter_t * pBTLeAdapterInterface;
-	BTGattServerInterface_t * pGattServerInterface;
-	uint8_t adapterIf;
-	IotMutex_t threadSafetyMutex;
-        IotMutex_t waitCbMutex;
-	IotSemaphore_t callbackSemaphore;
-	BTStatus_t cbStatus;
-}_bleInterface_t;
+    /*  @TODO prepare write works for only on  one simultaneous connection */
+    /*  @TODO pending indication response with a global only works for one simultaneous connection */
+    uint16_t handlePendingIndicationResponse;
+    uint8_t serverIf;
+    IotListDouble_t serviceListHead;
+    IotListDouble_t connectionListHead;
+    IotListDouble_t subscrEventListHead[ eNbEvents ]; /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */
+    uint16_t handlePendingPrepareWrite;
+    IotBle_StartAdvCallback_t pStartAdvCb;
+    BTInterface_t * pBTInterface;
+    BTBleAdapter_t * pBTLeAdapterInterface;
+    BTGattServerInterface_t * pGattServerInterface;
+    uint8_t adapterIf;
+    IotMutex_t threadSafetyMutex;
+    IotMutex_t waitCbMutex;
+    IotSemaphore_t callbackSemaphore;
+    BTStatus_t cbStatus;
+} _bleInterface_t;
 extern _bleInterface_t _BTInterface;
 
 extern const BTGattServerCallbacks_t _BTGattServerCb;
 
 
-#endif
+#endif /* ifndef _AWS_BLE_INTERNALS_H_ */

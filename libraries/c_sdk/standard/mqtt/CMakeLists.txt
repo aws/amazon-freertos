@@ -26,7 +26,6 @@ endif()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_mqtt_agent.c"
         "${src_dir}/iot_mqtt_api.c"
         "${src_dir}/iot_mqtt_network.c"
         "${src_dir}/iot_mqtt_operation.c"
@@ -36,6 +35,14 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_validate.c"
         ${extra_mqtt_sources}
 )
+
+if(TARGET AFR::secure_sockets::mcu_port)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    PRIVATE
+        "${src_dir}/aws_mqtt_agent.c"
+)
+endif()
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
@@ -65,14 +72,23 @@ endif()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_mqtt_agent.c"
-        "${test_dir}/system/iot_tests_mqtt_system.c"
+
         "${test_dir}/unit/iot_tests_mqtt_api.c"
         "${test_dir}/unit/iot_tests_mqtt_receive.c"
         "${test_dir}/unit/iot_tests_mqtt_subscription.c"
         "${test_dir}/unit/iot_tests_mqtt_validate.c"
+        "${test_dir}/system/iot_tests_mqtt_system.c"
         ${extra_test_mqtt_sources}
 )
+
+if(TARGET AFR::secure_sockets::mcu_port)
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/aws_test_mqtt_agent.c"
+)
+endif()
+
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE

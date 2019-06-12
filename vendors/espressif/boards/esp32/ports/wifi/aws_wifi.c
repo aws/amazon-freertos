@@ -1356,7 +1356,7 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 
 WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
 {
-	xEventCallback = xCallback;
-	return eWiFiSuccess;
+    xEventCallback = xCallback;
+    return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/

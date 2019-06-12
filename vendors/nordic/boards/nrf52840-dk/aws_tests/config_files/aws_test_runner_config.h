@@ -41,13 +41,8 @@
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED 0
 #define testrunnerFULL_POSIX_ENABLED               0
-#define testrunnerOTA_END_TO_END_ENABLED           0
 #define testrunnerFULL_BLE_ENABLED                 0
 #define testrunnerFULL_SERIALIZER_ENABLED          0
 #define testrunnerFULL_LINEAR_CONTAINERS_ENABLED   0
-/*
-#define testrunnerFULL_OTA_CBOR_ENABLED            1
-#define testrunnerFULL_CBOR_ENABLED                1
-#define testrunnerFULL_DEFENDER_ENABLED            1*/
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

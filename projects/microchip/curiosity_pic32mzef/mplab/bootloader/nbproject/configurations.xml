@@ -5,116 +5,116 @@
                    displayName="bootloader_code"
                    projectFiles="true">
       <logicalFolder name="f2" displayName="include" projectFiles="true">
-        <itemPath>../common/include/app.h</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/include/app.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="microchip_code" projectFiles="true">
         <logicalFolder name="f1" displayName="bsp" projectFiles="true">
-          <itemPath>../common/microchip_code/bsp/bsp.c</itemPath>
-          <itemPath>../common/microchip_code/bsp/bsp.h</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/bsp/bsp.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/bsp/bsp.h</itemPath>
         </logicalFolder>
         <logicalFolder name="f2" displayName="framework" projectFiles="true">
           <logicalFolder name="system" displayName="system" projectFiles="true">
             <logicalFolder name="clk" displayName="clk" projectFiles="true">
               <logicalFolder name="src" displayName="src" projectFiles="true">
-                <itemPath>../common/microchip_code/framework/system/clk/src/sys_clk_pic32mz.c</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/clk/src/sys_clk_pic32mz.c</itemPath>
               </logicalFolder>
             </logicalFolder>
             <logicalFolder name="devcon" displayName="devcon" projectFiles="true">
               <logicalFolder name="src" displayName="src" projectFiles="true">
-                <itemPath>../common/microchip_code/framework/system/devcon/src/sys_devcon.c</itemPath>
-                <itemPath>../common/microchip_code/framework/system/devcon/src/sys_devcon_cache.h</itemPath>
-                <itemPath>../common/microchip_code/framework/system/devcon/src/sys_devcon_cache_pic32mz.S</itemPath>
-                <itemPath>../common/microchip_code/framework/system/devcon/src/sys_devcon_local.h</itemPath>
-                <itemPath>../common/microchip_code/framework/system/devcon/src/sys_devcon_pic32mz.c</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/devcon/src/sys_devcon.c</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/devcon/src/sys_devcon_cache.h</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/devcon/src/sys_devcon_cache_pic32mz.S</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/devcon/src/sys_devcon_local.h</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/devcon/src/sys_devcon_pic32mz.c</itemPath>
               </logicalFolder>
-              <itemPath>../common/microchip_code/framework/system/devcon/sys_devcon.h</itemPath>
+              <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/devcon/sys_devcon.h</itemPath>
             </logicalFolder>
             <logicalFolder name="ports" displayName="ports" projectFiles="true">
               <logicalFolder name="src" displayName="src" projectFiles="true">
-                <itemPath>../common/microchip_code/framework/system/ports/src/sys_ports_static.c</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/ports/src/sys_ports_static.c</itemPath>
               </logicalFolder>
             </logicalFolder>
             <logicalFolder name="reset" displayName="reset" projectFiles="true">
               <logicalFolder name="src" displayName="src" projectFiles="true">
-                <itemPath>../common/microchip_code/framework/system/reset/src/sys_reset.c</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/framework/system/reset/src/sys_reset.c</itemPath>
               </logicalFolder>
             </logicalFolder>
           </logicalFolder>
         </logicalFolder>
-        <itemPath>../common/microchip_code/system_config.h</itemPath>
-        <itemPath>../common/microchip_code/system_definitions.h</itemPath>
-        <itemPath>../common/microchip_code/system_exceptions.c</itemPath>
-        <itemPath>../common/microchip_code/system_init.c</itemPath>
-        <itemPath>../common/microchip_code/system_interrupt.c</itemPath>
-        <itemPath>../common/microchip_code/system_tasks.c</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/system_config.h</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/system_definitions.h</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/system_exceptions.c</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/system_init.c</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/system_interrupt.c</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/system_tasks.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="source" projectFiles="true">
-        <itemPath>../common/source/app.c</itemPath>
+        <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/source/app.c</itemPath>
       </logicalFolder>
-      <itemPath>../common/main.c</itemPath>
+      <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/main.c</itemPath>
     </logicalFolder>
     <logicalFolder name="SourceFiles"
                    displayName="config_files"
                    projectFiles="true">
-      <itemPath>../config_files/aws_boot_config.h</itemPath>
-      <itemPath>../../../common/ota/bootloader/utility/user-config/ota-descriptor.config</itemPath>
+      <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/config_files/aws_boot_config.h</itemPath>
+      <itemPath>../../../../../demos/ota/bootloader/utility/user-config/ota-descriptor.config</itemPath>
     </logicalFolder>
     <logicalFolder name="f1" displayName="lib" projectFiles="true">
       <logicalFolder name="f1" displayName="bootloader" projectFiles="true">
         <logicalFolder name="f1" displayName="crypto" projectFiles="true">
-          <itemPath>../../../../../../demos/ota/bootloader/crypto/tinycrypt/aws_boot_crypto.c</itemPath>
-          <itemPath>../../../../../../demos/ota/bootloader/crypto/tinycrypt/asn1utility.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/crypto/tinycrypt/asn1utility.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/crypto/tinycrypt/aws_boot_crypto.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f3" displayName="flash" projectFiles="true">
-          <itemPath>../../../../../../demos/ota/bootloader/flash/portable/microchip/curiosity_pic32mzef/aws_boot_flash.c</itemPath>
-          <itemPath>../../../../../../demos/ota/bootloader/flash/portable/microchip/curiosity_pic32mzef/aws_boot_nvm.c</itemPath>
-          <itemPath>../../../../../../demos/ota/bootloader/flash/portable/microchip/curiosity_pic32mzef/aws_boot_partition.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/flash/portable/microchip/curiosity_pic32mzef/aws_boot_flash.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/flash/portable/microchip/curiosity_pic32mzef/aws_boot_nvm.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/flash/portable/microchip/curiosity_pic32mzef/aws_boot_partition.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f4" displayName="loader" projectFiles="true">
-          <itemPath>../../../../../../demos/ota/bootloader/loader/aws_boot_loader.c</itemPath>
-          <itemPath>../../../../../../demos/ota/bootloader/loader/portable/microchip/curiosity_pic32mzef/aws_boot_pal.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/loader/aws_boot_loader.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/loader/portable/microchip/curiosity_pic32mzef/aws_boot_pal.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f5" displayName="logging" projectFiles="true">
-          <itemPath>../../../../../../demos/ota/bootloader/logging/aws_boot_log.c</itemPath>
-          <itemPath>../../../../../../demos/ota/bootloader/logging/portable/microchip/curiosity_pic32mzef/aws_boot_log_uart.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/logging/aws_boot_log.c</itemPath>
+          <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/logging/portable/microchip/curiosity_pic32mzef/aws_boot_log_uart.c</itemPath>
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="f2" displayName="third_party" projectFiles="true">
         <logicalFolder name="f3" displayName="mbedasn1" projectFiles="true">
-          <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/asn1/asn1parse.c</itemPath>
+          <itemPath>../../../../../libraries/3rdparty/tinycrypt/asn1/asn1parse.c</itemPath>
         </logicalFolder>
         <logicalFolder name="f2" displayName="microchip" projectFiles="true">
           <logicalFolder name="f1" displayName="driver" projectFiles="true">
             <logicalFolder name="f1" displayName="usart" projectFiles="true">
-              <itemPath>../../../../harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart.c</itemPath>
-              <itemPath>../../../../harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_buffer_queue.c</itemPath>
-              <itemPath>../../../../harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_read_write.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_buffer_queue.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/usart/src/dynamic/drv_usart_read_write.c</itemPath>
             </logicalFolder>
           </logicalFolder>
           <logicalFolder name="f2" displayName="system" projectFiles="true">
             <logicalFolder name="f1" displayName="int" projectFiles="true">
-              <itemPath>../../../../harmony/v2.05/framework/system/int/src/sys_int_pic32.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/system/int/src/sys_int_pic32.c</itemPath>
             </logicalFolder>
           </logicalFolder>
         </logicalFolder>
         <logicalFolder name="f1" displayName="tinycrypt" projectFiles="true">
           <logicalFolder name="lib" displayName="lib" projectFiles="true">
             <logicalFolder name="source" displayName="source" projectFiles="true">
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/aes_decrypt.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/aes_encrypt.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/cbc_mode.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/ccm_mode.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/cmac_mode.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/ctr_mode.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/ctr_prng.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/ecc.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/ecc_dh.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/ecc_dsa.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/ecc_platform_specific.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/hmac.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/hmac_prng.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/sha256.c</itemPath>
-              <itemPath>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source/utils.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/aes_decrypt.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/aes_encrypt.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/cbc_mode.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/ccm_mode.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/cmac_mode.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/ctr_mode.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/ctr_prng.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc_dh.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc_dsa.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc_platform_specific.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/hmac.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/hmac_prng.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/sha256.c</itemPath>
+              <itemPath>../../../../../libraries/3rdparty/tinycrypt/lib/source/utils.c</itemPath>
             </logicalFolder>
           </logicalFolder>
         </logicalFolder>
@@ -123,7 +123,7 @@
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
-      <itemPath>../common/microchip_code/btl_mz.ld</itemPath>
+      <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/btl_mz.ld</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -158,6 +158,21 @@
     <Elem>../../../../harmony/v2.05/framework/driver/usart/src/dynamic</Elem>
     <Elem>../../../../harmony/v2.05/framework/system/int/src</Elem>
     <Elem>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/config_files</Elem>
+    <Elem>../../../../../demos/ota/bootloader/utility/user-config</Elem>
+    <Elem>../../../../../demos/ota/bootloader/crypto/tinycrypt</Elem>
+    <Elem>../../../../../demos/ota/bootloader/flash/portable/microchip/curiosity_pic32mzef</Elem>
+    <Elem>../../../../../demos/ota/bootloader/loader</Elem>
+    <Elem>../../../../../demos/ota/bootloader/logging</Elem>
+    <Elem>../../../../../libraries/3rdparty/tinycrypt/asn1</Elem>
+    <Elem>../../../../../vendors/microchip/harmony/v2.05/framework/driver/usart/src/dynamic</Elem>
+    <Elem>../../../../../vendors/microchip/harmony/v2.05/framework/system/int/src</Elem>
+    <Elem>../../../../../libraries/3rdparty/tinycrypt/lib/source</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/crypto/tinycrypt</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/flash/portable/microchip/curiosity_pic32mzef</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/loader</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/logging</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -170,15 +185,15 @@
         <platformTool>ICD4Tool</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>2.15</languageToolchainVersion>
-        <platform>4</platform>
+        <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC32MZ-EF_DFP" vendor="Microchip" version="1.0.17"/>
+        <pack name="PIC32MZ-EF_DFP" vendor="Microchip" version="1.0.20"/>
       </packs>
       <compileType>
         <linkerTool>
           <linkerLibItems>
-            <linkerLibFileItem>../../../../harmony/v2.05/bin/framework/peripheral/PIC32MZ2048EFM100_peripherals.a</linkerLibFileItem>
+            <linkerLibFileItem>../../../../../vendors/microchip/harmony/v2.05/bin/framework/peripheral/PIC32MZ2048EFM100_peripherals.a</linkerLibFileItem>
           </linkerLibItems>
         </linkerTool>
         <archiverTool>
@@ -193,7 +208,7 @@
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>true</makeCustomizationPreStepEnabled>
-        <makeCustomizationPreStep>python ../../../../../../demos/ota/bootloader/utility/codesigner_cert_utility/codesigner_cert_utility.py ../../../../../../demos/ota/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem ../../../../../../demos/ota/bootloader/include/aws_boot_codesigner_public_key.h</makeCustomizationPreStep>
+        <makeCustomizationPreStep>python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/codesigner_cert_utility/codesigner_cert_utility.py ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader//bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader//bootloader/include/aws_boot_codesigner_public_key.h</makeCustomizationPreStep>
         <makeCustomizationPostStepEnabled>false</makeCustomizationPostStepEnabled>
         <makeCustomizationPostStep></makeCustomizationPostStep>
         <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
@@ -209,7 +224,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="..\common\microchip_code;..\common\microchip_code\bsp;..\..\..\..\harmony\v2.05\framework;..\..\..\..\harmony\v2.05\framework\driver\usart;..\common\include;../../../../../../modules/libraries/3rdparty/tinycrypt/lib/include;..\..\..\..\lib\third_party\tinycrypt\asn1;../../../../../../demos/ota/bootloader/flash/portable/microchip/curiosity_pic32mzef;..\config_files;../../../../../../demos/ota/bootloader/include;../../../../../../modules/libraries/3rdparty/tinycrypt/asn1"/>
+                  value="../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code;../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code/bsp;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/microchip_code;../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common/include;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/config_files;../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/flash/portable/microchip/curiosity_pic32mzef"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>

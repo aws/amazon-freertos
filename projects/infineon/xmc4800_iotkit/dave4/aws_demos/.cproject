@@ -68,6 +68,7 @@
 								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def.2079822681" name="Defined symbols (-D)" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="XMC4800_F100x2048"/>
 								</option>
+								<option id="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.std.189927906" superClass="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.std" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.c.compiler.option.misc.std.c99" valueType="enumerated"/>
 								<inputType id="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.input.62519071" superClass="org.eclipse.cdt.cross.arm.gnu.sourcery.windows.c.compiler.base.input"/>
 							</tool>
 							<tool id="com.ifx.xmc4000.appDebug.cppcompiler.1676119801" name="ARM-GCC C++ Compiler" superClass="com.ifx.xmc4000.appDebug.cppcompiler">
@@ -97,7 +98,7 @@
 								<option id="com.ifx.xmc4000.appLinker.option.misc.mfloat.404924723" name="Floating point" superClass="com.ifx.xmc4000.appLinker.option.misc.mfloat" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.base.option.other.mfloat.softfp" valueType="enumerated"/>
 								<option id="com.ifx.xmc4000.appLinker.option.nosys.specs.1292356966" name="Provide default newlib system calls (-specs=nosys.specs)" superClass="com.ifx.xmc4000.appLinker.option.nosys.specs" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.ifx.xmc4000.appLinker.option.scriptfile.2019570872" name="Script file (-T)" superClass="com.ifx.xmc4000.appLinker.option.scriptfile" useByScannerDiscovery="false" value="../../../../../../vendors/infineon/boards/xmc4800_iotkit/XMC4800x2048.ld" valueType="string"/>
-								<option id="com.ifx.xmc4000.appLinker.option.newlib.985607932" superClass="com.ifx.xmc4000.appLinker.option.newlib" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.c.link.option.newlib.standard" valueType="enumerated"/>
+								<option id="com.ifx.xmc4000.appLinker.option.newlib.985607932" name="Runtime library" superClass="com.ifx.xmc4000.appLinker.option.newlib" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.c.link.option.newlib.standard" valueType="enumerated"/>
 								<inputType id="com.ifx.xmc4000.appLinker.inputType.889950663" name="ARM-GCC for XMC Linker Input Type" superClass="com.ifx.xmc4000.appLinker.inputType">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>

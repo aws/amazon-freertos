@@ -16,4 +16,6 @@ afr_set_board_metadata(IDE_MPLABX_NAME "MPLAB X")
 afr_set_board_metadata(IDE_MPLABX_COMPILER "XC32")
 
 afr_set_board_metadata(IDE_MPLABX_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/microchip/curiosity_pic32mzef/mplab/aws_demos")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/common/config_files")
+afr_set_board_metadata(IDE_MPLABX_ADDITIONAL_FILES "${AFR_ROOT_DIR}/projects/microchip/curiosity_pic32mzef/mplab/bootloader")
+
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")

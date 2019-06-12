@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 import os
@@ -34,7 +34,7 @@ from .aws_ota_test_result import OtaTestResult
 class OtaTestRunner:
     """Run all of the OTA tests.
     Before we run the tests we need to initialize all of the resource needed by the tests.
-    There is one test runner per board. 
+    There is one test runner per board.
     Args:
         boardConfig(dict): The full board.json configuration.
         stage(dict): What development environment stage the AWS service stack is in to run OTA tests.
@@ -104,7 +104,7 @@ class OtaTestRunner:
             for test in _otaConfig['supported_tests']:
                 otaTestCases.append(
                     OtaTestCaseFactory.createTestCase(
-                        test, 
+                        test,
                         self._boardConfig,
                         self._otaProject,
                         self._otaAwsAgent,
@@ -115,14 +115,18 @@ class OtaTestRunner:
             print(e)
             self.__cleanup()
             raise
+
+        if not otaTestCases:
+            print("Test Case Not Found")
+
         return otaTestCases
 
     def __runTest(self, otaTestCase):
         """
-        - Build the code with the version desired. 
-        - Flash the code built. 
+        - Build the code with the version desired.
+        - Flash the code built.
         """
-        testResult = OtaTestResult(testName='InvalidTest', result=OtaTestResult.FAIL, reason='Initialized test result.')
+        testResult = OtaTestResult(testName=otaTestCase.getName, result=OtaTestResult.ERROR, summary='Can not collect test result. Please check logs.')
         testResult = otaTestCase.runTest()
 
         testResult.board = self._boardConfig['name']

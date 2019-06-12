@@ -40,17 +40,17 @@
  *  Keys for MQTT message parameters exchanged between device and the companion BLE device SDK.
  */
 /** @{ */
-#define IOT_BLE_MQTT_MSG_TYPE        "w"
-#define IOT_BLE_MQTT_CLIENT_ID       "d"
-#define IOT_BLE_MQTT_BROKER_EP       "a"
-#define IOT_BLE_MQTT_CLEAN_SESSION   "c"
-#define IOT_BLE_MQTT_TOPIC           "u"
-#define IOT_BLE_MQTT_TOPIC_LIST      "v"
-#define IOT_BLE_MQTT_QOS             "n"
-#define IOT_BLE_MQTT_QOS_LIST        "o"
-#define IOT_BLE_MQTT_MESSAGE_ID      "i"
-#define IOT_BLE_MQTT_PAYLOAD         "k"
-#define IOT_BLE_MQTT_STATUS          "s"
+#define IOT_BLE_MQTT_MSG_TYPE         "w"
+#define IOT_BLE_MQTT_CLIENT_ID        "d"
+#define IOT_BLE_MQTT_BROKER_EP        "a"
+#define IOT_BLE_MQTT_CLEAN_SESSION    "c"
+#define IOT_BLE_MQTT_TOPIC            "u"
+#define IOT_BLE_MQTT_TOPIC_LIST       "v"
+#define IOT_BLE_MQTT_QOS              "n"
+#define IOT_BLE_MQTT_QOS_LIST         "o"
+#define IOT_BLE_MQTT_MESSAGE_ID       "i"
+#define IOT_BLE_MQTT_PAYLOAD          "k"
+#define IOT_BLE_MQTT_STATUS           "s"
 /** @} */
 
 /**
@@ -58,20 +58,20 @@
  * MQTT message types exchanged between the device and the companion BLE device SDK.
  */
 /** @{ */
-#define IOT_BLE_MQTT_MSG_TYPE_CONNECT          ( 1 )
-#define IOT_BLE_MQTT_MSG_TYPE_CONNACK          ( 2 )
-#define IOT_BLE_MQTT_MSG_TYPE_PUBLISH          ( 3 )
-#define IOT_BLE_MQTT_MSG_TYPE_PUBACK           ( 4 )
-#define IOT_BLE_MQTT_MSG_TYPE_PUBREC           ( 5 )
-#define IOT_BLE_MQTT_MSG_TYPE_PUBREL           ( 6 )
-#define IOT_BLE_MQTT_MSG_TYPE_PUBCOMP          ( 7 )
-#define IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE        ( 8 )
-#define IOT_BLE_MQTT_MSG_TYPE_SUBACK           ( 9 )
-#define IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE      ( 10 )
-#define IOT_BLE_MQTT_MSG_TYPE_UNSUBACK         ( 11 )
-#define IOT_BLE_MQTT_MSG_TYPE_PINGREQ          ( 12 )
-#define IOT_BLE_MQTT_MSG_TYPE_PINGRESP         ( 13 )
-#define IOT_BLE_MQTT_MSG_TYPE_DISCONNECT       ( 14 )
+#define IOT_BLE_MQTT_MSG_TYPE_CONNECT        ( 1 )
+#define IOT_BLE_MQTT_MSG_TYPE_CONNACK        ( 2 )
+#define IOT_BLE_MQTT_MSG_TYPE_PUBLISH        ( 3 )
+#define IOT_BLE_MQTT_MSG_TYPE_PUBACK         ( 4 )
+#define IOT_BLE_MQTT_MSG_TYPE_PUBREC         ( 5 )
+#define IOT_BLE_MQTT_MSG_TYPE_PUBREL         ( 6 )
+#define IOT_BLE_MQTT_MSG_TYPE_PUBCOMP        ( 7 )
+#define IOT_BLE_MQTT_MSG_TYPE_SUBSCRIBE      ( 8 )
+#define IOT_BLE_MQTT_MSG_TYPE_SUBACK         ( 9 )
+#define IOT_BLE_MQTT_MSG_TYPE_UNSUBSCRIBE    ( 10 )
+#define IOT_BLE_MQTT_MSG_TYPE_UNSUBACK       ( 11 )
+#define IOT_BLE_MQTT_MSG_TYPE_PINGREQ        ( 12 )
+#define IOT_BLE_MQTT_MSG_TYPE_PINGRESP       ( 13 )
+#define IOT_BLE_MQTT_MSG_TYPE_DISCONNECT     ( 14 )
 /** @} */
 
 /**
@@ -79,15 +79,15 @@
  * CONNECT Response code exchanged between the device and the companion BLE device SDK.
  */
 /** @{ */
-typedef enum {
-
-	IOT_BLE_MQTT_STATUS_UNKNOWN = 0,        //!< IOT_BLE_MQTT_STATUS_UNKNOWN  Connection status unknown by the SDK.
-	IOT_BLE_MQTT_STATUS_CONNECTING,         //!< IOT_BLE_MQTT_STATUS_CONNECTING SDK has sent CONNECT request to server and waiting for the response.
-	IOT_BLE_MQTT_STATUS_CONNECTED,          //!< IOT_BLE_MQTT_STATUS_CONNECTED  SDK is connected to the MQTT server.
-	IOT_BLE_MQTT_STATUS_DISCONNECTED,       //!< IOT_BLE_MQTT_STATUS_DISCONNECTED SDK is disconnected with the MQTT server.
-	IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED,  //!< IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED Server refused connection with the SDK.
-	IOT_BLE_MQTT_STATUS_CONNECTION_ERROR,    //!< IOT_BLE_MQTT_STATUS_CONNECTION_ERROR Internal error while connecting to the server.
-	IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR       //!< IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR CONNECT message from the device was malformed.
+typedef enum
+{
+    IOT_BLE_MQTT_STATUS_UNKNOWN = 0,        /*!< IOT_BLE_MQTT_STATUS_UNKNOWN  Connection status unknown by the SDK. */
+    IOT_BLE_MQTT_STATUS_CONNECTING,         /*!< IOT_BLE_MQTT_STATUS_CONNECTING SDK has sent CONNECT request to server and waiting for the response. */
+    IOT_BLE_MQTT_STATUS_CONNECTED,          /*!< IOT_BLE_MQTT_STATUS_CONNECTED  SDK is connected to the MQTT server. */
+    IOT_BLE_MQTT_STATUS_DISCONNECTED,       /*!< IOT_BLE_MQTT_STATUS_DISCONNECTED SDK is disconnected with the MQTT server. */
+    IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED, /*!< IOT_BLE_MQTT_STATUS_CONNECTION_REFUSED Server refused connection with the SDK. */
+    IOT_BLE_MQTT_STATUS_CONNECTION_ERROR,   /*!< IOT_BLE_MQTT_STATUS_CONNECTION_ERROR Internal error while connecting to the server. */
+    IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR      /*!< IOT_BLE_MQTT_STATUS_PROTOCOL_ERROR CONNECT message from the device was malformed. */
 } MQTTBLEConnectStatus_t;
 /** @} */
 
@@ -101,7 +101,7 @@ bool IotBleMqtt_InitSerialize( void );
 /**
  * @brief Cleanup the serializerfor Mqtt messages over BLE.
  */
-void IotBleMqtt_CleanupSerialize( void );   
+void IotBleMqtt_CleanupSerialize( void );
 
 /**
  * @brief Serialize the CONNECT message sent towards MQTT BLE proxy.
@@ -116,8 +116,8 @@ void IotBleMqtt_CleanupSerialize( void );
  * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY.
  */
 IotMqttError_t IotBleMqtt_SerializeConnect( const IotMqttConnectInfo_t * const pConnectInfo,
-                                                           uint8_t ** const pConnectPacket,
-                                                           size_t * const pPacketSize );
+                                            uint8_t ** const pConnectPacket,
+                                            size_t * const pPacketSize );
 
 /**
  * @brief Deserialize a CONNACK message received from MQTT BLE Proxy.
@@ -149,10 +149,10 @@ IotMqttError_t IotBleMqtt_DeserializeConnack( struct _mqttPacket * pConnack );
  *
  */
 IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const pPublishInfo,
-                                                       uint8_t ** const pPublishPacket,
-                                                       size_t * const pPacketSize,
-                                                       uint16_t * const pPacketIdentifier,
-													   uint8_t ** pPacketIdentifierHigh );
+                                            uint8_t ** const pPublishPacket,
+                                            size_t * const pPacketSize,
+                                            uint16_t * const pPacketIdentifier,
+                                            uint8_t ** pPacketIdentifierHigh );
 
 /**
  * @brief Set the DUP flag to indicate its a duplicate QoS1/QoS2 message.
@@ -162,7 +162,9 @@ IotMqttError_t IotBleMqtt_SerializePublish( const IotMqttPublishInfo_t * const p
  * @param[in] pPublishOperation The operation containing the PUBLISH message.
  *
  */
-void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket, uint8_t * pPacketIdentifierHigh, uint16_t * const pNewPacketIdentifier );
+void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket,
+                               uint8_t * pPacketIdentifierHigh,
+                               uint16_t * const pNewPacketIdentifier );
 
 
 /**
@@ -179,7 +181,7 @@ void IotBleMqtt_PublishSetDup( uint8_t * const pPublishPacket, uint8_t * pPacket
  * @return  #IOT_MQTT_SUCCESS or #IOT_MQTT_BAD_RESPONSE.
  *
  */
-IotMqttError_t IotBleMqtt_DeserializePublish( struct _mqttPacket * pConnack);
+IotMqttError_t IotBleMqtt_DeserializePublish( struct _mqttPacket * pConnack );
 
 
 /**
@@ -195,8 +197,9 @@ IotMqttError_t IotBleMqtt_DeserializePublish( struct _mqttPacket * pConnack);
  *
  */
 IotMqttError_t IotBleMqtt_SerializePuback( uint16_t packetIdentifier,
-                                                      uint8_t ** const pPubackPacket,
-                                                      size_t * const pPacketSize );
+                                           uint8_t ** const pPubackPacket,
+                                           size_t * const pPacketSize );
+
 /**
  * @brief Deserialize the PUBACK message from MQTT BLE Proxy.
  *
@@ -227,10 +230,11 @@ IotMqttError_t IotBleMqtt_DeserializePuback( struct _mqttPacket * pConnack );
  *
  */
 IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * const pSubscriptionList,
-                                                         size_t subscriptionCount,
-                                                         uint8_t ** const pSubscribePacket,
-                                                         size_t * const pPacketSize,
-                                                         uint16_t * const pPacketIdentifier );
+                                              size_t subscriptionCount,
+                                              uint8_t ** const pSubscribePacket,
+                                              size_t * const pPacketSize,
+                                              uint16_t * const pPacketIdentifier );
+
 /**
  * @brief Deserialize the SUBACK message from MQTT BLE Proxy.
  *
@@ -247,6 +251,7 @@ IotMqttError_t IotBleMqtt_SerializeSubscribe( const IotMqttSubscription_t * cons
  *
  */
 IotMqttError_t IotBleMqtt_DeserializeSuback( struct _mqttPacket * pConnack );
+
 /**
  * @brief Serialize the UNSUBSCRIBE message sent to MQTT BLE Proxy.
  *
@@ -262,10 +267,10 @@ IotMqttError_t IotBleMqtt_DeserializeSuback( struct _mqttPacket * pConnack );
  *
  */
 IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * const pSubscriptionList,
-		size_t subscriptionCount,
-		uint8_t ** const pUnsubscribePacket,
-		size_t * const pPacketSize,
-		uint16_t * const pPacketIdentifier );
+                                                size_t subscriptionCount,
+                                                uint8_t ** const pUnsubscribePacket,
+                                                size_t * const pPacketSize,
+                                                uint16_t * const pPacketIdentifier );
 
 
 /**
@@ -282,6 +287,7 @@ IotMqttError_t IotBleMqtt_SerializeUnsubscribe( const IotMqttSubscription_t * co
  *
  */
 IotMqttError_t IotBleMqtt_DeserializeUnsuback( struct _mqttPacket * pConnack );
+
 /**
  * @brief Serialize the DISCONNECT message sent to MQTT BLE Proxy.
  *
@@ -294,7 +300,7 @@ IotMqttError_t IotBleMqtt_DeserializeUnsuback( struct _mqttPacket * pConnack );
  *
  */
 IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacket,
-                                                          size_t * const pPacketSize );
+                                               size_t * const pPacketSize );
 
 /**
  * @brief Serializes the PING request message.
@@ -305,7 +311,8 @@ IotMqttError_t IotBleMqtt_SerializeDisconnect( uint8_t ** const pDisconnectPacke
  * @return #IOT_MQTT_SUCCESS or #IOT_MQTT_NO_MEMORY
  */
 IotMqttError_t IotBleMqtt_SerializePingreq( uint8_t ** const pPingreqPacket,
-                                                       size_t * const pPacketSize );
+                                            size_t * const pPacketSize );
+
 /**
  *
  * @brief Deserializes the PING response  message.
@@ -325,7 +332,8 @@ IotMqttError_t IotBleMqtt_DeserializePingresp( struct _mqttPacket * pConnack );
  * @param[in] packetSize length of the buffer containing the packet
  * @return Packet type for the packet
  */
-uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface );
+uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection,
+                                  const IotNetworkInterface_t * pNetworkInterface );
 
 /**
  * @brief Gets the payload length
@@ -335,7 +343,8 @@ uint8_t IotBleMqtt_GetPacketType( void * pNetworkConnection, const IotNetworkInt
  * @param[in] packetSize length of the buffer containing the packet
  * @return Packet type for the packet
  */
-size_t IotBleMqtt_GetRemainingLength ( void * pNetworkConnection, const IotNetworkInterface_t * pNetworkInterface );
+size_t IotBleMqtt_GetRemainingLength( void * pNetworkConnection,
+                                      const IotNetworkInterface_t * pNetworkInterface );
 
 /**
  * @brief Frees an MQTT message.

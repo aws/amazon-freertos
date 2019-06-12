@@ -27,6 +27,8 @@
 /* Standard include. */
 #include <stdbool.h>
 
+#define AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER {NULL}
+
 /* Platform thread priority and stack size. */
 #define IOT_THREAD_DEFAULT_STACK_SIZE    ( 4 * configMINIMAL_STACK_SIZE )
 #define IOT_THREAD_DEFAULT_PRIORITY      ( tskIDLE_PRIORITY )
@@ -42,6 +44,7 @@ extern void IotBleMqtt_CleanupSerialize( void );
 #define BLE_SUPPORTED 1
 #define WIFI_SUPPORTED 0
 
+#define IOT_TEST_NETWORK_HEADER  "platform/iot_network_ble.h" 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 

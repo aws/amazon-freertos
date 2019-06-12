@@ -18,29 +18,26 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestIncorrectWifiPassword( OtaTestCase ):
     NAME = "OtaTestIncorrectWifiPassword"
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestIncorrectWifiPassword, self).__init__(
-            OtaTestIncorrectWifiPassword.NAME, 
+            OtaTestIncorrectWifiPassword.NAME,
+            False,
             boardConfig,
-            otaProject, 
-            otaAwsAgent, 
+            otaProject,
+            otaAwsAgent,
             flashComm
         )
 
-    def getName(self):
-        return self._name
-    
     def run(self):
         # Increase the version of the OTA image.
         self._otaProject.setApplicationVersion(0, 9, 1)
@@ -55,9 +52,3 @@ class OtaTestIncorrectWifiPassword( OtaTestCase ):
                                                      self._boardConfig['wifi_password'],
                                                      self._boardConfig['wifi_security'])
         return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
-
-    def getTestResult(self, jobStatus, log):
-        if (jobStatus.status == 'FAILED'):
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.PASS, jobStatus)
-        else:
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.FAIL, jobStatus)

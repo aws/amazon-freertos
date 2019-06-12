@@ -35,7 +35,7 @@ NAME := WWD_LwIP_Interface_$(RTOS)
 
 GLOBAL_INCLUDES := .
 
-export AFR_THIRDPARTY_PATH := ../../../../../../../modules/libraries/3rdparty/
+export AFR_THIRDPARTY_PATH := ../../../../../../../libraries/3rdparty/
 $(NAME)_SOURCES := $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM)/wwd_buffer.c \
                    $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM)/wwd_network.c \
                    $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM)/netif/ethernetif.c

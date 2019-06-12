@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,7 +47,7 @@
 #include "aws_pkcs11_config.h"
 
 /* Client credential includes. */
-#include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 #include "aws_default_root_certificates.h"
 
 /* Key provisioning includes. */
@@ -57,31 +57,10 @@
 #include "mbedtls/base64.h"
 /*-----------------------------------------------------------*/
 
-/* For convenience and to enable rapid evaluation the keys are stored in const
- * strings, see aws_clientcredential_keys.h.  THIS IS NOT GOOD PRACTICE FOR
- * PRODUCTION SYSTEMS WHICH MUST STORE KEYS SECURELY.  The variables declared
- * here are externed in aws_clientcredential_keys.h for access by other
- * modules. */
-const char clientcredentialCLIENT_CERTIFICATE_PEM[] = keyCLIENT_CERTIFICATE_PEM;
-const char * clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
-const char clientcredentialCLIENT_PRIVATE_KEY_PEM[] = keyCLIENT_PRIVATE_KEY_PEM;
-
-/*
- * Length of device certificate included from aws_clientcredential_keys.h .
- */
-const uint32_t clientcredentialCLIENT_CERTIFICATE_LENGTH = sizeof( clientcredentialCLIENT_CERTIFICATE_PEM );
-
-/*
- * Length of device private key included from aws_clientcredential_keys.h .
- */
-const uint32_t clientcredentialCLIENT_PRIVATE_KEY_LENGTH = sizeof( clientcredentialCLIENT_PRIVATE_KEY_PEM );
-
-
 /* Key provisioning helper defines. */
 #define provisioningPRIVATE_KEY_TEMPLATE_COUNT         4
 #define provisioningCERTIFICATE_TEMPLATE_COUNT         3
 #define provisioningROOT_CERTIFICATE_TEMPLATE_COUNT    3
-
 
 /*-----------------------------------------------------------*/
 
@@ -126,6 +105,7 @@ CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
 
     return xResult;
 }
+/*-----------------------------------------------------------*/
 
 /* @brief Converts PEM documents into DER formatted byte arrays.
  * This is a helper function from mbedTLS util pem2der.c
@@ -215,6 +195,7 @@ int convert_pem_to_der( const unsigned char * pucInput,
 
     return( 0 );
 }
+/*-----------------------------------------------------------*/
 
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
@@ -299,7 +280,6 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
-
 /*-----------------------------------------------------------*/
 
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
@@ -390,12 +370,11 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     if( xResult != CKR_OK )
     {
-        configPRINTF( ( "ERROR: Failed to provision private key %d \r\n", xResult ) );
+        configPRINTF( ( "ERROR: Failed to provision private key %d.\r\n", xResult ) );
     }
 
     return xResult;
 }
-
 /*-----------------------------------------------------------*/
 
 void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
@@ -424,13 +403,22 @@ void vDevModeKeyProvisioning( void )
     ProvisioningParams_t xParams;
 
     xParams.ulClientPrivateKeyType = CKK_RSA;
-    xParams.pcClientPrivateKey = ( uint8_t * ) clientcredentialCLIENT_PRIVATE_KEY_PEM;
-    xParams.ulClientPrivateKeyLength = clientcredentialCLIENT_PRIVATE_KEY_LENGTH;
-    xParams.pcClientCertificate = ( uint8_t * ) clientcredentialCLIENT_CERTIFICATE_PEM;
-    xParams.ulClientCertificateLength = clientcredentialCLIENT_CERTIFICATE_LENGTH;
+    xParams.pcClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.pcClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
 
-    vAlternateKeyProvisioning( &xParams );
+    if( ( NULL == xParams.pcClientPrivateKey ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pcClientPrivateKey ) ) ||
+        ( NULL == xParams.pcClientCertificate ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pcClientCertificate ) ) )
+    {
+        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key and certificate.\r\n" ) );
+        configASSERT( pdFALSE );
+    }
+    else
+    {
+        xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pcClientPrivateKey );
+        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pcClientCertificate );
+        vAlternateKeyProvisioning( &xParams );
+    }
 }
-
-
 /*-----------------------------------------------------------*/

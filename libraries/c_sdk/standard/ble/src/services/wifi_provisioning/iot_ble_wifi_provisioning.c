@@ -32,8 +32,9 @@
 
 #include "iot_config.h"
 #include "iot_ble_config.h"
-
+#include "iot_serializer.h"
 #include "iot_taskpool.h"
+#include "iot_ble_wifi_provisioning.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
@@ -42,11 +43,8 @@
     #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
 #endif
 
-#define LIBRARY_LOG_NAME         ( "WIFI_PROV" )
+#define LIBRARY_LOG_NAME         ( "BLE_WIFI_PROV" )
 #include "iot_logging_setup.h"
-
-#include "iot_ble_wifi_provisioning.h"
-#include "iot_serializer.h"
 
 /**
  * @cond DOXYGEN_IGNORE
@@ -70,34 +68,34 @@
 /**
  * @brief Parameters used in WIFI provisioning message serialization.
  */
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_KEY                    "w"
-#define IOT_BLE_WIFI_PROV_MAX_NETWORKS_KEY                "h"
-#define IOT_BLE_WIFI_PROV_SCAN_TIMEOUT_KEY                "t"
-#define IOT_BLE_WIFI_PROV_KEY_MGMT_KEY                    "q"
-#define IOT_BLE_WIFI_PROV_SSID_KEY                        "r"
-#define IOT_BLE_WIFI_PROV_BSSID_KEY                       "b"
-#define IOT_BLE_WIFI_PROV_RSSI_KEY                        "p"
-#define IOT_BLE_WIFI_PROV_PSK_KEY                         "m"
-#define IOT_BLE_WIFI_PROV_STATUS_KEY                      "s"
-#define IOT_BLE_WIFI_PROV_HIDDEN_KEY                      "f"
-#define IOT_BLE_WIFI_PROV_CONNECTED_KEY                   "e"
-#define IOT_BLE_WIFI_PROV_INDEX_KEY                       "g"
-#define IOT_BLE_WIFI_PROV_NEWINDEX_KEY                    "j"
-#define IOT_BLE_WIFI_PROV_CONNECT_KEY                     "y"
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_KEY        "w"
+#define IOT_BLE_WIFI_PROV_MAX_NETWORKS_KEY    "h"
+#define IOT_BLE_WIFI_PROV_SCAN_TIMEOUT_KEY    "t"
+#define IOT_BLE_WIFI_PROV_KEY_MGMT_KEY        "q"
+#define IOT_BLE_WIFI_PROV_SSID_KEY            "r"
+#define IOT_BLE_WIFI_PROV_BSSID_KEY           "b"
+#define IOT_BLE_WIFI_PROV_RSSI_KEY            "p"
+#define IOT_BLE_WIFI_PROV_PSK_KEY             "m"
+#define IOT_BLE_WIFI_PROV_STATUS_KEY          "s"
+#define IOT_BLE_WIFI_PROV_HIDDEN_KEY          "f"
+#define IOT_BLE_WIFI_PROV_CONNECTED_KEY       "e"
+#define IOT_BLE_WIFI_PROV_INDEX_KEY           "g"
+#define IOT_BLE_WIFI_PROV_NEWINDEX_KEY        "j"
+#define IOT_BLE_WIFI_PROV_CONNECT_KEY         "y"
 
 
 /**
  * @defgroup
  * Wifi provisioning message types.
-/** @{ */
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ     ( 1 )
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP    ( 2 )
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ     ( 3 )
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_RESP    ( 4 )
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ     ( 5 )
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_RESP    ( 6 )
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ   ( 7 )
-#define IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_RESP  ( 8 )
+ * /** @{ */
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ       ( 1 )
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP      ( 2 )
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ       ( 3 )
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_RESP      ( 4 )
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_REQ       ( 5 )
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_RESP      ( 6 )
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ     ( 7 )
+#define IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_RESP    ( 8 )
 /** @} */
 
 #define IOT_BLE_WIFI_PROV_NUM_NETWORK_INFO_MESG_PARAMS    ( 9 )
@@ -113,10 +111,13 @@ static IotBleWifiProvService_t wifiProvisioning = { 0 };
 
 
 static WIFIScanResult_t scanNetworks[ IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS ] = { 0 };
+
 /*
  * @brief Callback registered for BLE write and read events received for each characteristic.
  */
-static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext );
+static void _callback( IotBleDataTransferChannelEvent_t event,
+                       IotBleDataTransferChannel_t * pChannel,
+                       void * pContext );
 
 static bool _deserializeListNetworkRequest( const uint8_t * pData,
                                             size_t length,
@@ -194,32 +195,41 @@ static IotSerializerError_t _serializeStatusResponse( int32_t responseType,
                                                       uint8_t * pBuffer,
                                                       size_t * plength );
 
-static void _sendScanNetwork( int32_t responseType, WIFIScanResult_t * pScanNetwork );
+static void _sendScanNetwork( int32_t responseType,
+                              WIFIScanResult_t * pScanNetwork );
 
 /*
  * @brief  The task lists the saved network configurations in flash and also scans nearby networks.
  * It sends the profile information for each saved and scanned networks one at a time to the GATT client.
  * Maximum number of networks to scan is set in the List network request.
  */
-static void _listNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
+static void _listNetworkTask( IotTaskPool_t taskPool,
+                              IotTaskPoolJob_t job,
+                              void * pUserContext );
 
 /*
  * @brief  The task is used to save a new WiFi configuration.
  * It first connects to the network and if successful,saves the network onto flash with the highest priority.
  */
-static void _addNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
+static void _addNetworkTask( IotTaskPool_t taskPool,
+                             IotTaskPoolJob_t job,
+                             void * pUserContext );
 
 /*
  * @brief  The task is used to reorder priorities of network profiles stored in flash.
  *  If the priority of existing connected network changes then it initiates a reconnection.
  */
-static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
+static void _editNetworkTask( IotTaskPool_t taskPool,
+                              IotTaskPoolJob_t job,
+                              void * pUserContext );
 
 /*
  * @brief  The task is used to delete a network configuration from the flash.
  * If the network is connected, it disconnects from the network and initiates a reconnection.
  */
-static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
+static void _deleteNetworkTask( IotTaskPool_t taskPool,
+                                IotTaskPoolJob_t job,
+                                void * pUserContext );
 
 /*
  * @brief Gets the number of saved networks from flash.
@@ -229,11 +239,14 @@ static uint32_t _getNumSavedNetworks( void );
 /*
  * @brief Sends a status response for the request.
  */
-static void _sendStatusResponse( int32_t responseType, WIFIReturnCode_t status );
+static void _sendStatusResponse( int32_t responseType,
+                                 WIFIReturnCode_t status );
 
 /*-----------------------------------------------------------*/
 
-static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int32_t *pType  )
+static bool _getRequestType( const uint8_t * pRequest,
+                             size_t requestLength,
+                             int32_t * pType )
 {
     IotSerializerDecoderObject_t decoderObj = { 0 }, value = { 0 };
     IotSerializerError_t ret = IOT_SERIALIZER_SUCCESS;
@@ -256,7 +269,6 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
             ( value.type == IOT_SERIALIZER_SCALAR_SIGNED_INT ) )
         {
             *pType = ( int32_t ) ( value.u.value.u.signedInt );
-
         }
         else
         {
@@ -266,13 +278,14 @@ static bool _getRequestType( const uint8_t* pRequest, size_t requestLength, int3
     }
 
     return result;
-    
 }
 
-static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransferChannel_t *pChannel, void *pContext )
+static void _callback( IotBleDataTransferChannelEvent_t event,
+                       IotBleDataTransferChannel_t * pChannel,
+                       void * pContext )
 {
     int32_t requestType;
-    const uint8_t *pBuffer;
+    const uint8_t * pBuffer;
     size_t length;
 
     if( event == IOT_BLE_DATA_TRANSFER_CHANNEL_DATA_RECEIVED )
@@ -282,7 +295,7 @@ static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransfe
         if( _getRequestType( pBuffer, length, &requestType ) == true )
         {
             IotLogDebug( "Received message type: %d, length %d", requestType, length );
-            
+
             switch( requestType )
             {
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ:
@@ -300,11 +313,13 @@ static void _callback( IotBleDataTransferChannelEvent_t event, IotBleDataTransfe
                 case IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_REQ:
                     _handleDeleteNetworkRequest( pBuffer, length );
                     break;
+
                 default:
                     IotLogWarn( "Invalid request type ( %d ) received, discarding the message", requestType );
                     break;
             }
         }
+
         /* Do an empty read to flush the buffer. */
         IotBleDataTransfer_Receive( pChannel, NULL, length );
     }
@@ -341,9 +356,9 @@ static bool _deserializeListNetworkRequest( const uint8_t * pData,
         {
             if( ( value.u.value.u.signedInt <= 0 ) || ( value.u.value.u.signedInt > IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS ) )
             {
-               IotLogWarn( "Networks %d exceeds configured value, truncating to  %d max network\n",
-                                (uint16_t)value.u.value.u.signedInt,
-                                IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS );
+                IotLogWarn( "Networks %d exceeds configured value, truncating to  %d max network\n",
+                            ( uint16_t ) value.u.value.u.signedInt,
+                            IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS );
                 pListNetworkRequest->maxNetworks = IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS;
             }
             else
@@ -387,26 +402,28 @@ static bool _handleListNetworkRequest( const uint8_t * pData,
     if( IotSemaphore_TryWait( &wifiProvisioning.lock ) == true )
     {
         memset( &wifiProvisioning.listNetworkRequest, 0x00, sizeof( IotBleListNetworkRequest_t ) );
-        
+
         status = _deserializeListNetworkRequest( pData, length, &wifiProvisioning.listNetworkRequest );
 
         if( status == true )
         {
             IotLogDebug( "List network request parameters: max networks = %d, timeout = %d",
-                          wifiProvisioning.listNetworkRequest.maxNetworks,
-                          wifiProvisioning.listNetworkRequest.timeoutMs );
+                         wifiProvisioning.listNetworkRequest.maxNetworks,
+                         wifiProvisioning.listNetworkRequest.timeoutMs );
 
-            taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
-                                                         _listNetworkTask,
-                                                         NULL,
-                                                         &job);
-            if (taskStatus == IOT_TASKPOOL_SUCCESS)
+            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                          _listNetworkTask,
+                                                          NULL,
+                                                          &job );
+
+            if( taskStatus == IOT_TASKPOOL_SUCCESS )
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
-                if (taskStatus != IOT_TASKPOOL_SUCCESS)
+                taskStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, job, 0 );
+
+                if( taskStatus != IOT_TASKPOOL_SUCCESS )
                 {
                     IotLogError( "Failed to schedule taskpool job for list network request" );
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
+                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, job );
                     status = false;
                 }
             }
@@ -465,9 +482,9 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             if( value.u.value.u.string.length >= wificonfigMAX_SSID_LEN )
             {
                 IotLogError( "SSID, %.*s, exceeds maximum length %d",
-                                value.u.value.u.string.length,
-                                ( const char * ) value.u.value.u.string.pString,
-                                wificonfigMAX_SSID_LEN );
+                             value.u.value.u.string.length,
+                             ( const char * ) value.u.value.u.string.pString,
+                             wificonfigMAX_SSID_LEN );
                 result = false;
             }
             else
@@ -497,8 +514,8 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             if( value.u.value.u.string.length != wificonfigMAX_BSSID_LEN )
             {
                 IotLogError( "Parameter BSSID length (%d) does not match BSSID length %d",
-                                value.u.value.u.string.length,
-                                wificonfigMAX_BSSID_LEN );
+                             value.u.value.u.string.length,
+                             wificonfigMAX_BSSID_LEN );
                 result = false;
             }
             else
@@ -541,9 +558,9 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
             if( value.u.value.u.string.length >= wificonfigMAX_PASSPHRASE_LEN )
             {
                 IotLogError( "SSID, %.*s, exceeds maximum length %d",
-                                value.u.value.u.string.length,
-                                ( const char * ) value.u.value.u.string.pString,
-                                wificonfigMAX_SSID_LEN );
+                             value.u.value.u.string.length,
+                             ( const char * ) value.u.value.u.string.pString,
+                             wificonfigMAX_SSID_LEN );
                 result = false;
             }
             else
@@ -620,25 +637,27 @@ static bool _handleSaveNetworkRequest( const uint8_t * pData,
         memset( &wifiProvisioning.addNetworkRequest, 0x00, sizeof( IotBleAddNetworkRequest_t ) );
         status = _deserializeAddNetworkRequest( pData, length, &wifiProvisioning.addNetworkRequest );
 
-        if (status == true)
+        if( status == true )
         {
             IotLogDebug( "Add network request parameters, SSID: %.*s, index: %d, connect: %d",
-                          wifiProvisioning.addNetworkRequest.network.ucSSIDLength,
-                          wifiProvisioning.addNetworkRequest.network.cSSID,
-                          wifiProvisioning.addNetworkRequest.savedIdx,
-                          wifiProvisioning.addNetworkRequest.connect );
+                         wifiProvisioning.addNetworkRequest.network.ucSSIDLength,
+                         wifiProvisioning.addNetworkRequest.network.cSSID,
+                         wifiProvisioning.addNetworkRequest.savedIdx,
+                         wifiProvisioning.addNetworkRequest.connect );
 
-            taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
-                                                         _addNetworkTask,
-                                                         NULL,
-                                                         &job);
-            if (taskStatus == IOT_TASKPOOL_SUCCESS)
+            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                          _addNetworkTask,
+                                                          NULL,
+                                                          &job );
+
+            if( taskStatus == IOT_TASKPOOL_SUCCESS )
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
-                if (taskStatus != IOT_TASKPOOL_SUCCESS)
+                taskStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, job, 0 );
+
+                if( taskStatus != IOT_TASKPOOL_SUCCESS )
                 {
                     IotLogError( "Failed to schedule taskpool job for add network request" );
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
+                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, job );
                     status = false;
                 }
             }
@@ -652,7 +671,6 @@ static bool _handleSaveNetworkRequest( const uint8_t * pData,
         if( status == false )
         {
             IotSemaphore_Post( &wifiProvisioning.lock );
-
         }
     }
     else
@@ -660,7 +678,6 @@ static bool _handleSaveNetworkRequest( const uint8_t * pData,
         IotLogError( "Failed to process the add network request. Already a request is being processed" );
         status = false;
     }
-
 
     return status;
 }
@@ -754,20 +771,22 @@ static bool _handleEditNetworkRequest( const uint8_t * pData,
         if( status == true )
         {
             IotLogDebug( "Edit network request parameters, Current index: %d, new index: %d",
-                          wifiProvisioning.editNetworkRequest.curIdx,
-                          wifiProvisioning.editNetworkRequest.newIdx );
+                         wifiProvisioning.editNetworkRequest.curIdx,
+                         wifiProvisioning.editNetworkRequest.newIdx );
 
-            taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
-                                                         _editNetworkTask,
-                                                         NULL,
-                                                         &job);
-            if (taskStatus == IOT_TASKPOOL_SUCCESS)
+            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                          _editNetworkTask,
+                                                          NULL,
+                                                          &job );
+
+            if( taskStatus == IOT_TASKPOOL_SUCCESS )
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
-                if (taskStatus != IOT_TASKPOOL_SUCCESS)
+                taskStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, job, 0 );
+
+                if( taskStatus != IOT_TASKPOOL_SUCCESS )
                 {
                     IotLogError( "Failed to schedule taskpool job for edit network request" );
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
+                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, job );
                     status = false;
                 }
             }
@@ -853,22 +872,24 @@ static bool _handleDeleteNetworkRequest( const uint8_t * pData,
         memset( &wifiProvisioning.deleteNetworkRequest, 0x00, sizeof( IotBleDeleteNetworkRequest_t ) );
         status = _deserializeDeleteNetworkRequest( pData, length, &wifiProvisioning.deleteNetworkRequest );
 
-        if (status == true)
+        if( status == true )
         {
             IotLogDebug( "Edit network request parameters, index: %d",
-                          wifiProvisioning.deleteNetworkRequest.idx );
+                         wifiProvisioning.deleteNetworkRequest.idx );
 
-            taskStatus = IotTaskPool_CreateRecyclableJob(IOT_SYSTEM_TASKPOOL,
-                                                         _deleteNetworkTask,
-                                                         NULL,
-                                                         &job);
-            if (taskStatus == IOT_TASKPOOL_SUCCESS)
+            taskStatus = IotTaskPool_CreateRecyclableJob( IOT_SYSTEM_TASKPOOL,
+                                                          _deleteNetworkTask,
+                                                          NULL,
+                                                          &job );
+
+            if( taskStatus == IOT_TASKPOOL_SUCCESS )
             {
-                taskStatus = IotTaskPool_Schedule(IOT_SYSTEM_TASKPOOL, job, 0);
-                if (taskStatus != IOT_TASKPOOL_SUCCESS)
+                taskStatus = IotTaskPool_Schedule( IOT_SYSTEM_TASKPOOL, job, 0 );
+
+                if( taskStatus != IOT_TASKPOOL_SUCCESS )
                 {
                     IotLogError( "Failed to schedule taskpool job for delete network request" );
-                    IotTaskPool_RecycleJob(IOT_SYSTEM_TASKPOOL, job);
+                    IotTaskPool_RecycleJob( IOT_SYSTEM_TASKPOOL, job );
                     status = false;
                 }
             }
@@ -1059,7 +1080,8 @@ static IotSerializerError_t _serializeStatusResponse( int32_t responseType,
 
 /*-----------------------------------------------------------*/
 
-static void _sendStatusResponse( int32_t responseType, WIFIReturnCode_t status )
+static void _sendStatusResponse( int32_t responseType,
+                                 WIFIReturnCode_t status )
 {
     uint8_t * pBuffer = NULL;
     size_t mesgLen = 0;
@@ -1084,7 +1106,6 @@ static void _sendStatusResponse( int32_t responseType, WIFIReturnCode_t status )
 
     if( ret == IOT_SERIALIZER_SUCCESS )
     {
-        
         if( IotBleDataTransfer_Send( wifiProvisioning.pChannel, pBuffer, mesgLen ) != mesgLen )
         {
             IotLogError( "Failed to send status response through ble connection" );
@@ -1263,6 +1284,7 @@ WIFIReturnCode_t _insertNetwork( uint16_t index,
         for( x = 0; x < numElementsToShift; x++ )
         {
             ret = _popNetwork( index, &profile );
+
             if( ret == eWiFiSuccess )
             {
                 ret = _appendNetwork( &profile );
@@ -1296,7 +1318,7 @@ static void _sendSavedNetwork( int32_t responseType,
     networkInfo.security = pSavedNetwork->xSecurity;
     networkInfo.savedIdx = ( int32_t ) idx;
 
-    serializerRet = _serializeNetwork( responseType,  &networkInfo, NULL, &messageLen );
+    serializerRet = _serializeNetwork( responseType, &networkInfo, NULL, &messageLen );
 
     if( serializerRet == IOT_SERIALIZER_SUCCESS )
     {
@@ -1330,7 +1352,8 @@ static void _sendSavedNetwork( int32_t responseType,
     }
 }
 
-static void _sendScanNetwork( int32_t responseType, WIFIScanResult_t * pScanNetwork )
+static void _sendScanNetwork( int32_t responseType,
+                              WIFIScanResult_t * pScanNetwork )
 {
     IotBleWifiNetworkInfo_t networkInfo = NETWORK_INFO_DEFAULT_PARAMS;
     uint8_t * message = NULL;
@@ -1380,7 +1403,9 @@ static void _sendScanNetwork( int32_t responseType, WIFIScanResult_t * pScanNetw
 }
 /*-----------------------------------------------------------*/
 
-void _listNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext  )
+void _listNetworkTask( IotTaskPool_t taskPool,
+                       IotTaskPoolJob_t job,
+                       void * pUserContext )
 {
     WIFINetworkProfile_t profile;
     uint16_t idx;
@@ -1421,7 +1446,9 @@ void _listNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUse
 
 /*-----------------------------------------------------------*/
 
-static void _addNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext )
+static void _addNetworkTask( IotTaskPool_t taskPool,
+                             IotTaskPoolJob_t job,
+                             void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
 
@@ -1452,11 +1479,14 @@ static void _addNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void 
 
 /*-----------------------------------------------------------*/
 
-static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext )
+static void _deleteNetworkTask( IotTaskPool_t taskPool,
+                                IotTaskPoolJob_t job,
+                                void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
 
-    ret = _popNetwork(wifiProvisioning.deleteNetworkRequest.idx, NULL);
+    ret = _popNetwork( wifiProvisioning.deleteNetworkRequest.idx, NULL );
+
     if( ret == eWiFiSuccess )
     {
         if( wifiProvisioning.connectedIdx == IOT_BLE_WIFI_PROV_INVALID_NETWORK_INDEX )
@@ -1464,6 +1494,7 @@ static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, vo
             ( void ) WIFI_Disconnect();
         }
     }
+
     _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_DELETE_NETWORK_RESP, ret );
 
     IotSemaphore_Post( &wifiProvisioning.lock );
@@ -1474,9 +1505,12 @@ static void _deleteNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, vo
 
 /*-----------------------------------------------------------*/
 
-static void _editNetworkTask( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext )
+static void _editNetworkTask( IotTaskPool_t taskPool,
+                              IotTaskPoolJob_t job,
+                              void * pUserContext )
 {
     WIFIReturnCode_t ret = eWiFiFailure;
+
     ret = _moveNetwork( wifiProvisioning.editNetworkRequest.curIdx, wifiProvisioning.editNetworkRequest.newIdx );
     _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_EDIT_NETWORK_RESP, ret );
     IotSemaphore_Post( &wifiProvisioning.lock );
@@ -1510,13 +1544,15 @@ static uint32_t _getNumSavedNetworks( void )
 bool IotBleWifiProv_Init( void )
 {
     bool ret = false;
-    
+
     ret = IotSemaphore_Create( &wifiProvisioning.lock, 1, 1 );
+
     if( ret == true )
     {
-	    wifiProvisioning.numNetworks = _getNumSavedNetworks();
+        wifiProvisioning.numNetworks = _getNumSavedNetworks();
 
         wifiProvisioning.pChannel = IotBleDataTransfer_Open( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING );
+
         if( wifiProvisioning.pChannel != NULL )
         {
             ( void ) IotBleDataTransfer_SetCallback( wifiProvisioning.pChannel, _callback, NULL );
@@ -1559,6 +1595,7 @@ bool IotBleWifiProv_EraseAllNetworks( void )
     WIFIReturnCode_t WiFiRet;
 
     IotSemaphore_Wait( &wifiProvisioning.lock );
+
     while( wifiProvisioning.numNetworks > 0 )
     {
         WiFiRet = _popNetwork( 0, NULL );
@@ -1570,6 +1607,7 @@ bool IotBleWifiProv_EraseAllNetworks( void )
             break;
         }
     }
+
     IotSemaphore_Post( &wifiProvisioning.lock );
 
     return ret;
@@ -1585,7 +1623,7 @@ void IotBleWifiProv_Deinit( void )
         IotBleDataTransfer_Reset( wifiProvisioning.pChannel );
     }
 
-    //Delete service.
+    /*Delete service. */
     IotSemaphore_Destroy( &wifiProvisioning.lock );
 
     memset( &wifiProvisioning, 0x00, sizeof( IotBleWifiProvService_t ) );

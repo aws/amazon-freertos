@@ -40,29 +40,32 @@
 
 
 BaseType_t test_HandleListNetworkRequest( uint8_t * pucData,
-                                               size_t xLength );
+                                          size_t xLength );
 
 BaseType_t test_HandleSaveNetworkRequest( uint8_t * pucData,
-                                               size_t xLength );
+                                          size_t xLength );
 
 BaseType_t test_HandleEditNetworkRequest( uint8_t * pucData,
-                                               size_t xLength );
+                                          size_t xLength );
 
 BaseType_t test_HandleDeleteNetworkRequest( uint8_t * pucData,
-                                                 size_t xLength );
+                                            size_t xLength );
 
 
 WIFIReturnCode_t test_AppendNetwork( WIFINetworkProfile_t * pxProfile );
 
 WIFIReturnCode_t test_AddNewNetwork( WIFINetworkProfile_t * pxProfile );
 
-WIFIReturnCode_t test_PopNetwork( uint16_t usIndex, WIFINetworkProfile_t * pxProfile  );
+WIFIReturnCode_t test_PopNetwork( uint16_t usIndex,
+                                  WIFINetworkProfile_t * pxProfile );
 
-WIFIReturnCode_t test_MoveNetwork( uint16_t usCurrentIndex, uint16_t usNewIndex );
+WIFIReturnCode_t test_MoveNetwork( uint16_t usCurrentIndex,
+                                   uint16_t usNewIndex );
 
 WIFIReturnCode_t test_ConnectSavedNetwork( uint16_t usIndex );
 
-WIFIReturnCode_t test_GetSavedNetwork( uint16_t usIndex, WIFINetworkProfile_t *pxProfile );
+WIFIReturnCode_t test_GetSavedNetwork( uint16_t usIndex,
+                                       WIFINetworkProfile_t * pxProfile );
 
 BaseType_t test_GetConnectedNetwork( WIFINetworkProfile_t * pxNetwork );
 

@@ -34,7 +34,7 @@
 #include <stdbool.h>
 
 /* Network interface includes. */
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_ble.h"
 #include "iot_mqtt.h"
 
 /* Test framework includes. */
@@ -68,6 +68,7 @@ TEST_SETUP( Full_BLE_END_TO_END_MQTT )
 {
     /* Run test set up from MQTT system tests. */
     extern void TEST_MQTT_System_SETUP( void );
+
     TEST_MQTT_System_SETUP();
 }
 
@@ -77,6 +78,7 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END_MQTT )
 {
     /* Run test tear down from MQTT system tests. */
     extern void TEST_MQTT_System_TEAR_DOWN( void );
+
     TEST_MQTT_System_TEAR_DOWN();
 }
 
@@ -85,7 +87,7 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END_MQTT )
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
 {
     /* For these tests, use the BLE network interface. */
-    IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
+    IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS1 );
@@ -103,7 +105,7 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, IncomingPublishReentrancy );
 
     /* Revert to sockets network interface after this test is finished. */
-    IotTestNetwork_SelectNetworkType(DEFAULT_NETWORK);
+    IotTestNetwork_SelectNetworkType( DEFAULT_NETWORK );
 }
 
 
@@ -160,6 +162,7 @@ TEST_SETUP( Full_BLE_END_TO_END_SHADOW )
 {
     /* Run test set up from MQTT system tests. */
     extern void TEST_Shadow_System_SETUP( void );
+
     TEST_Shadow_System_SETUP();
 }
 
@@ -168,13 +171,14 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END_SHADOW )
 {
     /* Run test tear down from MQTT system tests. */
     extern void TEST_Shadow_System_TEAR_DOWN( void );
+
     TEST_Shadow_System_TEAR_DOWN();
 }
 
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END_SHADOW )
 {
     /* For these tests, use the BLE network interface. */
-    IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
+    IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS0 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS1 );
@@ -184,37 +188,37 @@ TEST_GROUP_RUNNER( Full_BLE_END_TO_END_SHADOW )
     RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdatedCallback );
 
     /* Revert to sockets network interface after this test is finished. */
-    IotTestNetwork_SelectNetworkType(DEFAULT_NETWORK);
+    IotTestNetwork_SelectNetworkType( DEFAULT_NETWORK );
 }
 
 TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS0 )
 {
-	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteAsyncQoS0 );
+    RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteAsyncQoS0 );
 }
 
 TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS1 )
 {
-	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteAsyncQoS1 );
+    RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteAsyncQoS1 );
 }
 
 TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteBlockingQoS0 )
 {
-	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteBlockingQoS0 );
+    RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteBlockingQoS0 );
 }
 
 TEST( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteBlockingQoS1 )
 {
-	RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteBlockingQoS1 );
+    RUN_SHADOW_SYSTEM_TEST( UpdateGetDeleteBlockingQoS1 );
 }
 
 TEST( Full_BLE_END_TO_END_SHADOW, DeltaCallback )
 {
-	RUN_SHADOW_SYSTEM_TEST( DeltaCallback );
+    RUN_SHADOW_SYSTEM_TEST( DeltaCallback );
 }
 
 TEST( Full_BLE_END_TO_END_SHADOW, UpdatedCallback )
 {
-	RUN_SHADOW_SYSTEM_TEST( UpdatedCallback );
+    RUN_SHADOW_SYSTEM_TEST( UpdatedCallback );
 }
 
 

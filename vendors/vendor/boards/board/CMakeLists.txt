@@ -1,12 +1,14 @@
 # These Amazon FreeRTOS related global variables are available to use.
-# AFR_ROOT_DIR              Amazon FreeRTOS source root.
-# AFR_MODULES_DIR           Amazon FreeRTOS modules root.
-# AFR_MODULES_STANDARD_DIR  Amazon FreeRTOS standard modules root.
-# AFR_MODULES_AWS_DIR       Amazon FreeRTOS aws modules root.
-# AFR_MODULES_PORTS_DIR     Amazon FreeRTOS portable modules root.
-# AFR_DEMOS_DIR             Amazon FreeRTOS demos root.
-# AFR_TESTS_DIR              Amazon FreeRTOS tests root.
-# AFR_3RDPARTY_DIR          3rdparty libraries root.
+# AFR_ROOT_DIR                  Amazon FreeRTOS source root.
+# AFR_KERNEL_DIR                FreeRTOS kernel root.
+# AFR_MODULES_DIR               Amazon FreeRTOS modules root.
+# AFR_MODULES_C_SDK_DIR         C-SDK libraries root.
+# AFR_MODULES_FREERTOS_PLUS_DIR FreeRTOS-Plus libraries root.
+# AFR_MODULES_ABSTRACTIONS_DIR  Abstractions layers root.
+# AFR_DEMOS_DIR                 Amazon FreeRTOS demos root.
+# AFR_TESTS_DIR                 Amazon FreeRTOS common tests and framework root.
+# AFR_VENDORS_DIR               vendors content root.
+# AFR_3RDPARTY_DIR              3rdparty libraries root.
 
 # AFR_VENDOR_NAME           Folder name for vendor.
 # AFR_BOARD_NAME            Folder name for this board.
@@ -185,11 +187,11 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 
 # Secure sockets
 # afr_mcu_port(secure_sockets)
-# Link to AFR::secure_sockets_freertos_tcp if you want use default implementation based on
+# Link to AFR::secure_sockets_freertos_plus_tcp if you want use default implementation based on
 # FreeRTOS-Plus-TCP.
 # target_link_libraries(
-#     AFR::pkcs11::mcu_port
-#     INTERFACE AFR::secure_sockets_freertos_tcp
+#     AFR::secure_sockets::mcu_port
+#     INTERFACE AFR::secure_sockets_freertos_plus_tcp
 # )
 # Or provide your own implementation.
 # target_sources(

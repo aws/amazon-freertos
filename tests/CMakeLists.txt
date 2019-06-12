@@ -15,10 +15,15 @@ afr_module_sources(
         "${src_dir}/aws_test.c"
         "${src_dir}/iot_test_afr.c"
         "${src_dir}/iot_tests_network.c"
-        "${inc_dir}/aws_test_framework.h"
-        "${inc_dir}/aws_test_runner.h"
+        "${inc_dir}/aws_application_version.h"
         "${inc_dir}/aws_clientcredential.h"
         "${inc_dir}/aws_clientcredential_keys.h"
+        "${inc_dir}/aws_test_runner.h"
+        "${inc_dir}/aws_test_framework.h"
+        "${inc_dir}/aws_test_tcp.h"
+        "${inc_dir}/aws_test_utils.h"
+        "${inc_dir}/aws_unity_config.h"
+        "${inc_dir}/iot_config_common.h"
 )
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
@@ -28,7 +33,13 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::kernel
-        AFR::provisioning
         AFR::common
         3rdparty::unity
 )
+if(TARGET AFR::pkcs11::mcu_port)
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        INTERFACE
+            AFR::provisioning
+    )
+endif()

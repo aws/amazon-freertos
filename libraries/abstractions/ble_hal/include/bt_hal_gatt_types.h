@@ -95,7 +95,7 @@ typedef enum
 {
     eBTWriteTypeNoResponse = 0x0001, /**< Write request, do not need response. */
     eBTWriteTypeDefault = 0x0002,    /**< Write request, need a response. */
-    eBTWriteTypePrepare = 0x0003,   /**< Prepared Write request */
+    eBTWriteTypePrepare = 0x0003,    /**< Prepared Write request */
     eBTWriteTypeSigned = 0x0004,     /**< Signed Write request, need a response. */
 } BTAttrWriteRequests_t;
 
@@ -161,44 +161,44 @@ typedef enum
     eBTDbDescriptor,         /**< Characteristic descriptor. */
 } BTDbAttributeType_t;
 
-typedef struct BTService               BTService_t;
+typedef struct BTService BTService_t;
 
 /**
  * @brief Structure describing a characteristic.
  */
 typedef struct
 {
-    BTUuid_t xUuid;    /**< Attribute UUID*/
-    BTCharProperties_t xProperties;                       /**< Characteristic properties. */
-    BTCharPermissions_t xPermissions;                     /**< Characteristic permissions. */
-}BTCharacteristic_t;
+    BTUuid_t xUuid;                   /**< Attribute UUID*/
+    BTCharProperties_t xProperties;   /**< Characteristic properties. */
+    BTCharPermissions_t xPermissions; /**< Characteristic permissions. */
+} BTCharacteristic_t;
 
 /**
  * @brief Structure describing a characteristic descriptor.
  */
 typedef struct
 {
-    BTUuid_t xUuid;    /**< Attribute UUID*/
-    BTCharPermissions_t xPermissions;                     /**< Descriptor permissions. */
-}BTCharacteristicDescr_t;
+    BTUuid_t xUuid;                   /**< Attribute UUID*/
+    BTCharPermissions_t xPermissions; /**< Descriptor permissions. */
+} BTCharacteristicDescr_t;
 
 /**
  * @brief  Structure describing an included service.
-     */
+ */
 typedef struct
 {
-    BTUuid_t xUuid;    /**< Attribute UUID*/
-    BTService_t * pxPtrToService;                        /**< Pointer to the service being included. */
-}BTIncludedService_t;
+    BTUuid_t xUuid;               /**< Attribute UUID*/
+    BTService_t * pxPtrToService; /**< Pointer to the service being included. */
+} BTIncludedService_t;
 
 /**
  * @brief  Structure describing a service UUID.
-     */
+ */
 typedef BTUuid_t BTServiceUUID_t;
 
 /**
  * @brief Generic BLE attribute.
-     */
+ */
 typedef struct
 {
     BTDbAttributeType_t xAttributeType; /**< Type of attribute. */
@@ -209,7 +209,7 @@ typedef struct
         BTCharacteristicDescr_t xCharacteristicDescr; /**< Descriptor. */
         BTIncludedService_t xIncludedService;         /**< Included service. */
     };
-}BTAttribute_t;
+} BTAttribute_t;
 
 /**
  * @brief Structure describing a service.
@@ -224,12 +224,12 @@ typedef struct
  */
 struct BTService
 {
-    uint8_t ucInstId;                          /**< Service Instance ID. */
-    BTGattServiceTypes_t xType;                /**< Sercice type. */
-    size_t xNumberOfAttributes;                /**< Number of attributes. */
-    uint16_t * pusHandlesBuffer;               /**< Array of handles, mapping to pxBLEAttributes. */
-    BTAttribute_t * pxBLEAttributes;          /**< Array of attribute, can be allocated in ROM. */
-} ;
+    uint8_t ucInstId;                /**< Service Instance ID. */
+    BTGattServiceTypes_t xType;      /**< Sercice type. */
+    size_t xNumberOfAttributes;      /**< Number of attributes. */
+    uint16_t * pusHandlesBuffer;     /**< Array of handles, mapping to pxBLEAttributes. */
+    BTAttribute_t * pxBLEAttributes; /**< Array of attribute, can be allocated in ROM. */
+};
 
 typedef struct
 {

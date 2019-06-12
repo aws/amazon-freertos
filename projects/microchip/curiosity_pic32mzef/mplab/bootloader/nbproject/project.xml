@@ -40,6 +40,21 @@
                 <sourceRootElem>../../../../harmony/v2.05/framework/driver/usart/src/dynamic</sourceRootElem>
                 <sourceRootElem>../../../../harmony/v2.05/framework/system/int/src</sourceRootElem>
                 <sourceRootElem>../../../../../../modules/libraries/3rdparty/tinycrypt/lib/source</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/common</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/config_files</sourceRootElem>
+                <sourceRootElem>../../../../../demos/ota/bootloader/utility/user-config</sourceRootElem>
+                <sourceRootElem>../../../../../demos/ota/bootloader/crypto/tinycrypt</sourceRootElem>
+                <sourceRootElem>../../../../../demos/ota/bootloader/flash/portable/microchip/curiosity_pic32mzef</sourceRootElem>
+                <sourceRootElem>../../../../../demos/ota/bootloader/loader</sourceRootElem>
+                <sourceRootElem>../../../../../demos/ota/bootloader/logging</sourceRootElem>
+                <sourceRootElem>../../../../../libraries/3rdparty/tinycrypt/asn1</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/driver/usart/src/dynamic</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/system/int/src</sourceRootElem>
+                <sourceRootElem>../../../../../libraries/3rdparty/tinycrypt/lib/source</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/crypto/tinycrypt</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/flash/portable/microchip/curiosity_pic32mzef</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/loader</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/logging</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>

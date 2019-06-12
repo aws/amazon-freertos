@@ -7,17 +7,12 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${inc_dir}/platform/iot_metrics.h"
         "${inc_dir}/platform/iot_clock.h"
         "${inc_dir}/platform/iot_network.h"
         "${inc_dir}/platform/iot_threads.h"
         "${inc_dir}/types/iot_platform_types.h"
         "${src_dir}/iot_clock_afr.c"
-        "${src_dir}/iot_metrics.c"
-        "${src_dir}/iot_network_afr.c"
         "${src_dir}/iot_threads_afr.c"
-        "${src_dir}/include/platform/iot_network_afr.h"
-        "${src_dir}/include/platform/iot_network_ble.h"
         "${src_dir}/include/platform/iot_platform_types_afr.h"
 )
 
@@ -32,8 +27,31 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::common
-        AFR::secure_sockets
 )
+
+if(TARGET AFR::secure_sockets::mcu_port)
+    afr_module_sources(
+        ${AFR_CURRENT_MODULE}
+        PRIVATE
+        "${inc_dir}/platform/iot_metrics.h"
+        "${src_dir}/iot_metrics.c"
+        "${src_dir}/iot_network_afr.c"
+        "${src_dir}/include/platform/iot_network_afr.h"
+    )
+    afr_module_dependencies(
+        ${AFR_CURRENT_MODULE}
+        PUBLIC
+            AFR::secure_sockets
+    )
+endif()
+
+if(TARGET AFR::ble_hal::mcu_port)
+    afr_module_sources(
+        ${AFR_CURRENT_MODULE}
+        PRIVATE
+        "${src_dir}/include/platform/iot_network_ble.h"
+    )
+endif()
 
 # test for platform module
 afr_test_module()

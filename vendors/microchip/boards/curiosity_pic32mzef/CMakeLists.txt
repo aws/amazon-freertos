@@ -85,6 +85,8 @@ target_link_libraries(
         3rdparty::jsmn
         3rdparty::pkcs11
         3rdparty::tinycbor
+        # Require this for bootloader
+        3rdparty::tinycrypt
 )
 
 
@@ -196,6 +198,7 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.c"
+        "${afr_ports_dir}/pkcs11/pkcs11_nvm.h"
 )
 
 
@@ -217,16 +220,9 @@ target_include_directories(
 
 # Secure sockets
 afr_mcu_port(secure_sockets)
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
-)
-
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::secure_sockets_freertos_tcp
-        AFR::tls
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
 # POSIX
@@ -251,6 +247,7 @@ target_sources(
     AFR::ota::mcu_port
     INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
     INTERFACE "${afr_ports_dir}/ota/aws_nvm.c"
+    INTERFACE "${afr_ports_dir}/ota/aws_nvm.h"
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -338,7 +335,6 @@ set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
 find_program(xc32_bin2hex xc32-bin2hex PATHS "${AFR_COMPILER_DIR}")
 find_program(xc32_objcopy xc32-objcopy PATHS "${AFR_COMPILER_DIR}")
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 
 # Locate microchip hexmate.
 set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
@@ -353,25 +349,22 @@ endif()
 # We may have to re-build the bootloader hex file?
 set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X.production.hex)
 
-
-if(AFR_IS_TESTING)
+set(output_hex_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+set(output_bin_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.production.bin")
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "echo" "Running Post-build step"
+    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+    COMMAND "echo" "Running Hexmate to combine bootloader with image"
+    COMMAND "${hexmate_path}" ${output_hex_file}  ${bl_hex_file} -O${exe_target}.production.unified.hex
+)
+if(NOT AFR_IS_TESTING)
+    set(ota_image_generator "${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py")
     add_custom_command(
         TARGET ${exe_target} POST_BUILD
-        COMMAND "echo" "Running Post-build step"
-        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
-        COMMAND "echo" "Running Hexmate to combine bootloader with image"
-        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -Omplab.production.unified.hex
-    )
-else()
-    add_custom_command(
-        TARGET ${exe_target} POST_BUILD
-        COMMAND "echo" "Running Post-build step"
-        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
         COMMAND "echo" "Running xc32-objcopy"
-        COMMAND "${xc32_objcopy}" -I ihex $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex -O binary $<TARGET_FILE_DIR:${exe_target}>/mplab.production.bin
+        COMMAND "${xc32_objcopy}" -I ihex ${output_hex_file} -O binary "${output_bin_file}"
         COMMAND "echo" "Creating binary image"
-        COMMAND "python" ${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py -b $<TARGET_FILE_DIR:${exe_target}>/mplab.production.bin -p MCHP-Curiosity-PIC32MZEF
-        COMMAND "echo" "Running Hexmate to combine bootloader with image"
-        COMMAND "${hexmate_path}" $<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex  ${bl_hex_file} -Omplab.production.unified.hex
+        COMMAND "python" "${ota_image_generator}" -b "${output_bin_file}" -p MCHP-Curiosity-PIC32MZEF
     )
 endif()

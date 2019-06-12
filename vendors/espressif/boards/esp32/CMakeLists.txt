@@ -95,6 +95,7 @@ target_sources(
         "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
         "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
+        "${afr_ports_dir}/ble/aws_ble_hal_internals.h"
 )
 target_include_directories(
     AFR::ble_hal::mcu_port
@@ -128,10 +129,7 @@ target_sources(
 afr_mcu_port(secure_sockets)
 target_link_libraries(
     AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::secure_sockets_freertos_tcp
-        AFR::pkcs11
-        AFR::tls
+    INTERFACE AFR::secure_sockets_freertos_plus_tcp
 )
 
 if(AFR_IS_TESTING)
@@ -150,6 +148,7 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/ota/aws_ota_pal.c"
         "${afr_ports_dir}/ota/aws_esp_ota_ops.c"
+        "${afr_ports_dir}/ota/aws_esp_ota_ops.h"
 )
 target_link_libraries(
     AFR::ota::mcu_port
@@ -161,6 +160,7 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)

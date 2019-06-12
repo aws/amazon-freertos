@@ -1163,14 +1163,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/tests/common/iot_tests_network.c</locationURI>
 		</link>
 		<link>
-			<name>tests/include/aws_test_framework.h</name>
+			<name>tests/include/aws_application_version.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_test_framework.h</locationURI>
-		</link>
-		<link>
-			<name>tests/include/aws_test_runner.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_test_runner.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
 			<name>tests/include/aws_clientcredential.h</name>
@@ -1181,6 +1176,36 @@
 			<name>tests/include/aws_clientcredential_keys.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_clientcredential_keys.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_runner.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_test_runner.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_framework.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_test_framework.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_tcp.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_test_tcp.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_test_utils.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_test_utils.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/aws_unity_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/include/aws_unity_config.h</locationURI>
+		</link>
+		<link>
+			<name>tests/include/iot_config_common.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/tests/include/iot_config_common.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
@@ -1801,6 +1826,86 @@
 			<name>application_code/st_code/startup_stm32l475xx.s</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/application_code/st_code/startup_stm32l475xx.s</locationURI>
+		</link>
+		<link>
+			<name>config_files/FreeRTOSConfig.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/FreeRTOSConfig.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/FreeRTOSIPConfig.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/FreeRTOSIPConfig.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_bufferpool_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_bufferpool_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_ggd_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_ggd_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_mqtt_agent_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_mqtt_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_mqtt_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_secure_sockets_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_secure_sockets_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_shadow_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_shadow_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_test_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_test_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_test_runner_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_test_runner_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_test_tcp_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_test_tcp_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_test_wifi_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_test_wifi_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/aws_wifi_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/aws_wifi_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/iot_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/unity_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/aws_tests/config_files/unity_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>
