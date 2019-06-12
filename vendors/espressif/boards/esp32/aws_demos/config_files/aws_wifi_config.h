@@ -76,6 +76,13 @@
  */
 #define wificonfigACCESS_POINT_CHANNEL        ( 11 )
 
+
+/**
+ * @brief Maximum number of network profiles stored.
+ */
+#define wificonfigMAX_NETWORK_PROFILES       ( 8 )
+
+
 /**
  * @brief WiFi semaphore timeout
  */
