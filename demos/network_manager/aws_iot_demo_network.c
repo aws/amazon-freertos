@@ -28,6 +28,10 @@
  * @file aws_iot_demo_network.c
  * @brief Contains implementation for network creation and teardown functions for handling different types of network connections
  */
+
+#include "aws_demo_config.h"
+
+#if defined(CONFIG_OTA_UPDATE_DEMO_ENABLED)
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
 
@@ -259,3 +263,4 @@ void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext
 
     }
 }
+#endif
