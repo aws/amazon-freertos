@@ -46,6 +46,12 @@ if(DEFINED COMPILER)
     endif()
 endif()
 
+# Disable compiler checks when only outputing metadata.
+if(AFR_METADATA_MODE)
+    set(CMAKE_C_COMPILER_FORCED TRUE CACHE INTERNAL "")
+    set(CMAKE_CXX_COMPILER_FORCED TRUE CACHE INTERNAL "")
+endif()
+
 # Remove these helper variables from CMake cache.
 unset(VENDOR CACHE)
 unset(BOARD CACHE)
