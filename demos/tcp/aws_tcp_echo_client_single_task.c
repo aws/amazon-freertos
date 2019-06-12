@@ -173,7 +173,7 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
     {
-        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", xX );
+        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", (long int)xX );
         xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
                      cNameBuffer,                                     /* Just a text name for the task to aid debugging. */
                      democonfigDEMO_STACKSIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */

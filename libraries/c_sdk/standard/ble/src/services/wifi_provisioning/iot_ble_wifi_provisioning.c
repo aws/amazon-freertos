@@ -87,7 +87,8 @@
 /**
  * @defgroup
  * Wifi provisioning message types.
- * /** @{ */
+ */
+/** @{ */
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ       ( 1 )
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP      ( 2 )
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ       ( 3 )

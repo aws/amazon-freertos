@@ -211,6 +211,6 @@ add_custom_command(
 )
 endif()
 
-
-
-
+if(NOT AFR_METADATA_MODE)
+    message(FATAL_ERROR "CMake support for nxp is not complete yet.")
+endif()

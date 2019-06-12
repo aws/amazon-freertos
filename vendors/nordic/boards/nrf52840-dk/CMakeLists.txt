@@ -275,6 +275,8 @@ endif()
 
 if(AFR_METADATA_MODE)
     return()
+else()
+    message(FATAL_ERROR "CMake support for nordict is not complete yet.")
 endif()
 
 

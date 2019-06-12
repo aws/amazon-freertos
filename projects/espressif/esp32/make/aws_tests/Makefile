@@ -6,15 +6,15 @@
 PROJECT_NAME := aws_tests
 
 ifndef AMAZON_FREERTOS_PATH
-export AMAZON_FREERTOS_PATH := $(CURDIR)/../../../..
+export AMAZON_FREERTOS_PATH := $(CURDIR)/../../../../..
 endif
 
 ifndef IDF_PATH
-export IDF_PATH := $(AMAZON_FREERTOS_PATH)/lib/third_party/mcu_vendor/espressif/esp-idf
+export IDF_PATH := $(AMAZON_FREERTOS_PATH)/vendors/espressif/esp-idf
 
 export AMAZON_FREERTOS_ENABLE_UNIT_TEST := 1
 
-EXTRA_COMPONENT_DIRS := $(AMAZON_FREERTOS_PATH)/tests/espressif/esp32_devkitc_esp_wrover_kit/common/application_code/espressif_code
+EXTRA_COMPONENT_DIRS := $(AMAZON_FREERTOS_PATH)/vendors/espressif/boards/esp32/aws_tests/application_code/espressif_code
 
 CFLAGS += -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS -DUNITY_INCLUDE_CONFIG_H
 
