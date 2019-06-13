@@ -201,6 +201,11 @@ endif()
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
 
+# TODO, workaround for permission issue in Amazon FreeRTOS console.
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
+    execute_process(COMMAND chmod +x "${esp_idf_dir}/components/esptool_py/esptool/esptool.py")
+endif()
+
 set_source_files_properties(
     ${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
