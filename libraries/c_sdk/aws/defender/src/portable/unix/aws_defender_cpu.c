@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Device Defender Agent V1.0.3
+ * Amazon FreeRTOS Defender V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -22,6 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+
 #include "aws_defender_cpu.h"
 #include <time.h>
 
