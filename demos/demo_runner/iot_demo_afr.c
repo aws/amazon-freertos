@@ -27,7 +27,7 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 
-
+#include <string.h>
 #include "aws_clientcredential.h"
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
