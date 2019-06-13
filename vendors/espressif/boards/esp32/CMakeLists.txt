@@ -201,6 +201,11 @@ endif()
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
 
+# TODO, workaround for permission issue in Amazon FreeRTOS console.
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
+    execute_process(COMMAND chmod +x "${esp_idf_dir}/components/esptool_py/esptool/esptool.py")
+endif()
+
 set_source_files_properties(
     ${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
@@ -235,7 +240,7 @@ set(ENV{IDF_PATH} ${esp_idf_dir})
 
 # Fetch sdkconfig.defaults and modify the custom partition table csv path
 file(READ "${board_dir}/sdkconfig.defaults" file_sdkconfig_default)
-string(REGEX REPLACE "partitions_example.csv" "${board_dir}/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
+string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
 file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
 set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
 # Set sdkconfig generation path inside build

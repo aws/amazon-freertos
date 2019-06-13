@@ -79,27 +79,27 @@
  * Positions of each flag in the "Connect Flag" field of an MQTT CONNECT
  * packet.
  */
-#define MQTT_CONNECT_FLAG_CLEAN                      ( 1 ) /**< @brief Clean session. */
-#define MQTT_CONNECT_FLAG_WILL                       ( 2 ) /**< @brief Will present. */
-#define MQTT_CONNECT_FLAG_WILL_QOS1                  ( 3 ) /**< @brief Will QoS1. */
-#define MQTT_CONNECT_FLAG_WILL_QOS2                  ( 4 ) /**< @brief Will QoS2. */
-#define MQTT_CONNECT_FLAG_WILL_RETAIN                ( 5 ) /**< @brief Will retain. */
-#define MQTT_CONNECT_FLAG_PASSWORD                   ( 6 ) /**< @brief Password present. */
-#define MQTT_CONNECT_FLAG_USERNAME                   ( 7 ) /**< @brief Username present. */
+#define MQTT_CONNECT_FLAG_CLEAN                     ( 1 )  /**< @brief Clean session. */
+#define MQTT_CONNECT_FLAG_WILL                      ( 2 )  /**< @brief Will present. */
+#define MQTT_CONNECT_FLAG_WILL_QOS1                 ( 3 )  /**< @brief Will QoS1. */
+#define MQTT_CONNECT_FLAG_WILL_QOS2                 ( 4 )  /**< @brief Will QoS2. */
+#define MQTT_CONNECT_FLAG_WILL_RETAIN               ( 5 )  /**< @brief Will retain. */
+#define MQTT_CONNECT_FLAG_PASSWORD                  ( 6 )  /**< @brief Password present. */
+#define MQTT_CONNECT_FLAG_USERNAME                  ( 7 )  /**< @brief Username present. */
 
 /*
  * Positions of each flag in the first byte of an MQTT PUBLISH packet's
  * fixed header.
  */
-#define MQTT_PUBLISH_FLAG_RETAIN                     ( 0 ) /**< @brief Message retain flag. */
-#define MQTT_PUBLISH_FLAG_QOS1                       ( 1 ) /**< @brief Publish QoS 1. */
-#define MQTT_PUBLISH_FLAG_QOS2                       ( 2 ) /**< @brief Publish QoS 2. */
-#define MQTT_PUBLISH_FLAG_DUP                        ( 3 ) /**< @brief Duplicate message. */
+#define MQTT_PUBLISH_FLAG_RETAIN                    ( 0 )  /**< @brief Message retain flag. */
+#define MQTT_PUBLISH_FLAG_QOS1                      ( 1 )  /**< @brief Publish QoS 1. */
+#define MQTT_PUBLISH_FLAG_QOS2                      ( 2 )  /**< @brief Publish QoS 2. */
+#define MQTT_PUBLISH_FLAG_DUP                       ( 3 )  /**< @brief Duplicate message. */
 
 /**
  * @brief The constant specifying MQTT version 3.1.1. Placed in the CONNECT packet.
  */
-#define MQTT_VERSION_3_1_1                           ( ( uint8_t ) 4U )
+#define MQTT_VERSION_3_1_1                          ( ( uint8_t ) 4U )
 
 /**
  * @brief Per the MQTT 3.1.1 spec, the largest "Remaining Length" of an MQTT
@@ -146,33 +146,20 @@
  */
 #define MQTT_PACKET_DISCONNECT_SIZE                 ( 2 ) /**< @brief A DISCONNECT packet is always 2 bytes in size. */
 
-/*
- * Username for metrics with AWS IoT.
- */
+/* Username for metrics with AWS IoT. */
 #if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1
+    #ifndef AWS_IOT_METRICS_USERNAME
 
 /**
- * @brief Check if an SDK name is defined. If not, specify "C SDK".
+ * @brief Specify C SDK and version.
  */
-    #ifdef IOT_SDK_NAME
-        #define METRICS_SDK_NAME    IOT_SDK_NAME
-    #else
-        #define METRICS_SDK_NAME    "C"
-    #endif
+        #define AWS_IOT_METRICS_USERNAME           "?SDK=C&Version=4.0.0"
 
 /**
- * @brief In the metrics string, include the platform name if defined.
+ * @brief The length of #AWS_IOT_METRICS_USERNAME.
  */
-    #ifdef IOT_PLATFORM_NAME
-        #define AWS_IOT_METRICS_USERNAME    "?SDK=" METRICS_SDK_NAME "&Version=4.0.0&Platform=" IOT_PLATFORM_NAME
-    #else
-        #define AWS_IOT_METRICS_USERNAME    "?SDK=" METRICS_SDK_NAME "&Version=4.0.0"
-    #endif
-
-/**
- * @brief Length of #AWS_IOT_METRICS_USERNAME.
- */
-    #define AWS_IOT_METRICS_USERNAME_LENGTH    ( ( uint16_t ) sizeof( AWS_IOT_METRICS_USERNAME ) - 1 )
+        #define AWS_IOT_METRICS_USERNAME_LENGTH    ( ( uint16_t ) sizeof( AWS_IOT_METRICS_USERNAME ) - 1 )
+    #endif /* ifndef AWS_IOT_METRICS_USERNAME */
 #endif /* if AWS_IOT_MQTT_ENABLE_METRICS == 1 || DOXYGEN == 1 */
 
 /*-----------------------------------------------------------*/
