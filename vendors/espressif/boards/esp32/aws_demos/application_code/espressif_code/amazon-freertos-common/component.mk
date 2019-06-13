@@ -1,5 +1,5 @@
-AMAZON_FREERTOS_LIB_DIR := ../../../../../../../lib
-AMAZON_FREERTOS_DEMOS_DIR := ../../../../../../../demos
+AMAZON_FREERTOS_LIB_DIR := ../../../../../../../../libraries
+AMAZON_FREERTOS_DEMOS_DIR := ../../../../../../../../demos
 
 COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_LIB_DIR)/mqtt \
         $(AMAZON_FREERTOS_LIB_DIR)/defender \
