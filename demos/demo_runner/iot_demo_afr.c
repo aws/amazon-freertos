@@ -622,3 +622,11 @@ const char *getDeviceMetrics( void )
 {
     return deviceMetrics;
 }
+
+/*
+ * @brief Get the device metrics length.
+ */
+uint16_t getDeviceMetricsLength( void )
+{
+    return ( uint16_t )( strlen( deviceMetrics ) );
+}
