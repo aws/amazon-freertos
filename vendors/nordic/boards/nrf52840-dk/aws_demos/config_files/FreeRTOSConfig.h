@@ -139,6 +139,9 @@ standard names - or at least those used in the unmodified vector table. */
 #define INCLUDE_xTimerPendFunctionCall                                            1
 #define INCLUDE_xSemaphoreGetMutexHolder                                          1
 
+/* The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME "NordicNRF52840-DK"
+
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */
 #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         0x6
