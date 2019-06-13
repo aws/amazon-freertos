@@ -34,6 +34,8 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/mqtt_ble \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/wifi_provisioning \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src/cbor \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src/json \
         $(AMAZON_FREERTOS_SDK_DIR)/aws/defender/src \
         $(AMAZON_FREERTOS_SDK_DIR)/aws/shadow/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/greengrass/src \
