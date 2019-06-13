@@ -176,7 +176,13 @@ extern const char *getDeviceIdentifier( void );
  * @brief Metrics emitted by the device.
  */
 extern const char *getDeviceMetrics( void );
-#define IOT_DEVICE_METRICS     getDeviceMetrics()
+#define AWS_IOT_METRICS_USERNAME     getDeviceMetrics()
+
+/**
+ * @brief Length of the metrics emitted by device.
+ */
+extern uint16_t getDeviceMetricsLength( void );
+#define AWS_IOT_METRICS_USERNAME_LENGTH getDeviceMetricsLength()
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
 #define IotMetricsConnectionId_t            void *
