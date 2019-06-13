@@ -1,10 +1,10 @@
 AMAZON_FREERTOS_LIB_DIR := ../../../../../../../../libraries
 AMAZON_FREERTOS_KERNEL_DIR := ../../../../../../../../freertos_kernel
-#ifndef AMAZON_FREERTOS_ENABLE_UNIT_TEST
+ifndef AMAZON_FREERTOS_ENABLE_UNIT_TEST
 AMAZON_FREERTOS_ESP32 := ../../../../../../../../vendors/espressif/boards/esp32/aws_demos
-#else
-#AMAZON_FREERTOS_ESP32 := ../../../../../../../../vendors/espressif/boards/esp32/aws_tests
-#endif
+else
+AMAZON_FREERTOS_ESP32 := ../../../../../../../../vendors/espressif/boards/esp32/aws_tests
+endif
 
 
 COMPONENT_ADD_INCLUDEDIRS := include \

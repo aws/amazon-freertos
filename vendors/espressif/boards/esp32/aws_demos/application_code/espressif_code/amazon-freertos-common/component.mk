@@ -36,7 +36,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ARF_PORTS)/ble \
         $(AMAZON_FREERTOS_ARF_PORTS)/ota \
         $(AMAZON_FREERTOS_ARF_PORTS)/pkcs11 \
-        $(AMAZON_FREERTOS_ARF_PORTS)/wifi \
+        $(AMAZON_FREERTOS_ARF_PORTS)/wifi 
         
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/include \
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/Compiler/GCC \
