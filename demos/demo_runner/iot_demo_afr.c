@@ -29,6 +29,7 @@
 
 #include <string.h>
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
 #include "platform/iot_threads.h"
