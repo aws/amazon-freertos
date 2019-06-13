@@ -6,15 +6,16 @@ AMAZON_FREERTOS_ARF_KERNEL := ../../../../../../../../freertos_kernel
 AMAZON_FREERTOS_ARF_PORTS := ../../../../../../../../vendors/espressif/boards/esp32/ports
 AMAZON_FREERTOS_DEMOS_DIR := ../../../../../../../../demos
 
-COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt \
+COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/common \
-        $(AMAZON_FREERTOS_SDK_DIR)/standard/logging \
-        $(AMAZON_FREERTOS_SDK_DIR)/standard/taskpool \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/common/logging \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/common/taskpool \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src \
-        $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/device_information \
-        $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/mqtt_ble \
-        $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/wifi_provisioning \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/device_information \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/mqtt_ble \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/wifi_provisioning \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src \
         $(AMAZON_FREERTOS_SDK_DIR)/aws/defender/src \
         $(AMAZON_FREERTOS_SDK_DIR)/aws/shadow/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/greengrass/src \
@@ -31,6 +32,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/secure_sockets/freertos_plus_tcp \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
+        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
         $(AMAZON_FREERTOS_ARF_PORTS)/ble \
         $(AMAZON_FREERTOS_ARF_PORTS)/ota \
         $(AMAZON_FREERTOS_ARF_PORTS)/pkcs11 \
@@ -38,9 +40,17 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt \
         
 COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/include \
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/Compiler/GCC \
-                             $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/include/bluetooth_low_energy \
-                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/third_party/jsmn \
-                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/third_party/tinycbor
+                             $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/include \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
+                             $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos/include \
+                             $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/include \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
+                             $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/include \
+                             $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/include \
+                             $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/provisioning/include \
+                             $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
+                             $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls 
 
 COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.o
 
@@ -53,13 +63,14 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/mqtt_v4 \
     $(AMAZON_FREERTOS_DEMOS_DIR)/mqtt_v4/network/bluetooth \
     $(AMAZON_FREERTOS_DEMOS_DIR)/greengrass_connectivity \
-    $(AMAZON_FREERTOS_DEMOS_DIR)/tcp \
     $(AMAZON_FREERTOS_DEMOS_DIR)/ota \
     $(AMAZON_FREERTOS_DEMOS_DIR)/ble \
     $(AMAZON_FREERTOS_DEMOS_DIR)/network_manager \
-    $(AMAZON_FREERTOS_DEMOS_DIR)/wifi_provisioning
+    $(AMAZON_FREERTOS_DEMOS_DIR)/wifi_provisioning \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/tcp
 
-COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/include
+COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/include \
+                             $(AMAZON_FREERTOS_DEMOS_DIR)/network_manager
 endif
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11 \
