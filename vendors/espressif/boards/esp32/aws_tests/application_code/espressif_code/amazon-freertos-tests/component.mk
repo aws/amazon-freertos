@@ -40,6 +40,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/tls/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/crypto/src \
+        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32 \
@@ -56,7 +57,9 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ARF_PORTS)/pkcs11 \
         $(AMAZON_FREERTOS_ARF_PORTS)/wifi 
         
-COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/include \
+COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/include \
+                             ${AMAZON_FREERTOS_ABSTRACTIONS_DIR}/posix/include \
+                             $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/include \
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/Compiler/GCC \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/include \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
@@ -70,7 +73,15 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls 
 
-COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.o
+COMPONENT_OBJEXCLUDE := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.o \
+                        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.o 
 
 COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11 \
                               $(AMAZON_FREERTOS_ARF_PORTS)/ota \
