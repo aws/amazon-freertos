@@ -417,6 +417,11 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 #define _MD5_CHUNK_LENGTH_WORDS   ( 16 )
 
 /*
+ * Encode Length of one byte.
+*/
+#define _BYTE_ENCODE_LENGTH      ( 2 )
+
+/*
  * @brief Length in bytes of each chunk used for hash computation.
  */
 #define _MD5_CHUNK_LENGTH_BYTES   ( _MD5_CHUNK_LENGTH_WORDS * 4 )
@@ -449,12 +454,12 @@ static const unsigned int K[64] = {
 };
 
 /*
- * @brief MD5 hashing algorithm to generate a unique identifier for a sequeunce of bytes.
- * The hash algorithm is adapted from wikipedia and does not dependent of any third party libraries.
+ * @brief MD5 hashing algorithm to generate unique identifier for a sequeunce of bytes.
+ * The hash algorithm is adapted from wikipedia and does not dependent on any third party libraries.
  */
 static void _generateHash( const char *pData, size_t dataLength, uint8_t *pHash, size_t hashLength )
 {
-    uint32_t A, B, C, D, E, F, G;
+    uint32_t A, B, C, D, F, G;
     uint32_t chunk[ _MD5_CHUNK_LENGTH_WORDS ] = { 0 };
     const uint32_t *pCurrent = NULL;
     uint32_t *pOutput = ( uint32_t * )pHash;
@@ -475,7 +480,7 @@ static void _generateHash( const char *pData, size_t dataLength, uint8_t *pHash,
         C = pOutput[ 2 ];
         D = pOutput[ 3 ];
 
-        E = F = G = 0;
+        F = G = 0;
 
         if( dataLength < _MD5_CHUNK_LENGTH_BYTES )
         {
@@ -577,15 +582,28 @@ void generateDeviceIdentifierAndMetrics( void )
     uint8_t hash[ _MD5_HASH_LENGTH_BYTES ] = { 0 };
     char *pBuffer = deviceIdentifier;
     int i;
-    _generateHash( pCert, certLength, hash, _MD5_HASH_LENGTH_BYTES );
+    size_t ret;
 
-    for( i = 0; i < _MD5_HASH_LENGTH_BYTES; i++ )
+    if ( ( NULL == pCert ) || ( 0 == strcmp("", pCert ) ) )
     {
-        sprintf( pBuffer, "%02X", hash[ i ] );
-        pBuffer += 2;
+        configPRINTF(( "ERROR: Generating device identifier and metrics requires a valid certificate.\r\n" ));
+        /* Duplicating the check in assert to force compiler to not optimize it. */
+        configASSERT( ( NULL != pCert ) && ( 0 != strcmp( "", pCert ) ) );
     }
+    else
+    {
+        _generateHash(pCert, certLength, hash, _MD5_HASH_LENGTH_BYTES);
 
-    _generateDeviceMetrics();
+        for( i = 0; i < _MD5_HASH_LENGTH_BYTES; i++ )
+        {
+            ret = snprintf( pBuffer, ( _BYTE_ENCODE_LENGTH + 1 ), "%02X", hash[ i ] );
+            configASSERT( ret > 0 );
+
+            pBuffer += _BYTE_ENCODE_LENGTH;
+        }
+
+        _generateDeviceMetrics();
+    }
 }
 
 /*
