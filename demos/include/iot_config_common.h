@@ -169,7 +169,14 @@
  * @brief Unique identifier used to recognize a device by the cloud.
  * This could be SHA-256 of the device certificate.
  */
-#define IOT_DEVICE_IDENTIFIER                ""
+extern const char *getDeviceIdentifier( void );
+#define IOT_DEVICE_IDENTIFIER                getDeviceIdentifier()
+
+/**
+ * @brief Metrics emitted by the device.
+ */
+extern const char *getDeviceMetrics( void );
+#define IOT_DEVICE_METRICS     getDeviceMetrics()
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
 #define IotMetricsConnectionId_t            void *
