@@ -12,14 +12,14 @@ HTML_OUTPUT = secure_sockets
 GENERATE_TAGFILE = doc/tag/secure_sockets.tag
 
 # Directories containing library source code.
-INPUT = lib/include/aws_secure_sockets.h \
-        lib/include/private/aws_secure_sockets_config_defaults.h  \
+INPUT = libraries/abstractions/secure_sockets/include/aws_secure_sockets.h \
+        libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h  \
         doc/lib/secure_sockets.txt
 
 # Library file names.
 FILE_PATTERNS = *.h *.c *.txt
 
-EXAMPLE_PATH = lib/include/aws_secure_sockets.h
+EXAMPLE_PATH = libraries/abstractions/secure_sockets/include/aws_secure_sockets.h
 
 # External tag files required by this library.
 TAGFILES = doc/tag/main.tag=../main \
