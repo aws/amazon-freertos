@@ -564,8 +564,6 @@ static void _generateDeviceMetrics(void)
         AWS_IOT_DEVICE_IDENTIFIER_LENGTH,
         deviceIdentifier );
     configASSERT(length > 0);
-
-    configPRINTF(( "%s\r\n", deviceMetrics ));
 }
 
 /*
