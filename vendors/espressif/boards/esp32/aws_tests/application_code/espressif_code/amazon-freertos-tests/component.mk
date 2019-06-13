@@ -40,7 +40,6 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/tls/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/crypto/src \
-        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32 \
@@ -116,6 +115,7 @@ COMPONENT_SRCDIRS += ../.. \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/standard/tls/test \
         ${AMAZON_FREERTOS_3RD_PARTY_DIR}/unity/src \
         ${AMAZON_FREERTOS_3RD_PARTY_DIR}/unity/extras/fixture/src \
+        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_posix/source \
         ${AMAZON_FREERTOS_TESTS_DIR}/common
 
 
