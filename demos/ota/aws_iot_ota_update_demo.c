@@ -162,9 +162,10 @@ static BaseType_t prxCreateNetworkConnection( void )
             configPRINTF(( "Waiting for a network connection.\r\n" ));
             ( void ) xSemaphoreTake( xNetworkAvailableLock, portMAX_DELAY );
         }
-
+#if defined(CONFIG_OTA_UPDATE_DEMO_ENABLED)
         /* Connect to one of the network type.*/
         xRet = xMqttDemoCreateNetworkConnection( &xConnection, otaDemoNETWORK_TYPES );
+#endif
 
         if( xRet == pdTRUE )
         {
@@ -249,8 +250,9 @@ void vRunOTAUpdateDemo( void )
 
                 configPRINTF( ( "ERROR:  MQTT_AGENT_Connect() Failed.\r\n" ) );
             }
-
+#if defined(CONFIG_OTA_UPDATE_DEMO_ENABLED)
             vMqttDemoDeleteNetworkConnection(&xConnection);
+#endif
             /* After failure to connect or a disconnect, wait an arbitrary one second before retry. */
             vTaskDelay( myappONE_SECOND_DELAY_IN_TICKS );
         }else
@@ -285,7 +287,9 @@ static void App_OTACompleteCallback( OTA_JobEvent_t eEvent )
     {
         configPRINTF( ( "Received eOTA_JobEvent_Activate callback from OTA Agent.\r\n" ) );
         IotMqtt_Disconnect( xConnection.xMqttConnection, 0 );
+#if defined(CONFIG_OTA_UPDATE_DEMO_ENABLED)
         vMqttDemoDeleteNetworkConnection( &xConnection );
+#endif
         OTA_ActivateNewImage();
     }
     else if (eEvent == eOTA_JobEvent_Fail)

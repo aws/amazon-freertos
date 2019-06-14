@@ -40,6 +40,6 @@ if(TARGET AFR::pkcs11::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         INTERFACE
-            AFR::provisioning
+            AFR::dev_mode_key_provisioning
     )
 endif()

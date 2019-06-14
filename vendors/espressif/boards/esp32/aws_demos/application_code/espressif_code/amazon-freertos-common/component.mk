@@ -45,7 +45,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32 \
-        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/provisioning/src \
+        $(AMAZON_FREERTOS_DEMOS_DIR)/dev_mode_key_provisioning/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/utils/src \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos \
@@ -70,7 +70,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/include \
-                             $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/provisioning/include \
+                             $(AMAZON_FREERTOS_DEMOS_DIR)/dev_mode_key_provisioning/include \
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls 
 
@@ -162,7 +162,7 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/tcp
 
 COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_DEMOS_DIR)/include \
-                             $(AMAZON_FREERTOS_DEMOS_DIR)/network_manager
+                             $(AMAZON_FREERTOS_DEMOS_DIR)/network_manager 
 
 demos/common/tcp/aws_tcp_echo_client_single_task.o: CFLAGS+=-Wno-format
 endif
