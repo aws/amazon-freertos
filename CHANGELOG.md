@@ -51,6 +51,7 @@
 #### FreeRTOS Kernel V10.2.0
 - Kernel version for Amazon FreeRTOS is updated to V10.2.0.
 - Add Support for RISC-V.
+- Include pre-existing ARM Cortex-M33 (ARMv8-M) GCC/ARMclang and IAR ports.
 
 ### Updates
 
