@@ -1,6 +1,12 @@
 # Change Log for Amazon FreeRTOS
 
 ## V201906.00 Major 06/17/2019
+### Release Versioning
+- Move Amazon FreeRTOS to a new versioning scheme (YYYYMM.NN [optional "Major" tag]), while retaining semantic versioning (x.y.z) used for individual libraries within Amazon FreeRTOS. This release contains multiple major version updates for individual libraries. See below for details.
+
+### Folder Structure
+- Update folder structure to provide a cleaner separation between FreeRTOS kernel, standard libraries, AWS libraries, platform-specific ports and 3rd party libraries. Customers upgrading from earlier versions will need to update their project files.
+
 ### New Features
 #### Bluetooth Low Energy Management Library V1.0.0
 - Bluetooth Low Energy management API for GAP and GATT services, with support for
@@ -8,7 +14,9 @@
     - Device discovery, notifications and indications.
     - Creating, starting, stopping, and deleting GATT services.
     - “Just Works” and “Secure Connections - Numeric Comparison” connection methods.
-- Companion device SDK for Android and iOS.
+- Companion device SDK 1.0.0 release for
+    - Android https://github.com/aws/amazon-freertos-ble-android-sdk/
+    - iOS https://github.com/aws/amazon-freertos-ble-ios-sdk/
 - GATT services for 
     - Device information.
     - Wi-Fi credentials provisioning.
@@ -28,19 +36,35 @@
     - Full support for Bluetooth Low Energy transport as well as TCP/IP.
     - Re-implementable abstraction layer to allow port on any network stacks.
     - Standard, configurable logging mechanism.
+- Extend Device Defender support to additional development boards. Current set of metrics now available on all development boards that implement Secure Sockets abstraction.  
 
 #### Task Pool library V1.0.0
 - Task (Thread) pool library for asynchronous processing.
 
-#### FreeRTOS atomic operation support V1.0.0
+#### Atomic Operations Library V1.0.0
+- Add library for atomic operations support.
 
 ### Updates
 #### Wi-Fi Management Library V1.0.3
-- Add ```WIFI_RegisterNetworkStateChangeEventCallback``` to allow application notifications for Wi-Fi state transitions.
+- Add new API ```WIFI_RegisterNetworkStateChangeEventCallback``` to allow application notifications for Wi-Fi state transitions.
 
 #### CMake Builds
-- Allows generating project files for some development boards.
-- Pre-generated project files are available for immediate use under the ```projects``` folder.
+- Extend the ability to build projects using CMake in addition to providing IDE project files. CMake files are now available for the following development boards:
+    - Espressif ESP32-DevKitC
+    - Espressif ESP-WROVER-KIT
+    - Infineon XMC4800 IoT Connectivity Kit
+    - Marvell MW320 AWS IoT Starter Kit
+    - Marvell MW322 AWS IoT Starter Kit
+    - Microchip Curiosity PIC32MZEF Bundle
+    - STMicroelectronicsSTM32L4 Discovery Kit IoT Node
+    - Texas Instruments CC3220SF-LAUNCHXL
+    - Microsoft Windows Simulator
+
+### Updates 
+- mbedTLS library is upgraded to version 2.16.0.
+- ESP-IDF version is upgraded to 3.1.3.
+- Update demo projects for cleaner separation of platform specific code.
+- Documentation update.
 
 ## V1.4.8 05/21/2019
 ### New Features
