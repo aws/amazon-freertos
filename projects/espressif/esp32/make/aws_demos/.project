@@ -32,11 +32,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_demos/application_code</locationURI>
 		</link>
 		<link>
-			<name>build</name>
-			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/build</locationURI>
-		</link>
-		<link>
 			<name>demos</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/demos</locationURI>
@@ -4036,14 +4031,6 @@
 		<variable>
 			<name>BASE_DIR_ROOT</name>
 			<value>$%7BPARENT-4-PROJECT_LOC%7D</value>
-		</variable>
-		<variable>
-			<name>BASE_DIR_ROOT1</name>
-			<value>$%7BBASE_DIR_ROOT%7D/Desktop/test/Release-1.5/amazon-freertos/vendors/espressif</value>
-		</variable>
-		<variable>
-			<name>copy_PARENT</name>
-			<value>$%7BBASE_DIR_ROOT%7D/Desktop/test/Release-1.5/amazon-freertos</value>
 		</variable>
 	</variableList>
 </projectDescription>

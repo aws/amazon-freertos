@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS Secure Sockets V1.1.5
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -56,7 +56,11 @@
 #include "aws_lib_init.h"
 
 /**
- * @brief The socket type.
+ * @ingroup SecureSockets_datatypes_handles
+ * @brief The socket handle data type.
+ *
+ * For detail of socket, refer to [Network Sockets]
+ * (https://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/socket.html)
  *
  * Data contained by the Socket_t type is port specific.
  */
@@ -71,7 +75,8 @@ typedef void * Socket_t;
 #define Socklen_t    uint32_t
 
 /**
- * @defgroup SocketsErrors Secure Sockets Error Codes
+ * @anchor SocketsErrors
+ * @name SocketsErrors
  * @brief Error codes returned by the SOCKETS API.
  *
  * Note that SOCKETS API may also propagate port-specific
@@ -104,7 +109,8 @@ typedef void * Socket_t;
 #define SOCKETS_INVALID_SOCKET    ( ( Socket_t ) ~0U )
 
 /**
- * @defgroup SocketDomains Secure Socket Domains
+ * @anchor SocketDomains
+ * @name SocketDomains
  *
  * @brief Options for the lDomain parameter of SOCKETS_Socket()
  * function.
@@ -118,7 +124,8 @@ typedef void * Socket_t;
 /**@} */
 
 /**
- * @defgroup SocketTypes Secure Socket Types
+ * @anchor SocketTypes
+ * @name SocketTypes
  *
  * @brief Options for the lType parameter of SOCKETS_Socket()
  * function.
@@ -131,7 +138,8 @@ typedef void * Socket_t;
 /**@} */
 
 /**
- * @defgroup Protocols Secure Socket Protocols
+ * @anchor Protocols
+ * @name Protocols
  *
  * @brief Options for the lProtocol parameter of SOCKETS_Socket() function.
  *
@@ -142,7 +150,8 @@ typedef void * Socket_t;
 /**@} */
 
 /**
- * @defgroup SetSockOptOptions Secure Socket Options
+ * @anchor SetSockOptOptions
+ * @name SetSockOptOptions
  *
  * @brief Options for lOptionName in SOCKETS_SetSockOpt().
  *
@@ -162,7 +171,8 @@ typedef void * Socket_t;
 /**@} */
 
 /**
- * @defgroup ShutdownFlags Secure Sockets Shutdown Flags
+ * @anchor ShutdownFlags <br>
+ * @name ShutdownFlags
  *
  * @brief Options for the ulHow parameter in SOCKETS_Shutdown().
  */
@@ -178,6 +188,7 @@ typedef void * Socket_t;
 #define securesocketsMAX_DNS_NAME_LENGTH    ( 253 )
 
 /**
+ * @ingroup SecureSockets_datatypes_paramstructs
  * @brief Socket address.
  *
  * \sa PORT_SPECIFIC_LINK
@@ -202,15 +213,21 @@ typedef struct SocketsSockaddr
  * and only once before calling any other function.
  *
  * @return
- * * @ref pdPASS if everything succeeds
- * * @ref pdFAIL otherwise.
+ * * `pdPASS` if everything succeeds
+ * * `pdFAIL` otherwise.
  */
 lib_initDECLARE_LIB_INIT( SOCKETS_Init );
 
 /**
  * @brief Creates a TCP socket.
  *
- * This call allocates memory and claims a socket resource.
+ * See the [FreeRTOS+TCP networking tutorial]
+ * (https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial.html) 
+ * for more information on TCP sockets.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
  *
  * @sa SOCKETS_Close()
  *
@@ -225,9 +242,15 @@ lib_initDECLARE_LIB_INIT( SOCKETS_Init );
  * returned
  * * @ref SOCKETS_INVALID_SOCKET is returned if an error occurred.
  */
+
+/* 
+ * This call allocates memory and claims a socket resource.
+ */
+/* @[declare_secure_sockets_socket] */
 Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lType,
                          int32_t lProtocol );
+/* @[declare_secure_sockets_socket] */
 
 
 /**
@@ -244,6 +267,10 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
  * from multiple threads simultaneously with SOCKETS_Connect(),
  * SOCKETS_SetSockOpt(), SOCKETS_Shutdown(), SOCKETS_Close().
  *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
+ *
  * @param[in] xSocket The handle of the socket to be connected.
  * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains the
  * the address to connect the socket to.
@@ -253,15 +280,21 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
  * * @ref SOCKETS_ERROR_NONE if a connection is established.
  * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
+/* @[declare_secure_sockets_connect] */
 int32_t SOCKETS_Connect( Socket_t xSocket,
                          SocketsSockaddr_t * pxAddress,
                          Socklen_t xAddressLength );
+/* @[declare_secure_sockets_connect] */
 
 /**
  * @brief Receive data from a TCP socket.
  *
  * The socket must have already been created using a call to SOCKETS_Socket()
  * and connected to a remote socket using SOCKETS_Connect().
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
  *
  * @param[in] xSocket The handle of the socket from which data is being received.
  * @param[out] pvBuffer The buffer into which the received data will be placed.
@@ -276,16 +309,22 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
  *   is set using @ref SOCKETS_SO_RCVTIMEO).
  * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
+/* @[declare_secure_sockets_recv] */
 int32_t SOCKETS_Recv( Socket_t xSocket,
                       void * pvBuffer,
                       size_t xBufferLength,
                       uint32_t ulFlags );
+/* @[declare_secure_sockets_recv] */
 
 /**
  * @brief Transmit data to the remote socket.
  *
  * The socket must have already been created using a call to SOCKETS_Socket() and
  * connected to a remote socket using SOCKETS_Connect().
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
  *
  * @param[in] xSocket The handle of the sending socket.
  * @param[in] pvBuffer The buffer containing the data to be sent.
@@ -296,13 +335,22 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
  * * On success, the number of bytes actually sent is returned.
  * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
+/* @[declare_secure_sockets_send] */
 int32_t SOCKETS_Send( Socket_t xSocket,
                       const void * pvBuffer,
                       size_t xDataLength,
                       uint32_t ulFlags );
+/* @[declare_secure_sockets_send] */
 
 /**
  * @brief Closes all or part of a full-duplex connection on the socket.
+ * 
+ * Disable reads and writes on a connected TCP socket. A connected TCP socket must be gracefully 
+ * shut down before it can be closed.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
  *
  * \warning SOCKETS_Shutdown() is not safe to be called on the same socket
  * from multiple threads simultaneously with SOCKETS_Connect(),
@@ -316,11 +364,19 @@ int32_t SOCKETS_Send( Socket_t xSocket,
  * * If the operation was successful, 0 is returned.
  * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
+/* @[declare_secure_sockets_shutdown] */
 int32_t SOCKETS_Shutdown( Socket_t xSocket,
                           uint32_t ulHow );
+/* @[declare_secure_sockets_shutdown] */
 
 /**
  * @brief Closes the socket and frees the related resources.
+ * 
+ * A socket should be shutdown gracefully before it is closed, and cannot be used after it has been closed.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
  *
  * \warning SOCKETS_Close() is not safe to be called on the same socket
  * from multiple threads simultaneously with SOCKETS_Connect(),
@@ -332,7 +388,9 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
  * * On success, 0 is returned.
  * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
+/* @[declare_secure_sockets_close] */
 int32_t SOCKETS_Close( Socket_t xSocket );
+/* @[declare_secure_sockets_close] */
 
 /**
  * @brief AWS IoT ALPN protocol name for MQTT over TLS on server port 443.
@@ -341,6 +399,10 @@ int32_t SOCKETS_Close( Socket_t xSocket );
 
 /**
  * @brief Manipulates the options for the socket.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
  *
  * @param[in] xSocket The handle of the socket to set the option for.
  * @param[in] lLevel Not currently used. Should be set to 0.
@@ -374,6 +436,12 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *      - Non-blocking connect is not supported - socket option should be
  *        called after connect.
  *      - pvOptionValue is ignored for this option.
+ *    - @ref SOCKETS_SO_WAKEUP_CALLBACK
+ *      - Set the callback to be called whenever there is data available on 
+ *      the socket for reading
+ *      - This option provides an asynchronous way to handle received data 
+ *      - pvOptionValue is a pointer to the callback function
+        - See PORT_SPECIFIC_LINK for device limitations.
  *  - Security Sockets Options
  *    - @ref SOCKETS_SO_REQUIRE_TLS
  *      - Use TLS for all connect, send, and receive on this socket.
@@ -408,21 +476,29 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  * * On success, 0 is returned.
  * * If an error occured, a negative value is returned. @ref SocketsErrors
  */
+/* @[declare_secure_sockets_setsockopt] */
 int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                             int32_t lLevel,
                             int32_t lOptionName,
                             const void * pvOptionValue,
                             size_t xOptionLength );
+/* @[declare_secure_sockets_setsockopt] */
 
 /**
  * @brief Resolve a host name using Domain Name Service.
+ *
+ * See the [Berkeley Sockets API]
+ * (https://en.wikipedia.org/wiki/Berkeley_sockets#Socket_API_functions)
+ * in wikipedia
  *
  * @param[in] pcHostName The host name to resolve.
  * @return
  * * The IPv4 address of the specified host.
  * * If an error has occured, 0 is returned.
  */
+/* @[declare_secure_sockets_gethostbyname] */
 uint32_t SOCKETS_GetHostByName( const char * pcHostName );
+/* @[declare_secure_sockets_gethostbyname] */
 
 
 
@@ -469,6 +545,15 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName );
  */
 #define SOCKETS_ntohs( usIn )    SOCKETS_htons( usIn )
 
+/**
+ * @brief Convert an IP address expressed as four separate numeric octets into a an IP address expressed as a 32-bit number in network byte order
+ * (for example 192, 168, 0, 100)
+ *
+ * @param[in] ucOctet0 0th IP Octet
+ * @param[in] ucOctet1 1st IP Octet
+ * @param[in] ucOctet2 2nd IP Octet
+ * @param[in] ucOctet3 3rd IP Octet
+ */
 #if defined( socketsconfigBYTE_ORDER ) && ( socketsconfigBYTE_ORDER == pdLITTLE_ENDIAN )
 
     #define SOCKETS_inet_addr_quick( ucOctet0, ucOctet1, ucOctet2, ucOctet3 ) \
@@ -477,6 +562,13 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName );
       ( ( ( uint32_t ) ( ucOctet1 ) ) << 8UL ) |                              \
       ( ( uint32_t ) ( ucOctet0 ) ) )
 
+   /**
+    * @brief Convert an IP address expressed as a 32-bit number in network byte order to a string in decimal dot notation.
+    * (for example "192.168.0.100")
+    * 
+    * @param[in] ulIPAddress An IP address expressed as a 32-bit value in network byte order.
+    * @param[in] pucBuffer A pointer to a buffer into which the IP address will be written in decimal dot notation.
+    */
     #define SOCKETS_inet_ntoa( ulIPAddress, pucBuffer )               \
     sprintf( ( char * ) ( pucBuffer ), "%u.%u.%u.%u",                 \
              ( ( unsigned ) ( ( ulIPAddress ) & 0xffUL ) ),           \
@@ -492,6 +584,13 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName );
       ( ( ( uint32_t ) ( ucOctet2 ) ) << 8UL ) |                              \
       ( ( uint32_t ) ( ucOctet3 ) ) )
 
+   /**
+    * @brief Convert an IP address expressed as a 32-bit number in network byte order to a string in decimal dot notation.
+    * (for example "192.168.0.100")
+    * 
+    * @param[in] ulIPAddress An IP address expressed as a 32-bit value in network byte order.
+    * @param[in] pucBuffer A pointer to a buffer into which the IP address will be written in decimal dot notation.
+    */
     #define SOCKETS_inet_ntoa( ulIPAddress, pucBuffer )               \
     sprintf( ( char * ) ( pucBuffer ), "%u.%u.%u.%u",                 \
              ( ( unsigned ) ( ( ulIPAddress ) >> 24 ) ),              \
