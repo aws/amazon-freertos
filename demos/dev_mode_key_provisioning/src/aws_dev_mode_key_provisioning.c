@@ -106,15 +106,15 @@ CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
 }
 /*-----------------------------------------------------------*/
 
-/* @brief Converts PEM documents into DER formatted byte arrays.
+/** @brief Converts PEM documents into DER formatted byte arrays.
  * This is a helper function from mbedTLS util pem2der.c
  * (https://github.com/ARMmbed/mbedtls/blob/development/programs/util/pem2der.c#L75)
  *
- * \param pucInput[in]       Pointer to PEM object
- * \param xLen[in]           Length of PEM object
- * \param pucOutput[out]     Pointer to buffer where DER oboject will be placed
- * \param pxOlen[in/out]     Pointer to length of DER buffer.  This value is updated
- *                          to contain the actual length of the converted DER object.
+ * \param[in] pucInput          Pointer to PEM object
+ * \param[in] xLen              Length of PEM object
+ * \param[out] pucOutput        Pointer to buffer where DER oboject will be placed
+ * \param[in/out] pxOlen        Pointer to length of DER buffer.  This value is updated
+ *                              to contain the actual length of the converted DER object.
  *
  * \return 0 if successful.  Negative if conversion failed.  If buffer is not
  * large enough to hold converted object, pxOlen is still updated but -1 is returned.
