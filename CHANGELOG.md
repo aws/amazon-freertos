@@ -1,15 +1,56 @@
 # Change Log for Amazon FreeRTOS
 
+## V201906.00 Major 06/17/2019
+### New Features
+#### Bluetooth Low Energy Management Library V1.0.0
+- Bluetooth Low Energy management API for GAP and GATT services, with support for
+    - Bluetooth Low Energy v4.2 and above.
+    - Device discovery, notifications and indications.
+    - Creating, starting, stopping, and deleting GATT services.
+    - “Just Works” and “Secure Connections - Numeric Comparison” connection methods.
+- Companion device SDK for Android and iOS.
+- GATT services for 
+    - Device information.
+    - Wi-Fi credentials provisioning.
+    - MQTT-over-Bluetooth Low Energy through Android or iOS device proxy to support.
+        - OTA, Device Shadow and Device Defender functionality.
+
+#### MQTT Library V2.0.0, Device Shadow Library V2.0.0, and Device Defender Library V2.0.0
+- Enable consistent re-use pattern of one single connection across all libraries.
+- Add support for MQTT 3.1.1 standard features.
+    - Last Will and Testament.
+    - QoS1 with randomized retry logic.
+    - Persistent sessions.
+- Add programming model revisions to enable.
+    - Fully non-blocking programming model.
+    - Per-operation user callback.
+    - Fully dynamic or fully static memory management.
+    - Full support for Bluetooth Low Energy transport as well as TCP/IP.
+    - Re-implementable abstraction layer to allow port on any network stacks.
+    - Standard, configurable logging mechanism.
+
+#### Task Pool library V1.0.0
+- Task (Thread) pool library for asynchronous processing.
+
+#### FreeRTOS atomic operation support V1.0.0
+
+### Updates
+#### Wi-Fi Management Library V1.0.3
+- Add ```WIFI_RegisterNetworkStateChangeEventCallback``` to allow application notifications for Wi-Fi state transitions.
+
+#### CMake Builds
+- Allows generating project files for some development boards.
+- Pre-generated project files are available for immediate use under the ```projects``` folder.
+
 ## V1.4.8 05/21/2019
-### New Featuress
-### New Boards: Marvell MW320 and MW322
+### New Features
+#### New Boards: Marvell MW320 and MW322
 - Marvell boards MW320 and MW322 are now qualified for Amazon FreeRTOS.
 - Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
 
 #### FreeRTOS Kernel V10.2.0
 - Kernel version for Amazon FreeRTOS is updated to V10.2.0.
 - Add Support for RISC-V.
-- Add Support for ARMv8M.
 
 ### Updates
 
