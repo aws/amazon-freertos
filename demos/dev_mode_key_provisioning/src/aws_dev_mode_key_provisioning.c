@@ -120,80 +120,10 @@ CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
  * large enough to hold converted object, pxOlen is still updated but -1 is returned.
  *
  */
-int convert_pem_to_der( const unsigned char * pucInput,
-                        size_t xLen,
-                        unsigned char * pucOutput,
-                        size_t * pxOlen )
-{
-    int lRet;
-    const unsigned char * pucS1;
-    const unsigned char * pucS2;
-    const unsigned char * pucEnd = pucInput + xLen;
-    size_t xOtherLen = 0;
-
-    pucS1 = ( unsigned char * ) strstr( ( const char * ) pucInput, "-----BEGIN" );
-
-    if( pucS1 == NULL )
-    {
-        return( -1 );
-    }
-
-    pucS2 = ( unsigned char * ) strstr( ( const char * ) pucInput, "-----END" );
-
-    if( pucS2 == NULL )
-    {
-        return( -1 );
-    }
-
-    pucS1 += 10;
-
-    while( pucS1 < pucEnd && *pucS1 != '-' )
-    {
-        pucS1++;
-    }
-
-    while( pucS1 < pucEnd && *pucS1 == '-' )
-    {
-        pucS1++;
-    }
-
-    if( *pucS1 == '\r' )
-    {
-        pucS1++;
-    }
-
-    if( *pucS1 == '\n' )
-    {
-        pucS1++;
-    }
-
-    if( ( pucS2 <= pucS1 ) || ( pucS2 > pucEnd ) )
-    {
-        return( -1 );
-    }
-
-    lRet = mbedtls_base64_decode( NULL, 0, &xOtherLen, ( const unsigned char * ) pucS1, pucS2 - pucS1 );
-
-    if( lRet == MBEDTLS_ERR_BASE64_INVALID_CHARACTER )
-    {
-        return( lRet );
-    }
-
-    if( xOtherLen > *pxOlen )
-    {
-        return( -1 );
-    }
-
-    if( ( lRet = mbedtls_base64_decode( pucOutput, xOtherLen, &xOtherLen, ( const unsigned char * ) pucS1,
-                                        pucS2 - pucS1 ) ) != 0 )
-    {
-        return( lRet );
-    }
-
-    *pxOlen = xOtherLen;
-
-    return( 0 );
-}
+extern int convert_pem_to_der( const unsigned char * pucInput,
+                               size_t xLen,
+                               unsigned char * pucOutput,
+                               size_t * pxOlen);
 /*-----------------------------------------------------------*/
 
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
