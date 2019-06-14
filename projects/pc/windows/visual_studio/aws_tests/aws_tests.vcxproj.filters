@@ -145,15 +145,6 @@
     <Filter Include="libraries\3rdparty\tracealyzer_recorder\Include">
       <UniqueIdentifier>{163d58cf-cfcb-4161-aae5-a7143dc95ad5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\provisioning">
-      <UniqueIdentifier>{98868402-8e7d-48bb-97e6-491f9b0eac73}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\standard\provisioning\include">
-      <UniqueIdentifier>{d1a0e213-909c-4eb1-9681-bfb55b80f0c4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\standard\provisioning\src">
-      <UniqueIdentifier>{b72c504d-74e4-4aac-8428-e970b4978f0e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="libraries\freertos_plus\standard\utils">
       <UniqueIdentifier>{63245c05-be57-4088-a565-34598881b601}</UniqueIdentifier>
     </Filter>
@@ -369,6 +360,18 @@
     </Filter>
     <Filter Include="libraries\freertos_plus\aws\greengrass\test">
       <UniqueIdentifier>{6e83f83b-174b-4c75-94b9-3ed0bad9f4bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos">
+      <UniqueIdentifier>{326a9251-1f6b-4d75-97a6-69bf4290637d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos\dev_mode_key_provisioning">
+      <UniqueIdentifier>{deb0addc-2474-4ebb-ab79-181bd8c65893}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos\dev_mode_key_provisioning\include">
+      <UniqueIdentifier>{0400162b-dab4-4fb5-94fc-957862ec1304}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos\dev_mode_key_provisioning\src">
+      <UniqueIdentifier>{5c36bd0a-8610-4245-aa01-7fb882491560}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -632,9 +635,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include\trcRecorder.h">
       <Filter>libraries\3rdparty\tracealyzer_recorder\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include\aws_dev_mode_key_provisioning.h">
-      <Filter>libraries\freertos_plus\standard\provisioning\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\aws_system_init.h">
       <Filter>libraries\freertos_plus\standard\utils\include</Filter>
@@ -1062,6 +1062,9 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
       <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
+      <Filter>demos\dev_mode_key_provisioning\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\aws_run-time-stats-utils.c">
@@ -1186,9 +1189,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcSnapshotRecorder.c">
       <Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\provisioning\src\aws_dev_mode_key_provisioning.c">
-      <Filter>libraries\freertos_plus\standard\provisioning\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_system_init.c">
       <Filter>libraries\freertos_plus\standard\utils\src</Filter>
@@ -1675,6 +1675,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
       <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
+      <Filter>demos\dev_mode_key_provisioning\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c">
+      <Filter>demos\dev_mode_key_provisioning\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

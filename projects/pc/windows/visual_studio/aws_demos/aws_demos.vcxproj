@@ -40,7 +40,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code;..\..\..\..\..\vendors\pc\boards\windows\ports\posix;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\win_pcap;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files;..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code;..\..\..\..\..\vendors\pc\boards\windows\ports\posix;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\win_pcap;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>
       </MinimalRebuild>
@@ -88,6 +88,7 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h" />
     <ClInclude Include="..\..\..\..\..\demos\include\aws_application_version.h" />
     <ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\..\..\demos\include\aws_clientcredential_keys.h" />
@@ -288,7 +289,6 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkInterface.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC\pack_struct_end.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC\pack_struct_start.h" />
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include\aws_dev_mode_key_provisioning.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\aws_tls.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\aws_system_init.h" />
     <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h" />
@@ -316,6 +316,8 @@
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_version.c" />
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_afr.c" />
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_runner.c" />
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c" />
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c" />
     <ClCompile Include="..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c" />
     <ClCompile Include="..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c" />
     <ClCompile Include="..\..\..\..\..\demos\network_manager\aws_iot_demo_network.c" />
@@ -494,7 +496,6 @@
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_2.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c" />
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\provisioning\src\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\aws_tls.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_system_init.c" />
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c" />
