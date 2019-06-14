@@ -258,6 +258,10 @@ target_link_libraries(
         -T${global-linkerscript-y}
 )
 
+if(AFR_METADATA_MODE)
+    return()
+endif()
+
 # Convert afx file to bin file
 if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
     set(axf2fw "${mw320_dir}/sdk/tools/bin/Linux/axf2firmware")
