@@ -437,14 +437,19 @@
 			<locationURI>BASE_DIR/vendors/cypress/boards/CYW943907AEVAL1F/ports/wifi/aws_wifi.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
+			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
+			<name>demos/dev_mode_key_provisioning/src/pem2der.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
+			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/src/pem2der.c</locationURI>
+		</link>
+		<link>
+			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/aws_system_init.c</name>
