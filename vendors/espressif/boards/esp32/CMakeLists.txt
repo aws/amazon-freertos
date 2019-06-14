@@ -240,7 +240,7 @@ set(ENV{IDF_PATH} ${esp_idf_dir})
 
 # Fetch sdkconfig.defaults and modify the custom partition table csv path
 file(READ "${board_dir}/sdkconfig.defaults" file_sdkconfig_default)
-string(REGEX REPLACE "partitions_example.csv" "${board_dir}/partitions_example.csv" file_sdkconfig_default "${file_sdkconfig_default}")
+string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
 file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
 set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
 # Set sdkconfig generation path inside build
