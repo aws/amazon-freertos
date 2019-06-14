@@ -2647,6 +2647,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             }
             else
             {
+                xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
                 OTA_LOG_L1( "[%s] Ignoring job without ID.\r\n", OTA_METHOD_NAME );
             }
         }
