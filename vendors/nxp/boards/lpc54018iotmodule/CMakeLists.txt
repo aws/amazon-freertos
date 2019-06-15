@@ -298,3 +298,7 @@ target_link_libraries(
         AFR::wifi
         AFR::utils
 )
+
+if(NOT AFR_METADATA_MODE)
+    message(FATAL_ERROR "CMake support for nxp is not complete yet.")
+endif()

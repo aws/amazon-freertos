@@ -43,7 +43,6 @@
 #include "nrf_strerror.h"
 #include "peer_manager.h"
 #include "nrf_ble_lesc.h"
-#include "nrf_crypto.h"
 #include "aws_ble_hal_internals.h"
 #include "aws_ble_gap_config.h"
 #include "aws_clientcredential.h"
