@@ -1,0 +1,30 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Defender"
+PROJECT_BRIEF = "AWS IoT Device Defender library"
+
+# Library documentation output directory.
+HTML_OUTPUT = defender
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/defender.tag
+
+# Directories containing library source code.
+INPUT = doc/lib/ \
+        lib/include \
+        lib/include/private \
+        lib/source/defender
+
+# Library file names.
+FILE_PATTERNS = *defender*.h *defender*.txt
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main \
+           doc/tag/mqtt.tag=../mqtt \
+           doc/tag/logging.tag=../logging \
+           doc/tag/static_memory.tag=../static_memory \
+           doc/tag/platform.tag=../platform \
+           doc/tag/linear_containers.tag=../linear_containers

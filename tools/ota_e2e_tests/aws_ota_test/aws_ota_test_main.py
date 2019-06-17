@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 import os
@@ -60,7 +60,7 @@ def cleanBoardConfigsForInputArgs(args, boardConfigs):
     if args.enabledBoards:
         boardConfigs = \
             list(filter(
-                lambda boardConfig: boardConfig['name'] in args.enabledBoards[0], 
+                lambda boardConfig: boardConfig['name'] in args.enabledBoards[0],
                 boardConfigs
             ))
     if args.enabledTests:
@@ -90,7 +90,7 @@ def getBoardConfigsFromInputArgs(args):
     CONFIG_BOARD_CONFIG_DIR is defined in aws_ota_test_config.py. Define this to the
     directory containing all of your board configurations. This directory is walked for
     all board configurations.
-    Returns the the board configs in the CONFIG_BOARD_CONFIG_DIR. 
+    Returns the the board configs in the CONFIG_BOARD_CONFIG_DIR.
     """
     boardConfigs = []
     if args.boardConfigDir != None:
@@ -123,7 +123,7 @@ def formatBoardConfig(boardConfig):
     formatConfigValues(boardConfig, boardConfig)
     formatConfigValues(boardConfig['ota_config'], boardConfig, boardConfig['ota_config'])
     formatConfigValues(boardConfig['build_config'], boardConfig, boardConfig['build_config'])
-    formatConfigValues(boardConfig['flash_config'], boardConfig, boardConfig['flash_config'])    
+    formatConfigValues(boardConfig['flash_config'], boardConfig, boardConfig['flash_config'])
 
 def formatConfigValues(targetConfig, formatConfig1, formatConfig2 = {}):
     """Format the target configuration field references with the input formatConfigs dictionary.
@@ -159,10 +159,12 @@ def createJunitTestResults(boardToResults, fileName):
         for otaTestResult in boardToResults[board]:
             testCase = TestCase(otaTestResult.testName, classname=board + '.OTAEndToEndTests')
             testCases.append(testCase)
-            if otaTestResult.result != OtaTestResult.PASS:
-                testCases[-1].add_failure_info(message=otaTestResult.reason)
+            if otaTestResult.result == OtaTestResult.FAIL:
+                testCases[-1].add_failure_info(message=otaTestResult.summary)
+            elif otaTestResult.result == OtaTestResult.ERROR:
+                testCases[-1].add_skipped_info(message=otaTestResult.summary)
         testSuites.append(TestSuite(board, test_cases=testCases, package=board))
-        
+
     with open(fileName, 'w') as f:
         TestSuite.to_file(f, testSuites)
 
@@ -205,7 +207,7 @@ def otaTestMain():
             ))
         else:
             getBoardOtaTestResult(boardConfig, stageParams, boardToResults[boardConfig['name']])
-        
+
     for i in range(len(threads)):
         threads[i].start()
 

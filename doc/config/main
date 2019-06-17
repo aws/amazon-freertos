@@ -1,0 +1,35 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Main"
+
+# Library documentation output directory.
+HTML_OUTPUT = main
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/main.tag
+
+# Input directories.
+INPUT = doc/ \
+        doc/guide
+
+# Library file names.
+FILE_PATTERNS = *.txt
+
+# Don't automatically link to library symbols.
+AUTOLINK_SUPPORT = NO
+
+# External tag files required by this library.
+TAGFILES = doc/tag/logging.tag=../logging \
+           doc/tag/platform.tag=../platform \
+           doc/tag/mqtt.tag=../mqtt \
+           doc/tag/shadow.tag=../shadow
+
+# Use the Main page layout file
+LAYOUT_FILE = doc/config/layout_main.xml
+
+# Aliases for tables on the Style Guide page.
+ALIASES += formattable{1}="This table contains the formats for the names of the most common SDK \1. It is not intended to be comprehensive. <b>Bold</b> text indicates a variable but required part of the \1 name. <i>Italic</i> text indicates a variable but optional part of the \1 name.^^^^| Format | Applies to | Example |^^| ------ | ---------- | ------- |"
+ALIASES += formattableentry{3}="| \1 | \2 | \3 |"
