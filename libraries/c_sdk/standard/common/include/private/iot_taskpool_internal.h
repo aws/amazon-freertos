@@ -39,6 +39,11 @@
 #include "private/iot_error.h"
 #include "iot_taskpool.h"
 
+/* FreeRTOS includes. */
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "timers.h"
+
 /* Establish a few convenience macros to handle errors in a standard way. */
 
 /**
@@ -201,9 +206,9 @@
     #ifndef IotTaskPool_MallocTimerEvent
         #define IotTaskPool_MallocTimerEvent    malloc
     #endif
-    
+
     #ifndef IotTaskPool_FreeTimerEvent
-        #define IotTaskPool_FreeTimerEvent      free
+        #define IotTaskPool_FreeTimerEvent    free
     #endif
 
 #endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
@@ -229,6 +234,7 @@
 typedef struct _taskPoolCache
 {
     IotListDouble_t freeList; /**< @brief A list ot hold cached jobs. */
+
     uint32_t freeCount;       /**< @brief A counter to track the number of jobs in the cache. */
 } _taskPoolCache_t;
 
@@ -242,19 +248,18 @@ typedef struct _taskPoolCache
  */
 typedef struct _taskPool
 {
-    IotDeQueue_t dispatchQueue;      /**< @brief The queue for the jobs waiting to be executed. */
-    IotListDouble_t timerEventsList; /**< @brief The timeouts queue for all deferred jobs waiting to be executed. */
-    _taskPoolCache_t jobsCache;      /**< @brief A cache to re-use jobs in order to limit memory allocations. */
-    uint32_t minThreads;             /**< @brief The minimum number of threads for the task pool. */
-    uint32_t maxThreads;             /**< @brief The maximum number of threads for the task pool. */
-    uint32_t activeThreads;          /**< @brief The number of threads in the task pool at any given time. */
-    uint32_t activeJobs;             /**< @brief The number of active jobs in the task pool at any given time. */
-    uint32_t stackSize;              /**< @brief The stack size for all task pool threads. */
-    int32_t priority;                /**< @brief The priority for all task pool threads. */
-    IotSemaphore_t dispatchSignal;   /**< @brief The synchronization object on which threads are waiting for incoming jobs. */
-    IotSemaphore_t startStopSignal;  /**< @brief The synchronization object for threads to signal start and stop condition. */
-    IotTimer_t timer;                /**< @brief The timer for deferred jobs. */
-    IotMutex_t lock;                 /**< @brief The lock to protect the task pool data structure access. */
+    IotDeQueue_t dispatchQueue;              /**< @brief The queue for the jobs waiting to be executed. */
+    IotListDouble_t timerEventsList;         /**< @brief The timeouts queue for all deferred jobs waiting to be executed. */
+    _taskPoolCache_t jobsCache;              /**< @brief A cache to re-use jobs in order to limit memory allocations. */
+    uint32_t activeThreads;                  /**< @brief The number of threads in the task pool at any given time. */
+    int32_t priority;                        /**< @brief The priority for all task pool threads. */
+    SemaphoreHandle_t dispatchSignal;        /**< @brief The synchronization object on which threads are waiting for incoming jobs. */
+    StaticSemaphore_t dispatchSignalBuffer;  /**< @brief The semaphore buffer. */
+    SemaphoreHandle_t startStopSignal;       /**< @brief The synchronization object for threads to signal start and stop condition. */
+    StaticSemaphore_t startStopSignalBuffer; /**< @brief The semaphore buffer. */
+    TimerHandle_t timer;                     /**< @brief The timer for deferred jobs. */
+    StaticTimer_t timerBuffer;               /**< @brief The timer buffer. */
+    bool running;                            /**< @brief A flag to track whether the task pool is operational or should shut down. */
 } _taskPool_t;
 
 /**
@@ -281,9 +286,9 @@ typedef struct _taskPoolJob
  */
 typedef struct _taskPoolTimerEvent
 {
-    IotLink_t link;          /**< @brief List link member. */
-    uint64_t expirationTime; /**< @brief When this event should be processed. */
-    _taskPoolJob_t * pJob;   /**< @brief The task pool job associated with this event. */
+    IotLink_t link;            /**< @brief List link member. */
+    TickType_t expirationTime; /**< @brief When this event should be processed. */
+    IotTaskPoolJob_t job;      /**< @brief The task pool job associated with this event. */
 } _taskPoolTimerEvent_t;
 
 #endif /* ifndef IOT_TASKPOOL_INTERNAL_H_ */
