@@ -1,15 +1,81 @@
 # Change Log for Amazon FreeRTOS
 
+## 201906.00 Major 06/17/2019
+### Release Versioning
+- Move Amazon FreeRTOS to a new versioning scheme (YYYYMM.NN [optional "Major" tag]), while retaining semantic versioning (x.y.z) used for individual libraries within Amazon FreeRTOS. This release contains multiple major version updates for individual libraries. See below for details.
+
+### Folder Structure
+- Update folder structure to provide a cleaner separation between FreeRTOS kernel, standard libraries, AWS libraries, platform-specific ports and 3rd party libraries. Customers upgrading from earlier versions will need to update their project files.
+
+### New Features
+#### Bluetooth Low Energy Management Library V1.0.0
+- Bluetooth Low Energy management API for GAP and GATT services, with support for
+    - Bluetooth Low Energy v4.2 and above.
+    - Device discovery, notifications and indications.
+    - Creating, starting, stopping, and deleting GATT services.
+    - “Just Works” and “Secure Connections - Numeric Comparison” connection methods.
+- Companion device SDK 1.0.0 release for
+    - Android https://github.com/aws/amazon-freertos-ble-android-sdk/
+    - iOS https://github.com/aws/amazon-freertos-ble-ios-sdk/
+- GATT services for 
+    - Device information.
+    - Wi-Fi credentials provisioning.
+    - MQTT-over-Bluetooth Low Energy through Android or iOS device proxy to support.
+        - OTA and Device Shadow functionality.
+
+#### MQTT Library V2.0.0, Device Shadow Library V2.0.0, and Device Defender Library V2.0.0
+- Enable consistent re-use pattern of one single connection across all libraries.
+- Add support for MQTT 3.1.1 standard features.
+    - Last Will and Testament.
+    - QoS1 with randomized retry logic.
+    - Persistent sessions.
+- Add programming model revisions to enable.
+    - Fully non-blocking programming model.
+    - Per-operation user callback.
+    - Fully dynamic or fully static memory management.
+    - Full support for Bluetooth Low Energy transport as well as TCP/IP.
+    - Re-implementable abstraction layer to allow port on any network stacks.
+    - Standard, configurable logging mechanism.
+- Extend Device Defender support to additional development boards. Current set of metrics now available on all development boards that implement Secure Sockets abstraction.  
+
+#### Task Pool library V1.0.0
+- Task (Thread) pool library for asynchronous processing.
+
+#### Atomic Operations Library V1.0.0
+- Add library for atomic operations support.
+
+### Updates
+#### Wi-Fi Management Library V1.0.3
+- Add new API ```WIFI_RegisterNetworkStateChangeEventCallback``` to allow application notifications for Wi-Fi state transitions.
+
+#### CMake Builds
+- Extend the ability to build projects using CMake in addition to providing IDE project files. CMake files are now available for the following development boards:
+    - Espressif ESP32-DevKitC
+    - Espressif ESP-WROVER-KIT
+    - Infineon XMC4800 IoT Connectivity Kit
+    - Marvell MW320 AWS IoT Starter Kit
+    - Marvell MW322 AWS IoT Starter Kit
+    - Microchip Curiosity PIC32MZEF Bundle
+    - STMicroelectronicsSTM32L4 Discovery Kit IoT Node
+    - Texas Instruments CC3220SF-LAUNCHXL
+    - Microsoft Windows Simulator
+
+### Updates 
+- mbedTLS library is upgraded to version 2.16.0.
+- ESP-IDF version is upgraded to 3.1.3.
+- Update demo projects for cleaner separation of platform specific code.
+- Documentation update.
+
 ## V1.4.8 05/21/2019
-### New Featuress
-### New Boards: Marvell MW320 and MW322
+### New Features
+#### New Boards: Marvell MW320 and MW322
 - Marvell boards MW320 and MW322 are now qualified for Amazon FreeRTOS.
 - Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
 
 #### FreeRTOS Kernel V10.2.0
 - Kernel version for Amazon FreeRTOS is updated to V10.2.0.
 - Add Support for RISC-V.
-- Add Support for ARMv8M.
+- Include pre-existing ARM Cortex-M33 (ARMv8-M) GCC/ARMclang and IAR ports.
 
 ### Updates
 
