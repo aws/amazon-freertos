@@ -16,14 +16,13 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/jsmn")
 endif()
 
 # lwip
-if(EXISTS "${AFR_3RDPARTY_DIR}/lwip")
+if(EXISTS "${AFR_3RDPARTY_DIR}/lwip" AND NOT "${AFR_BOARD}" STREQUAL "pc.windows")
     add_library(
         afr_3rdparty_lwip STATIC EXCLUDE_FROM_ALL
     )
     target_sources(
         afr_3rdparty_lwip
         PRIVATE
-
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_lib.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/api_msg.c"
             "${AFR_3RDPARTY_DIR}/lwip/src/api/err.c"
@@ -182,15 +181,17 @@ endif()
 # tinycrypt standard header
 if(EXISTS "${AFR_3RDPARTY_DIR}/tinycrypt")
     afr_3rdparty_module(tinycrypt)
-    afr_glob_src(tinycrypt_src DIRECTORY "${AFR_3RDPARTY_DIR}/tinycrypt" RECURSE)
+    afr_glob_src(tinycrypt_src_lib DIRECTORY "${AFR_3RDPARTY_DIR}/tinycrypt/lib" RECURSE)
+    afr_glob_src(tinycrypt_src_asn1 DIRECTORY "${AFR_3RDPARTY_DIR}/tinycrypt/asn1" RECURSE)
     target_sources(
         3rdparty::tinycrypt INTERFACE
-        ${tinycrypt_src}
+        ${tinycrypt_src_lib}
+        ${tinycrypt_src_asn1}
     )
     target_include_directories(
         3rdparty::tinycrypt INTERFACE
         "${AFR_3RDPARTY_DIR}/tinycrypt/asn1"
-        "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include/tinycrypt"
+        "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
     )
 endif()
 
@@ -213,19 +214,4 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/unity")
         "${AFR_3RDPARTY_DIR}/unity/extras/fixture/src"
     )
     target_compile_definitions(3rdparty::unity INTERFACE UNITY_INCLUDE_CONFIG_H)
-endif()
-
-# cmock - mock framework
-if(EXISTS "${AFR_3RDPARTY_DIR}/cmock")
-    afr_3rdparty_module(cmock)
-    target_sources(
-        3rdparty::cmock INTERFACE
-        "${AFR_3RDPARTY_DIR}/cmock/src/cmock.c"
-        "${AFR_3RDPARTY_DIR}/cmock/src/cmock.h"
-        "${AFR_3RDPARTY_DIR}/cmock/src/cmock_internals.h"
-    )
-    target_include_directories(
-        3rdparty::cmock INTERFACE
-        "${AFR_3RDPARTY_DIR}/cmock/src"
-    )
 endif()

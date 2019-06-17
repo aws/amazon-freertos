@@ -1,24 +1,23 @@
 /*
- * Amazon FreeRTOS Device Defender Demo V1.4.4
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V201906.00 Major
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
@@ -63,7 +62,7 @@ static IotNetworkServerInfo_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INF
 static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
 
 #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
-static Socket_t _createSocketToEchoServer();
+    static Socket_t _createSocketToEchoServer();
 #endif
 
 static void _defenderTask( void * param );
@@ -71,10 +70,6 @@ static void _defenderTask( void * param );
 /* Callback used to get notification of defender's events. */
 static void _defenderCallback( void * param1,
                                AwsIotDefenderCallbackInfo_t * const pCallbackInfo );
-
-/* Deserialze the data and print out in more readable way. */
-static void _print( const uint8_t * pDataBuffer,
-                    size_t dataSize );
 
 static void _startDefender();
 
@@ -89,12 +84,12 @@ int vStartDefenderDemo( bool awsIotMqttMode,
     int status = EXIT_SUCCESS;
     IotMqttError_t mqttInitStatus;
 
-	/* Unused parameters */
-	( void ) awsIotMqttMode;
-	( void ) pIdentifier;
-	( void ) pNetworkServerInfo;
-	( void ) pNetworkCredentialInfo;
-	( void ) pNetworkInterface;
+    /* Unused parameters */
+    ( void ) awsIotMqttMode;
+    ( void ) pIdentifier;
+    ( void ) pNetworkServerInfo;
+    ( void ) pNetworkCredentialInfo;
+    ( void ) pNetworkInterface;
 
     /* Initialize the MQTT library. */
     mqttInitStatus = IotMqtt_Init();
@@ -106,7 +101,7 @@ int vStartDefenderDemo( bool awsIotMqttMode,
 
     if( status == EXIT_SUCCESS )
     {
-        _defenderTask(NULL);
+        _defenderTask( NULL );
     }
 
     return status;
@@ -124,8 +119,7 @@ void _defenderCallback( void * param1,
     /* Print out the sent metrics report if there is. */
     if( pCallbackInfo->pMetricsReport != NULL )
     {
-        IotLogInfo( "\nPublished metrics report:" );
-        _print( pCallbackInfo->pMetricsReport, pCallbackInfo->metricsReportLength );
+        IotLogInfo( "\nPublished metrics report." );
     }
     else
     {
@@ -134,8 +128,7 @@ void _defenderCallback( void * param1,
 
     if( pCallbackInfo->pPayload != NULL )
     {
-        IotLogInfo( "\nReceived MQTT message:" );
-        _print( pCallbackInfo->pPayload, pCallbackInfo->payloadLength );
+        IotLogInfo( "\nReceived MQTT message." );
     }
     else
     {
@@ -155,7 +148,7 @@ static void _defenderTask( void * param )
 
     IotLogInfo( "----Device Defender Demo Start----.\r\n" );
 
-#if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
+    #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
         /* Create a socket connected to echo server. */
         Socket_t socket = _createSocketToEchoServer();
     #endif
@@ -233,45 +226,37 @@ static void _startDefender()
 
 #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
 
-static Socket_t _createSocketToEchoServer()
-{
-    Socket_t socket;
-    SocketsSockaddr_t echoServerAddress;
-    int32_t error = 0;
+    static Socket_t _createSocketToEchoServer()
+    {
+        Socket_t socket;
+        SocketsSockaddr_t echoServerAddress;
+        int32_t error = 0;
 
-    /* Rx and Tx time outs are used to ensure the sockets do not wait too long for
-     * missing data. */
-    const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
-    const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
+        /* Rx and Tx time outs are used to ensure the sockets do not wait too long for
+         * missing data. */
+        const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( 2000 );
+        const TickType_t xSendTimeOut = pdMS_TO_TICKS( 2000 );
 
-    /* Echo requests are sent to the echo server.  The address of the echo
-     * server is configured by the constants configECHO_SERVER_ADDR0 to
-     * configECHO_SERVER_ADDR3 in FreeRTOSConfig.h. */
-    echoServerAddress.usPort = SOCKETS_htons( configTCP_ECHO_CLIENT_PORT );
-    echoServerAddress.ulAddress = SOCKETS_inet_addr_quick( configECHO_SERVER_ADDR0,
-                                                           configECHO_SERVER_ADDR1,
-                                                           configECHO_SERVER_ADDR2,
-                                                           configECHO_SERVER_ADDR3 );
+        /* Echo requests are sent to the echo server.  The address of the echo
+         * server is configured by the constants configECHO_SERVER_ADDR0 to
+         * configECHO_SERVER_ADDR3 in FreeRTOSConfig.h. */
+        echoServerAddress.usPort = SOCKETS_htons( configTCP_ECHO_CLIENT_PORT );
+        echoServerAddress.ulAddress = SOCKETS_inet_addr_quick( configECHO_SERVER_ADDR0,
+                                                               configECHO_SERVER_ADDR1,
+                                                               configECHO_SERVER_ADDR2,
+                                                               configECHO_SERVER_ADDR3 );
 
-    socket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
-    configASSERT( socket != SOCKETS_INVALID_SOCKET );
+        socket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
+        configASSERT( socket != SOCKETS_INVALID_SOCKET );
 
-    /* Set a time out so a missing reply does not cause the task to block indefinitely. */
-    SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_RCVTIMEO, &xReceiveTimeOut, sizeof( xReceiveTimeOut ) );
-    SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_SNDTIMEO, &xSendTimeOut, sizeof( xSendTimeOut ) );
+        /* Set a time out so a missing reply does not cause the task to block indefinitely. */
+        SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_RCVTIMEO, &xReceiveTimeOut, sizeof( xReceiveTimeOut ) );
+        SOCKETS_SetSockOpt( socket, 0, SOCKETS_SO_SNDTIMEO, &xSendTimeOut, sizeof( xSendTimeOut ) );
 
-    error = SOCKETS_Connect( socket, &echoServerAddress, sizeof( echoServerAddress ) );
-    configASSERT( error == 0 );
+        error = SOCKETS_Connect( socket, &echoServerAddress, sizeof( echoServerAddress ) );
+        configASSERT( error == 0 );
 
-    return socket;
-}
+        return socket;
+    }
 
-#endif
-
-/*-----------------------------------------------------------*/
-
-static void _print( const uint8_t * pDataBuffer,
-                    size_t dataSize )
-{
-    IotLogInfo( "%.*s\r\n", dataSize, pDataBuffer );
-}
+#endif /* if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1 */

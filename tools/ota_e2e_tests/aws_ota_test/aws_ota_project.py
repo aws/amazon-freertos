@@ -82,9 +82,10 @@ class OtaAfrProject:
         OtaAfrProject.APPLICATION_VERSION_PATH = self._buildProject + '/include/aws_application_version.h'
         OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = self._buildProject + '/include/aws_clientcredential_keys.h'
         OtaAfrProject.OTA_CODESIGNER_CERTIFICATE_PATH = 'demos/include/aws_ota_codesigner_certificate.h'
-        OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = 'demos/ota/bootloader/utility/user-config/ota-descriptor.config'
-        OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = 'demos/ota/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
-        OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = 'demos/ota/bootloader/utility/factory_image_generator.py'
+        if 'microchip' in self._boardProjectPath:
+            OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/user-config/ota-descriptor.config'
+            OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
+            OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/factory_image_generator.py'
         # OtaAfrProject.OTA_UPDATE_DEMO_PATH = 'demos/ota/aws_ota_update_demo.c' // TODO: need to figure out the changes for non prod version to work.
 
     def initializeOtaProject(self):
@@ -100,7 +101,7 @@ class OtaAfrProject:
     def generateFactoryImage(self):
         # If this board uses the Amazon FreeRTOS reference bootlaoder, then we want to
         # build and flash the factory image.
-        if self._buildConfig.get('use_reference_bootloader', False):
+        if self._buildConfig.get('use_reference_bootloader', False) and OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH:
             factoryImageGenCommand = \
                 'python ' + os.path.join(self._projectRootDir, OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH) + ' ' + \
                 '-b ' + self._buildConfig['output'] + ' ' + \
@@ -127,11 +128,11 @@ class OtaAfrProject:
             os.environ['PATH'] = path + os.pathsep + os.environ['PATH']
 
         buildCommands = self._buildConfig['commands']
-        print('Building project {}...'.format(self._buildConfig['project_dir']))
+        print('Building project {} ...'.format(self._buildConfig['project_dir']))
         for command in buildCommands:
             command = command.format(**self._buildConfig)
             print('====> Executing Command: ' + command)
-            proc = subprocess.Popen(command + ' >> build_output.txt 2>&1', shell=True)
+            proc = subprocess.Popen(command + ' > build.log 2>&1', shell=True)
             proc.wait()
             print('====> Command run completed with the return code: ', proc.returncode)
             returnCodes.append(proc.returncode)
@@ -141,7 +142,7 @@ class OtaAfrProject:
         if not os.path.exists(output):
             print("ERROR: Could not find the output binary, the build might have failed.")
             print('Searched for build output at: {} and the current working directory is: '.format(self._buildConfig['output']), os.getcwd())
-            raise Exception("Error building project check build_output.txt")
+            raise Exception("Error building project check build.log")
         print('Build finished, output: {}'.format(self._buildConfig['output']))
 
         # We generate the factory image if applicable. This may depend on some build tool paths.
@@ -154,22 +155,21 @@ class OtaAfrProject:
 
     def __incrementBootloaderSequenceNumber(self):
         self._bootloaderSequenceNumber += 1
-        self.__setBootloaderSequenceNumber(self._bootloaderSequenceNumber)
-
-    def __setBootloaderSequenceNumber(self, number):
-        self.__setIdentifierInFile(
-            {
-                'SEQUENCE_NUMBER': '= ' + str(number)
-            },
-            os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH)
-        )
+        if OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH:
+            self.__setIdentifierInFile(
+                {
+                    'SEQUENCE_NUMBER': '= ' + str(self._bootloaderSequenceNumber)
+                },
+                os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH)
+            )
 
     def copyCodesignerCertificateToBootloader(self, certificate):
         """Copies the input certificate to a file named: aws_ota_codesigner_certificate.pem under
         demos/ota/bootloader/utility/codesigner_cert_utility.
         """
-        with open(os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH), 'w') as f:
-            f.write(certificate)
+        if OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH:
+            with open(os.path.join(self._projectRootDir, OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH), 'w') as f:
+                f.write(certificate)
 
     def __setDemoRunnerForOtaDemo(self):
         """

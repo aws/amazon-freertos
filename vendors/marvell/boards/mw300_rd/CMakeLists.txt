@@ -258,8 +258,18 @@ target_link_libraries(
         -T${global-linkerscript-y}
 )
 
+if(AFR_METADATA_MODE)
+    return()
+endif()
+
 # Convert afx file to bin file
-set(axf2fw "${mw320_dir}/sdk/tools/bin/Linux/axf2firmware")
+if("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Linux")
+    set(axf2fw "${mw320_dir}/sdk/tools/bin/Linux/axf2firmware")
+    execute_process(COMMAND chmod +x "${axf2fw}")  # TODO, workaround for Amazon FreeRTOS console permission issue.
+else()
+    message(FATAL_ERROR "Only Linux host is supported for marvell.")
+endif()
+
 add_custom_command(
      TARGET ${exe_target} POST_BUILD
      COMMAND "${CMAKE_COMMAND}" -E remove "${exe_target}.bin"

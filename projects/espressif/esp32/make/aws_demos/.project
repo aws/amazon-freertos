@@ -32,11 +32,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_demos/application_code</locationURI>
 		</link>
 		<link>
-			<name>build</name>
-			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/build</locationURI>
-		</link>
-		<link>
 			<name>demos</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/demos</locationURI>
@@ -648,11 +643,6 @@
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -1593,21 +1583,6 @@
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -3102,16 +3077,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/tls/include/aws_tls.h</locationURI>
@@ -4036,14 +4001,6 @@
 		<variable>
 			<name>BASE_DIR_ROOT</name>
 			<value>$%7BPARENT-4-PROJECT_LOC%7D</value>
-		</variable>
-		<variable>
-			<name>BASE_DIR_ROOT1</name>
-			<value>$%7BBASE_DIR_ROOT%7D/Desktop/test/Release-1.5/amazon-freertos/vendors/espressif</value>
-		</variable>
-		<variable>
-			<name>copy_PARENT</name>
-			<value>$%7BBASE_DIR_ROOT%7D/Desktop/test/Release-1.5/amazon-freertos</value>
 		</variable>
 	</variableList>
 </projectDescription>

@@ -24,7 +24,7 @@ afr_set_board_metadata(VENDOR_NAME "MediaTek")
 afr_set_board_metadata(FAMILY_NAME "MT7697Hx")
 afr_set_board_metadata(DATA_RAM_MEMORY "352KB")
 afr_set_board_metadata(PROGRAM_MEMORY "4MB")
-afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
+afr_set_board_metadata(CODE_SIGNER "null")
 afr_set_board_metadata(SUPPORTED_IDE "uVision")
 afr_set_board_metadata(RECOMMENDED_IDE "uVision")
 afr_set_board_metadata(IDE_uVision_NAME "Keil uVision")
@@ -223,7 +223,6 @@ target_include_directories(
         "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/provisioning/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
         ${compiler_specific_include}

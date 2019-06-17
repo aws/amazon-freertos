@@ -130,15 +130,6 @@
     <Filter Include="libraries\freertos_plus\standard">
       <UniqueIdentifier>{df891f95-b06b-4cb6-bc98-22cbcb388c46}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\provisioning">
-      <UniqueIdentifier>{7e960c53-8b4a-4811-ace0-67bd7f1c61b9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\standard\provisioning\include">
-      <UniqueIdentifier>{998d1dd6-a29f-49af-b457-a677a1092482}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\standard\provisioning\src">
-      <UniqueIdentifier>{4321ab04-a19d-47c5-be8a-9865fa7a502d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="libraries\freertos_plus\standard\freertos_plus_posix">
       <UniqueIdentifier>{5c36bed6-9f71-40e3-866b-d2fce36f24c6}</UniqueIdentifier>
     </Filter>
@@ -327,6 +318,15 @@
     </Filter>
     <Filter Include="libraries\freertos_plus\aws\greengrass\src">
       <UniqueIdentifier>{9475faed-5d1f-4aa1-a26d-2357b1f7088b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos\dev_mode_key_provisioning">
+      <UniqueIdentifier>{932fedc8-dc2c-4c42-a3c3-276bb1f7819c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos\dev_mode_key_provisioning\include">
+      <UniqueIdentifier>{23b4b5bb-afbc-45f2-84ed-175c42d87e61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="demos\dev_mode_key_provisioning\src">
+      <UniqueIdentifier>{c2a6be1f-d472-4ddb-86e3-1c7049d163d9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -548,9 +548,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include\trcRecorder.h">
       <Filter>libraries\3rdparty\tracealyzer_recorder\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include\aws_dev_mode_key_provisioning.h">
-      <Filter>libraries\freertos_plus\standard\provisioning\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h">
       <Filter>libraries\freertos_plus\standard\freertos_plus_posix\include</Filter>
@@ -990,6 +987,9 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
       <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
+      <Filter>demos\dev_mode_key_provisioning\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c">
@@ -1090,9 +1090,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcSnapshotRecorder.c">
       <Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\provisioning\src\aws_dev_mode_key_provisioning.c">
-      <Filter>libraries\freertos_plus\standard\provisioning\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c">
       <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
@@ -1510,6 +1507,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
       <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
+      <Filter>demos\dev_mode_key_provisioning\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c">
+      <Filter>demos\dev_mode_key_provisioning\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

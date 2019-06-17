@@ -45,7 +45,9 @@ The following MCU boards are supported for Amazon FreeRTOS:
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_marvell320.html)
 13. **Marvell MW322** - [Marvell MW322 AWS IoT Starter Kit](https://www.marvell.com/microcontrollers/aws-iot-starter-kit/)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_marvell322.html)
-14. **Windows Simulator** - To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
+14. **Nordic nRF52840 DK** - [nRF52840 DK Development kit](https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK/)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_nordic.html)
+15. **Windows Simulator** - To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
     * Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
     * IDE: [Visual Studio Community Edition](https://www.visualstudio.com/downloads/)

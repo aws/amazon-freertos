@@ -1,7 +1,6 @@
-
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS Common V1.0.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +22,6 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-
 
 /**
  * @file iot_network_types.h

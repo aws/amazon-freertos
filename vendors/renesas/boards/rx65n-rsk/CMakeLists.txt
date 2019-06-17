@@ -262,3 +262,7 @@ target_link_libraries(
         AFR::freertos_plus_tcp
         AFR::utils
 )
+
+if(NOT AFR_METADATA_MODE)
+    message(FATAL_ERROR "CMake support for nxp is not complete yet.")
+endif()

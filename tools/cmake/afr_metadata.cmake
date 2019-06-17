@@ -183,7 +183,7 @@ function(afr_write_metadata)
     foreach(cmake_file IN LISTS AFR_METADATA_CMAKE_FILES)
         get_filename_component(module_dir "${cmake_file}" DIRECTORY)
         get_filename_component(module "${module_dir}" NAME)
-        if(module IN_LIST AFR_MODULES_ENABLED)
+        if(module IN_LIST AFR_MODULES_ENABLED OR "demo_${module}" IN_LIST AFR_MODULES_ENABLED)
             list(APPEND cmake_files "${cmake_file}")
             list(APPEND src_console "${module_dir}")
         endif()
@@ -300,6 +300,16 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/SetupAWS.py"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/certs.py"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/thing.py"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/policy.py"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/misc.py"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/configure.json"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/aws_clientcredential.templ"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/aws_clientcredential_keys.templ"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/policy_document.templ"
+        "${AFR_ROOT_DIR}/tools/aws_config_quick_start/README.md"
         "${AFR_KERNEL_DIR}"
         "${AFR_TESTS_DIR}"
     )

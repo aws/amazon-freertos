@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS BLE V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -87,7 +87,8 @@
 /**
  * @defgroup
  * Wifi provisioning message types.
- * /** @{ */
+ */
+/** @{ */
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ       ( 1 )
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP      ( 2 )
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ       ( 3 )
