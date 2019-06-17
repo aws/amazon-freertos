@@ -1,4 +1,4 @@
-afr_module()
+afr_module(NAME pkcs11_implementation)
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")

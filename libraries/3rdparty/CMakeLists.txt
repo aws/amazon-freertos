@@ -88,14 +88,14 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
     add_library(
         afr_3rdparty_mbedtls STATIC EXCLUDE_FROM_ALL
         ${mbedtls_src}
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11_implementation/mbedtls/threading_alt.h"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/threading_alt.h"
     )
     target_include_directories(
         afr_3rdparty_mbedtls
         PUBLIC
             "${AFR_3RDPARTY_DIR}/mbedtls/include"
             "${AFR_3RDPARTY_DIR}/mbedtls/include/mbedtls"
-            "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11_implementation/mbedtls"
+            "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
     )
     target_link_libraries(
         afr_3rdparty_mbedtls
