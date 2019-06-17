@@ -1,0 +1,5 @@
+/**
+@page ug_globalconfig Global configuration
+@brief Configuration settings that affect all libraries.
+
+*/

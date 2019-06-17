@@ -18,14 +18,15 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 from abc import abstractmethod
 from collections import namedtuple
 import os
+import time
 import errno
 import traceback
 
@@ -35,12 +36,12 @@ class OtaTestCase( object ):
     """OTA Test Case abstract class.
     Attributes:
         _name(str): Name of the testcase.
+        _positive(bool): Positive or negative of the testcase.
         _otaConfig(dict): 'ota_config' in board.json.
         _otaProject(obj:OtaAfrProject): Amazon FreeRTOS source code resource.
         _otaAwsAgent(obj:OtaAwsAgent): AWS CLI for OTA resource.
         _flashComm(obj:FlashSerialComm): MCU Flash and Serial read resource.
     Methods:
-        getTestResult() : abstract method
         run() : abstract method
         getName()
         setup() : Sets up _otaProject as 0.9.0 should be overwritten if that is not desired.
@@ -49,8 +50,9 @@ class OtaTestCase( object ):
         getTestResultAfterOtaUpdateCompletion()
     """
     TestCaseResult = namedtuple('TestCaseResult', 'result reason')
-    def __init__(self, name, boardConfig, otaProject, otaAwsAgent, flashComm):
+    def __init__(self, name, positive, boardConfig, otaProject, otaAwsAgent, flashComm):
         self._name = name
+        self._positive = positive
         self._boardConfig = boardConfig
         self._otaConfig = boardConfig['ota_config']
         self._otaProject = otaProject
@@ -63,51 +65,45 @@ class OtaTestCase( object ):
         """Return the name of this test case.
         """
         return self._name
-        
+
     def setup(self):
         """Setup the OTA test.
-        This method should be overwritten if flashing version 0.9.0 is not desired.
+        All the necessary setup. Optional method, but do call super setup if implementation is provided in sub-class.
         """
         self._otaProject.setApplicationVersion(0, 9, 0)
-        self._otaProject.buildProject()
-        self._flashComm.flashAndRead()
+        buildReturnCode = self._otaProject.buildProject()
+        flashReturnCode = self._flashComm.flashAndRead()
+
+        return buildReturnCode + flashReturnCode
 
     def teardown(self):
         """ Tear down the OTA test.
-        All the necessary cleanup. Optional method.
+        All the necessary cleanup. Optional method, but do call super teardown if implementation is provided in sub-class.
         """
-        None
-        
-    @abstractmethod
-    def getTestResult(self, otaStatus, log):
-        """Get the results of the test given the otaStatus or the output in the log.
-        Returns OtaTestCase.PASS or OtaTestCase.FAIL.
-        Args:
-            otaStatus(namedtuple(status, reason)): The status from AWS IoT OTA Service.
-            log(str): The output log from the MCU device.
-        """
-        print("OtaTestCase::getTestResult is not implemented.")
-        return OtaTestResult(OtaTestCase.FAIL, 'OtaTestCase::getTestResult is not implemented')
+        self._flashComm.stopSerialRead()
 
     def runTest(self):
         """Run this OTA test case.
         """
+        start = time.time()
         print('---------- Running '+ self._boardConfig['name'] + ' : ' + self._name + ' ----------')
 
         # Run the implemented runTest function
         logAppendage = ''
         try:
             # Run the implemented setup.
-            self.setup()
+            returnCodes = self.setup()
+
             # Run the actual test.
-            testResult = self.run()
+            if all(p == 0 for p in returnCodes):
+                testResult = self.run()
+            else:
+                testResult = OtaTestResult(testName=self._name, result=OtaTestResult.ERROR, summary='Building or flashing failed. Please check logs.')
         except Exception:
             logAppendage = traceback.format_exc()
             print(logAppendage)
-            testResult = OtaTestResult(testName=self._name, result=OtaTestResult.FAIL, reason=logAppendage)
-        
-        print('OTA E2E TEST RESULT: ' + testResult.result + '; because ' + testResult.reason)
-        
+            testResult = OtaTestResult(testName=self._name, result=OtaTestResult.ERROR, summary='Exception found during test execution. Please check logs.')
+
         # The test is finished save the log to the board's folder
         self.createTestLog(logAppendage)
 
@@ -115,6 +111,12 @@ class OtaTestCase( object ):
         self.teardown()
 
         print('---------- Finished '+ self._boardConfig['name'] + ' : ' + self._name + ' ----------')
+        end = time.time()
+
+        time.sleep(3) # Wait for the device log flashes completely.
+
+        testResult.print(int(end - start))
+
         return testResult
 
     def createTestLog(self, appendage=''):
@@ -131,10 +133,10 @@ class OtaTestCase( object ):
 
     @abstractmethod
     def run(self):
-        """ Run the OTA test case setup by the jobID. 
+        """ Run the OTA test case setup by the jobID.
         Should create the desired OTA job here and wait on completion.
         """
-        print('OtaTestCase::run is not implemented.')
+        raise Exception("OtaTestCase::run is not implemented. Please provide the implementation.")
 
     def getTestResultAfterOtaUpdateCompletion(self, otaUpdateId):
         """Utility helper to poll for completion of the input job then stop reading
@@ -142,6 +144,5 @@ class OtaTestCase( object ):
         Args:
             otaUpdateId(str): AWS IoT OTA Update ID to poll for completion status.
         """
-        jobStatus = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
-        self._flashComm.stopSerialRead()
-        return self.getTestResult(jobStatus, self._flashComm.getSerialLog())
+        jobStatus, summary = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
+        return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)

@@ -1,0 +1,71 @@
+@startuml
+skinparam classFontSize 8
+skinparam classFontName Helvetica
+autonumber
+
+box "Application thread" #LightGreen
+    participant "Application" as application
+    create participant "MQTT API\nfunction" as api
+end box
+
+database "Send queue" as send_queue
+
+== Enqueue Operation ==
+activate application
+application -> api: Call MQTT\noperation\nfunction
+deactivate application
+activate api
+api -> api: Allocate resources\nand generate\nMQTT packet
+api -> send_queue: Add operation to\nsend queue
+activate send_queue
+api -> application: Return\nSTATUS_PENDING
+destroy api
+activate application
+
+== Transmit MQTT Packet ==
+create participant "Send thread" as send_thread
+database "Receive queue" as receive_queue
+participant "Network" as network
+
+send_queue -> send_thread: Remove oldest\noperation
+activate send_thread
+send_thread -> network: Transmit operation
+activate network
+send_thread -> receive_queue: Add operation to\nreceive queue
+activate receive_queue
+send_thread -> send_queue: Check for more\noperations
+send_queue -> send_thread: Send queue empty
+deactivate send_queue
+destroy send_thread
+
+network -> network: Wait for\nserver response
+
+== Parse Server Response ==
+create participant "Receive\ncallback" as receive_callback
+network -> receive_callback: Parse server\nresponse
+deactivate network
+
+database "Callback queue" as callback_queue
+
+activate receive_callback
+receive_callback -> receive_queue: Find operation\nwaiting for response
+receive_queue -> receive_callback: Remove waiting\noperation
+deactivate receive_queue
+receive_callback -> callback_queue: Add operation to\ncallback queue
+activate callback_queue
+deactivate receive_callback
+
+== Notify Application of Result ==
+create participant "Callback\nthread" as callback_thread
+callback_queue -> callback_thread: Remove oldest\noperation
+
+activate callback_thread
+callback_thread -> application: Notify application\nof result
+callback_thread -> callback_queue: Check for more\noperations
+callback_queue -> callback_thread: Callback queue empty
+deactivate callback_queue
+destroy callback_thread
+
+deactivate application
+
+@enduml

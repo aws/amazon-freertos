@@ -1,6 +1,0 @@
-//arch = zynq; split = false; format = BIN
-the_ROM_image:
-{
-	[bootloader]lib/third_party/mcu_vendor/xilinx/fsbl/Debug/fsbl.elf
-	demos/xilinx/microzed/xsdk/aws_demos/Debug/aws_demos.elf
-}

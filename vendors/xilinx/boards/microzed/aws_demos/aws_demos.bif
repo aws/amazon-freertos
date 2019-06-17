@@ -1,0 +1,6 @@
+//arch = zynq; split = false; format = BIN
+the_ROM_image:
+{
+	[bootloader]../../../../../vendors/xilinx/fsbl/Release/fsbl.elf
+	../../../../../projects/xilinx/microzed/xsdk/aws_demos/Debug/aws_demos.elf
+}

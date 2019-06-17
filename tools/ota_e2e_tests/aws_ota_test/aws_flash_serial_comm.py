@@ -69,6 +69,7 @@ class FlashSerialComm:
         We are expecting the flash commands to not only program the board, but to also
         take the board out of reset after programming.
         """
+        returnCodes = []
         # Save the system path to restore.
         system_path = os.environ['PATH']
         # Add the tool_paths to the system PATH
@@ -79,17 +80,24 @@ class FlashSerialComm:
         print('Flashing test application to board...')
         for command in flashCommands:
             command = command.format(**self._flashConfig)
-            subprocess.Popen(command, shell=True).wait()
+            print('====> Executing Command: ' + command)
+            proc = subprocess.Popen(command, shell=True)
+            proc.wait()
+            print('====> Command run completed with the return code: ', proc.returncode)
+            returnCodes.append(proc.returncode)
         print('Done with flash commands. Now running...')
 
         # Restore the system path
         os.environ['PATH'] = system_path
-        
+
+        return returnCodes
+
     def flashAndRead(self):
         """Flash program the board and also open a serial port for reading.
         """
         retryCount = 0
         testOutput = ''
+        returnCodes = []
 
         while (not testOutput) and retryCount < self._flashConfig['flash_num_retry']:
             # Clear the serial log before each new program of the board.
@@ -101,13 +109,13 @@ class FlashSerialComm:
                 # Open the serial port because it takes a while. We do this before flashing
                 # so that we don't miss any output logs.
                 self._serialThread.startRead()
-                self.flashApplication()
+                returnCodes = self.flashApplication()
             else:
                 # Some boards, especially where the output is USB, do not need for the 
                 # serial port to be open before flashing to not miss logs; or have the same
                 # port for flashing and serial communication, so we must flash before opening
                 # the serial port.
-                self.flashApplication()
+                returnCodes = self.flashApplication()
                 self._serialThread.startRead()
                 
             # Wait the serial communication timeout to get an initial log output.
@@ -115,6 +123,8 @@ class FlashSerialComm:
             # Get the initial log, it should not be blank, if it is we will repeat flashing.
             testOutput = self._serialThread.getLog()
             retryCount += 1
+
+        return returnCodes
 
     def stopSerialRead(self):
         """Stop the serial thread from reading. This will close the serial port.
