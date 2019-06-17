@@ -21,7 +21,7 @@
     - Device information.
     - Wi-Fi credentials provisioning.
     - MQTT-over-Bluetooth Low Energy through Android or iOS device proxy to support.
-        - OTA, Device Shadow and Device Defender functionality.
+        - OTA and Device Shadow functionality.
 
 #### MQTT Library V2.0.0, Device Shadow Library V2.0.0, and Device Defender Library V2.0.0
 - Enable consistent re-use pattern of one single connection across all libraries.
