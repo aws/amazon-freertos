@@ -18,26 +18,26 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestUnsignedImage( OtaTestCase ):
     NAME = 'OtaTestUnsignedImage'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestUnsignedImage, self).__init__(
-            OtaTestUnsignedImage.NAME, 
+            OtaTestUnsignedImage.NAME,
+            False,
             boardConfig,
-            otaProject, 
-            otaAwsAgent, 
+            otaProject,
+            otaAwsAgent,
             flashComm
         )
-    
+
     def run(self):
         # Increase the version of the OTA image.
         self._otaProject.setApplicationVersion(0, 9, 1)
@@ -71,9 +71,3 @@ class OtaTestUnsignedImage( OtaTestCase ):
             ]
         )
         return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
-
-    def getTestResult(self, jobStatus, log):
-        if (jobStatus.status != 'FAILED'):
-            return OtaTestResult(testName=self._name, result=OtaTestResult.FAIL, reason='AWS Job Status: ' + jobStatus.status + ", reason: " + jobStatus.reason)
-        else:
-            return OtaTestResult(testName=self._name, result=OtaTestResult.PASS, reason='')

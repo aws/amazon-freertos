@@ -1,0 +1,29 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "BLE"
+PROJECT_BRIEF = "BLE"
+
+# Library documentation output directory.
+HTML_OUTPUT = ble
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/ble.tag
+
+# Directories containing library source code.
+INPUT = doc \
+        doc/lib \
+        libraries/c_sdk/standard/ble/include \
+        libraries/abstractions/ble_hal/include
+
+# Library file names.
+FILE_PATTERNS = *ble*.c *ble*.h *ble*.txt
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main \
+           doc/tag/linear_containers.tag=../linear_containers \
+           doc/tag/logging.tag=../logging \
+           doc/tag/platform.tag=../platform \
+           doc/tag/static_memory.tag=../static_memory \

@@ -1,5 +1,0 @@
-:cmock:
-  :plugins:
-    - 'soda'
-    - 'pizza'
-  :treat_externs: :include
