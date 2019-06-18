@@ -50,7 +50,7 @@ class runTest:
 
 	SHORT_LOCAL_NAME_SIZE = 4
 	ADVERTISEMENT_TEST_TIMEOUT = 120
-	STOP_ADVERTISEMENT_TEST_TIMEOUT = 6000 #6 seconds
+	STOP_ADVERTISEMENT_TEST_TIMEOUT = 2000 #2 seconds
 	SIMPLE_CONNECTION_TEST_TIMEOUT = 120
 	SERVICE_DISCOVERY_TEST_TIMEOUT = 120
 	PAIRING_TEST_TIMEOUT = 120
@@ -63,10 +63,18 @@ class runTest:
 
 	@staticmethod
 	def stopAdvertisement(scan_filter):
+		#Do one cycle of discovery to remove cached messages.
 		timerHandle = GObject.timeout_add(runTest.STOP_ADVERTISEMENT_TEST_TIMEOUT, discoveryStoppedCb)
 		bleAdapter.setDiscoveryFilter(scan_filter)
 		bleAdapter.startDiscovery(discoveryStoppedCb)#wait for DUT to start advertising
 		mainloop.run()
+		bleAdapter.stopDiscovery()
+
+		#All cached message have been remove. Try again a discovery.
+		timerHandle = GObject.timeout_add(runTest.STOP_ADVERTISEMENT_TEST_TIMEOUT, discoveryStoppedCb)
+		bleAdapter.setDiscoveryFilter(scan_filter)
+		bleAdapter.startDiscovery(discoveryStoppedCb)#wait for DUT to start advertising
+		mainloop.run()		
 		runTest.submitTestResult(testResult, runTest.stopAdvertisement)
 		bleAdapter.stopDiscovery()
 
