@@ -139,7 +139,8 @@ void vLoggingPrintf( const char * pcFormat,
                      ... );
 
 /* Map the FreeRTOS printf() to the logging task printf. */
-#define configPRINTF( x )   vLoggingPrintf x   //printf x
+#define configPRINTF( x )          printf x //vLoggingPrintf x
+
 
 /* Non-format version thread-safe print */
 #define configPRINT( X )                  vLoggingPrint( X )
