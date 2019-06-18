@@ -2648,7 +2648,6 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             }
             else
             {
-                xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
                 OTA_LOG_L1( "[%s] Ignoring job without ID.\r\n", OTA_METHOD_NAME );
             }
         }
@@ -2658,6 +2657,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     if( pxFinalFile == NULL )
     {
         ( void ) prvOTA_Close( C ); /* Ignore impossible false result by design */
+        xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL; /* Clean up global context */
     }
 
     /* Return pointer to populated file context or NULL if it failed. */
