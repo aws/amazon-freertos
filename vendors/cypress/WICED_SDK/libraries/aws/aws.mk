@@ -144,7 +144,7 @@ $(NAME)_INCLUDES := $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_AWS_PATH)/shadow/include/types \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/include     \
                     $(AFR_FREERTOS_PLUS_AWS_PATH)/greengrass/src         \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/include \
+                    $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/include \

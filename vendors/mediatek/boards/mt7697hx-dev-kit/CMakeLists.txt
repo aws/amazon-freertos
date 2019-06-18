@@ -223,7 +223,6 @@ target_include_directories(
         "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/provisioning/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
         "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
         ${compiler_specific_include}

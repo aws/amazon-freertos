@@ -647,11 +647,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/tls</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -1588,21 +1583,6 @@
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -3095,16 +3075,6 @@
 			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
