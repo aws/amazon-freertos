@@ -1,14 +1,56 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <Filter Include="test">
+      <UniqueIdentifier>{1dee881c-0de9-4692-b845-7583d67ba016}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\include">
+      <UniqueIdentifier>{37f1f9d9-9bce-4f97-8884-ea28da4825fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="test\src">
+      <UniqueIdentifier>{7b070ae9-729c-43da-b65b-ff060e37afbc}</UniqueIdentifier>
+    </Filter>
     <Filter Include="config_files">
       <UniqueIdentifier>{d4dcf3a2-3b04-421e-a9b4-682eb9c701e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules">
+      <UniqueIdentifier>{8f4cfdb2-238e-4e5c-a9ac-e51751f5c9bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries">
+      <UniqueIdentifier>{95c9b109-b2f8-44d0-94b9-c64f3943f5d6}</UniqueIdentifier>
     </Filter>
     <Filter Include="freertos_kernel">
       <UniqueIdentifier>{a3c324a7-7658-4e12-bb2f-d51abbd075d2}</UniqueIdentifier>
     </Filter>
     <Filter Include="freertos_kernel\include">
       <UniqueIdentifier>{505dc106-4bf4-43ef-8f99-53598dc3da51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\ports">
+      <UniqueIdentifier>{ed62dd5a-8604-48a6-baa7-52c04a9481be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\3rdparty">
+      <UniqueIdentifier>{6aecca5c-4189-4250-b9b6-b07363dfe4ac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\aws">
+      <UniqueIdentifier>{3b0a3564-46f5-4897-973c-92edd3632499}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\standard">
+      <UniqueIdentifier>{64846671-11e6-48cd-a337-935a7c4c3a71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\standard\freertos_plus_tcp">
+      <UniqueIdentifier>{2e550a34-a4a0-4a3c-a009-842a54fdfdaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\standard\freertos_plus_tcp\include">
+      <UniqueIdentifier>{253818b0-e0e5-45a0-8d89-77ff9d5ead99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\standard\freertos_plus_tcp\source">
+      <UniqueIdentifier>{162a7750-7d91-425c-9f2c-21a81a625ccf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\standard\freertos_plus_tcp\test">
+      <UniqueIdentifier>{693a77f2-9acf-4858-bdf3-e43fe64014f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\standard\freertos_plus_tcp\source\portable">
+      <UniqueIdentifier>{9479eaca-98fe-4d29-bf5a-438fd9c2d959}</UniqueIdentifier>
     </Filter>
     <Filter Include="freertos_kernel\portable">
       <UniqueIdentifier>{297d5128-635a-4291-a54d-06aff74ea0ca}</UniqueIdentifier>
@@ -19,6 +61,15 @@
     <Filter Include="freertos_kernel\portable\MSVC-MingW">
       <UniqueIdentifier>{194636ac-dedf-4e33-bbbb-bbeb1af73237}</UniqueIdentifier>
     </Filter>
+    <Filter Include="modules\libraries\3rdparty\unity">
+      <UniqueIdentifier>{1a6eff20-09dd-408e-b8d0-8ec006912785}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\3rdparty\unity\src">
+      <UniqueIdentifier>{72f7d891-276d-4728-9037-95523599470a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="modules\libraries\3rdparty\unity\fixture">
+      <UniqueIdentifier>{442295de-23ed-47d1-b493-43c20e9ae330}</UniqueIdentifier>
+    </Filter>
     <Filter Include="application_code">
       <UniqueIdentifier>{95399cf8-0b6b-43c9-b087-b5ac0cc14496}</UniqueIdentifier>
     </Filter>
@@ -28,1659 +79,653 @@
     <Filter Include="application_code\src">
       <UniqueIdentifier>{9aecdfce-ca24-4cea-878a-90114f3e6f3b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries">
-      <UniqueIdentifier>{00daf790-0605-4c8e-bff2-ee88eedb65c1}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\utils">
+      <UniqueIdentifier>{20f98d6e-3811-466c-bce0-3ed806502b30}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions">
-      <UniqueIdentifier>{f7fb3c21-4b85-4661-8de2-692d9bad8f78}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\utils\src">
+      <UniqueIdentifier>{be575f4a-22e1-487e-953b-ab532751c16a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\pkcs11">
-      <UniqueIdentifier>{7d168a09-ff6a-41ec-8ad3-8c999e02fbbe}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\utils\include">
+      <UniqueIdentifier>{4e7b48df-1672-41fd-ac15-f80ee0c275ae}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\pkcs11\include">
-      <UniqueIdentifier>{16f0337b-bb61-43c6-b424-6baba881854f}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\provisioning">
+      <UniqueIdentifier>{0c825f95-a172-4d35-b673-19b2ba9639f7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\pkcs11\mbedtls">
-      <UniqueIdentifier>{749f5dac-06d4-47f7-86f4-2b51d0561ff6}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\provisioning\include">
+      <UniqueIdentifier>{1c754e81-958b-4dd6-89b7-114f6271a57f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\pkcs11\test">
-      <UniqueIdentifier>{4d279131-c507-40f1-946d-25ddc837f65a}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\provisioning\src">
+      <UniqueIdentifier>{304d5611-2fbd-47ea-a8d9-7bdeef848a1e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform">
-      <UniqueIdentifier>{fac6df4a-5094-4607-951c-c0fec903632e}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\tracealyzer_recorder">
+      <UniqueIdentifier>{c6ff8129-b3ad-456c-8197-996f3a84057c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform\freertos">
-      <UniqueIdentifier>{ea7afb99-e709-4d6e-812a-b8784951549e}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\tracealyzer_recorder\Include">
+      <UniqueIdentifier>{c40c3d66-29f3-46db-9ab8-b4796fd7a15f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform\include">
-      <UniqueIdentifier>{e16fd589-51d9-4d15-aba6-758248d5db5e}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\freertos_plus_tcp\source\portable\MSVC">
+      <UniqueIdentifier>{91d20184-b089-433a-849a-f206fe2793b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform\test">
-      <UniqueIdentifier>{9c345759-d32b-430a-883b-fdbce179b8c3}</UniqueIdentifier>
+    <Filter Include="modules\ports\pkcs11">
+      <UniqueIdentifier>{28c5d667-4854-47c8-93df-95a1b135b50d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform\freertos\include">
-      <UniqueIdentifier>{5da43eb9-e9a8-4b88-b0bc-6dd5f47201d6}</UniqueIdentifier>
+    <Filter Include="modules\ports\pkcs11\include">
+      <UniqueIdentifier>{70394fea-b7bd-4723-8ed3-312a89fa3a90}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform\freertos\include\platform">
-      <UniqueIdentifier>{a382663e-b650-45d9-ac17-1249a79e2bb4}</UniqueIdentifier>
+    <Filter Include="modules\ports\pkcs11\mbedtls">
+      <UniqueIdentifier>{107577da-1d07-40cb-bc87-a42552953981}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform\include\platform">
-      <UniqueIdentifier>{4b897267-287f-4e9c-9097-725e454dd448}</UniqueIdentifier>
+    <Filter Include="modules\ports\pkcs11\test">
+      <UniqueIdentifier>{16d07790-9240-4155-84e1-81aa91ba72af}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\platform\include\types">
-      <UniqueIdentifier>{397ed3b3-5b9d-4a73-b807-7c685bf919ef}</UniqueIdentifier>
+    <Filter Include="modules\ports\secure_sockets">
+      <UniqueIdentifier>{04d72506-4818-474b-b1f6-30c5e78694e8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\posix">
-      <UniqueIdentifier>{cf0346bc-71a5-4a26-80b7-bea1adcc667d}</UniqueIdentifier>
+    <Filter Include="modules\ports\secure_sockets\include">
+      <UniqueIdentifier>{d1eac612-5479-4ab6-8660-d88294bc4e0e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\posix\include">
-      <UniqueIdentifier>{f02106c4-5941-48fa-920c-0aed997d670c}</UniqueIdentifier>
+    <Filter Include="modules\ports\secure_sockets\src">
+      <UniqueIdentifier>{a4475d19-b1e7-4130-aa7d-b68d77ad068c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX">
-      <UniqueIdentifier>{79717e03-0df1-44fb-9a7b-4bc2f59443c5}</UniqueIdentifier>
+    <Filter Include="modules\ports\secure_sockets\test">
+      <UniqueIdentifier>{2671b1b1-e7db-4c8b-886a-8837892e3a07}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\posix\include\FreeRTOS_POSIX\sys">
-      <UniqueIdentifier>{1a0d36fe-5ec5-497d-bb66-a00e3a8d22a5}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common">
+      <UniqueIdentifier>{2da377ce-ea57-4006-9b30-b8845d9f2452}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\secure_sockets">
-      <UniqueIdentifier>{ea4b00c9-95c3-4132-8382-6ddd75ae0bf2}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common\include">
+      <UniqueIdentifier>{527dc486-02b9-4cf4-8b0c-b179997808d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\secure_sockets\include">
-      <UniqueIdentifier>{4d4de92f-4f39-48c9-b63c-350feabd5d4d}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common\include\private">
+      <UniqueIdentifier>{3cbe35ac-ca76-4ea0-8a46-9e9100d8b5ec}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\secure_sockets\freertos_plus_tcp">
-      <UniqueIdentifier>{47a55852-653f-4705-929a-8a731aa1624f}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\mbedtls">
+      <UniqueIdentifier>{cabc5698-ccf7-4222-9ac3-b209bf9a1725}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\abstractions\secure_sockets\test">
-      <UniqueIdentifier>{25a6b446-148a-470b-9f87-041c470920fd}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\mbedtls\include">
+      <UniqueIdentifier>{31949caf-e99b-4391-a041-17942402b674}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus">
-      <UniqueIdentifier>{c0048c22-7781-494d-b082-c5f15f0630ff}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\mbedtls\include\mbedtls">
+      <UniqueIdentifier>{761c3d83-4762-4df1-b389-eddd230dac8c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard">
-      <UniqueIdentifier>{d305e976-aefd-4465-8169-b19ebf13466e}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\mbedtls\library">
+      <UniqueIdentifier>{63d5f8c7-9548-48bc-a6dc-3938e21e2ece}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp">
-      <UniqueIdentifier>{1cefda93-6204-48e9-b99a-1703c368b3a5}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\crypto">
+      <UniqueIdentifier>{07563180-7d37-4111-9b15-a3b55a675542}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\include">
-      <UniqueIdentifier>{3128d0e4-c873-492d-9d82-acd9fdf63aab}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\crypto\include">
+      <UniqueIdentifier>{a8884f85-374f-428a-b209-c18ece4b0007}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source">
-      <UniqueIdentifier>{152701ae-c1f5-404a-9267-fbb213f0a1e0}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\crypto\src">
+      <UniqueIdentifier>{05956b82-c1e9-4e11-9c00-d0bec7ab6736}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\test">
-      <UniqueIdentifier>{633382d2-a68d-402b-98e0-ade45226013c}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\crypto\test">
+      <UniqueIdentifier>{e7da7092-5f41-4290-801f-660da5a8ee09}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tests">
-      <UniqueIdentifier>{1dee881c-0de9-4692-b845-7583d67ba016}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\tls">
+      <UniqueIdentifier>{a4342758-5229-4b0c-9ea3-ecc0f7e3b18b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tests\include">
-      <UniqueIdentifier>{37f1f9d9-9bce-4f97-8884-ea28da4825fd}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\tls\include">
+      <UniqueIdentifier>{321a169e-4312-47a4-b48b-18e1b8b4e8bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="tests\common">
-      <UniqueIdentifier>{7b070ae9-729c-43da-b65b-ff060e37afbc}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\tls\src">
+      <UniqueIdentifier>{2e7b440c-14d8-4a14-9b3f-789a7379c93c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable">
-      <UniqueIdentifier>{73294552-ce2f-4041-aa53-2a96824432f8}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\tls\test">
+      <UniqueIdentifier>{86726390-de70-4adc-aa64-4127486ec0c9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\MSVC">
-      <UniqueIdentifier>{5dc37c7d-bf57-4f4d-ac64-168decf82b79}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common\test">
+      <UniqueIdentifier>{d8194fff-9f68-401f-97b0-8cbc82534b3b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty">
-      <UniqueIdentifier>{87146bfd-2d3f-4434-a3fb-140acb241cf7}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\defender">
+      <UniqueIdentifier>{f1bed97c-91e3-4fd4-ac61-a74202ec235f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\unity">
-      <UniqueIdentifier>{4f6a5e64-da9a-4986-ad00-852b018e2e5f}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\defender\include">
+      <UniqueIdentifier>{5f35e4de-19b5-4d40-bacf-01299b796c18}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\unity\fixture">
-      <UniqueIdentifier>{f127b0ee-decd-4a6e-9abc-2aaf2af0429d}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\defender\src">
+      <UniqueIdentifier>{19abea77-f228-401f-a2e2-4d2e8e479d0a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\unity\src">
-      <UniqueIdentifier>{b1519ceb-f626-4d96-a23f-cff9158d804a}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\defender\test">
+      <UniqueIdentifier>{c7815f5b-ec6e-4875-a2cf-0b12ed5f26c3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\tracealyzer_recorder">
-      <UniqueIdentifier>{4c7600cf-ba6d-4b31-9c54-7220d6ed6b60}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\greengrass">
+      <UniqueIdentifier>{f755c567-a19e-48d7-afc7-2f5083304737}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\tracealyzer_recorder\Include">
-      <UniqueIdentifier>{163d58cf-cfcb-4161-aae5-a7143dc95ad5}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\greengrass\include">
+      <UniqueIdentifier>{e53fbf70-437e-4d15-b178-839a6d5813ea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\utils">
-      <UniqueIdentifier>{63245c05-be57-4088-a565-34598881b601}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\greengrass\src">
+      <UniqueIdentifier>{f2697e14-40a6-4738-b98b-5629c1673312}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\utils\include">
-      <UniqueIdentifier>{0ebaea64-484b-4f8c-a805-83546a83a9af}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\greengrass\test">
+      <UniqueIdentifier>{1ed2a7e3-7899-45f9-94cd-52bb319d564b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\utils\src">
-      <UniqueIdentifier>{79c5ad78-6092-4801-b25e-54d0026a7753}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\ota">
+      <UniqueIdentifier>{ceed0903-4b45-46b9-a6c6-78d7ba339193}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\pkcs11">
-      <UniqueIdentifier>{5edb7d7f-375f-439a-a3a8-17a64913e6ab}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\ota\include">
+      <UniqueIdentifier>{e1a08902-a04d-4467-b608-86721ccbe9d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk">
-      <UniqueIdentifier>{09c4e202-f54a-4944-9754-9c465c248966}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\ota\src">
+      <UniqueIdentifier>{6fd06a5a-c6c1-4bd8-9226-1d1dd82bd7a3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard">
-      <UniqueIdentifier>{9ab01728-e308-4946-9b7f-48ac1f22df22}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\ota\test">
+      <UniqueIdentifier>{14bc89c1-e8b4-4d80-b4a3-411e2b18ee1d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\common">
-      <UniqueIdentifier>{e245a776-fa65-41d0-bd53-5332007e2be2}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow">
+      <UniqueIdentifier>{37b5dab7-d99d-4803-b575-9fd8ad1bc564}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\common\include">
-      <UniqueIdentifier>{7ab05cd5-9772-4df3-8ca8-9026e36ecd76}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow\include">
+      <UniqueIdentifier>{965fa11b-015c-46f9-a5b7-b6b21eb80cc1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\common\include\private">
-      <UniqueIdentifier>{acaf5625-dfc8-4295-b853-55ce153b52a6}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow\include\types">
+      <UniqueIdentifier>{4a1d9824-c03f-4aac-9f22-72e6478c4cb8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\common\include\types">
-      <UniqueIdentifier>{c2ce4fa4-1761-48e8-88f7-e81e15467a3a}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow\src">
+      <UniqueIdentifier>{c665cff0-4ae8-4473-b914-85d7273aa677}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\common\logging">
-      <UniqueIdentifier>{bb6bcb41-380a-4e8a-afc9-5797461eccdc}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow\test">
+      <UniqueIdentifier>{ad06c9ea-b598-46ff-900e-cff789238f7d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\common\taskpool">
-      <UniqueIdentifier>{aeee0779-ce1e-4f90-bc7b-3a8cf3a88d53}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow\src\private">
+      <UniqueIdentifier>{d48530a2-5a99-480a-91c6-dcdc6b666406}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\common\test">
-      <UniqueIdentifier>{38a91521-33cc-4b70-ae40-35fe15d4f4b2}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow\test\unit">
+      <UniqueIdentifier>{245c4b42-37c5-4429-9e94-60650af65e7d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt">
-      <UniqueIdentifier>{3db99560-0aea-4cd5-8f8d-dc5cd64b6d5e}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\shadow\test\system">
+      <UniqueIdentifier>{da7aed06-9718-409a-be39-3df7285e313d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\include">
-      <UniqueIdentifier>{306bdd6d-1227-4496-b2dc-6a925e2dfd70}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common\logging">
+      <UniqueIdentifier>{a5efa7c8-6140-4867-a211-de299aea29cf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\include\types">
-      <UniqueIdentifier>{156cd6f8-3af4-4f65-9e31-c936c8d33474}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common\platform">
+      <UniqueIdentifier>{4552ae09-ad75-472e-8307-e20e071138c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\src">
-      <UniqueIdentifier>{f7028860-9ae4-4613-a7ad-ea84dbf80c69}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common\taskpool">
+      <UniqueIdentifier>{67b996cc-d816-4e1b-a210-6e3dd36ebde9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\src\private">
-      <UniqueIdentifier>{bfd06b96-e8c4-4782-8c8a-0b6ee308b88b}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\freertos_plus_posix">
+      <UniqueIdentifier>{53dde712-1917-4564-9dfb-77636c9145ed}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\test">
-      <UniqueIdentifier>{cf72bee2-4c02-4462-9a42-b6bc700d2b60}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\freertos_plus_posix\include">
+      <UniqueIdentifier>{1f400fd5-acc4-40d6-ad96-a2c78d6bcb6c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\test\unit">
-      <UniqueIdentifier>{dd085ec7-1ce2-4e00-a8de-e84c25da78a2}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\freertos_plus_posix\source">
+      <UniqueIdentifier>{04091fc7-b21b-4aa1-89c1-4dbfe55f63c3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\test\system">
-      <UniqueIdentifier>{bb744fcc-aeee-46bc-9b04-5706ac39a04d}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\freertos_plus_posix\test">
+      <UniqueIdentifier>{d4e4886b-6654-4c6a-b3f0-bb3664156b84}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\mqtt\test\access">
-      <UniqueIdentifier>{16f41e64-933a-458c-ad02-051fe390193d}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\freertos_plus_posix\include\portable">
+      <UniqueIdentifier>{78e26a07-077f-43ce-a8b2-711177724179}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\crypto">
-      <UniqueIdentifier>{8f8a5e46-4e97-4856-b5ea-d4eb5dd64120}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\metrics">
+      <UniqueIdentifier>{e949f399-a559-4e59-9406-b0f55bd4d983}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\crypto\include">
-      <UniqueIdentifier>{aca864c3-537b-4c44-8dca-5b7e958adc70}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\metrics\src">
+      <UniqueIdentifier>{5c8ba422-18ad-4e62-962a-7ca6819ce311}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\crypto\src">
-      <UniqueIdentifier>{531a1d85-4298-4f60-a21d-864464d3ff64}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt">
+      <UniqueIdentifier>{d12598aa-02c9-404f-8667-523fe162aa30}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\crypto\test">
-      <UniqueIdentifier>{18e3b8d4-e7c9-4bab-99ab-8f738c3eb8b0}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt\include">
+      <UniqueIdentifier>{c93a52d2-f446-40b2-a80e-46ae98dd72e1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\mbedtls">
-      <UniqueIdentifier>{077151f2-dce7-4a40-aa17-250ddbb414ac}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt\src">
+      <UniqueIdentifier>{7310b94e-741f-4495-981d-59ecd40484f2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\mbedtls\include">
-      <UniqueIdentifier>{ec1cf955-4e34-4866-b134-4401f03c37be}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt\test">
+      <UniqueIdentifier>{bb299b91-3b00-4874-bc2f-a2a9bd58ba40}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\mbedtls\include\mbedtls">
-      <UniqueIdentifier>{ee581326-4e8d-486a-bef0-bb16896b52a4}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt\include\types">
+      <UniqueIdentifier>{b509cda9-f2d8-4132-99d4-968e4d6124d1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\3rdparty\mbedtls\library">
-      <UniqueIdentifier>{d964a528-feef-470e-973d-05cb2f04eeaa}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt\src\private">
+      <UniqueIdentifier>{2febb40f-6a88-4cc9-8df7-6ba52fc1a2bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\tls">
-      <UniqueIdentifier>{dc17e8d0-ead1-4865-bf5a-64d247ec64da}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt\test\system">
+      <UniqueIdentifier>{8d31762a-0da7-4e20-8fe8-60f726dd6e84}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\tls\include">
-      <UniqueIdentifier>{c32b7065-e944-43f9-8e83-9bbbbe7fefd5}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\mqtt\test\unit">
+      <UniqueIdentifier>{a9e77b34-b418-4f80-9883-7550a86b7a71}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\tls\src">
-      <UniqueIdentifier>{2c1f7579-7f93-4811-b310-bda460ea22a1}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\serializer">
+      <UniqueIdentifier>{a9d12888-1a89-4f72-9bae-606ae2621060}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\tls\test">
-      <UniqueIdentifier>{9ccba9ce-bc6d-4fa7-9a30-e90d8a08fe3d}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\serializer\include">
+      <UniqueIdentifier>{1906a4e6-def7-4830-8666-378d6370313c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_posix">
-      <UniqueIdentifier>{08b6911a-4db2-462c-8c13-84db9ce7d46b}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\serializer\src">
+      <UniqueIdentifier>{119d0999-9e3a-4bb6-9565-8361a85c5a05}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\source">
-      <UniqueIdentifier>{8db841b4-ef14-4c3b-9d2d-125cceacb021}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\serializer\test">
+      <UniqueIdentifier>{a1a9f06f-2ce9-4e48-9da6-61f0eb3f34b4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\freertos_plus_posix\test">
-      <UniqueIdentifier>{29257ae6-5c13-41f0-86c7-dd1a0d2f8481}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\serializer\src\cbor">
+      <UniqueIdentifier>{efa65374-86f6-4438-b8c6-61aa37da8925}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ports">
-      <UniqueIdentifier>{4477fbf8-d6e2-4fd8-97d3-561f171a817c}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\serializer\src\json">
+      <UniqueIdentifier>{07eabb63-f338-4e31-bedb-cd92bf7b07c6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ports\pkcs11">
-      <UniqueIdentifier>{0ae0553e-51b5-45ec-9952-5e956ded5e40}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\cmock">
+      <UniqueIdentifier>{fdd6085c-bf26-4311-b9fe-978120439479}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ports\posix">
-      <UniqueIdentifier>{bc51b1da-13a6-42c7-af8b-8900008030e8}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\jsmn">
+      <UniqueIdentifier>{ad149169-c721-43ec-b60a-f8763f9cbadd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\aws">
-      <UniqueIdentifier>{68bce2c5-7e40-4977-b4ae-9af2a7d5b57a}</UniqueIdentifier>
+    <Filter Include="modules\libraries\3rdparty\tinycbor">
+      <UniqueIdentifier>{5c6fe3b7-e4f1-4582-be46-f4484f65cd2a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\aws\defender">
-      <UniqueIdentifier>{67931c5a-98d7-4043-92d6-cd990163db65}</UniqueIdentifier>
+    <Filter Include="modules\ports\posix">
+      <UniqueIdentifier>{61d984e4-6ec3-4fae-9dbc-e5812a9a5483}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\aws\defender\include">
-      <UniqueIdentifier>{0f5fd775-83e5-4125-9171-164160d49b1a}</UniqueIdentifier>
+    <Filter Include="modules\ports\posix\include">
+      <UniqueIdentifier>{7c84ad72-f95b-4441-b9a0-14d64bb22a05}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\aws\defender\src">
-      <UniqueIdentifier>{32468a14-46bc-4ad2-bf98-5b4f7c26726c}</UniqueIdentifier>
+    <Filter Include="modules\ports\posix\include\FreeRTOS_POSIX">
+      <UniqueIdentifier>{dad2d17d-d238-49a9-bccb-4b9657bbeab7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\aws\defender\test">
-      <UniqueIdentifier>{1e75f51b-e7f4-4f17-b905-a28a4bf276bf}</UniqueIdentifier>
+    <Filter Include="modules\ports\posix\include\FreeRTOS_POSIX\sys">
+      <UniqueIdentifier>{fb578507-7b6b-4840-adad-1c753b15c28d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\serializer">
-      <UniqueIdentifier>{f23ca064-429b-41d6-805c-5bc26543cd88}</UniqueIdentifier>
+    <Filter Include="modules\libraries\aws\defender\src\private">
+      <UniqueIdentifier>{2820337f-58fb-4d0e-bc75-307f2303fff7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\c_sdk\standard\serializer\include">
-      <UniqueIdentifier>{a937db35-1311-4676-a9ec-2b8a43f65254}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\standard\serializer\src">
-      <UniqueIdentifier>{9abd65c3-2c4b-4418-9e12-cbebd0d0fbf4}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\standard\serializer\test">
-      <UniqueIdentifier>{bc00d567-7bf1-496e-b4f0-f58190a7a6fe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\standard\serializer\src\json">
-      <UniqueIdentifier>{360c3e52-aae1-4b52-af84-f0e380f57ce1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\standard\serializer\src\cbor">
-      <UniqueIdentifier>{f1ebea3f-a5c6-4165-b30f-97b109e01485}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\defender\src\private">
-      <UniqueIdentifier>{77d57672-b318-4c78-8e42-0a5f82b55f8f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\3rdparty\tinycbor">
-      <UniqueIdentifier>{19a6dfce-3018-4e0c-b5a8-603ec020c2ba}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\3rdparty\jsmn">
-      <UniqueIdentifier>{82886353-decc-41d2-853d-ddaf1b547259}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow">
-      <UniqueIdentifier>{f61feabb-8f49-4503-b37f-efb471e15468}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow\include">
-      <UniqueIdentifier>{7a559fe5-fa0a-4aa5-bd52-51343f83525d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow\src">
-      <UniqueIdentifier>{a9130c9c-3ada-4b20-bc9b-d857e501a03c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow\test">
-      <UniqueIdentifier>{f7f3e7cb-aece-4f07-9ec2-f2caeb7f0f87}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow\include\types">
-      <UniqueIdentifier>{775ae959-9cd5-485f-a769-59ec8ace14d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow\src\private">
-      <UniqueIdentifier>{bedcb4fa-91cd-4dc3-b84e-1f5f178416f7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow\test\system">
-      <UniqueIdentifier>{584540b2-4478-429b-8562-c7c1f5dfbd01}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\c_sdk\aws\shadow\test\unit">
-      <UniqueIdentifier>{9ae607cc-0674-436a-b7d1-4faeb0a21057}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws">
-      <UniqueIdentifier>{df6e2c5f-a43f-4cbd-8b7d-0b5e87864240}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\ota">
-      <UniqueIdentifier>{edc444dc-f638-44fe-a4fb-20e2ed9e0407}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\ota\include">
-      <UniqueIdentifier>{182b032c-a8ac-4191-8742-48414da97879}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\ota\src">
-      <UniqueIdentifier>{5faa93ac-7369-4381-8074-64abb30432b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\ota\test">
-      <UniqueIdentifier>{14b75531-0acf-465e-8ad7-22d4586723ae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ports\ota">
-      <UniqueIdentifier>{5f1cd4f3-04e5-468d-ba77-28d67ce8d389}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\greengrass">
-      <UniqueIdentifier>{41f76170-f738-43e7-a27b-ebc4ffe9e6f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\greengrass\include">
-      <UniqueIdentifier>{987419d8-80f6-49f6-bd7a-dfcbe50d5e9f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\greengrass\src">
-      <UniqueIdentifier>{2307d945-719f-4fc8-9b61-731c52dff28b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="libraries\freertos_plus\aws\greengrass\test">
-      <UniqueIdentifier>{6e83f83b-174b-4c75-94b9-3ed0bad9f4bd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="demos">
-      <UniqueIdentifier>{326a9251-1f6b-4d75-97a6-69bf4290637d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="demos\dev_mode_key_provisioning">
-      <UniqueIdentifier>{deb0addc-2474-4ebb-ab79-181bd8c65893}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="demos\dev_mode_key_provisioning\include">
-      <UniqueIdentifier>{0400162b-dab4-4fb5-94fc-957862ec1304}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="demos\dev_mode_key_provisioning\src">
-      <UniqueIdentifier>{5c36bd0a-8610-4245-aa01-7fb882491560}</UniqueIdentifier>
+    <Filter Include="modules\libraries\standard\common\static_memory">
+      <UniqueIdentifier>{4c98e370-fa18-4982-b5d4-d31ec02c235b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_bufferpool_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_demo_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_ggd_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_mqtt_agent_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_mqtt_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_ota_agent_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_pkcs11_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_secure_sockets_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_shadow_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_test_ota_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_test_pkcs11_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_test_runner_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_test_tcp_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\FreeRTOSConfig.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\FreeRTOSIPConfig.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\iot_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\trcConfig.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\trcSnapshotConfig.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\unity_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\event_groups.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\list.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\message_buffer.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\mpu_prototypes.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\mpu_wrappers.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\portable.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\projdefs.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\queue.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\semphr.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\stack_macros.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\stream_buffer.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\task.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\timers.h">
-      <Filter>freertos_kernel\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h">
-      <Filter>freertos_kernel\portable\MSVC-MingW</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_application_version.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential_keys.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_framework.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_runner.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_tcp.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_utils.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\aws_unity_config.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\tests\include\iot_config_common.h">
-      <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\aws_pkcs11.h">
-      <Filter>libraries\abstractions\pkcs11\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
-      <Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_afr.h">
-      <Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_ble.h">
-      <Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_afr.h">
-      <Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h">
-      <Filter>libraries\abstractions\platform\include\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_clock.h">
-      <Filter>libraries\abstractions\platform\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h">
-      <Filter>libraries\abstractions\platform\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_network.h">
-      <Filter>libraries\abstractions\platform\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h">
-      <Filter>libraries\abstractions\platform\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sys\types.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX\sys</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\fcntl.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\mqueue.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\pthread.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sched.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\semaphore.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\signal.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\time.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\unistd.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\utils.h">
-      <Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets.h">
-      <Filter>libraries\abstractions\secure_sockets\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_config_defaults.h">
-      <Filter>libraries\abstractions\secure_sockets\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_wrapper_metrics.h">
-      <Filter>libraries\abstractions\secure_sockets\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_freertos_tcp_test_access_declare.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_freertos_tcp_test_access_dns_define.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_freertos_tcp_test_access_tcp_define.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC\pack_struct_end.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\MSVC</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC\pack_struct_start.h">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\MSVC</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h">
-      <Filter>libraries\3rdparty\unity\fixture</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h">
-      <Filter>libraries\3rdparty\unity\fixture</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
-      <Filter>libraries\3rdparty\unity\fixture</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.h">
-      <Filter>libraries\3rdparty\unity\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h">
-      <Filter>libraries\3rdparty\unity\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include\trcHardwarePort.h">
-      <Filter>libraries\3rdparty\tracealyzer_recorder\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include\trcKernelPort.h">
-      <Filter>libraries\3rdparty\tracealyzer_recorder\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include\trcPortDefines.h">
-      <Filter>libraries\3rdparty\tracealyzer_recorder\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include\trcRecorder.h">
-      <Filter>libraries\3rdparty\tracealyzer_recorder\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\aws_system_init.h">
-      <Filter>libraries\freertos_plus\standard\utils\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h">
-      <Filter>application_code\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h">
-      <Filter>libraries\3rdparty\pkcs11</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h">
-      <Filter>libraries\3rdparty\pkcs11</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h">
-      <Filter>libraries\3rdparty\pkcs11</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\aws_default_root_certificates.h">
-      <Filter>libraries\c_sdk\standard\common\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\aws_doubly_linked_list.h">
-      <Filter>libraries\c_sdk\standard\common\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\aws_lib_init.h">
-      <Filter>libraries\c_sdk\standard\common\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_error.h">
-      <Filter>libraries\c_sdk\standard\common\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h">
-      <Filter>libraries\c_sdk\standard\common\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_static_memory.h">
-      <Filter>libraries\c_sdk\standard\common\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_taskpool_internal.h">
-      <Filter>libraries\c_sdk\standard\common\include\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_appversion32.h">
-      <Filter>libraries\c_sdk\standard\common\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_logging_task.h">
-      <Filter>libraries\c_sdk\standard\common\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_atomic.h">
-      <Filter>libraries\c_sdk\standard\common\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h">
-      <Filter>libraries\c_sdk\standard\common\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h">
-      <Filter>libraries\c_sdk\standard\common\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h">
-      <Filter>libraries\c_sdk\standard\common\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h">
-      <Filter>libraries\c_sdk\standard\common\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h">
-      <Filter>libraries\c_sdk\standard\common\include\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_taskpool_types.h">
-      <Filter>libraries\c_sdk\standard\common\include\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\include\aws_mqtt_agent.h">
-      <Filter>libraries\c_sdk\standard\mqtt\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\include\aws_mqtt_agent_config_defaults.h">
-      <Filter>libraries\c_sdk\standard\mqtt\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\include\aws_mqtt_config_defaults.h">
-      <Filter>libraries\c_sdk\standard\mqtt\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\include\aws_mqtt_lib.h">
-      <Filter>libraries\c_sdk\standard\mqtt\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\include\iot_mqtt.h">
-      <Filter>libraries\c_sdk\standard\mqtt\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\include\types\iot_mqtt_types.h">
-      <Filter>libraries\c_sdk\standard\mqtt\include\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\private\iot_mqtt_internal.h">
-      <Filter>libraries\c_sdk\standard\mqtt\src\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access\iot_test_access_mqtt.h">
-      <Filter>libraries\c_sdk\standard\mqtt\test\access</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\aws_crypto.h">
-      <Filter>libraries\freertos_plus\standard\crypto\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1write.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\base64.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bignum.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\blowfish.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bn_mul.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\camellia.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ccm.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\certs.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher_internal.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cmac.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\compat-1.3.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\config.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ctr_drbg.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\debug.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\des.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\dhm.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdh.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdsa.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecjpake.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp_internal.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy_poll.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\error.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\gcm.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\havege.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md_internal.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md2.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md4.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md5.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\memory_buffer_alloc.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\oid.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\padlock.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pem.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs5.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_time.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa_internal.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha1.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha256.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha512.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cache.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ciphersuites.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cookie.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_internal.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ticket.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\threading.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\timing.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\version.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crl.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crt.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h">
-      <Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\aws_tls.h">
-      <Filter>libraries\freertos_plus\standard\tls\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\aws_test_tls.h">
-      <Filter>libraries\freertos_plus\standard\tls\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\ports\posix\FreeRTOS_POSIX_portable.h">
-      <Filter>ports\posix</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_defender.h">
-      <Filter>libraries\c_sdk\aws\defender\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h">
-      <Filter>libraries\c_sdk\aws\defender\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h">
-      <Filter>libraries\c_sdk\standard\serializer\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h">
-      <Filter>libraries\c_sdk\standard\serializer\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h">
-      <Filter>libraries\c_sdk\aws\defender\src\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tinycbor\assert_p.h">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cbor.h">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborconstants_p.h">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tinycbor\compilersupport_p.h">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tinycbor\extract_number_p.h">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\tinycbor\math_support_p.h">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
-      <Filter>libraries\3rdparty\jsmn</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_iot_shadow.h">
-      <Filter>libraries\c_sdk\aws\shadow\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_shadow.h">
-      <Filter>libraries\c_sdk\aws\shadow\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\types\aws_iot_shadow_types.h">
-      <Filter>libraries\c_sdk\aws\shadow\include\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\private\aws_iot_shadow_internal.h">
-      <Filter>libraries\c_sdk\aws\shadow\src\private</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow_config_defaults.h">
-      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h">
-      <Filter>libraries\freertos_plus\aws\ota\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h">
-      <Filter>libraries\freertos_plus\aws\ota\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h">
-      <Filter>libraries\freertos_plus\aws\ota\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_agent_test_access_declare.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_agent_test_access_define.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_codesigner_certificate.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_pal_test_access_declare.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_pal_test_access_define.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal_ecdsa_sha256_signature.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal_rsa_sha1_signature.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal_rsa_sha256_signature.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_signature_methods.h">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h">
-      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h">
-      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h">
-      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h">
-      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h">
-      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h">
-      <Filter>libraries\freertos_plus\aws\greengrass\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_greengrass_discovery_test_access_declare.h">
-      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_greengrass_discovery_test_access_define.h">
-      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h">
-      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
-      <Filter>demos\dev_mode_key_provisioning\include</Filter>
-    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\event_groups.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\list.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\message_buffer.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\mpu_prototypes.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\mpu_wrappers.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\portable.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\projdefs.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\queue.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\semphr.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\stack_macros.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\stream_buffer.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\task.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\include\timers.h" />
+    <ClInclude Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\portmacro.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_application_version.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_clientcredential_keys.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_runner.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_framework.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_tcp.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_test_utils.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\aws_unity_config.h" />
+    <ClInclude Include="..\..\..\..\..\tests\include\iot_config_common.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_appversion32.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_linear_containers.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_logging.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_logging_task.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_network_types.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_taskpool.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\types\iot_taskpool_types.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\common\include\private\iot_taskpool_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_clock.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_network.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\types\iot_platform_types.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_afr.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_afr.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_wrapper_metrics.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_ARP.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DHCP.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_DNS.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_errno_TCP.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOSIPConfigDefaults.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_IP_Private.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Sockets.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_Stream_Buffer.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_IP.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_TCP_WIN.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\FreeRTOS_UDP_IP.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\IPTraceMacroDefaults.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkBufferManagement.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\NetworkInterface.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\include\aws_tls.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\aws_crypto.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\aws_pkcs11.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\aws_system_init.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\aws_pki_utils.h" />
+    <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\private\aws_iot_defender_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\defender\include\aws_iot_defender.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_serializer.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_iot_shadow.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\include\aws_shadow.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_ggd_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\fcntl.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\mqueue.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\pthread.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sched.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\semaphore.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\signal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sys\types.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\time.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\unistd.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\utils.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\ports\posix\FreeRTOS_POSIX_portable.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aesni.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\arc4.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\asn1write.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\base64.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bignum.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\blowfish.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\bn_mul.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\camellia.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ccm.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\certs.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\check_config.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cipher_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\cmac.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\compat-1.3.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\config.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ctr_drbg.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\debug.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\des.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\dhm.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdh.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecdsa.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecjpake.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ecp_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\entropy_poll.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\error.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\gcm.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\havege.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\hmac_drbg.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md2.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md4.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md5.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\md_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\memory_buffer_alloc.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\net_sockets.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\oid.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\padlock.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pem.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pk_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs12.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\pkcs5.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_time.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\platform_util.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ripemd160.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\rsa_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha1.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha256.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\sha512.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cache.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ciphersuites.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_cookie.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_internal.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\ssl_ticket.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\threading.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\timing.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\version.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crl.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_crt.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\x509_csr.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity_internals.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_internals.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\aws_run-time-stats-utils.c">
-      <Filter>application_code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\main.c">
-      <Filter>application_code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c">
-      <Filter>freertos_kernel\portable\MemMang</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\port.c">
-      <Filter>freertos_kernel\portable\MSVC-MingW</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\event_groups.c">
-      <Filter>freertos_kernel\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\list.c">
-      <Filter>freertos_kernel\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\queue.c">
-      <Filter>freertos_kernel\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\stream_buffer.c">
-      <Filter>freertos_kernel\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\tasks.c">
-      <Filter>freertos_kernel\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\freertos_kernel\timers.c">
-      <Filter>freertos_kernel\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\tests\common\aws_test.c">
-      <Filter>tests\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\tests\common\aws_test_framework.c">
-      <Filter>tests\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\tests\common\aws_test_runner.c">
-      <Filter>tests\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\tests\common\iot_test_afr.c">
-      <Filter>tests\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\tests\common\iot_tests_network.c">
-      <Filter>tests\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\aws_pkcs11_mbedtls.c">
-      <Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\aws_test_pkcs11.c">
-      <Filter>libraries\abstractions\pkcs11\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_afr.c">
-      <Filter>libraries\abstractions\platform\freertos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c">
-      <Filter>libraries\abstractions\platform\freertos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_afr.c">
-      <Filter>libraries\abstractions\platform\freertos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_afr.c">
-      <Filter>libraries\abstractions\platform\freertos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c">
-      <Filter>libraries\abstractions\platform\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c">
-      <Filter>libraries\abstractions\platform\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\aws_secure_sockets.c">
-      <Filter>libraries\abstractions\secure_sockets\freertos_plus_tcp</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\aws_test_tcp.c">
-      <Filter>libraries\abstractions\secure_sockets\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_ARP.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DHCP.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DNS.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_IP.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Sockets.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Stream_Buffer.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_IP.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_WIN.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_test_freertos_tcp.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_2.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c">
-      <Filter>libraries\3rdparty\unity\fixture</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c">
-      <Filter>libraries\3rdparty\unity\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcKernelPort.c">
-      <Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcSnapshotRecorder.c">
-      <Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_system_init.c">
-      <Filter>libraries\freertos_plus\standard\utils\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_init.c">
-      <Filter>libraries\c_sdk\standard\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_static_memory_common.c">
-      <Filter>libraries\c_sdk\standard\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c">
-      <Filter>libraries\c_sdk\standard\common\logging</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool.c">
-      <Filter>libraries\c_sdk\standard\common\taskpool</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool_static_memory.c">
-      <Filter>libraries\c_sdk\standard\common\taskpool</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\aws_memory_leak.c">
-      <Filter>libraries\c_sdk\standard\common\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c">
-      <Filter>libraries\c_sdk\standard\common\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\aws_test_mqtt_agent.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access\iot_test_access_mqtt_api.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test\access</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access\iot_test_access_mqtt_subscription.c">
-      <Filter>libraries\c_sdk\standard\mqtt\test\access</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\aws_crypto.c">
-      <Filter>libraries\freertos_plus\standard\crypto\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\aws_test_crypto.c">
-      <Filter>libraries\freertos_plus\standard\crypto\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aesni.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\arc4.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1parse.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1write.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\bignum.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\blowfish.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\camellia.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ccm.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\certs.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher_wrap.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cmac.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ctr_drbg.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\debug.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\des.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\dhm.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdh.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdsa.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecjpake.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp_curves.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy_poll.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\hmac_drbg.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md_wrap.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md2.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md4.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md5.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\oid.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\padlock.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pem.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk_wrap.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs5.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs12.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkparse.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkwrite.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform_util.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa_internal.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha1.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha256.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha512.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cache.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ciphersuites.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cli.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cookie.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_srv.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ticket.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_tls.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\threading.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\timing.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\version.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\version_features.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_create.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crl.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crt.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_csr.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_crt.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_csr.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c">
-      <Filter>libraries\3rdparty\mbedtls\library</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\aws_test_tls.c">
-      <Filter>libraries\freertos_plus\standard\tls\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\aws_tls.c">
-      <Filter>libraries\freertos_plus\standard\tls\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c">
-      <Filter>application_code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_entropy_hardware_poll.c">
-      <Filter>application_code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_clock.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_mqueue.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_pthread.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_semaphore.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_stress.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_timer.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_unistd.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_utils.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
-      <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11\aws_pkcs11_pal.c">
-      <Filter>ports\pkcs11</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c">
-      <Filter>libraries\c_sdk\aws\defender\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c">
-      <Filter>libraries\c_sdk\aws\defender\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c">
-      <Filter>libraries\c_sdk\aws\defender\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c">
-      <Filter>libraries\c_sdk\aws\defender\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c">
-      <Filter>libraries\c_sdk\standard\serializer\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c">
-      <Filter>libraries\c_sdk\standard\serializer\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_decoder.c">
-      <Filter>libraries\c_sdk\standard\serializer\src\json</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_encoder.c">
-      <Filter>libraries\c_sdk\standard\serializer\src\json</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c">
-      <Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c">
-      <Filter>libraries\c_sdk\standard\serializer\src\cbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_json_utils.c">
-      <Filter>libraries\c_sdk\standard\serializer\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_serializer_static_memory.c">
-      <Filter>libraries\c_sdk\standard\serializer\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c">
-      <Filter>libraries\3rdparty\tinycbor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
-      <Filter>libraries\3rdparty\jsmn</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c">
-      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c">
-      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c">
-      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_static_memory.c">
-      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c">
-      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c">
-      <Filter>libraries\c_sdk\aws\shadow\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\aws_test_shadow.c">
-      <Filter>libraries\c_sdk\aws\shadow\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c">
-      <Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c">
-      <Filter>libraries\c_sdk\aws\shadow\test\unit</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c">
-      <Filter>libraries\c_sdk\aws\shadow\test\system</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_agent.c">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_cbor.c">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_end_to_end.c">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c">
-      <Filter>libraries\freertos_plus\aws\ota\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c">
-      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.c">
-      <Filter>libraries\freertos_plus\aws\ota\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c">
-      <Filter>ports\ota</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c">
-      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c">
-      <Filter>libraries\freertos_plus\aws\greengrass\test</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c">
-      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c">
-      <Filter>libraries\freertos_plus\aws\greengrass\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
-      <Filter>demos\dev_mode_key_provisioning\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c">
-      <Filter>demos\dev_mode_key_provisioning\src</Filter>
-    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\event_groups.c" />
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\list.c" />
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\queue.c" />
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\stream_buffer.c" />
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\tasks.c" />
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\timers.c" />
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\port.c" />
+    <ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c" />
+    <ClCompile Include="..\..\..\..\..\tests\common\aws_test_framework.c" />
+    <ClCompile Include="..\..\..\..\..\tests\common\aws_test_runner.c" />
+    <ClCompile Include="..\..\..\..\..\tests\common\aws_test.c" />
+    <ClCompile Include="..\..\..\..\..\tests\common\iot_test_afr.c" />
+    <ClCompile Include="..\..\..\..\..\tests\common\iot_tests_network.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_init.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_static_memory_common.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool_static_memory.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_afr.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_afr.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_afr.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\aws_secure_sockets.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_ARP.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DHCP.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DNS.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_IP.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Sockets.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Stream_Buffer.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_IP.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_WIN.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_2.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\aws_tls.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\aws_crypto.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\aws_pkcs11.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11_implementation\aws_pkcs11_pal.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_system_init.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_pki_utils.c" />
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c" />
+    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_v1.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_static_memory.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_decoder.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\cbor\iot_serializer_tinycbor_encoder.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_decoder.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_encoder.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_serializer_static_memory.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_json_utils.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_static_memory.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\aws_test_shadow.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\aws_memory_leak.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\aws_test_mqtt_agent.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_greengrass_discovery.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test\aws_test_helper_secure_connect.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_cbor.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_agent.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\aws_test_crypto.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_clock.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_mqueue.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_pthread.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_semaphore.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_stress.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_timer.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_unistd.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_utils.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_test_freertos_tcp.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\aws_test_tls.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\aws_test_pkcs11.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\aws_test_tcp.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\main.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_entropy_hardware_poll.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_run-time-stats-utils.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcKernelPort.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcSnapshotRecorder.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aesni.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\arc4.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1parse.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1write.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\bignum.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\blowfish.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\camellia.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ccm.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\certs.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher_wrap.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\cmac.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ctr_drbg.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\debug.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\des.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\dhm.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdh.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdsa.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecjpake.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp_curves.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy_poll.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\hmac_drbg.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md2.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md4.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md5.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\md_wrap.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\oid.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\padlock.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pem.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk_wrap.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs12.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs5.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkparse.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkwrite.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform_util.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa_internal.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha1.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha256.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha512.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cache.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ciphersuites.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cli.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cookie.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_srv.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ticket.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_tls.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\threading.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\timing.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\version.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\version_features.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_create.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crl.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crt.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_csr.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_crt.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_csr.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborpretty.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborencoder_close_container_checked.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborerrorstrings.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c" />
   </ItemGroup>
 </Project>
