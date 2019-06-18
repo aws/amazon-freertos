@@ -34,4 +34,8 @@ tests/pc/windows/visual_studio/.vs/*
 tests/pc/windows/visual_studio/Debug/*
 vendors/nordic/boards/nrf52840-dk/aws_demos/bootloader/pca10056/ses/Output/*
 vendors/nordic/boards/nrf52840-dk/aws_demos/ses/Output/*
+<<<<<<< HEAD
 demos/pc/windows/visual_studio/.vs/*
+=======
+demos/pc/windows/visual_studio/.vs/*
+>>>>>>> afr/release-1.5

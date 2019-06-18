@@ -62,7 +62,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/cypress/$(PLATFORM) \
                     $(AFR_THIRDPARTY_PATH)lwip/src/portable/arch \
                     $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/cypress_code/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/include \
+                    $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include  \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
@@ -94,7 +94,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/shadow/aws_iot_demo_shadow.c \
                       $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
+                      $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
+                      $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/pem2der.c \
                       $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \

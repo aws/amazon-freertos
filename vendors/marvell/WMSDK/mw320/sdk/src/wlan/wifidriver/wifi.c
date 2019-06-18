@@ -689,7 +689,7 @@ static int wifi_core_init(void)
 	ret = os_thread_create(&wm_wifi.wm_wifi_main_thread,
 			       "wifi_driver",
 			       wifi_driver_main_loop, NULL,
-				&wifi_drv_stack, OS_PRIO_2);
+				&wifi_drv_stack, OS_PRIO_1);
 	if (ret !=  WM_SUCCESS) {
 		wifi_e("Create wifi driver thread failed");
 		goto fail;

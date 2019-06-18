@@ -390,7 +390,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
@@ -674,7 +674,7 @@
 				</option>
 				<option>
 					<name>AUserIncludes</name>
-					<state>$PROJ_DIR$/../../../../../vendors/nxp/boards/lpc54018iotmodule/aws_tests/config_files</state>
+					<state>$PROJ_DIR$/../../../../../vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files</state>
 				</option>
 				<option>
 					<name>AExtraOptionsCheckV2</name>
@@ -1930,6 +1930,24 @@
 			</file>
 		</group>
 		<group>
+			<name>dev_mode_key_provisioning</name>
+			<group>
+				<name>src</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c</name>
+				</file>
+			</group>
+			<group>
+				<name>include</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h</name>
+				</file>
+			</group>
+		</group>
+		<group>
 			<name>defender</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\defender\aws_iot_demo_defender.c</name>
@@ -1951,6 +1969,15 @@
 			<name>shadow</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\shadow\aws_iot_demo_shadow.c</name>
+			</file>
+		</group>
+		<group>
+			<name>tcp</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_task.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\tcp\aws_tcp_echo_client_single_tasks.h</name>
 			</file>
 		</group>
 	</group>
@@ -2341,21 +2368,6 @@
 						<name>include</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\aws_crypto.h</name>
-						</file>
-					</group>
-				</group>
-				<group>
-					<name>provisioning</name>
-					<group>
-						<name>src</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\provisioning\src\aws_dev_mode_key_provisioning.c</name>
-						</file>
-					</group>
-					<group>
-						<name>include</name>
-						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include\aws_dev_mode_key_provisioning.h</name>
 						</file>
 					</group>
 				</group>

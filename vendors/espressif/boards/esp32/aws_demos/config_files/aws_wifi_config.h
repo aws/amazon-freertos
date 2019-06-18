@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * Amazon FreeRTOS V1.4.8
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -75,6 +75,13 @@
  * @brief Soft Access point Channel
  */
 #define wificonfigACCESS_POINT_CHANNEL        ( 11 )
+
+
+/**
+ * @brief Maximum number of network profiles stored.
+ */
+#define wificonfigMAX_NETWORK_PROFILES       ( 8 )
+
 
 /**
  * @brief WiFi semaphore timeout

@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS BLE V1.0.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,7 +22,6 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
-
 
 /**
  * @file iot_ble_config_defaults.h
@@ -312,7 +311,26 @@
  * @brief The  timeout in milliseconds for sending a message through data transfer service.
  */
 #ifndef IOT_BLE_DATA_TRANSFER_TIMEOUT_MS
-    #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS    ( 2000 )
+    #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS       ( 2000 )
+#endif
+
+/**
+ * @brief Default configuration for memory allocation of data transfer service buffers.
+ */
+#ifndef IotBle_MallocDataBuffer
+    #define IotBle_MallocDataBuffer                malloc
+#endif
+
+#ifndef IotBle_FreeDataBuffer
+    #define IotBle_FreeDataBuffer                  free
+#endif
+
+/**
+ * @brief Default configuration for assert statements.
+ */
+#ifndef IotBle_Assert
+    #include <assert.h>
+    #define IotBle_Assert( expression )    assert( expression ) 
 #endif
 
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

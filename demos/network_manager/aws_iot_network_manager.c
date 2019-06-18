@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V201906.00 Major
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
  * @file aws_iot_network_manager.c
  * @brief Network manager is used to handled different types of network connections and their connection/disconnection events at the application layer.
@@ -42,6 +41,8 @@
 #include "platform/iot_threads.h"
 #include "platform/iot_clock.h"
 
+#include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 
 #if BLE_ENABLED
 #include "iot_ble_config.h"
@@ -52,7 +53,6 @@
 
 #if WIFI_ENABLED
 #include "aws_wifi.h"
-#include "aws_clientcredential.h"
 #endif
 
 #if TCPIP_NETWORK_ENABLED

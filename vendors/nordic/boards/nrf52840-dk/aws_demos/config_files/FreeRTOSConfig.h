@@ -139,6 +139,9 @@ standard names - or at least those used in the unmodified vector table. */
 #define INCLUDE_xTimerPendFunctionCall                                            1
 #define INCLUDE_xSemaphoreGetMutexHolder                                          1
 
+/* The platform FreeRTOS is running on. */
+#define configPLATFORM_NAME "NordicNRF52840-DK"
+
 /* The lowest interrupt priority that can be used in a call to a "set priority"
 function. */
 #define configLIBRARY_LOWEST_INTERRUPT_PRIORITY         0x6
@@ -184,7 +187,7 @@ extern void vUartWrite( uint8_t * pucData );
 #define configPRINT_STRING( X )    vUartWrite( X ) /* FIX ME: Change to your devices console print acceptance function. */
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */ 
-#define configLOGGING_MAX_MESSAGE_LENGTH            100
+#define configLOGGING_MAX_MESSAGE_LENGTH            256
 
 /* Set to 1 to prepend each log message with a message number, the task name,
  * and a time stamp. */

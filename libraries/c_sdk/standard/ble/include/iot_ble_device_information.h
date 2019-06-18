@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS BLE V1.0.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
  * @file iot_ble_device_information.h
  * @brief GATT service which exposes Amazon FreeRTOS device information
@@ -31,65 +30,15 @@
 #ifndef IOT_BLE_DEVICE_INFORMATION_H_
 #define IOT_BLE_DEVICE_INFORMATION_H_
 
-#include "iot_ble.h"
-
-/**
- * @constantspage{iotbledeviceinfo,ble library,Device Information}
- *
- * @section ble_constants_device_info BLE constants for Device Information service.
- * @brief GATT Service, characteristic and descriptor UUIDs used by the Device information service.
- *
- * @snippet this define_ble_constants_device_info
- *
- */
-/* @[define_ble_constants_device_info] */
-#define IOT_BLE_DEVICE_INFO_CHAR_UUID_BASE          IOT_BLE_DEVICE_INFO_SERVICE_UUID                        /**< @brief Base UUID. */
-#define IOT_BLE_DEVICE_INFO_VERSION_UUID            { 0x01, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Firmware version. */
-#define IOT_BLE_DEVICE_INFO_BROKER_ENDPOINT_UUID    { 0x02, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Broker endpoint. */
-#define IOT_BLE_DEVICE_INFO_CHAR_MTU_UUID           { 0x03, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief MTU size. */
-#define IOT_BLE_DEVICE_INFO_PLATFORM_NAME_UUID      { 0x04, 0xFF, IOT_BLE_DEVICE_INFO_SERVICE_UUID_MASK }   /**< @brief Device platform name. */
-#define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID    0x2902                                                  /**< @brief Client configuration. */
-/* @[define_ble_constants_device_info] */
-
-/**
- * @brief Characteristics for Device Inforamtion Service.
- */
-typedef enum
-{
-    IOT_BLE_DEVICE_INFO_VERSION_CHAR = 0,           /**< IOT_BLE_DEVICE_INFO_VERSION_CHAR Exposes the services version for the device */
-    IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR, /**< IOT_BLE_DEVICE_INFO_MQTT_BROKER_END_POINT_CHAR Exposes the IOT broker endpoint with which the device is provisioned */
-    IOT_BLE_DEVICE_INFO_MTU_CHAR,                   /**< IOT_BLE_DEVICE_INFO_MTU_CHAR Expose the BLE MTU for the device. */
-    IOT_BLE_DEVICE_INFO_PLATFOM_NAME_CHAR           /**< IOT_BLE_DEVICE_INFO_PLATFORM_NAME_CHAR Exposes the device platform name. */
-} IotBleDeviceInfoCharacteristic_t;
-
-/**
- * @brief Descriptors for Device Information Service
- */
-typedef enum
-{
-    IOT_BLE_DEVICE_INFO_MTU_CHAR_DESCR = 0, /**< IOT_BLE_DEVICE_INFO_MTU_CHAR_DESCR Client Characteristic configuration descriptor for MTU characteristic */
-} IotBleDeviceInfoDescriptor_t;
-
-/**
- * @brief Structure used for Device Information Service
- */
-typedef struct IotBleDeviceInfoService
-{
-    BTService_t * pBLEService; /**< A pointer to the GATT service for Device Information. */
-    uint16_t CCFGVal[ 1 ];     /**< The configuration descriptor. */
-    uint16_t BLEConnId;        /**< The connection ID. */
-    uint16_t BLEMtu;           /**< The MTU size. */
-} IotBleDeviceInfoService_t;
+#include <stdbool.h>
 
 /**
  * @functionspage{iotbledeviceinfo,GATT Service for Device Information,Device Information}
  * - @functionname{iotbledeviceinfo_function_init}
  */
-
 /**
  * @functionpage{IotBleDeviceInfo_Init,iotbledeviceinfo,init}
  */
-
 /**
  * @brief Creates and starts Amazon FreeRTOS device information service
  *

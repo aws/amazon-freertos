@@ -149,7 +149,7 @@
             <RestoreSysVw>1</RestoreSysVw>
           </Target>
           <RunDebugAfterBuild>0</RunDebugAfterBuild>
-          <TargetSelection>-1</TargetSelection>
+          <TargetSelection>20</TargetSelection>
           <SimDlls>
             <CpuDll></CpuDll>
             <CpuDllArguments></CpuDllArguments>
@@ -377,7 +377,7 @@
               <MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
               <Define>RVDS_ARMCM4_NUC4xx</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform;..\..\..\..\..\vendors\nuvoton\sdk\CMSIS\Include;..\..\..\..\..\vendors\nuvoton\sdk\middleware\wifi_esp8266;..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\inc;..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Include;..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_demos\config_files;..\..\..\..\..\libraries\abstractions\wifi\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\standard\utils\include;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F;..\..\..\..\..\demos\include;..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\abstractions\ports\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\abstractions\platform\include\platform;..\..\..\..\..\libraries\abstractions\platform\include\types;..\..\..\..\..\demos\network_manager;..\..\..\..\..\demos\tcp;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\lwip\src\include;..\..\..\..\..\libraries\3rdparty\lwip\test\fuzz;..\..\..\..\..\libraries\3rdparty\lwip\src\portable\arch;..\..\..\..\..\libraries\3rdparty\lwip\src\portable;..\..\..\..\..\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include</IncludePath>
+              <IncludePath>..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform;..\..\..\..\..\vendors\nuvoton\sdk\CMSIS\Include;..\..\..\..\..\vendors\nuvoton\sdk\middleware\wifi_esp8266;..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\inc;..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Include;..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_demos\config_files;..\..\..\..\..\libraries\abstractions\wifi\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\standard\utils\include;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F;..\..\..\..\..\demos\include;..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\abstractions\ports\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\abstractions\platform\include\platform;..\..\..\..\..\libraries\abstractions\platform\include\types;..\..\..\..\..\demos\network_manager;..\..\..\..\..\demos\tcp;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\3rdparty\lwip\src\include;..\..\..\..\..\libraries\3rdparty\lwip\test\fuzz;..\..\..\..\..\libraries\3rdparty\lwip\src\portable\arch;..\..\..\..\..\libraries\3rdparty\lwip\src\portable;..\..\..\..\..\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -549,7 +549,12 @@
             <File>
               <FileName>aws_dev_mode_key_provisioning.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\provisioning\src\aws_dev_mode_key_provisioning.c</FilePath>
+              <FilePath>..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c</FilePath>
+            </File>
+            <File>
+              <FileName>pem2der.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c</FilePath>
             </File>
             <File>
               <FileName>aws_greengrass_discovery_demo.c</FileName>

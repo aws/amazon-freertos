@@ -1,5 +1,135 @@
 # Change Log for Amazon FreeRTOS
 
+## 201906.00 Major 06/17/2019
+### Release Versioning
+- Move Amazon FreeRTOS to a new versioning scheme (YYYYMM.NN [optional "Major" tag]), while retaining semantic versioning (x.y.z) used for individual libraries within Amazon FreeRTOS. This release contains multiple major version updates for individual libraries. See below for details.
+
+### Folder Structure
+- Update folder structure to provide a cleaner separation between FreeRTOS kernel, standard libraries, AWS libraries, platform-specific ports and 3rd party libraries. Customers upgrading from earlier versions will need to update their project files.
+
+### New Features
+#### Bluetooth Low Energy Management Library V1.0.0
+- Bluetooth Low Energy management API for GAP and GATT services, with support for
+    - Bluetooth Low Energy v4.2 and above.
+    - Device discovery, notifications and indications.
+    - Creating, starting, stopping, and deleting GATT services.
+    - “Just Works” and “Secure Connections - Numeric Comparison” connection methods.
+- Companion device SDK 1.0.0 release for
+    - Android https://github.com/aws/amazon-freertos-ble-android-sdk/
+    - iOS https://github.com/aws/amazon-freertos-ble-ios-sdk/
+- GATT services for 
+    - Device information.
+    - Wi-Fi credentials provisioning.
+    - MQTT-over-Bluetooth Low Energy through Android or iOS device proxy to support.
+        - OTA, Device Shadow and Device Defender functionality.
+
+#### MQTT Library V2.0.0, Device Shadow Library V2.0.0, and Device Defender Library V2.0.0
+- Enable consistent re-use pattern of one single connection across all libraries.
+- Add support for MQTT 3.1.1 standard features.
+    - Last Will and Testament.
+    - QoS1 with randomized retry logic.
+    - Persistent sessions.
+- Add programming model revisions to enable.
+    - Fully non-blocking programming model.
+    - Per-operation user callback.
+    - Fully dynamic or fully static memory management.
+    - Full support for Bluetooth Low Energy transport as well as TCP/IP.
+    - Re-implementable abstraction layer to allow port on any network stacks.
+    - Standard, configurable logging mechanism.
+- Extend Device Defender support to additional development boards. Current set of metrics now available on all development boards that implement Secure Sockets abstraction.  
+
+#### Task Pool library V1.0.0
+- Task (Thread) pool library for asynchronous processing.
+
+#### Atomic Operations Library V1.0.0
+- Add library for atomic operations support.
+
+### Updates
+#### Wi-Fi Management Library V1.0.3
+- Add new API ```WIFI_RegisterNetworkStateChangeEventCallback``` to allow application notifications for Wi-Fi state transitions.
+
+#### CMake Builds
+- Extend the ability to build projects using CMake in addition to providing IDE project files. CMake files are now available for the following development boards:
+    - Espressif ESP32-DevKitC
+    - Espressif ESP-WROVER-KIT
+    - Infineon XMC4800 IoT Connectivity Kit
+    - Marvell MW320 AWS IoT Starter Kit
+    - Marvell MW322 AWS IoT Starter Kit
+    - Microchip Curiosity PIC32MZEF Bundle
+    - STMicroelectronicsSTM32L4 Discovery Kit IoT Node
+    - Texas Instruments CC3220SF-LAUNCHXL
+    - Microsoft Windows Simulator
+
+### Updates 
+- mbedTLS library is upgraded to version 2.16.0.
+- ESP-IDF version is upgraded to 3.1.3.
+- Update demo projects for cleaner separation of platform specific code.
+- Documentation update.
+
+## V1.4.8 05/21/2019
+### New Features
+#### New Boards: Marvell MW320 and MW322
+- Marvell boards MW320 and MW322 are now qualified for Amazon FreeRTOS.
+- Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
+
+#### FreeRTOS Kernel V10.2.0
+- Kernel version for Amazon FreeRTOS is updated to V10.2.0.
+- Add Support for RISC-V.
+- Include pre-existing ARM Cortex-M33 (ARMv8-M) GCC/ARMclang and IAR ports.
+
+### Updates
+
+#### Greengrass Discovery V1.0.4
+- Include C runtime header for snprintf.
+- Sanity check the number of bytes written.
+- Thing name can be a non-string literal.
+
+#### MQTT Agent V1.1.5
+- Set the socket to block on sends with a timeout in prvSetupConnection.
+
+#### Secure Sockets for FreeRTOS+TCP V1.1.6
+- ulApplicationGetNextSequenceNumber is now thread safe without stopping the scheduler.
+- Leave the scheduler running during PKCS #11 calls.
+
+#### Wi-Fi for ESP32-DevKitC ESP-WROVER-KIT V1.0.2
+- lib/wifi: fix issue with WiFi configuration for non-null strings, and fix scanning failure under certain disconnect scenarios. 
+- ib/FreeRTOS-Plus-TCP: do not send eNetworkDownEvent to stack if interface is already down.
+- mbedtls: configurable options for controlling dynamic memory allocations.
+- lib/third_party: update ESP-IDF to latest v3.1.3 release.
+- NetworkInterface: check interface state before sending packets to WiFi driver.
+- Fix WIFI_GetMac returning wrong mac address.
+
+#### PKCS #11 PAL for Cypress CYW943907AEVAL1F development kit V1.0.1
+- Fix Cypress build error with IDE.
+
+#### PKCS #11 PAL for Cypress CYW954907AEVAL1F development kit V1.0.1
+- Fix Cypress build error with  IDE.
+
+#### FreeRTOS+TCP V2.0.11
+- Make RST packet handling more robust.
+- Make TCP window high and low watermark thresholds runtime configurable.
+- Fix parsing of the last option in a DHCP response packet.
+- Fix TCP window size calculation.
+- Allow the DNS cache to be programmatically cleared.
+- Free the memory allocated by the pcap_compile routine in the WinPCap network interface module.
+
+#### Shadow V1.0.6
+- Add a debug message in the event that JSMN runs out of memory trying to parse JSON.    
+- Print a debug message for any JSMN error, not just 'JSMN_ERROR_NOMEM'.
+
+#### PKCS #11 PAL for Windows Simulator V1.0.4
+- Update to permit multithreaded read from object storage.
+
+#### OTA Agent V1.0.2
+- Update documentation.
+
+#### TLS V1.1.4
+- TLS_Send now handles the error condition when space is not avaiable.	
+- Convert errors in TLS wrapper to negative error codes.
+
+#### Curiosity PIC32MZEF Linker Update for XC32 Compiler
+- The latest XC32 compiler (version 2.15) does not allow multiple definitions by default. Explicitly enabling multiple definitions in aws_tests and aws_demos projects for now. 
+
 ## V1.4.7 02/18/2019
 ### New Features
 ### New Boards: Cypress CYW43907 and CYW54907
@@ -9,7 +139,7 @@
 - Kernel version for Amazon FreeRTOS is updated to 10.1.1.
 - Update all object handles (TaskHandle_t, QueueHandle_t, etc.) to be unique types instead of void pointers, improving type safety.
 - Add Xtensa port.
-- Updated to the latest trace recorder code.
+- Update to the latest trace recorder code.
 - Update lint checked MISRA compliance to use the latest MISRA standard.
 - Add configUSE_POSIX_ERRNO to enable per task POSIX style errno functionality.
 

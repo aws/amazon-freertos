@@ -53,7 +53,7 @@
 #define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_INFO
 
 /* Platform thread stack size and priority. */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    3840
+#define IOT_THREAD_DEFAULT_STACK_SIZE    6000
 #define IOT_THREAD_DEFAULT_PRIORITY      5
 
 /* This board supports MQTT-over-BLE, which uses a different serializer than normal

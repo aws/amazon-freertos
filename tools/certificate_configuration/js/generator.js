@@ -105,20 +105,11 @@ function generateCertificateConfigurationHeader() {
 \ * \"...base64 data...\\n\"\\\n\
 \ * \"-----END CERTIFICATE-----\"\n\
 \ *\/\n\
-#define keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM  NULL\n\
+#define keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM  \"\"\n\
 \n";
 
     header_end_text =
-"\/\* The constants above are set to const char * pointers defined in aws_dev_mode_key_provisioning.c,\n\
-\ * and externed here for use in C files.  NOTE!  THIS IS DONE FOR CONVENIENCE\n\
-\ * DURING AN EVALUATION PHASE AND IS NOT GOOD PRACTICE FOR PRODUCTION SYSTEMS\n\
-\ * WHICH MUST STORE KEYS SECURELY. *\/\n\
-extern const char clientcredentialCLIENT_CERTIFICATE_PEM\[\];\n\
-extern const char* clientcredentialJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;\n\
-extern const char clientcredentialCLIENT_PRIVATE_KEY_PEM\[\];\n\
-extern const uint32_t clientcredentialCLIENT_CERTIFICATE_LENGTH;\n\
-extern const uint32_t clientcredentialCLIENT_PRIVATE_KEY_LENGTH;\n\
-\n\
+"\n\
 #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H *\/\n";
 
     //Start first async read - other calls are chained inline

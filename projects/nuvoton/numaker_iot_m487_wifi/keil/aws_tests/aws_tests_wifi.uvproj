@@ -375,9 +375,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
-              <Define>RVDS_ARMCM4_NUC4xx</Define>
+              <Define>MBEDTLS_USER_CONFIG_FILE=\"mbedtls_user_config.h\" UNITY_INCLUDE_CONFIG_H RVDS_ARMCM4_NUC4xx __LITTLE_ENDIAN__ AMAZON_FREERTOS_ENABLE_UNIT_TESTS M487</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\..\..\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Include;..\..\..\..\sdk\StdDriver\inc;..\..\..\..\sdk\CMSIS\Include;..\..\..\..\sdk\middleware\wifi_esp8266;..\..\..\..\..\..\modules\ports\wifi\include;..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\include;..\..\..\..\..\..\modules\libraries\standard\utils\include;..\..\..\..\..\..\modules\libraries\3rdparty\jsmn;..\..\..\..\..\..\modules\libraries\3rdparty\pkcs11;..\..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F;..\..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Include;..\..\..\..\..\..\vendors\nuvoton\sdk\CMSIS\Include;..\..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\inc;..\..\..\..\..\..\modules\libraries\standard\common\include;..\..\..\..\..\..\test\include;..\..\..\..\..\..\modules\libraries\standard\provisioning\include;..\..\..\..\..\..\modules\ports\pkcs11\include;..\..\..\..\..\..\modules\ports\secure_sockets\include;..\..\..\..\..\..\modules\libraries\aws\greengrass\include;..\..\..\..\..\..\modules\libraries\standard\mqtt\include;..\..\..\..\..\..\modules\libraries\standard\common\include;..\..\..\..\..\..\modules\libraries\standard\provisioning\include;..\..\..\..\..\..\modules\libraries\standard\common\include\private;..\..\..\..\..\..\modules\libraries\standard\common\include\platform;..\..\..\..\..\..\modules\libraries\standard\common\include\types;..\..\..\..\..\..\demos\network_manager;..\..\..\..\..\..\demos\tcp;..\..\..\..\..\..\vendors\nuvoton\sdk\middleware\wifi_esp8266;..\..\..\..\..\..\modules\libraries\standard\crypto\include;..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\..\modules\libraries\aws\shadow\include;..\..\..\..\..\..\modules\libraries\standard\tls\include;..\..\..\..\..\..\modules\ports\pkcs11\mbedtls;..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\include;..\..\..\..\..\..\modules\libraries\3rdparty\lwip\test\fuzz;..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\portable\arch;..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\portable;..\..\..\..\..\..\modules\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\..\modules\libraries\3rdparty\unity\src;..\..\..\..\..\..\modules\libraries\3rdparty\unity\extras\fixture\src;..\..\..\..\..\..\modules\libraries\standard\mqtt\src;..\..\..\..\..\..\modules\libraries\standard\mqtt\test\access;..\..\..\..\..\..\modules\libraries\aws\greengrass\src;..\..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_tests\common\config_files;..\..\..\..\..\..\modules\libraries\standard\mqtt\src\private;..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include;..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\include\portable\nuvoton\numaker_iot_m487_wifi;..\..\..\..\..\..\modules\ports\posix\include;..\..\..\..\..\..\modules\libraries\aws\shadow\src;..\..\..\..\..\..\modules\libraries\aws\greengrass\test</IncludePath>
+              <IncludePath>..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Include;..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\inc;..\..\..\..\..\vendors\nuvoton\sdk\CMSIS\Include;..\..\..\..\..\vendors\nuvoton\sdk\middleware\wifi_esp8266;..\..\..\..\..\libraries\abstractions\wifi\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\standard\utils\include;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F;..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Include;..\..\..\..\..\vendors\nuvoton\sdk\CMSIS\Include;..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\inc;..\..\..\..\..\libraries\standard\common\include;..\..\..\..\..\..\test\include;..\..\..\..\..\libraries\abstractions\pkcs11\\include;..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\secure_sockets\include;..\..\..\..\..\libraries\aws\greengrass\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\standard\common\include\platform;..\..\..\..\..\libraries\standard\common\include\types;..\..\..\..\..\..\demos\network_manager;..\..\..\..\..\..\demos\tcp;..\..\..\..\..\vendors\nuvoton\sdk\middleware\wifi_esp8266;..\..\..\..\..\libraries\standard\crypto\include;..\..\..\..\..\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\libraries\aws\shadow\include;..\..\..\..\..\libraries\standard\tls\include;..\..\..\..\..\libraries\abstractions\pkcs11\\mbedtls;..\..\..\..\..\libraries\3rdparty\lwip\src\include;..\..\..\..\..\libraries\3rdparty\lwip\test\fuzz;..\..\..\..\..\libraries\3rdparty\lwip\src\portable\arch;..\..\..\..\..\libraries\3rdparty\lwip\src\portable;..\..\..\..\..\libraries\3rdparty\lwip\src\include\lwip;..\..\..\..\..\libraries\3rdparty\unity\src;..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src;..\..\..\..\..\libraries\standard\mqtt\src;..\..\..\..\..\libraries\standard\mqtt\test\access;..\..\..\..\..\libraries\aws\greengrass\src;..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_tests\config_files\;..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_tests\application_code\nuvoton_code;..\..\..\..\..\libraries\standard\mqtt\src\private;..\..\..\..\..\libraries\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\standard\freertos_plus_posix\include\portable\nuvoton\numaker_iot_m487_wifi;..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\posix;..\..\..\..\..\libraries\aws\shadow\src;..\..\..\..\..\libraries\aws\greengrass\test;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access;..\..\..\..\..\libraries\c_sdk\standard\mqtt\src;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\src;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src;..\..\..\..\..\libraries\c_sdk\aws\defender\src\private;..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\wifi\include;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\tests\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include\;..\..\..\..\..\libraries\abstractions\posix\include\;</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -424,12 +424,12 @@
             <File>
               <FileName>startup_M480.s</FileName>
               <FileType>2</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Source\ARM\startup_M480.s</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Source\ARM\startup_M480.s</FilePath>
             </File>
             <File>
               <FileName>system_M480.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Source\system_M480.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\Device\Nuvoton\numaker_iot_m487_wifi\Source\system_M480.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -439,12 +439,12 @@
             <File>
               <FileName>entropy_hardware_poll.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\application_code\nuvoton_code\entropy_hardware_poll.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_tests\application_code\nuvoton_code\entropy_hardware_poll.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\common\application_code\main.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_tests\application_code\main.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -454,42 +454,42 @@
             <File>
               <FileName>event_groups.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\event_groups.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\event_groups.c</FilePath>
             </File>
             <File>
               <FileName>list.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\list.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\list.c</FilePath>
             </File>
             <File>
               <FileName>queue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\queue.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\queue.c</FilePath>
             </File>
             <File>
               <FileName>stream_buffer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\stream_buffer.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\stream_buffer.c</FilePath>
             </File>
             <File>
               <FileName>tasks.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\tasks.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\tasks.c</FilePath>
             </File>
             <File>
               <FileName>timers.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\timers.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\timers.c</FilePath>
             </File>
             <File>
               <FileName>port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F\port.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\portable\RVDS\ARM_CM4F\port.c</FilePath>
             </File>
             <File>
               <FileName>heap_4.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c</FilePath>
+              <FilePath>..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -499,32 +499,32 @@
             <File>
               <FileName>retarget.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\retarget.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\retarget.c</FilePath>
             </File>
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\clk.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\clk.c</FilePath>
             </File>
             <File>
               <FileName>crypto.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\crypto.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\crypto.c</FilePath>
             </File>
             <File>
               <FileName>fmc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\fmc.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\fmc.c</FilePath>
             </File>
             <File>
               <FileName>sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\sys.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\sys.c</FilePath>
             </File>
             <File>
               <FileName>uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\uart.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\StdDriver\src\uart.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -534,27 +534,27 @@
             <File>
               <FileName>aws_test.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\test\src\aws_test.c</FilePath>
+              <FilePath>..\..\..\..\..\tests\common\aws_test.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_framework.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\test\src\aws_test_framework.c</FilePath>
+              <FilePath>..\..\..\..\..\tests\common\aws_test_framework.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_runner.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\test\src\aws_test_runner.c</FilePath>
+              <FilePath>..\..\..\..\..\tests\common\aws_test_runner.c</FilePath>
             </File>
             <File>
               <FileName>iot_test_afr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\test\src\iot_test_afr.c</FilePath>
+              <FilePath>..\..\..\..\..\tests\common\iot_test_afr.c</FilePath>
             </File>
             <File>
               <FileName>iot_tests_network.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\test\src\iot_tests_network.c</FilePath>
+              <FilePath>..\..\..\..\..\tests\common\iot_tests_network.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -564,17 +564,17 @@
             <File>
               <FileName>aws_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\wifi\aws_wifi.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\wifi\aws_wifi.c</FilePath>
             </File>
             <File>
               <FileName>esp8266_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\sdk\middleware\wifi_esp8266\esp8266_wifi.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\sdk\middleware\wifi_esp8266\esp8266_wifi.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\ports\wifi\test\aws_test_wifi.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\wifi\test\aws_test_wifi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -584,12 +584,12 @@
             <File>
               <FileName>aws_test_crypto.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\crypto\test\aws_test_crypto.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\aws_test_crypto.c</FilePath>
             </File>
             <File>
               <FileName>aws_crypto.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\crypto\src\aws_crypto.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\aws_crypto.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -599,67 +599,67 @@
             <File>
               <FileName>aws_test_mqtt_agent.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\test\aws_test_mqtt_agent.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\aws_test_mqtt_agent.c</FilePath>
             </File>
             <File>
               <FileName>iot_tests_mqtt_system.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\test\system\iot_tests_mqtt_system.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c</FilePath>
             </File>
             <File>
               <FileName>iot_tests_mqtt_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_api.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c</FilePath>
             </File>
             <File>
               <FileName>iot_tests_mqtt_receive.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_receive.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c</FilePath>
             </File>
             <File>
               <FileName>iot_tests_mqtt_subscription.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c</FilePath>
             </File>
             <File>
               <FileName>iot_tests_mqtt_validate.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\test\unit\iot_tests_mqtt_validate.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c</FilePath>
             </File>
             <File>
               <FileName>aws_mqtt_agent.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\aws_mqtt_agent.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c</FilePath>
             </File>
             <File>
               <FileName>iot_mqtt_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_api.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c</FilePath>
             </File>
             <File>
               <FileName>iot_mqtt_network.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_network.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c</FilePath>
             </File>
             <File>
               <FileName>iot_mqtt_operation.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_operation.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c</FilePath>
             </File>
             <File>
               <FileName>iot_mqtt_serialize.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_serialize.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c</FilePath>
             </File>
             <File>
               <FileName>iot_mqtt_subscription.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_subscription.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_subscription.c</FilePath>
             </File>
             <File>
               <FileName>iot_mqtt_validate.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\mqtt\src\iot_mqtt_validate.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -669,12 +669,12 @@
             <File>
               <FileName>aws_greengrass_discovery.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\greengrass\src\aws_greengrass_discovery.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_greengrass_discovery.c</FilePath>
             </File>
             <File>
               <FileName>aws_helper_secure_connect.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\greengrass\src\aws_helper_secure_connect.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -684,17 +684,17 @@
             <File>
               <FileName>aws_pkcs11_mbedtls.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\ports\pkcs11\mbedtls\aws_pkcs11_mbedtls.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\pkcs11\\mbedtls\aws_pkcs11_mbedtls.c</FilePath>
             </File>
             <File>
               <FileName>aws_pkcs11_pal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\pkcs11\aws_pkcs11_pal.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\pkcs11\aws_pkcs11_pal.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_pkcs11.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\ports\pkcs11\test\aws_test_pkcs11.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\pkcs11\test\aws_test_pkcs11.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -704,12 +704,12 @@
             <File>
               <FileName>aws_secure_sockets.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\ports\secure_sockets\aws_secure_sockets.c</FilePath>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\ports\secure_sockets\aws_secure_sockets.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_tcp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\ports\secure_sockets\test\aws_test_tcp.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\secure_sockets\test\aws_test_tcp.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -719,47 +719,47 @@
             <File>
               <FileName>aws_shadow.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_shadow.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_shadow.c</FilePath>
             </File>
             <File>
               <FileName>aws_iot_shadow_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_api.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_api.c</FilePath>
             </File>
             <File>
               <FileName>aws_iot_shadow_operation.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_operation.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_operation.c</FilePath>
             </File>
             <File>
               <FileName>aws_iot_shadow_parser.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_parser.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_parser.c</FilePath>
             </File>
             <File>
               <FileName>aws_iot_shadow_subscription.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\src\aws_iot_shadow_subscription.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\src\aws_iot_shadow_subscription.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_shadow.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\test\aws_test_shadow.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\test\aws_test_shadow.c</FilePath>
             </File>
             <File>
               <FileName>aws_iot_tests_shadow_system.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\test\system\aws_iot_tests_shadow_system.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c</FilePath>
             </File>
             <File>
               <FileName>aws_iot_tests_shadow_api.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\test\unit\aws_iot_tests_shadow_api.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c</FilePath>
             </File>
             <File>
               <FileName>aws_iot_tests_shadow_parser.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -769,12 +769,12 @@
             <File>
               <FileName>aws_tls.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\tls\src\aws_tls.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\tls\src\aws_tls.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_tls.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\tls\test\aws_test_tls.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\tls\test\aws_test_tls.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -784,7 +784,7 @@
             <File>
               <FileName>aws_system_init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\utils\src\aws_system_init.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_system_init.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -794,7 +794,7 @@
             <File>
               <FileName>jsmn.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\jsmn\jsmn.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -804,362 +804,362 @@
             <File>
               <FileName>aes.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\aes.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c</FilePath>
             </File>
             <File>
               <FileName>aesni.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\aesni.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\aesni.c</FilePath>
             </File>
             <File>
               <FileName>arc4.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\arc4.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\arc4.c</FilePath>
             </File>
             <File>
               <FileName>asn1parse.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\asn1parse.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1parse.c</FilePath>
             </File>
             <File>
               <FileName>asn1write.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\asn1write.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\asn1write.c</FilePath>
             </File>
             <File>
               <FileName>base64.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\base64.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c</FilePath>
             </File>
             <File>
               <FileName>bignum.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\bignum.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\bignum.c</FilePath>
             </File>
             <File>
               <FileName>blowfish.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\blowfish.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\blowfish.c</FilePath>
             </File>
             <File>
               <FileName>camellia.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\camellia.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\camellia.c</FilePath>
             </File>
             <File>
               <FileName>ccm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ccm.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ccm.c</FilePath>
             </File>
             <File>
               <FileName>certs.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\certs.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\certs.c</FilePath>
             </File>
             <File>
               <FileName>cipher.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cipher.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher.c</FilePath>
             </File>
             <File>
               <FileName>cipher_wrap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cipher_wrap.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\cipher_wrap.c</FilePath>
             </File>
             <File>
               <FileName>cmac.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\cmac.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\cmac.c</FilePath>
             </File>
             <File>
               <FileName>ctr_drbg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ctr_drbg.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ctr_drbg.c</FilePath>
             </File>
             <File>
               <FileName>debug.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\debug.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\debug.c</FilePath>
             </File>
             <File>
               <FileName>des.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\des.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\des.c</FilePath>
             </File>
             <File>
               <FileName>dhm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\dhm.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\dhm.c</FilePath>
             </File>
             <File>
               <FileName>ecdh.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecdh.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdh.c</FilePath>
             </File>
             <File>
               <FileName>ecdsa.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecdsa.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecdsa.c</FilePath>
             </File>
             <File>
               <FileName>ecjpake.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecjpake.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecjpake.c</FilePath>
             </File>
             <File>
               <FileName>ecp.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecp.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp.c</FilePath>
             </File>
             <File>
               <FileName>ecp_curves.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ecp_curves.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ecp_curves.c</FilePath>
             </File>
             <File>
               <FileName>entropy.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\entropy.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy.c</FilePath>
             </File>
             <File>
               <FileName>entropy_poll.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\entropy_poll.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\entropy_poll.c</FilePath>
             </File>
             <File>
               <FileName>error.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\error.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\error.c</FilePath>
             </File>
             <File>
               <FileName>gcm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\gcm.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\gcm.c</FilePath>
             </File>
             <File>
               <FileName>havege.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\havege.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\havege.c</FilePath>
             </File>
             <File>
               <FileName>hmac_drbg.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\hmac_drbg.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\hmac_drbg.c</FilePath>
             </File>
             <File>
               <FileName>md.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\md.c</FilePath>
             </File>
             <File>
               <FileName>md_wrap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md_wrap.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\md_wrap.c</FilePath>
             </File>
             <File>
               <FileName>md2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md2.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\md2.c</FilePath>
             </File>
             <File>
               <FileName>md4.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md4.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\md4.c</FilePath>
             </File>
             <File>
               <FileName>md5.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\md5.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\md5.c</FilePath>
             </File>
             <File>
               <FileName>memory_buffer_alloc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\memory_buffer_alloc.c</FilePath>
             </File>
             <File>
               <FileName>net_sockets.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\net_sockets.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\net_sockets.c</FilePath>
             </File>
             <File>
               <FileName>oid.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\oid.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\oid.c</FilePath>
             </File>
             <File>
               <FileName>padlock.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\padlock.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\padlock.c</FilePath>
             </File>
             <File>
               <FileName>pem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pem.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\pem.c</FilePath>
             </File>
             <File>
               <FileName>pk.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pk.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk.c</FilePath>
             </File>
             <File>
               <FileName>pk_wrap.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pk_wrap.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\pk_wrap.c</FilePath>
             </File>
             <File>
               <FileName>pkcs5.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkcs5.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs5.c</FilePath>
             </File>
             <File>
               <FileName>pkcs12.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkcs12.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkcs12.c</FilePath>
             </File>
             <File>
               <FileName>pkparse.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkparse.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkparse.c</FilePath>
             </File>
             <File>
               <FileName>pkwrite.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\pkwrite.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\pkwrite.c</FilePath>
             </File>
             <File>
               <FileName>platform.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\platform.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform.c</FilePath>
             </File>
             <File>
               <FileName>ripemd160.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ripemd160.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ripemd160.c</FilePath>
             </File>
             <File>
               <FileName>rsa.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\rsa.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa.c</FilePath>
             </File>
             <File>
               <FileName>rsa_internal.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\rsa_internal.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\rsa_internal.c</FilePath>
             </File>
             <File>
               <FileName>sha1.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha1.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha1.c</FilePath>
             </File>
             <File>
               <FileName>sha256.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha256.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha256.c</FilePath>
             </File>
             <File>
               <FileName>sha512.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\sha512.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\sha512.c</FilePath>
             </File>
             <File>
               <FileName>ssl_cache.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cache.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cache.c</FilePath>
             </File>
             <File>
               <FileName>ssl_ciphersuites.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_ciphersuites.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ciphersuites.c</FilePath>
             </File>
             <File>
               <FileName>ssl_cli.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cli.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cli.c</FilePath>
             </File>
             <File>
               <FileName>ssl_cookie.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_cookie.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_cookie.c</FilePath>
             </File>
             <File>
               <FileName>ssl_srv.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_srv.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_srv.c</FilePath>
             </File>
             <File>
               <FileName>ssl_ticket.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_ticket.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_ticket.c</FilePath>
             </File>
             <File>
               <FileName>ssl_tls.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\ssl_tls.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\ssl_tls.c</FilePath>
             </File>
             <File>
               <FileName>threading.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\threading.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\threading.c</FilePath>
             </File>
             <File>
               <FileName>timing.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\timing.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\timing.c</FilePath>
             </File>
             <File>
               <FileName>version.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\version.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\version.c</FilePath>
             </File>
             <File>
               <FileName>version_features.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\version_features.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\version_features.c</FilePath>
             </File>
             <File>
               <FileName>x509.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509.c</FilePath>
             </File>
             <File>
               <FileName>x509_create.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_create.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_create.c</FilePath>
             </File>
             <File>
               <FileName>x509_crl.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_crl.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crl.c</FilePath>
             </File>
             <File>
               <FileName>x509_crt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_crt.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_crt.c</FilePath>
             </File>
             <File>
               <FileName>x509_csr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509_csr.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509_csr.c</FilePath>
             </File>
             <File>
               <FileName>x509write_crt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509write_crt.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_crt.c</FilePath>
             </File>
             <File>
               <FileName>x509write_csr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\x509write_csr.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\x509write_csr.c</FilePath>
             </File>
             <File>
               <FileName>xtea.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\xtea.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c</FilePath>
             </File>
             <File>
               <FileName>platform_util.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\mbedtls\library\platform_util.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\mbedtls\library\platform_util.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1169,92 +1169,57 @@
             <File>
               <FileName>iot_clock_afr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_clock_afr.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_afr.c</FilePath>
             </File>
             <File>
               <FileName>iot_network_afr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_network_afr.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_afr.c</FilePath>
             </File>
             <File>
               <FileName>iot_threads_afr.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\platform\iot_threads_afr.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_afr.c</FilePath>
             </File>
             <File>
               <FileName>iot_taskpool.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\taskpool\iot_taskpool.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool.c</FilePath>
             </File>
             <File>
               <FileName>iot_init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\iot_init.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\common\iot_init.c</FilePath>
             </File>
             <File>
               <FileName>iot_json_utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\iot_json_utils.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\serializer\src\iot_json_utils.c</FilePath>
             </File>
             <File>
               <FileName>iot_logging.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\logging\iot_logging.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c</FilePath>
             </File>
             <File>
               <FileName>aws_logging_task_dynamic_buffers.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\logging\aws_logging_task_dynamic_buffers.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_static_memory_defender.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\static_memory\aws_iot_static_memory_defender.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_static_memory_shadow.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\static_memory\aws_iot_static_memory_shadow.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_static_memory_common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_common.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_static_memory_metrics.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_metrics.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_static_memory_mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_mqtt.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_static_memory_serializer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_serializer.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_static_memory_taskpool.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\static_memory\iot_static_memory_taskpool.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\common\logging\aws_logging_task_dynamic_buffers.c</FilePath>
             </File>
             <File>
               <FileName>aws_memory_leak.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\test\aws_memory_leak.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\common\test\aws_memory_leak.c</FilePath>
             </File>
             <File>
               <FileName>iot_test_platform_clock.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_clock.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c</FilePath>
             </File>
             <File>
               <FileName>iot_test_platform_threads.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\common\test\iot_test_platform_threads.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1264,12 +1229,12 @@
             <File>
               <FileName>unity.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\unity\src\unity.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\unity\src\unity.c</FilePath>
             </File>
             <File>
               <FileName>unity_fixture.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1279,42 +1244,42 @@
             <File>
               <FileName>aws_test_posix_clock.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_clock.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_clock.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_posix_mqueue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_mqueue.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_mqueue.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_posix_pthread.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_pthread.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_pthread.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_posix_semaphore.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_semaphore.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_semaphore.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_posix_stress.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_stress.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_stress.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_posix_timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_timer.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_timer.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_posix_unistd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_unistd.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_unistd.c</FilePath>
             </File>
             <File>
               <FileName>aws_test_posix_utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\test\aws_test_posix_utils.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_utils.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1324,57 +1289,57 @@
             <File>
               <FileName>FreeRTOS_POSIX_clock.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_mqueue.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_pthread.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_pthread_barrier.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_pthread_cond.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_pthread_mutex.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_sched.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_semaphore.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_timer.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_unistd.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c</FilePath>
             </File>
             <File>
               <FileName>FreeRTOS_POSIX_utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1382,14 +1347,9 @@
           <GroupName>lib-std-metrics</GroupName>
           <Files>
             <File>
-              <FileName>aws_secure_sockets_wrapper_metrics.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\metrics\src\aws_secure_sockets_wrapper_metrics.c</FilePath>
-            </File>
-            <File>
               <FileName>iot_metrics.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\metrics\src\iot_metrics.c</FilePath>
+              <FilePath>..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1399,7 +1359,12 @@
             <File>
               <FileName>aws_dev_mode_key_provisioning.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\..\modules\libraries\standard\provisioning\src\aws_dev_mode_key_provisioning.c</FilePath>
+              <FilePath>..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c</FilePath>
+            </File>
+            <File>
+              <FileName>pem2der.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c</FilePath>
             </File>
           </Files>
         </Group>

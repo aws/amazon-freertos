@@ -77,7 +77,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/test \
                     $(AFR_ABSTRACTIONS_PATH)posix/include \
-                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/include \
+                    $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include/types \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/src \
@@ -144,7 +144,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_v1.c \
                       $(AFR_C_SDK_AWS_PATH)defender/test/aws_iot_tests_defender_api.c \
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/test/aws_test_crypto.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)provisioning/src/aws_dev_mode_key_provisioning.c \
+                      $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
+                      $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/pem2der.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_afr.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_afr.c \

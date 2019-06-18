@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS BLE V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -148,7 +148,7 @@ void _serviceClean( BLEServiceListElement_t * pServiceElem )
     if( pServiceElem != NULL )
     {
         IotListDouble_Remove( &pServiceElem->serviceList );
-        vPortFree( pServiceElem );
+        IotBle_Free( pServiceElem );
     }
 }
 
@@ -269,7 +269,7 @@ void _connectionCb( uint16_t connId,
     if( connected == true )
     {
         /* Add a new connection to the list */
-        pConnInfoListElem = pvPortMalloc( sizeof( IotBleConnectionInfoListElement_t ) );
+        pConnInfoListElem = IotBle_Malloc( sizeof( IotBleConnectionInfoListElement_t ) );
 
         if( pConnInfoListElem != NULL )
         {
@@ -292,7 +292,7 @@ void _connectionCb( uint16_t connId,
         {
             /* Remove connection from the list safely */
             IotListDouble_Remove( &pConnInfoListElem->connectionList );
-            vPortFree( pConnInfoListElem );
+            IotBle_Free( pConnInfoListElem );
         }
     }
 
@@ -603,7 +603,7 @@ BTStatus_t _addServiceToList( BTService_t * pService,
     BLEServiceListElement_t * pNewElem;
 
     /* Create a space in the list for the service. */
-    pNewElem = pvPortMalloc( sizeof( BLEServiceListElement_t ) );
+    pNewElem = IotBle_Malloc( sizeof( BLEServiceListElement_t ) );
 
     if( pNewElem != NULL )
     {

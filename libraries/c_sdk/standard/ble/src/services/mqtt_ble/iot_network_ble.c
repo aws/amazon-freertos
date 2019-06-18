@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS BLE V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -31,7 +31,9 @@
 #include  <stdbool.h>
 #include "iot_config.h"
 #include "iot_ble_config.h"
-#include "FreeRTOS.h"
+#include "platform/iot_network_ble.h"
+#include "platform/iot_threads.h"
+#include "iot_ble_data_transfer.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
@@ -42,10 +44,6 @@
 
 #define LIBRARY_LOG_NAME         ( "NET_BLE" )
 #include "iot_logging_setup.h"
-
-#include "platform/iot_network_ble.h"
-#include "platform/iot_threads.h"
-#include "iot_ble_data_transfer.h"
 
 #define _CONTAINER( type, pConnection, channelName )    ( ( type * ) ( void * ) ( ( ( uint8_t * ) ( pConnection ) ) - offsetof( type, channelName ) ) )
 
@@ -102,7 +100,7 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
 {
     IotNetworkError_t status = IOT_NETWORK_FAILURE;
     IotBleDataTransferChannel_t * pChannel = NULL;
-    _bleNetworkConnection_t * pBleConnection = pvPortMalloc( sizeof( _bleNetworkConnection_t ) );
+    _bleNetworkConnection_t * pBleConnection = IotNetwork_Malloc( sizeof( _bleNetworkConnection_t ) );
 
     /* Unused parameters */
     ( void ) pConnectionInfo;
@@ -140,7 +138,7 @@ IotNetworkError_t IotNetworkBle_Create( void * pConnectionInfo,
 
         if( status != IOT_NETWORK_SUCCESS )
         {
-            vPortFree( pBleConnection );
+            IotNetwork_Free( pBleConnection );
         }
     }
 
@@ -197,7 +195,7 @@ IotNetworkError_t IotNetworkBle_Destroy( void * pConnection )
 
     IotBleDataTransfer_Reset( pBleConnection->pChannel );
     IotSemaphore_Destroy( &pBleConnection->ready );
-    vPortFree( pBleConnection );
+    IotNetwork_Free( pBleConnection );
 
     return IOT_NETWORK_SUCCESS;
 }

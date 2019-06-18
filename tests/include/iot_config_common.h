@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V201906.00 Major
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -17,6 +18,9 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
  */
 
 /* This file contains default configuration settings for the tests on FreeRTOS. */
@@ -29,6 +33,7 @@
 
 /* Credentials include. */
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
 
 /* Unity framework includes. */
 #include "unity.h"
@@ -66,6 +71,7 @@
 #define IOT_MQTT_ENABLE_ASSERTS            ( 1 )
 #define AWS_IOT_SHADOW_ENABLE_ASSERTS      ( 1 )
 #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
+#define IOT_BLE_ENABLE_ASSERTS             ( 1 )
 
 /* Assert functions. */
 #define IotMetrics_Assert( expression )        if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
@@ -74,6 +80,7 @@
 #define IotMqtt_Assert( expression )           if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
 #define AwsIotShadow_Assert( expression )      if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
 #define AwsIotDefender_Assert( expression )    if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
+#define IotBle_Assert( expression )            if( ( expression ) == 0 ) TEST_FAIL_MESSAGE( "Assertion failure" )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef IOT_STATIC_MEMORY_ONLY
@@ -88,9 +95,12 @@
 #define IotThreads_Free      vPortFree
 #define IotLogging_Malloc    pvPortMalloc
 #define IotLogging_Free      vPortFree
+#define IotBle_Malloc        pvPortMalloc
+#define IotBle_Free          vPortFree  
 /* #define IotLogging_StaticBufferSize */
 #define IotTest_Malloc       pvPortMalloc
 #define IotTest_Free         vPortFree
+
 
 /* Memory allocation function configuration for the MQTT library. The MQTT library
  * will be affected by IOT_STATIC_MEMORY_ONLY. */
@@ -148,6 +158,15 @@
 #else
     #define IOT_PLATFORM_NAME    "Unknown"
 #endif
+
+/* Cloud endpoint to which the device connects to. */
+#define IOT_CLOUD_ENDPOINT                    clientcredentialMQTT_BROKER_ENDPOINT
+
+/**
+ * @brief Unique identifier used to recognize a device by the cloud.
+ * This could be SHA-256 of the device certificate.
+ */
+#define IOT_DEVICE_IDENTIFIER                ""
 
 /* Set Thing Name. */
 #define AWS_IOT_TEST_SHADOW_THING_NAME    clientcredentialIOT_THING_NAME

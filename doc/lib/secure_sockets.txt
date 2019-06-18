@@ -105,5 +105,5 @@ This configuration is defined in  @ref aws_secure_sockets_config_defaults.h
 /**
 @handles{SecureSockets,library}
 
-@paramstructs{SecureSockets}
+@paramstructs{SecureSockets, secure_sockets}
 */

@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V201906.00 Major
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,11 +23,14 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
  * @file aws_iot_demo_network.c
  * @brief Contains implementation for network creation and teardown functions for handling different types of network connections
  */
+
+#include "aws_demo_config.h"
+
+#if defined(CONFIG_OTA_UPDATE_DEMO_ENABLED)
 #include "iot_demo_logging.h"
 #include "iot_network_manager_private.h"
 
@@ -242,6 +245,15 @@ void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext
         }
 #endif
 
+#if ETH_ENABLED
+        if (pxNetworkContext->ulNetworkType == AWSIOT_NETWORK_TYPE_ETH)
+        {
+            IotNetworkAfr_Close(pxNetworkContext->pvNetworkConnection);
+            IotNetworkAfr_Destroy(pxNetworkContext->pvNetworkConnection);
+            xDeleted = pdTRUE;
+        }
+#endif
+
         if( xDeleted )
         {
             pxNetworkContext->pvNetworkConnection = NULL;
@@ -250,3 +262,4 @@ void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkContext
 
     }
 }
+#endif

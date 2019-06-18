@@ -299,11 +299,6 @@ target_link_libraries(
         AFR::utils
 )
 
-# TODO: tinycbor cannot compile because inttypes.h doesn't exist
-if(${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
-afr_module_dependencies(
-    serializer
-    PRIVATE
-        3rdparty::dummy
-)
+if(NOT AFR_METADATA_MODE)
+    message(FATAL_ERROR "CMake support for nxp is not complete yet.")
 endif()

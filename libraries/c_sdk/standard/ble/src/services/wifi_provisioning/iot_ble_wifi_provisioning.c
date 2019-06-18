@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS BLE V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,8 +32,9 @@
 
 #include "iot_config.h"
 #include "iot_ble_config.h"
-
+#include "iot_serializer.h"
 #include "iot_taskpool.h"
+#include "iot_ble_wifi_provisioning.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
@@ -42,11 +43,8 @@
     #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
 #endif
 
-#define LIBRARY_LOG_NAME         ( "WIFI_PROV" )
+#define LIBRARY_LOG_NAME         ( "BLE_WIFI_PROV" )
 #include "iot_logging_setup.h"
-
-#include "iot_ble_wifi_provisioning.h"
-#include "iot_serializer.h"
 
 /**
  * @cond DOXYGEN_IGNORE
@@ -89,7 +87,8 @@
 /**
  * @defgroup
  * Wifi provisioning message types.
- * /** @{ */
+ */
+/** @{ */
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_REQ       ( 1 )
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP      ( 2 )
 #define IOT_BLE_WIFI_PROV_MSG_TYPE_SAVE_NETWORK_REQ       ( 3 )

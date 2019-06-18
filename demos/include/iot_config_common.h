@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V201906.00 Major
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -17,6 +18,9 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
  */
 
 /* This file contains default configuration settings for the demos on FreeRTOS. */
@@ -29,6 +33,9 @@
 
 /* Use platform types on FreeRTOS. */
 #include "platform/iot_platform_types_afr.h"
+
+/* Used to get the cloud broker endpoint for FreeRTOS. */
+#include "aws_clientcredential.h"
 
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
@@ -58,6 +65,9 @@
 #ifndef AWS_IOT_DEFENDER_ENABLE_ASSERTS
     #define AWS_IOT_DEFENDER_ENABLE_ASSERTS    ( 1 )
 #endif
+#ifndef IOT_BLE_ENABLE_ASSERTS
+    #define IOT_BLE_ENABLE_ASSERTS             ( 1 )
+#endif
 
 /* Assert functions. */
 #define IotMetrics_Assert( expression )        configASSERT( expression )
@@ -66,6 +76,7 @@
 #define IotMqtt_Assert( expression )           configASSERT( expression )
 #define AwsIotShadow_Assert( expression )      configASSERT( expression )
 #define AwsIotDefender_Assert( expression )    configASSERT( expression )
+#define IotBle_Assert( expression )            configASSERT( expression )
 
 /* Control the usage of dynamic memory allocation. */
 #ifndef IOT_STATIC_MEMORY_ONLY
@@ -80,6 +91,8 @@
 #define IotThreads_Free      vPortFree
 #define IotLogging_Malloc    pvPortMalloc
 #define IotLogging_Free      vPortFree
+#define IotBle_Malloc        pvPortMalloc
+#define IotBle_Free          vPortFree
 /* #define IotLogging_StaticBufferSize */
 
 /* Memory allocation function configuration for the MQTT and Defender library.
@@ -152,6 +165,28 @@
 #else
     #define IOT_PLATFORM_NAME    "Unknown"
 #endif
+
+/* Cloud endpoint to which the device connects to. */
+#define IOT_CLOUD_ENDPOINT                    clientcredentialMQTT_BROKER_ENDPOINT
+
+/**
+ * @brief Unique identifier used to recognize a device by the cloud.
+ * This could be SHA-256 of the device certificate.
+ */
+extern const char *getDeviceIdentifier( void );
+#define IOT_DEVICE_IDENTIFIER                getDeviceIdentifier()
+
+/**
+ * @brief Metrics emitted by the device.
+ */
+extern const char *getDeviceMetrics( void );
+#define AWS_IOT_METRICS_USERNAME     getDeviceMetrics()
+
+/**
+ * @brief Length of the metrics emitted by device.
+ */
+extern uint16_t getDeviceMetricsLength( void );
+#define AWS_IOT_METRICS_USERNAME_LENGTH getDeviceMetricsLength()
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
 #define IotMetricsConnectionId_t            void *

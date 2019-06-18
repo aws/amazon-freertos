@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS WIFI AFQP V1.1.4
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS WiFi V1.0.3
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -573,64 +573,42 @@ static void prvFinishWiFiTesting( void )
     }
 }
 
-static void prvWIFIinit(void)
+/* Unity TEST initializations. */
+TEST_GROUP( Full_WiFi );
+
+TEST_SETUP( Full_WiFi )
 {
     int32_t lI = 0;
     int8_t cScanSize = 10;
     WIFIReturnCode_t xWiFiStatus;
     WIFIScanResult_t xScanResults[ 10 ] = { 0 };
 
-    if( TEST_PROTECT() )
+    /* Disconnect first before running any Wi-Fi test. */
+    xWiFiStatus = WIFI_Disconnect();
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
+
+    TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
+
+    configPRINTF(
+        ( "WiFi Networks and strength: \r\n" ) );
+
+    for( lI = 0; lI < cScanSize; lI++ )
     {
-        /* Disconnect first before running any Wi-Fi test. */
-        xWiFiStatus = WIFI_Disconnect();
-        TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-        xWiFiStatus = WIFI_Scan( xScanResults, cScanSize );
-
-        TEST_ASSERT_EQUAL_INT( eWiFiSuccess, xWiFiStatus );
-
-        configPRINTF(
-            ( "WiFi Networks and strength: \r\n" ) );
-
-        for( lI = 0; lI < cScanSize; lI++ )
-        {
-            configPRINTF( ( "    %s: %d\r\n",
-                            xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
-        }
-
-        configPRINTF(
-            ( "End of WiFi Networks\r\n" ) );
-
-        vTaskDelay( testwifiCONNECTION_DELAY );
+        configPRINTF( ( "    %s: %d\r\n",
+                        xScanResults[ lI ].cSSID, xScanResults[ lI ].cRSSI ) );
     }
-    else
-    {
-        TEST_FAIL();
-    }
-}
 
-/* Unity TEST initializations. */
-TEST_GROUP( Full_WiFi );
-TEST_GROUP( Quarantine_WiFi );
+    configPRINTF(
+        ( "End of WiFi Networks\r\n" ) );
 
-TEST_SETUP( Quarantine_WiFi )
-{
-}
-TEST_TEAR_DOWN( Quarantine_WiFi )
-{
-}
-
-TEST_SETUP( Full_WiFi )
-{
-
+    vTaskDelay( testwifiCONNECTION_DELAY );
 }
 
 TEST_TEAR_DOWN( Full_WiFi )
 {
-	prvWIFIinit();
 }
-
 
 TEST_GROUP_RUNNER( Full_WiFi )
 {
@@ -647,6 +625,7 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiReset );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiPing );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiIsConnected );
+    RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConnectMultipleAP );
     RUN_TEST_CASE( Full_WiFi, AFQP_WiFiOnOffLoop );
 
     /* Null parameter tests. */
@@ -686,51 +665,17 @@ TEST_GROUP_RUNNER( Full_WiFi )
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks );
     RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels );
 
-    prvFinishWiFiTesting();
-}
-
-TEST_GROUP( Full_WiFiConfigureAP );
-
-TEST_SETUP( Full_WiFiConfigureAP )
-{
-
-}
-
-TEST_TEAR_DOWN( Full_WiFiConfigureAP )
-{
-	prvWIFIinit();
-}
-
-
-TEST_GROUP_RUNNER( Full_WiFiConfigureAP )
-{
-#if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
-	RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
-	RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
-#endif
-    prvFinishWiFiTesting();
-}
-
-TEST_GROUP_RUNNER( Quarantine_WiFi )
-{
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConfigureAP );
-    RUN_TEST_CASE( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP );
-    RUN_TEST_CASE( Quarantine_WiFi,
-                   AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce );
+    #if ( testwifiENABLE_CONFIGURE_AP_TESTS == 1 )
+        RUN_TEST_CASE( Full_WiFi, AFQP_WiFiConfigureAP );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword );
+        RUN_TEST_CASE( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels );
+    #endif
 
     prvFinishWiFiTesting();
 }
@@ -865,10 +810,10 @@ TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
     {
         xWiFiStatus = WIFI_SetMode( eWiFiModeNotSupported );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
+    /* Some ports will use an assert for invalid parameters instead of returning a failure code. 
+       Because of this there is no else { TEST_FAIL(); } appended to this if( TEST_PROTECT() ) block. 
+       This applies to all invalid parameter tests in this file. */
 }
 
 /**
@@ -1086,9 +1031,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_InvalidDomainName )
 
         /* Assert that the IP address is NOT found. */
         TEST_ASSERT_EQUAL_INT32( *( ( uint32_t * ) ucIPAddr ), 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1121,9 +1063,6 @@ TEST( Full_WiFi, AFQP_WIFI_GetHostIP_DomainNameLengthExceeded )
 
         /* Assert that the IP address is NOT found. */
         TEST_ASSERT_EQUAL_INT32( *( ( uint32_t * ) ucIPAddr ), 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1172,9 +1111,6 @@ TEST( Full_WiFi, AFQP_WIFI_Scan_ZeroScanNumber )
         /* Ports are allowed to decide to return success or failure depending on
          * their driver for a scan number of zero. */
         WIFI_Scan( xScanResults, 0 );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1309,9 +1245,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteNonExistingNetwork )
         /* Delete non-existing network. */
         xWiFiStatus = WIFI_NetworkDelete( usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess == xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1352,9 +1285,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGetNonExistingNetwork )
         /* Get non-existing network. */
         xWiFiStatus = WIFI_NetworkGet( &xNetworkProfile, usIndex );
         TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1380,9 +1310,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkGet_GetManyNetworks )
             xWiFiStatus = WIFI_NetworkGet( &xNetworkProfile, usIndex );
             TEST_WIFI_ASSERT_OPTIONAL_API( eWiFiSuccess != xWiFiStatus, xWiFiStatus );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1457,9 +1384,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkAdd_AddManyNetworks )
                 TEST_ASSERT_EQUAL_INT32( 0, lCompResults );
             }
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1477,9 +1401,6 @@ TEST( Full_WiFi, AFQP_WIFI_NetworkDelete_DeleteManyNetworks )
         {
             WIFI_NetworkDelete( usIndex );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1583,7 +1504,7 @@ TEST( Full_WiFi, AFQP_WIFI_SetPMMode_InvalidPMMode )
  * network created by it on your phone and configure. You should expect it to
  * return eWiFiSuccess.
  */
-TEST( Quarantine_WiFi, AFQP_WiFiConfigureAP )
+TEST( Full_WiFi, AFQP_WiFiConfigureAP )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1605,7 +1526,7 @@ TEST( Quarantine_WiFi, AFQP_WiFiConfigureAP )
 /**
  * @brief Call WIFI_ConfigureAP with NULL parameters and verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1615,9 +1536,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( NULL );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Set the network parameters with valid parameters */
@@ -1631,9 +1549,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null password. */
@@ -1645,9 +1560,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Null password for open security network. */
@@ -1668,7 +1580,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_NullParameters )
 /**
  * @brief Configure the AP with an invalid security type an verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     WIFIReturnCode_t xWiFiStatus;
@@ -1682,9 +1594,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1692,7 +1601,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_InvalidSecurityType )
  * @brief Configure the SoftAP with a SSID exceeding the maximum SSID length and
  * verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
 {
     char cLengthExceedingSSID[ wificonfigMAX_SSID_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1712,9 +1621,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1722,7 +1628,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxSSIDLengthExceeded )
  * @brief Configure the SoftAP with a password exceeding the maximum password
  * length and verify failure.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
 {
     char cLengthExceedingPassword[ wificonfigMAX_PASSPHRASE_LEN + 2 ];
     WIFINetworkParams_t xNetworkParams = { 0 };
@@ -1742,16 +1648,13 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_MaxPasswordLengthExceeded )
     {
         xWiFiStatus = WIFI_ConfigureAP( &xNetworkParams );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
 /**
  * @brief Configure the SoftAP with a zero length SSID and verify stability.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1764,16 +1667,13 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthSSID )
     if( TEST_PROTECT() )
     {
         WIFI_ConfigureAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
 /**
  * @brief Configure the SoftAP with a zero length password and verify stability.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
 
@@ -1786,9 +1686,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
     if( TEST_PROTECT() )
     {
         WIFI_ConfigureAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1796,7 +1693,7 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ZeroLengthPassword )
  * @brief Configure the SoftAP over all channels specified in
  * testwifiMAX_CHANNEL_NUMBER and verify stability.
  */
-TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
+TEST( Full_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
 {
     WIFINetworkParams_t xNetworkParams = { 0 };
     uint32_t ulIndex;
@@ -1811,9 +1708,6 @@ TEST( Quarantine_WiFi, AFQP_WIFI_ConfigureAP_ConfigureAllChannels )
             xNetworkParams.cChannel = ulIndex;
             WIFI_ConfigureAP( &xNetworkParams );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1856,9 +1750,6 @@ TEST( Full_WiFi, AFQP_WIFI_Ping_NullParameters )
     {
         xWiFiStatus = WIFI_Ping( NULL, testwifiPING_COUNT, testwifiPING_INTERVAL_MS );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -1992,9 +1883,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidPassword )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2028,9 +1916,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSSID )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2064,9 +1949,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
         /* It is allowed that some ports will infer the security type from the Wi-Fi
          * scan. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     /* Truly invalid security type. */
@@ -2077,9 +1959,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_InvalidSecurityTypes )
         /* It is allowed that some ports will infer the security type from the Wi-Fi
          * scan. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2102,9 +1981,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ConnectAllChannels )
             xNetworkParams.cChannel = ulIndex;
             WIFI_ConnectAP( &xNetworkParams );
         }
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2132,9 +2008,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxSSIDLengthExceeded )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2173,9 +2046,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_MaxPasswordLengthExceeded )
     if( TEST_PROTECT() )
     {
         xWiFiStatus = WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 
     xIsConnected = WIFI_IsConnected();
@@ -2208,9 +2078,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthSSID )
         /* This may not return failure if the max SSID length is copied in the port.
          */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2232,9 +2099,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword )
         /* This may not return faulure if the max passphrase length is copied in the
          * port. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2256,9 +2120,6 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
     {
         /* May not return false. */
         WIFI_ConnectAP( &xNetworkParams );
-    } else
-    {
-        TEST_FAIL();
     }
 }
 
@@ -2267,7 +2128,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_PasswordLengthLess )
  * credentials defined in this test over and over and verify we are still
  * connected.
  */
-TEST( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP )
+TEST( Full_WiFi, AFQP_WiFiConnectMultipleAP )
 {
     BaseType_t xIsConnected;
     BaseType_t xMaxRetries = 6;
@@ -2364,325 +2225,5 @@ TEST( Quarantine_WiFi, AFQP_WiFiConnectMultipleAP )
     else
     {
         TEST_FAIL();
-    }
-}
-
-/**
- * @brief Connection loop task. This function will connect then disconnect
- * checking for the thread-safety of WIFI_ConnectAP() and WIFI_Disconnect().
- */
-static void prvConnectionTask( void * pvParameters )
-{
-    WIFIReturnCode_t xWiFiConnectStatus;
-    uint32_t ulIndex;
-    BaseType_t xIsConnected;
-    BaseType_t xRoundTripResults;
-    WIFINetworkParams_t xClientNetworkParams = { 0 };
-    WIFINetworkParams_t xTestNetworkParams = { 0 };
-    testwifiTaskParams_t * pxTaskParams;
-
-    /* Set the network parameters. */
-    prvSetClientNetworkParameters( &xClientNetworkParams );
-    prvSetTestNetworkParameters( &xTestNetworkParams );
-
-    /* Initialize to failure and set to success after the connection loop is
-     * complete. */
-    pxTaskParams = ( testwifiTaskParams_t * ) ( pvParameters );
-    pxTaskParams->xWiFiStatus = eWiFiFailure;
-    memset( pxTaskParams->cStatusMsg, 0, sizeof( pxTaskParams->cStatusMsg ) );
-
-    for( ulIndex = 0; ulIndex < testwifiCONNECTION_LOOP_TIMES; ulIndex++ )
-    {
-        /* Connect to the test network. */
-        xWiFiConnectStatus = WIFI_ConnectAP( &xTestNetworkParams );
-
-        if( xWiFiConnectStatus != eWiFiSuccess )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d failed to connect to the AP %s with error code %d.\r\n",
-                      pxTaskParams->usTaskId,
-                      xTestNetworkParams.pcSSID,
-                      xWiFiConnectStatus );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        configPRINTF( ( "INFO: Task %d connected to AP %s.\r\n", pxTaskParams->usTaskId, xTestNetworkParams.pcSSID ) );
-
-        /* Delay. */
-        vTaskDelay( testwifiCONNECTION_DELAY );
-
-        /* Connect to the client credential network, where the echo server is
-         * attached. */
-        xWiFiConnectStatus = WIFI_ConnectAP( &xClientNetworkParams );
-
-        if( xWiFiConnectStatus != eWiFiSuccess )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d failed to connect to the AP %s with error code %d.\r\n",
-                      pxTaskParams->usTaskId, xClientNetworkParams.pcSSID,
-                      xWiFiConnectStatus );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        configPRINTF( ( "INFO: Task %d connected to AP %s.\r\n", pxTaskParams->usTaskId, xClientNetworkParams.pcSSID ) );
-
-        /* Delay. */
-        vTaskDelay( testwifiCONNECTION_DELAY );
-
-        /* Wait for the other tasks to finish connecting. */
-        if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            ( xEventGroupSync(
-                  xTaskConnectDisconnectSyncEventGroupHandle,
-                  ( 0x1
-                      << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
-                  testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
-                                                    * task. */
-                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d timeout waiting for the other task to finish "
-                      "connection.\r\n",
-                      pxTaskParams->usTaskId );
-
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        /* Check that we are indicated as connected. */
-        xIsConnected = WIFI_IsConnected();
-
-        if( xIsConnected == pdFALSE )
-        {
-            configPRINTF(
-                ( "FAILURE: Task %d indicates from WIFI_IsConnected() that it is not "
-                  "connected.\r\n",
-                  pxTaskParams->usTaskId ) );
-            break;
-        }
-
-        /* Attempt a round trip test to verify connection. */
-        xRoundTripResults = prvRoundTripTest();
-
-        if( xRoundTripResults == pdFALSE )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d failed the round-trip test after connect.\r\n",
-                      pxTaskParams->usTaskId );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        configPRINTF( ( "INFO: Task %d Finished Connection verification Round trip test.\r\n", pxTaskParams->usTaskId ) );
-
-        /* Wait for the other tasks before moving on to disconnecting. */
-        if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            ( xEventGroupSync(
-                  xTaskConnectDisconnectSyncEventGroupHandle, /* The event group used
-                                                               * for the rendezvous.
-                                                               */
-                  ( 0x1
-                      << pxTaskParams->usTaskId ),            /* Set our task ID when we are done. */
-                  testwifiTASK_FINISH_MASK,                   /* Wait for both our task and the other
-                                                               * task. */
-                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d timeout waiting for the other task to finish round-trip "
-                      "test after connect.\r\n",
-                      pxTaskParams->usTaskId );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        /* ---------------------------------------------------------------------------------------
-         */
-
-        /* Disconnect. */
-        xWiFiConnectStatus = WIFI_Disconnect();
-
-        if( xWiFiConnectStatus != eWiFiSuccess )
-        {
-            configPRINTF( ( "FAILURE: Task %d failed to disconnect with Wi-Fi error code %d\r\n",
-                            pxTaskParams->usTaskId, xWiFiConnectStatus ) );
-            break;
-        }
-
-        configPRINTF( ( "INFO: Task %d disconnected from AP %s.\r\n", pxTaskParams->usTaskId, xTestNetworkParams.pcSSID ) );
-
-        /* Delay. */
-        vTaskDelay( testwifiCONNECTION_DELAY );
-
-        /* Wait for the other tasks. */
-        if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            ( xEventGroupSync(
-                  xTaskConnectDisconnectSyncEventGroupHandle,
-                  ( 0x1
-                      << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
-                  testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
-                                                    * task. */
-                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d timeout waiting for the other task to finish "
-                      "disconnection.\r\n",
-                      pxTaskParams->usTaskId );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        /* Are we disconnected? */
-        xIsConnected = WIFI_IsConnected();
-
-        if( xIsConnected == pdTRUE )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d returned eWiFiSuccess from WIFI_Disconnect(), but is not "
-                      "disconnected.\r\n",
-                      pxTaskParams->usTaskId );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        /* Perform a round-trip test to ensure we are NOT connected. */
-        xRoundTripResults = prvRoundTripTest();
-
-        if( xRoundTripResults == pdPASS )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d completed the round-trip test after supposedly "
-                      "disconnecting.\r\n",
-                      pxTaskParams->usTaskId );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-
-        configPRINTF( ( "INFO: Task %d Finished disconnection verification Round trip test.\r\n", pxTaskParams->usTaskId ) );
-
-        /* Wait for the other tasks. */
-        if( ( xTaskConnectDisconnectSyncEventGroupHandle != NULL ) &&
-            ( xEventGroupSync(
-                  xTaskConnectDisconnectSyncEventGroupHandle,
-                  ( 0x1
-                      << pxTaskParams->usTaskId ), /* Set our task ID when we are done. */
-                  testwifiTASK_FINISH_MASK,        /* Wait for both our task and the other
-                                                    * task. */
-                  testwifiTASK_SYNC_TIMEOUT ) != testwifiTASK_FINISH_MASK ) )
-        {
-            snprintf( pxTaskParams->cStatusMsg,
-                      sizeof( pxTaskParams->cStatusMsg ),
-                      "FAILURE: Task %d timeout waiting for the other task to finish the round "
-                      "trip after disconnect.\r\n",
-                      pxTaskParams->usTaskId );
-            configPRINTF( ( pxTaskParams->cStatusMsg ) );
-            break;
-        }
-    }
-
-    /* If the loop was completed without breaking, the task succeeded. */
-    if( ulIndex >= testwifiCONNECTION_LOOP_TIMES )
-    {
-        pxTaskParams->xWiFiStatus = eWiFiSuccess;
-    }
-
-    /* Flag that the task is done. */
-    if( xTaskFinishEventGroupHandle != NULL )
-    {
-        xEventGroupSetBits( xTaskFinishEventGroupHandle,
-                            ( 1 << pxTaskParams->usTaskId ) );
-    }
-
-    vTaskDelete( NULL ); /* Delete this task. */
-}
-
-/**
- * @brief Spawn two threads to connect and disconnect at the same time. This is
- * to verify thread safety in the Wi-Fi driver API.
- */
-TEST( Quarantine_WiFi, AFQP_WiFiSeperateTasksConnectingAndDisconnectingAtOnce )
-{
-    BaseType_t xTaskCreateResult;
-    char cBuffer[ 256 ];
-    int16_t sBufferLength = 256;
-    testwifiTaskParams_t xTaskParams[ testwifiNUM_TASKS ];
-    uint16_t usIndex;
-    uint32_t ulResultEventMask;
-
-    if( TEST_PROTECT() )
-    {
-        /* Create an event group for tasks finishing testing. */
-        xTaskFinishEventGroupHandle = xEventGroupCreate();
-        configASSERT( xTaskFinishEventGroupHandle != NULL );
-
-        /* Even group for task connection and disconnection synchronization. */
-        xTaskConnectDisconnectSyncEventGroupHandle = xEventGroupCreate();
-        configASSERT( xTaskConnectDisconnectSyncEventGroupHandle != NULL );
-
-        /* Create the task that connect at the same time. */
-        for( usIndex = 0; usIndex < testwifiNUM_TASKS; usIndex++ )
-        {
-            xTaskParams[ usIndex ].usTaskId = usIndex;
-            xTaskParams[ usIndex ].xWiFiStatus = eWiFiFailure;
-            xTaskCreateResult = xTaskCreate(
-                prvConnectionTask, "WiFiConnectionTask", testwifiTASK_STACK_SIZE,
-                &xTaskParams[ usIndex ], testwifiTASK_PRIORITY,
-                &( xTaskParams[ usIndex ].xTaskHandle ) );
-
-            if( xTaskCreateResult != pdPASS )
-            {
-                configPRINTF(
-                    ( "Wi-Fi connection task %d creation failed.\r\n", usIndex ) );
-            }
-
-            TEST_ASSERT_EQUAL_INT32( pdPASS, xTaskCreateResult );
-        }
-
-        /* Wait for all of the tasks to finish. */
-        ulResultEventMask = xEventGroupWaitBits(
-            xTaskFinishEventGroupHandle, testwifiTASK_FINISH_MASK, pdTRUE, pdTRUE,
-            testwifiMULTITASK_TEST_TIMEOUT );
-
-        if( ulResultEventMask != testwifiTASK_FINISH_MASK )
-        {
-            configPRINTF(
-                ( "Timed out waiting for all connection/disconnection tasks to "
-                  "finish.\r\n" ) );
-        }
-
-        /* Check the task status and assert test results. */
-        for( usIndex = 0; usIndex < testwifiNUM_TASKS; usIndex++ )
-        {
-            snprintf( cBuffer, sBufferLength, "Task %d failed.\r\n", usIndex );
-            TEST_WIFI_ASSERT_REQUIRED_API_MSG(
-                xTaskParams[ usIndex ].xWiFiStatus == eWiFiSuccess,
-                xTaskParams[ usIndex ].xWiFiStatus, cBuffer );
-        }
-    }
-    else
-    {
-        TEST_FAIL();
-    }
-
-    /* Clean up the task finish event group. */
-    if( xTaskFinishEventGroupHandle != NULL )
-    {
-        vEventGroupDelete( xTaskFinishEventGroupHandle );
-        xTaskFinishEventGroupHandle = NULL;
-    }
-
-    /* Clean up the connection and disconnection sync event groups. */
-    if( xTaskConnectDisconnectSyncEventGroupHandle != NULL )
-    {
-        vEventGroupDelete( xTaskConnectDisconnectSyncEventGroupHandle );
-        xTaskConnectDisconnectSyncEventGroupHandle = NULL;
     }
 }

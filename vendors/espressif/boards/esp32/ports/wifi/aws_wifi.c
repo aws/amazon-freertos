@@ -54,13 +54,12 @@ static bool wifi_auth_failure;
 #define WIFI_FLASH_NS     "WiFi"
 #define MAX_WIFI_KEY_WIDTH         ( 5 )
 #define MAX_SECURITY_MODE_LEN      ( 1 )
-#define MAX_WIFI_NETWORKS          ( 8 )
 
 typedef struct StorageRegistry
 {
 	uint16_t usNumNetworks;
 	uint16_t usNextStorageIdx;
-	uint16_t usStorageIdx[ MAX_WIFI_NETWORKS ];
+	uint16_t usStorageIdx[ wificonfigMAX_NETWORK_PROFILES ];
 } StorageRegistry_t;
 static BaseType_t xIsRegistryInit = pdFALSE;
 static StorageRegistry_t xRegistry = { 0 };
@@ -861,7 +860,7 @@ WIFIReturnCode_t WIFI_NetworkAdd( const WIFINetworkProfile_t * const pxNetworkPr
     		}
     		if( xRet == ESP_OK )
     		{
-    			if( xRegistry.usNumNetworks == MAX_WIFI_NETWORKS )
+    			if( xRegistry.usNumNetworks == wificonfigMAX_NETWORK_PROFILES )
     			{
     				xRet = ESP_FAIL;
     			}
@@ -1356,7 +1355,7 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
 
 WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback  )
 {
-	xEventCallback = xCallback;
-	return eWiFiSuccess;
+    xEventCallback = xCallback;
+    return eWiFiSuccess;
 }
 /*-----------------------------------------------------------*/

@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>aws_demos</name>
-	<comment></comment>
+	<comment/>
 	<projects>
 		<project>aws_bsp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
 			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
-			<arguments>
-			</arguments>
+			<arguments/>
 		</buildCommand>
 		<buildCommand>
 			<name>org.eclipse.cdt.managedbuilder.core.ScannerConfigBuilder</name>
 			<triggers>full,incremental,</triggers>
-			<arguments>
-			</arguments>
+			<arguments/>
 		</buildCommand>
 	</buildSpec>
 	<natures>
@@ -25,1644 +23,1669 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>src/application_code</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/event_groups.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/event_groups.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/list.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/list.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/queue.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/queue.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/stream_buffer.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/stream_buffer.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/tasks.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/tasks.c</locationURI>
 		</link>
 		<link>
-			<name>src/config_files</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/timers.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/timers.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/FreeRTOS.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/include/atomic.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/include/atomic.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/include/deprecated_definitions.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/include/deprecated_definitions.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/main.c</name>
+			<name>freertos_kernel/include/event_groups.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/main.c</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/event_groups.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/include/list.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/include/list.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/FreeRTOSConfig.h</name>
+			<name>freertos_kernel/include/message_buffer.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/FreeRTOSConfig.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/message_buffer.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/FreeRTOSIPConfig.h</name>
+			<name>freertos_kernel/include/mpu_prototypes.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/FreeRTOSIPConfig.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/mpu_prototypes.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_bufferpool_config.h</name>
+			<name>freertos_kernel/include/mpu_wrappers.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_bufferpool_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/mpu_wrappers.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_demo_config.h</name>
+			<name>freertos_kernel/include/portable.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_demo_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/portable.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_ggd_config.h</name>
+			<name>freertos_kernel/include/projdefs.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_ggd_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/projdefs.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_mqtt_agent_config.h</name>
+			<name>freertos_kernel/include/queue.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_mqtt_agent_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/queue.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_mqtt_config.h</name>
+			<name>freertos_kernel/include/semphr.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_mqtt_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/semphr.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_pkcs11_config.h</name>
+			<name>freertos_kernel/include/stack_macros.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_pkcs11_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/stack_macros.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_secure_sockets_config.h</name>
+			<name>freertos_kernel/include/stream_buffer.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_secure_sockets_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/stream_buffer.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_shadow_config.h</name>
+			<name>freertos_kernel/include/task.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_shadow_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/task.h</locationURI>
 		</link>
 		<link>
-			<name>src/config_files/aws_wifi_config.h</name>
+			<name>freertos_kernel/include/timers.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/config_files/aws_wifi_config.h</locationURI>
+			<locationURI>AFR_ROOT/freertos_kernel/include/timers.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/portable/MemMang/heap_4.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/portable/GCC/ARM_CA9/port.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/portable/GCC/ARM_CA9/port.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>freertos_kernel/portable/GCC/ARM_CA9/portASM.S</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/portable/GCC/ARM_CA9/portASM.S</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/source</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/demo_runner/aws_demo_network_addr.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/demo_runner/aws_demo_network_addr.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/FreeRTOS_asm_vectors.S</name>
+			<name>demos/demo_runner/aws_demo_version.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/FreeRTOS_asm_vectors.S</locationURI>
+			<locationURI>AFR_ROOT/demos/demo_runner/aws_demo_version.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/FreeRTOS_tick_config.c</name>
+			<name>demos/demo_runner/aws_demo.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/FreeRTOS_tick_config.c</locationURI>
+			<locationURI>AFR_ROOT/demos/demo_runner/aws_demo.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/ReadMe.txt</name>
+			<name>demos/network_manager/aws_iot_network_manager.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/ReadMe.txt</locationURI>
+			<locationURI>AFR_ROOT/demos/network_manager/aws_iot_network_manager.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/hr_gettime.c</name>
+			<name>demos/network_manager/aws_iot_demo_network.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/hr_gettime.c</locationURI>
+			<locationURI>AFR_ROOT/demos/network_manager/aws_iot_demo_network.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/hr_gettime.h</name>
+			<name>demos/network_manager/iot_network_manager_private.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/hr_gettime.h</locationURI>
+			<locationURI>AFR_ROOT/demos/network_manager/iot_network_manager_private.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/memcpy.c</name>
+			<name>demos/demo_runner/iot_demo_afr.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/memcpy.c</locationURI>
+			<locationURI>AFR_ROOT/demos/demo_runner/iot_demo_afr.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/platform_config.h</name>
+			<name>demos/demo_runner/iot_demo_runner.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/platform_config.h</locationURI>
+			<locationURI>AFR_ROOT/demos/demo_runner/iot_demo_runner.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/uncached_memory.c</name>
+			<name>demos/include/aws_application_version.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/uncached_memory.c</locationURI>
+			<locationURI>AFR_ROOT/demos/include/aws_application_version.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/xilinx_code/uncached_memory.h</name>
+			<name>demos/include/aws_clientcredential.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/xilinx/microzed/common/application_code/xilinx_code/uncached_memory.h</locationURI>
+			<locationURI>AFR_ROOT/demos/include/aws_clientcredential.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/include/aws_clientcredential_keys.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/include/aws_clientcredential_keys.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/include/aws_demo.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/include/aws_demo.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/bufferpool</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/include/aws_iot_demo_network.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/include/aws_iot_demo_network.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/crypto</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/include/aws_ota_codesigner_certificate.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/include/aws_ota_codesigner_certificate.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/greengrass</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/include/iot_config_common.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/include/iot_config_common.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/include/iot_demo_logging.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/include/iot_demo_logging.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/mqtt</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/include/iot_demo_runner.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/include/iot_demo_runner.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/pkcs11</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/standard/common/iot_init.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/secure_sockets</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/standard/common/include/aws_appversion32.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/aws_appversion32.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/shadow</name>
-			<type>2</type>
-			<locationURI>AFR_ROOT/lib/shadow</locationURI>
+			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/iot_init.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/tls</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/standard/common/include/iot_linear_containers.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/utils</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/jsmn</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/standard/common/logging/iot_logging.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/logging/iot_logging.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/standard/common/include/private/iot_logging.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/private/iot_logging.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/pkcs11</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/standard/common/include/aws_logging_task.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/aws_logging_task.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_application_version.h</name>
+			<name>libraries/c_sdk/standard/common/include/iot_logging_setup.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_application_version.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/iot_logging_setup.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_clientcredential.h</name>
+			<name>libraries/c_sdk/standard/common/include/types/iot_network_types.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_clientcredential.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/types/iot_network_types.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_clientcredential_keys.h</name>
+			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_clientcredential_keys.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_demo.h</name>
+			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_demo.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_demo_runner.h</name>
+			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_demo_runner.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_dev_mode_key_provisioning.h</name>
+			<name>libraries/c_sdk/standard/common/include/iot_taskpool.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_dev_mode_key_provisioning.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/iot_taskpool.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_greengrass_discovery_demo.h</name>
+			<name>libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_greengrass_discovery_demo.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_hello_world.h</name>
+			<name>libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_hello_world.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_logging_task.h</name>
+			<name>libraries/abstractions/platform/include/platform/iot_clock.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_logging_task.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/include/platform/iot_clock.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_ota_update_demo.h</name>
+			<name>libraries/abstractions/platform/include/platform/iot_network.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_ota_update_demo.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/include/platform/iot_network.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_shadow_lightbulb_on_off.h</name>
+			<name>libraries/abstractions/platform/include/platform/iot_threads.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_shadow_lightbulb_on_off.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/include/platform/iot_threads.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/include/aws_simple_tcp_echo_server.h</name>
+			<name>libraries/abstractions/platform/include/types/iot_platform_types.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/include/aws_simple_tcp_echo_server.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/source/aws_demo_runner.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_clock_afr.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/demo_runner/aws_demo_runner.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/freertos/iot_clock_afr.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/source/aws_dev_mode_key_provisioning.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/devmode_key_provisioning/aws_dev_mode_key_provisioning.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/source/aws_greengrass_discovery_demo.c</name>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/source/aws_hello_world.c</name>
+			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/mqtt/aws_hello_world.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/include/platform/iot_metrics.h</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_metrics.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
 		</link>
 		<link>
-			<name>src/application_code/common_demos/source/aws_shadow_lightbulb_on_off.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_network_afr.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/common/shadow/aws_shadow_lightbulb_on_off.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/freertos/iot_network_afr.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/event_groups.c</name>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/event_groups.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/list.c</name>
+			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/list.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/queue.c</name>
+			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/queue.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/stream_buffer.c</name>
+			<name>libraries/abstractions/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/stream_buffer.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/tasks.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/tasks.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/timers.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/timers.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/bufferpool/aws_bufferpool_static_thread_safe.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Sockets.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/bufferpool/aws_bufferpool_static_thread_safe.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Sockets.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/crypto/aws_crypto.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/crypto/aws_crypto.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/greengrass/aws_greengrass_discovery.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/greengrass/aws_greengrass_discovery.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/greengrass/aws_helper_secure_connect.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/greengrass/aws_helper_secure_connect.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/FreeRTOS.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/FreeRTOS.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_crypto.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_ARP.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_crypto.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_ARP.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_greengrass_discovery.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DHCP.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_greengrass_discovery.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DHCP.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_mqtt_agent.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DNS.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_mqtt_agent.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DNS.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_mqtt_lib.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_mqtt_lib.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_ota_agent.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_ota_agent.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_pkcs11.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_pkcs11.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_secure_sockets.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP_Private.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_secure_sockets.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP_Private.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_shadow.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_Sockets.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_shadow.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_Sockets.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_system_init.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_Stream_Buffer.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_system_init.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_Stream_Buffer.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_tls.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_IP.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_tls.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_IP.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/aws_wifi.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_WIN.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/aws_wifi.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_WIN.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/event_groups.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_UDP_IP.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/event_groups.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_UDP_IP.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/message_buffer.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/IPTraceMacroDefaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/message_buffer.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/IPTraceMacroDefaults.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkBufferManagement.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkBufferManagement.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/queue.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/queue.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/semphr.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/semphr.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/stream_buffer.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/stream_buffer.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/NetworkInterface.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/task.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/task.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/timers.h</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/timers.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/mqtt/aws_mqtt_agent.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/mqtt/aws_mqtt_agent.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/mqtt/aws_mqtt_lib.c</name>
+			<name>libraries/freertos_plus/standard/tls/src/aws_tls.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/mqtt/aws_mqtt_lib.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/tls/src/aws_tls.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
+			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/tls/include/aws_tls.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/pkcs11/aws_pkcs11_pal.c</name>
+			<name>libraries/freertos_plus/standard/crypto/src/aws_crypto.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/pkcs11/portable/xilinx/microzed/aws_pkcs11_pal.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/crypto/src/aws_crypto.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/secure_sockets/aws_secure_sockets.c</name>
+			<name>libraries/freertos_plus/standard/crypto/include/aws_crypto.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/secure_sockets/portable/freertos_plus_tcp/aws_secure_sockets.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/crypto/include/aws_crypto.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/tls/aws_tls.c</name>
+			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/tls/aws_tls.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/utils/aws_system_init.c</name>
+			<name>vendors/xilinx/boards/microzed/ports/pkcs11/aws_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/utils/aws_system_init.c</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/jsmn/jsmn.c</name>
+			<name>libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/jsmn/jsmn.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/jsmn/jsmn.h</name>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/jsmn/jsmn.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>demos/dev_mode_key_provisioning/src/pem2der.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/src/pem2der.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/pkcs11/pkcs11.h</name>
+			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/pkcs11/pkcs11.h</locationURI>
+			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/pkcs11/pkcs11f.h</name>
+			<name>libraries/freertos_plus/standard/utils/src/aws_system_init.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/pkcs11/pkcs11f.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/utils/src/aws_system_init.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/pkcs11/pkcs11t.h</name>
+			<name>libraries/freertos_plus/standard/utils/include/aws_system_init.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/pkcs11/pkcs11t.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/utils/include/aws_system_init.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable/GCC</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable/MemMang</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOSIPConfigDefaults.h</name>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOSIPConfigDefaults.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_ARP.h</name>
+			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_ARP.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_DHCP.h</name>
+			<name>libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_DHCP.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_DNS.h</name>
+			<name>libraries/c_sdk/aws/defender/include/aws_iot_defender.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_DNS.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/defender/include/aws_iot_defender.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_IP.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_IP.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_IP_Private.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_IP_Private.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_Sockets.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_Sockets.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_Stream_Buffer.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_Stream_Buffer.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_TCP_IP.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_TCP_IP.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_TCP_WIN.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_TCP_WIN.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_UDP_IP.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_UDP_IP.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/FreeRTOS_errno_TCP.h</name>
+			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/FreeRTOS_errno_TCP.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/IPTraceMacroDefaults.h</name>
+			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/IPTraceMacroDefaults.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/NetworkBufferManagement.h</name>
+			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/NetworkBufferManagement.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/include/NetworkInterface.h</name>
+			<name>libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/include/NetworkInterface.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.c</name>
+			<name>libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_ARP.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c</name>
+			<name>libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c</name>
+			<name>libraries/c_sdk/standard/serializer/include/iot_serializer.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/include/iot_serializer.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_IP.c</name>
+			<name>libraries/c_sdk/standard/serializer/src/iot_json_utils.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_IP.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/src/iot_json_utils.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_Sockets.c</name>
+			<name>libraries/c_sdk/standard/serializer/include/iot_json_utils.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_Sockets.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/include/iot_json_utils.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.c</name>
+			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c</name>
+			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c</name>
+			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/FreeRTOS_UDP_IP.c</name>
+			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_UDP_IP.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/History.txt</name>
+			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/History.txt</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/ReadMe.url</name>
+			<name>libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/ReadMe.url</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/c_sdk/aws/shadow/src/aws_shadow.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/readme.txt</name>
+			<name>libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/readme.txt</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_bufferpool.h</name>
+			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_bufferpool.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_default_root_certificates.h</name>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_default_root_certificates.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_doubly_linked_list.h</name>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_doubly_linked_list.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_ggd_config_defaults.h</name>
+			<name>libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_ggd_config_defaults.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_helper_secure_connect.h</name>
+			<name>libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_helper_secure_connect.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_lib_init.h</name>
+			<name>libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_lib_init.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_mqtt_agent_config_defaults.h</name>
+			<name>demos/defender/aws_iot_demo_defender.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_mqtt_agent_config_defaults.h</locationURI>
+			<locationURI>AFR_ROOT/demos/defender/aws_iot_demo_defender.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_mqtt_buffer.h</name>
+			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_mqtt_buffer.h</locationURI>
+			<locationURI>AFR_ROOT/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_mqtt_config_defaults.h</name>
+			<name>demos/mqtt/iot_demo_mqtt.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_mqtt_config_defaults.h</locationURI>
+			<locationURI>AFR_ROOT/demos/mqtt/iot_demo_mqtt.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_ota_agent_internal.h</name>
+			<name>demos/shadow/aws_iot_demo_shadow.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_ota_agent_internal.h</locationURI>
+			<locationURI>AFR_ROOT/demos/shadow/aws_iot_demo_shadow.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_ota_cbor.h</name>
+			<name>demos/tcp/aws_tcp_echo_client_single_task.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_ota_cbor.h</locationURI>
+			<locationURI>AFR_ROOT/demos/tcp/aws_tcp_echo_client_single_task.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_ota_cbor_internal.h</name>
+			<name>demos/tcp/aws_tcp_echo_client_single_tasks.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_ota_cbor_internal.h</locationURI>
+			<locationURI>AFR_ROOT/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_ota_pal.h</name>
+			<name>application_code/xilinx_code/FreeRTOS_tick_config.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_ota_pal.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/FreeRTOS_tick_config.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_ota_types.h</name>
+			<name>application_code/xilinx_code/hr_gettime.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_ota_types.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/hr_gettime.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_rsprintf.h</name>
+			<name>application_code/xilinx_code/memcpy.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_rsprintf.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/memcpy.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_secure_sockets_config_defaults.h</name>
+			<name>application_code/xilinx_code/uncached_memory.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_secure_sockets_config_defaults.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/uncached_memory.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_shadow_config_defaults.h</name>
+			<name>application_code/xilinx_code/hr_gettime.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_shadow_config_defaults.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/hr_gettime.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/aws_shadow_json.h</name>
+			<name>application_code/xilinx_code/platform_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/aws_shadow_json.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/platform_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/deprecated_definitions.h</name>
+			<name>application_code/xilinx_code/uncached_memory.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/deprecated_definitions.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/uncached_memory.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/list.h</name>
+			<name>application_code/xilinx_code/FreeRTOS_asm_vectors.S</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/list.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/xilinx_code/FreeRTOS_asm_vectors.S</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/mpu_wrappers.h</name>
+			<name>config_files/FreeRTOSConfig.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/mpu_wrappers.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/FreeRTOSConfig.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/portable.h</name>
+			<name>config_files/FreeRTOSIPConfig.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/portable.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/FreeRTOSIPConfig.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/projdefs.h</name>
+			<name>config_files/aws_bufferpool_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/projdefs.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_bufferpool_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/include/private/stack_macros.h</name>
+			<name>config_files/aws_demo_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/include/private/stack_macros.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_demo_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/aes.h</name>
+			<name>config_files/aws_ggd_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/aes.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_ggd_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/aesni.h</name>
+			<name>config_files/aws_iot_network_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/aesni.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/arc4.h</name>
+			<name>config_files/aws_mqtt_agent_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/arc4.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/asn1.h</name>
+			<name>config_files/aws_mqtt_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/asn1.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_mqtt_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/asn1write.h</name>
+			<name>config_files/aws_pkcs11_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/asn1write.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_pkcs11_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/base64.h</name>
+			<name>config_files/aws_secure_sockets_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/base64.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_secure_sockets_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/bignum.h</name>
+			<name>config_files/aws_shadow_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/bignum.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_shadow_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/blowfish.h</name>
+			<name>config_files/aws_wifi_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/blowfish.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/aws_wifi_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/bn_mul.h</name>
+			<name>config_files/iot_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/bn_mul.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/config_files/iot_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/camellia.h</name>
+			<name>application_code/main.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/camellia.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_demos/application_code/main.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ccm.h</name>
+			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ccm.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/aes.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/certs.h</name>
+			<name>libraries/3rdparty/mbedtls/library/aesni.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/certs.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/aesni.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/check_config.h</name>
+			<name>libraries/3rdparty/mbedtls/library/arc4.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/check_config.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/arc4.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/cipher.h</name>
+			<name>libraries/3rdparty/mbedtls/library/asn1parse.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/cipher.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/asn1parse.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/cipher_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/library/asn1write.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/cipher_internal.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/asn1write.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/cmac.h</name>
+			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/cmac.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/compat-1.3.h</name>
+			<name>libraries/3rdparty/mbedtls/library/bignum.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/compat-1.3.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/bignum.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/config.h</name>
+			<name>libraries/3rdparty/mbedtls/library/blowfish.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/config.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/blowfish.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ctr_drbg.h</name>
+			<name>libraries/3rdparty/mbedtls/library/camellia.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ctr_drbg.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/camellia.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/debug.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ccm.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/debug.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ccm.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/des.h</name>
+			<name>libraries/3rdparty/mbedtls/library/certs.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/des.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/certs.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/dhm.h</name>
+			<name>libraries/3rdparty/mbedtls/library/cipher.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/dhm.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/cipher.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ecdh.h</name>
+			<name>libraries/3rdparty/mbedtls/library/cipher_wrap.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ecdh.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/cipher_wrap.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ecdsa.h</name>
+			<name>libraries/3rdparty/mbedtls/library/cmac.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ecdsa.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/cmac.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ecjpake.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ctr_drbg.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ecjpake.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ctr_drbg.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ecp.h</name>
+			<name>libraries/3rdparty/mbedtls/library/debug.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ecp.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/debug.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ecp_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/library/des.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ecp_internal.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/des.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/entropy.h</name>
+			<name>libraries/3rdparty/mbedtls/library/dhm.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/entropy.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/dhm.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/entropy_poll.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ecdh.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/entropy_poll.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ecdh.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/error.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ecdsa.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/error.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ecdsa.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/gcm.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ecjpake.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/gcm.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ecjpake.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/havege.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ecp.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/havege.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ecp.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/hmac_drbg.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ecp_curves.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/hmac_drbg.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ecp_curves.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/md.h</name>
+			<name>libraries/3rdparty/mbedtls/library/entropy.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/md.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/entropy.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/md2.h</name>
+			<name>libraries/3rdparty/mbedtls/library/entropy_poll.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/md2.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/entropy_poll.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/md4.h</name>
+			<name>libraries/3rdparty/mbedtls/library/error.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/md4.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/error.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/md5.h</name>
+			<name>libraries/3rdparty/mbedtls/library/gcm.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/md5.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/gcm.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/md_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/library/havege.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/md_internal.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/havege.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/memory_buffer_alloc.h</name>
+			<name>libraries/3rdparty/mbedtls/library/hmac_drbg.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/memory_buffer_alloc.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/hmac_drbg.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/net.h</name>
+			<name>libraries/3rdparty/mbedtls/library/md.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/net.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/md.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/net_sockets.h</name>
+			<name>libraries/3rdparty/mbedtls/library/md2.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/net_sockets.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/md2.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/oid.h</name>
+			<name>libraries/3rdparty/mbedtls/library/md4.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/oid.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/md4.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/padlock.h</name>
+			<name>libraries/3rdparty/mbedtls/library/md5.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/padlock.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/md5.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/pem.h</name>
+			<name>libraries/3rdparty/mbedtls/library/md_wrap.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/pem.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/md_wrap.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/pk.h</name>
+			<name>libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/pk.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/pk_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/library/net_sockets.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/pk_internal.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/net_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/pkcs12.h</name>
+			<name>libraries/3rdparty/mbedtls/library/oid.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/pkcs12.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/oid.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/pkcs5.h</name>
+			<name>libraries/3rdparty/mbedtls/library/padlock.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/pkcs5.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/padlock.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/platform.h</name>
+			<name>libraries/3rdparty/mbedtls/library/pem.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/platform.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/pem.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/platform_time.h</name>
+			<name>libraries/3rdparty/mbedtls/library/pk.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/platform_time.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/pk.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/platform_util.h</name>
+			<name>libraries/3rdparty/mbedtls/library/pk_wrap.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/platform_util.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/pk_wrap.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ripemd160.h</name>
+			<name>libraries/3rdparty/mbedtls/library/pkcs12.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ripemd160.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/pkcs12.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/rsa.h</name>
+			<name>libraries/3rdparty/mbedtls/library/pkcs5.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/rsa.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/pkcs5.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/rsa_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/library/pkparse.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/rsa_internal.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/pkparse.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/sha1.h</name>
+			<name>libraries/3rdparty/mbedtls/library/pkwrite.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/sha1.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/pkwrite.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/sha256.h</name>
+			<name>libraries/3rdparty/mbedtls/library/platform.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/sha256.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/platform.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/sha512.h</name>
+			<name>libraries/3rdparty/mbedtls/library/platform_util.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/sha512.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/platform_util.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ssl.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ripemd160.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ssl.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ripemd160.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ssl_cache.h</name>
+			<name>libraries/3rdparty/mbedtls/library/rsa.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ssl_cache.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/rsa.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ssl_ciphersuites.h</name>
+			<name>libraries/3rdparty/mbedtls/library/rsa_internal.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ssl_ciphersuites.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/rsa_internal.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ssl_cookie.h</name>
+			<name>libraries/3rdparty/mbedtls/library/sha1.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ssl_cookie.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/sha1.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ssl_internal.h</name>
+			<name>libraries/3rdparty/mbedtls/library/sha256.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ssl_internal.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/sha256.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/ssl_ticket.h</name>
+			<name>libraries/3rdparty/mbedtls/library/sha512.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/ssl_ticket.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/sha512.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/threading.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_cache.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/threading.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ssl_cache.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/timing.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/timing.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/version.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_cli.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/version.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ssl_cli.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/x509.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_cookie.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/x509.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ssl_cookie.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/x509_crl.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_srv.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/x509_crl.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ssl_srv.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/x509_crt.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_ticket.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/x509_crt.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ssl_ticket.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/x509_csr.h</name>
+			<name>libraries/3rdparty/mbedtls/library/ssl_tls.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/x509_csr.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/ssl_tls.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/include/xtea.h</name>
+			<name>libraries/3rdparty/mbedtls/library/threading.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/include/mbedtls/xtea.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/threading.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/aes.c</name>
+			<name>libraries/3rdparty/mbedtls/library/timing.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/aes.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/timing.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/aesni.c</name>
+			<name>libraries/3rdparty/mbedtls/library/version.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/aesni.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/version.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/arc4.c</name>
+			<name>libraries/3rdparty/mbedtls/library/version_features.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/arc4.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/version_features.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/asn1parse.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/asn1parse.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/x509.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/asn1write.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_create.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/asn1write.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/x509_create.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/base64.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_crl.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/base64.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/x509_crl.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/bignum.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_crt.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/bignum.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/x509_crt.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/blowfish.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509_csr.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/blowfish.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/x509_csr.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/camellia.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509write_crt.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/camellia.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/x509write_crt.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ccm.c</name>
+			<name>libraries/3rdparty/mbedtls/library/x509write_csr.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ccm.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/x509write_csr.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/certs.c</name>
+			<name>libraries/3rdparty/mbedtls/library/xtea.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/certs.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/cipher.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/cipher.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/cipher_wrap.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/aesni.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/cipher_wrap.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aesni.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/cmac.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/cmac.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ctr_drbg.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ctr_drbg.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/debug.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/debug.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/des.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/base64.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/des.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/base64.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/dhm.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/bignum.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/dhm.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/bignum.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ecdh.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/blowfish.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ecdh.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/blowfish.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ecdsa.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ecdsa.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ecjpake.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/camellia.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ecjpake.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/camellia.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ecp.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ccm.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ecp.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ccm.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ecp_curves.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/certs.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ecp_curves.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/certs.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/entropy.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/entropy.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/entropy_poll.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/cipher.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/entropy_poll.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/cipher.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/error.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/error.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/gcm.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/gcm.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/havege.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/compat-1.3.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/havege.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/compat-1.3.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/hmac_drbg.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/config.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/hmac_drbg.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/config.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/md.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/md.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/md2.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/debug.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/md2.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/debug.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/md4.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/des.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/md4.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/des.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/md5.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/dhm.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/md5.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/dhm.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/md_wrap.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecdh.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/md_wrap.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ecdh.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/memory_buffer_alloc.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecdsa.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/memory_buffer_alloc.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ecdsa.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/net_sockets.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecjpake.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/net_sockets.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ecjpake.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/oid.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecp.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/oid.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ecp.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/padlock.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ecp_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/padlock.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ecp_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/pem.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/entropy.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/pem.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/entropy.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/pk.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/entropy_poll.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/pk.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/entropy_poll.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/pk_wrap.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/error.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/pk_wrap.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/error.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/pkcs12.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/pkcs12.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/pkcs5.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/havege.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/pkcs5.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/havege.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/pkparse.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/pkparse.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/pkwrite.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/pkwrite.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/md.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/platform.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md2.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/platform.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/md2.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/platform_util.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md4.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/platform_util.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/md4.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ripemd160.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md5.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ripemd160.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/md5.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/rsa.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/md_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/rsa.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/md_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/rsa_internal.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/memory_buffer_alloc.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/rsa_internal.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/memory_buffer_alloc.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/sha1.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/net.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/sha1.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/net.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/sha256.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/sha256.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/sha512.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/oid.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/sha512.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/oid.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ssl_cache.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/padlock.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ssl_cache.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/padlock.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ssl_ciphersuites.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pem.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ssl_ciphersuites.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pem.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ssl_cli.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pk.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ssl_cli.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pk.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ssl_cookie.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ssl_cookie.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ssl_srv.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ssl_srv.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ssl_ticket.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/pkcs5.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ssl_ticket.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/pkcs5.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/ssl_tls.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/ssl_tls.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/platform.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/threading.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_time.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/threading.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/platform_time.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/timing.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/timing.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/version.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/version.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/version_features.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/rsa.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/version_features.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/rsa.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/x509.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/rsa_internal.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/x509.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/rsa_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/x509_create.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/sha1.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/x509_create.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/sha1.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/x509_crl.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/sha256.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/x509_crl.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/sha256.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/x509_crt.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/sha512.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/x509_crt.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/sha512.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/x509_csr.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/x509_csr.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ssl.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/x509write_crt.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_cache.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/x509write_crt.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cache.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/x509write_csr.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_ciphersuites.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/x509write_csr.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ciphersuites.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/third_party/mbedtls/source/xtea.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_cookie.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/third_party/mbedtls/library/xtea.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ssl_cookie.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable/GCC/ARM_CA9</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_internal.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ssl_internal.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable/MemMang/heap_4.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/ssl_ticket.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/portable/MemMang/heap_4.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/ssl_ticket.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/BufferManagement</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/threading.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/threading.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/Compiler</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/timing.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/timing.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/version.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/version.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable/GCC/ARM_CA9/port.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/portable/GCC/ARM_CA9/port.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/x509.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable/GCC/ARM_CA9/portASM.S</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509_crl.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/portable/GCC/ARM_CA9/portASM.S</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/x509_crl.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS/portable/GCC/ARM_CA9/portmacro.h</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509_crt.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS/portable/GCC/ARM_CA9/portmacro.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/x509_crt.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/BufferManagement/BufferAllocation_2.c</name>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/x509_csr.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/BufferManagement/BufferAllocation_2.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/x509_csr.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
+			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC/pack_struct_end.h</name>
+			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC/pack_struct_end.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC/pack_struct_start.h</name>
+			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/Compiler/GCC/pack_struct_start.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/NetworkInterface.c</name>
+			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/NetworkInterface.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/README.txt</name>
+			<name>libraries/3rdparty/tinycbor/cborencoder.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/README.txt</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborencoder.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif.h</name>
+			<name>libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</name>
+			<name>libraries/3rdparty/tinycbor/cborerrorstrings.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_dma.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborerrorstrings.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</name>
+			<name>libraries/3rdparty/tinycbor/cborparser.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborparser.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</name>
+			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_hw.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</name>
+			<name>libraries/3rdparty/jsmn/jsmn.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_emacpsif_physpeed.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/jsmn/jsmn.h</locationURI>
 		</link>
 		<link>
-			<name>src/lib/aws/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_topology.h</name>
+			<name>libraries/3rdparty/jsmn/jsmn.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/lib/FreeRTOS-Plus-TCP/source/portable/NetworkInterface/Zynq/x_topology.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
 	<variableList>

@@ -32,16 +32,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_demos/application_code</locationURI>
 		</link>
 		<link>
-			<name>build</name>
-			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/build</locationURI>
-		</link>
-		<link>
-			<name>common</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>demos</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/demos</locationURI>
@@ -65,16 +55,6 @@
 			<name>application_code/config_files</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_demos/config_files</locationURI>
-		</link>
-		<link>
-			<name>common/application_code</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/config_files</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/event_groups.c</name>
@@ -135,91 +115,6 @@
 			<name>libraries/freertos_plus</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/main.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/main.c</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/FreeRTOSConfig.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/FreeRTOSConfig.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/FreeRTOSIPConfig.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/FreeRTOSIPConfig.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_bufferpool_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_bufferpool_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_demo_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_demo_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_ggd_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_ggd_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_iot_network_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_iot_network_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_mqtt_agent_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_mqtt_agent_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_mqtt_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_mqtt_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_ota_agent_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_ota_agent_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_pkcs11_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_pkcs11_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_secure_sockets_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_secure_sockets_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_shadow_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_shadow_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/aws_wifi_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/aws_wifi_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/iot_ble_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/iot_ble_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/config_files/iot_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/config_files/iot_config.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/FreeRTOS.h</name>
@@ -388,36 +283,6 @@
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/amazon-freertos-common</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/ethernet</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/smartconfig_ack</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/tcpip_adapter</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
@@ -782,11 +647,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/tls</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
@@ -795,131 +655,6 @@
 			<name>libraries/freertos_plus/standard/utils</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/amazon-freertos-common/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/amazon-freertos-common/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/amazon-freertos-common/component.mk</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/amazon-freertos-common/component.mk</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/ethernet/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/ethernet/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/ethernet/component.mk</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/ethernet/component.mk</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/ethernet/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/ethernet/port.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/ethernet/port.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/Kconfig</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/Kconfig</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/component.mk</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/component.mk</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/extra.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/extra.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/ringbuf.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/ringbuf.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/Kconfig</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/Kconfig</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/Makefile.projbuild</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/Makefile.projbuild</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/component.mk</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/component.mk</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/smartconfig_ack/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/smartconfig_ack/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/smartconfig_ack/component.mk</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/smartconfig_ack/component.mk</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/smartconfig_ack/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/smartconfig_ack/smartconfig_ack.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/smartconfig_ack/smartconfig_ack.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/tcpip_adapter/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/tcpip_adapter/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/tcpip_adapter/component.mk</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/tcpip_adapter/component.mk</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/tcpip_adapter/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/tcpip_adapter/tcpip_adapter.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/tcpip_adapter/tcpip_adapter.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls</name>
@@ -1852,21 +1587,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning/CMakeLists.txt</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/CMakeLists.txt</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/tls/CMakeLists.txt</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/tls/CMakeLists.txt</locationURI>
@@ -1900,71 +1620,6 @@
 			<name>libraries/freertos_plus/standard/utils/src</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/ethernet/include/esp_eth.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/ethernet/include/esp_eth.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos_tasks_c_additions.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos_tasks_c_additions.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/esp_bignum.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/esp_bignum.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/esp_hardware.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/esp_hardware.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/esp_mem.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/esp_mem.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/esp_sha1.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/esp_sha1.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/esp_sha256.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/esp_sha256.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/esp_sha512.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/esp_sha512.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/mbedtls_debug.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/mbedtls_debug.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/smartconfig_ack/include/smartconfig_ack.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/smartconfig_ack/include/smartconfig_ack.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/tcpip_adapter/include/tcpip_adapter.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/tcpip_adapter/include/tcpip_adapter.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
@@ -3422,16 +3077,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/tls/include/aws_tls.h</locationURI>
@@ -3460,106 +3105,6 @@
 			<name>libraries/freertos_plus/standard/utils/src/aws_system_init.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/src/aws_system_init.c</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/FreeRTOS.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/FreeRTOS.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/FreeRTOSConfig.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/FreeRTOSConfig.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/event_groups.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/event_groups.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/list.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/list.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/portable.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/portable.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/portmacro.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/portmacro.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/queue.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/queue.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/ringbuf.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/ringbuf.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/semphr.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/semphr.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/task.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/task.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/timers.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/timers.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/xtensa_api.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/xtensa_api.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/xtensa_context.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/xtensa_context.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/freertos/include/freertos/xtensa_timer.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/freertos/include/freertos/xtensa_timer.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/aes_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/aes_alt.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/esp_mem.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/esp_mem.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/mbedtls</name>
-			<type>2</type>
-			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/sha1_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/sha1_alt.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/sha256_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/sha256_alt.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/sha512_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/sha512_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycrypt/lib/include/tinycrypt/aes.h</name>
@@ -4042,26 +3587,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/mbedtls/bignum.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/mbedtls/bignum.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/mbedtls/config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/mbedtls/config.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/mbedtls/esp_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/mbedtls/esp_config.h</locationURI>
-		</link>
-		<link>
-			<name>common/application_code/espressif_code/mbedtls/port/include/mbedtls/esp_debug.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/boards/esp32/aws_demos/common/application_code/espressif_code/mbedtls/port/include/mbedtls/esp_debug.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_cpu.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/aws/defender/src/portable/stub/aws_defender_cpu.c</locationURI>
@@ -4476,14 +4001,6 @@
 		<variable>
 			<name>BASE_DIR_ROOT</name>
 			<value>$%7BPARENT-4-PROJECT_LOC%7D</value>
-		</variable>
-		<variable>
-			<name>BASE_DIR_ROOT1</name>
-			<value>$%7BBASE_DIR_ROOT%7D/Desktop/test/Release-1.5/amazon-freertos/vendors/espressif</value>
-		</variable>
-		<variable>
-			<name>copy_PARENT</name>
-			<value>$%7BBASE_DIR_ROOT%7D/Desktop/test/Release-1.5/amazon-freertos</value>
 		</variable>
 	</variableList>
 </projectDescription>

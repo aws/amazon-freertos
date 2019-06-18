@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V201906.00 Major
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,8 +34,9 @@
 #include "iot_ble.h"
 #include "task.h"
 #include "semphr.h"
+#include "platform/iot_network.h"
 
-
+static BaseType_t vGattDemoSvcHook( void );
 
 #define xServiceUUID_TYPE \
 {\
@@ -188,7 +189,7 @@ static void _connectionCallback( BTStatus_t xStatus,
 #if (IOT_BLE_ADD_CUSTOM_SERVICES == 1)
 void IotBle_AddCustomServicesCb(void)
 {
-	vGattDemoSvcInit();
+	vGattDemoSvcHook();
 }
 #endif
 
@@ -253,8 +254,23 @@ void vCounterUpdateTaskFunction( void * pvParams )
 }
 
 /*-----------------------------------------------------------*/
+int vGattDemoSvcInit( bool awsIotMqttMode,
+        const char * pIdentifier,
+        void * pNetworkServerInfo,
+        void * pNetworkCredentialInfo,
+        const IotNetworkInterface_t * pNetworkInterface )
+{
+    int status = EXIT_SUCCESS;
 
-BaseType_t vGattDemoSvcInit( void )
+
+    while(1)
+    {
+    	vTaskDelay(1000);
+    }
+	return status;
+}
+
+static BaseType_t vGattDemoSvcHook( void )
 {
     BaseType_t xRet = pdFALSE;
     BTStatus_t xStatus;

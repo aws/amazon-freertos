@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS Secure Sockets AFQP V1.1.4
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS Secure Sockets V1.1.5
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,6 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+
 /* Standard includes. */
 #include <stdint.h>
 #include <stdio.h>
@@ -184,15 +185,6 @@ size_t xHeapB;
 size_t xHeapA;
 /* Group declaration required by Unity framework. */
 TEST_GROUP( Full_TCP );
-
-/* Unstable tests that require further review. */
-TEST_GROUP( Quarantine_TCP );
-TEST_SETUP( Quarantine_TCP )
-{
-}
-TEST_TEAR_DOWN( Quarantine_TCP )
-{
-}
 
 /* Setup required by Unity framework. */
 TEST_SETUP( Full_TCP )
@@ -802,6 +794,7 @@ TEST_GROUP_RUNNER( Full_TCP )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_ShutdownWithoutReceiving );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_On_Unconnected_Socket );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_TRUSTED_SERVER_CERTIFICATE );
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidParams );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidAddressLength );
         /* SECURE_SOCKETS_Socket_TCP DNE. */
@@ -818,21 +811,19 @@ TEST_GROUP_RUNNER( Full_TCP )
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Recv_Invalid );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SockEventHandler );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_NonBlockingConnect );
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_SetSecureOptionsAfterConnect );
     #endif /* if ( tcptestSECURE_SERVER == 1 ) */
-}
 
-TEST_GROUP_RUNNER( Quarantine_TCP )
-{
-    RUN_TEST_CASE( Quarantine_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
+    /* Thread safety tests */
+    RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
     RUN_TEST_CASE( Full_TCP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
-
-    #if tcptestSECURE_SERVER == 1
-        RUN_TEST_CASE( Quarantine_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
-        RUN_TEST_CASE( Quarantine_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION );
-        RUN_TEST_CASE( Quarantine_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections );
+    
+    #if ( tcptestSECURE_SERVER == 1 )
+        RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks );
         RUN_TEST_CASE( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
-    #endif
+    #endif /* if ( tcptestSECURE_SERVER == 1 ) */
+    
 }
 
 /*-------------------------------------------------------------------*/
@@ -2165,7 +2156,7 @@ static void prvServerDomainName( void )
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
 }
 
-TEST( Quarantine_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION )
+TEST( Full_TCP, AFQP_SECURE_SOCKETS_SetSockOpt_SERVER_NAME_INDICATION )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2410,14 +2401,14 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
     vTaskPrioritySet( NULL, tskIDLE_PRIORITY );
 }
 
-TEST( Quarantine_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks )
+TEST( Full_TCP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
     prvSOCKETS_Threadsafe_SameSocketDifferentTasks( eNonsecure );
 }
 
-TEST( Quarantine_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks )
+TEST( Full_TCP, AFQP_SECURE_SOCKETS_Threadsafe_SameSocketDifferentTasks )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 
@@ -2877,7 +2868,7 @@ static void prvTwoSecureConnections( void )
     }
 }
 
-TEST( Quarantine_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections )
+TEST( Full_TCP, AFQP_SECURE_SOCKETS_TwoSecureConnections )
 {
     tcptestPRINTF( ( "Starting %s.\r\n", __FUNCTION__ ) );
 

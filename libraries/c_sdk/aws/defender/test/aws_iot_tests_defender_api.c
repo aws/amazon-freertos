@@ -1,4 +1,5 @@
 /*
+ * Amazon FreeRTOS Defender V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -17,6 +18,9 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
  */
 
 #include <string.h>
@@ -27,7 +31,10 @@
 #include "projdefs.h"
 #include "task.h"
 #include "iot_init.h"
+
 #include "aws_clientcredential.h"
+#include "aws_clientcredential_keys.h"
+
 #include "platform/iot_metrics.h"
 #include "aws_secure_sockets.h"
 

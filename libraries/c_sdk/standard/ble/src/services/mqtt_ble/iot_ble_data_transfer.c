@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS
+ * Amazon FreeRTOS BLE V1.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -30,8 +30,11 @@
 
 /* Build using a config header, if provided. */
 #include "iot_config.h"
-#include "FreeRTOS.h"
 #include "iot_ble_config.h"
+
+#include "iot_ble.h"
+#include "iot_ble_data_transfer.h"
+#include "platform/iot_threads.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
@@ -40,13 +43,8 @@
     #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
 #endif
 
-#define LIBRARY_LOG_NAME         ( "BLE_DATA_TRANSFER" )
+#define LIBRARY_LOG_NAME         ( "BLE_TXRX" )
 #include "iot_logging_setup.h"
-
-
-#include "iot_ble.h"
-#include "iot_ble_data_transfer.h"
-#include "platform/iot_threads.h"
 
 #define _SERVICE_UUID( SERVICE_ID )         { 0x00, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
 #define _CONTROL_CHAR_UUID( SERVICE_ID )    { 0x01, SERVICE_ID, IOT_BLE_DATA_TRANSFER_SERVICE_UUID_MASK }
@@ -417,10 +415,10 @@ static uint8_t * _reallocBuffer( uint8_t * oldBuffer,
 
     /* This function should not be called with a smaller new buffer size or a
      * copy offset greater than the old buffer size. */
-    configASSERT( newBufferSize >= oldBufferSize );
+    IotBle_Assert( newBufferSize >= oldBufferSize );
 
     /* Allocate a larger receive buffer. */
-    newBuffer = pvPortMalloc( newBufferSize );
+    newBuffer = IotBle_Malloc( newBufferSize );
 
     /* Copy data into the new buffer. */
     if( newBuffer != NULL )
@@ -431,7 +429,7 @@ static uint8_t * _reallocBuffer( uint8_t * oldBuffer,
     }
 
     /* Free the old buffer. */
-    vPortFree( oldBuffer );
+    IotBle_Free( oldBuffer );
 
     return newBuffer;
 }
@@ -449,7 +447,7 @@ static bool _resizeChannelBuffer( IotBleDataChannelBuffer_t * pChannelBuffer,
      */
     if( pChannelBuffer->pBuffer == NULL )
     {
-        pChannelBuffer->pBuffer = pvPortMalloc( initialLength );
+        pChannelBuffer->pBuffer = IotBle_Malloc( initialLength );
 
         if( pChannelBuffer->pBuffer != NULL )
         {
@@ -493,7 +491,7 @@ static void _deleteChannelBuffer( IotBleDataChannelBuffer_t * pChannelBuffer )
 {
     if( pChannelBuffer->pBuffer != NULL )
     {
-        vPortFree( pChannelBuffer->pBuffer );
+        IotBle_Free( pChannelBuffer->pBuffer );
         pChannelBuffer->pBuffer = NULL;
         pChannelBuffer->head = pChannelBuffer->tail = 0;
         pChannelBuffer->bufferLength = 0;
