@@ -9,7 +9,7 @@ afr_module_include_dirs(
     # Requires standard/common/include/private/aws_default_root_certificates.h
     PRIVATE "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
     # Requires aws_ota_codesigner_certificate.h
-    "$<IF:${AFR_IS_TESTING},${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test/aws_ota_codesigner_certificate.h,${AFR_DEMOS_DIR}/include>"
+    "$<IF:${AFR_IS_TESTING},${AFR_MODULES_FREERTOS_PLUS_DIR}/aws/ota/test,${AFR_DEMOS_DIR}/include>"
 )
 
 afr_module_dependencies(

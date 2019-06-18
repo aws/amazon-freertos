@@ -248,6 +248,10 @@ target_sources(
     INTERFACE "${afr_ports_dir}/ota/aws_nvm.c"
     INTERFACE "${afr_ports_dir}/ota/aws_nvm.h"
 )
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE AFR::pkcs11
+)
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
