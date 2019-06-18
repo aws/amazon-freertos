@@ -41,6 +41,11 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/demos/dev_mode_key_provisioning</locationURI>
 		</link>
 		<link>
+			<name>esp-idf</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/esp-idf</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
