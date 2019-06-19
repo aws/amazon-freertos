@@ -400,6 +400,16 @@ CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
     return xResult;
 }
 
+
+/**
+* @brief Add an object that exists in NVM to the application object array.
+*
+* @param[in[ xPalHandle         The handle used by the PKCS #11 PAL for object.
+* @param[out] pxAppHandle       Updated to contain the application handle corresponding to xPalHandle.
+* @param[in]  pcLabel           Pointer to object label.
+* @param[in] xLabelLength       Length of the PKCS #11 label.
+*
+*/
 CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                           CK_OBJECT_HANDLE_PTR pxAppHandle,
                           uint8_t * pcLabel,
@@ -681,7 +691,20 @@ CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
 }
 
 /**
- * @brief Query the list of interface function pointers.
+ * @brief Obtain a pointer to the PKCS #11 module's list
+ * of function pointers.
+ *
+ * All other PKCS #11 functions should be invoked using the returned
+ * function list.
+ *
+ * \warn Do not overwrite the function list.
+ *
+ * \param[in] ppxFunctionList       Pointer to the location where
+ *                                  pointer to function list will be placed.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 {   /*lint !e9072 It's OK to have different parameter name. */
@@ -701,6 +724,19 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunc
 
 /**
  * @brief Query the list of slots. A single default slot is implemented.
+ *
+ * This port does not implement the concept of separate slots/tokens.
+ *
+ *  \param[in]  xTokenPresent   This parameter is unused by this port.
+ *  \param[in]  pxSlotList      Pointer to an array of slot IDs.
+ *                              At this time, only 1 slot is implemented.
+ *  \param[in,out]  pulCount    Length of the slot list pxSlotList. Updated
+ *                              to contain the actual number of slots written
+ *                              to the list.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
                                             CK_SLOT_ID_PTR pxSlotList,
@@ -750,6 +786,22 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
 
 /**
  * @brief Start a session for a cryptographic command sequence.
+ *
+ * \note PKCS #11 module must have been previously initialized with a call to
+ * C_Initialize() before calling C_OpenSession().
+ *
+ *
+ *  \param[in]  xSlotID         This parameter is unused in this port.
+ *  \param[in]  xFlags          Session flags - CKF_SERIAL_SESSION is a
+ *                              mandatory flag.
+ *  \param[in]  pvApplication   This parameter is unused in this port.
+ *  \param[in]  xNotify         This parameter is unused in this port.
+ *  \param[in]  pxSession       Pointer to the location that the created
+ *                              session's handle will be placed.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
                                             CK_FLAGS xFlags,
@@ -852,6 +904,13 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
 
 /**
  * @brief Terminate a session and release resources.
+ *
+ * @param[in]   xSession        The session handle to
+ *                              be terminated.
+ *
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
 {
@@ -928,7 +987,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
     return CKR_OK;
 }
 
-
+/* Helper function for parsing the templates of device certificates for
+ * C_CreateObject. */
 CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
                             CK_ULONG ulCount,
                             CK_OBJECT_HANDLE_PTR pxObject )
@@ -1016,6 +1076,7 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
 
 #define PKCS11_INVALID_KEY_TYPE    ( ( CK_KEY_TYPE ) 0xFFFFFFFF )
 
+/* Helper to search an attirbute for the key type attribute. */
 CK_KEY_TYPE prvGetKeyType( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_ULONG ulCount )
 {
@@ -1037,6 +1098,7 @@ CK_KEY_TYPE prvGetKeyType( CK_ATTRIBUTE_PTR pxTemplate,
     return xKeyType;
 }
 
+/* Helper to search a template for the label attribute. */
 void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
                   CK_ATTRIBUTE_PTR pxTemplate,
                   CK_ULONG ulCount )
@@ -1058,7 +1120,10 @@ void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
     }
 }
 
-
+/* Because public and private keys are stored in the same slot for this port,
+ * importing one after the other requires a read of what was previously in the slot,
+ * combination of the public and private key in DER format, and re-import of the
+ * combination. */
 CK_RV prvGetExistingKeyComponent( mbedtls_pk_context * pxMbedContext,
                                   CK_ATTRIBUTE_PTR pxLabel )
 {
@@ -1114,6 +1179,8 @@ CK_RV prvGetExistingKeyComponent( mbedtls_pk_context * pxMbedContext,
     return xResult;
 }
 
+/* Helper function for checking attribute templates of elliptic curve
+ * private keys before import with C_CreateObject. */
 CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
                              CK_ATTRIBUTE_PTR * ppxLabel,
                              CK_ATTRIBUTE_PTR pxTemplate,
@@ -1194,6 +1261,8 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
 }
 
 
+/* Helper function for parsing RSA Private Key attribute templates
+ * for C_CreateObject. */
 CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
                               CK_ATTRIBUTE_PTR * ppxLabel,
                               CK_ATTRIBUTE_PTR pxTemplate,
@@ -1326,6 +1395,8 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     return xResult;
 }
 
+/* Helper function for importing private keys using template
+ * C_CreateObject. */
 CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
                            CK_ULONG ulCount,
                            CK_OBJECT_HANDLE_PTR pxObject )
@@ -1419,6 +1490,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
         }
     }
 
+    /* Save the object to device NVM. */
     if( xResult == CKR_OK )
     {
         xPalHandle = PKCS11_PAL_SaveObject( pxLabel,
@@ -1431,6 +1503,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
         }
     }
 
+    /* Store the PAL handle/label/application handle in lookup. */
     if( xResult == CKR_OK )
     {
         xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen );
@@ -1444,6 +1517,8 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     return xResult;
 }
 
+/* Helper function for importing elliptic curve public keys from
+ * template using C_CreateObject. */
 CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
                             CK_ATTRIBUTE_PTR * ppxLabel,
                             CK_ATTRIBUTE_PTR pxTemplate,
@@ -1534,6 +1609,8 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
     return xResult;
 }
 
+/* Helper function for importing public keys using
+ * C_CreateObject. */
 CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
                           CK_ULONG ulCount,
                           CK_OBJECT_HANDLE_PTR pxObject )
@@ -1632,14 +1709,50 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
  * @brief Create a PKCS #11 certificate, public key, or private key object
  * by importing it into device storage.
  *
- *
- *
  * @param[in] xSession                   Handle of a valid PKCS #11 session.
  * @param[in] pxTemplate                 List of attributes of the object to
  *                                       be created.
  * @param[in] ulCount                    Number of attributes in pxTemplate.
  * @param[out] pxObject                  Pointer to the location where the created
  *                                       object's handle will be placed.
+ *
+ * <table>
+ * <tr><th> Object Type             <th> Template Attributes
+ * <tr><td rowspan="6">Certificate<td>CKA_CLASS
+ * <tr>                           <td>CKA_VALUE
+ * <tr>                              <td>CKA_TOKEN
+ * <tr>                              <td>CKA_LABEL
+ * <tr>                              <td>CKA_CERTIFICATE_TYPE
+ * <tr>                              <td>CKA_VALUE
+ * <tr><td rowspan="7">EC Private Key<td>CKA_CLASS
+ * <tr>                              <td>CKA_KEY_TYPE
+ * <tr>                              <td>CKA_TOKEN
+ * <tr>                              <td>CKA_LABEL
+ * <tr>                              <td>CKA_SIGN
+ * <tr>                              <td>CKA_EC_PARAMS
+ * <tr>                              <td>CKA_VALUE
+ * <tr><td rowspan="7">EC Public Key<td>CKA_CLASS
+ * <tr>                              <td>CKA_KEY_TYPE
+ * <tr>                              <td>CKA_TOKEN
+ * <tr>                              <td>CKA_VERIFY
+ * <tr>                              <td>CKA_LABEL
+ * <tr>                              <td>CKA_EC_PARAMS
+ * <tr>                              <td>CKA_EC_POINT
+ * <tr><td rowspan="13">RSA Private Key<td>CKA_CLASS
+ * <tr>                               <td>CKA_KEY_TYPE
+ * <tr>                               <td>CKA_TOKEN
+ * <tr>                               <td>CKA_LABEL
+ * <tr>                               <td>CKA_SIGN
+ * <tr>                               <td>CKA_MODULUS
+ * <tr>                               <td>CKA_PUBLIC_EXPONENT
+ * <tr>                               <td>CKA_PRIME_1
+ * <tr>                               <td>CKA_PRIME_2
+ * <tr>                               <td>CKA_PRIVATE_EXPONENT
+ * <tr>                               <td>CKA_EXPONENT_1
+ * <tr>                               <td>CKA_EXPONENT_2
+ * <tr>                               <td>CKA_COEFFICIENT
+ * </table>
+ *
  * @return CKR_OK if successful.
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
@@ -1715,7 +1828,37 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
 /**
  * @brief Query the value of the specified cryptographic object attribute.
  * @param[in] xSession                   Handle of a valid PKCS #11 session.
- * @param[in] xObject
+ * @param[in] xObject                    PKCS #11 object handle to be queried.
+ * @param[in,out] pxTemplate             Attribute template.
+ *                                       pxTemplate.pValue should be set to the attribute
+ *                                       to be queried. pxTemplate.ulValueLen should be
+ *                                       set to the length of the buffer allocated at
+ *                                       pxTemplate.pValue, and will be updated to contain
+ *                                       the actual length of the data copied.
+ *                                       pxTemplate.pValue should be set to point to
+ *                                       a buffer to receive the attribute value data.
+ *                                       If parameter length is unknown,
+ *                                       pxTemplate.pValue may be set to NULL, and 
+ *                                       this function will set the required buffer length
+ *                                       in pxTemplate.ulValueLen.
+ * @param[in] ulCount                    The number of attributes in the template.
+ *
+ * <table>
+ * <tr><th> Object Type             <th> Queryable Attributes
+ * <tr><td rowspan="2">Certificate<td>CKA_CLASS
+ * <tr>                           <td>CKA_VALUE
+ * <tr><td rowspan="3">EC Private Key<td>CKA_CLASS
+ * <tr>                              <td>CKA_KEY_TYPE
+ * <tr>                              <td>CKA_EC_PARAMS
+ * <tr><td rowspan="4">EC Public Key<td>CKA_CLASS
+ * <tr>                             <td>CKA_KEY_TYPE
+ * <tr>                             <td>CKA_EC_PARAMS
+ * <tr>                             <td>CKA_EC_POINT
+ * <tr><td rowspan="2">RSA Private Key<td>CKA_CLASS
+ * <tr>                               <td>CKA_KEY_TYPE
+ * <tr><td rowspan="2">RSA Public Key<td>CKA_CLASS
+ * <tr>                               <td>CKA_KEY_TYPE
+ * </table>
  *
  * @return CKR_OK if successful.
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
@@ -3085,7 +3228,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 }
 
 
-
+/* Checks that the private key template provided for C_GenerateKeyPair
+ * contains all necessary attributes, and does not contain any invalid
+ * attributes. */
 CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulTemplateLength )
@@ -3173,6 +3318,9 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
     return xResult;
 }
 
+/* Checks that the public key template provided for C_GenerateKeyPair
+ * contains all necessary attributes, and does not contain any invalid
+ * attributes. */
 CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                              CK_ATTRIBUTE_PTR pxTemplate,
                                              CK_ULONG ulTemplateLength )
