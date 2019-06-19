@@ -73,33 +73,45 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
 #define PKCS11_PRINT( X )            vLoggingPrintf X
 #define PKCS11_WARNING_PRINT( X )    /* vLoggingPrintf X */
 
+/* Indicates that no PKCS #11 operation is underway for given session. */
 #define pkcs11NO_OPERATION            ( ( CK_MECHANISM_TYPE ) 0xFFFFFFFFF )
 
 /* The size of the buffer malloc'ed for the exported public key in C_GenerateKeyPair */
 #define pkcs11KEY_GEN_MAX_DER_SIZE    200
 
+/* The slot ID to be returned by this PKCS #11 implementation.
+ * Note that this implementation does not have a concept of "slots" so this number is arbitrary. */
+#define pkcs11SLOT_ID                 1
 
 typedef struct P11Object_t
 {
-    CK_OBJECT_HANDLE xHandle;
+    CK_OBJECT_HANDLE xHandle;                           /* The "PAL Handle". */
     CK_BYTE xLabel[ pkcs11configMAX_LABEL_LENGTH + 1 ]; /* Plus 1 for the null terminator. */
 } P11Object_t;
 
+/* This structure helps the aws_pkcs11_mbedtls.c maintain a mapping of all objects in one place.
+ * Because some objects exist in device NVM and must be called by their "PAL Handles", and other
+ * objects do not have designated NVM storage locations, the ObjectList maintains a list
+ * of what object handles are available.
+ */
 typedef struct P11ObjectList_t
 {
     SemaphoreHandle_t xMutex; /* Mutex that protects write operations to the xObjects array. */
     P11Object_t xObjects[ pkcs11configMAX_NUM_OBJECTS ];
 } P11ObjectList_t;
 
-/* PKCS #11 Object */
+/* PKCS #11 Module Object */
 typedef struct P11Struct_t
 {
-    CK_BBOOL xIsInitialized;
-    mbedtls_ctr_drbg_context xMbedDrbgCtx;
-    mbedtls_entropy_context xMbedEntropyContext;
-    P11ObjectList_t xObjectList;
+    CK_BBOOL xIsInitialized;                     /* Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
+    mbedtls_ctr_drbg_context xMbedDrbgCtx;       /* CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
+    mbedtls_entropy_context xMbedEntropyContext; /* Entropy context for PKCS #11 module - used to collect entropy for RNG. */
+    P11ObjectList_t xObjectList;                 /* List of PKCS #11 objects that have been found/created since module initialization.
+                                                  * The array position indicates the "App Handle"  */
 } P11Struct_t, * P11Context_t;
 
+/* The global PKCS #11 module object.
+ * Entropy/randomness and object lists are shared across PKCS #11 sessions. */
 static P11Struct_t xP11Context;
 
 /**
@@ -107,39 +119,28 @@ static P11Struct_t xP11Context;
  */
 typedef struct P11Session
 {
-    CK_ULONG ulState;
-    CK_BBOOL xOpened;
-    CK_MECHANISM_TYPE xOperationInProgress;
+    CK_ULONG ulState;                       /* Stores the session flags. */
+    CK_BBOOL xOpened;                       /* Set to CK_TRUE upon opening PKCS #11 session. */
+    CK_MECHANISM_TYPE xOperationInProgress; /* Indicates if a digest operation is in progress. */
     CK_BBOOL xFindObjectInit;
     CK_BBOOL xFindObjectComplete;
-    CK_BYTE * pxFindObjectLabel; /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
+    CK_BYTE * pxFindObjectLabel;           /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     uint8_t xFindObjectLabelLength;
-    CK_MECHANISM_TYPE xVerifyMechanism;
-    SemaphoreHandle_t xVerifyMutex; /* Protects the verification key from being modified while in use. */
-    mbedtls_pk_context xVerifyKey;
-    CK_MECHANISM_TYPE xSignMechanism;
-    SemaphoreHandle_t xSignMutex; /* Protects the signing key from being modified while in use. */
-    mbedtls_pk_context xSignKey;
-    mbedtls_sha256_context xSHA256Context;
+    CK_MECHANISM_TYPE xVerifyMechanism;    /* The mechanism of verify operation in progress. Set during C_VerifyInit. */
+    SemaphoreHandle_t xVerifyMutex;        /* Protects the verification key from being modified while in use. */
+    mbedtls_pk_context xVerifyKey;         /* Verification key.  Set during C_VerifyInit. */
+    CK_MECHANISM_TYPE xSignMechanism;      /* Mechanism of the sign operation in progress. Set during C_SignInit. */
+    SemaphoreHandle_t xSignMutex;          /* Protects the signing key from being modified while in use. */
+    mbedtls_pk_context xSignKey;           /* Signing key.  Set during C_SignInit. */
+    mbedtls_sha256_context xSHA256Context; /* Context for in progress digest operation. */
 } P11Session_t, * P11SessionPtr_t;
 
-
-/**
- * @brief Cryptoki module attribute definitions.
- */
-#define pkcs11SLOT_ID               1
-
-#define pkcs11SUPPORTED_KEY_BITS    2048
 
 
 /**
  * @brief Helper definitions.
  */
-#define pkcs11CREATE_OBJECT_MIN_ATTRIBUTE_COUNT             3
-
-#define pkcs11GENERATE_KEY_PAIR_KEYTYPE_ATTRIBUTE_INDEX     0
-#define pkcs11GENERATE_KEY_PAIR_ECPARAMS_ATTRIBUTE_INDEX    1
-#define PKCS11_MODULE_IS_INITIALIZED                        ( ( xP11Context.xIsInitialized == CK_TRUE ) ? CK_TRUE : CK_FALSE )
+#define PKCS11_MODULE_IS_INITIALIZED    ( ( xP11Context.xIsInitialized == CK_TRUE ) ? CK_TRUE : CK_FALSE )
 #define PKCS11_SESSION_IS_OPEN( xSessionHandle )                         ( ( ( ( P11SessionPtr_t ) xSessionHandle )->xOpened ) == CK_TRUE ? CKR_OK : CKR_SESSION_CLOSED )
 #define PKCS11_SESSION_IS_VALID( xSessionHandle )                        ( ( ( P11SessionPtr_t ) xSessionHandle != NULL ) ? PKCS11_SESSION_IS_OPEN( xSessionHandle ) : CKR_SESSION_HANDLE_INVALID )
 #define PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSessionHandle )    ( PKCS11_MODULE_IS_INITIALIZED ? PKCS11_SESSION_IS_VALID( xSessionHandle ) : CKR_CRYPTOKI_NOT_INITIALIZED )
@@ -276,7 +277,7 @@ CK_RV prvMbedTLS_Initialize( void )
     return xResult;
 }
 
-
+/* Searches a template for the CKA_CLASS attribute. */
 CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
                          CK_ULONG ulCount,
                          CK_OBJECT_CLASS * pxClass )
@@ -362,6 +363,14 @@ void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
     }
 }
 
+/**
+ * @brief Removes an object from the module object list (xP11Context.xObjectList)
+ *
+ * \warn This does not delete the object from NVM.
+ *
+ * @param[in] xAppHandle     Application handle of the object to be deleted.
+ *
+ */
 CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 {
     CK_RV xResult = CKR_OK;
@@ -1706,7 +1715,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
 /**
  * @brief Query the value of the specified cryptographic object attribute.
  * @param[in] xSession                   Handle of a valid PKCS #11 session.
- * @param[in] xObject                    
+ * @param[in] xObject
  *
  * @return CKR_OK if successful.
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
