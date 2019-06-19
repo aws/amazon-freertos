@@ -48,6 +48,24 @@
  */
 #define btGATT_MAX_ATTR_LEN    600
 
+/**
+ * @brief GATT Status Codes
+ */
+typedef enum
+{
+    eBTGattStatusSuccess,                    /**< Success */
+    eBTGattStatusReadNotPermitted,           /**< Characteristic does not support read */
+    eBTGattStatusWriteNotPermitted,          /**< Characteristic does not support write */
+    eBTGattStatusInsufficientAuthentication, /**< Link is not properly Authenticated */
+    eBTGattStatusRequestNotSupported,        /**< Operation not supported */
+    eBTGattStatusInvalidOffset,              /**< Invalid offset (long writes/reads) */
+    eBTGattStatusErrorConnTimeout,           /**< Connection Timed out */
+    eBTGattStatusInvalidAttributeLength,     /**< Bad Attribute Length */
+    eBTGattStatusInsufficientEncryption,     /**< Link is not properly Encrypted */
+    eBTGattStatusError,                      /**< Generic GATT Error */
+    eBTGattStatusConnectionCongested,        /**< Congested connection */
+    eBTGattStatusErrorConnEstFail,           /**< Failed to establish gatt connection */
+} BTGattStatus_t;
 
 /**
  * @brief GATT Characteristic property.
@@ -254,13 +272,13 @@ typedef struct
 
 /** GATT open callback invoked in response to open */
 typedef void ( * BTConnectCallback_t)( uint16_t usConnId,
-                                       BTStatus_t xStatus,
+                                       BTGattStatus_t xStatus,
                                        uint8_t ucClientIf,
                                        BTBdaddr_t * pxBda );
 
 /** Callback invoked in response to close */
 typedef void ( * BTDisconnectCallback_t)( uint16_t usConnId,
-                                          BTStatus_t xStatus,
+                                          BTGattStatus_t xStatus,
                                           uint8_t ucClientIf,
                                           BTBdaddr_t * pxBda );
 
