@@ -201,7 +201,7 @@ typedef struct
 
 /**
  * @brief  Structure describing an included service.
-     */
+ */
 typedef struct
 {
     BTUuid_t xUuid;               /**< Attribute UUID*/
@@ -210,12 +210,12 @@ typedef struct
 
 /**
  * @brief  Structure describing a service UUID.
-     */
+ */
 typedef BTUuid_t BTServiceUUID_t;
 
 /**
  * @brief Generic BLE attribute.
-     */
+ */
 typedef struct
 {
     BTDbAttributeType_t xAttributeType; /**< Type of attribute. */
