@@ -39,7 +39,6 @@ typedef struct
     uint32_t ulMtu;
 } BTProperties_t;
 
-extern uint32_t ulGAPEvtMngHandle;
 extern BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 extern uint32_t ulGattServerIFhandle;
 extern BTProperties_t xProperties;
