@@ -43,7 +43,6 @@
 #include "aws_ble_hal_internals.h"
 
 BTProperties_t xProperties;
-uint32_t ulGAPEvtMngHandle;
 static BTCallbacks_t xBTCallbacks;
 
 static BTSecurityLevel_t prvConvertESPauthModeToSecurityLevel( esp_ble_auth_req_t xAuthMode );
