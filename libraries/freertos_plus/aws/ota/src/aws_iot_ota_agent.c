@@ -1547,27 +1547,35 @@ static void prvOTAUpdateTask( void * pvUnused )
                                         }
                                     }
                                     else
-                                    { /* We're actively receiving a file so update the job status as needed. */
-                                      /* First reset the momentum counter since we received a good block. */
-                                        C->ulRequestMomentum = 0;
-                                        prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
+                                    { 
                                       
-                                        /* Check if we have received expected number of blocks for the current request. */
-                                        if(ulNumOfBlocksToReceive > 1)
-                                        {
-                                           ulNumOfBlocksToReceive--;
-                                        }
-                                        else
-                                        {
-                                            /* Received number of data blocks requested so restart the request timer.*/
-                                            prvStartRequestTimer( C );
-                                                                                               
-                                            /* Send the event to request next set of data blocks.*/
-                                            if( xOTA_Agent.xOTA_EventFlags != NULL )
+                                        if( xResult == eIngest_Result_Accepted_Continue )
+                                        {  
+                                            /* We're actively receiving a file so update the job status as needed. */
+                                            /* First reset the momentum counter since we received a good block. */
+                                            C->ulRequestMomentum = 0;
+                                            prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
+                                      
+                                            /* Check if we have received expected number of blocks for the current request. */
+                                            if(ulNumOfBlocksToReceive > 1)
                                             {
-                                                ( void ) xEventGroupSetBits( xOTA_Agent.xOTA_EventFlags, OTA_EVT_MASK_REQ_TIMEOUT );
-                                            }  
+                                                ulNumOfBlocksToReceive--;
+                                            }
+                                            else
+                                            {
+                                                /* Received number of data blocks requested so restart the request timer.*/
+                                                prvStartRequestTimer( C );
+                                                                                               
+                                                /* Send the event to request next set of data blocks.*/
+                                                if( xOTA_Agent.xOTA_EventFlags != NULL )
+                                                {
+                                                    ( void ) xEventGroupSetBits( xOTA_Agent.xOTA_EventFlags, OTA_EVT_MASK_REQ_TIMEOUT );
+                                                }  
+                                            
+                                            }
+                                            
                                         }
+                                        
                                     }
                                 }
                             }
