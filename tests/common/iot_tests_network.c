@@ -97,6 +97,7 @@ static bool bleEnabled = false;
         }
     }
     /*-----------------------------------------------------------*/
+    extern BTStatus_t bleStackInit( void );
 
     static BaseType_t _BLEEnable( void )
     {
@@ -107,12 +108,18 @@ static bool bleEnabled = false;
 
         if( bInitBLE == false )
         {
-            xStatus = IotBle_Init();
+        	/* Initialize low level drivers for BLE */
+        	xStatus = bleStackInit( );
 
-            if( xStatus == eBTStatusSuccess )
-            {
-                bInitBLE = true;
-            }
+        	if( xStatus == eBTStatusSuccess )
+        	{
+				xStatus = IotBle_Init();
+
+				if( xStatus == eBTStatusSuccess )
+				{
+					bInitBLE = true;
+				}
+        	}
         }
         else
         {
