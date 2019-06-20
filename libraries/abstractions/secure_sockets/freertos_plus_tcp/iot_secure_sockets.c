@@ -278,6 +278,92 @@ int32_t SOCKETS_Send( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+    int32_t SOCKETS_Bind( Socket_t xSocket,
+                          const SocketsSockaddr_t * pxAddress,
+                          Socklen_t xAddressLength )
+    {
+        int32_t lStatus = SOCKETS_SOCKET_ERROR;
+        SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
+        struct freertos_sockaddr xTempAddress = { 0 };
+
+        ( void ) xAddressLength;
+
+        if( ( xSocket != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) && ( pxContext != NULL ) )
+        {
+            xTempAddress.sin_addr = pxAddress->ulAddress;
+            xTempAddress.sin_family = pxAddress->ucSocketDomain;
+            xTempAddress.sin_len = ( uint8_t ) sizeof( xTempAddress );
+            xTempAddress.sin_port = pxAddress->usPort;
+            lStatus = FreeRTOS_bind( pxContext->xSocket, &xTempAddress, sizeof( struct freertos_sockaddr ) );
+        }
+
+        return lStatus;
+    }
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_SendTo( Socket_t xSocket,
+                            const void * pvBuffer,
+                            size_t xDataLength,
+                            uint32_t ulFlags,
+                            const SocketsSockaddr_t * pxAddress,
+                            Socklen_t xAddressLength )
+    {
+        int32_t lStatus = SOCKETS_SOCKET_ERROR;
+        SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
+        struct freertos_sockaddr xTempAddress = { 0 };
+
+        ( void ) xAddressLength;
+
+        if( ( xSocket != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) && ( pxContext != NULL ) )
+        {
+            xTempAddress.sin_addr = pxAddress->ulAddress;
+            xTempAddress.sin_family = pxAddress->ucSocketDomain;
+            xTempAddress.sin_len = ( uint8_t ) sizeof( xTempAddress );
+            xTempAddress.sin_port = pxAddress->usPort;
+            pxContext->xSendFlags = ( BaseType_t ) ulFlags;
+            lStatus = FreeRTOS_sendto( pxContext->xSocket, pvBuffer, xDataLength, pxContext->xSendFlags, &xTempAddress, sizeof( struct freertos_sockaddr ) );
+        }
+
+        return lStatus;
+    }
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_RecvFrom( Socket_t xSocket,
+                              void * pvBuffer,
+                              size_t xDataLength,
+                              uint32_t ulFlags,
+                              SocketsSockaddr_t * pxAddress,
+                              Socklen_t * pxAddressLength )
+    {
+        int32_t lStatus = SOCKETS_SOCKET_ERROR;
+        SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket; /*lint !e9087 cast used for portability. */
+        struct freertos_sockaddr xTempAddress = { 0 };
+        BaseType_t xFlags = 0;
+        uint32_t ulAddressLength = 0;
+
+        if( ulFlags & SOCKETS_MSG_PEEK )
+        {
+            xFlags |= FREERTOS_MSG_PEEK;
+        }
+
+        if( ( pxContext != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) && ( pxContext != NULL ) )
+        {
+            pxContext->xRecvFlags = xFlags;
+
+            lStatus = FreeRTOS_recvfrom( pxContext->xSocket, pvBuffer, xDataLength, pxContext->xRecvFlags, &xTempAddress, &ulAddressLength );
+            pxAddress->ulAddress = xTempAddress.sin_addr;
+            pxAddress->ucSocketDomain = xTempAddress.sin_family;
+            pxAddress->ucLength = ( uint8_t ) sizeof( *pxAddress );
+            pxAddress->usPort = xTempAddress.sin_port;
+            *pxAddressLength = sizeof( SocketsSockaddr_t );
+        }
+
+        return lStatus;
+    }
+/*-----------------------------------------------------------*/
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
+
 int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                             int32_t lLevel,
                             int32_t lOptionName,
@@ -496,8 +582,8 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
     /* Ensure that only supported values are supplied. */
     configASSERT( lDomain == SOCKETS_AF_INET );
-    configASSERT( lType == SOCKETS_SOCK_STREAM );
-    configASSERT( lProtocol == SOCKETS_IPPROTO_TCP );
+    configASSERT( ( lType == SOCKETS_SOCK_STREAM ) || ( lType == SOCKETS_SOCK_DGRAM ) );
+    configASSERT( ( lProtocol == SOCKETS_IPPROTO_TCP ) || ( lProtocol == SOCKETS_IPPROTO_UDP ) );
 
     /* Create the wrapped socket. */
     xSocket = FreeRTOS_socket( lDomain, lType, lProtocol );

@@ -236,4 +236,7 @@ extern uint32_t ulRand();
 /* Header required for the tracealyzer recorder library. */
 #include "trcRecorder.h"
 
+/* The platform has UDP Socket layer implemented*/
+#define configPLATFORM_SOCKET_UDP_SUPPORT   ( 1 )
+
 #endif /* FREERTOS_CONFIG_H */
