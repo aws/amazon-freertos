@@ -18,9 +18,9 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 
@@ -34,25 +34,22 @@ class OtaTestDummyTest( OtaTestCase ):
     NAME = 'OtaTestDummyTest'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestDummyTest, self).__init__(
-            OtaTestDummyTest.NAME, 
+            OtaTestDummyTest.NAME,
+            False,
             boardConfig,
-            otaProject, 
-            otaAwsAgent, 
+            otaProject,
+            otaAwsAgent,
             flashComm
         )
 
-    def getName(self):
-        return self._name
-
     def setup(self):
         print('Ran OtaTestDummyTest::setup.')
+        # Adding empty list for return to indicate the successful setup.
+        return []
 
     def teardown(self):
         print('Ran OtaTestDummyTest::teardown.')
 
     def run(self):
         print('Ran OtaTestDummyTest::run.')
-        return self.getTestResult(None, None)
-
-    def getTestResult(self, jobStatus, log):
-        return OtaTestResult(testName=self._name, result=OtaTestResult.PASS, reason='Dummy test.')
+        return OtaTestResult(testName=self._name, result=OtaTestResult.PASS)

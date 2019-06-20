@@ -18,24 +18,24 @@ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- 
+
 http://aws.amazon.com/freertos
-http://www.FreeRTOS.org 
+http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
 import os
-from .aws_ota_test_result import OtaTestResult
 
 class OtaTestUntrustedCertificate( OtaTestCase ):
     NAME = "OtaTestUntrustedCertificate"
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestUntrustedCertificate, self).__init__(
-            OtaTestUntrustedCertificate.NAME, 
+            OtaTestUntrustedCertificate.NAME,
+            False,
             boardConfig,
-            otaProject, 
-            otaAwsAgent, 
+            otaProject,
+            otaAwsAgent,
             flashComm
         )
         # Define invalid/valid signing certificates for later use.
@@ -44,9 +44,6 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
         # Set a semi-unique 'signing type' name based on the invalid certificate's ARN to avoid conflicts.
         self._signingProfileName = "%s%s"%(self._bogusSignerArn[-10:], self._otaAwsAgent._boardName[:10])
 
-    def getName(self):
-        return self._name
-    
     def run(self):
         # Increase the version of the OTA image.
         self._otaProject.setApplicationVersion(0, 9, 1)
@@ -75,7 +72,7 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
                                 'version': self._otaAwsAgent.getS3ObjectVersion(os.path.basename(self._otaConfig['ota_firmware_file_path']))
                             }
                         },
-                        'codeSigning': { 
+                        'codeSigning': {
                             "startSigningJobParameter": {
                                 'signingProfileName': self._signingProfileName,
                                 'signingProfileParameter': {
@@ -125,11 +122,3 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
         self._otaConfig['aws_signer_certificate_arn'] = self._validSignerArn
         # Wait for the job to complete.
         return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)
-
-    def getTestResult(self, jobStatus, log):
-        if (jobStatus.status == 'FAILED'):
-            # (Overwrite the confusing hex message presented as the 'jobStatus' on this type of failure)
-            job_status = namedtuple('JobStatus', 'status reason')('PASS', 'Invalid signing certificate test passed.')
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.PASS, job_status)
-        else:
-            return OtaTestResult.testResultFromJobStatus(self._name, OtaTestResult.FAIL, jobStatus)

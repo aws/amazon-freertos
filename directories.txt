@@ -1,15 +1,24 @@
 This file describes the directories found at the root of the Amazon FreeRTOS
 distribution.
 
-lib:
-Contains the implementation of AWS and third party libraries.  AWS libraries use
-abstracted interfaces to enable interchangeability and facilitate porting to new
-hardware.
-
 demos:
 Contains a set of pre-configured demo projects for various target platforms.
 The projects in the demos directory build the libraries from the lib directory.
 
+doc:
+Contains Doxygen configuration, and board qualification guide.
+
+freertos_kernel:
+Contains FreeRTOS kernel distribution.
+
+libraries:
+Contains standard libraries, AWS libraries, and third-party libraries.
+
+projects:
+Contains IDE project files.
+
 tests:
-Various module and integration tests that use the Unity framework. These tests 
-also support the Amazon FreeRTOS Qualification Program (AFQP).
+Contains Unity framework and test runner.
+
+vendors:
+Contains platform-specific ports, SDKs, and tools.

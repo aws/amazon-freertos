@@ -5,10 +5,13 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     message(FATAL_ERROR "In-source build is not allowed, please use a separate build folder.")
 endif()
 
-project(amazon-freertos VERSION 1.4.8)
+project(amazon-freertos)
+set(PROJECT_VERSION "201906.00 Major")
+set(PROJECT_VERSION_MAJOR "201906")
+set(PROJECT_VERSION_MINOR "00")
 
 # Import global configurations.
-include("cmake/afr.cmake")
+include("tools/cmake/afr.cmake")
 
 # -------------------------------------------------------------------------------------------------
 # Configure target board
@@ -29,17 +32,27 @@ if(NOT AFR_BOARD IN_LIST AFR_SUPPORTED_BOARDS)
 endif()
 
 # Import board CMake build.
-add_subdirectory("cmake/vendors/${AFR_VENDOR_NAME}/${AFR_BOARD_NAME}")
+set(AFR_VENDOR_PATH "vendors/${AFR_VENDOR_NAME}" CACHE INTERNAL "")
+include("${AFR_VENDOR_PATH}/manifest.cmake")
+if(DEFINED AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME})
+    set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR_${AFR_BOARD_NAME}}" CACHE INTERNAL "")
+elseif(DEFINED AFR_MANIFEST_BOARD_DIR)
+    set(AFR_BOARD_PATH "${AFR_VENDOR_PATH}/${AFR_MANIFEST_BOARD_DIR}/${AFR_BOARD_NAME}" CACHE INTERNAL "")
+else()
+    message(FATAL_ERROR "Could not import board CMakeLists.txt.")
+endif()
+add_subdirectory("${AFR_BOARD_PATH}")
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
 # Initialize all modules.
-add_subdirectory("lib")
+add_subdirectory("libraries")
 add_subdirectory("demos")
 add_subdirectory("tests")
 
 # Resolve dependencies.
+afr_status("=========================Resolving dependencies==========================")
 afr_resolve_dependencies()
 
 # -------------------------------------------------------------------------------------------------
@@ -98,11 +111,18 @@ afr_status("")
 cmake_policy(SET CMP0079 NEW)
 
 if(TARGET aws_demos)
-    list(TRANSFORM AFR_DEMOS_ENABLED PREPEND "AFR::")
-    target_link_libraries(aws_demos PRIVATE ${AFR_DEMOS_ENABLED})
+    list(TRANSFORM AFR_DEMOS_ENABLED PREPEND "AFR::" OUTPUT_VARIABLE demos_list)
+    target_link_libraries(aws_demos PRIVATE ${demos_list})
 endif()
 
 if(TARGET aws_tests)
-    list(TRANSFORM AFR_TESTS_ENABLED PREPEND "AFR::")
-    target_link_libraries(aws_tests PRIVATE ${AFR_TESTS_ENABLED})
+    list(TRANSFORM AFR_TESTS_ENABLED PREPEND "AFR::" OUTPUT_VARIABLE tests_list)
+    target_link_libraries(aws_tests PRIVATE ${tests_list})
+endif()
+
+# -------------------------------------------------------------------------------------------------
+# Output metadata information
+# -------------------------------------------------------------------------------------------------
+if(AFR_METADATA_MODE)
+    afr_write_metadata()
 endif()

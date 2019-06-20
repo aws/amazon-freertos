@@ -1,0 +1,124 @@
+/**
+@page building Building the SDK
+@brief Guide for building the SDK.
+
+This SDK builds with [CMake](https://cmake.org/), a cross-platform build tool.
+
+@pre
+- CMake version 3.5.0 or later and a supported C compiler.
+- One of the following security libraries:
+  - OpenSSL development libraries and header files, version 1.0.2g or later.
+
+@pre
+Additional requirements for POSIX systems:
+- POSIX threads, mutexes, and semaphores.
+- POSIX timers.
+
+In addition, credentials and Things for AWS IoT must be provisioned before running the demos. See [this page](https://docs.aws.amazon.com/iot/latest/developerguide/iot-gs.html) for a tutorial on setting up AWS IoT.
+
+@section building_demo Building the demo applications
+@brief How to build the demo applications.
+
+Before building the demos, all desired configuration settings should be defined. Configuration settings include global [library](@ref global_library_config) and [demo](@ref global_demos_config) settings, as well as settings for specific libraries and demos. Settings for demo applications should be placed in `demos/iot_demo_config.h`. Any undefined settings will use a default value when possible.
+
+The demo applications build with CMake.
+
+In-source CMake builds are not allowed. A build directory should be created under the SDK root directory. Since CMake is cross-platform, build steps will vary depending on host OS. On Linux, the demo applications are built as follows:
+@code{sh}
+# Create build directory and change to build directory.
+mkdir build
+cd build
+
+# Configure build using CMake.
+cmake ..
+
+# Build the demo applications.
+make
+@endcode
+
+Demo application executables will be placed in a `bin` directory of the CMake build directory, i.e. `build/bin` in the example above. The executables will be named `aws_iot_demo_library` or `iot_demo_library`, depending on whether the demo is specific to AWS IoT. For example, the MQTT demo application, which may be used with any MQTT server, will be named `iot_demo_mqtt`. The Thing Shadow demo, which is specific to AWS IoT, will be named `aws_iot_demo_shadow`.
+
+Configuration settings may also be set using CMake by setting `CMAKE_C_FLAGS`. However, placing configuration settings in `demos/iot_demo_config.h` is recommended over setting them using CMake.
+@code{sh}
+# Example: Set IOT_STATIC_MEMORY_ONLY using CMake
+cmake .. -DCMAKE_C_FLAGS=-DIOT_STATIC_MEMORY_ONLY=1
+@endcode
+
+By default, CMake may build in `Release` configuration. To enable debugging symbols, set `CMAKE_BUILD_TYPE` to `Debug`.
+@code{sh}
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+@endcode
+
+Delete the build directory to remove all demo application executables and build files.
+
+@section demo_commandlineoptions Demo command line options
+@brief Command line options of the demo applications.
+
+Demo applications accept the following command line options.
+
+@subsection demo_optionn -n
+@brief Disable AWS IoT MQTT mode.
+
+By default, the demo applications expect to run with an AWS IoT MQTT server. Passing this option disables [AWS IoT MQTT mode](@ref IotMqttConnectInfo_t.awsIotMqttMode) and treats the remote MQTT server as a fully-compliant MQTT server. This option should not have an argument.
+
+Because Thing Shadows are specific to AWS IoT, this option is ignored by the [Shadow demo](@ref shadow_demo).
+
+@subsection demo_optionsu -s and -u
+@brief Secured or unsecured demo connection, respectively.
+
+Neither `-s` nor `-u` should have an argument, and only one of the two should be used at a time.
+
+See @ref IOT_DEMO_SECURED_CONNECTION for the compile-time default setting of this option.
+
+Because Thing Shadows are specific to AWS IoT (which requires secured connections), this option is ignored by the [Shadow demo](@ref shadow_demo).
+
+@subsection demo_optionh -h host
+@brief Remote host for demo application.
+
+Must be followed by a host name.
+
+See @ref IOT_DEMO_SERVER for the compile-time default setting of this option.
+
+@subsection demo_optionp -p port
+@brief Remote port for demo application.
+
+Must be followed by a port in the range of `[1,65535]`.
+
+See @ref IOT_DEMO_PORT for the compile-time default setting of this option.
+
+@subsection demo_optionr -r rootCA, -c clientCert, -k privateKey
+@brief Paths to trusted server root certificate, client certificate, and client certificate private key, respectively.
+
+Must be followed by a filesystem path to the respective PEM-encoded credential.
+
+See @ref IOT_DEMO_ROOT_CA, @ref IOT_DEMO_CLIENT_CERT, and @ref IOT_DEMO_PRIVATE_KEY for the compile-time default settings of these options.
+
+@subsection demo_optioni -i identifier
+@brief MQTT client identifier <i>OR</i> Thing Name.
+
+Must be followed by a string representing either an MQTT client identifier (MQTT demo only) or a Thing Name (all other demos). Because AWS IoT recommends that MQTT client identifier and Thing Name match, demos will use the Thing Name as the MQTT client identifier when possible.
+
+See @ref IOT_DEMO_IDENTIFIER for the compile-time default settings of this option.
+
+@section building_tests Building and running the tests
+@brief How to build and run the SDK tests.
+
+Like the demo applications, the tests also build with CMake. [Global test configuration settings](@ref global_tests_config), as well as specific library test settings, should be defined in `tests/iot_tests_config.h`.
+
+Unlike the demos, the tests are currently only supported on POSIX systems that support all of the POSIX prerequisites. They are built by passing the option `IOT_BUILD_TESTS=1` to CMake.
+@code{sh}
+# Create build directory and change to build directory.
+mkdir build
+cd build
+
+# Configure build using CMake.
+cmake .. -DIOT_BUILD_TESTS=1
+
+# Build both the demos and tests.
+make
+@endcode
+
+Test executables will be placed in a `bin` directory of the CMake build directory (i.e. `build/bin`) alongside the demo applications. They will be named `aws_iot_tests_library` or `iot_tests_library`, depending on whether the tests are specific to AWS IoT. For example, the MQTT tests application, which may be used with any MQTT server, will be named `iot_tests_mqtt`. The Thing Shadow tests, which are specific to AWS IoT, will be named `aws_iot_tests_shadow`.
+
+By default, running a test executable with no command line arguments will only run the basic unit tests and system tests. This run is expected to take up to a few minutes per library test. The command line option `-l` may be passed to a test executable to enable long-running tests (such as stress tests) which may run for several hours. Individual tests may support other command line options; see the test application files for more information.
+*/
