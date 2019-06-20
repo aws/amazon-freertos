@@ -14,9 +14,6 @@ else()
     set(exe_target aws_demos)
 endif()
 
-#Ensure Defender is not included in build
-set (AFR_MODULE_defender 0)
-
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
@@ -249,13 +246,6 @@ target_link_libraries(
         ${link_extra_flags}
         AFR::crypto
         AFR::pkcs11
-)
-
-# Disable device defender
-afr_module_dependencies(
-    defender
-    PRIVATE
-        3rdparty::dummy
 )
 
 # Convert afx file to bin file
