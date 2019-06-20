@@ -219,7 +219,7 @@ typedef struct SocketsSockaddr
 lib_initDECLARE_LIB_INIT( SOCKETS_Init );
 
 /**
- * @brief Creates a TCP socket.
+ * @brief Creates a TCP or an UDP socket.
  *
  * See the [FreeRTOS+TCP networking tutorial]
  * (https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial.html)
@@ -391,6 +391,79 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 /* @[declare_secure_sockets_close] */
 int32_t SOCKETS_Close( Socket_t xSocket );
 /* @[declare_secure_sockets_close] */
+
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+
+/**
+ * @brief bind UDP socket to an IP address and port.
+ * If port 0 is provided, a system provided port number will be assigned.  This function can
+ * be used for both UDP and TCP sockets, but for now only supported for UDP.
+ *
+ * The socket must have already been created using a call to SOCKETS_Socket
+ * @param[in] xSocket The handle of the socket that is being bound to an address.
+ * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains the
+ * the address to be bound to.
+ * @param[in] xAddressLength Should be set to sizeof( @ref SocketsSockaddr_t ).
+ *
+ * @Note If SOCKETS_Bind() is not used @ref SOCKETS_Sendto() will bind the socket to port 0 and
+ * address 0.
+ */
+/* @[declare_secure_sockets_bind] */
+    int32_t SOCKETS_Bind( Socket_t xSocket,
+                          const SocketsSockaddr_t * pxAddress,
+                          Socklen_t xAddressLength );
+/* @[declare_secure_sockets_bind] */
+
+/**
+ * @brief Transmit data to the unconnected UDP remote socket.
+ *
+ * The socket must have already been created using a call to SOCKETS_Socket
+ * @param[in] xSocket The handle of the sending socket.
+ * @param[in] pvBuffer The buffer containing the data to be sent.
+ * @param[in] xDataLength The length of the data to be sent.
+ * @param[in] ulFlags Not currently used. Should be set to 0.
+ * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains the
+ * the address to send data to.
+ * @param[in] xAddressLength Should be set to sizeof( @ref SocketsSockaddr_t ).
+ *
+ */
+/* @[declare_secure_sockets_sendto] */
+    int32_t SOCKETS_SendTo( Socket_t xSocket,
+                            const void * pvBuffer,
+                            size_t xDataLength,
+                            uint32_t ulFlags,
+                            const SocketsSockaddr_t * pxAddress,
+                            Socklen_t xAddressLength );
+/* @[declare_secure_sockets_sendto] */
+
+/* @brief flag for peeking at incoming message without destroying the data in 
+ * socket buffer 
+ */
+    #define SOCKETS_MSG_PEEK    ( 4 )
+
+/**
+ * @brief Receive data from the unconnected UDP remote socket.
+ *
+ * The socket must have already been created using a call to SOCKETS_Socket
+ * @param[in] xSocket The handle of the socket from which data is being received.
+ * @param[out] pvBuffer The buffer into which the received data will be placed.
+ * @param[in] xBufferLength The maximum number of bytes which can be received.
+ * pvBuffer must be at least xBufferLength bytes long.
+ * @param[in] ulFlags only SOCKETS_MSG_PEEK is supported, otherwise should be set to 0
+ * @param[out] pxAddress A pointer to a SocketsSockaddr_t structure that will be set to
+ * contain the address of the socket that sent the data.
+ * @param[in] xAddressLength will be set to sizeof( @ref SocketsSockaddr_t ).
+ *
+ */
+/* @[declare_secure_sockets_recvfrom] */
+    int32_t SOCKETS_RecvFrom( Socket_t xSocket,
+                              void * pvBuffer,
+                              size_t xDataLength,
+                              uint32_t ulFlags,
+                              SocketsSockaddr_t * pxAddress,
+                              Socklen_t * xAddressLength );
+/* @[declare_secure_sockets_recvfrom] */
+#endif /* configPLATFORM_SOCKET_UDP_SUPPORT */
 
 /**
  * @brief AWS IoT ALPN protocol name for MQTT over TLS on server port 443.
