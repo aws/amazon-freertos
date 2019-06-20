@@ -1693,12 +1693,12 @@ static void prvSOCKETS_Socket_InvalidInputParams( Server_t xConn )
         TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
     }
 
-    /* Creating a UPD socket. UDP is unsupported. */
+    /* Creating a TCP socket with UDP protocol. */
     if( TEST_PROTECT() )
     {
-        /* Mixing DGRAM type with TCP protocol (instead of UDP). */
+        /* Mixing STREAM type with UDP protocol (instead of TCP). */
         xSocket = SOCKETS_Socket( SOCKETS_AF_INET,
-                                  SOCKETS_SOCK_DGRAM,
+                                  SOCKETS_SOCK_STREAM,
                                   SOCKETS_IPPROTO_UDP );
 
         TEST_FAIL_MESSAGE( "Invalid socket created - UDP is not supported. " );

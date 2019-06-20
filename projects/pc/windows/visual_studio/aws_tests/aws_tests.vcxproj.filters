@@ -1703,6 +1703,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c">
       <Filter>libraries\c_sdk\standard\common</Filter>
     </ClCompile>
+<<<<<<< HEAD
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c">
       <Filter>libraries\freertos_plus\standard\pkcs11\src</Filter>
     </ClCompile>
@@ -1711,6 +1712,10 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
       <Filter>libraries\freertos_plus\standard\utils\src</Filter>
+=======
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_udp.c">
+      <Filter>libraries\abstractions\secure_sockets\test</Filter>
+>>>>>>> 5351eed3d... feat: AFR Sockets UDP Support
     </ClCompile>
   </ItemGroup>
 </Project>

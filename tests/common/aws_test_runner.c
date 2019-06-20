@@ -203,6 +203,12 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_Serializer_JSON );
         RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
     #endif
+
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+    #if ( testrunnerFULL_UDP_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_UDP );
+    #endif
+#endif
 }
 /*-----------------------------------------------------------*/
 

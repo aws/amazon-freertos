@@ -425,6 +425,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_udp.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_collector.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_mqtt.c" />
