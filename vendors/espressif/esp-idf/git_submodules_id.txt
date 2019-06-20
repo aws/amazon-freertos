@@ -1,0 +1,12 @@
+ 36733db8d82201a2ad08a895076192566c247f42 esp-idf
+ 8bf852db77c360eebfa4b800754fdb90e29ea43e components/aws_iot/aws-iot-device-sdk-embedded-C (v2.1.1-39-g8bf852d)
+ d473efc5ca3b1542ebc15536295e04c88cd1ba46 components/bt/lib (d473efc)
+ 6468887a12666f88b8704d797fc176cd4f40ee4c components/coap/libcoap (v4.1.1-401-g6468887)
+ 2292ebcbc3047233252e6e9fd6a0fc1de72ee5de components/esp32/lib (heads/master-32-g2292ebc)
+ 9ad444a6e06e58833d5e6044c1d5f3eb3dd56023 components/esptool_py/esptool (v2.6)
+ 7cc52f60356909b3dd260304c7c50c0693699353 components/json/cJSON (v1.7.1)
+ 70170c28c844a4786e75efc626e1aeebc93caebc components/libsodium/libsodium (1.0.12)
+ b9ada3067587aaccb37c33d41733bb82496c6342 components/mbedtls/mbedtls (mbedtls-2.9.0-641-gb9ada306)
+ d037ec89546fad14b5c4d5456c2e23a71e554966 components/micro-ecc/micro-ecc (v1.0)
+ 3bcc416e13cc790e2fb45fcfe9111d38609c5032 components/nghttp/nghttp2 (v1.24.0)
+ f5e26c4e933189593a71c6b82cda381a7b21e41c components/spiffs/spiffs (0.2-221-gf5e26c4)

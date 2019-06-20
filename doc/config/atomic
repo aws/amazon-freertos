@@ -1,0 +1,26 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Atomic"
+
+# Library documentation output directory.
+HTML_OUTPUT = atomic
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/tag/atomic.tag
+
+# Directories containing library source code.
+INPUT = lib/include/atomic.h 
+
+# Library file names.
+FILE_PATTERNS = *.h *.c *.txt
+
+EXAMPLE_PATH = lib/include/atomic.h
+
+# External tag files required by this library.
+TAGFILES = doc/tag/main.tag=../main \
+
+# Excluded symbols
+EXCLUDE_SYMBOLS = ATOMIC_ENTER_CRITICAL ATOMIC_EXIT_CRITICAL portFORCE_INLINE
