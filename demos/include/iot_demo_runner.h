@@ -54,6 +54,10 @@
     #define DEMO_entryFUNCTION                              vStartOTAUpdateDemoTask
 #elif defined (CONFIG_BLE_GATT_SERVER_DEMO_ENABLED)
     #define DEMO_entryFUNCTION                              vGattDemoSvcInit
+#elif defined (CONFIG_HTTPS_SYNC_DEMO_ENABLED)
+    #define DEMO_entryFUNCTION                              RunHttpsSyncDemo
+#elif defined (CONFIG_HTTPS_ASYNC_DEMO_ENABLED)
+    #define DEMO_entryFUNCTION                              RunHttpsAsyncDemo
 #else
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"
