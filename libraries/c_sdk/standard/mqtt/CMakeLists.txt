@@ -33,6 +33,7 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_static_memory.c"
         "${src_dir}/iot_mqtt_subscription.c"
         "${src_dir}/iot_mqtt_validate.c"
+        "${src_dir}/iot_mqtt_metrics.c"
         ${extra_mqtt_sources}
 )
 
@@ -77,6 +78,7 @@ afr_module_sources(
         "${test_dir}/unit/iot_tests_mqtt_receive.c"
         "${test_dir}/unit/iot_tests_mqtt_subscription.c"
         "${test_dir}/unit/iot_tests_mqtt_validate.c"
+        "${test_dir}/unit/iot_tests_mqtt_metrics.c"
         "${test_dir}/system/iot_tests_mqtt_system.c"
         ${extra_test_mqtt_sources}
 )

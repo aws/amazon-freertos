@@ -457,6 +457,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\taskpool\iot_taskpool_static_memory.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_metrics.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c" />

@@ -447,6 +447,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_metrics.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c" />
@@ -462,6 +463,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\aws_test_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c" />
