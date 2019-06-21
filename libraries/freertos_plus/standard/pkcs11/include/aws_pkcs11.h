@@ -49,7 +49,7 @@
 /**
  *   @brief Length of a SHA256 digest, in bytes.
  */
-#define pcks11SHA256_DIGEST_LENGTH           32
+#define pkcs11SHA256_DIGEST_LENGTH           32
 
 /**
  * @brief Length of a curve P-256 ECDSA signature, in bytes.

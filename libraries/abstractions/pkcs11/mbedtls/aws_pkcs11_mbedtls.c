@@ -2540,11 +2540,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
         if( pDigest == NULL )
         {
             /* Supply the required buffer size. */
-            *pulDigestLen = pcks11SHA256_DIGEST_LENGTH;
+            *pulDigestLen = pkcs11SHA256_DIGEST_LENGTH;
         }
         else
         {
-            if( *pulDigestLen < pcks11SHA256_DIGEST_LENGTH )
+            if( *pulDigestLen < pkcs11SHA256_DIGEST_LENGTH )
             {
                 xResult = CKR_BUFFER_TOO_SMALL;
             }
@@ -2834,7 +2834,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
         else if( pxSessionObj->xSignMechanism == CKM_ECDSA )
         {
             xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
-            xExpectedInputLength = pcks11SHA256_DIGEST_LENGTH;
+            xExpectedInputLength = pkcs11SHA256_DIGEST_LENGTH;
             pxSignatureBuffer = ecSignature;
         }
         else
@@ -3132,7 +3132,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
         }
         else if( pxSessionObj->xVerifyMechanism == CKM_ECDSA )
         {
-            if( ulDataLen != pcks11SHA256_DIGEST_LENGTH )
+            if( ulDataLen != pkcs11SHA256_DIGEST_LENGTH )
             {
                 xResult = CKR_DATA_LEN_RANGE;
             }

@@ -697,7 +697,7 @@ TEST( Full_PKCS11_NoObject, AFQP_Digest )
 
     CK_MECHANISM xDigestMechanism;
 
-    CK_BYTE xDigestResult[ pcks11SHA256_DIGEST_LENGTH ] = { 0 };
+    CK_BYTE xDigestResult[ pkcs11SHA256_DIGEST_LENGTH ] = { 0 };
     CK_ULONG xDigestLength = 0;
 
 
@@ -714,18 +714,18 @@ TEST( Full_PKCS11_NoObject, AFQP_Digest )
     /* Call C_DigestFinal on a NULL buffer to get the buffer length required. */
     xResult = pxGlobalFunctionList->C_DigestFinal( xGlobalSession, NULL, &xDigestLength );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
-    TEST_ASSERT_EQUAL( pcks11SHA256_DIGEST_LENGTH, xDigestLength );
+    TEST_ASSERT_EQUAL( pkcs11SHA256_DIGEST_LENGTH, xDigestLength );
 
     xResult = pxGlobalFunctionList->C_DigestFinal( xGlobalSession, xDigestResult, &xDigestLength );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
-    TEST_ASSERT_EQUAL_INT8_ARRAY( xSha256HashOf896BitInput, xDigestResult, pcks11SHA256_DIGEST_LENGTH );
+    TEST_ASSERT_EQUAL_INT8_ARRAY( xSha256HashOf896BitInput, xDigestResult, pkcs11SHA256_DIGEST_LENGTH );
 }
 
 TEST( Full_PKCS11_NoObject, AFQP_Digest_ErrorConditions )
 {
     CK_RV xResult = 0;
     CK_MECHANISM xDigestMechanism;
-    CK_BYTE xDigestResult[ pcks11SHA256_DIGEST_LENGTH ] = { 0 };
+    CK_BYTE xDigestResult[ pkcs11SHA256_DIGEST_LENGTH ] = { 0 };
     CK_ULONG xDigestLength = 0;
 
     /* Make sure that no NULL pointers in functions to be called in this test. */
@@ -761,20 +761,20 @@ TEST( Full_PKCS11_NoObject, AFQP_Digest_ErrorConditions )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     /* Call C_DigestFinal on a buffer that is too small. */
-    xDigestLength = pcks11SHA256_DIGEST_LENGTH - 1;
+    xDigestLength = pkcs11SHA256_DIGEST_LENGTH - 1;
     xResult = pxGlobalFunctionList->C_DigestFinal( xGlobalSession, xDigestResult, &xDigestLength );
     TEST_ASSERT_EQUAL( CKR_BUFFER_TOO_SMALL, xResult );
 
     /* Call C_DigestFinal on a NULL session handle. */
-    xDigestLength = pcks11SHA256_DIGEST_LENGTH;
+    xDigestLength = pkcs11SHA256_DIGEST_LENGTH;
     xResult = pxGlobalFunctionList->C_DigestFinal( ( CK_SESSION_HANDLE ) NULL, xDigestResult, &xDigestLength );
     TEST_ASSERT_EQUAL( CKR_SESSION_HANDLE_INVALID, xResult );
 
     /* Call C_DigestFinal on a proper buffer size. Note that Digest is not terminated if error is "buffer too small" or if session handle wasn't present. */
-    xDigestLength = pcks11SHA256_DIGEST_LENGTH;
+    xDigestLength = pkcs11SHA256_DIGEST_LENGTH;
     xResult = pxGlobalFunctionList->C_DigestFinal( xGlobalSession, xDigestResult, &xDigestLength );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
-    TEST_ASSERT_EQUAL_INT8_ARRAY( xSha256HashOf896BitInput, xDigestResult, pcks11SHA256_DIGEST_LENGTH );
+    TEST_ASSERT_EQUAL_INT8_ARRAY( xSha256HashOf896BitInput, xDigestResult, pkcs11SHA256_DIGEST_LENGTH );
 
     /* Call C_DigestUpdate after the digest operation has been completed. */
     xResult = pxGlobalFunctionList->C_DigestUpdate( xGlobalSession, x896BitInput, sizeof( x896BitInput ) - 1 );
