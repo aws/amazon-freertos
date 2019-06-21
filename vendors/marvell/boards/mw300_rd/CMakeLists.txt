@@ -197,13 +197,13 @@ target_sources(
 )
 
 # PKCS11
-afr_mcu_port(pkcs11)
+afr_mcu_port(pkcs11_implementation)
 target_link_libraries(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE AFR::pkcs11_mbedtls
 )
 target_sources(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
 )
 
