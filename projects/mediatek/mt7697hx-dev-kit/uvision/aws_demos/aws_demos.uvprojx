@@ -366,7 +366,7 @@
 						<TextAddressRange>0x00000000</TextAddressRange>
 						<DataAddressRange>0x20000000</DataAddressRange>
 						<pXoBase/>
-						<ScatterFile>.\flash.sct</ScatterFile>
+						<ScatterFile>..\..\..\..\..\vendors\mediatek\boards\mt7697hx-dev-kit\aws_demos\flash.sct</ScatterFile>
 						<IncludeLibs/>
 						<IncludeLibsPath/>
 						<Misc>--entry Reset_Handler --first __isr_vector</Misc>

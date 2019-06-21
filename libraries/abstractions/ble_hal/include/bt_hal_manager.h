@@ -100,6 +100,7 @@ typedef struct
  */
 typedef enum
 {
+    eBTauthSuccess,                /**< eBTauthSuccess. */
     eBTauthFailLmpRespTimeout,     /**< eBTauthFailLmpRespTimeout. */
     eBTauthFailKeyMissing,         /**< eBTauthFailKeyMissing. */
     eBTauthFailEncrypMode,         /**< eBTauthFailEncrypMode. */
@@ -110,6 +111,8 @@ typedef enum
     eBTauthFailPageTimeout,        /**< eBTauthFailPageTimeout. */
     eBTauthFailSmpPasskeyFail,     /**< eBTauthFailSmpPasskeyFail. */
     eBTauthFailSmpOobFail,         /**< eBTauthFailSmpOobFail. */
+    eBTauthFailSmpFail,            /**< eBTauthFailSmpFail. */
+    eBTauthFailConnTimeout,        /**< eBTauthFailConnTimeout. */
     eBTauthFailSmp,                /**< eBTauthFailSmp. */
     eBTauthFailSmpPairNotSupport,  /**< eBTauthFailSmpPairNotSupport. */
     eBTauthFailSmpUnknownIo,       /**< eBTauthFailSmpUnknownIo. */

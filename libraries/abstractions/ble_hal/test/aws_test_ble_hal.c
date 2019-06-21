@@ -655,6 +655,7 @@ void prvRequestExecWriteCb( uint16_t usConnId,
 void prvBondedCb( BTStatus_t xStatus,
                   BTBdaddr_t * pxRemoteBdAddr,
                   bool bIsBonded );
+BTStatus_t bleStackInit( void );
 
 static BTCallbacks_t xBTManagerCb =
 {
@@ -1729,6 +1730,14 @@ void prvDeviceStateChangedCb( BTState_t xState )
 
 void prvGroupInit()
 {
+	BTStatus_t xStatus;
+
+	xStatus = bleStackInit( );
+	if(xStatus != eBTStatusSuccess)
+	{
+		configPRINTF(("Unable to initialize BLE stask\n"));
+	}
+
     /* Initialize event group before tests. */
     ( void ) xEventGroupCreateStatic( ( StaticEventGroup_t * ) &xWaitOperationComplete );
 

@@ -1696,10 +1696,14 @@ static void prvOTAUpdateTask( void * pvUnused )
                                         }
                                     }
                                     else
-                                    { /* We're actively receiving a file so update the job status as needed. */
-                                      /* First reset the momentum counter since we received a good block. */
-                                        C->ulRequestMomentum = 0;
-                                        prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
+                                    {
+                                        if( xResult == eIngest_Result_Accepted_Continue )
+                                        {
+                                            /* We're actively receiving a file so update the job status as needed. */
+                                            /* First reset the momentum counter since we received a good block. */
+                                            C->ulRequestMomentum = 0;
+                                            prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
+                                        }
                                     }
                                 }
                             }

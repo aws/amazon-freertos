@@ -276,6 +276,15 @@ static void prvUartInit( void )
     APP_ERROR_CHECK( xErrCode );
 }
 
+/**
+ * @brief Initialize BLE stask for Nordic.
+ * On Nordic it is just a stub.
+ */
+BTStatus_t bleStackInit( void )
+{
+  return eBTStatusSuccess;
+}
+
 /*-----------------------------------------------------------*/
 
 /**@brief Function for initializing the nrf log module.
