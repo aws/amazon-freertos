@@ -41,31 +41,38 @@
 /*
  * @brief Total length of the hash in bytes.
  */
-#define _MD5_HASH_LENGTH_BYTES         ( 16 )
+#define MD5_HASH_LENGTH_BYTES                   ( 16 )
 
 /*
- * Encode Length of one byte.
+ * Encode Length of one byte for the identifier.
  */
-#define _BYTE_ENCODE_LENGTH            ( 2 )
+#define IDENTIFIER_BYTE_ENCODE_LENGTH            ( 2 )
 
 /*
- * @brief Length in bytes of each chunk used for hash computation.
+ * @brief Length in bytes of each chunk used for MD5 hash computation.
  */
-#define _MD5_CHUNK_LENGTH              ( 64 )
+#define MD5_CHUNK_LENGTH                         ( 64 )
 
-#define _MD5_MSGLEN_PADDING_LENGTH     ( 8 )
+/*
+ * @brief Number of bytes used for padding message length to input bytes.
+ */
+#define MD5_MSGLEN_PADDING_LENGTH                ( 8 )
 
-#define _MD5_BIT_PADDING_LENGTH        ( 56 )
+/*
+ * @brief The first byte of the bit padding ( Most significant bit should be 1 ).
+ */
+#define MD5_BIT_PADDING_FIRST_BYTE              ( 0x80 )
 
-#define _MD5_BIT_PADDING_FIRST_BYTE    ( 0x80 )
-
-#define _MD5_PADDED_LENGTH( length )    ( ( length + _MD5_MSGLEN_PADDING_LENGTH + _MD5_CHUNK_LENGTH ) & ~( _MD5_CHUNK_LENGTH - 1 ) )
+/*
+ * @brief Total length of the input after padding.
+ */
+#define MD5_PADDED_LENGTH( length )    ( ( length + MD5_MSGLEN_PADDING_LENGTH + MD5_CHUNK_LENGTH ) & ~( MD5_CHUNK_LENGTH - 1 ) )
 
 /*
  * @brief Length of device identifier.
  * Device identifier is represented as hex string of MD5 hash of the device certificate.
  */
-#define AWS_IOT_DEVICE_IDENTIFIER_LENGTH    ( _MD5_HASH_LENGTH_BYTES * 2 )
+#define AWS_IOT_DEVICE_IDENTIFIER_LENGTH    ( MD5_HASH_LENGTH_BYTES * 2 )
 
 /**
  * @brief Device metrics name format
@@ -176,11 +183,11 @@ void Utils_generateMD5Hash( const char * pData,
                             uint8_t * pHash,
                             size_t hashLength )
 {
-    uint8_t chunk[ _MD5_CHUNK_LENGTH ] = { 0 };
+    uint8_t chunk[ MD5_CHUNK_LENGTH ] = { 0 };
     uint32_t * pOutput = ( uint32_t * ) pHash;
     const uint32_t * pCurrent = NULL;
     size_t paddingOffset, bytesConsumed = 0;
-    size_t paddingLength, totalLength = _MD5_PADDED_LENGTH( dataLength );
+    size_t paddingLength, totalLength = MD5_PADDED_LENGTH( dataLength );
     uint64_t numBits = ( dataLength * 8 );
     bool isPadding = false;
     int i;
@@ -193,15 +200,15 @@ void Utils_generateMD5Hash( const char * pData,
     pOutput[ 2 ] = 0x98badcfe;
     pOutput[ 3 ] = 0x10325476;
 
-    configASSERT( hashLength >= _MD5_HASH_LENGTH_BYTES );
+    configASSERT( hashLength >= MD5_HASH_LENGTH_BYTES );
 
     while( bytesConsumed < totalLength )
     {
-        if( ( bytesConsumed + _MD5_CHUNK_LENGTH ) <= dataLength )
+        if( ( bytesConsumed + MD5_CHUNK_LENGTH ) <= dataLength )
         {
             pCurrent = ( uint32_t * ) pData;
-            pData += _MD5_CHUNK_LENGTH;
-            bytesConsumed += _MD5_CHUNK_LENGTH;
+            pData += MD5_CHUNK_LENGTH;
+            bytesConsumed += MD5_CHUNK_LENGTH;
         }
         else
         {
@@ -215,23 +222,23 @@ void Utils_generateMD5Hash( const char * pData,
                 paddingOffset = 0;
             }
 
-            paddingLength = ( _MD5_CHUNK_LENGTH - paddingOffset );
+            paddingLength = ( MD5_CHUNK_LENGTH - paddingOffset );
 
             if( ( paddingLength >= 1 ) && ( isPadding == false ) )
             {
-                chunk[ paddingOffset++ ] = _MD5_BIT_PADDING_FIRST_BYTE;
+                chunk[ paddingOffset++ ] = MD5_BIT_PADDING_FIRST_BYTE;
                 paddingLength--;
                 isPadding = true;
             }
 
-            if( paddingLength > _MD5_MSGLEN_PADDING_LENGTH )
+            if( paddingLength > MD5_MSGLEN_PADDING_LENGTH )
             {
-                memset( &chunk[ paddingOffset ], 0x00, ( paddingLength - _MD5_MSGLEN_PADDING_LENGTH ) );
-                paddingOffset += ( paddingLength - _MD5_MSGLEN_PADDING_LENGTH );
-                paddingLength = _MD5_MSGLEN_PADDING_LENGTH;
+                memset( &chunk[ paddingOffset ], 0x00, ( paddingLength - MD5_MSGLEN_PADDING_LENGTH ) );
+                paddingOffset += ( paddingLength - MD5_MSGLEN_PADDING_LENGTH );
+                paddingLength = MD5_MSGLEN_PADDING_LENGTH;
             }
 
-            if( paddingLength == _MD5_MSGLEN_PADDING_LENGTH )
+            if( paddingLength == MD5_MSGLEN_PADDING_LENGTH )
             {
                 chunk[ paddingOffset++ ] = ( numBits & 0xFF );
                 chunk[ paddingOffset++ ] = ( ( numBits >> 8 ) & 0xFF );
@@ -244,7 +251,7 @@ void Utils_generateMD5Hash( const char * pData,
             }
 
             pCurrent = ( uint32_t * ) chunk;
-            bytesConsumed += _MD5_CHUNK_LENGTH;
+            bytesConsumed += MD5_CHUNK_LENGTH;
         }
 
         A = pOutput[ 0 ];
@@ -344,18 +351,18 @@ static void _generateUniqueIdentifier( const char * pInput,
                                        char * pIdentifier,
                                        size_t identifierLength )
 {
-    uint8_t hash[ _MD5_HASH_LENGTH_BYTES ] = { 0 };
+    uint8_t hash[ MD5_HASH_LENGTH_BYTES ] = { 0 };
     int i;
     size_t ret;
 
-    configASSERT( identifierLength >= ( 2 * _MD5_HASH_LENGTH_BYTES ) );
-    Utils_generateMD5Hash( pInput, length, hash, _MD5_HASH_LENGTH_BYTES );
+    configASSERT( identifierLength >= ( 2 * MD5_HASH_LENGTH_BYTES ) );
+    Utils_generateMD5Hash( pInput, length, hash, MD5_HASH_LENGTH_BYTES );
 
-    for( i = 0; i < _MD5_HASH_LENGTH_BYTES; i++ )
+    for( i = 0; i < MD5_HASH_LENGTH_BYTES; i++ )
     {
-        ret = snprintf( pIdentifier, ( _BYTE_ENCODE_LENGTH + 1 ), "%02X", hash[ i ] );
+        ret = snprintf( pIdentifier, ( IDENTIFIER_BYTE_ENCODE_LENGTH + 1 ), "%02X", hash[ i ] );
         configASSERT( ret > 0 );
-        pIdentifier += _BYTE_ENCODE_LENGTH;
+        pIdentifier += IDENTIFIER_BYTE_ENCODE_LENGTH;
     }
 }
 
