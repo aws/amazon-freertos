@@ -39,7 +39,6 @@
 #include "aws_clientcredential.h"
 #include "aws_default_root_certificates.h"
 #include "aws_pkcs11.h"
-#include "aws_pkcs11_mbedtls.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "aws_test_pkcs11_config.h"
 #include "mbedtls/x509_crt.h"
@@ -1799,6 +1798,10 @@ TEST( Full_PKCS11_EC, AFQP_FindObject )
     prvFindObjectTest();
 }
 
+extern int convert_pem_to_der( const unsigned char * pucInput,
+                               size_t xLen,
+                               unsigned char * pucOutput,
+                               size_t * pxOlen);
 
 TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
 {
@@ -1825,7 +1828,7 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
     size_t xLength = sizeof( xCertificateValueExpected );
     int lConversionReturn;
 
-    lConversionReturn = PKI_ConvertPEMToDER( ( const unsigned char * ) cValidECDSACertificate,
+    lConversionReturn = convert_pem_to_der( ( const unsigned char * ) cValidECDSACertificate,
                                              sizeof( cValidECDSACertificate ),
                                              xCertificateValueExpected,
                                              &xLength );

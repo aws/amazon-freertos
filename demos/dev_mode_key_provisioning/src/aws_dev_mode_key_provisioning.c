@@ -501,12 +501,6 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
     };
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256; /* prime256v1 */
-
-    /*   CK_BYTE xValue[] = { 0x00, 0x04, 0x9e, 0xf3, 0xa6, 0x35, 0xb3,
-     *     0xee, 0xff, 0xe6, 0x70, 0x52, 0x72, 0x92, 0x10, 0xf5, 0x39, 0xbb, 0xf7, 0x52, 0xde, 0x34, 0xe1,
-     *     0xd0, 0xa1, 0x5e, 0x3e, 0xe0, 0x18, 0x64, 0xe5, 0x53, 0x1e, 0x27, 0x5e, 0xf4, 0x54, 0x76, 0x1b,
-     *     0x64, 0x2a, 0x3d, 0x1a, 0xa8, 0x2a, 0x61, 0x58, 0x47, 0x7f, 0x94, 0x6b, 0xad, 0x6c, 0x87, 0x5a,
-     *     0xa5, 0x94, 0x55, 0xa4, 0xab, 0x27, 0x4b, 0x6d, 0xd4, 0x15, 0xb1 };        */
     CK_KEY_TYPE xKeyType = CKK_EC;
 
     CK_BBOOL xTrue = CK_TRUE;
@@ -542,6 +536,12 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
+extern int convert_pem_to_der( const unsigned char * pucInput,
+                               size_t xLen,
+                               unsigned char * pucOutput,
+                               size_t * pxOlen);
+                               
+
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
                              size_t xCertificateLength,
@@ -559,7 +559,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTokenStorage = CK_TRUE;
 
     CK_BYTE xSubject[] = "TestSubject";
-
+    
 
     /* Initialize the client certificate template. */
     xCertificateTemplate.xObjectClass.type = CKA_CLASS;
@@ -598,7 +598,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
 
         if( pucDerObject != NULL )
         {
-            lConversionReturn = PKI_ConvertPEMToDER( xCertificateTemplate.xValue.pValue,
+            lConversionReturn = convert_pem_to_der( xCertificateTemplate.xValue.pValue,
                                                      xCertificateTemplate.xValue.ulValueLen,
                                                      pucDerObject,
                                                      &xDerLen );

@@ -26,15 +26,6 @@
 #ifndef _AWS_PKI_UTILS_H_
 #define _AWS_PKI_UTILS_H_
 
-int PKI_ConvertPEMToDER( const unsigned char * input,
-                         size_t ilen,
-                         unsigned char * output,
-                         size_t * olen );
-
-int PKI_RSA_RSASSA_PKCS1_v15_Encode( const unsigned char * hash,
-                                     size_t dst_len,
-                                     unsigned char * dst );
-
 
 void PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
                                             uint8_t * pxMbedSignature );

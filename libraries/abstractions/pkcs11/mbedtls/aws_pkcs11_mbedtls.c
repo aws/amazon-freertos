@@ -35,7 +35,6 @@
 #include "aws_pkcs11_config.h"
 #include "aws_crypto.h"
 #include "aws_pkcs11.h"
-#include "aws_pkcs11_mbedtls.h"
 #include "aws_pkcs11_pal.h"
 
 /* mbedTLS includes. */
