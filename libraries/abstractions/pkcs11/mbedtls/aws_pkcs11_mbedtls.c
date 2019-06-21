@@ -36,6 +36,7 @@
 #include "aws_crypto.h"
 #include "aws_pkcs11.h"
 #include "aws_pkcs11_pal.h"
+#include "aws_pki_utils.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/pk.h"
@@ -2722,57 +2723,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Converts an ECDSA signature from the format provided by mbedTLS
- * to the format expected by PKCS #11.
- *
- * For P-256 signatures, PKCS #11 expects a 64 byte signature, in the
- * format of 32 byte R component followed by 32 byte S component.
- *
- * mbedTLS provides signatures in DER encoded, zero-padded format.
- *
- * @param[out] pxSignaturePKCS            Pointer to a 64 byte buffer
- *                                        where PKCS #11 formatted signature
- *                                        will be placed.  Caller must
- *                                        allocate 64 bytes of memory.
- * @param[in] pxMbedSignature             Pointer to DER encoded ECDSA
- *                                        signature.
- *
- */
-void xMbedTLSSignatureToPkcs11Signature( CK_BYTE * pxSignaturePKCS,
-                                         uint8_t * pxMbedSignature )
-{
-    /* Reconstruct the signature in PKCS #11 format. */
-    CK_BYTE * pxNextLength;
-    uint8_t ucSigComponentLength = pxMbedSignature[ 3 ];
-
-    memset( pxSignaturePKCS, 0, 64 );
-
-    /* R Component. */
-    if( ucSigComponentLength == 33 )
-    {
-        memcpy( pxSignaturePKCS, &pxMbedSignature[ 5 ], 32 ); /* Chop off the leading zero. */
-        pxNextLength = pxMbedSignature + 5 /* Sequence, length, integer, length, leading zero */ + 32 /*(R) */ + 1 /*(S's integer tag) */;
-    }
-    else
-    {
-        memcpy( &pxSignaturePKCS[ 32 - ucSigComponentLength ], &pxMbedSignature[ 4 ], ucSigComponentLength );
-        pxNextLength = pxMbedSignature + 4 + ucSigComponentLength + 1;
-    }
-
-    /* S Component. */
-    ucSigComponentLength = pxNextLength[ 0 ];
-
-    if( ucSigComponentLength == 33 )
-    {
-        memcpy( &pxSignaturePKCS[ 32 ], &pxNextLength[ 2 ], 32 ); /* Skip leading zero. */
-    }
-    else
-    {
-        memcpy( &pxSignaturePKCS[ 64 - ucSigComponentLength ], &pxNextLength[ 1 ], ucSigComponentLength );
-    }
-}
-
-/**
  * @brief Performs a digital signature operation.
  *
  * \sa C_SignInit() initiates signatures signature creation.
@@ -2902,7 +2852,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
         /* If this an EC signature, reformat from ASN1 encoded to 64-byte R & S components */
         if( pxSessionObj->xSignMechanism == CKM_ECDSA )
         {
-            xMbedTLSSignatureToPkcs11Signature( pucSignature, ecSignature );
+            PKI_mbedTLSSignatureToPkcs11Signature( pucSignature, ecSignature );
         }
     }
 

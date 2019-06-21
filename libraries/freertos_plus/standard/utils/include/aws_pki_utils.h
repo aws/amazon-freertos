@@ -27,6 +27,23 @@
 #define _AWS_PKI_UTILS_H_
 
 
+ /**
+ * @brief Converts an ECDSA signature from the format provided by mbedTLS
+ * to the format expected by PKCS #11.
+ *
+ * For P-256 signatures, PKCS #11 expects a 64 byte signature, in the
+ * format of 32 byte R component followed by 32 byte S component.
+ *
+ * mbedTLS provides signatures in DER encoded, zero-padded format.
+ *
+ * @param[out] pxSignaturePKCS            Pointer to a 64 byte buffer
+ *                                        where PKCS #11 formatted signature
+ *                                        will be placed.  Caller must
+ *                                        allocate 64 bytes of memory.
+ * @param[in] pxMbedSignature             Pointer to DER encoded ECDSA
+ *                                        signature.
+ *
+ */
 void PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
                                             uint8_t * pxMbedSignature );
 
