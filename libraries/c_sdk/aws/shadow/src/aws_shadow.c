@@ -620,7 +620,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
                                                         pxCallbackParams->pcThingName,
                                                         thingNameLength,
                                                         0,
-                                                        &callbackInfo );
+                                                        pCallbackInfo );
     }
 
     /* Deleted callback is not supported. */
