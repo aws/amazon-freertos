@@ -472,7 +472,7 @@ void prvFindObjectTest( void )
                                             CKO_PUBLIC_KEY,
                                             &xTestObjectHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Incorrect error code finding object that doesn't exist" );
-    TEST_ASSERT_EQUAL_MESSAGE( pkcs11INVALID_OBJECT_HANDLE, xTestObjectHandle, "Incorrect error code finding object that doesn't exist" );
+    TEST_ASSERT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xTestObjectHandle, "Incorrect error code finding object that doesn't exist" );
 
     /* Destroy the private key and try to find it. */
     xCurrentCredentials = eStateUnknown;
@@ -1988,7 +1988,7 @@ static void prvFindObjectMultiThreadTask( void * pvParameters )
             break;
         }
 
-        if( ( xHandle == pkcs11INVALID_OBJECT_HANDLE ) )
+        if( ( xHandle == CK_INVALID_HANDLE ) )
         {
             configPRINTF( ( "FindObject multi-thread task failed to find private key.  Invalid object handle returned.  Count: %d \r\n", xCount ) );
             xResult = CKR_OBJECT_HANDLE_INVALID; /* Mark xResult so that test fails. */
@@ -2003,7 +2003,7 @@ static void prvFindObjectMultiThreadTask( void * pvParameters )
             break;
         }
 
-        if( ( xHandle == pkcs11INVALID_OBJECT_HANDLE ) )
+        if( ( xHandle == CK_INVALID_HANDLE ) )
         {
             configPRINTF( ( "FindObject multi-thread task failed to find certificate.  Invalid object handle returned. Count: %d \r\n", xCount ) );
             xResult = CKR_OBJECT_HANDLE_INVALID; /* Mark xResult so that test fails. */

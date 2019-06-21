@@ -673,9 +673,9 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
                                                 xClass[ uiIndex ],
                                                 &xObjectHandle );
 
-        if( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
+        if( ( xResult == CKR_OK ) && ( xObjectHandle != CK_INVALID_HANDLE ) )
         {
-            while( ( xResult == CKR_OK ) && ( xObjectHandle != pkcs11INVALID_OBJECT_HANDLE ) )
+            while( ( xResult == CKR_OK ) && ( xObjectHandle != CK_INVALID_HANDLE ) )
             {
                 xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
 

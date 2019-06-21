@@ -61,14 +61,51 @@
  */
 #define pkcs11RSA_2048_SIGNATURE_LENGTH      ( 2048 / 8 )
 
+/**
+ * @brief Length of RSA signature data before padding.
+ *
+ * This is calculated by adding the SHA-256 hash len (32) to the 19 bytes in
+ * pkcs11STUFF_APPENDED_TO_RSA_SIG = 51 bytes total.
+ */
 #define pkcs11RSA_SIGNATURE_INPUT_LENGTH     51
-
 
 /**
  * @brief Elliptic-curve object identifiers.
  * From https://tools.ietf.org/html/rfc6637#section-11.
  */
 #define pkcs11ELLIPTIC_CURVE_NISTP256    "1.2.840.10045.3.1.7"
+
+/**
+ * @brief Maximum length of storage for PKCS #11 label, in bytes.
+ */
+#define pkcs11MAX_LABEL_LENGTH           32   /* 31 characters + 1 null terminator. */
+
+/**
+ * @brief OID for curve P-256.
+ */
+#define pkcs11DER_ENCODED_OID_P256       { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
+
+/**
+ * @brief Set to 1 if importing private keys is supported.
+ *
+ * If private key import is not supported, this value should be defined 0 in aws_pkcs11_config.h
+ */
+#ifndef pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED
+    #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    1
+#endif
+
+/*
+ * DigestInfo :: = SEQUENCE{
+ *      digestAlgorithm DigestAlgorithmIdentifier,
+ *      digest Digest }
+ *
+ * DigestAlgorithmIdentifier :: = AlgorithmIdentifier
+ * Digest :: = OCTET STRING
+ *
+ * This is the DigestInfo sequence, digest algorithm, and the octet string/length
+ * for the digest, without the actual digest itself.
+ */
+#define pkcs11STUFF_APPENDED_TO_RSA_SIG    { 0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20 }
 
 /* Bring in the public header. */
 
@@ -79,16 +116,6 @@
 #endif
 
 #include "pkcs11.h"
-
-/* Key Template */
-/* The object class must be the first attribute in the array. */
-typedef struct PKCS11_KeyTemplate
-{
-    CK_ATTRIBUTE xObjectClass;
-    CK_ATTRIBUTE xKeyType;
-    CK_ATTRIBUTE xLabel;
-    CK_ATTRIBUTE xValue;
-} PKCS11_KeyTemplate_t, * PKCS11_KeyTemplatePtr_t;
 
 /* Elliptic Curve Private Key Template
  * The object class must be the first attribute in the array.
@@ -127,58 +154,21 @@ typedef struct PKCS11_PrivateRsaKeyTemplate
 /* The object class must be the first attribute in the array. */
 typedef struct PKCS11_CertificateTemplate
 {
-    CK_ATTRIBUTE xObjectClass;     /* required certificate attribute. */
-    CK_ATTRIBUTE xSubject;         /* required certificate attribute. */
-    CK_ATTRIBUTE xCertificateType; /* required certificate attribute. */
-    CK_ATTRIBUTE xValue;           /* required certificate attribute. */
-    CK_ATTRIBUTE xLabel;
-    CK_ATTRIBUTE xTokenObject;
+    CK_ATTRIBUTE xObjectClass;     /* CKA_CLASS, set to CKO_CERTIFICATE. */
+    CK_ATTRIBUTE xSubject;         /* CKA_SUBJECT, this parameter is required by the PKCS #11 standard. */
+    CK_ATTRIBUTE xCertificateType; /* CKA_CERTIFICATE_TYPE, set to CKC_X_509. */
+    CK_ATTRIBUTE xValue;           /* CKA_VALUE, the DER byte array of the certificate contents. */
+    CK_ATTRIBUTE xLabel;           /* CKA_LABEL. */
+    CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN. */
 } PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
 
-
-typedef struct PKCS11_GenerateKeyPublicTemplate
-{
-    CK_ATTRIBUTE xKeyType;
-    CK_ATTRIBUTE xEcParams;
-    CK_ATTRIBUTE xLabel;
-    CK_ATTRIBUTE xValue;
-} PKCS11_GenerateKeyPublicTemplate_t, * PKCS11_GenerateKeyPublicTemplatePtr_t;
-
-typedef struct PKCS11_GenerateKeyPrivateTemplate
-{
-    CK_ATTRIBUTE xLabel;
-} PKCS11_GenerateKeyPrivateTemplate_t, * PKCS11_GenerateKeyPrivateTemplatePtr_t;
-
-
-#define pkcs11INVALID_OBJECT_HANDLE    0
-#define pkcs11INVALID_MECHANISM        0xFFFFFFFF
-
-#define pkcs11MAX_LABEL_LENGTH         32     /* 31 characters + 1 null terminator. */
-
-#define pkcs11DER_ENCODED_OID_P256     { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
-
-/**
- * @brief Set to 1 if importing private keys is supported.
- *
- * If private key import is not supported, this value should be defined 0 in aws_pkcs11_config.h
- */
-#ifndef pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED
-    #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    1
-#endif
-
 /*
- * DigestInfo :: = SEQUENCE{
- *      digestAlgorithm DigestAlgorithmIdentifier,
- *      digest Digest }
+ * @brief Initializes a PKCS #11 session.
  *
- * DigestAlgorithmIdentifier :: = AlgorithmIdentifier
- * Digest :: = OCTET STRING
- *
- * This is the DigestInfo sequence, digest algorithm, and the octet string/length
- * for the digest, without the actual digest itself.
+ * @return CKR_OK if successful.
+ * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
+ * for more information.
  */
-#define pkcs11STUFF_APPENDED_TO_RSA_SIG    { 0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03, 0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20 }
-
 CK_RV xInitializePKCS11( void );
 
 /**

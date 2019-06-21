@@ -495,7 +495,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                             CKO_PRIVATE_KEY,
                                             &pxCtx->xP11PrivateKey );
 
-    if( pxCtx->xP11PrivateKey == pkcs11INVALID_OBJECT_HANDLE )
+    if( pxCtx->xP11PrivateKey == CK_INVALID_HANDLE )
     {
         TLS_PRINT( ( "ERROR: Private key not found. " ) );
     }
@@ -547,7 +547,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                                 &xCertObj );
     }
 
-    if( xCertObj == pkcs11INVALID_OBJECT_HANDLE )
+    if( xCertObj == CK_INVALID_HANDLE )
     {
         TLS_PRINT( ( "No device certificate found." ) );
     }

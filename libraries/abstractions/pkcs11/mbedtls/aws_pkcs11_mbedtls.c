@@ -2864,7 +2864,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     /* Complete the operation in the context. */
     if( xResult != CKR_BUFFER_TOO_SMALL )
     {
-        pxSessionObj->xSignMechanism = pkcs11INVALID_MECHANISM;
+        pxSessionObj->xSignMechanism = pkcs11NO_OPERATION;
     }
 
     return xResult;
