@@ -242,7 +242,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * - Content-Length:
  *
  * @param[in] reqHandle - HTTPS request to write the header line to.
- * @param[in] pName - String header field name to write. THis is NULL terminated.
+ * @param[in] pName - String header field name to write. This is NULL terminated.
  * @param[in] pValue - https header value buffer pointer. Do not include token name.
  * @param[in] len - length of header value to write.
  * 
@@ -286,7 +286,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * @param[in] isComplete - This parameter is ignored for HTTP/1.1. This parameter is for future support of HTTP/2 or
  *                         transfer-encoding chunked.
  *                         If this is set to 0, then the writeCallback will be invoked again after the data
- *                         in buf is written to the network.
+ *                         in pBuf is written to the network.
  *                         If this is set to 1, then the request body is complete.
  *
  * @return - #IOT_HTTPS_OK if write successfully, failure code otherwise.
@@ -587,7 +587,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
  * @brief Read the HTTPS response body from the network.
  * 
  * This is intended to be used an asynchronous response, this is to be invoked during the 
- * #IotHttpsClientCallbacks_t.readReadyCallback to read data directly from the network into buf.
+ * #IotHttpsClientCallbacks_t.readReadyCallback to read data directly from the network into pBuf.
  * <b> Example Asynchronous Code </b>
  * @code{c}
  * void applicationDefined_readReadyCallback(void * pPrivData, IotHttpsRequestHandle_t handle, IotHttpsReturnCode_t rc, uint16_t status)

@@ -168,36 +168,358 @@ const uint32_t connectionUserBufferMinimumSize = sizeof(_httpsConnection_t);
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnMessageBeginCallback(http_parser * httpParser);
-static int _httpParserOnStatusCallback(http_parser * httpParser, const char * loc, size_t length);
-static int _httpParserOnHeaderFieldCallback(http_parser * httpParser, const char * loc, size_t length);
-static int _httpParserOnHeaderValueCallback(http_parser * httpParser, const char * loc, size_t length);
-static int _httpParserOnHeadersCompleteCallback(http_parser * httpParser);
-static int _httpParserOnBodyCallback(http_parser * httpParser, const char * loc, size_t length);
-static int _httpParserOnMessageCompleteCallback(http_parser * httpParser);
-static int _httpParserOnChunkHeaderCallback(http_parser * httpParser);
-static int _httpParserOnChunkCompleteCallback(http_parser * httpParser);
-static void IotHttpsClient_ReceiveCallback( void* pNetworkConnection, void* pReceiveContext );
+/**
+ * @brief Callback for http-parser to indicate the start of the HTTP response message is reached.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_message_begin.
+ */
+static int _httpParserOnMessageBeginCallback(http_parser * pHttpParser);
+
+/**
+ * @brief Callback for http-parser to indicate it found the HTTP response status code.
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * @param[in] pLoc - Pointer to the HTTP response status code string in the response message buffer.
+ * @param[in] length - The length of the HTTP response status code string.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_status.
+ */
+static int _httpParserOnStatusCallback(http_parser * pHttpParser, const char * pLoc, size_t length);
+
+/**
+ * @brief Callback for http-parser to indicate it found an HTTP response header field.
+ * 
+ * If only part of the header field was returned here in this callback, then this callback will be invoked again the
+ * next time the parser executes on the next part of the header field.
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * @param[in] pLoc - Pointer to the header field string in the response message buffer.
+ * @param[in] length - The length of the header field.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_header_field.
+ */
+static int _httpParserOnHeaderFieldCallback(http_parser * pHttpParser, const char * pLoc, size_t length);
+
+/**
+ * @brief Callback for http-parser to indicate it found an HTTP response header value.
+ * 
+ * This value corresponds to the field that was found in the _httpParserOnHeaderFieldCallback() called immediately 
+ * before this callback was called.
+ * 
+ * If only part of the header value was returned here in this callback, then this callback will be invoked again the
+ * next time the parser executes on the next part of the header value.
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * @param[in] pLoc - Pointer to the header value string in the response message buffer.
+ * @param[in] length - The length of the header value.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_header_value.
+ */
+static int _httpParserOnHeaderValueCallback(http_parser * pHttpParser, const char * pLoc, size_t length);
+
+/**
+ * @brief Callback for http-parser to indicate it reached the end of the headers in the HTTP response messsage.
+ * 
+ * The end of the headers is signalled in a HTTP response message by another "\r\n" after the final header line.
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_headers_complete.
+ */
+static int _httpParserOnHeadersCompleteCallback(http_parser * pHttpParser);
+
+/**
+ * @brief Callback for http-parser to indicate it found HTTP response body.
+ * 
+ * This callback will be invoked multiple times if there response body is of "Transfer-Encoding: chunked". 
+ * _httpParserOnChunkHeaderCallback() will be invoked first, then _httpParserOnBodyCallback(), then 
+ * _httpParserOnChunkCompleteCallback(), then repeated back to _httpParserOnChunkHeaderCallback() if there are more
+ * "chunks".
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * @param[in] pLoc - Pointer to the body string in the response message buffer.
+ * @param[in] length - The length of the body found.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_body.
+ */
+static int _httpParserOnBodyCallback(http_parser * pHttpParser, const char * pLoc, size_t length);
+
+/**
+ * @brief Callback for http-parser to indicate it reached the end of the HTTP response messsage.
+ * 
+ * The end of the message is signalled in a HTTP response message by another "\r\n" after the final header line, with no
+ * entity body; or it is signally by "\r\n" at the end of the entity body.
+ * 
+ * For a Transfer-Encoding: chunked type of response message, the end of the message is signalled by a terminating 
+ * chunk header with length zero.
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_message_complete.
+ */
+static int _httpParserOnMessageCompleteCallback(http_parser * pHttpParser);
+
+/* To save code space we do not compile in this code that just prints debugging. */
+#if (LIBRARY_LOG_LEVEL == IOT_LOG_DEBUG)
+/**
+ * @brief Callback for http-parser to indicate it found an HTTP Transfer-Encoding: chunked header.
+ * 
+ * Transfer-Encoding: chunked headers are embedded in the HTTP response entity body by a "\r\n" followed by the size of
+ * the chunk followed by another "\r\n".
+ * 
+ * If only part of the header field was returned here in this callback, then this callback will be invoked again the
+ * next time the parser executes on the next part of the header field.
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_chunk_header.
+ */
+static int _httpParserOnChunkHeaderCallback(http_parser * pHttpParser);
+
+/**
+ * @brief Callback for http-parser to indicate it reached the end of an HTTP response messsage "chunk".
+ * 
+ * A chunk is complete when the chunk header size is read fully in the body.
+ * 
+ * See https://github.com/nodejs/http-parser for more information.
+ * 
+ * @param[in] pHttpParser - http-parser state structure.
+ * 
+ * @return 0 to tell http-parser to keep parsing.
+ *         1 to tell http-parser than parsing should stop return from http_parser_execute with error HPE_CB_chunk_complete.
+ */
+static int _httpParserOnChunkCompleteCallback(http_parser * pHttpParser);
+#endif
+
+/**
+ * @brief Network receive callback for the HTTPS Client library.
+ * 
+ * This function is called by the network abstraction whenever data is available for the HTTP library.
+ * 
+ * @param[in] pNetworkConnection - The network connection with the HTTPS connection, pass by the network stack.
+ * @param[in] pReceiveContext - A pointer to the HTTPS Client connection handle for which the packet was received.
+ */
+static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveContext );
+
+/**
+ * @brief Connects to HTTPS server and initializes the connection context.
+ * 
+ * @param[out] pConnHandle - Handle returned representing the open connection.
+ * @param[in] pConnConfig - The connection configuration.
+ * 
+ * @return #IOT_HTTPS_OK if the connection was successful and so was initializing the context.
+ *         #IOT_HTTPS_CONNECTION_ERROR if the connection failed.
+ *         #IOT_HTTPS_INTERNAL_ERROR if the context failed to initialize.
+ */
 static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pConnHandle, IotHttpsConnectionInfo_t *pConnConfig);
+
+/**
+ * @brief Disconnects from the network.
+ * 
+ * @param[in] _httpsConnection - HTTPS connection handle.
+ * 
+ * @return #IOT_HTTPS_OK of the disconnect was successful.
+ *         #IOT_HTTPS_NETWORK_ERROR if the disconnect failed.
+ */
 static IotHttpsReturnCode_t _networkDisconnect(_httpsConnection_t* _httpsConnection);
+
+/**
+ * @brief Add a header to the current HTTP request.
+ * 
+ * The headers are stored in reqHandle->pHeaders.
+ * 
+ * @param[in] reqHandle - HTTP request context.
+ * @param[in] pName - The name of the header to add. This is a NULL terminated string.
+ * @param[in] pValue - The buffer to value string.
+ * @param[in] len - The length of the header value string.
+ * 
+ * @return #IOT_HTTPS_OK if the header was added to the request successfully.
+ *         #IOT_HTTPS_INSUFFICIENT_MEMORY if there was not room in the IotHttpsRequestHandle_t->pHeaders.
+ *         #IOT_HTTPS_INTERNAL_ERROR if snprintf() failed to write to IotHttpsRequestHandle_t->pHeadersCur.
+ */
 static IotHttpsReturnCode_t _addHeader(IotHttpsRequestHandle_t reqHandle, const char * pName, const char * pValue, uint32_t len );
-static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* _httpsConnection, uint8_t * buf, size_t len);
-static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* _httpsConnection, uint8_t * buf, size_t bufLen);
-static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* _httpsConnection, uint8_t* headersBuf, uint32_t headersLength, bool isNonPersistent, uint32_t contentLength);
-static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t* _httpsConnection, uint8_t* bodyBuf, uint32_t bodyLength);
-static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* buf, size_t len);
+
+/**
+ * @brief Send data on the network.
+ * 
+ * @param[in] _httpsConnection - HTTP connection context.
+ * @param[in] pBuf - Buffer of data to send.
+ * @param[in] len - The length of the data to send.
+ * 
+ * @return #IOT_HTTPS_OK if the data sent successfully.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
+ */
+static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* _httpsConnection, uint8_t * pBuf, size_t len);
+
+/**
+ * @brief Receive data on the network.
+ * 
+ * @param[in] _httpsConnection - HTTP connection context.
+ * @param[in] pBuf - Buffer of data to receive into.
+ * @param[in] len - The length of the data to receive.
+ * 
+ * @return #IOT_HTTPS_OK if the data was received successfully.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
+ *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
+ */
+static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* _httpsConnection, uint8_t * pBuf, size_t bufLen);
+
+/**
+ * @brief Send all of the HTTP request headers in the pHeadersBuf and the final Content-Length and Connection headers.
+ * 
+ * All of the headers in headerbuf are sent first followed by the computed content length and persistent connection 
+ * indication.
+ * 
+ * @param[in] _httpsConnection - HTTP connection context.
+ * @param[in] pHeadersBuf - Buffer of the request headers to send.
+ * @param[in] headersLength - The length of the request headers to send.
+ * @param[in] isNonPersistent - Indicator of whether the connection is persistent or not.
+ * @param[in] contentLength - The length of the request body.
+ * 
+ * @return #IOT_HTTPS_OK if the headers were fully sent successfully.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
+ *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
+ */
+static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* _httpsConnection, uint8_t* pHeadersBuf, uint32_t headersLength, bool isNonPersistent, uint32_t contentLength);
+
+/**
+ * @brief Send all of the HTTP request body in pBodyBuf.
+ * 
+ * @param[in] _httpsConnection - HTTP connection context.
+ * @param[in] pBodyBuf - Buffer of the request body to send.
+ * @param[in] bodyLength - The length of the body to send.
+ * 
+ * @return #IOT_HTTPS_OK if the body was fully sent successfully.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
+ *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
+ */
+static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t* _httpsConnection, uint8_t* pBodyBuf, uint32_t bodyLength);
+
+/**
+ * @brief Parse the HTTP response message in pBuf.
+ * 
+ * @param[in] pHttpParser - Pointer to the instance of the http-parser.
+ * @param[in] pBuf - The buffer of data to parse.
+ * @param[in] len - The length of data to parse.
+ * 
+ * @return #IOT_HTTPS_OK if the data was parsed successfully.
+ *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the data.
+ */
+static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* pBuf, size_t len);
+
+/**
+ * @brief Receive any part of an HTTP response.
+ * 
+ * This function is used for both receiving the body into the body buffer and receiving the header into the header 
+ * buffer.
+ * 
+ * @param[in] _httpsConnection - HTTP Connection context.
+ * @param[in] parser - Pointer to the instance of the http-parser.
+ * @param[in] pCurrentParserState - The current state of what has been parsed in the HTTP response.
+ * @param[in] finalParserState - The final state of the parser expected after this function finishes.
+ * @param[in] pBuf - Pointer to the buffer to receive the HTTP response into.
+ * @param[in] pBufCur - Pointer to the next location to write data into the buffer pBuf. This is double pointer to update the response context buffer pointers.
+ * @param[in] pBufEnd - Pointer to the end of the buffer to receive the HTTP response into.
+ * @param[out] pNetworkStatus - The network status will be returned here. The network status can be any of the return values from _networkRecv().
+ * 
+ * @return #IOT_HTTPS_OK if we received the HTTP response message part successfully.
+ *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the data.
+ */
 static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* _httpsConnection, 
                                                   http_parser* parser,
-                                                  IotHttpsResponseParserState_t *currentParserState,
+                                                  IotHttpsResponseParserState_t *pCurrentParserState,
                                                   IotHttpsResponseParserState_t finalParserState, 
-                                                  uint8_t** buf,
-                                                  uint8_t** bufCur,
-                                                  uint8_t** bufEnd,
-                                                  IotHttpsReturnCode_t *networkStatus);
-static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *networkStatus);
-static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *networkStatus);
+                                                  uint8_t** pBuf,
+                                                  uint8_t** pBufCur,
+                                                  uint8_t** pBufEnd,
+                                                  IotHttpsReturnCode_t *pNetworkStatus);
+
+/**
+ * @brief Receive the HTTP response headers.
+ * 
+ * This function will set the Content-Length in the response context if it is found in the headers received.
+ * Receiving the response headers is always the first step in receiving the response, therefore the 
+ * _httpsResponse->httpParser will be initialized to a starting state when this function is called.
+ * 
+ * This function sets internal states to indicate that the header buffer is being processed now for a new response.
+ * 
+ * @param[in] _httpsConnection - HTTP connection context.
+ * @param[in] _httpsResponse - HTTP response context.
+ * @param[out] pNetworkStatus - The network status will be returned here. The network status can be any of the return values from _networkRecv().
+ * 
+ * @return #IOT_HTTPS_OK if we received the HTTP headers successfully.
+ *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the header buffer.
+ */
+static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *pNetworkStatus);
+
+/**
+ * @brief Receive the HTTP response body.
+ * 
+ * Sets internal states to indicate that the the body buffer is being processed now for a new response.
+ * 
+ * @param[in] _httpsConnection - HTTP connection context.
+ * @param[in] _httpsResponse - HTTP response context.
+ * @param[out] pNetworkStatus - The network status will be returned here. The network status can be any of the return values from _networkRecv().
+ * 
+ * @return #IOT_HTTPS_OK if we received the HTTP body successfully.
+ *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the body buffer.
+ */
+static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *pNetworkStatus);
+
+/**
+ * @brief Read the rest of any HTTP response that may be on the network.
+ * 
+ * This reads the rest of any left over response data that might still be on the network buffers. We do not want this
+ * data left over because it will spill into the header and body buffers of next response that we try to receive. 
+ * 
+ * If we performed a request without a body and the headers received exceeds the size of the 
+ * _httpResponse->pHeaders buffer, then we need to flush the network buffer.
+ * 
+ * If the application configured the body buffer as null in IotHttpsResponseInfo_t.syncInfo.respData and the server 
+ * sends body in the response, but it exceeds the size of  _httpResponse->pHeaders buffer, then we need to flush the 
+ * network buffer.
+ * 
+ * If the amount of body received on the network does not fit into a non-null IotHttpsResponseInfo_t.syncInfo.respData, 
+ * then we need to flush the network buffer.
+ * 
+ * If an asynchronous request cancels in the middle of a response process, after already sending the request message, 
+ * then we need to flush the network buffer.
+ * 
+ * @param[in] _httpsConnection - HTTP connection context.
+ * @param[in] _httpsResponse - HTTP response context.
+ */
 static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse );
-static void _IotHttps_ReceiveResponseAsync( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext );
+
+/**
+ * @brief Routine to perform the asynchronous request/response process.
+ * 
+ * TODO: Need to update for new asynchronous workflow.
+ */
+static void _receiveResponseAsync( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext );
 
 /*-----------------------------------------------------------*/
 
@@ -220,42 +542,49 @@ static http_parser_settings _httpParserSettings = { 0 };
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnMessageBeginCallback(http_parser * httpParser)
+static int _httpParserOnMessageBeginCallback(http_parser * pHttpParser)
 {
     IotLogDebug("Parser: Start of HTTPS Response message.");
-    _httpsResponse_t *_httpsResponse = (_httpsResponse_t*)(httpParser->data);
+    _httpsResponse_t *_httpsResponse = (_httpsResponse_t*)(pHttpParser->data);
+    /* Set the state of the parser. The headers are at the start of the message always. */
     _httpsResponse->parserState = PARSER_STATE_IN_HEADERS;
     return 0;
 }
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnStatusCallback(http_parser * httpParser, const char * loc, size_t length)
+static int _httpParserOnStatusCallback(http_parser * pHttpParser, const char * pLoc, size_t length)
 {
-    _httpsResponse_t *_httpsResponse = (_httpsResponse_t*)(httpParser->data);
-    IotLogDebug("Parser: Status %.*s retrieved from HTTPS response.", length, loc);
-    /* We need to save the status. */
-    _httpsResponse->status = httpParser->status_code;
+    _httpsResponse_t *_httpsResponse = (_httpsResponse_t*)(pHttpParser->data);
+    IotLogDebug("Parser: Status %.*s retrieved from HTTPS response.", length, pLoc);
+    /* Save the status code so it can be retrieved with IotHttpsClient_ReadResponseStatus(). */
+    _httpsResponse->status = pHttpParser->status_code;
+    /* If we are parsing the network data received in the header buffer then we can increment 
+      _httpsResponse->pHeadersCur. The status line in the response is part of the data stored in
+      _httpResponse->pHeaders. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
-        _httpsResponse->pHeadersCur = (uint8_t*)loc += length;
+        _httpsResponse->pHeadersCur = (uint8_t*)pLoc += length;
     }
     return 0;
 }
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnHeaderFieldCallback(http_parser * httpParser, const char * loc, size_t length)
+static int _httpParserOnHeaderFieldCallback(http_parser * pHttpParser, const char * pLoc, size_t length)
 {
-    IotLogDebug("Parser: HTTPS header field parsed %.*s", length, loc);
-    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(httpParser->data);
+    IotLogDebug("Parser: HTTPS header field parsed %.*s", length, pLoc);
+    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(pHttpParser->data);
+    /* If we are parsing the network data received in the header buffer then we can increment 
+      _httpsResponse->pHeadersCur. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
-        _httpsResponse->pHeadersCur = (uint8_t*)(loc) += length;
+        _httpsResponse->pHeadersCur = (uint8_t*)(pLoc) += length;
     }
+    /* If the IotHttpsClient_ReadHeader() was called, then we check for the header field of interest. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_SEARCHING_HEADER_BUFFER)
     {
-        if(strncmp(_httpsResponse->pReadHeaderField, loc, length) == 0)
+        if(strncmp(_httpsResponse->pReadHeaderField, pLoc, length) == 0)
         {
             _httpsResponse->foundHeaderField = true;   
         }
@@ -265,19 +594,23 @@ static int _httpParserOnHeaderFieldCallback(http_parser * httpParser, const char
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnHeaderValueCallback(http_parser * httpParser, const char * loc, size_t length)
+static int _httpParserOnHeaderValueCallback(http_parser * pHttpParser, const char * pLoc, size_t length)
 {
-    IotLogDebug("Parser: HTTPS header value parsed %.*s", length, loc);
-    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(httpParser->data);
+    IotLogDebug("Parser: HTTPS header value parsed %.*s", length, pLoc);
+    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(pHttpParser->data);
+    /* If we are parsing the network data received in the header buffer then we can increment 
+      _httpsResponse->pHeadersCur. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
-        _httpsResponse->pHeadersCur = (uint8_t*)(loc) += length;
+        _httpsResponse->pHeadersCur = (uint8_t*)(pLoc) += length;
     }
+
+    /* If the IotHttpsClient_ReadHeader() was called, then we check if we found the header field of interest. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_SEARCHING_HEADER_BUFFER)
     {
         if(_httpsResponse->foundHeaderField)
         {
-            _httpsResponse->pReadHeaderValue = ( uint8_t* )( loc );
+            _httpsResponse->pReadHeaderValue = ( uint8_t* )( pLoc );
             _httpsResponse->readHeaderValueLength = length;
             /* We found a header field so we don't want to keep parsing.*/
             return 1;
@@ -288,19 +621,20 @@ static int _httpParserOnHeaderValueCallback(http_parser * httpParser, const char
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnHeadersCompleteCallback(http_parser * httpParser)
+static int _httpParserOnHeadersCompleteCallback(http_parser * pHttpParser)
 {
-    IotLogDebug("Parser: End of the headers reached in the httpParser.");
-    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(httpParser->data);
+    IotLogDebug("Parser: End of the headers reached in the pHttpParser.");
+    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(pHttpParser->data);
     _httpsResponse->parserState = PARSER_STATE_HEADERS_COMPLETE;
 
-    /* In the header search state we return after finishing looking through all of the headers. */
+    /* If the IotHttpsClient_ReadHeader() was called, we return after finishing looking through all of the headers. 
+       Returning a non-zero value exists the http parsing. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_SEARCHING_HEADER_BUFFER)
     {
         return 1;
     }
 
-    /* When here the headerCur pointer is at the "\r" following the last header value. HTTP/1.1
+    /* When in this callback the pheaderCur pointer is at the first "\r" in the last header line. HTTP/1.1
        headers end with another "\r\n" at the end of the last line. This means we must increment
        the headerCur pointer to the length of "\r\n\r\n". */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
@@ -308,11 +642,12 @@ static int _httpParserOnHeadersCompleteCallback(http_parser * httpParser)
         _httpsResponse->pHeadersCur += strlen("\r\n\r\n");
     }
 
-    /* content_length will be zero if no Content-Length header. */
-    _httpsResponse->contentLength = httpParser->content_length;
+    /* content_length will be zero if no Content-Length header found by the parser. */
+    _httpsResponse->contentLength = pHttpParser->content_length;
 
-    /* For a HEAD method, there is not body expected in the response, so we return 1 to skip body parsing. 
-       Also if it was configured to ignore the HTTPS response body then also stop the body parsing. */
+    /* For a HEAD method, there is no body expected in the response, so we return 1 to skip body parsing. 
+       Also if it was configured in a synchronous response to ignore the HTTPS response body then also stop the body 
+       parsing. */
     if(_httpsResponse->method == IOT_HTTPS_METHOD_HEAD || (_httpsResponse->isAsync == false && _httpsResponse->pBody == NULL))
     {
         return 1;
@@ -322,30 +657,25 @@ static int _httpParserOnHeadersCompleteCallback(http_parser * httpParser)
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnBodyCallback(http_parser * httpParser, const char * loc, size_t length)
+static int _httpParserOnBodyCallback(http_parser * pHttpParser, const char * pLoc, size_t length)
 {
     IotLogDebug("Parser: Reached the HTTPS message body. It is of length: %d", length);
-    /* Even when there is a chunk, we want to write the body directly to the response data 
-    location specified.
-     */
-    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(httpParser->data);
+
+    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(pHttpParser->data);
     _httpsResponse->parserState = PARSER_STATE_IN_BODY;
 
     if((_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER) && (_httpsResponse->isAsync))
     {
-        /* TODO: We may receive multiple chunks in the header buffer, in which case this callback should be invoked
-           more than once for the remainder of the header buffer. So we do not want top stop processing but instead
-           increment the length and update the location only the first occurence. */
         /* For an asynchronous response, the buffer to store the body will be available after the headers 
         * are read first. We may receive part of the body in the header buffer. We will want to leave this
         * and copy it over when the body buffer is available.
         */
         if( _httpsResponse->pBodyStartInHeaderBuf == NULL )
         {
-            _httpsResponse->pBodyStartInHeaderBuf = ( uint8_t* )( loc );
+            _httpsResponse->pBodyStartInHeaderBuf = ( uint8_t* )( pLoc );
         }
         _httpsResponse->bodyLengthInHeaderBuf += (uint32_t)length;
-        /* Do not process anymore body that is inside the header buffer. */
+        /* All of the activities from getting part a body in the header buffer are done, so return. */
         return 0;
     }
 
@@ -354,9 +684,9 @@ static int _httpParserOnBodyCallback(http_parser * httpParser, const char * loc,
     /* Only copy the data if the current location is not the bodyCur. */
     if((_httpsResponse->pBodyCur != NULL) && (_httpsResponse->pBodyEnd - _httpsResponse->pBodyCur > 0))
     {
-        if(_httpsResponse->pBodyCur != loc)
+        if(_httpsResponse->pBodyCur != pLoc)
         {
-            memcpy(_httpsResponse->pBodyCur, loc, length);
+            memcpy(_httpsResponse->pBodyCur, pLoc, length);
         }
         _httpsResponse->pBodyCur += length;
     }
@@ -365,41 +695,41 @@ static int _httpParserOnBodyCallback(http_parser * httpParser, const char * loc,
 
 /*-----------------------------------------------------------*/
 
-static int _httpParserOnMessageCompleteCallback(http_parser * httpParser)
+static int _httpParserOnMessageCompleteCallback(http_parser * pHttpParser)
 {
     IotLogDebug("Parser: End of the HTTPS message reached.");
-    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(httpParser->data);
+    _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(pHttpParser->data);
     _httpsResponse->parserState = PARSER_STATE_BODY_COMPLETE;
 
-    /* When this callback is reached the parser does not continue even if the length of buffer passed in is 
-       larger than the message. */
+    /* When this callback is reached the end of the HTTP message is indicated. If the length of buffer passed in is 
+       larger than the message, then http_parser_execute will return either HPE_CLOSED_CONNECTION or 
+       HPE_INVALID_CONSTANT. */
     return 0;
 }
 
 /*-----------------------------------------------------------*/
 
-/* Callback used for https-parser library when the message transfer encoding type is "chunked".
-   This callback is called when the parser comes across the start of a chunk in the message body.
-   The start of a chunk is denoted by the chunk size followed by \r\n. */
-static int _httpParserOnChunkHeaderCallback(http_parser * httpParser)
+/* To save code space we do not compile in this code that just prints debugging. */
+#if (LIBRARY_LOG_LEVEL == IOT_LOG_DEBUG)
+static int _httpParserOnChunkHeaderCallback(http_parser * pHttpParser)
 {
     IotLogDebug("Parser: HTTPS message Chunked encoding header callback.");
-    IotLogDebug( "Parser: HTTPS message Chunk size: %d", httpParser->content_length );
+    IotLogDebug( "Parser: HTTPS message Chunk size: %d", pHttpParser->content_length );
     return 0;
 }
 
 /*-----------------------------------------------------------*/
 
-/* Callback used when a chunk is complete. The end of a chunk is denoted by \r\n. */
-static int _httpParserOnChunkCompleteCallback(http_parser * httpParser)
+static int _httpParserOnChunkCompleteCallback(http_parser * pHttpParser)
 {
     IotLogDebug("End of a HTTPS message Chunk complete callback.");
     return 0;
 }
+#endif
 
 /*-----------------------------------------------------------*/
 
-static void IotHttpsClient_ReceiveCallback( void* pNetworkConnection, void* pReceiveContext )
+static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveContext )
 {
     _httpsConnection_t* _httpsConnection = ( _httpsConnection_t* )pReceiveContext;
     /* Post that any thread in the connection can read on the socket. */
@@ -412,6 +742,7 @@ static void IotHttpsClient_ReceiveCallback( void* pNetworkConnection, void* pRec
 
 IotHttpsReturnCode_t IotHttpsClient_Init( void )
 {
+    http_parser_settings_init( &_httpParserSettings );
     _httpParserSettings.on_message_begin = _httpParserOnMessageBeginCallback;
     _httpParserSettings.on_status = _httpParserOnStatusCallback;
     _httpParserSettings.on_header_field = _httpParserOnHeaderFieldCallback;
@@ -419,8 +750,11 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
     _httpParserSettings.on_headers_complete = _httpParserOnHeadersCompleteCallback;
     _httpParserSettings.on_body = _httpParserOnBodyCallback;
     _httpParserSettings.on_message_complete = _httpParserOnMessageCompleteCallback;
+/* To save code space we do not compile in this code that just prints debugging. */
+#if (LIBRARY_LOG_LEVEL == IOT_LOG_DEBUG)
     _httpParserSettings.on_chunk_header = _httpParserOnChunkHeaderCallback;
     _httpParserSettings.on_chunk_complete = _httpParserOnChunkCompleteCallback;
+#endif
 
     return IOT_HTTPS_OK;
 }
@@ -436,7 +770,14 @@ void IotHttpsClient_Deinit( void )
 
 static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pConnHandle, IotHttpsConnectionInfo_t *pConnConfig)
 {
+    IOT_FUNCTION_ENTRY(IotHttpsReturnCode_t, IOT_HTTPS_OK);
+
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
+    char *pAlpnProtos = NULL;
+    char * pHostName = NULL;
+    bool connSemCreated = false;
+    bool rxStartSemCreated = false;
+    bool rxFinishedSemCreated = false;
 
     /* Set the internal connection context to the start of the user buffer. */
     _httpsConnection_t *_httpsConnection = (_httpsConnection_t *)((*pConnConfig).userBuffer.pBuffer);
@@ -471,11 +812,16 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
        some JSON string or other buffer, we should be able to pointer directly to that (possible const) buffer and provide 
        a length in that buffer instead of allocating memory simply for a NULL terminated string.
       */
-    char * pHostName = ( char* )malloc( (size_t)(pConnConfig->addressLen) + 1);
+    pHostName = ( char* )malloc( (size_t)(pConnConfig->addressLen) + 1);
     if( pHostName != NULL )
     {
         memcpy( pHostName, pConnConfig->pAddress, pConnConfig->addressLen );
         pHostName[pConnConfig->addressLen] = '\0';
+    }
+    else
+    {
+        IotLogError("Failed to allocate memory for the NULL terminated host name.");
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
     }
 
     IotNetworkServerInfo_t networkServerInfo = {
@@ -497,14 +843,27 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
             networkCredentials.disableSni = false;
         }
 
-        char *pAlpnProtos = ( char* )malloc( ( size_t )( pConnConfig->alpnProtocolsLen ) + 1 );
+        
         if( pConnConfig->pAlpnProtocols != NULL )
         {
-            memcpy( pAlpnProtos, pConnConfig->pAlpnProtocols, pConnConfig->alpnProtocolsLen );
+            pAlpnProtos = ( char* )malloc( ( size_t )( pConnConfig->alpnProtocolsLen ) + 1 );
+            if(pAlpnProtos != NULL)
+            {
+                memcpy( pAlpnProtos, pConnConfig->pAlpnProtocols, pConnConfig->alpnProtocolsLen );
+                pAlpnProtos[pConnConfig->alpnProtocolsLen] = '\0';
+            }
+            else
+            {
+                IotLogError("Failed to allocate memory for the NULL terminated alpn protocls string.");
+                IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
+            }
+            networkCredentials.pAlpnProtos = pAlpnProtos;
         }
-        pAlpnProtos[pConnConfig->alpnProtocolsLen] = '\0';
-        networkCredentials.pAlpnProtos = pAlpnProtos;
-  
+        else
+        {
+            networkCredentials.pAlpnProtos = NULL;
+        }
+
         networkCredentials.pRootCa = pConnConfig->pCaCert;
         networkCredentials.rootCaSize = pConnConfig->caCertLen;
         networkCredentials.pClientCert = pConnConfig->pClientCert;
@@ -516,24 +875,12 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
         networkStatus = _httpsConnection->pNetworkInterface->create( &networkServerInfo,
             &networkCredentials,
             &( _httpsConnection->pNetworkConnection ) );
-        
-        /* if memory allocation for the alpn protocols succeeded then free that memory. */
-        if( pConnConfig->pAlpnProtocols != NULL )
-        {
-            free( pAlpnProtos );
-        }
     }
     else
     {
         networkStatus = _httpsConnection->pNetworkInterface->create( &networkServerInfo,
             NULL,
             &( _httpsConnection->pNetworkConnection ) );
-    }
-
-    /* If memory allocation for the NULL terminated host name succeeded, then free that memory. */
-    if( pHostName != NULL )
-    {
-        free( pHostName );
     }
 
     /* Check to see if the network connection succeeded. If we did not succeed then the connHandle
@@ -545,18 +892,18 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
             pConnConfig->pAddress,
             pConnConfig->port,
             networkStatus );
-        return IOT_HTTPS_CONNECTION_ERROR;
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_CONNECTION_ERROR);
     }
 
     /* The recieve callback tells the task context handling the request/response that the network
        is ready to read from. */
     networkStatus = _httpsConnection->pNetworkInterface->setReceiveCallback( _httpsConnection->pNetworkConnection,
-        IotHttpsClient_ReceiveCallback,
+        _networkReceiveCallback,
         _httpsConnection );
     if( networkStatus != IOT_NETWORK_SUCCESS )
     {
         IotLogError( "Failed to connect to set the HTTPS receive callback. " );
-        return IOT_HTTPS_INTERNAL_ERROR;
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
     }
 
     /* Connection was successful, so create semaphores. */
@@ -565,7 +912,11 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
     if( IotSemaphore_Create( &( _httpsConnection->connSem ), 1, 1 ) == false )
     {
         IotLogError("Failed to create an internal connection semaphore.");
-        return IOT_HTTPS_INTERNAL_ERROR;
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
+    }
+    else
+    {
+        connSemCreated = true;
     }
 
     /* The reading start semaphore is initialized to 0 so that the network context can
@@ -573,7 +924,11 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
     if( IotSemaphore_Create( &( _httpsConnection->rxStartSem ), 0, 1 ) == false )
     {
         IotLogError( "Failed to create an internal connection semaphore." );
-        return IOT_HTTPS_INTERNAL_ERROR;
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
+    }
+    else
+    {
+        rxStartSemCreated = true;
     }
 
     /* The reading finished semaphore is initialized to 0 that the application context
@@ -581,13 +936,50 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
     if( IotSemaphore_Create( &( _httpsConnection->rxFinishSem ), 0, 1 ) == false )
     {
         IotLogError( "Failed to create an internal connection semaphore." );
-        return IOT_HTTPS_INTERNAL_ERROR;
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
+    }
+    else
+    {
+        rxFinishedSemCreated = true;
     }
 
     /* Return the new connection information. */
     *pConnHandle = _httpsConnection;
 
-    return IOT_HTTPS_OK;
+    IOT_FUNCTION_CLEANUP_BEGIN();
+
+    /* If memory allocation for the NULL terminated host name succeeded, then free that memory. */
+    if( pHostName != NULL )
+    {
+        free( pHostName );
+    }
+
+    /* if memory allocation for the alpn protocols succeeded then free that memory. */
+    if( pConnConfig->pAlpnProtocols != NULL )
+    {
+        free( pAlpnProtos );
+    }
+
+    /* If we failed anywhere in the connection process, then destroy the semaphores created. */
+    if(status != IOT_HTTPS_OK)
+    {
+        if(connSemCreated)
+        {
+            IotSemaphore_Destroy( &(_httpsConnection->connSem) );
+        }
+
+        if(rxStartSemCreated)
+        {
+            IotSemaphore_Destroy( &(_httpsConnection->rxStartSem) );
+        }
+
+        if(rxFinishedSemCreated)
+        {
+            IotSemaphore_Destroy( &(_httpsConnection->rxFinishSem) );
+        }
+    }
+
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -602,15 +994,17 @@ IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHa
 static IotHttpsReturnCode_t _networkDisconnect(_httpsConnection_t* _httpsConnection)
 {
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
+    IotHttpsReturnCode_t status = IOT_HTTPS_OK;
+
     networkStatus = _httpsConnection->pNetworkInterface->close( _httpsConnection->pNetworkConnection );
 
     if ( networkStatus != IOT_NETWORK_SUCCESS )
     {
         IotLogError("Failed to shutdown the socket with error code: %d", networkStatus );
-        return IOT_HTTPS_CONNECTION_ERROR;
+        status = IOT_HTTPS_NETWORK_ERROR;
     }
 
-    return IOT_HTTPS_OK;
+    return status;
 }
 
 /*-----------------------------------------------------------*/
@@ -831,7 +1225,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* _httpsConnection, uint8_t * buf, size_t len)
+static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* _httpsConnection, uint8_t * pBuf, size_t len)
 {
     int32_t numBytesSent = 0;
     int32_t numBytesSentTotal = 0;
@@ -841,7 +1235,7 @@ static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* _httpsConnection, u
     while( numBytesSentTotal < sendLength )
     {
         numBytesSent = _httpsConnection->pNetworkInterface->send( _httpsConnection->pNetworkConnection, 
-            &( buf[numBytesSentTotal] ), 
+            &( pBuf[numBytesSentTotal] ), 
             sendLength - numBytesSentTotal );
 
         if( numBytesSent <= 0 )
@@ -864,7 +1258,7 @@ static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* _httpsConnection, u
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* _httpsConnection, uint8_t * buf, size_t bufLen)
+static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* _httpsConnection, uint8_t * pBuf, size_t bufLen)
 {
     int32_t numBytesRecv = 0;
     int32_t numBytesRecvTotal = 0;
@@ -872,7 +1266,7 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* _httpsConnection, 
 
     do {
         numBytesRecv = _httpsConnection->pNetworkInterface->receive( _httpsConnection->pNetworkConnection,
-            &( buf[ numBytesRecvTotal ] ),
+            &( pBuf[ numBytesRecvTotal ] ),
             lengthToReceive - numBytesRecvTotal );
 
         if( numBytesRecv > 0 )
@@ -896,9 +1290,9 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* _httpsConnection, 
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* _httpsConnection, uint8_t* headersBuf, uint32_t headersLength, bool isNonPersistent, uint32_t contentLength)
+static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* _httpsConnection, uint8_t* pHeadersBuf, uint32_t headersLength, bool isNonPersistent, uint32_t contentLength)
 {
-    IotHttpsReturnCode_t status = _networkSend( _httpsConnection, headersBuf, headersLength);
+    IotHttpsReturnCode_t status = _networkSend( _httpsConnection, pHeadersBuf, headersLength);
     if( status != IOT_HTTPS_OK )
     {
         IotLogError("Error sending the HTTPS headers in the request user buffer. Error code: %d", status);
@@ -944,21 +1338,21 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* _httpsConnect
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t* _httpsConnection, uint8_t* bodyBuf, uint32_t bodyLength)
+static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t* _httpsConnection, uint8_t* pBodyBuf, uint32_t bodyLength)
 {
-    IotHttpsReturnCode_t status = _networkSend( _httpsConnection, bodyBuf, bodyLength);
+    IotHttpsReturnCode_t status = _networkSend( _httpsConnection, pBodyBuf, bodyLength);
     if( status != IOT_HTTPS_OK )
     {
-        IotLogError("Error sending final HTTPS body at location 0x%x. Error code: %d", bodyBuf, status);
+        IotLogError("Error sending final HTTPS body at location 0x%x. Error code: %d", pBodyBuf, status);
     }
     return status;
 }
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* buf, size_t len)
+static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* pBuf, size_t len)
 {
-    size_t parsedBytes = http_parser_execute(pHttpParser, &_httpParserSettings, buf, len );
+    size_t parsedBytes = http_parser_execute(pHttpParser, &_httpParserSettings, pBuf, len );
     /* If the parser fails with HPE_CLOSED_CONNECTION or HPE_INVALID_CONSTANT that simply means there
        was data beyond the end of the message. We do not fail in this case because we often give the whole
        header buffer or body buffer to the parser even if it is only partly filled with data. 
@@ -983,18 +1377,18 @@ static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* b
 
 static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* _httpsConnection, 
     http_parser* parser,
-    IotHttpsResponseParserState_t *currentParserState,
+    IotHttpsResponseParserState_t *pCurrentParserState,
     IotHttpsResponseParserState_t finalParserState, 
-    uint8_t** buf,
-    uint8_t** bufCur,
-    uint8_t** bufEnd,
-    IotHttpsReturnCode_t *networkStatus)
+    uint8_t** pBuf,
+    uint8_t** pBufCur,
+    uint8_t** pBufEnd,
+    IotHttpsReturnCode_t *pNetworkStatus)
 {    
-    while( (*currentParserState < finalParserState) && (*bufEnd - *bufCur > 0) ) 
+    while( (*pCurrentParserState < finalParserState) && (*pBufEnd - *pBufCur > 0) ) 
     {
-        *networkStatus = _networkRecv( _httpsConnection,
-            *bufCur, 
-            *bufEnd - *bufCur);
+        *pNetworkStatus = _networkRecv( _httpsConnection,
+            *pBufCur, 
+            *pBufEnd - *pBufCur);
 
         /* Case 1: Let's say that we are late in receiving the data on the network and the server closes the connection.
            SOCKETS_Recv() will return some connection closed negative return code, BUT data will still be filled
@@ -1006,7 +1400,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* _httpsConn
            may preceed the status line of the response we want. http-parser will return immediately with HPT_INVALID_CONSTANT error if some
            constant that is NOT the status line is reached. We want to search character by character until the start of the request line is 
            reached. Either this or we flush the socket after each response. */
-        IotHttpsReturnCode_t status = _parseHttpsMessage(parser, *bufCur, *bufEnd - *bufCur);
+        IotHttpsReturnCode_t status = _parseHttpsMessage(parser, *pBufCur, *pBufEnd - *pBufCur);
         if(status != IOT_HTTPS_OK)
         {
             IotLogError("Failed to parse the message buffer with error: %d", parser->http_errno);
@@ -1014,13 +1408,13 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* _httpsConn
         }
 
         /* The _httResponse->pHeadersCur pointer is updated in the http_parser callbacks. */
-        IotLogDebug( "There is %d of space left in the buffer.", *bufEnd - *bufCur );
+        IotLogDebug( "There is %d of space left in the buffer.", *pBufEnd - *pBufCur );
 
         /* We cannot anticipate the unique network error received when the server closes the connection. 
            We simply exit the loop if there nothing else to receive. We do not return the network status because 
            the error may just be a server closed the connection, but there may still have been data in the buffer
            that we parsed. */
-        if( *networkStatus != IOT_HTTPS_OK )
+        if( *pNetworkStatus != IOT_HTTPS_OK )
         {
             IotLogError( "Error receiving the HTTPS response headers. Error code: %d", status );
             break;
@@ -1029,12 +1423,12 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* _httpsConn
     }
 
     /* If we did not reach the end of the headers with the current header buffer size then log that info. */
-    if( *currentParserState < finalParserState)
+    if( *pCurrentParserState < finalParserState)
     {
         IotLogDebug("There are still more data on the network. It could not fit into buffer at \
             location 0x%x with length %d.",
-            *buf,
-            *bufEnd - *buf);
+            *pBuf,
+            *pBufEnd - *pBuf);
     }
 
     return IOT_HTTPS_OK;
@@ -1042,7 +1436,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* _httpsConn
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *networkStatus)
+static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *pNetworkStatus)
 {
     /* Initialize the HTTPS parser for a new execution. Incase we are reusing the
     the request without re-initialization. */
@@ -1058,7 +1452,7 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* _httpsConn
         &(_httpsResponse->pHeaders),
         &(_httpsResponse->pHeadersCur),
         &(_httpsResponse->pHeadersEnd),
-        networkStatus);
+        pNetworkStatus);
 
     /* Whether the parser complete the headers or not we want to see if we got the Content-Length. */
     _httpsResponse->contentLength = _httpsResponse->httpParser.content_length;
@@ -1069,7 +1463,7 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* _httpsConn
 /*-----------------------------------------------------------*/
 
 /* _receiveHttpsHeaders() must be called first before this function is called. */
-static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *networkStatus)
+static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* _httpsConnection, _httpsResponse_t* _httpsResponse, IotHttpsReturnCode_t *pNetworkStatus)
 {
     _httpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_BODY_BUFFER;
 
@@ -1081,7 +1475,7 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* _httpsConnect
         &(_httpsResponse->pBody),
         &(_httpsResponse->pBodyCur),
         &(_httpsResponse->pBodyEnd),
-        networkStatus);
+        pNetworkStatus);
 
     IotLogDebug("The message Content-Length is %d (Will be > 0 for a Content-Length header existing). The remaining content length on the network is %d.",
         _httpsResponse->contentLength,
@@ -1319,7 +1713,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
     status = _sendHttpsBody(reqHandle->pConnHandle, pBuf, len);
     if( status != IOT_HTTPS_OK )
     {
-        IotLogError("Failed to send the HTTPS body at buf location 0x%x. Error code %d", pBuf, status);
+        IotLogError("Failed to send the HTTPS body at pBuf location 0x%x. Error code %d", pBuf, status);
         return status;
     }
 
@@ -1385,7 +1779,7 @@ IotHttpsReturnCode_t IotHttpsClient_CancelRequestAsync(IotHttpsRequestHandle_t r
 
 /*-----------------------------------------------------------*/
 
-static void _IotHttps_ReceiveResponseAsync( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext )
+static void _receiveResponseAsync( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext )
 {
     /*
      * In MQTT the taskpool sends the MQTT payload for a publish over the network.
@@ -1596,7 +1990,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t *pConnH
 
     //TODO: DO NOT schedule every available task from the task pool. heh.
 
-    taskPoolStatus = IotTaskPool_CreateJob( _IotHttps_ReceiveResponseAsync,
+    taskPoolStatus = IotTaskPool_CreateJob( _receiveResponseAsync,
         ( void* )reqHandle,
         &( reqHandle->taskPoolJobStorage ),
         &( reqHandle->taskPoolJob ) );

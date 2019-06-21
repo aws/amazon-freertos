@@ -97,6 +97,8 @@
 #endif
 /** @endcond */
 
+/*-----------------------------------------------------------*/ 
+
 /**
  * @brief The state of the HTTP response parsing. 
  * 
@@ -200,6 +202,8 @@ typedef enum IotHttpsResponseBufferState {
     PROCESSING_STATE_FINISHED,                  /**< @brief Filling and parsing of both buffers is finished. */
     PROCESSING_STATE_SEARCHING_HEADER_BUFFER    /**< @brief The header buffer is being search. */
 } IotHttpsResponseBufferState_t;
+
+/*-----------------------------------------------------------*/ 
 
 /**
  * @brief Represents an HTTP connection.
