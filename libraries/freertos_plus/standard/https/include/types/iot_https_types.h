@@ -243,7 +243,7 @@ typedef enum IotHttpsMethod
  * @ingroup https_client_datatypes_enums
  * @brief Types of standard HTTP Response status codes. 
  * 
- * These status codes are taken from rfc2616. Please see rfc2616 for a description of each response status.
+ * These status codes are taken from RFC 2616. Please see RFC 2616 for a description of each response status.
  */
 enum IotHttpsResponseStatus
 {
@@ -554,7 +554,7 @@ typedef struct IotHttpsConnectionInfo
      * 
      * For example: avs-alexa-na.amazon.com.
      */
-    char *pAddress;
+    const char *pAddress;
     uint32_t addressLen;    /**< @brief remote address length. */
 
     uint32_t port;          /**< @brief Remote port number */
@@ -635,7 +635,7 @@ typedef struct IotHttpsConnectionInfo
  */
 typedef struct IotHttpsRequestInfo
 {
-    char *pPath;                         /**< @brief URI path, e.g., "/v20160207/directives?query" */
+    const char *pPath;                         /**< @brief URI path, e.g., "/v20160207/directives?query" */
     uint32_t pathLen;                   /**< @brief URI path length */
     IotHttpsMethod_t method;            /**< @brief HTTP method. See #IotHttpsMethod_t for the list of available methods. */
 
@@ -644,7 +644,7 @@ typedef struct IotHttpsRequestInfo
      * 
      * This is the same as the address in #IotHttpsConnectionInfo_tpAddress.
      */
-    char * pHost;    
+    const char * pHost;    
     uint32_t hostLen;                   /**< @brief Host address length. */
     
     /**

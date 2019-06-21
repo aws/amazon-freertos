@@ -224,11 +224,11 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     IotHttpsSyncRequestInfo_t syncInfo = { 0 };
 
     /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
-    char *pPath = NULL;
+    const char *pPath = NULL;
     /* The length of the path within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
     size_t pathLen = 0;
     /* The location of the address within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
-    char *pAddress = NULL;
+    const char *pAddress = NULL;
     /* The length of the address within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
     size_t addressLen = 0;
 

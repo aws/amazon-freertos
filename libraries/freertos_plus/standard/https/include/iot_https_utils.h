@@ -55,7 +55,7 @@
  * @return #IOT_HTTPS_OK if the path was successfully parsed.
  *         #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
  */
-IotHttpsReturnCode_t IotHttpsClient_GetUrlPath(const char * pUrl, size_t urlLen, char **pPath, size_t * pPathLen);
+IotHttpsReturnCode_t IotHttpsClient_GetUrlPath(const char * pUrl, size_t urlLen, const char **pPath, size_t * pPathLen);
 
 /**
  * @brief Retrieve the Address from the input URL.
@@ -75,6 +75,6 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlPath(const char * pUrl, size_t urlLen,
  * @return #IOT_HTTPS_OK if the path was successfully parsed.
  *         #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
  */
-IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress(const char * pUrl, size_t urlLen, char **pAddress, size_t * pAddressLen);
+IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress(const char * pUrl, size_t urlLen, const char **pAddress, size_t * pAddressLen);
 
 #endif /* IOT_HTTPS_UTILS_H_ */
