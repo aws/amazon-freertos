@@ -1162,6 +1162,11 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     mbedtls_pk_free( &xMbedPkContext );
 }
 
+
+extern int PKI_RSA_RSASSA_PKCS1_v15_Encode( const unsigned char * hash,
+                                            size_t dst_len,
+                                            unsigned char * dst );
+
 TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
 {
     CK_RV xResult;
@@ -1801,7 +1806,7 @@ TEST( Full_PKCS11_EC, AFQP_FindObject )
 extern int convert_pem_to_der( const unsigned char * pucInput,
                                size_t xLen,
                                unsigned char * pucOutput,
-                               size_t * pxOlen);
+                               size_t * pxOlen );
 
 TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
 {
@@ -1829,9 +1834,9 @@ TEST( Full_PKCS11_EC, AFQP_GetAttributeValue )
     int lConversionReturn;
 
     lConversionReturn = convert_pem_to_der( ( const unsigned char * ) cValidECDSACertificate,
-                                             sizeof( cValidECDSACertificate ),
-                                             xCertificateValueExpected,
-                                             &xLength );
+                                            sizeof( cValidECDSACertificate ),
+                                            xCertificateValueExpected,
+                                            &xLength );
 
     if( lConversionReturn != 0 )
     {
