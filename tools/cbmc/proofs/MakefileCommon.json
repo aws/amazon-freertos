@@ -30,7 +30,7 @@
 	"$(FREERTOS)/libraries/3rdparty/win_pcap",
 	"$(FREERTOS)/libraries/c_sdk/standard/serializer/src/cbor",
 	"$(FREERTOS)/libraries/c_sdk/aws/defender/include",
-	"../../include"
+	"$(FREERTOS)/tools/cbmc/include"
     ],
 
     "CBMCFLAGS ": [
