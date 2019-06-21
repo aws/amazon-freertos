@@ -181,7 +181,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
  *         Please see #IotHttpsReturnCode_t for other failure codes.
  */
 /* @[declare_https_client_initializerequest] */
-IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * pReqHande, IotHttpsRequestInfo_t *pReq);
+IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * pReqHandle, IotHttpsRequestInfo_t *pReq);
 /* @[declare_https_client_initializerequest] */
 
 /**

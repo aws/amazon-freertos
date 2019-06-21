@@ -95,6 +95,13 @@
 #ifndef IOT_HTTPS_RESPONSE_WAIT_MS
     #define IOT_HTTPS_RESPONSE_WAIT_MS          ( 1000 )
 #endif
+#ifndef IOT_HTTPS_MAX_HOST_NAME_LENGTH
+    #define IOT_HTTPS_MAX_HOST_NAME_LENGTH      ( 255 ) /* Per FQDN, the maximum host name length is 255 bytes. */
+#endif
+#ifndef IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
+    #define IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH ( 255 ) /* The maximum alpn protocols length is chosen arbitrarily. */
+#endif
+
 /** @endcond */
 
 /*-----------------------------------------------------------*/ 
