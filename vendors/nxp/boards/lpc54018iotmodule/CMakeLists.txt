@@ -236,9 +236,9 @@ target_sources(
 )
 
 # PKCS11
-afr_mcu_port(pkcs11)
+afr_mcu_port(pkcs11_implementation)
 target_sources(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${lpc54018_ports_dir}/pkcs11/aws_pkcs11_pal.c"
         "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
