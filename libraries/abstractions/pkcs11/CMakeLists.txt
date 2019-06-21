@@ -20,6 +20,7 @@ afr_module_dependencies(
         AFR::pkcs11
     PRIVATE
         AFR::${AFR_CURRENT_MODULE}::mcu_port
+	AFR::utils
 )
 
 
