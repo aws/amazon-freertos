@@ -36,6 +36,7 @@
             CONFIG_DEFENDER_DEMO_ENABLED
             CONFIG_POSIX_DEMO_ENABLED
             CONFIG_OTA_UPDATE_DEMO_ENABLED
+            CONFIG_HTTPS_SYNC_DEMO_ENABLED
             
     These defines are used in iot_demo_runner.h for demo selection */
 
