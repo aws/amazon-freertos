@@ -2883,6 +2883,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
                     if( lMbedTLSResult != CKR_OK )
                     {
+                        PKCS11_PRINT( ("mbedTLS sign failed with error %d \r\n", lMbedTLSResult) );
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
