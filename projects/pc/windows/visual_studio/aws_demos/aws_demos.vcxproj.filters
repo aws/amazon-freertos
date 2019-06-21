@@ -1514,5 +1514,8 @@
     <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c">
       <Filter>demos\dev_mode_key_provisioning\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_metrics.c">
+      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

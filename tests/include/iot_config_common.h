@@ -162,11 +162,24 @@
 /* Cloud endpoint to which the device connects to. */
 #define IOT_CLOUD_ENDPOINT                    clientcredentialMQTT_BROKER_ENDPOINT
 
+ /**
+  * @brief Unique identifier used to recognize a device by the cloud.
+  * This could be SHA-256 of the device certificate.
+  */
+extern const char *getDeviceIdentifier(void);
+#define IOT_DEVICE_IDENTIFIER                getDeviceIdentifier()
+
 /**
- * @brief Unique identifier used to recognize a device by the cloud.
- * This could be SHA-256 of the device certificate.
+ * @brief Metrics emitted by the device.
  */
-#define IOT_DEVICE_IDENTIFIER                ""
+extern const char *getDeviceMetrics(void);
+#define AWS_IOT_METRICS_USERNAME     getDeviceMetrics()
+
+/**
+ * @brief Length of the metrics emitted by device.
+ */
+extern uint16_t getDeviceMetricsLength(void);
+#define AWS_IOT_METRICS_USERNAME_LENGTH getDeviceMetricsLength()
 
 /* Set Thing Name. */
 #define AWS_IOT_TEST_SHADOW_THING_NAME    clientcredentialIOT_THING_NAME
