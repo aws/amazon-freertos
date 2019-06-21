@@ -29,7 +29,7 @@
 
 /* C Standard includes. */
 #include <stdbool.h>
-#include <string.h.>
+#include <string.h>
 
 /* Set up logging for this demo. */
 #include "iot_demo_logging.h"
@@ -382,7 +382,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     httpsClientStatus = IotHttpsClient_ReadHeader( respHandle, 
         CONTENT_RANGE_HEADER_FIELD, 
         contentRangeValStr, 
-        strlen(contentRangeValStr) );
+        sizeof(contentRangeValStr) );
     fileSizeStr = strstr( contentRangeValStr, "/" );
     if(fileSizeStr == NULL)
     {

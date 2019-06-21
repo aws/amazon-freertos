@@ -569,7 +569,7 @@ static int _httpParserOnStatusCallback(http_parser * pHttpParser, const char * p
       _httpResponse->pHeaders. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
-        _httpsResponse->pHeadersCur = (uint8_t*)pLoc += length;
+        _httpsResponse->pHeadersCur = (uint8_t*)(pLoc += length);
     }
     return 0;
 }
@@ -584,7 +584,7 @@ static int _httpParserOnHeaderFieldCallback(http_parser * pHttpParser, const cha
       _httpsResponse->pHeadersCur. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
-        _httpsResponse->pHeadersCur = (uint8_t*)(pLoc) += length;
+        _httpsResponse->pHeadersCur = (uint8_t*)(pLoc += length);
     }
     /* If the IotHttpsClient_ReadHeader() was called, then we check for the header field of interest. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_SEARCHING_HEADER_BUFFER)
@@ -607,7 +607,7 @@ static int _httpParserOnHeaderValueCallback(http_parser * pHttpParser, const cha
       _httpsResponse->pHeadersCur. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
-        _httpsResponse->pHeadersCur = (uint8_t*)(pLoc) += length;
+        _httpsResponse->pHeadersCur = (uint8_t*)(pLoc += length);
     }
 
     /* If the IotHttpsClient_ReadHeader() was called, then we check if we found the header field of interest. */

@@ -29,6 +29,7 @@
 
 /* C Standard includes. */
 #include <stdbool.h>
+#include <string.h>
 
 /* Set up logging for this demo. */
 #include "iot_demo_logging.h"
@@ -171,7 +172,7 @@ typedef struct _asyncDownloadData {
  * Since all of the requests in this demo are on the same connection, only one async task at a time will be accessing 
  * this buffer to retrieve data from the network to print. 
  */
-static uint8_t _pRespBodyBuffer[IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE] = { 0 };
+static char _pRespBodyBuffer[IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE] = { 0 };
 
 /**
  * @brief Semaphore use to signal that the demo is finished. The task that downloads the final increment of the file
@@ -606,7 +607,7 @@ static int _getS3ObjectFileSize(IotHttpsConnectionHandle_t connHandle,
     }
 
     /* Get the file size by parsing the "bytes 0-0/FILESIZE" Content-Range header value string. */
-    httpsClientStatus = IotHttpsClient_ReadHeader( fileSizeRespHandle, "Content-Range", contentRangeValStr, contentRangeValStr );
+    httpsClientStatus = IotHttpsClient_ReadHeader( fileSizeRespHandle, "Content-Range", contentRangeValStr, sizeof( contentRangeValStr ) );
     if(httpsClientStatus != IOT_HTTPS_OK)
     {
         IotLogError("Could find the Content-Range header in the response. Error code %d",httpsClientStatus);
