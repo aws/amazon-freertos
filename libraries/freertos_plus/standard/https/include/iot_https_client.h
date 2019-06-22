@@ -302,7 +302,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHa
  * @endcode
  * 
  * param[in] respHandle - Unique handle representing the HTTPS response.
- * param[out] status - Integer status returned from the server response.
+ * param[out] pStatus - Integer status returned from the server response.
  * 
  * @return #IOT_HTTPS_OK if the response status was successfully read into *status.
  *         #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
@@ -310,7 +310,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHa
  *         Error code otherwise, please see #IotHttpsReturnCode_t for for failure codes.
  */
 /* @[declare_https_client_readresponsestatus] */
-IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t respHandle, uint16_t *status);
+IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t respHandle, uint16_t *pStatus);
 /* @[declare_https_client_readresponsestatus] */
 
 /**
@@ -335,7 +335,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
  * @endcode
  * 
  * param[in] respHandle - Unique handle representing the HTTPS response.
- * param[out] contentLength - Integer content length from the Content-Length header from the server.
+ * param[out] pContentLength - Integer content length from the Content-Length header from the server.
  * 
  * @return #IOT_HTTPS_OK if the response body Content-Length was successfully read into contentLength.
  *         #IOT_HTTPS_NOT_FOUND if the Content-Length header was not found in the header buffer.
@@ -343,7 +343,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
  *         Error code otherwise, please see #IotHttpsReturnCode_t for for failure codes.
  */
 /* @[declare_https_client_readcontentlength] */
-IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t respHandle, uint32_t *contentLength );
+IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t respHandle, uint32_t *pContentLength );
 /* @[declare_https_client_readcontentlength] */
 
 /**

@@ -1748,9 +1748,9 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t respHandle, uint16_t *status)
+IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t respHandle, uint16_t *pStatus)
 {
-    if((respHandle == NULL) || (status == NULL))
+    if((respHandle == NULL) || (pStatus == NULL))
     {
         IotLogError("NULL parameter passed into IotHttpsClient_ReadResponseStatus().");
         return IOT_HTTPS_INVALID_PARAMETER;
@@ -1761,7 +1761,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
         IotLogError("The HTTP response status was not found in the HTTP response header buffer.");
         return IOT_HTTPS_NOT_FOUND;
     }
-    *status = respHandle->status;
+    *pStatus = respHandle->status;
     
     return IOT_HTTPS_OK;
 }
@@ -1804,10 +1804,10 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_ReadContentLength(IotHttpsResponseHandle_t respHandle, uint32_t *contentLength)
+IotHttpsReturnCode_t IotHttpsClient_ReadContentLength(IotHttpsResponseHandle_t respHandle, uint32_t *pContentLength)
 {   
     /* Check for NULL parameters in this public API. */
-    if((respHandle == NULL) || (contentLength == NULL))
+    if((respHandle == NULL) || (pContentLength == NULL))
     {
         IotLogError("NULL parameter passed into IotHttpsClient_ReadContentLength().");
         return IOT_HTTPS_INVALID_PARAMETER;
@@ -1821,7 +1821,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength(IotHttpsResponseHandle_t r
         return IOT_HTTPS_NOT_FOUND;
     }
 
-    *contentLength = respHandle->contentLength;
+    *pContentLength = respHandle->contentLength;
 
     return IOT_HTTPS_OK;
 }
