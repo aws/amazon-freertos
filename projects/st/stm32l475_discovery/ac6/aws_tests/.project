@@ -1503,6 +1503,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
@@ -1671,6 +1676,11 @@
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</name>

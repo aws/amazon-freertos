@@ -759,6 +759,11 @@
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>

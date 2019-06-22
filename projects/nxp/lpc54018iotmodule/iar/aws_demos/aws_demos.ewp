@@ -2079,6 +2079,9 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</name>
 						</file>
 						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_metrics.c</name>
+						</file>
+						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c</name>
 						</file>
 					</group>

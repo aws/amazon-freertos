@@ -132,6 +132,7 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
@@ -901,7 +902,7 @@
 				<makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
 				<makeCustomizationPreStep/>
 				<makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
-				<makeCustomizationPostStep>python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep> 
+				<makeCustomizationPostStep>python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p &quot;-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin&quot; &amp;&amp; python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
 				<makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
 				<makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
 				<makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
