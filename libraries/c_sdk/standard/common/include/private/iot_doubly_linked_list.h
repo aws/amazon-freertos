@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_doubly_linked_list.h
+ * @file iot_doubly_linked_list.h
  * @brief Doubly Linked List implementation.
  *
  * A generic implementation of circular Doubly Linked List which consists of a

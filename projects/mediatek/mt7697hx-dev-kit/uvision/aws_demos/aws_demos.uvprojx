@@ -1025,9 +1025,9 @@
 					<GroupName>libraries/c_sdk/standard/common/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_appversion32.h</FileName>
+							<FileName>iot_appversion32.h.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/aws_appversion32.h</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_init.h</FileName>
@@ -1040,9 +1040,9 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_logging_task.h</FileName>
+							<FileName>iot_logging_task.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/aws_logging_task.h</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_logging_setup.h</FileName>
@@ -1060,9 +1060,9 @@
 					<GroupName>libraries/c_sdk/standard/common/logging/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_logging_task_dynamic_buffers.c</FileName>
+							<FileName>iot_logging_task_dynamic_buffers.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_logging.c</FileName>
@@ -1155,14 +1155,14 @@
 					<GroupName>libraries/abstractions/platform/freertos/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_clock_afr.c</FileName>
+							<FileName>iot_clock_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_clock_afr.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_threads_afr.c</FileName>
+							<FileName>iot_threads_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_threads_afr.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_metrics.c</FileName>
@@ -1182,12 +1182,12 @@
 						<File>
 							<FileName>iot_platform_types_afr.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</FilePath>
 						</File>
 						<File>
-							<FileName>iot_network_afr.h</FileName>
+							<FileName>iot_network_freertos.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1195,19 +1195,19 @@
 					<GroupName>libraries/abstractions/secure_sockets/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_secure_sockets.h</FileName>
+							<FileName>iot_secure_sockets.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_secure_sockets_config_defaults.h</FileName>
+							<FileName>iot_secure_sockets_config_defaults.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_secure_sockets_wrapper_metrics.h</FileName>
+							<FileName>iot_secure_sockets_wrapper_metrics.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1235,9 +1235,9 @@
 					<GroupName>libraries/freertos_plus/standard/tls/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_tls.h</FileName>
+							<FileName>iot_tls.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/tls/include/aws_tls.h</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/tls/include/iot_tls.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1255,9 +1255,9 @@
 					<GroupName>libraries/freertos_plus/standard/crypto/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_crypto.h</FileName>
+							<FileName>iot_crypto.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/include/aws_crypto.h</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1265,9 +1265,9 @@
 					<GroupName>libraries/abstractions/pkcs11/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_pkcs11.h</FileName>
+							<FileName>iot_pkcs11.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/include/aws_pkcs11.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1300,9 +1300,9 @@
 					<GroupName>libraries/abstractions/wifi/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_wifi.h</FileName>
+							<FileName>iot_wifi.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/wifi/include/aws_wifi.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/wifi/include/iot_wifi.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1475,9 +1475,9 @@
 					<GroupName>libraries/freertos_plus/standard/utils/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_system_init.h</FileName>
+							<FileName>iot_system_init.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/utils/include/aws_system_init.h</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1590,14 +1590,14 @@
 					<GroupName>libraries/c_sdk/standard/serializer/src/json/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_iot_serializer_json_decoder.c</FileName>
+							<FileName>iot_serializer_json_decoder.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_iot_serializer_json_encoder.c</FileName>
+							<FileName>iot_serializer_json_encoder.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1810,9 +1810,9 @@
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/aws_iot_network_config.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_mqtt_agent_config.h</FileName>
+							<FileName>iot_mqtt_agent_config.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/aws_mqtt_agent_config.h</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_demos/config_files/iot_mqtt_agent_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>aws_mqtt_config.h</FileName>

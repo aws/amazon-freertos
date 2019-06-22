@@ -23,8 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _AWS_APPVERSION32_H_
-#define _AWS_APPVERSION32_H_
+#ifndef _iot_appversion32.h_H_
+#define _iot_appversion32.h_H_
 
 #include <stdint.h>
 
@@ -55,4 +55,4 @@ typedef struct
     } u;
 } AppVersion32_t;
 
-#endif /* ifndef _AWS_APPVERSION32_H_ */
+#endif /* ifndef _iot_appversion32.h_H_ */

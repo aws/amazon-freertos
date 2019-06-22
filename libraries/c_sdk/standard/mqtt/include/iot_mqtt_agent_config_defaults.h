@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_agent_config_defaults.h
+ * @file iot_mqtt_agent_config_defaults.h
  * @brief MQTT agent default config options.
  *
  * Ensures that the config options for MQTT agent are set to sensible
@@ -103,7 +103,7 @@
  * #define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS             ( 100 )
  */
 #ifndef mqttconfigMQTT_TASK_MAX_BLOCK_TICKS
-    #error "mqttconfigMQTT_TASK_MAX_BLOCK_TICKS must be defined in aws_mqtt_agent_config.h."
+    #error "mqttconfigMQTT_TASK_MAX_BLOCK_TICKS must be defined in iot_mqtt_agent_config.h."
 #endif
 
 /**

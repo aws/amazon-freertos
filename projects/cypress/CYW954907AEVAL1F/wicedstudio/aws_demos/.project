@@ -237,9 +237,9 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/iot_init.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/aws_appversion32.h</name>
+			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/aws_appversion32.h</locationURI>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_appversion32.h.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
@@ -252,9 +252,9 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</name>
+			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging.c</name>
@@ -267,9 +267,9 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/private/iot_logging.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/aws_logging_task.h</name>
+			<name>libraries/c_sdk/standard/common/include/iot_logging_task.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/aws_logging_task.h</locationURI>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/common/include/iot_logging_task.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_logging_setup.h</name>
@@ -332,19 +332,19 @@
 			<locationURI>BASE_DIR/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_clock_afr.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_clock_afr.c</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_clock_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_threads_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_threads_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
@@ -362,24 +362,24 @@
 			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/iot_network_afr.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</name>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</name>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</name>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</name>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/src/aws_tls.c</name>
@@ -387,9 +387,9 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/src/aws_tls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/tls/include/aws_tls.h</name>
+			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/include/aws_tls.h</locationURI>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/tls/include/iot_tls.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/crypto/src/aws_crypto.c</name>
@@ -397,14 +397,14 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/src/aws_crypto.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/crypto/include/aws_crypto.h</name>
+			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/include/aws_crypto.h</locationURI>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
+			<name>libraries/abstractions/pkcs11/include/iot_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/cypress/boards/CYW954907AEVAL1F/ports/pkcs11/aws_pkcs11_pal.c</name>
@@ -427,9 +427,9 @@
 			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/wifi/include/aws_wifi.h</name>
+			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/wifi/include/aws_wifi.h</locationURI>
+			<locationURI>BASE_DIR/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/cypress/boards/CYW954907AEVAL1F/ports/wifi/aws_wifi.c</name>
@@ -457,9 +457,9 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/utils/src/aws_system_init.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/utils/include/aws_system_init.h</name>
+			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/libraries/freertos_plus/standard/utils/include/aws_system_init.h</locationURI>
+			<locationURI>BASE_DIR/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
@@ -577,9 +577,9 @@
 			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/aws_demos/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_mqtt_agent_config.h</name>
+			<name>config_files/iot_mqtt_agent_config.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/aws_demos/config_files/aws_mqtt_agent_config.h</locationURI>
+			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_mqtt_config.h</name>

@@ -30,7 +30,7 @@
 #include "FreeRTOS.h"
 
 /* Crypto includes. */
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 
 /* Unity framework includes. */
 #include "unity_fixture.h"

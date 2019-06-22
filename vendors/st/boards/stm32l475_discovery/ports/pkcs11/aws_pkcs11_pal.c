@@ -36,7 +36,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_pkcs11_config.h"
 
 /* C runtime includes. */
@@ -48,7 +48,7 @@
 
 /* WiFi includes. */
 #ifdef USE_OFFLOAD_SSL
-    #include "aws_wifi.h"
+    #include "iot_wifi.h"
 /* mbedTLS includes. */
     #include "mbedtls/pk.h"
     #include "mbedtls/base64.h"

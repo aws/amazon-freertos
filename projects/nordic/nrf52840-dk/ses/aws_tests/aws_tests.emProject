@@ -48,7 +48,7 @@
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_ggd_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_iot_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_iot_network_config.h" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_mqtt_agent_config.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/iot_mqtt_agent_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_mqtt_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_ota_agent_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/aws_tests/config_files/aws_pkcs11_config.h" />
@@ -68,7 +68,7 @@
         <file file_name="../../../../../tests/common/aws_test.c" />
         <file file_name="../../../../../tests/common/aws_test_framework.c" />
         <file file_name="../../../../../tests/common/aws_test_runner.c" />
-        <file file_name="../../../../../tests/common/iot_test_afr.c" />
+        <file file_name="../../../../../tests/common/iot_test_freertos.c" />
         <file file_name="../../../../../tests/common/iot_tests_network.c" />
       </folder>
       <folder Name="include">
@@ -216,8 +216,8 @@
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_init.c" />
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c" />
             <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/common/include/aws_appversion32.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/common/include/aws_logging_task.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_atomic.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_init.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h" />
@@ -225,24 +225,24 @@
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_taskpool.h" />
             </folder>
             <folder Name="logging">
-              <file file_name="../../../../../libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c" />
+              <file file_name="../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c" />
             </folder>
             <folder Name="taskpool">
               <file file_name="../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c" />
             </folder>
             <folder Name="test">
-              <file file_name="../../../../../libraries/c_sdk/standard/common/test/aws_memory_leak.c" />
+              <file file_name="../../../../../libraries/c_sdk/standard/common/test/iot_memory_leak.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/test/iot_tests_taskpool.c" />
             </folder>
           </folder>
           <folder Name="mqtt">
             <file file_name="../../../../../libraries/c_sdk/standard/mqtt/CMakeLists.txt" />
             <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_agent_config_defaults.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_config_defaults.h" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/aws_mqtt_lib.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent_config_defaults.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_config_defaults.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_lib.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt.h" />
             </folder>
             <folder Name="src">
@@ -260,7 +260,7 @@
                 <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c" />
               </folder>
               <folder Name="unit">
-                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/aws_iot_tests_mqtt_serialize_ble.c" />
+                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c" />
                 <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c" />
                 <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_receive.c" />
                 <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c" />
@@ -280,8 +280,8 @@
                 <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c" />
               </folder>
               <folder Name="json">
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c" />
-                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c" />
+                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c" />
+                <file file_name="../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c" />
               </folder>
             </folder>
             <folder Name="test">
@@ -318,7 +318,7 @@
               </folder>
             </folder>
             <folder Name="test">
-              <file file_name="../../../../../libraries/c_sdk/standard/ble/test/aws_test_ble_end_to_end.c" />
+              <file file_name="../../../../../libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c" />
             </folder>
           </folder>
         </folder>
@@ -381,14 +381,14 @@
               <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_utils.c" />
             </folder>
             <folder Name="test">
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_clock.c" />
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_mqueue.c" />
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_pthread.c" />
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_semaphore.c" />
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_stress.c" />
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_timer.c" />
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_unistd.c" />
-              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_utils.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_mqueue.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_pthread.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_semaphore.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_stress.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_timer.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_unistd.c" />
+              <file file_name="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_utils.c" />
             </folder>
           </folder>
         </folder>
@@ -397,7 +397,7 @@
         <folder Name="platform">
           <file file_name="../../../../../libraries/abstractions/platform/CMakeLists.txt" />
           <folder Name="freertos">
-            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_clock_afr.c" />
+            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c" />
           </folder>
           <folder Name="include">
             <folder Name="platform">
@@ -409,7 +409,7 @@
             <folder Name="types">
               <file file_name="../../../../../libraries/abstractions/platform/include/types/iot_platform_types.h" />
             </folder>
-            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_threads_afr.c" />
+            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c" />
           </folder>
           <folder Name="test">
             <file file_name="../../../../../libraries/abstractions/platform/test/iot_test_platform_clock.c" />

@@ -31,16 +31,16 @@
 #include "aws_test_runner.h"
 
 /* Secure sockets includes */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Credential includes. */
 #include "aws_clientcredential.h"
 #include "aws_clientcredential_keys.h"
-#include "aws_test_tls.h"
+#include "iot_test_tls.h"
 
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 
 /*

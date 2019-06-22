@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_threads_afr.c
+ * @file iot_threads_freertos.c
  * @brief Implementation of the functions in iot_threads.h for POSIX systems.
  */
 
@@ -34,7 +34,7 @@
 #include "semphr.h"
 
 /* Platform threads include. */
-#include "platform/iot_platform_types_afr.h"
+#include "platform/iot_platform_types_freertos.h"
 #include "platform/iot_threads.h"
 #include "types/iot_platform_types.h"
 

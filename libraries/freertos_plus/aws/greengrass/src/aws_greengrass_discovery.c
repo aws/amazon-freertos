@@ -37,7 +37,7 @@
 #include "semphr.h"
 
 /* Secure sockets includes. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Greengrass includes. */
 #include "aws_ggd_config.h"

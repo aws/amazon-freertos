@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_mqueue.c
+ * @file iot_test_posix_mqueue.c
  * @brief Tests for POSIX message queue functions.
  */
 

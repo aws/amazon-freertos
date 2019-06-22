@@ -43,8 +43,8 @@
 #include "NetworkInterface.h"
 #include "NetworkBufferManagement.h"
 
-#include "aws_wifi.h"
-#include "aws_secure_sockets.h"
+#include "iot_wifi.h"
+#include "iot_secure_sockets.h"
 
 #include "peripheral/eth/plib_eth.h"
 

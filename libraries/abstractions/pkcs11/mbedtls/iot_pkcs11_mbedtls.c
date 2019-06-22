@@ -33,8 +33,8 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "aws_pkcs11_config.h"
-#include "aws_crypto.h"
-#include "aws_pkcs11.h"
+#include "iot_crypto.h"
+#include "iot_pkcs11.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/pk.h"

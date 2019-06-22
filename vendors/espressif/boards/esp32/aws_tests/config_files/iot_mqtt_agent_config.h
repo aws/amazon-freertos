@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS V1.1.4
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -10,7 +10,8 @@
  * subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ * copies or substantial portions of the Software. If you wish to use our Amazon
+ * FreeRTOS name, please do so in a fair use way that does not cause confusion.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
@@ -24,7 +25,7 @@
  */
 
 /**
- * @file aws_mqtt_agent_config.h
+ * @file iot_mqtt_agent_config.h
  * @brief MQTT agent config options.
  */
 
@@ -32,7 +33,6 @@
 #define _AWS_MQTT_AGENT_CONFIG_H_
 
 #include "FreeRTOS.h"
-#include "task.h"
 
 /**
  * @brief Controls whether or not to report usage metrics to the
@@ -60,7 +60,7 @@
  * This macro defines the interval of inactivity after which a keep alive messages
  * is sent.
  */
-#define mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS    ( pdMS_TO_TICKS( 300000 ) )
+#define mqttconfigKEEP_ALIVE_ACTUAL_INTERVAL_TICKS    ( pdMS_TO_TICKS(300000) )
 
 /**
  * @brief The maximum interval in ticks to wait for PINGRESP.
@@ -86,14 +86,14 @@
  * @defgroup MQTTTask MQTT task configuration parameters.
  */
 /** @{ */
-#define mqttconfigMQTT_TASK_STACK_DEPTH    ( 2048 )
-#define mqttconfigMQTT_TASK_PRIORITY       ( tskIDLE_PRIORITY )
+#define mqttconfigMQTT_TASK_STACK_DEPTH    ( configMINIMAL_STACK_SIZE * 8 )
+#define mqttconfigMQTT_TASK_PRIORITY       ( tskIDLE_PRIORITY + 5 )
 /** @} */
 
 /**
  * @brief Maximum number of MQTT clients that can exist simultaneously.
  */
-#define mqttconfigMAX_BROKERS            ( 10 )
+#define mqttconfigMAX_BROKERS            ( 2 )
 
 /**
  * @brief Maximum number of parallel operations per client.
@@ -104,5 +104,10 @@
  * @brief Time in milliseconds after which the TCP send operation should timeout.
  */
 #define mqttconfigTCP_SEND_TIMEOUT_MS    ( 2000 )
+
+/**
+ * @brief Length of the buffer used to receive data.
+ */
+#define mqttconfigRX_BUFFER_SIZE         ( 1024 + 128 )
 
 #endif /* _AWS_MQTT_AGENT_CONFIG_H_ */

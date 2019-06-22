@@ -21,7 +21,7 @@
  */
 
 /* Socket and WiFi interface includes. */
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 /* WiFi configuration includes. */
 #include "aws_wifi_config.h"

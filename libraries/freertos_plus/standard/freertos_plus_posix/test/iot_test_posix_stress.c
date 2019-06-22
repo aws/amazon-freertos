@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_stress.c
+ * @file iot_test_posix_stress.c
  * @brief Stress tests for FreeRTOS+POSIX.
  */
 

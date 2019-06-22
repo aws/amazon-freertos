@@ -37,7 +37,7 @@
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
 
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 typedef struct ProvisioningParams_t
 {
@@ -93,7 +93,7 @@ CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
                                     for help with formatting.
  * \param[in] xCertificateLength    Length of pucCertificate, in bytes.
  * \param[in] pucLabel              PKCS #11 label attribute value for certificate to be imported.
- *                                  This should be a string value. See aws_pkcs11.h.
+ *                                  This should be a string value. See iot_pkcs11.h.
  * \param[out] xObjectHandle        Updated to provide the PKCS #11 handle for the certificate
  *                                  that was imported.
  *  

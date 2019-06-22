@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_lib.h
+ * @file iot_mqtt_lib.h
  * @brief MQTT Core Library interface.
  */
 
@@ -37,9 +37,9 @@
 #ifndef mqttDO_NOT_USE_CUSTOM_CONFIG
     #include "aws_mqtt_config.h"
 #endif
-#include "aws_mqtt_config_defaults.h"
+#include "iot_mqtt_config_defaults.h"
 
-#include "aws_doubly_linked_list.h"
+#include "iot_doubly_linked_list.h"
 
  /**
   * @brief Opaque handle to represent an MQTT buffer.

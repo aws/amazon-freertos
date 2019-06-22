@@ -573,7 +573,7 @@ BTStatus_t IotBle_SendResponse( IotBleEventResponse_t * pResp,
  *
  * This function return a pointer to the connection info list.
  * The elements of this list have type:IotBleConnectionInfoListElement_t.
- * Looked into aws_doubly_linked_list.h for information on how to use the linked list.
+ * Looked into iot_doubly_linked_list.h for information on how to use the linked list.
  *
  * @param[out] pConnectionInfoList Returns the head of the connection list.
  * @return Returns eBTStatusSuccess on successful call.

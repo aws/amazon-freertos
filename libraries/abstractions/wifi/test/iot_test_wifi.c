@@ -32,20 +32,20 @@
 #include "task.h"
 #include "semphr.h"
 #include "event_groups.h"
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Unity framework includes. */
 #include "unity_fixture.h"
 
 /* Wi-Fi include. */
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 #include "aws_clientcredential.h"
 
 /* Testing variable includes. */
 #include "aws_test_runner.h"
 #include "aws_test_tcp.h"
 #include "aws_test_utils.h"
-#include "aws_test_wifi.h"
+#include "iot_test_wifi.h"
 #include "aws_test_wifi_config.h"
 
 /* Testing configurations defintions. */

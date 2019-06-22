@@ -40,15 +40,15 @@
 #include "semphr.h"
 
 /* MQTT v1 includes. */
-#include "aws_mqtt_agent.h"
-#include "aws_mqtt_agent_config.h"
-#include "aws_mqtt_agent_config_defaults.h"
+#include "iot_mqtt_agent.h"
+#include "iot_mqtt_agent_config.h"
+#include "iot_mqtt_agent_config_defaults.h"
 
 /* MQTT v4 include. */
 #include "iot_mqtt.h"
 
 /* Platform network include. */
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 
 /*-----------------------------------------------------------*/
 

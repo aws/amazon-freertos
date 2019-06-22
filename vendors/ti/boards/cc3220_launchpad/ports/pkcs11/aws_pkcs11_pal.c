@@ -35,7 +35,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_clientcredential.h"
 #include "aws_secure_sockets_config.h"
 

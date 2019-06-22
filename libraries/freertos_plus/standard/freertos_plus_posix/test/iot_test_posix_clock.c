@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_clock.c
+ * @file iot_test_posix_clock.c
  * @brief Tests for POSIX clock functions.
  */
 

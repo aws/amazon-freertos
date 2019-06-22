@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_timer.c
+ * @file iot_test_posix_timer.c
  * @brief Tests for POSIX timer functions.
  */
 

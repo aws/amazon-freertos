@@ -41,13 +41,13 @@
 #include "network_if.h"
 
 /* Wi-Fi interface includes. */
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 /* Wi-Fi config includes. */
 #include "aws_wifi_config.h"
 
 /* Secure sockets includes. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /**
  * @brief General negative error.

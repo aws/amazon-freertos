@@ -44,7 +44,7 @@
 				<itemPath>../../../../../tests/common/aws_test_framework.c</itemPath>
 				<itemPath>../../../../../tests/common/aws_test_runner.c</itemPath>
 				<itemPath>../../../../../tests/common/aws_test.c</itemPath>
-				<itemPath>../../../../../tests/common/iot_test_afr.c</itemPath>
+				<itemPath>../../../../../tests/common/iot_test_freertos.c</itemPath>
 				<itemPath>../../../../../tests/common/iot_tests_network.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="include" displayName="include" projectFiles="true">
@@ -65,14 +65,14 @@
 					<logicalFolder name="common" displayName="common" projectFiles="true">
 						<itemPath>../../../../../libraries/c_sdk/standard/common/iot_init.c</itemPath>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
-							<itemPath>../../../../../libraries/c_sdk/standard/common/include/aws_appversion32.h</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_init.h</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h</itemPath>
 							<logicalFolder name="private" displayName="private" projectFiles="true">
 								<itemPath>../../../../../libraries/c_sdk/standard/common/include/private/iot_logging.h</itemPath>
 								<itemPath>../../../../../libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</itemPath>
 							</logicalFolder>
-							<itemPath>../../../../../libraries/c_sdk/standard/common/include/aws_logging_task.h</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_logging_setup.h</itemPath>
 							<logicalFolder name="types" displayName="types" projectFiles="true">
 								<itemPath>../../../../../libraries/c_sdk/standard/common/include/types/iot_network_types.h</itemPath>
@@ -81,7 +81,7 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_taskpool.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="logging" displayName="logging" projectFiles="true">
-							<itemPath>../../../../../libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</itemPath>
 						</logicalFolder>
 						<itemPath>../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c</itemPath>
@@ -90,7 +90,7 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
-							<itemPath>../../../../../libraries/c_sdk/standard/common/test/aws_memory_leak.c</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/common/test/iot_memory_leak.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/test/iot_tests_taskpool.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
@@ -125,8 +125,8 @@
 								<itemPath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</itemPath>
 							</logicalFolder>
 							<logicalFolder name="json" displayName="json" projectFiles="true">
-								<itemPath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</itemPath>
-								<itemPath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</itemPath>
+								<itemPath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</itemPath>
+								<itemPath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</itemPath>
 							</logicalFolder>
 							<itemPath>../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</itemPath>
@@ -200,12 +200,12 @@
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="freertos" displayName="freertos" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_clock_afr.c</itemPath>
-						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_threads_afr.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c</itemPath>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
 							<logicalFolder name="platform" displayName="platform" projectFiles="true">
-								<itemPath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</itemPath>
-								<itemPath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</itemPath>
+								<itemPath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</itemPath>
+								<itemPath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</itemPath>
 							</logicalFolder>
 						</logicalFolder>
 						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_metrics.c</itemPath>
@@ -218,9 +218,9 @@
 				</logicalFolder>
 				<logicalFolder name="secure_sockets" displayName="secure_sockets" projectFiles="true">
 					<logicalFolder name="include" displayName="include" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</itemPath>
-						<itemPath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</itemPath>
-						<itemPath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</itemPath>
+						<itemPath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</itemPath>
+						<itemPath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</itemPath>
+						<itemPath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="freertos_plus_tcp" displayName="freertos_plus_tcp" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</itemPath>
@@ -231,7 +231,7 @@
 				</logicalFolder>
 				<logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
 					<logicalFolder name="include" displayName="include" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/pkcs11/include/aws_pkcs11.h</itemPath>
+						<itemPath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</itemPath>
@@ -243,7 +243,7 @@
 				</logicalFolder>
 				<logicalFolder name="wifi" displayName="wifi" projectFiles="true">
 					<logicalFolder name="include" displayName="include" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/wifi/include/aws_wifi.h</itemPath>
+						<itemPath>../../../../../libraries/abstractions/wifi/include/iot_wifi.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/wifi/test/aws_test_wifi.c</itemPath>
@@ -317,7 +317,7 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/tls/src/aws_tls.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/tls/include/aws_tls.h</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/tls/include/iot_tls.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/standard/tls/test/aws_test_tls.c</itemPath>
@@ -328,7 +328,7 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/src/aws_crypto.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/include/aws_crypto.h</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/test/aws_test_crypto.c</itemPath>
@@ -339,7 +339,7 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/utils/src/aws_system_init.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/utils/include/aws_system_init.h</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="freertos_plus_posix" displayName="freertos_plus_posix" projectFiles="true">
@@ -363,14 +363,14 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_clock.c</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_mqueue.c</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_pthread.c</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_semaphore.c</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_stress.c</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_timer.c</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_unistd.c</itemPath>
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/aws_test_posix_utils.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_mqueue.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_pthread.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_semaphore.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_stress.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_timer.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_unistd.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_utils.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 				</logicalFolder>
@@ -673,7 +673,7 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_demo_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_ggd_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_iot_network_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_mqtt_agent_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_mqtt_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_mqtt_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_ota_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_pkcs11_config.h</itemPath>

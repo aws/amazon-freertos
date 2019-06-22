@@ -33,7 +33,7 @@
 
 #include "FreeRTOS.h"
 
-#include "aws_mqtt_agent.h"
+#include "iot_mqtt_agent.h"
 
 
 /**

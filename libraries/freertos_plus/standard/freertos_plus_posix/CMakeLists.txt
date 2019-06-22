@@ -29,7 +29,7 @@ afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${inc_dir}"
-        # Requires common/include/private/aws_doubly_linked_list.h
+        # Requires common/include/private/iot_doubly_linked_list.h
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
 )
 
@@ -38,14 +38,14 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_posix_clock.c"
-        "${test_dir}/aws_test_posix_mqueue.c"
-        "${test_dir}/aws_test_posix_pthread.c"
-        "${test_dir}/aws_test_posix_semaphore.c"
-        "${test_dir}/aws_test_posix_stress.c"
-        "${test_dir}/aws_test_posix_timer.c"
-        "${test_dir}/aws_test_posix_unistd.c"
-        "${test_dir}/aws_test_posix_utils.c"
+        "${test_dir}/iot_test_posix_clock.c"
+        "${test_dir}/iot_test_posix_mqueue.c"
+        "${test_dir}/iot_test_posix_pthread.c"
+        "${test_dir}/iot_test_posix_semaphore.c"
+        "${test_dir}/iot_test_posix_stress.c"
+        "${test_dir}/iot_test_posix_timer.c"
+        "${test_dir}/iot_test_posix_unistd.c"
+        "${test_dir}/iot_test_posix_utils.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

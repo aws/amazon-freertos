@@ -167,9 +167,9 @@
 			<locationURI>AFR_HOME/demos/common/mqtt/aws_hello_world.c</locationURI>
 		</link>
 		<link>
-			<name>application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
+			<name>application_code/common_demos/source/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+			<locationURI>AFR_HOME/demos/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_shadow_lightbulb_on_off.c</name>

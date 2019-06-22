@@ -39,7 +39,7 @@
 #include "timers.h"
 
 /* Include for console serial output. */
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 
 /* Evaluates to the length of a constant string defined like 'static const char str[]= "xyz"; */
 #define CONST_STRLEN( s )    ( ( ( uint32_t ) sizeof( s ) ) - 1UL )

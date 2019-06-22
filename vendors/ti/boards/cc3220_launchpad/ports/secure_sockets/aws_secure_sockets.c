@@ -24,7 +24,7 @@
  */
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in aws_secure_sockets_wrapper_metrics.h */
+ * from redefining in iot_secure_sockets_wrapper_metrics.h */
 #define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* Standard includes. */
@@ -38,14 +38,14 @@
 #include "semphr.h"
 
 /* Secure socket interface. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* TI driver includes. */
 #include <ti/drivers/net/wifi/simplelink.h>
 
 /* Credentials includes. */
 #include "aws_clientcredential.h"
-#include "aws_default_root_certificates.h"
+#include "iot_default_root_certificates.h"
 
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 

@@ -23,9 +23,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  http://www.FreeRTOS.org
 */
 
-
 /**
- * @file aws_mqtt_agent_config.h
+ * @file iot_mqtt_agent_config.h
  * @brief MQTT agent config options.
  */
 
@@ -81,7 +80,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * This ensures that the MQTT task keeps waking up frequently and processes the
  * publish messages received from the broker, if any.
  */
-#define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS           ( 1000 )
+#define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS           ( 100 )
 
 /**
  * @defgroup MQTTTask MQTT task configuration parameters.
@@ -94,7 +93,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /**
  * @brief Maximum number of MQTT clients that can exist simultaneously.
  */
-#define mqttconfigMAX_BROKERS            ( 3 )
+#define mqttconfigMAX_BROKERS            ( 2 )
 
 /**
  * @brief Maximum number of parallel operations per client.

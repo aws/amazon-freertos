@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_secure_sockets_config_defaults.h
+ * @file iot_secure_sockets_config_defaults.h
  * @brief Ensures that the required sockets configuration options are supplied
  * and the optional ones are set to sane values if the user does not supply.
  */

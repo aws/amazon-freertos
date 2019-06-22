@@ -35,7 +35,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 
 BaseType_t test_HandleListNetworkRequest( uint8_t * pucData,

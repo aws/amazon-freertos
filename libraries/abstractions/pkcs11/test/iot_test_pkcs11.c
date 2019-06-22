@@ -34,9 +34,9 @@
 #include "event_groups.h"
 
 /* Crypto includes. */
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 #include "aws_clientcredential.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "aws_test_pkcs11_config.h"
 #include "aws_pkcs11_config.h"

@@ -310,7 +310,7 @@ set_source_files_properties(${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengra
     "-Wno-format"
 )
 
-set_source_files_properties(${AFR_MODULES_C_SDK_DIR}/common/logging/aws_logging_task_dynamic_buffers.c
+set_source_files_properties(${AFR_MODULES_C_SDK_DIR}/common/logging/iot_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
 )
@@ -325,7 +325,7 @@ set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
     "-Wno-pointer-sign"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
+set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-int-conversion"
 )

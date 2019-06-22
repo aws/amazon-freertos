@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_network_afr.h
+ * @file iot_network_freertos.h
  * @brief Declares the network stack functions specified in aws_iot_network.h for
  * Amazon FreeRTOS Secure Sockets.
  */
@@ -39,7 +39,7 @@
 #include "platform/iot_network.h"
 
 /* Amazon FreeRTOS Secure Sockets include. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Credentials include. */
 #include "aws_clientcredential.h"

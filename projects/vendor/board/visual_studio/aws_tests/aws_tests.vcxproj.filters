@@ -306,7 +306,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pkcs5.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\aws_pkcs11.h">
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\iot_pkcs11.h">
       <Filter>lib\third_party\mbedtls\include\mbedtls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pkcs12.h">
@@ -411,7 +411,7 @@
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h">
       <Filter>application_code\common_tests\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\common\include\aws_logging_task.h">
+    <ClInclude Include="..\..\..\common\include\iot_logging_task.h">
       <Filter>application_code\common_tests\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\common\include\aws_test_framework.h">
@@ -420,37 +420,37 @@
     <ClInclude Include="..\common\config_files\aws_ggd_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h">
+    <ClInclude Include="..\common\config_files\iot_mqtt_agent_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_crypto.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_crypto.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_greengrass_discovery.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_mqtt_agent.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_agent.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_mqtt_lib.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_lib.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_pkcs11.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_pkcs11.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_secure_sockets.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_secure_sockets.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\aws_shadow.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_system_init.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_system_init.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_tls.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_tls.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_wifi.h">
+    <ClInclude Include="..\..\..\..\lib\include\iot_wifi.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\event_groups.h">
@@ -480,10 +480,10 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_bufferpool.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_default_root_certificates.h">
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_default_root_certificates.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_doubly_linked_list.h">
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_doubly_linked_list.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ggd_config_defaults.h">
@@ -492,22 +492,22 @@
     <ClInclude Include="..\..\..\..\lib\include\private\aws_helper_secure_connect.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_lib_init.h">
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_lib_init.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h">
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_mqtt_agent_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_buffer.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h">
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_mqtt_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h">
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_secure_sockets_config_defaults.h">
       <Filter>lib\aws\include\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h">
@@ -893,10 +893,10 @@
     <ClCompile Include="..\..\..\common\wifi\aws_test_wifi.c">
       <Filter>application_code\common_tests\wifi</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\demos\common\logging\aws_logging_task_dynamic_buffers.c">
+    <ClCompile Include="..\..\..\..\demos\common\logging\iot_logging_task_dynamic_buffers.c">
       <Filter>application_code\common_tests\logging</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\memory_leak\aws_memory_leak.c">
+    <ClCompile Include="..\..\..\common\memory_leak\iot_memory_leak.c">
       <Filter>application_code\common_tests\memory_leak</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c">

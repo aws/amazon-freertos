@@ -33,7 +33,7 @@
  */
 
 /* Amazon FreeRTOS Includes. */
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "FreeRTOS.h"
 
 /* Marvell specific Includes. */

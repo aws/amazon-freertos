@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS V1.4.8
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS V1.1.4
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_agent_config.h
+ * @file iot_mqtt_agent_config.h
  * @brief MQTT agent config options.
  */
 
@@ -32,17 +32,6 @@
 #define _AWS_MQTT_AGENT_CONFIG_H_
 
 #include "FreeRTOS.h"
-#include "task.h"
-
-/**
- * @brief Controls whether or not to report usage metrics to the
- * AWS IoT broker.
- *
- * If mqttconfigENABLE_METRICS is set to 1, a string containing
- * metric information will be included in the "username" field of
- * the MQTT connect messages.
- */
-#define mqttconfigENABLE_METRICS                      ( 1 )
 
 /**
  * @brief The maximum time interval in seconds allowed to elapse between 2 consecutive
@@ -68,13 +57,13 @@
  * If PINGRESP is not received within this much time after sending PINGREQ,
  * the client assumes that the PINGREQ timed out.
  */
-#define mqttconfigKEEP_ALIVE_TIMEOUT_TICKS            ( 5000 )
+#define mqttconfigKEEP_ALIVE_TIMEOUT_TICKS            ( 1000 )
 
 /**
  * @defgroup MQTTTask MQTT task configuration parameters.
  */
 /** @{ */
-#define mqttconfigMQTT_TASK_STACK_DEPTH    ( ( uint32_t ) configMINIMAL_STACK_SIZE * ( uint32_t ) 4 )
+#define mqttconfigMQTT_TASK_STACK_DEPTH    ( configMINIMAL_STACK_SIZE * 4 )
 #define mqttconfigMQTT_TASK_PRIORITY       ( configMAX_PRIORITIES - 3 )
 /** @} */
 
@@ -96,7 +85,7 @@
 /**
  * @brief Length of the buffer used to receive data.
  */
-#define mqttconfigRX_BUFFER_SIZE               ( 1024 + 128 )
+#define mqttconfigRX_BUFFER_SIZE               ( 128 )
 
 /**
  * @brief The maximum time in ticks for which the MQTT task is permitted to block.

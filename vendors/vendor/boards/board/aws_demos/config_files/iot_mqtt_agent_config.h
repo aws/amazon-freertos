@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS V1.4.8
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_agent_config.h
+ * @file iot_mqtt_agent_config.h
  * @brief MQTT agent config options.
  */
 
@@ -73,14 +73,14 @@
  * @defgroup MQTTTask MQTT task configuration parameters.
  */
 /** @{ */
-#define mqttconfigMQTT_TASK_STACK_DEPTH    2048
-#define mqttconfigMQTT_TASK_PRIORITY       ( tskIDLE_PRIORITY + 2 ) //( configMAX_PRIORITIES - 3 ) //( configMAX_PRIORITIES + 2 )//
+#define mqttconfigMQTT_TASK_STACK_DEPTH    ( configMINIMAL_STACK_SIZE * 4 )
+#define mqttconfigMQTT_TASK_PRIORITY       ( configMAX_PRIORITIES - 3 )
 /** @} */
 
 /**
  * @brief Maximum number of MQTT clients that can exist simultaneously.
  */
-#define mqttconfigMAX_BROKERS            ( 2 )
+#define mqttconfigMAX_BROKERS                  ( 4 )
 
 /**
  * @brief Maximum number of parallel operations per client.
@@ -100,6 +100,6 @@
 /**
  * @brief The maximum time in ticks for which the MQTT task is permitted to block.
  */
-#define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS    ( 1000 )
+#define mqttconfigMQTT_TASK_MAX_BLOCK_TICKS    ( 100 )
 
 #endif /* _AWS_MQTT_AGENT_CONFIG_H_ */

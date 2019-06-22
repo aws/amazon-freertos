@@ -39,7 +39,7 @@
 #include "unity.h"
 
 /* Use platform types on FreeRTOS. */
-#include "platform/iot_platform_types_afr.h"
+#include "platform/iot_platform_types_freertos.h"
 
 /* SDK version. */
 #define IOT_SDK_VERSION             "4.0.0"
@@ -209,7 +209,7 @@ extern int snprintf( char *,
 
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
 #ifndef IOT_TEST_NETWORK_HEADER
-    #define IOT_TEST_NETWORK_HEADER        "platform/iot_network_afr.h"
+    #define IOT_TEST_NETWORK_HEADER        "platform/iot_network_freertos.h"
 #endif
 
 /* All tests use a secured connection. */
