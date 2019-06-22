@@ -916,38 +916,29 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
     /* Connection was successful, so create semaphores. */
     /* The overall lock on the connection is set to 1 to start so that the first
        thread to need to use it can use it. */
-    if( IotSemaphore_Create( &( _httpsConnection->connSem ), 1, 1 ) == false )
+    connSemCreated = IotSemaphore_Create( &( _httpsConnection->connSem ), 1, 1 );
+    if(!connSemCreated)
     {
         IotLogError("Failed to create an internal connection semaphore.");
         IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
     }
-    else
-    {
-        connSemCreated = true;
-    }
 
     /* The reading start semaphore is initialized to 0 so that the network context can
        set it to 1 for a thread to read from the socket. */
-    if( IotSemaphore_Create( &( _httpsConnection->rxStartSem ), 0, 1 ) == false )
+    rxStartSemCreated = IotSemaphore_Create( &( _httpsConnection->rxStartSem ), 0, 1 );
+    if(!rxStartSemCreated)
     {
         IotLogError( "Failed to create an internal connection semaphore." );
         IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
-    }
-    else
-    {
-        rxStartSemCreated = true;
     }
 
     /* The reading finished semaphore is initialized to 0 that the application context
        can set it to 1 for the network context to return from the read ready callback. */
-    if( IotSemaphore_Create( &( _httpsConnection->rxFinishSem ), 0, 1 ) == false )
+    rxFinishedSemCreated = IotSemaphore_Create( &( _httpsConnection->rxFinishSem ), 0, 1 );
+    if(!rxFinishedSemCreated)
     {
         IotLogError( "Failed to create an internal connection semaphore." );
         IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
-    }
-    else
-    {
-        rxFinishedSemCreated = true;
     }
 
     /* Return the new connection information. */
