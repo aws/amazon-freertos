@@ -148,7 +148,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/pem2der.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_afr.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_clock.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/test/iot_test_platform_threads.c \

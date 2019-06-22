@@ -30,7 +30,7 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/mbedtls")
 afr_module_sources(
     pkcs11_mbedtls
     INTERFACE
-        "${src_dir}/aws_pkcs11_mbedtls.c"
+        "${src_dir}/iot_pkcs11_mbedtls.c"
         "${src_dir}/threading_alt.h"
 )
 

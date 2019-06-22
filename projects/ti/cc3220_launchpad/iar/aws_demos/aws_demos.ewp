@@ -1234,7 +1234,7 @@
 						<group>
 							<name>secure_sockets</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\secure_sockets\aws_secure_sockets.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\secure_sockets\iot_secure_sockets.c</name>
 							</file>
 						</group>
 						<group>
@@ -1440,7 +1440,7 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_afr.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c</name>
 					</file>
 				</group>
 			</group>
@@ -1547,7 +1547,7 @@
 					<group>
 						<name>src</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_system_init.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
 						</file>
 					</group>
 					<group>
@@ -1631,7 +1631,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h</name>
@@ -1715,7 +1715,7 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c</name>
 						</file>
 					</group>
 				</group>

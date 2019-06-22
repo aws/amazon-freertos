@@ -33,6 +33,6 @@
         "lib/FreeRTOS-Plus-POSIX/include/portable/{vendor}/{board}",
         "lib/wifi/portable/{vendor}/{board}/aws_wifi.c",
         "lib/ota/portable/{vendor}/{board}/aws_ota_pal.c",
-        "lib/secure_sockets/portable/{vendor}/{board}/aws_secure_sockets.c"
+        "lib/secure_sockets/portable/{vendor}/{board}/iot_secure_sockets.c"
     ]
 }

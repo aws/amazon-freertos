@@ -216,7 +216,7 @@
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_init.c" />
             <file file_name="../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c" />
             <folder Name="include">
-              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h" />
+              <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_atomic.h" />
               <file file_name="../../../../../libraries/c_sdk/standard/common/include/iot_init.h" />

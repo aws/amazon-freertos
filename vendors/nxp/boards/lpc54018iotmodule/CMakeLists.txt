@@ -263,7 +263,7 @@ target_link_libraries(
 
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${lpc54018_ports_dir}/secure_sockets/aws_secure_sockets.c"
+    INTERFACE "${lpc54018_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
 # -------------------------------------------------------------------------------------------------

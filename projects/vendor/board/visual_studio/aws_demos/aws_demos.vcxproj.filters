@@ -99,7 +99,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
+    <ClCompile Include="..\..\..\..\lib\crypto\iot_crypto.c">
       <Filter>lib\aws\crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_greengrass_discovery.c">
@@ -375,13 +375,13 @@
     <ClCompile Include="..\..\..\common\mqtt\aws_hello_world.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c">
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_agent.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c">
+    <ClCompile Include="..\..\..\..\lib\utils\iot_system_init.c">
       <Filter>lib\aws\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c">
+    <ClCompile Include="..\..\..\..\lib\tls\iot_tls.c">
       <Filter>lib\aws\tls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\tcp\aws_tcp_echo_client_separate_tasks.c">
@@ -393,7 +393,7 @@
     <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c">
       <Filter>lib\aws\wifi</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\aws_secure_sockets.c">
+    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\iot_secure_sockets.c">
       <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\logging\iot_logging_task_dynamic_buffers.c">
@@ -408,7 +408,7 @@
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c">
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\ota\portable\vendor\board\aws_ota_pal.c">

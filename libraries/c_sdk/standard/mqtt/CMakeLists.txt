@@ -40,7 +40,7 @@ if(TARGET AFR::secure_sockets::mcu_port)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_mqtt_agent.c"
+        "${src_dir}/iot_mqtt_agent.c"
 )
 endif()
 
