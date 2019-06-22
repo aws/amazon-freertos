@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_pthread.c
+ * @file iot_test_posix_pthread.c
  * @brief Tests for POSIX pthread functions.
  */
 

@@ -9,8 +9,8 @@ afr_module_sources(
     PRIVATE
         "${src_dir}/cbor/iot_serializer_tinycbor_decoder.c"
         "${src_dir}/cbor/iot_serializer_tinycbor_encoder.c"
-        "${src_dir}/json/aws_iot_serializer_json_decoder.c"
-        "${src_dir}/json/aws_iot_serializer_json_encoder.c"
+        "${src_dir}/json/iot_serializer_json_decoder.c"
+        "${src_dir}/json/iot_serializer_json_encoder.c"
         "${src_dir}/iot_serializer_static_memory.c"
         "${inc_dir}/iot_serializer.h"
         "${src_dir}/iot_json_utils.c"

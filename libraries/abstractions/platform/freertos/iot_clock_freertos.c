@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_clock_afr.c
+ * @file iot_clock_freertos.c
  * @brief Implementation of the functions in iot_clock.h for Amazon FreeRTOS systems.
  */
 
@@ -35,7 +35,7 @@
 #include <stdio.h>
 
 /* Platform clock include. */
-#include "platform/iot_platform_types_afr.h"
+#include "platform/iot_platform_types_freertos.h"
 #include "platform/iot_clock.h"
 #include "task.h"
 

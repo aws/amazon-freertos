@@ -31,7 +31,7 @@
 
 #include "aws_clientcredential.h"
 
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 
 /* Defender agent's status, initialized with eDefenderRepInit. */
 static DefenderReportStatus_t _status = eDefenderRepInit;

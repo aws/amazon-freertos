@@ -33,7 +33,7 @@
 #ifndef _AWS_FREERTOS_TCP_TEST_ACCESS_TCP_DEFINE_H_
 #define _AWS_FREERTOS_TCP_TEST_ACCESS_TCP_DEFINE_H_
 
-#include "aws_freertos_tcp_test_access_declare.h"
+#include "iot_freertos_tcp_test_access_declare.h"
 
 /*-----------------------------------------------------------*/
 

@@ -33,7 +33,7 @@
 #include <string.h>
 #include "FreeRTOS.h"
 #include "event_groups.h"
-#include "aws_doubly_linked_list.h"
+#include "iot_doubly_linked_list.h"
 #include "semphr.h"
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"

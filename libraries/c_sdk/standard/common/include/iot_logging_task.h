@@ -27,7 +27,7 @@
 #define AWS_LOGGING_TASK_H
 
 #ifndef INC_FREERTOS_H
-    #error "include FreeRTOS.h must appear in source files before include aws_logging_task.h"
+    #error "include FreeRTOS.h must appear in source files before include iot_logging_task.h"
 #endif
 
 /*

@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_agent.h
+ * @file iot_mqtt_agent.h
  * @brief MQTT Agent Interface.
  */
 
@@ -35,10 +35,10 @@
 #include "FreeRTOS.h"
 
 /* MQTT lib includes. */
-#include "aws_mqtt_lib.h"
+#include "iot_mqtt_lib.h"
 
 /* Library initialization definition include */
-#include "aws_lib_init.h"
+#include "iot_lib_init.h"
 
 /**
  * @brief Opaque handle to represent an MQTT client.

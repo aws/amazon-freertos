@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_config_defaults.h
+ * @file iot_mqtt_config_defaults.h
  * @brief MQTT default config options.
  *
  * Ensures that the config options for MQTT are set to sensible default

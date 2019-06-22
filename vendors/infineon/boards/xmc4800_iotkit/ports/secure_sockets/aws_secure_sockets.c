@@ -34,7 +34,7 @@
  */
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in aws_secure_sockets_wrapper_metrics.h */
+ * from redefining in iot_secure_sockets_wrapper_metrics.h */
 #define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* FreeRTOS includes. */
@@ -43,12 +43,12 @@
 #include "semphr.h"
 
 /* TLS includes. */
-#include "aws_tls.h"
-#include "aws_pkcs11.h"
+#include "iot_tls.h"
+#include "iot_pkcs11.h"
 
 /* Socket and WiFi interface includes. */
-#include "aws_wifi.h"
-#include "aws_secure_sockets.h"
+#include "iot_wifi.h"
+#include "iot_secure_sockets.h"
 #include "esp/esp_netconn.h"
 
 /* WiFi configuration includes. */

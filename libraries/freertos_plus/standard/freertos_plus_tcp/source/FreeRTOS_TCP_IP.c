@@ -3343,6 +3343,6 @@ BaseType_t xResult = pdFALSE;
 
 /* Provide access to private members for testing. */
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-	#include "aws_freertos_tcp_test_access_tcp_define.h"
+	#include "iot_freertos_tcp_test_access_tcp_define.h"
 #endif
 

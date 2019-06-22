@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_unistd.c
+ * @file iot_test_posix_unistd.c
  * @brief Tests for implementation of functions in unistd.h.
  */
 

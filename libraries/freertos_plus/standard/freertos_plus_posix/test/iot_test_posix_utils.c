@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_utils.c
+ * @file iot_test_posix_utils.c
  * @brief Tests for POSIX utility functions.
  *
  * Some utility functions are considered adequately tested by other functions

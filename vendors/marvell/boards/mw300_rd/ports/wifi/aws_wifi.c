@@ -32,7 +32,7 @@
 #include "list.h"
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_DNS.h"
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 /* Wi-Fi configuration includes. */
 #include "aws_wifi_config.h"

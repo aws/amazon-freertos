@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_iot_serializer_json_encoder.c
+ * @file iot_serializer_json_encoder.c
  * @brief Implements APIs to serialize data in JSON format. Supports JSON primitives-
  * Numbers, Strings, boolean and null types, container types - arrays and maps.
  * A special type called binary string is also supported as a value type. By default

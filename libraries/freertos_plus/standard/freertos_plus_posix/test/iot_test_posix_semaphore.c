@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_posix_semaphore.c
+ * @file iot_test_posix_semaphore.c
  * @brief Tests for POSIX semaphore functions.
  */
 

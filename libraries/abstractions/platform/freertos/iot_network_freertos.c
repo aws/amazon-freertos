@@ -25,7 +25,7 @@
 
 /**
  * @file iot_network_afr.c
- * @brief Implementation of the network-related functions from iot_network_afr.h
+ * @brief Implementation of the network-related functions from iot_network_freertos.h
  * for Amazon FreeRTOS secure sockets.
  */
 
@@ -43,7 +43,7 @@
 #include "private/iot_error.h"
 
 /* Amazon FreeRTOS network include. */
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_NETWORK

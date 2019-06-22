@@ -30,7 +30,7 @@
  */
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in aws_secure_sockets_wrapper_metrics.h */
+ * from redefining in iot_secure_sockets_wrapper_metrics.h */
 #define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* FreeRTOS includes. */
@@ -39,22 +39,22 @@
 #include "semphr.h"
 
 /* TLS includes. */
-#include "aws_tls.h"
+#include "iot_tls.h"
 
 /* WiFi driver includes. */
 #include "es_wifi.h"
 #include "es_wifi_io.h"
 
 /* Socket and WiFi interface includes. */
-#include "aws_secure_sockets.h"
-#include "aws_wifi.h"
+#include "iot_secure_sockets.h"
+#include "iot_wifi.h"
 
 /* WiFi configuration includes. */
 #include "aws_wifi_config.h"
 
 /* Credentials includes. */
 #include "aws_clientcredential.h"
-#include "aws_default_root_certificates.h"
+#include "iot_default_root_certificates.h"
 
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 

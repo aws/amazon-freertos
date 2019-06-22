@@ -27,7 +27,7 @@
 #define _AWS_SYSTEM_INIT_H_
 
 #ifndef INC_FREERTOS_H
-    #error "include FreeRTOS.h must appear in source files before include aws_system_init.h"
+    #error "include FreeRTOS.h must appear in source files before include iot_system_init.h"
 #endif
 
 BaseType_t SYSTEM_Init( void );

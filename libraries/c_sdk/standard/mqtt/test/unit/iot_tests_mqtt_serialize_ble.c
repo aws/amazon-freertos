@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_iot_tests_mqtt_serialize_ble.c
+ * @file iot_tests_mqtt_serialize_ble.c
  * @brief Tests for serialize/deserialize functions for MQTT BLE proxy
  */
 

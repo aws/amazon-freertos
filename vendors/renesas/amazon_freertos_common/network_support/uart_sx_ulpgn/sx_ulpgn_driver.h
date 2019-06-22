@@ -1,7 +1,7 @@
 #ifndef SX_ULPGN_DRIVER_H
 #define SX_ULPGN_DRIVER_H
 
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 #define DEBUGLOG  0
 #define ULPGN_PORT_DEBUG 0

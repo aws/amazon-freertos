@@ -26,7 +26,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/config.h"

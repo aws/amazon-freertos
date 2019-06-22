@@ -26,8 +26,8 @@
 #include <stdbool.h>
 
 #include "FreeRTOS.h"
-#include "aws_system_init.h"
-#include "aws_secure_sockets.h"
+#include "iot_system_init.h"
+#include "iot_secure_sockets.h"
 
 
 /*-----------------------------------------------------------*/

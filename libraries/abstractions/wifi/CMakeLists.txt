@@ -12,7 +12,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PRIVATE "${inc_dir}/aws_wifi.h"
+    PRIVATE "${inc_dir}/iot_wifi.h"
 )
 
 afr_module_include_dirs(

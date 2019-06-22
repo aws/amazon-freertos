@@ -7,7 +7,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${src_dir}/aws_system_init.c"
-        "${inc_dir}/aws_system_init.h"
+        "${inc_dir}/iot_system_init.h"
 )
 
 afr_module_include_dirs(

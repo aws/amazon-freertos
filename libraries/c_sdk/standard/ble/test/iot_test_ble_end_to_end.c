@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_ble_end_to_end.c
+ * @file iot_test_ble_end_to_end.c
  * @brief Tests for ble.
  */
 /* The config header is always included first. */

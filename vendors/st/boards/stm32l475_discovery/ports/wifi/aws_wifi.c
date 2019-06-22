@@ -38,7 +38,7 @@
 #include "es_wifi_io.h"
 
 /* Socket and Wi-Fi interface includes. */
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 /**
  * @brief The credential set to use for TLS on the Inventek module.

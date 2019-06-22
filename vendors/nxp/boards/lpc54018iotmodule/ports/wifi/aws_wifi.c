@@ -30,13 +30,13 @@
 
 #include <stdio.h>
 #include "FreeRTOS.h"
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 #include "wifi_common.h"
 #include "qcom_api.h"
 #include "atheros_wifi.h"
 
-/* This is here because the maximum DNS name length is defined in aws_secure_sockets.h.
- * Wi-Fi must not have a dependency on aws_secure_sockets.h
+/* This is here because the maximum DNS name length is defined in iot_secure_sockets.h.
+ * Wi-Fi must not have a dependency on iot_secure_sockets.h
  */
 #define wifiMAX_DNS_NAME_LENGTH 253
 

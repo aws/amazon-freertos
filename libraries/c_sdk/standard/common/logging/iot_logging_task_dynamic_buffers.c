@@ -29,7 +29,7 @@
 #include "queue.h"
 
 /* Logging includes. */
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 
 /* Standard includes. */
 #include <stdio.h>

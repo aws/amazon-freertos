@@ -8,7 +8,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         "${src_dir}/aws_crypto.c"
-        "${inc_dir}/aws_crypto.h"
+        "${inc_dir}/iot_crypto.h"
 )
 
 afr_module_include_dirs(

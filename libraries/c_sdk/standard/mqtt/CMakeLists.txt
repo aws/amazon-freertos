@@ -66,7 +66,7 @@ afr_test_module()
 
 # Enable tests for BLE-over-MQTT serializers on supported boards.
 if(BLE_SUPPORTED)
-    set(extra_test_mqtt_sources "${test_dir}/unit/aws_iot_tests_mqtt_serialize_ble.c")
+    set(extra_test_mqtt_sources "${test_dir}/unit/iot_tests_mqtt_serialize_ble.c")
 endif()
 
 afr_module_sources(

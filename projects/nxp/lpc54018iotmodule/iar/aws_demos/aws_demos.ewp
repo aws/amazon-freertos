@@ -1844,7 +1844,7 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_iot_network_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_mqtt_agent_config.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_mqtt_config.h</name>
@@ -1995,7 +1995,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_appversion32.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h</name>
@@ -2013,7 +2013,7 @@
 							</file>
 						</group>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_logging_task.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_task.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h</name>
@@ -2034,7 +2034,7 @@
 					<group>
 						<name>logging</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\aws_logging_task_dynamic_buffers.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging_task_dynamic_buffers.c</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c</name>
@@ -2099,10 +2099,10 @@
 						<group>
 							<name>json</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_decoder.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_decoder.c</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_encoder.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_encoder.c</name>
 							</file>
 						</group>
 						<file>
@@ -2224,10 +2224,10 @@
 				<group>
 					<name>freertos</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_afr.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_freertos.c</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_afr.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_freertos.c</name>
 					</file>
 					<group>
 						<name>include</name>
@@ -2237,7 +2237,7 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_afr.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_afr.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h</name>
 							</file>
 						</group>
 					</group>
@@ -2254,13 +2254,13 @@
 				<group>
 					<name>include</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_config_defaults.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_wrapper_metrics.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h</name>
 					</file>
 				</group>
 			</group>
@@ -2269,7 +2269,7 @@
 				<group>
 					<name>include</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\aws_pkcs11.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11.h</name>
 					</file>
 				</group>
 				<group>
@@ -2287,7 +2287,7 @@
 				<group>
 					<name>include</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include\aws_wifi.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include\iot_wifi.h</name>
 					</file>
 				</group>
 			</group>
@@ -2352,7 +2352,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include\aws_tls.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h</name>
 						</file>
 					</group>
 				</group>
@@ -2367,7 +2367,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\aws_crypto.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h</name>
 						</file>
 					</group>
 				</group>
@@ -2382,7 +2382,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\aws_system_init.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
 						</file>
 					</group>
 				</group>

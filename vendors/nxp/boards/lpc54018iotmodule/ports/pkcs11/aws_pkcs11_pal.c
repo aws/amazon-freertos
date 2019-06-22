@@ -35,9 +35,9 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 #include "task.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_pkcs11_config.h"
 
 /* Flash write */

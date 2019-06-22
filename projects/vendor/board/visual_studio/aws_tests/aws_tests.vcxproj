@@ -85,32 +85,32 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch\portmacro.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_crypto.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_crypto.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_greengrass_discovery.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_mqtt_agent.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_mqtt_lib.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_pkcs11.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_secure_sockets.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_agent.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_mqtt_lib.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_pkcs11.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_secure_sockets.h" />
     <ClInclude Include="..\..\..\..\lib\include\aws_shadow.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_system_init.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_tls.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_wifi.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_system_init.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_tls.h" />
+    <ClInclude Include="..\..\..\..\lib\include\iot_wifi.h" />
     <ClInclude Include="..\..\..\..\lib\include\event_groups.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS.h" />
     <ClInclude Include="..\..\..\..\lib\include\message_buffer.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_bufferpool.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_default_root_certificates.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_doubly_linked_list.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_default_root_certificates.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_doubly_linked_list.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ggd_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_greengrass_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_helper_secure_connect.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_lib_init.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_agent_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_lib_init.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_mqtt_agent_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_buffer.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_mqtt_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_mqtt_lib_private.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_cbor.h" />
-    <ClInclude Include="..\..\..\..\lib\include\private\aws_secure_sockets_config_defaults.h" />
+    <ClInclude Include="..\..\..\..\lib\include\private\iot_secure_sockets_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_config_defaults.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_shadow_json.h" />
     <ClInclude Include="..\..\..\..\lib\include\private\aws_ota_pal.h" />
@@ -172,7 +172,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\padlock.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pem.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pk.h" />
-    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\aws_pkcs11.h" />
+    <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\iot_pkcs11.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pkcs12.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pkcs5.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\pk_internal.h" />
@@ -201,7 +201,7 @@
     <ClInclude Include="..\..\..\..\lib\third_party\mbedtls\include\mbedtls\xtea.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential.h" />
     <ClInclude Include="..\..\..\common\include\aws_clientcredential_keys.h" />
-    <ClInclude Include="..\..\..\common\include\aws_logging_task.h" />
+    <ClInclude Include="..\..\..\common\include\iot_logging_task.h" />
     <ClInclude Include="..\..\..\common\include\aws_test_framework.h" />
     <ClInclude Include="..\..\..\Common\include\aws_test_runner.h" />
     <ClInclude Include="..\..\..\..\lib\third_party\cmock\src\cmock.h" />
@@ -213,7 +213,7 @@
     <ClInclude Include="..\common\config_files\aws_bufferpool_config.h" />
     <ClInclude Include="..\common\config_files\aws_demo_config.h" />
     <ClInclude Include="..\common\config_files\aws_ggd_config.h" />
-    <ClInclude Include="..\common\config_files\aws_mqtt_agent_config.h" />
+    <ClInclude Include="..\common\config_files\iot_mqtt_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_mqtt_config.h" />
     <ClInclude Include="..\common\config_files\aws_ota_agent_config.h" />
     <ClInclude Include="..\common\config_files\aws_pkcs11_config.h" />
@@ -228,7 +228,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
-    <ClCompile Include="..\..\..\..\demos\common\logging\aws_logging_task_dynamic_buffers.c" />
+    <ClCompile Include="..\..\..\..\demos\common\logging\iot_logging_task_dynamic_buffers.c" />
     <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c" />
     <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\event_groups.c" />
@@ -341,7 +341,7 @@
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_helper_secure_connect.c" />
-    <ClCompile Include="..\..\..\common\memory_leak\aws_memory_leak.c" />
+    <ClCompile Include="..\..\..\common\memory_leak\iot_memory_leak.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_agent.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_lib.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_agent.c" />

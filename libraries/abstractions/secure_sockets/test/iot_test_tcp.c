@@ -36,7 +36,7 @@
 #include "event_groups.h"
 
 /* Secure Sockets includes. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Test framework includes. */
 #include "unity_fixture.h"
@@ -2577,7 +2577,7 @@ void prvStartTCPEchoClientTasks_DifferentSockets( Server_t xConn )
         {
             TEST_ASSERT_EQUAL_MESSAGE( SOCKETS_ERROR_NONE,
                                        xTcptestEchoClientsTaskParams[ usIndex ].xResult,
-                                       "Check aws_secure_sockets.h for error code" );
+                                       "Check iot_secure_sockets.h for error code" );
         }
     }
 

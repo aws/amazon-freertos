@@ -1,0 +1,64 @@
+<!DOCTYPE CrossStudio_Session_File>
+<session>
+ <Bookmarks/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
+ <ExecutionProfileWindow/>
+ <FrameBufferWindow>
+  <FrameBufferWindow bufferHeight="-1" addressSpace="" addressText="" bufferWidth="-1"/>
+ </FrameBufferWindow>
+ <Memory1/>
+ <Memory2/>
+ <Memory3/>
+ <Memory4/>
+ <Project>
+  <ProjectSessionItem path="aws_demos"/>
+  <ProjectSessionItem path="aws_demos;aws_demos"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;application_code"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;application_code;common_demos"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;application_code;common_demos;demo_runner"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;application_code;common_demos;include"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;config_files"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;platform"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;platform;freertos"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;platform;include"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;platform;include;platform"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;platform;include;types"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;posix"/>
+ </Project>
+ <Register1/>
+ <Register2/>
+ <Register3/>
+ <Register4/>
+ <Threads>
+  <ThreadsWindow showLists=""/>
+ </Threads>
+ <TraceWindow>
+  <Trace enabled="Yes"/>
+ </TraceWindow>
+ <Watch1>
+  <Watches active="1" update="Never"/>
+ </Watch1>
+ <Watch2>
+  <Watches active="0" update="Never"/>
+ </Watch2>
+ <Watch3>
+  <Watches active="0" update="Never"/>
+ </Watch3>
+ <Watch4>
+  <Watches active="0" update="Never"/>
+ </Watch4>
+ <Files>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="34" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../demos/include/iot_config_common.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="28" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../demos/include/aws_application_version.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="41" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_agent.h" selected="0" top="4" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="24" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_internal.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="47" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow.c" selected="0" top="13" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="35" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/c_sdk/aws/shadow/include/aws_shadow.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="25" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent.h" selected="0" top="8" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="39" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_lib.h" selected="0" top="1" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="25" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c" selected="1" top="6" codecName="Default"/>
+ </Files>
+ <ARMCrossStudioWindow activeProject="aws_demos" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
+</session>

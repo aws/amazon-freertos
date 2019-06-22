@@ -38,7 +38,7 @@
 #include "private/iot_error.h"
 
 #if TCPIP_NETWORK_ENABLED
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 #endif
 
 #if BLE_ENABLED
