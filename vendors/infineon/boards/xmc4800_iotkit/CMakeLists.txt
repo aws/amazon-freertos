@@ -241,7 +241,7 @@ target_link_libraries(
 
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${xmc4800_ports_dir}/secure_sockets/aws_secure_sockets.c"
+    INTERFACE "${xmc4800_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
 # -------------------------------------------------------------------------------------------------

@@ -215,7 +215,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
+    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c"
 )
 
 target_include_directories(

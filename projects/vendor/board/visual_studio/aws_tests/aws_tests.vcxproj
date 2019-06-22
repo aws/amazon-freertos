@@ -230,7 +230,7 @@
     <ClCompile Include="..\..\..\..\demos\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\..\demos\common\logging\iot_logging_task_dynamic_buffers.c" />
     <ClCompile Include="..\..\..\..\lib\bufferpool\aws_bufferpool_static_thread_safe.c" />
-    <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c" />
+    <ClCompile Include="..\..\..\..\lib\crypto\iot_crypto.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\event_groups.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\list.c" />
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch\port.c" />
@@ -243,14 +243,14 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_helper_secure_connect.c" />
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c" />
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_lib.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c" />
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_cbor.c" />
     <ClCompile Include="..\..\..\..\lib\ota\portable\vendor\board\aws_ota_pal.c" />
-    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c" />
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c" />
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c" />
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\aws_secure_sockets.c" />
+    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\iot_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\lib\shadow\aws_shadow.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
@@ -334,8 +334,8 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborparser_dup_string.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborpretty.c" />
-    <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c" />
-    <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c" />
+    <ClCompile Include="..\..\..\..\lib\tls\iot_tls.c" />
+    <ClCompile Include="..\..\..\..\lib\utils\iot_system_init.c" />
     <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c" />
     <ClCompile Include="..\..\..\common\crypto\aws_test_crypto.c" />
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c" />

@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_secure_sockets.c
+ * @file iot_secure_sockets.c
  * @brief WiFi and Secure Socket interface implementation.
  */
 

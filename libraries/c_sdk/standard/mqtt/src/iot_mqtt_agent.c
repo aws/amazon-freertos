@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_agent.c
+ * @file iot_mqtt_agent.c
  * @brief MQTT Agent implementation. Provides backwards compatibility between
  * MQTT v4 and MQTT v1.
  */

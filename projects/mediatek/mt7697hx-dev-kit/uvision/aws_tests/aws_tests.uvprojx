@@ -1030,9 +1030,9 @@
 					<GroupName>libraries/c_sdk/standard/common/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_appversion32.h.h</FileName>
+							<FileName>iot_appversion32.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_init.h</FileName>
@@ -1175,9 +1175,9 @@
 							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_metrics.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_network_afr.c</FileName>
+							<FileName>iot_network_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_network_afr.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_network_freertos.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1220,9 +1220,9 @@
 					<GroupName>libraries/abstractions/secure_sockets/lwip/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_secure_sockets.c</FileName>
+							<FileName>iot_secure_sockets.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/lwip/aws_secure_sockets.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1230,9 +1230,9 @@
 					<GroupName>libraries/freertos_plus/standard/tls/src/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_tls.c</FileName>
+							<FileName>iot_tls.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/tls/src/aws_tls.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/tls/src/iot_tls.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1250,9 +1250,9 @@
 					<GroupName>libraries/freertos_plus/standard/crypto/src/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_crypto.c</FileName>
+							<FileName>iot_crypto.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/aws_crypto.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1290,9 +1290,9 @@
 					<GroupName>libraries/abstractions/pkcs11/mbedtls/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_pkcs11_mbedtls.c</FileName>
+							<FileName>iot_pkcs11_mbedtls.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
 						</File>
 						<File>
 							<FileName>threading_alt.h</FileName>
@@ -1470,9 +1470,9 @@
 					<GroupName>libraries/freertos_plus/standard/utils/src/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_system_init.c</FileName>
+							<FileName>iot_system_init.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/utils/src/aws_system_init.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1570,9 +1570,9 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_mqtt_agent.c</FileName>
+							<FileName>iot_mqtt_agent.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</FilePath>
 						</File>
 					</Files>
 				</Group>

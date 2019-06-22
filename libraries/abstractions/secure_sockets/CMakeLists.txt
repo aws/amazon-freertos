@@ -37,7 +37,7 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 
 afr_module_sources(
     secure_sockets_freertos_plus_tcp INTERFACE
-    "${src_dir}/aws_secure_sockets.c"
+    "${src_dir}/iot_secure_sockets.c"
 )
 
 afr_module_dependencies(
@@ -57,7 +57,7 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/lwip")
 afr_module_sources(
     secure_sockets_lwip
     INTERFACE
-        "${src_dir}/aws_secure_sockets.c"
+        "${src_dir}/iot_secure_sockets.c"
 )
 
 afr_module_dependencies(

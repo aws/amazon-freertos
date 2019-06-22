@@ -196,7 +196,7 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # Or provide your own implementation.
 # target_sources(
 #     AFR::secure_sockets::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/${portable_dir}/aws_secure_sockets.c"
+#     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/${portable_dir}/iot_secure_sockets.c"
 # )
 
 # OTA

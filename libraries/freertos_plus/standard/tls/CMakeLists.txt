@@ -7,7 +7,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_tls.c"
+        "${src_dir}/iot_tls.c"
         "${inc_dir}/iot_tls.h"
 )
 

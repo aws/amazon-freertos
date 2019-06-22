@@ -35,7 +35,7 @@ if(TARGET AFR::secure_sockets::mcu_port)
         PRIVATE
         "${inc_dir}/platform/iot_metrics.h"
         "${src_dir}/iot_metrics.c"
-        "${src_dir}/iot_network_afr.c"
+        "${src_dir}/iot_network_freertos.c"
         "${src_dir}/include/platform/iot_network_freertos.h"
     )
     afr_module_dependencies(

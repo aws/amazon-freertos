@@ -139,7 +139,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${afr_ports_dir}/secure_sockets/aws_secure_sockets.c"
+    INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
 # -------------------------------------------------------------------------------------------------

@@ -65,7 +65,7 @@
 					<logicalFolder name="common" displayName="common" projectFiles="true">
 						<itemPath>../../../../../libraries/c_sdk/standard/common/iot_init.c</itemPath>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
-							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h.h</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_init.h</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h</itemPath>
 							<logicalFolder name="private" displayName="private" projectFiles="true">
@@ -103,7 +103,7 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</itemPath>
-							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
 							<logicalFolder name="unit" displayName="unit" projectFiles="true">
@@ -209,7 +209,7 @@
 							</logicalFolder>
 						</logicalFolder>
 						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_metrics.c</itemPath>
-						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_network_afr.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/platform/freertos/iot_network_freertos.c</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/platform/test/iot_test_platform_clock.c</itemPath>
@@ -223,7 +223,7 @@
 						<itemPath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="freertos_plus_tcp" displayName="freertos_plus_tcp" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/secure_sockets/test/aws_test_tcp.c</itemPath>
@@ -234,7 +234,7 @@
 						<itemPath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</itemPath>
 						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
@@ -314,7 +314,7 @@
 					</logicalFolder>
 					<logicalFolder name="tls" displayName="tls" projectFiles="true">
 						<logicalFolder name="src" displayName="src" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/tls/src/aws_tls.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/tls/src/iot_tls.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/standard/tls/include/iot_tls.h</itemPath>
@@ -325,7 +325,7 @@
 					</logicalFolder>
 					<logicalFolder name="crypto" displayName="crypto" projectFiles="true">
 						<logicalFolder name="src" displayName="src" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/src/aws_crypto.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</itemPath>
@@ -336,7 +336,7 @@
 					</logicalFolder>
 					<logicalFolder name="utils" displayName="utils" projectFiles="true">
 						<logicalFolder name="src" displayName="src" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/utils/src/aws_system_init.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</itemPath>

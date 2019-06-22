@@ -578,7 +578,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\unity\src\unity.c">
       <Filter>lib\third_party\unity\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\crypto\aws_crypto.c">
+    <ClCompile Include="..\..\..\..\lib\crypto\iot_crypto.c">
       <Filter>lib\aws\crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\aes.c">
@@ -863,13 +863,13 @@
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c">
       <Filter>application_code\common_tests\framework</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\tls\aws_tls.c">
+    <ClCompile Include="..\..\..\..\lib\tls\iot_tls.c">
       <Filter>lib\aws\tls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\utils\aws_system_init.c">
+    <ClCompile Include="..\..\..\..\lib\utils\iot_system_init.c">
       <Filter>lib\aws\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\mqtt\aws_mqtt_agent.c">
+    <ClCompile Include="..\..\..\..\lib\mqtt\iot_mqtt_agent.c">
       <Filter>lib\aws\mqtt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\third_party\jsmn\jsmn.c">
@@ -884,7 +884,7 @@
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch\port.c">
       <Filter>lib\aws\FreeRTOS\portable\Compiler\Arch</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\aws_secure_sockets.c">
+    <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\iot_secure_sockets.c">
       <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c">
@@ -905,7 +905,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c">
       <Filter>lib\third_party\mbedtls\library</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\aws_pkcs11_mbedtls.c">
+    <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c">

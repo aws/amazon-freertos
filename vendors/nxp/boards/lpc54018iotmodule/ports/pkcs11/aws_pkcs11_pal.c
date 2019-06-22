@@ -285,7 +285,7 @@ extern CK_RV prvMbedTLS_Initialize( void );
  * @brief Initialize the Cryptoki module for use.
  *
  * Overrides the implementation of C_Initialize in
- * aws_pkcs11_mbedtls.c when pkcs11configC_INITIALIZE_ALT
+ * iot_pkcs11_mbedtls.c when pkcs11configC_INITIALIZE_ALT
  * is defined.
  */
 #ifndef pkcs11configC_INITIALIZE_ALT
