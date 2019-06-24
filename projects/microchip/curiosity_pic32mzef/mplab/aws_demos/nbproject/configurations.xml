@@ -44,7 +44,7 @@
 				<itemPath>../../../../../demos/demo_runner/aws_demo_network_addr.c</itemPath>
 				<itemPath>../../../../../demos/demo_runner/aws_demo_version.c</itemPath>
 				<itemPath>../../../../../demos/demo_runner/aws_demo.c</itemPath>
-				<itemPath>../../../../../demos/demo_runner/iot_demo_afr.c</itemPath>
+				<itemPath>../../../../../demos/demo_runner/iot_demo_freertos.c</itemPath>
 				<itemPath>../../../../../demos/demo_runner/iot_demo_runner.c</itemPath>
 			</logicalFolder>
 			<logicalFolder name="network_manager" displayName="network_manager" projectFiles="true">

@@ -1016,7 +1016,7 @@
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_version.c">
       <Filter>demos\demo_runner</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_afr.c">
+    <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_freertos.c">
       <Filter>demos\demo_runner</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_runner.c">

@@ -925,9 +925,9 @@
 							<FilePath>../../../../../demos/demo_runner/aws_demo.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_demo_afr.c</FileName>
+							<FileName>iot_demo_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../demos/demo_runner/iot_demo_afr.c</FilePath>
+							<FilePath>../../../../../demos/demo_runner/iot_demo_freertos.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_demo_runner.c</FileName>

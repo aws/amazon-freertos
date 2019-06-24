@@ -10,7 +10,7 @@
     "demos/demo_runner/aws_demo.c": "fc9e8a4c19b20cf9ce3d3f45e3c2b231b0fa60f3691adf9b53cb3002047ca7b5", 
     "demos/demo_runner/aws_demo_network_addr.c": "1a341231a798cedc8df80cec4cd009965b60e3067bdc34c216e6d41b0fa5dbe8", 
     "demos/demo_runner/aws_demo_version.c": "3bf45bd213d52ea60dc9da0ed96b1010f4316a1eee516787bf3b4ac7c35b1b9e", 
-    "demos/demo_runner/iot_demo_afr.c": "b3ca11f447194203baad58b7ebad4cfa840354e0245f9fb027bbff304d00d16b", 
+    "demos/demo_runner/iot_demo_freertos.c": "b3ca11f447194203baad58b7ebad4cfa840354e0245f9fb027bbff304d00d16b", 
     "demos/demo_runner/iot_demo_runner.c": "938cd83e991e32ddb4cb18407a357451b1ee68ef7559bb5ade1fb93e1dc7d267", 
     "demos/dev_mode_key_provisioning/CMakeLists.txt": "9fb8f3b0f23ff95f7327b1e171b1dfc20ace857418ef057b1fde36ab43ceeef0", 
     "demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h": "d55db1a942d47dda6ad02679b9d4ba658a03b1561d4fb071e76467f6fad4b8ed", 
