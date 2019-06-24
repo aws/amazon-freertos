@@ -443,7 +443,6 @@
     </folder>
     <folder Name="ports">
       <folder Name="ble">
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_event_manager_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_gap_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_common_gap.c" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_dis.c" />
