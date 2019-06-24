@@ -1212,6 +1212,11 @@
               <FilePath>..\..\..\..\..\libraries\c_sdk\standard\common\test\aws_memory_leak.c</FilePath>
             </File>
             <File>
+              <FileName>iot_tests_taskpool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c</FilePath>
+            </File>
+            <File>
               <FileName>iot_test_platform_clock.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c</FilePath>
