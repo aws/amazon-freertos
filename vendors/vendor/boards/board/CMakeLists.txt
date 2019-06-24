@@ -177,7 +177,7 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # afr_mcu_port(pkcs11)
 # target_sources(
 #     AFR::pkcs11::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/aws_pkcs11_pal.c"
+#     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/iot_pkcs11_pal.c"
 # )
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
 # target_link_libraries(

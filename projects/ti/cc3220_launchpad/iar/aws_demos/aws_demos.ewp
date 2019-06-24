@@ -1240,7 +1240,7 @@
 						<group>
 							<name>pkcs11</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\aws_pkcs11_pal.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\pkcs11\iot_pkcs11_pal.c</name>
 							</file>
 						</group>
 						<group>

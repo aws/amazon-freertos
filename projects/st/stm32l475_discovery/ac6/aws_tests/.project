@@ -1388,9 +1388,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/st/boards/stm32l475_discovery/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<name>vendors/st/boards/stm32l475_discovery/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>

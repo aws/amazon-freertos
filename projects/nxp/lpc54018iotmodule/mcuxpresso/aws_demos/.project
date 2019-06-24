@@ -1113,9 +1113,9 @@
 			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/hw_poll.c</name>

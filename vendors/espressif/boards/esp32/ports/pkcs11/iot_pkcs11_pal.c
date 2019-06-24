@@ -16,7 +16,7 @@
 // limitations under the License.
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief PKCS11 Interface.
  */
 

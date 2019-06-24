@@ -558,9 +558,9 @@
 			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/xilinx/boards/microzed/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<name>vendors/xilinx/boards/microzed/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>

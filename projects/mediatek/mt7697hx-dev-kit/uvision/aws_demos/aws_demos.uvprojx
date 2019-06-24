@@ -1275,9 +1275,9 @@
 					<GroupName>vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_pkcs11_pal.c</FileName>
+							<FileName>iot_pkcs11_pal.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/aws_pkcs11_pal.c</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/iot_pkcs11_pal.c</FilePath>
 						</File>
 					</Files>
 				</Group>

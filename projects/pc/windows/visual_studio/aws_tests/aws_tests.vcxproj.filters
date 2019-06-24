@@ -1553,7 +1553,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c">
       <Filter>libraries\freertos_plus\standard\freertos_plus_posix\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11\aws_pkcs11_pal.c">
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11\iot_pkcs11_pal.c">
       <Filter>ports\pkcs11</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\test\aws_iot_tests_defender_api.c">

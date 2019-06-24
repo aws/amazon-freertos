@@ -25,7 +25,7 @@
 
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief Amazon FreeRTOS device-specific code for mbedTLS based PKCS#11 
  * implementation with software keys. This file deviates from the FreeRTOS 
  * style standard for some function names and data types in order to

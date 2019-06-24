@@ -405,7 +405,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\mbedtls\library\rsa_internal.c">
       <Filter>lib\third_party\mbedtls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c">
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\iot_pkcs11_pal.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">

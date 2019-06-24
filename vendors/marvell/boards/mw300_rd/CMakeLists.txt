@@ -204,7 +204,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 # Secure sockets

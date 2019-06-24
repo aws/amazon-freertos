@@ -644,9 +644,9 @@
 			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/infineon/boards/xmc4800_iotkit/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<name>vendors/infineon/boards/xmc4800_iotkit/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_iotkit/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>

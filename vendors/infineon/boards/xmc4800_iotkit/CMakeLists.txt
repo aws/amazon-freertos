@@ -218,7 +218,7 @@ afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${xmc4800_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+        "${xmc4800_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 target_link_libraries(

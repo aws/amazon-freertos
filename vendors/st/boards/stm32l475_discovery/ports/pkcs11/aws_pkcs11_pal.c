@@ -25,7 +25,7 @@
 
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief Amazon FreeRTOS device specific helper functions for
  * PKCS#11 implementation based on mbedTLS.  This
  * file deviates from the FreeRTOS style standard for some function names and

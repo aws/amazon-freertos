@@ -1773,7 +1773,7 @@
 						<group>
 							<name>pkcs11</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\aws_pkcs11_pal.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\iot_pkcs11_pal.c</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\hw_poll.c</name>
