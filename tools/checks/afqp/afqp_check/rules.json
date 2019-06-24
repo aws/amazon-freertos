@@ -31,7 +31,7 @@
         "tests/{vendor}/{board}/common/config_files/FreeRTOSIPConfig.h",
         "tests/{vendor}/{board}/{ide}",
         "lib/FreeRTOS-Plus-POSIX/include/portable/{vendor}/{board}",
-        "lib/wifi/portable/{vendor}/{board}/aws_wifi.c",
+        "lib/wifi/portable/{vendor}/{board}/iot_wifi.c",
         "lib/ota/portable/{vendor}/{board}/aws_ota_pal.c",
         "lib/secure_sockets/portable/{vendor}/{board}/iot_secure_sockets.c"
     ]

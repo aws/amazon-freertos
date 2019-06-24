@@ -112,7 +112,7 @@ target_include_directories(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
 # PKCS11

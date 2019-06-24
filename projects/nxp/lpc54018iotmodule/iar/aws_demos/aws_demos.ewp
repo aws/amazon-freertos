@@ -1775,7 +1775,7 @@
 						<group>
 							<name>wifi</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\wifi\aws_wifi.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\wifi\iot_wifi.c</name>
 							</file>
 						</group>
 						<group>

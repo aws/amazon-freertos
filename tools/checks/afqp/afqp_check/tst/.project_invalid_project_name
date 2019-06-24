@@ -177,9 +177,9 @@
 			<locationURI>AFR_HOME/lib/tls/iot_tls.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/wifi/aws_wifi.c</name>
+			<name>lib/aws/wifi/iot_wifi.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/wifi/portable/infineon/xmc4800_iotkit/aws_wifi.c</locationURI>
+			<locationURI>AFR_HOME/lib/wifi/portable/infineon/xmc4800_iotkit/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mbedtls/include</name>

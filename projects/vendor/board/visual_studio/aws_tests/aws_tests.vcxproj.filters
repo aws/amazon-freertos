@@ -887,7 +887,7 @@
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\iot_secure_sockets.c">
       <Filter>lib\aws\secure_sockets</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c">
+    <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\iot_wifi.c">
       <Filter>lib\aws\wifi</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\wifi\aws_test_wifi.c">

@@ -91,7 +91,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
 #ifdef USE_OFFLOAD_SSL
 
-/* Exported from aws_wifi.c */
+/* Exported from iot_wifi.c */
     extern WIFIReturnCode_t WIFI_StoreCertificate( uint8_t * pucCertificate,
                                                    uint16_t usCertificateLength );
     extern WIFIReturnCode_t WIFI_StoreKey( uint8_t * pucKey,

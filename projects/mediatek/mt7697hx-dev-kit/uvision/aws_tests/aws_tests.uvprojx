@@ -1315,9 +1315,9 @@
 					<GroupName>vendors/mediatek/boards/mt7697hx-dev-kit/ports/wifi/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_wifi.c</FileName>
+							<FileName>iot_wifi.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/wifi/aws_wifi.c</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/wifi/iot_wifi.c</FilePath>
 						</File>
 					</Files>
 				</Group>

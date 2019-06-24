@@ -298,13 +298,13 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - C_Initialize handles initialization of randomness in an effort to minimize entropy generation (or seed access) every time sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
 - C_SignInit and C_VerifyInit utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard
 - C_FindObject APIs no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
-- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
+- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see iot_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
 - C_FindObject and C_GetAttributeValue accept different attribute arguments.
 - C_CreateObject requires DER encoded certificates and keys instead of PEM formatted and object attributes required for creating objects have changed.  Note that vDevModeKeyProvisioning() has been updated to supply required attributes and convert inputs from DER to PEM if necessary.
 - C_GenerateKeyPair now stores keys in non-volatile memory.
 - C_Finalize is no longer invoked by helper functions to prevent threads from interfering with each other's PKCS #11 instances.
 - Some error codes have been changes to better match the PKCS #11 standard.
-- aws_tls.c and PKCS #11 AFQP tests have updates to reflect these changes.
+- iot_tls.c and PKCS #11 AFQP tests have updates to reflect these changes.
     - mbedTLS-based PKCS #11 V1.0.5
     - TLS V1.1.3
 

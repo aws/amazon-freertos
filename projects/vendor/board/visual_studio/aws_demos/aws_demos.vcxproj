@@ -185,7 +185,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\tinycbor\cborpretty.c" />
     <ClCompile Include="..\..\..\..\lib\tls\iot_tls.c" />
     <ClCompile Include="..\..\..\..\lib\utils\iot_system_init.c" />
-    <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c" />
+    <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\iot_wifi.c" />
     <ClCompile Include="..\..\..\common\demo_runner\aws_demo_runner.c" />
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\common\greengrass_connectivity\aws_greengrass_discovery_demo.c" />

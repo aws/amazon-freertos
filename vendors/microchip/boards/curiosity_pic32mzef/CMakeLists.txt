@@ -102,7 +102,7 @@ target_link_libraries(
 target_sources(
     AFR::wifi::mcu_port
     INTERFACE
-        "${afr_ports_dir}/wifi/aws_wifi.c"
+        "${afr_ports_dir}/wifi/iot_wifi.c"
         "${afr_ports_dir}/wifi/aws_wifi_assert.c"
         "${harmony_dir}/framework/system/command/src/sys_command.c"
         "${harmony_dir}/bsp/bsp.c"
