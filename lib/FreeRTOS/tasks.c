@@ -998,7 +998,7 @@ UBaseType_t x;
 		pxNewTCB->ucNotifyState = taskNOT_WAITING_NOTIFICATION;
 	#if ( configUSE_TASK_NOTIFICATION_CHANNELS == 1 )
 	{
-		pxNewTCB->ucListeningChannels = 0;
+		pxNewTCB->ucListeningChannels = pdNOTIFICATION_CHANNEL_RESERVED;
 		pxNewTCB->ucNotifiedChannels = 0;
 	}
 	#endif
