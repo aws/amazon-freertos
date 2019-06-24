@@ -857,7 +857,7 @@
     <ClCompile Include="..\..\..\common\shadow\aws_test_shadow.c">
       <Filter>application_code\common_tests\shadow</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\tls\aws_test_tls.c">
+    <ClCompile Include="..\..\..\common\tls\iot_test_tls.c">
       <Filter>application_code\common_tests\tls</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c">

@@ -1484,7 +1484,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c">
       <Filter>libraries\3rdparty\mbedtls\library</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\aws_test_tls.c">
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c">
       <Filter>libraries\freertos_plus\standard\tls\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c">
