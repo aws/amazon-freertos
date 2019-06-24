@@ -246,6 +246,7 @@
               <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c" />
+              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c" />
             </folder>
           </folder>
           <folder Name="serializer">
