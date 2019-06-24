@@ -1,0 +1,12 @@
+{
+  "ENTRY": "IsDHCPSocket",
+  "CBMCFLAGS":
+  [
+      "--unwind 1"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.goto"
+  ]
+}
