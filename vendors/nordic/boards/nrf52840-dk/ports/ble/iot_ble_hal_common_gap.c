@@ -38,7 +38,7 @@
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_config.h"
 #include "iot_ble_hal_internals.h"
-#include "aws_ble_gap_config.h"
+#include "iot_ble_gap_config.h"
 #include "ble_gap.h"
 #include "ble_gatt.h"
 #include "ble_srv_common.h"
