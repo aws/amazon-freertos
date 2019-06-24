@@ -778,7 +778,7 @@
     "libraries/abstractions/pkcs11/include/iot_pkcs11.h": "fb3b0ba8476d24f7a26b2dca738e839b7c8e5f83c869750466781ec4d77a69ca", 
     "libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c": "6e078e9819fb1e9789a6644c364fb3b5f35ca44251033aa8daf97f55cc09df09", 
     "libraries/abstractions/pkcs11/mbedtls/threading_alt.h": "560380b49fbdab8332385170c99f1909e2f81259ddfbfc19f14d02c7448f6ed3", 
-    "libraries/abstractions/pkcs11/test/aws_test_pkcs11.c": "4017956d80e813e23d20058556d0c569a98df98a60169c3f658835800be8e926", 
+    "libraries/abstractions/pkcs11/test/iot_test_pkcs11.c": "4017956d80e813e23d20058556d0c569a98df98a60169c3f658835800be8e926", 
     "libraries/abstractions/platform/CMakeLists.txt": "95c60c01b8b2bb356a043a7dc7d24dc8023cf96b9f6c38d2d5e9bae06600929c", 
     "libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h": "a8663d205c6f757b689bc4afaa006f846ff1c54792c7ed8c949caa3860648f2e", 
     "libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h": "179c8d789455608024a5c757476a821a9c726822ab1708d11f173a3456d9d1e6", 

@@ -848,7 +848,7 @@
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_lib.c">
       <Filter>application_code\common_tests\mqtt</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\pkcs11\aws_test_pkcs11.c">
+    <ClCompile Include="..\..\..\common\pkcs11\iot_test_pkcs11.c">
       <Filter>application_code\common_tests\pkcs11</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\secure_sockets\iot_test_tcp.c">

@@ -1115,7 +1115,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">
       <Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\aws_test_pkcs11.c">
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c">
       <Filter>libraries\abstractions\pkcs11\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_freertos.c">
