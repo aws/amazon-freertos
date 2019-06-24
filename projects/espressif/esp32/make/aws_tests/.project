@@ -2991,16 +2991,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/ble/test/iot_ble_wifi_prov_test_access_declare.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_ble_wifi_prov_test_access_declare.h</locationURI>
@@ -3011,14 +3001,19 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_ble_wifi_prov_test_access_define.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_test_ble_end_to_end.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/ble/test/iot_test_wifi_provisioning.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/common/include/iot_logging_task.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_logging_task.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_atomic.h</name>
@@ -3041,6 +3036,11 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_logging_setup.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/include/iot_logging_task.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_logging_task.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_taskpool.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_taskpool.h</locationURI>
@@ -3056,14 +3056,14 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/logging/iot_logging.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</name>
@@ -3086,6 +3086,11 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/test/iot_tests_taskpool.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/include/iot_mqtt.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/iot_mqtt.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent.h</locationURI>
@@ -3106,19 +3111,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/iot_mqtt_lib.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/include/iot_mqtt.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/include/iot_mqtt.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/mqtt/include/types</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c</name>
@@ -3126,9 +3121,19 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_ble_mqtt_serialize.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
@@ -3991,14 +3996,14 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/unity/extras/fixture/test/unity_output_Spy.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</name>
@@ -4111,14 +4116,14 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/private/iot_doubly_linked_list.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/private/iot_lib_init.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/private/iot_lib_init.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/common/include/private/iot_error.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/private/iot_error.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/include/private/iot_lib_init.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/private/iot_lib_init.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/private/iot_logging.h</name>
@@ -4176,11 +4181,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c</locationURI>
-		</link>
-		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</locationURI>
@@ -4189,6 +4189,11 @@
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_receive.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_receive.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c</name>

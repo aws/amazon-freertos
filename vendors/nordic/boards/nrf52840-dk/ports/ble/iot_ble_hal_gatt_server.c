@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_ble_ha_gatt_server.c
+ * @file iot_ble_hal_gatt_server.c
  * @brief Hardware Abstraction Layer for GATT server ble stack.
  */
 
