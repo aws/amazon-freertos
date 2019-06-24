@@ -34,6 +34,7 @@ CFLAGS = \
   $(CFLAGS2) \
   $(C_DEF) $(O_DEF) $(H_DEF) $(DEF) \
   $(C_OPT) $(O_OPT) $(H_OPT) $(OPT) \
+  -m32 \
   # empty
 
 CBMCFLAGS = \
