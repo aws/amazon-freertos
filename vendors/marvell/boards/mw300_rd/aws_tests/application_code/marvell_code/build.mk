@@ -17,7 +17,7 @@ libcommontests-objs-y := \
 		../../../../../common/memory_leak/iot_memory_leak.c \
 		../../../../../common/test_runner/aws_test_runner.c \
 		../../../../../common/freertos_tcp/iot_test_freertos_tcp.c \
-		../../../../../common/tls/aws_test_tls.c \
+		../../../../../common/tls/iot_test_tls.c \
 		../../../../../common/wifi/iot_test_wifi.c \
 		../../../../../common/secure_sockets/iot_test_tcp.c \
 		../../../../../common/mqtt/iot_test_mqtt_agent.c \

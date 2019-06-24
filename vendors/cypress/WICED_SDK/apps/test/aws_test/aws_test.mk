@@ -122,7 +122,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborparser_dup_string.c \
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
                       $(AFR_ABSTRACTIONS_PATH)wifi/test/iot_test_wifi.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test/aws_test_tls.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test/iot_test_tls.c \
                       $(AFR_ABSTRACTIONS_PATH)secure_sockets/test/aws_test_tcp.c \
                       $(AFR_ABSTRACTIONS_PATH)pkcs11/test/aws_test_pkcs11.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/iot_test_mqtt_agent.c \

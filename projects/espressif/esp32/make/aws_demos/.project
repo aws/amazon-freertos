@@ -3092,9 +3092,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/tls/src/iot_tls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/tls/test/aws_test_tls.c</name>
+			<name>libraries/freertos_plus/standard/tls/test/iot_test_tls.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/tls/test/aws_test_tls.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/tls/test/iot_test_tls.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/test/iot_test_tls.h</name>
