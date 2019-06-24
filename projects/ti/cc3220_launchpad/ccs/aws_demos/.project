@@ -593,9 +593,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/wifi/aws_wifi.c</name>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/wifi/aws_wifi.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>

@@ -170,7 +170,7 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # afr_mcu_port(wifi)
 # target_sources(
 #     AFR::wifi::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/aws_wifi.c"
+#     INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/iot_wifi.c"
 # )
 
 # PKCS11

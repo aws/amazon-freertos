@@ -23,7 +23,7 @@
  */
 
 /**
- * @file aws_wifi.c
+ * @file iot_wifi.c
  * @brief Wi-Fi Interface.
  */
 

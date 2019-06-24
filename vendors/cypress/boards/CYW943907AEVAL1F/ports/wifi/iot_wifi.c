@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Wi-Fi for Cypress CYW954907AEVAL1F development kit V1.0.0
+ * Amazon FreeRTOS Wi-Fi for Cypress CYW943907AEVAL1F development kit V1.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Copyright 2019, Cypress Semiconductor Corporation or a subsidiary of
@@ -35,7 +35,7 @@
  */
 
 /**
- * @file aws_wifi.c
+ * @file iot_wifi.c
  * @brief Wi-Fi Interface.
  */
 

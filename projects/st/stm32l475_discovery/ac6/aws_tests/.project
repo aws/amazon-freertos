@@ -1408,9 +1408,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/st/boards/stm32l475_discovery/ports/wifi/aws_wifi.c</name>
+			<name>vendors/st/boards/stm32l475_discovery/ports/wifi/iot_wifi.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/wifi/aws_wifi.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/st/boards/stm32l475_discovery/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>

@@ -83,7 +83,7 @@ extern void SPI_WIFI_ISR(void);
 extern SPI_HandleTypeDef hspi;
 
 #ifdef USE_OFFLOAD_SSL
-    /* Defined in aws_wifi.c. */
+    /* Defined in iot_wifi.c. */
     extern WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t *pucBuffer );
 #endif /* USE_OFFLOAD_SSL */
 

@@ -390,7 +390,7 @@
     <ClCompile Include="..\..\..\common\devmode_key_provisioning\aws_dev_mode_key_provisioning.c">
       <Filter>application_code\common_demos\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\aws_wifi.c">
+    <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\iot_wifi.c">
       <Filter>lib\aws\wifi</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\secure_sockets\portable\vendor\board\iot_secure_sockets.c">

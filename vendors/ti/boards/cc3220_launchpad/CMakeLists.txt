@@ -130,7 +130,7 @@ target_link_libraries(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 # WiFi on TI requires POSIX types
 target_link_libraries(

@@ -148,7 +148,7 @@ PORTABLE_LAYER_NAMES = {
     'aws_ota_pal.c': 'OTA PAL',
     'aws_pkcs11_pal.c': 'PKCS #11 PAL',
     'iot_secure_sockets.c':'Secure Sockets',
-    'aws_wifi.c': 'Wi-Fi'
+    'iot_wifi.c': 'Wi-Fi'
 }
 
 COPYRIGHT_NAME = 'Amazon FreeRTOS'
@@ -224,7 +224,7 @@ def get_copyright_errors(lic, file_path, is_config_file):
 # Valid portable layer paths to the all current set of portable code.
 PORTABLE_LAYER_PATHS = [
     'lib/pkcs11/portable/{vendor}/{board}/aws_pkcs11_pal.c',
-    'lib/wifi/portable/{vendor}/{board}/aws_wifi.c',
+    'lib/wifi/portable/{vendor}/{board}/iot_wifi.c',
     'lib/ota/portable/{vendor}/{board}/aws_ota_pal.c',
     'lib/secure_sockets/portable/{vendor}/{board}/iot_secure_sockets.c'
 ]

@@ -596,7 +596,7 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/pkcs11_nvm.h</itemPath>
 							</logicalFolder>
 							<logicalFolder name="wifi" displayName="wifi" projectFiles="true">
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/wifi/aws_wifi.c</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/wifi/iot_wifi.c</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/wifi/aws_wifi_assert.c</itemPath>
 							</logicalFolder>
 							<logicalFolder name="ota" displayName="ota" projectFiles="true">

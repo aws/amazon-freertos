@@ -272,9 +272,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/cypress/boards/CYW943907AEVAL1F/ports/wifi/aws_wifi.c</name>
+			<name>vendors/cypress/boards/CYW943907AEVAL1F/ports/wifi/iot_wifi.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW943907AEVAL1F/ports/wifi/aws_wifi.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/cypress/boards/CYW943907AEVAL1F/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>

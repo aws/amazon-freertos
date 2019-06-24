@@ -432,9 +432,9 @@
 			<locationURI>BASE_DIR/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/cypress/boards/CYW954907AEVAL1F/ports/wifi/aws_wifi.c</name>
+			<name>vendors/cypress/boards/CYW954907AEVAL1F/ports/wifi/iot_wifi.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/ports/wifi/aws_wifi.c</locationURI>
+			<locationURI>BASE_DIR/vendors/cypress/boards/CYW954907AEVAL1F/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>

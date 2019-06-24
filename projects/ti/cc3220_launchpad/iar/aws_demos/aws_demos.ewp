@@ -1246,7 +1246,7 @@
 						<group>
 							<name>wifi</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\wifi\aws_wifi.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\wifi\iot_wifi.c</name>
 							</file>
 						</group>
 						<group>
