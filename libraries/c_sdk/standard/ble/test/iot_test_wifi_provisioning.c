@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_wifi_provisioning.c
+ * @file iot_test_wifi_provisioning.c
  * @brief Tests for Wifi provisioning.
  */
 

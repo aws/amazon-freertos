@@ -1084,9 +1084,9 @@
 			<locationURI>AFR_HOME/libraries/freertos_plus/aws/greengrass/test/aws_test_helper_secure_connect.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/crypto/test/aws_test_crypto.c</name>
+			<name>libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/freertos_plus/standard/crypto/test/aws_test_crypto.c</locationURI>
+			<locationURI>AFR_HOME/libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</name>

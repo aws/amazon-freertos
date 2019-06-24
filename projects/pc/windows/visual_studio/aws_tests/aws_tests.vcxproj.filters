@@ -1265,7 +1265,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">
       <Filter>libraries\freertos_plus\standard\crypto\test</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\aws_test_crypto.c">
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c">
       <Filter>libraries\freertos_plus\standard\crypto\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\aes.c">

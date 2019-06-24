@@ -143,7 +143,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_mqtt.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_v1.c \
                       $(AFR_C_SDK_AWS_PATH)defender/test/aws_iot_tests_defender_api.c \
-                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/test/aws_test_crypto.c \
+                      $(AFR_FREERTOS_PLUS_STANDARD_PATH)crypto/test/iot_test_crypto.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/pem2der.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \

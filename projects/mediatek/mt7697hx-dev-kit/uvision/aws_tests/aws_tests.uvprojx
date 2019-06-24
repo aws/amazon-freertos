@@ -1865,9 +1865,9 @@
 					<GroupName>libraries/freertos_plus/standard/crypto/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_crypto.c</FileName>
+							<FileName>iot_test_crypto.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/test/aws_test_crypto.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</FilePath>
 						</File>
 					</Files>
 				</Group>

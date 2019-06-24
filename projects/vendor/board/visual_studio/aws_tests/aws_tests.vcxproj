@@ -337,7 +337,7 @@
     <ClCompile Include="..\..\..\..\lib\tls\iot_tls.c" />
     <ClCompile Include="..\..\..\..\lib\utils\iot_system_init.c" />
     <ClCompile Include="..\..\..\..\lib\wifi\portable\vendor\board\iot_wifi.c" />
-    <ClCompile Include="..\..\..\common\crypto\aws_test_crypto.c" />
+    <ClCompile Include="..\..\..\common\crypto\iot_test_crypto.c" />
     <ClCompile Include="..\..\..\common\framework\aws_test_framework.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_helper_secure_connect.c" />

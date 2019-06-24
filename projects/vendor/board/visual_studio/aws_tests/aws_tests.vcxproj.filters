@@ -836,7 +836,7 @@
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\timers.c">
       <Filter>lib\aws\FreeRTOS</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\crypto\aws_test_crypto.c">
+    <ClCompile Include="..\..\..\common\crypto\iot_test_crypto.c">
       <Filter>application_code\common_tests\crypto</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c">
