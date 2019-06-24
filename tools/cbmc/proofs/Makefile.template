@@ -132,7 +132,7 @@ report: cbmc.txt property.xml coverage.xml
 	--srcdir $(FREERTOS) \
 	--blddir $(FREERTOS) \
 	--htmldir html \
-	--srcexclude "(./doc|./tests|./tools|./vendors)" \
+	--srcexclude "(./doc|./tests|./vendors)" \
 	--result cbmc.txt \
 	--property property.xml \
 	--block coverage.xml
