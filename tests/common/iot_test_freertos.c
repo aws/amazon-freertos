@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_demo_afr.c
+ * @file iot_demo_freertos.c
  * @brief Generic demo runner for C SDK libraries on Amazon FreeRTOS.
  */
 

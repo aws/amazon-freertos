@@ -23,8 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
-#ifndef _iot_appversion32.h_H_
-#define _iot_appversion32.h_H_
+#ifndef _IOT_APPVERSION32_H_
+#define _IOT_APPVERSION32_H_
 
 #include <stdint.h>
 
@@ -55,4 +55,4 @@ typedef struct
     } u;
 } AppVersion32_t;
 
-#endif /* ifndef _iot_appversion32.h_H_ */
+#endif /* ifndef _IOT_APPVERSION32_H_ */

@@ -86,7 +86,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging_task_dynamic_buffers.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_runner.c \
-                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_afr.c \
+                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_freertos.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_network_addr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \

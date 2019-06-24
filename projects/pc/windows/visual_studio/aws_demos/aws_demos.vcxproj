@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -9,6 +9,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C686325E-3261-42F7-AEB1-DDE5280E1CEB}</ProjectGuid>
     <ProjectName>aws_demos</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -314,7 +315,7 @@
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo.c" />
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_network_addr.c" />
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\aws_demo_version.c" />
-    <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_afr.c" />
+    <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_freertos.c" />
     <ClCompile Include="..\..\..\..\..\demos\demo_runner\iot_demo_runner.c" />
     <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c" />
     <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c" />

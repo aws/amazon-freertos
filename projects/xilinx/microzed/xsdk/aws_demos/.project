@@ -178,9 +178,9 @@
 			<locationURI>AFR_ROOT/demos/network_manager/iot_network_manager_private.h</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/iot_demo_afr.c</name>
+			<name>demos/demo_runner/iot_demo_freertos.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/demo_runner/iot_demo_afr.c</locationURI>
+			<locationURI>AFR_ROOT/demos/demo_runner/iot_demo_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>demos/demo_runner/iot_demo_runner.c</name>

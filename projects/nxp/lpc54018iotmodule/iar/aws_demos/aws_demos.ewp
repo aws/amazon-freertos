@@ -1881,7 +1881,7 @@
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\demo_runner\aws_demo.c</name>
 			</file>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\demos\demo_runner\iot_demo_afr.c</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\demo_runner\iot_demo_freertos.c</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\demo_runner\iot_demo_runner.c</name>
