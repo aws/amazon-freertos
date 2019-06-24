@@ -1233,6 +1233,11 @@
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
@@ -1453,11 +1458,6 @@
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/iot_mqtt_agent_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/aws_mqtt_config.h</locationURI>
@@ -1486,6 +1486,11 @@
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/iot_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_mqtt_agent_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>application_code/main.c</name>

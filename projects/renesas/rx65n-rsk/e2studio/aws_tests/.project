@@ -1357,6 +1357,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
@@ -1527,6 +1532,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</locationURI>
@@ -1567,14 +1577,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/tls/test/aws_test_tls.c</name>
+			<name>libraries/freertos_plus/standard/tls/test/iot_test_tls.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/tls/test/aws_test_tls.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/tls/test/iot_test_tls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</name>
+			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/test/iot_test_platform_clock.c</name>
@@ -1587,9 +1597,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/test/iot_test_platform_threads.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/test/aws_test_tcp.c</name>
+			<name>libraries/abstractions/secure_sockets/test/iot_test_tcp.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/test/aws_test_tcp.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/test/iot_test_tcp.c</locationURI>
 		</link>
 		<link>
 			<name>config_files/FreeRTOSConfig.h</name>
@@ -1615,11 +1625,6 @@
 			<name>config_files/aws_ggd_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_tests/config_files/aws_ggd_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/iot_mqtt_agent_config.h</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_mqtt_config.h</name>
@@ -1680,6 +1685,11 @@
 			<name>config_files/iot_config.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_tests/config_files/iot_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_mqtt_agent_config.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/mbedtls_user_config.h</name>

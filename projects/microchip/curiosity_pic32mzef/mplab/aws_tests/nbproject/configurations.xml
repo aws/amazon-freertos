@@ -103,6 +103,7 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
@@ -111,6 +112,7 @@
 								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_receive.c</itemPath>
 								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c</itemPath>
 								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c</itemPath>
+								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</itemPath>
 							</logicalFolder>
 							<logicalFolder name="system" displayName="system" projectFiles="true">
 								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</itemPath>
@@ -226,7 +228,7 @@
 						<itemPath>../../../../../libraries/abstractions/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/secure_sockets/test/aws_test_tcp.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/secure_sockets/test/iot_test_tcp.c</itemPath>
 					</logicalFolder>
 				</logicalFolder>
 				<logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
@@ -238,7 +240,7 @@
 						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</itemPath>
 					</logicalFolder>
 				</logicalFolder>
 				<logicalFolder name="wifi" displayName="wifi" projectFiles="true">
@@ -320,7 +322,7 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/tls/include/iot_tls.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/tls/test/aws_test_tls.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/tls/test/iot_test_tls.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="crypto" displayName="crypto" projectFiles="true">
@@ -673,7 +675,6 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_demo_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_ggd_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_iot_network_config.h</itemPath>
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_mqtt_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_mqtt_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_ota_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_pkcs11_config.h</itemPath>
@@ -686,6 +687,7 @@
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_test_wifi_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_wifi_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_config.h</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_mqtt_agent_config.h</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/unity_config.h</itemPath>
 							</logicalFolder>
 							<logicalFolder name="application_code" displayName="application_code" projectFiles="true">
@@ -976,7 +978,7 @@
 				<makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
 				<makeCustomizationPreStep/>
 				<makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
-				<makeCustomizationPostStep>python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+				<makeCustomizationPostStep>python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p &quot;-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin&quot; &amp;&amp; python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
 				<makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
 				<makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
 				<makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
