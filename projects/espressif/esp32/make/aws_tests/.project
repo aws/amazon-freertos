@@ -1501,9 +1501,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/include/bt_hal_manager_types.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/ble_hal/test/aws_test_ble_hal.c</name>
+			<name>libraries/abstractions/ble_hal/test/iot_test_ble_hal.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/test/aws_test_ble_hal.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/test/iot_test_ble_hal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/include/iot_pkcs11.h</name>

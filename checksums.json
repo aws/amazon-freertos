@@ -773,7 +773,7 @@
     "libraries/abstractions/ble_hal/include/bt_hal_manager_adapter_ble.h": "ffaca53274291384b9acff54d51b2d17f12d8a60bbf41ed720fd8232532f98ce", 
     "libraries/abstractions/ble_hal/include/bt_hal_manager_adapter_classic.h": "03bb01c6ea7c6e9a923a014e16a7dc636314c98a9366cc8858641b987c7eb389", 
     "libraries/abstractions/ble_hal/include/bt_hal_manager_types.h": "153a41f084a969c5a64c0cbf8666c1ef8d89245bf9f4871c8582b79b43e72d96", 
-    "libraries/abstractions/ble_hal/test/aws_test_ble_hal.c": "0f5829d98d0607808f1ddd27afabda63b3c3f187bdec3e70f9513105d0f64ab5", 
+    "libraries/abstractions/ble_hal/test/iot_test_ble_hal.c": "0f5829d98d0607808f1ddd27afabda63b3c3f187bdec3e70f9513105d0f64ab5", 
     "libraries/abstractions/pkcs11/CMakeLists.txt": "fb3177a1418ab185c6a5601cb957dfb6dec24d09876039250a1e3220248bea67", 
     "libraries/abstractions/pkcs11/include/iot_pkcs11.h": "fb3b0ba8476d24f7a26b2dca738e839b7c8e5f83c869750466781ec4d77a69ca", 
     "libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c": "6e078e9819fb1e9789a6644c364fb3b5f35ca44251033aa8daf97f55cc09df09", 
