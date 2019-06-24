@@ -31,6 +31,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "iot_config.h"
 #include "aws_clientcredential_keys.h"

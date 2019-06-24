@@ -266,6 +266,7 @@
                 <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_receive.c" />
                 <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c" />
                 <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c" />
+                <file file_name="../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c" />
               </folder>
             </folder>
           </folder>

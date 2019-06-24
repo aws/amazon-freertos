@@ -1312,9 +1312,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_iot_network_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_mqtt_agent_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_mqtt_config.h</name>
 							</file>
 							<file>
@@ -1334,6 +1331,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_mqtt_agent_config.h</name>
 							</file>
 						</group>
 					</group>
@@ -1429,7 +1429,7 @@
 						<group>
 							<name>platform</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_afr.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h</name>
@@ -1713,6 +1713,9 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_metrics.c</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c</name>
