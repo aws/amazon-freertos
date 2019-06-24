@@ -727,9 +727,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/tls/test/iot_test_tls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</name>
+			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/test/iot_test_platform_clock.c</name>

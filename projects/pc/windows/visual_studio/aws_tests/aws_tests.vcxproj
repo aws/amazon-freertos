@@ -415,7 +415,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture.c" />
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\unity\src\unity.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c" />
-    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\aws_test_pkcs11.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_freertos.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c" />

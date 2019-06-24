@@ -1521,9 +1521,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</name>
+			<name>libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/freertos/include</name>

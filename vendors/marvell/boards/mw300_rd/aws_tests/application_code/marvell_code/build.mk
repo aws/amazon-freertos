@@ -12,7 +12,7 @@ global-cflags-y += -I$(d)/../../../../../common/include \
 
 
 libcommontests-objs-y := \
-		../../../../../common/pkcs11/aws_test_pkcs11.c \
+		../../../../../common/pkcs11/iot_test_pkcs11.c \
 		../../../../../common/framework/aws_test_framework.c \
 		../../../../../common/memory_leak/iot_memory_leak.c \
 		../../../../../common/test_runner/aws_test_runner.c \
