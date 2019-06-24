@@ -246,7 +246,7 @@
 						<itemPath>../../../../../libraries/abstractions/wifi/include/iot_wifi.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
-						<itemPath>../../../../../libraries/abstractions/wifi/test/aws_test_wifi.c</itemPath>
+						<itemPath>../../../../../libraries/abstractions/wifi/test/iot_test_wifi.c</itemPath>
 					</logicalFolder>
 				</logicalFolder>
 				<logicalFolder name="posix" displayName="posix" projectFiles="true">
@@ -309,7 +309,7 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="tls" displayName="tls" projectFiles="true">

@@ -1169,7 +1169,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c">
       <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_test_freertos_tcp.c">
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\iot_test_freertos_tcp.c">
       <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_2.c">

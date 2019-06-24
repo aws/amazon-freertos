@@ -1154,9 +1154,9 @@
 			<locationURI>AFR_HOME/libraries/abstractions/secure_sockets/test/aws_test_tcp.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/wifi/test/aws_test_wifi.c</name>
+			<name>libraries/abstractions/wifi/test/iot_test_wifi.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/libraries/abstractions/wifi/test/aws_test_wifi.c</locationURI>
+			<locationURI>AFR_HOME/libraries/abstractions/wifi/test/iot_test_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/infineon_code/console_io.c</name>

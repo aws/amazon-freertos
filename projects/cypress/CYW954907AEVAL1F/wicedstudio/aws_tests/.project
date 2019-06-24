@@ -747,9 +747,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/test/aws_test_tcp.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/wifi/test/aws_test_wifi.c</name>
+			<name>libraries/abstractions/wifi/test/iot_test_wifi.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/wifi/test/aws_test_wifi.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/wifi/test/iot_test_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/cypress_code/app_dct.c</name>
