@@ -73,7 +73,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_tcp.c"
+        "${test_dir}/iot_test_tcp.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

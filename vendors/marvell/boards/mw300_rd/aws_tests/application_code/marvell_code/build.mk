@@ -19,7 +19,7 @@ libcommontests-objs-y := \
 		../../../../../common/freertos_tcp/aws_test_freertos_tcp.c \
 		../../../../../common/tls/aws_test_tls.c \
 		../../../../../common/wifi/aws_test_wifi.c \
-		../../../../../common/secure_sockets/aws_test_tcp.c \
+		../../../../../common/secure_sockets/iot_test_tcp.c \
 		../../../../../common/mqtt/iot_test_mqtt_agent.c \
 		../../../../../common/mqtt/aws_test_mqtt_lib.c \
                 ../../../../../common/ota/aws_test_ota_agent.c \
