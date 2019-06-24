@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_test_mqtt_agent.c
+ * @file iot_test_mqtt_agent.c
  * @brief Tests for MQTT Agent.
  */
 

@@ -905,7 +905,7 @@
     "libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt.h": "0d93d99414de5775972ef8fd74e57a5e12abea941961fffd4798d25870328ff3", 
     "libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_api.c": "63fc3232fdcf69105f0e03738f366e039210d510a98cf37d11e8e906bc45955a", 
     "libraries/c_sdk/standard/mqtt/test/access/iot_test_access_mqtt_subscription.c": "b02a7970234200f53ad940b02693740d97185fe5284925c89abd4d600daf347c", 
-    "libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c": "223fa7498be6c516f2a11e30bb1c5e0881e5b8b1db44b52fa2bfeb272fef3d66", 
+    "libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c": "223fa7498be6c516f2a11e30bb1c5e0881e5b8b1db44b52fa2bfeb272fef3d66", 
     "libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c": "2e7b49f487d5a47abae0fd65a274fd8b2027705bdd2bc494ca62765b7f5b56a8", 
     "libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c": "91c8ae34188b034c7e8220d2d31e5ad545bf2a9c56e738559f3a350696faeeab", 
     "libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c": "8414342696e8f7c0dde495f6984c502c279f55f2556b1e604ccc1a7e0d941105", 

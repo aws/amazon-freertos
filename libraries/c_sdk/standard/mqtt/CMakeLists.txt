@@ -87,7 +87,7 @@ if(TARGET AFR::secure_sockets::mcu_port)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_mqtt_agent.c"
+        "${test_dir}/iot_test_mqtt_agent.c"
 )
 endif()
 

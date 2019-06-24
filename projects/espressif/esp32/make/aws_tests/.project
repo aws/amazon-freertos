@@ -3171,9 +3171,9 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c</name>
+			<name>libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/system</name>

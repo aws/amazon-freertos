@@ -1238,7 +1238,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c">
       <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\aws_test_mqtt_agent.c">
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c">
       <Filter>libraries\c_sdk\standard\mqtt\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c">

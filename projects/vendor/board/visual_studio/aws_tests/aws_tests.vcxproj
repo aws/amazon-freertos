@@ -342,7 +342,7 @@
     <ClCompile Include="..\..\..\common\greengrass\aws_test_greengrass_discovery.c" />
     <ClCompile Include="..\..\..\common\greengrass\aws_test_helper_secure_connect.c" />
     <ClCompile Include="..\..\..\common\memory_leak\iot_memory_leak.c" />
-    <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_agent.c" />
+    <ClCompile Include="..\..\..\common\mqtt\iot_test_mqtt_agent.c" />
     <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_lib.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_agent.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_cbor.c" />
