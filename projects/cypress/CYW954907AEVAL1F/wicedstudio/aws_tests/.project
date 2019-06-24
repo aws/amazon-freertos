@@ -742,9 +742,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/platform/test/iot_test_platform_threads.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/test/aws_test_tcp.c</name>
+			<name>libraries/abstractions/secure_sockets/test/iot_test_tcp.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/test/aws_test_tcp.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/secure_sockets/test/iot_test_tcp.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/test/iot_test_wifi.c</name>

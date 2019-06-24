@@ -1317,9 +1317,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/test/aws_test_tcp.c</name>
+			<name>libraries/abstractions/secure_sockets/test/iot_test_tcp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/secure_sockets/test/aws_test_tcp.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/secure_sockets/test/iot_test_tcp.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
