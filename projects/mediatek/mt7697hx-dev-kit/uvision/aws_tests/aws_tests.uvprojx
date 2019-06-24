@@ -1825,9 +1825,9 @@
 					<GroupName>libraries/c_sdk/standard/mqtt/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_mqtt_agent.c</FileName>
+							<FileName>iot_test_mqtt_agent.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</FilePath>
 						</File>
 					</Files>
 				</Group>

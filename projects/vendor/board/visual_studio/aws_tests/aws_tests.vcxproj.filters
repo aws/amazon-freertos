@@ -878,7 +878,7 @@
     <ClCompile Include="..\..\..\..\lib\greengrass\aws_helper_secure_connect.c">
       <Filter>lib\aws\greengrass</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\common\mqtt\aws_test_mqtt_agent.c">
+    <ClCompile Include="..\..\..\common\mqtt\iot_test_mqtt_agent.c">
       <Filter>application_code\common_tests\mqtt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\FreeRTOS\portable\Compiler\Arch\port.c">

@@ -460,7 +460,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access\iot_test_access_mqtt_subscription.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\aws_test_mqtt_agent.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\system\iot_tests_mqtt_system.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c" />

@@ -115,7 +115,7 @@
 							<logicalFolder name="system" displayName="system" projectFiles="true">
 								<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</itemPath>
 							</logicalFolder>
-							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c</itemPath>
+							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="serializer" displayName="serializer" projectFiles="true">

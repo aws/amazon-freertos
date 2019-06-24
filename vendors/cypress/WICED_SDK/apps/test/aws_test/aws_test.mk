@@ -125,7 +125,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_FREERTOS_PLUS_STANDARD_PATH)tls/test/aws_test_tls.c \
                       $(AFR_ABSTRACTIONS_PATH)secure_sockets/test/aws_test_tcp.c \
                       $(AFR_ABSTRACTIONS_PATH)pkcs11/test/aws_test_pkcs11.c \
-                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/aws_test_mqtt_agent.c \
+                      $(AFR_C_SDK_STANDARD_PATH)mqtt/test/iot_test_mqtt_agent.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/system/iot_tests_mqtt_system.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/src/iot_mqtt_api.c \
                       $(AFR_C_SDK_STANDARD_PATH)mqtt/test/unit/iot_tests_mqtt_api.c \

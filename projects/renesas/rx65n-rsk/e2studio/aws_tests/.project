@@ -1532,9 +1532,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c</name>
+			<name>libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c</name>
