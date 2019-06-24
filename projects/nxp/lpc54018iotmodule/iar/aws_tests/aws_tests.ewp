@@ -2425,7 +2425,7 @@
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\aws_test_crypto.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c</name>
 						</file>
 					</group>
 				</group>

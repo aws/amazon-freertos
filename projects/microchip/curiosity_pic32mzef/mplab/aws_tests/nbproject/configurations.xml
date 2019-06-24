@@ -331,7 +331,7 @@
 							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/test/aws_test_crypto.c</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</itemPath>
 						</logicalFolder>
 					</logicalFolder>
 					<logicalFolder name="utils" displayName="utils" projectFiles="true">

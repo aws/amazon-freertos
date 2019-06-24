@@ -24,7 +24,7 @@ libcommontests-objs-y := \
 		../../../../../common/mqtt/aws_test_mqtt_lib.c \
                 ../../../../../common/ota/aws_test_ota_agent.c \
 		../../../../../common/ota/aws_test_ota_pal.c \
-		../../../../../common/crypto/aws_test_crypto.c
+		../../../../../common/crypto/iot_test_crypto.c
 
 
 libcommontests-supported-toolchain-y := arm_gcc iar

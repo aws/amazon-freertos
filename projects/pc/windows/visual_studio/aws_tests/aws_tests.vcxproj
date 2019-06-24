@@ -486,7 +486,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_end_to_end.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c" />
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\aws_test_crypto.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c" />
