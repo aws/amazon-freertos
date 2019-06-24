@@ -26,6 +26,10 @@
   <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;platform;include;platform"/>
   <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;platform;include;types"/>
   <ProjectSessionItem path="aws_demos;aws_demos;libraries;abstractions;posix"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;c_sdk"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;c_sdk;standard"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;c_sdk;standard;mqtt"/>
+  <ProjectSessionItem path="aws_demos;aws_demos;libraries;c_sdk;standard;mqtt;src"/>
  </Project>
  <Register1/>
  <Register2/>
@@ -58,7 +62,7 @@
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="35" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/c_sdk/aws/shadow/include/aws_shadow.h" selected="0" top="0" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="25" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent.h" selected="0" top="8" codecName="Default"/>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="39" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_lib.h" selected="0" top="1" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="25" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c" selected="1" top="6" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="24" y="33" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c" selected="1" top="6" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="aws_demos" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="Debug" sessionSettings="" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

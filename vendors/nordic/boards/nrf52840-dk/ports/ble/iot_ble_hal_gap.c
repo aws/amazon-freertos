@@ -44,7 +44,7 @@
 #include "peer_manager.h"
 #include "nrf_ble_lesc.h"
 #include "iot_ble_hal_internals.h"
-#include "aws_ble_gap_config.h"
+#include "iot_ble_gap_config.h"
 #include "aws_clientcredential.h"
 #include "nrf_log.h"
 
