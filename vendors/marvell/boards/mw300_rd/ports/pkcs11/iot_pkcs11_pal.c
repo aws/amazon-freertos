@@ -28,7 +28,7 @@
  */
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief Device specific helpers for PKCS11 Interface.
  */
 

@@ -285,7 +285,7 @@ afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/iot_pkcs11_mbedtls.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/iot_crypto.c"
 )

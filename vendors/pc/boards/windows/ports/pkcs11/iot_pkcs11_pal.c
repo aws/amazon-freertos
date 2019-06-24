@@ -25,7 +25,7 @@
 
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief Windows Simulator file save and read implementation
  * for PKCS#11 based on mbedTLS with for software keys. This
  * file deviates from the FreeRTOS style standard for some function names and

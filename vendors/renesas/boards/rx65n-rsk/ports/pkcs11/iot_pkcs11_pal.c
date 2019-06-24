@@ -43,7 +43,7 @@
 ***********************************************************************************************************************/
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief Device specific helpers for PKCS11 Interface.
  */
 
@@ -110,7 +110,7 @@ typedef struct _pkcs_data
     /* uint8_t hash_sha256[PKCS_SHA256_LENGTH]; */\
     {0xea, 0x57, 0x12, 0x9a, 0x18, 0x10, 0x83, 0x80, 0x88, 0x80, 0x40, 0x1f, 0xae, 0xb2, 0xd2, 0xff, 0x1c, 0x14, 0x5e, 0x81, 0x22, 0x6b, 0x9d, 0x93, 0x21, 0xf8, 0x0c, 0xc1, 0xda, 0x29, 0x61, 0x64},
 #else
-#error "aws_pkcs11_pal.c does not support your MCU"
+#error "iot_pkcs11_pal.c does not support your MCU"
 #endif
 
 typedef struct _pkcs_storage_control_block_sub

@@ -25,7 +25,7 @@
 
 
 /**
- * @file aws_pkcs11_pal.c
+ * @file iot_pkcs11_pal.c
  * @brief PKCS#11 implementation for CC3220SF-LAUNCHXL. This
  * file deviates from the FreeRTOS style standard for some function names and
  * data types in order to maintain compliance with the PKCS#11 standard.

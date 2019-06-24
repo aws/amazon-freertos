@@ -648,7 +648,7 @@
 					<logicalFolder name="curiosity_pic32mzef" displayName="curiosity_pic32mzef" projectFiles="true">
 						<logicalFolder name="ports" displayName="ports" projectFiles="true">
 							<logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
-								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/aws_pkcs11_pal.c</itemPath>
+								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/iot_pkcs11_pal.c</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/pkcs11_nvm.c</itemPath>
 								<itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/pkcs11_nvm.h</itemPath>
 							</logicalFolder>

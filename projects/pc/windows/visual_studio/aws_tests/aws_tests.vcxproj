@@ -531,6 +531,6 @@
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\aws_run-time-stats-utils.c" />
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\main.c" />
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11\aws_pkcs11_pal.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\pkcs11\iot_pkcs11_pal.c" />
   </ItemGroup>
 </Project>

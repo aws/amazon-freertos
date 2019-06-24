@@ -908,7 +908,7 @@
     <ClCompile Include="..\..\..\..\lib\pkcs11\mbedtls\iot_pkcs11_mbedtls.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\aws_pkcs11_pal.c">
+    <ClCompile Include="..\..\..\..\lib\pkcs11\portable\vendor\board\iot_pkcs11_pal.c">
       <Filter>lib\aws\pkcs11</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\lib\ota\aws_ota_agent.c">
