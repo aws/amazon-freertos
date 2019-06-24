@@ -812,7 +812,7 @@
     "libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h": "bb2c3bda21f68305490b1998bab5d3ec4a737e3295a4cb7ec9ab503d88f9cc3e", 
     "libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h": "fd62ac3f7c929da93ba8f4690f7c5c525ae26d0ff95856c8d5fb64addf209536", 
     "libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c": "96a68e209a921dd597472bf76b46a7dc020b0e40f97a9ef1733ed3cf72ee69f1", 
-    "libraries/abstractions/secure_sockets/test/aws_test_tcp.c": "c9352e698394946b9bfea8f0d0e20970cae262d38e800860c66c15f39cbc7ae3", 
+    "libraries/abstractions/secure_sockets/test/iot_test_tcp.c": "c9352e698394946b9bfea8f0d0e20970cae262d38e800860c66c15f39cbc7ae3", 
     "libraries/abstractions/wifi/CMakeLists.txt": "233bedf2465fb3482bd955f40a4ce93d4a1627f5eb5b0e15cc9bc2e69b68c0f0", 
     "libraries/abstractions/wifi/include/iot_wifi.h": "8cbe8cdb1804defe5cbb6ca5b2765d29b4b4c8926e7b5a9d8ea701a38e0cf80d", 
     "libraries/abstractions/wifi/test/iot_test_wifi.c": "60750ab241927da97b64b2b35be3e5b4ffe5f3c4091a07b8e6017ae79c20e8e5", 

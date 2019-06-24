@@ -348,7 +348,7 @@
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_cbor.c" />
     <ClCompile Include="..\..\..\common\ota\aws_test_ota_pal.c" />
     <ClCompile Include="..\..\..\common\pkcs11\aws_test_pkcs11.c" />
-    <ClCompile Include="..\..\..\common\secure_sockets\aws_test_tcp.c" />
+    <ClCompile Include="..\..\..\common\secure_sockets\iot_test_tcp.c" />
     <ClCompile Include="..\..\..\common\shadow\aws_test_shadow.c" />
     <ClCompile Include="..\..\..\common\test_runner\aws_test_runner.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\cmock\src\cmock.c" />
