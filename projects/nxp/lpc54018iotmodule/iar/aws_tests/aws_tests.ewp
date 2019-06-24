@@ -2333,7 +2333,7 @@
 				<group>
 					<name>test</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\test\aws_test_wifi.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\test\iot_test_wifi.c</name>
 					</file>
 				</group>
 			</group>

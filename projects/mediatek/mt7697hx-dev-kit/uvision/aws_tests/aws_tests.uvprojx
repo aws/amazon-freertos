@@ -1920,9 +1920,9 @@
 					<GroupName>libraries/abstractions/wifi/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_wifi.c</FileName>
+							<FileName>iot_test_wifi.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/wifi/test/aws_test_wifi.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/wifi/test/iot_test_wifi.c</FilePath>
 						</File>
 					</Files>
 				</Group>

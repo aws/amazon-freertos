@@ -355,7 +355,7 @@
     <ClCompile Include="..\..\..\..\lib\third_party\unity\extras\fixture\src\unity_fixture.c" />
     <ClCompile Include="..\..\..\..\lib\third_party\unity\src\unity.c" />
     <ClCompile Include="..\..\..\common\tls\aws_test_tls.c" />
-    <ClCompile Include="..\..\..\common\wifi\aws_test_wifi.c" />
+    <ClCompile Include="..\..\..\common\wifi\iot_test_wifi.c" />
     <ClCompile Include="..\common\application_code\main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

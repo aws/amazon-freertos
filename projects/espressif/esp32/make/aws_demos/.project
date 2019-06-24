@@ -1327,9 +1327,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/wifi/test/aws_test_wifi.c</name>
+			<name>libraries/abstractions/wifi/test/iot_test_wifi.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/wifi/test/aws_test_wifi.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/wifi/test/iot_test_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/wifi/test/iot_test_wifi.h</name>
@@ -3072,9 +3072,9 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_tcp_define.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</name>
+			<name>libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/aws_test_freertos_tcp.c</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/tls/include/iot_tls.h</name>
