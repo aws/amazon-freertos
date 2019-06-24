@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_hal_gap.c
+ * @file iot_ble_hal_gap.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
 
@@ -43,12 +43,12 @@
 #include "nrf_strerror.h"
 #include "peer_manager.h"
 #include "nrf_ble_lesc.h"
-#include "aws_ble_hal_internals.h"
+#include "iot_ble_hal_internals.h"
 #include "aws_ble_gap_config.h"
 #include "aws_clientcredential.h"
 #include "nrf_log.h"
 
-#define aws_ble_hal_gapADVERTISING_BUFFER_SIZE    31
+#define iot_ble_hal_gapADVERTISING_BUFFER_SIZE    31
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 uint16_t usConnHandle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
@@ -88,8 +88,8 @@ uint32_t prvRamStart = 0;
 /* Cache for the advertising data */
 ble_advdata_t prvAdvData;
 ble_advdata_t prvScanResponseData;
-uint8_t prvAdvBinData[ 2 ][ aws_ble_hal_gapADVERTISING_BUFFER_SIZE ];
-uint8_t prvSrBinData[ 2 ][ aws_ble_hal_gapADVERTISING_BUFFER_SIZE ];
+uint8_t prvAdvBinData[ 2 ][ iot_ble_hal_gapADVERTISING_BUFFER_SIZE ];
+uint8_t prvSrBinData[ 2 ][ iot_ble_hal_gapADVERTISING_BUFFER_SIZE ];
 
 uint8_t prvCurrentAdvBuf = 0;
 
@@ -932,8 +932,8 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
             prvCurrentAdvBuf = 1 - prvCurrentAdvBuf;
             xNewData.adv_data.p_data = prvAdvBinData[ prvCurrentAdvBuf ];
             xNewData.scan_rsp_data.p_data = prvSrBinData[ prvCurrentAdvBuf ];
-            xNewData.adv_data.len = aws_ble_hal_gapADVERTISING_BUFFER_SIZE;
-            xNewData.scan_rsp_data.len = aws_ble_hal_gapADVERTISING_BUFFER_SIZE;
+            xNewData.adv_data.len = iot_ble_hal_gapADVERTISING_BUFFER_SIZE;
+            xNewData.scan_rsp_data.len = iot_ble_hal_gapADVERTISING_BUFFER_SIZE;
 
             if( ( xNewData.adv_data.p_data == NULL ) || ( xNewData.scan_rsp_data.p_data == NULL ) )
             {

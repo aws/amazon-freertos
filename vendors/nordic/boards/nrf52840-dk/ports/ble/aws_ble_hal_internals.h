@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_hal_internals.h
+ * @file iot_ble_hal_internals.h
  * @brief Internally shared functions and variable for HAL ble stack.
  */
 

@@ -1,5 +1,5 @@
 #include "sdk_common.h"
-#include "aws_ble_hal_dis.h"
+#include "iot_ble_hal_dis.h"
 #include <string.h>
 #include "ble_srv_common.h"
 #include "nrf_gpio.h"
