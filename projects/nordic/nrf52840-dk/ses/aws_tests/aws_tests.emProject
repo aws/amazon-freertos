@@ -445,12 +445,12 @@
       <folder Name="ble">
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_event_manager_config.h" />
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_gap_config.h" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_hal_common_gap.c" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_hal_dis.c" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_hal_dis.h" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_hal_gap.c" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_hal_gatt_server.c" />
-        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/aws_ble_hal_internals.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_common_gap.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_dis.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_dis.h" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_gap.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_gatt_server.c" />
+        <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ble/iot_ble_hal_internals.h" />
       </folder>
       <folder Name="ota">
         <file file_name="../../../../../vendors/nordic/boards/nrf52840-dk/ports/ota/asn1utility.c" />

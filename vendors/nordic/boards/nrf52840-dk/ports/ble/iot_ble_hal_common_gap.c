@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_hal_common_gap.c
+ * @file iot_ble_hal_common_gap.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
 
@@ -37,7 +37,7 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_config.h"
-#include "aws_ble_hal_internals.h"
+#include "iot_ble_hal_internals.h"
 #include "aws_ble_gap_config.h"
 #include "ble_gap.h"
 #include "ble_gatt.h"

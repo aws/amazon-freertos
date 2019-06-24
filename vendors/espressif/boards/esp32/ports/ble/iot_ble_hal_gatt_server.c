@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_hal_gatt_server.c
+ * @file iot_ble_hal_gatt_server.c
  * @brief Hardware Abstraction Layer for GATT server ble stack.
  */
 
@@ -36,7 +36,7 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-#include "aws_ble_hal_internals.h"
+#include "iot_ble_hal_internals.h"
 
 #define APP_ID    0
 

@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_hal_gatt_server.c
+ * @file iot_ble_ha_gatt_server.c
  * @brief Hardware Abstraction Layer for GATT server ble stack.
  */
 
@@ -38,7 +38,7 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-#include "aws_ble_hal_internals.h"
+#include "iot_ble_ha_internals.h"
 
 /* Nordic/Segger Includes. */
 #include "ble.h"
@@ -49,7 +49,7 @@
 #include "nrf_ble_gatt.h"
 
 /* Nordic port Includes. */
-#include "aws_ble_hal_dis.h"
+#include "iot_ble_ha_dis.h"
 
 #define GATT_MAX_ENTITIES    30
 
@@ -66,8 +66,8 @@ BLE_CUS_DEF( m_cus );
 NRF_BLE_GATT_DEF( xGattHandler );
 
 bool bGattInitialized = false;
-const uint8_t aws_ble_hal_gatt_serverCCCD_UUID[] = { 0, 0, 0x29, 0x02, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A };
-const uint16_t aws_ble_hal_gatt_serverCCCD_UUID_2BYTES = 0x2902;
+const uint8_t iot_ble_hal_gatt_serverCCCD_UUID[] = { 0, 0, 0x29, 0x02, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A };
+const uint16_t iot_ble_hal_gatt_serverCCCD_UUID_2BYTES = 0x2902;
 
 /* This table is needed to overcome a restriction imposed by the softdevice API that all additions of services, characteristics and descriptors must
  * be sequential, i.e. to add a characteristic to a service you must add it immediately after you added a service. So we fill this table firstly and
@@ -569,8 +569,8 @@ BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
     xDescrParams.max_len = BLE_GATTS_VAR_ATTR_LEN_MAX; /* or BLE_GATTS_FIX_ATTR_LEN_MAX or any smaller value * / */
 
     /* Check if we try to add a CCCD */
-    if( ( ( pxUuid->ucType == eBTuuidType128 ) && ( memcmp( pxUuid->uu.uu128, aws_ble_hal_gatt_serverCCCD_UUID, 16 ) == 0 ) ) ||
-        ( ( pxUuid->ucType == eBTuuidType16 ) && ( pxUuid->uu.uu16 == aws_ble_hal_gatt_serverCCCD_UUID_2BYTES ) ) )
+    if( ( ( pxUuid->ucType == eBTuuidType128 ) && ( memcmp( pxUuid->uu.uu128, iot_ble_hal_gatt_serverCCCD_UUID, 16 ) == 0 ) ) ||
+        ( ( pxUuid->ucType == eBTuuidType16 ) && ( pxUuid->uu.uu16 == iot_ble_hal_gatt_serverCCCD_UUID_2BYTES ) ) )
     {
         ble_uuid.type = BLE_UUID_TYPE_BLE;
         ble_uuid.uuid = BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG;

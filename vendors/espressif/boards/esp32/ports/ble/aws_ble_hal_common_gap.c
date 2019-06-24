@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ble_hal_common_gap.c
+ * @file iot_ble_hal_common_gap.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
 
@@ -40,7 +40,7 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-#include "aws_ble_hal_internals.h"
+#include "iot_ble_hal_internals.h"
 
 BTProperties_t xProperties;
 static BTCallbacks_t xBTCallbacks;
