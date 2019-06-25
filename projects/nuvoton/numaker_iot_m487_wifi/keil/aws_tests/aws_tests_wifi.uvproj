@@ -1373,26 +1373,6 @@
             </File>
           </Files>
         </Group>
-        <Group>
-          <GroupName>freertos_plus_tcp-test</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_test_freertos_tcp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_test_freertos_tcp.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_freertos_tcp_test_access_dns_define.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_freertos_tcp_test_access_dns_define.h</FilePath>
-            </File>
-            <File>
-              <FileName>aws_freertos_tcp_test_access_tcp_define.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\test\aws_freertos_tcp_test_access_tcp_define.h</FilePath>
-            </File>
-          </Files>
-        </Group>
       </Groups>
     </Target>
   </Targets>
