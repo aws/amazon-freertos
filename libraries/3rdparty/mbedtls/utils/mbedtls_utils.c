@@ -1,6 +1,4 @@
 /*
- *  Convert PEM to DER
- *
  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
  *  SPDX-License-Identifier: Apache-2.0
  *
@@ -20,8 +18,8 @@
  */
 
 /**
- * @file pem2der.c.c
- * @brief Certificate conversion from PEM to DER format
+ * @file mbedtls_utils.c
+ * @brief Helper functions originating from mbedTLS.
  */
 
 /* Standard includes. */
