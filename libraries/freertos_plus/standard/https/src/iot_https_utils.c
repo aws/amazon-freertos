@@ -41,47 +41,36 @@
 IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl, size_t urlLen, const char **pPath, size_t * pPathLen )
 {
     /* http-parser status. Initialized to 0 to signify success. */
-    int status = 0;
+    int parserStatus = 0;
     struct http_parser_url urlParser;
+    IotHttpsReturnCode_t returnStatus = IOT_HTTPS_OK;
+
     /* Sets all members in urlParser to 0. */
     http_parser_url_init(&urlParser);
-    if( pUrl != NULL )
+
+    if((pUrl == NULL) || (pPath == NULL) || (pPathLen == NULL))
     {
-        status = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
-    }
-    else
-    {
-        IotLogError( "IotHttpsClient_GetUrlPath parameter pUrl was NULL." );
-        return IOT_HTTPS_INVALID_PARAMETER;
+        IotLogError("NULL parameter passed to IotHttpsClient_GetUrlPath().");
+        returnStatus = IOT_HTTPS_INVALID_PARAMETER;
     }
 
-    if(status != 0)
+    if( returnStatus == IOT_HTTPS_OK )
     {
-        IotLogError("Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, status);
-        return IOT_HTTPS_PARSING_ERROR;
+        parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
+        if(parserStatus != 0)
+        {
+            IotLogError("Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, parserStatus);
+            returnStatus = IOT_HTTPS_PARSING_ERROR;
+        }
     }
 
-    if( pPath != NULL )
+    if( returnStatus == IOT_HTTPS_OK )
     {
         *pPath = &pUrl[urlParser.field_data[UF_PATH].off];
-    }
-    else
-    {
-        IotLogError( "IotHttpsClient_GetUrlPath parameter pPath was NULL." );
-        return IOT_HTTPS_INVALID_PARAMETER;
-    }
-
-    if( pPathLen != NULL )
-    {
         *pPathLen = ( size_t )( urlParser.field_data[UF_PATH].len );
     }
-    else
-    {
-        IotLogError( "IotHttpsCLient_GetUrlPath parameter pPathlen was NULL. " );
-        return IOT_HTTPS_INVALID_PARAMETER;
-    }
 
-    return IOT_HTTPS_OK;
+    return returnStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -89,45 +78,33 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl, size_t urlLen
 IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress( const char * pUrl, size_t urlLen, const char **pAddress, size_t * pAddressLen )
 {
     /* http-parser status. Initialized to 0 to signify success. */
-    int status = 0;
+    int parserStatus = 0;
     struct http_parser_url urlParser;
+    IotHttpsReturnCode_t returnStatus = IOT_HTTPS_OK;
+
     /* Sets all members in urlParser to 0. */
     http_parser_url_init(&urlParser);
 
-    if( pUrl != NULL )
+    if((pUrl == NULL) || (pAddress == NULL) || (pAddressLen == NULL))
     {
-        status = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
-    }
-    else
-    {
-        IotLogError( "IotHttpsClient_GetUrlAddress parameter pUrl was NULL." );
-        return IOT_HTTPS_INVALID_PARAMETER;
-    }
-    
-    if(status != 0)
-    {
-        IotLogError("Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, status);
-        return IOT_HTTPS_PARSING_ERROR;
+        IotLogError("NULL parameter passed to IotHttpsClient_GetUrlAddress().");
+        returnStatus = IOT_HTTPS_INVALID_PARAMETER;
     }
 
-    if( pAddress != NULL )
+    if( returnStatus == IOT_HTTPS_OK )
+    {
+        parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
+        if(parserStatus != 0)
+        {
+            IotLogError("Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, parserStatus);
+            returnStatus = IOT_HTTPS_PARSING_ERROR;
+        }
+    }
+
+    if( returnStatus == IOT_HTTPS_OK )
     {
         *pAddress = &pUrl[urlParser.field_data[UF_HOST].off];
-    }
-    else
-    {
-        IotLogError( "IotHttpsClient_GetUrlAddress parameter pAddress was NULL." );
-        return IOT_HTTPS_INVALID_PARAMETER;
-    }
-
-    if( pAddressLen != NULL )
-    {
         *pAddressLen = ( size_t )( urlParser.field_data[UF_HOST].len );
-    }
-    else
-    {
-        IotLogError( "IotHttpsClient_GetUrlAddress parameter pAddressLen was NULL." );
-        return IOT_HTTPS_INVALID_PARAMETER;
     }
     
     return IOT_HTTPS_OK;

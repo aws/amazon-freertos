@@ -42,8 +42,13 @@
 #include "private/iot_error.h"
 
 /**
- * This demo downloads an object from S3 and outputs to the console. A presigned URL is required to run this demo. Please
- * see the demos/https/README.md for instructions on how to generate one.
+ * This demonstates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
+ * The HTTPS Client library is a HTTP/1.1 client library that be used to download files from other webservers as well.
+ * 
+ * A presigned URL is required to run this demo. Please see the demos/https/README.md for instructions on how to 
+ * generate one.
+ * 
+ * The file is downloaded incrementally using HTTP Partial Content headers. 
  */
 
 /**
@@ -64,7 +69,7 @@
 #endif
 
 #ifndef IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
-    /* This the Baltomore Cybertrust issued root CA that the s3 server uses. */
+    /* This the Baltomore Cybertrust root CA associated with the S3 server certificate. */
     #define IOT_DEMO_HTTPS_TRUSTED_ROOT_CA    \
     "-----BEGIN CERTIFICATE-----\n"\
     "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n"\
@@ -180,15 +185,14 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
 /**
  * @brief The function that runs the HTTPS Synchronous demo.
  * 
- * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
- * MQTT server. Set this to `false` if using another MQTT server.
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server. Set this to `false` if using 
+ *      another MQTT server. This parameter is not used for this demo.
  * @param[in] pIdentifier NULL-terminated MQTT client identifier. The demo starting parameters are built for core MQTT.
- *  but this demo ignores these parameters.
- * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pNetworkInterface The network interface to use for this demo.
+ *      but this demo ignores these parameters.
+ * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo. This is ignored in this demo.
+ * @param[in] pNetworkCredentialInfo Contains credential Info specific for the MQTT demo. This is ignored in this demo.
+ * @param[in] pNetworkInterface Set to the IotHttpsConnectionInfo_t in IotHttpsRequestHandle_t.pConnInfo to implicitly 
+ *      connect when sending the request.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
@@ -209,19 +213,19 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     IotHttpsReturnCode_t httpsClientStatus = IOT_HTTPS_OK;
 
     /* Configurations for the HTTPS connection. */
-    IotHttpsConnectionInfo_t connConfig = { 0 };
+    IotHttpsConnectionInfo_t connConfig = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
     /* Handle identifying the HTTPS connection. */
-    IotHttpsConnectionHandle_t connHandle = NULL;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     /* Configurations for the HTTPS request. */
-    IotHttpsRequestInfo_t reqConfig = { 0 };
+    IotHttpsRequestInfo_t reqConfig = IOT_HTTPS_REQUEST_INFO_INITIALIZER;
     /* Handle identifying the HTTP request. This is valid after the request has been initialized with 
        IotHttpsClient_InitializeRequest(). */
-    IotHttpsRequestHandle_t reqHandle = NULL;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     /* Handle identifying the HTTP response. This is valid after the reponse has been received with 
        IotHttpsClient_SendSync(). */
-    IotHttpsResponseHandle_t respHandle = NULL;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
-    IotHttpsSyncRequestInfo_t syncInfo = { 0 };
+    IotHttpsSyncRequestInfo_t syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
 
     /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
     const char *pPath = NULL;
@@ -296,7 +300,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     connConfig.clientCertLen = ( ( IotNetworkCredentials_t* )pNetworkCredentialInfo )->clientCertSize;
     connConfig.pPrivateKey = ( ( IotNetworkCredentials_t* )pNetworkCredentialInfo )->pPrivateKey;
     connConfig.privateKeyLen = ( ( IotNetworkCredentials_t* )pNetworkCredentialInfo )->privateKeySize;
-    connConfig.pNetworkInterface = pNetworkInterface;
+    connConfig.pNetworkInterface = (void*)pNetworkInterface;
 
     /* Set the configurations needed for a synchronous request. */
     syncInfo.pReqData = NULL;    /* This is a GET request so there is no data in the body. */
@@ -403,7 +407,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     while( curByte < fileSize)
     {
         /* Re-initialize the request to reuse the request. If we do not reinitialize then data from the last response
-           associated with this request will linger. We reuse reqHandle beccause we are sending a new sequential 
+           associated with this request will linger. We reuse reqHandle because we are sending a new sequential 
            synchronous request. IotHttpsClient_InitializeRequest will create a new request from the reqConfig and return
            a reqHandle that is ready to use as a NEW request. */
         httpsClientStatus = IotHttpsClient_InitializeRequest( &reqHandle, &reqConfig );

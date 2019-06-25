@@ -46,6 +46,15 @@
  */
 
 /**
+ * @section https_minimum_user_buffer_sizes HTTPS Client Minimum User Buffer Sizes
+ * @brief variables calculating the size of #IotHttpsUserBuffer_t.bufferLen needed for the request, response, and 
+ * connection.
+ * 
+ * @note These user buffer minumum values may change at any time in future versions, but their names will remain the 
+ * same.
+ */
+
+/**
  * @brief The minimum user buffer size for the HTTP request context and headers.
  * 
  * This helps to calculate the size of the buffer needed for #IotHttpsRequestInfo_t.reqUserBuffer.
@@ -67,9 +76,9 @@ extern const uint32_t requestUserBufferMinimumSize;
  * This helps to calculate the size of the buffer needed for #IotHttpsRequestInfo_t.respUserBuffer. 
  * 
  * The buffer size is calculated to fit the HTTP response context only. It does not account for the HTTP response status
- * line. It does not account for extra headers. If the buffer assigned to #IotHttpsRequestInfo_t.respUserBuffer is of 
- * this minimum size, then the response status line and the response headers will not be stored. These sizes need to be
- * accounted for by the application when assigning a buffer.
+ * line. It does not account for any HTTP response headers. If the buffer assigned to 
+ * #IotHttpsRequestInfo_t.respUserBuffer is of this minimum size, then the response status line and the response headers 
+ * will not be stored. These sizes need to be accounted for by the application when assigning a buffer.
  * 
  * If the response status line and response headers cannot fit into #IotHttpsRequestInfo_t.respUserBuffer, then after a
  * call to @ref https_client_function_sendsync, calls to @ref https_client_function_readresponsestatus, 
@@ -94,6 +103,16 @@ extern const uint32_t responseUserBufferMinimumSize;
  * response, and connection.
  */
 extern const uint32_t connectionUserBufferMinimumSize;
+
+/**
+ * @section https_connection_flags HTTPS Client Connection Flags
+ * @brief Flags that modify the behavior of the HTTPS Connection.
+ * 
+ * Flags should be bitwised-ORed with each other to change the behavior of @ref https_client_function_sendasync and 
+ * @ref https_client_function_sendsync. These flags are set in #IotHttpsConnectionInfo_t.flags.
+ * 
+ * @note The values of flags may change at any time in future versions, but their names will remain the same.
+ */
 
 /**
  * @brief Flag for #IotHttpsConnectionInfo_t that disables TLS.
@@ -122,12 +141,53 @@ extern const uint32_t connectionUserBufferMinimumSize;
 #define IOT_HTTPS_IS_HTTP2                 ( 0x00000004 )
 
 /**
- * @brief Flag for #IotHttpsConnectionInfo_t that disables Server Name Indication.
+ * @brief Flag for #IotHttpsConnectionInfo_t that disables Server Name Indication (SNI).
  * 
  * Set this bit  #IotHttpsConnectionInfo_t.flags to disable SNI. SNI is enabled by default in this library. When SNI is
  * enabled  #IotHttpsConnectionInfo_tpAddress will be used for the server name verification.
  */
 #define IOT_HTTPS_DISABLE_SNI               ( 0x00000008 )
+
+/**
+ * @section https_initializers HTTP Initializers
+ * @brief Provide default values for the data types of the HTTP Client Library.
+ * 
+ * @snippet this define_https_initializers
+ * 
+ * All user-facing data types of the HTTPS Client library should be initialized using one of the following.
+ * 
+ * @warning Failing to initialize an HTTPS Client data type with the appropriate initializer may result in undefined 
+ * behavior.
+ * @note The initializers may change at any time in future versions, but their names will remain the same.
+ * 
+ * <b>Example</b>
+ * @code{c}
+ * IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+ * IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+ * IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+ * IotHttpsUserBuffer_t userBuffer = IOT_HTTPS_USER_BUFFER_INITIALIZER;
+ * IotHttpsSyncRequestInfo_t syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
+ * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
+ * IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER
+ * @code
+ * 
+ */
+/* @[define_https_initializers] */
+/** @brief Initializer for #IotHttpsConnectionHandle_t. */
+#define IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER     NULL
+/** @brief Initializer for #IotHttpsRequestHandle_t. */
+#define IOT_HTTPS_REQUEST_HANDLE_INITIALIZER        NULL
+/** @brief Initializer for #IotHttpsResponseHandle_t. */
+#define IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER       NULL
+/** @brief Initializer for #IotHttpsUserBuffer_t. */
+#define IOT_HTTPS_USER_BUFFER_INITIALIZER           { 0 }
+/** @brief Initializer for #IotHttpsSyncRequestInfo_t. */
+#define IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER     { 0 }
+/** @brief Initializer for #IotHttpsConnectionInfo_t. */
+#define IOT_HTTPS_CONNECTION_INFO_INITIALIZER       { 0 }
+/** @brief Initializer for #IotHttpsRequestInfo_t. */
+#define IOT_HTTPS_REQUEST_INFO_INITIALIZER          { 0 }
+/* @[define_https_initializers] */
 
 /*-----------------------------------------------------------*/  
 
@@ -323,7 +383,7 @@ typedef struct IotHttpsUserBuffer
  * an existing connection. Internally to the library we can map streams to a given connection. A request can 
  * then specify which stream to be associated with.  
  * The mapping is: Connection --1:many--> Stream --1:many--> Request */
-typedef struct IotHttpsStream
+typedef struct IotHttp2Stream
 {
     /** @brief Stream ID of the HTTPS request.
      * In HTTP/2, we can send multiple requests in parallel on one connection if each of their discontinuos parts has
@@ -331,7 +391,7 @@ typedef struct IotHttpsStream
     uint32_t streamId;                     
     uint32_t priority;                     /**< @brief H2 stream priority, value between 1-256 (inclusive) */
     uint32_t dependentStreamId;            /**< @brief H2 stream dependency on another stream */
-} IotHttpsStream_t;
+} IotHttp2Stream_t;
 
 /**
  * @ingroup https_client_datatypes_paramstructs
@@ -341,7 +401,7 @@ typedef struct IotHttpsStream
  */
 typedef struct IotpHttp2Request
 {
-    IotHttpsStream_t streamInfo; /* @brieff Required HTTP/2 Stream association. */
+    IotHttp2Stream_t streamInfo; /* @brieff Required HTTP/2 Stream association. */
 
     /* Other HTTPS2 needed items will be added here. */
 
@@ -422,9 +482,9 @@ typedef struct IotHttpsConnectionInfo
     uint32_t flags;          /**< @brief Flags to configure the HTTPS connection. */
 
     /**
-     * @brief Timeout for this connection and waiting for a response from the network in seconds.
+     * @brief Timeout for this connection and waiting for a response from the network in milliseconds.
      * 
-     * In Amazon FreeRTOS when performing a socket read, the timeout is #IOT_NETWORK_SOCKET_POLL_MS.
+     * If this is set to zero, it will default to IOT_HTTPS_RESPONSE_WAIT_MS.
      */
     uint32_t timeout;
 

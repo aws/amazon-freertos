@@ -41,7 +41,6 @@
  * @functionspage{https_client,HTTPS Client Library}
  * - @functionname{https_client_function_init}
  * - @functionname{https_client_function_deinit}
- * - @functionname{https_client_function_connect}
  * - @functionname{https_client_function_disconnect}
  * - @functionname{https_client_function_initializerequest}
  * - @functionname{https_client_function_addheader}
@@ -58,7 +57,6 @@
 /**
  * @functionpage{IotHttpsClient_Init,https_client,init}
  * @functionpage{IotHttpsClient_Deinit,https_client,deinit}
- * @functionpage{IotHttpsClient_Connect,https_client,connect}
  * @functionpage{IotHttpsClient_Disconnect,https_client,disconnect}
  * @functionpage{IotHttpsClient_InitializeRequest,https_client,initializerequest}
  * @functionpage{IotHttpsClient_AddHeader,https_client,addheader}
@@ -79,8 +77,8 @@
  * 
  * @warning No thread safety guarantees are provided for this function.
  * 
- * @return - #IOT_HTTPS_OK if the HTTPS library as successfully initialized. 
- *         - Failure code otherwise. Please see #IotHttpsReturnCode_t for the failure codes.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the HTTPS library is successfully initialized.
  * 
  * @see @ref https_client_function_deinit
  */
@@ -109,26 +107,30 @@ void IotHttpsClient_Deinit( void );
  * If the connection handle is not valid, the behavior is undefined.
  * If the connection handle is already disconnected then this routine will return IOT_HTTPS_OK.
  * 
- * This API MUST always be called on a valid #IotHttpsConnectionHandle_t whether is was created explicitly with 
- * @ref https_client_function_connect or implicitly with @ref https_client_function_sendsync 
- * @ref https_client_function_sendasync.
+ * This API MUST always be called on a valid #IotHttpsConnectionHandle_t created implicitly with 
+ * @ref https_client_function_sendsync @ref https_client_function_sendasync.
  * 
  * @param[in] connHandle - Valid handle representing an open connection.
  * 
- * @return #IOT_HTTPS_OK if the disconnect was successful
- *         #IOT_HTTPS_NETWORK_ERROR for network disconnection errors.
- *         See #IotHttpsReturnCode_t for other failure codes.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the disconnect was successful
+ * - #IOT_HTTPS_NETWORK_ERROR for network disconnection errors.
  */
 /* @[declare_https_client_disconnect] */
 IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHandle);
 /* @[declare_https_client_disconnect] */
 
 /**
- * @brief Initializes the request by adding a formatted Request Line to the HTTPS request header buffer. 
+ * @brief Initializes the request by adding a formatted Request Line to the start of HTTPS request header buffer. 
  * 
- * The request line will be added to the headers space in #IotHttpsRequestInfo_t.reqUserBuffer. The header space follows
- * the request context in the user buffer. See @ref requestUserBufferMinimumSize for more information on sizing the 
- * #IotHttpsRequestInfo_t.reqUserBuffer so that this function does not fail.
+ * This function will initialize the input request configuration by setting where to write the next headers to the start
+ * of the configured header buffer in #IotHttpsRequestInfo_t.reqUserBuffer. It will also initialize the input associated 
+ * response such that it can be received at the start of the configured header buffer in 
+ * #IotHttpsRequestInfo_t.respUserBuffer.
+ * 
+ * The request line will be added to the start of the headers space in #IotHttpsRequestInfo_t.reqUserBuffer. 
+ * The header space follows the request context in the user buffer. See @ref requestUserBufferMinimumSize for more 
+ * information on sizing the #IotHttpsRequestInfo_t.reqUserBuffer so that this function does not fail.
  * 
  * The request line generated is of the following format:
  * 
@@ -142,18 +144,21 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
  * and Host. The User-Agent value is configured in iot_config.h using IOT_HTTPS_USER_AGENT. The Host value is the DNS 
  * resolvable server address.
  * 
- * @param[out] pReqHandle - request handle representing the internal request context is returned.
- * @param[in] pReq - HTTPS request information.
+ * A request can be initialize with or without a #IotHttpsRequestInfo_t.pConnInfo. If #IotHttpsRequestInfo_t.pConnInfo 
+ * is present it is not affected. The only way to manually close a connection is with 
+ * @ref https_client_function_disconnect.
  * 
- * @return #IOT_HTTPS_OK if the request line was successfully added to req.request_message.headers.
- *         #IOT_HTTPS_INSUFFICIENT_MEMORY if the request line generated exceeds req.request_message.headers_len or the 
- *          user buffer is too small.
- *         #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
- *         #IOT_HTTPS_INTERNAL_ERROR for library internal errors.
- *         Please see #IotHttpsReturnCode_t for other failure codes.
+ * @param[out] pReqHandle - request handle representing the internal request context is returned.
+ * @param[in] pReqInfo - HTTPS request information.
+ * 
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the request line was successfully added to the header space in #IotHttpsRequestInfo_t.reqUserBuffer.
+ * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the request line generated exceeds #IotHttpsRequestInfo_t.reqUserBuffer.bufferLen.
+ * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
+ * - #IOT_HTTPS_INTERNAL_ERROR for library internal errors.
  */
 /* @[declare_https_client_initializerequest] */
-IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * pReqHandle, IotHttpsRequestInfo_t *pReq);
+IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * pReqHandle, IotHttpsRequestInfo_t *pReqInfo);
 /* @[declare_https_client_initializerequest] */
 
 /**
@@ -192,20 +197,20 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * 
  * The following header fields are automatically added to the request header buffer and should be NOT added again with 
  * this routine:
- * - Connection:
- * - User-agent:
- * - Host:
- * - Content-Length:
+ * - Connection:    - This header is added to the request when the headers are being sent on the network.
+ * - User-agent:    - This header is added during @ref https_client_function_initializerequest
+ * - Host:          - This header is added during @ref https_client_function_initializerequest
+ * - Content-Length: - This header is added to the request when the headers are being sent on the network.
  *
  * @param[in] reqHandle - HTTPS request to write the header line to.
  * @param[in] pName - String header field name to write. This is NULL terminated.
  * @param[in] pValue - https header value buffer pointer. Do not include token name.
  * @param[in] len - length of header value to write.
  * 
- * @return #IOT_HTTPS_OK if the header line was successfully added to req.request_message.headers.
- *         #IOT_HTTPS_INSUFFICIENT_MEMORY if the header line cannot fit into the header buffer.
- *         #IOT_HTTPS_INVALID_PARAMETER for NULL parameters or if an attempt to add automatic headers is done.
- *         Please see #IotHttpsReturnCode_t for other failure codes.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the header line was successfully added to the header space in #IotHttpsRequestInfo_t.reqUserBuffer.
+ * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the header line cannot fit into the header buffer.
+ * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters or if an attempt to add automatic headers is done.
  */
 /* @[declare_https_client_addheader] */
 IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle, char * pName, char * pValue, uint32_t len);
@@ -243,10 +248,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * See @ref connectionUserBufferMinimumSize for information about the user buffer configured in 
  * #IotHttpsConnectionInfo_t.userBuffer needed to create a valid connection handle.
  * 
- * To retrieve the response body applications must directly refer to the #pSyncInfo_t.pRespData configured in 
- * #IotHttpsRequestInfo_t.pSyncInfo_t. Otherwise this function will return an #IOT_HTTPS_INVALID_PARAMETER error code. 
- * This function is intended to read the response entity body from the network and the synchronous response process 
- * handles all of that in @ref https_client_function_sendsync.
+ * To retrieve the response body applications must directly refer #IotHttpsRequestInfo_t.pSyncInfo_t.pRespData. 
  * 
  * If the response body does not fit in the configured #IotHttpsRequestInfo_t.pSyncInfo.pRespData, then 
  * #IotHttpsRequestInfo_t.pSyncInfo.pRespData will contain only the first #IotHttpsRequestInfo_t.pSyncInfo.respDataLen 
@@ -254,26 +256,31 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * #IOT_HTTPS_MESSAGE_TOO_LARGE if the response body does fit into #IotHttpsRequestInfo_t.pSyncInfo.pRespData. To avoid
  * this issue, the application needs to determine beforehand how large the file to download is. This can be done with a
  * HEAD request first, then extracting the "Content-Length" with @ref https_client_function_readcontentlength. This 
- * could also be done with  a GET request with the header "Range: bytes=0-0", then extracing the "Content-Range" with 
+ * could also be done with a GET request with the header "Range: bytes=0-0", then extracing the "Content-Range" with 
  * @ref https_client_function_readheader.
  * 
+ * Once a the file size is known, the application can initialize the request with a larger 
+ * #IotHttpsRequestInfo_t.pSyncInfo.respDataLen or the application can make a partial content request with the header
+ * "Range: bytes=N-M", where N is the starting byte requested and M is the ending byte requested. 
+ * 
  * The response headers as received from the network will be stored in the header buffer space in
- * #IotHttpsRequestInfo_t.respUserBuffer. If the configured #IotHttpsRequestInfo_t.respUserBuffer is too small to fit 
- * the headers received, then headers that don't fit will be thrown away. Please see #responseUserBufferMinimumSize for 
- * information about sizing the #IotHttpsRequestInfo_t.respUserBuffer.
+ * #IotHttpsRequestInfo_t.respUserBuffer. If the configured #IotHttpsRequestInfo_t.respUserBuffer.bufferLen is too small 
+ * to fit the headers received, then headers that don't fit will be thrown away. Please see 
+ * #responseUserBufferMinimumSize for information about sizing the #IotHttpsRequestInfo_t.respUserBuffer.
+ * To receive feedback on headers discarded debug logging must be turned on in iot_config.h by setting 
+ * IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG.
  * 
  * @param[in out] pConnHandle - Handle from an HTTPS connection. If points to NULL then an implicit connection will be made.
  * @param[in] reqHandle - Handle from a request created with IotHttpsClient_initialize_request.
  * @param[out] pRespHandle - HTTPS response handle resulting from a successful send and receive.
  * 
- * @return  #IOT_HTTPS_OK - if the request was sent and the response was received successfully.
- *          #IOT_HTTPS_MESSAGE_TOO_LARGE if the response cannot fit in the configured 
- *              struct IotHttpsRequestHandle.respUserBuffer.pBuffer and struct IotHttpsRequestHandle.pSyncInfo.pRespData.
- *          #IOT_HTTPS_CONNECTION_ERROR if the connection failed.
- *          #IOT_HTTPS_INVALID_PARAMETER if there are NULL parameters or the request is asynchronous.
- *          #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
- *          #IOT_HTTPS_PARSING_ERROR if there was an error parsing the HTTP response.
- *          Please see #IotHttpsReturnCode_t for other failure codes.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the request was sent and the response was received successfully.
+ * - #IOT_HTTPS_MESSAGE_TOO_LARGE if the response cannot fit in the configured struct IotHttpsRequestHandle.respUserBuffer.pBuffer and struct IotHttpsRequestHandle.pSyncInfo.pRespData.
+ * - #IOT_HTTPS_CONNECTION_ERROR if the connection failed.
+ * - #IOT_HTTPS_INVALID_PARAMETER if there are NULL parameters or the request is asynchronous.
+ * - #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
+ * - #IOT_HTTPS_PARSING_ERROR if there was an error parsing the HTTP response.
  */
 /* @[declare_https_client_sendsync] */
 IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHandle, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t * pRespHandle);
@@ -287,7 +294,8 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHa
  * status line could not fit into #IotHttpsRequestInfo_t.respUserBuffer, then this function will return an error code. 
  * Please see #responseUserBufferMinimumSize for information about sizing the #IotHttpsRequestInfo_t.respUserBuffer.
  * 
- * This routine is primarily to be used for a synchronous response. It can be used for an asynchronous response.
+ * This routine can be used for both a synchronous and asynchronous response. 
+ * 
  * <b> Example Synchronous Code </b>
  * @code{c}
  *      ...
@@ -304,9 +312,10 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHa
  * param[in] respHandle - Unique handle representing the HTTPS response.
  * param[out] pStatus - Integer status returned from the server response.
  * 
- * @return #IOT_HTTPS_OK if the response status was successfully read into *status.
- *         #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
- *         #IOT_HTTPS_NOT_FOUND if the HTTP response status was not found in the header buffer.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the response status was successfully read into *status.
+ * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
+ * - #IOT_HTTPS_NOT_FOUND if the HTTP response status was not found in the header buffer.
  *         Error code otherwise, please see #IotHttpsReturnCode_t for for failure codes.
  */
 /* @[declare_https_client_readresponsestatus] */
@@ -317,10 +326,10 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
  * @brief Retrieve the HTTPS response content length. 
  * 
  * If the "Content-Length" header is available in #IotHttpsRequestInfo_t.respUserBuffer, this routine extracts that 
- * value. The "Content-Length" header could not be available because the server sent a multi-part encoded response 
- * (For example, "Transfer-Encoding: chunked") or the "Content-Length" header was far down in the list of response 
- * headers and could not fit into the header buffer. Please see #responseUserBufferMinimumSize for information about 
- * sizing the #IotHttpsRequestInfo_t.respUserBuffer.
+ * value. In some cases the "Content-Length" header is not available. This could be because the server sent a multi-part 
+ * encoded response (For example, "Transfer-Encoding: chunked") or the "Content-Length" header was far down in the list 
+ * of response  headers and could not fit into the header buffer configured in #IotHttpsRequestInfo_t.respUserBuffer. 
+ * Please see #responseUserBufferMinimumSize for information about sizing the #IotHttpsRequestInfo_t.respUserBuffer.
  * 
  * In a synchronous request process, the Content-Length is available after @ref https_client_function_sendsync has 
  * returned successfully.
@@ -335,12 +344,13 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
  * @endcode
  * 
  * param[in] respHandle - Unique handle representing the HTTPS response.
- * param[out] pContentLength - Integer content length from the Content-Length header from the server.
+ * param[out] pContentLength - Integer content length from the Content-Length header from the server. If the content 
+ *      length is not found this will be 0.
  * 
- * @return #IOT_HTTPS_OK if the response body Content-Length was successfully read into contentLength.
- *         #IOT_HTTPS_NOT_FOUND if the Content-Length header was not found in the header buffer.
- *         #IOT_HTTPS_INVALID_PARAMETER if NULL parameters are passed in.
- *         Error code otherwise, please see #IotHttpsReturnCode_t for for failure codes.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the response body Content-Length was successfully read into contentLength.
+ * - #IOT_HTTPS_NOT_FOUND if the Content-Length header was not found in the header buffer.
+ * - #IOT_HTTPS_INVALID_PARAMETER if NULL parameters are passed in.
  */
 /* @[declare_https_client_readcontentlength] */
 IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t respHandle, uint32_t *pContentLength );
@@ -364,21 +374,21 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t 
  *      ...
  *      IotHttpsClient_SendSync(&connHandle, reqHandle, &respHandle);
  *      char valueBuf[10];
- *      IotHttpsClient_readHeader(respHandle, "Content-Length", valueBuf, sizeof(valueBuf));
+ *      IotHttpsClient_ReadHeader(respHandle, "Content-Length", valueBuf, sizeof(valueBuf));
  *      uint32_t length = strtoul(valueBuf, NULL, 10);
  *      ...
  * @endcode
  * 
  * @param[in] respHandle - Unique handle representing the HTTPS response.
  * @param[in] name - HTTPS Header field name we want the value of. This should be NULL terminated.
- * @param[out] value - Buffer to hold the HTTPS field's value. This will be returned NULL terminated.
+ * @param[out] value - Buffer to hold the HTTPS field's value. This will not be NULL terminated.
  * @param[in] len - The length of the value buffer.
  * 
- * @return #IOT_HTTPS_OK if the header's corresponding value was read into *value. 
- *         #IOT_HTTPS_NOT_FOUND if the header value was not found.
- *         #IOT_HTTPS_INVALID_PARAMETER if the resHandle is not valid. There is no response saved or the handle does not exist.
- *         #IOT_HTTPS_INSUFFICIENT_MEMORY if the value is too large to fit into *value.
- *         Please see #IotHttpsReturnCode_t for other failure codes.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the header's corresponding value was read into *value. 
+ * - #IOT_HTTPS_NOT_FOUND if the header value was not found.
+ * - #IOT_HTTPS_INVALID_PARAMETER if the resHandle is not valid. There is no response saved or the handle does not exist.
+ * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the value is too large to fit into *value.
  */
 /* @[declare_https_client_readheader] */
 IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHandle, char *pName, char *pValue, uint32_t len);
