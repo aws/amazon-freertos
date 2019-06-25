@@ -5,7 +5,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PRIVATE "${inc_dir}/aws_pkcs11.h"
+    PRIVATE "${inc_dir}/iot_pkcs11.h"
 )
 
 afr_module_include_dirs(
@@ -30,7 +30,7 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/mbedtls")
 afr_module_sources(
     pkcs11_mbedtls
     INTERFACE
-        "${src_dir}/aws_pkcs11_mbedtls.c"
+        "${src_dir}/iot_pkcs11_mbedtls.c"
         "${src_dir}/threading_alt.h"
 )
 
@@ -46,7 +46,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_pkcs11.c"
+        "${test_dir}/iot_test_pkcs11.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

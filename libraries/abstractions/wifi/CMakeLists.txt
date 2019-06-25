@@ -12,7 +12,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    PRIVATE "${inc_dir}/aws_wifi.h"
+    PRIVATE "${inc_dir}/iot_wifi.h"
 )
 
 afr_module_include_dirs(
@@ -33,7 +33,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_wifi.c"
+        "${test_dir}/iot_test_wifi.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

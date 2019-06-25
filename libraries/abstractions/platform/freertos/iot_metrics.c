@@ -28,7 +28,7 @@
  */
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in aws_secure_sockets_wrapper_metrics.h */
+ * from redefining in iot_secure_sockets_wrapper_metrics.h */
 #define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* The config header is always included first. */
@@ -45,7 +45,7 @@
 #include "platform/iot_threads.h"
 
 /* Secure sockets include. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 

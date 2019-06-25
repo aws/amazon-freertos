@@ -35,14 +35,14 @@
 
 /* AWS System includes. */
 #include "aws_application_version.h"
-#include "aws_system_init.h"
+#include "iot_system_init.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
 
 /* Demo application includes. */
 #include "aws_demo_config.h"
 #include "aws_demo.h"
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 #include "sys_module.h"
 
 /* Application version info. */

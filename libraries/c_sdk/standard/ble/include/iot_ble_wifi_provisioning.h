@@ -33,7 +33,7 @@
 
 #include "iot_ble.h"
 #include "iot_ble_data_transfer.h"
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 #include "platform/iot_threads.h"
 
 

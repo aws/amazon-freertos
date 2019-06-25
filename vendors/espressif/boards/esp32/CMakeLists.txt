@@ -82,7 +82,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
 # BLE
@@ -92,10 +92,10 @@ afr_mcu_port(ble_hal)
 target_sources(
     AFR::ble_hal::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_internals.h"
+        "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_internals.h"
 )
 target_include_directories(
     AFR::ble_hal::mcu_port
@@ -113,7 +113,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 # FreeRTOS Plus TCP
@@ -209,13 +209,13 @@ endif()
 set_source_files_properties(
     ${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
-    ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
-    ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
+    ${AFR_DEMOS_DIR}/secure_sockets/iot_test_tcp.c
+    ${AFR_DEMOS_DIR}/wifi/iot_test_wifi.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
+set_source_files_properties(${AFR_DEMOS_DIR}/logging/iot_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
 )
@@ -230,7 +230,7 @@ set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
     "-Wno-pointer-sign"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
+set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-int-conversion"
 )

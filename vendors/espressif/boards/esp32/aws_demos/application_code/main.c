@@ -36,8 +36,8 @@
 
 /* AWS System includes. */
 #include "bt_hal_manager.h"
-#include "aws_system_init.h"
-#include "aws_logging_task.h"
+#include "iot_system_init.h"
+#include "iot_logging_task.h"
 
 #include "nvs_flash.h"
 

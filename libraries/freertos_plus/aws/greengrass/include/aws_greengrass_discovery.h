@@ -32,7 +32,7 @@
 #define _AWS_GREENGRASS_DISCOVERY_H_
 #include "FreeRTOS.h"
 #include "aws_clientcredential.h"
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /**
  * @brief Input from user to locate GGC inside JSON file.

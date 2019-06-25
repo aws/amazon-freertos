@@ -51,7 +51,7 @@
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_DHCP.h"
 #include "aws_demo_logging.h"
-#include "aws_system_init.h"
+#include "iot_system_init.h"
 #include "aws_demo.h"
 #include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
