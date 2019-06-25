@@ -220,7 +220,6 @@ typedef struct _httpsConnection
     IotNetworkInterface_t * pNetworkInterface;  /**< @brief Network interface with calls for connect, disconnect, send, and receive. */
     void *pNetworkConnection;                   /**< @brief Pointer to the network connection to use pNetworkInterface calls on. */
     IotSemaphore_t connSem;                     /**< @brief Binary semaphore to lock the connection if a request/response is currently in progress. */
-    bool nonPersistent;                         /**< @brief Non persistent flag to indicate closing the connection immediately after receiving the request. */
     IotSemaphore_t rxStartSem;                  /**< @brief Semaphore indicating that data on the network is ready to read. */
     IotSemaphore_t rxFinishSem;                 /**< @brief Semaphore indicating that the data on the network is done being read. */
     uint32_t timeout;                           /**< @brief Timeout for a connection and waiting for a response from the network. */
@@ -253,7 +252,7 @@ typedef struct _httpsResponse
     bool foundHeaderField;  /**< @brief State to use during parsing to let us know when we found the header field in the https-parser callbacks. 
                                         This is set to true when the header field is found in [parser callback _httpParserOnHeaderFieldCallback().
                                         On the following parser callback _httpParserOnHeaderValueCallback() we will store the value in pReadHeaderValue then exit the parsing. */
-    struct _httpsConnection *pConnHandle;    /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
+    struct _httpsConnection *pConnHandle;    /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync(). This is needed during the asynchronous workflow to receive data given the respHandle only in the callback. */
     struct _httpsRequest *pReqHandle;        /**< @brief Request associated with response. This is set during IotHttpsClient_InitializeRequest(). */
 } _httpsResponse_t;
 
@@ -262,15 +261,16 @@ typedef struct _httpsResponse
  */
 typedef struct _httpsRequest
 {
-    uint8_t * pHeaders;      /**< @brief Pointer to the start of the headers buffer. */
-    uint8_t * pHeadersEnd;   /**< @brief Pointer to the end of the headers buffer. */
-    uint8_t * pHeadersCur;   /**< @brief Pointer to the next location to fill in the headers buffer. */
-    uint8_t * pBody;         /**< @brief Pointer to the start of the body buffer. */
+    uint8_t * pHeaders;     /**< @brief Pointer to the start of the headers buffer. */
+    uint8_t * pHeadersEnd;  /**< @brief Pointer to the end of the headers buffer. */
+    uint8_t * pHeadersCur;  /**< @brief Pointer to the next location to fill in the headers buffer. */
+    uint8_t * pBody;        /**< @brief Pointer to the start of the body buffer. */
     uint32_t bodyLength;    /**< @brief Length of request body buffer. */
-    IotHttpsConnectionInfo_t* pConnInfo;    /**< @brief Connection info associated with this request. */
-    struct _httpsResponse *pRespHandle;     /**< @brief Response associated with request. This is set during IotHttpsClient_InitializeRequest(). */
-    struct _httpsConnection *pConnHandle;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
+    IotHttpsConnectionInfo_t* pConnInfo;    /**< @brief Connection info associated with this request. For an implicit connection. */
+    struct _httpsResponse *pRespHandle;     /**< @brief Response associated with request. This is initialized during IotHttpsClient_InitializeRequest(), then returned to the application in IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
+    struct _httpsConnection *pConnHandle;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync(). It is needed for the asynchronous workflow to use to send data given the reqHandle only in the callback. */
     uint32_t contentLength; /**< @brief The content length of the request body. */
+    bool isNonPersistent;     /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the rresponse. */
 } _httpsRequest_t;
 
 #endif /* IOT_HTTPS_INTERNAL_H_ */

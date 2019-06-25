@@ -123,16 +123,6 @@ extern const uint32_t connectionUserBufferMinimumSize;
 #define IOT_HTTPS_IS_NON_TLS_FLAG           ( 0x00000001 )
 
 /**
- * @brief Flag for #IotHttpsConnectionInfo_t that disables a persistent connection.
- * 
- * Set this bit in  #IotHttpsConnectionInfo_t.flags for a non-persistent HTTPS connection. Adding this flag in will add 
- * the header line "Connection: Closed\r\n" to the request header buffer. By default the connection is persistent for 
- * power and time efficiency considerations. By default the line "Connection: Keep-Alive\r\n" is added to the request 
- * header buffer.
- */
-#define IOT_HTTPS_IS_NON_PERSISTENT_FLAG    ( 0x00000002 )
-
-/**
  * @brief Flag for #IotHttpsConnectionInfo_t that enables HTTP/2.
  * 
  * Set this bit in  #IotHttpsConnectionInfo_t.flags to use HTTP/2 instead of HTTP/1.1. HTTP/2 is currently not supported
@@ -527,6 +517,8 @@ typedef struct IotHttpsConnectionInfo
      * Set this to NULL to have the library use configurations within this structure for the network connection.
      * If this is not NULL, then the server information in this variable will be used for the network connection.
      * pNetworkCredentialInfo should be NULL to replace with configuration in this structure.
+     * 
+     * In Amazon FreeRTOS this should be of the type IotNetworkServerInfo_t.
      */
     void * pNetworkServerInfo;
 
@@ -535,6 +527,8 @@ typedef struct IotHttpsConnectionInfo
      * 
      * Set this to NULL to have the library use configurations within this structure for the network connection.
      * If this is not NULL, then the credential information in this variable will be used for the network connection.
+     *
+     * In Amazon FreeRTOS this should be of the type IotNetworkCredentials_t.
      */
     void * pNetworkCredentialInfo;
 } IotHttpsConnectionInfo_t;
@@ -552,17 +546,36 @@ typedef struct IotHttpsConnectionInfo
  */
 typedef struct IotHttpsRequestInfo
 {
-    const char *pPath;                         /**< @brief URI path, e.g., "/v20160207/directives?query" */
+    /* The path and the method are used to generate the first request line in the HTTP request message. See 
+       @ref https_client_function_initializerequest for more information. */
+    const char *pPath;                  /**< @brief URI path, e.g., "/v20160207/directives?query" */
     uint32_t pathLen;                   /**< @brief URI path length */
     IotHttpsMethod_t method;            /**< @brief HTTP method. See #IotHttpsMethod_t for the list of available methods. */
 
     /**
      * @brief Host address this request is intended for, e.g., "awsamazon.com".
      * 
-     * This is the same as the address in #IotHttpsConnectionInfo_tpAddress.
+     * This is the same as the address in #IotHttpsConnectionInfo_t.pAddress. This is here in the request structure to 
+     * automatically generate the "Host" header field in the header buffer space configured in 
+     * #IotHttpsRequestInfo_t.reqUserBuffer. See @ref https_client_function_initializerequest for more informaiton.
      */
     const char * pHost;    
     uint32_t hostLen;                   /**< @brief Host address length. */
+
+    /**
+     * @brief Flag denoting if the connection should be non-persistent.
+     * 
+     * If this flag is set to false, then the connection is persistent. When the connection is persistent, the HTTP 
+     * header "Connection: keep-alive" is automatically added to the headers to send to the server. This header 
+     * asks the server to not close the connection after sending the response.
+     * 
+     * If this flag is set to true, then he connection is non-persistent. When the connection is non-persistent, then
+     * HTTP header "Connection: close" is automatically added to the headers to send to the server. This header asks
+     * then server to close the connection after sending the response.
+     * 
+     * Please see https://tools.ietf.org/html/rfc2616#section-8.1.1 for more details.
+     */
+    bool isNonPersistent;              
     
     /**
      * @brief Application owned buffer for storing the request headers and internal request context.
@@ -588,7 +601,7 @@ typedef struct IotHttpsRequestInfo
      */
     IotHttpsUserBuffer_t respUserBuffer;
     
-    IotHttpsSyncRequestInfo_t *pSyncInfo; /**< @brief Information specifically for synchronous requests. There will be future support of asynchronous requests/*/
+    IotHttpsSyncRequestInfo_t *pSyncInfo; /**< @brief Information specifically for synchronous requests. There will be future support of asynchronous requests. */
 
     /**
      * @brief HTTPS Client connection configuration.

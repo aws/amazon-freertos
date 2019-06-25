@@ -319,6 +319,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     reqConfig.pHost = pAddress;
     reqConfig.hostLen = addressLen;
     reqConfig.method = IOT_HTTPS_METHOD_GET;
+    reqConfig.isNonPersistent = false;
     reqConfig.reqUserBuffer.pBuffer = _pReqUserBuffer;
     reqConfig.reqUserBuffer.bufferLen = sizeof(_pReqUserBuffer);
     reqConfig.respUserBuffer.pBuffer = _pRespUserBuffer;

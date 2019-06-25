@@ -111,14 +111,6 @@
 #define HTTPS_PARTIAL_HOST_HEADER_LINE          HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_END_OF_HEADER_LINES_INDICATOR   
 
 /**
- * @brief The string length of the maximum file size that can be represented in a 32 bit system.
- * 
- * If a number in a 32 bit system cannot be more than 32 bits, then 2^32 = 4294967296 which is 10 digits in length.
- * This is used for local string array initialization.
- */
-#define HTTPS_MAX_FILE_SIZE_LENGTH              ( 10 )
-
-/**
  * @brief The maximum Content-Length header line size.
  * 
  * This is the length of header line string: "Content-Length: 4294967296\r\n". 4294967296 is 2^32. This number is chosen
@@ -580,6 +572,9 @@ static int _httpParserOnStatusCallback(http_parser * pHttpParser, const char * p
       _httpResponse->pHeaders. */
     if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
+        /* pHeadersCur will never exceed the pHeadersEnd here because PROCESSING_STATE_FILLING_HEADER_BUFFER 
+           indicates we are currently in the header buffer and the total size of the header buffer is passed
+           into http_parser_execute() as the maximum length to parse. */
         _httpsResponse->pHeadersCur = (uint8_t*)(pLoc += length);
     }
     return 0;
@@ -688,12 +683,14 @@ static int _httpParserOnBodyCallback(http_parser * pHttpParser, const char * pLo
     _httpsResponse_t * _httpsResponse = (_httpsResponse_t *)(pHttpParser->data);
     _httpsResponse->parserState = PARSER_STATE_IN_BODY;
 
-    /* If we are in the header buffer and we come across HTTPS body, then we want to copy it to the body
-       buffer. */
-    /* Only copy the data if the current location is not the bodyCur. */
+    /* No matter what buffer is being processed (header or body) we want to copy the data to the body
+       buffer if it exists. */
     if((_httpsResponse->pBodyCur != NULL) && (_httpsResponse->pBodyEnd - _httpsResponse->pBodyCur > 0))
     {
-        if(_httpsResponse->pBodyCur != pLoc)
+        /* Only copy the data if the current location is not the bodyCur. Also only copy if the length does not
+           exceed the body buffer. This might happen, only in the synchronous workflow, if the header buffer is larger 
+           than the body buffer and receives entity body larger than the body bufffer. */
+        if( (_httpsResponse->pBodyCur != pLoc) && ( (_httpsResponse->pBodyCur + length) <= _httpsResponse->pBodyEnd ) )
         {
             memcpy(_httpsResponse->pBodyCur, pLoc, length);
         }
@@ -785,8 +782,12 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
     IOT_FUNCTION_ENTRY(IotHttpsReturnCode_t, IOT_HTTPS_OK);
 
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
-    char pAlpnProtos[IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH] = { 0 };
-    char pHostName[IOT_HTTPS_MAX_HOST_NAME_LENGTH] = { 0 };
+    /* The maxmimum string length of the ALPN protocols is configured in IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH. 
+       This is +1 for the unfortunate NULL terminator needed by IotNetworkCredentials_t.pAlpnProtos. */
+    char pAlpnProtos[IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH + 1] = { 0 };
+    /* The maximum string length of the Server host name is configured in IOT_HTTPS_MAX_HOST_NAME_LENGTH. 
+       This is +1 for the unfortunate NULL terminator needed by IotNetworkServerInfo_t.pHostName. */
+    char pHostName[IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1] = { 0 };
     bool connSemCreated = false;
     bool rxStartSemCreated = false;
     bool rxFinishedSemCreated = false;
@@ -813,17 +814,6 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
     
     /* Set to disconnected initially. */
     _httpsConnection->isConnected = false;
-    
-    /* Keep track of a non-persistent HTTP connection. If this flag is set to true, then we will call IotHttpsClient_Disconnect
-       at the end of a synchronous or asychronous request. The end of a request is when the response has been fully received. */
-    if( pConnConfig->flags & IOT_HTTPS_IS_NON_PERSISTENT_FLAG )
-    {
-        _httpsConnection->nonPersistent = true;
-    }
-    else
-    {
-        _httpsConnection->nonPersistent = false;
-    }
 
     /* This timeout is used to wait for a response on the connection. */
     if( pConnConfig->timeout == 0 )
@@ -858,7 +848,7 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
         }
         if(pConnConfig->addressLen > IOT_HTTPS_MAX_HOST_NAME_LENGTH)
         {
-            IotLogError("IotHttpsConnectionInfo_t.pAddressLen has a host name length %d that exceeds maximum length %d.",
+            IotLogError("IotHttpsConnectionInfo_t.addressLen has a host name length %d that exceeds maximum length %d.",
                 pConnConfig->addressLen,
                 IOT_HTTPS_MAX_HOST_NAME_LENGTH);
             IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
@@ -895,6 +885,13 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
             {
                 /* IotNetworkCredentials_t should take in a length for the alpn protocols string instead of requiring a 
                 NULL terminator. */
+                if( pConnConfig->alpnProtocolsLen > IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH )
+                {
+                    IotLogError( "IotHttpsConnectionInfo_t.alpnProtocolsLen of %d exceeds the configured maximum protocol length %d. See IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH for more information.",
+                        pConnConfig->alpnProtocolsLen,
+                        IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH );
+                    IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INVALID_PARAMETER );
+                }
                 memcpy( pAlpnProtos, pConnConfig->pAlpnProtocols, pConnConfig->alpnProtocolsLen );
                 pAlpnProtos[pConnConfig->alpnProtocolsLen] = '\0';
                 networkCredentials.pAlpnProtos = pAlpnProtos; /* This requires a NULL termination. It is inconsistent with other members in the struct. */
@@ -1149,6 +1146,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
         if(pReqInfo->reqUserBuffer.pBuffer != NULL)
         {
             _httpsRequest = ( _httpsRequest_t *)(pReqInfo->reqUserBuffer.pBuffer);
+            /* Clear out the user buffer. */
+            memset(pReqInfo->reqUserBuffer.pBuffer, 0, pReqInfo->reqUserBuffer.bufferLen);
         }
         else
         {
@@ -1239,6 +1238,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     {
         /* Save the connection info if the connection is to be made at the time of the request. */
         _httpsRequest->pConnInfo = pReqInfo->pConnInfo;
+        /* Set the connection persistence flag for keeping the connection open after receiving a response. */
+        _httpsRequest->isNonPersistent = pReqInfo->isNonPersistent;
 
         /* Initialize the corresponding response to this request. */
         if(pReqInfo->respUserBuffer.bufferLen < responseUserBufferMinimumSize)
@@ -1255,6 +1256,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
         if(pReqInfo->respUserBuffer.pBuffer != NULL)
         {
             _httpsRequest->pRespHandle = (_httpsResponse_t *)(pReqInfo->respUserBuffer.pBuffer);
+            /* Clear out the response user buffer. */
+            memset(pReqInfo->respUserBuffer.pBuffer, 0, pReqInfo->respUserBuffer.bufferLen);
         }
         else
         {
@@ -1733,7 +1736,8 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
             IotLogError("IotHttpsRequestInfo_t should have been confogired with pConnInfo not NULL in IotHttpsClient_InitializeRequest() in order to connect implicitly.");
             IOT_GOTO_CLEANUP();
         }
-        status = _connectHttpsServer(&(reqHandle->pConnHandle), reqHandle->pConnInfo);
+        /* This routine will set the pConnHandle to return if successful. */
+        status = _connectHttpsServer(pConnHandle, reqHandle->pConnInfo);
         if(status != IOT_HTTPS_OK)
         {
             IotLogError("An error occurred in connecting with th server with error code: %d", status);
@@ -1741,17 +1745,8 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         }
     }
     /* Else pConnHandle is not null and it is connected. */
-    else
-    {
-        reqHandle->pConnHandle = *pConnHandle;
-    }
 
-    /* Set the connection handles to return. */
-    *pConnHandle = reqHandle->pConnHandle;
-    ( *pRespHandle )->pConnHandle = *pConnHandle;
-    
-
-    /* Set the internal connection context since we are connected now. */
+    /* Set the an internal local connection variable for convenience. */
     _httpsConnection = *pConnHandle;
 
     /* Lock the entire connection for sending the request and receiving the response. */
@@ -1761,7 +1756,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         status = _sendHttpsHeaders( _httpsConnection,
             reqHandle->pHeaders,
             reqHandle->pHeadersCur - reqHandle->pHeaders,
-            _httpsConnection->nonPersistent,
+            reqHandle->isNonPersistent,
             reqHandle->bodyLength);
 
         if( status != IOT_HTTPS_OK )
@@ -1872,7 +1867,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
 
     /* If this is not a persistent connection, the server would have closed it after
         sending a response, but we disconnect anyways. */
-    if( (_httpsConnection != NULL) && (_httpsConnection->nonPersistent ))
+    if( (_httpsConnection != NULL) && ( reqHandle->isNonPersistent ))
     {
         status = IotHttpsClient_Disconnect( _httpsConnection );
         if( status != IOT_HTTPS_OK )

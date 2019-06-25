@@ -221,10 +221,6 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * 
  * This function blocks waiting for the entirety of sending the request and receiving the response. 
  * 
- * #IotHttpsRequestInfo_t.pSyncInfo must have been configured to send a request synchronously. If the
- * request was configured with #IotHttpsRequestInfo.pAsyncInfo instead, invoking this function will have 
- * undefined behavior. 
- * 
  * If parameter pConnHandle is passed in pointing to a NULL #IotHttpsConnectionHandle_t, then a connection is to be made 
  * implicitly and a valid connection handle in pConnHandle will be returned. 
  * If parameter pConnHandle points to a non-NULL #IotHttpsConnectionHandle_t and it is in a disconnected state, then a 
@@ -238,8 +234,8 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * is established by default on top of TLS over TCP. If the application wants to connect over TCP only, then it must
  * add the @ref IOT_HTTPS_IS_NON_TLS_FLAG to #IotHttpsConnectionInfo_t.flags. This is done at the applications own risk.
  * 
- * If @ref IOT_HTTPS_IS_NON_PERSISTENT_FLAG is set in #IotHttpsConnectionInfo_t.flags, then the connection will 
- * disconnect, close, and clean all taken resources automatically after receiving the first response.
+ * I #IotHttpsRequestInfo_t.isNonPersistent is set to true, then the connection will disconnect, close, and clean all 
+ * taken resources automatically after receiving the first response.
  * 
  * @ref https_client_function_disconnect must always be called when an implicit connection is made for a 
  * persistent connection or if the first response is never received to cause automatic disconnect in a 
