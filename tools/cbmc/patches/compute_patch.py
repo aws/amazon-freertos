@@ -98,11 +98,18 @@ def manipulate_headerfile(defines, header_file):
             if (match and
                     match.group(1) in defines and
                     not last.lstrip().startswith("#ifndef")):
+                full_def = [line]
+                # this loop deals with multiline definitions
+                while line.rstrip().endswith("\\"):
+                    line = next(source)
+                    full_def += [line]
+                full_def = "".join(full_def)
+                # indentation for multiline definitions can be improved
                 modified_content += textwrap.dedent("""\
                     #ifndef {target}
                         {original}\
                     #endif
-                    """.format(target=match.group(1), original=line))
+                    """.format(target=match.group(1), original=full_def))
             else:
                 modified_content += line
             last = line
