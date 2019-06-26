@@ -63,7 +63,7 @@ static void _connectionCb( uint16_t connId,
                            uint8_t serverIf,
                            bool connected,
                            BTBdaddr_t * pBda );
-static void _seviceAddedCb( BTStatus_t status,
+static void _serviceAddedCb( BTStatus_t status,
                             uint8_t serverIf,
                             BTGattSrvcId_t * pSrvcId,
                             uint16_t srvcHandle );
@@ -120,7 +120,7 @@ const BTGattServerCallbacks_t _BTGattServerCb =
     .pxRegisterServerCb       = _serverRegisteredCb,
     .pxUnregisterServerCb     = _serverUnregisteredCb,
     .pxConnectionCb           = _connectionCb,
-    .pxServiceAddedCb         = _seviceAddedCb,
+    .pxServiceAddedCb         = _serviceAddedCb,
     .pxIncludedServiceAddedCb = _includedServiceAdded,
     .pxCharacteristicAddedCb  = _charAddedCb,
     .pxSetValCallbackCb       = NULL,
@@ -350,7 +350,7 @@ void _attributeAdded( uint16_t handle,
 
 /*-----------------------------------------------------------*/
 
-void _seviceAddedCb( BTStatus_t status,
+void _serviceAddedCb( BTStatus_t status,
                      uint8_t serverIf,
                      BTGattSrvcId_t * pSrvcId,
                      uint16_t srvcHandle )
@@ -568,7 +568,7 @@ static void _responseConfirmationCb( BTStatus_t status,
         respConfirmParam.status = status;
 
         eventParam.xEventType = eBLEResponseConfirmation;
-        eventParam.pParamRespConfim = &respConfirmParam;
+        eventParam.pParamRespConfirm = &respConfirmParam;
 
         eventsCallbacks( &eventParam );
     }
@@ -650,16 +650,16 @@ size_t _computeNumberOfHandles( BTService_t * pService )
 BTStatus_t _createAttributes( BTService_t * pService )
 {
     uint16_t attributes = 0;
-    BTAttribute_t * pCurrentAtrribute;
+    BTAttribute_t * pCurrentAttribute;
     BTStatus_t status = eBTStatusFail;
     BTGattSrvcId_t tmpService;
     size_t nbHandles;
 
     for( attributes = 0; attributes < pService->xNumberOfAttributes; attributes++ )
     {
-        pCurrentAtrribute = &pService->pxBLEAttributes[ attributes ];
+        pCurrentAttribute = &pService->pxBLEAttributes[ attributes ];
 
-        switch( pCurrentAtrribute->xAttributeType )
+        switch( pCurrentAttribute->xAttributeType )
         {
             case eBTDbPrimaryService:
 

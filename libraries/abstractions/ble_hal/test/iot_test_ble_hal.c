@@ -58,10 +58,10 @@ typedef enum
     eBLEHALEventServerRegisteredCb = 0,
     eBLEHALEventEnableDisableCb = 1,
     eBLEHALEventCharAddedCb = 2,
-    eBLEHALEventSeviceAddedCb = 3,
-    eBLEHALEventSeviceStartedCb = 4,
-    eBLEHALEventSeviceStoppedCb = 5,
-    eBLEHALEventSeviceDeletedCb = 6,
+    eBLEHALEventServiceAddedCb = 3,
+    eBLEHALEventServiceStartedCb = 4,
+    eBLEHALEventServiceStoppedCb = 5,
+    eBLEHALEventServiceDeletedCb = 6,
     eBLEHALEventCharDescrAddedCb = 7,
     eBLEHALEventIncludedServiceAdded = 8,
     eBLEHALEventRegisterBleAdapterCb = 9,
@@ -1442,7 +1442,7 @@ void prvStartService( BTService_t * xRefSrvc )
     xStatus = pxGattServerInterface->pxStartService( ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ], BTTransportLe );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventSeviceStartedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStartServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventServiceStartedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStartServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStartServiceCb.xStatus );
 
@@ -1571,7 +1571,7 @@ void prvCreateService( BTService_t * xRefSrvc )
     xStatus = pxGattServerInterface->pxAddService( ucBLEServerIf, &xSrvcId, usNumHandles );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventSeviceAddedCb, NO_HANDLE, ( void * ) &xCreateServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventServiceAddedCb, NO_HANDLE, ( void * ) &xCreateServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xCreateServiceCb.xStatus );
     TEST_ASSERT_EQUAL( 0, memcmp( &xCreateServiceCb.xSrvcId.xId.xUuid, &xRefSrvc->pxBLEAttributes[ 0 ].xServiceUUID, sizeof( BTUuid_t ) ) );
@@ -1671,14 +1671,14 @@ void prvStopAndDeleteService( BTService_t * xRefSrvc )
     xStatus = pxGattServerInterface->pxStopService( ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventSeviceStoppedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStopDeleteServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventServiceStoppedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStopDeleteServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStopDeleteServiceCb.xStatus );
 
     xStatus = pxGattServerInterface->pxDeleteService( ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventSeviceDeletedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStopDeleteServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventServiceDeletedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStopDeleteServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStopDeleteServiceCb.xStatus );
 }
@@ -1846,7 +1846,7 @@ void prvServiceAddedCb( BTStatus_t xStatus,
     }
 
     pxAddedServiceCb->usAttrHandle = usServiceHandle;
-    pxAddedServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceAddedCb;
+    pxAddedServiceCb->xEvent.xEventTypes = eBLEHALEventServiceAddedCb;
     pxAddedServiceCb->xEvent.lHandle = NO_HANDLE;
 
     pushToQueue(&pxAddedServiceCb->xEvent.eventList);
@@ -1866,7 +1866,7 @@ void prvServiceStartedCb( BTStatus_t xStatus,
         	pxStartServiceCb->xStatus = eBTStatusFail;
         }
     }
-    pxStartServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceStartedCb;
+    pxStartServiceCb->xEvent.xEventTypes = eBLEHALEventServiceStartedCb;
     pxStartServiceCb->xEvent.lHandle = usServiceHandle;
 
     pushToQueue(&pxStartServiceCb->xEvent.eventList);
@@ -1886,7 +1886,7 @@ void prvServiceStoppedCb( BTStatus_t xStatus,
         	pxStopServiceCb->xStatus = eBTStatusFail;
         }
     }
-    pxStopServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceStoppedCb;
+    pxStopServiceCb->xEvent.xEventTypes = eBLEHALEventServiceStoppedCb;
     pxStopServiceCb->xEvent.lHandle = usServiceHandle;
 
     pushToQueue(&pxStopServiceCb->xEvent.eventList);
@@ -1906,7 +1906,7 @@ void prvServiceDeletedCb( BTStatus_t xStatus,
         	pxDeleteServiceCb->xStatus = eBTStatusFail;
         }
     }
-    pxDeleteServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceDeletedCb;
+    pxDeleteServiceCb->xEvent.xEventTypes = eBLEHALEventServiceDeletedCb;
     pxDeleteServiceCb->xEvent.lHandle = usServiceHandle;
 
     pushToQueue(&pxDeleteServiceCb->xEvent.eventList);

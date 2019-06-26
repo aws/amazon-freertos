@@ -359,7 +359,7 @@ BaseType_t GGD_JSONRequestGetSize( Socket_t * pxSocket,
         /* Add 1 because at the end of the JSON file the escape character '\0' will be added. */
         *pulJSONFileSize =
             ( uint32_t ) strtoul( cBuffer, NULL, ggJSON_CONVERTION_RADIX )
-            + ( uint32_t ) 1; /*lint !e645 if code reaches here, cBuffer has been inialized. */
+            + ( uint32_t ) 1; /*lint !e645 if code reaches here, cBuffer has been initalized. */
 
         /****** Go to the end of the header *****/
         xStatus = pdFAIL;

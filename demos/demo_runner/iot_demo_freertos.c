@@ -180,13 +180,13 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 static int _initialize( demoContext_t * pContext )
 {
     int status = EXIT_SUCCESS;
-    bool commonLibrariesInitailized = false;
+    bool commonLibrariesInitialized = false;
     bool semaphoreCreated = false;
 
     /* Initialize common libraries required by network manager and demo. */
     if( IotSdk_Init() == true )
     {
-        commonLibrariesInitailized = true;
+        commonLibrariesInitialized = true;
     }
     else
     {
@@ -260,7 +260,7 @@ static int _initialize( demoContext_t * pContext )
             IotSemaphore_Destroy( &demoNetworkSemaphore );
         }
 
-        if( commonLibrariesInitailized == true )
+        if( commonLibrariesInitialized == true )
         {
             IotSdk_Cleanup();
         }

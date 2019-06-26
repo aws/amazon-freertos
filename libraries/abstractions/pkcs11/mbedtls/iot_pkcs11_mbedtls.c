@@ -355,7 +355,7 @@ CK_RV prvMbedTLS_Initialize( void )
                                    aws_mbedtls_mutex_lock,
                                    aws_mbedtls_mutex_unlock );
 
-        /* Initialze the entropy source and DRBG for the PKCS#11 module */
+        /* Initialzed the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
         mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
 
@@ -1478,7 +1478,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
 }
 
 /**
- * @brief Generate a new assymetric keyset.
+ * @brief Generate a new asymmetric keyset.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_MECHANISM_PTR pxMechanism,

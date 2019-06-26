@@ -217,7 +217,7 @@ void IotLog_Generic( int libraryLogSetting,
     /* Estimate the amount of buffer needed for this log message. */
     if( ( pLogConfig == NULL ) || ( pLogConfig->hideLibraryName == false ) )
     {
-        /* Add size of library name if requested. Add 2 to accomodate "[]". */
+        /* Add size of library name if requested. Add 2 to accommodate "[]". */
         bufferSize += strlen( pLibraryName ) + 2;
     }
 

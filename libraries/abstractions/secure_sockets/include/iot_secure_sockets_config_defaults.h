@@ -62,7 +62,7 @@
 #endif
 
 /**
- * @brief By default, metircs of secure socket is disabled.
+ * @brief By default, metrics of secure socket is disabled.
  *
  */
 #ifndef AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED

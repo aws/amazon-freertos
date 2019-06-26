@@ -39,13 +39,13 @@
 #endif
 
 /**
- * callback registerd on accept topic.
+ * callback registered on accept topic.
  */
 void _acceptCallback( void * pArgument,
                       IotMqttCallbackParam_t * const pPublish );
 
 /**
- * callback registerd on reject topic.
+ * callback registered on reject topic.
  */
 void _rejectCallback( void * pArgument,
                       IotMqttCallbackParam_t * const pPublish );
@@ -143,7 +143,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
     IotTaskPoolError_t taskPoolError = IOT_TASKPOOL_SUCCESS;
 
-    /* Silence warnigns when asserts are disabled. */
+    /* Silence warnings when asserts are disabled. */
     ( void ) taskPoolError;
 
     /* Initialize flow control states to false. */
@@ -349,7 +349,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
                                     IotTaskPoolJob_t pJob,
                                     void * pUserContext )
 {
-    /* Unsed parameter; silence the compiler. */
+    /* Unused parameter; silence the compiler. */
     ( void ) pTaskPool;
     ( void ) pJob;
     ( void ) pUserContext;
@@ -406,7 +406,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
     {
         IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJobStorage, &_disconnectJob );
 
-        /* Silence warnigns when asserts are disabled. */
+        /* Silence warnings when asserts are disabled. */
         ( void ) taskPoolError;		
         AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
@@ -472,7 +472,7 @@ static void _disconnectRoutine( IotTaskPool_t pTaskPool,
                                 IotTaskPoolJob_t pJob,
                                 void * pUserContext )
 {
-    /* Unsed parameter; silence the compiler. */
+    /* Unused parameter; silence the compiler. */
     ( void ) pTaskPool;
     ( void ) pJob;
     ( void ) pUserContext;
@@ -484,7 +484,7 @@ static void _disconnectRoutine( IotTaskPool_t pTaskPool,
     /* Re-create metrics job. */
     IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _metricsPublishRoutine, NULL, &_metricsPublishJobStorage, &_metricsPublishJob );
 	
-    /* Silence warnigns when asserts are disabled. */
+    /* Silence warnings when asserts are disabled. */
     ( void ) taskPoolError;
 	
     AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );

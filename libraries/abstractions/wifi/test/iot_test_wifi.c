@@ -285,7 +285,7 @@ static inline void prvSetNetworkProfile( WIFINetworkProfile_t * pxNetworkProfile
 }
 
 /**
- * @brief Connect to the Wi-Fi access point and verify sucecss.
+ * @brief Connect to the Wi-Fi access point and verify success.
  */
 static BaseType_t prvConnectAPTest( void )
 {
@@ -2096,7 +2096,7 @@ TEST( Full_WiFi, AFQP_WIFI_ConnectAP_ZeroLengthPassword )
 
     if( TEST_PROTECT() )
     {
-        /* This may not return faulure if the max passphrase length is copied in the
+        /* This may not return failure if the max passphrase length is copied in the
          * port. */
         WIFI_ConnectAP( &xNetworkParams );
     }

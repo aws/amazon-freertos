@@ -298,7 +298,7 @@ void IotSemaphore_Wait( IotSemaphore_t * pSemaphore )
         IotLogWarn( "Failed to wait on semaphore %p.",
                     pSemaphore );
 
-        /* Assert here, debugging we always want to know that this happened becuase you think
+        /* Assert here, debugging we always want to know that this happened because you think
          *   that you are waiting successfully on the semaphore but you are not   */
         configASSERT( false );
     }

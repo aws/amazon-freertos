@@ -474,7 +474,7 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *
  * @return
  * * On success, 0 is returned.
- * * If an error occured, a negative value is returned. @ref SocketsErrors
+ * * If an error occurred, a negative value is returned. @ref SocketsErrors
  */
 /* @[declare_secure_sockets_setsockopt] */
 int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
@@ -494,7 +494,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
  * @param[in] pcHostName The host name to resolve.
  * @return
  * * The IPv4 address of the specified host.
- * * If an error has occured, 0 is returned.
+ * * If an error has occurred, 0 is returned.
  */
 /* @[declare_secure_sockets_gethostbyname] */
 uint32_t SOCKETS_GetHostByName( const char * pcHostName );
