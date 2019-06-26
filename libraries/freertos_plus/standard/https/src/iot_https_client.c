@@ -831,7 +831,7 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
         IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
     }
     /* pNetworkInterface contains the connect, disconnect, send, and receive over the network functions. */
-    _httpsConnection->pNetworkInterface = ( IotNetworkInterface_t* )( pConnConfig->pNetworkInterface );
+    _httpsConnection->pNetworkInterface = pConnConfig->pNetworkInterface;
     
     /* If a pNetworkServer info configuration is passed in, then use it otherwise use the pHostName and port in the pConnConfig. */
     if(pConnConfig->pNetworkServerInfo != NULL)
@@ -1013,9 +1013,46 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
         {
             IotSemaphore_Destroy( &(_httpsConnection->rxFinishSem) );
         }
+
+        /* Set the connection handle as NULL if everything failed. */
+        *pConnHandle = NULL;
     }
 
     IOT_FUNCTION_CLEANUP_END();
+}
+
+/* --------------------------------------------------------- */
+
+IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHandle, IotHttpsConnectionInfo_t *pConnConfig)
+{
+    IotHttpsReturnCode_t status = IOT_HTTPS_OK;
+
+    /* If a valid connection handle is passed in. */
+    if(*pConnHandle != NULL)
+    {
+        /* If the handle in a connected state, then we want to disconnect before reconnecting. The ONLY way to put the 
+           handle is a disconnect state is to call IotHttpsClient_Disconnect(). */
+        if((*pConnHandle)->isConnected)
+        {
+            status = IotHttpsClient_Disconnect(*pConnHandle);
+            if(status != IOT_HTTPS_OK)
+            {
+                IotLogError("Error disconnecting a connected *pConnHandle passed to IotHttpsClient_Connect().Error code %d", status);
+            }
+        }
+    }
+
+    /* Connect to the server now. Initialize all resources needed for the connection context as well here. */
+    if(status == IOT_HTTPS_OK)
+    {
+        status = _connectHttpsServer(pConnHandle, pConnConfig);
+        if(status != IOT_HTTPS_OK)
+        {
+            IotLogError("Error in IotHttpsClient_Connect(). Error code %d.", status);
+        }
+    }
+
+    return status;
 }
 
 /*-----------------------------------------------------------*/
@@ -1187,11 +1224,11 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
         memcpy(_httpsRequest->pHeadersCur, httpsMethodStrings[pReqInfo->method], httpsMethodLen);
         _httpsRequest->pHeadersCur += httpsMethodLen;
         memcpy(_httpsRequest->pHeadersCur, space, spaceLen);
-        _httpsRequest->pHeadersCur += 1;
+        _httpsRequest->pHeadersCur += spaceLen;
         memcpy(_httpsRequest->pHeadersCur, pReqInfo->pPath, pReqInfo->pathLen);
         _httpsRequest->pHeadersCur += pReqInfo->pathLen;
         memcpy( _httpsRequest->pHeadersCur, space, spaceLen );
-        _httpsRequest->pHeadersCur += 1;
+        _httpsRequest->pHeadersCur += spaceLen;
         memcpy(_httpsRequest->pHeadersCur, HTTPS_PROTOCOL_VERSION, httpsProtocolVersionLen);
         _httpsRequest->pHeadersCur += httpsProtocolVersionLen;
         memcpy(_httpsRequest->pHeadersCur, HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH);

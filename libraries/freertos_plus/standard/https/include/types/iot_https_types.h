@@ -95,7 +95,7 @@ extern const uint32_t responseUserBufferMinimumSize;
  * 
  * This helps to calculate the size of the buffer needed for #IotHttpsConnectionInfo_t.userBuffer.
  * 
- * The buffer size is calculated to ft the HTTP connection context only. The buffer assigned by the application must be
+ * The buffer size is calculated to fit the HTTP connection context only. The buffer assigned by the application must be
  * at least this size.
  * 
  * By the application providing the memory for the internal context, no memory is needed to be allocated internally to 
@@ -170,6 +170,24 @@ extern const uint32_t connectionUserBufferMinimumSize;
 /** @brief Initializer for #IotHttpsRequestInfo_t. */
 #define IOT_HTTPS_REQUEST_INFO_INITIALIZER          { 0 }
 /* @[define_https_initializers] */
+
+/* Amazon FreeRTOS network include for the network types below. */
+#include "platform/iot_network.h"
+
+/**
+ * @brief Type for the network interface containing the operations to send, receive, connect, and disconnect from
+ * the network.
+ */
+#define IOT_HTTPS_NETWORK_INTERFACE_TYPE                      const IotNetworkInterface_t*
+/**
+ * @brief Type for the network server information needed to connect to the server.
+ */
+#define IOT_HTTPS_NETWORK_SERVER_INFO_TYPE                    IotNetworkServerInfo_t*
+
+/**
+ * @brief Type for the network credential information to establist a TLS connection.
+ */
+#define IOT_HTTPS_NETWORK_CREDENTIAL_INFO_TYPE                IotNetworkCredentials_t*
 
 /*-----------------------------------------------------------*/  
 
@@ -466,12 +484,16 @@ typedef struct IotHttpsConnectionInfo
     /**
      * @brief The IOT network abstraction interface.
      * 
+     * This contains the interface to connect, disconnect, send data, and receive data from the network.
+     * 
      * This is required or Amazon FreeRTOS this should be of the type IotNetworkInterface_t.
      */
-    void * pNetworkInterface;
+    IOT_HTTPS_NETWORK_INTERFACE_TYPE pNetworkInterface;
 
     /**
      * @brief IOT network abstraction server information.
+     * 
+     * This contains the information about the server to connect to.
      * 
      * Set this to NULL to have the library use configurations within this structure for the network connection.
      * If this is not NULL, then the server information in this variable will be used for the network connection.
@@ -479,17 +501,19 @@ typedef struct IotHttpsConnectionInfo
      * 
      * In Amazon FreeRTOS this should be of the type IotNetworkServerInfo_t.
      */
-    void * pNetworkServerInfo;
+    IOT_HTTPS_NETWORK_SERVER_INFO_TYPE pNetworkServerInfo;
 
     /**
      * @brief IOT network abstraction credential information.
+     * 
+     * This contains information about the credentials to use for a TLS connection.
      * 
      * Set this to NULL to have the library use configurations within this structure for the network connection.
      * If this is not NULL, then the credential information in this variable will be used for the network connection.
      *
      * In Amazon FreeRTOS this should be of the type IotNetworkCredentials_t.
      */
-    void * pNetworkCredentialInfo;
+    IOT_HTTPS_NETWORK_CREDENTIAL_INFO_TYPE pNetworkCredentialInfo;
 } IotHttpsConnectionInfo_t;
 
 /**

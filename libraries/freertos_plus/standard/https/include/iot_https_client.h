@@ -42,6 +42,7 @@
  * - @functionname{https_client_function_init}
  * - @functionname{https_client_function_deinit}
  * - @functionname{https_client_function_disconnect}
+ * - @functionname{https_client_function_connect}
  * - @functionname{https_client_function_initializerequest}
  * - @functionname{https_client_function_addheader}
  * - @functionname{https_client_function_writerequestbody}
@@ -57,6 +58,7 @@
 /**
  * @functionpage{IotHttpsClient_Init,https_client,init}
  * @functionpage{IotHttpsClient_Deinit,https_client,deinit}
+ * @functionpage{IotHttpsClient_Connect,https_client,connect}
  * @functionpage{IotHttpsClient_Disconnect,https_client,disconnect}
  * @functionpage{IotHttpsClient_InitializeRequest,https_client,initializerequest}
  * @functionpage{IotHttpsClient_AddHeader,https_client,addheader}
@@ -101,20 +103,76 @@ void IotHttpsClient_Deinit( void );
 /* @[declare_https_client_deinit] */
 
 /**
+ * @brief Explicitly connect to the HTTPS server given the connection configuration pConnConfig.
+ * 
+ * This routine blocks until the connection is complete. 
+ * 
+ * This function opens a new HTTPS connection between the server specified in #IotHttpsConnectionInfo_t.pAddress. The 
+ * connection is established by default on top of TLS over TCP. If the application wants to connect over TCP only, then 
+ * it must add the @ref IOT_HTTPS_IS_NON_TLS_FLAG to #IotHttpsConnectionInfo_t.flags. This is done at the applications 
+ * own risk.
+ * 
+ * When the HTTP request is specified as persistent and we want to close the connection, @ref https_client_function_disconnect 
+ * must always  be called on the valid #IotHttpsConnectionHandle_t. This is regardless of if the valid #IotHttpsConnectionHandle_t 
+ * was created implicitly with @ref https_client_function_sendsync or @ref https_client_function_sendasync or explicitly
+ * with this function. For more information about persistent HTTP connections please see #IotHttpsRequestInfo_t.isNonPersistent.
+ * 
+ * If the application receives a #IOT_HTTPS_NETWORK_ERROR from @ref https_client_function_sendsync or 
+ * @ref https_client_function_sendasync, on a persistent request, that does not always mean the connection has been 
+ * disconnected, but the connection may have been. The application can call this function again to reestablish the 
+ * connection. To know if the connection was closed by the server, debug logging can be turned on to view the network
+ * error code received. Debug logging is configured when IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h. 
+ * 
+ * Multiple threads may call this function at the same time if the buffer provided in 
+ * #IotHttpsConnectionInfo_t.userBuffer is different for each of the threads.
+ * 
+ * See @ref connectionUserBufferMinimumSize for information about the user buffer configured in 
+ * #IotHttpsConnectionInfo_t.userBuffer needed to create a valid connection handle.
+ * 
+ * @param[out] pConnHandle - Handle returned representing the open connection.
+ * @param[in] pConnConfig - Configurations for the HTTPS connection.
+ * 
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the connection was successful. 
+ * - #IOT_HTTPS_CONNECTION_ERROR if the connection failed. 
+ * - #IOT_HTTPS_INVALID_PARAMETER if NULL parameters were passed in.
+ * - #IOT_HTTPS_INTERNAL_ERROR if there was an error creating resources for the connection context.
+ */
+/* @[declare_https_client_connect] */
+IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHandle, IotHttpsConnectionInfo_t *pConnConfig);
+/* @[declare_https_client_connect] */
+
+/**
  * @brief Disconnect from the HTTPS server given the connection handle connHandle.
  * 
  * This routine blocks until the disconnect is complete. 
  * If the connection handle is not valid, the behavior is undefined.
  * If the connection handle is already disconnected then this routine will return IOT_HTTPS_OK.
  * 
- * This API MUST always be called on a valid #IotHttpsConnectionHandle_t created implicitly with 
- * @ref https_client_function_sendsync @ref https_client_function_sendasync.
+ * When the HTTP request is specified as persistent and we want to close the connection, this API must always 
+ * be called on the valid #IotHttpsConnectionHandle_t. This is regardless of if the valid #IotHttpsConnectionHandle_t 
+ * was created implicitly with @ref https_client_function_sendsync or @ref https_client_function_sendasync or explicitly
+ * with @ref https_client_function_connection. For more information about persistent HTTP connections please see 
+ * #IotHttpsRequestInfo_t.isNonPersistent.
+ * 
+ * When the HTTP request is specified as non-persistent, by setting #IotHttpsRequestInfo_t.isNonPersistent to true, then
+ * this function will be called automatically on the valid IotHttpsConnectionHandle_t after receiving the response. There
+ * is not need to call this function in the non-persistent request case.
+ * 
+ * This will put the internal connection state in #IotHttpsConnectionHandle_t to disconnected. Calling this function is
+ * the only way to explicitly put a persistent connection's internal state to disconnected. 
+ * 
+ * If the application receives a #IOT_HTTPS_NETWORK_ERROR from @ref https_client_function_sendsync or 
+ * @ref https_client_function_sendasync, on a persistent request, that does not always mean the connection has been 
+ * disconnected. This function MUST be called to close the connection and clean up connection resources taken by 
+ * IotHttpsConnectionHandle_t.
  * 
  * @param[in] connHandle - Valid handle representing an open connection.
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the disconnect was successful
  * - #IOT_HTTPS_NETWORK_ERROR for network disconnection errors.
+ * - #IOT_HTTPS_INVALID_PARAMETER if NULL parameters were passed in.
  */
 /* @[declare_https_client_disconnect] */
 IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHandle);
@@ -312,7 +370,6 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHa
  * - #IOT_HTTPS_OK if the response status was successfully read into *status.
  * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
  * - #IOT_HTTPS_NOT_FOUND if the HTTP response status was not found in the header buffer.
- *         Error code otherwise, please see #IotHttpsReturnCode_t for for failure codes.
  */
 /* @[declare_https_client_readresponsestatus] */
 IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t respHandle, uint16_t *pStatus);

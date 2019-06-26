@@ -48,7 +48,10 @@
  * A presigned URL is required to run this demo. Please see the demos/https/README.md for instructions on how to 
  * generate one.
  * 
- * The file is downloaded incrementally using HTTP Partial Content headers. 
+ * The file is downloaded incrementally using HTTP Partial Content headers. This is done by requesting ranges of the 
+ * bytes in a file with the header: "Range: bytes=N-M", where N is the starting range and M is the ending range. The
+ * S3 HTTP server will response with a 206 Partial Content type of response and the file byte range requested. Please 
+ * note that not all HTTP servers support a Partial Content download with a byte range.
  */
 
 /**
@@ -213,11 +216,11 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     IotHttpsReturnCode_t httpsClientStatus = IOT_HTTPS_OK;
 
     /* Configurations for the HTTPS connection. */
-    IotHttpsConnectionInfo_t connConfig = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
+    IotHttpsConnectionInfo_t connConfig = { 0 };
     /* Handle identifying the HTTPS connection. */
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     /* Configurations for the HTTPS request. */
-    IotHttpsRequestInfo_t reqConfig = IOT_HTTPS_REQUEST_INFO_INITIALIZER;
+    IotHttpsRequestInfo_t reqConfig = { 0 };
     /* Handle identifying the HTTP request. This is valid after the request has been initialized with 
        IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
@@ -225,7 +228,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
        IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
-    IotHttpsSyncRequestInfo_t syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
+    IotHttpsSyncRequestInfo_t syncInfo = { 0 };
 
     /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
     const char *pPath = NULL;
@@ -247,7 +250,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
        field value, we size this string to the Range header field value.*/
     char contentRangeValStr[RANGE_VALUE_MAX_LENGTH]; 
     /* The location of the file size in the contentRangeValStr. */
-    char * fileSizeStr = NULL;
+    char * pFileSizeStr = NULL;
     /* The size of the file we are trying to download in S3. */
     uint32_t fileSize = 0;
     /* The number of bytes we want to request with in each range of the file bytes. */
@@ -256,6 +259,8 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     uint32_t curByte = 0;
     /* Buffer to write the Range: header value string. */
     char rangeValueStr[RANGE_VALUE_MAX_LENGTH] = { 0 };
+    /* Size in bytes of a single character. */
+    uint8_t sizeOfOneChar = 1;
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath(IOT_DEMO_HTTPS_PRESIGNED_URL, 
@@ -300,7 +305,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     connConfig.clientCertLen = ( ( IotNetworkCredentials_t* )pNetworkCredentialInfo )->clientCertSize;
     connConfig.pPrivateKey = ( ( IotNetworkCredentials_t* )pNetworkCredentialInfo )->pPrivateKey;
     connConfig.privateKeyLen = ( ( IotNetworkCredentials_t* )pNetworkCredentialInfo )->privateKeySize;
-    connConfig.pNetworkInterface = (void*)pNetworkInterface;
+    connConfig.pNetworkInterface = pNetworkInterface;
 
     /* Set the configurations needed for a synchronous request. */
     syncInfo.pReqData = NULL;    /* This is a GET request so there is no data in the body. */
@@ -382,8 +387,8 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
         CONTENT_RANGE_HEADER_FIELD, 
         contentRangeValStr, 
         sizeof(contentRangeValStr) );
-    fileSizeStr = strstr( contentRangeValStr, "/" );
-    if(fileSizeStr == NULL)
+    pFileSizeStr = strstr( contentRangeValStr, "/" );
+    if(pFileSizeStr == NULL)
     {
         IotLogError("Expected the header value \"bytes 0-0/FILESIZE\" to be retrieved, but \"/\" could not be found in \
         in the header value.");
@@ -391,8 +396,8 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
 
     }
     /* The file size string is the next character after the "/" */
-    fileSizeStr += 1;
-    fileSize = (uint32_t)strtoul(fileSizeStr, NULL, 10);
+    pFileSizeStr += sizeOfOneChar;
+    fileSize = (uint32_t)strtoul(pFileSizeStr, NULL, 10);
 
     /* The number of bytes we want to request each time is the size of the buffer or the file size if it is smaller than 
        the buffer size, then the size of the file. */
@@ -443,7 +448,26 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
            the last response was already processed fully.  */
 
         httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
-        if( httpsClientStatus != IOT_HTTPS_OK )
+
+        /* If there was network error try again one more time. */
+        if( httpsClientStatus == IOT_HTTPS_NETWORK_ERROR )
+        {
+            /* Maybe the network error was because the server disconnected us. */
+            httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
+            if( httpsClientStatus != IOT_HTTPS_OK )
+            {
+                IotLogError( "Failed to reconnect to the S3 server after a network error on IotHttpsClient_SendSync(). Error code %d.", httpsClientStatus );
+                IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+            }
+
+            httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
+            if( httpsClientStatus != IOT_HTTPS_OK )
+            {
+                IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );
+                IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+            }
+        }
+        else if( httpsClientStatus != IOT_HTTPS_OK )
         {
             IotLogError( "There has been an error receiving the response. The error code is: %d", httpsClientStatus );
             IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );

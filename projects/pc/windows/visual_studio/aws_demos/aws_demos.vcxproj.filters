@@ -328,6 +328,27 @@
     <Filter Include="demos\dev_mode_key_provisioning\src">
       <UniqueIdentifier>{c2a6be1f-d472-4ddb-86e3-1c7049d163d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="demos\https">
+      <UniqueIdentifier>{8ab97222-7e15-40a9-9f41-3fff86f0d604}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\https">
+      <UniqueIdentifier>{70dc2cbd-83c1-4d1b-bb9f-1b3da9d4cd92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\https\include">
+      <UniqueIdentifier>{f64275fe-f18f-4dae-8a39-8ebf534358e1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\https\src">
+      <UniqueIdentifier>{edd920f5-7e3b-4133-8a75-b6cd35c5bd88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\https\include\types">
+      <UniqueIdentifier>{eee297cd-f198-4ecf-8248-99a9efd53c7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\https\src\private">
+      <UniqueIdentifier>{312fc362-7ce5-4a2b-922c-e90c62e75d1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\3rdparty\http-parser">
+      <UniqueIdentifier>{497a2b2a-cdbc-41c3-aaa3-051640d4aca7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h">
@@ -990,6 +1011,21 @@
     <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
       <Filter>demos\dev_mode_key_provisioning\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\include\types\iot_https_types.h">
+      <Filter>libraries\freertos_plus\standard\https\include\types</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\include\iot_https_client.h">
+      <Filter>libraries\freertos_plus\standard\https\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\include\iot_https_utils.h">
+      <Filter>libraries\freertos_plus\standard\https\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\src\private\iot_https_internal.h">
+      <Filter>libraries\freertos_plus\standard\https\src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h">
+      <Filter>libraries\3rdparty\http-parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c">
@@ -1516,6 +1552,18 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c">
       <Filter>libraries\c_sdk\standard\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_sync.c">
+      <Filter>demos\https</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\https\src\iot_https_client.c">
+      <Filter>libraries\freertos_plus\standard\https\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\https\src\iot_https_utils.c">
+      <Filter>libraries\freertos_plus\standard\https\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c">
+      <Filter>libraries\3rdparty\http-parser</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
