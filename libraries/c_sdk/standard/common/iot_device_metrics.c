@@ -34,7 +34,6 @@
 #include <string.h>
 
 #include "iot_config.h"
-#include "aws_clientcredential_keys.h"
 
 #include "platform/iot_clock.h"
 #include "iot_atomic.h"
@@ -78,7 +77,7 @@
 /**
  * @brief Device metrics name format
  */
-#define AWS_IOT_METRICS_FORMAT              "?SDK=" IOT_SDK_NAME "&Version=4.0.0&Platform=" IOT_PLATFORM_NAME "&AFRDevID=%.*s"
+#define AWS_IOT_METRICS_FORMAT              "?SDK=" IOT_SDK_NAME "&Version=" IOT_SDK_VERSION "&Platform=" IOT_PLATFORM_NAME "&AFRDevID=%.*s"
 
 /**
  * @brief Length of #AWS_IOT_METRICS_FORMAT.
@@ -372,7 +371,7 @@ static void _generateUniqueIdentifier( const char * pInput,
  */
 const char * getDeviceIdentifier( void )
 {
-    const char * pCert = keyCLIENT_CERTIFICATE_PEM;
+    const char * pCertificate = IOT_DEVICE_CERTIFICATE;
     static uint32_t lock = 0;
 
     if( deviceIdentifier[ 0 ] == '\0' )
@@ -381,10 +380,10 @@ const char * getDeviceIdentifier( void )
 
         if( deviceIdentifier[ 0 ] == '\0' )
         {
-            if( ( pCert != NULL ) &&
-                ( strcmp( pCert, "" ) != 0 ) )
+            if( (pCertificate != NULL ) &&
+                ( strcmp(pCertificate, "" ) != 0 ) )
             {
-                _generateUniqueIdentifier( pCert, strlen( pCert ), deviceIdentifier, sizeof( deviceIdentifier ) );
+                _generateUniqueIdentifier( pCertificate, strlen( pCertificate ), deviceIdentifier, sizeof( deviceIdentifier ) );
             }
             else
             {
