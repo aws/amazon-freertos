@@ -1263,6 +1263,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/iot_device_metrics.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/iot_device_metrics.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</locationURI>
@@ -1501,11 +1506,6 @@
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</name>
-			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>

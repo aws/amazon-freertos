@@ -37,6 +37,9 @@
 /* Used to get the cloud broker endpoint for FreeRTOS. */
 #include "aws_clientcredential.h"
 
+/* Used to get the certificate used by the device. */
+#include "aws_clientcredential_keys.h"
+
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
 
@@ -168,6 +171,9 @@
 
 /* Cloud endpoint to which the device connects to. */
 #define IOT_CLOUD_ENDPOINT                    clientcredentialMQTT_BROKER_ENDPOINT
+
+/* Certificate for the device. */
+#define IOT_DEVICE_CERTIFICATE                keyCLIENT_CERTIFICATE_PEM
 
 /**
  * @brief Unique identifier used to recognize a device by the cloud.

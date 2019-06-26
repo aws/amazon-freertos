@@ -32,6 +32,9 @@ afr_module_sources(
         # Static memory
         "${src_dir}/iot_static_memory_common.c"
 
+	# Device metrics
+	"${src_dir}/iot_device_metrics.c"
+
         # Task pool
         "${src_dir}/taskpool/iot_taskpool.c"
         "${src_dir}/taskpool/iot_taskpool_static_memory.c"

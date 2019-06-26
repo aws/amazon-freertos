@@ -33,7 +33,6 @@ afr_module_sources(
         "${src_dir}/iot_mqtt_static_memory.c"
         "${src_dir}/iot_mqtt_subscription.c"
         "${src_dir}/iot_mqtt_validate.c"
-        "${src_dir}/iot_mqtt_metrics.c"
         ${extra_mqtt_sources}
 )
 
