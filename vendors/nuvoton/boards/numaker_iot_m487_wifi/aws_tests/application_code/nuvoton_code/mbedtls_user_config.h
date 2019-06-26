@@ -29,8 +29,7 @@
 #ifndef MBEDTLS_USER_CONFIG_H
 #define MBEDTLS_USER_CONFIG_H
 
-
-
+//#define MBEDTLS_DEBUG_C
  
 /* MPI / BIGNUM options */
 //#define MBEDTLS_MPI_WINDOW_SIZE            6 /**< Maximum windows size used. */
@@ -41,7 +40,7 @@
  *  Set this value higher to enable handling larger keys, but be aware that this
  *  will increase the stack usage.
  */
-#define MBEDTLS_MPI_MAX_SIZE        256 /**< Maximum number of bytes for usable MPIs. */
+#define MBEDTLS_MPI_MAX_SIZE        1024 /**< Maximum number of bytes for usable MPIs. */
 
 #define MBEDTLS_MPI_WINDOW_SIZE     1   /**< Maximum windows size used. */ 
 
@@ -50,6 +49,6 @@
 #if defined(MBEDTLS_SSL_MAX_CONTENT_LEN)
 #undef MBEDTLS_SSL_MAX_CONTENT_LEN
 #endif
-#define MBEDTLS_SSL_MAX_CONTENT_LEN             6144 //5120 //8192 /**< Maximum fragment length in bytes, determines the size of each of the two internal I/O buffers */ 
+#define MBEDTLS_SSL_MAX_CONTENT_LEN             6144 //6144 //5120 //8192 /**< Maximum fragment length in bytes, determines the size of each of the two internal I/O buffers */ 
 
 #endif /* MBEDTLS_USER_CONFIG_H */

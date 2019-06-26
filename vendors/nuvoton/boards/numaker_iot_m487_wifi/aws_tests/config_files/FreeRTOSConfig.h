@@ -27,6 +27,7 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 #include "unity_internals.h"
+#include "aws_test_runner_config.h"
 /*-----------------------------------------------------------
 * Application specific definitions.
 *
@@ -56,7 +57,7 @@
 #define configTICK_RATE_HZ                           ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                         ( 7 )
 #define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 256 )
-#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 106 * 1024 ) )//( 65 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 255 * 512 ) )//( 65 * 1024 ) )
 #define configMAX_TASK_NAME_LEN                      ( 16 )
 #define configUSE_TRACE_FACILITY                     1
 #define configUSE_16_BIT_TICKS                       0
@@ -84,7 +85,7 @@
 /* Software timer definitions. */
 #define configUSE_TIMERS                             1
 #define configTIMER_TASK_PRIORITY                   ( configMAX_PRIORITIES - 2 )
-#define configTIMER_QUEUE_LENGTH                     10
+#define configTIMER_QUEUE_LENGTH                     2
 #define configTIMER_TASK_STACK_DEPTH                 ( configMINIMAL_STACK_SIZE * 2 )
 
 /* Set the following definitions to 1 to include the API function, or zero
@@ -150,7 +151,7 @@ void vLoggingPrintf( const char * pcFormat,
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
-#define configLOGGING_MAX_MESSAGE_LENGTH            128
+#define configLOGGING_MAX_MESSAGE_LENGTH            80
 
 /* Set to 1 to prepend each log message with a message number, the task name,
  * and a time stamp. */
