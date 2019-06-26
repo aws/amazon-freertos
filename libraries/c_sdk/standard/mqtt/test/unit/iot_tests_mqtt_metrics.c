@@ -141,9 +141,9 @@ TEST( MQTT_Unit_Metrics, Get_DeviceMetrics )
     int ret;
     char expected[ DEVICE_IDENTIFIER_LENGTH + 10 ] = { 0 };
 
-    ret = snprintf( expected, sizeof(expected), "AFRDevID=%s", pDeviceIdentifier );
+    ret = snprintf( expected, sizeof( expected ), "AFRDevID=%s", pDeviceIdentifier );
     TEST_ASSERT( ret > 0 );
     TEST_ASSERT( deviceMetricsLength > 0 );
-    TEST_ASSERT_NOT_NULL(strstr(pDeviceMetrics, METRICS_PREFIX));
+    TEST_ASSERT_NOT_NULL( strstr( pDeviceMetrics, METRICS_PREFIX ) );
     TEST_ASSERT_NOT_NULL( strstr( pDeviceMetrics, expected ) );
 }
