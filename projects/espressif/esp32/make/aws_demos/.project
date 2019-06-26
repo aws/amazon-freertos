@@ -1407,6 +1407,11 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/iot_device_metrics.c</name>
+			<type>1</type>
+			<location>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_device_metrics.c</location>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
@@ -2510,11 +2515,6 @@
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</name>
