@@ -41,10 +41,13 @@
 #include "FreeRTOS_Sockets.h"
 #include "aws_test_utils.h"
 
-
+#if 0
 #include "esp_gap_ble_api.h"
-#include "esp_bt.h"
 #include "esp_bt_main.h"
+#else
+#include "esp_nimble_hci.h"
+#endif
+#include "esp_bt.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
@@ -193,9 +196,10 @@ static void prvMiscInitialization( void )
 		ret = nvs_flash_init();
 	}
 
+#if 0
 	/* Release BT memory as it is not used. */
 	ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-
+#endif
 	ESP_ERROR_CHECK( ret );
 }
 /*-----------------------------------------------------------*/
@@ -313,7 +317,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send(&evt);
     }
 }
-
+#if 0
 /*
  * Return on success
  */
@@ -359,3 +363,20 @@ BTStatus_t bleStackInit( void )
 
     return status;
 }
+#else
+BTStatus_t bleStackInit( void )
+{
+    /* Initialize BLE */
+    esp_err_t xRet = ESP_OK;
+    BTStatus_t status = eBTStatusFail;
+
+    xRet = esp_nimble_hci_and_controller_init();
+
+    if( xRet == ESP_OK )
+    {
+    	status = eBTStatusSuccess;
+    }
+
+    return status;
+}
+#endif
