@@ -1019,6 +1019,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c</FilePath>
 						</File>
+						<File>
+							<FileName>iot_device_metrics.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/iot_device_metrics.c</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1563,11 +1568,6 @@
 							<FileName>iot_mqtt_validate.c</FileName>
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</FilePath>
-						</File>
-						<File>
-							<FileName>iot_mqtt_metrics.c</FileName>
-							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_mqtt_agent.c</FileName>
