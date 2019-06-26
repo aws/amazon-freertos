@@ -438,6 +438,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\system\aws_iot_tests_shadow_system.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_api.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\shadow\test\unit\aws_iot_tests_shadow_parser.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_init.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_static_memory_common.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c" />
@@ -447,7 +448,6 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_api.c" />
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_metrics.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_network.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_operation.c" />
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_serialize.c" />

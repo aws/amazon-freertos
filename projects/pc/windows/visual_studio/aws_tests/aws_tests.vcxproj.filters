@@ -1682,11 +1682,11 @@
     <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c">
       <Filter>demos\dev_mode_key_provisioning\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_metrics.c">
-      <Filter>libraries\c_sdk\standard\mqtt\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c">
       <Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c">
+      <Filter>libraries\c_sdk\standard\common</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
