@@ -27,17 +27,14 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <sys/lock.h>
 #include <byteswap.h>
 #include <assert.h>
-
-#include "freertos/FreeRTOS.h"
-#include "freertos/semphr.h"
 
 #include "hwcrypto/sha.h"
 #include "rom/ets_sys.h"
 #include "soc/dport_reg.h"
 #include "soc/hwcrypto_reg.h"
-#include "driver/periph_ctrl.h"
 
 inline static uint32_t SHA_LOAD_REG(esp_sha_type sha_type) {
     return SHA_1_LOAD_REG + sha_type * 0x10;
@@ -55,30 +52,25 @@ inline static uint32_t SHA_CONTINUE_REG(esp_sha_type sha_type) {
     return SHA_1_CONTINUE_REG + sha_type * 0x10;
 }
 
-/* Single spinlock for SHA engine memory block
+/* Single lock for SHA engine memory block
 */
-static portMUX_TYPE memory_block_lock = portMUX_INITIALIZER_UNLOCKED;
+static _lock_t memory_block_lock;
 
+typedef struct {
+    _lock_t lock;
+    bool in_use;
+} sha_engine_state;
 
-/* Binary semaphore managing the state of each concurrent SHA engine.
-
-   Available = noone is using this SHA engine
-   Taken = a SHA session is running on this SHA engine
+/* Pointer to state of each concurrent SHA engine.
 
    Indexes:
    0 = SHA1
    1 = SHA2_256
    2 = SHA2_384 or SHA2_512
 */
-static SemaphoreHandle_t engine_states[3];
+static sha_engine_state engine_states[3];
 
-static uint8_t engines_in_use;
-
-/* Spinlock for engines_in_use counter
-*/
-static portMUX_TYPE engines_in_use_lock = portMUX_INITIALIZER_UNLOCKED;
-
-/* Index into the engine_states array */
+/* Index into the sha_engine_state array */
 inline static size_t sha_engine_index(esp_sha_type type) {
     switch(type) {
     case SHA1:
@@ -122,97 +114,88 @@ inline static size_t block_length(esp_sha_type type) {
 
 void esp_sha_lock_memory_block(void)
 {
-    portENTER_CRITICAL(&memory_block_lock);
+    _lock_acquire(&memory_block_lock);
 }
 
 void esp_sha_unlock_memory_block(void)
 {
-    portEXIT_CRITICAL(&memory_block_lock);
+    _lock_release(&memory_block_lock);
 }
 
-static SemaphoreHandle_t sha_get_engine_state(esp_sha_type sha_type)
-{
-    unsigned idx = sha_engine_index(sha_type);
-    volatile SemaphoreHandle_t *engine = &engine_states[idx];
-    SemaphoreHandle_t result = *engine;
+/* Lock to hold when changing SHA engine state,
+   allows checking of sha_engines_all_idle()
+*/
+static _lock_t state_change_lock;
 
-    if (result == NULL) {
-        // Create a new semaphore for 'in use' flag
-        SemaphoreHandle_t new_engine = xSemaphoreCreateBinary();
-        assert(new_engine != NULL);
-        xSemaphoreGive(new_engine); // start available
-
-        // try to atomically set the previously NULL *engine to new_engine
-        uint32_t set_engine = (uint32_t)new_engine;
-        uxPortCompareSet((volatile uint32_t *)engine, 0, &set_engine);
-
-        if (set_engine != 0) { // we lost a race setting *engine
-            vSemaphoreDelete(new_engine);
-        }
-        result = *engine;
-    }
-    return result;
+inline static bool sha_engines_all_idle() {
+    return !engine_states[0].in_use
+        && !engine_states[1].in_use
+        && !engine_states[2].in_use;
 }
 
-static bool esp_sha_lock_engine_common(esp_sha_type sha_type, TickType_t ticks_to_wait);
+static void esp_sha_lock_engine_inner(sha_engine_state *engine);
 
 bool esp_sha_try_lock_engine(esp_sha_type sha_type)
 {
-    return esp_sha_lock_engine_common(sha_type, 0);
+    sha_engine_state *engine = &engine_states[sha_engine_index(sha_type)];
+    if(_lock_try_acquire(&engine->lock) != 0) {
+        /* This SHA engine is already in use */
+        return false;
+    } else {
+        esp_sha_lock_engine_inner(engine);
+        return true;
+    }
 }
 
 void esp_sha_lock_engine(esp_sha_type sha_type)
 {
-    esp_sha_lock_engine_common(sha_type, portMAX_DELAY);
+    sha_engine_state *engine = &engine_states[sha_engine_index(sha_type)];
+    _lock_acquire(&engine->lock);
+    esp_sha_lock_engine_inner(engine);
 }
 
-static bool esp_sha_lock_engine_common(esp_sha_type sha_type, TickType_t ticks_to_wait)
+static void esp_sha_lock_engine_inner(sha_engine_state *engine)
 {
-    SemaphoreHandle_t engine_state = sha_get_engine_state(sha_type);
-    BaseType_t result = xSemaphoreTake(engine_state, ticks_to_wait);
+    _lock_acquire(&state_change_lock);
 
-    if (result == pdFALSE) {
-        // failed to take semaphore
-        return false;
-    }
-
-    portENTER_CRITICAL(&engines_in_use_lock);
-
-    if (engines_in_use == 0) {
-        /* Just locked first engine,
-           so enable SHA hardware */
-        periph_module_enable(PERIPH_SHA_MODULE);
+    if (sha_engines_all_idle()) {
+        /* Enable SHA hardware */
+        DPORT_REG_SET_BIT(DPORT_PERI_CLK_EN_REG, DPORT_PERI_EN_SHA);
+        /* also clear reset on secure boot, otherwise SHA is held in reset */
+        DPORT_REG_CLR_BIT(DPORT_PERI_RST_EN_REG,
+                           DPORT_PERI_EN_SHA
+                           | DPORT_PERI_EN_SECUREBOOT);
         DPORT_STALL_OTHER_CPU_START();
         ets_sha_enable();
         DPORT_STALL_OTHER_CPU_END();
     }
 
-    engines_in_use++;
-    assert(engines_in_use <= 3);
+    assert( !engine->in_use && "in_use flag should be cleared" );
+    engine->in_use = true;
 
-    portEXIT_CRITICAL(&engines_in_use_lock);
-
-    return true;
+    _lock_release(&state_change_lock);
 }
 
 
 void esp_sha_unlock_engine(esp_sha_type sha_type)
 {
-    SemaphoreHandle_t *engine_state = sha_get_engine_state(sha_type);
+    sha_engine_state *engine = &engine_states[sha_engine_index(sha_type)];
 
-    portENTER_CRITICAL(&engines_in_use_lock);
+    _lock_acquire(&state_change_lock);
 
-    engines_in_use--;
+    assert( engine->in_use && "in_use flag should be set" );
+    engine->in_use = false;
 
-    if (engines_in_use == 0) {
-        /* About to release last engine, so
-           disable SHA hardware */
-        periph_module_disable(PERIPH_SHA_MODULE);
+    if (sha_engines_all_idle()) {
+        /* Disable SHA hardware */
+        /* Don't assert reset on secure boot, otherwise AES is held in reset */
+        DPORT_REG_SET_BIT(DPORT_PERI_RST_EN_REG, DPORT_PERI_EN_SHA);
+        DPORT_REG_CLR_BIT(DPORT_PERI_CLK_EN_REG, DPORT_PERI_EN_SHA);
     }
 
-    portEXIT_CRITICAL(&engines_in_use_lock);
+    _lock_release(&state_change_lock);
 
-    xSemaphoreGive(engine_state);
+    _lock_release(&engine->lock);
 }
 
 void esp_sha_wait_idle(void)
@@ -229,16 +212,8 @@ void esp_sha_wait_idle(void)
 
 void esp_sha_read_digest_state(esp_sha_type sha_type, void *digest_state)
 {
-#ifndef NDEBUG
-    {
-        SemaphoreHandle_t *engine_state = sha_get_engine_state(sha_type);
-        assert(uxSemaphoreGetCount(engine_state) == 0 &&
-               "SHA engine should be locked" );
-    }
-#endif
-
-    // preemptively do this before entering the critical section, then re-check once in it
-    esp_sha_wait_idle();
+    sha_engine_state *engine = &engine_states[sha_engine_index(sha_type)];
+    assert(engine->in_use && "SHA engine should be locked" );
 
     esp_sha_lock_memory_block();
 
@@ -264,16 +239,8 @@ void esp_sha_read_digest_state(esp_sha_type sha_type, void *digest_state)
 
 void esp_sha_block(esp_sha_type sha_type, const void *data_block, bool is_first_block)
 {
-#ifndef NDEBUG
-    {
-        SemaphoreHandle_t *engine_state = sha_get_engine_state(sha_type);
-        assert(uxSemaphoreGetCount(engine_state) == 0 &&
-               "SHA engine should be locked" );
-    }
-#endif
-
-    // preemptively do this before entering the critical section, then re-check once in it
-    esp_sha_wait_idle();
+    sha_engine_state *engine = &engine_states[sha_engine_index(sha_type)];
+    assert(engine->in_use && "SHA engine should be locked" );
 
     esp_sha_lock_memory_block();
 
@@ -309,9 +276,9 @@ void esp_sha(esp_sha_type sha_type, const unsigned char *input, size_t ilen, uns
 
     SHA_CTX ctx;
     ets_sha_init(&ctx);
-    esp_sha_lock_memory_block();
     while(ilen > 0) {
         size_t chunk_len = (ilen > block_len) ? block_len : ilen;
+        esp_sha_lock_memory_block();
         esp_sha_wait_idle();
         DPORT_STALL_OTHER_CPU_START();
         {
@@ -319,9 +286,11 @@ void esp_sha(esp_sha_type sha_type, const unsigned char *input, size_t ilen, uns
             ets_sha_update(&ctx, sha_type, input, chunk_len * 8);
         }
         DPORT_STALL_OTHER_CPU_END();
+        esp_sha_unlock_memory_block();
         input += chunk_len;
         ilen -= chunk_len;
     }
+    esp_sha_lock_memory_block();
     esp_sha_wait_idle();
     DPORT_STALL_OTHER_CPU_START();
     {

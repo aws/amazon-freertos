@@ -36,12 +36,6 @@
 #include "esp_flash_encrypt.h"
 #include "esp_efuse.h"
 
-/* The following API implementations are used only when called
- * from the bootloader code.
- */
-
-#ifdef BOOTLOADER_BUILD
-
 static const char* TAG = "secure_boot";
 
 /**
@@ -108,12 +102,11 @@ static inline void burn_efuses()
 #endif
 }
 
-esp_err_t esp_secure_boot_generate_digest(void)
-{
+esp_err_t esp_secure_boot_permanently_enable(void) {
     esp_err_t err;
-    if (esp_secure_boot_enabled()) {
-        ESP_LOGI(TAG, "bootloader secure boot is already enabled."
-                      " No need to generate digest. continuing..");
+    if (esp_secure_boot_enabled())
+    {
+        ESP_LOGI(TAG, "bootloader secure boot is already enabled, continuing..");
         return ESP_OK;
     }
 
@@ -131,7 +124,6 @@ esp_err_t esp_secure_boot_generate_digest(void)
         return err;
     }
 
-    /* Generate secure boot key and keep in EFUSE */
     uint32_t dis_reg = REG_READ(EFUSE_BLK0_RDATA0_REG);
     bool efuse_key_read_protected = dis_reg & EFUSE_RD_DIS_BLK2;
     bool efuse_key_write_protected = dis_reg & EFUSE_WR_DIS_BLK2;
@@ -148,11 +140,16 @@ esp_err_t esp_secure_boot_generate_digest(void)
         ESP_LOGI(TAG, "Generating new secure boot key...");
         esp_efuse_write_random_key(EFUSE_BLK2_WDATA0_REG);
         burn_efuses();
+        ESP_LOGI(TAG, "Read & write protecting new key...");
+        REG_WRITE(EFUSE_BLK0_WDATA0_REG, EFUSE_WR_DIS_BLK2 | EFUSE_RD_DIS_BLK2);
+        burn_efuses();
+        efuse_key_read_protected = true;
+        efuse_key_write_protected = true;
+
     } else {
         ESP_LOGW(TAG, "Using pre-loaded secure boot key in EFUSE block 2");
     }
 
-    /* Generate secure boot digest using programmed key in EFUSE */
     ESP_LOGI(TAG, "Generating secure boot digest...");
     uint32_t image_len = bootloader_data.image_len;
     if(bootloader_data.image.hash_appended) {
@@ -164,28 +161,6 @@ esp_err_t esp_secure_boot_generate_digest(void)
         return ESP_FAIL;
     }
     ESP_LOGI(TAG, "Digest generation complete.");
-
-    return ESP_OK;
-}
-
-esp_err_t esp_secure_boot_permanently_enable(void)
-{
-    if (esp_secure_boot_enabled()) {
-        ESP_LOGI(TAG, "bootloader secure boot is already enabled, continuing..");
-        return ESP_OK;
-    }
-
-    uint32_t dis_reg = REG_READ(EFUSE_BLK0_RDATA0_REG);
-    bool efuse_key_read_protected = dis_reg & EFUSE_RD_DIS_BLK2;
-    bool efuse_key_write_protected = dis_reg & EFUSE_WR_DIS_BLK2;
-    if (efuse_key_read_protected == false
-        && efuse_key_write_protected == false) {
-        ESP_LOGI(TAG, "Read & write protecting new key...");
-        REG_WRITE(EFUSE_BLK0_WDATA0_REG, EFUSE_WR_DIS_BLK2 | EFUSE_RD_DIS_BLK2);
-        burn_efuses();
-        efuse_key_read_protected = true;
-        efuse_key_write_protected = true;
-    }
 
 #ifndef CONFIG_SECURE_BOOT_TEST_MODE
     if (!efuse_key_read_protected) {
@@ -233,5 +208,3 @@ esp_err_t esp_secure_boot_permanently_enable(void)
         return ESP_ERR_INVALID_STATE;
     }
 }
-
-#endif // #ifdef BOOTLOADER_BUILD

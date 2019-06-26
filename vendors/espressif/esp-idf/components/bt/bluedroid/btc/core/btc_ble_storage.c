@@ -744,7 +744,7 @@ static void _btc_read_le_key(const uint8_t key_type, const size_t key_len, bt_bd
             if (!*device_added) {
                 int auth_mode = 0;
                 if(_btc_storage_get_ble_dev_auth_mode(&bd_addr, &auth_mode) != BT_STATUS_SUCCESS) {
-                    BTC_TRACE_WARNING("%s Failed to get auth mode from flash, please erase flash and download the firmware again", __func__);
+                    BTC_TRACE_ERROR("%s get auth mode error", __func__);
                 }
                 BTA_DmAddBleDevice(bta_bd_addr, addr_type, auth_mode, BT_DEVICE_TYPE_BLE);
                 *device_added = true;
@@ -772,7 +772,7 @@ static bt_status_t _btc_storage_in_fetch_bonded_ble_device(const char *remote_bd
         BTC_TRACE_ERROR("%s, device_type = %x", __func__, device_type);
         return BT_STATUS_FAIL;
     }
-   
+
     string_to_bdaddr(remote_bd_addr, &bd_addr);
     bdcpy(bta_bd_addr, bd_addr.address);
 
@@ -815,7 +815,7 @@ static bt_status_t btc_storage_in_fetch_bonded_ble_devices(int add)
     for (const btc_config_section_iter_t *iter = btc_config_section_begin(); iter != btc_config_section_end();
             iter = btc_config_section_next(iter)) {
         const char *name = btc_config_section_name(iter);
-        
+
         if (!string_is_bdaddr(name) ||
             !btc_config_get_int(name, BTC_BLE_STORAGE_DEV_TYPE_STR, (int *)&device_type) ||
             ((device_type & BT_DEVICE_TYPE_BLE) != BT_DEVICE_TYPE_BLE)) {
@@ -925,4 +925,3 @@ int btc_storage_get_num_ble_bond_devices(void)
     return num_dev;
 }
 #endif  ///SMP_INCLUDED == TRUE
-                                       

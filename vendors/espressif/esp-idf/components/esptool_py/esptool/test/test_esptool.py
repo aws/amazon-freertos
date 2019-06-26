@@ -31,13 +31,9 @@ except KeyError:
 # Command line options for test environment
 global default_baudrate, chip, serialport, trace_enabled
 default_baudrate = 115200
+chip = None
 serialport = None
 trace_enabled = False
-
-try:
-    chip = sys.argv[2]
-except IndexError:
-    chip = None
 
 RETURN_CODE_FATAL_ERROR = 2
 
@@ -156,11 +152,11 @@ class TestFlashing(EsptoolTestCase):
         self.verify_readback(0, 4096, "images/sector.bin")
         self.verify_readback(4096, 50*1024, "images/fifty_kb.bin")
 
-    @unittest.skipUnless(chip == 'esp32', 'ESP32 only')
     def test_compressed_nostub_flash(self):
-        self.run_esptool("--no-stub write_flash -z 0x0 images/sector.bin 0x1000 images/fifty_kb.bin")
-        self.verify_readback(0, 4096, "images/sector.bin")
-        self.verify_readback(4096, 50*1024, "images/fifty_kb.bin")
+        if chip == "esp32":
+            self.run_esptool("--no-stub write_flash -z 0x0 images/sector.bin 0x1000 images/fifty_kb.bin")
+            self.verify_readback(0, 4096, "images/sector.bin")
+            self.verify_readback(4096, 50*1024, "images/fifty_kb.bin")
 
     def _test_partition_table_then_bootloader(self, args):
         self.run_esptool(args + " 0x4000 images/partitions_singleapp.bin")
@@ -328,14 +324,14 @@ class TestReadIdentityValues(EsptoolTestCase):
         self.assertNotEqual("00:00:00:00:00:00", mac)
         self.assertNotEqual("ff:ff:ff:ff:ff:ff", mac)
 
-    @unittest.skipUnless(chip == 'esp8266', 'ESP8266 only')
     def test_read_chip_id(self):
-        output = self.run_esptool("chip_id")
-        idstr = re.search("Chip ID: 0x([0-9a-f]+)", output)
-        self.assertIsNotNone(idstr)
-        idstr = idstr.group(1)
-        self.assertNotEqual("0"*8, idstr)
-        self.assertNotEqual("f"*8, idstr)
+        if chip == "esp8266":
+            output = self.run_esptool("chip_id")
+            idstr = re.search("Chip ID: 0x([0-9a-f]+)", output)
+            self.assertIsNotNone(idstr)
+            idstr = idstr.group(1)
+            self.assertNotEqual("0"*8, idstr)
+            self.assertNotEqual("f"*8, idstr)
 
 class TestKeepImageSettings(EsptoolTestCase):
     """ Tests for the -fm keep, -ff keep options for write_flash """
@@ -400,28 +396,6 @@ class TestLoadRAM(EsptoolTestCase):
         self.assertIn(b"Hello world!", p.read(32))
         p.close()
 
-
-class TestDeepSleepFlash(EsptoolTestCase):
-
-    @unittest.skipUnless(chip == 'esp8266', 'ESP8266 only')
-    def test_deep_sleep_flash(self):
-        """ Regression test for https://github.com/espressif/esptool/issues/351
-
-        ESP8266 deep sleep can disable SPI flash chip, stub loader (or ROM loader) needs to re-enable it.
-
-        NOTE: If this test fails, the ESP8266 may need a hard power cycle (probably with GPIO0 held LOW)
-        to recover.
-        """
-        # not even necessary to wake successfully from sleep, going into deep sleep is enough
-        # (so GPIO16, etc, config is not important for this test)
-        self.run_esptool("write_flash 0x0 images/esp8266_deepsleep.bin", baud=230400)
-
-        time.sleep(0.25)  # give ESP8266 time to enter deep sleep
-
-        self.run_esptool("write_flash 0x0 images/fifty_kb.bin", baud=230400)
-        self.verify_readback(0, 50*1024, "images/fifty_kb.bin")
-
-
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Usage: %s [--trace] <serial port> <chip name> [optional default baud rate] [optional tests]" % sys.argv[0])
@@ -430,7 +404,7 @@ if __name__ == '__main__':
         trace_enabled = True
         sys.argv.pop(1)
     serialport = sys.argv[1]
-    # chip is already set to sys.argv[2], so @skipUnless can evaluate against it
+    chip = sys.argv[2]
     args_used = 2
     try:
         default_baudrate = int(sys.argv[3])

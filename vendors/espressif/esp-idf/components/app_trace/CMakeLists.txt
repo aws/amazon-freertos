@@ -25,4 +25,4 @@ register_component()
 # for gcov
 component_compile_options("-fno-profile-arcs" "-fno-test-coverage")
 
-target_link_libraries(${COMPONENT_TARGET} gcov)
+target_link_libraries(app_trace gcov)

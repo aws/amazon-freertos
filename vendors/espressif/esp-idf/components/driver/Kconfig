@@ -41,10 +41,8 @@ config SPI_MASTER_ISR_IN_IRAM
     bool "Place SPI master ISR function into IRAM"
     default y
     help
-        Place the SPI master ISR in to IRAM to avoid possible cache miss.
-
-        Also you can forbid the ISR being disabled during flash writing
-        access, by add ESP_INTR_FLAG_IRAM when initializing the driver.
+        Place the SPI master ISR in to IRAM to avoid possibly cache miss, or
+        being disabled during flash writing access.
 
 endmenu # SPI Master Configuration
 

@@ -17,11 +17,10 @@ endif()
 # Note: we can't expand these environment variables in the main IDF CMake build,
 # because we want to expand them at flashing time not at CMake runtime (so they can change
 # without needing a CMake re-run)
-set(ESPPORT $ENV{ESPPORT})
-if(NOT ESPPORT)
+if(NOT ENV{ESPPORT})
     message("Note: esptool.py will search for a serial port. To specify a port, set the ESPPORT environment variable.")
 else()
-    set(port_arg "-p ${ESPPORT}")
+    set(port_arg "-p $ENV{ESPPORT}")
 endif()
 
 set(ESPBAUD $ENV{ESPBAUD})

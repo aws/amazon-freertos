@@ -1,0 +1,181 @@
+menuconfig NIMBLE_ENABLED
+    bool "Enable NimBLE host stack"
+    depends on BTDM_CONTROLLER_HCI_MODE_VHCI && !BLUEDROID_ENABLED
+    default n
+    help
+        This enables NimBLE host stack
+
+choice NIMBLE_PINNED_TO_CORE_CHOICE
+    prompt "The CPU core on which NimBLE host will run"
+    depends on NIMBLE_ENABLED && !FREERTOS_UNICORE
+    help
+       The CPU core on which NimBLE host will run. You can choose Core 0 or Core 1.
+       Cannot specify no-affinity
+
+    config NIMBLE_PINNED_TO_CORE_0
+       bool "Core 0 (PRO CPU)"
+    config NIMBLE_PINNED_TO_CORE_1
+       bool "Core 1 (APP CPU)"
+       depends on !FREERTOS_UNICORE
+endchoice
+
+config NIMBLE_PINNED_TO_CORE
+    int
+    depends on NIMBLE_ENABLED
+    default 0 if NIMBLE_PINNED_TO_CORE_0
+    default 1 if NIMBLE_PINNED_TO_CORE_1
+    default 0
+
+config NIMBLE_MAX_CONNECTIONS
+    int "Maximum number of concurrent connections"
+    range 1 10
+    default 1
+    depends on NIMBLE_ENABLED
+    help
+        Defines maximum number of concurrent BLE connections
+
+config NIMBLE_MAX_BONDS
+    int "Maximum number of bonds to save across reboots"
+    default 3
+    depends on NIMBLE_ENABLED
+    help
+        Defines maximum number of bonds to save for peer security and our security
+
+config NIMBLE_MAX_CCCDS
+    int "Maximum number of CCC descriptors to save across reboots"
+    default 10
+    depends on NIMBLE_ENABLED
+    help
+        Defines maximum number of CCC descriptors to save
+
+config NIMBLE_ROLE_CENTRAL
+    bool "Enable BLE Central role"
+    depends on NIMBLE_ENABLED
+    default y
+
+config NIMBLE_ROLE_PERIPHERAL
+    bool "Enable BLE Peripheral role"
+    depends on NIMBLE_ENABLED
+    default y
+
+config NIMBLE_ROLE_BROADCASTER
+    bool "Enable BLE Broadcaster role"
+    depends on NIMBLE_ENABLED
+    default y
+
+config NIMBLE_ROLE_OBSERVER
+    bool "Enable BLE Observer role"
+    depends on NIMBLE_ENABLED
+    default y
+
+# L2CAP settings.
+config NIMBLE_L2CAP_COC_MAX_NUM
+    int "Maximum number of connection oriented channels"
+    range 0 10
+    depends on NIMBLE_ENABLED
+    default 0
+    help
+        Defines maximum number of BLE Connection Oriented Channels. When set to (0), BLE COC is not compiled in
+
+# Security manager settings.
+config NIMBLE_SM_LEGACY
+    bool "Security manager legacy pairing"
+    depends on NIMBLE_ENABLED
+    default y
+    help
+        Enable security manager legacy pairing
+
+config NIMBLE_SM_SC
+    bool "Security manager secure connections (4.2)"
+    depends on NIMBLE_ENABLED
+    default n
+    help
+        Enable security manager secure connections
+
+config NIMBLE_HS_DEBUG
+    bool "Enable host debugging"
+    default n
+    depends on NIMBLE_ENABLED
+    help
+        This enables extra runtime assertions
+
+menuconfig NIMBLE_MESH
+    bool "Enable BLE mesh functionality"
+    select NIMBLE_SM_SC
+    depends on NIMBLE_ENABLED
+    default n
+    help
+        Enable BLE Mesh functionality
+
+config NIMBLE_MESH_PROXY
+    bool "Enable mesh proxy functionality"
+    help
+        Enable proxy. This is automatically set whenever NIMBLE_MESH_PB_GATT or
+        NIMBLE_MESH_GATT_PROXY is set
+    default n
+    depends on NIMBLE_MESH
+
+
+config NIMBLE_MESH_PROV
+    bool "Enable BLE mesh provisioning"
+    help
+        Enable mesh provisioning
+    default y
+    depends on NIMBLE_MESH
+
+config NIMBLE_MESH_PB_ADV
+    bool "Enable mesh provisioning over advertising bearer"
+    help
+        Enable this option to allow the device to be provisioned over
+        the advertising bearer
+    default y
+    depends on NIMBLE_MESH_PROV
+
+
+config NIMBLE_MESH_PB_GATT
+    bool "Enable mesh provisioning over GATT bearer"
+    help
+        Enable this option to allow the device to be provisioned over the GATT
+        bearer
+    default y
+    select NIMBLE_MESH_PROXY
+    depends on NIMBLE_MESH_PROV
+
+config NIMBLE_MESH_GATT_PROXY
+    bool "Enable GATT Proxy functionality"
+    help
+        This option enables support for the Mesh GATT Proxy Service,
+        i.e. the ability to act as a proxy between a Mesh GATT Client
+        and a Mesh network
+    default y
+    select NIMBLE_MESH_PROXY
+    depends on NIMBLE_MESH
+
+config NIMBLE_MESH_RELAY
+    bool "Enable mesh relay functionality"
+    help
+        Support for acting as a Mesh Relay Node
+    default n
+    depends on NIMBLE_MESH
+
+config NIMBLE_MESH_LOW_POWER
+    bool "Enable mesh low power mode"
+    help
+        Enable this option to be able to act as a Low Power Node
+    default n
+    depends on NIMBLE_MESH
+
+config NIMBLE_MESH_FRIEND
+    bool "Enable mesh friend functionality"
+    help
+        Enable this option to be able to act as a Friend Node
+    default n
+    depends on NIMBLE_MESH
+
+config NIMBLE_MESH_DEVICE_NAME
+    string "Set mesh device name"
+    help
+        This value defines Bluetooth Mesh device/node name
+    default "nimble-mesh-node"
+    depends on NIMBLE_MESH
+

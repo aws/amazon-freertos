@@ -3,22 +3,15 @@
                            "--flash_size", "${ESPFLASHSIZE}",
                            "--flash_freq", "${ESPFLASHFREQ}" ],
     "flash_files" : {
-        "${BOOTLOADER_OFFSET}" : "bootloader/bootloader.bin",
+        "0x1000" : "bootloader/bootloader.bin",
         "${PARTITION_TABLE_OFFSET}" : "partition_table/partition-table.bin",
-        "${PHY_PARTITION_OFFSET}" : "${PHY_PARTITION_BIN_FILE}",
-        "${OTADATA_PARTITION_OFFSET}" : "${BLANK_OTADATA_FILE}",
-        "${APP_PARTITION_OFFSET}" : "${IDF_PROJECT_BIN}"
+        "${APP_PARTITION_OFFSET}" : "${PROJECT_NAME}.bin",
+        "${PHY_PARTITION_OFFSET}" : "${PHY_PARTITION_BIN_FILE}"
     },
-    "bootloader" :      { "offset" : "${BOOTLOADER_OFFSET}",
+    "bootloader" :      { "offset" : "0x1000",
                           "file" : "bootloader/bootloader.bin" },
-    "partition_table" : { "offset" : "${PARTITION_TABLE_OFFSET}",
-                          "file" : "partition_table/partition-table.bin" },
-    "otadata" : { "offset" : "${OTADATA_PARTITION_OFFSET}",
-                  "file" : "${BLANK_OTADATA_FILE}" },
     "app" :             { "offset" : "${APP_PARTITION_OFFSET}",
-                          "file" : "${IDF_PROJECT_BIN}" },
-    "extra_esptool_args" : {
-        "after"  : "${ESPTOOLPY_AFTER}",
-        "before" : "${ESPTOOLPY_BEFORE}"
-    }
+                          "file" : "${PROJECT_NAME}.bin" },
+    "partition_table" : { "offset" : "${PARTITION_TABLE_OFFSET}",
+                          "file" : "partition_table/partition-table.bin" }
 }

@@ -494,7 +494,7 @@ static void IRAM_ATTR shared_intr_isr(void *arg)
 {
     vector_desc_t *vd=(vector_desc_t*)arg;
     shared_vector_desc_t *sh_vec=vd->shared_vec_info;
-    portENTER_CRITICAL_ISR(&spinlock);
+    portENTER_CRITICAL(&spinlock);
     while(sh_vec) {
         if (!sh_vec->disabled) {
             if ((sh_vec->statusreg == NULL) || (*sh_vec->statusreg & sh_vec->statusmask)) {
@@ -512,7 +512,7 @@ static void IRAM_ATTR shared_intr_isr(void *arg)
         }
         sh_vec=sh_vec->next;
     }
-    portEXIT_CRITICAL_ISR(&spinlock);
+    portEXIT_CRITICAL(&spinlock);
 }
 
 #if CONFIG_SYSVIEW_ENABLE
@@ -520,7 +520,7 @@ static void IRAM_ATTR shared_intr_isr(void *arg)
 static void IRAM_ATTR non_shared_intr_isr(void *arg)
 {
     non_shared_isr_arg_t *ns_isr_arg=(non_shared_isr_arg_t*)arg;
-    portENTER_CRITICAL_ISR(&spinlock);
+    portENTER_CRITICAL(&spinlock);
     traceISR_ENTER(ns_isr_arg->source+ETS_INTERNAL_INTR_SOURCE_OFF);
     // FIXME: can we call ISR and check port_switch_flag after releasing spinlock?
     // when CONFIG_SYSVIEW_ENABLE = 0 ISRs for non-shared IRQs are called without spinlock
@@ -529,7 +529,7 @@ static void IRAM_ATTR non_shared_intr_isr(void *arg)
     if (!port_switch_flag[xPortGetCoreID()]) {
         traceISR_EXIT();
     }
-    portEXIT_CRITICAL_ISR(&spinlock);
+    portEXIT_CRITICAL(&spinlock);
 }
 #endif
 
@@ -789,7 +789,7 @@ int esp_intr_get_cpu(intr_handle_t handle)
 esp_err_t IRAM_ATTR esp_intr_enable(intr_handle_t handle)
 {
     if (!handle) return ESP_ERR_INVALID_ARG;
-    portENTER_CRITICAL_SAFE(&spinlock);
+    portENTER_CRITICAL(&spinlock);
     int source;
     if (handle->shared_vector_desc) {
         handle->shared_vector_desc->disabled=0;
@@ -805,14 +805,14 @@ esp_err_t IRAM_ATTR esp_intr_enable(intr_handle_t handle)
         if (handle->vector_desc->cpu!=xPortGetCoreID()) return ESP_ERR_INVALID_ARG; //Can only enable these ints on this cpu
         ESP_INTR_ENABLE(handle->vector_desc->intno);
     }
-    portEXIT_CRITICAL_SAFE(&spinlock);
+    portEXIT_CRITICAL(&spinlock);
     return ESP_OK;
 }
 
 esp_err_t IRAM_ATTR esp_intr_disable(intr_handle_t handle)
 {
     if (!handle) return ESP_ERR_INVALID_ARG;
-    portENTER_CRITICAL_SAFE(&spinlock);
+    portENTER_CRITICAL(&spinlock);
     int source;
     bool disabled = 1;
     if (handle->shared_vector_desc) {
@@ -840,12 +840,12 @@ esp_err_t IRAM_ATTR esp_intr_disable(intr_handle_t handle)
     } else {
         //Disable using per-cpu regs
         if (handle->vector_desc->cpu!=xPortGetCoreID()) {
-            portEXIT_CRITICAL_SAFE(&spinlock);
+            portEXIT_CRITICAL(&spinlock);
             return ESP_ERR_INVALID_ARG; //Can only enable these ints on this cpu
         }
         ESP_INTR_DISABLE(handle->vector_desc->intno);
     }
-    portEXIT_CRITICAL_SAFE(&spinlock);
+    portEXIT_CRITICAL(&spinlock);
     return ESP_OK;
 }
 

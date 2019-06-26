@@ -1,0 +1,37 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+
+syscfg.defs:
+    BLE_HCI_TRANSPORT_NIMBLE_BUILTIN:
+        description: >
+            Enables HCI transport for built-in NimBLE controller.
+            This is virtually the same as enabling RAM HCI transport and
+            adding dependency to NimBLE controller package explicitly.
+        value: 1
+    BLE_HCI_TRANSPORT_EMSPI:
+        description: Enables EM SPI HCI transport package
+        value: 0
+    BLE_HCI_TRANSPORT_RAM:
+        description: Enables RAM HCI transport package
+        value: 0
+    BLE_HCI_TRANSPORT_SOCKET:
+        description: Enables socket HCI transport package
+        value: 0
+    BLE_HCI_TRANSPORT_UART:
+        description: Enables UART HCI transport package
+        value: 0

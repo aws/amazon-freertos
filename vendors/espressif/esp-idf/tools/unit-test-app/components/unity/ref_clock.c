@@ -128,10 +128,10 @@ void ref_clock_init()
 
 static void IRAM_ATTR pcnt_isr(void* arg)
 {
-    portENTER_CRITICAL_ISR(&s_lock);
+    portENTER_CRITICAL(&s_lock);
     PCNT.int_clr.val = BIT(REF_CLOCK_PCNT_UNIT);
     s_milliseconds += REF_CLOCK_PRESCALER_MS;
-    portEXIT_CRITICAL_ISR(&s_lock);
+    portEXIT_CRITICAL(&s_lock);
 }
 
 void ref_clock_deinit()

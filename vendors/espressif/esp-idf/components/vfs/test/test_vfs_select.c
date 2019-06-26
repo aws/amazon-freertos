@@ -24,7 +24,6 @@
 #include "esp_vfs_dev.h"
 #include "lwip/sockets.h"
 #include "lwip/netdb.h"
-#include "test_utils.h"
 
 typedef struct {
     int fd;
@@ -115,8 +114,6 @@ static inline void start_task(const test_task_param_t *test_task_param)
 
 static void init(int *uart_fd, int *socket_fd)
 {
-    test_case_uses_tcpip();
-
     uart1_init();
     UART1.conf0.loopback = 1;
 
@@ -299,9 +296,8 @@ TEST_CASE("concurent selects work", "[vfs]")
     };
 
     int uart_fd, socket_fd;
-    init(&uart_fd, &socket_fd);
-
     const int dummy_socket_fd = open_dummy_socket();
+    init(&uart_fd, &socket_fd);
 
     fd_set rfds;
     FD_ZERO(&rfds);

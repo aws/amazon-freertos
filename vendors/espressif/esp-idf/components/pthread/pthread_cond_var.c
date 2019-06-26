@@ -36,14 +36,23 @@
 const static char *TAG = "esp_pthread";
 static portMUX_TYPE s_cond_init_lock = portMUX_INITIALIZER_UNLOCKED;
 
-static void pthread_cond_init_if_static(esp_pthread_cond_t *cond)
+static void pthread_cond_init_if_static(pthread_cond_t *cv)
 {
+#if ((!defined(__cplusplus)) && (CONFIG_SUPPORT_STATIC_ALLOCATION == 1))
+    esp_pthread_cond_t *cond = (esp_pthread_cond_t *) *cv;
     if (cond->lock == 0) {
         portENTER_CRITICAL(&s_cond_init_lock);
         _lock_init_recursive(&cond->lock);
         TAILQ_INIT(&cond->waiter_list);
         portEXIT_CRITICAL(&s_cond_init_lock);
     }
+#else
+    if ((intptr_t) *cv == PTHREAD_COND_INITIALIZER) {
+        portENTER_CRITICAL(&s_cond_init_lock);
+        pthread_cond_init(cv, NULL);
+        portEXIT_CRITICAL(&s_cond_init_lock);
+    }
+#endif
 }
 
 int pthread_cond_signal(pthread_cond_t *cv)
@@ -52,8 +61,8 @@ int pthread_cond_signal(pthread_cond_t *cv)
         return EINVAL;
     }
 
+    pthread_cond_init_if_static(cv);
     esp_pthread_cond_t *cond = (esp_pthread_cond_t *) *cv;
-    pthread_cond_init_if_static(cond);
 
     _lock_acquire_recursive(&cond->lock);
     esp_pthread_cond_waiter_t *entry;
@@ -72,8 +81,8 @@ int pthread_cond_broadcast(pthread_cond_t *cv)
         return EINVAL;
     }
 
+    pthread_cond_init_if_static(cv);
     esp_pthread_cond_t *cond = (esp_pthread_cond_t *) *cv;
-    pthread_cond_init_if_static(cond);
 
     _lock_acquire_recursive(&cond->lock);
     esp_pthread_cond_waiter_t *entry;
@@ -99,8 +108,8 @@ int pthread_cond_timedwait(pthread_cond_t *cv, pthread_mutex_t *mut, const struc
         return EINVAL;
     }
 
+    pthread_cond_init_if_static(cv);
     esp_pthread_cond_t *cond = (esp_pthread_cond_t *) *cv;
-    pthread_cond_init_if_static(cond);
 
     if (to == NULL) {
         timeout_ticks = portMAX_DELAY;
