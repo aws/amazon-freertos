@@ -27,14 +27,13 @@
  * @file aws_test_ble.c
  * @brief Tests for ble.
  */
-
+#include "iot_config.h"
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
-#include "FreeRTOS.h"
-#include "event_groups.h"
-#include "iot_doubly_linked_list.h"
-#include "semphr.h"
+#include "iot_linear_containers.h"
+#include "platform/iot_threads.h"
+#include "types/iot_platform_types.h"
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
@@ -86,11 +85,14 @@ typedef enum
 
 typedef struct
 {
+	IotLink_t eventList;
     BLEHALEventsTypes_t xEventTypes;
     int32_t lHandle;
 } BLEHALEventsInternals_t;
 
 #define NO_HANDLE                        -1
+
+#define MAX_EVENT                        20
 
 #define bletestsDEFAULT_CHAR_VALUE       "hello"
 #define bletestsSTRINGYFIED_UUID_SIZE    36 /* like "8a7f1168-48af-4efb-83b5-e679f9320002" */
@@ -195,15 +197,10 @@ typedef struct
 #define QUEUE_LENGTH                          20
 #define ITEM_SIZE                             sizeof( void * )
 
-/* Creating a waiting queue, were all events that are not immediatly expected are pushed too */
-typedef struct
-{
-    Link_t xNextQueueItem;
-    void * pxNextQueuedItem;
-} xWaitingEvents_t;
-static Link_t xWaitingEventQueue;
-/* Tests are waiting event on callback queue, if an unexpected event comes, it is added to the waiting queue to be processed later. */
-static QueueHandle_t xCallbackQueue;
+static IotListDouble_t eventQueueHead;
+static IotMutex_t threadSafetyMutex;
+static IotSemaphore_t eventSemaphore;
+
 static BTInterface_t * pxBTInterface;
 static BTBleAdapter_t * pxBTLeAdapterInterface;
 static BTUuid_t xServerUUID =
@@ -583,9 +580,10 @@ IotBleConnectionParam_t xConnectionParamA =
     .timeout     = 400
 };
 
-const TickType_t bletestWAIT_MODE1_LEVEL2_QUERY = pdMS_TO_TICKS( 10000 ); /* Wait 10s max */
-const TickType_t BLE_TESTS_WAIT = pdMS_TO_TICKS( 60000 );                 /* Wait 60s max */
+const uint32_t bletestWAIT_MODE1_LEVEL2_QUERY = 10000; /* Wait 10s max */
+const uint32_t BLE_TESTS_WAIT = 60000;                 /* Wait 60s max */
 
+void pushToQueue(IotLink_t * pEventList);
 static void prvSetGetProperty( BTProperty_t * pxProperty,
                                bool bIsSet );
 static void prvStartAdvertisement( void );
@@ -593,7 +591,7 @@ static BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                          int32_t lhandle,
                                          void * pxMessage,
                                          size_t xMessageLength,
-                                         TickType_t xTestWait );
+										 uint32_t timeoutMs );
 static void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
                                       bool bNeedRsp,
                                       bool IsPrep,
@@ -1156,17 +1154,16 @@ TEST( Full_BLE, BLE_Property_Indication )
 
 TEST( Full_BLE, BLE_Property_Notification )
 {
-    void * pvPtr;
     BaseType_t xStatus;
+    BLETESTindicateCallback_t xIndicateEvent;
 
     memcpy( ucRespBuffer[ bletestATTR_SRVCB_CHAR_E ].ucBuffer, bletestsDEFAULT_CHAR_VALUE, sizeof( bletestsDEFAULT_CHAR_VALUE ) - 1 );
     ucRespBuffer[ bletestATTR_SRVCB_CHAR_E ].xLength = sizeof( bletestsDEFAULT_CHAR_VALUE ) - 1;
 
     prvSendNotification( bletestATTR_SRVCB_CHAR_E, false );
     /* Wait a possible confirm for 2 max connections interval */
-    xStatus = xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) bletestsMAX_CONNECTION_INTERVAL * 2 );
-    vPortFree( pvPtr );
-    TEST_ASSERT_EQUAL( pdFALSE, xStatus );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusFail, xStatus );
 }
 
 TEST( Full_BLE, BLE_Property_WriteNoResponse )
@@ -1376,7 +1373,7 @@ TEST( Full_BLE, BLE_Advertising_SetProperties )
 
     pxProperty.xType = eBTpropertyBdname;
     pxProperty.xLen = strlen( bletestsDEVICE_NAME );
-    pxProperty.pvVal = bletestsDEVICE_NAME;
+    pxProperty.pvVal = (void *)bletestsDEVICE_NAME;
 
     /* Set the name */
     prvSetGetProperty( &pxProperty, true );
@@ -1710,7 +1707,7 @@ void prvRegisterBleAdapterCb( BTStatus_t xStatus,
 
     pxInitDeinitCb->xEvent.lHandle = NO_HANDLE;
     pxInitDeinitCb->xEvent.xEventTypes = eBLEHALEventRegisterBleAdapterCb;
-    xQueueSend( xCallbackQueue, ( void * ) &pxInitDeinitCb, ( TickType_t ) 0 );
+    pushToQueue(&pxInitDeinitCb->xEvent.eventList);
 }
 
 void prvDeviceStateChangedCb( BTState_t xState )
@@ -1720,7 +1717,7 @@ void prvDeviceStateChangedCb( BTState_t xState )
     pxInitDeinitCb->xBLEState = xState;
     pxInitDeinitCb->xEvent.lHandle = NO_HANDLE;
     pxInitDeinitCb->xEvent.xEventTypes = eBLEHALEventEnableDisableCb;
-    xQueueSend( xCallbackQueue, ( void * ) &pxInitDeinitCb, ( TickType_t ) 0 );
+    pushToQueue(&pxInitDeinitCb->xEvent.eventList);
 }
 
 void prvGroupInit()
@@ -1730,45 +1727,42 @@ void prvGroupInit()
 	xStatus = bleStackInit( );
 	if(xStatus != eBTStatusSuccess)
 	{
-		configPRINTF(("Unable to initialize BLE stask\n"));
+		configPRINTF(("Unable to initialize BLE stask.\n"));
 	}
 
-    /* Create a queue for callbacks. */
-    xCallbackQueue = xQueueCreate( QUEUE_LENGTH,
-                                   ITEM_SIZE );
-    listINIT_HEAD( &xWaitingEventQueue );
+    /* Create a queue, semaphore and mutexes for callbacks. */
+	if(IotMutex_Create( &threadSafetyMutex, false ) != true)
+	{
+		configPRINTF(("Could not create threadSafetyMutex.\n"));
+	}
+
+	if(IotSemaphore_Create( &eventSemaphore, 0, MAX_EVENT ) != true)
+	{
+		configPRINTF(("Could not create eventSemaphore.\n"));
+	}
+
+
+    IotListDouble_Create( &eventQueueHead );
 }
 
 void prvGroupFree()
 {
-    void * pvPtr;
-    Link_t * pxLink, * pxTmpLink;
-    xWaitingEvents_t * pxTmpEvent;
+	BLEHALEventsInternals_t * pEventIndex;
+	IotLink_t * pEventListIndex;
 
-    do
+    IotMutex_Lock( &threadSafetyMutex );
+
+    /* Get the event associated to the callback */
+    IotContainers_ForEach( &eventQueueHead, pEventListIndex )
     {
-        if( xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) 0 ) == pdPASS )
-        {
-            vPortFree( pvPtr );
-        }
-        else
-        {
-            break;
-        }
-    } while( 1 ); /* Delete all objects in the queue. */
-
-    vQueueDelete( xCallbackQueue );
-
-
-    /* Remove everything in the waiting list that was not used. */
-    listFOR_EACH_SAFE( pxLink, pxTmpLink, &( xWaitingEventQueue ) )
-    {
-        pxTmpEvent = listCONTAINER( pxLink, xWaitingEvents_t, xNextQueueItem );
-        listREMOVE( pxLink );
-        vPortFree( pxTmpEvent );
+        pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventListIndex, eventList );
+        IotTest_Free( pEventIndex );
     }
 
-    pxBTInterface->pxDisable( 0 );
+    IotMutex_Unlock( &threadSafetyMutex );
+
+    IotMutex_Destroy(&threadSafetyMutex);
+    IotSemaphore_Destroy(&eventSemaphore);
 
 }
 
@@ -1806,7 +1800,8 @@ void prvBTRegisterServerCb( BTStatus_t xStatus,
 
     pxInitDeinitCb->xEvent.lHandle = NO_HANDLE;
     pxInitDeinitCb->xEvent.xEventTypes = eBLEHALEventRegisterUnregisterGattServerCb;
-    xQueueSend( xCallbackQueue, ( void * ) &pxInitDeinitCb, ( TickType_t ) 0 );
+
+    pushToQueue(&pxInitDeinitCb->xEvent.eventList);
 }
 
 void prvBTUnregisterServerCb( BTStatus_t xStatus,
@@ -1825,7 +1820,7 @@ void prvBTUnregisterServerCb( BTStatus_t xStatus,
     pxInitDeinitCb->xEvent.lHandle = NO_HANDLE;
     pxInitDeinitCb->xEvent.xEventTypes = eBLEHALEventRegisterUnregisterGattServerCb;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxInitDeinitCb, ( TickType_t ) 0 );
+    pushToQueue(&pxInitDeinitCb->xEvent.eventList);
 }
 
 void prvServiceAddedCb( BTStatus_t xStatus,
@@ -1858,7 +1853,7 @@ void prvServiceAddedCb( BTStatus_t xStatus,
     pxAddedServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceAddedCb;
     pxAddedServiceCb->xEvent.lHandle = NO_HANDLE;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxAddedServiceCb, ( TickType_t ) 0 );
+    pushToQueue(&pxAddedServiceCb->xEvent.eventList);
 }
 
 void prvServiceStartedCb( BTStatus_t xStatus,
@@ -1878,7 +1873,7 @@ void prvServiceStartedCb( BTStatus_t xStatus,
     pxStartServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceStartedCb;
     pxStartServiceCb->xEvent.lHandle = usServiceHandle;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxStartServiceCb, ( TickType_t ) 0 );
+    pushToQueue(&pxStartServiceCb->xEvent.eventList);
 }
 
 void prvServiceStoppedCb( BTStatus_t xStatus,
@@ -1898,7 +1893,7 @@ void prvServiceStoppedCb( BTStatus_t xStatus,
     pxStopServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceStoppedCb;
     pxStopServiceCb->xEvent.lHandle = usServiceHandle;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxStopServiceCb, ( TickType_t ) 0 );
+    pushToQueue(&pxStopServiceCb->xEvent.eventList);
 }
 
 void prvServiceDeletedCb( BTStatus_t xStatus,
@@ -1918,7 +1913,7 @@ void prvServiceDeletedCb( BTStatus_t xStatus,
     pxDeleteServiceCb->xEvent.xEventTypes = eBLEHALEventSeviceDeletedCb;
     pxDeleteServiceCb->xEvent.lHandle = usServiceHandle;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxDeleteServiceCb, ( TickType_t ) 0 );
+    pushToQueue(&pxDeleteServiceCb->xEvent.eventList);
 }
 
 void prvCharacteristicAddedCb( BTStatus_t xStatus,
@@ -1953,7 +1948,7 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
     pxAttrCb->xEvent.xEventTypes = eBLEHALEventCharAddedCb;
     pxAttrCb->xEvent.lHandle = NO_HANDLE;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxAttrCb, ( TickType_t ) 0 );
+    pushToQueue(&pxAttrCb->xEvent.eventList);
 }
 
 void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
@@ -1988,7 +1983,7 @@ void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
     pxAttrCb->xEvent.xEventTypes = eBLEHALEventCharDescrAddedCb;
     pxAttrCb->xEvent.lHandle = NO_HANDLE;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxAttrCb, ( TickType_t ) 0 );
+    pushToQueue(&pxAttrCb->xEvent.eventList);
 }
 
 
@@ -2012,7 +2007,7 @@ void prvIncludedServiceAddedCb( BTStatus_t xStatus,
     pxAttrCb->xEvent.xEventTypes = eBLEHALEventIncludedServiceAdded;
     pxAttrCb->xEvent.lHandle = NO_HANDLE;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxAttrCb, ( TickType_t ) 0 );
+    pushToQueue(&pxAttrCb->xEvent.eventList);
 }
 
 void prvAdapterPropertiesCb( BTStatus_t xStatus,
@@ -2088,7 +2083,7 @@ void prvAdapterPropertiesCb( BTStatus_t xStatus,
     pxSetGetPropertyCb->xEvent.xEventTypes = eBLEHALEventPropertyCb;
     pxSetGetPropertyCb->xEvent.lHandle = NO_HANDLE;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxSetGetPropertyCb, ( TickType_t ) 0 );
+    pushToQueue(&pxSetGetPropertyCb->xEvent.eventList);
 }
 
 void prvSetAdvDataCb( BTStatus_t xStatus )
@@ -2099,7 +2094,7 @@ void prvSetAdvDataCb( BTStatus_t xStatus )
 	xdvParamCallback->xEvent.xEventTypes  = eBLEHALEventSetAdvCb;
 	xdvParamCallback->xEvent.lHandle = NO_HANDLE;
 
-	xQueueSend( xCallbackQueue, ( void * ) &xdvParamCallback, ( TickType_t ) 0 );
+	pushToQueue(&xdvParamCallback->xEvent.eventList);
 }
 
 void prvAdvStartCb( BTStatus_t xStatus,
@@ -2119,7 +2114,7 @@ void prvAdvStartCb( BTStatus_t xStatus,
         }
     }
 
-	xQueueSend( xCallbackQueue, ( void * ) &xdvParamCallback, ( TickType_t ) 0 );
+	pushToQueue(&xdvParamCallback->xEvent.eventList);
 }
 
 void prvConnectionCb( uint16_t usConnId,
@@ -2152,7 +2147,8 @@ void prvConnectionCb( uint16_t usConnId,
         pxConnectionCallback->xEvent.xEventTypes = eBLEHALEventConnectionCb;
         pxConnectionCallback->xEvent.lHandle = NO_HANDLE;
         usBLEConnId = usConnId;
-        xQueueSend( xCallbackQueue, ( void * ) &pxConnectionCallback, ( TickType_t ) 0 );
+
+        pushToQueue(&pxConnectionCallback->xEvent.eventList);
     }
 }
 
@@ -2184,7 +2180,7 @@ void prvConnParameterUpdateCb( BTStatus_t xStatus,
 
     usCbConnInterval = usConnInterval;
 
-    xQueueSend( xCallbackQueue, ( void * ) &pxUpdateConnectionParamReq, ( TickType_t ) 0 );
+    pushToQueue(&pxUpdateConnectionParamReq->xEvent.eventList);
 }
 void prvRequestReadCb( uint16_t usConnId,
                        uint32_t ulTransId,
@@ -2213,7 +2209,7 @@ void prvRequestReadCb( uint16_t usConnId,
         pxreadAttrCallback->xEvent.xEventTypes = eBLEHALEventReadAttrCb;
         pxreadAttrCallback->xEvent.lHandle = usAttrHandle;
 
-        xQueueSend( xCallbackQueue, ( void * ) &pxreadAttrCallback, ( TickType_t ) 0 );
+        pushToQueue(&pxreadAttrCallback->xEvent.eventList);
     }
 }
 
@@ -2261,7 +2257,7 @@ void prvRequestWriteCb( uint16_t usConnId,
         pxWriteAttrCallback->xEvent.xEventTypes = eBLEHALEventWriteAttrCb;
         pxWriteAttrCallback->xEvent.lHandle = usAttrHandle;
 
-        xQueueSend( xCallbackQueue, ( void * ) &pxWriteAttrCallback, ( TickType_t ) 0 );
+        pushToQueue(&pxWriteAttrCallback->xEvent.eventList);
     }
 
 /*
@@ -2282,6 +2278,32 @@ void prvRequestWriteCb( uint16_t usConnId,
  */
 }
 
+void * checkQueueForEvent(BLEHALEventsTypes_t xEventName, int32_t lhandle)
+{
+    BLEHALEventsInternals_t * pEventIndex;
+    IotLink_t * pEventListIndex;
+    void * pvPtr = NULL;
+
+    IotMutex_Lock( &threadSafetyMutex );
+
+     /* Get the event associated to the callback */
+     IotContainers_ForEach( &eventQueueHead, pEventListIndex )
+     {
+         pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventListIndex, eventList );
+         if( ( pEventIndex->xEventTypes == xEventName ) &&
+             ( pEventIndex->lHandle == lhandle ) )
+         {
+             pvPtr = pEventIndex;
+             IotListDouble_Remove( &pEventIndex->eventList );
+             break; /* If the right event is received, exit. */
+         }
+     }
+
+     IotMutex_Unlock( &threadSafetyMutex );
+
+    return pvPtr;
+}
+
 /* This function first check if an event is waiting in the list. If not, it will go and wait on the queue.
  * When an event is received on the queue, if it is not the expected event, it goes on the waiting list.
  */
@@ -2289,29 +2311,12 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                   int32_t lhandle,
                                   void * pxMessage,
                                   size_t xMessageLength,
-                                  TickType_t xTestWait )
+								  uint32_t timeoutMs )
 {
-    BLEHALEventsInternals_t xEvent;
     BTStatus_t xStatus = eBTStatusSuccess;
     void * pvPtr = NULL;
-    Link_t * pxTmpLink;
-    xWaitingEvents_t * pxTmpEvent;
 
-
-    /* Search for event in the waiting list */
-    listFOR_EACH( pxTmpLink, &( xWaitingEventQueue ) )
-    {
-        pxTmpEvent = listCONTAINER( pxTmpLink, xWaitingEvents_t, xNextQueueItem );
-
-        if( ( ( ( BLEHALEventsInternals_t * ) pxTmpEvent->pxNextQueuedItem )->xEventTypes == xEventName ) &&
-            ( ( ( BLEHALEventsInternals_t * ) pxTmpEvent->pxNextQueuedItem )->lHandle == lhandle ) )
-        {
-            pvPtr = pxTmpEvent->pxNextQueuedItem;
-            listREMOVE( pxTmpLink );
-            vPortFree( pxTmpEvent );
-            break; /* If the right event is received, exit. */
-        }
-    }
+    pvPtr = checkQueueForEvent(xEventName, lhandle);
 
     /* If event is not waiting then wait for it. */
     if( pvPtr == NULL )
@@ -2319,20 +2324,13 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
         do
         {
             /* TODO check event list here */
-            if( xQueueReceive( xCallbackQueue, &pvPtr, ( TickType_t ) xTestWait ) == pdPASS )
+            if( IotSemaphore_TimedWait( &eventSemaphore, timeoutMs ) == true )
             {
-                xEvent = *( ( BLEHALEventsInternals_t * ) pvPtr );
+                pvPtr = checkQueueForEvent(xEventName, lhandle);
 
-                if( ( xEvent.xEventTypes == xEventName ) && ( xEvent.lHandle == lhandle ) )
+                if( pvPtr != NULL )
                 {
                     break; /* If the right event is received, exit. */
-                }
-                else
-                {
-                    /* If this is not the event, push it to the waiting list */
-                    pxTmpEvent = pvPortMalloc( sizeof( xWaitingEvents_t ) );
-                    pxTmpEvent->pxNextQueuedItem = pvPtr;
-                    listADD( &xWaitingEventQueue, &pxTmpEvent->xNextQueueItem );
                 }
             }
             else
@@ -2363,7 +2361,7 @@ void prvIndicationSentCb( uint16_t usConnId,
         pxIndicateCallback->usConnId = usConnId;
         pxIndicateCallback->xStatus = xStatus;
 
-        xQueueSend( xCallbackQueue, ( void * ) &pxIndicateCallback, ( TickType_t ) 0 );
+        pushToQueue(&pxIndicateCallback->xEvent.eventList);
     }
 }
 
@@ -2379,7 +2377,7 @@ void prvResponseConfirmationCb( BTStatus_t xStatus,
         pxConfirmCallback->usAttrHandle = usHandle;
         pxConfirmCallback->xStatus = xStatus;
 
-        xQueueSend( xCallbackQueue, ( void * ) &pxConfirmCallback, ( TickType_t ) 0 );
+        pushToQueue(&pxConfirmCallback->xEvent.eventList);
     }
 }
 
@@ -2407,7 +2405,8 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
         pxSSPrequestCallback->ulPassKey = ulPassKey;
         pxSSPrequestCallback->xEvent.xEventTypes = eBLEHALEventSSPrequestCb;
         pxSSPrequestCallback->xEvent.lHandle = NO_HANDLE;
-        xQueueSend( xCallbackQueue, ( void * ) &pxSSPrequestCallback, ( TickType_t ) 0 );
+
+        pushToQueue(&pxSSPrequestCallback->xEvent.eventList);
     }
 }
 
@@ -2436,7 +2435,8 @@ void prvPairingStateChangedCb( BTStatus_t xStatus,
 
         pxPairingStateChangedCallback->xSecurityLevel = xSecurityLevel;
         pxPairingStateChangedCallback->xReason = xReason;
-        xQueueSend( xCallbackQueue, ( void * ) &pxPairingStateChangedCallback, ( TickType_t ) 0 );
+
+        pushToQueue(&pxPairingStateChangedCallback->xEvent.eventList);
     }
 }
 
@@ -2465,7 +2465,7 @@ void prvRequestExecWriteCb( uint16_t usConnId,
 
         pxRequestExecWriteCallback->bExecWrite = bExecWrite;
 
-        xQueueSend( xCallbackQueue, ( void * ) &pxRequestExecWriteCallback, ( TickType_t ) 0 );
+        pushToQueue(&pxRequestExecWriteCallback->xEvent.eventList);
     }
 }
 
@@ -2492,6 +2492,17 @@ void prvBondedCb( BTStatus_t xStatus,
         pxBondedCallback->xEvent.xEventTypes = eBLEHALEventBondedCb;
         pxBondedCallback->xEvent.lHandle = NO_HANDLE;
 
-        xQueueSend( xCallbackQueue, ( void * ) &pxBondedCallback, ( TickType_t ) 0 );
+        pushToQueue(&pxBondedCallback->xEvent.eventList);
     }
+}
+
+void pushToQueue(IotLink_t * pEventList)
+{
+    IotMutex_Lock( &threadSafetyMutex );
+
+    IotListDouble_InsertHead( &eventQueueHead,
+    		pEventList );
+    IotSemaphore_Post( &eventSemaphore );
+
+    IotMutex_Unlock( &threadSafetyMutex );
 }

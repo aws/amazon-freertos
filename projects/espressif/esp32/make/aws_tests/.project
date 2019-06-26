@@ -28,7 +28,7 @@
 		<link>
 			<name>build</name>
 			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/build</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_tests/build</locationURI>
 		</link>
 		<link>
 			<name>common</name>
