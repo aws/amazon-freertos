@@ -170,14 +170,14 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # afr_mcu_port(wifi)
 # target_sources(
 #     AFR::wifi::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/aws_wifi.c"
+#     INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/iot_wifi.c"
 # )
 
 # PKCS11
 # afr_mcu_port(pkcs11)
 # target_sources(
 #     AFR::pkcs11::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/aws_pkcs11_pal.c"
+#     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/iot_pkcs11_pal.c"
 # )
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
 # target_link_libraries(
@@ -196,7 +196,7 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # Or provide your own implementation.
 # target_sources(
 #     AFR::secure_sockets::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/${portable_dir}/aws_secure_sockets.c"
+#     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/${portable_dir}/iot_secure_sockets.c"
 # )
 
 # OTA

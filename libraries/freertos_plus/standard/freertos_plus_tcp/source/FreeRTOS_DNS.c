@@ -1415,6 +1415,6 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 
 /* Provide access to private members for testing. */
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
-	#include "aws_freertos_tcp_test_access_dns_define.h"
+	#include "iot_freertos_tcp_test_access_dns_define.h"
 #endif
 

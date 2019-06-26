@@ -52,11 +52,11 @@
 #endif
 
 #if WIFI_ENABLED
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 #endif
 
 #if TCPIP_NETWORK_ENABLED
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 #endif
 
 

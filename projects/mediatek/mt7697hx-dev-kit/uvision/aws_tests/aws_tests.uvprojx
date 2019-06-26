@@ -335,7 +335,7 @@
 							<MiscControls>--C99</MiscControls>
 							<Define>PCFG_OS=2 _REENT_SMALL PRODUCT_VERSION=7687 MTK_BLE_SMTCN_ENABLE MTK_BT_LWIP_ENABLE MTK_BLE_BQB_TEST_ENABLE MTK_BLE_CLI_ENABLE MTK_BLE_BQB_CLI_ENABLE MTK_HCI_CONSOLE_MIX_ENABLE MTK_MINISUPP_ENABLE MTK_BSPEXT_ENABLE MTK_HAL_LOWPOWER_ENABLE MTK_LWIP_CLI_ENABLE MTK_HTTPCLIENT_SSL_ENABLE MTK_IPERF_ENABLE MTK_SMTCN_ENABLE MTK_CLI_TEST_MODE_ENABLE MTK_WIFI_REPEATER_ENABLE  CONFIG_REPEATER MTK_DEBUG_LEVEL_NONE MTK_WIFI_PRIVILEGE_ENABLE SUPPORT_MBEDTLS __MTK_BLE_ONLY_ENABLE__ MTK_SINGLE_SKU_SUPPORT HAL_DFS_MODULE_ENABLED LWIP_NO_STDINT_H=1 LWIP_TIMEVAL_PRIVATE=1 __little_endian__=1 AMAZON_FREERTOS_ENABLE_UNIT_TESTS</Define>
 							<Undefine/>
-							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/3rdparty/lwip/src/portable/mediatek/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip/src/include/lwip;../../../../../libraries/3rdparty/lwip/src/portable;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/jsmn;</IncludePath>
+							<IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/mediatek/sdk/kernel/service/inc;../../../../../vendors/mediatek/sdk/driver/CMSIS/Device/MTK/mt7687/Include;../../../../../vendors/mediatek/sdk/driver/CMSIS/Include;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/src/common/include;../../../../../vendors/mediatek/sdk/driver/chip/inc;../../../../../vendors/mediatek/sdk/driver/chip/mt7687/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/ept/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/util/inc;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/external_flash/inc;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code;../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/application_code/mediatek_code/include;../../../../../tests/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/wifi/include;../../../../../vendors/mediatek/sdk/driver/board/mt76x7_hdk/wifi/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/minisupp/inc;../../../../../vendors/mediatek/sdk/middleware/third_party/ping/inc;../../../../../vendors/mediatek/sdk/middleware/MTK/dhcpd/inc;../../../../../libraries/3rdparty/lwip/src/portable/mediatek/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip/src/include/lwip;../../../../../libraries/3rdparty/lwip/src/portable;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/jsmn;</IncludePath>
 						</VariousControls>
 					</Cads>
 					<Aads>
@@ -950,9 +950,9 @@
 							<FilePath>../../../../../tests/common/aws_test.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_test_afr.c</FileName>
+							<FileName>iot_test_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../tests/common/iot_test_afr.c</FilePath>
+							<FilePath>../../../../../tests/common/iot_test_freertos.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_tests_network.c</FileName>
@@ -1030,9 +1030,9 @@
 					<GroupName>libraries/c_sdk/standard/common/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_appversion32.h</FileName>
+							<FileName>iot_appversion32.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/aws_appversion32.h</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_init.h</FileName>
@@ -1045,9 +1045,9 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_logging_task.h</FileName>
+							<FileName>iot_logging_task.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/include/aws_logging_task.h</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h</FilePath>
 						</File>
 						<File>
 							<FileName>iot_logging_setup.h</FileName>
@@ -1065,9 +1065,9 @@
 					<GroupName>libraries/c_sdk/standard/common/logging/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_logging_task_dynamic_buffers.c</FileName>
+							<FileName>iot_logging_task_dynamic_buffers.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_logging.c</FileName>
@@ -1160,14 +1160,14 @@
 					<GroupName>libraries/abstractions/platform/freertos/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_clock_afr.c</FileName>
+							<FileName>iot_clock_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_clock_afr.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_threads_afr.c</FileName>
+							<FileName>iot_threads_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_threads_afr.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_metrics.c</FileName>
@@ -1175,9 +1175,9 @@
 							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_metrics.c</FilePath>
 						</File>
 						<File>
-							<FileName>iot_network_afr.c</FileName>
+							<FileName>iot_network_freertos.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_network_afr.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/iot_network_freertos.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1185,14 +1185,14 @@
 					<GroupName>libraries/abstractions/platform/freertos/include/platform/</GroupName>
 					<Files>
 						<File>
-							<FileName>iot_platform_types_afr.h</FileName>
+							<FileName>iot_platform_types_freertos.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</FilePath>
 						</File>
 						<File>
-							<FileName>iot_network_afr.h</FileName>
+							<FileName>iot_network_freertos.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1200,19 +1200,19 @@
 					<GroupName>libraries/abstractions/secure_sockets/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_secure_sockets.h</FileName>
+							<FileName>iot_secure_sockets.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_secure_sockets_config_defaults.h</FileName>
+							<FileName>iot_secure_sockets_config_defaults.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</FilePath>
 						</File>
 						<File>
-							<FileName>aws_secure_sockets_wrapper_metrics.h</FileName>
+							<FileName>iot_secure_sockets_wrapper_metrics.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1220,9 +1220,9 @@
 					<GroupName>libraries/abstractions/secure_sockets/lwip/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_secure_sockets.c</FileName>
+							<FileName>iot_secure_sockets.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/lwip/aws_secure_sockets.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/lwip/iot_secure_sockets.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1230,9 +1230,9 @@
 					<GroupName>libraries/freertos_plus/standard/tls/src/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_tls.c</FileName>
+							<FileName>iot_tls.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/tls/src/aws_tls.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/tls/src/iot_tls.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1240,9 +1240,9 @@
 					<GroupName>libraries/freertos_plus/standard/tls/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_tls.h</FileName>
+							<FileName>iot_tls.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/tls/include/aws_tls.h</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/tls/include/iot_tls.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1250,9 +1250,9 @@
 					<GroupName>libraries/freertos_plus/standard/crypto/src/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_crypto.c</FileName>
+							<FileName>iot_crypto.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/aws_crypto.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1260,9 +1260,9 @@
 					<GroupName>libraries/freertos_plus/standard/crypto/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_crypto.h</FileName>
+							<FileName>iot_crypto.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/include/aws_crypto.h</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1270,9 +1270,9 @@
 					<GroupName>libraries/abstractions/pkcs11/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_pkcs11.h</FileName>
+							<FileName>iot_pkcs11.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/include/aws_pkcs11.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1280,9 +1280,9 @@
 					<GroupName>vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_pkcs11_pal.c</FileName>
+							<FileName>iot_pkcs11_pal.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/aws_pkcs11_pal.c</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/pkcs11/iot_pkcs11_pal.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1290,9 +1290,9 @@
 					<GroupName>libraries/abstractions/pkcs11/mbedtls/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_pkcs11_mbedtls.c</FileName>
+							<FileName>iot_pkcs11_mbedtls.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
 						</File>
 						<File>
 							<FileName>threading_alt.h</FileName>
@@ -1305,9 +1305,9 @@
 					<GroupName>libraries/abstractions/wifi/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_wifi.h</FileName>
+							<FileName>iot_wifi.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/abstractions/wifi/include/aws_wifi.h</FilePath>
+							<FilePath>../../../../../libraries/abstractions/wifi/include/iot_wifi.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1315,9 +1315,9 @@
 					<GroupName>vendors/mediatek/boards/mt7697hx-dev-kit/ports/wifi/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_wifi.c</FileName>
+							<FileName>iot_wifi.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/wifi/aws_wifi.c</FilePath>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/ports/wifi/iot_wifi.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1470,9 +1470,9 @@
 					<GroupName>libraries/freertos_plus/standard/utils/src/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_system_init.c</FileName>
+							<FileName>iot_system_init.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/utils/src/aws_system_init.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1480,9 +1480,9 @@
 					<GroupName>libraries/freertos_plus/standard/utils/include/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_system_init.h</FileName>
+							<FileName>iot_system_init.h</FileName>
 							<FileType>5</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/utils/include/aws_system_init.h</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1570,9 +1570,14 @@
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_mqtt_agent.c</FileName>
+							<FileName>iot_mqtt_metrics.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_agent.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1595,14 +1600,14 @@
 					<GroupName>libraries/c_sdk/standard/serializer/src/json/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_iot_serializer_json_decoder.c</FileName>
+							<FileName>iot_serializer_json_decoder.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</FilePath>
 						</File>
 						<File>
-							<FileName>aws_iot_serializer_json_encoder.c</FileName>
+							<FileName>iot_serializer_json_encoder.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1775,9 +1780,9 @@
 					<GroupName>libraries/c_sdk/standard/common/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_memory_leak.c</FileName>
+							<FileName>iot_memory_leak.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/common/test/aws_memory_leak.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/common/test/iot_memory_leak.c</FilePath>
 						</File>
 						<File>
 							<FileName>iot_tests_taskpool.c</FileName>
@@ -1809,6 +1814,11 @@
 							<FileType>1</FileType>
 							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c</FilePath>
 						</File>
+						<File>
+							<FileName>iot_tests_mqtt_metrics.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</FilePath>
+						</File>
 					</Files>
 				</Group>
 				<Group>
@@ -1825,9 +1835,9 @@
 					<GroupName>libraries/c_sdk/standard/mqtt/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_mqtt_agent.c</FileName>
+							<FileName>iot_test_mqtt_agent.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/aws_test_mqtt_agent.c</FilePath>
+							<FilePath>../../../../../libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1865,9 +1875,9 @@
 					<GroupName>libraries/freertos_plus/standard/crypto/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_crypto.c</FileName>
+							<FileName>iot_test_crypto.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/test/aws_test_crypto.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1875,9 +1885,9 @@
 					<GroupName>libraries/freertos_plus/standard/tls/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_tls.c</FileName>
+							<FileName>iot_test_tls.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/freertos_plus/standard/tls/test/aws_test_tls.c</FilePath>
+							<FilePath>../../../../../libraries/freertos_plus/standard/tls/test/iot_test_tls.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1885,9 +1895,9 @@
 					<GroupName>libraries/abstractions/pkcs11/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_pkcs11.c</FileName>
+							<FileName>iot_test_pkcs11.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/pkcs11/test/aws_test_pkcs11.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1910,9 +1920,9 @@
 					<GroupName>libraries/abstractions/secure_sockets/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_tcp.c</FileName>
+							<FileName>iot_test_tcp.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/secure_sockets/test/aws_test_tcp.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/secure_sockets/test/iot_test_tcp.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1920,9 +1930,9 @@
 					<GroupName>libraries/abstractions/wifi/test/</GroupName>
 					<Files>
 						<File>
-							<FileName>aws_test_wifi.c</FileName>
+							<FileName>iot_test_wifi.c</FileName>
 							<FileType>1</FileType>
-							<FilePath>../../../../../libraries/abstractions/wifi/test/aws_test_wifi.c</FilePath>
+							<FilePath>../../../../../libraries/abstractions/wifi/test/iot_test_wifi.c</FilePath>
 						</File>
 					</Files>
 				</Group>
@@ -1948,11 +1958,6 @@
 							<FileName>aws_ggd_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_ggd_config.h</FilePath>
-						</File>
-						<File>
-							<FileName>aws_mqtt_agent_config.h</FileName>
-							<FileType>5</FileType>
-							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/aws_mqtt_agent_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>aws_mqtt_config.h</FileName>
@@ -2003,6 +2008,11 @@
 							<FileName>iot_config.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_config.h</FilePath>
+						</File>
+						<File>
+							<FileName>iot_mqtt_agent_config.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../vendors/mediatek/boards/mt7697hx-dev-kit/aws_tests/config_files/iot_mqtt_agent_config.h</FilePath>
 						</File>
 						<File>
 							<FileName>lwipopts.h</FileName>

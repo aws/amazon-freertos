@@ -34,13 +34,13 @@
 #include "task.h"
 
 /* AWS System includes. */
-#include "aws_system_init.h"
+#include "iot_system_init.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
 
 /* Demo application includes. */
 #include "aws_test_runner.h"
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 
 /* Sleep on this platform */
 #define Sleep( nMs )  vTaskDelay(pdMS_TO_TICKS(nMs));

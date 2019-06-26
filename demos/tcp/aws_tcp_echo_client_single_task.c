@@ -48,7 +48,7 @@
 #include "queue.h"
 
 /* TCP/IP abstraction includes. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 #include "platform/iot_network.h"
 
 /* Demo configuration */

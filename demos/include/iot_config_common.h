@@ -32,7 +32,7 @@
 #include "FreeRTOS.h"
 
 /* Use platform types on FreeRTOS. */
-#include "platform/iot_platform_types_afr.h"
+#include "platform/iot_platform_types_freertos.h"
 
 /* Used to get the cloud broker endpoint for FreeRTOS. */
 #include "aws_clientcredential.h"

@@ -4,7 +4,7 @@
 libs-y += libsecuresocket
 
 libsecuresocket-objs-y := \
-		../../../../../../../../secure_sockets/portable/freertos_plus_tcp/aws_secure_sockets.c
+		../../../../../../../../secure_sockets/portable/freertos_plus_tcp/iot_secure_sockets.c
 
 libsecuresocket-supported-toolchain-y := arm_gcc iar
 

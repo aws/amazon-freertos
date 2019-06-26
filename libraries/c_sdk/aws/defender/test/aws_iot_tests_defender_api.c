@@ -36,14 +36,14 @@
 #include "aws_clientcredential_keys.h"
 
 #include "platform/iot_metrics.h"
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 #include "unity_fixture.h"
 
 /* Platform includes. */
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 #include "platform/iot_metrics.h"
 
 #include "iot_serializer.h"

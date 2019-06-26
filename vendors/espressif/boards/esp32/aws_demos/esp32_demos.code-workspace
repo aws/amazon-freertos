@@ -28,7 +28,7 @@
 			"aws_iot_network_manager.h": "c",
 			"network.h": "c",
 			"iot_network_types.h": "c",
-			"iot_network_afr.h": "c",
+			"iot_network_freertos.h": "c",
 			"cstdlib": "c",
 			"iot_threads.h": "c",
 			"aws_clientcredential.h": "c",

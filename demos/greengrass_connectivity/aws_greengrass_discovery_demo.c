@@ -48,7 +48,7 @@
 #include "aws_greengrass_discovery.h"
 
 /* MQTT includes. */
-#include "aws_mqtt_agent.h"
+#include "iot_mqtt_agent.h"
 
 /* Demo includes. */
 #include "aws_demo_config.h"

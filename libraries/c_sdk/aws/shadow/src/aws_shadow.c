@@ -45,8 +45,8 @@
 /* AWS includes. */
 #include "aws_shadow_config.h"
 #include "aws_shadow_config_defaults.h"
-#include "aws_mqtt_agent_config.h"
-#include "aws_mqtt_agent_config_defaults.h"
+#include "iot_mqtt_agent_config.h"
+#include "iot_mqtt_agent_config_defaults.h"
 #include "aws_shadow.h"
 
 /* Shadow v4 include. */
@@ -620,7 +620,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
                                                         pxCallbackParams->pcThingName,
                                                         thingNameLength,
                                                         0,
-                                                        &callbackInfo );
+                                                        pCallbackInfo );
     }
 
     /* Deleted callback is not supported. */

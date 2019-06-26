@@ -179,7 +179,7 @@ def test_get_line_number():
         lines = f.readlines()
     assert afqp_check._get_line_number(lines, 'aws_demos') == 3
     assert afqp_check._get_line_number(lines, '<name>lib/aws</name>') == 50
-    assert afqp_check._get_line_number(lines, '<name>lib/aws/tls/aws_tls.c</name>') == 175
+    assert afqp_check._get_line_number(lines, '<name>lib/aws/tls/iot_tls.c</name>') == 175
 
 
 get_eclipse_project_errors_params = [

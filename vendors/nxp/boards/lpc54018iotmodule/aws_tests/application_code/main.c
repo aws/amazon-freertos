@@ -67,9 +67,9 @@
 
 /* Amazon FreeRTOS Includes */
 #include "aws_clientcredential.h"
-#include "aws_logging_task.h"
-#include "aws_wifi.h"
-#include "aws_system_init.h"
+#include "iot_logging_task.h"
+#include "iot_wifi.h"
+#include "iot_system_init.h"
 #include "aws_test_runner.h"
 #include "aws_dev_mode_key_provisioning.h"
 
