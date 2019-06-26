@@ -123,14 +123,6 @@ extern const uint32_t connectionUserBufferMinimumSize;
 #define IOT_HTTPS_IS_NON_TLS_FLAG           ( 0x00000001 )
 
 /**
- * @brief Flag for #IotHttpsConnectionInfo_t that enables HTTP/2.
- * 
- * Set this bit in  #IotHttpsConnectionInfo_t.flags to use HTTP/2 instead of HTTP/1.1. HTTP/2 is currently not supported
- * in Amazon FreeRTOS. If set, this flag is ignored.
- */
-#define IOT_HTTPS_IS_HTTP2                 ( 0x00000004 )
-
-/**
  * @brief Flag for #IotHttpsConnectionInfo_t that disables Server Name Indication (SNI).
  * 
  * Set this bit  #IotHttpsConnectionInfo_t.flags to disable SNI. SNI is enabled by default in this library. When SNI is
@@ -366,39 +358,6 @@ typedef struct IotHttpsUserBuffer
 
 /**
  * @ingroup https_client_datatypes_paramstructs
- * @brief HTTP/2 Stream place holder structure.
- * 
- * HTTP/2 has streams and there can be multiple request/response pairs going over a stream in parallel. 
- * The best way to go about this might be to logically separate them. Then have an API to create new streams given 
- * an existing connection. Internally to the library we can map streams to a given connection. A request can 
- * then specify which stream to be associated with.  
- * The mapping is: Connection --1:many--> Stream --1:many--> Request */
-typedef struct IotHttp2Stream
-{
-    /** @brief Stream ID of the HTTPS request.
-     * In HTTP/2, we can send multiple requests in parallel on one connection if each of their discontinuos parts has
-     * a stream identifier. Stream 0 is the connection stream. Stream 1+ are the request/response streams. */
-    uint32_t streamId;                     
-    uint32_t priority;                     /**< @brief H2 stream priority, value between 1-256 (inclusive) */
-    uint32_t dependentStreamId;            /**< @brief H2 stream dependency on another stream */
-} IotHttp2Stream_t;
-
-/**
- * @ingroup https_client_datatypes_paramstructs
- * @brief HTTP/2 Specific request information. 
- * 
- * This is a placeholder and to be expanded upon for future HTTP/2 support. 
- */
-typedef struct IotpHttp2Request
-{
-    IotHttp2Stream_t streamInfo; /* @brieff Required HTTP/2 Stream association. */
-
-    /* Other HTTPS2 needed items will be added here. */
-
-} IotHttp2RequestInfo_t;
-
-/**
- * @ingroup https_client_datatypes_paramstructs
  * @brief HTTPS Client synchronous request information.
  * 
  * @paramfor @ref https_client_function_initializerequest.
@@ -609,9 +568,7 @@ typedef struct IotHttpsRequestInfo
      * This is used for an implicit connection in @ref https_client_function_sendsync or 
      * @ref https_client_function_sendasync.
      */
-    IotHttpsConnectionInfo_t *pConnInfo; 
-
-    IotHttp2RequestInfo_t *pHttp2Request;       /**< @brief placeholder for HTTP/2 specific request information. */
+    IotHttpsConnectionInfo_t *pConnInfo;
 } IotHttpsRequestInfo_t;
 
 #endif
