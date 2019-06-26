@@ -26,11 +26,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>build</name>
-			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/build</locationURI>
-		</link>
-		<link>
 			<name>common</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
