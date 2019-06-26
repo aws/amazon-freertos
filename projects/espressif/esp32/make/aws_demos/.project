@@ -32,11 +32,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_demos/application_code</locationURI>
 		</link>
 		<link>
-			<name>build</name>
-			<type>2</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/vendors/espressif/boards/esp32/aws_demos/build</locationURI>
-		</link>
-		<link>
 			<name>demos</name>
 			<type>2</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/demos</locationURI>

@@ -597,9 +597,7 @@ static void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
                                       bool IsPrep,
                                       uint16_t usOffset );
 static void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
-static void prvGroupInit();
 static void prvDeviceStateChangedCb( BTState_t xState );
-static void prvGroupFree();
 static void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                                      uint8_t ucAdapterIf,
                                      BTUuid_t * pxAppUuid );
@@ -777,9 +775,8 @@ TEST_TEAR_DOWN( Full_BLE )
 TEST_GROUP_RUNNER( Full_BLE )
 {
     /* Initializations that need to be done once for all the tests. */
-    prvGroupInit();
 
-
+    RUN_TEST_CASE( Full_BLE, BLE_Setup );
     RUN_TEST_CASE( Full_BLE, BLE_Initialize_common_GAP );
     RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GAP );
     RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GATT );
@@ -819,7 +816,7 @@ TEST_GROUP_RUNNER( Full_BLE )
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level2 );
 
     RUN_TEST_CASE( Full_BLE, BLE_DeInitialize );
-    prvGroupFree();
+    RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
 
 void prvRemoveBond( BTBdaddr_t * pxDeviceAddress )
@@ -835,6 +832,51 @@ void prvRemoveBond( BTBdaddr_t * pxDeviceAddress )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xBondedEvent.xStatus );
     TEST_ASSERT_EQUAL( false, xBondedEvent.bIsBonded );
     TEST_ASSERT_EQUAL( 0, memcmp( &xBondedEvent.xRemoteBdAddr, pxDeviceAddress, sizeof( BTBdaddr_t ) ) );
+}
+
+TEST( Full_BLE, BLE_Setup )
+{
+	BTStatus_t xStatus;
+
+	xStatus = bleStackInit( );
+	if(xStatus != eBTStatusSuccess)
+	{
+		TEST_FAIL_MESSAGE( "Unable to initialize BLE stask.\n" );
+	}
+
+    /* Create a queue, semaphore and mutexes for callbacks. */
+	if(IotMutex_Create( &threadSafetyMutex, false ) != true)
+	{
+		TEST_FAIL_MESSAGE("Could not create threadSafetyMutex.\n");
+	}
+
+	if(IotSemaphore_Create( &eventSemaphore, 0, MAX_EVENT ) != true)
+	{
+		TEST_FAIL_MESSAGE("Could not create eventSemaphore.\n");
+	}
+
+
+    IotListDouble_Create( &eventQueueHead );
+}
+
+TEST( Full_BLE, BLE_Free )
+{
+	BLEHALEventsInternals_t * pEventIndex;
+	IotLink_t * pEventListIndex;
+
+    IotMutex_Lock( &threadSafetyMutex );
+
+    /* Get the event associated to the callback */
+    IotContainers_ForEach( &eventQueueHead, pEventListIndex )
+    {
+        pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventListIndex, eventList );
+        IotTest_Free( pEventIndex );
+    }
+
+    IotMutex_Unlock( &threadSafetyMutex );
+
+    IotMutex_Destroy(&threadSafetyMutex);
+    IotSemaphore_Destroy(&eventSemaphore);
 }
 
 TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
@@ -1718,52 +1760,6 @@ void prvDeviceStateChangedCb( BTState_t xState )
     pxInitDeinitCb->xEvent.lHandle = NO_HANDLE;
     pxInitDeinitCb->xEvent.xEventTypes = eBLEHALEventEnableDisableCb;
     pushToQueue(&pxInitDeinitCb->xEvent.eventList);
-}
-
-void prvGroupInit()
-{
-	BTStatus_t xStatus;
-
-	xStatus = bleStackInit( );
-	if(xStatus != eBTStatusSuccess)
-	{
-		configPRINTF(("Unable to initialize BLE stask.\n"));
-	}
-
-    /* Create a queue, semaphore and mutexes for callbacks. */
-	if(IotMutex_Create( &threadSafetyMutex, false ) != true)
-	{
-		configPRINTF(("Could not create threadSafetyMutex.\n"));
-	}
-
-	if(IotSemaphore_Create( &eventSemaphore, 0, MAX_EVENT ) != true)
-	{
-		configPRINTF(("Could not create eventSemaphore.\n"));
-	}
-
-
-    IotListDouble_Create( &eventQueueHead );
-}
-
-void prvGroupFree()
-{
-	BLEHALEventsInternals_t * pEventIndex;
-	IotLink_t * pEventListIndex;
-
-    IotMutex_Lock( &threadSafetyMutex );
-
-    /* Get the event associated to the callback */
-    IotContainers_ForEach( &eventQueueHead, pEventListIndex )
-    {
-        pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventListIndex, eventList );
-        IotTest_Free( pEventIndex );
-    }
-
-    IotMutex_Unlock( &threadSafetyMutex );
-
-    IotMutex_Destroy(&threadSafetyMutex);
-    IotSemaphore_Destroy(&eventSemaphore);
-
 }
 
 void prvBTRegisterServerCb( BTStatus_t xStatus,
