@@ -185,7 +185,7 @@ typedef struct
     }
 
 
-#define bletestsDEVICE_NAME                   "BT"
+#define bletestsDEVICE_NAME                   "TEST"
 #define bletestsMAX_PROPERTY_SIZE             30
 
 #define bletestsMTU_SIZE1                     200
@@ -582,6 +582,7 @@ IotBleConnectionParam_t xConnectionParamA =
 
 const uint32_t bletestWAIT_MODE1_LEVEL2_QUERY = 10000; /* Wait 10s max */
 const uint32_t BLE_TESTS_WAIT = 60000;                 /* Wait 60s max */
+const uint32_t BLE_TESTS_SHORT_WAIT = 4000;           /* Wait 4s max */
 
 void pushToQueue(IotLink_t * pEventList);
 static void prvSetGetProperty( BTProperty_t * pxProperty,
@@ -1204,7 +1205,7 @@ TEST( Full_BLE, BLE_Property_Notification )
 
     prvSendNotification( bletestATTR_SRVCB_CHAR_E, false );
     /* Wait a possible confirm for 2 max connections interval */
-    xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_SHORT_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusFail, xStatus );
 }
 
