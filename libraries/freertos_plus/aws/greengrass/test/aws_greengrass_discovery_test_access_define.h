@@ -25,7 +25,7 @@
 
 /**
  * @file aws_greengrass_test_access_define.h
- * @brief Functions warppers to access private methods in aws_greengrass_discovery.c.
+ * @brief Functions wrappers to access private methods in aws_greengrass_discovery.c.
  *
  * Needed for testing private functions.
  */

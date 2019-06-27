@@ -106,7 +106,7 @@ void Utils_generateMD5Hash( const char * pData,
 
 /*
  * @brief Generates a unique identifier string from the input data.
- * Uses MD5 hash alogrithm to generate a 128-bit unqiue identifier and
+ * Uses MD5 hash algorithm to generate a 128-bit unique identifier and
  * encodes as a hexadecimal string.
  */
 
@@ -402,7 +402,7 @@ const char * getDeviceIdentifier( void )
  */
 const char * getDeviceMetrics( void )
 {
-    const char * pDeviceIndentifier = NULL;
+    const char * pDeviceIdentifier = NULL;
     static uint32_t lock = 0;
 
     if( deviceMetrics[ 0 ] == '\0' )
@@ -411,8 +411,8 @@ const char * getDeviceMetrics( void )
 
         if( deviceMetrics[ 0 ] == '\0' )
         {
-            pDeviceIndentifier = getDeviceIdentifier();
-            _generateDeviceMetrics( pDeviceIndentifier, strlen( pDeviceIndentifier ), deviceMetrics, sizeof( deviceMetrics ) );
+            pDeviceIdentifier = getDeviceIdentifier();
+            _generateDeviceMetrics( pDeviceIdentifier, strlen( pDeviceIdentifier ), deviceMetrics, sizeof( deviceMetrics ) );
         }
 
         _atomicSpinlock_unlock( &lock );

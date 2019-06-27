@@ -58,7 +58,7 @@
  * The task that actually performs the print output.  Using a separate task
  * enables the use of slow output, such as as a UART, without the task that is
  * outputting the log message having to wait for the message to be completely
- * written.  Using a separate task also serialises access to the output port.
+ * written.  Using a separate task also serializes access to the output port.
  *
  * The structure of this task is very simple; it blocks on a queue to wait for
  * a pointer to a string, sending any received strings to a macro that performs

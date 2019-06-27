@@ -498,7 +498,7 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
                     xResult = SOCKETS_ERROR_NONE;
                     xRetry++;
                     vTaskDelay( xRetryTimeoutTicks );
-                    /* Exponetially backoff the retry times */
+                    /* Exponentially backoff the retry times */
                     xRetryTimeoutTicks *= 2; /*Arbitrarily chose 2*/
                 }
                 else
@@ -1197,7 +1197,7 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             {
                 /*
                  * If xResult is negative, it's an error code. Because xNumBytesReceived is an
-                 * unsigned int, it will become a large postive number, so the while loop
+                 * unsigned int, it will become a large positive number, so the while loop
                  * would end prematurely. This if statement prevents that.
                  */
                 xNumBytesReceived += lNumBytes;
@@ -2353,7 +2353,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
                 xReturned = SOCKETS_Recv( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0 );
 
                 TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xReturned, "Timeout occurred" );
-                TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occured receiving large message" );
+                TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occurred receiving large message" );
 
                 /* Data was received. */
                 TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
@@ -2361,7 +2361,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks( Server_t xConn )
                 xTotalReceived += xReturned;
             }
 
-            /* Rendez-vous with the Tx task ready to start a new cycle with a
+            /* Rendezvous with the Tx task ready to start a new cycle with a
              * different socket. */
             if( xEventGroupSync( xSyncEventGroup,                             /* The event group used for the rendezvous. */
                                  tcptestRX_TASK_BIT,                          /* The bit representing the Rx task reaching the rendezvous. */

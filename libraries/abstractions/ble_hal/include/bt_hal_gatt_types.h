@@ -230,19 +230,19 @@ typedef struct
 
 /**
  * @brief Structure describing a service.
- * Note, handles are allocated separatly so the attribute array can be allocated in ROM.
+ * Note, handles are allocated separately so the attribute array can be allocated in ROM.
  * pxHandlesBuffer has to dimensions: x and y [x][y] .
  * x : Number of copies of the service
  * y : needs to be equal to xNumberOfAttributes
  *
  * That structure has been constructed with the intent of putting most
  * of it in ROM. The whole structure can be put in ROM. If copies are needed then only pxBLEAttributes can be constant.
- * The fitst attribute is the UUID of the service.
+ * The first attribute is the UUID of the service.
  */
 struct BTService
 {
     uint8_t ucInstId;                /**< Service Instance ID. */
-    BTGattServiceTypes_t xType;      /**< Sercice type. */
+    BTGattServiceTypes_t xType;      /**< Service type. */
     size_t xNumberOfAttributes;      /**< Number of attributes. */
     uint16_t * pusHandlesBuffer;     /**< Array of handles, mapping to pxBLEAttributes. */
     BTAttribute_t * pxBLEAttributes; /**< Array of attribute, can be allocated in ROM. */
