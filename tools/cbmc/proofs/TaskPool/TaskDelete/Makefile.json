@@ -1,0 +1,28 @@
+{
+  "ENTRY": "TaskDelete",
+  "DEF":
+  [
+    "FREERTOS_MODULE_TEST",
+    "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'",
+    "'configASSERT(X)=__CPROVER_assert(X, \"Assertion Error\")'",
+    "STACK_DEPTH=10",
+    "configUSE_TRACE_FACILITY=0",
+    "configGENERATE_RUN_TIME_STATS=0"
+  ],
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--unwindset prvInitialiseTaskLists.0:8,vListInsert.0:3"
+
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/tasks.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/tools/cbmc/proofs/TaskPool/TaskDelete/"
+  ]
+}
