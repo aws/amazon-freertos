@@ -22,4 +22,8 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+#include "esp_bt.h"
+
+#if CONFIG_NIMBLE_ENABLED == 1
 #include "nimble/iot_ble_hal_gatt_server.c"
+#endif

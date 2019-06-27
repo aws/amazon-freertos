@@ -39,6 +39,7 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_hal_internals.h"
+#include "iot_ble_config.h"
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 static struct ble_gap_adv_params xAdv_params;
@@ -543,11 +544,23 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
     }
 
-    if ( pxParams->ucNameType != BTGattAdvNameNone ) {
+    if ( pxParams->ucName.xType != BTGattAdvNameNone ) {
         name = ble_svc_gap_device_name();
         fields.name = ( uint8_t * )name;
-        fields.name_len = strlen( name );
-        fields.name_is_complete = 1;
+
+        if(pxParams->ucName.xType == BTGattAdvNameShort)
+        {
+        	fields.name_len = strlen( name );
+        	if(pxParams->ucName.ucShortNameLen < fields.name_len)
+        	{
+        		fields.name_len = pxParams->ucName.ucShortNameLen;
+        	}
+			fields.name_is_complete = 0;
+        }else
+        {
+			fields.name_len = strlen( name );
+			fields.name_is_complete = 1;
+        }
     }
 
     fields.mfg_data = ( uint8_t * ) pcManufacturerData;

@@ -23,4 +23,8 @@
  * http://www.FreeRTOS.org
  */
 
+#include "esp_bt.h"
+
+#if CONFIG_NIMBLE_ENABLED == 1
 #include "nimble/iot_ble_hal_common_gap.c"
+#endif

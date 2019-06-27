@@ -23,6 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
+
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -40,13 +41,6 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #include "aws_test_utils.h"
-
-#if 0
-#include "esp_gap_ble_api.h"
-#include "esp_bt_main.h"
-#else
-#include "esp_nimble_hci.h"
-#endif
 #include "esp_bt.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
@@ -54,7 +48,12 @@
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-
+#if CONFIG_NIMBLE_ENABLED == 1
+#include "esp_nimble_hci.h"
+#else
+#include "esp_gap_ble_api.h"
+#include "esp_bt_main.h"
+#endif
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
@@ -196,7 +195,8 @@ static void prvMiscInitialization( void )
 		ret = nvs_flash_init();
 	}
 
-#if 0
+#if CONFIG_NIMBLE_ENABLED == 1
+#else
 	/* Release BT memory as it is not used. */
 	ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
 #endif
@@ -317,7 +317,24 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send(&evt);
     }
 }
-#if 0
+#if CONFIG_NIMBLE_ENABLED == 1
+BTStatus_t bleStackInit( void )
+{
+    /* Initialize BLE */
+    esp_err_t xRet = ESP_OK;
+    BTStatus_t status = eBTStatusFail;
+
+    xRet = esp_nimble_hci_and_controller_init();
+
+    if( xRet == ESP_OK )
+    {
+    	status = eBTStatusSuccess;
+    }
+
+    return status;
+}
+
+#else
 /*
  * Return on success
  */
@@ -355,22 +372,6 @@ BTStatus_t bleStackInit( void )
     {
         xRet = esp_bluedroid_enable();
     }
-
-    if( xRet == ESP_OK )
-    {
-    	status = eBTStatusSuccess;
-    }
-
-    return status;
-}
-#else
-BTStatus_t bleStackInit( void )
-{
-    /* Initialize BLE */
-    esp_err_t xRet = ESP_OK;
-    BTStatus_t status = eBTStatusFail;
-
-    xRet = esp_nimble_hci_and_controller_init();
 
     if( xRet == ESP_OK )
     {

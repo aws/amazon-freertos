@@ -46,9 +46,13 @@
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
-#include "esp_gap_ble_api.h"
 #include "esp_bt.h"
+#if CONFIG_NIMBLE_ENABLED == 1
+#include "esp_nimble_hci.h"
+#else
+#include "esp_gap_ble_api.h"
 #include "esp_bt_main.h"
+#endif
 
 #include "driver/uart.h"
 #include "aws_application_version.h"
@@ -165,6 +169,20 @@ static void prvMiscInitialization( void )
 /*-----------------------------------------------------------*/
 
 #if BLE_ENABLED
+
+#if CONFIG_NIMBLE_ENABLED == 1
+esp_err_t prvBLEStackInit( void )
+{
+    /* Initialize BLE */
+    esp_err_t xRet = ESP_OK;
+
+    xRet = esp_nimble_hci_and_controller_init();
+
+    return xRet;
+}
+
+#else
+
 static esp_err_t prvBLEStackInit( void )
 {
     /* Initialize BLE */
@@ -202,6 +220,7 @@ static esp_err_t prvBLEStackInit( void )
 
     return xRet;
 }
+#endif
 #endif
 
 /*-----------------------------------------------------------*/

@@ -77,9 +77,10 @@ typedef enum
     eBLEHALEventIndicateCb = 19,
     eBLEHALEventConfimCb = 20,
     eBLEHALEventSSPrequestCb = 21,
-    eBLEHALEventPairingStateChangedCb = 22,
-    eBLEHALEventRequestExecWriteCb = 23,
-    eBLEHALEventBondedCb = 24,
+    eBLEHALEventSSPrequestConfirmationCb = 22,
+    eBLEHALEventPairingStateChangedCb = 23,
+    eBLEHALEventRequestExecWriteCb = 24,
+    eBLEHALEventBondedCb = 25,
     eBLENbHALEvents,
 } BLEHALEventsTypes_t;
 
@@ -546,7 +547,7 @@ BTGattAdvertismentParams_t xAdvertisementConfigA =
 {
     .usAdvertisingEventProperties = BTAdvInd,
     .bIncludeTxPower              = true,
-    .ucNameType                   = BTGattAdvNameNone,
+    .ucName                       = {BTGattAdvNameNone, 0},
     .bSetScanRsp                  = false,
     .ulAppearance                 = 0,
     .ulMinInterval                = bletestsMAX_ADVERTISEMENT_INTERVAL / 2,
@@ -561,7 +562,7 @@ BTGattAdvertismentParams_t xAdvertisementConfigB =
 {
     .usAdvertisingEventProperties = BTAdvInd,
     .bIncludeTxPower              = true,
-    .ucNameType                   = BTGattAdvNameShort,
+    .ucName                       = {BTGattAdvNameShort, 4},
     .bSetScanRsp                  = true,
     .ulAppearance                 = 0,
     .ulMinInterval                = bletestsMAX_ADVERTISEMENT_INTERVAL / 2,
@@ -1050,7 +1051,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
     xStatus = pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventSSPrequestConfirmationCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTsspVariantPasskeyConfirmation, xSSPrequestEvent.xPairingVariant );
@@ -2397,11 +2398,24 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
             memset( &pxSSPrequestCallback->xRemoteBdAddr, 0, sizeof( BTBdaddr_t ) );
         }
 
+        pxSSPrequestCallback->xEvent.lHandle = NO_HANDLE;
         pxSSPrequestCallback->ulCod = ulCod;
         pxSSPrequestCallback->xPairingVariant = xPairingVariant;
         pxSSPrequestCallback->ulPassKey = ulPassKey;
-        pxSSPrequestCallback->xEvent.xEventTypes = eBLEHALEventSSPrequestCb;
-        pxSSPrequestCallback->xEvent.lHandle = NO_HANDLE;
+
+        switch(pxSSPrequestCallback->xPairingVariant)
+        {
+        case eBTsspVariantPasskeyConfirmation:
+        	pxSSPrequestCallback->xEvent.xEventTypes = eBLEHALEventSSPrequestConfirmationCb;
+        	break;
+        case eBTsspVariantConsent:
+        	pxSSPrequestCallback->xEvent.xEventTypes = eBLEHALEventSSPrequestCb;
+        	break;
+        case eBTsspVariantPasskeyNotification:
+        case eBTsspVariantPasskeyEntry:
+        default:
+        	pxSSPrequestCallback->xEvent.xEventTypes = eBLEHALEventSSPrequestCb;
+        }
 
         pushToQueue(&pxSSPrequestCallback->xEvent.eventList);
     }
