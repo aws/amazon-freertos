@@ -440,7 +440,7 @@ typedef struct IotHttpsConnectionInfo
     const char *pAddress;
     uint32_t addressLen;    /**< @brief remote address length. */
 
-    uint32_t port;          /**< @brief Remote port number */
+    uint16_t port;          /**< @brief Remote port number */
     /**
      * @brief Flags to configure the HTTPS connection.
      * 

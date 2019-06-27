@@ -217,7 +217,7 @@ typedef enum IotHttpsResponseBufferState {
  */
 typedef struct _httpsConnection
 {
-    IotNetworkInterface_t * pNetworkInterface;  /**< @brief Network interface with calls for connect, disconnect, send, and receive. */
+    const IotNetworkInterface_t * pNetworkInterface;  /**< @brief Network interface with calls for connect, disconnect, send, and receive. */
     void *pNetworkConnection;                   /**< @brief Pointer to the network connection to use pNetworkInterface calls on. */
     IotSemaphore_t connSem;                     /**< @brief Binary semaphore to lock the connection if a request/response is currently in progress. */
     IotSemaphore_t rxStartSem;                  /**< @brief Semaphore indicating that data on the network is ready to read. */
