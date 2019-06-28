@@ -1,5 +1,12 @@
 # Change Log for Amazon FreeRTOS
 
+## V1.4.9 06/28/2019
+### Updates
+#### MQTT Agent V1.1.6
+- Improve security in the MQTT Library parsing code.
+
+We thank Wenqiang Li of the University of Georgia for reporting these issues.
+
 ## V1.4.8 05/21/2019
 ### New Featuress
 ### New Boards: Marvell MW320 and MW322
