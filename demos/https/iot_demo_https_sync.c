@@ -68,11 +68,11 @@
 
 /* TLS port for HTTPS. */
 #ifndef IOT_DEMO_HTTPS_PORT
-    #define IOT_DEMO_HTTPS_PORT              ( 443 )
+    #define IOT_DEMO_HTTPS_PORT              ( (uint16_t) 443 )
 #endif
 
 #ifndef IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
-    /* This the Baltomore Cybertrust root CA associated with the S3 server certificate. */
+    /* This the Baltimore Cybertrust root CA associated with the S3 server certificate. */
     #define IOT_DEMO_HTTPS_TRUSTED_ROOT_CA    \
     "-----BEGIN CERTIFICATE-----\n"\
     "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n"\
@@ -272,9 +272,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
         IotLogError("An error occurred in IotHttpsClient_GetUrlPath() on URL %s. Error code: %d", 
             IOT_DEMO_HTTPS_PRESIGNED_URL, 
             httpsClientStatus );
-        /* At this point we have not allocated any resources or initialized the HTTPS Client library so we will just 
-          exit the demo here. */
-        return EXIT_FAILURE;
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
     /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_URL. */
@@ -287,9 +285,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
         IotLogError("An error occurred in IotHttpsClient_GetUrlAddress() on URL %s\r\n. Error code %d", 
             IOT_DEMO_HTTPS_PRESIGNED_URL, 
             httpsClientStatus );
-        /* At this point we have not allocated any resources or initialized the HTTPS Client library so we will just 
-           exit the demo here. */
-        return EXIT_FAILURE;
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
     /* Set the connection configurations. */
@@ -507,6 +503,11 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
 
         /* If amount of file remaining to request is less than the current amount of bytes to request next time, then
            udpdate the amount of bytes to request, on the next iteration, to be the amount remaining. */
+        if( curByte  > fileSize)
+        {
+            IotLogError("Received more data than the size of the file specified.");
+            IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+        }
         if( (fileSize - curByte) < numReqBytes)
         {
             numReqBytes = fileSize - curByte;
