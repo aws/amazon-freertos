@@ -1,0 +1,10 @@
+esp-idf/tools/kconfig/lxdialog/util.o
+esp-idf/components/partition_table/gen_esp32part.pyc
+esp-idf/tools/kconfig/conf.o
+esp-idf/tools/kconfig/mconf.o
+esp-idf/tools/kconfig/zconf.tab.o
+esp-idf/tools/kconfig/lxdialog/checklist.o
+esp-idf/tools/kconfig/lxdialog/inputbox.o
+esp-idf/tools/kconfig/lxdialog/menubox.o
+esp-idf/tools/kconfig/lxdialog/textbox.o
+esp-idf/tools/kconfig/lxdialog/yesno.o
