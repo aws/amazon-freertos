@@ -191,6 +191,11 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_Serializer_JSON );
         RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
     #endif
+
+    #if ( testrunnerFULL_HTTPS_CLIENT_ENABLED == 1)
+        RUN_TEST_GROUP( HTTPS_Client_Unit_API );
+        RUN_TEST_GROUP( HTTPS_Utils_Unit_API );
+    #endif
 }
 /*-----------------------------------------------------------*/
 
