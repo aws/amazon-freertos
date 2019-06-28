@@ -1481,10 +1481,12 @@ static void prvOTAUpdateTask( void * pvUnused )
                                             ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
                                         }
 									}
-                                    else if (OTA_GetImageState() == eOTA_ImageState_Unknown)
+                                    else
                                     {
-										/* If the job context returned NULL and the image state is unknown, then an error
-										 * occurred parsing the OTA job message.  Abort the OTA job with a parse error.
+										/* If the job context returned NULL and the image state is not in the self_test state,
+										 * then an error occurred parsing the OTA job message.  Abort the OTA job with a parse error.
+										 *
+										 * If there is a valid job id, then a job status update will be sent.
 										 */
 										( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_JobParserError );
 									}
