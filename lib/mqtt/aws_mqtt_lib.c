@@ -326,6 +326,16 @@
         ( srcIndex ) = ( uint32_t ) ( srcIndex ) + ( uint32_t ) ( byteCount );                           \
         ( dstIndex ) = ( uint32_t ) ( dstIndex ) + ( uint32_t ) ( byteCount );                           \
     }
+
+/**
+ * @brief Minimum size of a SUBACK packet.
+ *
+ * Fixed Header (2 bytes) + Packet ID (2 bytes) + Return Code(1 byte).
+ *
+ * Note that a SUBACK packet may contain more than one return code, each
+ * corresponding to a topic filter in the SUBSCRIBE packet being acknowledged.
+ */
+#define mqttSUBACK_PACKET_MIN_SIZE  5
 /*-----------------------------------------------------------*/
 
 /**
@@ -1216,7 +1226,8 @@ static void prvProcessReceivedCONNACK( MQTTContext_t * pxMQTTContext )
     }
     else
     {
-        if( mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer ) >= sizeof( ucDefaultCONNACKParameters ) )
+        /* Size of a CONNACK packet is always 4. */
+        if( mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer ) == sizeof( ucDefaultCONNACKParameters ) )
         {
             /* Received enough data for a CONNACK - does the received fixed header match
              * the expected one for the CONNACK message (Fixed header is of 2 bytes for CONNACK
@@ -1295,7 +1306,7 @@ static void prvProcessReceivedCONNACK( MQTTContext_t * pxMQTTContext )
         }
         else
         {
-            /* Malformed packet - Not enough bytes. */
+            /* Malformed packet - Incorrect size. */
             xMalformedPacket = eMQTTTrue;
         }
 
@@ -1350,10 +1361,15 @@ static void prvProcessReceivedSUBACK( MQTTContext_t * pxMQTTContext )
     MQTTBool_t xMalformedPacket = eMQTTFalse;
     uint8_t ucReturnCode;
     uint16_t usPacketIdentifier;
+    uint32_t ulMQTTPacketLength; /* Total length of the received MQTT packet. */
 
-    /* Must have enough bytes to at least read out one return code. */
-    if( mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer ) > ( uint32_t ) mqttADJUST_OFFSET( mqttSUBACK_RETURN_CODE_OFFSET,
-                                                                                                pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) )
+    /* Populate total length of the received MQTT packet. */
+    ulMQTTPacketLength = mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer );
+
+    /* Since we support only one topic filter in SUBSCRIBE message, the length
+     * of the SUBACK packet must be 5 = Fixed Header(2 bytes) + Packet ID(2 bytes)
+     * + Return Code (1 bytes). */
+    if( ulMQTTPacketLength == mqttSUBACK_PACKET_MIN_SIZE )
     {
         /* Extract the packet identifier and see if there is a subscribe
          * packet waiting for ACK. */
@@ -1425,7 +1441,7 @@ static void prvProcessReceivedSUBACK( MQTTContext_t * pxMQTTContext )
     }
     else
     {
-        /* Malformed packet - not enough bytes. */
+        /* Malformed packet - Incorrect size. */
         xMalformedPacket = eMQTTTrue;
     }
 
@@ -1459,10 +1475,8 @@ static void prvProcessReceivedUNSUBACK( MQTTContext_t * pxMQTTContext )
         2,                                         /* Fixed header remaining length - always 2 for UNSUBACK. */
     };
 
-    /* Must have enough bytes to form a complete UNSUBACK packet
-     * which contains 2 byte packet identifier other than the fixed
-     * header. */
-    if( mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer ) >= ( sizeof( ucUNSUBACKFixedHeader ) + ( uint32_t ) mqttUNSUBACK_PACKET_IDENTIFER_LENGTH ) )
+    /* Size of an UNSUBACK packet is always 4. */
+    if( mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer ) == ( sizeof( ucUNSUBACKFixedHeader ) + ( uint32_t ) mqttUNSUBACK_PACKET_IDENTIFER_LENGTH ) )
     {
         /* Received enough data for an UNSUBACK - does the received fixed header match
          * the expected one for the UNSUBACK message (Fixed header is of 2 bytes for UNSUBACK
@@ -1513,7 +1527,7 @@ static void prvProcessReceivedUNSUBACK( MQTTContext_t * pxMQTTContext )
     }
     else
     {
-        /* Malformed packet - not enough bytes. */
+        /* Malformed packet - Incorrect size. */
         xMalformedPacket = eMQTTTrue;
     }
 
@@ -1547,10 +1561,8 @@ static void prvProcessReceivedPUBACK( MQTTContext_t * pxMQTTContext )
         2,                                     /* Fixed header remaining length - always 2 for PUBACK. */
     };
 
-    /* Must have enough bytes to form a complete PUBACK packet
-     * which contains 2 byte packet identifier other than the fixed
-     * header. */
-    if( mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer ) >= ( sizeof( ucPUBACKFixedHeader ) + ( uint32_t ) mqttPUBACK_PACKET_IDENTIFER_LENGTH ) )
+    /* Size of a PUBACK packet is always 4. */
+    if( mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer ) == ( sizeof( ucPUBACKFixedHeader ) + ( uint32_t ) mqttPUBACK_PACKET_IDENTIFER_LENGTH ) )
     {
         /* Received enough data for a PUBACK - does the received fixed header match
          * the expected one for the PUBACK message (Fixed header is of 2 bytes for PUBACK
@@ -1593,7 +1605,7 @@ static void prvProcessReceivedPUBACK( MQTTContext_t * pxMQTTContext )
     }
     else
     {
-        /* Malformed packet - not enough bytes. */
+        /* Malformed packet - Incorrect size. */
         xMalformedPacket = eMQTTTrue;
     }
 
@@ -1626,7 +1638,7 @@ static void prvProcessReceivedPINGRESP( MQTTContext_t * pxMQTTContext )
     };
 
     /* Did we receive a valid PINGRESP? */
-    if( pxMQTTContext->ulRxMessageReceivedLength >= sizeof( ucPingRespPacket ) )
+    if( pxMQTTContext->ulRxMessageReceivedLength == sizeof( ucPingRespPacket ) )
     {
         if( memcmp( pxMQTTContext->ucRxFixedHeaderBuffer, ucPingRespPacket, sizeof( ucPingRespPacket ) ) == 0 )
         {
@@ -1674,6 +1686,9 @@ static void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext )
     MQTTEventCallbackParams_t xEventCallbackParams;
     uint8_t ucPacketIdentiferLength; /* Length in bytes taken by the packet identifier field in the received publish packet. */
     uint8_t ucQos;
+    uint32_t ulMQTTPacketLength; /* Total length of the received MQTT packet. */
+    uint32_t ulNextOffset;
+    MQTTBool_t xMalformedPacket = eMQTTFalse;
     static uint8_t ucPUBACKPacket[] =
     {
         mqttCONTROL_PUBACK | mqttFLAGS_PUBACK, /* Fixed header control packet type. */
@@ -1685,6 +1700,9 @@ static void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext )
     /* A broker has sent a message to this client.  Decode it, then pass the
      * decoded message into an application defined callback. */
     xEventCallbackParams.xEventType = eMQTTPublish;
+
+    /* Populate total length of the received MQTT packet. */
+    ulMQTTPacketLength = mqttbufferGET_DATA_LENGTH( pxMQTTContext->xRxBuffer );
 
     /*_TODO_ Do we want to expose DUP and RETAIN? */
     ucQos = mqttPUBLISH_QoS_BITS( mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ mqttFIXED_HEADER_CONTROL_BYTE_OFFSET ] );
@@ -1703,54 +1721,106 @@ static void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext )
             ucPacketIdentiferLength = mqttPUBLISH_QOS1_PACKET_IDENTIFER_LENGTH;
         }
 
-        /* Extract Topic Length. */
-        xEventCallbackParams.u.xPublishData.usTopicLength = ( uint16_t ) mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_LENGTH_MSB,
-                                                                                                                                            pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) ];
-        xEventCallbackParams.u.xPublishData.usTopicLength <<= mqttBITS_PER_BYTE;
-        xEventCallbackParams.u.xPublishData.usTopicLength |= ( uint16_t ) mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_LENGTH_LSB,
-                                                                                                                                             pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) ];
+        /* Topic length offset. */
+        ulNextOffset = mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_LENGTH_MSB,
+                                          pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes );
 
-        /* Extract Topic. */
-        xEventCallbackParams.u.xPublishData.pucTopic = &( mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
-                                                                                                                             pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) ] );
-
-        /* Extract Published Data. */
-        xEventCallbackParams.u.xPublishData.pvData = ( void * ) &( mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
-                                                                                                                                      pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) +
-                                                                                                                   xEventCallbackParams.u.xPublishData.usTopicLength +
-                                                                                                                   ucPacketIdentiferLength ] ); /*lint !e9087 Publish data is provided as void* to the user. */
-
-        /* Topic string is followed by packet identifier which is
-         * followed by actual data. NOte that QoS0 publishes do not
-         * have packet identifier. */
-        xEventCallbackParams.u.xPublishData.ulDataLength = pxMQTTContext->xRxMessageState.ulTotalMessageLength - ( mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
-                                                                                                                                      pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) +
-                                                                                                                   xEventCallbackParams.u.xPublishData.usTopicLength +
-                                                                                                                   ucPacketIdentiferLength );
-
-        /* Pass the handle of the buffer containing the whole MQTT message. */
-        xEventCallbackParams.u.xPublishData.xBuffer = pxMQTTContext->xRxBuffer;
-
-        /* If this is a QoS1 publish, send the PUBACK before invoking the
-         * callback. */
-        if( xEventCallbackParams.u.xPublishData.xQos == eMQTTQoS1 )
+        /* Ensure that there are enough bytes to read topic length. +1 is to
+         * ensure that we can read both LSB and MSB. */
+        if( ulNextOffset + 1 < ulMQTTPacketLength )
         {
-            /* Extract the packet identifier from the publish message
-             * to set the same in PUBACK message. */
-            ucPUBACKPacket[ mqttPUBACK_PACKET_ID_MSB_OFFSET ] = mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
-                                                                                                                                   pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) +
-                                                                                                                xEventCallbackParams.u.xPublishData.usTopicLength ];
-            ucPUBACKPacket[ mqttPUBACK_PACKET_ID_LSB_OFFSET ] = mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
-                                                                                                                                   pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) +
-                                                                                                                xEventCallbackParams.u.xPublishData.usTopicLength +
-                                                                                                                ( uint16_t ) 1 /* Packet ID LSB follows MSB. */ ];
+            xEventCallbackParams.u.xPublishData.usTopicLength = ( uint16_t ) mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ ulNextOffset ]; /* Read MSB. */
+            xEventCallbackParams.u.xPublishData.usTopicLength <<= mqttBITS_PER_BYTE;
+            xEventCallbackParams.u.xPublishData.usTopicLength |= ( uint16_t ) mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ ulNextOffset + 1 ]; /* Read LSB. */
 
-            /* Send a PUBACK to the broker confirming the receipt
-             * of the publish message. If we fail to send the PUBACK,
-             * we will receive the same publish message again. */
-            ( void ) prvSendData( pxMQTTContext, ucPUBACKPacket, ( uint32_t ) sizeof( ucPUBACKPacket ) );
+            /* Topic string offset. */
+            ulNextOffset = mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
+                                              pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes );
+
+            /* Ensure that there are enough bytes to read topic name. */
+            if( ( ulNextOffset + ( uint32_t ) xEventCallbackParams.u.xPublishData.usTopicLength - ( uint32_t ) 1 ) < ulMQTTPacketLength )
+            {
+                /* Extract Topic. */
+                xEventCallbackParams.u.xPublishData.pucTopic = &( mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ ulNextOffset ] );
+
+                /* Publish data offset. */
+                ulNextOffset = mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
+                                                  pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) +
+                               xEventCallbackParams.u.xPublishData.usTopicLength +
+                               ucPacketIdentiferLength;
+
+                /* Ensure that there are data bytes. */
+                if( ulNextOffset < ulMQTTPacketLength )
+                 {
+                    /* Extract Published Data. */
+                    xEventCallbackParams.u.xPublishData.pvData = ( void * ) &( mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ ulNextOffset ] ); /*lint !e9087 Publish data is provided as void* to the user. */
+
+                    /* Topic string is followed by packet identifier which is
+                     * followed by actual data. Note that QoS0 publishes do not
+                     * have packet identifier. */
+                    xEventCallbackParams.u.xPublishData.ulDataLength = ulMQTTPacketLength - ulNextOffset;
+
+                    /* Pass the handle of the buffer containing the whole MQTT message. */
+                    xEventCallbackParams.u.xPublishData.xBuffer = pxMQTTContext->xRxBuffer;
+
+                    /* If this is a QoS1 publish, send the PUBACK before invoking the
+                     * callback. */
+                    if( xEventCallbackParams.u.xPublishData.xQos == eMQTTQoS1 )
+                    {
+                        /* Packet identifier offset. */
+                        ulNextOffset = mqttADJUST_OFFSET( mqttPUBLISH_TOPIC_STRING_OFFSET,
+                                                          pxMQTTContext->xRxMessageState.ucRemaingingLengthFieldBytes ) +
+                                       xEventCallbackParams.u.xPublishData.usTopicLength;
+
+                        /* Ensure that there are enough bytes to read packet identifier. +1
+                         * is to ensure that we can read both LSB and MSB. */
+                        if( ulNextOffset + 1 < ulMQTTPacketLength )
+                        {
+                            /* Extract the packet identifier from the publish message
+                             * to set the same in PUBACK message. */
+                            ucPUBACKPacket[ mqttPUBACK_PACKET_ID_MSB_OFFSET ] = mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ ulNextOffset ];
+                            ucPUBACKPacket[ mqttPUBACK_PACKET_ID_LSB_OFFSET ] = mqttbufferGET_DATA( pxMQTTContext->xRxBuffer )[ ulNextOffset + 1 ]; /* Packet ID LSB follows MSB. */
+
+                            /* Send a PUBACK to the broker confirming the receipt
+                             * of the publish message. If we fail to send the PUBACK,
+                             * we will receive the same publish message again. */
+                            ( void ) prvSendData( pxMQTTContext, ucPUBACKPacket, ( uint32_t ) sizeof( ucPUBACKPacket ) );
+                        }
+                        else
+                        {
+                            /* It is a malformed packet - Not enough bytes to
+                             * read packet identifier. */
+                            xMalformedPacket = eMQTTTrue;
+                        }
+                    }
+                }
+                else
+                {
+                    /* It is a malformed packet - Not enough data bytes. */
+                    xMalformedPacket = eMQTTTrue;
+                }
+            }
+            else
+            {
+                /* It is a malformed packet - Not enough bytes to read topic name. */
+                xMalformedPacket = eMQTTTrue;
+            }
         }
+        else
+        {
+            /* It is a malformed packet - Not enough bytes to read topic length. */
+            xMalformedPacket = eMQTTTrue;
+        }
+    }
+    else
+    {
+        /* QoS2 is not supported and hence consider this as a malformed packet. */
+        xMalformedPacket = eMQTTTrue;
+    }
 
+    /* Invoke the user callback if a valid packet was received. */
+    if( xMalformedPacket == eMQTTFalse )
+    {
         /* If the user chooses not to take the ownership of the buffer,
          * return it back to the free buffer pool. */
         if( prvInvokeCallback( pxMQTTContext, &xEventCallbackParams ) == eMQTTFalse )
@@ -1760,8 +1830,7 @@ static void prvProcessReceivedPublish( MQTTContext_t * pxMQTTContext )
     }
     else
     {
-        /* A publish packet with QoS2 is considered malformed and
-         * we disconnect. */
+        /* Reset the context. */
         prvResetMQTTContext( pxMQTTContext );
 
         /* Inform user about the malformed packet received. */

@@ -52,6 +52,15 @@
 #define testmqttlibCALLBACK_CONTEXT           ( void * ) ( 0x5a5a5a5a )
 
 /**
+ * @brief The publish callback context registered with the MQTT Core library.
+ *
+ * The same context is returned in the MQTT publish callback. This specific
+ * value is used to check that the library indeed passes the same context
+ * back.
+ */
+#define testmqttlibPUBLISH_CALLBACK_CONTEXT   ( void * ) ( 0x12345678 )
+
+/**
  * @brief The send context registered with the MQTT Code library.
  *
  * The same context us returned in the network send callback. This specific
@@ -66,6 +75,11 @@
 #define testmqttlibCONNECT_PACKET_ID          ( 1 )
 
 /**
+ * @brief Packet ID of the subscribe message.
+ */
+#define testmqttlibSUBSCRIBE_PACKET_ID        ( 2 )
+
+/**
  * @brief Number of ticks after which an operation should timeout.
  */
 #define testmqttlibOPERATION_TIMEOUT_TICKS    ( 1000 )
@@ -74,11 +88,19 @@
  * @brief MQTT Control packet types.
  */
 #define mqttCONTROL_CONNACK                   ( ( uint8_t ) 2 << ( uint8_t ) 4 )
+#define mqttCONTROL_SUBACK                    ( ( uint8_t ) 9 << ( uint8_t ) 4 )
+#define mqttCONTROL_PUBLISH                   ( ( uint8_t ) 3 << ( uint8_t ) 4 )
 
 /**
  * @brief MQTT Control packet flags.
  */
 #define mqttFLAGS_CONNACK                     ( ( uint8_t ) 0 ) /**< Reserved. */
+#define mqttFLAGS_SUBACK                      ( ( uint8_t ) 0 ) /**< Reserved. */
+
+/**
+ * @brief Topic for publishing and subscribing.
+ */
+#define testmqttlibPUB_SUB_TOPIC              ( "test" )
 /*-----------------------------------------------------------*/
 
 /**
@@ -90,6 +112,8 @@ typedef struct CallbackCounter
     uint32_t ulConnACK;           /**< Number of times the callback is invoked for CONNACK message. */
     uint32_t ulUnexpectedConnACK; /**< Number of times the callback is invoked for unexpected CONNACK messages. */
     uint32_t ulDisconnect;        /**< Number of times the callback is invoked for disconnect message. */
+    uint32_t ulSubACK;            /**< Number of times the callback is invoked for SUBACK message. */
+    uint32_t ulPublish;           /**< Number of times the publish callback is invoked for publish message. */
     uint32_t ulUnidentified;      /**< Number of times the callback is invoked for un-handled events. */
 } CallbackCounter_t;
 /*-----------------------------------------------------------*/
@@ -124,6 +148,26 @@ static CallbackCounter_t xCallbackCounter;
  */
 static MQTTBool_t prvMQTTEventCallback( void * pvCallbackContext,
                                         const MQTTEventCallbackParams_t * const pxParams );
+
+/**
+ * @brief The MQTT publish callback registered with the MQTT library.
+ *
+ * In this case, we just update the callback counters for checking later after
+ * the test finishes.
+ *
+ * @param[in] pvPublishCallbackContext The callback context as supplied by the user in the
+ * subscribe parameters.
+ * @param[in] pxPublishData The publish data.
+ *
+ * * @return The return value is interpreted as follows:
+ * 1. If eMQTTTrue is returned - the ownership of the buffer passed in the callback (xBuffer
+ * in MQTTPublishData_t) lies with the user.
+ * 2. If eMQTTFalse is returned - the ownership of the buffer passed in the callback (xBuffer
+ * in MQTTPublishData_t) remains with the library and it is recycled as soon as the callback
+ * returns.
+ */
+static MQTTBool_t prvMQTTPublishCallback( void * pvPublishCallbackContext,
+                                          const MQTTPublishData_t * const pxPublishData );
 
 /**
  * @brief The send callback registered with the MQTT library.
@@ -178,12 +222,35 @@ static MQTTReturnCode_t prvInitializeMQTTContext( void );
 static MQTTReturnCode_t prvSendMQTTConnect( void );
 
 /**
+ * @brief Sends MQTT subscribe message by calling MQTT_Subscribe.
+ *
+ * @return The return value of MQTT_Subscribe.
+ */
+static MQTTReturnCode_t prvSendMQTTSubscribe( void );
+
+/**
  * @brief Mimics receiving a CONNACK message by passing a valid CONNACK message
  * to MQTT_ParseReceivedData.
  *
  * @return The return value of MQTT_ParseReceivedData.
  */
 static MQTTReturnCode_t prvReceiveMQTTConnACK( void );
+
+/**
+ * @brief Mimics receiving a SUBACK message by passing a valid SUBACK message
+ * to MQTT_ParseReceivedData.
+ *
+ * @return The return value of MQTT_ParseReceivedData.
+ */
+static MQTTReturnCode_t prvReceiveMQTTSubACK( void );
+
+/**
+ * @brief Mimics receiving a Publish message from the broker by passing a valid
+ * Publish message to MQTT_ParseReceivedData.
+ *
+ * @return The return value of MQTT_ParseReceivedData.
+ */
+static MQTTReturnCode_t prvReceiveMQTTPublish( void );
 /*-----------------------------------------------------------*/
 
 static MQTTBool_t prvMQTTEventCallback( void * pvCallbackContext,
@@ -213,6 +280,10 @@ static MQTTBool_t prvMQTTEventCallback( void * pvCallbackContext,
 
             break;
 
+        case eMQTTSubACK:
+            xCallbackCounter.ulSubACK += 1;
+            break;
+
         default:
             xCallbackCounter.ulUnidentified += 1;
 
@@ -221,6 +292,20 @@ static MQTTBool_t prvMQTTEventCallback( void * pvCallbackContext,
 
     /* This value is ignored for all events other than the
      * publish messages received from the broker. */
+    return eMQTTFalse;
+}
+/*-----------------------------------------------------------*/
+
+static MQTTBool_t prvMQTTPublishCallback( void * pvPublishCallbackContext,
+                                          const MQTTPublishData_t * const pxPublishData )
+{
+    /* Ensure that the correct callback context was supplied
+     * back by the library. */
+    TEST_ASSERT_EQUAL( pvPublishCallbackContext, testmqttlibPUBLISH_CALLBACK_CONTEXT );
+
+    xCallbackCounter.ulPublish += 1;
+
+    /* Do not take the ownership of the buffer. */
     return eMQTTFalse;
 }
 /*-----------------------------------------------------------*/
@@ -254,6 +339,8 @@ static void prvInitializeCallbackCounter( void )
     xCallbackCounter.ulConnACK = 0;
     xCallbackCounter.ulUnexpectedConnACK = 0;
     xCallbackCounter.ulDisconnect = 0;
+    xCallbackCounter.ulSubACK = 0;
+    xCallbackCounter.ulPublish = 0;
     xCallbackCounter.ulUnidentified = 0;
 }
 /*-----------------------------------------------------------*/
@@ -304,6 +391,28 @@ static MQTTReturnCode_t prvSendMQTTConnect( void )
 }
 /*-----------------------------------------------------------*/
 
+static MQTTReturnCode_t prvSendMQTTSubscribe( void )
+{
+    MQTTSubscribeParams_t xSubscribeParams;
+    MQTTReturnCode_t xReturnCode;
+
+    /* Setup subscribe parameters. */
+    xSubscribeParams.pucTopic = ( const uint8_t * ) testmqttlibPUB_SUB_TOPIC;
+    xSubscribeParams.usTopicLength = ( uint16_t ) strlen( testmqttlibPUB_SUB_TOPIC );
+    xSubscribeParams.xQos = eMQTTQoS0;
+    xSubscribeParams.usPacketIdentifier = testmqttlibSUBSCRIBE_PACKET_ID;
+    xSubscribeParams.ulTimeoutTicks = testmqttlibOPERATION_TIMEOUT_TICKS;
+    xSubscribeParams.pvPublishCallbackContext = testmqttlibPUBLISH_CALLBACK_CONTEXT;
+    xSubscribeParams.pxPublishCallback = &( prvMQTTPublishCallback );
+
+    /* Send MQTT subscribe. */
+    xReturnCode = MQTT_Subscribe( &( xMQTTContext ), &( xSubscribeParams ) );
+
+    /* Return the returned code. */
+    return xReturnCode;
+}
+/*-----------------------------------------------------------*/
+
 static MQTTReturnCode_t prvReceiveMQTTConnACK( void )
 {
     MQTTReturnCode_t xReturnCode;
@@ -317,6 +426,47 @@ static MQTTReturnCode_t prvReceiveMQTTConnACK( void )
 
     /* Receive CONNACK. */
     xReturnCode = MQTT_ParseReceivedData( &( xMQTTContext ), ucConnACKMessage, sizeof( ucConnACKMessage ) );
+
+    /* Return the returned code. */
+    return xReturnCode;
+}
+/*-----------------------------------------------------------*/
+
+static MQTTReturnCode_t prvReceiveMQTTSubACK( void )
+{
+    MQTTReturnCode_t xReturnCode;
+    static const uint8_t ucSubACKMessage[] =
+    {
+        mqttCONTROL_SUBACK | mqttFLAGS_SUBACK,   /* Fixed header control packet type. */
+        3,                                       /* Fixed header remaining length. */
+        0,                                       /* Packet ID MSB. */
+        testmqttlibSUBSCRIBE_PACKET_ID,          /* Packet ID LSB. */
+        0,                                       /* Return code. */
+    };
+
+    /* Receive SUBACK. */
+    xReturnCode = MQTT_ParseReceivedData( &( xMQTTContext ), ucSubACKMessage, sizeof( ucSubACKMessage ) );
+
+    /* Return the returned code. */
+    return xReturnCode;
+}
+/*-----------------------------------------------------------*/
+
+static MQTTReturnCode_t prvReceiveMQTTPublish( void )
+{
+    MQTTReturnCode_t xReturnCode;
+    static const uint8_t ucPublishMessage[] =
+    {
+        mqttCONTROL_PUBLISH,                    /* Fixed header control packet type - DUP = 0, QOS = 0, RETAIN = 0. */
+        11,                                     /* Fixed header remaining length. */
+        0,                                      /* Topic Length MSB. */
+        4,                                      /* Topic Length LSB. */
+        't', 'e', 's', 't',                     /* Topic name. */
+        'h', 'e', 'l', 'l', 'o',                /* Publish data. */
+    };
+
+    /* Receive Publish. */
+    xReturnCode = MQTT_ParseReceivedData( &( xMQTTContext ), ucPublishMessage, sizeof( ucPublishMessage ) );
 
     /* Return the returned code. */
     return xReturnCode;
@@ -381,6 +531,10 @@ TEST_GROUP_RUNNER( Full_MQTT )
     RUN_TEST_CASE( Full_MQTT, AFQP_MQTT_Connect_SecondConnectWhileAlreadyConnected );
     RUN_TEST_CASE( Full_MQTT, AFQP_MQTT_Connect_SecondConnectWhileWaitingForConnACK );
     RUN_TEST_CASE( Full_MQTT, AFQP_MQTT_Connect_NetworkSendFailed );
+
+   /* MQTT_Publish tests. */
+    RUN_TEST_CASE( Full_MQTT, AFQP_MQTT_PublishHappyCase );
+    RUN_TEST_CASE( Full_MQTT, AFQP_MQTT_MalformedPublish );
 }
 /*-----------------------------------------------------------*/
 
@@ -1072,6 +1226,127 @@ TEST( Full_MQTT, AFQP_MQTT_Connect_NetworkSendFailed )
     TEST_ASSERT_EQUAL( eMQTTNotConnected, xMQTTContext.xConnectionState );
 
     /* No callback must have been invoked. */
+    TEST_ASSERT_EQUAL( 0, xCallbackCounter.ulUnidentified );
+}
+/*-----------------------------------------------------------*/
+
+TEST( Full_MQTT, AFQP_MQTT_PublishHappyCase )
+{
+    MQTTReturnCode_t xReturnCode;
+
+    /* Send MQTT Connect message. */
+    xReturnCode = prvSendMQTTConnect();
+
+    /* Connect must have been sent successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Connection state must be "in-progress". */
+    TEST_ASSERT_EQUAL( eMQTTConnectionInProgress, xMQTTContext.xConnectionState );
+
+    /* Receive CONNACK. */
+    xReturnCode = prvReceiveMQTTConnACK();
+
+    /* CONNACK must have been received successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Connection state must be "connected". */
+    TEST_ASSERT_EQUAL( eMQTTConnected, xMQTTContext.xConnectionState );
+
+    /* Callback must have been invoked for CONNACK. */
+    TEST_ASSERT_EQUAL( 1, xCallbackCounter.ulConnACK );
+
+    /* Send MQTT Subscribe message. */
+    xReturnCode = prvSendMQTTSubscribe();
+
+    /* Subscribe must have been sent successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Receive SUBACK. */
+    xReturnCode = prvReceiveMQTTSubACK();
+
+    /* SUBACK must have been received successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Callback must have been invoked for SUBACK. */
+    TEST_ASSERT_EQUAL( 1, xCallbackCounter.ulSubACK );
+
+    /* Receive Publish message from the broker. */
+    xReturnCode = prvReceiveMQTTPublish();
+
+    /* Publish message must have been received successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Callback must have been invoked for Publish. */
+    TEST_ASSERT_EQUAL( 1, xCallbackCounter.ulPublish );
+
+    /* No un-expected callback must have been invoked. */
+    TEST_ASSERT_EQUAL( 0, xCallbackCounter.ulUnidentified );
+}
+/*-----------------------------------------------------------*/
+
+TEST( Full_MQTT, AFQP_MQTT_MalformedPublish )
+{
+    MQTTReturnCode_t xReturnCode;
+    static const uint8_t ucMalformedPublishMessage[] =
+    {
+        mqttCONTROL_PUBLISH,                    /* Fixed header control packet type - DUP = 0, QOS = 0, RETAIN = 0. */
+        11,                                     /* Fixed header remaining length. */
+        0,                                      /* Topic Length MSB. */
+        10,                                     /* Topic Length LSB - Incorrect topic length in an attempt to cause out-of-bound read. */
+        't', 'e', 's', 't',                     /* Topic name. */
+        'h', 'e', 'l', 'l', 'o',                /* Publish data. */
+    };
+
+    /* Send MQTT Connect message. */
+    xReturnCode = prvSendMQTTConnect();
+
+    /* Connect must have been sent successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Connection state must be "in-progress". */
+    TEST_ASSERT_EQUAL( eMQTTConnectionInProgress, xMQTTContext.xConnectionState );
+
+    /* Receive CONNACK. */
+    xReturnCode = prvReceiveMQTTConnACK();
+
+    /* CONNACK must have been received successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Connection state must be "connected". */
+    TEST_ASSERT_EQUAL( eMQTTConnected, xMQTTContext.xConnectionState );
+
+    /* Callback must have been invoked for CONNACK. */
+    TEST_ASSERT_EQUAL( 1, xCallbackCounter.ulConnACK );
+
+    /* Send MQTT Subscribe message. */
+    xReturnCode = prvSendMQTTSubscribe();
+
+    /* Subscribe must have been sent successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Receive SUBACK. */
+    xReturnCode = prvReceiveMQTTSubACK();
+
+    /* SUBACK must have been received successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Callback must have been invoked for SUBACK. */
+    TEST_ASSERT_EQUAL( 1, xCallbackCounter.ulSubACK );
+
+    /* Receive a malformed Publish message from the broker. */
+    xReturnCode = MQTT_ParseReceivedData( &( xMQTTContext ), ucMalformedPublishMessage, sizeof( ucMalformedPublishMessage ) );
+
+    /* Publish must have been parsed successfully. */
+    TEST_ASSERT_EQUAL( eMQTTSuccess, xReturnCode );
+
+    /* Callback must have been invoked for disconnect since
+     * since a malformed packet must result in disconnect. */
+    TEST_ASSERT_EQUAL( 1, xCallbackCounter.ulDisconnect );
+
+    /* Connection state must be "not-connected". */
+    TEST_ASSERT_EQUAL( eMQTTNotConnected, xMQTTContext.xConnectionState );
+
+    /* No un-expected callback must have been invoked. */
     TEST_ASSERT_EQUAL( 0, xCallbackCounter.ulUnidentified );
 }
 /*-----------------------------------------------------------*/
