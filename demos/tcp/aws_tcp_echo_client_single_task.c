@@ -162,12 +162,12 @@ int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
     BaseType_t xX;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
 
-	/* Unused parameters */
-	( void )awsIotMqttMode;
-	( void )pIdentifier;
-	( void )pNetworkServerInfo;
-	( void )pNetworkCredentialInfo;
-	( void )pNetworkInterface;
+    /* Unused parameters */
+    ( void )awsIotMqttMode;
+    ( void )pIdentifier;
+    ( void )pNetworkServerInfo;
+    ( void )pNetworkCredentialInfo;
+    ( void )pNetworkInterface;
 
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
@@ -323,7 +323,7 @@ static void prvEchoClientTask( void * pvParameters )
                 /* If an error occurred it will be latched in xReceivedBytes,
                  * otherwise xReceived bytes will be just that - the number of
                  * bytes received from the echo server. */
-                if( xReceivedBytes > 0 )
+                if( xReceivedBytes == xTransmitted )
                 {
                     /* Compare the transmitted string to the received string. */
                     configASSERT( strncmp( pcReceivedString, pcTransmittedString, xTransmitted ) == 0 );
@@ -350,6 +350,11 @@ static void prvEchoClientTask( void * pvParameters )
                 }
                 else
                 {
+                    /* The received length did not match the transmitted
+                     * length. */
+                    ulTxRxFailures[ xInstance ]++;
+                    configPRINTF( ( "ERROR: xTransmitted %d xReceivedBytes %d \r\n",
+                                    ( int ) xTransmitted, ( int ) xReceivedBytes ) );
                     /* Timed out without receiving anything? */
                     break;
                 }
