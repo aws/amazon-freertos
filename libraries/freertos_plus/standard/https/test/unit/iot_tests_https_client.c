@@ -162,7 +162,7 @@ static IotNetworkError_t _networkCloseSuccess(void * pConnection)
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Network Abstraction create function that succeeds
+ * @brief Network Abstraction create function that succeeds.
  */
 
 static IotNetworkError_t _networkCreateSuccess(void * pConnectionInfo, void * pCredentialInfo, void ** pConnection)
@@ -171,6 +171,19 @@ static IotNetworkError_t _networkCreateSuccess(void * pConnectionInfo, void * pC
     (void)pCredentialInfo;
     (void)pConnection;
     return IOT_NETWORK_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network Abstraction create function that fails.
+ */
+static IotNetworkError_t _networkCreateFail(void * pConnectionInfo, void * pCredentialInfo, void ** pConnection)
+{
+    (void)pConnectionInfo;
+    (void)pCredentialInfo;
+    (void)pConnection;
+    return IOT_NETWORK_FAILURE;
 }
 
 /*-----------------------------------------------------------*/
@@ -186,6 +199,21 @@ static IotNetworkError_t _setReceiveCallbackSuccess( void * pConnection,
     (void)receiveCallback;
     (void)pContext;
     return IOT_NETWORK_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network Abstraction setReceiveCallback that fails.
+ */
+static IotNetworkError_t _setReceiveCallbackFail( void * pConnection, 
+                                                     IotNetworkReceiveCallback_t receiveCallback,
+                                                     void * pContext )
+{
+    (void)pConnection;
+    (void)receiveCallback;
+    (void)pContext;
+    return IOT_NETWORK_FAILURE;
 }
 
 /*-----------------------------------------------------------*/
@@ -235,6 +263,8 @@ TEST_TEAR_DOWN( HTTPS_Client_Unit_API )
 TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
 {
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ConnectInvalidParameters);
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, ConnectFailure);
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, ConnectSuccess);
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectInvalidParameters );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectFailure );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectSuccess );
@@ -310,6 +340,51 @@ TEST( HTTPS_Client_Unit_API, ConnectInvalidParameters)
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
 }
 
+/* --------------------------------------------------------- */
+
+/**
+ * @brief Test a connection failing in few network abstraction upset scenarios.
+ */
+TEST( HTTPS_Client_Unit_API, ConnectFailure)
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+
+    /* Test that we receive an internal error when setReceiveCallback() returns failure. */
+    _networkInterface.create = _networkCreateSuccess;
+    _networkInterface.setReceiveCallback = _setReceiveCallbackFail;
+    _networkInterface.close = _networkCloseSuccess;
+    returnCode = IotHttpsClient_Connect(&connHandle, &_connInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INTERNAL_ERROR, returnCode);
+    TEST_ASSERT_NULL(connHandle);
+
+    /* Test that we receive a connection error when create() returns failure. */
+    _networkInterface.create = _networkCreateFail;
+    _networkInterface.setReceiveCallback = _setReceiveCallbackSuccess;
+    _networkInterface.close = _networkCloseSuccess;
+    returnCode = IotHttpsClient_Connect(&connHandle, &_connInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_CONNECTION_ERROR, returnCode);
+    TEST_ASSERT_NULL(connHandle);
+
+}
+
+/* --------------------------------------------------------- */
+
+/**
+ * @brief Test a connection succeeding.
+ */
+TEST( HTTPS_Client_Unit_API, ConnectSuccess)
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+
+    _networkInterface.create = _networkCreateSuccess;
+    _networkInterface.setReceiveCallback = _setReceiveCallbackSuccess;
+    returnCode = IotHttpsClient_Connect(&connHandle, &_connInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    TEST_ASSERT_NOT_NULL(connHandle);
+}
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -338,6 +413,7 @@ TEST( HTTPS_Client_Unit_API, DisconnectFailure )
     /* Set the network interface close to mock a failure. */
     _networkInterface.close = _networkCloseFail;
     connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL( connHandle );
 
     returnCode = IotHttpsClient_Disconnect(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
@@ -358,6 +434,7 @@ TEST( HTTPS_Client_Unit_API, DisconnectSuccess )
     /* Set the network interface close to mock a success. */
     _networkInterface.close = _networkCloseSuccess;
     connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL( connHandle );
 
     returnCode = IotHttpsClient_Disconnect(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
