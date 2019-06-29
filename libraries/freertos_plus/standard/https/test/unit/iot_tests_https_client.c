@@ -140,6 +140,71 @@ static IotHttpsConnectionInfo_t _connInfo = {
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Network Abstraction close function that fails. 
+ */
+static IotNetworkError_t _networkCloseFail(void * pConnection)
+{
+    (void)pConnection;
+    return IOT_NETWORK_FAILURE;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network Abstraction close function that succeeds.
+ */
+static IotNetworkError_t _networkCloseSuccess(void * pConnection)
+{
+    (void)pConnection;
+    return IOT_NETWORK_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network Abstraction create function that succeeds
+ */
+
+static IotNetworkError_t _networkCreateSuccess(void * pConnectionInfo, void * pCredentialInfo, void ** pConnection)
+{
+    (void)pConnectionInfo;
+    (void)pCredentialInfo;
+    (void)pConnection;
+    return IOT_NETWORK_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network Abstraction setReceiveCallback that succeeds.
+ */
+static IotNetworkError_t _setReceiveCallbackSuccess( void * pConnection, 
+                                                     IotNetworkReceiveCallback_t receiveCallback,
+                                                     void * pContext )
+{
+    (void)pConnection;
+    (void)receiveCallback;
+    (void)pContext;
+    return IOT_NETWORK_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Get a valid connected state intialized connection handle using _pConnUserBuffer and _connInfo.
+ */
+static IotHttpsConnectionHandle_t _getConnHandle( void )
+{
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    _networkInterface.create = _networkCreateSuccess;
+    _networkInterface.setReceiveCallback = _setReceiveCallbackSuccess;
+    IotHttpsClient_Connect(&connHandle, &_connInfo);
+    return connHandle;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Test group for HTTPS Client API tests.
  */
 TEST_GROUP( HTTPS_Client_Unit_API );
@@ -170,6 +235,9 @@ TEST_TEAR_DOWN( HTTPS_Client_Unit_API )
 TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
 {
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ConnectInvalidParameters);
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectInvalidParameters );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectFailure );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectSuccess );
 }
 
 /*-----------------------------------------------------------*/
@@ -240,4 +308,58 @@ TEST( HTTPS_Client_Unit_API, ConnectInvalidParameters)
     testConnInfo.pNetworkInterface = NULL;
     returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test various invalid parameters in the @ref https_client_function_disconnect API. 
+ */
+TEST( HTTPS_Client_Unit_API, DisconnectInvalidParameters)
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+
+    /* NULL connHandle. */
+    returnCode = IotHttpsClient_Disconnect(NULL);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that we set the connection in the correct state when a disconnect fails.
+ */
+TEST( HTTPS_Client_Unit_API, DisconnectFailure )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+
+    /* Set the network interface close to mock a failure. */
+    _networkInterface.close = _networkCloseFail;
+    connHandle = _getConnHandle();
+
+    returnCode = IotHttpsClient_Disconnect(connHandle);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
+    /* The state is disconnected even if the network failed. */
+    TEST_ASSERT_FALSE(connHandle->isConnected);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that we set the connection in  the correct state when a disconnect succeeds.
+ */
+TEST( HTTPS_Client_Unit_API, DisconnectSuccess )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+ 
+    /* Set the network interface close to mock a success. */
+    _networkInterface.close = _networkCloseSuccess;
+    connHandle = _getConnHandle();
+
+    returnCode = IotHttpsClient_Disconnect(connHandle);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    TEST_ASSERT_FALSE(connHandle->isConnected);
 }
