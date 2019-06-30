@@ -67,19 +67,24 @@
 #define HTTPS_TEST_METHOD                           IOT_HTTPS_METHOD_GET
 
 /**
- * @brief Expected HTTP request line.
+ * @brief Expected HTTP request line without the method.
  */
-#define HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD      HTTPS_TEST_PATH " HTTP/1.1\r\n"
+#define HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD      HTTPS_TEST_PATH " " HTTPS_PROTOCOL_VERSION HTTPS_END_OF_HEADER_LINES_INDICATOR
+
+/**
+ * @brief Expected HTTP request line without the path and without the method.
+ */
+#define HTTPS_TEST_REQUEST_LINE_WITHOUT_PATH_WITHOUT_METHOD     HTTPS_EMPTY_PATH " " HTTPS_PROTOCOL_VERSION HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
  * @brief Expected HTTP User-Agent header line.
  */
-#define HTTPS_TEST_USER_AGENT_HEADER_LINE           "User-Agent: " IOT_HTTPS_USER_AGENT "\r\n"
+#define HTTPS_TEST_USER_AGENT_HEADER_LINE           HTTPS_USER_AGENT_HEADER HTTPS_HEADER_FIELD_SEPARATOR IOT_HTTPS_USER_AGENT HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
  * @brief Expected HTTP Host header line.
  */
-#define HTTPS_TEST_HOST_HEADER_LINE                  "Host: " HTTPS_TEST_ADDRESS "\r\n"
+#define HTTPS_TEST_HOST_HEADER_LINE                 HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_TEST_ADDRESS HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
  * @brief Test HTTP/1.1 protocol to share among the tests.
@@ -305,6 +310,18 @@ static IotHttpsConnectionHandle_t _getConnHandle( void )
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Get a valid request handle using _pReqUserBuffer and _reqInfo.
+ */
+static IotHttpsRequestHandle_t _getReqHandle( void )
+{
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsClient_InitializeRequest(&reqHandle, &_reqInfo);
+    return reqHandle;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Test group for HTTPS Client API tests.
  */
 TEST_GROUP( HTTPS_Client_Unit_API );
@@ -341,7 +358,10 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectFailure );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectSuccess );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters);
-    RUN_TEST_CASE(HTTPS_Client_Unit_API, InitializeRequestFormatCheck );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, InitializeRequestFormatCheck );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, AddHeaderInvalidParameters);
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, AddHeaderFormatCheck );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, AddHeaderMultipleHeaders );
 }
 
 /*-----------------------------------------------------------*/
@@ -653,25 +673,156 @@ TEST(HTTPS_Client_Unit_API, InitializeRequestFormatCheck )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
-    char * location = NULL;
+    char * pLocation = NULL;
+    int strncmpResult = -1;
+    char * pSavedPath = NULL;
 
     /* Initialize the request using the statically defined configurations. */
     returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &_reqInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
     TEST_ASSERT_NOT_NULL(reqHandle);
 
+    /* Check that the HTTP method is correct at the start of the header buffer space. */
+    strncmpResult = strncmp(reqHandle->pHeaders, _pHttpsMethodStrings[_reqInfo.method], strlen(_pHttpsMethodStrings[_reqInfo.method]));
+    TEST_ASSERT_EQUAL(0, strncmpResult);
+
     /* Check the request first line in the header buffer space. */
-    location = strstr(reqHandle->pHeaders, HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD );
-    TEST_ASSERT_NOT_NULL(location);
-    TEST_ASSERT_EQUAL(0, strncmp(location, HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD, strlen( HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD )));
+    pLocation = strstr(reqHandle->pHeaders, HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD );
+    TEST_ASSERT_NOT_NULL(pLocation);
 
     /* Check the User-Agent header line. */
-    location = strstr(reqHandle->pHeaders, HTTPS_TEST_USER_AGENT_HEADER_LINE);
-    TEST_ASSERT_NOT_NULL(location);
-    TEST_ASSERT_EQUAL(0, strncmp(location, HTTPS_TEST_USER_AGENT_HEADER_LINE, strlen(HTTPS_TEST_USER_AGENT_HEADER_LINE)));
+    pLocation = strstr(reqHandle->pHeaders, HTTPS_TEST_USER_AGENT_HEADER_LINE);
+    TEST_ASSERT_NOT_NULL(pLocation);
 
     /* Check the Host header line. */
-    location = strstr(reqHandle->pHeaders, HTTPS_TEST_HOST_HEADER_LINE);
-    TEST_ASSERT_NOT_NULL(location);
-    TEST_ASSERT_EQUAL(0, strncmp(location, HTTPS_TEST_HOST_HEADER_LINE, strlen(HTTPS_TEST_HOST_HEADER_LINE)));
+    pLocation = strstr(reqHandle->pHeaders, HTTPS_TEST_HOST_HEADER_LINE);
+    TEST_ASSERT_NOT_NULL(pLocation);
+
+    /* Check that for a NULL IotHttpsRequestInfo_t.pPath, we insert a "/" automatically. */
+    pSavedPath = _reqInfo.pPath;
+    _reqInfo.pPath = NULL;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &_reqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    TEST_ASSERT_NOT_NULL(reqHandle);
+    pLocation = strstr(reqHandle->pHeaders, HTTPS_TEST_REQUEST_LINE_WITHOUT_PATH_WITHOUT_METHOD);
+    TEST_ASSERT_NOT_NULL(pLocation);
+    /* Restore the IotHttpsRequestInfo_t.pPath for other tests. */
+    _reqInfo.pPath = pSavedPath;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test IotHttpsClient_AddHeader() with various invalid parameters.
+ */
+TEST( HTTPS_Client_Unit_API, AddHeaderInvalidParameters)
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    char * pTestName = "Accept";
+    char * pTestValue = "text";
+    char * pTestContentLengthValueStr = "0";
+    uint32_t testLen = strlen(pTestValue);
+
+    /* Get a valid request handle with some header buffer space. */
+    reqHandle = _getReqHandle();
+    TEST_ASSERT_NOT_NULL( reqHandle );
+
+    /* Test parameter reqHandle is NULL. */
+    returnCode = IotHttpsClient_AddHeader(NULL, pTestName, pTestValue, testLen);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+
+    /* Test parameter pTestName is NULL. */
+    returnCode = IotHttpsClient_AddHeader(reqHandle, NULL, pTestValue, testLen);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+
+    /* Test parameter pTestValue is NULL. */
+    returnCode = IotHttpsClient_AddHeader(reqHandle, pTestName, NULL, testLen);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+
+    /* Test all pointer parameters are NULL. */
+    returnCode = IotHttpsClient_AddHeader(NULL, NULL, NULL, testLen);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+
+    /* Test adding auto-generated headers. */
+    returnCode = IotHttpsClient_AddHeader(reqHandle, HTTPS_USER_AGENT_HEADER, IOT_HTTPS_USER_AGENT, strlen(IOT_HTTPS_USER_AGENT));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    returnCode = IotHttpsClient_AddHeader(reqHandle, HTTPS_HOST_HEADER, HTTPS_TEST_ADDRESS, strlen(HTTPS_TEST_ADDRESS));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    returnCode = IotHttpsClient_AddHeader(reqHandle, HTTPS_CONTENT_LENGTH_HEADER, pTestContentLengthValueStr, strlen(pTestContentLengthValueStr));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    returnCode = IotHttpsClient_AddHeader(reqHandle, HTTPS_CONNECTION_HEADER, HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE, strlen(HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+
+    /* Test The length of the resulting header line exceeding the header buffer space. */
+    returnCode = IotHttpsClient_AddHeader(reqHandle, pTestName, pTestValue, sizeof(_pReqUserBuffer));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Add a header to the HTTP request and verify the format is correct.
+ */
+TEST( HTTPS_Client_Unit_API, AddHeaderFormatCheck )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    char * pTestName = "Accept";
+    char * pTestValue = "text";
+    char * pTestHeaderLine = "Accept: text\r\n";
+    uint32_t testLen = strlen(pTestValue);
+    char * pLocation = NULL;
+    int strncmpResult = -1;
+    int headersCurBefore = NULL;
+
+    /* Get a valid request handle with some header buffer space. */
+    reqHandle = _getReqHandle();
+    TEST_ASSERT_NOT_NULL( reqHandle );
+    headersCurBefore = (int)(reqHandle->pHeadersCur);
+
+    /* Write the test name and value and verify it was written correctly. */
+    returnCode = IotHttpsClient_AddHeader(reqHandle, pTestName, pTestValue, testLen);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    pLocation = strstr(reqHandle->pHeaders, pTestHeaderLine);
+    TEST_ASSERT_NOT_NULL(pLocation);
+    /* Check that the internal headersCur got incremented. */
+    TEST_ASSERT_GREATER_THAN(headersCurBefore, reqHandle->pHeadersCur);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Add multiple headers to the header buffer space in the request. 
+ */
+TEST( HTTPS_Client_Unit_API, AddHeaderMultipleHeaders )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    /* Intead of iterating in a loop, all the dummy headers are declared immediately because in the unit testing
+       infrastructure and workflow the number of repetitions is typically not changed from the original.  */
+    char * pHeader0 = "header0";
+    char * pHeader1 = "header1";
+    char * pHeader2 = "header2";
+    char * pValue0 = "value0";
+    char * pValue1 = "value1";
+    char * pValue2 = "value2";
+    char * pExpectedHeaderLines = 
+        "header0: value0\r\n"
+        "header1: value1\r\n"
+        "header2: value2\r\n";
+    char * pLocation = NULL;
+    
+    /* Get a valid request handle with some header buffer space. */
+    reqHandle = _getReqHandle();
+    TEST_ASSERT_NOT_NULL( reqHandle );
+    
+    returnCode = IotHttpsClient_AddHeader(reqHandle, pHeader0, pValue0, strlen(pValue0));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    returnCode = IotHttpsClient_AddHeader(reqHandle, pHeader1, pValue1, strlen(pValue1));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);    
+    returnCode = IotHttpsClient_AddHeader(reqHandle, pHeader2, pValue2, strlen(pValue2));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    pLocation = strstr(reqHandle->pHeaders, pExpectedHeaderLines);
+    TEST_ASSERT_NOT_NULL(pLocation);
 }
