@@ -52,14 +52,24 @@
 #define HTTPS_TEST_PORT                         ( (uint16_t) 443 )
 
 /**
- * @brief Test address for all of the tests to use.
+ * @brief Test address to share among the tests.
  */
 #define HTTPS_TEST_ADDRESS                      "www.amazon.com "
 
 /**
- * @brief Test HTTP/1.1 protocol for all of the tests to use.
+ * @brief Test path to share among the tests.
  */
-#define HTTPS_ALPN_PROTOCOL                     "http/1.1"
+#define HTTPS_TEST_PATH                         "/path.txt"
+
+/**
+ * @brief Test HTTP method to share among the tests.
+ */
+#define HTTPS_TEST_METHOD                       IOT_HTTPS_METHOD_GET
+
+/**
+ * @brief Test HTTP/1.1 protocol to share among the tests.
+ */
+#define HTTPS_TEST_ALPN_PROTOCOL                "http/1.1"
 
 /**
  * @brief Baltimore Cybertrust root CA to share among the tests.
@@ -88,9 +98,19 @@
     "-----END CERTIFICATE-----\n"
 
 /**
- * @brief The size of the connection user buffer.
+ * @brief The size of the connection user buffer to use among the tests.
  */
 #define HTTPS_TEST_CONN_USER_BUFFER_SIZE        ( 512 )
+
+/**
+ * @brief The size of the request user buffer to use among the tests.
+ */
+#define HTTPS_TEST_REQ_USER_BUFFER_SIZE         ( 512 )
+
+/**
+ * @brief the size of the respons user buffer to use among the tests.
+ */
+#define HTTPS_TEST_RESP_USER_BUFFER_SIZE        ( 512 )
 
 /*-----------------------------------------------------------*/
 
@@ -98,6 +118,16 @@
  * @brief HTTPS Client connection user buffer to share among the tests.
  */
 static uint8_t _pConnUserBuffer[HTTPS_TEST_CONN_USER_BUFFER_SIZE] = { 0 };
+
+/**
+ * @brief HTTPS Request user buffer to share among the tests.
+ */
+static uint8_t _pReqUserBuffer[HTTPS_TEST_REQ_USER_BUFFER_SIZE] = { 0 };
+
+/**
+ * @brief HTTPS Response user buffer to share among the tests.
+ */
+static uint8_t _pRespUserBuffer[HTTPS_TEST_RESP_USER_BUFFER_SIZE] = { 0 };
 
 /**
  * @brief An #IotNetworkInterface_t to share among the tests.
@@ -115,7 +145,7 @@ static IotNetworkServerInfo_t _networkServerInfo = { 0 };
 static IotNetworkCredentials_t _networkCredentials = { 0 };
 
 /**
- * @brief An IotHttpsConnectionInfo_t to share among the tests.
+ * @brief A IotHttpsConnectionInfo_t to share among the tests.
  */
 static IotHttpsConnectionInfo_t _connInfo = {
     .pAddress = HTTPS_TEST_ADDRESS,
@@ -130,11 +160,38 @@ static IotHttpsConnectionInfo_t _connInfo = {
     .clientCertLen = sizeof( keyCLIENT_CERTIFICATE_PEM ),
     .pPrivateKey = keyCLIENT_PRIVATE_KEY_PEM,
     .privateKeyLen = sizeof( keyCLIENT_PRIVATE_KEY_PEM ),
-    .pAlpnProtocols = HTTPS_ALPN_PROTOCOL,
-    .alpnProtocolsLen = sizeof(HTTPS_ALPN_PROTOCOL),
+    .pAlpnProtocols = HTTPS_TEST_ALPN_PROTOCOL,
+    .alpnProtocolsLen = sizeof(HTTPS_TEST_ALPN_PROTOCOL),
     .pNetworkInterface = &_networkInterface,
     .pNetworkServerInfo = &_networkServerInfo,
     .pNetworkCredentialInfo = &_networkCredentials
+};
+
+/**
+ * @brief A IotHttpsSyncRequestInfo_t to share among the tests.
+ * TODO: - Create a separate test file for testing synchronous API verification.
+ *       - Create a separate test file for testing asynchronous API verification.
+ *       - Move the shared static variables to a separate header to be extern'ed.
+ */ 
+static IotHttpsSyncRequestInfo_t _syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
+
+/**
+ * @brief A IotHttpsRequestInfo_t to share among the tests. 
+ */
+static IotHttpsRequestInfo_t _reqInfo = {
+    .pPath = HTTPS_TEST_PATH,
+    .pathLen = sizeof( HTTPS_TEST_PATH ),
+    .method = HTTPS_TEST_METHOD,
+    .pHost = HTTPS_TEST_ADDRESS,
+    .hostLen = sizeof( HTTPS_TEST_ADDRESS ),
+    .isNonPersistent = false,
+    .reqUserBuffer.pBuffer = _pReqUserBuffer,
+    .reqUserBuffer.bufferLen = sizeof( _pReqUserBuffer ),
+    .respUserBuffer.pBuffer = _pRespUserBuffer,
+    .respUserBuffer.bufferLen = sizeof( _pRespUserBuffer ),
+    .isAsync = false,
+    .pSyncInfo = &_syncInfo,
+    .pConnInfo = NULL
 };
 
 /*-----------------------------------------------------------*/
@@ -268,6 +325,7 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectInvalidParameters );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectFailure );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectSuccess );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters);
 }
 
 /*-----------------------------------------------------------*/
@@ -285,20 +343,40 @@ TEST( HTTPS_Client_Unit_API, ConnectInvalidParameters)
     /* NULL pConnHandle  */
     returnCode = IotHttpsClient_Connect(NULL, &_connInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(connHandle);
 
     /* NULL pConnConfig */
     returnCode = IotHttpsClient_Connect(&connHandle, NULL);
     TEST_ASSERT_EQUAL( IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(connHandle);
 
     /* Both pConnHandle and pConnConfig are NULL. */
     returnCode = IotHttpsClient_Connect(NULL, NULL);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(connHandle);
+    
+    /* IoHttpsConnectInfo_t.userBuffer.pBuffer is NULL. */
+    memcpy(&testConnInfo, &_connInfo, sizeof(IotHttpsConnectionInfo_t));
+    testConnInfo.userBuffer.pBuffer = NULL;
+    returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(connHandle);
+     /* Restore the testConnInfo for the next test. */
+     testConnInfo.userBuffer.pBuffer = _connInfo.userBuffer.pBuffer;
+
+    /* IotHttpsConnectionInfo_t.userBuffer.bufferLen < connectionUserBufferMinimumSize */
+    testConnInfo.userBuffer.bufferLen = connectionUserBufferMinimumSize - 1;
+    returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_NULL(connHandle);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
+    /* Restore the testConnInfo for the next test. */
+    testConnInfo.userBuffer.bufferLen = _connInfo.userBuffer.bufferLen;
 
     /* NULL IotHttpsConnectionInfo_t.pAddress in pConnConfig.  */
-    memcpy(&testConnInfo, &_connInfo, sizeof(IotHttpsConnectionInfo_t));
     testConnInfo.pAddress = NULL;
     testConnInfo.pNetworkServerInfo = NULL;
     returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_NULL(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
     /* Restore the testConnInfo for the next test. */
     testConnInfo.pAddress = _connInfo.pAddress;
@@ -306,16 +384,19 @@ TEST( HTTPS_Client_Unit_API, ConnectInvalidParameters)
     /* IotHttpsConnectionInfo_t.addressLen is zero. */
     testConnInfo.addressLen = 0;
     returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_NULL(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
 
     /* IotHttpsConnectionInfo_t.addressLen is greater than IOT_HTTPS_MAX_HOST_NAME_LENGTH */
     testConnInfo.addressLen = IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1;
     returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_NULL(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
     
     /* Both IotHttpsConnectionInfo_t.addressLen and IotHttpsConnectionInfo_t.pAddress are NULL. */
     testConnInfo.pAddress = NULL;
     returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_NULL(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
     /* Restore the testConnInfo for the next test. */
     testConnInfo.pAddress = _connInfo.pAddress;
@@ -326,6 +407,7 @@ TEST( HTTPS_Client_Unit_API, ConnectInvalidParameters)
     testConnInfo.alpnProtocolsLen = IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH + 1;
     testConnInfo.pNetworkCredentialInfo = NULL;
     returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_NULL(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
     testConnInfo.alpnProtocolsLen = _connInfo.alpnProtocolsLen;
     testConnInfo.pNetworkCredentialInfo = _connInfo.pNetworkCredentialInfo;
@@ -337,6 +419,7 @@ TEST( HTTPS_Client_Unit_API, ConnectInvalidParameters)
     /* IotHttpsConnectionInfo_t.pNetworkInterface is NULL. */
     testConnInfo.pNetworkInterface = NULL;
     returnCode = IotHttpsClient_Connect(&connHandle, &testConnInfo);
+    TEST_ASSERT_NULL(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
 }
 
@@ -439,4 +522,108 @@ TEST( HTTPS_Client_Unit_API, DisconnectSuccess )
     returnCode = IotHttpsClient_Disconnect(connHandle);
     TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
     TEST_ASSERT_FALSE(connHandle->isConnected);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test intitializing an HTTP request with various invalid parameters.
+ */
+TEST( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters)
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsRequestInfo_t testReqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER;
+
+    /* Test NULL pReqHandle. */
+    returnCode = IotHttpsClient_InitializeRequest(NULL, &_reqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+
+    /* Test NULL reqInfo. */
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, NULL);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+
+    /* Test NULL pReqHandle and NULL reqInfo. */
+    returnCode = IotHttpsClient_InitializeRequest(NULL, NULL);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+
+    /* Test the request context does not fit into the user buffer. */
+    memcpy(&testReqInfo, &_reqInfo, sizeof(IotHttpsRequestInfo_t));
+    testReqInfo.reqUserBuffer.bufferLen = requestUserBufferMinimumSize - 1;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.reqUserBuffer.bufferLen = _reqInfo.reqUserBuffer.bufferLen;
+
+    /* Test the response context does not fit into the user buffer. */
+    testReqInfo.respUserBuffer.bufferLen = responseUserBufferMinimumSize - 1;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.respUserBuffer.bufferLen = _reqInfo.respUserBuffer.bufferLen;
+
+    /* Test that the first line in the HTTP request message does not fit into the header space of the user buffer. */
+    testReqInfo.pathLen = sizeof(_pReqUserBuffer);
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.pathLen = _reqInfo.pathLen;
+
+    /* Test a NULL IotHttpsRequestInfo_t.pHost. */
+    testReqInfo.pHost = NULL;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.pHost = _reqInfo.pHost;
+
+    /* Test that the HTTP Host header does not fit into the request. */
+    testReqInfo.hostLen = sizeof(_pReqUserBuffer);
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.hostLen = _reqInfo.hostLen;
+
+    /* Test a NULL request user buffer. */
+    testReqInfo.reqUserBuffer.pBuffer = NULL;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.reqUserBuffer.pBuffer = _reqInfo.reqUserBuffer.pBuffer;
+
+    /* Test a NULL response user buffer. */
+    testReqInfo.respUserBuffer.pBuffer = NULL;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.respUserBuffer.pBuffer = _reqInfo.respUserBuffer.pBuffer;
+
+    /* If IotHttpsRequestInfo_t.isAsync is false, then pSyncInfo must not be NULL. */
+    testReqInfo.isAsync = false;
+    testReqInfo.pSyncInfo = NULL;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.isAsync = _reqInfo.isAsync;
+    testReqInfo.pSyncInfo = _reqInfo.pSyncInfo;
+
+    /* If IotHttpsRequestInfo_t.isAsync is true, then pAsyncInfo must not be NULL. */
+    testReqInfo.isAsync = true;
+    testReqInfo.pAsyncInfo = NULL;
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+    TEST_ASSERT_NULL(reqHandle);
+    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
+    testReqInfo.isAsync = _reqInfo.isAsync;
+    testReqInfo.pSyncInfo = _reqInfo.pSyncInfo;
 }
