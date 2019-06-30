@@ -49,27 +49,42 @@
 /**
  * @brief Test TLS TCP port.
  */
-#define HTTPS_TEST_PORT                         ( (uint16_t) 443 )
+#define HTTPS_TEST_PORT                             ( (uint16_t) 443 )
 
 /**
  * @brief Test address to share among the tests.
  */
-#define HTTPS_TEST_ADDRESS                      "www.amazon.com "
+#define HTTPS_TEST_ADDRESS                          "www.amazon.com "
 
 /**
  * @brief Test path to share among the tests.
  */
-#define HTTPS_TEST_PATH                         "/path.txt"
+#define HTTPS_TEST_PATH                             "/path.txt"
 
 /**
  * @brief Test HTTP method to share among the tests.
  */
-#define HTTPS_TEST_METHOD                       IOT_HTTPS_METHOD_GET
+#define HTTPS_TEST_METHOD                           IOT_HTTPS_METHOD_GET
+
+/**
+ * @brief Expected HTTP request line.
+ */
+#define HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD      HTTPS_TEST_PATH " HTTP/1.1\r\n"
+
+/**
+ * @brief Expected HTTP User-Agent header line.
+ */
+#define HTTPS_TEST_USER_AGENT_HEADER_LINE           "User-Agent: " IOT_HTTPS_USER_AGENT "\r\n"
+
+/**
+ * @brief Expected HTTP Host header line.
+ */
+#define HTTPS_TEST_HOST_HEADER_LINE                  "Host: " HTTPS_TEST_ADDRESS "\r\n"
 
 /**
  * @brief Test HTTP/1.1 protocol to share among the tests.
  */
-#define HTTPS_TEST_ALPN_PROTOCOL                "http/1.1"
+#define HTTPS_TEST_ALPN_PROTOCOL                    "http/1.1"
 
 /**
  * @brief Baltimore Cybertrust root CA to share among the tests.
@@ -100,17 +115,17 @@
 /**
  * @brief The size of the connection user buffer to use among the tests.
  */
-#define HTTPS_TEST_CONN_USER_BUFFER_SIZE        ( 512 )
+#define HTTPS_TEST_CONN_USER_BUFFER_SIZE            ( 512 )
 
 /**
  * @brief The size of the request user buffer to use among the tests.
  */
-#define HTTPS_TEST_REQ_USER_BUFFER_SIZE         ( 512 )
+#define HTTPS_TEST_REQ_USER_BUFFER_SIZE             ( 512 )
 
 /**
  * @brief the size of the respons user buffer to use among the tests.
  */
-#define HTTPS_TEST_RESP_USER_BUFFER_SIZE        ( 512 )
+#define HTTPS_TEST_RESP_USER_BUFFER_SIZE            ( 512 )
 
 /*-----------------------------------------------------------*/
 
@@ -149,7 +164,7 @@ static IotNetworkCredentials_t _networkCredentials = { 0 };
  */
 static IotHttpsConnectionInfo_t _connInfo = {
     .pAddress = HTTPS_TEST_ADDRESS,
-    .addressLen = sizeof( HTTPS_TEST_ADDRESS ),
+    .addressLen = sizeof( HTTPS_TEST_ADDRESS ) - 1,
     .port = HTTPS_TEST_PORT,
     .flags = 0,
     .pCaCert = HTTPS_TEST_ROOT_CA,
@@ -180,10 +195,10 @@ static IotHttpsSyncRequestInfo_t _syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIAL
  */
 static IotHttpsRequestInfo_t _reqInfo = {
     .pPath = HTTPS_TEST_PATH,
-    .pathLen = sizeof( HTTPS_TEST_PATH ),
+    .pathLen = sizeof( HTTPS_TEST_PATH ) - 1,
     .method = HTTPS_TEST_METHOD,
     .pHost = HTTPS_TEST_ADDRESS,
-    .hostLen = sizeof( HTTPS_TEST_ADDRESS ),
+    .hostLen = sizeof( HTTPS_TEST_ADDRESS ) - 1,
     .isNonPersistent = false,
     .reqUserBuffer.pBuffer = _pReqUserBuffer,
     .reqUserBuffer.bufferLen = sizeof( _pReqUserBuffer ),
@@ -326,6 +341,7 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectFailure );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, DisconnectSuccess );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters);
+    RUN_TEST_CASE(HTTPS_Client_Unit_API, InitializeRequestFormatCheck );
 }
 
 /*-----------------------------------------------------------*/
@@ -626,4 +642,36 @@ TEST( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters)
     /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
     testReqInfo.isAsync = _reqInfo.isAsync;
     testReqInfo.pSyncInfo = _reqInfo.pSyncInfo;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify that the intialized request is in the standard HTTP format expected in the user buffer header space.
+ */
+TEST(HTTPS_Client_Unit_API, InitializeRequestFormatCheck )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    char * location = NULL;
+
+    /* Initialize the request using the statically defined configurations. */
+    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &_reqInfo);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    TEST_ASSERT_NOT_NULL(reqHandle);
+
+    /* Check the request first line in the header buffer space. */
+    location = strstr(reqHandle->pHeaders, HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD );
+    TEST_ASSERT_NOT_NULL(location);
+    TEST_ASSERT_EQUAL(0, strncmp(location, HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD, strlen( HTTPS_TEST_REQUEST_LINE_WITHOUT_METHOD )));
+
+    /* Check the User-Agent header line. */
+    location = strstr(reqHandle->pHeaders, HTTPS_TEST_USER_AGENT_HEADER_LINE);
+    TEST_ASSERT_NOT_NULL(location);
+    TEST_ASSERT_EQUAL(0, strncmp(location, HTTPS_TEST_USER_AGENT_HEADER_LINE, strlen(HTTPS_TEST_USER_AGENT_HEADER_LINE)));
+
+    /* Check the Host header line. */
+    location = strstr(reqHandle->pHeaders, HTTPS_TEST_HOST_HEADER_LINE);
+    TEST_ASSERT_NOT_NULL(location);
+    TEST_ASSERT_EQUAL(0, strncmp(location, HTTPS_TEST_HOST_HEADER_LINE, strlen(HTTPS_TEST_HOST_HEADER_LINE)));
 }
