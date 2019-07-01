@@ -29,5 +29,8 @@
     ],
     "CP": [
 	"cp"
+    ],
+    "TYPE_HEADER_SCRIPT": [
+    "$(PROOFS)/make_type_header_files.py"
     ]
 }
