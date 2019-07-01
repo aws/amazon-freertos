@@ -20,7 +20,7 @@
  */
 
 /**
- * @file iot_demo_https_sync.c
+ * @file iot_demo_https_s3_download_sync.c
  * @brief Demonstrates synchronous usage of the HTTPS library by performing partial content GET requests on a file from S3.
  */
 

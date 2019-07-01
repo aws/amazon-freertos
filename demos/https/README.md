@@ -1,6 +1,6 @@
 # Presigned S3 URL Generator 
 
-**presigned_url_gen.py** generates a pre-signed URL for S3 GET, PUT, and POST HTTP request access. 
+**presigned_url_gen.py** generates a pre-signed URL for S3 GET and PUT HTTP request access. 
 
 ### Dependencies
 * Python 2.7+ or Python 3+
