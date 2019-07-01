@@ -40,6 +40,7 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         "${test_dir}/unit/iot_tests_https_client.c"
+        "${test_dir}/unit/iot_tests_https_utils.c"
 )
 
 afr_module_dependencies(

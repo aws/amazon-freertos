@@ -699,7 +699,7 @@ TEST(HTTPS_Client_Unit_API, InitializeRequestFormatCheck )
     TEST_ASSERT_NOT_NULL(pLocation);
 
     /* Check that for a NULL IotHttpsRequestInfo_t.pPath, we insert a "/" automatically. */
-    pSavedPath = _reqInfo.pPath;
+    pSavedPath = (char*)(_reqInfo.pPath);
     _reqInfo.pPath = NULL;
     returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &_reqInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
@@ -774,12 +774,12 @@ TEST( HTTPS_Client_Unit_API, AddHeaderFormatCheck )
     uint32_t testLen = strlen(pTestValue);
     char * pLocation = NULL;
     int strncmpResult = -1;
-    int headersCurBefore = NULL;
+    uint8_t* headersCurBefore = NULL;
 
     /* Get a valid request handle with some header buffer space. */
     reqHandle = _getReqHandle();
     TEST_ASSERT_NOT_NULL( reqHandle );
-    headersCurBefore = (int)(reqHandle->pHeadersCur);
+    headersCurBefore = reqHandle->pHeadersCur;
 
     /* Write the test name and value and verify it was written correctly. */
     returnCode = IotHttpsClient_AddHeader(reqHandle, pTestName, pTestValue, testLen);
