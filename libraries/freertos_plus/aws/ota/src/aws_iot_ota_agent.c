@@ -1408,7 +1408,7 @@ static void prvOTAUpdateTask( void * pvUnused )
             ( void ) OTA_CheckForUpdate();
 
             if ((job_start_timer = OTA_InitJobStartTimer()) != pdTRUE) {
-				          // Timer doesn't exist, time to reset
+				          /* Fail out if timer doesn't exist */
 			            DEFINE_OTA_METHOD_NAME("OTA_InitJobStartTimer");
 				          OTA_LOG_L1("[%s] Job Start timer failed to initialize. Resetting\r\n", OTA_METHOD_NAME);
 				          (void)prvPAL_ResetDevice();
@@ -1756,7 +1756,7 @@ static void prvJobStartTimer_Callback(TimerHandle_t T)
 
 	}
 	else {
-		//Reset timer and poke amazon
+	  /* Restart timer and try again */
 		OTA_LOG_L1("[%s] Job Start failed to connect to Amazon.  Retrying\r\n", OTA_METHOD_NAME);
 		if ((job_start_timer = OTA_InitJobStartTimer()) != pdTRUE) {
 			OTA_LOG_L1("[%s] Timer failed to restart.  Exiting\r\n", OTA_METHOD_NAME);

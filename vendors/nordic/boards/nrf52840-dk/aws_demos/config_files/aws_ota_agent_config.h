@@ -49,6 +49,11 @@
 #define otaconfigSELF_TEST_RESPONSE_WAIT_MS     16000U
 
 /**
+* @brief Milliseconds to wait for initial message to make it to amazon
+*/
+#define otaconfigJOB_START_RESPONSE_WAIT_MS 16000U
+
+/**
  * @brief Milliseconds to wait before requesting data blocks from the OTA service if nothing is happening.
  *
  * The wait timer is reset whenever a data block is received from the OTA service so we will only send
