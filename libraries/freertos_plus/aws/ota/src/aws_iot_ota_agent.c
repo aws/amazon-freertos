@@ -102,6 +102,10 @@
 #define OTA_MAX_JSON_TOKENS    64U                      /* Number of JSON tokens supported in a single parser call. */
 #define OTA_MAX_TOPIC_LEN      256U                     /* Max length of a dynamically generated topic string (usually on the stack). */
 
+#define MAX_RETRIES 3
+static uint8_t job_start_retries = 0;
+static BaseType_t job_start_timer = pdFALSE;
+
 /* When subscribing to MQTT topics with a callback handler, we use the callback
  * context variable as a subscription type to expedite dispatch of the published
  * messages instead of comparing against the topic string.
@@ -301,6 +305,17 @@ static BaseType_t OTA_CheckForSelfTest( void );
 
 static void prvSelfTestTimer_Callback( TimerHandle_t T );
 
+/* Start a self test timer when we begin to ensure our initial poke of Amazon works */
+static BaseType_t OTA_InitJobStartTimer(void);
+
+/* If we timeout, we can assume connection wasn't established and we should probably retry.  Reset if we run out of retries */
+
+static void prvJobStartTimer_Callback(TimerHandle_t T);
+
+/* Stop the timer on first success, we won't need it anymore */
+
+static void prvStopJobStartTimer(void);
+
 /* Subscribe to the jobs notification topic (i.e. New file version available). */
 
 static bool_t prvSubscribeToJobNotificationTopics( void );
@@ -434,6 +449,7 @@ typedef struct ota_agent_context
     uint8_t * pcOTA_Singleton_ActiveJobName;                /* The currently active job name. We only allow one at a time. */
     uint8_t * pcClientTokenFromJob;                         /* The clientToken field from the latest update job. */
     TimerHandle_t pvSelfTestTimer;                          /* The self test response expected timer. */
+    TimerHandle_t pvJobStartTimer;							            /* Job begin timer. */
     OTA_ImageState_t eImageState;                           /* The current OTA image state as set by the OTA agent. */
     QueueHandle_t xOTA_MsgQ;                                /* Used to pass MQTT messages to the OTA agent. */
     SemaphoreHandle_t xOTA_ThreadSafetyMutex;               /* Mutex used to ensure thread safety will managing publish buffers. */
@@ -454,6 +470,7 @@ static OTA_AgentContext_t xOTA_Agent =
     .pcOTA_Singleton_ActiveJobName = NULL,
     .pcClientTokenFromJob          = NULL,
     .pvSelfTestTimer               = NULL,
+    .pvJobStartTimer               = NULL,
     .eImageState                   = eOTA_ImageState_Unknown,
     .xOTA_MsgQ                     = NULL,
     .xStatistics                   = { 0 },
@@ -1330,6 +1347,7 @@ static void prvOTAPublishCallback( void * pvCallbackContext,
 			xReturn = xQueueSendToBack( xOTA_Agent.xOTA_MsgQ, &pxMsg, ( TickType_t ) 0 );
 			if( xReturn == pdPASS )
 			{
+        prvStopJobStartTimer();
 				xOTA_Agent.xStatistics.ulOTA_PacketsQueued++;
 				( void ) xEventGroupSetBits( xOTA_Agent.xOTA_EventFlags, OTA_EVT_MASK_MSG_READY );
 				/* Take ownership of the MQTT buffer. */
@@ -1388,6 +1406,13 @@ static void prvOTAUpdateTask( void * pvUnused )
 
             /* Send a request to the job service for the latest available job. */
             ( void ) OTA_CheckForUpdate();
+
+            if ((job_start_timer = OTA_InitJobStartTimer()) != pdTRUE) {
+				          // Timer doesn't exist, time to reset
+			            DEFINE_OTA_METHOD_NAME("OTA_InitJobStartTimer");
+				          OTA_LOG_L1("[%s] Job Start timer failed to initialize. Resetting\r\n", OTA_METHOD_NAME);
+				          (void)prvPAL_ResetDevice();
+			      }
 
             /* Put the OTA agent in the ready state. */
             xOTA_Agent.eState = eOTA_AgentState_Ready;
@@ -1684,6 +1709,75 @@ static void prvStopSelfTestTimer( void )
     }
 }
 
+static BaseType_t OTA_InitJobStartTimer(void)
+{
+	DEFINE_OTA_METHOD_NAME("OTA_InitJobStartTimer");
+	static const char cTimerName[] = "OTA_JobStart";
+	BaseType_t xTimerStarted = pdFALSE;
+	static StaticTimer_t xTimerBuffer;
+
+	if (xOTA_Agent.pvJobStartTimer == NULL)
+	{
+		xOTA_Agent.pvJobStartTimer = xTimerCreateStatic(cTimerName,
+		pdMS_TO_TICKS(otaconfigJOB_START_RESPONSE_WAIT_MS),
+		pdFALSE, NULL, prvJobStartTimer_Callback,
+        &xTimerBuffer);
+
+		if (xOTA_Agent.pvJobStartTimer != NULL)
+		{
+			xTimerStarted = xTimerStart(xOTA_Agent.pvJobStartTimer, portMAX_DELAY);
+			/* Common check for whether the timer was started or not. It should be impossible to not start. */
+			if (xTimerStarted == pdTRUE)
+			{
+				OTA_LOG_L1("[%s] Starting %s timer.\r\n", OTA_METHOD_NAME, cTimerName);
+			}
+			else
+			{
+				OTA_LOG_L1("[%s] ERROR: failed to reset/start %s timer.\r\n", OTA_METHOD_NAME, cTimerName);
+			}
+
+		}
+
+	}
+	else
+	{
+		xTimerStarted = xTimerReset(xOTA_Agent.pvJobStartTimer, portMAX_DELAY);
+		OTA_LOG_L1("[%s] Restarting Timer...\r\n", OTA_METHOD_NAME);
+	}
+	return xTimerStarted;
+}
+
+static void prvJobStartTimer_Callback(TimerHandle_t T)
+{
+	DEFINE_OTA_METHOD_NAME("OTA_InitJobStartTimer");
+	if (job_start_retries++ >= MAX_RETRIES) {
+		OTA_LOG_L1("[%s] Job Start failed after %u retries.  Restarting\r\n", OTA_METHOD_NAME, MAX_RETRIES);
+		(void)prvPAL_ResetDevice();
+
+	}
+	else {
+		//Reset timer and poke amazon
+		OTA_LOG_L1("[%s] Job Start failed to connect to Amazon.  Retrying\r\n", OTA_METHOD_NAME);
+		if ((job_start_timer = OTA_InitJobStartTimer()) != pdTRUE) {
+			OTA_LOG_L1("[%s] Timer failed to restart.  Exiting\r\n", OTA_METHOD_NAME);
+			(void)prvPAL_ResetDevice();
+
+		}
+		OTA_CheckForUpdate();
+	}
+}
+
+static void prvStopJobStartTimer(void)
+{
+	DEFINE_OTA_METHOD_NAME("prvStopJobStartTimer");
+
+	if (xOTA_Agent.pvJobStartTimer != NULL && job_start_timer == pdTRUE)
+	 {
+		(void)xTimerStop(xOTA_Agent.pvJobStartTimer, portMAX_DELAY);
+		job_start_timer = pdFALSE;
+		OTA_LOG_L1("[%s] Stopping the job start timer.\r\n", OTA_METHOD_NAME);
+	 }
+}
 
 /* When the OTA request timer expires, signal the OTA task to request the file. */
 
