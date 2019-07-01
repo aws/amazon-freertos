@@ -27,4 +27,6 @@
 
 #if CONFIG_NIMBLE_ENABLED == 1
 #include "nimble/iot_ble_hal_gap.c"
+#else
+#include "bluedroid/iot_ble_hal_gap.c"
 #endif
