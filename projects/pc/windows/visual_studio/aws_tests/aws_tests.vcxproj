@@ -201,6 +201,7 @@
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h" />
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h" />
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_ble.h" />
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_udp.h" />
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_afr.h" />
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_clock.h" />
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_metrics.h" />
@@ -420,8 +421,10 @@
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_freertos.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_udp.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_freertos.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_clock.c" />
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_network_udp.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_threads.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c" />
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c" />

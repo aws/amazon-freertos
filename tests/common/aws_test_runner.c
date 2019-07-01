@@ -208,6 +208,9 @@ static void RunTests( void )
     #if ( testrunnerFULL_UDP_ENABLED == 1 )
         RUN_TEST_GROUP( Full_UDP );
     #endif
+    #if ( testrunnerUTIL_PLATFORM_NETWORK_UDP_ENABLED == 1 )
+        RUN_TEST_GROUP( UTIL_Platform_Network_UDP );
+    #endif
 #endif
 }
 /*-----------------------------------------------------------*/

@@ -1071,6 +1071,7 @@
     <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
       <Filter>demos\dev_mode_key_provisioning\include</Filter>
     </ClInclude>
+<<<<<<< HEAD
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
       <Filter>libraries\abstractions\pkcs11\include</Filter>
     </ClInclude>
@@ -1079,6 +1080,10 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
       <Filter>libraries\freertos_plus\standard\utils\include</Filter>
+=======
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_udp.h">
+      <Filter>libraries\abstractions\platform\freertos\include\platform</Filter>
+>>>>>>> 747e6d3d1... feat: UDP network abstraction layer
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1716,6 +1721,12 @@
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_udp.c">
       <Filter>libraries\abstractions\secure_sockets\test</Filter>
 >>>>>>> 5351eed3d... feat: AFR Sockets UDP Support
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\test\iot_test_platform_network_udp.c">
+      <Filter>libraries\abstractions\platform\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_udp.c">
+      <Filter>libraries\abstractions\platform\freertos</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
