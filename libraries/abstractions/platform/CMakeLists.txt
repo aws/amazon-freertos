@@ -37,6 +37,8 @@ if(TARGET AFR::secure_sockets::mcu_port)
         "${src_dir}/iot_metrics.c"
         "${src_dir}/iot_network_freertos.c"
         "${src_dir}/include/platform/iot_network_freertos.h"
+        "${src_dir}/iot_network_udp.c"
+        "${src_dir}/include/platform/iot_network_udp.h"
     )
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
@@ -60,6 +62,7 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/iot_test_platform_clock.c"
         "${test_dir}/iot_test_platform_threads.c"
+        "${test_dir}/"iot_test_platform_network_udp.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
