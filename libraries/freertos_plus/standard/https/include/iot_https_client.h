@@ -130,7 +130,7 @@ void IotHttpsClient_Deinit( void );
  * #IotHttpsConnectionInfo_t.userBuffer needed to create a valid connection handle.
  * 
  * @param[out] pConnHandle - Handle returned representing the open connection.
- * @param[in] pConnConfig - Configurations for the HTTPS connection.
+ * @param[in] pConnInfo - Configurations for the HTTPS connection. NULL if the function failed.
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the connection was successful. 
@@ -139,7 +139,7 @@ void IotHttpsClient_Deinit( void );
  * - #IOT_HTTPS_INTERNAL_ERROR if there was an error creating resources for the connection context.
  */
 /* @[declare_https_client_connect] */
-IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHandle, IotHttpsConnectionInfo_t *pConnConfig);
+IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHandle, IotHttpsConnectionInfo_t *pConnInfo);
 /* @[declare_https_client_connect] */
 
 /**
@@ -181,9 +181,9 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
 /**
  * @brief Initializes the request by adding a formatted Request Line to the start of HTTPS request header buffer. 
  * 
- * This function will initialize the input request configuration by setting where to write the next headers to the start
- * of the configured header buffer in #IotHttpsRequestInfo_t.reqUserBuffer. It will also initialize the input associated 
- * response such that it can be received at the start of the configured header buffer in 
+ * This function will initialize the HTTP request context by setting where to write the next headers to the start
+ * of the configured header buffer in #IotHttpsRequestInfo_t.reqUserBuffer. It will also initialize the associated HTTP 
+ * response context such that it can be received at the start of the configured header buffer in 
  * #IotHttpsRequestInfo_t.respUserBuffer.
  * 
  * The request line will be added to the start of the headers space in #IotHttpsRequestInfo_t.reqUserBuffer. 
@@ -207,7 +207,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
  * @ref https_client_function_disconnect.
  * 
  * @param[out] pReqHandle - request handle representing the internal request context is returned.
- * @param[in] pReqInfo - HTTPS request information.
+ * @param[in] pReqInfo - HTTPS request information. NULL if the function failed.
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the request line was successfully added to the header space in #IotHttpsRequestInfo_t.reqUserBuffer.
@@ -323,6 +323,11 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * #responseUserBufferMinimumSize for information about sizing the #IotHttpsRequestInfo_t.respUserBuffer.
  * To receive feedback on headers discarded debug logging must be turned on in iot_config.h by setting 
  * IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG.
+ * 
+ * This function is thread-safe. If two application threads with the same connection try to send requests synchronously,
+ * then the second application thread will block until the first is finished using the connection. If there is an 
+ * asynchronous request/response being processing on the same connection that this function is invoked with, then this
+ * function will block until the asynchronous request/response is finished. 
  * 
  * @param[in out] pConnHandle - Handle from an HTTPS connection. If points to NULL then an implicit connection will be made.
  * @param[in] reqHandle - Handle from a request created with IotHttpsClient_initialize_request.

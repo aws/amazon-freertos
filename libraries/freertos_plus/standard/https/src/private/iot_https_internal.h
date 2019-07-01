@@ -104,6 +104,52 @@
 
 /** @endcond */
 
+/**
+ * @brief The HTTP protocol version of this library is HTTP/1.1.
+ */
+#define HTTPS_PROTOCOL_VERSION                      "HTTP/1.1"
+
+/**
+ * @brief An empty path for a NULL specified path in the request initialization configuration.
+ */
+#define HTTPS_EMPTY_PATH                            "/"
+
+/**
+ * @brief HTTPS "CONNECT" method, defined as the longest string length method.
+ */
+#define HTTPS_CONNECT_METHOD                        "CONNECT"
+
+/*
+ * Constants for the values of the HTTP "Connection" header field.
+ * 
+ * This is used for writing headers automatically in during the sending of the HTTP request.
+ * "Connection: keep-alive\r\n" is written automatically for a persistent connection.
+ * "Connection: close\r\n" is written automatically for a closed connection.
+ */
+#define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE    "keep-alive"
+#define HTTPS_CONNECTION_CLOSE_HEADER_VALUE         "closed"
+
+/**
+ * Constants for HTTP header formatting. 
+ * 
+ * ": " separates and header field from the header value.
+ * "\r\n" Ends the header line.
+ */
+#define HTTPS_HEADER_FIELD_SEPARATOR                ": "
+#define HTTPS_END_OF_HEADER_LINES_INDICATOR         "\r\n"
+
+/*
+ * Constants for header fields added automatically in the request initialization.
+ */
+#define HTTPS_USER_AGENT_HEADER                     "User-Agent"
+#define HTTPS_HOST_HEADER                           "Host"
+
+/*
+ * Constants for the header fields added automatically during the sending of the HTTP request.
+ */
+#define HTTPS_CONTENT_LENGTH_HEADER                 "Content-Length"
+#define HTTPS_CONNECTION_HEADER                     "Connection"
+
 /*-----------------------------------------------------------*/ 
 
 /**
@@ -272,5 +318,17 @@ typedef struct _httpsRequest
     uint32_t contentLength; /**< @brief The content length of the request body. */
     bool isNonPersistent;     /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the rresponse. */
 } _httpsRequest_t;
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A map of the method enum to strings 
+ * 
+ * These are in order to the HTTP request method enums defined in IotHttpsMethod_t.
+ */
+static const char* _pHttpsMethodStrings[] = {
+    "GET",
+    "HEAD"
+};
 
 #endif /* IOT_HTTPS_INTERNAL_H_ */
