@@ -1308,6 +1308,9 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 		pxUDPHeader->usLength			   = FreeRTOS_htons( lNetLength + ipSIZE_OF_UDP_HEADER );
 		vFlip_16( pxUDPPacket->xUDPHeader.usSourcePort, pxUDPPacket->xUDPHeader.usDestinationPort );
 
+		/* Important: tell NIC driver how many bytes must be sent */
+		pxNetworkBuffer->xDataLength = ( size_t ) ( lNetLength + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER + ipSIZE_OF_ETH_HEADER );
+
 		#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
 		{
 			/* calculate the IP header checksum */
@@ -1316,12 +1319,9 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 			pxIPHeader->usHeaderChecksum	   = ~FreeRTOS_htons( pxIPHeader->usHeaderChecksum );
 
 			/* calculate the UDP checksum for outgoing package */
-			usGenerateProtocolChecksum( ( uint8_t* ) pxUDPPacket, lNetLength, pdTRUE );
+			usGenerateProtocolChecksum( ( uint8_t* ) pxUDPPacket, pxNetworkBuffer->xDataLength, pdTRUE );
 		}
 		#endif
-
-		/* Important: tell NIC driver how many bytes must be sent */
-		pxNetworkBuffer->xDataLength = ( size_t ) ( lNetLength + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER + ipSIZE_OF_ETH_HEADER );
 
 		/* This function will fill in the eth addresses and send the packet */
 		vReturnEthernetFrame( pxNetworkBuffer, pdFALSE );
