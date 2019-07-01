@@ -35,6 +35,8 @@ To send us a pull request, please:
 4. Ensure local tests pass.
 5. Commit to your fork using clear commit messages.
 6. Send us a pull request, answering any default questions in the pull request interface.
+
+   NOTE: Please make sure the default option (Allow edits from maintainers) is left checked
 7. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and
