@@ -34,7 +34,7 @@
  * @brief The number of total sockets that can be opened at one time by a
  * hardware port.
  */
-#define         integrationtestportableMAX_NUM_UNSECURE_SOCKETS    4
+#define         integrationtestportableMAX_NUM_UNSECURE_SOCKETS    2
 
 /**
  * @brief Indicates how much longer than the specified timeout is acceptable for
