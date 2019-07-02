@@ -982,6 +982,8 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     return eBTStatusUnsupported;
 }
 
+/*-----------------------------------------------------------*/
+
 const void * prvBTGetGattServerInterface()
 {
     return &xGATTserverInterface;
