@@ -66,8 +66,17 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl, size_t urlLen
 
     if( returnStatus == IOT_HTTPS_OK )
     {
-        *pPath = &pUrl[urlParser.field_data[UF_PATH].off];
         *pPathLen = ( size_t )( urlParser.field_data[UF_PATH].len );
+        if(*pPathLen == 0)
+        {
+            returnStatus = IOT_HTTPS_NOT_FOUND;
+            *pPath = NULL;
+        }
+        else
+        {
+            *pPath = &pUrl[urlParser.field_data[UF_PATH].off];
+        }
+        
     }
 
     return returnStatus;
@@ -103,9 +112,17 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress( const char * pUrl, size_t url
 
     if( returnStatus == IOT_HTTPS_OK )
     {
-        *pAddress = &pUrl[urlParser.field_data[UF_HOST].off];
         *pAddressLen = ( size_t )( urlParser.field_data[UF_HOST].len );
+        if(*pAddressLen == 0)
+        {
+            returnStatus = IOT_HTTPS_NOT_FOUND;
+            *pAddress = NULL;
+        }
+        else
+        {
+            *pAddress = &pUrl[urlParser.field_data[UF_HOST].off];
+        }
     }
     
-    return IOT_HTTPS_OK;
+    return returnStatus;
 }

@@ -41,6 +41,8 @@
  * This function retrieves the path pointer from within the input the URL. The query is not included in the length 
  * returned.
  * 
+ * The URL MUST start with "http://" or "https://" to find the path.
+ * 
  * For example, if there URL is:
  * pUrl = "https://www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
  * 
@@ -52,13 +54,19 @@
  * @param[out] pPath - pointer within input url that the path starts.
  * @param[out] pPathLen - Length of the path.
  * 
- * @return #IOT_HTTPS_OK if the path was successfully parsed.
- *         #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
+ * - #IOT_HTTPS_OK if the path was successfully parsed.
+ * - #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
+ * - #IOT_HTTPS_NOT_FOUND if the address was not found.
  */
 IotHttpsReturnCode_t IotHttpsClient_GetUrlPath(const char * pUrl, size_t urlLen, const char **pPath, size_t * pPathLen);
 
 /**
  * @brief Retrieve the Address from the input URL.
+ * 
+ * This function retrieves the address pointer from within the input URL. The path and query are not included in the 
+ * length returned.
+ * 
+ * The URL MUST start with "http://" or "https://" to find the address.
  * 
  * For example, if the URL is:
  * 
@@ -72,8 +80,10 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlPath(const char * pUrl, size_t urlLen,
  * @param[out] pAddress - pointer within input url that the address starts.
  * @param[out] addresssLen - Length of the address.
  * 
- * @return #IOT_HTTPS_OK if the path was successfully parsed.
- *         #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
+ * @return One of the following:
+ * - #IOT_HTTPS_OK if the path was successfully parsed.
+ * - #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
+ * - #IOT_HTTPS_NOT_FOUND if the address was not found.
  */
 IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress(const char * pUrl, size_t urlLen, const char **pAddress, size_t * pAddressLen);
 
