@@ -1,0 +1,29 @@
+{
+  "ENTRY": "QueueSemaphoreTake",
+  "QUEUE_BOUND": 5,
+  "CBMCFLAGS": [
+    "--unwind 2",
+    "--signed-overflow-check",
+    "--pointer-overflow-check",
+    "--unsigned-overflow-check",
+    "--nondet-static",
+    "--unwindset prvUnlockQueue.0:{QUEUE_BOUND},prvUnlockQueue.1:{QUEUE_BOUND},xQueueSemaphoreTake.0:3"
+  ],
+  "OBJS": [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/freertos_kernel/queue.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto",
+    "$(FREERTOS)/tools/cbmc/proofs/CBMCStubLibrary/tasksStubs.goto"
+  ],
+  "DEF": [
+    "configUSE_TRACE_FACILITY=0",
+    "configGENERATE_RUN_TIME_STATS=0",
+    "PRV_UNLOCK_QUEUE_BOUND={QUEUE_BOUND}"
+  ],
+  "INC": [
+    "."
+  ],
+  "GENERATE_HEADER": [
+    "queue_datastructure.h"
+  ]
+}
