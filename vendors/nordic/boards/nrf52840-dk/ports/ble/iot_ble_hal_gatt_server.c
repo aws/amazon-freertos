@@ -394,6 +394,8 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     BTStatus_t xStatus = eBTStatusSuccess;
     uint16_t usServiceHandle;
 
+    return eBTStatusUnsupported;
+
     for( usAttrIndex = 1; usAttrIndex < pxService->xNumberOfAttributes - 1; usAttrIndex++ )
     {
         switch( pxService->pxBLEAttributes[ usAttrIndex ].xAttributeType )

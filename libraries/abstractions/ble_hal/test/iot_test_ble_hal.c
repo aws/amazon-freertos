@@ -783,9 +783,8 @@ TEST_GROUP_RUNNER( Full_BLE )
     RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GAP );
     RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GATT );
 
+
     RUN_TEST_CASE( Full_BLE, BLE_CreateAttTable_CreateServices );
-/*RUN_TEST_CASE( Full_BLE, BLE_CreateAttTable_IncludedService ); */
-    RUN_TEST_CASE( Full_BLE, BLE_CreateAttTable_StartService );
 
     RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetProperties ); /*@TOTO, incomplete */
     RUN_TEST_CASE( Full_BLE, BLE_Connection_RemoveAllBonds );
@@ -1450,15 +1449,6 @@ void prvStartService( BTService_t * xRefSrvc )
 
 }
 
-TEST( Full_BLE, BLE_CreateAttTable_StartService )
-{
-    /* Start service A */
-    prvStartService( &xSrvcA );
-
-    /* Start service B */
-    prvStartService( &xSrvcB );
-}
-
 TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
 {
 	BLETESTAttrCallback_t xBLETESTInclServiceCb;
@@ -1585,24 +1575,43 @@ void prvCreateService( BTService_t * xRefSrvc )
 
 TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 {
-    /* Create service A */
-    prvCreateService( &xSrvcA );
-    prvCreateCharacteristic( &xSrvcA, bletestATTR_SRVCA_CHAR_A );
+	BTStatus_t xStatus;
 
-    /* Create service B */
-    prvCreateService( &xSrvcB );
-    prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_A );
-    prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_B );
-    prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_C );
-    prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_D );
-    prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_E );
-    prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CCCD_E );
-    prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_F );
-    prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CCCD_F );
-    prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_A );
-    prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_B );
-    prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_C );
-    prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_D );
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+	xStatus = pxGattServerInterface->pxAddServiceBlob(ucBLEServerIf, &xSrvcA);
+
+	if(xStatus != eBTStatusUnsupported)
+	{
+		TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+		xStatus = pxGattServerInterface->pxAddServiceBlob(ucBLEServerIf, &xSrvcB);
+		TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+	}else
+	{
+		/* Create service A */
+		prvCreateService( &xSrvcA );
+		prvCreateCharacteristic( &xSrvcA, bletestATTR_SRVCA_CHAR_A );
+
+		/* Create service B */
+		prvCreateService( &xSrvcB );
+		prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_A );
+		prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_B );
+		prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_C );
+		prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_D );
+		prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_E );
+		prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CCCD_E );
+		prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_F );
+		prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CCCD_F );
+		prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_A );
+		prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_B );
+		prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_C );
+		prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_D );
+
+		/* Start service A */
+		prvStartService( &xSrvcA );
+		/* Start service B */
+		prvStartService( &xSrvcB );
+	}
 }
 
 TEST( Full_BLE, BLE_Initialize_BLE_GATT )

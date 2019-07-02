@@ -202,6 +202,8 @@ static BTStatus_t prvBTConnect( uint8_t ucServerIf,
 static BTStatus_t prvBTDisconnect( uint8_t ucServerIf,
                                    const BTBdaddr_t * pxBdAddr,
                                    uint16_t usConnId );
+static BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
+                              BTService_t * pxService );
 static BTStatus_t prvBTAddService( uint8_t ucServerIf,
                                    BTGattSrvcId_t * pxSrvcId,
                                    uint16_t usNumHandles );
@@ -243,6 +245,7 @@ static BTGattServerInterface_t xGATTserverInterface =
     .pxGattServerInit     = prvBTGattServerInit,
     .pxConnect            = prvBTConnect,
     .pxDisconnect         = prvBTDisconnect,
+	.pxAddServiceBlob     = prvAddServiceBlob,
     .pxAddService         = prvBTAddService,
     .pxAddIncludedService = prvBTAddIncludedService,
     .pxAddCharacteristic  = prvBTAddCharacteristic,
@@ -972,6 +975,12 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 }
 
 /*-----------------------------------------------------------*/
+
+BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
+                              BTService_t * pxService )
+{
+    return eBTStatusUnsupported;
+}
 
 const void * prvBTGetGattServerInterface()
 {
