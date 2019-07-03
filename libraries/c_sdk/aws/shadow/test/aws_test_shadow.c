@@ -477,6 +477,7 @@ TEST( Full_Shadow, UpdateCallback )
         /*Register update callback.*/
         xCallbackParams.pcThingName = shadowTHING_NAME;
         xCallbackParams.xShadowUpdatedCallback = prvTestUpdatedCallback;
+        xCallbackParams.xShadowDeltaCallback = prvTestDeltaCallback;
         xReturn = SHADOW_RegisterCallbacks( xShadowClientHandle,
                                             &xCallbackParams,
                                             shadowTIMEOUT );
