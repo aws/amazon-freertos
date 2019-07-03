@@ -1697,12 +1697,12 @@ static void prvOTAUpdateTask( void * pvUnused )
                                     }
                                     else
                                     { /* We're actively receiving a file so update the job status as needed. */
-                                      /* First reset the momentum counter since we received a good block. */
-                                        C->ulRequestMomentum = 0;
-                                        prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
+                                            /* First reset the momentum counter since we received a good block. */
+                                            C->ulRequestMomentum = 0;
+                                            prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
+                                        }
                                     }
                                 }
-                            }
                             else
                             {
                                 /* Ignore unknown message types. */
@@ -2610,8 +2610,11 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 if ( (C != NULL) && (C->pucJobName != NULL) )
                 {
                     xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
-                    /* TODO: Report version other than 0 */
+                    C->pucJobName = NULL;
                     prvUpdateJobStatus( NULL, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, 0 );
+                    /* We don't need the job name memory anymore since we're done with this job. */
+                    vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
+                    xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
                 }
                 else
                 {
@@ -2657,7 +2660,6 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     if( pxFinalFile == NULL )
     {
         ( void ) prvOTA_Close( C ); /* Ignore impossible false result by design */
-        xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL; /* Clean up global context */
     }
 
     /* Return pointer to populated file context or NULL if it failed. */
