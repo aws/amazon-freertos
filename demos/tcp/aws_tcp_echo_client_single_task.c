@@ -343,9 +343,9 @@ static void prvEchoClientTask( void * pvParameters )
                         break;
                     }
                 }
-                else if( xReceivedBytes < 0 )
+                else if( xReceivedBytes == -pdFREERTOS_ERRNO_ENOTCONN )
                 {
-                    /* SOCKETS_Recv() returned an error. */
+                    /* The connection got closed. */
                     break;
                 }
                 else
