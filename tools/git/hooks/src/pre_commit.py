@@ -140,7 +140,7 @@ def check_uncrustify(changed_files):
     for changed_file in changed_files:
         if subprocess.call(
             (
-                "uncrustify --check -q -c .uncrustify.cfg " +
+                "uncrustify --check -q -c tools/uncrustify.cfg " +
                 changed_file
             ), shell=True
         ):
