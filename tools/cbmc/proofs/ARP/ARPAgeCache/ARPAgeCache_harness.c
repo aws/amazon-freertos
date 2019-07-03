@@ -18,5 +18,6 @@ NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xRequestedSi
 
 void harness()
 {
+  assert(0);
   vARPAgeCache();
 }
