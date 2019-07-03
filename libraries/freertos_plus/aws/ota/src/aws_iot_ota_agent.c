@@ -1258,7 +1258,9 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                     if( eResult != IOT_MQTT_SUCCESS )
                     {
                         OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-                        /* Don't return an error. Let max momentum catch it since this may be intermittent. */
+                        /* Don't return an error. Let max momentum catch it since this may be intermittent.
+                           Restart the timer so that we will come back through here and try again */
+                        prvStartRequestTimer( C );
                     }
                     else
                     {
