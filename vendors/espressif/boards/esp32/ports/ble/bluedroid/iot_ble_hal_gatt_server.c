@@ -795,55 +795,7 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                               BTService_t * pxService )
 {
-	esp_gatts_attr_db_t * xGattTable;
-	BTStatus_t xStatus = eBTStatusSuccess;
-	uint16_t index;
-	BTDbAttributeType_t xType;
-	BTCharacteristic_t * pxChar;
-    BTCharacteristicDescr_t * pxDescr;
-    BTIncludedService_t* pxInservice;
-    BTServiceUUID_t * pxServiceUUIDs;
 
-	xGattTable = pvMalloc(sizeof(esp_gatts_attr_db_t)*pxService->xNumberOfAttributes);
-    if(xGattTable == NULL)
-    {
-    	configPrintf("Could not allocate enough memory to create the attribute table");
-    	xStatus = eBTStatusNoMem;
-    }
-
-    if(xStatus == eBTStatusSuccess)
-    {
-    	for( index = 0; index < pxService->xNumberOfAttributes; index++)
-    	{
-    		xGattTable->attr_control.auto_rsp = ESP_GATT_RSP_BY_APP;
-
-    		xType = pxService->pxBLEAttributes[index].xAttributeType;
-
-    		switch(xType)
-    		{
-				case eBTDbPrimaryService:
-					pxServiceUUIDs = pxService->pxBLEAttributes[index].xServiceUUID;
-
-					xGattTable->att_desc.uuid_length = prvGetUUIDlen(pxServiceUUIDs);
-					xGattTable->att_desc.uuid_p =pxServiceUUIDs->uu.uu128;
-					break;
-				case eBTDbSecondaryService:
-					break;
-				case eBTDbIncludedService:
-					break;
-				case eBTDbCharacteristic:
-					break;
-				case eBTDbDescriptor:
-					break;
-				default:break;
-    		}
-
-			xGattTable->att_desc.value = NULL;
-    	}
-    }
-
-    vFree(xGattTable);
-	esp_err_t esp_ble_gatts_create_attr_tab(const esp_gatts_attr_db_t *gatts_attr_db, esp_gatt_if_t gatts_if, uint8_t max_nb_attr, uint8_t srvc_inst_id);
     return eBTStatusUnsupported;
 }
 
