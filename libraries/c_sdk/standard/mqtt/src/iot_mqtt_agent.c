@@ -435,7 +435,7 @@ static void prvDisconnectCallbackWrapper( void * pvParameter,
 
 /*-----------------------------------------------------------*/
 
-IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle )
+IotMqttConnection_t MQTT_AGENT_Getv2Connection( MQTTAgentHandle_t xMQTTHandle )
 {
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
 

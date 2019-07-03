@@ -107,7 +107,7 @@ static void prvUpdatedCallbackWrapper( void * pvArgument,
                                        AwsIotShadowCallbackParam_t * const pxUpdatedDocument );
 
 /* Retrieves the MQTT v2 connection from the MQTT v1 connection handle. */
-extern IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle );
+extern IotMqttConnection_t MQTT_AGENT_Getv2Connection( MQTTAgentHandle_t xMQTTHandle );
 
 /*-----------------------------------------------------------*/
 
@@ -475,7 +475,7 @@ ShadowReturnCode_t SHADOW_Update( ShadowClientHandle_t xShadowClientHandle,
     }
 
     /* Call the MQTT v2 blocking Shadow update function. */
-    xShadowError = AwsIotShadow_TimedUpdate( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+    xShadowError = AwsIotShadow_TimedUpdate( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                              &xUpdateDocument,
                                              xFlags,
                                              shadowTICKS_TO_MS( xTimeoutTicks ) );
@@ -508,7 +508,7 @@ ShadowReturnCode_t SHADOW_Get( ShadowClientHandle_t xShadowClientHandle,
     }
 
     /* Call the MQTT v2 blocking Shadow get function. */
-    xShadowError = AwsIotShadow_TimedGet( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+    xShadowError = AwsIotShadow_TimedGet( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                           &xGetDocument,
                                           xFlags,
                                           shadowTICKS_TO_MS( xTimeoutTicks ),
@@ -596,7 +596,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
             pCallbackInfo = NULL;
         }
 
-        xShadowError = AwsIotShadow_SetDeltaCallback( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+        xShadowError = AwsIotShadow_SetDeltaCallback( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                                       pxCallbackParams->pcThingName,
                                                       thingNameLength,
                                                       0,
@@ -616,7 +616,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
             pCallbackInfo = NULL;
         }
 
-        xShadowError = AwsIotShadow_SetUpdatedCallback( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+        xShadowError = AwsIotShadow_SetUpdatedCallback( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                                         pxCallbackParams->pcThingName,
                                                         thingNameLength,
                                                         0,
