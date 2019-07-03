@@ -11,7 +11,7 @@
 ARPPacket_t xARPPacket;
 NetworkBufferDescriptor_t xNetworkBuffer;
 
-/* 
+/* STUB!
  * We assume that the pxGetNetworkBufferWithDescriptor function is
  * implemented correctly and returns a valid data structure.
  * This is the mock to mimic the expected behavior.
@@ -24,7 +24,18 @@ NetworkBufferDescriptor_t xNetworkBuffer;
  * of an ARPPacket to gurantee memory safety.
  */
 NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xRequestedSizeBytes, TickType_t xBlockTimeTicks ){
-	xNetworkBuffer.pucEthernetBuffer = malloc(xRequestedSizeBytes);
+	#ifdef CBMC_PROOF_ASSUMPTION_HOLDS
+		#ifdef ipconfigETHERNET_MINIMUM_PACKET_BYTES
+			xNetworkBuffer.pucEthernetBuffer = malloc(ipconfigETHERNET_MINIMUM_PACKET_BYTES);
+		#else
+			xNetworkBuffer.pucEthernetBuffer = malloc(xRequestedSizeBytes);
+		#endif
+	#else
+		uint32_t malloc_size;
+		__CPROVER_assert(!__CPROVER_overflow_mult(2, xRequestedSizeBytes));
+		__CPROVER_assume(malloc_size > 0 && malloc_size < 2 * xRequestedSizeBytes);
+		xNetworkBuffer.pucEthernetBuffer = malloc(malloc_size);
+	#endif
 	xNetworkBuffer.xDataLength = xRequestedSizeBytes;
 	return &xNetworkBuffer;
 }

@@ -1,0 +1,29 @@
+{
+  "ENTRY": "OutputARPRequest",
+  "CBMCFLAGS":
+  [
+      "--unwind 20"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.goto"
+  ],
+  #That is the minimal required size for an ARPPacket_t plus offset in the buffer.
+  "MINIMUM_PACKET_BYTES": 50,
+  "DEF":
+  [
+    {
+      "CBMC_PROOF_ASSUMPTION_HOLDS_Packet_bytes": [
+        "CBMC_PROOF_ASSUMPTION_HOLDS=1",
+        "ipconfigETHERNET_MINIMUM_PACKET_BYTES={MINIMUM_PACKET_BYTES}"
+      ]
+    },
+    {
+      "CBMC_PROOF_ASSUMPTION_HOLDS_no_packet_bytes": ["CBMC_PROOF_ASSUMPTION_HOLDS=1"]
+    },
+    {
+      "CBMC_PROOF_ASSUMPTION_DOES_NOT_HOLD": ["CBMC_PROOF_ASSUMPTION_HOLDS=0"]
+    }
+  ]
+}
