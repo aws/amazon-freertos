@@ -13,5 +13,7 @@
   ],
   "DEF":
   [
+    {"NOT_STORE_REMOTE":["ipconfigARP_STORES_REMOTE_ADDRESSES=0"]},
+    {"STORE_REMOTE":["ipconfigARP_STORES_REMOTE_ADDRESSES=1"]}
   ]
 }
