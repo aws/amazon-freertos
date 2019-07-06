@@ -275,6 +275,7 @@
 									<logicalFolder name="pic32mzef" displayName="pic32mzef" projectFiles="true">
 										<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c</itemPath>
 										<itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c</itemPath>
+                    <itemPath>../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c</itemPath>
 									</logicalFolder>
 								</logicalFolder>
 							</logicalFolder>

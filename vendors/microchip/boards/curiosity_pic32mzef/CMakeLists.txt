@@ -209,6 +209,7 @@ target_sources(
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c"
 )
 
 target_include_directories(

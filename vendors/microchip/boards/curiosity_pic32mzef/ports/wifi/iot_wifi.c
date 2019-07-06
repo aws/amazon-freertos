@@ -405,7 +405,7 @@ WIFIReturnCode_t WIFI_ConnectAP( const WIFINetworkParams_t * const pxNetworkPara
     WDRV_IsDisconnectRequestedSet( pdFALSE );
     WDRV_ConnectionStateSet( WDRV_CONNECTION_STATE_IN_PROGRESS );
 
-    WDRV_DBG_INFORM_MESSAGE( ( "Start Wi-Fi Connection...\r\n" ) );
+    WDRV_DBG_INFORM_MESSAGE( ( "Start Wi-Fi Connection to SSID %.*s...\r\n", pxNetworkParams->ucSSIDLength, pxNetworkParams->pcSSID ) );
 
     /* Read MAC address from the chip and set it in FreeRTOS network stack. */
     WDRV_EXT_CmdMacAddressGet( ucMACAddress );
