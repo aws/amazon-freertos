@@ -104,6 +104,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/iot_json_utils.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_api.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_collector.c \
