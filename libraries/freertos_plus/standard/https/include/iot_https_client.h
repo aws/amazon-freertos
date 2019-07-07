@@ -119,12 +119,18 @@ void IotHttpsClient_Deinit( void );
  * 
  * If the application receives a #IOT_HTTPS_NETWORK_ERROR from @ref https_client_function_sendsync or 
  * @ref https_client_function_sendasync, on a persistent request, that does not always mean the connection has been 
- * disconnected, but the connection may have been. The application can call this function again to reestablish the 
- * connection. To know if the connection was closed by the server, debug logging can be turned on to view the network
+ * disconnected, but the connection may have been. The application can call this this function again to reestablish the 
+ * connection. To know if the connection was closed by  the server, debug logging can be turned on to view the network 
  * error code received. Debug logging is configured when IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h. 
  * 
+ * This function is not thread-safe if pConnHandle passed in is valid and represents a previously opened connection. 
+ * This function will disconnect, then reconnect. Before calling this function make sure that all outstanding requests
+ * on the connection have completed. Outstanding requests are completed when @ref https_client_function_sendsync has
+ * returned or when #IotHttpsClientCallbacks.responseComplete has been invoked for requests scheduled with 
+ * @ref https_client_function_sendasync.
+ * 
  * Multiple threads may call this function at the same time if the buffer provided in 
- * #IotHttpsConnectionInfo_t.userBuffer is different for each of the threads.
+ * #IotHttpsConnectionInfo_t.userBuffer is different for each of the threads. 
  * 
  * See @ref connectionUserBufferMinimumSize for information about the user buffer configured in 
  * #IotHttpsConnectionInfo_t.userBuffer needed to create a valid connection handle.
@@ -166,6 +172,11 @@ IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHa
  * @ref https_client_function_sendasync, on a persistent request, that does not always mean the connection has been 
  * disconnected. This function MUST be called to close the connection and clean up connection resources taken by 
  * IotHttpsConnectionHandle_t.
+ * 
+ * This function is not thread safe. Make sure that all request/responses have finished on the connection before calling
+ * this API. Outstanding requests are completed when @ref https_client_function_sendsync has returned or when 
+ * #IotHttpsClientCallbacks.responseComplete has been invoked for requests scheduled with  
+ * @ref https_client_function_sendasync.
  * 
  * @param[in] connHandle - Valid handle representing an open connection.
  * 

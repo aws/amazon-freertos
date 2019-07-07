@@ -1884,6 +1884,10 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     {
         IotLogWarn("There an error parsing the network flush data. The network buffer might not be fully flushed. Error code %d.", flushStatus);
     }
+    else
+    {
+        IotLogDebug("Received network error when flushing the socket. Error code: %d", flushStatus);
+    }
 
     /* If this is not a persistent connection, the server would have closed it after
         sending a response, but we disconnect anyways. */
