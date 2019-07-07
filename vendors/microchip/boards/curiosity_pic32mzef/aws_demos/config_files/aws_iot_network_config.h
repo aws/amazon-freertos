@@ -55,9 +55,9 @@
  *
  */
 #ifdef PIC32_USE_ETHERNET
-    #define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_ETH )
+    #define configENABLED_NETWORKS    ( AWSIOT_NETWORK_TYPE_ETH )
 #else
-    #define configENABLED_NETWORKS      ( AWSIOT_NETWORK_TYPE_WIFI )
+    #define configENABLED_NETWORKS    ( AWSIOT_NETWORK_TYPE_WIFI )
 #endif
 
 #endif /* CONFIG_FILES_AWS_IOT_NETWORK_CONFIG_H_ */
