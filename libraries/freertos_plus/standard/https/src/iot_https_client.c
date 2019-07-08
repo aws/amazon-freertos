@@ -311,11 +311,15 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
  * @brief Disconnects from the network.
  * 
  * @param[in] _httpsConnection - HTTPS connection handle.
- * 
- * @return #IOT_HTTPS_OK of the disconnect was successful.
- *         #IOT_HTTPS_NETWORK_ERROR if the disconnect failed.
  */
-static IotHttpsReturnCode_t _networkDisconnect(_httpsConnection_t* _httpsConnection);
+static void _networkDisconnect(_httpsConnection_t* _httpsConnection);
+
+/**
+ * @brief Destroys the network connection.
+ * 
+ * @param[in] _httpsConnection - HTTPS connection handle.
+ */
+static void _networkDestroy(_httpsConnection_t* _httpsConnection);
 
 /**
  * @brief Add a header to the current HTTP request.
@@ -953,10 +957,8 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
         /* If there was a connect was successful, disconnect from the network.  */
         if(( _httpsConnection != NULL) && (_httpsConnection->isConnected))
         {   
-            if (_networkDisconnect(_httpsConnection) != IOT_HTTPS_OK)
-            {
-                IotLogError("Failed to disconnect from a failed connection context initialization.");
-            }
+            _networkDisconnect( _httpsConnection );
+            _networkDestroy( _httpsConnection );
         }
 
         if(connSemCreated)
@@ -973,6 +975,8 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
         {
             IotSemaphore_Destroy( &(_httpsConnection->rxFinishSem) );
         }
+
+        
 
         /* Set the connection handle as NULL if everything failed. */
         *pConnHandle = NULL;
@@ -1024,7 +1028,7 @@ IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHa
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _networkDisconnect(_httpsConnection_t* _httpsConnection)
+static void _networkDisconnect(_httpsConnection_t* _httpsConnection)
 {
     IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
     IotHttpsReturnCode_t status = IOT_HTTPS_OK;
@@ -1041,32 +1045,58 @@ static IotHttpsReturnCode_t _networkDisconnect(_httpsConnection_t* _httpsConnect
 
 /*-----------------------------------------------------------*/
 
+static void _networkDestroy(_httpsConnection_t* _httpsConnection)
+{
+    IotNetworkError_t networkStatus = IOT_NETWORK_SUCCESS;
+    IotHttpsReturnCode_t status = IOT_HTTPS_OK;
+
+    networkStatus = _httpsConnection->pNetworkInterface->destroy( _httpsConnection->pNetworkConnection );
+    if ( networkStatus != IOT_NETWORK_SUCCESS )
+    {
+        IotLogWarn("Failed to shutdown the socket with error code: %d", networkStatus );
+        status = IOT_HTTPS_NETWORK_ERROR;
+    }
+
+    return status;
+}
+
+/*-----------------------------------------------------------*/
+
 IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHandle)
 {
     IotHttpsReturnCode_t status = IOT_HTTPS_OK;
+    IotHttpsReturnCode_t networkStatus = IOT_HTTPS_OK;
 
-    if ( connHandle == NULL )
+    if( connHandle == NULL )
     {
         IotLogError("NULL parameter passed into IotHttpsClient_Disconnect().");
         status = IOT_HTTPS_INVALID_PARAMETER;
-    }   
+    }
 
     if( status == IOT_HTTPS_OK)
     {
-        /* Mark the network as disconnected whether the disconnect passed or not. */
+        /* Mark the network as disconnected whether the disconnect passes or not. */
         connHandle->isConnected = false;
         
         /* Disconnect from the network. */
-        status = _networkDisconnect(connHandle);
-        if( status != IOT_HTTPS_OK )
-        {
-            IotLogWarn("Failed to disconnect from the server with error code: %d", status);
-        }
+        _networkDisconnect(connHandle);
 
+        if( IotSemaphore_TryWait(&(connHandle->connSem) ) == false)
+        {
+            IotLogError("Connection is in use, cannot destroy yet. Please wait for the outstanding request to finish.");
+            status = IOT_HTTPS_BUSY;
+        } 
+    }
+
+    if(status == IOT_HTTPS_OK)
+    {
         /* Clean connection context resources. */
         IotSemaphore_Destroy( &(connHandle->connSem) );
         IotSemaphore_Destroy( &(connHandle->rxStartSem) );
         IotSemaphore_Destroy( &(connHandle->rxFinishSem) );
+
+        /* Destroy the network connection (cleaning up network socket resources). */
+        _networkDestroy(connHandle);
     }
 
     return status;
