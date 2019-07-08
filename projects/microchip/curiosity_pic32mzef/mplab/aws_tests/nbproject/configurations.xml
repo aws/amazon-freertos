@@ -85,6 +85,7 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</itemPath>
 						</logicalFolder>
 						<itemPath>../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c</itemPath>
+						<itemPath>../../../../../libraries/c_sdk/standard/common/iot_device_metrics.c</itemPath>
 						<logicalFolder name="taskpool" displayName="taskpool" projectFiles="true">
 							<itemPath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</itemPath>
@@ -103,7 +104,6 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</itemPath>
-							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">

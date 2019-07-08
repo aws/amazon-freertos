@@ -235,7 +235,7 @@ static void prvExpectFailAfterDataSentWithProvisioning( ProvisioningParams_t * p
             xResult = SOCKETS_Send( xSocket, pcAWSIoTAddress, strlen( pcAWSIoTAddress ), 0 );
             TEST_ASSERT_GREATER_THAN_INT32_MESSAGE( 0, xResult, "Socket was not able to send." );
 
-            /* The AWS IoT broker endpoint should have close the connection with the reciept of the data above. */
+            /* The AWS IoT broker endpoint should have close the connection with the receipt of the data above. */
             xResult = SOCKETS_Recv( xSocket, ucRecvBuffer, testrunnerBUFFER_SIZE, 0 );
             configPRINTF( ( "A negative result is expected from SOCKETS_Recv and we got: %d\r\n", xResult ) );
             TEST_ASSERT_LESS_THAN_INT32_MESSAGE( 0, xResult, "SOCKETS_Recv passed or timed out when it should have failed." );

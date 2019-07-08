@@ -618,7 +618,7 @@ TEST( Full_MQTT_Agent_Stress_Tests, MQTT_Agent_MultiTaskTest )
  * Also, y number of Transmit task are going to be created, each tasks are going to publish n number of MQTT messages
  * to each one of the x tasks.
  *
- * Once the task has connected, it will synch with the Transmit tasks. Since the task will receice y messages (from y Transmit task),
+ * Once the task has connected, it will synch with the Transmit tasks. Since the task will receive y messages (from y Transmit task),
  * it will pend on Receive semaphore y times. Data is a simple counter and is checked in the callback.
  */
 static void prvMultiTaskTest_Rx_Task( void * pvParameters )

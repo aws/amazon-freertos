@@ -86,7 +86,7 @@ static void _translateErrorCode( CborError cborError,
 {
     /* TODO: assert cborError == 0 || *pSerializerError == 0 */
 
-    /* Only translate if there is no error on serizlier currently. */
+    /* Only translate if there is no error on serializer currently. */
     if( *pSerializerError == IOT_SERIALIZER_SUCCESS )
     {
         switch( cborError )

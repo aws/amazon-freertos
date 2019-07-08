@@ -528,7 +528,7 @@ WIFIReturnCode_t WIFI_GetPMMode( WIFIPMMode_t * pxPMModeType,
  *
  * @param[in] xCallback Application callback for network state change events.
  *
- * @return @ref eWiFiSuccess if application callback registration was succesfull, failure code if otherwise.
+ * @return @ref eWiFiSuccess if application callback registration was successful, failure code if otherwise.
  */
 /* @[declare_wifi_wifi_registernetworkstatechangeeventcallback] */
 WIFIReturnCode_t WIFI_RegisterNetworkStateChangeEventCallback( IotNetworkStateChangeEventCallback_t xCallback );

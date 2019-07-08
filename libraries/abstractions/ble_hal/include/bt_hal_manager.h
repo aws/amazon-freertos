@@ -258,7 +258,7 @@ typedef struct
 {
     BTPropertyType_t xType; /**< Property type. */
     size_t xLen;            /**< Property value length. */
-    void * pvVal;           /**< Proterty value. */
+    void * pvVal;           /**< Property value. */
 } BTProperty_t;
 
 /**
@@ -425,7 +425,7 @@ typedef void ( * BTPairingStateChangedCallback_t )( BTStatus_t xStatus,
  * element withapp_uid set to -1.
  *
  * @param[in] pxEnergyInfo Energy information.
- * @param[in] pxUidData UID data trafic.
+ * @param[in] pxUidData UID data traffic.
  */
 typedef void ( * BTEnergyInfoCallback_t )( BTActivityEnergyInfo * pxEnergyInfo,
                                            BTUidTraffic_t * pxUidData );
@@ -571,7 +571,7 @@ typedef struct
      *
      * @return eBTStatusSuccess if the operation is successful, else error code.
      * When properties are read, they will be returned as part of
-     * pxdevice_propoerty_changed_callback()
+     * pxAdapterPropertiesCb()
      */
     BTStatus_t ( * pxGetAllDeviceProperties )();
 
@@ -582,8 +582,8 @@ typedef struct
      *
      * @param[in] xType Property type.
      * @return eBTStatusSuccess if the operation is successful, else error code.
-     * When property is read, it  will be retuned as part of
-     * pxDevicePropertyChangedCallback()
+     * When property is read, it  will be returned as part of
+     * pxAdapterPropertiesCb()
      * @return eBTStatusSuccess if the operation is successful, else error code.
      */
     BTStatus_t ( * pxGetDeviceProperty )( BTPropertyType_t xType );
@@ -606,8 +606,8 @@ typedef struct
      *
      * @param[in] pxRemoteAddr BT Address of remote device
      * @return eBTStatusSuccess if the operation is successful, else error code.
-     * When properties are read, they will be retuned as part of
-     * pxDevicePropertiesCallback()
+     * When properties are read, they will be returned as part of
+     * pxAdapterPropertiesCb()
      */
     BTStatus_t ( * pxGetAllRemoteDeviceProperties )( BTBdaddr_t * pxRemoteAddr );
 
@@ -619,8 +619,8 @@ typedef struct
      * @param[in] pxRemoteAddr BT Address of remote device.
      * @param[in] xType Property type.
      * @return eBTStatusSuccess if the operation is successful, else error code.
-     * When property is read, it  will be retuned as part of
-     * pxRemoteDevicePropertiesCallback()
+     * When property is read, it  will be returned as part of
+     * pxRemoteDevicePropertiesCb()
      */
     BTStatus_t ( * pxGetRemoteDeviceProperty )( BTBdaddr_t * pxRemoteAddr,
                                                 BTPropertyType_t xType );
@@ -638,7 +638,7 @@ typedef struct
                                                 const BTProperty_t * pxProperty );
 
     /**
-     * @brief Intiates Bluetooth pairing to a remote device.
+     * @brief Initiates Bluetooth pairing to a remote device.
      *
      * Triggers BTPairingStateChangedCallback_t on both central and peripheral.
      *
@@ -708,7 +708,7 @@ typedef struct
      * @brief Retrieves connection status for a device.
      *
      * @param[in] pxBdAddr BT Address of device.
-     * @param[in] bConnectionState true if connnected false if not connected
+     * @param[in] bConnectionState true if connected false if not connected
      *
      * @return Fail if there is no connection.
      */

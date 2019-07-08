@@ -216,7 +216,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeNetworkPriority )
         TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, 2 ) );
         TEST_ASSERT_EQUAL( true, prvIsSameNetwork( &xNetwork, &xTestProfile ) );
 
-        /* Change piority from 0 to  2  twice */
+        /* Change priority from 0 to  2  twice */
         TEST_ASSERT_EQUAL( eWiFiSuccess, test_MoveNetwork( 0, 2 ) );
         TEST_ASSERT_EQUAL( eWiFiSuccess, test_MoveNetwork( 0, 2 ) );
 

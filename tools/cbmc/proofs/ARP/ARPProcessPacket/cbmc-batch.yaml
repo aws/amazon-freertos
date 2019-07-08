@@ -1,4 +1,0 @@
-jobos: ubuntu16
-cbmcflags: '=--object-bits;7;--32;--bounds-check;--pointer-check;--unwind;1;--unwindset;vARPRefreshCacheEntry.0:7,memcmp.0:17;--nondet-static='
-goto: ARPProcessPacket.goto
-expected: SUCCESSFUL

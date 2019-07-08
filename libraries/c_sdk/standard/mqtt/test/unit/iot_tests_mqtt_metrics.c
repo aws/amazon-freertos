@@ -34,7 +34,7 @@
 /* Test framework includes. */
 #include "unity_fixture.h"
 
-#include "aws_clientcredential_keys.h"
+#include "iot_config.h"
 
 extern void Utils_generateMD5Hash( const char * pData,
                                    size_t dataLength,
@@ -48,14 +48,16 @@ extern const char * getDeviceMetrics( void );
 extern uint16_t getDeviceMetricsLength( void );
 
 
-#define _MD5_HASH_LENGTH             ( 16 )
+#define MD5_HASH_LENGTH             ( 16 )
 
-#define _DEVICE_IDENTIFIER_LENGTH    ( 2 * _MD5_HASH_LENGTH )
+#define DEVICE_IDENTIFIER_LENGTH    ( 2 * MD5_HASH_LENGTH )
 
 /*
  * @brief Following test data is copied from RFC 1321 for MD5 hashing.
  */
-#define _NUM_TEST_DATA               ( 7 )
+#define NUM_TEST_DATA               ( 7 )
+
+#define METRICS_PREFIX              "?SDK=" IOT_SDK_NAME "&Version=" IOT_SDK_VERSION "&Platform=" IOT_PLATFORM_NAME
 
 static const char * inputData[] =
 {
@@ -99,8 +101,6 @@ TEST_GROUP_RUNNER( MQTT_Unit_Metrics )
     RUN_TEST_CASE( MQTT_Unit_Metrics, Get_DeviceMetrics )
 }
 
-
-
 /**
  * @brief Tests the generate MD5 hash algorithm against the test data defined in
  * RFC 1321 ( https://tools.ietf.org/html/rfc1321 )
@@ -108,9 +108,9 @@ TEST_GROUP_RUNNER( MQTT_Unit_Metrics )
 TEST( MQTT_Unit_Metrics, Generate_MD5Hash )
 {
     int i;
-    uint8_t hash[ _MD5_HASH_LENGTH ];
+    uint8_t hash[ MD5_HASH_LENGTH ];
 
-    for( i = 0; i < _NUM_TEST_DATA; i++ )
+    for( i = 0; i < NUM_TEST_DATA; i++ )
     {
         memset( hash, 0x00, sizeof( hash ) );
         Utils_generateMD5Hash( inputData[ i ], strlen( inputData[ i ] ), hash, sizeof( hash ) );
@@ -129,7 +129,7 @@ TEST( MQTT_Unit_Metrics, Get_DeviceIdentifier )
     }
     else
     {
-        TEST_ASSERT_EQUAL( _DEVICE_IDENTIFIER_LENGTH, strlen( pDeviceIdentifier ) );
+        TEST_ASSERT_EQUAL( DEVICE_IDENTIFIER_LENGTH, strlen( pDeviceIdentifier ) );
     }
 }
 
@@ -139,10 +139,11 @@ TEST( MQTT_Unit_Metrics, Get_DeviceMetrics )
     const char * pDeviceMetrics = getDeviceMetrics();
     size_t deviceMetricsLength = getDeviceMetricsLength();
     int ret;
-
-    char expected[ _DEVICE_IDENTIFIER_LENGTH + 10 ] = { 0 };
+    char expected[ DEVICE_IDENTIFIER_LENGTH + 10 ] = { 0 };
 
     ret = snprintf( expected, sizeof( expected ), "AFRDevID=%s", pDeviceIdentifier );
     TEST_ASSERT( ret > 0 );
+    TEST_ASSERT( deviceMetricsLength > 0 );
+    TEST_ASSERT_NOT_NULL( strstr( pDeviceMetrics, METRICS_PREFIX ) );
     TEST_ASSERT_NOT_NULL( strstr( pDeviceMetrics, expected ) );
 }

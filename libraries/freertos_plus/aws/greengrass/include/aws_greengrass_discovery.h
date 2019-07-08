@@ -72,7 +72,7 @@ typedef struct
  * 1. GGD_JSONRequest.
  * 2. GGD_GetJSONFileSize.
  * 3. GGD_GetJSONFile.
- * 4. GGD_ConnectToHost with auto slection parameters set to true.
+ * 4. GGD_ConnectToHost with auto selection parameters set to true.
  * The buffer size of pcBuffer need to be big enough to hold the complete
  * JSON file.
  *
@@ -154,7 +154,7 @@ BaseType_t GGD_JSONRequestGetSize( Socket_t * pxSocket,
  * @param [out] pxJSONFileRetrieveCompleted: set to pdTRUE when
  * JSON file retrieve is finish.
  *
- * @return If the request check was sucessfully retrieved.
+ * @return If the request check was successfully retrieved.
  *         Otherwise pdFAIL is returned.
  * @note The condition for complete JSON retrieval is
  * xJSONFileRetrieveCompleted == pdTRUE and

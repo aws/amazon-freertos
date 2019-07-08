@@ -102,7 +102,7 @@ typedef enum
     eBTStatusNoMem,         /**< Failed to allocate memory. */
     eBTStatusBusy,          /**< Service/Driver/Peripheral busy. */
     eBTStatusDone,          /**< Request already completed. */
-    eBTStatusUnsupported,   /**< Unsuported request/call. */
+    eBTStatusUnsupported,   /**< Unsupported request/call. */
     eBTStatusParamInvalid,  /**< Invalid parameter. */
     eBTStatusUnHandled,     /**< . */
     eBTStatusAuthFailure,   /**< Authentication procedure failed. */

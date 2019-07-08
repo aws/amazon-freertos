@@ -1681,6 +1681,11 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/common/iot_device_metrics.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_device_metrics.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
@@ -4164,6 +4169,11 @@
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_serialize_ble.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</name>

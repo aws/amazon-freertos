@@ -202,7 +202,7 @@
 #endif
 
 /**
- * @brief Controls the number of network that can be discovered for WIFI provisionning.
+ * @brief Controls the number of network that can be discovered for WIFI provisioning.
  *
  * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t).
  */
@@ -211,7 +211,7 @@
 #endif
 
 
-/* @brief Controls the number of network that can be saved using WIFI provisionning.
+/* @brief Controls the number of network that can be saved using WIFI provisioning.
  *
  * The number should be set according to amount of flash space available on the device.
  * The size increase in multiple of sizeof(WIFINetworkProfile_t).

@@ -198,7 +198,7 @@ struct IotBleAttributeEvent
         IotBleReadEventParams_t * pParamRead;                     /**< Read event. */
         IotBleWriteEventParams_t * pParamWrite;                   /**< Write event. */
         IotBleExecWriteEventParams_t * pParamExecWrite;           /**< Execute write event. */
-        IotBleRespConfirmEventParams_t * pParamRespConfim;        /**<Response confirm event. */
+        IotBleRespConfirmEventParams_t * pParamRespConfirm;        /**< Response confirm event. */
         IotBleIndicationSentEventParams_t * pParamIndicationSent; /**< Indication event. */
     };
     IotBleAttributeEventType_t xEventType;                        /**< Event type (read/write/...). */

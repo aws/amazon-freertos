@@ -184,7 +184,7 @@ static bool _wifiDisable( void );
 static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkState_t newState );
 
 /**
- * @brief Taskpool routine to schedule user subscriptions for network state cnhanges. 
+ * @brief Taskpool routine to schedule user subscriptions for network state changes. 
  */
 static void _dispatchNetworkStateChangeCB( IotTaskPool_t taskPool, IotTaskPoolJob_t job, void * pUserContext );
 
@@ -352,7 +352,7 @@ static bool _bleEnable( void )
 }
 
 /*-----------------------------------------------------------*/
-/* TODO make same function to registere/unregister or risk of memory leak. */
+/* TODO make same function to register/unregister or risk of memory leak. */
 static bool _bleDisable( void )
 {
     bool ret = true;
@@ -587,7 +587,7 @@ static void _onNetworkStateChangeCallback( uint32_t networkType, AwsIotNetworkSt
     IotLink_t *pLink;
     IotTaskPoolError_t error;
 
-    /*  'networks' is an immutable list created/modified only during network manager intialization */
+    /*  'networks' is an immutable list created/modified only during network manager initialization */
     IotContainers_ForEach( &networkManager.networks, pLink )
     {
         pNetwork = IotLink_Container( IotNMNetwork_t, pLink, link );

@@ -34,7 +34,6 @@
 #include <string.h>
 
 #include "iot_config.h"
-#include "aws_clientcredential_keys.h"
 
 #include "platform/iot_clock.h"
 #include "iot_atomic.h"
@@ -78,7 +77,7 @@
 /**
  * @brief Device metrics name format
  */
-#define AWS_IOT_METRICS_FORMAT              "?SDK=" IOT_SDK_NAME "&Version=4.0.0&Platform=" IOT_PLATFORM_NAME "&AFRDevID=%.*s"
+#define AWS_IOT_METRICS_FORMAT              "?SDK=" IOT_SDK_NAME "&Version=" IOT_SDK_VERSION "&Platform=" IOT_PLATFORM_NAME "&AFRDevID=%.*s"
 
 /**
  * @brief Length of #AWS_IOT_METRICS_FORMAT.
@@ -107,7 +106,7 @@ void Utils_generateMD5Hash( const char * pData,
 
 /*
  * @brief Generates a unique identifier string from the input data.
- * Uses MD5 hash alogrithm to generate a 128-bit unqiue identifier and
+ * Uses MD5 hash algorithm to generate a 128-bit unique identifier and
  * encodes as a hexadecimal string.
  */
 
@@ -372,7 +371,7 @@ static void _generateUniqueIdentifier( const char * pInput,
  */
 const char * getDeviceIdentifier( void )
 {
-    const char * pCert = keyCLIENT_CERTIFICATE_PEM;
+    const char * pCertificate = IOT_DEVICE_CERTIFICATE;
     static uint32_t lock = 0;
 
     if( deviceIdentifier[ 0 ] == '\0' )
@@ -381,10 +380,10 @@ const char * getDeviceIdentifier( void )
 
         if( deviceIdentifier[ 0 ] == '\0' )
         {
-            if( ( pCert != NULL ) &&
-                ( strcmp( pCert, "" ) != 0 ) )
+            if( (pCertificate != NULL ) &&
+                ( strcmp(pCertificate, "" ) != 0 ) )
             {
-                _generateUniqueIdentifier( pCert, strlen( pCert ), deviceIdentifier, sizeof( deviceIdentifier ) );
+                _generateUniqueIdentifier( pCertificate, strlen( pCertificate ), deviceIdentifier, sizeof( deviceIdentifier ) );
             }
             else
             {
@@ -403,7 +402,7 @@ const char * getDeviceIdentifier( void )
  */
 const char * getDeviceMetrics( void )
 {
-    const char * pDeviceIndentifier = NULL;
+    const char * pDeviceIdentifier = NULL;
     static uint32_t lock = 0;
 
     if( deviceMetrics[ 0 ] == '\0' )
@@ -412,8 +411,8 @@ const char * getDeviceMetrics( void )
 
         if( deviceMetrics[ 0 ] == '\0' )
         {
-            pDeviceIndentifier = getDeviceIdentifier();
-            _generateDeviceMetrics( pDeviceIndentifier, strlen( pDeviceIndentifier ), deviceMetrics, sizeof( deviceMetrics ) );
+            pDeviceIdentifier = getDeviceIdentifier();
+            _generateDeviceMetrics( pDeviceIdentifier, strlen( pDeviceIdentifier ), deviceMetrics, sizeof( deviceMetrics ) );
         }
 
         _atomicSpinlock_unlock( &lock );

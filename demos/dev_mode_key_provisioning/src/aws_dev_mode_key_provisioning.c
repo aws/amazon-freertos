@@ -112,7 +112,7 @@ CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
  *
  * \param[in] pucInput          Pointer to PEM object
  * \param[in] xLen              Length of PEM object
- * \param[out] pucOutput        Pointer to buffer where DER oboject will be placed
+ * \param[out] pucOutput        Pointer to buffer where DER object will be placed
  * \param[in/out] pxOlen        Pointer to length of DER buffer.  This value is updated
  *                              to contain the actual length of the converted DER object.
  *

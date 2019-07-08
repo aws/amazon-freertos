@@ -227,6 +227,7 @@
             <folder Name="taskpool">
               <file file_name="../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c" />
             </folder>
+            <file file_name="../../../../../libraries/c_sdk/standard/common/iot_device_metrics.c" />
           </folder>
           <folder Name="mqtt">
             <file file_name="../../../../../libraries/c_sdk/standard/mqtt/CMakeLists.txt" />
@@ -246,7 +247,6 @@
               <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c" />
-              <file file_name="../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_metrics.c" />
             </folder>
           </folder>
           <folder Name="serializer">

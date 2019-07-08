@@ -29,8 +29,8 @@
  * shared by other OTA modules and testing files.
  */
 
-#ifndef _AWS_OTA_AGENT_INTERAL_H_
-#define _AWS_OTA_AGENT_INTERAL_H_
+#ifndef _AWS_OTA_AGENT_INTERNAL_H_
+#define _AWS_OTA_AGENT_INTERNAL_H_
 
 #include "aws_ota_agent_config.h"
 #include "jsmn.h"
@@ -140,4 +140,4 @@ typedef struct
     uint32_t ulParamsRequiredBitmap;   /* Bitmap of the parameters required from the model. */
 } JSON_DocModel_t;
 
-#endif /* ifndef _AWS_OTA_AGENT_INTERAL_H_ */
+#endif /* ifndef _AWS_OTA_AGENT_INTERNAL_H_ */

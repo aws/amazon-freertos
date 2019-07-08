@@ -1,9 +1,9 @@
 {
-  "ENTRY": "ARPGetCacheEntry",
+  "ENTRY": "ARPProcessPacket",
   "CBMCFLAGS":
   [
       "--unwind 1",
-      "--unwindset prvCacheLookup.0:7",
+      "--unwindset vARPRefreshCacheEntry.0:7,memcmp.0:17",
       "--nondet-static"
   ],
   "OBJS":
@@ -13,5 +13,7 @@
   ],
   "DEF":
   [
+    {"disableClashDetection": ["ipconfigARP_USE_CLASH_DETECTION=0"]},
+    {"enableClashDetection": ["ipconfigARP_USE_CLASH_DETECTION=1"]}
   ]
 }
