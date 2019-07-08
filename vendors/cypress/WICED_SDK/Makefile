@@ -303,7 +303,7 @@ iar_project:
 clean:
 	$(QUIET)$(ECHO) Cleaning...
 	$(QUIET)$(CLEAN_COMMAND)
-	$(QUIET)$(RM) -rf .gdbinit ../../demos ../../lib ../../tests ./lwip ./jsmn ./mbedtls ./unity
+	$(QUIET)$(RM) -rf $(AMAZON_FREERTOS_PATH)/projects/cypress/$(PLATFORM)/wicedstudio/aws_demos/.gdbinit ../../demos ../../lib ../../tests ./lwip ./jsmn ./mbedtls ./unity
 	$(QUIET)$(ECHO) Done
 
 ifneq (,$(filter test,$(MAKECMDGOALS)))
@@ -368,10 +368,10 @@ main_app: build/$(CLEANED_BUILD_STRING)/config.mk $(WICED_SDK_PRE_APP_BUILDS) $(
 ifeq ($(SUB_BUILD),)
 .gdbinit: build/$(CLEANED_BUILD_STRING)/config.mk $(MAKEFILES_PATH)/wiced_toolchain_common.mk main_app
 	$(QUIET)$(ECHO) Making $@
-	$(QUIET)$(ECHO) set remotetimeout 20 > $@
-	$(QUIET)$(ECHO) $(GDBINIT_STRING) >> $@
+	$(QUIET)$(ECHO) set remotetimeout 20 > $(AMAZON_FREERTOS_PATH)/projects/cypress/$(PLATFORM)/wicedstudio/aws_demos/$@
+	$(QUIET)$(ECHO) $(GDBINIT_STRING) >> $(AMAZON_FREERTOS_PATH)/projects/cypress/$(PLATFORM)/wicedstudio/aws_demos/$@
 ifneq ($(WAIT_FOR_GDBSERVER_STRING),)
-	$(QUIET)$(ECHO) $(WAIT_FOR_GDBSERVER_STRING) >> $@
+	$(QUIET)$(ECHO) $(WAIT_FOR_GDBSERVER_STRING) >> $(AMAZON_FREERTOS_PATH)/projects/cypress/$(PLATFORM)/wicedstudio/aws_demos/$@
 endif
 endif
 
