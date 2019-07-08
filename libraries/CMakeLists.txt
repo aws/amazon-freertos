@@ -48,6 +48,3 @@ foreach(module IN LISTS afr_modules_csdk afr_modules_freertos_plus afr_modules_a
         afr_add_subdirectory("${module}")
     endif()
 endforeach()
-
-# Add 3rdparty modules.
-add_subdirectory("${AFR_MODULES_DIR}/3rdparty")
