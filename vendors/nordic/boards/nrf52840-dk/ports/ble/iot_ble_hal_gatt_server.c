@@ -654,7 +654,6 @@ static ret_code_t prvBTbuildDescriptor(BTUuid_t * pxUuid, BTCharPermissions_t xP
 
     memset( pxDescrParams, 0, sizeof( ble_add_descr_params_t ) );
 
-    ble_uuid_t ble_uuid;
     /* Try to use GATT server without observers notification */
     /* ble_cus_t * p_cus = &m_cus; */
     pxDescrParams->max_len = BLE_GATTS_VAR_ATTR_LEN_MAX; /* or BLE_GATTS_FIX_ATTR_LEN_MAX or any smaller value * / */
@@ -663,8 +662,8 @@ static ret_code_t prvBTbuildDescriptor(BTUuid_t * pxUuid, BTCharPermissions_t xP
     if( ( ( pxUuid->ucType == eBTuuidType128 ) && ( memcmp( pxUuid->uu.uu128, iot_ble_hal_gatt_serverCCCD_UUID, 16 ) == 0 ) ) ||
         ( ( pxUuid->ucType == eBTuuidType16 ) && ( pxUuid->uu.uu16 == iot_ble_hal_gatt_serverCCCD_UUID_2BYTES ) ) )
     {
-        ble_uuid.type = BLE_UUID_TYPE_BLE;
-        ble_uuid.uuid = BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG;
+        pBle_uuid->type = BLE_UUID_TYPE_BLE;
+        pBle_uuid->uuid = BLE_UUID_DESCRIPTOR_CLIENT_CHAR_CONFIG;
         pxDescrParams->max_len = 50; /* or BLE_GATTS_FIX_ATTR_LEN_MAX or any smaller value * / */
     }
     else
@@ -674,8 +673,8 @@ static ret_code_t prvBTbuildDescriptor(BTUuid_t * pxUuid, BTCharPermissions_t xP
 
     if( xErrCode == NRF_SUCCESS )
     {
-        pxDescrParams->uuid_type = ble_uuid.type;
-        pxDescrParams->uuid = ble_uuid.uuid;
+        pxDescrParams->uuid_type = pBle_uuid->type;
+        pxDescrParams->uuid = pBle_uuid->uuid;
 
         pxDescrParams->is_var_len = true;
         pxDescrParams->max_len = BLE_GATTS_VAR_ATTR_LEN_MAX; /* or BLE_GATTS_FIX_ATTR_LEN_MAX or any smaller value * / */
