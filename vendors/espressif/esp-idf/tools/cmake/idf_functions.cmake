@@ -1,45 +1,69 @@
-# Some IDF-specific functions and functions
-
-include(crosstool_version_check)
-
 #
-# Set some variables used by rest of the build
+# Load cmake modules
 #
-# Note at the time this macro is expanded, the config is not yet
-# loaded and the toolchain and project are not yet set
-#
-macro(idf_set_global_variables)
-    # Note that CONFIG_xxx is not available when this function is called
 
-    set_default(EXTRA_COMPONENT_DIRS "")
+get_property(__idf_environment_set GLOBAL PROPERTY __IDF_ENVIRONMENT_SET)
 
-    # Commmon components, required by every component in the build
-    #
-    set_default(COMPONENT_REQUIRES_COMMON "cxx esp32 newlib freertos heap log soc")
+if(NOT __idf_environment_set)
 
-    # PROJECT_PATH has the path to the IDF project (top-level cmake directory)
-    #
-    # (cmake calls this CMAKE_SOURCE_DIR, keeping old name for compatibility.)
-    set(PROJECT_PATH "${CMAKE_SOURCE_DIR}")
+    # Set IDF_PATH, as nothing else will work without this.
+    set(IDF_PATH "$ENV{IDF_PATH}")
+    if(NOT IDF_PATH)
+        # Documentation says you should set IDF_PATH in your environment, but we
+        # can infer it relative to tools/cmake directory if it's not set.
+        get_filename_component(IDF_PATH "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
+    endif()
+    file(TO_CMAKE_PATH "${IDF_PATH}" IDF_PATH)
+    set(ENV{IDF_PATH} ${IDF_PATH})
 
-    if(MAIN_SRCS)
-        message(WARNING "main is now a component, use of MAIN_SRCS is deprecated")
-        set_default(COMPONENT_DIRS "${PROJECT_PATH}/components ${EXTRA_COMPONENT_DIRS} \
-                                    ${IDF_PATH}/components")
-    else()
-        set_default(COMPONENT_DIRS "${PROJECT_PATH}/components ${EXTRA_COMPONENT_DIRS} \
-                                    ${IDF_PATH}/components ${PROJECT_PATH}/main")
+    set(CMAKE_MODULE_PATH
+        "${IDF_PATH}/tools/cmake"
+        "${IDF_PATH}/tools/cmake/third_party"
+        ${CMAKE_MODULE_PATH})
+    include(utilities)
+    include(components)
+    include(kconfig)
+    include(targets)
+    include(git_submodules)
+    include(GetGitRevisionDescription)
+    include(crosstool_version_check)
+
+    set_default(PYTHON "python")
+
+    if(NOT PYTHON_DEPS_CHECKED AND NOT BOOTLOADER_BUILD)
+        message(STATUS "Checking Python dependencies...")
+        execute_process(COMMAND "${PYTHON}" "${IDF_PATH}/tools/check_python_dependencies.py"
+            RESULT_VARIABLE result)
+        if(NOT result EQUAL 0)
+            message(FATAL_ERROR "Some Python dependencies must be installed. Check above message for details.")
+        endif()
     endif()
 
-    spaces2list(COMPONENT_DIRS)
+    idf_set_target()
 
-    spaces2list(COMPONENTS)
+    set_property(GLOBAL APPEND PROPERTY __IDF_COMPONENTS_PREFIX "idf_component")
+    set_property(GLOBAL PROPERTY __IDF_ENVIRONMENT_SET 1)
+endif()
 
-    # Tell cmake to drop executables in the top-level build dir
-    set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
+macro(idf_set_variables)
+    set_default(IDF_BUILD_ARTIFACTS OFF)
 
-    # path to idf.py tool
-    set(IDFTOOL ${PYTHON} "${IDF_PATH}/tools/idf.py")
+    if(IDF_BUILD_ARTIFACTS)
+        if(NOT IDF_BUILD_ARTIFACTS_DIR OR NOT IDF_PROJECT_EXECUTABLE)
+            message(FATAL_ERROR "IDF_BUILD_ARTIFACTS and IDF_PROJECT_EXECUTABLE needs to be specified \
+                    if IDF_BUILD_ARTIFACTS is ON.")
+        endif()
+    endif()
+
+    set_default(IDF_COMPONENT_DIRS "${IDF_EXTRA_COMPONENT_DIRS} ${IDF_PATH}/components")
+    set_default(IDF_COMPONENTS "")
+    set_default(IDF_COMPONENT_REQUIRES_COMMON "cxx ${IDF_TARGET} newlib freertos heap log soc")
+
+    set(IDF_PROJECT_PATH "${CMAKE_SOURCE_DIR}")
+
+    spaces2list(IDF_COMPONENT_DIRS)
+    spaces2list(IDF_COMPONENTS)
+    spaces2list(IDF_COMPONENT_REQUIRES_COMMON)
 endmacro()
 
 # Add all the IDF global compiler & preprocessor options
@@ -48,78 +72,127 @@ endmacro()
 # If you only want to set options for a particular component,
 # don't call or edit this function. TODO DESCRIBE WHAT TO DO INSTEAD
 #
-function(idf_set_global_compiler_options)
-    add_definitions(-DESP_PLATFORM)
-    add_definitions(-DHAVE_CONFIG_H)
+function(idf_set_global_compile_options)
+    # Temporary trick to support both gcc5 and gcc8 builds
+    if(CMAKE_C_COMPILER_VERSION VERSION_EQUAL 5.2.0)
+        set(GCC_NOT_5_2_0 0 CACHE STRING "GCC is 5.2.0 version")
+    else()
+        set(GCC_NOT_5_2_0 1 CACHE STRING "GCC is not 5.2.0 version")
+    endif()
+    list(APPEND compile_definitions "GCC_NOT_5_2_0=${GCC_NOT_5_2_0}")
+
+    list(APPEND compile_definitions "ESP_PLATFORM" "HAVE_CONFIG_H")
+
+    list(APPEND compile_options "${CMAKE_C_FLAGS}")
+    list(APPEND c_compile_options "${CMAKE_C_FLAGS}")
+    list(APPEND cxx_compile_options "${CMAKE_CXX_FLAGS}")
+    add_definitions(-DPROJECT_NAME=\"${PROJECT_NAME}\")
 
     if(CONFIG_OPTIMIZATION_LEVEL_RELEASE)
-        add_compile_options(-Os)
+        list(APPEND compile_options "-Os")
     else()
-        add_compile_options(-Og)
+        list(APPEND compile_options "-Og")
     endif()
 
-    add_c_compile_options(-std=gnu99)
-
-    add_cxx_compile_options(-std=gnu++11 -fno-rtti)
+    list(APPEND c_compile_options "-std=gnu99")
+    list(APPEND cxx_compile_options "-std=gnu++11" "-fno-rtti")
 
     if(CONFIG_CXX_EXCEPTIONS)
-        add_cxx_compile_options(-fexceptions)
+        list(APPEND cxx_compile_options "-fexceptions")
     else()
-        add_cxx_compile_options(-fno-exceptions)
+        list(APPEND cxx_compile_options "-fno-exceptions")
     endif()
 
     # Default compiler configuration
-    add_compile_options(-ffunction-sections -fdata-sections -fstrict-volatile-bitfields -mlongcalls -nostdlib)
+    list(APPEND compile_options "-ffunction-sections"
+                                "-fdata-sections"
+                                "-fstrict-volatile-bitfields"
+                                "-nostdlib")
 
-    # Default warnings configuration
-    add_compile_options(
-        -Wall
-        -Werror=all
-        -Wno-error=unused-function
-        -Wno-error=unused-but-set-variable
-        -Wno-error=unused-variable
-        -Wno-error=deprecated-declarations
-        -Wextra
-        -Wno-unused-parameter
-        -Wno-sign-compare)
-    add_c_compile_options(
-        -Wno-old-style-declaration
+    list(APPEND compile_options "-Wall"
+                                "-Werror=all"
+                                "-Wno-error=unused-function"
+                                "-Wno-error=unused-but-set-variable"
+                                "-Wno-error=unused-variable"
+                                "-Wno-error=deprecated-declarations"
+                                "-Wextra"
+                                "-Wno-unused-parameter"
+                                "-Wno-sign-compare")
+
+    list(APPEND c_compile_options "-Wno-old-style-declaration")
+
+    if(CONFIG_DISABLE_GCC8_WARNINGS)
+        list(APPEND compile_options
+            "-Wno-parentheses"
+            "-Wno-sizeof-pointer-memaccess"
+            "-Wno-clobbered"
         )
+
+        # doesn't use GCC_NOT_5_2_0 because idf_set_global_variables was not called before
+        if(NOT CMAKE_C_COMPILER_VERSION VERSION_EQUAL 5.2.0)
+            list(APPEND compile_options
+                "-Wno-format-overflow"
+                "-Wno-stringop-truncation"
+                "-Wno-misleading-indentation"
+                "-Wno-cast-function-type"
+                "-Wno-implicit-fallthrough"
+                "-Wno-unused-const-variable"
+                "-Wno-switch-unreachable"
+                "-Wno-format-truncation"
+                "-Wno-memset-elt-size"
+                "-Wno-int-in-bool-context"
+            )
+        endif()
+    endif()
 
     # Stack protection
     if(NOT BOOTLOADER_BUILD)
         if(CONFIG_STACK_CHECK_NORM)
-            add_compile_options(-fstack-protector)
+            list(APPEND compile_options "-fstack-protector")
         elseif(CONFIG_STACK_CHECK_STRONG)
-            add_compile_options(-fstack-protector-strong)
+            list(APPEND compile_options "-fstack-protector-strong")
         elseif(CONFIG_STACK_CHECK_ALL)
-            add_compile_options(-fstack-protector-all)
+            list(APPEND compile_options "-fstack-protector-all")
         endif()
     endif()
 
     if(CONFIG_OPTIMIZATION_ASSERTIONS_DISABLED)
-        add_definitions(-DNDEBUG)
+        list(APPEND compile_definitions "NDEBUG")
     endif()
 
     # Always generate debug symbols (even in Release mode, these don't
     # go into the final binary so have no impact on size)
-    add_compile_options(-ggdb)
+    list(APPEND compile_options "-ggdb")
 
-    # Enable ccache if it's on the path
-    if(NOT CCACHE_DISABLE)
-        find_program(CCACHE_FOUND ccache)
-        if(CCACHE_FOUND)
-            message(STATUS "ccache will be used for faster builds")
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-        endif()
-    endif()
+    # Use EXTRA_CFLAGS, EXTRA_CXXFLAGS and EXTRA_CPPFLAGS to add more priority options to the compiler
+    # EXTRA_CPPFLAGS is used for both C and C++
+    # Unlike environments' CFLAGS/CXXFLAGS/CPPFLAGS which work for both host and target build,
+    # these works only for target build
+    set(EXTRA_CFLAGS "$ENV{EXTRA_CFLAGS}")
+    set(EXTRA_CXXFLAGS "$ENV{EXTRA_CXXFLAGS}")
+    set(EXTRA_CPPFLAGS "$ENV{EXTRA_CPPFLAGS}")
+    spaces2list(EXTRA_CFLAGS)
+    spaces2list(EXTRA_CXXFLAGS)
+    spaces2list(EXTRA_CPPFLAGS)
+    list(APPEND c_compile_options ${EXTRA_CFLAGS})
+    list(APPEND cxx_compile_options ${EXTRA_CXXFLAGS})
+    list(APPEND compile_options ${EXTRA_CPPFLAGS})
 
+    set_default(IDF_COMPILE_DEFINITIONS "${compile_definitions}")
+    set_default(IDF_COMPILE_OPTIONS "${compile_options}")
+    set_default(IDF_C_COMPILE_OPTIONS "${c_compile_options}")
+    set_default(IDF_CXX_COMPILE_OPTIONS "${cxx_compile_options}")
+    set_default(IDF_INCLUDE_DIRECTORIES "${CONFIG_DIR}")
+
+    set(IDF_COMPILE_DEFINITIONS ${IDF_COMPILE_DEFINITIONS} PARENT_SCOPE)
+    set(IDF_COMPILE_OPTIONS ${IDF_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(IDF_C_COMPILE_OPTIONS ${IDF_C_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(IDF_CXX_COMPILE_OPTIONS ${IDF_CXX_COMPILE_OPTIONS} PARENT_SCOPE)
+    set(IDF_INCLUDE_DIRECTORIES ${CONFIG_DIR} PARENT_SCOPE)
 endfunction()
-
 
 # Verify the IDF environment is configured correctly (environment, toolchain, etc)
 function(idf_verify_environment)
-
     if(NOT CMAKE_PROJECT_NAME)
         message(FATAL_ERROR "Internal error, IDF project.cmake should have set this variable already")
     endif()
@@ -134,76 +207,9 @@ function(idf_verify_environment)
     # Warn if the toolchain version doesn't match
     #
     # TODO: make these platform-specific for diff toolchains
-    gcc_version_check("5.2.0")
-    crosstool_version_check("1.22.0-80-g6c4433a")
-
-endfunction()
-
-# idf_add_executable
-#
-# Calls add_executable to add the final project executable
-# Adds .map & .bin file targets
-# Sets up flash-related targets
-function(idf_add_executable)
-    set(exe_target ${PROJECT_NAME}.elf)
-
-    if(MAIN_SRCS)
-        spaces2list(MAIN_SRCS)
-        add_executable(${exe_target} ${MAIN_SRCS})
-    else()
-        # Create a dummy file to work around CMake requirement of having a source
-        # file while adding an executable
-        add_executable(${exe_target} "${CMAKE_CURRENT_BINARY_DIR}/dummy_main_src.c")
-        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/dummy_main_src.c)
-
-        add_custom_target(dummy_main_src DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/dummy_main_src.c)
-
-        add_dependencies(${exe_target} dummy_main_src)
-    endif()
-
-    add_map_file(${exe_target})
-endfunction()
-
-
-# add_map_file
-#
-# Set linker args for 'exe_target' to generate a linker Map file
-function(add_map_file exe_target)
-    get_filename_component(basename ${exe_target} NAME_WE)
-    set(mapfile "${basename}.map")
-    target_link_libraries(${exe_target} "-Wl,--gc-sections -Wl,--cref -Wl,--Map=${mapfile} -Wl,--start-group")
-    set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND PROPERTY
-        ADDITIONAL_MAKE_CLEAN_FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/${mapfile}")
-
-    # add size targets, depend on map file, run idf_size.py
-    add_custom_target(size
-        DEPENDS ${exe_target}
-        COMMAND ${PYTHON} ${IDF_PATH}/tools/idf_size.py ${mapfile}
-        )
-    add_custom_target(size-files
-        DEPENDS ${exe_target}
-        COMMAND ${PYTHON} ${IDF_PATH}/tools/idf_size.py --files ${mapfile}
-        )
-    add_custom_target(size-components
-        DEPENDS ${exe_target}
-        COMMAND ${PYTHON} ${IDF_PATH}/tools/idf_size.py --archives ${mapfile}
-        )
-
-endfunction()
-
-# component_compile_options
-#
-# Wrapper around target_compile_options that passes the component name
-function(component_compile_options)
-    target_compile_options(${COMPONENT_NAME} PRIVATE ${ARGV})
-endfunction()
-
-# component_compile_definitions
-#
-# Wrapper around target_compile_definitions that passes the component name
-function(component_compile_definitions)
-    target_compile_definitions(${COMPONENT_NAME} PRIVATE ${ARGV})
+    get_expected_ctng_version(expected_toolchain expected_gcc)
+    gcc_version_check("${expected_gcc}")
+    crosstool_version_check("${expected_toolchain}")
 endfunction()
 
 # idf_get_git_revision
@@ -213,12 +219,84 @@ endfunction()
 # Running git_describe() here automatically triggers rebuilds
 # if the ESP-IDF git version changes
 function(idf_get_git_revision)
+    git_describe(IDF_VER_GIT "${IDF_PATH}")
     if(EXISTS "${IDF_PATH}/version.txt")
         file(STRINGS "${IDF_PATH}/version.txt" IDF_VER)
+        set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${IDF_PATH}/version.txt")
     else()
-        git_describe(IDF_VER "${IDF_PATH}")
+        set(IDF_VER ${IDF_VER_GIT})
     endif()
+    message(STATUS "IDF_VER: ${IDF_VER}")
     add_definitions(-DIDF_VER=\"${IDF_VER}\")
     git_submodule_check("${IDF_PATH}")
     set(IDF_VER ${IDF_VER} PARENT_SCOPE)
+endfunction()
+
+# app_get_revision
+#
+# Set global PROJECT_VER
+#
+# If PROJECT_VER variable set in project CMakeLists.txt file, its value will be used.
+# Else, if the _project_path/version.txt exists, its contents will be used as PROJECT_VER.
+# Else, if the project is located inside a Git repository, the output of git describe will be used.
+# Otherwise, PROJECT_VER will be empty.
+function(app_get_revision _project_path)
+    git_describe(PROJECT_VER_GIT "${_project_path}")
+    if(NOT DEFINED PROJECT_VER)
+        if(EXISTS "${_project_path}/version.txt")
+            file(STRINGS "${_project_path}/version.txt" PROJECT_VER)
+            set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_project_path}/version.txt")
+        else()
+            set(PROJECT_VER ${PROJECT_VER_GIT})
+        endif()
+    endif()
+    message(STATUS "Project version: ${PROJECT_VER}")
+    git_submodule_check("${_project_path}")
+    set(PROJECT_VER ${PROJECT_VER} PARENT_SCOPE)
+endfunction()
+
+# idf_link_components
+#
+# Link library components to the target
+function(idf_link_components target components)
+    foreach(component ${components})
+        component_get_target(component_target ${component})
+
+        # Add each component library's link-time dependencies (which are otherwise ignored) to the executable
+        # LINK_DEPENDS in order to trigger a re-link when needed (on Ninja/Makefile generators at least).
+        # (maybe this should probably be something CMake does, but it doesn't do it...)
+        if(TARGET ${component_target})
+            get_target_property(type ${component_target} TYPE)
+            get_target_property(imported ${component_target} IMPORTED)
+            if(NOT imported)
+                if(${type} STREQUAL STATIC_LIBRARY OR ${type} STREQUAL EXECUTABLE)
+                    get_target_property(link_depends "${component_target}" LINK_DEPENDS)
+                    if(link_depends)
+                        set_property(TARGET ${target} APPEND PROPERTY LINK_DEPENDS "${link_depends}")
+                    endif()
+                endif()
+            endif()
+
+            if(${type} MATCHES .+_LIBRARY)
+                list(APPEND libraries ${component_target})
+            endif()
+        endif()
+    endforeach()
+
+    if(libraries)
+        # gc-sections is necessary for linking some IDF binary libraries
+        # (and without it, IDF apps are much larger than they should be)
+        target_link_libraries(${target} "-Wl,--gc-sections")
+        target_link_libraries(${target} "-Wl,--start-group")
+        target_link_libraries(${target} ${libraries})
+        message(STATUS "Component libraries: ${IDF_COMPONENT_LIBRARIES}")
+    endif()
+endfunction()
+
+# idf_import_components
+#
+# Adds ESP-IDF as a subdirectory to the current project and imports the components
+function(idf_import_components var idf_path build_path)
+    add_subdirectory(${idf_path} ${build_path})
+    set(${var} ${BUILD_COMPONENTS} PARENT_SCOPE)
 endfunction()

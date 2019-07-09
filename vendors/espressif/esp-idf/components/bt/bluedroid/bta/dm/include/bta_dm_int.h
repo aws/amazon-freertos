@@ -448,7 +448,7 @@ typedef struct {
 
 typedef struct {
     BT_HDR                  hdr;
-    BOOLEAN                 add;
+    BOOLEAN                 add;      
     UINT32                  static_passkey;
 } tBTA_DM_API_SET_DEFAULT_PASSKEY;
 
