@@ -1661,10 +1661,6 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* _httpsConn
 {
     IotHttpsReturnCode_t status = IOT_HTTPS_OK;
 
-    _httpsResponse->httpParser.data = (void *)(_httpsResponse);
-    _httpsResponse->parserState = PARSER_STATE_NONE;
-    _httpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_HEADER_BUFFER;
-
     status = _receiveHttpsMessage(_httpsConnection,
         &(_httpsResponse->httpParser),
         &(_httpsResponse->parserState),
@@ -1806,6 +1802,12 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         }
     }
     /* Else pConnHandle is not null and it is connected. */
+
+    /* Reset the http-parser state to an initial state. This is done so that a new response can be parsed from the 
+       beginning. */
+    _httpsResponse->httpParser.data = (void *)(_httpsResponse);
+    _httpsResponse->parserState = PARSER_STATE_NONE;
+    _httpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_HEADER_BUFFER;
 
     /* Set the internal connection context since we are connected now. */
     _httpsConnection = *pConnHandle;
