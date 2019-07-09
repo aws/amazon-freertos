@@ -181,7 +181,7 @@ static void prvMiscInitialization( void )
             return xRet;
         }
 
-    #else  /* if CONFIG_NIMBLE_ENABLED == 1 */
+    #else /* if CONFIG_NIMBLE_ENABLED == 1 */
 
         static esp_err_t prvBLEStackInit( void )
         {
