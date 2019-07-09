@@ -241,7 +241,7 @@ class OtaAfrProject:
                 prefix = next(prefix for prefix in prefixToValue.keys() if line.startswith(prefix))
                 if prefixToValue[prefix] != None:
                     line = '{} {}\n'.format(prefix, prefixToValue[prefix])
-            # print(line) will place an extra newline character in the file.
+            # print(line) # will place an extra newline character in the file.
             sys.stdout.write(line)
 
     def setMqttLogsOn(self):
@@ -293,6 +293,14 @@ class OtaAfrProject:
                 '#define APP_VERSION_BUILD': bugfix
             },
             os.path.join(self._projectRootDir, OtaAfrProject.APPLICATION_VERSION_PATH)
+        )
+
+    def setOtaBlockSize(self, blockSize):
+        """Set aws_application_version.h with the input version.
+        """
+        self.__setIdentifierInFile(
+            {' #define otaconfigMAX_NUM_BLOCKS_REQUEST': str(blockSize) + 'U'},
+            os.path.join(self._projectRootDir, self._boardProjectPath, 'config_files', 'aws_ota_agent_config.h')
         )
 
     def setCodesignerCertificate(self, certificate):
