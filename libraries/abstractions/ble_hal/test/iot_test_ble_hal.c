@@ -2320,7 +2320,7 @@ void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
         {
             pvPtr = pEventIndex;
             IotListDouble_Remove( &pEventIndex->eventList );
-            break;  /* If the right event is received, exit. */
+            break; /* If the right event is received, exit. */
         }
     }
 
