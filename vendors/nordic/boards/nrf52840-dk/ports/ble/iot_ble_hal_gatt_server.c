@@ -116,6 +116,9 @@ nrf_ble_gatt_t * prvGetGattHandle()
  */
 uint16_t prvGattToSDHandle( uint16_t handle )
 {
+#if _IOT_BLE_TOGGLE_BLOB_CREATE
+   return handle;
+#else
     for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
     {
         if( xGattToSDMapping[ i ].handle == handle )
@@ -125,6 +128,7 @@ uint16_t prvGattToSDHandle( uint16_t handle )
     }
 
     return UINT16_MAX;
+#endif
 }
 
 /**
@@ -134,6 +138,9 @@ uint16_t prvGattToSDHandle( uint16_t handle )
  */
 uint16_t prvGattFromSDHandle( uint16_t handle )
 {
+#if _IOT_BLE_TOGGLE_BLOB_CREATE
+   return handle;
+#else
     for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
     {
         if( xGattToSDMapping[ i ].softdevice_handle == handle )
@@ -143,18 +150,9 @@ uint16_t prvGattFromSDHandle( uint16_t handle )
     }
 
     return UINT16_MAX;
+#endif
 }
 
-BTGattAttributeType_t prvGattAttributeType( uint16_t handle )
-{
-    for( uint16_t i = 0; i < xGattTableSize; ++i )
-    {
-        if( xGattTable[ i ].handle == handle )
-        {
-            return xGattTable[ i ].type;
-        }
-    }
-}
 /**
  * @brief Helper function to create Nordic type characteristic.
  */
@@ -418,7 +416,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     ret_code_t xErrCode = NRF_SUCCESS;
     ble_gatts_char_handles_t xCharHandle;
     bool isCCD;
-
+    #if _IOT_BLE_TOGGLE_BLOB_CREATE
     for( usIndex = 0; usIndex < pxService->xNumberOfAttributes; usIndex++ )
     {
         switch( pxService->pxBLEAttributes[ usIndex ].xAttributeType )
@@ -456,6 +454,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                                                  &xCharParams,
                                                  &ble_uuid);
 
+                  isCCD = false;
                   if(usIndex + 1 < pxService->xNumberOfAttributes)
                   {
                       isCCD = prvIsCCD(pxService, usIndex + 1);
@@ -516,6 +515,9 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     }
 
    return BTNRFError( xErrCode );
+   #else
+   return eBTStatusUnsupported;
+   #endif
 }
 
 static ret_code_t prvBTbuildCharacteristic(BTUuid_t * pxUuid, BTCharPermissions_t xPermissions, BTCharProperties_t xProperties, ble_add_char_params_t * pxCharParams, ble_uuid_t * pBle_uuid )
