@@ -16,10 +16,21 @@ def check_aws_configuration():
         print("AWS not configured. Please run `aws configure`.")
         sys.exit(1)
 
+def validate_json_text(json_text):
+    #Check that WiFi Security contains a valid value.
+    wifi_security = json_text['wifi_security']
+    if wifi_security not in ['eWiFiSecurityOpen', 'eWiFiSecurityWEP', 'eWiFiSecurityWPA', 'eWiFiSecurityWPA2']:
+        print("{} is not a valid wifi_security value.".format(wifi_security))
+        print("wifi_security value must be one of ['eWiFiSecurityOpen', 'eWiFiSecurityWEP', 'eWiFiSecurityWPA', 'eWiFiSecurityWPA2'].")
+        print("Please correct wifi_security value in configure.json.")
+        sys.exit(1)
 
 def prereq():
     with open('configure.json') as file:
         json_text = json.load(file)
+
+    # Validate that the entries in the JSON are valid.
+    validate_json_text(json_text)
 
     # Create a Thing
     thing_name = json_text['thing_name']

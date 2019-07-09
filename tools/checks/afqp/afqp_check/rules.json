@@ -4,7 +4,7 @@
         "demos/{vendor}/{board}/common/application_code/main.c",
         "demos/{vendor}/{board}/common/config_files/aws_mqtt_config.h",
         "demos/{vendor}/{board}/common/config_files/aws_demo_config.h",
-        "demos/{vendor}/{board}/common/config_files/aws_mqtt_agent_config.h",
+        "demos/{vendor}/{board}/common/config_files/iot_mqtt_agent_config.h",
         "demos/{vendor}/{board}/common/config_files/aws_pkcs11_config.h",
         "demos/{vendor}/{board}/common/config_files/aws_secure_sockets_config.h",
         "demos/{vendor}/{board}/common/config_files/FreeRTOSConfig.h",
@@ -12,11 +12,11 @@
         "tests/{vendor}/{board}/common/application_code/{vendor}_code",
         "tests/{vendor}/{board}/common/application_code/main.c",
         "tests/{vendor}/{board}/common/config_files/aws_mqtt_config.h",
-        "tests/{vendor}/{board}/common/config_files/aws_mqtt_agent_config.h",
+        "tests/{vendor}/{board}/common/config_files/iot_mqtt_agent_config.h",
         "tests/{vendor}/{board}/common/config_files/aws_pkcs11_config.h",
         "tests/{vendor}/{board}/common/config_files/aws_secure_sockets_config.h",
         "tests/{vendor}/{board}/common/config_files/FreeRTOSConfig.h",
-        "lib/pkcs11/portable/{vendor}/{board}/aws_pkcs11_pal.c"
+        "lib/pkcs11/portable/{vendor}/{board}/iot_pkcs11_pal.c"
     ],
     "warning":[
         "demos/{vendor}/{board}/common/config_files/aws_ggd_config.h",
@@ -31,8 +31,8 @@
         "tests/{vendor}/{board}/common/config_files/FreeRTOSIPConfig.h",
         "tests/{vendor}/{board}/{ide}",
         "lib/FreeRTOS-Plus-POSIX/include/portable/{vendor}/{board}",
-        "lib/wifi/portable/{vendor}/{board}/aws_wifi.c",
+        "lib/wifi/portable/{vendor}/{board}/iot_wifi.c",
         "lib/ota/portable/{vendor}/{board}/aws_ota_pal.c",
-        "lib/secure_sockets/portable/{vendor}/{board}/aws_secure_sockets.c"
+        "lib/secure_sockets/portable/{vendor}/{board}/iot_secure_sockets.c"
     ]
 }

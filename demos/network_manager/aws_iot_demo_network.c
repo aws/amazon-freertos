@@ -38,7 +38,7 @@
 #include "private/iot_error.h"
 
 #if TCPIP_NETWORK_ENABLED
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 #endif
 
 #if BLE_ENABLED
@@ -74,7 +74,7 @@ static BaseType_t prxCreateSecureSocketConnection( MqttConnectionContext_t *pxNe
 /**
  * @brief Creates a network connection to one of the preferred networks
  * @param pxNetworkContext Pointer to the user supplied network context.
- * @param ulPreferredNetworks OR separated flag of preferred neworks.
+ * @param ulPreferredNetworks OR separated flag of preferred networks.
  * @return
  */
 static uint32_t prxCreateNetworkConnection( MqttConnectionContext_t *pxNetworkContext, uint32_t ulNetworkTypes );

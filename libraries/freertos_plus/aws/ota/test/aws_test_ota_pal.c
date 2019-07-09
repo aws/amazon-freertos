@@ -37,7 +37,7 @@
 #include "aws_ota_pal_test_access_declare.h"
 #include "aws_ota_pal.h"
 #include "aws_ota_agent.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_ota_codesigner_certificate.h"
 #include "aws_test_ota_config.h"
 
@@ -188,7 +188,7 @@ TEST_GROUP_RUNNER( Full_OTA_PAL )
 	/* RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CheckFileSignature_NullParameters ); */ /* Not supported yet. */
 
 	/* This test must run last.  It provisions the code sign certificate,
-	 * and other tests exercise the non-flash verison.*/
+	 * and other tests exercise the non-flash version.*/
 	RUN_TEST_CASE( Full_OTA_PAL, prvPAL_CloseFile_ValidSignatureKeyInFlash );
 }
 
@@ -802,7 +802,7 @@ TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_RejectImageState )
 
 /**
  * @brief Set the platform image state to aborted.
- * We cannot test a abort failed without mocking the underlyin non-volatile memory.
+ * We cannot test a abort failed without mocking the underlying non-volatile memory.
  */
 TEST( Full_OTA_PAL, prvPAL_SetPlatformImageState_AbortImageState )
 {

@@ -33,7 +33,7 @@
 
 #include "iot_ble.h"
 #include "iot_ble_data_transfer.h"
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 #include "platform/iot_threads.h"
 
 
@@ -115,7 +115,7 @@ typedef enum
 typedef struct IotBleWifiProvService
 {
     IotBleDataTransferChannel_t * pChannel; /**< A pointer to the ble connection object. */
-    IotSemaphore_t lock;                    /**< Lock to gauarentee only a single request is processed at a time. */
+    IotSemaphore_t lock;                    /**< Lock to guarantee only a single request is processed at a time. */
     uint16_t numNetworks;                   /**< Keeps track of total number of networks stored. */
     int16_t connectedIdx;                   /**< Keeps track of the flash index of the network that is connected. */
 

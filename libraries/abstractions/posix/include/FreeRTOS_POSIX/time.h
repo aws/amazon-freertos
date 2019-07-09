@@ -243,7 +243,7 @@ int timer_gettime( timer_t timerid,
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_settime.html
  *
  * @retval 0 - Upon successful completion.
- * @retval -1 - An error occured, errno is also set.
+ * @retval -1 - An error occurred, errno is also set.
  *
  * @sideeffect Possible errno values
  * <br>

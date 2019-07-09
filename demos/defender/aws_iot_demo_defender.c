@@ -40,12 +40,12 @@
 #include "task.h"
 
 /* Secure Socket includes. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Platform includes for demo. */
 #include "platform/iot_clock.h"
 #include "platform/iot_network.h"
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 
 /* Defender includes. */
 #include "aws_iot_defender.h"

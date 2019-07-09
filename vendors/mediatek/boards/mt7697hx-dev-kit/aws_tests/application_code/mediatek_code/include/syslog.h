@@ -7,7 +7,7 @@
 
 #include "portmacro.h"
 
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 
 #ifndef NO_LOG
 

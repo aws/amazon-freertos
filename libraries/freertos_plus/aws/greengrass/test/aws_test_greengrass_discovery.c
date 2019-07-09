@@ -44,8 +44,8 @@
 #define ggdTestJSON_MAX_TOKENS             128       /* Size of the array used by jsmn to store the tokens. */
 #define ggdTestJSON_GROUPID_TOKEN_INDEX    4
 #define ggdTestJSON_CORE_TOKEN_INDEX       9
-#define ggdTestJSON_PORT_ADRESS_1          1234
-#define ggdTestJSON_PORT_ADRESS_3          4321
+#define ggdTestJSON_PORT_ADDRESS_1          1234
+#define ggdTestJSON_PORT_ADDRESS_3          4321
 #define ggdTestLOOP_NUMBER                 10
 
 #define ggdJSON_FILE_GROUPID               "GGGroupId"
@@ -522,7 +522,7 @@ TEST( Full_GGD, GetIPOnInterface )
                                                &usCurrentInterface );
         TEST_ASSERT_EQUAL_INT32( pdPASS, xStatus );
         TEST_ASSERT_EQUAL_STRING( cIP_ADDRESS_1, xHostAddressData.pcHostAddress );
-        TEST_ASSERT_EQUAL_INT32( ggdTestJSON_PORT_ADRESS_1, xHostAddressData.usPort );
+        TEST_ASSERT_EQUAL_INT32( ggdTestJSON_PORT_ADDRESS_1, xHostAddressData.usPort );
 
         /* Do not reset current interface and token index here. */
         ucTargetInterface = 3;
@@ -535,7 +535,7 @@ TEST( Full_GGD, GetIPOnInterface )
                                                &usCurrentInterface );
         TEST_ASSERT_EQUAL_INT32( pdPASS, xStatus );
         TEST_ASSERT_EQUAL_STRING( cIP_ADDRESS_3, xHostAddressData.pcHostAddress );
-        TEST_ASSERT_EQUAL_INT32( ggdTestJSON_PORT_ADRESS_3, xHostAddressData.usPort );
+        TEST_ASSERT_EQUAL_INT32( ggdTestJSON_PORT_ADDRESS_3, xHostAddressData.usPort );
         /** @}*/
 
         /** @brief Check status returns failed if not host Address is found
@@ -635,7 +635,7 @@ TEST( Full_GGD, GetCertificate )
         TEST_ASSERT_EQUAL_INT32( pdFALSE, xStatus );
         /** @}*/
 
-        /** @brief Check Certificate is found provided independant of xHostParameters
+        /** @brief Check Certificate is found provided independent of xHostParameters
          * if xAutoConnectFlag is set to true.
          * Should not crash if a NULL is provided when doing auto connect
          *  @{
@@ -972,7 +972,7 @@ TEST( Full_GGD, JSONRequestGetFile )
         TEST_FAIL();
     }
 
-    /** @brief Check Statility by passing in NULL pointers or buffers too small
+    /** @brief Check Stability by passing in NULL pointers or buffers too small
      *  @{
      */
     if( TEST_PROTECT() )

@@ -85,7 +85,7 @@ static void _translateErrorCode( CborError cborError,
      */
     IotSerializer_Assert( cborError == 0 || *pSerializerError == 0 );
 
-    /* Only translate if there is no error on serizlier currently. */
+    /* Only translate if there is no error on serializer currently. */
     if( *pSerializerError == IOT_SERIALIZER_SUCCESS )
     {
         switch( cborError )
@@ -144,7 +144,7 @@ static IotSerializerError_t _init( IotSerializerEncoderObject_t * pEncoderObject
         /* Always set outmost type to IOT_SERIALIZER_CONTAINER_STREAM. */
         pEncoderObject->type = IOT_SERIALIZER_CONTAINER_STREAM;
 
-        /* Perfomr the tinycbor init. */
+        /* Perform the tinycbor init. */
         cbor_encoder_init( pCborEncoder, pDataBuffer, maxSize, unusedCborFlags );
     }
     else
@@ -163,7 +163,7 @@ static void _destroy( IotSerializerEncoderObject_t * pEncoderObject )
 {
     CborEncoder * pCborEncoder = ( CborEncoder * ) pEncoderObject->pHandle;
 
-    /* Free the memorry allocated in init function. */
+    /* Free the memory allocated in init function. */
     IotSerializer_FreeCborEncoder( pCborEncoder );
 
     /* Reset pHandle to be NULL. */
