@@ -43,19 +43,19 @@
 #include "semphr.h"
 
 /* PKCS#11 includes. */
-#include "aws_pkcs11.h"
-#include "aws_pkcs11_config.h"
+#include "iot_pkcs11.h"
+#include "iot_pkcs11_config.h"
 
 /* Client credential includes. */
 #include "aws_clientcredential.h"
 #include "aws_clientcredential_keys.h"
-#include "aws_default_root_certificates.h"
+#include "iot_default_root_certificates.h"
 
 /* Key provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
 
 /* Utilities include. */
-#include "aws_pki_utils.h"
+#include "iot_pki_utils.h"
 
 /* mbedTLS includes. */
 #include "mbedtls/pk.h"

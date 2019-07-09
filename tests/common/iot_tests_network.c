@@ -45,7 +45,7 @@ static bool bleEnabled = false;
 
 
 #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
-    #include "platform/iot_network_afr.h"
+    #include "platform/iot_network_freertos.h"
     #include "private/iot_mqtt_internal.h"
     static const IotMqttSerializer_t _mqttSerializer =
     {

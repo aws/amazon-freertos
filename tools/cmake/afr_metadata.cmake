@@ -297,6 +297,8 @@ function(afr_write_metadata)
         "${AFR_ROOT_DIR}/directories.txt"
         "${AFR_ROOT_DIR}/LICENSE"
         "${AFR_ROOT_DIR}/README.md"
+        "${AFR_ROOT_DIR}/CONTRIBUTING.md"
+        "${AFR_ROOT_DIR}/CODE_OF_CONDUCT.md"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/PEMfileToCString.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/CertificateConfigurator.html"
         "${AFR_ROOT_DIR}/tools/certificate_configuration/js/generator.js"

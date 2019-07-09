@@ -31,7 +31,7 @@
  /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 CK_FUNCTION_LIST xFunctionList;
 

@@ -198,7 +198,7 @@ struct IotBleAttributeEvent
         IotBleReadEventParams_t * pParamRead;                     /**< Read event. */
         IotBleWriteEventParams_t * pParamWrite;                   /**< Write event. */
         IotBleExecWriteEventParams_t * pParamExecWrite;           /**< Execute write event. */
-        IotBleRespConfirmEventParams_t * pParamRespConfim;        /**<Response confirm event. */
+        IotBleRespConfirmEventParams_t * pParamRespConfirm;        /**< Response confirm event. */
         IotBleIndicationSentEventParams_t * pParamIndicationSent; /**< Indication event. */
     };
     IotBleAttributeEventType_t xEventType;                        /**< Event type (read/write/...). */
@@ -573,7 +573,7 @@ BTStatus_t IotBle_SendResponse( IotBleEventResponse_t * pResp,
  *
  * This function return a pointer to the connection info list.
  * The elements of this list have type:IotBleConnectionInfoListElement_t.
- * Looked into aws_doubly_linked_list.h for information on how to use the linked list.
+ * Looked into iot_doubly_linked_list.h for information on how to use the linked list.
  *
  * @param[out] pConnectionInfoList Returns the head of the connection list.
  * @return Returns eBTStatusSuccess on successful call.

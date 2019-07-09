@@ -96,7 +96,7 @@
  * @anchor DefenderInitializers
  * @name Initializers
  *
- * @brief Intializers of data handles.
+ * @brief Initializers of data handles.
  */
 /**@{ */
 #define AWS_IOT_DEFENDER_START_INFO_INITIALIZER \

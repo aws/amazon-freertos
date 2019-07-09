@@ -105,6 +105,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( MQTT_Unit_Subscription );
         RUN_TEST_GROUP( MQTT_Unit_Receive );
         RUN_TEST_GROUP( MQTT_Unit_API );
+        RUN_TEST_GROUP( MQTT_Unit_Metrics );
         RUN_TEST_GROUP( MQTT_System );
     #endif /* if ( testrunnerFULL_MQTTv4_ENABLED == 1 ) */
 

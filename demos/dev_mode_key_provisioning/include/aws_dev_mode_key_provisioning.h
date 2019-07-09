@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Provisioning V1.0.0
+ * Amazon FreeRTOS V201906.00 Major
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,7 +39,7 @@
 
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 typedef struct ProvisioningParams_t
 {
@@ -94,7 +94,7 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
  *                                 or ASN.1 DER encoded.
  * \param[in] xPrivateKeyLength    Length of the data at pucPrivateKey, in bytes.
  * \param[in] pucLabel             PKCS #11 CKA_LABEL attribute value to be used for key.
- *                                 This should be a string values.  See aws_pkcs11_config.h
+ *                                 This should be a string values. See iot_pkcs11_config.h
  * \param[out] pxObjectHandle      The object handle of PKCS #11 private key created.
  *
  * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
@@ -114,7 +114,7 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
  * \param[in] xKeyLength             Length of the data at pucPrivateKey, in bytes.
  * \param[in] xPublicKeyType         The type of key- either CKK_RSA or CKK_EC.
  * \param[in] pucPublicKeyLabel      PKCS #11 CKA_LABEL attribute value to be used for key.
- *                                   This should be a string values.  See aws_pkcs11_config.h.
+ *                                   This should be a string values.  See iot_pkcs11_config.h.
  * \param[out] pxPublicKeyHandle     The object handle of PKCS #11 private key created.
  *
  * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
@@ -136,7 +136,8 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
  *                                  for help with formatting.
  * \param[in] xCertificateLength    Length of pucCertificate, in bytes.
  * \param[in] pucLabel              PKCS #11 label attribute value for certificate to be imported.
- *                                  This should be a string value. See aws_pkcs11_config.h.
+ *                                  This should be a string value. See iot_pkcs11.h.
+ *                                  This should be a string value. See iot_pkcs11_config.h.
  * \param[out] pxObjectHandle       Updated to provide the PKCS #11 handle for the certificate
  *                                  that was imported.
  *
@@ -153,9 +154,9 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
  *
  * \param[in] xSession              A valid PKCS #11 session handle.
  * \param[in] pucPrivateKeyLabel    PKCS #11 label attribute value for private key to be created.
- *                                  This should be a string value. See aws_pkcs11_config.h.
+ *                                  This should be a string value. See iot_pkcs11_config.h.
  * \param[in] pucPublicKeyLabel     PKCS #11 label attribute value for public key to be created.
- *                                  This should be a string value. See aws_pkcs11_config.h.
+ *                                  This should be a string value. See iot_pkcs11_config.h.
  * \param[in] pxPrivateKeyHandle    Updated to provide the PKCS #11 handle for the private key
  *                                  that was generated.
  * \param[out] pxPublicKeyHandle    Updated to provide the PKCS #11 handle for the public key
@@ -174,9 +175,9 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
  *
  * \param[in] xSession              A valid PKCS #11 session handle.
  * \param[in] pucPrivateKeyLabel    PKCS #11 label attribute value for private key to be created.
- *                                  This should be a string value. See aws_pkcs11_config.h.
+ *                                  This should be a string value. See iot_pkcs11_config.h.
  * \param[in] pucPublicKeyLabel     PKCS #11 label attribute value for public key to be created.
- *                                  This should be a string value. See aws_pkcs11_config.h.
+ *                                  This should be a string value. See iot_pkcs11_config.h.
  * \param[in] pxPrivateKeyHandle    Updated to provide the PKCS #11 handle for the private key
  *                                  that was generated.
  * \param[out] pxPublicKeyHandle    Updated to provide the PKCS #11 handle for the public key

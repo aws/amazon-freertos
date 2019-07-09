@@ -33,7 +33,7 @@
 #include "aws_test_runner.h"
 
 /* AWS library includes. */
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 #include "aws_clientcredential.h"
 #include "iot_mqtt.h"
 #include "iot_init.h"

@@ -83,10 +83,10 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \
-                      $(AFR_C_SDK_STANDARD_PATH)common/logging/aws_logging_task_dynamic_buffers.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging_task_dynamic_buffers.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/logging/iot_logging.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_runner.c \
-                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_afr.c \
+                      $(AMAZON_FREERTOS_PATH)demos/demo_runner/iot_demo_freertos.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_network_addr.c \
                       $(AMAZON_FREERTOS_PATH)demos/demo_runner/aws_demo_version.c \
@@ -100,10 +100,11 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_afr.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_afr.c \
-                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_afr.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
+                      $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_threads_freertos.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/iot_init.c \
+                      $(AFR_C_SDK_STANDARD_PATH)common/iot_device_metrics.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/iot_json_utils.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_api.c \
                       $(AFR_C_SDK_AWS_PATH)defender/src/aws_iot_defender_collector.c \
@@ -118,8 +119,8 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_THIRDPARTY_PATH)tinycbor/cborpretty.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_decoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
-                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_decoder.c \
-                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/aws_iot_serializer_json_encoder.c \
+                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_decoder.c \
+                      $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_encoder.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

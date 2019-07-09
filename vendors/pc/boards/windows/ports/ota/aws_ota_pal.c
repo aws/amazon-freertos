@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "FreeRTOS.h"
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 #include "aws_ota_pal.h"
 #include "aws_ota_agent_internal.h"
 

@@ -205,7 +205,7 @@ afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${rx65nrsk_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+        "${rx65nrsk_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 target_link_libraries(

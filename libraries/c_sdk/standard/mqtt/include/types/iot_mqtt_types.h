@@ -687,7 +687,7 @@ typedef struct IotMqttConnectInfo
  * @ingroup mqtt_datatypes_paramstructs
  * @brief Function pointers for MQTT packet serializer overrides.
  *
- * These funciton pointers allow the MQTT serialization and deserialization functions
+ * These function pointers allow the MQTT serialization and deserialization functions
  * to be overridden for an MQTT connection. The compile-time setting
  * @ref IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES must be `1` to enable this functionality.
  * See the #IotMqttSerializer_t::serialize and #IotMqttSerializer_t::deserialize

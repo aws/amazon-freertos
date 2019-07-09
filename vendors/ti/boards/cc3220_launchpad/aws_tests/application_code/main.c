@@ -32,7 +32,7 @@
  * Wi-Fi SSID, password & security settings,
  * AWS endpoint, certificate, private key & thing name. */
 #include "aws_clientcredential.h"
-#include "aws_default_root_certificates.h"
+#include "iot_default_root_certificates.h"
 
 
 /* FreeRTOS header files. */
@@ -40,12 +40,12 @@
 #include "task.h"
 
 /* AWS System files. */
-#include "aws_wifi.h"
-#include "aws_system_init.h"
+#include "iot_wifi.h"
+#include "iot_system_init.h"
 #include "aws_test_runner.h"
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 #include "aws_dev_mode_key_provisioning.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 /* TI-Driver includes. */
 #include <ti/drivers/GPIO.h>
