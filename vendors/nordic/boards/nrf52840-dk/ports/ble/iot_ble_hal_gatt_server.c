@@ -116,7 +116,7 @@ nrf_ble_gatt_t * prvGetGattHandle()
  */
 uint16_t prvGattToSDHandle( uint16_t handle )
 {
-#if _IOT_BLE_TOGGLE_BLOB_CREATE
+#if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
    return handle;
 #else
     for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
@@ -138,7 +138,7 @@ uint16_t prvGattToSDHandle( uint16_t handle )
  */
 uint16_t prvGattFromSDHandle( uint16_t handle )
 {
-#if _IOT_BLE_TOGGLE_BLOB_CREATE
+#if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
    return handle;
 #else
     for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
@@ -416,7 +416,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     ret_code_t xErrCode = NRF_SUCCESS;
     ble_gatts_char_handles_t xCharHandle;
     bool isCCD;
-    #if _IOT_BLE_TOGGLE_BLOB_CREATE
+    #if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
     for( usIndex = 0; usIndex < pxService->xNumberOfAttributes; usIndex++ )
     {
         switch( pxService->pxBLEAttributes[ usIndex ].xAttributeType )
