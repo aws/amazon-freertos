@@ -42,8 +42,12 @@
 #define _JSON_INT64_MAX_LENGTH       ( 20 )
 
 
+#define _START_CHAR_ARRAY            '['
 #define _STOP_CHAR_ARRAY             ']'
+#define _START_CHAR_MAP              '{'
 #define _STOP_CHAR_MAP               '}'
+#define _STRING_QUOTE                '"'
+#define _QUOTE_ESCAPE                '\\'
 
 #define _isValidContainer( decoder )                          \
     ( ( decoder ) &&                                          \
@@ -77,6 +81,10 @@ static IotSerializerError_t _stepOut( IotSerializerDecoderIterator_t iterator,
 
 static void _destroy( IotSerializerDecoderObject_t * pDecoderObject );
 
+static void parseTextString( const char * pBuffer,
+                             const size_t bufLength,
+                             size_t * pOffset );
+
 IotSerializerDecodeInterface_t _IotSerializerJsonDecoder =
 {
     .init             = _init,
@@ -104,15 +112,15 @@ static IotSerializerDataType_t _getTokenType( const char * pBuffer,
 
     switch( pBuffer[ offset ] )
     {
-        case '{':
+        case _START_CHAR_MAP:
             tokenType = IOT_SERIALIZER_CONTAINER_MAP;
             break;
 
-        case '[':
+        case _START_CHAR_ARRAY:
             tokenType = IOT_SERIALIZER_CONTAINER_ARRAY;
             break;
 
-        case '\"':
+        case _STRING_QUOTE:
             tokenType = IOT_SERIALIZER_SCALAR_TEXT_STRING;
             break;
 
@@ -188,7 +196,6 @@ static void _skipWhiteSpacesAndDelimeters( const char * pBuffer,
 }
 
 /*-----------------------------------------------------------*/
-
 static void parseContainer( const char * pBuffer,
                             const size_t bufLength,
                             size_t * pOffset,
@@ -196,11 +203,24 @@ static void parseContainer( const char * pBuffer,
 {
     size_t offset = *pOffset;
 
-    for( ; offset < bufLength; offset++ )
+    for( ; offset < bufLength && pBuffer[ offset ] != containerStopChar; offset++ )
     {
-        if( pBuffer[ offset ] == containerStopChar )
+        switch( pBuffer[ offset ] )
         {
-            break;
+            case _START_CHAR_MAP:
+                offset++;
+                parseContainer( pBuffer, bufLength, &offset, _STOP_CHAR_MAP );
+                break;
+
+            case _START_CHAR_ARRAY:
+                offset++;
+                parseContainer( pBuffer, bufLength, &offset, _STOP_CHAR_ARRAY );
+                break;
+
+            case _STRING_QUOTE:
+                offset++;
+                parseTextString( pBuffer, bufLength, &offset );
+                break;
         }
     }
 
@@ -242,12 +262,12 @@ static void parseTextString( const char * pBuffer,
 {
     size_t offset = *pOffset;
 
-    for( ; offset < bufLength && pBuffer[ offset ] != '\"'; offset++ )
+    for( ; offset < bufLength && pBuffer[ offset ] != _STRING_QUOTE; offset++ )
     {
         /* Backslash: Quoted symbol expected */
         if( ( offset < bufLength - 1 ) &&
-            ( pBuffer[ offset ] == '\\' ) &&
-            ( pBuffer[ offset + 1 ] == '\"' ) )
+            ( pBuffer[ offset ] == _QUOTE_ESCAPE ) &&
+            ( pBuffer[ offset + 1 ] == _STRING_QUOTE ) )
         {
             offset++;
         }
@@ -608,7 +628,7 @@ static IotSerializerError_t _stepIn( IotSerializerDecoderObject_t * pDecoderObje
 
         if( error == IOT_SERIALIZER_SUCCESS )
         {
-            pNewContainer = _createContainer( ( pContainer->pStart + offset ), pContainer->length );
+            pNewContainer = _createContainer( ( pContainer->pStart + offset ), pContainer->length - offset );
 
             if( pNewContainer != NULL )
             {

@@ -71,7 +71,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
-            RUN_TEST_GROUP( Common_Unit_Task_Pool );
+        RUN_TEST_GROUP( Common_Unit_Task_Pool );
     #endif
 
     #if ( testrunnerFULL_WIFI_PROVISIONING_ENABLED == 1 )
@@ -188,6 +188,7 @@ static void RunTests( void )
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_Serializer_CBOR );
         RUN_TEST_GROUP( Full_Serializer_JSON );
+        RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
     #endif
 }
 /*-----------------------------------------------------------*/
