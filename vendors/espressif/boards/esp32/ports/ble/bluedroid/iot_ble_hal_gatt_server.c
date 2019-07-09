@@ -51,7 +51,7 @@ static BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid );
 static BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf );
 static BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks );
 static BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
-                              BTService_t * pxService );
+                                     BTService_t * pxService );
 static BTStatus_t prvBTConnect( uint8_t ucServerIf,
                                 const BTBdaddr_t * pxBdAddr,
                                 bool bIsDirect,
@@ -100,7 +100,7 @@ static BTGattServerInterface_t xGATTserverInterface =
     .pxGattServerInit     = prvBTGattServerInit,
     .pxConnect            = prvBTConnect,
     .pxDisconnect         = prvBTDisconnect,
-	.pxAddServiceBlob     = prvAddServiceBlob,
+    .pxAddServiceBlob     = prvAddServiceBlob,
     .pxAddService         = prvBTAddService,
     .pxAddIncludedService = prvBTAddIncludedService,
     .pxAddCharacteristic  = prvBTAddCharacteristic,
@@ -114,23 +114,23 @@ static BTGattServerInterface_t xGATTserverInterface =
 };
 
 /*-----------------------------------------------------------*/
-uint16_t prvGetUUIDlen(BTUuid_t * pxUuid)
+uint16_t prvGetUUIDlen( BTUuid_t * pxUuid )
 {
-	uint16_t usLen;
+    uint16_t usLen;
 
     switch( pxUuid->ucType )
     {
         case eBTuuidType16:
-        	usLen = ESP_UUID_LEN_16;
+            usLen = ESP_UUID_LEN_16;
             break;
 
         case eBTuuidType32:
-        	usLen = ESP_UUID_LEN_32;
+            usLen = ESP_UUID_LEN_32;
             break;
 
         case eBTuuidType128:
         default:
-        	usLen = ESP_UUID_LEN_128;
+            usLen = ESP_UUID_LEN_128;
             break;
     }
 
@@ -795,7 +795,6 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                               BTService_t * pxService )
 {
-
     return eBTStatusUnsupported;
 }
 

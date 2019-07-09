@@ -25,7 +25,7 @@
 #include "esp_bt.h"
 
 #if CONFIG_NIMBLE_ENABLED == 1
-#include "nimble/iot_ble_hal_gatt_server.c"
+    #include "nimble/iot_ble_hal_gatt_server.c"
 #else
-#include "bluedroid/iot_ble_hal_gatt_server.c"
+    #include "bluedroid/iot_ble_hal_gatt_server.c"
 #endif

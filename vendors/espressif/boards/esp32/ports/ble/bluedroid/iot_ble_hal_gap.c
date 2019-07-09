@@ -787,20 +787,22 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
         if( pxParams->bSetScanRsp == true )
         {
-        	xESPErr = esp_ble_gap_config_scan_rsp_data_raw( ucMessageRaw, ucMessageIndex );
-            if( xESPErr != ESP_OK)
+            xESPErr = esp_ble_gap_config_scan_rsp_data_raw( ucMessageRaw, ucMessageIndex );
+
+            if( xESPErr != ESP_OK )
             {
-            	configPRINTF( ( "Failed to configure scan response.\n" ) );
-            	xStatus = eBTStatusFail;
+                configPRINTF( ( "Failed to configure scan response.\n" ) );
+                xStatus = eBTStatusFail;
             }
         }
         else
         {
-        	xESPErr = esp_ble_gap_config_adv_data_raw( ucMessageRaw, ucMessageIndex );
-            if( xESPErr != ESP_OK)
+            xESPErr = esp_ble_gap_config_adv_data_raw( ucMessageRaw, ucMessageIndex );
+
+            if( xESPErr != ESP_OK )
             {
-            	configPRINTF( ( "Failed to configure Advertisement message.\n" ) );
-            	xStatus = eBTStatusFail;
+                configPRINTF( ( "Failed to configure Advertisement message.\n" ) );
+                xStatus = eBTStatusFail;
             }
         }
     }

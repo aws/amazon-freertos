@@ -182,57 +182,62 @@ BTBleAdapter_t xBTLeAdapter =
 
 /*-----------------------------------------------------------*/
 
-uint8_t prvConvertPropertiesToESPIO(BTIOtypes_t xPropertyIO)
+uint8_t prvConvertPropertiesToESPIO( BTIOtypes_t xPropertyIO )
 {
-	uint8_t xIocap;
+    uint8_t xIocap;
 
-	switch(xPropertyIO)
-	{
-	case eBTIONone:
-		xIocap = BLE_HS_IO_NO_INPUT_OUTPUT;
-		break;
-	case eBTIODisplayOnly:
-		xIocap = BLE_HS_IO_DISPLAY_ONLY;
-		break;
-	case eBTIODisplayYesNo:
-		xIocap = BLE_HS_IO_DISPLAY_YESNO;
-		break;
-	case eBTIOKeyboardOnly:
-		xIocap = BLE_HS_IO_KEYBOARD_ONLY;
-		break;
-	case eBTIOKeyboardDisplay:
-		xIocap = BLE_HS_IO_KEYBOARD_DISPLAY;
-		break;
-	default:
-		xIocap = BLE_HS_IO_NO_INPUT_OUTPUT;
-	}
+    switch( xPropertyIO )
+    {
+        case eBTIONone:
+            xIocap = BLE_HS_IO_NO_INPUT_OUTPUT;
+            break;
 
-	return xIocap;
+        case eBTIODisplayOnly:
+            xIocap = BLE_HS_IO_DISPLAY_ONLY;
+            break;
+
+        case eBTIODisplayYesNo:
+            xIocap = BLE_HS_IO_DISPLAY_YESNO;
+            break;
+
+        case eBTIOKeyboardOnly:
+            xIocap = BLE_HS_IO_KEYBOARD_ONLY;
+            break;
+
+        case eBTIOKeyboardDisplay:
+            xIocap = BLE_HS_IO_KEYBOARD_DISPLAY;
+            break;
+
+        default:
+            xIocap = BLE_HS_IO_NO_INPUT_OUTPUT;
+    }
+
+    return xIocap;
 }
 
-BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO)
+BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO )
 {
-	uint8_t xIocap;
+    uint8_t xIocap;
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xIocap = prvConvertPropertiesToESPIO(xPropertyIO);
+    xIocap = prvConvertPropertiesToESPIO( xPropertyIO );
     ble_hs_cfg.sm_io_cap = xIocap;
 
-	return xStatus;
+    return xStatus;
 }
 
-BTStatus_t prvToggleBondableFlag( bool bEnable)
+BTStatus_t prvToggleBondableFlag( bool bEnable )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
     ble_hs_cfg.sm_bonding = bEnable;
-	return xStatus;
+    return xStatus;
 }
 
-BTStatus_t prvToggleSecureConnectionOnlyMode(bool bEnable)
+BTStatus_t prvToggleSecureConnectionOnlyMode( bool bEnable )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    
+
     ble_hs_cfg.sm_sc = bEnable;
     ble_hs_cfg.sm_mitm = 1;
     return xStatus;
@@ -252,21 +257,21 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
      * Now set all the properties.
      */
     /* Set display IO property */
-    if(xStatus == eBTStatusSuccess)
+    if( xStatus == eBTStatusSuccess )
     {
-    	xStatus = prvSetIOs(xProperties.xPropertyIO);
+        xStatus = prvSetIOs( xProperties.xPropertyIO );
     }
 
     /* Set bondable property */
-    if(xStatus == eBTStatusSuccess)
+    if( xStatus == eBTStatusSuccess )
     {
-    	xStatus = prvToggleBondableFlag(xProperties.bBondable);
+        xStatus = prvToggleBondableFlag( xProperties.bBondable );
     }
 
     /* Set connection only property */
-    if(xStatus == eBTStatusSuccess)
+    if( xStatus == eBTStatusSuccess )
     {
-    	xStatus = prvToggleSecureConnectionOnlyMode(xProperties.bSecureConnectionOnly);
+        xStatus = prvToggleSecureConnectionOnlyMode( xProperties.bSecureConnectionOnly );
     }
 
     if( pxCallbacks != NULL )
@@ -383,6 +388,7 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
                             uint16_t usConnId )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+
     if( ble_gap_terminate( usConnId, BLE_ERR_CONN_TERM_LOCAL ) != 0 )
     {
         xStatus = eBTStatusFail;
@@ -401,14 +407,18 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
     uint8_t own_addr_type;
 
     /* Figure out address to use while advertising */
-    xESPStatus = ble_hs_id_infer_auto(xPrivacy, &own_addr_type);
-    if (xESPStatus != 0) {
+    xESPStatus = ble_hs_id_infer_auto( xPrivacy, &own_addr_type );
+
+    if( xESPStatus != 0 )
+    {
         xStatus = eBTStatusFail;
     }
 
-    xESPStatus = ble_gap_adv_start(own_addr_type, NULL, BLE_HS_FOREVER,
-                           &xAdv_params, prvGAPeventHandler, NULL);
-    if (xESPStatus != 0) {
+    xESPStatus = ble_gap_adv_start( own_addr_type, NULL, BLE_HS_FOREVER,
+                                    &xAdv_params, prvGAPeventHandler, NULL );
+
+    if( xESPStatus != 0 )
+    {
         xStatus = eBTStatusFail;
     }
 
@@ -504,11 +514,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
                             size_t xNbServices )
 {
     struct ble_hs_adv_fields fields;
-    const char *name;
+    const char * name;
     int xESPStatus;
-    ble_uuid16_t uuid16 = {0};
-    ble_uuid32_t uuid32 = {0};
-    ble_uuid128_t uuid128 = {0};
+    ble_uuid16_t uuid16 = { 0 };
+    ble_uuid32_t uuid32 = { 0 };
+    ble_uuid128_t uuid128 = { 0 };
 
     BTStatus_t xStatus = eBTStatusSuccess;
 
@@ -529,10 +539,10 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     fields.flags = BLE_HS_ADV_F_DISC_GEN |
                    BLE_HS_ADV_F_BREDR_UNSUP;
 
-    if ( pxParams->ulAppearance )
+    if( pxParams->ulAppearance )
     {
         fields.appearance = pxParams->ulAppearance;
-        fields.appearance_is_present =  1;
+        fields.appearance_is_present = 1;
     }
 
     /* Indicate that the TX power level field should be included; have the
@@ -540,26 +550,32 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
      * special value BLE_HS_ADV_TX_PWR_LVL_AUTO.
      */
     fields.tx_pwr_lvl_is_present = pxParams->bIncludeTxPower;
-    if ( fields.tx_pwr_lvl_is_present ) {
+
+    if( fields.tx_pwr_lvl_is_present )
+    {
         fields.tx_pwr_lvl = BLE_HS_ADV_TX_PWR_LVL_AUTO;
     }
 
-    if ( pxParams->ucName.xType != BTGattAdvNameNone ) {
+    if( pxParams->ucName.xType != BTGattAdvNameNone )
+    {
         name = ble_svc_gap_device_name();
-        fields.name = ( uint8_t * )name;
+        fields.name = ( uint8_t * ) name;
 
-        if(pxParams->ucName.xType == BTGattAdvNameShort)
+        if( pxParams->ucName.xType == BTGattAdvNameShort )
         {
-        	fields.name_len = strlen( name );
-        	if(pxParams->ucName.ucShortNameLen < fields.name_len)
-        	{
-        		fields.name_len = pxParams->ucName.ucShortNameLen;
-        	}
-			fields.name_is_complete = 0;
-        }else
+            fields.name_len = strlen( name );
+
+            if( pxParams->ucName.ucShortNameLen < fields.name_len )
+            {
+                fields.name_len = pxParams->ucName.ucShortNameLen;
+            }
+
+            fields.name_is_complete = 0;
+        }
+        else
         {
-			fields.name_len = strlen( name );
-			fields.name_is_complete = 1;
+            fields.name_len = strlen( name );
+            fields.name_is_complete = 1;
         }
     }
 
@@ -575,17 +591,19 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
             fields.uuids16 = &uuid16;
             fields.num_uuids16 = 1;
             fields.uuids16_is_complete = 1;
-        } else if( pxServiceUuid->ucType == eBTuuidType32 )
+        }
+        else if( pxServiceUuid->ucType == eBTuuidType32 )
         {
             uuid32.u.type = BLE_UUID_TYPE_32;
             uuid16.value = pxServiceUuid->uu.uu32;
             fields.uuids32 = &uuid32;
             fields.num_uuids32 = 1;
             fields.uuids32_is_complete = 1;
-        } else if( pxServiceUuid->ucType == eBTuuidType128 )
+        }
+        else if( pxServiceUuid->ucType == eBTuuidType128 )
         {
             uuid128.u.type = BLE_UUID_TYPE_128;
-            memcpy( uuid128.value, pxServiceUuid->uu.uu128, sizeof( pxServiceUuid->uu.uu128 ));
+            memcpy( uuid128.value, pxServiceUuid->uu.uu128, sizeof( pxServiceUuid->uu.uu128 ) );
             fields.uuids128 = &uuid128;
             fields.num_uuids128 = 1;
             fields.uuids128_is_complete = 1;
@@ -600,10 +618,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         xAdv_params.conn_mode = BLE_GAP_CONN_MODE_UND;
         xAdv_params.disc_mode = BLE_GAP_DISC_MODE_GEN;
     }
+
     if( pxParams->usAdvertisingEventProperties == BTAdvDirectInd )
     {
         xAdv_params.conn_mode = BLE_GAP_CONN_MODE_DIR;
-        //HD: set adv_params->high_duty_cycle accordingly
+        /*HD: set adv_params->high_duty_cycle accordingly */
     }
 
     if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )
@@ -616,14 +635,19 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     {
         xPrivacy = true;
     }
-    if ( pxParams->bSetScanRsp ) {
+
+    if( pxParams->bSetScanRsp )
+    {
         xESPStatus = ble_gap_adv_rsp_set_fields( &fields );
-    } else {
+    }
+    else
+    {
         xESPStatus = ble_gap_adv_set_fields( &fields );
     }
 
-    if ( xESPStatus != 0 ) {
-        xStatus = eBTStatusFail;  
+    if( xESPStatus != 0 )
+    {
+        xStatus = eBTStatusFail;
     }
 
     xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
@@ -652,14 +676,16 @@ BTStatus_t prvBTConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
                                             uint32_t ulTimeout )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    struct ble_gap_upd_params xParams = {
-        .itvl_min = BLE_GAP_INITIAL_CONN_ITVL_MIN,
-        .itvl_max = BLE_GAP_INITIAL_CONN_ITVL_MAX,
-        .latency = BLE_GAP_INITIAL_CONN_LATENCY,
+    struct ble_gap_upd_params xParams =
+    {
+        .itvl_min            = BLE_GAP_INITIAL_CONN_ITVL_MIN,
+        .itvl_max            = BLE_GAP_INITIAL_CONN_ITVL_MAX,
+        .latency             = BLE_GAP_INITIAL_CONN_LATENCY,
         .supervision_timeout = BLE_GAP_INITIAL_SUPERVISION_TIMEOUT,
-        .min_ce_len = BLE_GAP_INITIAL_CONN_MIN_CE_LEN,
-        .max_ce_len = BLE_GAP_INITIAL_CONN_MAX_CE_LEN,
+        .min_ce_len          = BLE_GAP_INITIAL_CONN_MIN_CE_LEN,
+        .max_ce_len          = BLE_GAP_INITIAL_CONN_MAX_CE_LEN,
     };
+
     xParams.itvl_min = ulMinInterval;
     xParams.itvl_max = ulMaxInterval;
     xParams.latency = ulLatency;
@@ -669,6 +695,7 @@ BTStatus_t prvBTConnParameterUpdateRequest( const BTBdaddr_t * pxBdAddr,
     {
         xStatus = eBTStatusFail;
     }
+
     return xStatus;
 }
 

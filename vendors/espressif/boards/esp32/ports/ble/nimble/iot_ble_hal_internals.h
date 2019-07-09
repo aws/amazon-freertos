@@ -34,7 +34,7 @@
 #include "host/ble_hs.h"
 #include "host/ble_uuid.h"
 
-#define TAG "AFR-BLE"
+#define TAG    "AFR-BLE"
 
 typedef enum
 {
@@ -58,15 +58,16 @@ extern uint16_t usGattConnHandle;
 
 const void * prvBTGetGattServerInterface();
 const void * prvGetLeAdapter();
-int prvGAPeventHandler(struct ble_gap_event *event, void *arg);
+int prvGAPeventHandler( struct ble_gap_event * event,
+                        void * arg );
 
-void prvGATTeventHandler( struct ble_gatt_register_ctxt *ctxt,
-                          void *arg);
-ble_uuid_t *prvCopytoESPUUID( BTUuid_t * pxUuid );
+void prvGATTeventHandler( struct ble_gatt_register_ctxt * ctxt,
+                          void * arg );
+ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid );
 uint16_t prvGattFromDevHandle( uint16_t handle );
 
-BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO);
-BTStatus_t prvToggleBondableFlag( bool bEnable);
-BTStatus_t prvToggleSecureConnectionOnlyMode(bool bEnable);
+BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO );
+BTStatus_t prvToggleBondableFlag( bool bEnable );
+BTStatus_t prvToggleSecureConnectionOnlyMode( bool bEnable );
 
 #endif /* ifndef _AWS_BLE_INTERNALS_H_ */

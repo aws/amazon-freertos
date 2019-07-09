@@ -135,7 +135,8 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 
     switch( event )
     {
-    	case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+        case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+
             if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
             {
                 if( param->adv_data_raw_cmpl.status != ESP_OK )
@@ -147,6 +148,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             }
 
             break;
+
         case ESP_GAP_BLE_ADV_DATA_SET_COMPLETE_EVT:
 
             if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
@@ -160,7 +162,9 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             }
 
             break;
-    	case ESP_GAP_BLE_SCAN_RSP_DATA_RAW_SET_COMPLETE_EVT:
+
+        case ESP_GAP_BLE_SCAN_RSP_DATA_RAW_SET_COMPLETE_EVT:
+
             if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
             {
                 if( param->scan_rsp_data_raw_cmpl.status != ESP_OK )
@@ -172,6 +176,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             }
 
             break;
+
         case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
 
             if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )

@@ -26,7 +26,7 @@
 #include "esp_bt.h"
 
 #if CONFIG_NIMBLE_ENABLED == 1
-#include "nimble/iot_ble_hal_common_gap.c"
+    #include "nimble/iot_ble_hal_common_gap.c"
 #else
-#include "bluedroid/iot_ble_hal_common_gap.c"
+    #include "bluedroid/iot_ble_hal_common_gap.c"
 #endif
