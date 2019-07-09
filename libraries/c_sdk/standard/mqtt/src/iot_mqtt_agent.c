@@ -26,7 +26,7 @@
 /**
  * @file iot_mqtt_agent.c
  * @brief MQTT Agent implementation. Provides backwards compatibility between
- * MQTT v4 and MQTT v1.
+ * MQTT v2 and MQTT v1.
  */
 
 /* The config header is always included first. */
@@ -44,7 +44,7 @@
 #include "iot_mqtt_agent_config.h"
 #include "iot_mqtt_agent_config_defaults.h"
 
-/* MQTT v4 include. */
+/* MQTT v2 include. */
 #include "iot_mqtt.h"
 
 /* Platform network include. */
@@ -61,7 +61,7 @@
 
 /**
  * @brief Stores data to convert between the MQTT v1 subscription callback
- * and the MQTT v4 subscription callback.
+ * and the MQTT v2 subscription callback.
  */
 #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
     typedef struct MQTTCallback
@@ -80,12 +80,12 @@
  */
 typedef struct MQTTConnection
 {
-    IotMqttConnection_t xMQTTConnection; /**< MQTT v4 connection handle. */
+    IotMqttConnection_t xMQTTConnection; /**< MQTT v2 connection handle. */
     MQTTAgentCallback_t pxCallback;      /**< MQTT v1 global callback. */
     void * pvUserData;                   /**< Parameter to pxCallback. */
     StaticSemaphore_t xConnectionMutex;  /**< Protects from concurrent accesses. */
     #if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 )
-        MQTTCallback_t xCallbacks        /**< Conversion table of MQTT v1 to MQTT v4 subscription callbacks. */
+        MQTTCallback_t xCallbacks        /**< Conversion table of MQTT v1 to MQTT v2 subscription callbacks. */
         [ mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS ];
     #endif
 } MQTTConnection_t;
@@ -93,9 +93,9 @@ typedef struct MQTTConnection
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Convert an MQTT v4 return code to an MQTT v1 return code.
+ * @brief Convert an MQTT v2 return code to an MQTT v1 return code.
  *
- * @param[in] xMqttStatus The MQTT v4 return code.
+ * @param[in] xMqttStatus The MQTT v2 return code.
  *
  * @return An equivalent MQTT v1 return code.
  */
@@ -435,7 +435,7 @@ static void prvDisconnectCallbackWrapper( void * pvParameter,
 
 /*-----------------------------------------------------------*/
 
-IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle )
+IotMqttConnection_t MQTT_AGENT_Getv2Connection( MQTTAgentHandle_t xMQTTHandle )
 {
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
 
@@ -448,7 +448,7 @@ BaseType_t MQTT_AGENT_Init( void )
 {
     BaseType_t xStatus = pdFALSE;
 
-    /* Call the initialization function of MQTT v4. */
+    /* Call the initialization function of MQTT v2. */
     if( IotMqtt_Init() == IOT_MQTT_SUCCESS )
     {
         xStatus = pdTRUE;
@@ -604,7 +604,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Connect( MQTTAgentHandle_t xMQTTHandle,
     xMqttConnectInfo.clientIdentifierLength = pxConnectParams->usClientIdLength;
     xMqttConnectInfo.keepAliveSeconds = mqttconfigKEEP_ALIVE_INTERVAL_SECONDS;
 
-    /* Call MQTT v4's CONNECT function. */
+    /* Call MQTT v2's CONNECT function. */
     xMqttStatus = IotMqtt_Connect( &xNetworkInfo,
                                    &xMqttConnectInfo,
                                    mqttTICKS_TO_MS( xTimeoutTicks ),
@@ -653,13 +653,13 @@ MQTTAgentReturnCode_t MQTT_AGENT_Disconnect( MQTTAgentHandle_t xMQTTHandle,
 {
     MQTTConnection_t * pxConnection = ( MQTTConnection_t * ) xMQTTHandle;
 
-    /* MQTT v4's DISCONNECT function does not have a timeout argument. */
+    /* MQTT v2's DISCONNECT function does not have a timeout argument. */
     ( void ) xTimeoutTicks;
 
     /* Check that the connection is established. */
     if( pxConnection->xMQTTConnection != IOT_MQTT_CONNECTION_INITIALIZER )
     {
-        /* Call MQTT v4's DISCONNECT function. */
+        /* Call MQTT v2's DISCONNECT function. */
         IotMqtt_Disconnect( pxConnection->xMQTTConnection,
                             0 );
         pxConnection->xMQTTConnection = IOT_MQTT_CONNECTION_INITIALIZER;
@@ -698,7 +698,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Subscribe( MQTTAgentHandle_t xMQTTHandle,
         }
     #endif /* if ( mqttconfigENABLE_SUBSCRIPTION_MANAGEMENT == 1 ) */
 
-    /* Call MQTT v4 blocking SUBSCRIBE function. */
+    /* Call MQTT v2 blocking SUBSCRIBE function. */
     if( xStatus == eMQTTAgentSuccess )
     {
         /* Set the members of the MQTT subscription. */
@@ -742,7 +742,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Unsubscribe( MQTTAgentHandle_t xMQTTHandle,
     xSubscription.callback.pCallbackContext = pxConnection;
     xSubscription.callback.function = prvPublishCallbackWrapper;
 
-    /* Call MQTT v4 blocking UNSUBSCRIBE function. */
+    /* Call MQTT v2 blocking UNSUBSCRIBE function. */
     xMqttStatus = IotMqtt_TimedUnsubscribe( pxConnection->xMQTTConnection,
                                             &xSubscription,
                                             1,
@@ -769,7 +769,7 @@ MQTTAgentReturnCode_t MQTT_AGENT_Publish( MQTTAgentHandle_t xMQTTHandle,
     xPublishInfo.pPayload = ( const void * ) pxPublishParams->pvData;
     xPublishInfo.payloadLength = pxPublishParams->ulDataLength;
 
-    /* Call the MQTT v4 blocking PUBLISH function. */
+    /* Call the MQTT v2 blocking PUBLISH function. */
     xMqttStatus = IotMqtt_TimedPublish( pxConnection->xMQTTConnection,
                                         &xPublishInfo,
                                         0,

@@ -113,7 +113,7 @@ extern uint32_t ulRand();
  * is not set to 1 then the network event hook will never be called.  See
  * http://www.FreeRTOS.org/FreeRTOS-Plus/FreeRTOS_Plus_UDP/API/vApplicationIPNetworkEventHook.shtml
  */
-#define ipconfigUSE_NETWORK_EVENT_HOOK                 1
+#define ipconfigUSE_NETWORK_EVENT_HOOK            1
 
 /* Sockets have a send block time attribute.  If FreeRTOS_sendto() is called but
  * a network buffer cannot be obtained then the calling task is held in the Blocked
@@ -127,7 +127,7 @@ extern uint32_t ulRand();
  * ipconfigMAX_SEND_BLOCK_TIME_TICKS is specified in RTOS ticks.  A time in
  * milliseconds can be converted to a time in ticks by dividing the time in
  * milliseconds by portTICK_PERIOD_MS. */
-#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS          ( 5000 / portTICK_PERIOD_MS )
+#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS     ( 5000 / portTICK_PERIOD_MS )
 
 /* If ipconfigUSE_DHCP is 1 then FreeRTOS+TCP will attempt to retrieve an IP
  * address, netmask, DNS server address and gateway address from a DHCP server.  If
@@ -136,14 +136,14 @@ extern uint32_t ulRand();
  * set to 1 if a valid configuration cannot be obtained from a DHCP server for any
  * reason.  The static configuration used is that passed into the stack by the
  * FreeRTOS_IPInit() function call. */
-#define ipconfigUSE_DHCP                               1
-#define ipconfigDHCP_REGISTER_HOSTNAME                 1
-#define ipconfigDHCP_USES_UNICAST                      1
+#define ipconfigUSE_DHCP                          1
+#define ipconfigDHCP_REGISTER_HOSTNAME            1
+#define ipconfigDHCP_USES_UNICAST                 1
 
 /* If ipconfigDHCP_USES_USER_HOOK is set to 1 then the application writer must
  * provide an implementation of the DHCP callback function,
  * xApplicationDHCPUserHook(). */
-#define ipconfigUSE_DHCP_HOOK                          0
+#define ipconfigUSE_DHCP_HOOK                     0
 
 /* When ipconfigUSE_DHCP is set to 1, DHCP requests will be sent out at
  * increasing time intervals until either a reply is received from a DHCP server
@@ -152,7 +152,7 @@ extern uint32_t ulRand();
  * static IP address passed as a parameter to FreeRTOS_IPInit() if the
  * re-transmission time interval reaches ipconfigMAXIMUM_DISCOVER_TX_PERIOD without
  * a DHCP reply being received. */
-#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD             ( 120000 / portTICK_PERIOD_MS )
+#define ipconfigMAXIMUM_DISCOVER_TX_PERIOD        ( 120000 / portTICK_PERIOD_MS )
 
 /* The ARP cache is a table that maps IP addresses to MAC addresses.  The IP
  * stack can only send a UDP message to a remove IP address if it knowns the MAC
@@ -163,19 +163,19 @@ extern uint32_t ulRand();
  * cache then the UDP message is replaced by a ARP message that solicits the
  * required MAC address information.  ipconfigARP_CACHE_ENTRIES defines the maximum
  * number of entries that can exist in the ARP table at any one time. */
-#define ipconfigARP_CACHE_ENTRIES                      6
+#define ipconfigARP_CACHE_ENTRIES                 6
 
 /* ARP requests that do not result in an ARP response will be re-transmitted a
  * maximum of ipconfigMAX_ARP_RETRANSMISSIONS times before the ARP request is
  * aborted. */
-#define ipconfigMAX_ARP_RETRANSMISSIONS                ( 5 )
+#define ipconfigMAX_ARP_RETRANSMISSIONS           ( 5 )
 
 /* ipconfigMAX_ARP_AGE defines the maximum time between an entry in the ARP
  * table being created or refreshed and the entry being removed because it is stale.
  * New ARP requests are sent for ARP cache entries that are nearing their maximum
  * age.  ipconfigMAX_ARP_AGE is specified in tens of seconds, so a value of 150 is
  * equal to 1500 seconds (or 25 minutes). */
-#define ipconfigMAX_ARP_AGE                            150
+#define ipconfigMAX_ARP_AGE                       150
 
 /* Implementing FreeRTOS_inet_addr() necessitates the use of string handling
  * routines, which are relatively large.  To save code space the full
@@ -187,19 +187,19 @@ extern uint32_t ulRand();
  * ipconfigINCLUDE_FULL_INET_ADDR is set to 1 then both FreeRTOS_inet_addr() and
  * FreeRTOS_indet_addr_quick() are available.  If ipconfigINCLUDE_FULL_INET_ADDR is
  * not set to 1 then only FreeRTOS_indet_addr_quick() is available. */
-#define ipconfigINCLUDE_FULL_INET_ADDR                 1
+#define ipconfigINCLUDE_FULL_INET_ADDR            1
 
 /* ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS defines the total number of network buffer that
  * are available to the IP stack.  The total number of network buffers is limited
  * to ensure the total amount of RAM that can be consumed by the IP stack is capped
  * to a pre-determinable value. */
-#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS         60
+#define ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS    60
 
 /* A FreeRTOS queue is used to send events from application tasks to the IP
  * stack.  ipconfigEVENT_QUEUE_LENGTH sets the maximum number of events that can
  * be queued for processing at any one time.  The event queue must be a minimum of
  * 5 greater than the total number of network buffers. */
-#define ipconfigEVENT_QUEUE_LENGTH                     ( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5 )
+#define ipconfigEVENT_QUEUE_LENGTH                ( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS + 5 )
 
 /* The address of a socket is the combination of its IP address and its port
  * number.  FreeRTOS_bind() is used to manually allocate a port number to a socket
@@ -213,36 +213,41 @@ extern uint32_t ulRand();
  * ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND is set to 0 then calling FreeRTOS_sendto()
  * on a socket that has not yet been bound will result in the send operation being
  * aborted. */
-#define ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND         1
+#define ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND    1
 
 /* Defines the Time To Live (TTL) values used in outgoing UDP packets. */
-#define ipconfigUDP_TIME_TO_LIVE                       128
-#define ipconfigTCP_TIME_TO_LIVE                       128 /* also defined in FreeRTOSIPConfigDefaults.h */
+#define ipconfigUDP_TIME_TO_LIVE                  128
+#define ipconfigTCP_TIME_TO_LIVE                  128      /* also defined in FreeRTOSIPConfigDefaults.h */
 
 /* USE_TCP: Use TCP and all its features */
-#define ipconfigUSE_TCP                                ( 1 )
+#define ipconfigUSE_TCP                           ( 1 )
 
 /* USE_WIN: Let TCP use windowing mechanism. */
-#define ipconfigUSE_TCP_WIN                            ( 0 )
+#define ipconfigUSE_TCP_WIN                       ( 0 )
 
 /* The MTU is the maximum number of bytes the payload of a network frame can
  * contain.  For normal Ethernet V2 frames the maximum MTU is 1500.  Setting a
  * lower value can save RAM, depending on the buffer management scheme used.  If
  * ipconfigCAN_FRAGMENT_OUTGOING_PACKETS is 1 then (ipconfigNETWORK_MTU - 28) must
  * be divisible by 8. */
-#define ipconfigNETWORK_MTU                            1500
+#define ipconfigNETWORK_MTU                       1500
 
 /* Set ipconfigUSE_DNS to 1 to include a basic DNS client/resolver.  DNS is used
  * through the FreeRTOS_gethostbyname() API function. */
-#define ipconfigUSE_DNS                                1
+#define ipconfigUSE_DNS                           1
 
 /* If ipconfigREPLY_TO_INCOMING_PINGS is set to 1 then the IP stack will
  * generate replies to incoming ICMP echo (ping) requests. */
-#define ipconfigREPLY_TO_INCOMING_PINGS                1
+#define ipconfigREPLY_TO_INCOMING_PINGS           1
+
+/* vApplicationPingReplyHook() is called when ipconfigSUPPORT_OUTGOING_PINGS is enabled.
+ * In the Micorchip PIC32MZEF this hook is defined only in the AWS Wi-Fi port. */
+#ifndef PIC32_USE_ETHERNET
 
 /* If ipconfigSUPPORT_OUTGOING_PINGS is set to 1 then the
  * FreeRTOS_SendPingRequest() API function is available. */
-#define ipconfigSUPPORT_OUTGOING_PINGS                 1
+    #define ipconfigSUPPORT_OUTGOING_PINGS    1
+#endif
 
 /* If ipconfigSUPPORT_SELECT_FUNCTION is set to 1 then the FreeRTOS_select()
  * (and associated) API function is available. */

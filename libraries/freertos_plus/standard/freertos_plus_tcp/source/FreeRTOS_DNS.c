@@ -1338,6 +1338,8 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 	BaseType_t xFound = pdFALSE;
 	uint32_t ulCurrentTimeSeconds = ( xTaskGetTickCount() / portTICK_PERIOD_MS ) / 1000;
 	static BaseType_t xFreeEntry = 0;
+	configASSERT(pcName);
+
 
 		/* For each entry in the DNS cache table. */
 		for( x = 0; x < ipconfigDNS_CACHE_ENTRIES; x++ )

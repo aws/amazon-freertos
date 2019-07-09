@@ -209,6 +209,7 @@ target_sources(
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c"
 )
 
 target_include_directories(
@@ -359,7 +360,7 @@ add_custom_command(
     COMMAND "${hexmate_path}" ${output_hex_file}  ${bl_hex_file} -O${exe_target}.production.unified.hex
 )
 if(NOT AFR_IS_TESTING)
-    set(ota_image_generator "${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py")
+    set(ota_image_generator "${CMAKE_CURRENT_LIST_DIR}/bootloader/bootloader/utility/ota_image_generator.py")
     add_custom_command(
         TARGET ${exe_target} POST_BUILD
         COMMAND "echo" "Running xc32-objcopy"
