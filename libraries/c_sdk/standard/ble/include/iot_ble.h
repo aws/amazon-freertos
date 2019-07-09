@@ -59,7 +59,7 @@ typedef struct
     uint16_t manufacturerLen; /**< Length of manufacturer data. */
     uint16_t serviceDataLen;  /**< Service data length */
     bool includeTxPower;      /**< Include Tx Power in advertisement message. */
-    BTGattAdvName_t nameType; /**< Specify wether to include short, complete or no name in advertisement message. */
+    BTGattAdvName_t name; /**< Specify wether to include short, complete or no name in advertisement message. */
     bool setScanRsp;          /**< Set to true if the user wishes to set up a scan response instead of an advertisement message. */
 } IotBleAdvertisementParams_t;
 

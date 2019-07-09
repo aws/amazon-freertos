@@ -78,11 +78,13 @@ typedef enum
     BTAdvNonconnInd,
 } BTAdvProperties_t;
 
-typedef enum
+typedef struct
 {
+	enum{
     BTGattAdvNameNone,
     BTGattAdvNameShort,
-    BTGattAdvNameComplete,
+    BTGattAdvNameComplete} xType;
+    uint8_t ucShortNameLen;
 } BTGattAdvName_t;
 
 /*TODO enum for usAdvertisingEventProperties */
@@ -90,7 +92,7 @@ typedef struct
 {
     BTAdvProperties_t usAdvertisingEventProperties;
     bool bIncludeTxPower;
-    BTGattAdvName_t ucNameType;
+    BTGattAdvName_t ucName;
     bool bSetScanRsp;
     uint32_t ulAppearance;
     uint32_t ulMinInterval; /* Min connection interval, set to 0 to ignore. */

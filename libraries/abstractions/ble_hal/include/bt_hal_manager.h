@@ -45,6 +45,32 @@
 #include "bt_hal_manager_types.h"
 
 /**
+ * @brief  Incompatible API changes without backward compatibility.
+ */
+#define btMAJOR_VERSION 1
+
+/**
+ * @brief Add new functionality with backward compatibility.
+ */
+#define btMINOR_VERSION 0
+
+/**
+ * @brief Make changes in the API with backward compatibility.
+ */
+#define btPATCH_VERSION 0
+
+/**
+ * @brief  Help functions to convert version to string.
+ */
+#define STR_HELPER(x, y, z) #x "." #y "." #z
+#define STR(x, y, z) STR_HELPER(x, y, z)
+
+/**
+ * @brief  Stringified version number.
+ */
+#define btSTRING_VERSION STR(btMAJOR_VERSION,btMINOR_VERSION,btPATCH_VERSION )
+
+/**
  * @brief Security Level.
  */
 enum
