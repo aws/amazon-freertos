@@ -94,8 +94,7 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
-        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
-        "${afr_ports_dir}/ble/iot_ble_hal_internals.h"
+        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
 )
 target_include_directories(
     AFR::ble_hal::mcu_port
@@ -103,6 +102,7 @@ target_include_directories(
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
         "${afr_ports_dir}/ble"
+        "${afr_ports_dir}/ble/bluedroid"
 )
 
 # PKCS11
