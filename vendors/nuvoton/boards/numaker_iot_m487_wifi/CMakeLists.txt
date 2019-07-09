@@ -145,7 +145,7 @@ target_include_directories(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 
     # LWIP files
     
@@ -174,9 +174,9 @@ afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/aws_crypto.c"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/iot_pkcs11_mbedtls.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/iot_crypto.c"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -195,8 +195,8 @@ afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE 
-        "${afr_ports_dir}/secure_sockets/aws_secure_sockets.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/aws_tls.c"
+        "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/iot_tls.c"
 )
 target_include_directories(
     AFR::secure_sockets::mcu_port
@@ -248,8 +248,10 @@ target_link_libraries(
         AFR::pkcs11
 )
 
-# Convert afx file to bin file
-afr_find_compiler(ARM_KEIL_FROMELF fromelf.exe)
+if(NOT AFR_METADATA_MODE)
+    # Convert afx file to bin file
+    afr_find_compiler(ARM_KEIL_FROMELF fromelf.exe)
+endif()
 
 add_custom_command(
     TARGET ${exe_target} POST_BUILD

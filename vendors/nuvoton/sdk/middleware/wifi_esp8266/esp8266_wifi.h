@@ -18,7 +18,7 @@
 
 #include "FreeRTOS.h"
 
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 /* Hardware and starter kit includes. */
 #include "NuMicro.h"

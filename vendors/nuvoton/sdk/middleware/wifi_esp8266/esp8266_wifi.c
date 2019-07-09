@@ -12,7 +12,7 @@
 #include "task.h"
 
 /* Socket and Wi-Fi interface includes. */
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 /* Wi-Fi driver includes. */
 #include "esp8266_wifi.h"

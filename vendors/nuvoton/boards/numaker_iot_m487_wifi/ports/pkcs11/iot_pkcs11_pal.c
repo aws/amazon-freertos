@@ -36,7 +36,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_pkcs11_config.h"
 
 /* C runtime includes. */

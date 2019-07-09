@@ -34,7 +34,7 @@
 #include "task.h"
 
 /* Socket and Wi-Fi interface includes. */
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 /* Wi-Fi configuration includes. */
 #include "aws_wifi_config.h"

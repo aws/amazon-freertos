@@ -39,10 +39,10 @@
 #include "semphr.h"
 
 /* TLS includes. */
-#include "aws_tls.h"
+#include "iot_tls.h"
 
 /* Socket and WiFi interface includes. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Wi-Fi driver includes. */
 #include "esp8266_wifi.h"
