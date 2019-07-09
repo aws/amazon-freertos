@@ -323,7 +323,7 @@ static bool _bleEnable( void )
         }
         else
         {
-        	IotLogError( "Failed to initialize BLE." );
+            IotLogError( "Failed to initialize BLE." );
             ret = false;
         }
     }
@@ -337,7 +337,7 @@ static bool _bleEnable( void )
         }
         if( status != eBTStatusSuccess )
         {
-        	IotLogError( "Failed to toggle BLE on." );
+            IotLogError( "Failed to toggle BLE on." );
             ret = false;
         }
     }
