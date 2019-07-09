@@ -796,82 +796,65 @@ static IotHttpsReturnCode_t _connectHttpsServer(IotHttpsConnectionHandle_t * pCo
     /* pNetworkInterface contains the connect, disconnect, send, and receive over the network functions. */
     _httpsConnection->pNetworkInterface = pConnInfo->pNetworkInterface;
     
-    /* If a pNetworkServer info configuration is passed in, then use it otherwise use the pHostName and port in the pConnInfo. */
-    if(pConnInfo->pNetworkServerInfo != NULL)
+    /* IotNetworkServerInfo_t should take in the length of the host name instead of requiring a NULL terminator. */
+    if((pConnInfo->pAddress == NULL) || (pConnInfo->addressLen == 0))
     {
-        memcpy(&networkServerInfo, pConnInfo->pNetworkServerInfo, sizeof(IotNetworkServerInfo_t));
+        IotLogError("IotHttpsConnectionInfo_t.pAddress is NULL or not specified.");
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
     }
-    else
+    if(pConnInfo->addressLen > IOT_HTTPS_MAX_HOST_NAME_LENGTH)
     {
-        /* IotNetworkServerInfo_t should take in the length of the host name instead of requiring a NULL terminator. */
-        if((pConnInfo->pAddress == NULL) || (pConnInfo->addressLen == 0))
-        {
-            IotLogError("IotHttpsConnectionInfo_t.pAddress is NULL or not specified.");
-            IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
-        }
-        if(pConnInfo->addressLen > IOT_HTTPS_MAX_HOST_NAME_LENGTH)
-        {
-            IotLogError("IotHttpsConnectionInfo_t.addressLen has a host name length %d that exceeds maximum length %d.",
-                pConnInfo->addressLen,
-                IOT_HTTPS_MAX_HOST_NAME_LENGTH);
-            IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
-        }
-        memcpy( pHostName, pConnInfo->pAddress, pConnInfo->addressLen );
-        pHostName[pConnInfo->addressLen] = '\0';
-
-        networkServerInfo.pHostName = pHostName; /* This requires a NULL terminated string. */
-        networkServerInfo.port = pConnInfo->port;
+        IotLogError("IotHttpsConnectionInfo_t.addressLen has a host name length %d that exceeds maximum length %d.",
+            pConnInfo->addressLen,
+            IOT_HTTPS_MAX_HOST_NAME_LENGTH);
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
     }
+    memcpy( pHostName, pConnInfo->pAddress, pConnInfo->addressLen );
+    pHostName[pConnInfo->addressLen] = '\0';
 
-    /* If a pNetworkCredentialInfo is passed in, then use it otherwise, use the flags, Alpn Protocls, and certificates, 
-       in the pConnInfo. */
-    if( pConnInfo->pNetworkCredentialInfo != NULL)
+    networkServerInfo.pHostName = pHostName; /* This requires a NULL terminated string. */
+    networkServerInfo.port = pConnInfo->port;
+
+    /* If this is TLS connection, then set the network credentials. */
+    if( ( pConnInfo->flags & IOT_HTTPS_IS_NON_TLS_FLAG ) == 0 )
     {
-        memcpy(&networkCredentials, pConnInfo->pNetworkCredentialInfo, sizeof(IotNetworkCredentials_t));
-    }
-    else
-    {
-        /* If this is TLS connection, then set the network credentials. */
-        if( ( pConnInfo->flags & IOT_HTTPS_IS_NON_TLS_FLAG ) == 0 )
+        if( pConnInfo->flags & IOT_HTTPS_DISABLE_SNI )
         {
-            if( pConnInfo->flags & IOT_HTTPS_DISABLE_SNI )
-            {
-                networkCredentials.disableSni = true;
-            }
-            else
-            {
-                networkCredentials.disableSni = false;
-            }
-
-            
-            if( pConnInfo->pAlpnProtocols != NULL )
-            {
-                /* IotNetworkCredentials_t should take in a length for the alpn protocols string instead of requiring a 
-                NULL terminator. */
-                if( pConnInfo->alpnProtocolsLen > IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH )
-                {
-                    IotLogError( "IotHttpsConnectionInfo_t.alpnProtocolsLen of %d exceeds the configured maximum protocol length %d. See IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH for more information.",
-                        pConnInfo->alpnProtocolsLen,
-                        IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH );
-                    IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INVALID_PARAMETER );
-                }
-                memcpy( pAlpnProtos, pConnInfo->pAlpnProtocols, pConnInfo->alpnProtocolsLen );
-                pAlpnProtos[pConnInfo->alpnProtocolsLen] = '\0';
-                networkCredentials.pAlpnProtos = pAlpnProtos; /* This requires a NULL termination. It is inconsistent with other members in the struct. */
-            }
-            else
-            {
-                networkCredentials.pAlpnProtos = NULL;
-            }
-
-            /* If any of these are NULL a network error will result depending on the connection. */
-            networkCredentials.pRootCa = pConnInfo->pCaCert;
-            networkCredentials.rootCaSize = pConnInfo->caCertLen;
-            networkCredentials.pClientCert = pConnInfo->pClientCert;
-            networkCredentials.clientCertSize = pConnInfo->clientCertLen;
-            networkCredentials.pPrivateKey = pConnInfo->pPrivateKey;
-            networkCredentials.privateKeySize = pConnInfo->privateKeyLen;
+            networkCredentials.disableSni = true;
         }
+        else
+        {
+            networkCredentials.disableSni = false;
+        }
+
+        
+        if( pConnInfo->pAlpnProtocols != NULL )
+        {
+            /* IotNetworkCredentials_t should take in a length for the alpn protocols string instead of requiring a 
+            NULL terminator. */
+            if( pConnInfo->alpnProtocolsLen > IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH )
+            {
+                IotLogError( "IotHttpsConnectionInfo_t.alpnProtocolsLen of %d exceeds the configured maximum protocol length %d. See IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH for more information.",
+                    pConnInfo->alpnProtocolsLen,
+                    IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH );
+                IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INVALID_PARAMETER );
+            }
+            memcpy( pAlpnProtos, pConnInfo->pAlpnProtocols, pConnInfo->alpnProtocolsLen );
+            pAlpnProtos[pConnInfo->alpnProtocolsLen] = '\0';
+            networkCredentials.pAlpnProtos = pAlpnProtos; /* This requires a NULL termination. It is inconsistent with other members in the struct. */
+        }
+        else
+        {
+            networkCredentials.pAlpnProtos = NULL;
+        }
+
+        /* If any of these are NULL a network error will result depending on the connection. */
+        networkCredentials.pRootCa = pConnInfo->pCaCert;
+        networkCredentials.rootCaSize = pConnInfo->caCertLen;
+        networkCredentials.pClientCert = pConnInfo->pClientCert;
+        networkCredentials.clientCertSize = pConnInfo->clientCertLen;
+        networkCredentials.pPrivateKey = pConnInfo->pPrivateKey;
+        networkCredentials.privateKeySize = pConnInfo->privateKeyLen;
     }
 
     /* If this is a TLS connection connect with networkCredentials. Otherwise pass NULL. */
