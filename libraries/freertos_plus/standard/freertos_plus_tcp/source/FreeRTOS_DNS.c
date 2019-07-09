@@ -151,7 +151,7 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 #endif /* ipconfigUSE_NBNS */
 
 
-#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS != 0 )
+#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 	static uint8_t * prvReadNameField( uint8_t *pucByte,
 									   size_t xSourceLen,
 									   char *pcName,
@@ -290,7 +290,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 #endif /* ipconfigUSE_DNS_CACHE == 1 */
 /*-----------------------------------------------------------*/
 
-#if( ipconfigDNS_USE_CALLBACKS != 0 )
+#if( ipconfigDNS_USE_CALLBACKS == 1 )
 
 	typedef struct xDNS_Callback
 	{
@@ -456,7 +456,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 		return xResult;
 	}
 
-#endif /* ipconfigDNS_USE_CALLBACKS != 0 */
+#endif /* ipconfigDNS_USE_CALLBACKS == 1 */
 /*-----------------------------------------------------------*/
 
 #if( ipconfigDNS_USE_CALLBACKS == 0 )
@@ -508,7 +508,7 @@ TickType_t uxIdentifier = 0;
 		/* ipconfigRAND32() may not return a non-zero value. */
 	}
 
-	#if( ipconfigDNS_USE_CALLBACKS != 0 )
+	#if( ipconfigDNS_USE_CALLBACKS == 1 )
 	{
 		if( pCallback != NULL )
 		{
@@ -528,7 +528,7 @@ TickType_t uxIdentifier = 0;
 			}
 		}
 	}
-	#endif /* if ( ipconfigDNS_USE_CALLBACKS != 0 ) */
+	#endif /* if ( ipconfigDNS_USE_CALLBACKS == 1 ) */
 
 	if( ( ulIPAddress == 0UL ) && ( uxIdentifier != ( TickType_t ) 0u ) )
 	{
@@ -761,7 +761,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 }
 /*-----------------------------------------------------------*/
 
-#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS != 0 )
+#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 
 	static uint8_t * prvReadNameField( uint8_t *pucByte,
 									   size_t xSourceLen,
@@ -961,7 +961,7 @@ BaseType_t xDoStore = xExpected;
 #if( ipconfigUSE_LLMNR == 1 )
 	uint16_t usType = 0, usClass = 0;
 #endif
-#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS != 0 )
+#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 	char pcName[ ipconfigDNS_CACHE_NAME_LENGTH ] = "";
 #endif
 
@@ -997,7 +997,7 @@ BaseType_t xDoStore = xExpected;
 			}
 			#endif
 
-#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS != 0 )
+#if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 			if( x == 0 )
 			{
 				pucByte = prvReadNameField( pucByte,
@@ -1085,7 +1085,7 @@ BaseType_t xDoStore = xExpected;
 								pucByte + sizeof( DNSAnswerRecord_t ),
 								sizeof( uint32_t ) );
 
-						#if( ipconfigDNS_USE_CALLBACKS != 0 )
+						#if( ipconfigDNS_USE_CALLBACKS == 1 )
 						{
 							/* See if any asynchronous call was made to FreeRTOS_gethostbyname_a() */
 							if( xDNSDoCallback( ( TickType_t ) pxDNSMessageHeader->usIdentifier, pcName, ulIPAddress ) != pdFALSE )
@@ -1095,7 +1095,7 @@ BaseType_t xDoStore = xExpected;
 								xDoStore = pdTRUE;
 							}
 						}
-						#endif /* ipconfigDNS_USE_CALLBACKS != 0 */
+						#endif /* ipconfigDNS_USE_CALLBACKS == 1 */
 						#if( ipconfigUSE_DNS_CACHE == 1 )
 						{
 							/* The reply will only be stored in the DNS cache when the
