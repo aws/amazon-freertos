@@ -26,7 +26,7 @@
 #ifndef _AWS_APPLICATION_VERSION_H_
 #define _AWS_APPLICATION_VERSION_H_
 
-#include "aws_appversion32.h"
+#include "iot_appversion32.h"
 extern const AppVersion32_t xAppFirmwareVersion;
 
 #define APP_VERSION_MAJOR    0

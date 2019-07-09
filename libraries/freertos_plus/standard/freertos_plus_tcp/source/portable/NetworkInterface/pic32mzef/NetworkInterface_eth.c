@@ -78,6 +78,13 @@
         PIC32_MAC_EVENT_IF_PENDING = 0x004,     /* an interface event signal: RX, TX, errors. etc. */
     } PIC32_MAC_EVENT_TYPE;
 
+    typedef enum
+    {
+        eMACInit,                               /* Must initialise MAC. */
+        eMACPass,                               /* Initialisation was successful. */
+        eMACFailed,                             /* Initialisation failed. */
+    } eMAC_INIT_STATUS_TYPE;
+
     static TCPIP_STACK_HEAP_HANDLE macHeapHandle;
 
     static const TCPIP_MAC_OBJECT * macObject; /* the one and only MAC object; */
@@ -92,6 +99,7 @@
 
     static bool macLinkStatus;              /* true if link is ON */
 
+    static eMAC_INIT_STATUS_TYPE xMacInitStatus = eMACInit;
 
     /* local prototypes */
     static bool StartInitMac( void );
@@ -203,12 +211,34 @@
     /* FreeRTOS implementation functions */
     BaseType_t xNetworkInterfaceInitialise( void )
     {
-        if( StartInitMac() )
+    BaseType_t xResult;
+
+        if( xMacInitStatus == eMACInit )
         {
-            return pdPASS;
+			/* This is the first time this function is called. */
+            if( StartInitMac() != false )
+            {
+                /* Indicate that the MAC initialisation succeeded. */
+                xMacInitStatus = eMACPass;
+            }
+            else
+            {
+                xMacInitStatus = eMACFailed;
+            }
         }
 
-        return pdFAIL;
+        if( xMacInitStatus == eMACPass )
+        {
+            xResult = xGetPhyLinkStatus();
+        }
+        else
+        {
+            xResult = pdFAIL;
+        }
+
+    	PIC32_MAC_DbgPrint( "xNetworkInterfaceInitialise: %d %d\r\n", ( int ) xMacInitStatus, ( int ) xResult );
+
+        return xResult;
     }
 
 

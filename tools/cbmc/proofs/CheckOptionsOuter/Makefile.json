@@ -9,11 +9,11 @@
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
-    "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.goto",
-    "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.goto",
-    "$(FREERTOS)/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_Stream_Buffer.goto",
-    "$(FREERTOS)/lib/FreeRTOS/tasks.goto",
-    "$(FREERTOS)/lib/FreeRTOS/list.goto"
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.goto",
+    "$(FREERTOS)/freertos_kernel/tasks.goto",
+    "$(FREERTOS)/freertos_kernel/list.goto"
   ],
   "DEF":
   [

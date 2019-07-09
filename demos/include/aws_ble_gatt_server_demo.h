@@ -84,7 +84,7 @@ typedef enum
 /**
  * @brief Creates and starts GATT demo service.
  *
- * @return pdTRUE if the GATT Service is succesfully initialized, pdFALSE otherwise
+ * @return pdTRUE if the GATT Service is successfully initialized, pdFALSE otherwise
  */
 int vGattDemoSvcInit( bool awsIotMqttMode,
         const char * pIdentifier,

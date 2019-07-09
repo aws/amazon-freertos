@@ -25,7 +25,7 @@
 
 /**
  * @file iot_init.c
- * @brief Implements functions for common intialization and cleanup of this SDK.
+ * @brief Implements functions for common initialization and cleanup of this SDK.
  */
 
 /* The config header is always included first. */

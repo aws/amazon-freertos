@@ -80,7 +80,7 @@
  * in port specific POSIX config file. 
  * 
  * To use PTHREAD_MUTEX_INITIALIZER, posixconfigENABLE_PTHREAD_MUTEX_T needs to be set to 1 in
- * port specific POSIX conig file.
+ * port specific POSIX config file.
  */
 /**@{ */
 #if posixconfigENABLE_PTHREAD_COND_T == 1

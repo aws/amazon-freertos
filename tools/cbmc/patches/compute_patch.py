@@ -63,19 +63,24 @@ def find_all_defines():
     proof_dir = os.path.abspath(os.path.join(PATCHES_DIR, "..", "proofs"))
 
     for fldr, _, fyles in os.walk(proof_dir):
-        if not "Makefile.json" in fyles:
+        if "Makefile.json" in fyles:
+            file = os.path.join(fldr, "Makefile.json")
+            key = "DEF"
+        elif "MakefileCommon.json" in fyles:
+            file = os.path.join(fldr, "MakefileCommon.json")
+            key = "DEF "
+        else:
             continue
-        file = os.path.join(fldr, "Makefile.json")
         with open(file, "r") as source:
             content = "".join([line for line in source
                                if line and not line.strip().startswith("#")])
             makefile = json.loads(content)
-            if "DEF" in makefile.keys():
+            if key in makefile.keys():
                 """This regex parses the define declaration in Makefile.json
                    'macro(x)=false' is an example for a declaration.
                    'macro' is expected to be matched.
                 """
-                for define in makefile["DEF"]:
+                for define in makefile[key]:
                     matched = DEFINE_REGEX_MAKEFILE.match(define)
                     if matched:
                         defines.add(matched.group(1))

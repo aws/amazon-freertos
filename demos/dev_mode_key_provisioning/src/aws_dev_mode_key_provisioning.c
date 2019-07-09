@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Provisioning V1.0.0
+ * Amazon FreeRTOS V201906.00 Major
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,12 +42,12 @@
 #include "semphr.h"
 
 /* PKCS#11 includes. */
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_pkcs11_config.h"
 
 /* Client credential includes. */
 #include "aws_clientcredential_keys.h"
-#include "aws_default_root_certificates.h"
+#include "iot_default_root_certificates.h"
 
 /* Key provisioning includes. */
 #include "aws_dev_mode_key_provisioning.h"
@@ -112,7 +112,7 @@ CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
  *
  * \param[in] pucInput          Pointer to PEM object
  * \param[in] xLen              Length of PEM object
- * \param[out] pucOutput        Pointer to buffer where DER oboject will be placed
+ * \param[out] pucOutput        Pointer to buffer where DER object will be placed
  * \param[in/out] pxOlen        Pointer to length of DER buffer.  This value is updated
  *                              to contain the actual length of the converted DER object.
  *

@@ -13,6 +13,9 @@ set(PROJECT_VERSION_MINOR "00")
 # Import global configurations.
 include("tools/cmake/afr.cmake")
 
+# Add 3rdparty modules.
+add_subdirectory("libraries/3rdparty")
+
 # -------------------------------------------------------------------------------------------------
 # Configure target board
 # -------------------------------------------------------------------------------------------------

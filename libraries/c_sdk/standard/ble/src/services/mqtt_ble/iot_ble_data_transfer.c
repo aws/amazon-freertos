@@ -278,7 +278,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback to register for events (write) on RX large message characteristic.
- * Copies the individual write packets into a buffer untill a packet less than BLE MTU size
+ * Copies the individual write packets into a buffer until a packet less than BLE MTU size
  * is received. Sends the buffered message to the upper layer.
  */
 static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
@@ -520,7 +520,7 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
         if( pService != NULL )
         {
             resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-            resp.pAttrData->pData = ( uint8_t * ) pService->isReady;
+            resp.pAttrData->pData = ( uint8_t * ) &pService->isReady;
             resp.pAttrData->size = 1;
             resp.attrDataOffset = 0;
             resp.eventStatus = eBTStatusSuccess;

@@ -1,4 +1,5 @@
 build
 sdkconfig.old
+.settings/language.settings.xml
 # Generated from OTA E2E test scripts.
 build_output.txt

@@ -33,7 +33,7 @@
 #include "aws_test_runner.h"
 
 /* AWS library includes. */
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 #include "aws_clientcredential.h"
 #include "iot_mqtt.h"
 #include "iot_init.h"
@@ -276,6 +276,15 @@ static void prvUartInit( void )
     APP_ERROR_CHECK( xErrCode );
 }
 
+/**
+ * @brief Initialize BLE stask for Nordic.
+ * On Nordic it is just a stub.
+ */
+BTStatus_t bleStackInit( void )
+{
+  return eBTStatusSuccess;
+}
+
 /*-----------------------------------------------------------*/
 
 /**@brief Function for initializing the nrf log module.
@@ -364,8 +373,6 @@ static void prvDeleteBonds( void )
 }
 void vApplicationDaemonTaskStartupHook( void )
 {
-    IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
-
     xTaskCreate( TEST_RUNNER_RunTests_task,
             "RunTests_task",
             mainTEST_RUNNER_TASK_STACK_SIZE,

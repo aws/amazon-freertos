@@ -29,9 +29,9 @@
 /*lint -e9045 Ignore advisories about non-hidden definitions in header files. */
 
 #include "aws_ota_pal.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 #include "aws_nvm.h"
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 #include "aws_ota_codesigner_certificate.h"
 
 #include "system/reset/sys_reset.h"

@@ -140,7 +140,7 @@ def check_uncrustify(changed_files):
     for changed_file in changed_files:
         if subprocess.call(
             (
-                "uncrustify --check -q -c .uncrustify.cfg " +
+                "uncrustify --check -q -c tools/uncrustify.cfg " +
                 changed_file
             ), shell=True
         ):
@@ -155,7 +155,7 @@ def patch_uncrustify(changed_files):
     patch = ''
     for file in changed_files:
         format_call = (
-            'uncrustify -q -c .uncrustify.cfg -f {}'.format(file)
+            'uncrustify -q -c tools/uncrustify.cfg -f {}'.format(file)
             + '| git --no-pager diff --color=always --no-index -- "{}" - '.format(file)
             + '| tail -n+3'
         )
