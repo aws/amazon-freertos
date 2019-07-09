@@ -39,6 +39,9 @@
 #include "iot_ble_config.h"
 #include "nrf_strerror.h"
 
+
+#define _IOT_BLE_TOGGLE_BLOB_CREATE 0
+
 typedef enum
 {
     GATT_SERVICE, GATT_CHAR, GATT_DESCR
