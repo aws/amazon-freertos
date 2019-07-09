@@ -435,49 +435,49 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
             if( usLocalHandle != UINT16_MAX )
             {
-                    bool IsNeedRsp = false;
-                    bool IsPrep = false;
+                bool IsNeedRsp = false;
+                bool IsPrep = false;
 
-                    /* TODO: Complete all cases */
-                    switch( p_ble_evt->evt.gatts_evt.params.write.op )
-                    {
-                        case BLE_GATTS_OP_WRITE_REQ:
-                            IsNeedRsp = true;
-                            break;
+                /* TODO: Complete all cases */
+                switch( p_ble_evt->evt.gatts_evt.params.write.op )
+                {
+                    case BLE_GATTS_OP_WRITE_REQ:
+                        IsNeedRsp = true;
+                        break;
 
-                        case BLE_GATTS_OP_WRITE_CMD:
-                            break;
+                    case BLE_GATTS_OP_WRITE_CMD:
+                        break;
 
-                        case BLE_GATTS_OP_SIGN_WRITE_CMD:
-                            break;
+                    case BLE_GATTS_OP_SIGN_WRITE_CMD:
+                        break;
 
-                        case BLE_GATTS_OP_PREP_WRITE_REQ:
-                            IsPrep = true;
-                            break;
+                    case BLE_GATTS_OP_PREP_WRITE_REQ:
+                        IsPrep = true;
+                        break;
 
-                        case BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL:
-                            break;
+                    case BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL:
+                        break;
 
-                        case BLE_GATTS_OP_EXEC_WRITE_REQ_NOW:
-                            break;
+                    case BLE_GATTS_OP_EXEC_WRITE_REQ_NOW:
+                        break;
 
-                        default:
-                            xErrCode = NRF_ERROR_INVALID_STATE;
-                            break;
-                    }
+                    default:
+                        xErrCode = NRF_ERROR_INVALID_STATE;
+                        break;
+                }
 
-                    if( ( xErrCode == NRF_SUCCESS ) && ( xGattServerCb.pxRequestWriteCb != NULL ) )
-                    {
-                        xGattServerCb.pxRequestWriteCb( p_ble_evt->evt.gatts_evt.conn_handle,
-                                                        0,
-                                                        &xConnectionRemoteAddress,
-                                                        usLocalHandle,
-                                                        p_ble_evt->evt.gatts_evt.params.write.offset,
-                                                        p_ble_evt->evt.gatts_evt.params.write.len,
-                                                        IsNeedRsp,
-                                                        IsPrep,
-                                                        ( uint8_t * ) p_ble_evt->evt.gatts_evt.params.write.data );
-                    }
+                if( ( xErrCode == NRF_SUCCESS ) && ( xGattServerCb.pxRequestWriteCb != NULL ) )
+                {
+                    xGattServerCb.pxRequestWriteCb( p_ble_evt->evt.gatts_evt.conn_handle,
+                                                    0,
+                                                    &xConnectionRemoteAddress,
+                                                    usLocalHandle,
+                                                    p_ble_evt->evt.gatts_evt.params.write.offset,
+                                                    p_ble_evt->evt.gatts_evt.params.write.len,
+                                                    IsNeedRsp,
+                                                    IsPrep,
+                                                    ( uint8_t * ) p_ble_evt->evt.gatts_evt.params.write.data );
+                }
             }
 
             break;
@@ -658,7 +658,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                                   error_src,
                                   error_src );
 
-                   if( xBTCallbacks.pxBondedCb && ( status == 0x85 ) )  /* NOTE: Decode other errors */
+                   if( xBTCallbacks.pxBondedCb && ( status == 0x85 ) ) /* NOTE: Decode other errors */
                    {
                        xBTCallbacks.pxBondedCb( eBTStatusAuthRejected, &xConnectionRemoteAddress, false );
                    }

@@ -116,19 +116,18 @@ nrf_ble_gatt_t * prvGetGattHandle()
  */
 uint16_t prvGattToSDHandle( uint16_t handle )
 {
-#if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
-   return handle;
-#else
-    for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
-    {
-        if( xGattToSDMapping[ i ].handle == handle )
+    #if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
+        return handle;
+    #else
+        for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
         {
-            return xGattToSDMapping[ i ].softdevice_handle;
+            if( xGattToSDMapping[ i ].handle == handle )
+            {
+                return xGattToSDMapping[ i ].softdevice_handle;
+            }
         }
-    }
-
-    return UINT16_MAX;
-#endif
+        return UINT16_MAX;
+    #endif
 }
 
 /**
@@ -138,30 +137,36 @@ uint16_t prvGattToSDHandle( uint16_t handle )
  */
 uint16_t prvGattFromSDHandle( uint16_t handle )
 {
-#if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
-   return handle;
-#else
-    for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
-    {
-        if( xGattToSDMapping[ i ].softdevice_handle == handle )
+    #if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
+        return handle;
+    #else
+        for( uint16_t i = 0; i < xGattMappingTablesSize; ++i )
         {
-            return xGattToSDMapping[ i ].handle;
+            if( xGattToSDMapping[ i ].softdevice_handle == handle )
+            {
+                return xGattToSDMapping[ i ].handle;
+            }
         }
-    }
-
-    return UINT16_MAX;
-#endif
+        return UINT16_MAX;
+    #endif
 }
 
 /**
  * @brief Helper function to create Nordic type characteristic.
  */
-static ret_code_t prvBTbuildCharacteristic(BTUuid_t * pxUuid, BTCharPermissions_t xPermissions, BTCharPermissions_t xProperties, ble_add_char_params_t * pxCharParams, ble_uuid_t * pBle_uuid );
+static ret_code_t prvBTbuildCharacteristic( BTUuid_t * pxUuid,
+                                            BTCharPermissions_t xPermissions,
+                                            BTCharPermissions_t xProperties,
+                                            ble_add_char_params_t * pxCharParams,
+                                            ble_uuid_t * pBle_uuid );
 
 /**
  * @brief Helper function to create Nordic type descriptor.
  */
-static ret_code_t prvBTbuildDescriptor(BTUuid_t * pxUuid, BTCharPermissions_t xPermissions, ble_add_descr_params_t * pxDescrParams, ble_uuid_t * pBle_uuid );
+static ret_code_t prvBTbuildDescriptor( BTUuid_t * pxUuid,
+                                        BTCharPermissions_t xPermissions,
+                                        ble_add_descr_params_t * pxDescrParams,
+                                        ble_uuid_t * pBle_uuid );
 
 /**
  * @brief Translate the given AFR BLE Character properties to a Nordic SDK SoftDevice Character properties
@@ -392,17 +397,19 @@ BTStatus_t prvBTAddIncludedService( uint8_t ucServerIf,
 }
 
 /*-----------------------------------------------------------*/
-bool prvIsCCD( BTService_t * pxService, uint16_t usIndex)
+bool prvIsCCD( BTService_t * pxService,
+               uint16_t usIndex )
 {
-   bool xStatus = false;
-   if((pxService->pxBLEAttributes[usIndex].xAttributeType == eBTDbDescriptor)
-   &&(pxService->pxBLEAttributes[usIndex].xCharacteristicDescr.xUuid.ucType == eBTuuidType16)
-   &&(pxService->pxBLEAttributes[usIndex].xCharacteristicDescr.xUuid.uu.uu16 == iot_ble_hal_gatt_serverCCCD_UUID_2BYTES))
-   {
-       xStatus = true;
-   }
+    bool xStatus = false;
 
-   return xStatus;
+    if( ( pxService->pxBLEAttributes[ usIndex ].xAttributeType == eBTDbDescriptor ) &&
+        ( pxService->pxBLEAttributes[ usIndex ].xCharacteristicDescr.xUuid.ucType == eBTuuidType16 ) &&
+        ( pxService->pxBLEAttributes[ usIndex ].xCharacteristicDescr.xUuid.uu.uu16 == iot_ble_hal_gatt_serverCCCD_UUID_2BYTES ) )
+    {
+        xStatus = true;
+    }
+
+    return xStatus;
 }
 
 BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
@@ -416,113 +423,127 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     ret_code_t xErrCode = NRF_SUCCESS;
     ble_gatts_char_handles_t xCharHandle;
     bool isCCD;
+
     #if _IOT_BLE_TOGGLE_BLOB_CREATE == 1
-    for( usIndex = 0; usIndex < pxService->xNumberOfAttributes; usIndex++ )
-    {
-        switch( pxService->pxBLEAttributes[ usIndex ].xAttributeType )
+        for( usIndex = 0; usIndex < pxService->xNumberOfAttributes; usIndex++ )
         {
-            case eBTDbPrimaryService:
-                xErrCode = prvAFRUUIDtoNordic( &pxService->pxBLEAttributes[0].xServiceUUID, &ble_uuid );
-                if( xErrCode == NRF_SUCCESS)
-                {
-                  xErrCode = sd_ble_gatts_service_add( BLE_GATTS_SRVC_TYPE_PRIMARY,
-                                               &ble_uuid,
-                                               &pxService->pusHandlesBuffer[0] );
-                }
+            switch( pxService->pxBLEAttributes[ usIndex ].xAttributeType )
+            {
+                case eBTDbPrimaryService:
+                    xErrCode = prvAFRUUIDtoNordic( &pxService->pxBLEAttributes[ 0 ].xServiceUUID, &ble_uuid );
+
+                    if( xErrCode == NRF_SUCCESS )
+                    {
+                        xErrCode = sd_ble_gatts_service_add( BLE_GATTS_SRVC_TYPE_PRIMARY,
+                                                             &ble_uuid,
+                                                             &pxService->pusHandlesBuffer[ 0 ] );
+                    }
+
+                    break;
+
+                case eBTDbSecondaryService:
+                    xErrCode = prvAFRUUIDtoNordic( &pxService->pxBLEAttributes[ 0 ].xServiceUUID, &ble_uuid );
+
+                    if( xErrCode == NRF_SUCCESS )
+                    {
+                        xErrCode = sd_ble_gatts_service_add( BLE_GATTS_SRVC_TYPE_SECONDARY,
+                                                             &ble_uuid,
+                                                             &pxService->pusHandlesBuffer[ 0 ] );
+                    }
+
+                    break;
+
+                case eBTDbIncludedService:
+                    break;
+
+                case eBTDbCharacteristicDecl:
+                    break;
+
+                case eBTDbCharacteristic:
+                    xErrCode = prvBTbuildCharacteristic( &pxService->pxBLEAttributes[ usIndex ].xCharacteristic.xUuid,
+                                                         pxService->pxBLEAttributes[ usIndex ].xCharacteristic.xPermissions,
+                                                         pxService->pxBLEAttributes[ usIndex ].xCharacteristic.xProperties,
+                                                         &xCharParams,
+                                                         &ble_uuid );
+
+                    isCCD = false;
+
+                    if( usIndex + 1 < pxService->xNumberOfAttributes )
+                    {
+                        isCCD = prvIsCCD( pxService, usIndex + 1 );
+                    }
+
+                    if( ( xErrCode == NRF_SUCCESS ) && ( isCCD == false ) )
+                    {
+                        xErrCode = characteristic_add( BLE_GATT_HANDLE_INVALID,
+                                                       &xCharParams,
+                                                       &xCharHandle );
+
+                        pxService->pusHandlesBuffer[ usIndex ] = xCharHandle.value_handle;
+                    }
+
+                    break;
+
+                case eBTDbDescriptor:
+
+                    xErrCode = prvBTbuildDescriptor( &pxService->pxBLEAttributes[ usIndex ].xCharacteristicDescr.xUuid,
+                                                     pxService->pxBLEAttributes[ usIndex ].xCharacteristicDescr.xPermissions,
+                                                     &xDescrParams,
+                                                     &ble_uuid );
+
+                    if( xErrCode == NRF_SUCCESS )
+                    {
+                        if( prvIsCCD( pxService, usIndex ) == false )
+                        {
+                            xErrCode = descriptor_add( BLE_GATT_HANDLE_INVALID,
+                                                       &xDescrParams,
+                                                       &pxService->pusHandlesBuffer[ usIndex ] );
+                        }
+                        else
+                        {
+                            if( xDescrParams.write_access == SEC_NO_ACCESS )
+                            {
+                                xCharParams.cccd_write_access = MAX( SEC_OPEN, xDescrParams.read_access );
+                            }
+                            else
+                            {
+                                xCharParams.cccd_write_access = xDescrParams.write_access;
+                            }
+
+                            xErrCode = characteristic_add( BLE_GATT_HANDLE_INVALID,
+                                                           &xCharParams,
+                                                           &xCharHandle );
+                            pxService->pusHandlesBuffer[ usIndex - 1 ] = xCharHandle.value_handle;
+                            pxService->pusHandlesBuffer[ usIndex ] = xCharHandle.cccd_handle;
+                        }
+                    }
+
+                    break;
+
+                default:
+                    break;
+            }
+
+            if( xErrCode != NRF_SUCCESS )
+            {
                 break;
-
-            case eBTDbSecondaryService:
-                xErrCode = prvAFRUUIDtoNordic( &pxService->pxBLEAttributes[0].xServiceUUID, &ble_uuid );
-               if( xErrCode == NRF_SUCCESS)
-                {
-                   xErrCode = sd_ble_gatts_service_add( BLE_GATTS_SRVC_TYPE_SECONDARY,
-                                                   &ble_uuid,
-                                                   &pxService->pusHandlesBuffer[0] );
-                }
-                break;
-
-            case eBTDbIncludedService:
-                break;
-
-            case eBTDbCharacteristicDecl:
-                break;
-
-            case eBTDbCharacteristic:
-                  xErrCode = prvBTbuildCharacteristic(&pxService->pxBLEAttributes[usIndex].xCharacteristic.xUuid,
-                                                 pxService->pxBLEAttributes[usIndex].xCharacteristic.xPermissions,
-                                                 pxService->pxBLEAttributes[usIndex].xCharacteristic.xProperties,
-                                                 &xCharParams,
-                                                 &ble_uuid);
-
-                  isCCD = false;
-                  if(usIndex + 1 < pxService->xNumberOfAttributes)
-                  {
-                      isCCD = prvIsCCD(pxService, usIndex + 1);
-                  }
-
-                  if(( xErrCode == NRF_SUCCESS)&&(isCCD == false))
-                  {
-                      xErrCode = characteristic_add( BLE_GATT_HANDLE_INVALID,
-                                            &xCharParams,
-                                            &xCharHandle );
-
-                      pxService->pusHandlesBuffer[usIndex] = xCharHandle.value_handle;
-                   }
-                break;
- 
-            case eBTDbDescriptor:
-             
-                xErrCode = prvBTbuildDescriptor(&pxService->pxBLEAttributes[usIndex].xCharacteristicDescr.xUuid,
-                                    pxService->pxBLEAttributes[usIndex].xCharacteristicDescr.xPermissions,
-                                    &xDescrParams,
-                                    &ble_uuid);
-                if( xErrCode == NRF_SUCCESS)
-                {
-
-                      if(prvIsCCD(pxService, usIndex) == false)
-                      {
-                          xErrCode = descriptor_add( BLE_GATT_HANDLE_INVALID,
-                                                &xDescrParams,
-                                                &pxService->pusHandlesBuffer[usIndex] );
-                      }else
-                      {
-                         if( xDescrParams.write_access == SEC_NO_ACCESS )
-                          {
-                              xCharParams.cccd_write_access = MAX( SEC_OPEN, xDescrParams.read_access );
-                          }
-                          else
-                          {
-                              xCharParams.cccd_write_access = xDescrParams.write_access;
-                          }
-                          xErrCode = characteristic_add( BLE_GATT_HANDLE_INVALID,
-                                                &xCharParams,
-                                                &xCharHandle );
-                           pxService->pusHandlesBuffer[usIndex - 1] = xCharHandle.value_handle;
-                           pxService->pusHandlesBuffer[usIndex] = xCharHandle.cccd_handle;
-                      }
-                 }
-                                   
-                break;
-
-            default:
-                break;
+            }
         }
 
-       if( xErrCode != NRF_SUCCESS)
-       {
-           break;
-       }
-    }
-
-   return BTNRFError( xErrCode );
-   #else
-   return eBTStatusUnsupported;
-   #endif
+        return BTNRFError( xErrCode );
+    #else  /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
+        return eBTStatusUnsupported;
+    #endif /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
 }
 
-static ret_code_t prvBTbuildCharacteristic(BTUuid_t * pxUuid, BTCharPermissions_t xPermissions, BTCharProperties_t xProperties, ble_add_char_params_t * pxCharParams, ble_uuid_t * pBle_uuid )
+static ret_code_t prvBTbuildCharacteristic( BTUuid_t * pxUuid,
+                                            BTCharPermissions_t xPermissions,
+                                            BTCharProperties_t xProperties,
+                                            ble_add_char_params_t * pxCharParams,
+                                            ble_uuid_t * pBle_uuid )
 {
     ret_code_t xErrCode = NRF_SUCCESS;
+
     xErrCode = prvAFRUUIDtoNordic( pxUuid, pBle_uuid );
 
     if( xErrCode == NRF_SUCCESS )
@@ -530,7 +551,7 @@ static ret_code_t prvBTbuildCharacteristic(BTUuid_t * pxUuid, BTCharPermissions_
         memset( pxCharParams, 0, sizeof( ble_add_char_params_t ) );
 
         pxCharParams->uuid = pBle_uuid->uuid;
-        pxCharParams->uuid_type =pBle_uuid->type;
+        pxCharParams->uuid_type = pBle_uuid->type;
 
         prvAFRToNordicCharProp( &xProperties, &pxCharParams->char_props );
 
@@ -553,9 +574,9 @@ static ret_code_t prvBTbuildCharacteristic(BTUuid_t * pxUuid, BTCharPermissions_
 
         prvAFRToNordicReadPerms( &xPermissions, &pxCharParams->read_access );
         prvAFRToNordicWritePerms( &xPermissions, &pxCharParams->write_access );
-     }
+    }
 
-     return xErrCode;
+    return xErrCode;
 }
 
 BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
@@ -569,10 +590,10 @@ BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
     ble_add_char_params_t add_char_params;
     ble_uuid_t ble_uuid;
 
-    xErrCode = prvBTbuildCharacteristic(pxUuid, xPermissions,xProperties, &add_char_params, &ble_uuid   );
+    xErrCode = prvBTbuildCharacteristic( pxUuid, xPermissions, xProperties, &add_char_params, &ble_uuid );
 
     if( xErrCode == NRF_SUCCESS )
-    {   
+    {
         if( xGattTableSize == GATT_MAX_ENTITIES - 1 )
         {
             xErrCode = NRF_ERROR_NO_MEM;
@@ -650,7 +671,10 @@ BTStatus_t prvBTSetVal( BTGattResponse_t * pxValue )
 }
 
 /*-----------------------------------------------------------*/
-static ret_code_t prvBTbuildDescriptor(BTUuid_t * pxUuid, BTCharPermissions_t xPermissions, ble_add_descr_params_t * pxDescrParams, ble_uuid_t * pBle_uuid )
+static ret_code_t prvBTbuildDescriptor( BTUuid_t * pxUuid,
+                                        BTCharPermissions_t xPermissions,
+                                        ble_add_descr_params_t * pxDescrParams,
+                                        ble_uuid_t * pBle_uuid )
 {
     ret_code_t xErrCode = NRF_SUCCESS;
 
@@ -688,9 +712,9 @@ static ret_code_t prvBTbuildDescriptor(BTUuid_t * pxUuid, BTCharPermissions_t xP
 
         prvAFRToNordicReadPerms( &xPermissions, &pxDescrParams->read_access );
         prvAFRToNordicWritePerms( &xPermissions, &pxDescrParams->write_access );
-     }
+    }
 
-     return xErrCode;
+    return xErrCode;
 }
 
 BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
@@ -703,9 +727,9 @@ BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
     ble_uuid_t ble_uuid;
     ble_add_descr_params_t xDescrParams;
 
-    xErrCode = prvBTbuildDescriptor(pxUuid, xPermissions, &xDescrParams, &ble_uuid);
+    xErrCode = prvBTbuildDescriptor( pxUuid, xPermissions, &xDescrParams, &ble_uuid );
 
-   if( xErrCode == NRF_SUCCESS )
+    if( xErrCode == NRF_SUCCESS )
     {
         if( xGattTableSize == GATT_MAX_ENTITIES - 1 )
         {

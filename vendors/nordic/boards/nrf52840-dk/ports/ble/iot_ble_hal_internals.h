@@ -40,7 +40,7 @@
 #include "nrf_strerror.h"
 
 
-#define _IOT_BLE_TOGGLE_BLOB_CREATE 0
+#define _IOT_BLE_TOGGLE_BLOB_CREATE    0
 
 typedef enum
 {
