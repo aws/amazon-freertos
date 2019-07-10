@@ -58,6 +58,9 @@
  */
 #define mqttconfigSUBSCRIPTION_MANAGER_MAX_SUBSCRIPTIONS    ( 8 )
 
+#define mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS 		1
+#define mqttagenttestMULTI_TASK_TEST_NUM_TX_TASKS		1
+
 /*
  * Uncomment the following two lines to enable asserts.
  */

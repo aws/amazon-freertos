@@ -110,5 +110,8 @@
  */
 #define mqttconfigRX_BUFFER_SIZE         ( 128 )
 
+#define mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS 		1
+#define mqttagenttestMULTI_TASK_TEST_NUM_TX_TASKS		1
+
 
 #endif /* _AWS_MQTT_AGENT_CONFIG_H_ */
