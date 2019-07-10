@@ -41,6 +41,8 @@
 
 #include "iot_default_root_certificates.h"
 #include "aws_secure_sockets_config.h"
+#include "iot_pkcs11.h"
+#include "iot_pkcs11_config.h"
 
 /* Demo priorities & stack sizes. */
 #include "aws_demo_config.h"
@@ -51,7 +53,6 @@
 
 /* Wi-Fi Interface files. */
 #include "iot_wifi.h"
-#include "iot_pkcs11.h"
 
 /* Demo files. */
 #include "aws_demo.h"
@@ -169,8 +170,6 @@ CK_RV prvProvisionRootCA( void )
     uint8_t * pucRootCA = NULL;
     uint32_t ulRootCALength = 0;
     CK_RV xResult = CKR_OK;
-    CK_FUNCTION_LIST_PTR xFunctionList;
-    CK_SLOT_ID xSlotId;
     CK_SESSION_HANDLE xSessionHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
 
@@ -187,9 +186,7 @@ CK_RV prvProvisionRootCA( void )
         ulRootCALength = tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH;
     }
 
-    xResult = xInitializePkcsSession( &xFunctionList,
-                                      &xSlotId,
-                                      &xSessionHandle );
+    xResult = xInitializePkcs11Session( &xSessionHandle );
 
     if( xResult == CKR_OK )
     {

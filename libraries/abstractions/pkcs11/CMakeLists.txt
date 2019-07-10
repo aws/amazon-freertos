@@ -15,12 +15,12 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
-        3rdparty::pkcs11
-    INTERFACE 
+        3rdparty::pkcs11 
         AFR::pkcs11
     PRIVATE
+        AFR::pkcs11_mbedtls
         AFR::${AFR_CURRENT_MODULE}::mcu_port
-	AFR::utils
+	    AFR::utils
 )
 
 
