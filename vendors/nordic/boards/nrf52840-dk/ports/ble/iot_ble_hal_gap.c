@@ -733,11 +733,11 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
 
     xAdvData->flags = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
 
-    if( ( pxParams->ucNameType == BTGattAdvNameComplete ) || ( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1 ) )
+    if( ( pxParams->ucName.xType == BTGattAdvNameComplete ) || ( IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE >= sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1 ) )
     {
         xAdvData->name_type = BLE_ADVDATA_FULL_NAME;
     }
-    else if( pxParams->ucNameType == BTGattAdvNameShort )
+    else if( pxParams->ucName.xType == BTGattAdvNameShort )
     {
         xAdvData->name_type = BLE_ADVDATA_SHORT_NAME;
         xAdvData->short_name_len = IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE;

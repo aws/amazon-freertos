@@ -23,6 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
+
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -40,18 +41,19 @@
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
 #include "aws_test_utils.h"
-
-
-#include "esp_gap_ble_api.h"
 #include "esp_bt.h"
-#include "esp_bt_main.h"
 #include "esp_system.h"
 #include "esp_wifi.h"
 #include "esp_interface.h"
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
-
+#if CONFIG_NIMBLE_ENABLED == 1
+    #include "esp_nimble_hci.h"
+#else
+    #include "esp_gap_ble_api.h"
+    #include "esp_bt_main.h"
+#endif
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 6 )
@@ -150,35 +152,35 @@ int app_main( void )
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
     FreeRTOS_IPInit( ucIPAddress,
-            ucNetMask,
-            ucGatewayAddress,
-            ucDNSServerAddress,
-            ucMACAddress );
+                     ucNetMask,
+                     ucGatewayAddress,
+                     ucDNSServerAddress,
+                     ucMACAddress );
 
     if( SYSTEM_Init() == pdPASS )
     {
-		/* Connect to the wifi before running the tests. */
-		prvWifiConnect();
+        /* Connect to the wifi before running the tests. */
+        prvWifiConnect();
 
-		/* A simple example to demonstrate key and certificate provisioning in
-		* microcontroller flash using PKCS#11 interface. This should be replaced
-		* by production ready key provisioning mechanism. */
-		vDevModeKeyProvisioning();
+        /* A simple example to demonstrate key and certificate provisioning in
+         * microcontroller flash using PKCS#11 interface. This should be replaced
+         * by production ready key provisioning mechanism. */
+        vDevModeKeyProvisioning();
 
-		/* Create the task to run unit tests. */
-		xTaskCreate( TEST_RUNNER_RunTests_task,
-				"RunTests_task",
-				mainTEST_RUNNER_TASK_STACK_SIZE,
-				NULL,
-				tskIDLE_PRIORITY + 5,
-				NULL );
+        /* Create the task to run unit tests. */
+        xTaskCreate( TEST_RUNNER_RunTests_task,
+                     "RunTests_task",
+                     mainTEST_RUNNER_TASK_STACK_SIZE,
+                     NULL,
+                     tskIDLE_PRIORITY + 5,
+                     NULL );
     }
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
-    // Following is taken care by initialization code in ESP IDF
-    // vTaskStartScheduler();
+    /* Following is taken care by initialization code in ESP IDF */
+    /* vTaskStartScheduler(); */
 
     return 0;
 }
@@ -186,17 +188,21 @@ int app_main( void )
 
 static void prvMiscInitialization( void )
 {
- 	// Initialize NVS
-	esp_err_t ret = nvs_flash_init();
-	if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-		ESP_ERROR_CHECK(nvs_flash_erase());
-		ret = nvs_flash_init();
-	}
+    /* Initialize NVS */
+    esp_err_t ret = nvs_flash_init();
 
-	/* Release BT memory as it is not used. */
-	ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
+    if( ( ret == ESP_ERR_NVS_NO_FREE_PAGES ) || ( ret == ESP_ERR_NVS_NEW_VERSION_FOUND ) )
+    {
+        ESP_ERROR_CHECK( nvs_flash_erase() );
+        ret = nvs_flash_init();
+    }
 
-	ESP_ERROR_CHECK( ret );
+    #if CONFIG_NIMBLE_ENABLED == 1
+    #else
+        /* Release BT memory as it is not used. */
+        ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
+    #endif
+    ESP_ERROR_CHECK( ret );
 }
 /*-----------------------------------------------------------*/
 
@@ -254,40 +260,40 @@ void prvWifiConnect( void )
 
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) || ( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
 
-const char * pcApplicationHostnameHook( void )
-{
-    /* This function will be called during the DHCP: the machine will be registered
-     * with an IP address plus this name. */
-    return clientcredentialIOT_THING_NAME;
-}
+    const char * pcApplicationHostnameHook( void )
+    {
+        /* This function will be called during the DHCP: the machine will be registered
+         * with an IP address plus this name. */
+        return clientcredentialIOT_THING_NAME;
+    }
 
 #endif
 /*-----------------------------------------------------------*/
 
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
 
-BaseType_t xApplicationDNSQueryHook( const char * pcName )
-{
-    BaseType_t xReturn;
+    BaseType_t xApplicationDNSQueryHook( const char * pcName )
+    {
+        BaseType_t xReturn;
 
-    /* Determine if a name lookup is for this node.  Two names are given
-     * to this node: that returned by pcApplicationHostnameHook() and that set
-     * by mainDEVICE_NICK_NAME. */
-    if( strcmp( pcName, pcApplicationHostnameHook() ) == 0 )
-    {
-        xReturn = pdPASS;
-    }
-    else if( strcmp( pcName, mainDEVICE_NICK_NAME ) == 0 )
-    {
-        xReturn = pdPASS;
-    }
-    else
-    {
-        xReturn = pdFAIL;
-    }
+        /* Determine if a name lookup is for this node.  Two names are given
+         * to this node: that returned by pcApplicationHostnameHook() and that set
+         * by mainDEVICE_NICK_NAME. */
+        if( strcmp( pcName, pcApplicationHostnameHook() ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else if( strcmp( pcName, mainDEVICE_NICK_NAME ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else
+        {
+            xReturn = pdFAIL;
+        }
 
-    return xReturn;
-}
+        return xReturn;
+    }
 
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
@@ -296,66 +302,86 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
     system_event_t evt;
 
-    if (eNetworkEvent == eNetworkUp) {
+    if( eNetworkEvent == eNetworkUp )
+    {
         /* Print out the network configuration, which may have come from a DHCP
          * server. */
         FreeRTOS_GetAddressConfiguration(
-                &ulIPAddress,
-                &ulNetMask,
-                &ulGatewayAddress,
-                &ulDNSServerAddress );
+            &ulIPAddress,
+            &ulNetMask,
+            &ulGatewayAddress,
+            &ulDNSServerAddress );
 
         evt.event_id = SYSTEM_EVENT_STA_GOT_IP;
         evt.event_info.got_ip.ip_changed = true;
         evt.event_info.got_ip.ip_info.ip.addr = ulIPAddress;
         evt.event_info.got_ip.ip_info.netmask.addr = ulNetMask;
         evt.event_info.got_ip.ip_info.gw.addr = ulGatewayAddress;
-        esp_event_send(&evt);
+        esp_event_send( &evt );
     }
 }
+#if CONFIG_NIMBLE_ENABLED == 1
+    BTStatus_t bleStackInit( void )
+    {
+        /* Initialize BLE */
+        esp_err_t xRet = ESP_OK;
+        BTStatus_t status = eBTStatusFail;
+
+        xRet = esp_nimble_hci_and_controller_init();
+
+        if( xRet == ESP_OK )
+        {
+            status = eBTStatusSuccess;
+        }
+
+        return status;
+    }
+
+#else  /* if CONFIG_NIMBLE_ENABLED == 1 */
 
 /*
  * Return on success
  */
-BTStatus_t bleStackInit( void )
-{
-    /* Initialize BLE */
-    esp_err_t xRet = ESP_OK;
-    esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-    BTStatus_t status = eBTStatusFail;
-
-    configPRINTF( ( "Initializing BLE stack.\n" ) );
-
-
-    xRet = esp_bt_controller_init( &xBtCfg );
-
-    if( xRet == ESP_OK )
+    BTStatus_t bleStackInit( void )
     {
-        xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
-    }
-    else
-    {
-        configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
-    }
+        /* Initialize BLE */
+        esp_err_t xRet = ESP_OK;
+        esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
+        BTStatus_t status = eBTStatusFail;
 
-    if( xRet == ESP_OK )
-    {
-         xRet = esp_bluedroid_init();
-    }
-    else
-    {
-        configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
-    }
+        configPRINTF( ( "Initializing BLE stack.\n" ) );
 
-    if( xRet == ESP_OK )
-    {
-        xRet = esp_bluedroid_enable();
-    }
 
-    if( xRet == ESP_OK )
-    {
-    	status = eBTStatusSuccess;
-    }
+        xRet = esp_bt_controller_init( &xBtCfg );
 
-    return status;
-}
+        if( xRet == ESP_OK )
+        {
+            xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
+        }
+        else
+        {
+            configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
+        }
+
+        if( xRet == ESP_OK )
+        {
+            xRet = esp_bluedroid_init();
+        }
+        else
+        {
+            configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
+        }
+
+        if( xRet == ESP_OK )
+        {
+            xRet = esp_bluedroid_enable();
+        }
+
+        if( xRet == ESP_OK )
+        {
+            status = eBTStatusSuccess;
+        }
+
+        return status;
+    }
+#endif /* if CONFIG_NIMBLE_ENABLED == 1 */

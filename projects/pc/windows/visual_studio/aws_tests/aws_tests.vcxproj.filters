@@ -1586,6 +1586,9 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c">
       <Filter>libraries\c_sdk\aws\defender\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c">
+      <Filter>libraries\c_sdk\standard\serializer\test</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c">
       <Filter>libraries\c_sdk\standard\serializer\test</Filter>
     </ClCompile>

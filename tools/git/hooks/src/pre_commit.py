@@ -155,7 +155,7 @@ def patch_uncrustify(changed_files):
     patch = ''
     for file in changed_files:
         format_call = (
-            'uncrustify -q -c .uncrustify.cfg -f {}'.format(file)
+            'uncrustify -q -c tools/uncrustify.cfg -f {}'.format(file)
             + '| git --no-pager diff --color=always --no-index -- "{}" - '.format(file)
             + '| tail -n+3'
         )

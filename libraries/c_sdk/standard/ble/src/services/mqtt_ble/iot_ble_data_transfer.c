@@ -520,7 +520,7 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
         if( pService != NULL )
         {
             resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-            resp.pAttrData->pData = ( uint8_t * ) pService->isReady;
+            resp.pAttrData->pData = ( uint8_t * ) &pService->isReady;
             resp.pAttrData->size = 1;
             resp.attrDataOffset = 0;
             resp.eventStatus = eBTStatusSuccess;
