@@ -38,6 +38,7 @@
 #include "aws_ota_pal.h"
 #include "aws_ota_agent.h"
 #include "iot_pkcs11.h"
+#include "iot_pkcs11_config.h"
 #include "aws_ota_codesigner_certificate.h"
 #include "aws_test_ota_config.h"
 #include "aws_dev_mode_key_provisioning.h"
