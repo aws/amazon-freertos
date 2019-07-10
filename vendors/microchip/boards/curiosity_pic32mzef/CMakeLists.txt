@@ -342,7 +342,7 @@ set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this s
 find_program(hexmate_path hexmate PATHS "${MCHP_HEXMATE_PATH}" PATH_SUFFIXES bin)
 if (NOT AFR_METADATA_MODE)
     if(NOT hexmate_path)
-        message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+        message(FATAL_ERROR "Cannot find Microchip's hexmate tool. Set MCHP_HEXMATE_PATH to the hexmate tool that comes with MPLAB. Try MPLABX\{VERSION}\mplab_platform\bin or /Applications/microchip/mplabx/{VERSION}/mplab_ide.app/Contents/Resources/mplab_ide/bin.")
     endif()
 endif()
 
