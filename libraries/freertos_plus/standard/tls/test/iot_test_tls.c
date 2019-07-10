@@ -68,14 +68,7 @@ static const uint32_t tlstestCLIENT_BYOC_PRIVATE_KEY_PEM_LENGTH = sizeof( tlstes
 /*-----------------------------------------------------------*/
 
 TEST_GROUP( Full_TLS );
-TEST_GROUP( Quarantine_TLS );
 
-TEST_SETUP( Quarantine_TLS )
-{
-}
-TEST_TEAR_DOWN( Quarantine_TLS )
-{
-}
 
 TEST_SETUP( Full_TLS )
 {
@@ -88,15 +81,12 @@ TEST_TEAR_DOWN( Full_TLS )
 TEST_GROUP_RUNNER( Full_TLS )
 {
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
 }
 
-TEST_GROUP_RUNNER( Quarantine_TLS )
-{
-    RUN_TEST_CASE( Quarantine_TLS, AFQP_TLS_ConnectEC );
-    RUN_TEST_CASE( Quarantine_TLS, AFQP_TLS_ConnectBYOCCredentials );
-}
 
 /*-----------------------------------------------------------*/
 
@@ -295,7 +285,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectRSA )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Quarantine_TLS, AFQP_TLS_ConnectEC )
+TEST( Full_TLS, AFQP_TLS_ConnectEC )
 {
     ProvisioningParams_t xParams;
 
@@ -342,7 +332,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
 }
 /*-----------------------------------------------------------*/
 
-TEST( Quarantine_TLS, AFQP_TLS_ConnectBYOCCredentials )
+TEST( Full_TLS, AFQP_TLS_ConnectBYOCCredentials )
 {
     ProvisioningParams_t xParams;
 
