@@ -607,20 +607,22 @@ static int _httpParserOnHeadersCompleteCallback(http_parser * pHttpParser)
     {
         retVal = 1;
     }
-    else
+    /* When in this callback the pheaderCur pointer is at the first "\r" in the last header line. HTTP/1.1
+    headers end with another "\r\n" at the end of the last line. This means we must increment
+    the headerCur pointer to the length of "\r\n\r\n". */
+    if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
     {
-        /* When in this callback the pheaderCur pointer is at the first "\r" in the last header line. HTTP/1.1
-        headers end with another "\r\n" at the end of the last line. This means we must increment
-        the headerCur pointer to the length of "\r\n\r\n". */
-        if(_httpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER)
-        {
-            _httpsResponse->pHeadersCur += strlen("\r\n\r\n");
-        }
+        _httpsResponse->pHeadersCur += strlen("\r\n\r\n");
 
-        /* content_length will be zero if no Content-Length header found by the parser. */
-        _httpsResponse->contentLength = (uint32_t)(pHttpParser->content_length);
-        IotLogDebug("Parser: Content-Length found is %d.", _httpsResponse->contentLength);
+    }
 
+            
+    /* content_length will be zero if no Content-Length header found by the parser. */
+    _httpsResponse->contentLength = (uint32_t)(pHttpParser->content_length);
+    IotLogDebug("Parser: Content-Length found is %d.", _httpsResponse->contentLength);
+
+    if(_httpsResponse->bufferProcessingState < PROCESSING_STATE_FINISHED)
+    {
         /* For a HEAD method, there is no body expected in the response, so we return 1 to skip body parsing. 
         Also if it was configured in a synchronous response to ignore the HTTPS response body then also stop the body 
         parsing. */
@@ -629,6 +631,7 @@ static int _httpParserOnHeadersCompleteCallback(http_parser * pHttpParser)
             retVal = 1;
         }
     }
+
     return retVal;
 }
 
@@ -1022,8 +1025,6 @@ static void _networkDisconnect(_httpsConnection_t* _httpsConnection)
         IotLogWarn("Failed to shutdown the socket with error code: %d", networkStatus );
         status = IOT_HTTPS_NETWORK_ERROR;
     }
-
-    return status;
 }
 
 /*-----------------------------------------------------------*/
@@ -1039,8 +1040,6 @@ static void _networkDestroy(_httpsConnection_t* _httpsConnection)
         IotLogWarn("Failed to shutdown the socket with error code: %d", networkStatus );
         status = IOT_HTTPS_NETWORK_ERROR;
     }
-
-    return status;
 }
 
 /*-----------------------------------------------------------*/
@@ -1881,6 +1880,11 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
 
     IOT_FUNCTION_CLEANUP_BEGIN();
 
+    /* Set the buffer state to finished for both success or error. This is so that the application can still
+        read headers copied even if there was an error. PROCESSING_STATE_FINISHED state is checked in the https parsing 
+        callacks to know if we are currently parsing a new response or we are simply parsing to read header values.*/
+    _httpsResponse->bufferProcessingState = PROCESSING_STATE_FINISHED;
+
     /* Flush the socket of the rest of the data if there is data left from this response. We need to do this
         so that for the next request on this connection, there is not left over response from this request in
         the next response buffer.
@@ -1899,7 +1903,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     {
         IotLogWarn("There an error parsing the network flush data. The network buffer might not be fully flushed. Error code %d.", flushStatus);
     }
-    else
+    else if(flushStatus != IOT_HTTPS_OK)
     {
         IotLogDebug("Received network error when flushing the socket. Error code: %d", flushStatus);
     }
@@ -1915,11 +1919,6 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
             /* The disconnect status is not returned as the server may already be disconnected. */
         }
     }
-
-    /* Set the buffer state to finished for both success or error. This is so that the application can still
-        read headers copied even if there was an error. PROCESSING_STATE_FINISHED state is checked in the https parsing 
-        callacks to know if we are currently parsing a new response or we are simply parsing to read header values.*/
-    _httpsResponse->bufferProcessingState = PROCESSING_STATE_FINISHED;
 
     if(_httpsConnection != NULL)
     {
