@@ -29,7 +29,7 @@
 
 /* MQTT demo configuration. */
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
-#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
+#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 1 )
 
 /* Shadow demo configuration. The demo publishes periodic Shadow updates and responds
  * to changing Shadows. */
