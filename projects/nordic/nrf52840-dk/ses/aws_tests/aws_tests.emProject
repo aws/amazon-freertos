@@ -108,14 +108,12 @@
         <file file_name="../../../../../freertos_kernel/include/task.h" />
         <file file_name="../../../../../freertos_kernel/include/timers.h" />
       </folder>
-      <folder Name="CMSIS">
-        <file file_name="../../../../../freertos_kernel/portable/CMSIS/nrf52/port_cmsis.c" />
-        <file file_name="../../../../../freertos_kernel/portable/CMSIS/nrf52/port_cmsis_systick.c" />
-        <file file_name="../../../../../freertos_kernel/portable/CMSIS/nrf52/portmacro_cmsis.h" />
-      </folder>
       <folder Name="GCC">
         <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/port.c" />
         <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/portmacro.h" />
+        <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/port_cmsis.c" />
+        <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/port_cmsis_systick.c" />
+        <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/portmacro_cmsis.h" />
       </folder>
       <folder Name="MemMang">
         <file file_name="../../../../../freertos_kernel/portable/MemMang/heap_4.c" />
