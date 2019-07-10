@@ -310,7 +310,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
                 if( xErrCode != NRF_SUCCESS )
                 {
-                    IotLogError( "Could not switch to non connectable advertisement. \n" );
+                    IotLogError( "Could not switch to non connectable advertisement." );
                 }
             }
 
@@ -352,7 +352,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
                 if( xErrCode != NRF_SUCCESS )
                 {
-                    IotLogError( "Could not resume to connectable advertisement. \n" );
+                    IotLogError( "Could not resume to connectable advertisement." );
                 }
             }
 
@@ -431,7 +431,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             }
             else
             {
-                IotLogError( "Error : BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST Invalid \n\r" );
+                IotLogError( "Error : BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST Invalid." );
             }
 
             break;
@@ -501,7 +501,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
         case BLE_GATTC_EVT_TIMEOUT:
 
-            IotLogError( "BLE_GATTC_EVT_TIMEOUT \n" );
+            IotLogError( "BLE_GATTC_EVT_TIMEOUT." );
 
             /* Disconnect on GATT Client timeout event. */
             IotLogError( "GATT Client Timeout." );
@@ -512,7 +512,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
         case BLE_GATTS_EVT_TIMEOUT:
 
-            IotLogError( "BLE_GATTS_EVT_TIMEOUT \n" );
+            IotLogError( "BLE_GATTS_EVT_TIMEOUT." );
 
             /* Disconnect on GATT Server timeout event. */
             IotLogError( "GATT Server Timeout." );
@@ -678,12 +678,12 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                }
            }
 
-            IotLogDebug( "BLE_GAP_EVT_AUTH_STATUS\n" );
+            IotLogDebug( "BLE_GAP_EVT_AUTH_STATUS." );
 
             break;
 
         default:
-            IotLogError( "UNKNOWN BLE EVENT %d\n", p_ble_evt->header.evt_id );
+            IotLogError( "UNKNOWN BLE EVENT %d.", p_ble_evt->header.evt_id );
 
             break;
     }
@@ -1626,7 +1626,7 @@ PM_CONN_SEC_PROCEDURE_PAIRING:
             break;
 
         default:
-            IotLogError( "PM_UNKNOWN, %d\n ", event->evt_id );
+            IotLogError( "PM_UNKNOWN, %d.", event->evt_id );
             break;
     }
 }

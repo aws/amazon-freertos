@@ -562,7 +562,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     if( xStatus != eBTStatusSuccess )
     {
-        IotLogError( "Failed to start advertisement.\n" );
+        IotLogError( "Failed to start advertisement." );
     }
 
     return xStatus;

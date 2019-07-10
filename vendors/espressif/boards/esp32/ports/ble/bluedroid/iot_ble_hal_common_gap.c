@@ -218,7 +218,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 
             if( param->adv_stop_cmpl.status != ESP_OK )
             {
-                IotLogError( "Failed to stop advertisement\n" );
+                IotLogError( "Failed to stop advertisement" );
             }
 
             break;
