@@ -30,7 +30,7 @@
 
 /* Standard Includes. */
 #include <string.h>
- 
+
 /* FreeRTOS Includes. */
 #include "FreeRTOS.h"
 
@@ -39,7 +39,7 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_hal_internals.h"
- 
+
 /* Nordic/Segger Includes. */
 #include "ble.h"
 #include "ble_srv_common.h"
@@ -47,7 +47,7 @@
 #include "nrf_sdh_ble.h"
 #include "nrf_log.h"
 #include "nrf_ble_gatt.h"
- 
+
 /* Nordic port Includes. */
 #include "iot_ble_hal_dis.h"
 
@@ -531,7 +531,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
         }
 
         return BTNRFError( xErrCode );
-    #else  /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
+    #else /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
         return eBTStatusUnsupported;
     #endif /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
 }

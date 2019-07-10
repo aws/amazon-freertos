@@ -173,7 +173,7 @@ static ret_code_t prvDataLengthUpdate( uint16_t usConnHandle,
                                        uint16_t usDataLength )
 {
     IotLogDebug( "Updating data length to %u on connection 0x%x.",
-                    usDataLength, usConnHandle );
+                 usDataLength, usConnHandle );
 
     ble_gap_data_length_params_t const dlp =
     {
@@ -190,20 +190,20 @@ static ret_code_t prvDataLengthUpdate( uint16_t usConnHandle,
     if( err_code != NRF_SUCCESS )
     {
         IotLogDebug( "sd_ble_gap_data_length_update() (request) on connection 0x%x returned %s.",
-                        usConnHandle, nrf_strerror_get( err_code ) );
+                     usConnHandle, nrf_strerror_get( err_code ) );
 
         if( ( dll.tx_payload_limited_octets != 0 ) ||
             ( dll.rx_payload_limited_octets != 0 ) )
         {
             IotLogError( "The requested TX/RX packet length is too long by %u/%u octets.",
-                            dll.tx_payload_limited_octets, dll.rx_payload_limited_octets );
+                         dll.tx_payload_limited_octets, dll.rx_payload_limited_octets );
         }
 
         if( dll.tx_rx_time_limited_us != 0 )
         {
             IotLogError( "The requested combination of TX and RX packet lengths "
-                            "is too long by %u microseconds.",
-                            dll.tx_rx_time_limited_us );
+                         "is too long by %u microseconds.",
+                         dll.tx_rx_time_limited_us );
         }
     }
 
@@ -230,7 +230,7 @@ ret_code_t xBTGattUpdateMtu( nrf_ble_gatt_t * pxGattHandler,
         if( xLink->att_mtu_desired > xLink->att_mtu_effective )
         {
             IotLogDebug( "Requesting to update ATT MTU to %u bytes on connection 0x%x.",
-                            xLink->att_mtu_desired, usConnHandle );
+                         xLink->att_mtu_desired, usConnHandle );
 
             xErrCode = sd_ble_gattc_exchange_mtu_request( usConnHandle, xLink->att_mtu_desired );
 
@@ -242,12 +242,12 @@ ret_code_t xBTGattUpdateMtu( nrf_ble_gatt_t * pxGattHandler,
             {
                 xLink->att_mtu_exchange_pending = true;
                 IotLogError( "sd_ble_gattc_exchange_mtu_request()"
-                                " on connection 0x%x returned busy, will retry.", usConnHandle );
+                             " on connection 0x%x returned busy, will retry.", usConnHandle );
             }
             else
             {
                 IotLogError( "sd_ble_gattc_exchange_mtu_request() returned %s.",
-                                nrf_strerror_get( xErrCode ) );
+                             nrf_strerror_get( xErrCode ) );
             }
         }
 
@@ -704,7 +704,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
     xProperties.bOnlySecure = true;
     xProperties.bBondable = true;
 
-    if( xProperties.puDeviceName != NULL ) 
+    if( xProperties.puDeviceName != NULL )
     {
         memcpy( xProperties.puDeviceName, IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME, xProperties.usDeviceNameLength );
     }
@@ -1537,7 +1537,7 @@ PM_CONN_SEC_PROCEDURE_PAIRING:
 /*                    } */
 /*                } */
 /*            } */
-            break; 
+            break;
 
         case PM_EVT_CONN_SEC_SUCCEEDED:
             break;

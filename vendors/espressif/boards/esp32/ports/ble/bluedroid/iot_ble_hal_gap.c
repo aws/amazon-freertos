@@ -680,7 +680,7 @@ BTStatus_t prvAddToAdvertisementMessage( uint8_t * pucAdvMsg,
     }
     else
     {
-    	IotLogError( "Advertising data can't fit in advertisement message.\n" );
+        IotLogError( "Advertising data can't fit in advertisement message.\n" );
         xStatus = eBTStatusFail;
     }
 
@@ -800,7 +800,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
             if( xESPErr != ESP_OK )
             {
-            	IotLogError( "Failed to configure scan response.\n" );
+                IotLogError( "Failed to configure scan response.\n" );
                 xStatus = eBTStatusFail;
             }
         }
@@ -810,7 +810,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
             if( xESPErr != ESP_OK )
             {
-            	IotLogError( "Failed to configure Advertisement message.\n" );
+                IotLogError( "Failed to configure Advertisement message.\n" );
                 xStatus = eBTStatusFail;
             }
         }

@@ -49,12 +49,12 @@
 #include "nrf_log.h"
 /* Configure logs for the functions in this file. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
-    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL                     IOT_LOG_LEVEL_GLOBAL
 #else
-    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+    #define LIBRARY_LOG_LEVEL                     IOT_LOG_NONE
 #endif
 
-#define LIBRARY_LOG_NAME         ( "BLE_HAL" )
+#define LIBRARY_LOG_NAME                          ( "BLE_HAL" )
 #include "iot_logging_setup.h"
 
 #define iot_ble_hal_gapADVERTISING_BUFFER_SIZE    31
@@ -696,13 +696,13 @@ void prvBTFreeAdvData( ble_advdata_t * xAdvData )
     IotBle_Free( xAdvData->p_tx_power_level );
     IotBle_Free( xAdvData->p_slave_conn_int );
 
-    IotBle_Free( xAdvData->uuids_complete.p_uuids ); 
+    IotBle_Free( xAdvData->uuids_complete.p_uuids );
     IotBle_Free( xAdvData->uuids_more_available.p_uuids );
     IotBle_Free( xAdvData->uuids_solicited.p_uuids );
 
     if( xAdvData->p_manuf_specific_data )
     {
-        IotBle_Free( xAdvData->p_manuf_specific_data->data.p_data ); 
+        IotBle_Free( xAdvData->p_manuf_specific_data->data.p_data );
     }
 
     IotBle_Free( xAdvData->p_manuf_specific_data );
@@ -825,7 +825,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             if( xAdvData->p_manuf_specific_data == NULL )
             {
                 xErrCode = NRF_ERROR_NO_MEM;
-            } 
+            }
             else
             {
                 xAdvData->p_manuf_specific_data->data.p_data = IotBle_Malloc( usManufacturerLen );
