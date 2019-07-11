@@ -357,7 +357,6 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\application_code\ti_code</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
@@ -369,9 +368,11 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
@@ -380,9 +381,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
@@ -1156,21 +1157,6 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c</name>
 				</file>
 			</group>
-			<group>
-				<name>IAR</name>
-				<group>
-					<name>ARM_CM3</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\port.c</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\portasm.s</name>
-					</file>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\portmacro.h</name>
-					</file>
-				</group>
-			</group>
 		</group>
 	</group>
 	<group>
@@ -1207,12 +1193,6 @@
 								</file>
 								<file>
 									<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\SystemP_freertos.c</name>
-								</file>
-							</group>
-							<group>
-								<name>startup</name>
-								<file>
-									<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\startup\startup_cc32xx_iar.c</name>
 								</file>
 							</group>
 						</group>
@@ -1318,9 +1298,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_ota_agent_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_pkcs11_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\aws_secure_sockets_config.h</name>
 							</file>
 							<file>
@@ -1334,6 +1311,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_mqtt_agent_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files\iot_pkcs11_config.h</name>
 							</file>
 						</group>
 					</group>
@@ -1462,13 +1442,10 @@
 			<group>
 				<name>pkcs11</name>
 				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11.h</name>
-					</file>
-				</group>
-				<group>
 					<name>mbedtls</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c</name>
+					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h</name>
 					</file>
@@ -1543,17 +1520,53 @@
 					</group>
 				</group>
 				<group>
+					<name>pkcs11</name>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h</name>
+						</file>
+					</group>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>crypto</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
 					<name>utils</name>
 					<group>
 						<name>src</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c</name>
+						</file>
 					</group>
 					<group>
 						<name>include</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h</name>
 						</file>
 					</group>
 				</group>
@@ -2056,6 +2069,12 @@
 					</file>
 				</group>
 				<group>
+					<name>utils</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c</name>
+					</file>
+				</group>
+				<group>
 					<name>include</name>
 					<group>
 						<name>mbedtls</name>
@@ -2384,9 +2403,6 @@
 				<name>src</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c</name>
 				</file>
 			</group>
 			<group>
