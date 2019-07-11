@@ -67,4 +67,9 @@
  */
 #define         integrationtestportableSEND_TIMEOUT                10000
 
+/**
+ * @brief The stack size of the tasks created in all TCP echo multi-task tests.
+ */
+#define         tcptestTCP_ECHO_TASKS_STACK_SIZE                   ( configMINIMAL_STACK_SIZE * 8 )
+
 #endif /*AWS_INTEGRATION_TEST_TCP_CONFIG_H */
