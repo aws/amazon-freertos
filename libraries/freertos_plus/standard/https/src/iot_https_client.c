@@ -1023,7 +1023,6 @@ static void _networkDisconnect(_httpsConnection_t* _httpsConnection)
     if ( networkStatus != IOT_NETWORK_SUCCESS )
     {
         IotLogWarn("Failed to shutdown the socket with error code: %d", networkStatus );
-        status = IOT_HTTPS_NETWORK_ERROR;
     }
 }
 
@@ -1038,7 +1037,6 @@ static void _networkDestroy(_httpsConnection_t* _httpsConnection)
     if ( networkStatus != IOT_NETWORK_SUCCESS )
     {
         IotLogWarn("Failed to shutdown the socket with error code: %d", networkStatus );
-        status = IOT_HTTPS_NETWORK_ERROR;
     }
 }
 
@@ -1619,7 +1617,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* _httpsConn
            that we parsed. */
         if( *pNetworkStatus != IOT_HTTPS_OK )
         {
-            IotLogError( "Error receiving the HTTPS response headers. Error code: %d", status );
+            IotLogError( "Network error receiving the HTTPS response headers. Error code: %d", pNetworkStatus );
             break;
         }
 
@@ -1679,6 +1677,8 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* _httpsConnect
     {
         IotLogError("Error receiving the HTTP body. Error code %d", status);
     }
+
+
 
     IotLogDebug("The message Content-Length is %d (Will be > 0 for a Content-Length header existing). The remaining content length on the network is %d.",
         _httpsResponse->contentLength,
@@ -1746,6 +1746,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     _httpsConnection_t * _httpsConnection = NULL;
     IotHttpsReturnCode_t flushStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t networkStatus = IOT_HTTPS_OK;
+    IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
 
     /* Check for NULL parameters in a public API. */
     if(( pConnHandle == NULL) || (reqHandle == NULL) || (pRespHandle == NULL))
@@ -1912,10 +1913,10 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         sending a response, but we disconnect anyways. */
     if( (_httpsConnection != NULL) && ( reqHandle->isNonPersistent ))
     {
-        status = IotHttpsClient_Disconnect( _httpsConnection );
-        if( status != IOT_HTTPS_OK )
+        disconnectStatus = IotHttpsClient_Disconnect( _httpsConnection );
+        if( disconnectStatus != IOT_HTTPS_OK )
         {
-            IotLogError( "Failed to disconnected from the server with error: %d", status );
+            IotLogWarn("Failed to disconnected from the server with error: %d", status );
             /* The disconnect status is not returned as the server may already be disconnected. */
         }
     }
@@ -1927,6 +1928,13 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         IotSemaphore_Post( &( _httpsConnection->rxFinishSem ) );
         /* Let other threads waiting know the connection is ready to be used. */
         IotSemaphore_Post( &(_httpsConnection->connSem) );
+    }
+
+    /* If there was an error from the parser or other synchronous workflow error NOT from the network, then we want to report this.
+       Parsing errors will close the connection. Otherwise we only report the network error if the parsing failed at the same time. */
+    if((status != IOT_HTTPS_OK) && (networkStatus != IOT_HTTPS_OK)) 
+    {
+        status = networkStatus;
     }
  
     IOT_FUNCTION_CLEANUP_END();
