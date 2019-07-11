@@ -34,6 +34,7 @@
 #include "iot_system_init.h"
 #include "iot_wifi.h"
 #include "aws_clientcredential.h"
+#include "iot_config.h"
 
 /* Test application includes. */
 #include "aws_test_runner.h"
@@ -55,7 +56,7 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 
-#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 8 )
+#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
@@ -245,7 +246,7 @@ void vApplicationDaemonTaskStartupHook( void )
                      "TestRunner",
                      mainTEST_RUNNER_TASK_STACK_SIZE,
                      NULL,
-                     tskIDLE_PRIORITY,
+                     IOT_THREAD_DEFAULT_PRIORITY,
                      NULL );
     }
 }
