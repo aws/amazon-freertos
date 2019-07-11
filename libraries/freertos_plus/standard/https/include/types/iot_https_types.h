@@ -180,7 +180,6 @@ extern const uint32_t connectionUserBufferMinimumSize;
  */
 #define IOT_HTTPS_NETWORK_INTERFACE_TYPE                      const IotNetworkInterface_t*
 
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -425,7 +424,7 @@ typedef struct IotHttpsSyncRequestInfo
 typedef struct IotHttpsConnectionInfo
 {
     /**
-     * @brief Remote server address that is DNS discoverable.
+     * @brief Remote address that is DNS discoverable.
      *
      * For example: avs-alexa-na.amazon.com.
      */
