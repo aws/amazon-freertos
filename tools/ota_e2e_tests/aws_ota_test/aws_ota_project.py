@@ -78,6 +78,8 @@ class OtaAfrProject:
         self._bootloaderSequenceNumber = 0
 
         OtaAfrProject.RUNNER_PATH = self._boardProjectPath + '/config_files/aws_demo_config.h'
+        OtaAfrProject.BLE_CONFIG_PATH = self._boardProjectPath + '/config_files/iot_ble_config.h'
+        OtaAfrProject.IOT_NETWORK_PATH = self._boardProjectPath + '/config_files/aws_iot_network_config.h'
         OtaAfrProject.CLIENT_CREDENTIAL_PATH = self._buildProject + '/include/aws_clientcredential.h'
         OtaAfrProject.APPLICATION_VERSION_PATH = self._buildProject + '/include/aws_application_version.h'
         OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = self._buildProject + '/include/aws_clientcredential_keys.h'
@@ -293,6 +295,55 @@ class OtaAfrProject:
                 '#define APP_VERSION_BUILD': bugfix
             },
             os.path.join(self._projectRootDir, OtaAfrProject.APPLICATION_VERSION_PATH)
+        )
+
+    def __insertTexts(self, prefix, texts, filePath):
+        """ insert texts after the line with prefix in the file filePath.
+        """
+        for line in fileinput.input(files=filePath, inplace=True):
+            sys.stdout.write(line)
+            if (prefix in line) and ("//" not in line) and ("/*" not in line):
+                for text in texts:
+                    line = '{}\n'.format(text)
+                    sys.stdout.write(line)
+    
+    def setBleConfig(self):
+        """Set necessary configs for enabling OTA over BLE
+        """
+        self.__setIdentifierInFile(
+            {
+                '    #define democonfigNETWORK_TYPES': '(  AWSIOT_NETWORK_TYPE_BLE  )'
+            },
+            os.path.join(self._projectRootDir, OtaAfrProject.RUNNER_PATH)
+        )
+        
+        self.__setIdentifierInFile(
+            {
+                '#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME':' \"TSTOTAESP\"'
+            },
+            os.path.join(self._projectRootDir, OtaAfrProject.BLE_CONFIG_PATH)
+        )
+
+        self.__setIdentifierInFile(
+            {
+                '#define configENABLED_NETWORKS': '( AWSIOT_NETWORK_TYPE_BLE )'
+            },
+            os.path.join(self._projectRootDir, OtaAfrProject.IOT_NETWORK_PATH)
+        )
+
+        self.__insertTexts('#define IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME',
+            [
+                '/* Device Configuration */',
+                '#undef IOT_BLE_ENABLE_NUMERIC_COMPARISON',
+                '#define IOT_BLE_ENABLE_NUMERIC_COMPARISON        ( 0 )',
+                '#undef IOT_BLE_ENABLE_SECURE_CONNECTION',
+                '#define IOT_BLE_ENABLE_SECURE_CONNECTION         ( 0 )',
+                '#undef IOT_BLE_INPUT_OUTPUT',
+                '#define IOT_BLE_INPUT_OUTPUT                     ( eBTIONone )',
+                '#undef IOT_BLE_ENCRYPTION_REQUIRED',
+                '#define IOT_BLE_ENCRYPTION_REQUIRED              ( 0 )'
+            ],
+            os.path.join(self._projectRootDir, OtaAfrProject.BLE_CONFIG_PATH)
         )
 
     def setCodesignerCertificate(self, certificate):

@@ -58,7 +58,7 @@ class OtaTestRunner:
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
         self._otaProject = OtaAfrProject(boardConfig)
-        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig['aws_ota_update_role_arn'], self._otaConfig['aws_s3_bucket_name'], stageParams, True)
+        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig['aws_ota_update_role_arn'], self._otaConfig['aws_s3_bucket_name'], stageParams, False)
         # FlashSerialComm opens a thread. If there is an exception in OtaAwsAgent we want to exit the program, so this is initialized last.
         self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
 

@@ -727,7 +727,7 @@ class AWSS3Bucket:
                         'LocationConstraint': boto3.session.Session().region_name
                     }
                 )
-            self._s3_client.BucketVersioning(self.s3_name).enable();
+            self._s3_client.BucketVersioning(self.s3_name).enable()
 
         # If the bucket exists we want to make sure it is in the right region for the AWS development stage.
         if response and self._stageParams:

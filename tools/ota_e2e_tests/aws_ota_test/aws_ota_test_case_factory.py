@@ -24,6 +24,7 @@ http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case_greater_version import OtaTestGreaterVersion
+from .aws_ota_test_case_greater_version_ble import OtaTestGreaterVersionBle
 from .aws_ota_test_case_unsigned_image import OtaTestUnsignedImage
 from .aws_ota_test_case_same_version import OtaTestSameVersion
 from .aws_ota_test_case_untrusted_certificate import OtaTestUntrustedCertificate
@@ -43,6 +44,7 @@ All OTA test cases in the system.
 """
 AllOtaTestCases = {
     OtaTestGreaterVersion.NAME : OtaTestGreaterVersion,
+    OtaTestGreaterVersionBle.NAME : OtaTestGreaterVersionBle,
     OtaTestUnsignedImage.NAME : OtaTestUnsignedImage,
     OtaTestSameVersion.NAME: OtaTestSameVersion,
     OtaTestUntrustedCertificate.NAME : OtaTestUntrustedCertificate,
