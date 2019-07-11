@@ -399,6 +399,7 @@
           <file file_name="../../../../../libraries/abstractions/platform/CMakeLists.txt" />
           <folder Name="freertos">
             <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c" />
+            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c" />
           </folder>
           <folder Name="include">
             <folder Name="platform">
@@ -410,7 +411,6 @@
             <folder Name="types">
               <file file_name="../../../../../libraries/abstractions/platform/include/types/iot_platform_types.h" />
             </folder>
-            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c" />
           </folder>
           <folder Name="test">
             <file file_name="../../../../../libraries/abstractions/platform/test/iot_test_platform_clock.c" />

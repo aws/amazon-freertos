@@ -27,9 +27,8 @@
  * @file iot_ble_hal_common_gap.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
-
+#include "iot_config.h"
 #include <string.h>
-#include "FreeRTOS.h"
 #include "esp_bt.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatt_common_api.h"
@@ -41,6 +40,16 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_hal_internals.h"
+
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_HAL" )
+#include "iot_logging_setup.h"
 
 BTProperties_t xProperties;
 static BTCallbacks_t xBTCallbacks;
@@ -209,7 +218,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 
             if( param->adv_stop_cmpl.status != ESP_OK )
             {
-                configPRINTF( ( "Failed to stop advertisement\n" ) );
+                IotLogError( "Failed to stop advertisement" );
             }
 
             break;
@@ -594,8 +603,8 @@ BTStatus_t prvGetBondableDeviceList( void )
     esp_err_t xESPStatus;
 
     usNbDevices = esp_ble_get_bond_device_num();
-    pxESPDevlist = pvPortMalloc( sizeof( esp_ble_bond_dev_t ) * usNbDevices );
-    xBondedDevices.pvVal = pvPortMalloc( sizeof( BTBdaddr_t ) * usNbDevices );
+    pxESPDevlist = IotBle_Malloc( sizeof( esp_ble_bond_dev_t ) * usNbDevices );
+    xBondedDevices.pvVal = IotBle_Malloc( sizeof( BTBdaddr_t ) * usNbDevices );
 
     if( pxESPDevlist != NULL )
     {
@@ -612,8 +621,8 @@ BTStatus_t prvGetBondableDeviceList( void )
             xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
 
             xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xBondedDevices );
-            vPortFree( pxESPDevlist );
-            vPortFree( xBondedDevices.pvVal );
+            IotBle_Free( pxESPDevlist );
+            IotBle_Free( xBondedDevices.pvVal );
         }
         else
         {
@@ -706,7 +715,7 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
     switch( pxProperty->xType )
     {
         case eBTpropertyBdname:
-            pcName = pvPortMalloc( pxProperty->xLen + 1 );
+            pcName = IotBle_Malloc( pxProperty->xLen + 1 );
 
             if( pcName != NULL )
             {
@@ -720,7 +729,7 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
                     xStatus = eBTStatusFail;
                 }
 
-                vPortFree( pcName );
+                IotBle_Free( pcName );
             }
             else
             {

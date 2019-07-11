@@ -27,10 +27,9 @@
  * @file iot_ble_hal_gap.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
-
+#include "iot_config.h"
 #include <stddef.h>
 #include <string.h>
-#include "FreeRTOS.h"
 #include "esp_bt.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
@@ -40,6 +39,16 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_hal_internals.h"
+
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_HAL" )
+#include "iot_logging_setup.h"
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 static esp_ble_adv_params_t xAdv_params;
@@ -277,7 +286,7 @@ BTStatus_t prvToggleSecureConnectionOnlyMode( bool bEnable )
         /* Check the IO are compatible with the desired security level */
         if( ( xProperties.xPropertyIO != eBTIODisplayYesNo ) && ( xProperties.xPropertyIO != eBTIOKeyboardDisplay ) )
         {
-            configPRINTF( ( "BLE: Input/output property are incompatible with secure connection only Mode\n" ) );
+            IotLogError( "BLE: Input/output property are incompatible with secure connection only Mode." );
         }
     }
     else
@@ -671,7 +680,7 @@ BTStatus_t prvAddToAdvertisementMessage( uint8_t * pucAdvMsg,
     }
     else
     {
-        configPRINTF( ( "Advertising data can't fit in advertisement message.\n" ) );
+        IotLogError( "Advertising data can't fit in advertisement message." );
         xStatus = eBTStatusFail;
     }
 
@@ -791,7 +800,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
             if( xESPErr != ESP_OK )
             {
-                configPRINTF( ( "Failed to configure scan response.\n" ) );
+                IotLogError( "Failed to configure scan response." );
                 xStatus = eBTStatusFail;
             }
         }
@@ -801,7 +810,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
             if( xESPErr != ESP_OK )
             {
-                configPRINTF( ( "Failed to configure Advertisement message.\n" ) );
+                IotLogError( "Failed to configure Advertisement message." );
                 xStatus = eBTStatusFail;
             }
         }

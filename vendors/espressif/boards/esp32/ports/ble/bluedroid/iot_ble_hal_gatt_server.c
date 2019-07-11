@@ -27,9 +27,8 @@
  * @file iot_ble_hal_gatt_server.c
  * @brief Hardware Abstraction Layer for GATT server ble stack.
  */
-
+#include "iot_config.h"
 #include <string.h>
-#include "FreeRTOS.h"
 #include "esp_gatts_api.h"
 #include "esp_gap_ble_api.h"
 #include "esp_gatt_common_api.h"
@@ -449,7 +448,7 @@ BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
 
     if( bInterfaceCreated == false )
     {
-        pxAPPuuid = pvPortMalloc( sizeof( BTUuid_t ) );
+        pxAPPuuid = IotBle_Malloc( sizeof( BTUuid_t ) );
 
         if( pxAPPuuid != NULL )
         {
