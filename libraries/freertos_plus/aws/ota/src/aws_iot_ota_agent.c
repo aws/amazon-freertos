@@ -1257,17 +1257,25 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
 
                     if( eResult != IOT_MQTT_SUCCESS )
                     {
+                        /* Don't return an error. Let max momentum catch it since this may be intermittent. */
                         OTA_LOG_L1( "[%s] Failed: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-                        /* Don't return an error. Let max momentum catch it since this may be intermittent.
-                           Restart the timer so that we will come back through here and try again */
-                        prvStartRequestTimer( C );
                     }
                     else
                     {
                         OTA_LOG_L1( "[%s] OK: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
-                        /* Restart the request timer to retry if we don't complete the update. */
-                        prvStartRequestTimer( C );
                     }
+                    /* Restart the timer regardless if we published the Get Stream Request message
+                       or not.
+
+                       If we published the message, then the timer will be used to time
+                       out the OTA not continuing again.
+
+                       If we failed to publish the message, then
+                       the timer will be used to retry publishing the message again later.
+
+                       In both cases the max momentum, if reached, will be used to stop publishing
+                       the Get Stream Request message. */
+                    prvStartRequestTimer( C );
                 }
                 else
                 {
