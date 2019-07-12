@@ -998,6 +998,7 @@ IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHa
             if(status != IOT_HTTPS_OK)
             {
                 IotLogError("Error disconnecting a connected *pConnHandle passed to IotHttpsClient_Connect().Error code %d", status);
+                *pConnHandle = NULL;
             }
         }
     }

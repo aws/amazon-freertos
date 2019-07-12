@@ -181,7 +181,6 @@ IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHa
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the disconnect was successful
- * - #IOT_HTTPS_NETWORK_ERROR for network disconnection errors.
  * - #IOT_HTTPS_INVALID_PARAMETER if NULL parameters were passed in.
  * - #IOT_HTTPS_BUSY if the connection is in use and cannot be destroyed.
  */
