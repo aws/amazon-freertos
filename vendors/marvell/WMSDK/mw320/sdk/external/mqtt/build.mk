@@ -4,7 +4,7 @@
 libs-y += libawsmqtt
 
 libawsmqtt-objs-y := \
-		../../../../../../../../mqtt/aws_mqtt_agent.c \
+		../../../../../../../../mqtt/iot_mqtt_agent.c \
 		../../../../../../../../mqtt/aws_mqtt_lib.c
 
 libawsmqtt-supported-toolchain-y := arm_gcc iar

@@ -167,9 +167,9 @@
 			<locationURI>AFR_HOME/demos/common/mqtt/aws_hello_world.c</locationURI>
 		</link>
 		<link>
-			<name>application_code/common_demos/source/aws_logging_task_dynamic_buffers.c</name>
+			<name>application_code/common_demos/source/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/demos/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+			<locationURI>AFR_HOME/demos/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
 			<name>application_code/common_demos/source/aws_shadow_lightbulb_on_off.c</name>
@@ -177,34 +177,34 @@
 			<location>AFR_HOME/demos/common/shadow/aws_shadow_lightbulb_on_off.c</location>
 		</link>
 		<link>
-			<name>lib/aws/crypto/aws_crypto.c</name>
+			<name>lib/aws/crypto/iot_crypto.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/crypto/aws_crypto.c</locationURI>
+			<locationURI>AFR_HOME/lib/crypto/iot_crypto.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/pkcs11/aws_pkcs11_mbedtls.c</name>
+			<name>lib/aws/pkcs11/iot_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/pkcs11/mbedtls/aws_pkcs11_mbedtls.c</locationURI>
+			<locationURI>AFR_HOME/lib/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/pkcs11/aws_pkcs11_pal.c</name>
+			<name>lib/aws/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/pkcs11/portable/infineon/xmc4800_iotkit/aws_pkcs11_pal.c</locationURI>
+			<locationURI>AFR_HOME/lib/pkcs11/portable/infineon/xmc4800_iotkit/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/secure_sockets/aws_secure_sockets.c</name>
+			<name>lib/aws/secure_sockets/iot_secure_sockets.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/secure_sockets/portable/infineon/xmc4800_iotkit/aws_secure_sockets.c</locationURI>
+			<locationURI>AFR_HOME/lib/secure_sockets/portable/infineon/xmc4800_iotkit/iot_secure_sockets.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/tls/aws_tls.c</name>
+			<name>lib/aws/tls/iot_tls.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/tls/aws_tls.c</locationURI>
+			<locationURI>AFR_HOME/lib/tls/iot_tls.c</locationURI>
 		</link>
 		<link>
-			<name>lib/aws/wifi/aws_wifi.c</name>
+			<name>lib/aws/wifi/iot_wifi.c</name>
 			<type>1</type>
-			<locationURI>AFR_HOME/lib/wifi/portable/infineon/xmc4800_iotkit/aws_wifi.c</locationURI>
+			<locationURI>AFR_HOME/lib/wifi/portable/infineon/xmc4800_iotkit/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>lib/third_party/mbedtls/include</name>

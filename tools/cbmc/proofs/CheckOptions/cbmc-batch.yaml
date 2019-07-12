@@ -1,4 +1,0 @@
-jobos: ubuntu16
-cbmcflags:        '=--object-bits;7;--unwind;0;--unwindset;prvCheckOptions.0:41;--unwinding-assertions;--32;--bounds-check;--pointer-check='
-goto: CheckOptions.goto
-expected: SUCCESSFUL

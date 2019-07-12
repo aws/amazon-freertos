@@ -7,8 +7,8 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_crypto.c"
-        "${inc_dir}/aws_crypto.h"
+        "${src_dir}/iot_crypto.c"
+        "${inc_dir}/iot_crypto.h"
 )
 
 afr_module_include_dirs(
@@ -26,7 +26,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_crypto.c"
+        "${test_dir}/iot_test_crypto.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

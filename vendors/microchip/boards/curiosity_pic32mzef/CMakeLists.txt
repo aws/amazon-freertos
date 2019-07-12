@@ -102,7 +102,7 @@ target_link_libraries(
 target_sources(
     AFR::wifi::mcu_port
     INTERFACE
-        "${afr_ports_dir}/wifi/aws_wifi.c"
+        "${afr_ports_dir}/wifi/iot_wifi.c"
         "${afr_ports_dir}/wifi/aws_wifi_assert.c"
         "${harmony_dir}/framework/system/command/src/sys_command.c"
         "${harmony_dir}/bsp/bsp.c"
@@ -196,7 +196,7 @@ afr_mcu_port(pkcs11 DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.h"
 )
@@ -209,6 +209,7 @@ target_sources(
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/BufferAllocation_2.c"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_wifi.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef/NetworkInterface_eth.c"
 )
 
 target_include_directories(
@@ -304,13 +305,13 @@ set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
 set_source_files_properties(${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
-    ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
-    ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
+    ${AFR_DEMOS_DIR}/secure_sockets/iot_test_tcp.c
+    ${AFR_DEMOS_DIR}/wifi/iot_test_wifi.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format"
 )
 
-set_source_files_properties(${AFR_MODULES_C_SDK_DIR}/common/logging/aws_logging_task_dynamic_buffers.c
+set_source_files_properties(${AFR_MODULES_C_SDK_DIR}/common/logging/iot_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
 )
@@ -325,7 +326,7 @@ set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
     "-Wno-pointer-sign"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
+set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-int-conversion"
 )
@@ -341,7 +342,7 @@ set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this s
 find_program(hexmate_path hexmate PATHS "${MCHP_HEXMATE_PATH}" PATH_SUFFIXES bin)
 if (NOT AFR_METADATA_MODE)
     if(NOT hexmate_path)
-        message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+        message(FATAL_ERROR "Cannot find Microchip's hexmate tool. Set MCHP_HEXMATE_PATH to the hexmate tool that comes with MPLAB. Try MPLABX\{VERSION}\mplab_platform\bin or /Applications/microchip/mplabx/{VERSION}/mplab_ide.app/Contents/Resources/mplab_ide/bin.")
     endif()
 endif()
 
@@ -359,7 +360,7 @@ add_custom_command(
     COMMAND "${hexmate_path}" ${output_hex_file}  ${bl_hex_file} -O${exe_target}.production.unified.hex
 )
 if(NOT AFR_IS_TESTING)
-    set(ota_image_generator "${AFR_DEMOS_DIR}/ota/bootloader/utility/ota_image_generator.py")
+    set(ota_image_generator "${CMAKE_CURRENT_LIST_DIR}/bootloader/bootloader/utility/ota_image_generator.py")
     add_custom_command(
         TARGET ${exe_target} POST_BUILD
         COMMAND "echo" "Running xc32-objcopy"

@@ -21,7 +21,7 @@ CFLAGS += -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS -DUNITY_INCLUDE_CONFIG_H
 include $(IDF_PATH)/make/project.mk
 
 else
-$(error ERROR: IDF_PATH is defined in your environement, it will not point to lib/third_party/mcu_vendor/espressif/esp-idf. To remove the variable run the command "unset IDF_PATH")
+$(error ERROR: IDF_PATH is defined in your environement, it will not point to vendors/espressif/esp-idf/esp-idf. To remove the variable run the command "unset IDF_PATH")
 endif
 
 

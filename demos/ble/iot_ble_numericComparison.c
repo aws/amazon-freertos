@@ -48,7 +48,7 @@
 
 typedef struct{
 	uint32_t ulPassKey;
-	BTBdaddr_t xAdress;
+	BTBdaddr_t xAddress;
 } BLEPassKeyConfirm_t;
 
 QueueHandle_t xNumericComparisonQueue = NULL;
@@ -67,7 +67,7 @@ void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey)
 	if(pxRemoteBdAddr != NULL)
 	{
 		xPassKeyConfirm.ulPassKey = ulPassKey;
-		memcpy(&xPassKeyConfirm.xAdress, pxRemoteBdAddr, sizeof(BTBdaddr_t));
+		memcpy(&xPassKeyConfirm.xAddress, pxRemoteBdAddr, sizeof(BTBdaddr_t));
 
 		xQueueSend(xNumericComparisonQueue, (void * )&xPassKeyConfirm, (portTickType)portMAX_DELAY);
 	}
@@ -89,11 +89,11 @@ void userInputTask(void *pvParameters)
                     if((xINPUTmessage.pcData[0] == 'y')||(xINPUTmessage.pcData[0] == 'Y'))
                     {
                     	configPRINTF(("Key accepted\n"));
-                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
+                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAddress, true);
                     }else
                     {
                     	configPRINTF(("Key Rejected\n"));
-                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
+                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAddress, false);
 
                     }
 

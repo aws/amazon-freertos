@@ -130,7 +130,7 @@ target_link_libraries(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 # WiFi on TI requires POSIX types
 target_link_libraries(
@@ -145,7 +145,7 @@ afr_mcu_port(pkcs11)
 target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 target_link_libraries(
     AFR::pkcs11::mcu_port
@@ -156,7 +156,7 @@ target_link_libraries(
 afr_mcu_port(secure_sockets)
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${afr_ports_dir}/secure_sockets/aws_secure_sockets.c"
+    INTERFACE "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
 # OTA

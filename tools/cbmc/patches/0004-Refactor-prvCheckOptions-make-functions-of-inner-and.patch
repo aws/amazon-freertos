@@ -9,10 +9,10 @@ This patch should be removed soon: It will be submitted its own PR.
  .../source/FreeRTOS_TCP_IP.c                  | 289 ++++++++++--------
  1 file changed, 162 insertions(+), 127 deletions(-)
 
-diff --git a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c
+diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
 index bf2ffc609..23c34cc7b 100644
---- a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c
-+++ b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_IP.c
+--- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
++++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
 @@ -225,7 +225,20 @@ static BaseType_t prvTCPPrepareConnect( FreeRTOS_Socket_t *pxSocket );
  /*
   * Parse the TCP option(s) received, if present.

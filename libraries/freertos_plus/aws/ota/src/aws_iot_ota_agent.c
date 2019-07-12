@@ -1634,6 +1634,15 @@ static void prvOTAUpdateTask( void * pvUnused )
                                             ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
                                         }
                                     }
+                                    else
+                                    {
+										/* If the job context returned NULL and the image state is not in the self_test state,
+										 * then an error occurred parsing the OTA job message.  Abort the OTA job with a parse error.
+										 *
+										 * If there is a valid job id, then a job status update will be sent.
+										 */
+										( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_JobParserError );
+                                }
                                 }
                                 else
                                 {
@@ -1696,13 +1705,17 @@ static void prvOTAUpdateTask( void * pvUnused )
                                         }
                                     }
                                     else
-                                    { /* We're actively receiving a file so update the job status as needed. */
+                                    {
+                                        if( xResult == eIngest_Result_Accepted_Continue )
+                                        {
+                                            /* We're actively receiving a file so update the job status as needed. */
                                             /* First reset the momentum counter since we received a good block. */
                                             C->ulRequestMomentum = 0;
                                             prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
                                         }
                                     }
                                 }
+                            }
                             else
                             {
                                 /* Ignore unknown message types. */

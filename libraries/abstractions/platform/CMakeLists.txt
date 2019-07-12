@@ -11,9 +11,9 @@ afr_module_sources(
         "${inc_dir}/platform/iot_network.h"
         "${inc_dir}/platform/iot_threads.h"
         "${inc_dir}/types/iot_platform_types.h"
-        "${src_dir}/iot_clock_afr.c"
-        "${src_dir}/iot_threads_afr.c"
-        "${src_dir}/include/platform/iot_platform_types_afr.h"
+        "${src_dir}/iot_clock_freertos.c"
+        "${src_dir}/iot_threads_freertos.c"
+        "${src_dir}/include/platform/iot_platform_types_freertos.h"
 )
 
 afr_module_include_dirs(
@@ -35,8 +35,8 @@ if(TARGET AFR::secure_sockets::mcu_port)
         PRIVATE
         "${inc_dir}/platform/iot_metrics.h"
         "${src_dir}/iot_metrics.c"
-        "${src_dir}/iot_network_afr.c"
-        "${src_dir}/include/platform/iot_network_afr.h"
+        "${src_dir}/iot_network_freertos.c"
+        "${src_dir}/include/platform/iot_network_freertos.h"
     )
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}

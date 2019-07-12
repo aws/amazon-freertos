@@ -184,7 +184,7 @@ target_include_directories(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
 # FreeRTOS_Plus_TCP
@@ -204,7 +204,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 # Secure sockets
@@ -215,7 +215,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/aws_secure_sockets.c"
+    INTERFACE "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c"
 )
 
 target_include_directories(

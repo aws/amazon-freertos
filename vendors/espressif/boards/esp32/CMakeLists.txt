@@ -82,7 +82,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
 
 # BLE
@@ -92,10 +92,9 @@ afr_mcu_port(ble_hal)
 target_sources(
     AFR::ble_hal::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_internals.h"
+        "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
 )
 target_include_directories(
     AFR::ble_hal::mcu_port
@@ -103,6 +102,7 @@ target_include_directories(
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
         "${afr_ports_dir}/ble"
+        "${afr_ports_dir}/ble/bluedroid"
 )
 
 # PKCS11
@@ -113,7 +113,7 @@ target_link_libraries(
 )
 target_sources(
     AFR::pkcs11::mcu_port
-    INTERFACE "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
+    INTERFACE "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 # FreeRTOS Plus TCP
@@ -209,13 +209,13 @@ endif()
 set_source_files_properties(
     ${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
-    ${AFR_DEMOS_DIR}/secure_sockets/aws_test_tcp.c
-    ${AFR_DEMOS_DIR}/wifi/aws_test_wifi.c
+    ${AFR_DEMOS_DIR}/secure_sockets/iot_test_tcp.c
+    ${AFR_DEMOS_DIR}/wifi/iot_test_wifi.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/logging/aws_logging_task_dynamic_buffers.c
+set_source_files_properties(${AFR_DEMOS_DIR}/logging/iot_logging_task_dynamic_buffers.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-format -Wno-uninitialized"
 )
@@ -230,7 +230,7 @@ set_source_files_properties(${AFR_DEMOS_DIR}/ota/aws_test_ota_agent.c
     "-Wno-pointer-sign"
 )
 
-set_source_files_properties(${AFR_DEMOS_DIR}/posix/aws_test_posix_pthread.c
+set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
     PROPERTIES COMPILE_FLAGS
     "-Wno-int-conversion"
 )
@@ -255,13 +255,28 @@ set(IDF_BUILD_ARTIFACTS_DIR ${CMAKE_BINARY_DIR})
 
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
+# If external project is set do not link IDF components to aws target
+if (NOT IDF_PROJECT_EXECUTABLE)
+    set(IDF_PROJECT_EXECUTABLE ${exe_target})
+endif()
+
+set_property(GLOBAL PROPERTY IDF_PROJECT_EXECUTABLE ${IDF_PROJECT_EXECUTABLE})
+
+get_filename_component(
+    ABS_EXTRA_COMPONENT_DIRS
+    "${board_dir}/application_code/espressif_code" ABSOLUTE
+)
+
+list(APPEND IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
+
 # This is a hack to have IDF build system use PRIVATE keyword when
 # calling target_link_libraries() on aws_demos target. This is necessary
 # as CMake doesn't allow mixing target_link_libraries() call signature
 # for the same target.
 function(target_link_libraries)
     set(_args ARGV)
-    if ((${ARGV0} STREQUAL aws_tests) OR (${ARGV0} STREQUAL aws_demos))
+    get_property(exe_target GLOBAL PROPERTY IDF_PROJECT_EXECUTABLE)
+    if (${ARGV0} STREQUAL ${exe_target})
         list(INSERT ${_args} 1 PRIVATE)
     endif()
     _target_link_libraries(${${_args}})
@@ -273,27 +288,18 @@ set(IDF_TOOLCHAIN_FILE ${CMAKE_TOOLCHAIN_FILE})
 # Provides idf_import_components and idf_link_components
 include(${esp_idf_dir}/tools/cmake/idf_functions.cmake)
 
-get_filename_component(
-    ABS_EXTRA_COMPONENT_DIRS
-    "${board_dir}/application_code/espressif_code" ABSOLUTE
-)
-
-set(IDF_EXTRA_COMPONENT_DIRS ${ABS_EXTRA_COMPONENT_DIRS})
-set(IDF_PROJECT_EXECUTABLE ${exe_target})
-
-
 # Wraps add_subdirectory() to create library targets for components, and then `return` them using the given variable.
 # In this case the variable is named `component`
 idf_import_components(components ${esp_idf_dir} esp-idf)
 
 # Wraps target_link_libraries() to link processed components by idf_import_components to target
-idf_link_components(${exe_target} "${components}")
+idf_link_components(${IDF_PROJECT_EXECUTABLE} "${components}")
 
 # Monitor target for running idf_monitor.py
 add_custom_target(monitor
     DEPENDS "${IDF_PROJECT_EXECUTABLE}"
     COMMAND ${CMAKE_COMMAND}
-    -D IDF_PATH="${espressif_dir}"
+    -D IDF_PATH="${esp_idf_dir}"
     -D PROJECT_ELF="${IDF_PROJECT_EXECUTABLE}"
     -D ELF_DIR="${CMAKE_BINARY_DIR}"
     -P run_idf_monitor.cmake

@@ -4,7 +4,7 @@
 libs-y += libutils
 
 libutils-objs-y := \
-	           ../../../../../../../../utils/aws_system_init.c
+	           ../../../../../../../../utils/iot_system_init.c
 
 libutils-supported-toolchain-y := arm_gcc iar
 

@@ -33,7 +33,7 @@
 #include "FreeRTOS.h"
 
 /* MQTT include. */
-#include "aws_mqtt_agent.h"
+#include "iot_mqtt_agent.h"
 
 /* CBOR and OTA includes. */
 #include "aws_ota_agent.h"
@@ -47,7 +47,7 @@
 #include "unity.h"
 
 /* Crypto includes. */
-#include "aws_crypto.h"
+#include "iot_crypto.h"
 #include "mbedTLS/sha1.h"
 
 /*-----------------------------------------------------------*/

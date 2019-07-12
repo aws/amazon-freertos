@@ -34,12 +34,12 @@
 #include "aws_test_runner.h"
 
 /* AWS library includes. */
-#include "aws_system_init.h"
-#include "aws_logging_task.h"
-#include "aws_wifi.h"
+#include "iot_system_init.h"
+#include "iot_logging_task.h"
+#include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 #include "wiced_rtos.h"
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
