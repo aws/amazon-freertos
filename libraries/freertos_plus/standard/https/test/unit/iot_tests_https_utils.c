@@ -107,7 +107,7 @@
  */
 #define HTTPS_TEST_INVALID_URL  "invalid_url/invalid_path"
 
-/*-----------------------------------------------------------*
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Test group for HTTPS Utils API tests.
