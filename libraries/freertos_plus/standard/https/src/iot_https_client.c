@@ -651,11 +651,14 @@ static int _httpParserOnBodyCallback(http_parser * pHttpParser, const char * pLo
         /* Only copy the data if the current location is not the bodyCur. Also only copy if the length does not
            exceed the body buffer. This might happen, only in the synchronous workflow, if the header buffer is larger 
            than the body buffer and receives entity body larger than the body bufffer. */
-        if( (_httpsResponse->pBodyCur != (uint8_t*)pLoc) && ( (_httpsResponse->pBodyCur + length) <= _httpsResponse->pBodyEnd ) )
+        if( (_httpsResponse->pBodyCur + length) <= _httpsResponse->pBodyEnd )
         {
-            memcpy(_httpsResponse->pBodyCur, pLoc, length);
+            if(_httpsResponse->pBodyCur != (uint8_t*)pLoc)
+            {
+                memcpy(_httpsResponse->pBodyCur, pLoc, length);
+            }
+             _httpsResponse->pBodyCur += length;
         }
-        _httpsResponse->pBodyCur += length;
     }
     return 0;
 }
