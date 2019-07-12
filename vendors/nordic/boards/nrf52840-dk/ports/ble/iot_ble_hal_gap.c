@@ -27,10 +27,10 @@
  * @file iot_ble_hal_gap.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
-
+#include "iot_config.h"
 #include <stddef.h>
 #include <string.h>
-#include "FreeRTOS.h"
+
 #include "nrf_sdh.h"
 #include "nrf_sdh_soc.h"
 #include "nrf_sdh_ble.h"
@@ -47,6 +47,15 @@
 #include "iot_ble_gap_config.h"
 #include "aws_clientcredential.h"
 #include "nrf_log.h"
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL                     IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL                     IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME                          ( "BLE_HAL" )
+#include "iot_logging_setup.h"
 
 #define iot_ble_hal_gapADVERTISING_BUFFER_SIZE    31
 
@@ -553,7 +562,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     if( xStatus != eBTStatusSuccess )
     {
-        configPRINTF( ( "Failed to start advertisement.\n" ) );
+        IotLogError( "Failed to start advertisement." );
     }
 
     return xStatus;
@@ -684,29 +693,29 @@ ret_code_t prvAFRUUIDtoNordic( BTUuid_t * pxAFRUuid,
 
 void prvBTFreeAdvData( ble_advdata_t * xAdvData )
 {
-    vPortFree( xAdvData->p_tx_power_level );
-    vPortFree( xAdvData->p_slave_conn_int );
+    IotBle_Free( xAdvData->p_tx_power_level );
+    IotBle_Free( xAdvData->p_slave_conn_int );
 
-    vPortFree( xAdvData->uuids_complete.p_uuids );
-    vPortFree( xAdvData->uuids_more_available.p_uuids );
-    vPortFree( xAdvData->uuids_solicited.p_uuids );
+    IotBle_Free( xAdvData->uuids_complete.p_uuids );
+    IotBle_Free( xAdvData->uuids_more_available.p_uuids );
+    IotBle_Free( xAdvData->uuids_solicited.p_uuids );
 
     if( xAdvData->p_manuf_specific_data )
     {
-        vPortFree( xAdvData->p_manuf_specific_data->data.p_data );
+        IotBle_Free( xAdvData->p_manuf_specific_data->data.p_data );
     }
 
-    vPortFree( xAdvData->p_manuf_specific_data );
+    IotBle_Free( xAdvData->p_manuf_specific_data );
 
     if( xAdvData->p_service_data_array )
     {
-        vPortFree( xAdvData->p_service_data_array->data.p_data );
+        IotBle_Free( xAdvData->p_service_data_array->data.p_data );
     }
 
-    vPortFree( xAdvData->p_service_data_array );
-    vPortFree( xAdvData->p_tk_value );
-    vPortFree( xAdvData->p_sec_mgr_oob_flags );
-    vPortFree( xAdvData->p_lesc_data );
+    IotBle_Free( xAdvData->p_service_data_array );
+    IotBle_Free( xAdvData->p_tk_value );
+    IotBle_Free( xAdvData->p_sec_mgr_oob_flags );
+    IotBle_Free( xAdvData->p_lesc_data );
     memset( xAdvData, 0, sizeof( ble_gap_adv_data_t ) );
 }
 
@@ -749,7 +758,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
 
     if( pxParams->bIncludeTxPower )
     {
-        xAdvData->p_tx_power_level = pvPortMalloc( sizeof( int8_t ) );
+        xAdvData->p_tx_power_level = IotBle_Malloc( sizeof( int8_t ) );
 
         if( xAdvData->p_tx_power_level == NULL )
         {
@@ -774,7 +783,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
         if( xNbServices != 0 )
         {
             xCompleteUUIDS.uuid_cnt = xNbServices;
-            xCompleteUUIDS.p_uuids = pvPortMalloc( sizeof( ble_uuid_t ) * xNbServices );
+            xCompleteUUIDS.p_uuids = IotBle_Malloc( sizeof( ble_uuid_t ) * xNbServices );
 
             if( xCompleteUUIDS.p_uuids == NULL )
             {
@@ -811,7 +820,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
 
         if( ( pcManufacturerData != NULL ) && ( usManufacturerLen != 0 ) )
         {
-            xAdvData->p_manuf_specific_data = pvPortMalloc( sizeof( ble_advdata_manuf_data_t ) );
+            xAdvData->p_manuf_specific_data = IotBle_Malloc( sizeof( ble_advdata_manuf_data_t ) );
 
             if( xAdvData->p_manuf_specific_data == NULL )
             {
@@ -819,7 +828,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             }
             else
             {
-                xAdvData->p_manuf_specific_data->data.p_data = pvPortMalloc( usManufacturerLen );
+                xAdvData->p_manuf_specific_data->data.p_data = IotBle_Malloc( usManufacturerLen );
 
                 if( xAdvData->p_manuf_specific_data->data.p_data )
                 {
@@ -838,7 +847,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
     {
         if( ( pcServiceData != NULL ) && ( usServiceDataLen != 0 ) )
         {
-            xAdvData->p_service_data_array = pvPortMalloc( sizeof( ble_advdata_manuf_data_t ) );
+            xAdvData->p_service_data_array = IotBle_Malloc( sizeof( ble_advdata_manuf_data_t ) );
 
             if( xAdvData->p_service_data_array == NULL )
             {
@@ -846,7 +855,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             }
             else
             {
-                xAdvData->p_service_data_array->data.p_data = pvPortMalloc( usServiceDataLen );
+                xAdvData->p_service_data_array->data.p_data = IotBle_Malloc( usServiceDataLen );
 
                 if( xAdvData->p_service_data_array->data.p_data )
                 {

@@ -2316,3 +2316,9 @@ BaseType_t FreeRTOS_IsNetworkUp( void )
 	}
 #endif
 /*-----------------------------------------------------------*/
+
+/* Provide access to private members for verification. */
+#ifdef FREERTOS_TCP_ENABLE_VERIFICATION
+	#include "aws_freertos_ip_verification_access_ip_define.h"
+#endif
+

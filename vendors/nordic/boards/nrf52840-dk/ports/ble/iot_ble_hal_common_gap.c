@@ -27,12 +27,9 @@
  * @file iot_ble_hal_common_gap.c
  * @brief Hardware Abstraction Layer for GAP ble stack.
  */
-
+#include "iot_config.h"
 #include <string.h>
 #include <stdlib.h>
-
-#include "FreeRTOS.h"
-
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
@@ -52,6 +49,16 @@
 #include "nrf_ble_lesc.h"
 #include "nrf_strerror.h"
 #include "sdk_config.h"
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_HAL" )
+#include "iot_logging_setup.h"
+
 
 uint32_t ulGAPEvtMngHandle;
 bool bIsAdvertising = false;
@@ -165,8 +172,8 @@ ble_gap_sec_params_t xSecurityParameters =
 static ret_code_t prvDataLengthUpdate( uint16_t usConnHandle,
                                        uint16_t usDataLength )
 {
-    configPRINTF( ( "Updating data length to %u on connection 0x%x.",
-                    usDataLength, usConnHandle ) );
+    IotLogDebug( "Updating data length to %u on connection 0x%x.",
+                 usDataLength, usConnHandle );
 
     ble_gap_data_length_params_t const dlp =
     {
@@ -182,21 +189,21 @@ static ret_code_t prvDataLengthUpdate( uint16_t usConnHandle,
 
     if( err_code != NRF_SUCCESS )
     {
-        configPRINTF( ( "sd_ble_gap_data_length_update() (request) on connection 0x%x returned %s.",
-                        usConnHandle, nrf_strerror_get( err_code ) ) );
+        IotLogDebug( "sd_ble_gap_data_length_update() (request) on connection 0x%x returned %s.",
+                     usConnHandle, nrf_strerror_get( err_code ) );
 
         if( ( dll.tx_payload_limited_octets != 0 ) ||
             ( dll.rx_payload_limited_octets != 0 ) )
         {
-            configPRINTF( ( "The requested TX/RX packet length is too long by %u/%u octets.",
-                            dll.tx_payload_limited_octets, dll.rx_payload_limited_octets ) );
+            IotLogError( "The requested TX/RX packet length is too long by %u/%u octets.",
+                         dll.tx_payload_limited_octets, dll.rx_payload_limited_octets );
         }
 
         if( dll.tx_rx_time_limited_us != 0 )
         {
-            configPRINTF( ( "The requested combination of TX and RX packet lengths "
-                            "is too long by %u microseconds.",
-                            dll.tx_rx_time_limited_us ) );
+            IotLogError( "The requested combination of TX and RX packet lengths "
+                         "is too long by %u microseconds.",
+                         dll.tx_rx_time_limited_us );
         }
     }
 
@@ -222,8 +229,8 @@ ret_code_t xBTGattUpdateMtu( nrf_ble_gatt_t * pxGattHandler,
 
         if( xLink->att_mtu_desired > xLink->att_mtu_effective )
         {
-            configPRINTF( ( "Requesting to update ATT MTU to %u bytes on connection 0x%x.",
-                            xLink->att_mtu_desired, usConnHandle ) );
+            IotLogDebug( "Requesting to update ATT MTU to %u bytes on connection 0x%x.",
+                         xLink->att_mtu_desired, usConnHandle );
 
             xErrCode = sd_ble_gattc_exchange_mtu_request( usConnHandle, xLink->att_mtu_desired );
 
@@ -234,13 +241,13 @@ ret_code_t xBTGattUpdateMtu( nrf_ble_gatt_t * pxGattHandler,
             else if( xErrCode == NRF_ERROR_BUSY )
             {
                 xLink->att_mtu_exchange_pending = true;
-                configPRINTF( ( "sd_ble_gattc_exchange_mtu_request()"
-                                " on connection 0x%x returned busy, will retry.", usConnHandle ) );
+                IotLogError( "sd_ble_gattc_exchange_mtu_request()"
+                             " on connection 0x%x returned busy, will retry.", usConnHandle );
             }
             else
             {
-                configPRINTF( ( "sd_ble_gattc_exchange_mtu_request() returned %s.",
-                                nrf_strerror_get( xErrCode ) ) );
+                IotLogError( "sd_ble_gattc_exchange_mtu_request() returned %s.",
+                             nrf_strerror_get( xErrCode ) );
             }
         }
 
@@ -303,7 +310,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
                 if( xErrCode != NRF_SUCCESS )
                 {
-                    configPRINTF( ( "Could not switch to non connectable advertisement. \n" ) );
+                    IotLogError( "Could not switch to non connectable advertisement." );
                 }
             }
 
@@ -345,7 +352,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
                 if( xErrCode != NRF_SUCCESS )
                 {
-                    configPRINTF( ( "Could not resume to connectable advertisement. \n" ) );
+                    IotLogError( "Could not resume to connectable advertisement." );
                 }
             }
 
@@ -424,7 +431,7 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             }
             else
             {
-                configPRINTF( ( "Error : BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST Invalid \n\r" ) );
+                IotLogError( "Error : BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST Invalid." );
             }
 
             break;
@@ -494,10 +501,10 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
         case BLE_GATTC_EVT_TIMEOUT:
 
-            configPRINTF( ( "BLE_GATTC_EVT_TIMEOUT \n" ) );
+            IotLogError( "BLE_GATTC_EVT_TIMEOUT." );
 
             /* Disconnect on GATT Client timeout event. */
-            configPRINTF( ( "GATT Client Timeout." ) );
+            IotLogError( "GATT Client Timeout." );
             xErrCode = sd_ble_gap_disconnect( p_ble_evt->evt.gattc_evt.conn_handle,
                                               BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION );
             APP_ERROR_CHECK( xErrCode );
@@ -505,10 +512,10 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
 
         case BLE_GATTS_EVT_TIMEOUT:
 
-            configPRINTF( ( "BLE_GATTS_EVT_TIMEOUT \n" ) );
+            IotLogError( "BLE_GATTS_EVT_TIMEOUT." );
 
             /* Disconnect on GATT Server timeout event. */
-            configPRINTF( ( "GATT Server Timeout." ) );
+            IotLogError( "GATT Server Timeout." );
             xErrCode = sd_ble_gap_disconnect( p_ble_evt->evt.gatts_evt.conn_handle,
                                               BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION );
             APP_ERROR_CHECK( xErrCode );
@@ -634,15 +641,12 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             break;
 
         case BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP:
-            /* configPRINTF((( "BLE_GATTC_EVT_CHAR_VAL_BY_UUID_READ_RSP\n" ); */
             break;
 
         case BLE_GAP_EVT_SEC_INFO_REQUEST:
-            /* configPRINTF((( "BLE_GAP_EVT_SEC_INFO_REQUEST\n" ); */
             break;
 
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE:
-            /* configPRINTF((( "BLE_GAP_EVT_DATA_LENGTH_UPDATE\n" ); */
             break;
 
         case BLE_GAP_EVT_AUTH_STATUS:
@@ -674,12 +678,12 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                }
            }
 
-            configPRINTF( ( "BLE_GAP_EVT_AUTH_STATUS\n" ) );
+            IotLogDebug( "BLE_GAP_EVT_AUTH_STATUS." );
 
             break;
 
         default:
-            configPRINTF( ( "UNKNOWN BLE EVENT %d\n", p_ble_evt->header.evt_id ) );
+            IotLogError( "UNKNOWN BLE EVENT %d.", p_ble_evt->header.evt_id );
 
             break;
     }
@@ -695,7 +699,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
     xProperties.xDeviceType = eBTdeviceDevtypeBle;
     /* Set the device name from the iot_ble_config.h. We store it without a trailing zero. */
     xProperties.usDeviceNameLength = sizeof( IOT_BLE_DEVICE_COMPLETE_LOCAL_NAME ) - 1;
-    xProperties.puDeviceName = ( uint8_t * ) pvPortMalloc( xProperties.usDeviceNameLength );
+    xProperties.puDeviceName = ( uint8_t * ) IotBle_Malloc( xProperties.usDeviceNameLength );
     xProperties.ulMtu = NRF_SDH_BLE_GATT_MAX_MTU_SIZE;
     xProperties.bOnlySecure = true;
     xProperties.bBondable = true;
@@ -727,7 +731,7 @@ BTStatus_t prvBtManagerCleanup()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    vPortFree( xProperties.puDeviceName );
+    IotBle_Free( xProperties.puDeviceName );
 
     return xStatus;
 }
@@ -800,6 +804,7 @@ BTStatus_t prvBTGetDeviceProperty( BTPropertyType_t xType )
             case eBTpropertyBdname:
                 xReturnedProperty.pvVal = xProperties.puDeviceName;
                 xReturnedProperty.xLen = xProperties.usDeviceNameLength;
+
                 xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xReturnedProperty );
                 break;
 
@@ -970,8 +975,8 @@ BTStatus_t prvBTSetDeviceProperty( const BTProperty_t * pxProperty )
         case eBTpropertyBdname:
 
             xProperties.usDeviceNameLength = pxProperty->xLen;
-            vPortFree( xProperties.puDeviceName );
-            xProperties.puDeviceName = ( uint8_t * ) pvPortMalloc( xProperties.usDeviceNameLength );
+            IotBle_Free( xProperties.puDeviceName );
+            xProperties.puDeviceName = ( uint8_t * ) IotBle_Malloc( xProperties.usDeviceNameLength );
 
             if( xProperties.puDeviceName != NULL )
             {
@@ -1417,7 +1422,6 @@ void prvPmEventHandler( const pm_evt_t * event )
     pm_conn_sec_config_t conn_sec_config;
 
     ret_code_t err_code;
-/*    configPRINTF(((  0, "PM_EVT: %d\n", event->evt_id ); */
 
     switch( event->evt_id )
     {
@@ -1536,12 +1540,10 @@ PM_CONN_SEC_PROCEDURE_PAIRING:
             break;
 
         case PM_EVT_CONN_SEC_SUCCEEDED:
-/*            configPRINTF((( "PM_EVT_CONN_SEC_SUCCEEDED\n" ); */
             break;
 
         case PM_EVT_CONN_SEC_FAILED:
-/*            configPRINTF((( "PM_EVT_CONN_SEC_FAILED\n" ); */
-            configPRINTF( ( "Failed to secure connection. Disconnecting." ) );
+            IotLogError( "Failed to secure connection. Disconnecting." );
             {
                 uint8_t error_src = event->params.conn_sec_failed.error_src;
                 uint16_t error_code = event->params.conn_sec_failed.error;
@@ -1624,7 +1626,7 @@ PM_CONN_SEC_PROCEDURE_PAIRING:
             break;
 
         default:
-            configPRINTF( ( "PM_UNKNOWN, %d\n ", event->evt_id ) );
+            IotLogError( "PM_UNKNOWN, %d.", event->evt_id );
             break;
     }
 }

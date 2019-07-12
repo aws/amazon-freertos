@@ -223,21 +223,6 @@ typedef union MultiParmPtr
 } MultiParmPtr_t;
 
 
-/* OTA job document parser error codes. */
-
-typedef enum
-{
-    eOTA_JobParseErr_Unknown = -1,        /* The error code has not yet been set by a logic path. */
-    eOTA_JobParseErr_None = 0,            /* Signifies no error has occurred. */
-    eOTA_JobParseErr_BusyWithExistingJob, /* We're busy with a job but received a new job document. */
-    eOTA_JobParseErr_NullJob,             /* A null job was reported (no job ID). */
-    eOTA_JobParseErr_BusyWithSameJob,     /* We're already busy with the reported job ID. */
-    eOTA_JobParseErr_ZeroFileSize,        /* Job document specified a zero sized file. This is not allowed. */
-    eOTA_JobParseErr_NonConformingJobDoc, /* The job document failed to fulfill the model requirements. */
-    eOTA_JobParseErr_BadModelInitParams,  /* There was an invalid initialization parameter used in the document model. */
-    eOTA_JobParseErr_NoContextAvailable   /* There wasn't an OTA context available. */
-} OTA_JobParseErr_t;
-
 
 /*lint -e830 -e9003 Keep these in one location for easy discovery should they change in the future. */
 /* Topic strings used by the OTA process. */
@@ -382,6 +367,26 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
 
 static void prvDefaultOTACompleteCallback( OTA_JobEvent_t eEvent );
 
+/* Default Custom Callback handler if not provided to OTA_AgentInit_internal() */
+
+static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON, uint32_t ulMsgLen );
+
+/* Default Reset Device handler if not provided to OTA_AgentInit_internal() */
+
+static OTA_Err_t prvPAL_DefaultResetDevice( uint32_t ulServerFileID );
+
+/* Default Get Platform Image State handler if not provided to OTA_AgentInit_internal() */
+
+static OTA_PAL_ImageState_t prvPAL_DefaultGetPlatformImageState( uint32_t ulServerFileID );
+
+/* Default Set Platform Image State handler if not provided to OTA_AgentInit_internal() */
+
+static OTA_Err_t prvPAL_DefaultSetPlatformImageState( uint32_t ulServerFileID, OTA_ImageState_t eState );
+
+/* Default Activate New Image handler if not provided to OTA_AgentInit_internal() */
+
+static OTA_Err_t prvPAL_DefaultActivateNewImage( uint32_t ulServerFileID );
+
 /* A helper function to cleanup resources during OTA agent shutdown. */
 
 static void prvAgentShutdownCleanup( void );
@@ -430,7 +435,6 @@ typedef struct ota_agent_context
     void * pvPubSubClient;                                  /* The current publish/subscribe client context (use is determined by the client). */
     OTA_FileContext_t pxOTA_Files[ OTA_MAX_FILES ];         /* Static array of OTA file structures. */
     EventGroupHandle_t xOTA_EventFlags;                     /* Event group for communicating with the OTA task. */
-    pxOTACompleteCallback_t pxOTAJobCompleteCallback;       /* The user level function to call after the OTA job is complete. */
     uint8_t * pcOTA_Singleton_ActiveJobName;                /* The currently active job name. We only allow one at a time. */
     uint8_t * pcClientTokenFromJob;                         /* The clientToken field from the latest update job. */
     TimerHandle_t pvSelfTestTimer;                          /* The self test response expected timer. */
@@ -438,8 +442,25 @@ typedef struct ota_agent_context
     QueueHandle_t xOTA_MsgQ;                                /* Used to pass MQTT messages to the OTA agent. */
     SemaphoreHandle_t xOTA_ThreadSafetyMutex;               /* Mutex used to ensure thread safety will managing publish buffers. */
     OTA_AgentStatistics_t xStatistics;                      /* The OTA agent statistics block. */
+    OTA_PAL_Callbacks_t xPALCallbacks;                      /* Variable to store PAL callbacks */
+    uint32_t ulServerFileID;                                /* Variable to store current file ID passed down */
 } OTA_AgentContext_t;
 
+
+
+#define OTA_JOB_CALLBACK_DEFAULT_INITIALIZER \
+{ \
+    .xAbort                    = prvPAL_Abort, \
+    .xActivateNewImage         = prvPAL_DefaultActivateNewImage,\
+    .xCloseFile                = prvPAL_CloseFile, \
+    .xCreateFileForRx          = prvPAL_CreateFileForRx, \
+    .xGetPlatformImageState    = prvPAL_DefaultGetPlatformImageState, \
+    .xResetDevice              = prvPAL_DefaultResetDevice, \
+    .xSetPlatformImageState    = prvPAL_DefaultSetPlatformImageState, \
+    .xWriteBlock               = prvPAL_WriteBlock, \
+    .xCompleteCallback         = prvDefaultOTACompleteCallback, \
+    .xCustomJobCallback        = prvDefaultCustomJobCallback \
+}
 
 /* This is THE OTA agent context and initialization state. */
 
@@ -450,14 +471,46 @@ static OTA_AgentContext_t xOTA_Agent =
     .pvPubSubClient                = NULL,
     .pxOTA_Files                   = { { 0 } }, /*lint !e910 !e9080 Zero initialization of all members of the single file context structure.*/
     .xOTA_EventFlags               = NULL,
-    .pxOTAJobCompleteCallback      = NULL,
     .pcOTA_Singleton_ActiveJobName = NULL,
     .pcClientTokenFromJob          = NULL,
     .pvSelfTestTimer               = NULL,
     .eImageState                   = eOTA_ImageState_Unknown,
     .xOTA_MsgQ                     = NULL,
     .xStatistics                   = { 0 },
+    .xPALCallbacks                 = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER,
+    .ulServerFileID                = 0
 };
+
+
+
+static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON, uint32_t ulMsgLen )
+{
+    DEFINE_OTA_METHOD_NAME( "prvDefaultCustomJobCallback" );
+
+    OTA_LOG_L1( "[%s] Received Custom Job inside OTA Agent.\r\n", OTA_METHOD_NAME );
+
+    return eOTA_JobParseErr_NonConformingJobDoc;
+}
+
+static OTA_Err_t prvPAL_DefaultResetDevice( uint32_t ulServerFileID )
+{
+    return prvPAL_ResetDevice();
+}
+
+static OTA_PAL_ImageState_t prvPAL_DefaultGetPlatformImageState( uint32_t ulServerFileID )
+{
+    return prvPAL_GetPlatformImageState();
+}
+
+static OTA_Err_t prvPAL_DefaultSetPlatformImageState( uint32_t ulServerFileID, OTA_ImageState_t eState )
+{
+    return prvPAL_SetPlatformImageState(eState);
+}
+
+static OTA_Err_t prvPAL_DefaultActivateNewImage( uint32_t ulServerFileID )
+{
+    return prvPAL_ActivateNewImage();
+}
 
 
 /* This is the default OTA callback handler if the user does not provide
@@ -509,7 +562,7 @@ static void prvDefaultOTACompleteCallback( OTA_JobEvent_t eEvent )
         OTA_LOG_L1( "[%s] Received invalid job event %d from OTA Agent.\r\n", OTA_METHOD_NAME, eEvent );
     }
 }
-
+    
 
 /* Public API to initialize the OTA Agent.
  *
@@ -525,6 +578,18 @@ OTA_State_t OTA_AgentInit( void * pvClient,
                            TickType_t xTicksToWait )
 {
     DEFINE_OTA_METHOD_NAME( "OTA_AgentInit" );
+    OTA_PAL_Callbacks_t defaultCallbacks = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER;
+    defaultCallbacks.xCompleteCallback = xFunc;
+
+    return OTA_AgentInit_internal( pvClient, pcThingName, &defaultCallbacks, xTicksToWait );
+}
+
+OTA_State_t OTA_AgentInit_internal( void * pvClient,
+                           const uint8_t * pcThingName,
+                           OTA_PAL_Callbacks_t * xCallbacks,
+                           TickType_t xTicksToWait )
+{
+    DEFINE_OTA_METHOD_NAME( "OTA_AgentInit_internal" );
 
     static TaskHandle_t pxOTA_TaskHandle;
 
@@ -534,15 +599,103 @@ OTA_State_t OTA_AgentInit( void * pvClient,
     /* The actual OTA queue control structure. Only created once. */
     static StaticQueue_t xStaticQueue;
 
-    /* Set the function to be called after an OTA job is complete or starting test mode. */
-    if( xFunc == NULL )
+    /* Check all the callbacks for null values and initialize the values in the ota agent context 
+       The OTA agent context is initialized with the prvPAL values. So, if null is passed in, don't
+       do anything and just use the defaults in the OTA structure
+    */
+
+    if ( xCallbacks != NULL )
     {
-        /* If the caller didn't supply a callback function, provide a default handler. */
-        xOTA_Agent.pxOTAJobCompleteCallback = prvDefaultOTACompleteCallback;
-    }
-    else
-    {
-        xOTA_Agent.pxOTAJobCompleteCallback = xFunc;
+        if( xCallbacks->xAbort != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xAbort = xCallbacks->xAbort;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xAbort = prvPAL_Abort;
+        }
+        
+        if( xCallbacks->xActivateNewImage != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xActivateNewImage = xCallbacks->xActivateNewImage;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xActivateNewImage = prvPAL_DefaultActivateNewImage;
+        }
+
+        if( xCallbacks->xCloseFile != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xCloseFile = xCallbacks->xCloseFile;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCloseFile = prvPAL_CloseFile;
+        }
+
+        if( xCallbacks->xCreateFileForRx != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xCreateFileForRx = xCallbacks->xCreateFileForRx;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCreateFileForRx = prvPAL_CreateFileForRx;
+        }
+
+        if( xCallbacks->xGetPlatformImageState != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xGetPlatformImageState = xCallbacks->xGetPlatformImageState;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xGetPlatformImageState = prvPAL_DefaultGetPlatformImageState;
+        }
+
+        if( xCallbacks->xResetDevice != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xResetDevice = xCallbacks->xResetDevice;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xResetDevice = prvPAL_DefaultResetDevice;
+        }
+
+        if( xCallbacks->xSetPlatformImageState != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xSetPlatformImageState = xCallbacks->xSetPlatformImageState;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xSetPlatformImageState = prvPAL_DefaultSetPlatformImageState;
+        }
+
+        if( xCallbacks->xWriteBlock != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xWriteBlock = xCallbacks->xWriteBlock;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xWriteBlock = prvPAL_WriteBlock;
+        }
+
+        if( xCallbacks->xCompleteCallback != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xCompleteCallback = xCallbacks->xCompleteCallback;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCompleteCallback = prvDefaultOTACompleteCallback;
+        }
+
+        if( xCallbacks->xCustomJobCallback != NULL )
+        {
+            xOTA_Agent.xPALCallbacks.xCustomJobCallback = xCallbacks->xCustomJobCallback;
+        }
+        else
+        {
+            xOTA_Agent.xPALCallbacks.xCustomJobCallback = prvDefaultCustomJobCallback;
+        }
+
     }
 
     /* Reset our statistics counters. */
@@ -835,7 +988,7 @@ OTA_Err_t OTA_ActivateNewImage( void )
     /* Call platform specific code to activate the image. This should reset the device
      * and not return unless there is a problem within the PAL layer. If it does return,
      * output an error message. The device may need to be reset manually. */
-    xErr = prvPAL_ActivateNewImage();
+    xErr = xOTA_Agent.xPALCallbacks.xActivateNewImage( xOTA_Agent.ulServerFileID );
     OTA_LOG_L1( "[%s] Failed to activate new image (0x%08x). Please reset manually.\r\n", OTA_METHOD_NAME, xErr );
     return xErr;
 }
@@ -855,7 +1008,7 @@ static OTA_Err_t prvResetDevice( void )
      * there is a problem within the PAL layer. If it does return, output an error
      * message. The device may need to be reset manually. */
     OTA_LOG_L1( "[%s] Attempting forced reset of device...\r\n", OTA_METHOD_NAME );
-    xErr = prvPAL_ResetDevice();
+    xErr = xOTA_Agent.xPALCallbacks.xResetDevice( xOTA_Agent.ulServerFileID );
     OTA_LOG_L1( "[%s] Failed to reset the device (0x%08x). Please reset manually.\r\n", OTA_METHOD_NAME, xErr );
     return xErr;
 }
@@ -867,7 +1020,7 @@ static bool_t prvInSelftest( void )
 {
     bool_t xSelfTest = false;
 
-    if( prvPAL_GetPlatformImageState() == eOTA_PAL_ImageState_PendingCommit )
+    if( xOTA_Agent.xPALCallbacks.xGetPlatformImageState( xOTA_Agent.ulServerFileID ) == eOTA_PAL_ImageState_PendingCommit )
     {
         xSelfTest = true;
     }
@@ -950,7 +1103,7 @@ static OTA_Err_t prvSetImageStateWithReason( OTA_ImageState_t eState,
     if( ( eState > eOTA_ImageState_Unknown ) && ( eState <= eOTA_LastImageState ) )
     {
         /* Call the platform specific code to set the image state. */
-        xErr = prvPAL_SetPlatformImageState( eState );
+        xErr = xOTA_Agent.xPALCallbacks.xSetPlatformImageState( xOTA_Agent.ulServerFileID, eState );
 
         /* If the platform image state couldn't be set correctly, force fail the update. */
         if( xErr != kOTA_Err_None )
@@ -1469,7 +1622,7 @@ static void prvOTAUpdateTask( void * pvUnused )
                                         /* Check the platform's OTA update image state. It should also be in self test. */
                                         if( OTA_CheckForSelfTest() == pdTRUE )
                                         {
-                                            xOTA_Agent.pxOTAJobCompleteCallback( eOTA_JobEvent_StartTest );
+                                            xOTA_Agent.xPALCallbacks.xCompleteCallback( eOTA_JobEvent_StartTest );
                                         }
                                         else
                                         {
@@ -1480,7 +1633,7 @@ static void prvOTAUpdateTask( void * pvUnused )
                                             ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_ImageStateMismatch );
                                             ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
                                         }
-									}
+                                    }
                                     else
                                     {
 										/* If the job context returned NULL and the image state is not in the self_test state,
@@ -1489,7 +1642,7 @@ static void prvOTAUpdateTask( void * pvUnused )
 										 * If there is a valid job id, then a job status update will be sent.
 										 */
 										( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_JobParserError );
-									}
+                                }
                                 }
                                 else
                                 {
@@ -1523,7 +1676,7 @@ static void prvOTAUpdateTask( void * pvUnused )
                                         {
                                             OTA_LOG_L1( "[%s] Aborting due to IngestResult_t error %d\r\n", OTA_METHOD_NAME, ( int32_t ) xResult );
                                             /* Call the platform specific code to reject the image. */
-                                            xErr = prvPAL_SetPlatformImageState( eOTA_ImageState_Rejected );
+                                            xErr = xOTA_Agent.xPALCallbacks.xSetPlatformImageState( xOTA_Agent.ulServerFileID, eOTA_ImageState_Rejected );
 
                                             if( xErr != kOTA_Err_None )
                                             {
@@ -1542,7 +1695,7 @@ static void prvOTAUpdateTask( void * pvUnused )
                                         C = NULL;
 
                                         /* Let main application know of our result. */
-                                        xOTA_Agent.pxOTAJobCompleteCallback( ( xResult == eIngest_Result_FileComplete ) ? eOTA_JobEvent_Activate : eOTA_JobEvent_Fail );
+                                        xOTA_Agent.xPALCallbacks.xCompleteCallback( ( xResult == eIngest_Result_FileComplete ) ? eOTA_JobEvent_Activate : eOTA_JobEvent_Fail );
 
                                         /* Free any remaining string memory holding the job name since this job is done. */
                                         if( xOTA_Agent.pcOTA_Singleton_ActiveJobName != NULL )
@@ -1621,7 +1774,7 @@ static BaseType_t OTA_CheckForSelfTest( void )
     BaseType_t xTimerStarted = pdFALSE;
     static StaticTimer_t xTimerBuffer;
 
-    if( prvPAL_GetPlatformImageState() == eOTA_PAL_ImageState_PendingCommit )
+    if( xOTA_Agent.xPALCallbacks.xGetPlatformImageState( xOTA_Agent.ulServerFileID ) == eOTA_PAL_ImageState_PendingCommit )
     {
         if( xOTA_Agent.pvSelfTestTimer == NULL )
         {
@@ -1667,7 +1820,7 @@ static void prvSelfTestTimer_Callback( TimerHandle_t T )
     ( void ) T;
 
     OTA_LOG_L1( "[%s] Self test failed to complete within %ums\r\n", OTA_METHOD_NAME, otaconfigSELF_TEST_RESPONSE_WAIT_MS );
-    ( void ) prvPAL_ResetDevice();
+    ( void ) xOTA_Agent.xPALCallbacks.xResetDevice( xOTA_Agent.ulServerFileID );
 }
 
 
@@ -1810,7 +1963,7 @@ static bool_t prvOTA_Close( OTA_FileContext_t * const C )
         }
 
         /* Abort any active file access and release the file resource, if needed. */
-        ( void ) prvPAL_Abort( C );
+        ( void ) xOTA_Agent.xPALCallbacks.xAbort( C );
         memset( C, 0, sizeof( OTA_FileContext_t ) ); /* Clear the entire structure now that it is free. */
         xResult = pdTRUE;
     }
@@ -2373,6 +2526,9 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 C->pucJobName = NULL;
             }
 
+            /* Store the File ID received in the job */
+            xOTA_Agent.ulServerFileID = C->ulServerFileID;
+
             if( eErr == eOTA_JobParseErr_None )
             {
                 /* If the job is in self test mode, don't start an
@@ -2391,42 +2547,57 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 {
                     OTA_LOG_L1( "[%s] In self test mode.\r\n", OTA_METHOD_NAME );
 
-                    if( C->ulUpdaterVersion < xAppFirmwareVersion.u.ulVersion32 )
+                    /* Only check for versions if the target is self */
+                    if ( xOTA_Agent.ulServerFileID == 0 )
                     {
-                        /* The running firmware version is newer than the firmware that performed
-                         * the update so this means we're ready to start the self test phase.
-                         *
-                         * Set image state accordingly and update job status with self test identifier.
-                         */
-                        ( void ) prvSetImageStateWithReason( eOTA_ImageState_Testing, ( uint32_t ) NULL );
+
+                        if( C->ulUpdaterVersion < xAppFirmwareVersion.u.ulVersion32 )
+                        {
+                            /* The running firmware version is newer than the firmware that performed
+                            * the update so this means we're ready to start the self test phase.
+                            *
+                            * Set image state accordingly and update job status with self test identifier.
+                            */
+                            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Testing, ( uint32_t ) NULL );
+                        }
+                        else
+                        {
+                            if( C->ulUpdaterVersion > xAppFirmwareVersion.u.ulVersion32 )
+                            {
+                                /* The running firmware is older than the firmware that performed the update so reject the job. */
+                                OTA_LOG_L1( "[%s] Rejecting image because version is older than previous.\r\n", OTA_METHOD_NAME );
+                                ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_DowngradeNotAllowed );
+                            }
+                            else /* Version reported is the same as the running version. */
+                            {
+                                if( ( xOTA_Agent.pcClientTokenFromJob == NULL ) ||
+                                    ( strtoul( ( const char * ) xOTA_Agent.pcClientTokenFromJob, NULL, 0 ) == 0U ) )   /*lint !e9007 We don't provide a modifiable variable to strtoul. */
+                                {
+                                    /* The version is the same so either we're not actually the new firmware or
+                                    * someone messed up and sent firmware with the same version. In either case,
+                                    * this is a failure of the OTA update so reject the job. */
+                                    OTA_LOG_L1( "[%s] Failing job. We rebooted and the version is still the same.\r\n", OTA_METHOD_NAME );
+                                    ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_SameFirmwareVersion );
+                                }
+                                else
+                                {
+                                    OTA_LOG_L1( "[%s] Ignoring job. Device must be rebooted first.\r\n", OTA_METHOD_NAME );
+                                }
+                            }
+
+                            /* All reject cases must reset the device. */
+                            ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
+                        }
                     }
                     else
                     {
-                        if( C->ulUpdaterVersion > xAppFirmwareVersion.u.ulVersion32 )
-                        {
-                            /* The running firmware is older than the firmware that performed the update so reject the job. */
-                            OTA_LOG_L1( "[%s] Rejecting image because version is older than previous.\r\n", OTA_METHOD_NAME );
-                            ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_DowngradeNotAllowed );
-                        }
-                        else /* Version reported is the same as the running version. */
-                        {
-                            if( ( xOTA_Agent.pcClientTokenFromJob == NULL ) ||
-                                ( strtoul( ( const char * ) xOTA_Agent.pcClientTokenFromJob, NULL, 0 ) == 0U ) )   /*lint !e9007 We don't provide a modifiable variable to strtoul. */
-                            {
-                                /* The version is the same so either we're not actually the new firmware or
-                                 * someone messed up and sent firmware with the same version. In either case,
-                                 * this is a failure of the OTA update so reject the job. */
-                                OTA_LOG_L1( "[%s] Failing job. We rebooted and the version is still the same.\r\n", OTA_METHOD_NAME );
-                                ( void ) prvSetImageStateWithReason( eOTA_ImageState_Rejected, kOTA_Err_SameFirmwareVersion );
-                            }
-                            else
-                            {
-                                OTA_LOG_L1( "[%s] Ignoring job. Device must be rebooted first.\r\n", OTA_METHOD_NAME );
-                            }
-                        }
-
-                        /* All reject cases must reset the device. */
-                        ( void ) prvResetDevice(); /* Ignore return code since there's nothing we can do if we can't force reset. */
+                        /* The running firmware version is newer than the firmware that performed
+                        * the update so this means we're ready to start the self test phase.
+                        *
+                        * Set image state accordingly and update job status with self test identifier.
+                        */
+                        OTA_LOG_L1( "[%s] Setting image state to Testing for file ID %d\r\n", OTA_METHOD_NAME, xOTA_Agent.ulServerFileID );
+                        ( void ) prvSetImageStateWithReason( eOTA_ImageState_Testing, ( uint32_t ) NULL );                        
                     }
                 }
                 else
@@ -2442,8 +2613,29 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             }
         }
         else
-        { /* No need to print an error message. The JSON parser should have already. */
-            eErr = eOTA_JobParseErr_NonConformingJobDoc;
+        { /* We have an unknown job parser error. Check to see if we can pass control to a callback for parsing */
+
+            eErr = xOTA_Agent.xPALCallbacks.xCustomJobCallback(pcJSON, ulMsgLen);
+            if (eErr == eOTA_JobParseErr_None)
+            {
+                /* Custom job was parsed by external callback successfully. Grab the job name from the file 
+                    context and save that in the ota agent */
+                if ( (C != NULL) && (C->pucJobName != NULL) )
+                {
+                    xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
+                    C->pucJobName = NULL;
+                    prvUpdateJobStatus( NULL, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, 0 );
+                    /* We don't need the job name memory anymore since we're done with this job. */
+                    vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
+                    xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
+                }
+                else
+                {
+                    /* Job is malformed - return an error */
+                    OTA_LOG_L1( "[%s] Job does not have context or has no ID but has been processed\r\n", OTA_METHOD_NAME );
+                    eErr = eOTA_JobParseErr_NonConformingJobDoc;
+                }
+            }
         }
     }
 
@@ -2549,7 +2741,7 @@ static OTA_FileContext_t * prvProcessOTAJobMsg( const char * pcRawMsg,
                 prvStartRequestTimer( pstUpdateFile );
 
                 /* Create/Open the OTA file on the file system. */
-                xErr = prvPAL_CreateFileForRx( pstUpdateFile );
+                xErr = xOTA_Agent.xPALCallbacks.xCreateFileForRx( pstUpdateFile );
 
                 if( xErr != kOTA_Err_None )
                 {
@@ -2655,7 +2847,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                         {
                             if( C->pucFile != NULL )
                             {
-                                int32_t iBytesWritten = prvPAL_WriteBlock( C, ( ulBlockIndex * OTA_FILE_BLOCK_SIZE ), pucPayload, ( uint32_t ) ulBlockSize );
+                                int32_t iBytesWritten = xOTA_Agent.xPALCallbacks.xWriteBlock( C, ( ulBlockIndex * OTA_FILE_BLOCK_SIZE ), pucPayload, ( uint32_t ) ulBlockSize );
 
                                 if( iBytesWritten < 0 )
                                 {
@@ -2685,7 +2877,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
 
                                 if( C->pucFile != NULL )
                                 {
-                                    *pxCloseResult = prvPAL_CloseFile( C );
+                                    *pxCloseResult = xOTA_Agent.xPALCallbacks.xCloseFile( C );
 
                                     if( *pxCloseResult == kOTA_Err_None )
                                     {
