@@ -362,7 +362,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     }
 
     /* Send the request synchronously. This will also create an implicit connection.*/
-    httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
+    httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, 0 );
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
         IotLogError( "There has been an error receiving the response. The error code is: %d", httpsClientStatus );
@@ -443,7 +443,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
         /* A new response handle is returned from IotHttpsClient_SendSync(). We reuse the respHandle variable because
            the last response was already processed fully.  */
 
-        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
+        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, 0 );
 
         /* If there was network error try again one more time. */
         if( httpsClientStatus == IOT_HTTPS_NETWORK_ERROR )
@@ -456,7 +456,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
                 IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
             }
 
-            httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
+            httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, 0 );
             if( httpsClientStatus != IOT_HTTPS_OK )
             {
                 IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );
