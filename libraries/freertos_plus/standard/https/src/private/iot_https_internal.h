@@ -298,8 +298,8 @@ typedef struct _httpsResponse
     bool foundHeaderField;  /**< @brief State to use during parsing to let us know when we found the header field in the https-parser callbacks. 
                                         This is set to true when the header field is found in [parser callback _httpParserOnHeaderFieldCallback().
                                         On the following parser callback _httpParserOnHeaderValueCallback() we will store the value in pReadHeaderValue then exit the parsing. */
-    struct _httpsConnection *pConnHandle;    /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync(). This is needed during the asynchronous workflow to receive data given the respHandle only in the callback. */
-    struct _httpsRequest *pReqHandle;        /**< @brief Request associated with response. This is set during IotHttpsClient_InitializeRequest(). */
+    struct _httpsConnection *pHttpsConnection;    /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync(). This is needed during the asynchronous workflow to receive data given the respHandle only in the callback. */
+    struct _httpsRequest *pHttpsRequest;        /**< @brief Request associated with response. This is set during IotHttpsClient_InitializeRequest(). */
 } _httpsResponse_t;
 
 /**
@@ -313,8 +313,8 @@ typedef struct _httpsRequest
     uint8_t * pBody;        /**< @brief Pointer to the start of the body buffer. */
     uint32_t bodyLength;    /**< @brief Length of request body buffer. */
     IotHttpsConnectionInfo_t* pConnInfo;    /**< @brief Connection info associated with this request. For an implicit connection. */
-    struct _httpsResponse *pRespHandle;     /**< @brief Response associated with request. This is initialized during IotHttpsClient_InitializeRequest(), then returned to the application in IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
-    struct _httpsConnection *pConnHandle;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync(). It is needed for the asynchronous workflow to use to send data given the reqHandle only in the callback. */
+    struct _httpsResponse *pHttpsResponse;     /**< @brief Response associated with request. This is initialized during IotHttpsClient_InitializeRequest(), then returned to the application in IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
+    struct _httpsConnection *pHttpsConnection;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync(). It is needed for the asynchronous workflow to use to send data given the reqHandle only in the callback. */
     uint32_t contentLength; /**< @brief The content length of the request body. */
     bool isNonPersistent;     /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the rresponse. */
 } _httpsRequest_t;
