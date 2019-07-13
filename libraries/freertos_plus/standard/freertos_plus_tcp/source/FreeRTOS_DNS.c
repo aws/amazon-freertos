@@ -1221,7 +1221,7 @@ BaseType_t xDoStore = xExpected;
 #endif /* ipconfigUSE_LLMNR == 1 */
 	} while( 0 );
 
-	if( xExpected != pdFALSE )
+	if( xExpected == pdFALSE )
 	{
 		/* Do not return a valid IP-address in case the reply was not expected. */
 		ulIPAddress = 0uL;
