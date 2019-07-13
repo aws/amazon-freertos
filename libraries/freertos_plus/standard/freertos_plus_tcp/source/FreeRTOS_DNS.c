@@ -1436,7 +1436,7 @@ BaseType_t xReturn;
 			pxIPHeader->usHeaderChecksum = ~FreeRTOS_htons( pxIPHeader->usHeaderChecksum );
 
 			/* calculate the UDP checksum for outgoing package */
-			usGenerateProtocolChecksum( ( uint8_t * ) pxUDPPacket, pxNetworkBuffer->xDataLength, pdTRUE );
+			usGenerateProtocolChecksum( ( uint8_t* ) pxUDPPacket, pxNetworkBuffer->xDataLength, pdTRUE );
 		}
 		#endif
 
