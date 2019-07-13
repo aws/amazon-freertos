@@ -902,7 +902,7 @@ size_t xChunkLength;
 }
 /*-----------------------------------------------------------*/
 
-#if( ipconfigDNS_USE_CALLBACKS == 1 )
+#if( ipconfigDNS_USE_CALLBACKS == 1 ) || ( ipconfigUSE_LLMNR == 1 )
 	uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer )
 	{
 	DNSMessage_t *pxDNSMessageHeader;
@@ -922,7 +922,7 @@ size_t xChunkLength;
 		return pdFAIL;
 	}
 	/*-----------------------------------------------------------*/
-#endif /* if ( ipconfigDNS_USE_CALLBACKS == 1 ) */
+#endif /* if ( ipconfigDNS_USE_CALLBACKS == 1 ) || ( ipconfigUSE_LLMNR == 1 ) */
 
 #if( ipconfigUSE_NBNS == 1 )
 
