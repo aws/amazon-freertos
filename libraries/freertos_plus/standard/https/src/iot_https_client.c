@@ -396,14 +396,14 @@ static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t* pHttpsConnection
 /**
  * @brief Parse the HTTP response message in pBuf.
  * 
- * @param[in] pHttpParser - Pointer to the instance of the http-parser.
+ * @param[in] pHttpParserInfo - Pointer to the information containing the instance of the http-parser and the execution function.
  * @param[in] pBuf - The buffer of data to parse.
  * @param[in] len - The length of data to parse.
  * 
  * @return #IOT_HTTPS_OK if the data was parsed successfully.
  *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the data.
  */
-static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* pBuf, size_t len);
+static IotHttpsReturnCode_t _parseHttpsMessage(_httpParserInfo_t* pHttpParserInfo, char* pBuf, size_t len);
 
 /**
  * @brief Receive any part of an HTTP response.
@@ -424,7 +424,7 @@ static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* p
  *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the data.
  */
 static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConnection, 
-                                                  http_parser* pParser,
+                                                  _httpParserInfo_t* pParser,
                                                   IotHttpsResponseParserState_t *pCurrentParserState,
                                                   IotHttpsResponseParserState_t finalParserState, 
                                                   uint8_t** pBuf,
@@ -439,7 +439,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
  * will be set and available. 
  *  
  * Receiving the response headers is always the first step in receiving the response, therefore the 
- * pHttpsResponse->httpParser will be initialized to a starting state when this function is called.
+ * pHttpsResponse->httpParserInfo will be initialized to a starting state when this function is called.
  * 
  * This function also sets internal states to indicate that the header buffer is being processed now for a new response.
  * 
@@ -1312,7 +1312,9 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
         pHttpsRequest->pHttpsResponse->pBodyEnd = pHttpsRequest->pHttpsResponse->pBody + pReqInfo->pSyncInfo->respDataLen;
 
         /* Reinitialize the parser and set the fill buffer state to empty. This does not return any errors. */
-        http_parser_init(&(pHttpsRequest->pHttpsResponse->httpParser), HTTP_RESPONSE);
+        http_parser_init(&(pHttpsRequest->pHttpsResponse->httpParserInfo.parser), HTTP_RESPONSE);
+        /* Set the third party http parser function. */
+        pHttpsRequest->pHttpsResponse->httpParserInfo.parseFunc = http_parser_execute;
 
         pHttpsRequest->pHttpsResponse->status = 0;
         pHttpsRequest->pHttpsResponse->method = pReqInfo->method;
@@ -1558,13 +1560,14 @@ static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t* pHttpsConnection
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* pBuf, size_t len)
+static IotHttpsReturnCode_t _parseHttpsMessage(_httpParserInfo_t* pHttpParserInfo, char* pBuf, size_t len)
 {
     size_t parsedBytes = 0;
     const char * pHttpParserErrorDescription = NULL;
     IotHttpsReturnCode_t status = IOT_HTTPS_OK;
+    http_parser *pHttpParser = &(pHttpParserInfo->parser);
 
-    parsedBytes = http_parser_execute( pHttpParser, &_httpParserSettings, pBuf, len );
+    parsedBytes = pHttpParserInfo->parseFunc( pHttpParser, &_httpParserSettings, pBuf, len );
     IotLogDebug( "http-parser parsed %d bytes out of %d specified.", parsedBytes, len );
 
     /* If the parser fails with HPE_CLOSED_CONNECTION or HPE_INVALID_CONSTANT that simply means there
@@ -1589,7 +1592,7 @@ static IotHttpsReturnCode_t _parseHttpsMessage(http_parser* pHttpParser, char* p
 /*-----------------------------------------------------------*/
 
 static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConnection, 
-    http_parser* pParser,
+    _httpParserInfo_t *pHttpParserInfo,
     IotHttpsResponseParserState_t *pCurrentParserState,
     IotHttpsResponseParserState_t finalParserState, 
     uint8_t** pBuf,
@@ -1605,10 +1608,10 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
             *pBufCur, 
             *pBufEnd - *pBufCur);
 
-        status = _parseHttpsMessage(pParser, (char*)(*pBufCur), *pBufEnd - *pBufCur);
+        status = _parseHttpsMessage(pHttpParserInfo, (char*)(*pBufCur), *pBufEnd - *pBufCur);
         if(status != IOT_HTTPS_OK)
         {
-            IotLogError("Failed to parse the message buffer with error: %d", pParser->http_errno);
+            IotLogError("Failed to parse the message buffer with error: %d", pHttpParserInfo->parser.http_errno);
             break;
         }
 
@@ -1646,7 +1649,7 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConn
     IotHttpsReturnCode_t status = IOT_HTTPS_OK;
 
     status = _receiveHttpsMessage(pHttpsConnection,
-        &(pHttpsResponse->httpParser),
+        &(pHttpsResponse->httpParserInfo),
         &(pHttpsResponse->parserState),
         PARSER_STATE_HEADERS_COMPLETE,
         &(pHttpsResponse->pHeaders),
@@ -1670,7 +1673,7 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* pHttpsConnect
     pHttpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_BODY_BUFFER;
 
     status = _receiveHttpsMessage(pHttpsConnection,
-        &(pHttpsResponse->httpParser),
+        &(pHttpsResponse->httpParserInfo),
         &(pHttpsResponse->parserState),
         PARSER_STATE_BODY_COMPLETE,
         &(pHttpsResponse->pBody),
@@ -1686,7 +1689,7 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* pHttpsConnect
 
     IotLogDebug("The message Content-Length is %d (Will be > 0 for a Content-Length header existing). The remaining content length on the network is %d.",
         pHttpsResponse->contentLength,
-        pHttpsResponse->httpParser.content_length);
+        pHttpsResponse->httpParserInfo.parser.content_length);
 
     return status;
 }
@@ -1709,11 +1712,11 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsCo
 
         /* Run this through the parser so that we can get the end of the HTTP message, instead of simply timing out the socket to stop.
            If we relied on the socket timeout to stop reading the network socket, then the server may close the connection. */
-        parserStatus = _parseHttpsMessage(&(pHttpsResponse->httpParser), (char*)flushBuffer, IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE );
+        parserStatus = _parseHttpsMessage(&(pHttpsResponse->httpParserInfo), (char*)flushBuffer, IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE );
         if(parserStatus != IOT_HTTPS_OK)
         {
-            pHttpParserErrorDescription = http_errno_description( HTTP_PARSER_ERRNO( &pHttpsResponse->httpParser ) );
-            IotLogError("Failed to parse the response body buffer with error: %d", pHttpsResponse->httpParser.http_errno);
+            pHttpParserErrorDescription = http_errno_description( HTTP_PARSER_ERRNO( &pHttpsResponse->httpParserInfo.parser ) );
+            IotLogError("Network Flush: Failed to parse the response body buffer with error: %d", pHttpsResponse->httpParserInfo.parser.http_errno);
             break;
         }
 
@@ -1792,7 +1795,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
 
     /* Reset the http-parser state to an initial state. This is done so that a new response can be parsed from the 
        beginning. */
-    pHttpsResponse->httpParser.data = (void *)(pHttpsResponse);
+    pHttpsResponse->httpParserInfo.parser.data = (void *)(pHttpsResponse);
     pHttpsResponse->parserState = PARSER_STATE_NONE;
     pHttpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_HEADER_BUFFER;
 
@@ -1974,61 +1977,62 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
 
 IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHandle, char *pName, char *pValue, uint32_t len)
 {
-    IotHttpsReturnCode_t status = IOT_HTTPS_OK;
+    IOT_FUNCTION_ENTRY(IotHttpsReturnCode_t, IOT_HTTPS_OK);
     const char * pHttpParserErrorDescription = NULL;
-    IotHttpsResponseBufferState_t savedState = respHandle->bufferProcessingState;
+    IotHttpsResponseBufferState_t savedState = PROCESSING_STATE_NONE;
     size_t numParsed = 0;
 
     if((respHandle == NULL) || (pName == NULL) || (pValue == NULL))
     {
         IotLogError("NULL parameter passed into IotHttpsClient_ReadResponseStatus().");
-        status = IOT_HTTPS_INVALID_PARAMETER;
+        IOT_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
     }
 
-    if(status == IOT_HTTPS_OK)
-    {
-        respHandle->pReadHeaderField = pName;
-        respHandle->foundHeaderField = false;
-        respHandle->bufferProcessingState = PROCESSING_STATE_SEARCHING_HEADER_BUFFER;
+    /* Save the current state of the response's buffer processing. */
+    savedState = respHandle->bufferProcessingState;
 
-        http_parser_init( &( respHandle->httpParser ), HTTP_RESPONSE );
-        numParsed = http_parser_execute(&(respHandle->httpParser), &_httpParserSettings, (char*)(respHandle->pHeaders), respHandle->pHeadersCur - respHandle->pHeaders);
-        IotLogDebug("Parsed %d characters in IotHttpsClient_ReadHeader().", numParsed);
-        if( (respHandle->httpParser.http_errno != 0) && 
-            ( HTTP_PARSER_ERRNO( &(respHandle->httpParser) ) > HPE_CB_chunk_complete) )
-        {
-            pHttpParserErrorDescription = http_errno_description( HTTP_PARSER_ERRNO( &(respHandle->httpParser) ) );
-            IotLogError("http_parser failed on the http response with error: %s", pHttpParserErrorDescription);
-            status = IOT_HTTPS_PARSING_ERROR;
-        }
+    respHandle->pReadHeaderField = pName;
+    respHandle->foundHeaderField = false;
+    respHandle->bufferProcessingState = PROCESSING_STATE_SEARCHING_HEADER_BUFFER;
+
+    http_parser_init( &( respHandle->httpParserInfo.parser ), HTTP_RESPONSE );
+    respHandle->httpParserInfo.parser.data = (void *)(respHandle);
+    numParsed = respHandle->httpParserInfo.parseFunc(&(respHandle->httpParserInfo.parser), &_httpParserSettings, (char*)(respHandle->pHeaders), respHandle->pHeadersCur - respHandle->pHeaders);
+    IotLogDebug("Parsed %d characters in IotHttpsClient_ReadHeader().", numParsed);
+    if( (respHandle->httpParserInfo.parser.http_errno != 0) && 
+        ( HTTP_PARSER_ERRNO( &(respHandle->httpParserInfo.parser) ) > HPE_CB_chunk_complete) )
+    {
+        pHttpParserErrorDescription = http_errno_description( HTTP_PARSER_ERRNO( &(respHandle->httpParserInfo.parser) ) );
+        IotLogError("http_parser failed on the http response with error: %s", pHttpParserErrorDescription);
+        IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_PARSING_ERROR);
     }
 
-    if( status == IOT_HTTPS_OK)
+    if(respHandle->foundHeaderField)
     {
-        if(respHandle->foundHeaderField)
+        if(respHandle->readHeaderValueLength > len)
         {
-            if(respHandle->readHeaderValueLength > len)
-            {
-                IotLogError("IotHttpsClient_ReadHeader(): The length of the pValue buffer specified is less than the actual length of the pValue. ");
-                status = IOT_HTTPS_INSUFFICIENT_MEMORY;
-            }
-            else
-            {
-                /* stncpy adds a NULL terminator. */
-                strncpy(pValue, respHandle->pReadHeaderValue, respHandle->readHeaderValueLength);
-            }
+            IotLogError("IotHttpsClient_ReadHeader(): The length of the pValue buffer specified is less than the actual length of the pValue. ");
+            IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INSUFFICIENT_MEMORY );
         }
         else
         {
-            IotLogError("IotHttpsClient_ReadHeader(): The header field %s was not found.", pName);
-            status = IOT_HTTPS_NOT_FOUND;
+            /* stncpy adds a NULL terminator. */
+            strncpy(pValue, respHandle->pReadHeaderValue, respHandle->readHeaderValueLength);
         }
     }
+    else
+    {
+        IotLogError("IotHttpsClient_ReadHeader(): The header field %s was not found.", pName);
+        IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_NOT_FOUND );
+    }
 
-
+    IOT_FUNCTION_CLEANUP_BEGIN();
     /* Always restore the state back to what it was before entering this function. */
-    respHandle->bufferProcessingState = savedState;
-    return status;
+    if( respHandle != NULL )
+    {
+        respHandle->bufferProcessingState = savedState;
+    }
+    IOT_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/

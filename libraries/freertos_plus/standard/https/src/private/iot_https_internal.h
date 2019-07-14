@@ -276,17 +276,26 @@ typedef struct _httpsConnection
 } _httpsConnection_t;
 
 /**
+ * @brief Third party library http-parser information.
+ */
+typedef struct _httpParserInfo
+{
+    http_parser parser; /**< @brief http_parser state information. */
+    size_t (*parseFunc)(http_parser *parser, const http_parser_settings *settings, const char *data, size_t len); /**< @brief http_parser_execute function is to be plugged in here during initialization of the response. */
+} _httpParserInfo_t;
+
+/**
  * @brief Represents an HTTP response.
  */
 typedef struct _httpsResponse
 {
-    uint8_t * pHeaders;      /**< @brief Pointer to the start of the headers buffer. */
-    uint8_t * pHeadersEnd;   /**< @brief Pointer to the end of the headers buffer. */
-    uint8_t * pHeadersCur;   /**< @brief Pointer to the next location to fill in the headers buffer. */
-    uint8_t * pBody;         /**< @brief Pointer to the start of the body buffer. */
-    uint8_t * pBodyCur;      /**< @brief Pointer to the next location to fill in the body buffer. */
-    uint8_t * pBodyEnd;      /**< @brief Pointer to the end of the body buffer. */
-    http_parser httpParser; /**< @brief Instance of the http_parser for response processing. */
+    uint8_t * pHeaders;     /**< @brief Pointer to the start of the headers buffer. */
+    uint8_t * pHeadersEnd;  /**< @brief Pointer to the end of the headers buffer. */
+    uint8_t * pHeadersCur;  /**< @brief Pointer to the next location to fill in the headers buffer. */
+    uint8_t * pBody;        /**< @brief Pointer to the start of the body buffer. */
+    uint8_t * pBodyCur;     /**< @brief Pointer to the next location to fill in the body buffer. */
+    uint8_t * pBodyEnd;     /**< @brief Pointer to the end of the body buffer. */
+    _httpParserInfo_t httpParserInfo;    /** @brief Third party http-parser information. */
     uint16_t status;        /**< @brief The HTTP response status code of this response. */
     IotHttpsMethod_t method;    /**< @brief The method of the originating request. */
     uint32_t contentLength; /**< @brief The content length of the response body. This is zero when no Content-Length header was parsed the header buffer. */
