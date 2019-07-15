@@ -446,6 +446,8 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadHeaderVaryingValues );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadContentLengthInvalidParameters );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadContentLengthSuccess );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusInvalidParameters );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusSuccess );
 }
 
 /*-----------------------------------------------------------*/
@@ -1099,7 +1101,7 @@ TEST( HTTPS_Client_Unit_API, ReadContentLengthInvalidParameters )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test IotHttpsClient_ReadContentLength() with 
+ * @brief Test a successful read of the Content-Length from the HTTP response.
  */
 TEST( HTTPS_Client_Unit_API, ReadContentLengthSuccess )
 {
@@ -1116,4 +1118,51 @@ TEST( HTTPS_Client_Unit_API, ReadContentLengthSuccess )
     returnCode = IotHttpsClient_ReadContentLength(respHandle, &contentLength);
     TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
     TEST_ASSERT_EQUAL(testContentLengthGreaterThanZero, contentLength);
+}
+
+/**
+ * @brief Test IotHttpsClient_ReadResponseStatus() with various invalid parameters.
+ */
+TEST( HTTPS_Client_Unit_API, ReadResponseStatusInvalidParameters )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint16_t responseStatus = 0;
+
+    /* Test a NULL response handle. */
+    returnCode = IotHttpsClient_ReadResponseStatus(NULL, &responseStatus);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+
+    /* Test a NULL responseStatus return storage parameter. */
+    returnCode = IotHttpsClient_ReadResponseStatus(respHandle, NULL);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
+
+    /* Test that the contentLength is not found, when it is equal to zero. */
+    respHandle = _getRespHandle();
+    TEST_ASSERT_NOT_NULL( respHandle );
+    respHandle->status = 0;
+    returnCode = IotHttpsClient_ReadResponseStatus(respHandle, &responseStatus);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_NOT_FOUND, returnCode);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test a successful read of the HTTP response status code from an HTTP response message.
+ */
+TEST( HTTPS_Client_Unit_API, ReadResponseStatusSuccess )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint16_t responseStatus = 0;
+    uint16_t testValidResponseStatus = (uint16_t)IOT_HTTPS_STATUS_OK;
+
+    /* Test that if the content-length of greater than zero is inside of the structure then it is returned 
+       with the API. */
+    respHandle = _getRespHandle();
+    TEST_ASSERT_NOT_NULL( respHandle );
+    respHandle->status = testValidResponseStatus;
+    returnCode = IotHttpsClient_ReadResponseStatus(respHandle, &responseStatus);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    TEST_ASSERT_EQUAL(testValidResponseStatus, responseStatus);
 }
