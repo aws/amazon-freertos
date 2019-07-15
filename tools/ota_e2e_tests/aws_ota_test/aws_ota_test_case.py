@@ -71,6 +71,13 @@ class OtaTestCase( object ):
         All the necessary setup. Optional method, but do call super setup if implementation is provided in sub-class.
         """
         self._otaProject.setApplicationVersion(0, 9, 0)
+
+        # Setting the block size for specific test case if required
+        if self._name == "OtaTestGreaterVersionMinBlockConfig":
+            self._otaProject.setOtaBlockSize(1)
+        elif self._name == "OtaTestGreaterVersionMaxBlockConfig":
+            self._otaProject.setOtaBlockSize(128)
+
         buildReturnCode = self._otaProject.buildProject()
         flashReturnCode = self._flashComm.flashAndRead()
 

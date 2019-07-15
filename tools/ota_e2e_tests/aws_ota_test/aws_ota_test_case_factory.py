@@ -37,7 +37,11 @@ from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_incorrect_platform import OtaTestIncorrectPlatform
 from .aws_ota_test_case_back_to_back_downloads import OtaTestBackToBackDownloads
 from .aws_ota_test_case_incorrect_wifi_password import OtaTestIncorrectWifiPassword
+from .aws_ota_test_case_greater_version_min_block_config import OtaTestGreaterVersionMinBlockConfig
+from .aws_ota_test_case_greater_version_max_block_config import OtaTestGreaterVersionMaxBlockConfig
 from .aws_ota_test_case_dummy_test import OtaTestDummyTest
+
+import pprint
 
 """
 All OTA test cases in the system.
@@ -57,7 +61,9 @@ AllOtaTestCases = {
     OtaTestMissingFilename.NAME : OtaTestMissingFilename,
     OtaTestBackToBackDownloads.NAME : OtaTestBackToBackDownloads,
     OtaTestIncorrectWifiPassword.NAME : OtaTestIncorrectWifiPassword,
-    OtaTestDummyTest.NAME : OtaTestDummyTest
+    OtaTestDummyTest.NAME : OtaTestDummyTest,
+    OtaTestGreaterVersionMinBlockConfig.NAME : OtaTestGreaterVersionMinBlockConfig,
+    OtaTestGreaterVersionMaxBlockConfig.NAME : OtaTestGreaterVersionMaxBlockConfig
 }
 
 class OtaTestCaseFactory( object ):
