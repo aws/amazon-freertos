@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2016 Intel Corporation
+** Copyright (C) 2015 Intel Corporation
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a copy
 ** of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +22,41 @@
 **
 ****************************************************************************/
 
-#ifndef MATH_SUPPORT_H
-#define MATH_SUPPORT_H
+#ifndef CBORJSON_H
+#define CBORJSON_H
 
-#include <math.h>
+#include "cbor.h"
 
-/* this function was copied & adapted from RFC 7049 Appendix D */
-static inline double decode_half(unsigned short half)
-{
-#ifdef __F16C__
-    return _cvtsh_ss(half);
-#else
-    int exp = (half >> 10) & 0x1f;
-    int mant = half & 0x3ff;
-    double val;
-    if (exp == 0) val = ldexp(mant, -24);
-    else if (exp != 31) val = ldexp(mant + 1024, exp - 25);
-    else val = mant == 0 ? INFINITY : NAN;
-    return half & 0x8000 ? -val : val;
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+/* Conversion to JSON */
+enum CborToJsonFlags
+{
+    CborConvertAddMetadata = 1,
+    CborConvertTagsToObjects = 2,
+    CborConvertIgnoreTags = 0,
+
+    CborConvertObeyByteStringTags = 0,
+    CborConvertByteStringsToBase64Url = 4,
+
+    CborConvertRequireMapStringKeys = 0,
+    CborConvertStringifyMapKeys = 8,
+
+    CborConvertDefaultFlags = 0
+};
+
+CBOR_API CborError cbor_value_to_json_advance(FILE *out, CborValue *value, int flags);
+CBOR_INLINE_API CborError cbor_value_to_json(FILE *out, const CborValue *value, int flags)
+{
+    CborValue copy = *value;
+    return cbor_value_to_json_advance(out, &copy, flags);
 }
 
-#endif // MATH_SUPPORT_H
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* CBORJSON_H */
 
