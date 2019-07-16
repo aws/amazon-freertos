@@ -280,6 +280,7 @@ COMMON_WARNING_FLAGS = -Wall -Werror=all \
 	-Wno-error=unused-but-set-variable \
 	-Wno-error=unused-variable \
 	-Wno-error=deprecated-declarations \
+	-Wno-error=maybe-uninitialized \
 	-Wextra \
 	-Wno-unused-parameter -Wno-sign-compare
 
