@@ -61,9 +61,198 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/oid.h"
 
+#define DEV_MODE_KEY_PROVISIONING_PRINT( X )    vLoggingPrintf X
 
 /*-----------------------------------------------------------*/
 
+CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
+                                uint8_t * pucPrivateKey,
+                                size_t xPrivateKeyLength,
+                                uint8_t * pucLabel,
+                                CK_OBJECT_HANDLE_PTR pxObjectHandle,
+                                mbedtls_pk_context * pxMbedPkContext )
+{
+    CK_RV xResult = CKR_OK;
+    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
+    CK_BYTE * pxD;               /* Private value D. */
+    CK_BYTE * pxEcParams = NULL; /* DER-encoding of an ANSI X9.62 Parameters value */
+    int lMbedResult = 0;
+    CK_BBOOL xTrue = CK_TRUE;
+    CK_KEY_TYPE xPrivateKeyType = CKK_EC;
+
+    CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+#define EC_PARAMS_LENGTH    10
+#define EC_D_LENGTH         32
+
+    pxD = pvPortMalloc( EC_D_LENGTH );
+
+    if( ( pxD == NULL ) )
+    {
+        xResult = CKR_HOST_MEMORY;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedPkContext->pk_ctx;
+        lMbedResult = mbedtls_mpi_write_binary( &( pxKeyPair->d ), pxD, EC_D_LENGTH );
+
+        if( pxKeyPair->grp.id == MBEDTLS_ECP_DP_SECP256R1 )
+        {
+            pxEcParams = ( CK_BYTE * ) ( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
+        }
+        else
+        {
+            xResult = CKR_CURVE_NOT_SUPPORTED;
+        }
+
+        if( xResult == CKR_OK )
+        {
+            CK_ATTRIBUTE xPrivateKeyTemplate[] =
+            {
+                { CKA_CLASS,     &xPrivateKeyClass, sizeof( CK_OBJECT_CLASS )                        },
+                { CKA_KEY_TYPE,  &xPrivateKeyType,  sizeof( CK_KEY_TYPE )                            },
+                { CKA_LABEL,     pucLabel,          ( CK_ULONG ) strlen( ( const char * ) pucLabel ) },
+                { CKA_TOKEN,     &xTrue,            sizeof( CK_BBOOL )                               },
+                { CKA_SIGN,      &xTrue,            sizeof( CK_BBOOL )                               },
+                { CKA_EC_PARAMS, pxEcParams,        EC_PARAMS_LENGTH                                 },
+                { CKA_VALUE,     pxD,               EC_D_LENGTH                                      }
+            };
+
+            xResult = pxFunctionList->C_CreateObject( xSession,
+                                                      ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                                                      sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                      pxObjectHandle );
+        }
+    }
+
+    if( pxD != NULL )
+    {
+        vPortFree( pxD );
+    }
+
+    return xResult;
+}
+
+
+
+/* Length parameters for importing RSA-2048 private keys. */
+#define MODULUS_LENGTH        256
+#define E_LENGTH              3
+#define D_LENGTH              256
+#define PRIME_1_LENGTH        128
+#define PRIME_2_LENGTH        128
+#define EXPONENT_1_LENGTH     128
+#define EXPONENT_2_LENGTH     128
+#define COEFFICIENT_LENGTH    128
+
+/* Adding one to all of the lengths because ASN1 may pad a leading 0 byte
+ * to numbers that could be interpreted as negative */
+typedef struct RsaParams_t
+{
+    CK_BYTE modulus[ MODULUS_LENGTH + 1 ];
+    CK_BYTE e[ E_LENGTH + 1 ];
+    CK_BYTE d[ D_LENGTH + 1 ];
+    CK_BYTE prime1[ PRIME_1_LENGTH + 1 ];
+    CK_BYTE prime2[ PRIME_2_LENGTH + 1 ];
+    CK_BYTE exponent1[ EXPONENT_1_LENGTH + 1 ];
+    CK_BYTE exponent2[ EXPONENT_2_LENGTH + 1 ];
+    CK_BYTE coefficient[ COEFFICIENT_LENGTH + 1 ];
+} RsaParams_t;
+
+CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
+                                 uint8_t * pucPrivateKey,
+                                 size_t xPrivateKeyLength,
+                                 uint8_t * pucLabel,
+                                 CK_OBJECT_HANDLE_PTR pxObjectHandle,
+                                 mbedtls_pk_context * pxMbedPkContext )
+{
+    CK_RV xResult = CKR_OK;
+    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
+    int lMbedResult = 0;
+    CK_BBOOL xTokenStorage = CK_TRUE;
+    CK_KEY_TYPE xPrivateKeyType = CKK_RSA;
+    mbedtls_rsa_context * xRsaContext = pxMbedPkContext->pk_ctx;
+    CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
+    RsaParams_t * pxRsaParams = NULL;
+    CK_BBOOL xTrue = CK_TRUE;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    pxRsaParams = pvPortMalloc( sizeof( RsaParams_t ) );
+
+    if( pxRsaParams == NULL )
+    {
+        xResult = CKR_HOST_MEMORY;
+    }
+
+    if( xResult == CKR_OK )
+    {
+        memset( pxRsaParams, 0, sizeof( RsaParams_t ) );
+
+        lMbedResult = mbedtls_rsa_export_raw( xRsaContext,
+                                              pxRsaParams->modulus, MODULUS_LENGTH + 1,
+                                              pxRsaParams->prime1, PRIME_1_LENGTH + 1,
+                                              pxRsaParams->prime2, PRIME_2_LENGTH + 1,
+                                              pxRsaParams->d, D_LENGTH + 1,
+                                              pxRsaParams->e, E_LENGTH + 1 );
+
+        if( lMbedResult != 0 )
+        {
+            DEV_MODE_KEY_PROVISIONING_PRINT( ( "Failed to parse RSA private key components. \r\n" ) );
+            xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+        }
+
+        /* Export Exponent 1, Exponent 2, Coefficient. */
+        lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DP, pxRsaParams->exponent1, EXPONENT_1_LENGTH + 1 );
+        lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DQ, pxRsaParams->exponent2, EXPONENT_2_LENGTH + 1 );
+        lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->QP, pxRsaParams->coefficient, COEFFICIENT_LENGTH + 1 );
+
+        if( lMbedResult != 0 )
+        {
+            DEV_MODE_KEY_PROVISIONING_PRINT( ( "Failed to parse RSA private key Chinese Remainder Theorem variables. \r\n" ) );
+            xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        /* When importing the fields, the pointer is incremented by 1
+         * to remove the leading 0 padding (if it existed) and the original field length is used */
+
+
+        CK_ATTRIBUTE xPrivateKeyTemplate[] =
+        {
+            { CKA_CLASS,            &xPrivateKeyClass,            sizeof( CK_OBJECT_CLASS )                        },
+            { CKA_KEY_TYPE,         &xPrivateKeyType,             sizeof( CK_KEY_TYPE )                            },
+            { CKA_LABEL,            pucLabel,                     ( CK_ULONG ) strlen( ( const char * ) pucLabel ) },
+            { CKA_TOKEN,            &xTrue,                       sizeof( CK_BBOOL )                               },
+            { CKA_SIGN,             &xTrue,                       sizeof( CK_BBOOL )                               },
+            { CKA_MODULUS,          pxRsaParams->modulus + 1,     MODULUS_LENGTH                                   },
+            { CKA_PRIVATE_EXPONENT, pxRsaParams->d + 1,           D_LENGTH                                         },
+            { CKA_PUBLIC_EXPONENT,  pxRsaParams->e + 1,           E_LENGTH                                         },
+            { CKA_PRIME_1,          pxRsaParams->prime1 + 1,      PRIME_1_LENGTH                                   },
+            { CKA_PRIME_2,          pxRsaParams->prime2 + 1,      PRIME_2_LENGTH                                   },
+            { CKA_EXPONENT_1,       pxRsaParams->exponent1 + 1,   EXPONENT_1_LENGTH                                },
+            { CKA_EXPONENT_2,       pxRsaParams->exponent2 + 1,   EXPONENT_2_LENGTH                                },
+            { CKA_COEFFICIENT,      pxRsaParams->coefficient + 1, COEFFICIENT_LENGTH                               }
+        };
+
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                  ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                                                  sizeof( PKCS11_PrivateRsaKeyTemplate_t ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxObjectHandle );
+    }
+
+    if( NULL != pxRsaParams )
+    {
+        vPortFree( pxRsaParams );
+    }
+
+    return xResult;
+}
 
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
@@ -73,21 +262,21 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
-    CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_BBOOL xTokenStorage = CK_TRUE;
-    mbedtls_pk_type_t xMbedKeyType;
-    CK_KEY_TYPE xPrivateKeyType;
-
-    xResult = C_GetFunctionList( &pxFunctionList );
-
+    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
+    mbedtls_pk_type_t xMbedKeyType = MBEDTLS_PK_NONE;
+    CK_KEY_TYPE xPrivateKeyType = ( CK_KEY_TYPE ) 0xFFFFFFFF; /* Invalid key type value. */
     int lMbedResult = 0;
-    mbedtls_pk_context xMbedPkContext;
+    mbedtls_pk_context xMbedPkContext = { 0 };
+    CK_BBOOL xTokenStorage = CK_TRUE;
+
+
 
     mbedtls_pk_init( &xMbedPkContext );
     lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucPrivateKey, xPrivateKeyLength, NULL, 0 );
 
     if( lMbedResult != 0 )
     {
+        DEV_MODE_KEY_PROVISIONING_PRINT( ( "Unable to parse private key.\r\n" ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -98,238 +287,26 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
         if( xMbedKeyType == MBEDTLS_PK_RSA )
         {
-            xPrivateKeyType = CKK_RSA;
+            xResult = prvProvisionPrivateRSAKey( xSession,
+                                                 pucPrivateKey,
+                                                 xPrivateKeyLength,
+                                                 pucLabel,
+                                                 pxObjectHandle,
+                                                 &xMbedPkContext );
         }
         else if( ( xMbedKeyType == MBEDTLS_PK_ECDSA ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY_DH ) )
         {
-            xPrivateKeyType = CKK_EC;
+            xResult = prvProvisionPrivateECKey( xSession,
+                                                pucPrivateKey,
+                                                xPrivateKeyLength,
+                                                pucLabel,
+                                                pxObjectHandle,
+                                                &xMbedPkContext );
         }
         else
         {
-            xPrivateKeyType = 0xFFFFFFFF;
+            DEV_MODE_KEY_PROVISIONING_PRINT( ( "Invalid private key type provided.  RSA-2048 and EC P-256 keys are supported.\r\n" ) );
             xResult = CKR_ARGUMENTS_BAD;
-        }
-    }
-
-    /* EC Keys. */
-    if( xPrivateKeyType == CKK_EC )
-    {
-        PKCS11_PrivateEcKeyTemplate_t xPrivateKeyTemplate;
-        CK_BYTE * pxD;               /* Private value D. */
-        CK_BYTE * pxEcParams = NULL; /* DER-encoding of an ANSI X9.62 Parameters value */
-
-#define EC_PARAMS_LENGTH    10
-#define EC_D_LENGTH         32
-
-        pxD = pvPortMalloc( EC_D_LENGTH );
-
-        if( ( pxD == NULL ) )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-
-        if( xResult == CKR_OK )
-        {
-            mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) xMbedPkContext.pk_ctx;
-            lMbedResult = mbedtls_mpi_write_binary( &( pxKeyPair->d ), pxD, EC_D_LENGTH );
-
-            if( pxKeyPair->grp.id == MBEDTLS_ECP_DP_SECP256R1 )
-            {
-                pxEcParams = ( CK_BYTE * ) ( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
-            }
-            else
-            {
-                xResult = CKR_CURVE_NOT_SUPPORTED;
-            }
-
-            if( xResult == CKR_OK )
-            {
-                xPrivateKeyTemplate.xObjectClass.type = CKA_CLASS;
-                xPrivateKeyTemplate.xObjectClass.pValue = &xPrivateKeyClass;
-                xPrivateKeyTemplate.xObjectClass.ulValueLen = sizeof( xPrivateKeyClass );
-                xPrivateKeyTemplate.xKeyType.type = CKA_KEY_TYPE;
-                xPrivateKeyTemplate.xKeyType.pValue = &xPrivateKeyType;
-                xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
-                xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
-                xPrivateKeyTemplate.xLabel.pValue = pucLabel;
-                xPrivateKeyTemplate.xLabel.ulValueLen = strlen( ( const char * ) pucLabel );
-                xPrivateKeyTemplate.xEcParams.type = CKA_EC_PARAMS;
-                xPrivateKeyTemplate.xEcParams.pValue = pxEcParams;
-                xPrivateKeyTemplate.xEcParams.ulValueLen = EC_PARAMS_LENGTH;
-                xPrivateKeyTemplate.xValue.type = CKA_VALUE;
-                xPrivateKeyTemplate.xValue.pValue = pxD;
-                xPrivateKeyTemplate.xValue.ulValueLen = EC_D_LENGTH;
-                xPrivateKeyTemplate.xTokenObject.type = CKA_TOKEN;
-                xPrivateKeyTemplate.xTokenObject.pValue = &xTokenStorage;
-                xPrivateKeyTemplate.xTokenObject.ulValueLen = sizeof( xTokenStorage );
-
-                xResult = pxFunctionList->C_CreateObject( xSession,
-                                                          ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
-                                                          sizeof( PKCS11_PrivateEcKeyTemplate_t ) / sizeof( CK_ATTRIBUTE ),
-                                                          pxObjectHandle );
-            }
-        }
-
-        if( pxD != NULL )
-        {
-            vPortFree( pxD );
-        }
-    }
-
-    /* RSA Keys. */
-    if( xPrivateKeyType == CKK_RSA )
-    {
-        PKCS11_PrivateRsaKeyTemplate_t xPrivateKeyTemplate;
-        mbedtls_rsa_context * xRsaContext = xMbedPkContext.pk_ctx;
-        CK_BBOOL xTrue = CK_TRUE;
-        CK_BYTE * pxModulus;
-        CK_BYTE * pxE;
-        CK_BYTE * pxD;
-        CK_BYTE * pxPrime1;
-        CK_BYTE * pxPrime2;
-        CK_BYTE * pxExp1;
-        CK_BYTE * pxExp2;
-        CK_BYTE * pxCoefficient;
-#define MODULUS_LENGTH        256
-#define E_LENGTH              3
-#define D_LENGTH              256
-#define PRIME_1_LENGTH        128
-#define PRIME_2_LENGTH        128
-#define EXPONENT_1_LENGTH     128
-#define EXPONENT_2_LENGTH     128
-#define COEFFICIENT_LENGTH    128
-
-        /* Adding one to all of the lengths because ASN1 may pad a leading 0 byte
-         * to numbers that could be interpreted as negative */
-        pxModulus = pvPortMalloc( MODULUS_LENGTH + 1 );
-        pxE = pvPortMalloc( E_LENGTH + 1 );
-        pxD = pvPortMalloc( D_LENGTH + 1 );
-        pxPrime1 = pvPortMalloc( PRIME_1_LENGTH + 1 );
-        pxPrime2 = pvPortMalloc( PRIME_2_LENGTH + 1 );
-        pxExp1 = pvPortMalloc( EXPONENT_1_LENGTH + 1 );
-        pxExp2 = pvPortMalloc( EXPONENT_2_LENGTH + 1 );
-        pxCoefficient = pvPortMalloc( COEFFICIENT_LENGTH + 1 );
-
-        if( ( pxModulus == NULL ) || ( pxE == NULL ) || ( pxD == NULL ) || ( pxPrime1 == NULL ) || ( pxPrime2 == NULL ) || ( pxExp1 == NULL ) || ( pxExp2 == NULL ) )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-
-        if( xResult == CKR_OK )
-        {
-            lMbedResult = mbedtls_rsa_export_raw( xRsaContext,
-                                                  pxModulus, MODULUS_LENGTH + 1,
-                                                  pxPrime1, PRIME_1_LENGTH + 1,
-                                                  pxPrime2, PRIME_2_LENGTH + 1,
-                                                  pxD, D_LENGTH + 1,
-                                                  pxE, E_LENGTH + 1 );
-
-            if( lMbedResult != 0 )
-            {
-                configPRINTF( ( "Failed to parse RSA private key components. \r\n" ) );
-                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-            }
-
-            /* Export Exponent 1, Exponent 2, Coefficient. */
-            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DP, pxExp1, EXPONENT_1_LENGTH + 1 );
-            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->DQ, pxExp2, EXPONENT_2_LENGTH + 1 );
-            lMbedResult |= mbedtls_mpi_write_binary( ( mbedtls_mpi const * ) &xRsaContext->QP, pxCoefficient, COEFFICIENT_LENGTH + 1 );
-
-            if( lMbedResult != 0 )
-            {
-                configPRINTF( ( "Failed to parse RSA private key Chinese Remainder Theorem variables. \r\n" ) );
-                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-            }
-        }
-
-        if( xResult == CKR_OK )
-        {
-            /* When importing the fields, the pointer is incremented by 1
-             * to remove the leading 0 padding (if it existed) and the original field length is used */
-            xPrivateKeyTemplate.xObjectClass.type = CKA_CLASS;
-            xPrivateKeyTemplate.xObjectClass.pValue = &xPrivateKeyClass;
-            xPrivateKeyTemplate.xObjectClass.ulValueLen = sizeof( xPrivateKeyClass );
-            xPrivateKeyTemplate.xKeyType.type = CKA_KEY_TYPE;
-            xPrivateKeyTemplate.xKeyType.pValue = &xPrivateKeyType;
-            xPrivateKeyTemplate.xKeyType.ulValueLen = sizeof( xPrivateKeyType );
-            xPrivateKeyTemplate.xLabel.type = CKA_LABEL;
-            xPrivateKeyTemplate.xLabel.pValue = ( CK_VOID_PTR ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
-            xPrivateKeyTemplate.xLabel.ulValueLen = ( CK_ULONG ) strlen( ( const char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS );
-            xPrivateKeyTemplate.xCanSign.type = CKA_SIGN;
-            xPrivateKeyTemplate.xCanSign.pValue = &xTrue;
-            xPrivateKeyTemplate.xCanSign.ulValueLen = sizeof( CK_BBOOL );
-            xPrivateKeyTemplate.xModulus.type = CKA_MODULUS;
-            xPrivateKeyTemplate.xModulus.pValue = pxModulus + 1;
-            xPrivateKeyTemplate.xModulus.ulValueLen = MODULUS_LENGTH;
-            xPrivateKeyTemplate.xPrivateExponent.type = CKA_PRIVATE_EXPONENT;
-            xPrivateKeyTemplate.xPrivateExponent.pValue = pxD + 1;
-            xPrivateKeyTemplate.xPrivateExponent.ulValueLen = D_LENGTH;
-            xPrivateKeyTemplate.xPublicExponent.type = CKA_PUBLIC_EXPONENT;
-            xPrivateKeyTemplate.xPublicExponent.pValue = pxE + 1;
-            xPrivateKeyTemplate.xPublicExponent.ulValueLen = E_LENGTH;
-            xPrivateKeyTemplate.xPrime1.type = CKA_PRIME_1;
-            xPrivateKeyTemplate.xPrime1.pValue = pxPrime1 + 1;
-            xPrivateKeyTemplate.xPrime1.ulValueLen = PRIME_1_LENGTH;
-            xPrivateKeyTemplate.xPrime2.type = CKA_PRIME_2;
-            xPrivateKeyTemplate.xPrime2.pValue = pxPrime2 + 1;
-            xPrivateKeyTemplate.xPrime2.ulValueLen = PRIME_2_LENGTH;
-            xPrivateKeyTemplate.xExp1.type = CKA_EXPONENT_1;
-            xPrivateKeyTemplate.xExp1.pValue = pxExp1 + 1;
-            xPrivateKeyTemplate.xExp1.ulValueLen = EXPONENT_1_LENGTH;
-            xPrivateKeyTemplate.xExp2.type = CKA_EXPONENT_2;
-            xPrivateKeyTemplate.xExp2.pValue = pxExp2 + 1;
-            xPrivateKeyTemplate.xExp2.ulValueLen = EXPONENT_2_LENGTH;
-            xPrivateKeyTemplate.xCoefficient.type = CKA_COEFFICIENT;
-            xPrivateKeyTemplate.xCoefficient.pValue = pxCoefficient + 1;
-            xPrivateKeyTemplate.xCoefficient.ulValueLen = COEFFICIENT_LENGTH;
-            xPrivateKeyTemplate.xTokenObject.type = CKA_TOKEN;
-            xPrivateKeyTemplate.xTokenObject.pValue = &xTokenStorage;
-            xPrivateKeyTemplate.xTokenObject.ulValueLen = sizeof( xTokenStorage );
-        }
-
-        xResult = pxFunctionList->C_CreateObject( xSession,
-                                                  ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
-                                                  sizeof( PKCS11_PrivateRsaKeyTemplate_t ) / sizeof( CK_ATTRIBUTE ),
-                                                  pxObjectHandle );
-
-        if( NULL != pxModulus )
-        {
-            vPortFree( pxModulus );
-        }
-
-        if( NULL != pxE )
-        {
-            vPortFree( pxE );
-        }
-
-        if( NULL != pxD )
-        {
-            vPortFree( pxD );
-        }
-
-        if( NULL != pxPrime1 )
-        {
-            vPortFree( pxPrime1 );
-        }
-
-        if( NULL != pxPrime2 )
-        {
-            vPortFree( pxPrime2 );
-        }
-
-        if( NULL != pxExp1 )
-        {
-            vPortFree( pxExp1 );
-        }
-
-        if( NULL != pxExp2 )
-        {
-            vPortFree( pxExp2 );
-        }
-
-        if( NULL != pxCoefficient )
-        {
-            vPortFree( pxCoefficient );
         }
     }
 
@@ -337,7 +314,6 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
-
 
 CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
                            uint8_t * pucKey,
@@ -350,21 +326,30 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTrue = CK_TRUE;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_CLASS xClass = CKO_PUBLIC_KEY;
+    int lMbedResult = 0;
+    mbedtls_pk_context xMbedPkContext = { 0 };
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
-    int lMbedResult = 0;
-    mbedtls_pk_context xMbedPkContext;
-
     mbedtls_pk_init( &xMbedPkContext );
+
+    /* Try parsing the private key using mbedtls_pk_parse_key. */
     lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucKey, xKeyLength, NULL, 0 );
 
+    /* If mbedtls_pk_parse_key didn't work, maybe the private key is not included in the input passed in.
+     * Try to parse just the public key. */
     if( lMbedResult != 0 )
     {
         lMbedResult = mbedtls_pk_parse_public_key( &xMbedPkContext, pucKey, xKeyLength );
     }
 
-    if( xPublicKeyType == CKK_RSA )
+    if( lMbedResult != 0 )
+    {
+        DEV_MODE_KEY_PROVISIONING_PRINT( ( "Failed to parse the public key. \r\n" ) );
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
+    if( ( xResult == CKR_OK ) && ( xPublicKeyType == CKK_RSA ) )
     {
         CK_BYTE xPublicExponent[] = { 0x01, 0x00, 0x01 };
         CK_BYTE xModulus[ MODULUS_LENGTH + 1 ] = { 0 };
@@ -380,7 +365,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
             { CKA_CLASS,           &xClass,           sizeof( CK_OBJECT_CLASS )                    },
             { CKA_KEY_TYPE,        &xPublicKeyType,   sizeof( CK_KEY_TYPE )                        },
             { CKA_TOKEN,           &xTrue,            sizeof( xTrue )                              },
-            { CKA_MODULUS,         &xModulus + 1,     MODULUS_LENGTH                               }, /* Extra byte allocated at beginning for 0 padding. */
+            { CKA_MODULUS,         &xModulus + 1,     MODULUS_LENGTH                               },     /* Extra byte allocated at beginning for 0 padding. */
             { CKA_VERIFY,          &xTrue,            sizeof( xTrue )                              },
             { CKA_PUBLIC_EXPONENT, xPublicExponent,   sizeof( xPublicExponent )                    },
             { CKA_LABEL,           pucPublicKeyLabel, strlen( ( const char * ) pucPublicKeyLabel ) }
@@ -391,7 +376,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
                                                   sizeof( xPublicKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
                                                   pxPublicKeyHandle );
     }
-    else if( xPublicKeyType == CKK_EC )
+    else if( ( xResult == CKR_OK ) && ( xPublicKeyType == CKK_EC ) )
     {
         CK_BYTE xEcParams[] = pkcs11DER_ENCODED_OID_P256;
         size_t xLength;
@@ -536,11 +521,12 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
+/* This function can be found in libraries/3rdparty/mbedtls/utils/mbedtls_utils.c. */
 extern int convert_pem_to_der( const unsigned char * pucInput,
                                size_t xLen,
                                unsigned char * pucOutput,
-                               size_t * pxOlen);
-                               
+                               size_t * pxOlen );
+
 
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
@@ -559,7 +545,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTokenStorage = CK_TRUE;
 
     CK_BYTE xSubject[] = "TestSubject";
-    
+
 
     /* Initialize the client certificate template. */
     xCertificateTemplate.xObjectClass.type = CKA_CLASS;
@@ -599,9 +585,9 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
         if( pucDerObject != NULL )
         {
             lConversionReturn = convert_pem_to_der( xCertificateTemplate.xValue.pValue,
-                                                     xCertificateTemplate.xValue.ulValueLen,
-                                                     pucDerObject,
-                                                     &xDerLen );
+                                                    xCertificateTemplate.xValue.ulValueLen,
+                                                    pucDerObject,
+                                                    &xDerLen );
 
             if( 0 != lConversionReturn )
             {

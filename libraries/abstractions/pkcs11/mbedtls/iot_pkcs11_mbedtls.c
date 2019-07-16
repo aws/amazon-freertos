@@ -403,14 +403,14 @@ CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 
 
 /**
-* @brief Add an object that exists in NVM to the application object array.
-*
-* @param[in[ xPalHandle         The handle used by the PKCS #11 PAL for object.
-* @param[out] pxAppHandle       Updated to contain the application handle corresponding to xPalHandle.
-* @param[in]  pcLabel           Pointer to object label.
-* @param[in] xLabelLength       Length of the PKCS #11 label.
-*
-*/
+ * @brief Add an object that exists in NVM to the application object array.
+ *
+ * @param[in[ xPalHandle         The handle used by the PKCS #11 PAL for object.
+ * @param[out] pxAppHandle       Updated to contain the application handle corresponding to xPalHandle.
+ * @param[in]  pcLabel           Pointer to object label.
+ * @param[in] xLabelLength       Length of the PKCS #11 label.
+ *
+ */
 CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                           CK_OBJECT_HANDLE_PTR pxAppHandle,
                           uint8_t * pcLabel,
@@ -1211,9 +1211,10 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
             case ( CKA_CLASS ):
             case ( CKA_KEY_TYPE ):
             case ( CKA_TOKEN ):
+            case ( CKA_SIGN ):
 
                 /* Do nothing.
-                 * At this time there is only token object support.
+                 * At this time there is only token object & signing private key support.
                  * Key type and object type were checked previously. */
                 break;
 
@@ -1839,7 +1840,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
  *                                       pxTemplate.pValue should be set to point to
  *                                       a buffer to receive the attribute value data.
  *                                       If parameter length is unknown,
- *                                       pxTemplate.pValue may be set to NULL, and 
+ *                                       pxTemplate.pValue may be set to NULL, and
  *                                       this function will set the required buffer length
  *                                       in pxTemplate.ulValueLen.
  * @param[in] ulCount                    The number of attributes in the template.
@@ -2330,7 +2331,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         else
         {
             /*xIsObjectWithNoNvmStorage(pxSession->pxFindObjectLabel, strlen(pxSession->pxFindObjectLabel), ) */
-            PKCS11_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
+            PKCS11_WARNING_PRINT( ( "WARN: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
             xResult = CKR_FUNCTION_FAILED;
         }
     }
@@ -2834,7 +2835,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
                     if( lMbedTLSResult != CKR_OK )
                     {
-                        PKCS11_PRINT( ("mbedTLS sign failed with error %d \r\n", lMbedTLSResult) );
+                        PKCS11_PRINT( ( "mbedTLS sign failed with error %d \r\n", lMbedTLSResult ) );
                         xResult = CKR_FUNCTION_FAILED;
                     }
 
