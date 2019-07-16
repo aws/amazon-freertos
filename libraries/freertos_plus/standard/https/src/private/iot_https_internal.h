@@ -50,7 +50,82 @@
 #include "platform/iot_threads.h"
 #include "platform/iot_network.h"
 
+/* Error handling include. */
+#include "private/iot_error.h"
+
 /*-----------------------------------------------------------*/ 
+
+/* Convenience macros for handling errors in a standard way. */
+
+/**
+ * @brief Every public API return an enumeration value with an undelying value of 0 in case of success.
+ */
+#define HTTPS_SUCCEEDED( x )               ( ( x ) == IOT_HTTPS_OK )
+
+/**
+ * @brief Every public API returns an enumeration value with an undelying value different than 0 in case of success.
+ */
+#define HTTPS_FAILED( x )                  ( ( x ) != IOT_HTTPS_OK )
+
+/**
+ * @brief Declare the storage for the error status variable.
+ */
+#define HTTPS_FUNCTION_ENTRY( result )    IOT_FUNCTION_ENTRY( IotHttpsReturnCode_t, result )
+
+/**
+ * @brief Jump to the cleanup area.
+ */
+#define HTTPS_GOTO_CLEANUP()              IOT_GOTO_CLEANUP()
+
+/**
+ * @brief Set error and leave.
+ */
+#define HTTPS_SET_AND_GOTO_CLEANUP( statusValue )         IOT_SET_AND_GOTO_CLEANUP( statusValue )
+
+/**
+ * @brief Initialize error and declare start of cleanup area.
+ */
+#define HTTPS_FUNCTION_CLEANUP_BEGIN()              IOT_FUNCTION_CLEANUP_BEGIN()
+
+/**
+ * @brief Initialize error and declare end of cleanup area.
+ */
+#define HTTPS_FUNCTION_CLEANUP_END()                IOT_FUNCTION_CLEANUP_END()
+
+/**
+ * @brief Create an empty cleanup area.
+ */
+#define HTTPS_FUNCTION_EXIT_NO_CLEANUP()            IOT_FUNCTION_EXIT_NO_CLEANUP()
+
+/**
+ * @brief Exit if an argument is NULL.
+ */
+#define HTTPS_ON_NULL_ARG_GOTO_CLEANUP( ptr )                           \
+    if( (ptr == NULL) )                                                 \
+    {                                                                   \
+        IotLogError( #ptr " was NULL." );                               \
+        IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INVALID_PARAMETER );        \
+    }                                                                   
+
+/**
+ * @brief Exit if an condition is false.
+ */
+#define HTTPS_ON_ARG_ERROR_GOTO_CLEANUP( expr )                         \
+    if( ( expr ) == false )                                             \
+    {                                                                   \
+        IotLogError( #expr " must be true." );                          \
+        IOT_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INVALID_PARAMETER );        \
+    }               
+
+/**
+ * @brief Exit if an argument is false with a message.
+ */
+#define HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( expr, statusValue, ... )   \
+    if( ( expr ) == false )                                             \
+    {                                                                   \
+        IotLogError( __VA_ARGS__ );                                     \
+        IOT_SET_AND_GOTO_CLEANUP( statusValue );                        \
+    }
 
 /* Configure logs for HTTPS Client functions. */
 #ifdef IOT_LOG_LEVEL_HTTPS
@@ -122,24 +197,31 @@
 /*
  * Constants for the values of the HTTP "Connection" header field.
  * 
- * This is used for writing headers automatically in during the sending of the HTTP request.
+ * This is used for writing headers automatically during the sending of the HTTP request.
  * "Connection: keep-alive\r\n" is written automatically for a persistent connection.
- * "Connection: close\r\n" is written automatically for a closed connection.
+ * "Connection: close\r\n" is written automatically for a non-persistent connection.
  */
 #define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE    "keep-alive"
-#define HTTPS_CONNECTION_CLOSE_HEADER_VALUE         "closed"
+#define HTTPS_CONNECTION_CLOSE_HEADER_VALUE         "close"
 
 /**
- * Constants for HTTP header formatting. 
- * 
+ * Constants for HTTP header formatting.
+ *
  * ": " separates and header field from the header value.
- * "\r\n" Ends the header line.
  */
 #define HTTPS_HEADER_FIELD_SEPARATOR                ": "
+#define HTTPS_HEADER_FIELD_SEPARATOR_LENGTH         ( 2 )
+
+/**
+ * Constants for HTTP header formatting.
+ *
+ * "\r\n" Ends the header line.
+ */
 #define HTTPS_END_OF_HEADER_LINES_INDICATOR         "\r\n"
+#define HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH  ( 2 )
 
 /*
- * Constants for header fields added automatically in the request initialization.
+ * Constants for header fields added automatically during the request initialization.
  */
 #define HTTPS_USER_AGENT_HEADER                     "User-Agent"
 #define HTTPS_HOST_HEADER                           "Host"
@@ -149,6 +231,14 @@
  */
 #define HTTPS_CONTENT_LENGTH_HEADER                 "Content-Length"
 #define HTTPS_CONNECTION_HEADER                     "Connection"
+
+/**
+ * @brief Macro for fast string length calculation of string macros.
+ * 
+ * We subtract 1 to subtract the NULL terminating character.
+ * We do not assume that the size of a character is a single byte or 8 bits with this calculation.
+ */
+#define FAST_MACRO_STRLEN( x )  (sizeof( x ) / sizeof( char )) - 1
 
 /*-----------------------------------------------------------*/ 
 
@@ -176,14 +266,14 @@
  * PARSER_STATE_NONE is assigned to #_httpsResponse_t.parserState when the _httpsResponse_t.parserState is initialized 
  * in @ref IotHttpsClient_InitializeRequest and before parsing a new respone message from the server.
  * 
- * PARSER_STATE_IN_HEADERS is assigned the start of the HTTP Response message. This occurs in the 
+ * PARSER_STATE_IN_HEADERS is assigned at the start of the HTTP Response message. This occurs in the 
  * _httpParserOnMessageBeginCallback(). HTTP headers are always first and there is always the response status line
  * and some headers in a response message acccording to RFC 2616.
  * 
  * PARSER_STATE_HEADERS_COMPLETE is assigned when all of the headers are finished being parsed in the HTTP response
  * message. This occurs in the _httpParserOnHeadersCompleteCallback(). The state can end here if the response has no
  * body, like for a response to a HEAD request. 
- * If this state is not reached, after receiving headers from the network into the user configured header buffer and 
+ * If this state is not reached after receiving headers from the network into the user configured header buffer and 
  * running it through the parser, then we know that not all of the headers from the response could fit into the buffer.
  * 
  * PARSER_STATE_IN_BODY is assigned each time the parser reaches HTTP response body. This occurs in the 
@@ -191,7 +281,7 @@
  * 
  * PARSER_STATE_BODY_COMPLETE is assigned when the parser has finished with the whole HTTP response message. This 
  * happens when _httpParserOnMessageCompleteCallback() is invoked.
- * If this state is not reached, after receiving body from the network into the user configured body buffer and 
+ * If this state is not reached after receiving body from the network into the user configured body buffer and 
  * running it through the parser, then we know that not all of the body from the response could fit into the buffer.
  */
 typedef enum IotHttpsResponseParserState {
@@ -203,7 +293,7 @@ typedef enum IotHttpsResponseParserState {
 } IotHttpsResponseParserState_t;
 
 /**
- * @brief The state denoting which buffer (the header buffer or the body buffer) that is currently being processed
+ * @brief The state denoting which buffer (the header buffer or the body buffer) is currently being processed
  * and for what.
  * 
  * This state is set outside of the parser callbacks and used inside the of parser callbacks to determine actions.
@@ -212,7 +302,7 @@ typedef enum IotHttpsResponseParserState {
  * Receiving and parsing a response: PROCESSING_STATE_NONE --> PROCESSING_STATE_FILLING_HEADER_BUFFER --> PROCESSING_STATE_FILLING_BODY_BUFFER --> PROCESSING_STATE_FINISHED
  * Searching a response for headers: ((enter state)) --> PROCESSING_STATE_SEARCHING_HEADER_BUFFER --> ((enter state))
  * 
- * PROCESSING_STATE_NONE is assigned when #_httpsResponse_t.bufferProcessingState is being initialize in 
+ * PROCESSING_STATE_NONE is assigned when #_httpsResponse_t.bufferProcessingState is initialized in 
  * @ref IotHttpsClient_InitializeRequest.
  * 
  * PROCESSING_STATE_FILLING_HEADER_BUFFER is assigned at the start of receiving HTTP response headers from the network 
@@ -253,7 +343,7 @@ typedef enum IotHttpsResponseBufferState {
     PROCESSING_STATE_FILLING_HEADER_BUFFER,     /**< @brief The header buffer is being filled and parsed. */
     PROCESSING_STATE_FILLING_BODY_BUFFER,       /**< @brief The body buffer is being filled and parsed. */
     PROCESSING_STATE_FINISHED,                  /**< @brief Filling and parsing of both buffers is finished. */
-    PROCESSING_STATE_SEARCHING_HEADER_BUFFER    /**< @brief The header buffer is being search. */
+    PROCESSING_STATE_SEARCHING_HEADER_BUFFER    /**< @brief The header buffer is being searched. */
 } IotHttpsResponseBufferState_t;
 
 /*-----------------------------------------------------------*/ 
@@ -269,8 +359,8 @@ typedef struct _httpsConnection
     IotSemaphore_t rxStartSem;                  /**< @brief Semaphore indicating that data on the network is ready to read. */
     IotSemaphore_t rxFinishSem;                 /**< @brief Semaphore indicating that the data on the network is done being read. */
     uint32_t timeout;                           /**< @brief Timeout for a connection and waiting for a response from the network. */
-    bool isConnected;                           /**< @brief true if a connection was successful most recently on this context. We have not way of knowing if the 
-                                                            serving closed the connection on us because that error is unique to the underlying TLS layer. This is set
+    bool isConnected;                           /**< @brief true if a connection was successful most recently on this context. We have no way of knowing if the 
+                                                            server closed the connection because that error is unique to the underlying TLS layer. This is set
                                                             to false initially, set to true for a successful intentional call to connect, and then set to false only
                                                             after an explicit disconnect with a non-persistent request or a call to @ref https_client_function_disconnect. */
 } _httpsConnection_t;
@@ -289,24 +379,24 @@ typedef struct _httpParserInfo
  */
 typedef struct _httpsResponse
 {
-    uint8_t * pHeaders;     /**< @brief Pointer to the start of the headers buffer. */
-    uint8_t * pHeadersEnd;  /**< @brief Pointer to the end of the headers buffer. */
-    uint8_t * pHeadersCur;  /**< @brief Pointer to the next location to fill in the headers buffer. */
-    uint8_t * pBody;        /**< @brief Pointer to the start of the body buffer. */
-    uint8_t * pBodyCur;     /**< @brief Pointer to the next location to fill in the body buffer. */
-    uint8_t * pBodyEnd;     /**< @brief Pointer to the end of the body buffer. */
+    uint8_t * pHeaders;         /**< @brief Pointer to the start of the headers buffer. */
+    uint8_t * pHeadersEnd;      /**< @brief Pointer to the end of the headers buffer. */
+    uint8_t * pHeadersCur;      /**< @brief Pointer to the next location to write in the headers buffer. */
+    uint8_t * pBody;            /**< @brief Pointer to the start of the body buffer. */
+    uint8_t * pBodyEnd;         /**< @brief Pointer to the end of the body buffer. */
+    uint8_t * pBodyCur;         /**< @brief Pointer to the next location to write in the body buffer. */
     _httpParserInfo_t httpParserInfo;    /** @brief Third party http-parser information. */
-    uint16_t status;        /**< @brief The HTTP response status code of this response. */
+    uint16_t status;            /**< @brief The HTTP response status code of this response. */
     IotHttpsMethod_t method;    /**< @brief The method of the originating request. */
-    uint32_t contentLength; /**< @brief The content length of the response body. This is zero when no Content-Length header was parsed the header buffer. */
+    uint32_t contentLength;     /**< @brief The content length of the response body. This is initialized to zero and is updated when Content-Length header is parsed from the header buffer. */
     IotHttpsResponseParserState_t parserState;  /**< @brief The current state of the parser. See #IotHttpsResponseParserState_t documentation for more details. */
     IotHttpsResponseBufferState_t bufferProcessingState;    /**< @brief Which buffer is currently being processed and for what. See #IotHttpsResponseBufferState_t documentation. */
-    char * pReadHeaderField; /**< @brief Header field that we want to read from the header buffer from calling IotHttpsClient_ReadHeader(). */
-    char * pReadHeaderValue; /**< @brief Header value that we read from the headers buffer from calling IotHttpsClient_ReadHeader(). */
+    char * pReadHeaderField; /**< @brief Header field that we want to read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
+    char * pReadHeaderValue; /**< @brief Header value that we read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
     size_t readHeaderValueLength;   /**< @brief Length of pReadHeaderValue. */
     bool foundHeaderField;  /**< @brief State to use during parsing to let us know when we found the header field in the https-parser callbacks. 
-                                        This is set to true when the header field is found in [parser callback _httpParserOnHeaderFieldCallback().
-                                        On the following parser callback _httpParserOnHeaderValueCallback() we will store the value in pReadHeaderValue then exit the parsing. */
+                                        This is set to true when the header field is found in parser callback _httpParserOnHeaderFieldCallback().
+                                        On the following parser callback _httpParserOnHeaderValueCallback() we will store the value in pReadHeaderValue and then exit the parsing. */
     struct _httpsConnection *pHttpsConnection;    /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync(). This is needed during the asynchronous workflow to receive data given the respHandle only in the callback. */
     struct _httpsRequest *pHttpsRequest;        /**< @brief Request associated with response. This is set during IotHttpsClient_InitializeRequest(). */
 } _httpsResponse_t;
@@ -318,14 +408,14 @@ typedef struct _httpsRequest
 {
     uint8_t * pHeaders;     /**< @brief Pointer to the start of the headers buffer. */
     uint8_t * pHeadersEnd;  /**< @brief Pointer to the end of the headers buffer. */
-    uint8_t * pHeadersCur;  /**< @brief Pointer to the next location to fill in the headers buffer. */
+    uint8_t * pHeadersCur;  /**< @brief Pointer to the next location to write in the headers buffer. */
     uint8_t * pBody;        /**< @brief Pointer to the start of the body buffer. */
     uint32_t bodyLength;    /**< @brief Length of request body buffer. */
     IotHttpsConnectionInfo_t* pConnInfo;    /**< @brief Connection info associated with this request. For an implicit connection. */
     struct _httpsResponse *pHttpsResponse;     /**< @brief Response associated with request. This is initialized during IotHttpsClient_InitializeRequest(), then returned to the application in IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
     struct _httpsConnection *pHttpsConnection;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync(). It is needed for the asynchronous workflow to use to send data given the reqHandle only in the callback. */
     uint32_t contentLength; /**< @brief The content length of the request body. */
-    bool isNonPersistent;     /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the rresponse. */
+    bool isNonPersistent;     /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the response. */
 } _httpsRequest_t;
 
 /*-----------------------------------------------------------*/
