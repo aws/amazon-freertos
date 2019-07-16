@@ -46,9 +46,7 @@
 BTProperties_t xProperties;
 static BTCallbacks_t xBTCallbacks;
 
-static const char * tag = "AFR";
 uint16_t usGattConnHandle;
-
 
 BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks );
 BTStatus_t prvBtManagerCleanup( void );
@@ -96,6 +94,15 @@ BTStatus_t prvBTGetTxpower( const BTBdaddr_t * pxBdAddr,
 const void * prvGetClassicAdapter();
 const void * prvGetLeAdapter();
 
+static const uint8_t ble_sm_sc_ioa[ 5 /*resp*/ ][ 5 /*init*/ ] =
+{
+      /* init */
+/*r*/ {BLE_SM_IOACT_NONE,    BLE_SM_IOACT_NONE,   BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_DISP},
+/*e*/ {BLE_SM_IOACT_NONE,    BLE_SM_IOACT_NUMCMP, BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NUMCMP},
+/*s*/ {BLE_SM_IOACT_INPUT,   BLE_SM_IOACT_INPUT,  BLE_SM_IOACT_INPUT, BLE_SM_IOACT_NONE, BLE_SM_IOACT_INPUT},
+/*p*/ {BLE_SM_IOACT_NONE,    BLE_SM_IOACT_NONE,   BLE_SM_IOACT_NONE,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NONE},
+      {BLE_SM_IOACT_INPUT,   BLE_SM_IOACT_NUMCMP, BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NUMCMP},
+};
 
 static BTInterface_t xBTinterface =
 {
@@ -169,21 +176,15 @@ int prvGAPeventHandler( struct ble_gap_event * event,
         case BLE_GAP_EVENT_CONNECT:
             usGattConnHandle = event->connect.conn_handle;
             /* A new connection was established or a connection attempt failed. */
-            MODLOG_DFLT( INFO, "connection %s; status=%d ",
+            ESP_LOGI( TAG, "connection %s; status=%d ",
                          event->connect.status == 0 ? "established" : "failed",
                          event->connect.status );
 
             if( event->connect.status == 0 )
             {
+                connected = true;
                 rc = ble_gap_conn_find( event->connect.conn_handle, &desc );
                 assert( rc == 0 );
-            }
-
-            MODLOG_DFLT( INFO, "\n" );
-
-            if( event->connect.status == 0 )
-            {
-                connected = true;
             }
 
             if( xGattServerCb.pxConnectionCb != NULL )
@@ -195,8 +196,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_DISCONNECT:
             usGattConnHandle = 0xffff;
-            MODLOG_DFLT( INFO, "disconnect; reason=%d ", event->disconnect.reason );
-            MODLOG_DFLT( INFO, "\n" );
+            ESP_LOGI( TAG, "disconnect; reason=%d ", event->disconnect.reason );
 
             if( xGattServerCb.pxConnectionCb != NULL )
             {
@@ -206,8 +206,9 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return 0;
 
         case BLE_GAP_EVENT_CONN_UPDATE:
-            MODLOG_DFLT( INFO, "connection updated; status=%d ",
+            ESP_LOGI( TAG, "connection updated; status=%d ",
                          event->conn_update.status );
+
             return 0;
 
         case BLE_GAP_EVENT_CONN_UPDATE_REQ:
@@ -227,51 +228,46 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return 0;
 
         case BLE_GAP_EVENT_ADV_COMPLETE:
-            MODLOG_DFLT( INFO, "advertise complete; reason=%d",
+            ESP_LOGI( TAG, "advertise complete; reason=%d",
                          event->adv_complete.reason );
+
             return 0;
 
+        case BLE_GAP_EVENT_PAIRING_REQUEST:
+            if( xBTCallbacks.pxSspRequestCb != NULL )
+            {
+                rc = ble_gap_conn_find( event->pairing_req.conn_handle, &desc );
+                xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) desc.peer_id_addr.val,
+                                             NULL,
+                                             0,
+                                             eBTsspVariantConsent,
+                                             0 );
+            }
+
+            if( ble_hs_cfg.sm_sc && ( event->pairing_req.authreq & BLE_SM_PAIR_AUTHREQ_SC ) &&
+                ( ble_sm_sc_ioa[ ble_hs_cfg.sm_io_cap ][ event->pairing_req.io_cap ] == BLE_SM_IOACT_NONE ) )
+            {
+                ESP_LOGE( TAG, "Just works in Secure Connections only mode" );
+
+                if( xBTCallbacks.pxPairingStateChangedCb != NULL )
+                {
+                    xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
+                            eBTbondStateNone,
+                            eBTSecLevelNoSecurity,
+                            eBTauthFailInsuffSecurity );
+                }
+                return BLE_SM_ERR_AUTHREQ;
+            }
+            else
+            {
+                return 0;
+            }
         case BLE_GAP_EVENT_ENC_CHANGE:
             /* Encryption has been enabled or disabled for this connection. */
-            MODLOG_DFLT( INFO, "encryption change event; status=%d ",
+            ESP_LOGI( TAG, "encryption change event; status=%d ",
                          event->enc_change.status );
             rc = ble_gap_conn_find( event->enc_change.conn_handle, &desc );
             assert( rc == 0 );
-            MODLOG_DFLT( INFO, "\n" );
-            /* Check peer parameters and if SC only and authenticated is 0 then send SSP request event with consent, else*/
-
-            if( ble_hs_cfg.sm_sc )
-            {
-                if( desc.sec_state.encrypted )
-                {
-                    if( !desc.sec_state.authenticated )
-                    {
-                        if( xBTCallbacks.pxSspRequestCb != NULL )
-                        {
-                            xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                                         NULL,
-                                                         0,
-                                                         eBTsspVariantConsent,
-                                                         0 );
-                        }
-
-                        if( xBTCallbacks.pxPairingStateChangedCb != NULL )
-                        {
-                            xSecurityLevel = prvConvertESPauthModeToSecurityLevel( desc );
-
-                            if( xSecurityLevel )
-                            {
-                                xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                                                      eBTbondStateBonded,
-                                                                      xSecurityLevel,
-                                                                      0 );
-                            }
-                        }
-
-                        return 0;
-                    }
-                }
-            }
 
             if( desc.sec_state.bonded )
             {
@@ -289,19 +285,26 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             {
                 xSecurityLevel = prvConvertESPauthModeToSecurityLevel( desc );
 
-                if( xSecurityLevel )
+                if( event->enc_change.status == 0 )
                 {
                     xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess, ( BTBdaddr_t * ) desc.peer_id_addr.val,
                                                           xBondedState,
                                                           xSecurityLevel,
-                                                          0 );
+                                                          eBTauthSuccess );
+                }
+                else
+                {
+                    xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
+                                                          xBondedState,
+                                                          xSecurityLevel,
+                                                          eBTauthFailInsuffSecurity );
                 }
             }
 
             return 0;
 
         case BLE_GAP_EVENT_NOTIFY_RX:
-            MODLOG_DFLT( INFO, "notification rx event; attr_handle=%d indication=%d "
+            ESP_LOGI( TAG, "notification rx event; attr_handle=%d indication=%d "
                                "len=%d",
                          event->notify_rx.attr_handle,
                          event->notify_rx.indication,
@@ -320,7 +323,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_SUBSCRIBE:
             rc = ble_gap_conn_find( event->subscribe.conn_handle, &desc );
-            MODLOG_DFLT( DEBUG, "subscribe event; conn_handle=%d attr_handle=%d "
+            ESP_LOGI( TAG, "subscribe event; conn_handle=%d attr_handle=%d "
                                 "reason=%d prevn=%d curn=%d previ=%d curi=%d\n",
                          event->subscribe.conn_handle,
                          event->subscribe.attr_handle,
@@ -369,7 +372,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             break;
 
         case BLE_GAP_EVENT_MTU:
-            MODLOG_DFLT( INFO, "mtu update event; conn_handle=%d cid=%d mtu=%d\n",
+            ESP_LOGI( TAG, "mtu update event; conn_handle=%d cid=%d mtu=%d\n",
                          event->mtu.conn_handle,
                          event->mtu.channel_id,
                          event->mtu.value );
@@ -398,17 +401,8 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return BLE_GAP_REPEAT_PAIRING_RETRY;
 
         case BLE_GAP_EVENT_PASSKEY_ACTION:
-            ESP_LOGI( tag, "PASSKEY_ACTION_EVENT started %d\n", event->passkey.params.action );
+            ESP_LOGI( TAG, "PASSKEY_ACTION_EVENT started %d\n", event->passkey.params.action );
             rc = ble_gap_conn_find( event->passkey.conn_handle, &desc );
-
-            if( xBTCallbacks.pxSspRequestCb != NULL )
-            {
-                xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                             NULL,
-                                             0,
-                                             eBTsspVariantConsent,
-                                             0 );
-            }
 
             if( event->passkey.params.action == BLE_SM_IOACT_DISP )
             {
@@ -417,7 +411,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                     xBTCallbacks.pxSspRequestCb( ( BTBdaddr_t * ) desc.peer_id_addr.val,
                                                  NULL,
                                                  0,
-                                                 eBTsspVariantConsent,
+                                                 eBTsspVariantPasskeyNotification,
                                                  0 );
                 }
             }
@@ -453,7 +447,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 /*-----------------------------------------------------------*/
 static void bleprph_on_reset( int reason )
 {
-    MODLOG_DFLT( ERROR, "Resetting state; reason=%d\n", reason );
+    ESP_LOGE( TAG, "Resetting state; reason=%d\n", reason );
 }
 
 static void bleprph_on_sync( void )
@@ -591,7 +585,10 @@ BTStatus_t prvGetBondableDeviceList( void )
         xBondedDevices.xLen = 0;
         xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
         xBondedDevices.pvVal = NULL;
-        xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xBondedDevices );
+        if( xBTCallbacks.pxAdapterPropertiesCb != NULL )
+        {
+            xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xBondedDevices );
+        }
         return eBTStatusSuccess;
     }
 
@@ -619,7 +616,10 @@ BTStatus_t prvGetBondableDeviceList( void )
 
     xBondedDevices.xLen = usNbDevices;
     xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
-    xBTCallbacks.pxAdapterPropertiesCb( xStatus, 1, &xBondedDevices );
+    if( xBTCallbacks.pxAdapterPropertiesCb != NULL )
+    {
+        xBTCallbacks.pxAdapterPropertiesCb( xStatus, 1, &xBondedDevices );
+    }
 
     vPortFree( pxESPDevlist );
     vPortFree( xBondedDevices.pvVal );
@@ -871,7 +871,7 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
 
     xESPStatus = ble_store_util_delete_peer( &ble_addr );
 
-    if( xESPStatus != ESP_OK )
+    if( xESPStatus != 0 )
     {
         xStatus = eBTStatusFail;
     }
@@ -926,20 +926,26 @@ BTStatus_t prvBTSspReply( const BTBdaddr_t * pxBdAddr,
             break;
 
         case eBTsspVariantPasskeyEntry:
-            pkey.action = BLE_SM_IOACT_DISP;
+            pkey.action = BLE_SM_IOACT_INPUT;
             pkey.passkey = ulPasskey;
             xESPStatus = ble_sm_inject_io( usGattConnHandle, &pkey );
             break;
 
         case eBTsspVariantPasskeyNotification:
+            pkey.action = BLE_SM_IOACT_DISP;
+            pkey.passkey = ulPasskey;
+            xESPStatus = ble_sm_inject_io( usGattConnHandle, &pkey );
+            break;
+
         case eBTsspVariantConsent:
+            /* Not used: Placeholder for NimBLE */
             break;
 
         default:
             break;
     }
 
-    if( xESPStatus != ESP_OK )
+    if( xESPStatus != 0 )
     {
         xStatus = eBTStatusFail;
     }

@@ -1067,4 +1067,5 @@ config BT_RESERVE_DRAM
     default 0x10000 if BT_ENABLED
     default 0
 
+source "$IDF_PATH/components/nimble/Kconfig.in"
 endmenu

@@ -293,7 +293,10 @@ BTStatus_t prvBTRegisterBleApp( BTUuid_t * pxAppUuid )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xBTBleAdapterCallbacks.pxRegisterBleAdapterCb( eBTStatusSuccess, 0, pxAppUuid );
+    if( xBTBleAdapterCallbacks.pxRegisterBleAdapterCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxRegisterBleAdapterCb( eBTStatusSuccess, 0, pxAppUuid );
+    }
 
     return xStatus;
 }
@@ -422,7 +425,10 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
         xStatus = eBTStatusFail;
     }
 
-    xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, ulGattServerIFhandle );
+    if( xBTBleAdapterCallbacks.pxAdvStartCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, ulGattServerIFhandle );
+    }
     return xStatus;
 }
 
@@ -579,8 +585,17 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         }
     }
 
-    fields.mfg_data = ( uint8_t * ) pcManufacturerData;
-    fields.mfg_data_len = usManufacturerLen;
+    if( usManufacturerLen && pcManufacturerData )
+    {
+        fields.mfg_data = ( uint8_t * ) pcManufacturerData;
+        fields.mfg_data_len = usManufacturerLen;
+    }
+
+    if( usServiceDataLen && pcServiceData )
+    {
+        fields.svc_data_uuid128 = (uint8_t *) pcServiceData;
+        fields.svc_data_uuid128_len = usServiceDataLen;
+    }
 
     if( pxServiceUuid != NULL )
     {
@@ -622,7 +637,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     if( pxParams->usAdvertisingEventProperties == BTAdvDirectInd )
     {
         xAdv_params.conn_mode = BLE_GAP_CONN_MODE_DIR;
-        /*HD: set adv_params->high_duty_cycle accordingly */
+        /* fixme: set adv_params->high_duty_cycle accordingly */
     }
 
     if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )
@@ -650,7 +665,10 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         xStatus = eBTStatusFail;
     }
 
-    xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    }
 
     return xStatus;
 }
