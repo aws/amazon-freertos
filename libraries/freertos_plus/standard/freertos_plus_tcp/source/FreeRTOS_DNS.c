@@ -420,7 +420,7 @@ uint32_t FreeRTOS_gethostbyname_a( const char *pcHostName, FOnDNSEvent pCallback
 uint32_t ulIPAddress = 0UL;
 TickType_t xReadTimeOut_ms = ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME;
 TickType_t xIdentifier = 0;
-if(pcHostName) {
+if(pcHostName != NULL) {
 
 	/* If the supplied hostname is IP address, convert it to uint32_t
 	and return. */
@@ -481,9 +481,10 @@ if(pcHostName) {
 	{
 		ulIPAddress = prvGetHostByName( pcHostName, xIdentifier, xReadTimeOut_ms );
 	}
-
-	return ulIPAddress;
   }
+
+  return ulIPAddress;
+
 }
 /*-----------------------------------------------------------*/
 
