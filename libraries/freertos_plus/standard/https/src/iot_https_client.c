@@ -1436,7 +1436,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
     /* Do not attempt to disconnect an already disconnected connection.
     It can happen when a user calls this functions and we return
     IOT_HTTPS_BUSY. */
-    if( connHandle->isConnected == false )
+    if( connHandle->isConnected )
     {
         /* Mark the network as disconnected whether the disconnect passes or not. */
         connHandle->isConnected = false;
