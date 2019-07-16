@@ -422,6 +422,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
+/* NOTE: C_GenerateKeyPair for RSA keys is not supported by AFR mbedTLS PKCS #11 port. */
 CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
                                     uint8_t * pucPrivateKeyLabel,
                                     uint8_t * pucPublicKeyLabel,
@@ -435,8 +436,7 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
     };
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ULONG xModulusBits = 2048;
-    CK_BYTE xPublicExponent[] = { 0x01, 0x00, 0x01 };
-    CK_BYTE xSubject[] = { 0x01, 0x02 };
+    CK_BYTE xPublicExponent[] = pkcs11RSA_2048_PUBLIC_EXPONENT;
 
     CK_BBOOL xTrue = CK_TRUE;
     CK_ATTRIBUTE xPublicKeyTemplate[] =
@@ -452,7 +452,6 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
     {
         { CKA_TOKEN,   &xTrue,             sizeof( xTrue )                               },
         { CKA_PRIVATE, &xTrue,             sizeof( xTrue )                               },
-        { CKA_SUBJECT, xSubject,           sizeof( xSubject )                            },
         { CKA_DECRYPT, &xTrue,             sizeof( xTrue )                               },
         { CKA_SIGN,    &xTrue,             sizeof( xTrue )                               },
         { CKA_LABEL,   pucPrivateKeyLabel, strlen( ( const char * ) pucPrivateKeyLabel ) }
@@ -544,6 +543,10 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     size_t xDerLen = 0;
     CK_BBOOL xTokenStorage = CK_TRUE;
 
+    /* TODO: Subject is a required attribute.
+     * Currently, this field is not used by AFR ports,
+     * this should be updated so that subject matches proper
+     * format for future ports. */
     CK_BYTE xSubject[] = "TestSubject";
 
 

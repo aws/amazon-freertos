@@ -56,6 +56,11 @@
  */
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
 
+ /**
+ * @brief Public exponent for RSA - 2048
+ */
+#define pkcs11RSA_2048_PUBLIC_EXPONENT       { 0x01, 0x00, 0x01 }
+
 /**
  * @brief Length of PKCS #11 signature for RSA 2048 key, in bytes.
  */
@@ -73,17 +78,18 @@
  * @brief Elliptic-curve object identifiers.
  * From https://tools.ietf.org/html/rfc6637#section-11.
  */
-#define pkcs11ELLIPTIC_CURVE_NISTP256    "1.2.840.10045.3.1.7"
+#define pkcs11ELLIPTIC_CURVE_NISTP256        "1.2.840.10045.3.1.7"
 
 /**
  * @brief Maximum length of storage for PKCS #11 label, in bytes.
  */
-#define pkcs11MAX_LABEL_LENGTH           32   /* 31 characters + 1 null terminator. */
+#define pkcs11MAX_LABEL_LENGTH               32 /* 31 characters + 1 null terminator. */
 
 /**
  * @brief OID for curve P-256.
  */
-#define pkcs11DER_ENCODED_OID_P256       { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
+#define pkcs11DER_ENCODED_OID_P256           { 0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07 }
+
 
 /**
  * @brief Set to 1 if importing private keys is supported.
