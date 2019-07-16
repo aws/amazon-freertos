@@ -1185,7 +1185,7 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
 
     if( pResult != NULL )
     {
-        IotLogDebug( "(MQTT connection %p) Found operation %s." ,
+        IotLogDebug( "(MQTT connection %p) Found operation %s.",
                      pMqttConnection,
                      IotMqtt_OperationType( type ) );
 

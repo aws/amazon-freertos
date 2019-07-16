@@ -536,7 +536,7 @@ const char * IotTaskPool_strerror( IotTaskPoolError_t status );
  * a memory pool.
  */
 #ifndef IOT_TASKPOOLS
-#define IOT_TASKPOOLS                          ( 4 )
+    #define IOT_TASKPOOLS    ( 4 )
 #endif
 
 /**

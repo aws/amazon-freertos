@@ -232,7 +232,7 @@ static void ExecutionWithoutDestroyCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
+    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -258,7 +258,7 @@ static void ExecutionBlockingWithoutDestroyCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
+    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -285,7 +285,7 @@ static void ExecutionWithRecycleCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
+    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -313,7 +313,7 @@ static void ExecutionLongWithoutDestroyCb( IotTaskPool_t pTaskPool,
     IotTaskPoolError_t error;
     IotTaskPoolJobStatus_t status;
 
-    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
+    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );
@@ -342,7 +342,7 @@ static void BlankExecution( IotTaskPool_t pTaskPool,
     ( void ) pJob;
     ( void ) pContext;
 
-    //TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false );
+    /*TEST_ASSERT( IotLink_IsLinked( &pJob->link ) == false ); */
 
     error = IotTaskPool_GetStatus( pTaskPool, pJob, &status );
     TEST_ASSERT( ( status == IOT_TASKPOOL_STATUS_COMPLETED ) || ( status == IOT_TASKPOOL_STATUS_UNDEFINED ) );

@@ -123,7 +123,7 @@ CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
 extern int convert_pem_to_der( const unsigned char * pucInput,
                                size_t xLen,
                                unsigned char * pucOutput,
-                               size_t * pxOlen);
+                               size_t * pxOlen );
 /*-----------------------------------------------------------*/
 
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,

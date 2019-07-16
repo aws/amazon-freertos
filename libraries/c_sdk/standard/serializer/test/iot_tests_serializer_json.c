@@ -82,7 +82,7 @@ TEST_GROUP_RUNNER( Full_Serializer_JSON )
 
 TEST( Full_Serializer_JSON, Encoder_init_with_null_buffer )
 {
-    IotSerializerEncoderObject_t encoderObject = {.type = ( IotSerializerDataType_t ) 0 };
+    IotSerializerEncoderObject_t encoderObject = { .type = ( IotSerializerDataType_t ) 0 };
     IotSerializerEncoderObject_t arrayObject = IOT_SERIALIZER_ENCODER_CONTAINER_INITIALIZER_ARRAY;
 
     TEST_ASSERT_EQUAL( IOT_SERIALIZER_SUCCESS,

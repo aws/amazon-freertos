@@ -35,8 +35,8 @@
 
 typedef struct iot_mutex_internal
 {
-    StaticSemaphore_t xMutex;      /**< FreeRTOS mutex. */
-    BaseType_t recursive;                /**< Type; used for indicating if this is reentrant or normal. */
+    StaticSemaphore_t xMutex; /**< FreeRTOS mutex. */
+    BaseType_t recursive;     /**< Type; used for indicating if this is reentrant or normal. */
 } iot_mutex_internal_t;
 
 /**
@@ -46,7 +46,7 @@ typedef iot_mutex_internal_t _IotSystemMutex_t;
 
 typedef struct iot_sem_internal
 {
-    StaticSemaphore_t xSemaphore;       /**< FreeRTOS semaphore. */
+    StaticSemaphore_t xSemaphore; /**< FreeRTOS semaphore. */
 } iot_sem_internal_t;
 
 /**
@@ -60,8 +60,8 @@ typedef iot_sem_internal_t _IotSystemSemaphore_t;
  */
 typedef struct threadInfo
 {
-    void * pArgument;                 /**< @brief Argument to `threadRoutine`. */
-    void ( *threadRoutine )( void * );/**< @brief Thread function to run. */
+    void * pArgument;                   /**< @brief Argument to `threadRoutine`. */
+    void ( * threadRoutine )( void * ); /**< @brief Thread function to run. */
 } threadInfo_t;
 
 /**
@@ -69,11 +69,11 @@ typedef struct threadInfo
  */
 typedef struct timerInfo
 {
-    TimerHandle_t timer;                    /**< @brief Underlying timer. */
-    void ( *threadRoutine )( void * );      /**< @brief Thread function to run on timer expiration. */
-    void * pArgument;                       /**< @brief First argument to threadRoutine. */
-    StaticTimer_t xTimerBuffer;             /**< Memory that holds the FreeRTOS timer. */
-    TickType_t xTimerPeriod;                /**< Period of this timer. */
+    TimerHandle_t timer;                /**< @brief Underlying timer. */
+    void ( * threadRoutine )( void * ); /**< @brief Thread function to run on timer expiration. */
+    void * pArgument;                   /**< @brief First argument to threadRoutine. */
+    StaticTimer_t xTimerBuffer;         /**< Memory that holds the FreeRTOS timer. */
+    TickType_t xTimerPeriod;            /**< Period of this timer. */
 } timerInfo_t;
 
 /**

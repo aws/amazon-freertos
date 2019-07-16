@@ -56,7 +56,9 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
                                   size_t hash_len,
                                   unsigned char * sig,
                                   size_t * sig_len,
-                                  int ( *f_rng )( void *, unsigned char *, size_t ),
+                                  int ( * f_rng )( void *,
+                                                   unsigned char *,
+                                                   size_t ),
                                   void * p_rng );
 
 #define PKCS11_PRINT( X )    vLoggingPrintf X
@@ -428,7 +430,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
  * @brief Query the list of interface function pointers.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
     if( NULL == ppxFunctionList )
@@ -449,7 +451,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunc
 CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
                                             CK_SLOT_ID_PTR pxSlotList,
                                             CK_ULONG_PTR pulCount )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
     /* Since the mbedTLS implementation of PKCS#11 does not depend
@@ -488,7 +490,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
                                             CK_VOID_PTR pvApplication,
                                             CK_NOTIFY xNotify,
                                             CK_SESSION_HANDLE_PTR pxSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = NULL;
 
@@ -580,7 +582,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
  * @brief Terminate a session and release resources.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
@@ -634,7 +636,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                              CK_ATTRIBUTE_PTR pxTemplate,
                                              CK_ULONG ulCount,
                                              CK_OBJECT_HANDLE_PTR pxObject )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     void * pvContext = NULL;
     int32_t lMbedTLSParseResult = ~0;
@@ -1019,7 +1021,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                                             CK_OBJECT_HANDLE_PTR pxObject,
                                             CK_ULONG ulMaxObjectCount,
                                             CK_ULONG_PTR pulObjectCount )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     BaseType_t xDone = pdFALSE;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
@@ -1077,7 +1079,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
  * @brief Terminate object enumeration.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
@@ -1246,8 +1248,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
             if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
             {
                 /* Free the private key context if it exists.
-                * TODO: Check if the key is the same as was used previously. */
-                if ( NULL != pxSession->xSignKey.pk_ctx )
+                 * TODO: Check if the key is the same as was used previously. */
+                if( NULL != pxSession->xSignKey.pk_ctx )
                 {
                     mbedtls_pk_free( &pxSession->xSignKey );
                 }
@@ -1291,7 +1293,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                      CK_ULONG ulDataLen,
                                      CK_BYTE_PTR pucSignature,
                                      CK_ULONG_PTR pulSignatureLen )
-{   /*lint !e9072 It's OK to have different parameter name. */
+{ /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
 
@@ -1393,8 +1395,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
         if( pdTRUE == xSemaphoreTake( pxSession->xVerifyMutex, portMAX_DELAY ) )
         {
             /* Free the public key context if it exists.
-            * TODO: Check if the key is the same as used by last verify operation. */
-            if ( NULL != pxSession->xVerifyKey.pk_ctx )
+             * TODO: Check if the key is the same as used by last verify operation. */
+            if( NULL != pxSession->xVerifyKey.pk_ctx )
             {
                 mbedtls_pk_free( &pxSession->xVerifyKey );
             }

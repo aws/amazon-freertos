@@ -226,17 +226,17 @@ static void prvDiscoverGreenGrassCore( void * pvParameters )
 /*-----------------------------------------------------------*/
 
 int vStartGreenGrassDiscoveryTask( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface )
+                                   const char * pIdentifier,
+                                   void * pNetworkServerInfo,
+                                   void * pNetworkCredentialInfo,
+                                   const IotNetworkInterface_t * pNetworkInterface )
 {
-	/* Unused parameters */
-	( void )awsIotMqttMode;
-	( void )pIdentifier;
-	( void )pNetworkServerInfo;
-	( void )pNetworkCredentialInfo;
-	( void )pNetworkInterface;
+    /* Unused parameters */
+    ( void ) awsIotMqttMode;
+    ( void ) pIdentifier;
+    ( void ) pNetworkServerInfo;
+    ( void ) pNetworkCredentialInfo;
+    ( void ) pNetworkInterface;
 
     prvDiscoverGreenGrassCore( NULL );
     return 0;
