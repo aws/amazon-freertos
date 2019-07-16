@@ -8,10 +8,11 @@
 #include "FreeRTOS_DNS.h"
 #include "FreeRTOS_IP_Private.h"
 
-/* This proof assumes the length of pcHostName is bounded by MAX_HOSTNAME_LEN and the size of UDPPayloadBuffer is bounded by 
-MAX_REQ_SIZE. This also abstracts the concurrency. */ 
+/* This proof assumes the length of pcHostName is bounded by MAX_HOSTNAME_LEN and the size of UDPPayloadBuffer is bounded by
+MAX_REQ_SIZE. This also abstracts the concurrency. */
 
-void *safeMalloc(size_t xWantedSize) { /* This returns a NULL pointer if the requested size is 0. */
+void *safeMalloc(size_t xWantedSize) { /* This returns a NULL pointer if the requested size is 0.
+	The implementation of malloc does not return a NULL pointer instead returns a pointer for which there is no memory allocation. */
 	if(xWantedSize == 0) {
 		return NULL;
 	}
