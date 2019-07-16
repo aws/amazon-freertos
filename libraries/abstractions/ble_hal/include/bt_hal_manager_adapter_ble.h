@@ -80,10 +80,12 @@ typedef enum
 
 typedef struct
 {
-	enum{
-    BTGattAdvNameNone,
-    BTGattAdvNameShort,
-    BTGattAdvNameComplete} xType;
+    enum
+    {
+        BTGattAdvNameNone,
+        BTGattAdvNameShort,
+        BTGattAdvNameComplete
+    } xType;
     uint8_t ucShortNameLen;
 } BTGattAdvName_t;
 

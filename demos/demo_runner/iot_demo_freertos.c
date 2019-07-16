@@ -41,10 +41,10 @@
 #include "iot_init.h"
 
 /* Remove dependency to MQTT */
-#define MQTT_DEMO_TYPE_ENABLED (defined(CONFIG_MQTT_DEMO_ENABLED)||defined(CONFIG_SHADOW_DEMO_ENABLED)||defined(CONFIG_DEFENDER_DEMO_ENABLED)||defined(CONFIG_OTA_UPDATE_DEMO_ENABLED))
+#define MQTT_DEMO_TYPE_ENABLED    ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
 
 #if MQTT_DEMO_TYPE_ENABLED
-#include "iot_mqtt.h"
+    #include "iot_mqtt.h"
 #endif
 
 static IotNetworkManagerSubscription_t subscription = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
@@ -56,27 +56,27 @@ static IotSemaphore_t demoNetworkSemaphore;
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
 #if MQTT_DEMO_TYPE_ENABLED
-#if BLE_ENABLED 
-extern const IotMqttSerializer_t IotBleMqttSerializer;
-#endif
+    #if BLE_ENABLED
+        extern const IotMqttSerializer_t IotBleMqttSerializer;
+    #endif
 
 
 /*-----------------------------------------------------------*/
 
-const IotMqttSerializer_t * demoGetMqttSerializer( void )
-{
-    const IotMqttSerializer_t * ret = NULL;
-
-#if BLE_ENABLED
-    if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
+    const IotMqttSerializer_t * demoGetMqttSerializer( void )
     {
-        ret = &IotBleMqttSerializer;
-    }
-#endif
+        const IotMqttSerializer_t * ret = NULL;
 
-    return ret;
-}
-#endif
+        #if BLE_ENABLED
+            if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
+            {
+                ret = &IotBleMqttSerializer;
+            }
+        #endif
+
+        return ret;
+    }
+#endif /* if MQTT_DEMO_TYPE_ENABLED */
 /*-----------------------------------------------------------*/
 
 static uint32_t _getConnectedNetworkForDemo( demoContext_t * pDemoContext )
@@ -120,7 +120,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                                            void * pContext )
 {
     const IotNetworkInterface_t * pNetworkInterface = NULL;
-    void *pConnectionParams = NULL, *pCredentials = NULL;
+    void * pConnectionParams = NULL, * pCredentials = NULL;
 
     demoContext_t * pDemoContext = ( demoContext_t * ) pContext;
 
@@ -134,7 +134,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
             pConnectionParams = AwsIotNetworkManager_GetConnectionParams( network );
             pCredentials      = AwsIotNetworkManager_GetCredentials( network ),
-    
+
             pDemoContext->networkConnectedCallback( true,
                                                     clientcredentialIOT_THING_NAME,
                                                     pConnectionParams,
@@ -159,7 +159,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
                 pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
                 pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
                 pCredentials      = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
-                
+
                 pDemoContext->networkConnectedCallback( true,
                                                         clientcredentialIOT_THING_NAME,
                                                         pConnectionParams,
@@ -288,7 +288,7 @@ void runDemoTask( void * pArgument )
 
     demoContext_t * pContext = ( demoContext_t * ) pArgument;
     const IotNetworkInterface_t * pNetworkInterface = NULL;
-    void *pConnectionParams = NULL, *pCredentials = NULL;
+    void * pConnectionParams = NULL, * pCredentials = NULL;
     int status;
 
     status = _initialize( pContext );
@@ -299,14 +299,14 @@ void runDemoTask( void * pArgument )
 
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
         pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
-        pCredentials      = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
+        pCredentials = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
 
         /* Run the demo. */
         status = pContext->demoFunction( true,
-                                clientcredentialIOT_THING_NAME,
-                                pConnectionParams,
-                                pCredentials,
-                                pNetworkInterface );
+                                         clientcredentialIOT_THING_NAME,
+                                         pConnectionParams,
+                                         pCredentials,
+                                         pNetworkInterface );
 
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )

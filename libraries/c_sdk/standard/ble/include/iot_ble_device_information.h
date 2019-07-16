@@ -36,9 +36,11 @@
  * @functionspage{iotbledeviceinfo,GATT Service for Device Information,Device Information}
  * - @functionname{iotbledeviceinfo_function_init}
  */
+
 /**
  * @functionpage{IotBleDeviceInfo_Init,iotbledeviceinfo,init}
  */
+
 /**
  * @brief Creates and starts Amazon FreeRTOS device information service
  *

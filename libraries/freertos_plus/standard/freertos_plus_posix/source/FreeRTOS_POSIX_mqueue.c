@@ -412,7 +412,7 @@ int mq_close( mqd_t mqdes )
     if( prvFindQueueInList( NULL, NULL, mqdes ) == pdTRUE )
     {
         /* Decrement the number of open descriptors. */
-        if(pxMessageQueue->xOpenDescriptors > 0)
+        if( pxMessageQueue->xOpenDescriptors > 0 )
         {
             pxMessageQueue->xOpenDescriptors--;
         }
@@ -502,7 +502,7 @@ mqd_t mq_open( const char * name,
     /* Default mq_attr. */
     struct mq_attr xQueueCreationAttr =
     {
-        .mq_flags   =                          0,
+        .mq_flags   = 0,
         .mq_maxmsg  = posixconfigMQ_MAX_MESSAGES,
         .mq_msgsize = posixconfigMQ_MAX_SIZE,
         .mq_curmsgs = 0
@@ -525,7 +525,7 @@ mqd_t mq_open( const char * name,
     /* Check attributes, if given. */
     if( xMessageQueue == NULL )
     {
-        if ((oflag & O_CREAT) && (attr != NULL) && ((attr->mq_maxmsg <= 0) || (attr->mq_msgsize <= 0)))
+        if( ( oflag & O_CREAT ) && ( attr != NULL ) && ( ( attr->mq_maxmsg <= 0 ) || ( attr->mq_msgsize <= 0 ) ) )
         {
             /* Invalid mq_attr.mq_maxmsg or mq_attr.mq_msgsize. */
             errno = EINVAL;
