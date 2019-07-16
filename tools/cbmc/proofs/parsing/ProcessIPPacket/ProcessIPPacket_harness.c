@@ -21,7 +21,7 @@ void harness() {
 
 	NetworkBufferDescriptor_t * const pxNetworkBuffer = malloc(sizeof(NetworkBufferDescriptor_t));
 	/* Pointer to the start of the Ethernet frame. It should be able to access the whole Ethernet frame.*/
-	pxNetworkBuffer->pucEthernetBuffer = malloc(ipTOTAL_ETHERNET_FRAME_SIZE); 
+	pxNetworkBuffer->pucEthernetBuffer = malloc(ipTOTAL_ETHERNET_FRAME_SIZE);
 	/* Minimum length of the pxNetworkBuffer->xDataLength is at least the size of the IPPacket_t. */
 	__CPROVER_assume(pxNetworkBuffer->xDataLength >= sizeof(IPPacket_t)  && pxNetworkBuffer->xDataLength <= ipTOTAL_ETHERNET_FRAME_SIZE);
 	IPPacket_t * const pxIPPacket = malloc(sizeof(IPPacket_t));
