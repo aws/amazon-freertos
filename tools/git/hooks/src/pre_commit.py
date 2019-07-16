@@ -72,10 +72,8 @@ def is_source_file(file_name):
 def is_checked_file_pattern(file_name):
     checked_patterns = [
         r"demos/",
-        r"modules/libraries/standard/.*",
-        r"modules/libraries/aws/.*",
-        r"modules/ports/.*",
-        r"test*/",
+        r"libraries/",
+        r"tests/",
     ]
     for checked_pattern in checked_patterns:
         if re.findall(checked_pattern, file_name):
@@ -85,17 +83,12 @@ def is_checked_file_pattern(file_name):
 
 def is_ignored_file_pattern(file_name):
     ignored_patterns = [
-        "lib/FreeRTOS-Plus-POSIX/",
-        "lib/FreeRTOS-Plus-TCP/",
-        "lib/FreeRTOS/",
-        "lib/include/FreeRTOS_POSIX/",
-        "lib/include/private/threading_alt.h",
-        "lib/ota/portable",
-        "lib/pkcs11/",
-        "lib/secure_sockets/portable",
-        "lib/third_party/",
-        "lib/wifi/portable",
-        "tests/common/posix",
+        "freertos_kernel/",
+        "projects/",
+        "tools/",
+        "vendors/",
+        "libraries/3rdparty",
+        "libraries/freertos_plus/standard/freertos_plus_tcp",
     ]
     for ignored_pattern in ignored_patterns:
         if re.findall(ignored_pattern, file_name):
