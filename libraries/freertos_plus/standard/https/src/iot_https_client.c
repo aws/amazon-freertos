@@ -534,7 +534,7 @@ static IotHttpsReturnCode_t _receiveHttpsBodySync(_httpsResponse_t* pHttpsRespon
 /**
  * @brief Schedule the task to send the the HTTP request.
  * 
- * @param[in] pHttpsResponse - HTTP response context.
+ * @param[in] pHttpsRequest - HTTP request context.
  * 
  * @return  #IOT_HTTPS_OK - If the task to send the HTTP request was successfully scheduled.
  *          #IOT_HTTPS_INTERNAL_ERROR - If a taskpool job could not be created.
@@ -545,13 +545,39 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend(_httpsRequest_t* pHttpsRequest);
 /**
  * @brief Add the request to the connection's request queue.
  * 
- * This will schdule a task if the request is first and only request in the queue.
+ * This will schedule a task if the request is first and only request in the queue.
+ * 
+ * @param[in] pHttpsRequest - HTTP request context.
  * 
  * @return  #IOT_HTTPS_OK - If the request was successfully added to the connection's request queue.
  *          #IOT_HTTPS_INTERNAL_ERROR - If a taskpool job could not be created.
  *          #IOT_HTTPS_ASYNC_SCHEDULING_ERROR - If there was an error scheduling the job.
  */
 IotHttpsReturnCode_t _addRequestToConnectionReqQ(_httpsRequest_t* pHttpsRequest);
+
+/**
+ * @brief Cancel the HTTP request's processing.
+ * 
+ * pHttpsRequest->cancelled will be checked and the request cancelled if specified so at the following intervals:
+ *  - Before sending the HTTPS headers at the start of the scheduled sending of the HTTPS request.
+ *  - After Sending the HTTPS headers.
+ *  - After Sending the HTTPS body.
+ * 
+ * @param[in] pHttpsRequest - HTTP request context.
+ */
+static void _cancelRequest(_httpsRequest_t *pHttpsRequest);
+
+/**
+ * @brief Cancel the HTTP response's processing.
+ * 
+ * pHttpsResponse->cancelled will be checked and the response cancelled if specified so at the following intervals:
+ *  - At the start of the network receive callback.
+ *  - After receiving the HTTPS headers.
+ *  - After Receiving the HTTPS body.
+ * 
+ * @param[in] pHttpsResponse - HTTP response context.
+ */
+static void _cancelResponse(_httpsResponse_t *pHttpsResponse);
 
 /*-----------------------------------------------------------*/
 
@@ -819,6 +845,7 @@ static int _httpParserOnChunkCompleteCallback(http_parser * pHttpParser)
 static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t* pNetworkStatus)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
+    /* Get the request reference from the response for the callback function pointers. */
     _httpsRequest_t* pHttpsRequest = pHttpsResponse->pHttpsRequest;
 
     if(pHttpsRequest->pCallbacks->readReadyCallback)
@@ -831,7 +858,7 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsRespo
                 pHttpsResponse->status);
             if(pHttpsResponse->cancelled == true)
             {
-                IotLogDebug("Cancelled HTTP request %d.", pHttpsResponse->pHttpsRequest);
+                IotLogDebug("Cancelled HTTP response %d.", pHttpsResponse);
                 status = IOT_HTTPS_ASYNC_CANCELLED;
                 /* We break out of the loop and do not goto clean up because we want to print debugging logs for 
                    the parser state and the networks status. */
@@ -841,15 +868,15 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsRespo
 
         if(HTTPS_FAILED(pHttpsResponse->bodyRxStatus))
         {
-            IotLogError("Error receiving the HTTP response body for request %d. Error code: %d",
-                pHttpsResponse->pHttpsRequest,
+            IotLogError("Error receiving the HTTP response body for response %d. Error code: %d",
+                pHttpsResponse,
                 pHttpsResponse->bodyRxStatus);
         }
 
         if(pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE)
         {
-            IotLogDebug("Did not receive all of the HTTP response body for request %d.", 
-                pHttpsResponse->pHttpsRequest);
+            IotLogDebug("Did not receive all of the HTTP response body for response %d.", 
+                pHttpsResponse);
         }
     }
 
@@ -970,7 +997,7 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* If the current response was cancelled, then don't bother receiving the headers and body. */
     if(pCurrentHttpsResponse->cancelled)
     {
-        IotLogDebug("Request ID: %d was canceled.", pCurrentHttpsResponse->pHttpsRequest);
+        IotLogDebug("Response ID: %d was cancelled.", pCurrentHttpsResponse);
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
     }
 
@@ -1807,7 +1834,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
        not finished sending. */
     pHttpsRequest->reqFinishedSending = false;
 
-    /* Set the request associated with this response so that the network recieve task can check if the request
+    /* Set the request associated with this response so that the network receive task can check if the request
        has finished sending. */
     pHttpsResponse->pHttpsRequest = pHttpsRequest;
 
@@ -1823,7 +1850,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         pHttpsRequest->pCallbacks->appendHeaderCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
     }
 
-    if(pHttpsResponse->cancelled == true)
+    if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
@@ -1860,7 +1887,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         }
     }
 
-    if(pHttpsResponse->cancelled == true)
+    if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
@@ -1981,6 +2008,28 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ(_httpsRequest_t* pHttpsRequest)
 
 /*-----------------------------------------------------------*/
 
+static void _cancelRequest(_httpsRequest_t *pHttpsRequest)
+{
+    pHttpsRequest->cancelled = true;
+    if(pHttpsRequest->pHttpsResponse != NULL)
+    {
+        pHttpsRequest->pHttpsResponse->cancelled = true;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+static void _cancelResponse(_httpsResponse_t *pHttpsResponse)
+{
+    pHttpsResponse->cancelled = true;
+    if(pHttpsResponse->pHttpsRequest != NULL)
+    {
+        pHttpsResponse->pHttpsRequest->cancelled = true;
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 IotHttpsReturnCode_t IotHttpsClient_Init( void )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
@@ -2085,7 +2134,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
             IotLogError("Connection is in use. Disconnected, but cannot destroy the connection.");
             status = IOT_HTTPS_BUSY;
             /* Attempt to cancel the busy request. */
-            IotHttpsClient_CancelRequestAsync(pHttpsRequest, NULL);
+            _cancelRequest(pHttpsRequest);
             /* We set the status as busy, but we do not goto the cleanup right away because we still want to remove 
                all pending requests. */
         }
@@ -2251,6 +2300,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     pHttpsRequest->isNonPersistent = pReqInfo->isNonPersistent;
     /* Initialize the request to not finished sending. */
     pHttpsRequest->reqFinishedSending = false;
+    /* Initialize the reqest cancellation. */
+    pHttpsRequest->cancelled = false;
 
     /* Initialize the corresponding response to this request. */
     pHttpsRequest->pHttpsResponse = (_httpsResponse_t *)(pReqInfo->respUserBuffer.pBuffer);
@@ -2447,7 +2498,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         if( IotSemaphore_TimedWait( &(pHttpsResponse->respFinishedSem), timeoutMs ) == false )
         {
             IotLogError("Timed out waiting for the synchronous request to finish. Timeout ms: %d", timeoutMs);
-            IotHttpsClient_CancelRequestAsync(reqHandle, *pRespHandle);
+            _cancelRequest(reqHandle);
             HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_BUSY);
         }
     }
@@ -2557,33 +2608,32 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t re
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_CancelRequestAsync(IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t respHandle)
+IotHttpsReturnCode_t IotHttpsClient_CancelRequestAsync(IotHttpsRequestHandle_t reqHandle)
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     /* Both reqHandle and respHandle cannot be NULL. */
-    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP( ( respHandle != NULL ) && ( reqHandle != NULL ) );
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
 
-    if( respHandle != NULL )
-    {
-        respHandle->cancelled = true;
-        if(respHandle->pHttpsRequest != NULL)
-        {
-            respHandle->pHttpsRequest->cancelled = true;
-        }
-    }
-    
-    if( reqHandle != NULL )
-    {
-        reqHandle->cancelled = true;
-        if(reqHandle->pHttpsResponse != NULL)
-        {
-            reqHandle->pHttpsResponse->cancelled = true;
-        }
-    }
+    _cancelRequest(reqHandle);
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
 }
+
+/*-----------------------------------------------------------*/
+
+IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync(IotHttpsResponseHandle_t respHandle)
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    /* Both reqHandle and respHandle cannot be NULL. */
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( respHandle );
+    
+    _cancelResponse(respHandle);
+
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+}
+
 
 /*-----------------------------------------------------------*/
 

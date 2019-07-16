@@ -405,12 +405,18 @@ typedef struct _httpsResponse
                                         This is set to true when the header field is found in parser callback _httpParserOnHeaderFieldCallback().
                                         On the following parser callback _httpParserOnHeaderValueCallback() we will store the value in pReadHeaderValue and then exit the parsing. */
     struct _httpsConnection *pHttpsConnection;    /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync(). This is needed during the asynchronous workflow to receive data given the respHandle only in the callback. */
-    struct _httpsRequest *pHttpsRequest;        /**< @brief Request associated with response. This is set during IotHttpsClient_InitializeRequest(). */
+    /**
+     * @brief Request associated with response.
+     * 
+     * This is needed to access the asynchronous callbacks stored in the request context. 
+     * This is also needed to to check if the associate response has finished sending all of it's header and body.
+     */
+    struct _httpsRequest *pHttpsRequest;        
     bool isAsync;           /**< @brief This is set to true if this response is currently being retrieved asynchronously. Set to false otherwise. */
     uint8_t * pBodyInHeaderBuf;     /**< @brief Pointer to the start of body inside the header buffer for copying to copy to a body buffer provided later by the asyncrhonous response process. */
     uint8_t * pBodyCurInHeaderBuf;  /**< @brief Pointer to the next location to write in the header buffer of the body. This is necessary in case there is a chunk encoded HTTP response body found and we need to overwrite the headers. */
     IotHttpsReturnCode_t bodyRxStatus;  /**< @brief The status of the receiving the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.readReadyCallback(). */
-    bool cancelled;         /**< @brief This is set to true in IotHttpsClient_CancelRequestAsync() to cancel the request/response processing in the asynchronous request workflow. */
+    bool cancelled;         /**< @brief This is set to true to stop the request/response processing in the asynchronous request workflow. */
     IotSemaphore_t respFinishedSem;     /**< @brief This is for synchronous response to post that is is finished being received. It is better to use a task event signal, but that is not implemented yet in the iot_threads.h API. */
     IotHttpsReturnCode_t syncStatus;    /**< @brief The status of the synchronous response. */
 } _httpsResponse_t;
@@ -432,7 +438,7 @@ typedef struct _httpsRequest
     bool isNonPersistent;   /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the response. */
     void * pUserPrivData;   /**< @brief User private data to hand back in the asynchronous callbacks for context in an asynchronous request. */
     IotHttpsClientCallbacks_t* pCallbacks;   /**< @brief Pointer to the asynchronous request callbacks. */
-    bool cancelled;         /**< @brief Set this to true to cancel the request/response processing in the asynchronous workflow. */
+    bool cancelled;         /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
     volatile bool reqFinishedSending;   /**< @brief This is set to true to when the request is finished being sent on the network. A request is not shared with multiple tasks, so only one task will update this. */
 } _httpsRequest_t;
 

@@ -49,6 +49,7 @@
  * - @functionname{https_client_function_sendsync}
  * - @functionname{https_client_function_sendasync}
  * - @functionname{https_client_function_cancelrequestasync}
+ * - @functionname{https_client_function_cancelresponseasync}
  * - @functionname{https_client_function_readresponsestatus}
  * - @functionname{https_client_function_readcontentlength}
  * - @functionname{https_client_function_readheader}
@@ -66,6 +67,7 @@
  * @functionpage{IotHttpsClient_SendSync,https_client,sendsync}
  * @functionpage{IotHttpsClient_SendAsync,https_client,sendasync}
  * @functionpage{IotHttpsClient_CancelRequestAsync,https_client,cancelrequestasync}
+ * @functionpage{IotHttpsClient_CancelResponseAsync,https_client,cancelresponseasync}
  * @functionpage{IotHttpsClient_ReadResponseStatus,https_client,readresponsestatus}
  * @functionpage{IotHttpsClient_ReadContentLength,https_client,readcontentlength}
  * @functionpage{IotHttpsClient_ReadHeader,https_client,readheader}
@@ -344,12 +346,13 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  *                         in pBuf is written to the network.
  *                         If this is set to 1, then the request body is complete.
  *
- * @return #IOT_HTTPS_OK if write successfully, failure code otherwise.
- *         #IOT_HTTPS_MESSAGE_FINISHED if this function is called a second time in the same callback context 
- *         #IotHttpsClientCallbacks_t.writeCallback.
- *         #IOT_HTTPS_NOT_SUPPORTED if isComplete is set to 0.
- *         #IOT_HTTPS_INVALID_PARAMETER if this API is used for a synchronous request.
- *         Please see #IotHttpsReturnCode_t for other failure codes.
+ * @return one of the following:
+ * - #IOT_HTTPS_OK if write successfully, failure code otherwise.
+ * - #IOT_HTTPS_MESSAGE_FINISHED if this function is called a second time in the same callback context 
+ * - #IotHttpsClientCallbacks_t.writeCallback.
+ * - #IOT_HTTPS_NOT_SUPPORTED if isComplete is set to 0.
+ * - #IOT_HTTPS_INVALID_PARAMETER if this API is used for a synchronous request.
+ * - Please see #IotHttpsReturnCode_t for other failure codes.
  */
 /* @[declare_https_client_writerequestbody] */
 IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t reqHandle, char *pBuf, uint32_t len, int isComplete);
@@ -483,18 +486,18 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t* pConnH
 /* @[declare_https_client_sendasync] */
 
 /**
- * @brief Cancel an Asynchronous request or response.
+ * @brief Cancel an Asynchronous request.
  * 
  * This will stop an asynchronous request.
  * 
- * If this is called before the asynchronous request that is scheduled runs, the request will not be sent. If this is 
- * called during ANY of the asynchronous callbacks, then the request/response will stop processing when the callback
- * returns. This is useful for any error conditions, found during the asynchronous callbacks, where the application 
- * wants to stop the rest of the request processing.
+ * If this is called before the asynchronous request, that is scheduled, actually runs, then request will not be sent. 
+ * If this is called during any of the asynchronous callbacks, then the request/response will stop processing when the 
+ * callback returns. This is useful for any error conditions, found during the asynchronous callbacks, where the
+ * application wants to stop the rest of the request processing.
  * 
- * If the asynchronous request stops processing, the buffers configured in #IotHttpsRequestInfo_t.reqUserBuffer and 
- * #IotHttpsRequestInfo_t.respUserBuffer can be freed, modified, or reused only after the 
- * #IotHttpsClientCallbacks_t.responseCompleteCallback returns.
+ * If the asynchronous request stops processing, the buffers configured in #IotHttpsRequestInfo_t.reqUserBuffer can be 
+ * freed, modified, or reused only after the #IotHttpsClientCallbacks_t.responseCompleteCallback for the associate
+ * response returns.
  * 
  * <b> Example Asynchronous Code </b>
  * @code{c}
@@ -505,7 +508,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t* pConnH
  *      int status = gen_auth_token(token, &len);
  *      if( status == GEN_TOKEN_FAIL)
  *      {
- *          IotHttpsClient_CancelRequestAsync(reqHandle, NULL);
+ *          IotHttpsClient_CancelRequestAsync(reqHandle);
  *      }
  *      ...
  * }
@@ -514,32 +517,55 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t* pConnH
  * {
  *      if( application_data_get(writeBuffer, writeBufferLen) == GEN_TOKEN_FAIL)
  *      {
- *          IotHttpsClient_CancelRequestAsync(reqHandle, NULL);
+ *          IotHttpsClient_CancelRequestAsync(reqHandle);
  *      }
  *      ...
  * }
+ * @endcode
+ * 
+ * @param[in] reqHandle - Request handle associated with the request.
+ * 
+ * @return One of the following:
+ * - IOT_HTTPS_OK if the request was successfully cancelled.
+ */
+/* @[declare_https_client_cancelrequestasync] */
+IotHttpsReturnCode_t IotHttpsClient_CancelRequestAsync(IotHttpsRequestHandle_t reqHandle);
+/* @[declare_https_client_cancelrequestasync] */
+
+/**
+ * @brief Cancel an Asynchronous response.
+ * 
+ * This will stop an asynchronous response.
+ * 
+ * If this is called during ANY of the asynchronous callbacks, then the response will stop processing when the callback
+ * returns. This is useful for any error conditions, found during the asynchronous callbacks, where the application 
+ * wants to stop the rest of the response processing.
+ * 
+ * If the asynchronous response stops processing, the buffers configured in #IotHttpsResponseInfo_t.respUserBuffer and 
+ * can be freed, modified, or reused only after the #IotHttpsClientCallbacks_t.responseCompleteCallback returns.
+ * 
+ * <b> Example Asynchronous Code </b>
+ * @code{c}
  * 
  * void applicationDefined_readReadyCallback(void * pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status)
  * {
  *      ...
  *      if (status != IOT_HTTPS_STATUS_OK)
  *      {
- *          IotHttpsClient_CancelRequestAsync(NULL, respHandle);
+ *          IotHttpsClient_CancelResponseAsync(NULL, respHandle);
  *      }
  *      ...
  * }
  * @endcode
  * 
- * @param[in] reqHandle - Request handle associated with the request. Set this to NULL if only the respHandle is 
- *              available.
- * @param[in] respHandle - Response handle associated with the request. Set this to NULL if only the reqHandle is 
- *              available.
+ * @param[in] respHandle - Response handle associated with the response.
+ * 
  * @return One of the following:
- *      #IOT_HTTPS_OK if the request was successfully cancelled.
+ * - #IOT_HTTPS_OK if the response was successfully cancelled.
  */
-/* @[declare_https_client_cancelrequestasync] */
-IotHttpsReturnCode_t IotHttpsClient_CancelRequestAsync(IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t respHandle);
-/* @[declare_https_client_cancelrequestasync] */
+/* @[declare_https_client_cancelresponseasync] */
+IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync(IotHttpsResponseHandle_t respHandle);
+/* @[declare_https_client_cancelresponseasync] */
 
 /**
  * @brief Retrieve the HTTPS response status.
@@ -726,9 +752,9 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
  *                   reading into. This will be replace with the amount of data read upon return.
  * 
  * @return #IOT_HTTPS_OK if the response body was successfully retrieved.
- *         #IOT_HTTPS_INVALID_PARAMETER if there are NULL parameters or if the response is a synchronous type.
- *         #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
- *         #IOT_HTTPS_PARSING_ERROR if there was an error parsing the HTTP response.
+ * - #IOT_HTTPS_INVALID_PARAMETER if there are NULL parameters or if the response is a synchronous type.
+ * - #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
+ * - #IOT_HTTPS_PARSING_ERROR if there was an error parsing the HTTP response.
  */
 /* @[declare_https_client_readresponsebody] */
 IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t respHandle, uint8_t * pBuf, uint32_t *pLen);
