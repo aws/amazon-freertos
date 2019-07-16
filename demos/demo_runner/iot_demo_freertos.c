@@ -133,7 +133,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
         {
             pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( network );
             pConnectionParams = AwsIotNetworkManager_GetConnectionParams( network );
-            pCredentials      = AwsIotNetworkManager_GetCredentials( network ),
+            pCredentials = AwsIotNetworkManager_GetCredentials( network ),
 
             pDemoContext->networkConnectedCallback( true,
                                                     clientcredentialIOT_THING_NAME,
@@ -158,7 +158,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
             {
                 pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
                 pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
-                pCredentials      = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
+                pCredentials = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
 
                 pDemoContext->networkConnectedCallback( true,
                                                         clientcredentialIOT_THING_NAME,
