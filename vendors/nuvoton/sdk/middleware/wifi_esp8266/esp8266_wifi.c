@@ -418,8 +418,11 @@ ESP_WIFI_Status_t ESP_IO_Recv( ESP_WIFI_Object_t * pxObj, uint8_t pucRxBuf[], ui
     if (usCount < 100) {
         if (usCount > 0)
             Nuvoton_debug_printf(("[%s] \"%s\", usCount = %d, xRet = %d\n", __func__, pucRxBuf, usCount, xRet));
-        else
+        else {
             Nuvoton_debug_printf(("."));
+			 /* Release the CPU resource */
+            vTaskDelay(1);
+		}
     } else
         Nuvoton_debug_printf(("[%s], usCount = %d, xRet = %d\n", __func__, usCount, xRet));
 

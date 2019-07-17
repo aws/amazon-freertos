@@ -246,7 +246,7 @@ void vApplicationDaemonTaskStartupHook( void )
                      "TestRunner",
                      mainTEST_RUNNER_TASK_STACK_SIZE,
                      NULL,
-                     IOT_THREAD_DEFAULT_PRIORITY,
+                     tskIDLE_PRIORITY,
                      NULL );
     }
 }
