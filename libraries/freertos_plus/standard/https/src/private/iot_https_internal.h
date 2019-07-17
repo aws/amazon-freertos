@@ -43,6 +43,9 @@
 /* Task pool include. */
 #include "iot_taskpool.h"
 
+/* Linear containers (lists and queues) include. */
+#include "iot_linear_containers.h"
+
 /* Types include. */
 #include "types/iot_taskpool_types.h"
 
@@ -355,14 +358,17 @@ typedef struct _httpsConnection
 {
     const IotNetworkInterface_t * pNetworkInterface;  /**< @brief Network interface with calls for connect, disconnect, send, and receive. */
     void *pNetworkConnection;                   /**< @brief Pointer to the network connection to use pNetworkInterface calls on. */
-    IotSemaphore_t connSem;                     /**< @brief Binary semaphore to lock the connection if a request/response is currently in progress. */
-    IotSemaphore_t rxStartSem;                  /**< @brief Semaphore indicating that data on the network is ready to read. */
-    IotSemaphore_t rxFinishSem;                 /**< @brief Semaphore indicating that the data on the network is done being read. */
     uint32_t timeout;                           /**< @brief Timeout for a connection and waiting for a response from the network. */
     bool isConnected;                           /**< @brief true if a connection was successful most recently on this context. We have no way of knowing if the 
                                                             server closed the connection because that error is unique to the underlying TLS layer. This is set
                                                             to false initially, set to true for a successful intentional call to connect, and then set to false only
                                                             after an explicit disconnect with a non-persistent request or a call to @ref https_client_function_disconnect. */
+    IotMutex_t reqQMutex;                       /**< @brief Mutex protecting operations on the request queue. */
+    IotMutex_t respQMutex;                      /**< @brief Mutex protecting operation son the response queue. */
+    IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */
+    IotDeQueue_t respQ;                         /**< @brief The queue for the responses that are waiting to be processed. */
+    IotTaskPoolJobStorage_t taskPoolJobStorage; /**< @brief An asynchronous operation requires storage for the task pool job. */
+    IotTaskPoolJob_t taskPoolJob;               /**< @brief The task pool job identifier for an asynchronous request. */
 } _httpsConnection_t;
 
 /**
@@ -379,6 +385,7 @@ typedef struct _httpParserInfo
  */
 typedef struct _httpsResponse
 {
+    IotLink_t link;             /**< @brief The link to insert the job in the connection's respQ. */
     uint8_t * pHeaders;         /**< @brief Pointer to the start of the headers buffer. */
     uint8_t * pHeadersEnd;      /**< @brief Pointer to the end of the headers buffer. */
     uint8_t * pHeadersCur;      /**< @brief Pointer to the next location to write in the headers buffer. */
@@ -391,14 +398,23 @@ typedef struct _httpsResponse
     uint32_t contentLength;     /**< @brief The content length of the response body. This is initialized to zero and is updated when Content-Length header is parsed from the header buffer. */
     IotHttpsResponseParserState_t parserState;  /**< @brief The current state of the parser. See #IotHttpsResponseParserState_t documentation for more details. */
     IotHttpsResponseBufferState_t bufferProcessingState;    /**< @brief Which buffer is currently being processed and for what. See #IotHttpsResponseBufferState_t documentation. */
-    char * pReadHeaderField; /**< @brief Header field that we want to read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
-    char * pReadHeaderValue; /**< @brief Header value that we read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
+    char * pReadHeaderField;    /**< @brief Header field that we want to read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
+    char * pReadHeaderValue;    /**< @brief Header value that we read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
     size_t readHeaderValueLength;   /**< @brief Length of pReadHeaderValue. */
     bool foundHeaderField;  /**< @brief State to use during parsing to let us know when we found the header field in the https-parser callbacks. 
                                         This is set to true when the header field is found in parser callback _httpParserOnHeaderFieldCallback().
                                         On the following parser callback _httpParserOnHeaderValueCallback() we will store the value in pReadHeaderValue and then exit the parsing. */
     struct _httpsConnection *pHttpsConnection;    /**< @brief Connection associated with response. This is set during IotHttpsClient_SendAsync(). This is needed during the asynchronous workflow to receive data given the respHandle only in the callback. */
-    struct _httpsRequest *pHttpsRequest;        /**< @brief Request associated with response. This is set during IotHttpsClient_InitializeRequest(). */
+    /**
+     * @brief Request associated with response.
+     * 
+     * This is needed to access the asynchronous callbacks stored in the request context. 
+     * This is also needed to to check if the associate response has finished sending all of it's header and body.
+     */
+    struct _httpsRequest *pHttpsRequest;        
+    bool cancelled;         /**< @brief This is set to true to stop the request/response processing in the asynchronous request workflow. */
+    IotSemaphore_t respFinishedSem;     /**< @brief This is for synchronous response to post that is is finished being received. It is better to use a task event signal, but that is not implemented yet in the iot_threads.h API. */
+    IotHttpsReturnCode_t syncStatus;    /**< @brief The status of the synchronous response. */
 } _httpsResponse_t;
 
 /**
@@ -406,16 +422,26 @@ typedef struct _httpsResponse
  */
 typedef struct _httpsRequest
 {
+    IotLink_t link;         /**< @brief The link to insert the job in the connection's reqQ. */
     uint8_t * pHeaders;     /**< @brief Pointer to the start of the headers buffer. */
     uint8_t * pHeadersEnd;  /**< @brief Pointer to the end of the headers buffer. */
     uint8_t * pHeadersCur;  /**< @brief Pointer to the next location to write in the headers buffer. */
     uint8_t * pBody;        /**< @brief Pointer to the start of the body buffer. */
     uint32_t bodyLength;    /**< @brief Length of request body buffer. */
+    IotHttpsMethod_t method;    /**< @brief The method of the originating request. */
     IotHttpsConnectionInfo_t* pConnInfo;    /**< @brief Connection info associated with this request. For an implicit connection. */
     struct _httpsResponse *pHttpsResponse;     /**< @brief Response associated with request. This is initialized during IotHttpsClient_InitializeRequest(), then returned to the application in IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
     struct _httpsConnection *pHttpsConnection;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync(). It is needed for the asynchronous workflow to use to send data given the reqHandle only in the callback. */
-    uint32_t contentLength; /**< @brief The content length of the request body. */
-    bool isNonPersistent;     /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the response. */
+    bool isNonPersistent;   /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the response. */
+    bool cancelled;         /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
+    /**
+     * @brief This is set to true to when the request is finished being sent on the network
+     * 
+     * A request is not shared with multiple tasks, so only one task will update this. This is to let the let the 
+     * network receive callback know that the request is fully pushed out to the server. This is also to let the 
+     * disconnect know that the request is not using the network interface resources anymore.
+     */
+    bool reqFinishedSending;
 } _httpsRequest_t;
 
 /*-----------------------------------------------------------*/

@@ -1,6 +1,6 @@
-# Presigned S3 URL Generator 
+# Presigned S3 URLs Generator 
 
-**presigned_url_gen.py** generates a pre-signed URL for S3 GET and PUT HTTP request access. 
+**presigned_url_gen.py** generates pre-signed URLs for S3 GET and PUT HTTP request access. 
 
 ### Dependencies
 * Python 2.7+ or Python 3+
@@ -29,9 +29,18 @@
    ```  
    An example expected output:
    ```
-   https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+   PUT: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+   GET: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW%3D
    ```
-1. Copy and paste the output to **iot_config.h** for macro **IOT_DEMO_HTTPS_PRESIGNED_URL**.
+1. Copy and paste the output to **iot_config.h** for macro **IOT_DEMO_HTTPS_PRESIGNED_GET_URL** and **IOT_DEMO_HTTPS_PRESIGNED_PUT_URL**.
    ```
-   #define IOT_DEMO_HTTPS_PRESIGNED_URL     https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+   #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL     https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+   #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL     https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
    ```
+
+### Parameter Info
+#### --bucket
+    The name of your S3 bucket where you will download or upload.
+#### --key
+    The name of the existing object you wish to download (GET).
+    Or the name of the object you wish to upload (PUT).

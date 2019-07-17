@@ -1,4 +1,5 @@
 /*
+ * Amazon FreeRTOS V201906.00 Major
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -17,6 +18,9 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
  */
 
 /**
@@ -43,7 +47,8 @@
 
 /**
  * This demonstates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
- * The HTTPS Client library is a HTTP/1.1 client library that be used to download files from other webservers as well.
+ * The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other webservers as
+ * well.
  * 
  * A presigned URL is required to run this demo. Please see the demos/https/README.md for instructions on how to 
  * generate one.
@@ -62,8 +67,8 @@
  */
 
 /* Presigned URL for S3 GET Object access. */
-#ifndef IOT_DEMO_HTTPS_PRESIGNED_URL
-    #define IOT_DEMO_HTTPS_PRESIGNED_URL     "Please configure a presigned URL in iot_config.h."
+#ifndef IOT_DEMO_HTTPS_PRESIGNED_GET_URL
+    #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL     "Please configure a presigned GET URL in iot_config.h."
 #endif
 
 /* TLS port for HTTPS. */
@@ -100,7 +105,7 @@
 /* Size in bytes of the User Buffer used to store the internal connection context. The size presented here accounts for
    storage of the internal connection context. The minimum size can be found in extern const unint32_t connectionUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_CONN_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE         ( 300 )
+    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE         ( 512 )
 #endif
 
 /* Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
@@ -116,7 +121,7 @@
    Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
    will be discarded. The minimum size can be found in extern const uint32_t responseUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( 512 )
+    #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( 1024 )
 #endif
 
 /* Size in bytes of the buffer used to store the response body (parts of it). This should be greater than or equal to
@@ -177,7 +182,7 @@ static uint8_t _pRespUserBuffer[IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE] = { 0 };
 static uint8_t _pRespBodyBuffer[IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE] = { 0 };
 
 /* Declaration of demo function. */
-int RunHttpsSyncDemo( bool awsIotMqttMode,
+int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
                  const char * pIdentifier,
                  void * pNetworkServerInfo,
                  void * pNetworkCredentialInfo,
@@ -186,7 +191,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
 /*-----------------------------------------------------------*/     
 
 /**
- * @brief The function that runs the HTTPS Synchronous demo.
+ * @brief The function that runs the HTTPS Synchronous Download demo.
  * 
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server. Set this to `false` if using 
  *      another MQTT server. This parameter is not used for this demo.
@@ -194,12 +199,11 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
  *      but this demo ignores these parameters.
  * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo. This is ignored in this demo.
  * @param[in] pNetworkCredentialInfo Contains credential Info specific for the MQTT demo. This is ignored in this demo.
- * @param[in] pNetworkInterface Set to the IotHttpsConnectionInfo_t in IotHttpsRequestHandle_t.pConnInfo to implicitly 
- *      connect when sending the request.
+ * @param[in] pNetworkInterface Contains the network interface interaction routines.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
-int RunHttpsSyncDemo( bool awsIotMqttMode,
+int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
                  const char * pIdentifier,
                  void * pNetworkServerInfo,
                  void * pNetworkCredentialInfo,
@@ -221,6 +225,8 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     /* Configurations for the HTTPS request. */
     IotHttpsRequestInfo_t reqConfig = { 0 };
+    /* Configurations for the HTTPS response. */
+    IotHttpsResponseInfo_t respConfig = { 0 };
     /* Handle identifying the HTTP request. This is valid after the request has been initialized with 
        IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
@@ -228,15 +234,17 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
        IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
-    IotHttpsSyncRequestInfo_t syncInfo = { 0 };
+    IotHttpsSyncInfo_t reqSyncInfo = { 0 };
+    /* Synchronous response specific configurations. */
+    IotHttpsSyncInfo_t respSyncInfo = { 0 };
 
-    /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
+    /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     const char *pPath = NULL;
-    /* The length of the path within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
+    /* The length of the path within string IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     size_t pathLen = 0;
-    /* The location of the address within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
+    /* The location of the address within string IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     const char *pAddress = NULL;
-    /* The length of the address within string IOT_DEMO_HTTPS_PRESIGNED_URL. */
+    /* The length of the address within string IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     size_t addressLen = 0;
 
     /* The status of HTTP responses for each request. */
@@ -262,28 +270,28 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     /* Size in bytes of a single character. */
     uint8_t sizeOfOneChar = 1;
 
-    /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_URL. */
-    httpsClientStatus = IotHttpsClient_GetUrlPath(IOT_DEMO_HTTPS_PRESIGNED_URL, 
-        (size_t)strlen( IOT_DEMO_HTTPS_PRESIGNED_URL ), 
+    /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
+    httpsClientStatus = IotHttpsClient_GetUrlPath(IOT_DEMO_HTTPS_PRESIGNED_GET_URL, 
+        (size_t)strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ), 
         &pPath, 
         &pathLen);
     if ( httpsClientStatus != IOT_HTTPS_OK )
     {
         IotLogError("An error occurred in IotHttpsClient_GetUrlPath() on URL %s. Error code: %d", 
-            IOT_DEMO_HTTPS_PRESIGNED_URL, 
+            IOT_DEMO_HTTPS_PRESIGNED_GET_URL, 
             httpsClientStatus );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_URL. */
-    httpsClientStatus = IotHttpsClient_GetUrlAddress(IOT_DEMO_HTTPS_PRESIGNED_URL, 
-        (size_t)strlen( IOT_DEMO_HTTPS_PRESIGNED_URL ),
+    /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
+    httpsClientStatus = IotHttpsClient_GetUrlAddress(IOT_DEMO_HTTPS_PRESIGNED_GET_URL, 
+        (size_t)strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
         &pAddress, 
         &addressLen);
     if ( httpsClientStatus != IOT_HTTPS_OK)
     {
         IotLogError("An error occurred in IotHttpsClient_GetUrlAddress() on URL %s\r\n. Error code %d", 
-            IOT_DEMO_HTTPS_PRESIGNED_URL, 
+            IOT_DEMO_HTTPS_PRESIGNED_GET_URL, 
             httpsClientStatus );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
@@ -304,30 +312,33 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
     connConfig.pNetworkInterface = pNetworkInterface;
 
     /* Set the configurations needed for a synchronous request. */
-    syncInfo.pReqData = NULL;    /* This is a GET request so there is no data in the body. */
-    syncInfo.reqDataLen = 0;    /* Since there is not data in the body the length is 0. */
-    syncInfo.pRespData = _pRespBodyBuffer;            /* This is a GET request so should configure a place to retreive the 
+    reqSyncInfo.pBody = NULL;    /* This is a GET request so there is no data in the body. */
+    reqSyncInfo.bodyLen = 0;    /* Since there is not data in the body the length is 0. */
+
+    /* Set the configurations needed for a synchronous response. */
+    respSyncInfo.pBody = _pRespBodyBuffer;            /* This is a GET request so should configure a place to retreive the 
                                                        response body. */
-    syncInfo.respDataLen = sizeof(_pRespBodyBuffer); /* The length of the GET request's response body. This should be 
+    respSyncInfo.bodyLen = sizeof(_pRespBodyBuffer); /* The length of the GET request's response body. This should be 
                                                        greater than or equal to the size of the file requested, for the 
                                                        best performance. */
 
     /* Set the request configurations. */
     reqConfig.pPath = pPath; 
     /* The path is everything that is not the address. It also includes the query. So we get the strlen( pPath ) to 
-       acquire everything following in IOT_DEMO_HTTPS_PRESIGNED_URL. */
+       acquire everything following in IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     reqConfig.pathLen = strlen( pPath );
     reqConfig.pHost = pAddress;
     reqConfig.hostLen = addressLen;
     reqConfig.method = IOT_HTTPS_METHOD_GET;
     reqConfig.isNonPersistent = false;
-    reqConfig.reqUserBuffer.pBuffer = _pReqUserBuffer;
-    reqConfig.reqUserBuffer.bufferLen = sizeof(_pReqUserBuffer);
-    reqConfig.respUserBuffer.pBuffer = _pRespUserBuffer;
-    reqConfig.respUserBuffer.bufferLen = sizeof(_pRespUserBuffer);
-    reqConfig.pSyncInfo = &syncInfo;
-    /* We will implicitly connect in the first call to IotHttpsClient_SendSync(). */
-    reqConfig.pConnInfo = &connConfig;
+    reqConfig.userBuffer.pBuffer = _pReqUserBuffer;
+    reqConfig.userBuffer.bufferLen = sizeof(_pReqUserBuffer);
+    reqConfig.pSyncInfo = &reqSyncInfo;
+
+    /* Set the response configurations. */ 
+    respConfig.userBuffer.pBuffer = _pRespUserBuffer;
+    respConfig.userBuffer.bufferLen = sizeof(_pRespUserBuffer);
+    respConfig.pSyncInfo = &respSyncInfo;
 
     /* Initialize the HTTPS library. */
     httpsClientStatus = IotHttpsClient_Init();
@@ -361,8 +372,15 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    /* Send the request synchronously. This will also create an implicit connection.*/
-    httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
+    /* Connect to S3. */
+    httpsClientStatus = IotHttpsClient_Connect(&connHandle, &connConfig);
+    if( httpsClientStatus != IOT_HTTPS_OK)
+    {
+        IotLogError( "Failed to connect to the S3 server. Error code: %d.", httpsClientStatus );
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+    }
+
+    httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
         IotLogError( "There has been an error receiving the response. The error code is: %d", httpsClientStatus );
@@ -443,7 +461,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
         /* A new response handle is returned from IotHttpsClient_SendSync(). We reuse the respHandle variable because
            the last response was already processed fully.  */
 
-        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
+        httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
 
         /* If there was network error try again one more time. */
         if( httpsClientStatus == IOT_HTTPS_NETWORK_ERROR )
@@ -456,7 +474,7 @@ int RunHttpsSyncDemo( bool awsIotMqttMode,
                 IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
             }
 
-            httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle );
+            httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
             if( httpsClientStatus != IOT_HTTPS_OK )
             {
                 IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );
