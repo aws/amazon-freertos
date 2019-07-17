@@ -30,21 +30,17 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-/* AWS System includes. */
-#include "aws_system_init.h"
-#include "aws_wifi.h"
+/* Demo includes */
+#include "aws_demo.h"
+
+/* AWS library includes. */
+#include "iot_system_init.h"
+#include "iot_logging_task.h"
+#include "iot_wifi.h"
 #include "aws_clientcredential.h"
-
-/* Demo application includes. */
-#include "aws_demo_config.h"
-#include "iot_demo_runner.h"
-
-#include "aws_logging_task.h"
-
-/* Application version info. */
 #include "aws_application_version.h"
-
 #include "aws_dev_mode_key_provisioning.h"
+
 
 /* Hardware and starter kit includes. */
 #include "NuMicro.h"
