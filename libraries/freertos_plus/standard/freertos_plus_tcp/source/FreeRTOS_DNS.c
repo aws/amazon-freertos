@@ -422,6 +422,7 @@ TickType_t xReadTimeOut_ms = ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME;
 TickType_t xIdentifier = 0;
 if(pcHostName != NULL) {
 
+
 	/* If the supplied hostname is IP address, convert it to uint32_t
 	and return. */
 	#if( ipconfigINCLUDE_FULL_INET_ADDR == 1 )
@@ -482,9 +483,7 @@ if(pcHostName != NULL) {
 		ulIPAddress = prvGetHostByName( pcHostName, xIdentifier, xReadTimeOut_ms );
 	}
   }
-
   return ulIPAddress;
-
 }
 /*-----------------------------------------------------------*/
 
