@@ -219,6 +219,8 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     /* Configurations for the HTTPS request. */
     IotHttpsRequestInfo_t reqConfig = { 0 };
+    /* Configurations for the HTTPS response. */
+    IotHttpsResponseInfo_t respConfig = { 0 };
     /* Handle identifying the HTTP request. This is valid after the request has been initialized with 
        IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
@@ -226,7 +228,9 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
        IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
-    IotHttpsSyncRequestInfo_t syncInfo = { 0 };
+    IotHttpsSyncInfo_t reqSyncInfo = { 0 };
+    /* Synchronous response specific configurations. */
+    IotHttpsSyncInfo_t respSyncInfo = { 0 };
 
     /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     const char *pPath = NULL;
@@ -293,11 +297,13 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     connConfig.pNetworkInterface = pNetworkInterface;
 
     /* Set the configurations needed for a synchronous request. */
-    syncInfo.pReqData = NULL;    /* This is a GET request so there is no data in the body. */
-    syncInfo.reqDataLen = 0;    /* Since there is not data in the body the length is 0. */
-    syncInfo.pRespData = _pRespBodyBuffer;            /* This is a GET request so should configure a place to retreive the 
+    reqSyncInfo.pBody = NULL;    /* This is a GET request so there is no data in the body. */
+    reqSyncInfo.bodyLen = 0;    /* Since there is not data in the body the length is 0. */
+
+    /* Set the configurations needed for a synchronous response. */
+    respSyncInfo.pBody = _pRespBodyBuffer;            /* This is a GET request so should configure a place to retreive the 
                                                        response body. */
-    syncInfo.respDataLen = sizeof(_pRespBodyBuffer); /* The length of the GET request's response body. This should be 
+    respSyncInfo.bodyLen = sizeof(_pRespBodyBuffer); /* The length of the GET request's response body. This should be 
                                                        greater than or equal to the size of the file requested, for the 
                                                        best performance. */
 
@@ -310,14 +316,17 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     reqConfig.hostLen = addressLen;
     reqConfig.method = IOT_HTTPS_METHOD_GET;
     reqConfig.isNonPersistent = false;
-    reqConfig.reqUserBuffer.pBuffer = _pReqUserBuffer;
-    reqConfig.reqUserBuffer.bufferLen = sizeof(_pReqUserBuffer);
-    reqConfig.respUserBuffer.pBuffer = _pRespUserBuffer;
-    reqConfig.respUserBuffer.bufferLen = sizeof(_pRespUserBuffer);
+    reqConfig.userBuffer.pBuffer = _pReqUserBuffer;
+    reqConfig.userBuffer.bufferLen = sizeof(_pReqUserBuffer);
     reqConfig.isAsync = false;
-    reqConfig.pSyncInfo = &syncInfo;
+    reqConfig.pSyncInfo = &reqSyncInfo;
     /* We will implicitly connect in the first call to IotHttpsClient_SendSync(). */
     reqConfig.pConnInfo = &connConfig;
+
+    /* Set the response configurations. */ 
+    respConfig.userBuffer.pBuffer = _pRespUserBuffer;
+    respConfig.userBuffer.bufferLen = sizeof(_pRespUserBuffer);
+    respConfig.pSyncInfo = &respSyncInfo;
 
     /* Initialize the HTTPS library. */
     httpsClientStatus = IotHttpsClient_Init();
@@ -327,7 +336,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    /* Initialize the request. This will create a request line and add required headers into the reqUserBuffer. */
+    /* Initialize the request. This will create a request line and add required headers into the userBuffer. */
     httpsClientStatus = IotHttpsClient_InitializeRequest( &reqHandle, &reqConfig );
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
@@ -402,7 +411,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         /* A new response handle is returned from IotHttpsClient_SendSync(). We reuse the respHandle variable because
            the last response was already processed fully.  */
 
-        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, 0 );
+        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, &respConfig, 0 );
 
         /* If there was network error try again one more time. */
         if( httpsClientStatus == IOT_HTTPS_NETWORK_ERROR )
@@ -415,7 +424,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
                 IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
             }
 
-            httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, 0 );
+            httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, &respConfig, 0 );
             if( httpsClientStatus != IOT_HTTPS_OK )
             {
                 IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );

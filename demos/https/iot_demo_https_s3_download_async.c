@@ -226,6 +226,11 @@ static IotMutex_t _inUseRequestsMutex = { 0 };
 static IotHttpsRequestInfo_t _pReqConfigs[IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS] = {0};
 
 /**
+ * @brief The pool of HTTPS Client library response configurations.
+ */
+static IotHttpsResponseInfo_t _pRespConfigs[IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS] = { 0 };
+
+/**
  * @brief The pool of HTTPS Client library request handles. 
  */
 static IotHttpsRequestHandle_t _pReqHandles[IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS] = { 0 };
@@ -363,7 +368,7 @@ static void _readReadyCallback( void * pPrivData, IotHttpsResponseHandle_t respH
     if( status != IOT_HTTPS_STATUS_PARTIAL_CONTENT)
     {
         IotLogError("Could not retrieve file from S3. Status code %d", status);
-        IotHttpsClient_CancelRequestAsync(NULL, respHandle);
+        IotHttpsClient_CancelResponseAsync(respHandle);
         return;
     }
     
@@ -397,7 +402,7 @@ static void _readReadyCallback( void * pPrivData, IotHttpsResponseHandle_t respH
         IotLogError("The Content-Length found in this file does not equal the number of bytes requested. So we may not \
             download the file completely. The content length is %d and the requested number of bytes for this request \
             is %d", contentLength, pDownloadData->numReqBytes);
-        IotHttpsClient_CancelRequestAsync(NULL, respHandle);
+        IotHttpsClient_CancelResponseAsync(respHandle);
     }
 
     /* This callback could be invoked again if there is still more data on the network to be read for this response, so 
@@ -540,7 +545,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     /* Handle identifying the HTTPS connection. */
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     /* Asynchronous request specific configurations. */
-    IotHttpsAsyncRequestInfo_t asyncInfo = { 0 };
+    IotHttpsAsyncInfo_t asyncInfo = { 0 };
 
     /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     const char *pPath = NULL;
@@ -667,12 +672,15 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         _pReqConfigs[reqIndex].pHost = pAddress;
         _pReqConfigs[reqIndex].hostLen = addressLen;
         _pReqConfigs[reqIndex].method = IOT_HTTPS_METHOD_GET;
-        _pReqConfigs[reqIndex].reqUserBuffer.pBuffer = _pReqUserBuffers[reqIndex];
-        _pReqConfigs[reqIndex].reqUserBuffer.bufferLen = sizeof( _pReqUserBuffers[reqIndex] );
-        _pReqConfigs[reqIndex].respUserBuffer.pBuffer = _pRespUserBuffers[reqIndex];
-        _pReqConfigs[reqIndex].respUserBuffer.bufferLen = sizeof( _pRespUserBuffers[reqIndex] );
+        _pReqConfigs[reqIndex].userBuffer.pBuffer = _pReqUserBuffers[reqIndex];
+        _pReqConfigs[reqIndex].userBuffer.bufferLen = sizeof( _pReqUserBuffers[reqIndex] );
         _pReqConfigs[reqIndex].isAsync = true;
         _pReqConfigs[reqIndex].pAsyncInfo = &asyncInfo;
+
+        /* Set the HTTP response configurations. */
+        _pRespConfigs[reqIndex].userBuffer.pBuffer = _pRespUserBuffers[reqIndex];
+        _pRespConfigs[reqIndex].userBuffer.bufferLen = sizeof( _pRespUserBuffers[reqIndex] );
+        _pRespConfigs[reqIndex].pSyncInfo = NULL;
 
         /* Get the Range header value string. */
         int numWritten = snprintf( _pDownloadDatas[reqIndex].rangeValueStr, sizeof( _pDownloadDatas[reqIndex].rangeValueStr ), "bytes=%d-%d", curByte, curByte + numReqBytes - 1 );
@@ -702,7 +710,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
 
         /* Send the request and receive the response asynchronously. This will schedule the async request. We 
            will return immediately after scheduling. */
-        httpsClientStatus = IotHttpsClient_SendAsync( &connHandle, _pReqHandles[reqIndex], &(_pRespHandles[reqIndex]) );
+        httpsClientStatus = IotHttpsClient_SendAsync( &connHandle, _pReqHandles[reqIndex], &(_pRespHandles[reqIndex]), &( _pRespConfigs[reqIndex]) );
         if( httpsClientStatus != IOT_HTTPS_OK )
         {
             IotLogError( "Failed to send the request asynchronously with error code: %d", httpsClientStatus );

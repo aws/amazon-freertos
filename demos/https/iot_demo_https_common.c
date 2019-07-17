@@ -90,8 +90,12 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     IotHttpsReturnCode_t httpsClientStatus = IOT_HTTPS_OK;
     /* The HTTPS request configurations for getting the file size. */
     IotHttpsRequestInfo_t fileSizeReqConfig = { 0 };
+    /* The HTTPS response configurations for getting the file size. */
+    IotHttpsResponseInfo_t fileSizeRespConfig = { 0 };
     /* Synchronous request specific configurations. */
-    IotHttpsSyncRequestInfo_t syncInfo = { 0 };
+    IotHttpsSyncInfo_t reqSyncInfo = { 0 };
+    /* Synchronous response specific configurations. */
+    IotHttpsSyncInfo_t respSyncInfo = { 0 };
     /* Handle identifying the HTTP request. This is valid after the request has been initialized with 
        IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t fileSizeReqHandle = NULL;
@@ -119,11 +123,11 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
 
     /* We are retrieving the file size synchronously because we cannot run this demo without the file size anyways
        so it's OK to block. */
-    syncInfo.pReqData = NULL;    /* This is a GET request so there is no data in the body. */
-    syncInfo.reqDataLen = 0;    /* Since there is not data in the body the length is 0. */
-    syncInfo.pRespData = NULL;   /* We don't care about the body in this request since we want the file size that will
+    reqSyncInfo.pBody = NULL;    /* This is a GET request so there is no data in the body. */
+    reqSyncInfo.bodyLen = 0;    /* Since there is not data in the body the length is 0. */
+    respSyncInfo.pBody = NULL;   /* We don't care about the body in this request since we want the file size that will
                                    be found in a header value. */
-    syncInfo.respDataLen = 0;   /* Since we are not saving any response body the length is 0. */
+    respSyncInfo.bodyLen = 0;   /* Since we are not saving any response body the length is 0. */
 
     /* Set the request configurations. */
     fileSizeReqConfig.pPath = pPath; 
@@ -134,13 +138,16 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
                                                in an Authorization header field. We work around this by performing a GET
                                                on Range: bytes=0-0. Then extracting the size of the file from the 
                                                Content-Range header field in the response. */
-    fileSizeReqConfig.reqUserBuffer.pBuffer = pReqUserBuffer;
-    fileSizeReqConfig.reqUserBuffer.bufferLen = reqUserBufferLen;
-    fileSizeReqConfig.respUserBuffer.pBuffer = pRespUserBuffer;
-    fileSizeReqConfig.respUserBuffer.bufferLen = respUserBufferLen;
+    fileSizeReqConfig.userBuffer.pBuffer = pReqUserBuffer;
+    fileSizeReqConfig.userBuffer.bufferLen = reqUserBufferLen;
     fileSizeReqConfig.isAsync = false;
-    fileSizeReqConfig.pSyncInfo = &syncInfo;
+    fileSizeReqConfig.pSyncInfo = &reqSyncInfo;
     fileSizeReqConfig.pConnInfo = pConnInfo;
+
+    /* Set the response configurations. */
+    fileSizeRespConfig.userBuffer.pBuffer = pRespUserBuffer;
+    fileSizeRespConfig.userBuffer.bufferLen = respUserBufferLen;
+    fileSizeRespConfig.pSyncInfo = &respSyncInfo;
 
     /* Initialize the request to retrieve a request handle. */
     httpsClientStatus = IotHttpsClient_InitializeRequest( &fileSizeReqHandle, &fileSizeReqConfig );
@@ -161,7 +168,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     }
 
     /* Send the request synchronously. */
-    httpsClientStatus = IotHttpsClient_SendSync( pConnHandle, fileSizeReqHandle, &fileSizeRespHandle, 0 );
+    httpsClientStatus = IotHttpsClient_SendSync( pConnHandle, fileSizeReqHandle, &fileSizeRespHandle, &fileSizeRespConfig, 0 );
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
         IotLogError( "There has been an error receiving the response. The error code is: %d", httpsClientStatus );

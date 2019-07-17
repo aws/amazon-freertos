@@ -57,7 +57,7 @@
 /**
  * @brief The minimum user buffer size for the HTTP request context and headers.
  *
- * This helps to calculate the size of the buffer needed for #IotHttpsRequestInfo_t.reqUserBuffer.
+ * This helps to calculate the size of the buffer needed for #IotHttpsRequestInfo_t.userBuffer.
  *
  * This buffer size is calculated to fit the HTTP request line and the default headers. It does not account for the
  * length of the path in the request line nor does it account for the length of the host name. It also does not account
@@ -73,14 +73,14 @@ extern const uint32_t requestUserBufferMinimumSize;
 /**
  * @brief The minimum user buffer size for the HTTP response context and headers.
  *
- * This helps to calculate the size of the buffer needed for #IotHttpsRequestInfo_t.respUserBuffer.
+ * This helps to calculate the size of the buffer needed for #IotHttpsResponseInfo_t.userBuffer.
  *
  * The buffer size is calculated to fit the HTTP response context only. It does not account for the HTTP response status
  * line. It does not account for any HTTP response headers. If the buffer assigned to
- * #IotHttpsRequestInfo_t.respUserBuffer is of this minimum size, then the response status line and the response headers
+ * #IotHttpsResponseInfo_t.userBuffer is of this minimum size, then the response status line and the response headers
  * will not be stored. These sizes need to be accounted for by the application when assigning a buffer.
  *
- * If the response status line and response headers cannot fit into #IotHttpsRequestInfo_t.respUserBuffer, then after a
+ * If the response status line and response headers cannot fit into #IotHttpsResponseInfo_t.userBuffer, then after a
  * call to @ref https_client_function_sendsync, calls to @ref https_client_function_readresponsestatus,
  * @ref https_client_function_readcontentlength, and @ref https_client_function_readheader will return a failure code.
  *
@@ -148,7 +148,7 @@ extern const uint32_t connectionUserBufferMinimumSize;
  * IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
  * IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
  * IotHttpsUserBuffer_t userBuffer = IOT_HTTPS_USER_BUFFER_INITIALIZER;
- * IotHttpsSyncRequestInfo_t syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
+ * IotHttpsSyncInfo_t syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
  * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
  * IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER
  * @code
@@ -163,7 +163,7 @@ extern const uint32_t connectionUserBufferMinimumSize;
 #define IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER       NULL
 /** @brief Initializer for #IotHttpsUserBuffer_t. */
 #define IOT_HTTPS_USER_BUFFER_INITIALIZER           { 0 }
-/** @brief Initializer for #IotHttpsSyncRequestInfo_t. */
+/** @brief Initializer for #IotHttpsSyncInfo_t. */
 #define IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER     { 0 }
 /** @brief Initializer for #IotHttpsConnectionInfo_t. */
 #define IOT_HTTPS_CONNECTION_INFO_INITIALIZER       { 0 }
@@ -385,7 +385,7 @@ typedef struct IotHttpsClientCallbacks
      * 
      * Appending the header when request is in progress is good for things like time limitted authentication tokens.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] reqHandle - The handle for the current HTTP request in progress.
      */
     void (* appendHeaderCallback )(void * pPrivData, IotHttpsRequestHandle_t reqHandle);
@@ -397,7 +397,7 @@ typedef struct IotHttpsClientCallbacks
      * If this is set to NULL, then it will not be invoked.
      * See @ref https_client_function_writerequestbody for more information on writing request body.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] reqHandle - The handle for the current HTTP request in progress.
      */
     void (* writeCallback)(void * pPrivData, IotHttpsRequestHandle_t reqHandle);
@@ -411,7 +411,7 @@ typedef struct IotHttpsClientCallbacks
      * See @ref https_client_function_readresponsebody for more information about reading the response body in this
      * callback.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] respHandle - The handle for the current HTTP response in progress.
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      * @param[in] status - The HTTP response status code of the current response in progress.
@@ -424,12 +424,12 @@ typedef struct IotHttpsClientCallbacks
      * If this is set to NULL, then it will not be invoked.
      * 
      * This callback is invoked when the response is fully received from the network and the request/response pair is 
-     * complete. After this function returns any memory configured in #IotHttpsRequestInfo_t.reqUserBuffer and
-     * #IotHttpsRequestInfo_t.respUserBuffer can be freed, modified, or reused
+     * complete. After this function returns any memory configured in #IotHttpsRequestInfo_t.userBuffer and
+     * #IotHttpsResponseInfo_t.userBuffer can be freed, modified, or reused
      * 
      * For a non-persistent connection, the connection will be closed first before invoking this callback.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] respHandle - The handle for the current HTTP response in progress.
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      * @param[in] status - The HTTP response status code of the current response in progress.
@@ -442,7 +442,7 @@ typedef struct IotHttpsClientCallbacks
      * 
      * If this is set to NULL, then it will not be invoked.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] connHandle - The handle for the current HTTP connection.
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      */
@@ -457,7 +457,7 @@ typedef struct IotHttpsClientCallbacks
      * This callback is invoked only if the connection was flagged as non-persistent in 
      * #IotHttpsConnectionInfo_t.flags.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] connHandle - The handle for the current HTTP connection.
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      */
@@ -469,7 +469,7 @@ typedef struct IotHttpsClientCallbacks
      * If this is set to NULL, then it will not be invoked.
      * If a timeout occurs during the connection process it will be available in rc as IOT_HTTPS_CONNECTION_ERROR.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] connHandle - The handle for the current HTTP connection.
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      */
@@ -479,7 +479,7 @@ typedef struct IotHttpsClientCallbacks
      * @brief User-provided callback function signature to indicate that an error occurred during the asynchronous 
      * process.
      * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncRequestInfo_t.pPrivData
+     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] reqHandle - The handle for the current HTTP request.
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      */
@@ -492,7 +492,8 @@ typedef struct IotHttpsClientCallbacks
  * 
  * @paramfor @ref https_client_function_initializerequest. 
  * 
- * The user buffer is configured in #IotHttpsConnectionInfo_t.userBuffer and #IotHttpsRequestInfo_t.userBuffer.
+ * The user buffer is configured in #IotHttpsConnectionInfo_t.userBuffe, #IotHttpsRequestInfo_t.userBufferm and
+ * #IotHttpsResponseInfo_t.userBuffer.
  *
  * The minimum size that the buffer must be configured to is indicated by requestUserBufferMinimumSize,
  * responseUserBufferMinimumSize, connectionUserBufferMinimumSize.
@@ -516,6 +517,7 @@ typedef struct IotHttpsUserBuffer
  */
 typedef struct IotHttpsSyncRequestInfo
 {
+    #if 0
     /**
      * @brief Pointer to the HTTP request entity body.
      *
@@ -532,7 +534,7 @@ typedef struct IotHttpsSyncRequestInfo
      *
      * If the length of the buffer provided to store response body is smaller than the amount of body received,
      * then @ref http_client_function_sendsync will return a IOT_HTTPS_INSUFFICIENT_MEMORY error code. Although an error
-     * was returned, the first #IotHttpsSyncRequestInfo_t.respDataLen of the response received on the network will
+     * was returned, the first #IotHttpsSyncInfo_t.respDataLen of the response received on the network will
      * still be available in the buffer.
      *
      * If this is set to NULL, then no body from the response will be stored.
@@ -542,7 +544,23 @@ typedef struct IotHttpsSyncRequestInfo
      */
     uint8_t * pRespData;
     uint32_t respDataLen;                   /**< @brief Length of the response data. */
-} IotHttpsSyncRequestInfo_t;
+    #endif
+
+    /**
+     * Pointer to the HTTP message body.
+     * 
+     * For a request this is the file or data we want to send.  The data is separated from the headers for the 
+     * flexibility to point to an already established file elsewhere in memory.
+     * 
+     * For a response this where to receive the response entity body.
+     * If the length of the buffer provided to store response body is smaller than the amount of body received,
+     * then @ref http_client_function_sendsync will return a IOT_HTTPS_INSUFFICIENT_MEMORY error code. Although an error
+     * was returned, the first #IotHttpsSyncInfo_t.bodyLen of the response received on the network will
+     * still be available in the buffer.
+     */
+    uint8_t * pBody;
+    uint32_t bodyLen;
+} IotHttpsSyncInfo_t;
 
 /**
  * @ingroup https_client_datatypes_paramstructs
@@ -565,7 +583,7 @@ typedef struct IotHttpsAsyncRequestInfo
      */
     IotHttpsClientCallbacks_t callbacks;
     void * pPrivData; /**< @brief User private data to provide context to the asynchronous callbacks. */
-} IotHttpsAsyncRequestInfo_t;
+} IotHttpsAsyncInfo_t;
 
 /**
  * @ingroup https_client_datatypes_paramstructs
@@ -668,7 +686,7 @@ typedef struct IotHttpsRequestInfo
      *
      * This is the same as the address in #IotHttpsConnectionInfo_t.pAddress. This is here in the request structure to
      * automatically generate the "Host" header field in the header buffer space configured in
-     * #IotHttpsRequestInfo_t.reqUserBuffer. See @ref https_client_function_initializerequest for more informaiton.
+     * #IotHttpsRequestInfo_t.userBuffer. See @ref https_client_function_initializerequest for more informaiton.
      */
     const char * pHost;
     uint32_t hostLen;                   /**< @brief Host address length. */
@@ -696,17 +714,7 @@ typedef struct IotHttpsRequestInfo
      *
      * Please see #IotHttpsUserBuffer_t for more information.
      */
-    IotHttpsUserBuffer_t reqUserBuffer;
-
-    /**
-     * The application owned buffer for storing the response headers and internal response context.
-     *
-     * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
-     * freed, or reused until the the #IotHttpCallbacks_t.responseCompleteCallback is invoked.
-     *
-     * Please see #IotHttpsUserBuffer_t for more information.
-     */
-    IotHttpsUserBuffer_t respUserBuffer;
+    IotHttpsUserBuffer_t userBuffer;
 
     /**
      * @brief Indicator if this request is sync or async.
@@ -718,12 +726,12 @@ typedef struct IotHttpsRequestInfo
     /**
      * @brief Specific information for either a synchronous request or an asynchronous request.
      * 
-     * See #IotHttpsAsyncRequestInfo_t for information on the pAsyncInfo.
-     * See #IotHttpsSyncRequestInfo_t for information on the pSyncInfo.
+     * See #IotHttpsAsyncInfo_t for information on pAsyncInfo.
+     * See #IotHttpsSyncInfo_t for information on pSyncInfo.
      */
     union {
-        IotHttpsAsyncRequestInfo_t *pAsyncInfo;  /**< @brief Information specifically for Asynchronous requests. */
-        IotHttpsSyncRequestInfo_t *pSyncInfo;    /**< @brief Information specifically for synchronous requests. */
+        IotHttpsAsyncInfo_t *pAsyncInfo;  /**< @brief Information specifically for Asynchronous requests. */
+        IotHttpsSyncInfo_t *pSyncInfo;    /**< @brief Information specifically for synchronous requests. */
     };
 
     /**
@@ -734,5 +742,36 @@ typedef struct IotHttpsRequestInfo
      */
     IotHttpsConnectionInfo_t *pConnInfo;
 } IotHttpsRequestInfo_t;
+
+/**
+ * @ingroup https_client_datatypes_paramstructs
+ * @brief HTTP request configuration.
+ *
+ * @paramfor @ref https_client_function_sendsync and @ref https_client_function_sendasync
+ * 
+ * A separate response info is defined so that the application can re-initialize a request for re-use while still
+ * processing a response that was already completed.
+ */
+typedef struct IotHttpsResponseInfo
+{
+    /**
+     * The application owned buffer for storing the response headers and internal response context.
+     *
+     * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
+     * freed, or reused until the the #IotHttpCallbacks_t.responseCompleteCallback is invoked.
+     *
+     * Please see #IotHttpsUserBuffer_t for more information.
+     */
+    IotHttpsUserBuffer_t userBuffer;
+
+    /**
+     * @brief Specific information for a synchronously received response.
+     * 
+     * Set this to NULL if the response is to be received asynchronously.
+     * 
+     * See #IotHttpsSyncInfo_t for information on pSyncInfo.
+     */
+    IotHttpsSyncInfo_t* pSyncInfo;
+} IotHttpsResponseInfo_t;
 
 #endif

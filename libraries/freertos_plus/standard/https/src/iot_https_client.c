@@ -99,7 +99,7 @@
 /**
  * @brief Minimum size of the request user buffer.
  * 
- * The request user buffer is configured in IotHttpsClientRequestInfo_t.reqUserBuffer. This buffer stores the internal context
+ * The request user buffer is configured in IotHttpsClientRequestInfo_t.userBuffer. This buffer stores the internal context
  * of the request and then the request headers right after. The minimum size for the buffer is the total size of the 
  * internal request context, the HTTP formatted request line, the User-Agent header line, and the part of the Host 
  * header line.
@@ -112,7 +112,7 @@ const uint32_t requestUserBufferMinimumSize = sizeof(_httpsRequest_t) +
 /**
  * @brief Minimum size of the response user buffer.
  * 
- * The response user buffer is configured in IotHttpsClientRequestInfo_t.respUserBuffer. This buffer stores the internal context
+ * The response user buffer is configured in IotHttpsClientRequestInfo_t.userBuffer. This buffer stores the internal context
  * of the response and then the response headers right after. This minimum size is calculated for the case if no bytes
  * from the HTTP response headers are to be stored. 
  */
@@ -578,6 +578,19 @@ static void _cancelRequest(_httpsRequest_t *pHttpsRequest);
  * @param[in] pHttpsResponse - HTTP response context.
  */
 static void _cancelResponse(_httpsResponse_t *pHttpsResponse);
+
+/**
+ * @brief Initialize the input pHttpsResponse with pRespInfo.
+ * 
+ * @param[in] pHttpsResponse - Non-null HTTP response context.
+ * @param[in] pRespInfo - Response configuration information.
+ * @param[in] isAsync - Set to true for an asynchronous response, false otherwise.
+ * @param[in] method - The HTTPS method of the originating request. 
+ */
+static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pRespHandle, 
+                                                 IotHttpsResponseInfo_t* pRespInfo, 
+                                                 bool isAsync, 
+                                                 IotHttpsMethod_t method );
 
 /*-----------------------------------------------------------*/
 
@@ -1835,7 +1848,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     pHttpsRequest->reqFinishedSending = false;
 
     /* Set the request associated with this response so that the network receive task can check if the request
-       has finished sending. */
+       has finished sending and invoke callbacks. */
     pHttpsResponse->pHttpsRequest = pHttpsRequest;
 
     /* Queue the response to expect from the network. */
@@ -2057,6 +2070,97 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
 
 /*-----------------------------------------------------------*/
 
+static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pRespHandle, IotHttpsResponseInfo_t* pRespInfo, bool isAsync, IotHttpsMethod_t method )
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    _httpsResponse_t* pHttpsResponse = NULL;
+
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo->userBuffer.pBuffer);
+
+    /* Check of the user buffer is large enough for the response context + default headers. */
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( pRespInfo->userBuffer.bufferLen >= responseUserBufferMinimumSize,
+        IOT_HTTPS_INSUFFICIENT_MEMORY,
+        "Buffer size is too small to initialize the response context. User buffer size: %d, required minimum size; %d.",
+        pRespInfo->userBuffer.bufferLen, 
+        responseUserBufferMinimumSize);
+
+    /* Initialize the corresponding response to this request. */
+    pHttpsResponse = (_httpsResponse_t *)(pRespInfo->userBuffer.pBuffer);
+
+    /* Clear out the response user buffer. This is important because we
+    give the whole buffer to the parser as opposed to the actual content
+    length and rely on the parser to stop when a complete HTTP response
+    is found. To make sure that any data in the buffer which is not part
+    of the received HTTP response, does not get interpreted as part of
+    the HTTP repose, we zero out the buffer here. */
+    memset(pRespInfo->userBuffer.pBuffer, 0, pRespInfo->userBuffer.bufferLen);
+        
+    pHttpsResponse->pHeaders = (uint8_t*)(pHttpsResponse) + sizeof(_httpsResponse_t);
+    pHttpsResponse->pHeadersEnd = (uint8_t*)(pHttpsResponse) + pRespInfo->userBuffer.bufferLen;
+    pHttpsResponse->pHeadersCur = pHttpsResponse->pHeaders;
+
+    if( isAsync )
+    {
+        pHttpsResponse->isAsync = true;
+        /* For an asynchronous request the response body is provided by the application in the 
+           IotHttpsCallbacks_t.readReadyCallback(). These pointers will be updated when IotHttpsClient_ReadResponseBody()
+           is invoked. */
+        pHttpsResponse->pBody = NULL;
+        pHttpsResponse->pBodyCur = NULL;
+        pHttpsResponse->pBodyEnd = NULL;
+    }
+    else
+    {
+        pHttpsResponse->isAsync = false;
+        /* The request body pointer is allowed to be NULL. pSyncInfo was checked for NULL earlier in this function. */
+        pHttpsResponse->pBody = pRespInfo->pSyncInfo->pBody;
+        pHttpsResponse->pBodyCur = pHttpsResponse->pBody;
+        pHttpsResponse->pBodyEnd = pHttpsResponse->pBody + pRespInfo->pSyncInfo->bodyLen;
+        /* Clear out the body bufffer. This is important because we give the
+        whole buffer to the parser as opposed to the actual content length and
+        rely on the parser to stop when a complete HTTP response is found. To
+        make sure that any data in the buffer which is not part of the received
+        HTTP response, does not get interpreted as part of the HTTP repose, we
+        zero out the buffer here. */
+        memset(pRespInfo->pSyncInfo->pBody, 0, pRespInfo->pSyncInfo->bodyLen);
+    }
+    
+    /* Reinitialize the parser and set the fill buffer state to empty. This does not return any errors. */
+    http_parser_init(&(pHttpsResponse->httpParserInfo.parser), HTTP_RESPONSE);
+    /* Set the third party http parser function. */
+    pHttpsResponse->httpParserInfo.parseFunc = http_parser_execute;
+
+    pHttpsResponse->status = 0;
+    pHttpsResponse->method = method;
+    pHttpsResponse->contentLength = 0;
+    pHttpsResponse->parserState = PARSER_STATE_NONE;
+    pHttpsResponse->bufferProcessingState = PROCESSING_STATE_NONE;
+    pHttpsResponse->pReadHeaderField = NULL;
+    pHttpsResponse->pReadHeaderValue = NULL;
+    pHttpsResponse->readHeaderValueLength = 0;
+    pHttpsResponse->foundHeaderField = 0;
+    pHttpsResponse->pHttpsConnection = NULL;
+    
+    pHttpsResponse->pBodyInHeaderBuf = NULL;
+    pHttpsResponse->pBodyCurInHeaderBuf = NULL;
+    pHttpsResponse->bodyRxStatus = IOT_HTTPS_OK;
+    pHttpsResponse->cancelled = false;
+    pHttpsResponse->syncStatus = IOT_HTTPS_OK;
+
+    /* Set the response handle to return. */
+    *pRespHandle  = pHttpsResponse;
+
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    if(HTTPS_FAILED(status))
+    {
+        pRespHandle = NULL;
+    }
+    HTTPS_FUNCTION_CLEANUP_END();
+}
+
+/*-----------------------------------------------------------*/
+
 void IotHttpsClient_Deinit( void )
 {
     /* There is nothing to de-initialize here as of now. */
@@ -2152,7 +2256,11 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
     }
     IotMutex_Unlock(&(connHandle->reqQMutex));
 
-    /* Remove all pending responses. */
+    /* Remove all pending responses. The network receive callback dequeues a response then proceeds to use the network 
+       interface to receive the response. If this routine is called from the application context and there is a 
+       network receive callback in process, this routine will wait in _networkDestroy until that routine returns. 
+       If this is routine is called from the network receive callback context, then the destroy happens after the 
+       network receive callback context returns. */
     IotMutex_Lock(&(connHandle->respQMutex));
     IotDeQueue_RemoveAll(&(connHandle->respQ), NULL, 0);
     IotMutex_Unlock(&(connHandle->reqQMutex));
@@ -2182,9 +2290,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     /* Check for NULL parameters in the public API. */
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqHandle );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo );
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->reqUserBuffer.pBuffer );
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->userBuffer.pBuffer );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pHost );
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->respUserBuffer.pBuffer );
     if(pReqInfo->isAsync)
     {
         HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pAsyncInfo );
@@ -2196,27 +2303,20 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     
 
     /* Check of the user buffer is large enough for the request context + default headers. */
-    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( pReqInfo->reqUserBuffer.bufferLen >= requestUserBufferMinimumSize,
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( pReqInfo->userBuffer.bufferLen >= requestUserBufferMinimumSize,
         IOT_HTTPS_INSUFFICIENT_MEMORY,
         "Buffer size is too small to initialize the request context. User buffer size: %d, required minimum size; %d.",
-        pReqInfo->reqUserBuffer.bufferLen,
+        pReqInfo->userBuffer.bufferLen,
         requestUserBufferMinimumSize);
 
-    /* Check of the user buffer is large enough for the response context + default headers. */
-    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( pReqInfo->respUserBuffer.bufferLen >= responseUserBufferMinimumSize,
-        IOT_HTTPS_INSUFFICIENT_MEMORY,
-        "Buffer size is too small to initialize the response context. User buffer size: %d, required minimum size; %d.",
-        pReqInfo->respUserBuffer.bufferLen, 
-        responseUserBufferMinimumSize);
-
     /* Set the request contet to the start of the userbuffer. */
-    pHttpsRequest = ( _httpsRequest_t *)(pReqInfo->reqUserBuffer.pBuffer);
+    pHttpsRequest = ( _httpsRequest_t *)(pReqInfo->userBuffer.pBuffer);
     /* Clear out the user buffer. */
-    memset(pReqInfo->reqUserBuffer.pBuffer, 0, pReqInfo->reqUserBuffer.bufferLen);
+    memset(pReqInfo->userBuffer.pBuffer, 0, pReqInfo->userBuffer.bufferLen);
 
     /* Set the start of the headers to the end of the request context in the user buffer. */
     pHttpsRequest->pHeaders = (uint8_t*)pHttpsRequest + sizeof( _httpsRequest_t );
-    pHttpsRequest->pHeadersEnd = (uint8_t*)pHttpsRequest + pReqInfo->reqUserBuffer.bufferLen;
+    pHttpsRequest->pHeadersEnd = (uint8_t*)pHttpsRequest + pReqInfo->userBuffer.bufferLen;
     pHttpsRequest->pHeadersCur = pHttpsRequest->pHeaders;
 
     /* Get the length of the HTTP method. */
@@ -2280,6 +2380,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
 
     if(pReqInfo->isAsync)
     {
+        pHttpsRequest->isAsync = true;
         /* If this is an asynchronous request then save the callbacks to use. */
         pHttpsRequest->pCallbacks = &(pReqInfo->pAsyncInfo->callbacks);
         pHttpsRequest->pUserPrivData = pReqInfo->pAsyncInfo->pPrivData;
@@ -2289,87 +2390,28 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     }
     else
     {
+        pHttpsRequest->isAsync = false;
         /* Set the HTTP request entity body. This is allowed to be NULL for no body like for a GET request. */
-        pHttpsRequest->pBody = pReqInfo->pSyncInfo->pReqData;
-        pHttpsRequest->bodyLength = pReqInfo->pSyncInfo->reqDataLen;
+        pHttpsRequest->pBody = pReqInfo->pSyncInfo->pBody;
+        pHttpsRequest->bodyLength = pReqInfo->pSyncInfo->bodyLen;
     }
 
+    /* Save the method of this request. */
+    pHttpsRequest->method = pReqInfo->method;
     /* Save the connection info if the connection is to be made at the time of the request. */
     pHttpsRequest->pConnInfo = pReqInfo->pConnInfo;
     /* Set the connection persistence flag for keeping the connection open after receiving a response. */
     pHttpsRequest->isNonPersistent = pReqInfo->isNonPersistent;
     /* Initialize the request to not finished sending. */
     pHttpsRequest->reqFinishedSending = false;
-    /* Initialize the reqest cancellation. */
+    /* Initialize the request cancellation. */
     pHttpsRequest->cancelled = false;
 
-    /* Initialize the corresponding response to this request. */
-    pHttpsRequest->pHttpsResponse = (_httpsResponse_t *)(pReqInfo->respUserBuffer.pBuffer);
-    /* Clear out the response user buffer. This is important because we
-    give the whole buffer to the parser as opposed to the actual content
-    length and rely on the parser to stop when a complete HTTP response
-    is found. To make sure that any data in the buffer which is not part
-    of the received HTTP response, does not get interpreted as part of
-    the HTTP repose, we zero out the buffer here. */
-    memset(pReqInfo->respUserBuffer.pBuffer, 0, pReqInfo->respUserBuffer.bufferLen);
-        
-    pHttpsRequest->pHttpsResponse->pHeaders = (uint8_t*)(pHttpsRequest->pHttpsResponse) + sizeof(_httpsResponse_t);
-    pHttpsRequest->pHttpsResponse->pHeadersEnd = (uint8_t*)(pHttpsRequest->pHttpsResponse) + pReqInfo->respUserBuffer.bufferLen;
-    pHttpsRequest->pHttpsResponse->pHeadersCur = pHttpsRequest->pHttpsResponse->pHeaders;
-
-    if( pReqInfo->isAsync )
-    {
-        /* For an asynchronous request the response body is provided by the application in the 
-           IotHttpsCallbacks_t.readReadyCallback(). These pointers will be updated when IotHttpsClient_ReadResponseBody()
-           is invoked. */
-        pHttpsRequest->pHttpsResponse->pBody = NULL;
-        pHttpsRequest->pHttpsResponse->pBodyCur = NULL;
-        pHttpsRequest->pHttpsResponse->pBodyEnd = NULL;
-    }
-    else
-    {
-        /* The request body pointer is allowed to be NULL. pSyncInfo was checked for NULL earlier in this function. */
-        pHttpsRequest->pHttpsResponse->pBody = pReqInfo->pSyncInfo->pRespData;
-        pHttpsRequest->pHttpsResponse->pBodyCur = pHttpsRequest->pHttpsResponse->pBody;
-        pHttpsRequest->pHttpsResponse->pBodyEnd = pHttpsRequest->pHttpsResponse->pBody + pReqInfo->pSyncInfo->respDataLen;
-        /* Clear out the body bufffer. This is important because we give the
-        whole buffer to the parser as opposed to the actual content length and
-        rely on the parser to stop when a complete HTTP response is found. To
-        make sure that any data in the buffer which is not part of the received
-        HTTP response, does not get interpreted as part of the HTTP repose, we
-        zero out the buffer here. */
-        memset(pReqInfo->pSyncInfo->pRespData, 0, pReqInfo->pSyncInfo->respDataLen);
-    }
-    
-
-
-    /* Reinitialize the parser and set the fill buffer state to empty. This does not return any errors. */
-    http_parser_init(&(pHttpsRequest->pHttpsResponse->httpParserInfo.parser), HTTP_RESPONSE);
-    /* Set the third party http parser function. */
-    pHttpsRequest->pHttpsResponse->httpParserInfo.parseFunc = http_parser_execute;
-
-    pHttpsRequest->pHttpsResponse->status = 0;
-    pHttpsRequest->pHttpsResponse->method = pReqInfo->method;
-    pHttpsRequest->pHttpsResponse->contentLength = 0;
-    pHttpsRequest->pHttpsResponse->parserState = PARSER_STATE_NONE;
-    pHttpsRequest->pHttpsResponse->bufferProcessingState = PROCESSING_STATE_NONE;
-    pHttpsRequest->pHttpsResponse->pReadHeaderField = NULL;
-    pHttpsRequest->pHttpsResponse->pReadHeaderValue = NULL;
-    pHttpsRequest->pHttpsResponse->readHeaderValueLength = 0;
-    pHttpsRequest->pHttpsResponse->foundHeaderField = 0;
-    pHttpsRequest->pHttpsResponse->pHttpsConnection = NULL;
+    /* Set the request handle to return. */
     *pReqHandle = pHttpsRequest;
-    	
-    pHttpsRequest->pHttpsResponse->isAsync = pReqInfo->isAsync;
-    pHttpsRequest->pHttpsResponse->pBodyInHeaderBuf = NULL;
-    pHttpsRequest->pHttpsResponse->pBodyCurInHeaderBuf = NULL;
-    pHttpsRequest->pHttpsResponse->bodyRxStatus = IOT_HTTPS_OK;
-    pHttpsRequest->pHttpsResponse->cancelled = false;
-    pHttpsRequest->pHttpsResponse->syncStatus = IOT_HTTPS_OK;
-    pHttpsRequest->pHttpsResponse->pHttpsRequest = pHttpsRequest;
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
-    if((status != IOT_HTTPS_OK) && (pReqHandle != NULL))
+    if(HTTPS_FAILED(status) && (pReqHandle != NULL))
     {
         /* Set the request handle to return to NULL, if we failed anywhere. */
         *pReqHandle = NULL;
@@ -2429,7 +2471,11 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHandle, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t * pRespHandle, uint32_t timeoutMs)
+IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHandle, 
+                                             IotHttpsRequestHandle_t reqHandle, 
+                                             IotHttpsResponseHandle_t * pRespHandle, 
+                                             IotHttpsResponseInfo_t *pRespInfo,
+                                             uint32_t timeoutMs)
 {
 
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
@@ -2443,10 +2489,10 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pConnHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle->pHttpsResponse);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
 
     /* If an asynchronous request/response is configured, that is invalid for this API. */
-    if(reqHandle->pHttpsResponse->isAsync)
+    if(reqHandle->isAsync)
     {
         IotLogError("Called IotHttpsClient_SendSync on an asynchronous configured request.");
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
@@ -2460,8 +2506,13 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         HTTPS_GOTO_CLEANUP();
     }
 
-    /* Set the response handle to return. */
-    *pRespHandle = reqHandle->pHttpsResponse;
+    /* Initialize the response handle to return. */
+    status = _initializeResponse(pRespHandle, pRespInfo, false /* Not async */, reqHandle->method);
+    if(HTTPS_FAILED(status))
+    {
+        IotLogError("Failed to initialize the response on the synchronous request %d.", reqHandle);
+        HTTPS_GOTO_CLEANUP();
+    }
 
     /* Set the internal response to use. */
     pHttpsResponse = *pRespHandle;
@@ -2470,7 +2521,6 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     reqHandle->pHttpsConnection = *pConnHandle;
     pHttpsResponse->pHttpsConnection = *pConnHandle;
 
-
     /* Create the semaphore used to wait on the response to finish being received. */
     respFinishedSemCreated = IotSemaphore_Create( &( pHttpsResponse->respFinishedSem ), 0 /* initialValue */, 1 /* maxValue */ );
     if( respFinishedSemCreated == false  )
@@ -2478,6 +2528,9 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
         IotLogError("Failed to create an internal semaphore.");
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INTERNAL_ERROR);
     }
+
+    /* Associate the response to the request so that we can schedule it to be received when the request gets scheduled to send. */
+    reqHandle->pHttpsResponse = pHttpsResponse;
 
     /* Schedule this request to be sent by adding it to the connection's request queue. */
     status = _addRequestToConnectionReqQ(reqHandle);
@@ -2537,10 +2590,9 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle->pHttpsResponse);
     /* This function is not valid for a synchronous response. Applications need to configure the request body in 
        IotHttpsRequestInfo_t.pSyncInfo_t.reqData before calling IotHttpsClient_SendSync(). */
-    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->pHttpsResponse->isAsync);
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
     HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP(isComplete == 1,
         IOT_HTTPS_NOT_SUPPORTED,
         "isComplete must be 1 in IotHttpsClient_WriteRequestBody() for the current version of the HTTPS Client library.");
@@ -2637,14 +2689,14 @@ IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync(IotHttpsResponseHandle_t
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t *pConnHandle, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t * pRespHandle)
+IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t *pConnHandle, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t * pRespHandle, IotHttpsResponseInfo_t* pRespInfo)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pConnHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
-    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->pHttpsResponse->isAsync);
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
 
     /* Connect implicitly if we need to. This will will return a valid pRespHandle and a valid pConnHandle. */
     status = _implicitlyConnect(pConnHandle, reqHandle->pConnInfo);
@@ -2661,14 +2713,22 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t *pConnH
         }
     }
 
+    /* Initialize the response handle to return. */
+    status = _initializeResponse(pRespHandle, pRespInfo, true /* Is async. */, reqHandle->method);
+    if(HTTPS_FAILED(status))
+    {
+        IotLogError("Failed to initialize the response on the synchronous request %d.", reqHandle);
+        HTTPS_GOTO_CLEANUP();
+    }
+
     /* Set the connection handle in the request handle so that we can use it in the _writeResponseBody() callback. */
     reqHandle->pHttpsConnection = *pConnHandle;
 
-    /* Set the response handle to return. */
-    *pRespHandle = reqHandle->pHttpsResponse;
-
     /* Set the connection handle in the response handle sp that we can use it in the _readReadyCallback() callback. */
     ( *pRespHandle )->pHttpsConnection = *pConnHandle;
+
+    /* Associate the response to the request so that we can schedule it to be received when the request gets scheduled to send. */
+    reqHandle->pHttpsResponse = *pRespHandle;
 
     /* Add the request to the connection's request queue. */
     status = _addRequestToConnectionReqQ(reqHandle);

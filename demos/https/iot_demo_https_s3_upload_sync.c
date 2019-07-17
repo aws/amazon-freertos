@@ -204,6 +204,8 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     /* Configurations for the HTTPS request. */
     IotHttpsRequestInfo_t reqConfig = { 0 };
+    /* Configurations for the HTTPS response. */
+    IotHttpsResponseInfo_t respConfig = { 0 };
     /* Handle identifying the HTTP request. This is valid after the request has been initialized with 
        IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
@@ -211,7 +213,9 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
        IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
-    IotHttpsSyncRequestInfo_t syncInfo = { 0 };
+    IotHttpsSyncInfo_t reqSyncInfo = { 0 };
+    /* Synchronous response specific configurations. */
+    IotHttpsSyncInfo_t respSyncInfo = { 0 };
 
     /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     const char *pPath = NULL;
@@ -269,11 +273,13 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     connConfig.pNetworkInterface = pNetworkInterface;
 
     /* Set the configurations needed for a synchronous request. */
-    syncInfo.pReqData = (uint8_t*)(IOT_DEMO_HTTPS_UPLOAD_DATA);     /* Pointer to the file/buffer of data we want to upload. */
-    syncInfo.reqDataLen = IOT_DEMO_HTTPS_UPLOAD_DATA_SIZE;
-    syncInfo.pRespData = _pRespBodyBuffer;              /* S3 will have some data in the body to the upload 
+    reqSyncInfo.pBody = (uint8_t*)(IOT_DEMO_HTTPS_UPLOAD_DATA);     /* Pointer to the file/buffer of data we want to upload. */
+    reqSyncInfo.bodyLen = IOT_DEMO_HTTPS_UPLOAD_DATA_SIZE;
+
+    /* Set the configurations needed for a synchronous response. */
+    respSyncInfo.pBody = _pRespBodyBuffer;              /* S3 will have some data in the body to the upload 
                                                            acknowledgement. It might be interesting. */
-    syncInfo.respDataLen = sizeof(_pRespBodyBuffer);
+    respSyncInfo.bodyLen = sizeof(_pRespBodyBuffer);
 
     /* Set the request configurations. */
     reqConfig.pPath = pPath; 
@@ -288,14 +294,17 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
        https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html for more information about PUT object. */
     reqConfig.method = IOT_HTTPS_METHOD_PUT;
     reqConfig.isNonPersistent = false;
-    reqConfig.reqUserBuffer.pBuffer = _pReqUserBuffer;
-    reqConfig.reqUserBuffer.bufferLen = sizeof(_pReqUserBuffer);
-    reqConfig.respUserBuffer.pBuffer = _pRespUserBuffer;
-    reqConfig.respUserBuffer.bufferLen = sizeof(_pRespUserBuffer);
+    reqConfig.userBuffer.pBuffer = _pReqUserBuffer;
+    reqConfig.userBuffer.bufferLen = sizeof(_pReqUserBuffer);
     reqConfig.isAsync = false;
-    reqConfig.pSyncInfo = &syncInfo;
+    reqConfig.pSyncInfo = &reqSyncInfo;
     /* We will implicitly connect in the first call to IotHttpsClient_SendSync(). */
     reqConfig.pConnInfo = &connConfig;
+
+    /* Set the response configurations. */ 
+    respConfig.userBuffer.pBuffer = _pRespUserBuffer;
+    respConfig.userBuffer.bufferLen = sizeof(_pRespUserBuffer);
+    respConfig.pSyncInfo = &respSyncInfo;
 
     /* Initialize the HTTPS library. */
     httpsClientStatus = IotHttpsClient_Init();
@@ -315,7 +324,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     }
 
     /* Send the upload request. */
-    httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, 0 );
+    httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, &respConfig, 0 );
     /* If there was network error try again one more time. */
     if( httpsClientStatus == IOT_HTTPS_NETWORK_ERROR )
     {
@@ -327,7 +336,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
             IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
         }
 
-        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, 0 );
+        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, &respConfig, 0 );
         if( httpsClientStatus != IOT_HTTPS_OK )
         {
             IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );
