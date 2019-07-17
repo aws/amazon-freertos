@@ -18,7 +18,6 @@ afr_module_dependencies(
         3rdparty::pkcs11 
         AFR::pkcs11
     PRIVATE
-        AFR::pkcs11_mbedtls
         AFR::${AFR_CURRENT_MODULE}::mcu_port
 	    AFR::utils
 )
