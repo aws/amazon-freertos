@@ -148,9 +148,11 @@ extern const uint32_t connectionUserBufferMinimumSize;
  * IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
  * IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
  * IotHttpsUserBuffer_t userBuffer = IOT_HTTPS_USER_BUFFER_INITIALIZER;
- * IotHttpsSyncInfo_t syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
+ * IotHttpsSyncInfo_t syncInfoReq = IOT_HTTPS_SYNC_INFO_INITIALIZER;
+ * IotHttpsSyncInfo_t syncInfoResp = IOT_HTTPS_SYNC_INFO_INITIALIZER;
  * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
  * IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER
+ * IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER
  * @code
  *
  */
@@ -164,11 +166,13 @@ extern const uint32_t connectionUserBufferMinimumSize;
 /** @brief Initializer for #IotHttpsUserBuffer_t. */
 #define IOT_HTTPS_USER_BUFFER_INITIALIZER           { 0 }
 /** @brief Initializer for #IotHttpsSyncInfo_t. */
-#define IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER     { 0 }
+#define IOT_HTTPS_SYNC_INFO_INITIALIZER             { 0 }
 /** @brief Initializer for #IotHttpsConnectionInfo_t. */
 #define IOT_HTTPS_CONNECTION_INFO_INITIALIZER       { 0 }
 /** @brief Initializer for #IotHttpsRequestInfo_t. */
 #define IOT_HTTPS_REQUEST_INFO_INITIALIZER          { 0 }
+/** @brief Initializer for #IotHttpsResponseInfo_t. */
+#define IOT_HTTPS_RESPONSE_INFO_INITIALIZER         { 0 }
 /* @[define_https_initializers] */
 
 /* Amazon FreeRTOS network include for the network types below. */
