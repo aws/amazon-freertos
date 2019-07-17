@@ -37,24 +37,22 @@
  * @brief Retrieve the size of the S3 object that is specified in pPath.
  * 
  * @param[out] pFileSize - The size of the S3 object.
- * @param[out] pConnHandle - When a connection is made implicitly here, then a valid connection handle will be returned.
+ * @param[in] connHandle - A valid connected connection handle.
  * @param[in] pPath - The path to the S3 object. This includes all of the queries in the pre-signed URL as well.
  * @param[in] pathLen - The length of the path to the S3 object. This length includes all of the queries following as well.
  * @param[in] pAddress - The address of the S3 host extracted from the presigned S3 URL.
  * @param[in] addressLen - The length of pAddress.
- * @param[in] pConnInfo - HTTPS Client library connection information. The pAddress and addressLen will be replaced with the parameters here. All other fields must be valid for a connection.
  * @param[in] pReqUserBuffer - Buffer for storing the request context and headers.
  * @param[in] reqUserBufferLen - Length of the request user buffer.
  * @param[in] pRespUserBuffer - Buffer for storing the response context and headers.
  * @param[in] respUserBufferLen - Length of the response user buffer.
  */
 int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t* pFileSize,
-                                       IotHttpsConnectionHandle_t* pConnHandle,
+                                       IotHttpsConnectionHandle_t connHandle,
                                        const char * pPath,
                                        uint32_t pathLen,
                                        const char * pAddress,
                                        uint32_t addressLen,
-                                       IotHttpsConnectionInfo_t * pConnInfo,
                                        uint8_t * pReqUserBuffer,
                                        uint32_t reqUserBufferLen,
                                        uint8_t * pRespUserBuffer,

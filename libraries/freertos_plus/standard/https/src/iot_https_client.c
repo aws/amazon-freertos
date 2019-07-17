@@ -495,17 +495,6 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsCo
  */
 static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext );
 
-/**
- * @brief Implicitly connect if the pConnHandle is NULL or the current connection in pConnHandle is disconnected.
- * 
- * @param[in] pConnHandle - Handle from an HTTPS connection. If points to NULL then an implicit connection will be made.
- * @param[in] pConnInfo - Connection configuration information.
- * 
- * @return  #IOT_HTTPS_OK - if the request was sent and the response was received successfully.
- *          #IOT_HTTPS_CONNECTION_ERROR if the connection failed.
- */
-static IotHttpsReturnCode_t _implicitlyConnect(IotHttpsConnectionHandle_t *pConnHandle, IotHttpsConnectionInfo_t* pConnInfo);
-
 
 /**
  * @brief Receive the HTTPS body specific to an asynchronous type of response.
@@ -1918,33 +1907,6 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     }
 }
 
-/* --------------------------------------------------------- */
-
-static IotHttpsReturnCode_t _implicitlyConnect(IotHttpsConnectionHandle_t *pConnHandle, IotHttpsConnectionInfo_t* pConnInfo)
-{
-    HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
-
-    /* If the pConnHandle is valid and the handle is in a connected state, then we do not implicitly connect. */
-    if( (* pConnHandle != NULL) && ((* pConnHandle)->isConnected))
-    {
-        HTTPS_GOTO_CLEANUP();
-    }
-    /* If the pConnHandle points to a NULL handle or the pConnHandle is false, then make try to make a connection. */
-
-    /* In order to make the connection now the pConnInfo member of IotHttpsRequestHandle_t must not be NULL. */
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pConnInfo);
-
-    /* This routine will set the pConnHandle to return if successful. */
-    status = _createHttpsConnection(pConnHandle, pConnInfo);
-    if(HTTPS_FAILED(status))
-    {
-        IotLogError("An error occurred in connecting with th server with error code: %d", status);
-        HTTPS_GOTO_CLEANUP();
-    }
-
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
-}
-
 /*-----------------------------------------------------------*/
 
 IotHttpsReturnCode_t _scheduleHttpsRequestSend(_httpsRequest_t* pHttpsRequest)
@@ -2398,8 +2360,6 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
 
     /* Save the method of this request. */
     pHttpsRequest->method = pReqInfo->method;
-    /* Save the connection info if the connection is to be made at the time of the request. */
-    pHttpsRequest->pConnInfo = pReqInfo->pConnInfo;
     /* Set the connection persistence flag for keeping the connection open after receiving a response. */
     pHttpsRequest->isNonPersistent = pReqInfo->isNonPersistent;
     /* Initialize the request to not finished sending. */
@@ -2471,7 +2431,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHandle, 
+IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHandle, 
                                              IotHttpsRequestHandle_t reqHandle, 
                                              IotHttpsResponseHandle_t * pRespHandle, 
                                              IotHttpsResponseInfo_t *pRespInfo,
@@ -2486,7 +2446,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     _httpsResponse_t* pHttpsResponse = NULL;
 
     /* Parameter checks. */
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pConnHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(connHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
@@ -2496,14 +2456,6 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     {
         IotLogError("Called IotHttpsClient_SendSync on an asynchronous configured request.");
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
-    }
-
-    /* This routine will set the pConnHandle to return if successful. */
-    status = _implicitlyConnect(pConnHandle, reqHandle->pConnInfo);
-    if(HTTPS_FAILED(status))
-    {
-        IotLogError("Failed to connect implicitly in IotHttpsClient_SendSync. Error code: %d", status);
-        HTTPS_GOTO_CLEANUP();
     }
 
     /* Initialize the response handle to return. */
@@ -2518,8 +2470,8 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t *pConnHa
     pHttpsResponse = *pRespHandle;
     
     /* The implicit connection passed and we need to the set the connection handle in the request and response. */
-    reqHandle->pHttpsConnection = *pConnHandle;
-    pHttpsResponse->pHttpsConnection = *pConnHandle;
+    reqHandle->pHttpsConnection = connHandle;
+    pHttpsResponse->pHttpsConnection = connHandle;
 
     /* Create the semaphore used to wait on the response to finish being received. */
     respFinishedSemCreated = IotSemaphore_Create( &( pHttpsResponse->respFinishedSem ), 0 /* initialValue */, 1 /* maxValue */ );
@@ -2689,29 +2641,14 @@ IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync(IotHttpsResponseHandle_t
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t *pConnHandle, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t * pRespHandle, IotHttpsResponseInfo_t* pRespInfo)
+IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHandle, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t * pRespHandle, IotHttpsResponseInfo_t* pRespInfo)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
 
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pConnHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(connHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
     HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
-
-    /* Connect implicitly if we need to. This will will return a valid pRespHandle and a valid pConnHandle. */
-    status = _implicitlyConnect(pConnHandle, reqHandle->pConnInfo);
-    if(HTTPS_FAILED(IOT_HTTPS_OK))
-    {
-        IotLogError("Failed to connect implicitly in IotHttpsClient_SendAsync. Error code: %d", status);
-        HTTPS_GOTO_CLEANUP();
-    }
-    else
-    {
-        if(reqHandle->pCallbacks->connectionEstablishedCallback)
-        {
-            reqHandle->pCallbacks->connectionEstablishedCallback(reqHandle->pUserPrivData, *pConnHandle, status);
-        }
-    }
 
     /* Initialize the response handle to return. */
     status = _initializeResponse(pRespHandle, pRespInfo, true /* Is async. */, reqHandle->method);
@@ -2722,10 +2659,10 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t *pConnH
     }
 
     /* Set the connection handle in the request handle so that we can use it in the _writeResponseBody() callback. */
-    reqHandle->pHttpsConnection = *pConnHandle;
+    reqHandle->pHttpsConnection = connHandle;
 
     /* Set the connection handle in the response handle sp that we can use it in the _readReadyCallback() callback. */
-    ( *pRespHandle )->pHttpsConnection = *pConnHandle;
+    ( *pRespHandle )->pHttpsConnection = connHandle;
 
     /* Associate the response to the request so that we can schedule it to be received when the request gets scheduled to send. */
     reqHandle->pHttpsResponse = *pRespHandle;

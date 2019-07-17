@@ -75,12 +75,11 @@
 
 int _IotHttpsDemo_GetS3ObjectFileSize(
     uint32_t* pFileSize,
-    IotHttpsConnectionHandle_t* pConnHandle,
+    IotHttpsConnectionHandle_t connHandle,
     const char * pPath,
     uint32_t pathLen,
     const char * pAddress,
     uint32_t addressLen,
-    IotHttpsConnectionInfo_t * pConnInfo,
     uint8_t * pReqUserBuffer,
     uint32_t reqUserBufferLen,
     uint8_t * pRespUserBuffer,
@@ -117,10 +116,6 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     /* Size in bytes of a single character. */
     uint8_t sizeOfOneChar = 1;
 
-    /* Update the input pConnInfo with the host address input. */
-    pConnInfo->pAddress = pAddress;
-    pConnInfo->addressLen = addressLen;
-
     /* We are retrieving the file size synchronously because we cannot run this demo without the file size anyways
        so it's OK to block. */
     reqSyncInfo.pBody = NULL;    /* This is a GET request so there is no data in the body. */
@@ -142,7 +137,6 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     fileSizeReqConfig.userBuffer.bufferLen = reqUserBufferLen;
     fileSizeReqConfig.isAsync = false;
     fileSizeReqConfig.pSyncInfo = &reqSyncInfo;
-    fileSizeReqConfig.pConnInfo = pConnInfo;
 
     /* Set the response configurations. */
     fileSizeRespConfig.userBuffer.pBuffer = pRespUserBuffer;
@@ -168,7 +162,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     }
 
     /* Send the request synchronously. */
-    httpsClientStatus = IotHttpsClient_SendSync( pConnHandle, fileSizeReqHandle, &fileSizeRespHandle, &fileSizeRespConfig, 0 );
+    httpsClientStatus = IotHttpsClient_SendSync( connHandle, fileSizeReqHandle, &fileSizeRespHandle, &fileSizeRespConfig, 0 );
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
         IotLogError( "There has been an error receiving the response. The error code is: %d", httpsClientStatus );

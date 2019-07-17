@@ -453,20 +453,6 @@ static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_
 /*-----------------------------------------------------------*/   
 
 /**
- * @brief Callback for an asynchronous request to notify that the connection was established.
- * 
- * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
- * @param[in] connHandle - Identifier for the current connection.
- * @param[in] rc - Return code from the HTTPS Client Library signalling a possible error..
- */
-static void _connectionEstablishedCallback(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc)
-{
-    IotLogInfo( "Connection has been established to the s3 server!" );
-}
-
-/*-----------------------------------------------------------*/   
-
-/**
  * @brief Callback for an asynchronous request to notify that the connection was closed.
  * 
  * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
@@ -476,20 +462,6 @@ static void _connectionEstablishedCallback(void * pPrivData, IotHttpsConnectionH
 static void _connectionClosedCallback(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc)
 {
     IotLogInfo( "Connection with the s3 server has been closed." );
-}
-
-/*-----------------------------------------------------------*/   
-
-/**
- * @brief Callback for an asynchronous request to notify that the connection timed out.
- * 
- * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
- * @param[in] connHandle - Identifier for the current connection.
- * @param[in] rc - Return code from the HTTPS Client Library signalling a possible error.
- */
-static void _connectionTimeoutCallback(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc)
-{
-    IotLogError( "The Connection with s3 server timeout." );
 }
 
 /*-----------------------------------------------------------*/   
@@ -597,9 +569,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     asyncInfo.callbacks.appendHeaderCallback = _appendHeaderCallback;
     asyncInfo.callbacks.readReadyCallback = _readReadyCallback;
     asyncInfo.callbacks.responseCompleteCallback = _responseCompleteCallback;
-    asyncInfo.callbacks.connectionEstablishedCallback = _connectionEstablishedCallback;
     asyncInfo.callbacks.connectionClosedCallback = _connectionClosedCallback;
-    asyncInfo.callbacks.connectionTimeoutCallback = _connectionTimeoutCallback;
     asyncInfo.callbacks.errorCallback = _errorCallback;
     
     /* Create the mutex to protect the pool of requests. */
@@ -625,14 +595,23 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
+
+    /* Connect to S3. */
+    httpsClientStatus = IotHttpsClient_Connect(&connHandle, &connConfig);
+    if( httpsClientStatus != IOT_HTTPS_OK)
+    {
+        IotLogError( "Failed to connect to the S3 server. Error code: %d.", httpsClientStatus );
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+    }
+
+
     /* Retrieve the size of the file specified in the S3 Presigned URL. */
     if( _IotHttpsDemo_GetS3ObjectFileSize( &_fileSize,
-            &connHandle, 
+            connHandle, 
             pPath, 
             pathLen, 
             pAddress, 
             addressLen,
-            &connConfig,
             _pReqUserBuffers[0], 
             IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE, 
             _pRespUserBuffers[0], 
@@ -710,7 +689,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
 
         /* Send the request and receive the response asynchronously. This will schedule the async request. We 
            will return immediately after scheduling. */
-        httpsClientStatus = IotHttpsClient_SendAsync( &connHandle, _pReqHandles[reqIndex], &(_pRespHandles[reqIndex]), &( _pRespConfigs[reqIndex]) );
+        httpsClientStatus = IotHttpsClient_SendAsync( connHandle, _pReqHandles[reqIndex], &(_pRespHandles[reqIndex]), &( _pRespConfigs[reqIndex]) );
         if( httpsClientStatus != IOT_HTTPS_OK )
         {
             IotLogError( "Failed to send the request asynchronously with error code: %d", httpsClientStatus );

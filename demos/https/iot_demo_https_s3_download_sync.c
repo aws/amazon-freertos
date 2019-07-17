@@ -192,8 +192,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
  *      but this demo ignores these parameters.
  * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo. This is ignored in this demo.
  * @param[in] pNetworkCredentialInfo Contains credential Info specific for the MQTT demo. This is ignored in this demo.
- * @param[in] pNetworkInterface Set to the IotHttpsConnectionInfo_t in IotHttpsRequestHandle_t.pConnInfo to implicitly 
- *      connect when sending the request.
+ * @param[in] pNetworkInterface Contains the network interface interaction routines.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
@@ -320,8 +319,6 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     reqConfig.userBuffer.bufferLen = sizeof(_pReqUserBuffer);
     reqConfig.isAsync = false;
     reqConfig.pSyncInfo = &reqSyncInfo;
-    /* We will implicitly connect in the first call to IotHttpsClient_SendSync(). */
-    reqConfig.pConnInfo = &connConfig;
 
     /* Set the response configurations. */ 
     respConfig.userBuffer.pBuffer = _pRespUserBuffer;
@@ -336,11 +333,11 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    /* Initialize the request. This will create a request line and add required headers into the userBuffer. */
-    httpsClientStatus = IotHttpsClient_InitializeRequest( &reqHandle, &reqConfig );
-    if( httpsClientStatus != IOT_HTTPS_OK )
+    /* Connect to S3. */
+    httpsClientStatus = IotHttpsClient_Connect(&connHandle, &connConfig);
+    if( httpsClientStatus != IOT_HTTPS_OK)
     {
-        IotLogError("An error occurred in IotHttpsClient_InitializeRequest() with error code: %d", httpsClientStatus);
+        IotLogError( "Failed to connect to the S3 server. Error code: %d.", httpsClientStatus );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
@@ -348,12 +345,11 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
 
     /* Verify the file was uploaded by retrieving the file size. */ 
     if( _IotHttpsDemo_GetS3ObjectFileSize( &fileSize,
-            &connHandle, 
+            connHandle, 
             pPath, 
             pathLen, 
             pAddress, 
             addressLen,
-            &connConfig,
             _pReqUserBuffer, 
             IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE, 
             _pRespUserBuffer, 
@@ -411,7 +407,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         /* A new response handle is returned from IotHttpsClient_SendSync(). We reuse the respHandle variable because
            the last response was already processed fully.  */
 
-        httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, &respConfig, 0 );
+        httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
 
         /* If there was network error try again one more time. */
         if( httpsClientStatus == IOT_HTTPS_NETWORK_ERROR )
@@ -424,7 +420,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
                 IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
             }
 
-            httpsClientStatus = IotHttpsClient_SendSync( &connHandle, reqHandle, &respHandle, &respConfig, 0 );
+            httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
             if( httpsClientStatus != IOT_HTTPS_OK )
             {
                 IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );

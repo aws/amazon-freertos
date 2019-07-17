@@ -115,9 +115,8 @@ void IotHttpsClient_Deinit( void );
  * own risk.
  * 
  * When the HTTP request is specified as persistent and we want to close the connection, @ref https_client_function_disconnect 
- * must always  be called on the valid #IotHttpsConnectionHandle_t. This is regardless of if the valid #IotHttpsConnectionHandle_t 
- * was created implicitly with @ref https_client_function_sendsync or @ref https_client_function_sendasync or explicitly
- * with this function. For more information about persistent HTTP connections please see #IotHttpsRequestInfo_t.isNonPersistent.
+ * must always  be called on the valid #IotHttpsConnectionHandle_t. For more information about persistent HTTP connections 
+ * please see #IotHttpsRequestInfo_t.isNonPersistent.
  * 
  * If the application receives a #IOT_HTTPS_NETWORK_ERROR from @ref https_client_function_sendsync or 
  * @ref https_client_function_sendasync, on a persistent request, that does not always mean the connection has been 
@@ -157,9 +156,7 @@ IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHa
  * If the connection handle is already disconnected then this routine will return IOT_HTTPS_OK.
  * 
  * When the HTTP request is specified as persistent and we want to close the connection, this API must always 
- * be called on the valid #IotHttpsConnectionHandle_t. This is regardless of if the valid #IotHttpsConnectionHandle_t 
- * was created implicitly with @ref https_client_function_sendsync or @ref https_client_function_sendasync or explicitly
- * with @ref https_client_function_connection. For more information about persistent HTTP connections please see 
+ * be called on the valid #IotHttpsConnectionHandle_t. For more information about persistent HTTP connections please see 
  * #IotHttpsRequestInfo_t.isNonPersistent.
  * 
  * When the HTTP request is specified as non-persistent, by setting #IotHttpsRequestInfo_t.isNonPersistent to true, then
@@ -215,10 +212,6 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
  * The initial required headers are also added to the #IotHttpsRequestInfo_t.userBuffer. These headers are User-Agent
  * and Host. The User-Agent value is configured in iot_config.h using IOT_HTTPS_USER_AGENT. The Host value is the DNS 
  * resolvable server address.
- * 
- * A request can be initialized with or without a #IotHttpsRequestInfo_t.pConnInfo. If #IotHttpsRequestInfo_t.pConnInfo 
- * is present, it is used for implicit connection. The only way to manually close a connection is with 
- * @ref https_client_function_disconnect.
  * 
  * @param[out] pReqHandle - request handle representing the internal request context is returned. NULL if the function failed.
  * @param[in] pReqInfo - HTTPS request information.
@@ -279,7 +272,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * GET_DATE_IN_ISO8601(date_in_iso8601);
  * IotHttpsClient_AddHeader(reqHandle, "x-amz-date", date_in_iso8601, strlen(date_in_iso8601));
  * ...
- * IotHttpsClient_SendSync(&connHandle, reqHandle, &respHandle);
+ * IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &respInfo, timeout);
  * ...
  * @endcode
  * 
@@ -361,25 +354,8 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
  * 
  * This function blocks waiting for the entirety of sending the request and receiving the response. 
  * 
- * If parameter pConnHandle is passed in pointing to a NULL #IotHttpsConnectionHandle_t, then a connection is to be made 
- * implicitly and a valid connection handle in pConnHandle will be returned. 
- * If parameter pConnHandle points to a non-NULL #IotHttpsConnectionHandle_t and it is in a disconnected state, then a 
- * connection is to be made implicitly and valid connection handle in pConnHandle will be returned. 
- * In each implicit connection case #IotHttpsRequestHandle_t reqHandle must have been returned from 
- * @ref https_client_function_initializerequest where the #IotHttpsRequestInfo_t request configuration contained a 
- * non-NULL #IotHttpsRequestInfo_t.pConnInfo. Please see #IotHttpsConnectionInfo_t for connection configurations. 
- * 
- * For am implicit connection:
- * This function opens a new HTTPS connection to the server specified in #IotHttpsConnectionInfo_t. The connection 
- * is established by default on top of TLS over TCP. If the application wants to connect over TCP only, then it must
- * add the @ref IOT_HTTPS_IS_NON_TLS_FLAG to #IotHttpsConnectionInfo_t.flags. This is done at the application's own risk.
- * 
  * If #IotHttpsRequestInfo_t.isNonPersistent is set to true, then the connection will disconnect, close, and clean all 
  * taken resources automatically after receiving the first response.
- * 
- * @ref https_client_function_disconnect must always be called when an implicit connection is made for a 
- * persistent connection or if the first response is never received to cause automatic disconnect in a 
- * non-persistent connection. 
  * 
  * See @ref connectionUserBufferMinimumSize for information about the user buffer configured in 
  * #IotHttpsConnectionInfo_t.userBuffer needed to create a valid connection handle.
@@ -411,7 +387,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
  * asynchronous request/response being processed on the same connection that this function is invoked with, then this
  * function will block until the asynchronous request/response is finished. 
  * 
- * @param[in out] pConnHandle - Handle from an HTTPS connection. If points to NULL then an implicit connection will be made.
+ * @param[in] connHandle - Handle from an HTTPS connection.
  * @param[in] reqHandle - Handle from a request created with IotHttpsClient_initialize_request.
  * @param[out] pRespHandle - HTTPS response handle resulting from a successful send and receive.
  * @param[in] pRespInfo - HTTP response configuration information.
@@ -426,7 +402,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
  * - #IOT_HTTPS_PARSING_ERROR if there was an error parsing the HTTP response.
  */
 /* @[declare_https_client_sendsync] */
-IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHandle, 
+IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHandle, 
                                              IotHttpsRequestHandle_t reqHandle, 
                                              IotHttpsResponseHandle_t * pRespHandle,
                                              IotHttpsResponseInfo_t* pRespInfo, 
@@ -446,30 +422,13 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHa
  * fit will be thrown away. Please see #responseUserBufferMinimumSize for information about sizing the 
  * #IotHttpsResponseInfo_t.userBuffer.
  * 
- * If parameter pConnHandle is passed in pointing to a NULL #IotHttpsConnectionHandle_t, then a connection is to be made 
- * implicitly and a valid connection handle in pConnHandle will be returned. 
- * If parameter pConnHandle points to a non-NULL #IotHttpsConnectionHandle_t and it is in a disconnected state, then a 
- * connection is to be made implicitly and valid connection handle in pConnHandle will be returned. 
- * In each implicit connection case #IotHttpsRequestHandle_t reqHandle must have been returned from 
- * @ref https_client_function_initializerequest where the #IotHttpsRequestInfo_t request configuration contained a 
- * non-NULL #IotHttpsRequestInfo_t.pConnInfo. Please see #IotHttpsConnectionInfo_t for connection configurations. 
- * 
- * For am implicit connection:
- * This function opens a new HTTPS connection between the server specified in #IotHttpsConnectionInfo_t. The connection 
- * is established by default on top of TLS over TCP. If the application wants to connect over TCP only, then it must
- * add the @ref IOT_HTTPS_IS_NON_TLS_FLAG to #IotHttpsConnectionInfo_t.flags. This is done at the applications own risk.
- * 
  * I #IotHttpsRequestInfo_t.isNonPersistent is set to true, then the connection will disconnect, close, and clean all 
  * taken resources automatically after receiving the first response.
- * 
- * @ref https_client_function_disconnect must always be called when an implicit connection is made for a 
- * persistent connection or if the first response is never received to cause automatic disconnect in a 
- * non-persistent connection. 
  * 
  * See @ref connectionUserBufferMinimumSize for information about the user buffer configured in 
  * #IotHttpsConnectionInfo_t.userBuffer needed to create a valid connection handle.
  * 
- * @param[in out] pConnHandle - Handle from an HTTPS connection. If points to NULL then an implicit connection will be made.
+ * @param[in] connHandle - Handle from an HTTPS connection.
  * @param[in] reqHandle - Handle from a request created with IotHttpsClient_initialize_request.
  * @param[out] pRespHandle - HTTPS response handle.
  * @param[in] pRespInfo - HTTP response configuration information.
@@ -486,7 +445,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t* pConnHa
  *          
  */
 /* @[declare_https_client_sendasync] */
-IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t* pConnHandle, 
+IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHandle, 
                                               IotHttpsRequestHandle_t reqHandle, 
                                               IotHttpsResponseHandle_t * pRespHandle, 
                                               IotHttpsResponseInfo_t* pRespInfo);
@@ -588,7 +547,7 @@ IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync(IotHttpsResponseHandle_t
  * <b> Example Synchronous Code </b>
  * @code{c}
  *      ...
- *      IotHttpsClient_SendSync(&connHandle, reqHandle, &respHandle);
+ *      IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &respInfo, timeout);
  *      uint16_t status = 0;
  *      IotHttpsClient_ReadResponseStatus(respHandle, &status);
  *      if (status != IOT_HTTPS_STATUS_OK)
@@ -655,7 +614,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
  * <b> Example Synchronous Code </b>
  * @code{c}
  *      ...
- *      IotHttpsClient_SendSync(&connHandle, reqHandle, &respHandle);
+ *      IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &respInfo, timeout);
  *      uint32_t contentLength = 0;
  *      IotHttpsClient_ReadContentLength(respHandle, &contentLength);
  *      printf("Content-Length: %lu", contentLength);
@@ -705,7 +664,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t 
  * <b> Example Synchronous Code </b>
  * @code{c}
  *      ...
- *      IotHttpsClient_SendSync(&connHandle, reqHandle, &respHandle);
+ *      IotHttpsClient_SendSync(&connHandle, reqHandle, &respHandle, &respInfo, timeout);
  *      char valueBuf[10];
  *      IotHttpsClient_ReadHeader(respHandle, "Content-Length", valueBuf, sizeof(valueBuf));
  *      uint32_t length = strtoul(valueBuf, NULL, 10);

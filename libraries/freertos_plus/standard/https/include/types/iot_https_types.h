@@ -435,18 +435,6 @@ typedef struct IotHttpsClientCallbacks
      * @param[in] status - The HTTP response status code of the current response in progress.
      */
     void (* responseCompleteCallback)(void * pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status);
-    
-    /**
-     * @brief User-provided callback function signature to indicate that the asynchronous connection as been 
-     * established.
-     * 
-     * If this is set to NULL, then it will not be invoked.
-     * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
-     * @param[in] connHandle - The handle for the current HTTP connection.
-     * @param[in] rc - A return code indicating any errors before this callback was invoked.
-     */
-    void (* connectionEstablishedCallback)(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc);
 
     /**
      * @brief User-provided callback function signature to indicate that the asynchronous connection has been closed.
@@ -462,18 +450,6 @@ typedef struct IotHttpsClientCallbacks
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      */
     void (* connectionClosedCallback)(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc);
-
-    /**
-     * @brief User-provided callback function signature to indicate that a timeout occurred connecting to the server.
-     * 
-     * If this is set to NULL, then it will not be invoked.
-     * If a timeout occurs during the connection process it will be available in rc as IOT_HTTPS_CONNECTION_ERROR.
-     * 
-     * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
-     * @param[in] connHandle - The handle for the current HTTP connection.
-     * @param[in] rc - A return code indicating any errors before this callback was invoked.
-     */
-    void (* connectionTimeoutCallback)(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc);
     
     /**
      * @brief User-provided callback function signature to indicate that an error occurred during the asynchronous 
@@ -508,44 +484,16 @@ typedef struct IotHttpsUserBuffer
  * @ingroup https_client_datatypes_paramstructs
  * @brief HTTPS Client synchronous request information.
  *
- * @paramfor @ref https_client_function_initializerequest.
+ * @paramfor @ref https_client_function_initializerequest, @ref https_client_function_sendsync, 
+ * @ref https_client_function_sendasync
  *
- * This structure is configured in #IotHttpsRequestInfo_t.pSyncInfo.
+ * This structure is configured in #IotHttpsRequestInfo_t.pSyncInfo and #IotHttpsResponseInfo_t.pSyncInfo.
  *
  * A synchronous request will block until the response is fully received from the network.
  * This structure defines memory locations to store the response body.
  */
 typedef struct IotHttpsSyncRequestInfo
 {
-    #if 0
-    /**
-     * @brief Pointer to the HTTP request entity body.
-     *
-     * This is the file or data we want to send. The data is separated from the headers for the flexibility to point to
-     * an already established file elsewhere in memory.
-     *
-     * Set this NULL if there is no request body.
-     */
-    uint8_t * pReqData;
-    uint32_t reqDataLen;                    /**< @brief length of the request data. */
-
-    /**
-     * @brief Pointer to the buffer to store the HTTP response entity body.
-     *
-     * If the length of the buffer provided to store response body is smaller than the amount of body received,
-     * then @ref http_client_function_sendsync will return a IOT_HTTPS_INSUFFICIENT_MEMORY error code. Although an error
-     * was returned, the first #IotHttpsSyncInfo_t.respDataLen of the response received on the network will
-     * still be available in the buffer.
-     *
-     * If this is set to NULL, then no body from the response will be stored.
-     *
-     * This data is separated from the header for flexibility to point to an established file location elsewhere in
-     * memory.
-     */
-    uint8_t * pRespData;
-    uint32_t respDataLen;                   /**< @brief Length of the response data. */
-    #endif
-
     /**
      * Pointer to the HTTP message body.
      * 
@@ -733,14 +681,6 @@ typedef struct IotHttpsRequestInfo
         IotHttpsAsyncInfo_t *pAsyncInfo;  /**< @brief Information specifically for Asynchronous requests. */
         IotHttpsSyncInfo_t *pSyncInfo;    /**< @brief Information specifically for synchronous requests. */
     };
-
-    /**
-     * @brief HTTPS Client connection configuration.
-     *
-     * This is used for an implicit connection in @ref https_client_function_sendsync or
-     * @ref https_client_function_sendasync.
-     */
-    IotHttpsConnectionInfo_t *pConnInfo;
 } IotHttpsRequestInfo_t;
 
 /**
