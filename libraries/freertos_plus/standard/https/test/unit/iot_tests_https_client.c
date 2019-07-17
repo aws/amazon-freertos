@@ -44,6 +44,9 @@
 /* Test framework includes. */
 #include "unity_fixture.h"
 
+/* Test access include. */
+#include "iot_test_access_https.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -215,12 +218,10 @@ static IotHttpsConnectionInfo_t _connInfo = {
 };
 
 /**
- * @brief A IotHttpsSyncRequestInfo_t to share among the tests.
- * TODO: - Create a separate test file for testing synchronous API verification.
- *       - Create a separate test file for testing asynchronous API verification.
- *       - Move the shared static variables to a separate header to be extern'ed.
+ * @brief A IotHttpsSyncInfo_t for requests and response to share among the tests.
  */ 
-static IotHttpsSyncRequestInfo_t _syncInfo = IOT_HTTPS_SYNC_REQUEST_INFO_INITIALIZER;
+static IotHttpsSyncInfo_t _syncRequestInfo = IOT_HTTPS_SYNC_INFO_INITIALIZER;
+static IotHttpsSyncInfo_t _syncResponseInfo = IOT_HTTPS_SYNC_INFO_INITIALIZER;
 
 /**
  * @brief A IotHttpsRequestInfo_t to share among the tests. 
@@ -232,13 +233,19 @@ static IotHttpsRequestInfo_t _reqInfo = {
     .pHost = HTTPS_TEST_ADDRESS,
     .hostLen = sizeof( HTTPS_TEST_ADDRESS ) - 1,
     .isNonPersistent = false,
-    .reqUserBuffer.pBuffer = _pReqUserBuffer,
-    .reqUserBuffer.bufferLen = sizeof( _pReqUserBuffer ),
-    .respUserBuffer.pBuffer = _pRespUserBuffer,
-    .respUserBuffer.bufferLen = sizeof( _pRespUserBuffer ),
+    .userBuffer.pBuffer = _pReqUserBuffer,
+    .userBuffer.bufferLen = sizeof( _pReqUserBuffer ),
     .isAsync = false,
-    .pSyncInfo = &_syncInfo,
-    .pConnInfo = NULL
+    .pSyncInfo = &_syncRequestInfo
+};
+
+/**
+ * @brief A IotHttpsResponseInfo_t to share among the tests. 
+ */
+static IotHttpsResponseInfo_t _respInfo = {
+    .userBuffer.pBuffer = _pRespUserBuffer,
+    .userBuffer.bufferLen = sizeof( _pRespUserBuffer ),
+    .pSyncInfo = &_syncResponseInfo
 };
 
 /*-----------------------------------------------------------*/
@@ -385,14 +392,12 @@ static IotHttpsRequestHandle_t _getReqHandle( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Get a valid response handle using _pRespUserBuffer and _reqInfo.
+ * @brief Get a valid response handle using _pRespUserBuffer, _respInfo, and _reqInfo.
  */
 static IotHttpsResponseHandle_t _getRespHandle( void )
 {
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
-    IotHttpsClient_InitializeRequest(&reqHandle, &_reqInfo);
-    respHandle = reqHandle->pHttpsResponse;
+    IotTestHttps_initializeResponse(&respHandle, &_respInfo, _reqInfo.isAsync, _reqInfo.method);
     return respHandle;
 }
 
@@ -743,20 +748,12 @@ TEST( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters)
 
     /* Test the request context does not fit into the user buffer. */
     memcpy(&testReqInfo, &_reqInfo, sizeof(IotHttpsRequestInfo_t));
-    testReqInfo.reqUserBuffer.bufferLen = requestUserBufferMinimumSize - 1;
+    testReqInfo.userBuffer.bufferLen = requestUserBufferMinimumSize - 1;
     returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
     TEST_ASSERT_NULL(reqHandle);
     /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
-    testReqInfo.reqUserBuffer.bufferLen = _reqInfo.reqUserBuffer.bufferLen;
-
-    /* Test the response context does not fit into the user buffer. */
-    testReqInfo.respUserBuffer.bufferLen = responseUserBufferMinimumSize - 1;
-    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
-    TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
-    TEST_ASSERT_NULL(reqHandle);
-    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
-    testReqInfo.respUserBuffer.bufferLen = _reqInfo.respUserBuffer.bufferLen;
+    testReqInfo.userBuffer.bufferLen = _reqInfo.userBuffer.bufferLen;
 
     /* Test that the first line in the HTTP request message does not fit into the header space of the user buffer. */
     testReqInfo.pathLen = sizeof(_pReqUserBuffer);
@@ -783,20 +780,12 @@ TEST( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters)
     testReqInfo.hostLen = _reqInfo.hostLen;
 
     /* Test a NULL request user buffer. */
-    testReqInfo.reqUserBuffer.pBuffer = NULL;
+    testReqInfo.userBuffer.pBuffer = NULL;
     returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
     TEST_ASSERT_NULL(reqHandle);
     /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
-    testReqInfo.reqUserBuffer.pBuffer = _reqInfo.reqUserBuffer.pBuffer;
-
-    /* Test a NULL response user buffer. */
-    testReqInfo.respUserBuffer.pBuffer = NULL;
-    returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
-    TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
-    TEST_ASSERT_NULL(reqHandle);
-    /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
-    testReqInfo.respUserBuffer.pBuffer = _reqInfo.respUserBuffer.pBuffer;
+    testReqInfo.userBuffer.pBuffer = _reqInfo.userBuffer.pBuffer;
 
     /* If IotHttpsRequestInfo_t.isAsync is false, then pSyncInfo must not be NULL. */
     testReqInfo.isAsync = false;
