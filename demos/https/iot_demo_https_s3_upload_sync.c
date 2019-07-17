@@ -227,8 +227,6 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
     /* The status of HTTP response. */
     uint16_t respStatus = IOT_HTTPS_STATUS_OK;
-    /* The size of uploaded file from a GET of the file size. */
-    uint32_t fileSize = 0;
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath(IOT_DEMO_HTTPS_PRESIGNED_PUT_URL, 
@@ -365,6 +363,9 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     IotLogInfo("File was successfully uploaded.");
 
 #if defined( IOT_DEMO_HTTPS_PRESIGNED_GET_URL )
+    /* The size of uploaded file from a GET of the file size. */
+    uint32_t fileSize = 0;
+    
     IotLogInfo("Now checking %.*s for the file uploaded...", addressLen, pAddress);
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
@@ -422,8 +423,11 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
     IOT_FUNCTION_CLEANUP_BEGIN();
 
-    /* The request was specified as non-persistent, so the HTTPS Client disconnected automatically after receiving the 
-       response from the server. */
+    /* Disconnect from the server even if the server may have already disconnected us. */
+    if( connHandle != NULL)
+    {
+        IotHttpsClient_Disconnect( connHandle );
+    }
     
     /* Deinitialize the library because we are done using it. */
     IotHttpsClient_Deinit();
