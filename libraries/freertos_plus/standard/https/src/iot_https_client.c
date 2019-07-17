@@ -2327,17 +2327,18 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
         IotLogDebug("Received network error when flushing the socket. Error code: %d", flushStatus);
     }
 
-    /* If this function failed, then the request was never scheduled. */
-    if(HTTPS_FAILED(status))
-    {
-        pHttpsResponse->syncStatus = status;
-    }
-
-    /* If we failed during the _networkReceiveCallback() or _sendHttpsRequest() routines. */
-    if(HTTPS_FAILED(pHttpsResponse->syncStatus))
+    /* If the syncStatus is anything other than IOT_HTTPS_OK, then the request was scheduled. */
+    if( (pHttpsResponse != NULL) && HTTPS_FAILED( pHttpsResponse->syncStatus ) )
     {
         status = pHttpsResponse->syncStatus;
-        *pRespHandle = NULL;
+    }
+
+    if(HTTPS_FAILED( status ))
+    {
+        if( pRespHandle != NULL )
+        {
+            *pRespHandle = NULL;
+        }
         IotLogError("IotHttpsClient_SendSync() failed.");
     }
 
@@ -2383,6 +2384,8 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
     respHandle->pReadHeaderField = pName;
     respHandle->foundHeaderField = false;
     respHandle->bufferProcessingState = PROCESSING_STATE_SEARCHING_HEADER_BUFFER;
+    respHandle->pReadHeaderValue = NULL;
+    respHandle->readHeaderValueLength = 0;
 
     /* Start over the HTTP parser so that it will parser from the beginning of the message. */
     http_parser_init( &( respHandle->httpParserInfo.parser ), HTTP_RESPONSE );
@@ -2398,7 +2401,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_PARSING_ERROR);
     }
 
-    if(respHandle->foundHeaderField)
+    if(respHandle->foundHeaderField && ( respHandle->pReadHeaderValue != NULL))
     {
         /* The len of the pValue buffer must account for the NULL terminator. */
         if(respHandle->readHeaderValueLength > (len - 1))
