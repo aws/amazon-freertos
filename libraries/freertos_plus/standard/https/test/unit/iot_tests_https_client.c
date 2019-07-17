@@ -453,6 +453,9 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadContentLengthSuccess );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusInvalidParameters );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusSuccess );
+
+    /* Deinitialize the library after the tests. */
+    IotHttpsClient_Deinit();
 }
 
 /*-----------------------------------------------------------*/
@@ -980,6 +983,10 @@ TEST( HTTPS_Client_Unit_API, ReadHeaderInvalidParameters)
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     char valueBuffer[HTTPS_TEST_VALUE_BUFFER_LENGTH_LARGE_ENOUGH] = { 0 };
 
+    /* Get valid respHandle to correctly test other parameters as NULL. */
+    respHandle = _getRespHandle();
+    TEST_ASSERT_NOT_NULL(respHandle);
+
     /* Test a NULL response handle. */
     returnCode = IotHttpsClient_ReadHeader(NULL, HTTPS_DATE_HEADER, valueBuffer, sizeof(valueBuffer));
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
@@ -1082,6 +1089,10 @@ TEST( HTTPS_Client_Unit_API, ReadContentLengthInvalidParameters )
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     uint32_t contentLength = 0;
 
+    /* Get valid respHandle to correctly test other parameters as NULL. */
+    respHandle = _getRespHandle();
+    TEST_ASSERT_NOT_NULL(respHandle);
+
     /* Test a NULL response handle. */
     returnCode = IotHttpsClient_ReadContentLength(NULL, &contentLength);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
@@ -1130,6 +1141,10 @@ TEST( HTTPS_Client_Unit_API, ReadResponseStatusInvalidParameters )
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     uint16_t responseStatus = 0;
+
+    /* Get valid respHandle to correctly test other parameters as NULL. */
+    respHandle = _getRespHandle();
+    TEST_ASSERT_NOT_NULL(respHandle);
 
     /* Test a NULL response handle. */
     returnCode = IotHttpsClient_ReadResponseStatus(NULL, &responseStatus);
