@@ -592,7 +592,6 @@ TEST( HTTPS_Client_Unit_API, ConnectFailure)
     returnCode = IotHttpsClient_Connect(&connHandle, &_connInfo);
     TEST_ASSERT_NOT_EQUAL(IOT_HTTPS_OK, returnCode);
     TEST_ASSERT_NULL(connHandle);
-
 }
 
 /* --------------------------------------------------------- */
@@ -1012,6 +1011,9 @@ TEST( HTTPS_Client_Unit_API, ReadHeaderVaryingValues )
     size_t copyLen = 0;
     char valueBufferLargeEnough[HTTPS_TEST_VALUE_BUFFER_LENGTH_LARGE_ENOUGH] = { 0 };
     char valueBufferTooSmall[HTTPS_TEST_VALUE_BUFFER_LENGTH_TOO_SMALL] = { 0 };
+    char* pTestPartialHeadersStart = HTTPS_TEST_HEADER_LINES;
+    char* pTestPartialHeadersEnd = strstr(pTestPartialHeadersStart, HTTPS_DATE_HEADER) + strlen(HTTPS_DATE_HEADER);
+    size_t pTestPartialHeadersLen = (size_t)(pTestPartialHeadersEnd - pTestPartialHeadersStart);
 
     /* Create a response handle. */
     respHandle = _getRespHandle();
@@ -1056,6 +1058,15 @@ TEST( HTTPS_Client_Unit_API, ReadHeaderVaryingValues )
     /* Get a fresh response handle. */
     respHandle = _getRespHandle();
     TEST_ASSERT_NOT_NULL(respHandle);
+    returnCode = IotHttpsClient_ReadHeader(respHandle, HTTPS_DATE_HEADER, valueBufferLargeEnough, sizeof(valueBufferLargeEnough));
+    TEST_ASSERT_EQUAL(IOT_HTTPS_NOT_FOUND, returnCode);
+
+    /* Test reading a header when the value is not available. In this test we have a Date header field, but it ends
+       at that header field. */
+    respHandle = _getRespHandle();
+    TEST_ASSERT_NOT_NULL(respHandle);
+    memcpy(respHandle->pHeadersCur, pTestPartialHeadersStart, pTestPartialHeadersLen);
+    respHandle->pHeadersCur += pTestPartialHeadersLen;
     returnCode = IotHttpsClient_ReadHeader(respHandle, HTTPS_DATE_HEADER, valueBufferLargeEnough, sizeof(valueBufferLargeEnough));
     TEST_ASSERT_EQUAL(IOT_HTTPS_NOT_FOUND, returnCode);
 }
@@ -1108,6 +1119,8 @@ TEST( HTTPS_Client_Unit_API, ReadContentLengthSuccess )
     TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
     TEST_ASSERT_EQUAL(testContentLengthGreaterThanZero, contentLength);
 }
+
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Test IotHttpsClient_ReadResponseStatus() with various invalid parameters.
