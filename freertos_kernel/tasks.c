@@ -635,8 +635,16 @@ static void prvInitialiseNewTask( 	TaskFunction_t pxTaskCode,
  */
 static void prvAddNewTaskToReadyList( TCB_t *pxNewTCB, TaskFunction_t pxTaskCode, const BaseType_t xCoreID ) PRIVILEGED_FUNCTION;
 
+ /*
+ * freertos_tasks_c_additions_init() should only be called if the user definable
+ * macro FREERTOS_TASKS_C_ADDITIONS_INIT() is defined, as that is the only macro
+ * called by the function.
+ */
+#ifdef FREERTOS_TASKS_C_ADDITIONS_INIT
 
+	static void freertos_tasks_c_additions_init( void ) PRIVILEGED_FUNCTION;
 
+#endif
 /*-----------------------------------------------------------*/
 
 /*
@@ -2069,6 +2077,15 @@ BaseType_t i;
 
 	if( xReturn == pdPASS )
 	{
+		/* freertos_tasks_c_additions_init() should only be called if the user
+		definable macro FREERTOS_TASKS_C_ADDITIONS_INIT() is defined, as that is
+		the only macro called by the function. */
+		#ifdef FREERTOS_TASKS_C_ADDITIONS_INIT
+		{
+			freertos_tasks_c_additions_init();
+		}
+		#endif
+
 		/* Interrupts are turned off here, to ensure a tick does not occur
 		before or during the call to xPortStartScheduler().  The stacks of
 		the created tasks contain a status word with interrupts switched on
@@ -5199,5 +5216,20 @@ TickType_t uxReturn;
 
 #ifdef FREERTOS_MODULE_TEST
 	#include "tasks_test_access_functions.h"
+#endif
+
+/*----------------------------------------------------------  -*/
+/* Backport the freertos_tasks_c_additions hook to FreeRTOS 8.2*/
+#if( configINCLUDE_FREERTOS_TASK_C_ADDITIONS_H == 1 )
+
+	#include "freertos_tasks_c_additions.h"
+
+	#ifdef FREERTOS_TASKS_C_ADDITIONS_INIT
+		static void freertos_tasks_c_additions_init( void )
+		{
+			FREERTOS_TASKS_C_ADDITIONS_INIT();
+		}
+	#endif
+
 #endif
 
