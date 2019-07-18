@@ -48,6 +48,8 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/unit/iot_tests_https_client.c"
         "${test_dir}/unit/iot_tests_https_utils.c"
+        "${test_dir}/unit/iot_tests_https_common.c"
+        "${test_dir}/unit/iot_tests_https_sync.c"
 )
 
 afr_module_include_dirs(
