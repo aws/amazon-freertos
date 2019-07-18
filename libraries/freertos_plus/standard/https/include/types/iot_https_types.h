@@ -544,18 +544,6 @@ typedef struct IotHttpsRequestInfo
      */
     IotHttpsUserBuffer_t userBuffer;
 
-    /**
-     * The application owned buffer for storing the response headers and internal response context.
-     *
-     * If this is set to NULL, memory will be allocated internally for the response context and response headers.
-     *
-     * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
-     * freed, or reused until the the #IotHttpCallbacks_t.responseCompleteCallback is invoked.
-     *
-     * Please see #IotHttpsUserBuffer_t for more information.
-     */
-    IotHttpsUserBuffer_t respUserBuffer;
-
     IotHttpsSyncInfo_t *pSyncInfo; /**< @brief Information specifically for synchronous requests. There will be future support of asynchronous requests. */
 } IotHttpsRequestInfo_t;
 
