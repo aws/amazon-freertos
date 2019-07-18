@@ -49,13 +49,23 @@ target_compile_definitions(
     -DLWIP_NO_STDINT_H=1 
     -DLWIP_TIMEVAL_PRIVATE=1
     -D__little_endian__=1
+    -DNDEBUG
+    -DMBEDTLS_USER_CONFIG_FILE="mbedtls_user_config.h"
+    -DUNITY_INCLUDE_CONFIG_H 
+    -DRVDS_ARMCM4_NUC4xx 
+    -D__LITTLE_ENDIAN__ 
+    -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS 
+    -DM487
 )
 target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:ASM>:${assembler_defined_symbols}>
 )
 
-set (compiler_flags --c99 -c --cpu Cortex-M4.fp  -g -O0 --apcs=interwork --split_sections )
+# --split_sections is to make one ELF section per function. In IDE project file, it is disabled.
+# So it is not included in the compiler flags. If enabling it, the code size is smaller because it removes unused functions.
+# Reference: http://www.keil.com/support/docs/3738.htm
+set (compiler_flags --c99 -c --cpu Cortex-M4.fp  -g -O0 --apcs=interwork)
 set (assembler_flags --cpu Cortex-M4.fp -g --apcs=interwork --pd "__MICROLIB SETA 1" --predefine "__UVISION_VERSION SETA 527")
 
 target_compile_options(
