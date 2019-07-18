@@ -336,29 +336,30 @@ void _bondedCb( BTStatus_t status,
 
 BTStatus_t _startAllServices()
 {
-    BTStatus_t status = eBTStatusSuccess;
-    BaseType_t error;
+    BTStatus_t ret = eBTStatusSuccess;
+    bool status = true;
 
-    error = IotBleDeviceInfo_Init();
+    #if ( IOT_BLE_ENABLE_DEVICE_INFO_SERVICE == 1 )
+        status = IotBleDeviceInfo_Init();
+    #endif
 
-    if( error == pdPASS )
-    {
-        if( IotBleDataTransfer_Init() == false )
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        if( status == true )
         {
-            error = pdFAIL;
+            status = IotBleDataTransfer_Init();
         }
-    }
+    #endif
 
-    if( error != pdPASS )
+    if( status == false )
     {
-        status = eBTStatusFail;
+        ret = eBTStatusFail;
     }
 
     #if ( IOT_BLE_ADD_CUSTOM_SERVICES == 1 )
         IotBle_AddCustomServicesCb();
     #endif
 
-    return status;
+    return ret;
 }
 /*-----------------------------------------------------------*/
 
