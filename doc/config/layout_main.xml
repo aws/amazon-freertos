@@ -14,6 +14,7 @@
       <tab type="user" title="Linear Containers" url="../linear_containers/index.html"/>
       <tab type="user" title="Logging" url="../logging/index.html"/>
       <tab type="user" title="Static Memory" url="../static_memory/index.html"/>
+    </tab>
     <tab type="usergroup" title="Library documentation" url="[none]">
       <tab type="user" title="Secure Sockets" url="../secure_sockets/index.html"/>
       <tab type="user" title="Wi-Fi Management" url="../wifi/index.html"/>
