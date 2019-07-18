@@ -202,23 +202,29 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 
         case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
 
-            if( xBTBleAdapterCallbacks.pxAdvStartCb != NULL )
+            if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
             {
                 if( param->adv_start_cmpl.status != ESP_OK )
                 {
+                	IotLogError( "Failed to start advertisement" );
                     xStatus = eBTStatusFail;
                 }
 
-                xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, ulGattServerIFhandle );
+                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
             }
 
             break;
 
         case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
-
-            if( param->adv_stop_cmpl.status != ESP_OK )
+            if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
             {
-                IotLogError( "Failed to stop advertisement" );
+            	if( param->adv_stop_cmpl.status != ESP_OK )
+                {
+            		IotLogError( "Failed to stop advertisement" );
+                    xStatus = eBTStatusFail;
+                }
+
+                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
             }
 
             break;
