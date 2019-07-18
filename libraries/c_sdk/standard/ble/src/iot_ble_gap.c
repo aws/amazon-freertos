@@ -339,22 +339,22 @@ BTStatus_t _startAllServices()
     BTStatus_t status = eBTStatusSuccess;
     BaseType_t error = pdPASS;
 
-#if( IOT_BLE_ENABLE_DEVICE_INFO_SERVICE == 1 )
-    if( error == pdPASS )
-    {
-        error = IotBleDeviceInfo_Init();
-    }
-#endif
-
-#if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
-    if( error == pdPASS )
-    {
-        if( IotBleDataTransfer_Init() == false )
+    #if ( IOT_BLE_ENABLE_DEVICE_INFO_SERVICE == 1 )
+        if( error == pdPASS )
         {
-            error = pdFAIL;
+            error = IotBleDeviceInfo_Init();
         }
-    }
-#endif
+    #endif
+
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        if( error == pdPASS )
+        {
+            if( IotBleDataTransfer_Init() == false )
+            {
+                error = pdFAIL;
+            }
+        }
+    #endif
 
     if( error != pdPASS )
     {

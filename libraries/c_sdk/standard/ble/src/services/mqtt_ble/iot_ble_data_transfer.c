@@ -153,7 +153,7 @@
 /**
  * @brief Number of data transfer services is determined by number of rows of attribute table.
  */
- #define _NUM_DATA_TRANSFER_SERVICES                 ( sizeof( _attributeTable ) / sizeof(_attributeTable[0]) )
+#define _NUM_DATA_TRANSFER_SERVICES    ( sizeof( _attributeTable ) / sizeof( _attributeTable[ 0 ] ) )
 
 /*-------------------------------------------------------------------------------------------------------------------------*/
 
@@ -320,26 +320,26 @@ extern int snprintf( char *,
 
 static const BTAttribute_t _attributeTable[][ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] =
 {
-#if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
-    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-        _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+            _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+        #endif
+        #if ( IOT_BLE_ENABLE_MQTT == 1 )
+            _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
+        #endif
     #endif
-    #if ( IOT_BLE_ENABLE_MQTT == 1 )
-        _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
-    #endif
-#endif
 };
 
 static IotBleDataTransferService_t _services[] =
 {
-#if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
-    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-        _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+            _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+        #endif
+        #if ( IOT_BLE_ENABLE_MQTT == 1 )
+            _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
+        #endif
     #endif
-    #if ( IOT_BLE_ENABLE_MQTT == 1 )
-        _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
-    #endif
-#endif
 };
 
 static const uint16_t _numDataTransferServices = _NUM_DATA_TRANSFER_SERVICES;

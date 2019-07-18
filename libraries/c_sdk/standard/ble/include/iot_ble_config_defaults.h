@@ -217,7 +217,7 @@
  * Configuration is useful if a custom GATT service is used instead of the default GATT services.
  */
 #ifndef IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES
-    #define IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES  ( 1 )
+    #define IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES    ( 1 )
 #endif
 
 /**
@@ -229,16 +229,16 @@
 
 
 /**
- * @brief Flag to enable Amazon FreeRTOS Device Information Service. 
+ * @brief Flag to enable Amazon FreeRTOS Device Information Service.
  *
  * Device Information service is used by the Amazon FreeRTOS mobile SDK to fetch device related information.
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
     #ifndef IOT_BLE_ENABLE_DEVICE_INFO_SERVICE
-        #define IOT_BLE_ENABLE_DEVICE_INFO_SERVICE  ( 1 )
+        #define IOT_BLE_ENABLE_DEVICE_INFO_SERVICE    ( 1 )
     #endif
 #else
-    #define IOT_BLE_ENABLE_DEVICE_INFO_SERVICE  ( 0 )
+    #define IOT_BLE_ENABLE_DEVICE_INFO_SERVICE        ( 0 )
 #endif
 
 
@@ -252,18 +252,18 @@
         #define IOT_BLE_ENABLE_WIFI_PROVISIONING    ( 0 )
     #endif
 #else
-   #define IOT_BLE_ENABLE_WIFI_PROVISIONING  ( 0 )
+    #define IOT_BLE_ENABLE_WIFI_PROVISIONING        ( 0 )
 #endif
 
 /**
  * @brief Flag to enable MQTT over BLE using Amazon FreeRTOS Mobile SDK.
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
-    #ifndef IOT_BLE_ENABLE_MQTT 
-        #define IOT_BLE_ENABLE_MQTT  ( 1 )
+    #ifndef IOT_BLE_ENABLE_MQTT
+        #define IOT_BLE_ENABLE_MQTT    ( 1 )
     #endif
 #else
-    #define IOT_BLE_ENABLE_MQTT ( 0 )
+    #define IOT_BLE_ENABLE_MQTT        ( 0 )
 #endif
 
 
@@ -273,10 +273,10 @@
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
     #ifndef IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE
-        #define IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE   ( 1 )
+        #define IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE    ( 1 )
     #endif
 #else
-    #define IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE   ( 0 )
+    #define IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE        ( 0 )
 #endif
 
 
@@ -354,8 +354,8 @@
 #endif
 
 
-#define IOT_BLE_MESG_ENCODER               ( _IotSerializerCborEncoder )
-#define IOT_BLE_MESG_DECODER               ( _IotSerializerCborDecoder )
+#define IOT_BLE_MESG_ENCODER    ( _IotSerializerCborEncoder )
+#define IOT_BLE_MESG_DECODER    ( _IotSerializerCborDecoder )
 
 /**
  * @brief Default configuration for memory allocation of data transfer service buffers.
