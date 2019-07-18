@@ -27,9 +27,9 @@
 
 
 /* Declare the firmware version structure for all to see. */
-const AppVersion32_t xAppFirmwareVersion = {
-   .u.x.ucMajor = APP_VERSION_MAJOR,
-   .u.x.ucMinor = APP_VERSION_MINOR,
-   .u.x.usBuild = APP_VERSION_BUILD,
+const AppVersion32_t xAppFirmwareVersion =
+{
+    .u.x.ucMajor = APP_VERSION_MAJOR,
+    .u.x.ucMinor = APP_VERSION_MINOR,
+    .u.x.usBuild = APP_VERSION_BUILD,
 };
-

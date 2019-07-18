@@ -35,12 +35,12 @@
 /* The functions in this file should only exist in static memory only mode, hence
  * the check for IOT_STATIC_MEMORY_ONLY in the double inclusion guard. */
 #if !defined( IOT_STATIC_MEMORY_H_ ) && ( IOT_STATIC_MEMORY_ONLY == 1 )
-#define IOT_STATIC_MEMORY_H_
+    #define IOT_STATIC_MEMORY_H_
 
 /* Standard includes. */
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+    #include <stdbool.h>
+    #include <stddef.h>
+    #include <stdint.h>
 
 /**
  * @functionspage{static_memory,static memory component}
@@ -78,7 +78,7 @@
  * @see static_memory_function_cleanup
  */
 /* @[declare_static_memory_init] */
-bool IotStaticMemory_Init( void );
+    bool IotStaticMemory_Init( void );
 /* @[declare_static_memory_init] */
 
 /**
@@ -97,7 +97,7 @@ bool IotStaticMemory_Init( void );
  * @see static_memory_function_init
  */
 /* @[declare_static_memory_cleanup] */
-void IotStaticMemory_Cleanup( void );
+    void IotStaticMemory_Cleanup( void );
 /* @[declare_static_memory_cleanup] */
 
 /*------------------------- Buffer allocation and free ----------------------*/
@@ -134,7 +134,7 @@ void IotStaticMemory_Cleanup( void );
  *     int32_t freeIndex = -1;
  *     void * pNewObject = NULL;
  *
- *     // Check that sizes match. 
+ *     // Check that sizes match.
  *     if( size != OBJECT_SIZE )
  *     {
  *         // Get the index of a free object.
@@ -152,8 +152,8 @@ void IotStaticMemory_Cleanup( void );
  * @endcode
  */
 /* @[declare_static_memory_findfree] */
-int32_t IotStaticMemory_FindFree( bool * pInUse,
-                                  size_t limit );
+    int32_t IotStaticMemory_FindFree( bool * pInUse,
+                                      size_t limit );
 /* @[declare_static_memory_findfree] */
 
 /**
@@ -189,11 +189,11 @@ int32_t IotStaticMemory_FindFree( bool * pInUse,
  * @endcode
  */
 /* @[declare_static_memory_returninuse] */
-void IotStaticMemory_ReturnInUse( void * ptr,
-                                  void * pPool,
-                                  bool * pInUse,
-                                  size_t limit,
-                                  size_t elementSize );
+    void IotStaticMemory_ReturnInUse( void * ptr,
+                                      void * pPool,
+                                      bool * pInUse,
+                                      size_t limit,
+                                      size_t elementSize );
 /* @[declare_static_memory_returninuse] */
 
 /*------------------------ Message buffer management ------------------------*/
@@ -214,7 +214,7 @@ void IotStaticMemory_ReturnInUse( void * ptr,
  * @return The size, in bytes, of a single message buffer.
  */
 /* @[declare_static_memory_messagebuffersize] */
-size_t Iot_MessageBufferSize( void );
+    size_t Iot_MessageBufferSize( void );
 /* @[declare_static_memory_messagebuffersize] */
 
 /**
@@ -231,7 +231,7 @@ size_t Iot_MessageBufferSize( void );
  * or no message buffers are available, `NULL` is returned.
  */
 /* @[declare_static_memory_mallocmessagebuffer] */
-void * Iot_MallocMessageBuffer( size_t size );
+    void * Iot_MallocMessageBuffer( size_t size );
 /* @[declare_static_memory_mallocmessagebuffer] */
 
 /**
@@ -244,7 +244,7 @@ void * Iot_MallocMessageBuffer( size_t size );
  * @param[in] ptr Pointer to the message buffer to free.
  */
 /* @[declare_static_memory_freemessagebuffer] */
-void Iot_FreeMessageBuffer( void * ptr );
+    void Iot_FreeMessageBuffer( void * ptr );
 /* @[declare_static_memory_freemessagebuffer] */
- 
+
 #endif /* if !defined( IOT_STATIC_MEMORY_H_ ) && ( IOT_STATIC_MEMORY_ONLY == 1 ) */

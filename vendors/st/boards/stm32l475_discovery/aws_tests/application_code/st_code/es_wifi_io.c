@@ -203,8 +203,8 @@ int8_t SPI_WIFI_Init(uint16_t mode)
      HAL_NVIC_EnableIRQ((IRQn_Type)SPI3_IRQn);
 
 #ifdef WIFI_USE_CMSIS_OS
-    es_wifi_mutex = osMutexCreate(osMutex(es_wifi_mutex));
-    spi_mutex = osMutexCreate(osMutex(spi_mutex));
+    es_wifi_mutex = osRecursiveMutexCreate(osMutex(es_wifi_mutex));
+    spi_mutex = osRecursiveMutexCreate(osMutex(spi_mutex));
     spi_rx_sem = osSemaphoreCreate(osSemaphore(spi_rx_sem) , 1 );
     spi_tx_sem = osSemaphoreCreate(osSemaphore(spi_tx_sem) , 1 );
     cmddata_rdy_rising_sem = osSemaphoreCreate(osSemaphore(cmddata_rdy_rising_sem) , 1 );

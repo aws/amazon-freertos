@@ -60,8 +60,8 @@ size_t UTILS_strnlen( const char * const pcString,
 /*-----------------------------------------------------------*/
 
 int UTILS_AbsoluteTimespecToDeltaTicks( const struct timespec * const pxAbsoluteTime,
-                                   const struct timespec * const pxCurrentTime,
-                                   TickType_t * const pxResult )
+                                        const struct timespec * const pxCurrentTime,
+                                        TickType_t * const pxResult )
 {
     int iStatus = 0;
     struct timespec xDifference = { 0 };
@@ -76,6 +76,7 @@ int UTILS_AbsoluteTimespecToDeltaTicks( const struct timespec * const pxAbsolute
     if( iStatus == 0 )
     {
         iStatus = UTILS_TimespecSubtract( pxAbsoluteTime, pxCurrentTime, &xDifference );
+
         if( iStatus == 1 )
         {
             /* pxAbsoluteTime was in the past. */
@@ -139,10 +140,11 @@ int UTILS_TimespecToTicks( const struct timespec * const pxTimespec,
         {
             /* check if TickType_t is 32 bit or 64 bit */
             uint32_t ulTickTypeSize = sizeof( TickType_t );
+
             /* check for downcast overflow */
-            if ( ulTickTypeSize == sizeof( uint32_t ) )
+            if( ulTickTypeSize == sizeof( uint32_t ) )
             {
-                if ( llTotalTicks > UINT_MAX )
+                if( llTotalTicks > UINT_MAX )
                 {
                     iStatus = EINVAL;
                 }
@@ -210,7 +212,7 @@ int UTILS_TimespecAdd( const struct timespec * const x,
             pxResult->tv_sec = x->tv_sec + y->tv_sec + llPartialSec;
 
             /* check for overflow */
-            if(  pxResult->tv_sec < 0 )
+            if( pxResult->tv_sec < 0 )
             {
                 iStatus = 1;
             }
@@ -232,7 +234,7 @@ int UTILS_TimespecAddNanoseconds( const struct timespec * const x,
     /* Check parameters. */
     if( ( pxResult == NULL ) || ( x == NULL ) )
     {
-        iStatus =  -1;
+        iStatus = -1;
     }
 
     if( iStatus == 0 )
@@ -241,18 +243,17 @@ int UTILS_TimespecAddNanoseconds( const struct timespec * const x,
         llTotalNSec = x->tv_nsec + llNanoseconds;
 
         /* check for nano seconds overflow */
-        if ( llTotalNSec < 0 )
+        if( llTotalNSec < 0 )
         {
             iStatus = 1;
         }
         else
         {
-
-            pxResult->tv_nsec =  llTotalNSec % NANOSECONDS_PER_SECOND;
-            pxResult->tv_sec =  x->tv_sec + ( llTotalNSec / NANOSECONDS_PER_SECOND );
+            pxResult->tv_nsec = llTotalNSec % NANOSECONDS_PER_SECOND;
+            pxResult->tv_sec = x->tv_sec + ( llTotalNSec / NANOSECONDS_PER_SECOND );
 
             /* check for seconds overflow */
-            if(  pxResult->tv_sec < 0 )
+            if( pxResult->tv_sec < 0 )
             {
                 iStatus = 1;
             }
@@ -268,7 +269,6 @@ int UTILS_TimespecSubtract( const struct timespec * const x,
                             const struct timespec * const y,
                             struct timespec * const pxResult )
 {
-
     int iCompareResult = 0;
     int iStatus = 0;
 
@@ -304,7 +304,7 @@ int UTILS_TimespecSubtract( const struct timespec * const x,
             {
                 /* Based on comparison, tv_sec > 0 */
                 pxResult->tv_sec--;
-                pxResult->tv_nsec += (long) NANOSECONDS_PER_SECOND;
+                pxResult->tv_nsec += ( long ) NANOSECONDS_PER_SECOND;
             }
 
             /* if nano second is negative after borrow, it is an overflow error */
@@ -321,9 +321,10 @@ int UTILS_TimespecSubtract( const struct timespec * const x,
 /*-----------------------------------------------------------*/
 
 int UTILS_TimespecCompare( const struct timespec * const x,
-                               const struct timespec * const y)
+                           const struct timespec * const y )
 {
     int iStatus = 0;
+
     /* Check parameters */
     if( ( x == NULL ) && ( y == NULL ) )
     {
@@ -352,7 +353,7 @@ int UTILS_TimespecCompare( const struct timespec * const x,
         {
             iStatus = 1;
         }
-        else if(x->tv_nsec < y->tv_nsec)
+        else if( x->tv_nsec < y->tv_nsec )
         {
             iStatus = -1;
         }

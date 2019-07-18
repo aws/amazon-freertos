@@ -120,4 +120,3 @@ int convert_pem_to_der( const unsigned char * pucInput,
     return( 0 );
 }
 /*-----------------------------------------------------------*/
-

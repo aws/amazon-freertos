@@ -26,10 +26,10 @@
 /**
  * @file  aws_dev_mode_key_provsioning.h
  * @brief Provisioning example code for developers.
- * 
- * Helpers for importing device private key and device 
+ *
+ * Helpers for importing device private key and device
  * certificate for use with AWS connectivity libraries.
- * 
+ *
  * \warn This code is provided for example purposes only, and
  * should not be used in production code.
  */
@@ -41,65 +41,65 @@
 
 typedef struct ProvisioningParams_t
 {
-    uint32_t ulClientPrivateKeyType;       /**< The type of key to be provisioned, CKK_RSA or CKK_EC */
-    uint8_t * pcClientPrivateKey;          /**< Pointer to the device private key in PEM format.  
-                                                See tools/certificate_configuration/PEMfileToCString.html 
-                                                for help with formatting.*/
-    uint32_t ulClientPrivateKeyLength;     /**< Length of the private key data, in bytes. */
-    uint8_t * pcClientCertificate;         /**< Pointer to the device certificate in PEM format.
-                                                See tools/certificate_configuration/PEMfileToCString.html 
-                                                for help with formatting.*/ 
-    uint32_t ulClientCertificateLength;    /**< Length of the certificate in bytes. */
+    uint32_t ulClientPrivateKeyType;    /**< The type of key to be provisioned, CKK_RSA or CKK_EC */
+    uint8_t * pcClientPrivateKey;       /**< Pointer to the device private key in PEM format.
+                                         *   See tools/certificate_configuration/PEMfileToCString.html
+                                         *   for help with formatting.*/
+    uint32_t ulClientPrivateKeyLength;  /**< Length of the private key data, in bytes. */
+    uint8_t * pcClientCertificate;      /**< Pointer to the device certificate in PEM format.
+                                         *   See tools/certificate_configuration/PEMfileToCString.html
+                                         *   for help with formatting.*/
+    uint32_t ulClientCertificateLength; /**< Length of the certificate in bytes. */
 } ProvisioningParams_t;
 
 /** \brief Provisions device with default credentials.
- * 
+ *
  * Imports the certificate and private key located in
  * aws_clientcredential_keys.h to device NVM.
  */
 void vDevModeKeyProvisioning( void );
 
-/** \brief Provisions device with provided credentials. 
- * 
+/** \brief Provisions device with provided credentials.
+ *
  * \param[in] xParams       Provisioning parameters for credentials
  *                          to be provisioned.
  */
 void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
 
 /** \brief Initializes a PKCS #11 session.
- * 
+ *
  * This wrapper initializes the PKCS #11 module, and opens
  * a session on the default slot.
- * 
+ *
  * \param[out] ppxFunctionList  Updated to provide a pointer to the PKCS #11
  *                              module function list.
  * \param[out] pxSlotId         Updated to indicate which PKCS #11 slot will be
  *                              used by the session.
  * \param[out] pxSession        Updated to provide the opened PKCS #11 session
  *                              handle.
- * 
- * \return CKR_OK if opening the PKCS #11 session succeeded. 
+ *
+ * \return CKR_OK if opening the PKCS #11 session succeeded.
  * Otherwise, a positive PKCS #11 error code.
- */     
+ */
 CK_RV xInitializePkcsSession( CK_FUNCTION_LIST_PTR * ppxFunctionList,
                               CK_SLOT_ID * pxSlotId,
                               CK_SESSION_HANDLE * pxSession );
 
 /** \brief Imports a certificate into the PKCS #11 module.
- * 
+ *
  * \param[in] xSession              A valid PKCS #11 session handle.
- * \param[in] pucCertificate        Pointer to a PEM certificate.  
- *                                  See tools/certificate_configuration/PEMfileToCString.html 
-                                    for help with formatting.
+ * \param[in] pucCertificate        Pointer to a PEM certificate.
+ *                                  See tools/certificate_configuration/PEMfileToCString.html
+ *                                  for help with formatting.
  * \param[in] xCertificateLength    Length of pucCertificate, in bytes.
  * \param[in] pucLabel              PKCS #11 label attribute value for certificate to be imported.
  *                                  This should be a string value. See iot_pkcs11.h.
  * \param[out] xObjectHandle        Updated to provide the PKCS #11 handle for the certificate
  *                                  that was imported.
- *  
- * \return CKR_OK if certificate import succeeded. 
+ *
+ * \return CKR_OK if certificate import succeeded.
  * Otherwise, a positive PKCS #11 error code.
- */   
+ */
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
                              size_t xCertificateLength,

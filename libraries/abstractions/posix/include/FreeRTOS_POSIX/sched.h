@@ -37,7 +37,7 @@
  * @name Scheduling Policies
  */
 /**@{ */
-#define SCHED_OTHER       0 /**< Another scheduling policy. */
+#define SCHED_OTHER    0    /**< Another scheduling policy. */
 /**@} */
 
 /**

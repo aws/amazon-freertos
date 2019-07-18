@@ -108,14 +108,12 @@
         <file file_name="../../../../../freertos_kernel/include/task.h" />
         <file file_name="../../../../../freertos_kernel/include/timers.h" />
       </folder>
-      <folder Name="CMSIS">
-        <file file_name="../../../../../freertos_kernel/portable/CMSIS/nrf52/port_cmsis.c" />
-        <file file_name="../../../../../freertos_kernel/portable/CMSIS/nrf52/port_cmsis_systick.c" />
-        <file file_name="../../../../../freertos_kernel/portable/CMSIS/nrf52/portmacro_cmsis.h" />
-      </folder>
       <folder Name="GCC">
         <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/port.c" />
         <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/portmacro.h" />
+        <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/port_cmsis.c" />
+        <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/port_cmsis_systick.c" />
+        <file file_name="../../../../../freertos_kernel/portable/GCC/nrf52840-dk/portmacro_cmsis.h" />
       </folder>
       <folder Name="MemMang">
         <file file_name="../../../../../freertos_kernel/portable/MemMang/heap_4.c" />
@@ -287,6 +285,7 @@
               </folder>
             </folder>
             <folder Name="test">
+              <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c" />
               <file file_name="../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c" />
             </folder>
@@ -400,6 +399,7 @@
           <file file_name="../../../../../libraries/abstractions/platform/CMakeLists.txt" />
           <folder Name="freertos">
             <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c" />
+            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c" />
           </folder>
           <folder Name="include">
             <folder Name="platform">
@@ -411,7 +411,6 @@
             <folder Name="types">
               <file file_name="../../../../../libraries/abstractions/platform/include/types/iot_platform_types.h" />
             </folder>
-            <file file_name="../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c" />
           </folder>
           <folder Name="test">
             <file file_name="../../../../../libraries/abstractions/platform/test/iot_test_platform_clock.c" />

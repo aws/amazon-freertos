@@ -138,6 +138,7 @@
 							<itemPath>../../../../../libraries/c_sdk/standard/serializer/include/iot_json_utils.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
+							<itemPath>../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c</itemPath>
 							<itemPath>../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c</itemPath>
 						</logicalFolder>

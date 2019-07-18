@@ -41,27 +41,27 @@
 /*
  * @brief Total length of the hash in bytes.
  */
-#define MD5_HASH_LENGTH_BYTES                   ( 16 )
+#define MD5_HASH_LENGTH_BYTES            ( 16 )
 
 /*
  * Encode Length of one byte for the identifier.
  */
-#define IDENTIFIER_BYTE_ENCODE_LENGTH            ( 2 )
+#define IDENTIFIER_BYTE_ENCODE_LENGTH    ( 2 )
 
 /*
  * @brief Length in bytes of each chunk used for MD5 hash computation.
  */
-#define MD5_CHUNK_LENGTH                         ( 64 )
+#define MD5_CHUNK_LENGTH                 ( 64 )
 
 /*
  * @brief Number of bytes used for padding message length to input bytes.
  */
-#define MD5_MSGLEN_PADDING_LENGTH                ( 8 )
+#define MD5_MSGLEN_PADDING_LENGTH        ( 8 )
 
 /*
  * @brief The first byte of the bit padding ( Most significant bit should be 1 ).
  */
-#define MD5_BIT_PADDING_FIRST_BYTE              ( 0x80 )
+#define MD5_BIT_PADDING_FIRST_BYTE       ( 0x80 )
 
 /*
  * @brief Total length of the input after padding.
@@ -380,8 +380,8 @@ const char * getDeviceIdentifier( void )
 
         if( deviceIdentifier[ 0 ] == '\0' )
         {
-            if( (pCertificate != NULL ) &&
-                ( strcmp(pCertificate, "" ) != 0 ) )
+            if( ( pCertificate != NULL ) &&
+                ( strcmp( pCertificate, "" ) != 0 ) )
             {
                 _generateUniqueIdentifier( pCertificate, strlen( pCertificate ), deviceIdentifier, sizeof( deviceIdentifier ) );
             }

@@ -27,13 +27,9 @@
  * @file iot_ble_hal_gatt_server.c
  * @brief Hardware Abstraction Layer for GATT server ble stack.
  */
-
+#include "iot_config.h"
 /* Standard Includes. */
 #include <string.h>
-
-/* FreeRTOS Includes. */
-#include "FreeRTOS.h"
-
 /* AWS BLE Lib Includes. */
 #include "bt_hal_manager_adapter_ble.h"
 #include "bt_hal_manager.h"
@@ -531,7 +527,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
         }
 
         return BTNRFError( xErrCode );
-    #else  /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
+    #else /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
         return eBTStatusUnsupported;
     #endif /* if _IOT_BLE_TOGGLE_BLOB_CREATE == 1 */
 }

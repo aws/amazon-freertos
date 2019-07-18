@@ -128,9 +128,9 @@ typedef IotLink_t   IotDeQueue_t;
  * @param[in] pStart The first element to iterate from.
  * @param[out] pLink Pointer to a container element.
  */
-#define IotContainers_ForEach( pStart, pLink )  \
-    for( ( pLink ) = ( pStart )->pNext;         \
-         ( pLink ) != ( pStart );               \
+#define IotContainers_ForEach( pStart, pLink ) \
+    for( ( pLink ) = ( pStart )->pNext;        \
+         ( pLink ) != ( pStart );              \
          ( pLink ) = ( pLink )->pNext )
 
 /**
@@ -442,7 +442,7 @@ static inline void IotListDouble_InsertAfter( IotLink_t * const pElement,
 /* @[declare_linear_containers_list_double_insertsorted] */
 static inline void IotListDouble_InsertSorted( IotListDouble_t * const pList,
                                                IotLink_t * const pLink,
-                                               int32_t ( *compare )( const IotLink_t * const, const IotLink_t * const ) )
+                                               int32_t ( * compare )( const IotLink_t * const, const IotLink_t * const ) )
 /* @[declare_linear_containers_list_double_insertsorted] */
 {
     /* This function must not be called with NULL parameters. */
@@ -565,7 +565,7 @@ static inline IotLink_t * IotListDouble_RemoveTail( IotListDouble_t * const pLis
  */
 /* @[declare_linear_containers_list_double_removeall] */
 static inline void IotListDouble_RemoveAll( IotListDouble_t * const pList,
-                                            void ( *freeElement )( void * ),
+                                            void ( * freeElement )( void * ),
                                             size_t linkOffset )
 /* @[declare_linear_containers_list_double_removeall] */
 {
@@ -617,7 +617,7 @@ static inline void IotListDouble_RemoveAll( IotListDouble_t * const pList,
 /* @[declare_linear_containers_list_double_findfirstmatch] */
 static inline IotLink_t * IotListDouble_FindFirstMatch( const IotListDouble_t * const pList,
                                                         const IotLink_t * const pStartPoint,
-                                                        bool ( *isMatch )( const IotLink_t * const, void * ),
+                                                        bool ( * isMatch )( const IotLink_t * const, void * ),
                                                         void * pMatch )
 /* @[declare_linear_containers_list_double_findfirstmatch] */
 {
@@ -683,7 +683,7 @@ static inline IotLink_t * IotListDouble_FindFirstMatch( const IotListDouble_t * 
 /* @[declare_linear_containers_list_double_removefirstmatch] */
 static inline IotLink_t * IotListDouble_RemoveFirstMatch( IotListDouble_t * const pList,
                                                           const IotLink_t * const pStartPoint,
-                                                          bool ( *isMatch )( const IotLink_t *, void * ),
+                                                          bool ( * isMatch )( const IotLink_t *, void * ),
                                                           void * pMatch )
 /* @[declare_linear_containers_list_double_removefirstmatch] */
 {
@@ -718,9 +718,9 @@ static inline IotLink_t * IotListDouble_RemoveFirstMatch( IotListDouble_t * cons
  */
 /* @[declare_linear_containers_list_double_removeallmatches] */
 static inline void IotListDouble_RemoveAllMatches( IotListDouble_t * const pList,
-                                                   bool ( *isMatch )( const IotLink_t *, void * ),
+                                                   bool ( * isMatch )( const IotLink_t *, void * ),
                                                    void * pMatch,
-                                                   void ( *freeElement )( void * ),
+                                                   void ( * freeElement )( void * ),
                                                    size_t linkOffset )
 /* @[declare_linear_containers_list_double_removeallmatches] */
 {
@@ -842,7 +842,7 @@ static inline IotLink_t * IotDeQueue_PeekTail( const IotDeQueue_t * const pQueue
  */
 /* @[declare_linear_containers_queue_enqueuehead] */
 static inline void IotDeQueue_EnqueueHead( IotDeQueue_t * const pQueue,
-                                     IotLink_t * const pLink )
+                                           IotLink_t * const pLink )
 /* @[declare_linear_containers_queue_enqueuehead] */
 {
     IotListDouble_InsertHead( pQueue, pLink );
@@ -872,7 +872,7 @@ static inline IotLink_t * IotDeQueue_DequeueHead( IotDeQueue_t * const pQueue )
  */
 /* @[declare_linear_containers_queue_enqueuetail] */
 static inline void IotDeQueue_EnqueueTail( IotDeQueue_t * const pQueue,
-                                     IotLink_t * const pLink )
+                                           IotLink_t * const pLink )
 /* @[declare_linear_containers_queue_enqueuetail] */
 {
     IotListDouble_InsertTail( pQueue, pLink );
@@ -919,8 +919,8 @@ static inline void IotDeQueue_Remove( IotLink_t * const pLink )
  */
 /* @[declare_linear_containers_queue_removeall] */
 static inline void IotDeQueue_RemoveAll( IotDeQueue_t * const pQueue,
-                                       void ( * freeElement )( void * ),
-                                       size_t linkOffset )
+                                         void ( * freeElement )( void * ),
+                                         size_t linkOffset )
 /* @[declare_linear_containers_queue_removeall] */
 {
     IotListDouble_RemoveAll( pQueue, freeElement, linkOffset );
@@ -944,10 +944,10 @@ static inline void IotDeQueue_RemoveAll( IotDeQueue_t * const pQueue,
  */
 /* @[declare_linear_containers_queue_removeallmatches] */
 static inline void IotDeQueue_RemoveAllMatches( IotDeQueue_t * const pQueue,
-                                              bool ( * isMatch )( const IotLink_t *, void * ),
-                                              void * pMatch,
-                                              void ( * freeElement )( void * ),
-                                              size_t linkOffset )
+                                                bool ( * isMatch )( const IotLink_t *, void * ),
+                                                void * pMatch,
+                                                void ( * freeElement )( void * ),
+                                                size_t linkOffset )
 /* @[declare_linear_containers_queue_removeallmatches] */
 {
     IotListDouble_RemoveAllMatches( pQueue, isMatch, pMatch, freeElement, linkOffset );
