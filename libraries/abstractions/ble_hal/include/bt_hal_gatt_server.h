@@ -724,11 +724,9 @@ typedef struct
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
      *
-     * @param[in] pxBdAddr Address of the Remote device.
+     * @param[in] pxBdAddr Array of addresses of Remote devices.
      *
      * @param[in] ucNumberOfDevices Number of bluetooth device address passes
-     *
-     * @param[in] xTransport Specify if BLE and BT classic is being used.
      *
      * @return Returns eBTStatusSuccess on successful call.
      */
@@ -744,7 +742,9 @@ typedef struct
      * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
      *  after successful pxRegisterServer call.
      *
-     * @param[in] pxBdAddr Address of the Remote device.
+     * @param[in] pxBdAddr Array of addresses of Remote devices.
+     *
+     * @param[in] ucNumberOfDevices Number of bluetooth device address passes
      *
      * @return Returns eBTStatusSuccess on successful call.
      */
