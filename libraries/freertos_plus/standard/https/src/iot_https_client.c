@@ -349,7 +349,6 @@ static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* pHttpsConnection, u
  * @param[in] len - The length of the data to receive.
  * 
  * @return #IOT_HTTPS_OK if the data was received successfully.
- *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
  */
 static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* pHttpsConnection, uint8_t * pBuf, size_t bufLen);
@@ -1388,7 +1387,7 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* pHttpsConnection, 
         pBuf,
         bufLen);
 
-    /* We return IOT_HTTPS_NETWORK_ERROR only if we receive nothing. Receiving less
+    /* We return IOT_HTTPS_TIMEOUT_ERROR only if we receive nothing. Receiving less
        data than requested is okay because it is not known in advance how much data
        we are going to receive and therefore we request for the available buffer
        size. */
@@ -1747,8 +1746,25 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
 
-    /* The request has finished sending. */
-    pHttpsRequest->reqFinishedSending = true;
+    if( HTTPS_FAILED(status) )
+    {
+        /* If the headers or body failed to send, then there should be no response expected from the server. */
+        _cancelResponse(pHttpsResponse);
+        IotMutex_Lock(&(pHttpsConnection->respQMutex));
+        IotDeQueue_Remove(&(pHttpsResponse->link));
+        IotMutex_Unlock(&(pHttpsConnection->respQMutex));
+
+        /* Set the error status in the sync workflow. */
+        pHttpsResponse->syncStatus = status;
+
+        /* Post to the response finished semaphore to unlock the application waiting on a synchronous request. */
+        IotSemaphore_Post( &(pHttpsResponse->respFinishedSem));
+    }
+    else
+    {
+        /* The request has finished sending. */
+        pHttpsRequest->reqFinishedSending = true;
+    }
 }
 
 /*-----------------------------------------------------------*/
