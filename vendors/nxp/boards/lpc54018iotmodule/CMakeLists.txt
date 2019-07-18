@@ -245,7 +245,7 @@ target_sources(
 )
 
 target_link_libraries(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         3rdparty::mbedtls
         AFR::pkcs11_mbedtls
