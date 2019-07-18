@@ -283,7 +283,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * - Host:           - This header is added during @ref https_client_function_initializerequest
  * - Content-Length: - This header is added to the request when the headers are being sent on the network.
  * 
- * This routine is NOT thread safe. If two threads have the same reqHandle and attempt to add headers at the same 
+ * The reqHandle is not thread safe. If two threads have the same reqHandle and attempt to add headers at the same 
  * time, garbage strings may be written to the reqHandle.
  *
  * @param[in] reqHandle - HTTPS request to write the header line to.
