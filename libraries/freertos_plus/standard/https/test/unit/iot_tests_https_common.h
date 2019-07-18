@@ -36,6 +36,9 @@
 /* C standard includes. */
 #include <string.h>
 
+/* SDK initialization include. */
+#include "iot_init.h"
+
 /* HTTPS Client internal include. */
 #include "private/iot_https_internal.h"
 
