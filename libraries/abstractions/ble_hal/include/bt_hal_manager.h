@@ -68,14 +68,14 @@
 /**
  * @brief  Stringified version number.
  */
- #define btSTRING_VERSION    STR( btMAJOR_VERSION, btMINOR_VERSION, btPATCH_VERSION )
- 
- /**
-  * Stack feature support bit mask
-  */
-#define btBLE_ADD_BLOB_SERVICE_SUPPORTED_BIT 0x0001 /** Support GATT server database decleration as a blob. */
-#define btBLE_ADD_BLE_DYNAMIC_PRIVACY        0x0002 /** Stack can dynamicall enable or disable privacy. */
-#define btBLE_BLE_CENTRAL_WHITELISTING       0x0004 /** Provide a mechanism to manage whitelist for Gatt server. */
+#define btSTRING_VERSION                        STR( btMAJOR_VERSION, btMINOR_VERSION, btPATCH_VERSION )
+
+/**
+ * Stack feature support bit mask
+ */
+#define btBLE_ADD_BLOB_SERVICE_SUPPORTED_BIT    0x0001 /** Support GATT server database decleration as a blob. */
+#define btBLE_ADD_BLE_DYNAMIC_PRIVACY           0x0002 /** Stack can dynamicall enable or disable privacy. */
+#define btBLE_BLE_CENTRAL_WHITELISTING          0x0004 /** Provide a mechanism to manage whitelist for Gatt server. */
 
 /**
  * @brief Security Level.
@@ -857,7 +857,7 @@ typedef struct
      */
     uint32_t ( * pxGetLastError )();
 
-   /**
+    /**
      *
      * @brief get stack features supported.
      *

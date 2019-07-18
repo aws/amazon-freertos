@@ -370,7 +370,7 @@ typedef void (* BTMtuChangedCallback_t)( uint16_t usConnId,
  * @param[in] bIsAdded true if device added false if device not in white list
  */
 typedef void (* BTWhiteListChangedCallback_t)( const BTBdaddr_t * pxBdAddr,
-                                        bool bIsAdded );
+                                               bool bIsAdded );
 
 /**
  * @brief Callback structure for GATT server.
@@ -714,7 +714,7 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxReconnect )( uint8_t ucServerIf,
-                                const BTBdaddr_t * pxBdAddr);
+                                  const BTBdaddr_t * pxBdAddr );
 
     /**
      * @brief Add devices to whitelist
@@ -733,8 +733,8 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxAddDevicesToWhiteList )( uint8_t ucServerIf,
-                                const BTBdaddr_t * pxBdAddr,
-                                uint32_t ulNumberOfDevices);
+                                              const BTBdaddr_t * pxBdAddr,
+                                              uint32_t ulNumberOfDevices );
 
     /**
      * @brief Remove device from whitelist and stops any ongoing directed advertisements
@@ -749,8 +749,8 @@ typedef struct
      * @return Returns eBTStatusSuccess on successful call.
      */
     BTStatus_t ( * pxRemoveDevicesFromWhiteList )( uint8_t ucServerIf,
-                                const BTBdaddr_t * pxBdAddr,
-                                uint32_t ulNumberOfDevices);
+                                                   const BTBdaddr_t * pxBdAddr,
+                                                   uint32_t ulNumberOfDevices );
 
     /**
      * @brief Configure the MTU for gatt server
@@ -762,8 +762,8 @@ typedef struct
      *
      * @return Returns eBTStatusSuccess on successful call.
      */
-    BTStatus_t ( * pxConfigureMtu )(  uint8_t ucServerIf, uint16_t usMtu );
-
+    BTStatus_t ( * pxConfigureMtu )( uint8_t ucServerIf,
+                                     uint16_t usMtu );
 } BTGattServerInterface_t;
 
 #endif /* _BT_HAL_GATT_SERVER_H_ */

@@ -54,7 +54,7 @@ static size_t _computeNumberOfHandles( BTService_t * pService );
 static void _serviceClean( BLEServiceListElement_t * pServiceElem );
 static BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle );
 static bool _getCallbackFromHandle( uint16_t attrHandle,
-                                          IotBleAttributeEventCallback_t * pEventsCallbacks );
+                                    IotBleAttributeEventCallback_t * pEventsCallbacks );
 static BLEServiceListElement_t * _getLastAddedServiceElem( void );
 static void _attributeAdded( uint16_t handle,
                              BTStatus_t status );
@@ -192,7 +192,7 @@ BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle )
 /*-----------------------------------------------------------*/
 
 bool _getCallbackFromHandle( uint16_t attrHandle,
-                                   IotBleAttributeEventCallback_t * pEventsCallbacks )
+                             IotBleAttributeEventCallback_t * pEventsCallbacks )
 {
     BLEServiceListElement_t * pServiceElem;
     bool foundService = false;
