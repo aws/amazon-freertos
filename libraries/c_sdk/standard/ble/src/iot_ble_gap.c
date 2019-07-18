@@ -164,8 +164,8 @@ static void _registerBleAdapterCb( BTStatus_t status,
                                    uint8_t adapter_if,
                                    BTUuid_t * pAppUuid );
 static void _advStatusCb( BTStatus_t status,
-                         uint32_t serverIf,
-						 bool bStart );
+                          uint32_t serverIf,
+                          bool bStart );
 static void _setAdvDataCb( BTStatus_t status );
 static void _bondedCb( BTStatus_t status,
                        BTBdaddr_t * pRemoteBdAddr,
@@ -196,7 +196,7 @@ static const BTBleAdapterCallbacks_t _BTBleAdapterCb =
     .pxOpenCb                        = NULL,
     .pxCloseCb                       = NULL,
     .pxReadRemoteRssiCb              = NULL,
-    .pxAdvStatusCb                    = _advStatusCb,
+    .pxAdvStatusCb                   = _advStatusCb,
     .pxSetAdvDataCb                  = _setAdvDataCb,
     .pxScanFilterCfgCb               = NULL,
     .pxScanFilterParamCb             = NULL,
@@ -298,24 +298,24 @@ void _registerBleAdapterCb( BTStatus_t status,
 /*-----------------------------------------------------------*/
 
 void _advStatusCb( BTStatus_t status,
-                  uint32_t serverIf,
-				  bool bStart )
+                   uint32_t serverIf,
+                   bool bStart )
 {
     _BTInterface.cbStatus = status;
 
     if( bStart == true )
     {
-		if( _BTInterface.pStartAdvCb != NULL )
-		{
-			_BTInterface.pStartAdvCb(status);
-		}
+        if( _BTInterface.pStartAdvCb != NULL )
+        {
+            _BTInterface.pStartAdvCb( status );
+        }
     }
 }
 /*-----------------------------------------------------------*/
 
-void _bleStartAdvCb( BTStatus_t status)
+void _bleStartAdvCb( BTStatus_t status )
 {
-	IotSemaphore_Post( &_BTInterface.callbackSemaphore );
+    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
 /*-----------------------------------------------------------*/

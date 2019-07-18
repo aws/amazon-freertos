@@ -204,8 +204,8 @@ typedef void (* BTScanResultCallback_t)( BTBdaddr_t * pxBda,
  * @param[in] bStarted: True for start advertisement, flase for stop
  */
 typedef void (* BTAdvStatusCallback_t)( BTStatus_t xStatus,
-                                       uint32_t ulServerIf,
-									   bool bStart );
+                                        uint32_t ulServerIf,
+                                        bool bStart );
 
 /**
  *
@@ -797,6 +797,7 @@ typedef struct
                                             char * pcServiceData,
                                             BTUuid_t * pxServiceUuid,
                                             size_t xNbServices );
+
     /**
      *
      * @brief Disable the multi adv instance.

@@ -641,8 +641,8 @@ void prvAdapterPropertiesCb( BTStatus_t xStatus,
                              BTProperty_t * pxProperties );
 void prvSetAdvDataCb( BTStatus_t xStatus );
 void prvAdvStatusCb( BTStatus_t xStatus,
-                    uint32_t ulServerIf,
-					bool bStart);
+                     uint32_t ulServerIf,
+                     bool bStart );
 void prvConnectionCb( uint16_t usConnId,
                       uint8_t ucServerIf,
                       bool bConnected,
@@ -942,7 +942,7 @@ void prvWaitConnection( bool bConnected )
     /* Stop advertisement. */
     xStatus = pxBTLeAdapterInterface->pxStopAdv( ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    prvStartStopAdvCheck(false);
+    prvStartStopAdvCheck( false );
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level2 )
@@ -1351,7 +1351,7 @@ void prvStartAdvertisement( void )
     xStatus = pxBTLeAdapterInterface->pxStartAdv( ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    prvStartStopAdvCheck(true);
+    prvStartStopAdvCheck( true );
 }
 
 TEST( Full_BLE, BLE_Advertising_StartAdvertisement )
@@ -2136,8 +2136,8 @@ void prvSetAdvDataCb( BTStatus_t xStatus )
 }
 
 void prvAdvStatusCb( BTStatus_t xStatus,
-                    uint32_t ulServerIf,
-					bool bStart )
+                     uint32_t ulServerIf,
+                     bool bStart )
 {
     BLETESTAdvParamCallback_t * xdvParamCallback = pvPortMalloc( sizeof( BLETESTAdvParamCallback_t ) );
 
