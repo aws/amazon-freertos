@@ -32,7 +32,25 @@
 
 /*-----------------------------------------------------------*/
 
-// TODO 
+/**
+ * @brief Timeout for IotHttpsClient_SendSync() for all tests.
+ */
+#define HTTPS_TEST_SYNC_TIMEOUT_MS      300000
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network abstraction send function that fails. 
+ */
+static inline size_t _networkSendFail( void * pConnection,
+                                                  const uint8_t * pMessage,
+                                                  size_t messageLength )
+{
+    (void)pConnection;
+    (void)pMessage;
+    (void)messageLength;
+    return 0;
+}
 
 /*-----------------------------------------------------------*/
 
@@ -48,6 +66,12 @@ TEST_GROUP( HTTPS_Client_Unit_Sync );
  */
 TEST_SETUP( HTTPS_Client_Unit_Sync )
 {
+    /* Reset the shared network interface. */
+    ( void ) memset( &_networkInterface, 0x00, sizeof( IotNetworkInterface_t ) );
+
+    /* This will initialize the library before every test case, which is OK. */
+    TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
+    TEST_ASSERT_EQUAL( IOT_HTTPS_OK, IotHttpsClient_Init());
 }
 
 /*-----------------------------------------------------------*/
@@ -57,6 +81,8 @@ TEST_SETUP( HTTPS_Client_Unit_Sync )
  */
 TEST_TEAR_DOWN( HTTPS_Client_Unit_Sync )
 {
+    IotHttpsClient_Deinit();
+    IotSdk_Cleanup();
 }
 
 /*-----------------------------------------------------------*/
@@ -66,24 +92,22 @@ TEST_TEAR_DOWN( HTTPS_Client_Unit_Sync )
  */
 TEST_GROUP_RUNNER( HTTPS_Client_Unit_Sync )
 {
-    /* Initialize the library once. */
-    IotHttpsClient_Init();
-
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncInvalidParameters);
-
-    /* Deinitialize the library after the tests. */
-    IotHttpsClient_Deinit();
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureSending );
 }
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Test various invalid parameters input into IotHttpsClient_SendSync().
+ */
 TEST( HTTPS_Client_Unit_Sync, SendSyncInvalidParameters)
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    uint32_t timeout = 0;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
     IotHttpsResponseInfo_t testRespInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
 
     connHandle = _getConnHandle();
@@ -132,8 +156,32 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncInvalidParameters)
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &testRespInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INSUFFICIENT_MEMORY, returnCode);
     TEST_ASSERT_NULL(respHandle);
-
-    /* TODO: Add tests that mock a failure in the task pool scheduling and semaphore creation. */
 }
 
+/*-----------------------------------------------------------*/
 
+/**
+ * @brief Test failures to send synchronously the headers and the body.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSending )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL(connHandle);
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle();
+    TEST_ASSERT_NOT_NULL(reqHandle);
+
+    /* Register a failing send function in the network interface. */
+    _networkInterface.send = _networkSendFail;
+
+    /* Test the network send failing. */
+    returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
+}

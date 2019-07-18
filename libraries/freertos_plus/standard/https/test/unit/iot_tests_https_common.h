@@ -209,7 +209,9 @@ static IotHttpsResponseInfo_t _respInfo = {
 /**
  * @brief Network Abstraction create function that succeeds.
  */
-static inline IotNetworkError_t _networkCreateSuccess(void * pConnectionInfo, void * pCredentialInfo, void ** pConnection)
+static inline IotNetworkError_t _networkCreateSuccess( void * pConnectionInfo, 
+                                                       void * pCredentialInfo,  
+                                                       void ** pConnection)
 {
     (void)pConnectionInfo;
     (void)pCredentialInfo;
@@ -223,15 +225,14 @@ static inline IotNetworkError_t _networkCreateSuccess(void * pConnectionInfo, vo
  * @brief Network Abstraction setReceiveCallback that succeeds.
  */
 static inline IotNetworkError_t _setReceiveCallbackSuccess( void * pConnection, 
-                                                     IotNetworkReceiveCallback_t receiveCallback,
-                                                     void * pContext )
+                                                            IotNetworkReceiveCallback_t receiveCallback,
+                                                            void * pContext )
 {
     (void)pConnection;
     (void)receiveCallback;
     (void)pContext;
     return IOT_NETWORK_SUCCESS;
 }
-
 
 /*-----------------------------------------------------------*/
 
