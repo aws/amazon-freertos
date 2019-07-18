@@ -44,5 +44,12 @@ IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t* 
                                                       bool isAsync, 
                                                       IotHttpsMethod_t method );
 
+/**
+ * @brief Test access function for #_networkReceiveCallback.
+ *
+ * @see #_networkReceiveCallback.
+ */
+void IotTestHttps_networkReceiveCallback( void* pNetworkConnection, void* pReceiveContext );
+
 
 #endif /* ifndef IOT_TEST_ACCESS_HTTPS_ */
