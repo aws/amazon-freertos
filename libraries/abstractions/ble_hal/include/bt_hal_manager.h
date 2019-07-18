@@ -47,7 +47,7 @@
 /**
  * @brief  Incompatible API changes without backward compatibility.
  */
-#define btMAJOR_VERSION    1
+#define btMAJOR_VERSION    2
 
 /**
  * @brief Add new functionality with backward compatibility.
