@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_pkcs11_mbedtls.c
+ * @file iot_pkcs11_mbedtls.c
  * @brief mbedTLS-based PKCS#11 implementation for software keys. This
  * file deviates from the FreeRTOS style standard for some function names and
  * data types in order to maintain compliance with the PKCS #11 standard.
@@ -338,10 +338,10 @@ void prvFindObjectInListByLabel( uint8_t * pcLabel,
 }
 
 /**
- * @brief Searches the PKCS #11 module's object list for handle and provides label info.
+ * @brief Looks up a PKCS #11 object's label and PAL handle given an application handle.
  *
- * @param[in] xAppHandle         The handle of the object being searched for, used by the application.
- * @param[out] xPalHandle        The handle of the object being used by the PAL.
+ * @param[in] xAppHandle         The handle of the object being lookedup for, used by the application.
+ * @param[out] xPalHandle        Pointer to the handle corresponding to xPalHandle being used by the PAL.
  * @param[out] ppcLabel          Pointer to an array containing label.  NULL if object not found.
  * @param[out] pxLabelLength     Pointer to label length (includes a string null terminator).
  *                               0 if no object found.
@@ -355,6 +355,7 @@ void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
 
     *ppcLabel = NULL;
     *pxLabelLength = 0;
+    *pxPalHandle = CK_INVALID_HANDLE;
 
     if( xP11Context.xObjectList.xObjects[ lIndex ].xHandle != CK_INVALID_HANDLE )
     {
@@ -661,14 +662,17 @@ CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
     /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
-    if( NULL != pvReserved )
+    if ( pvReserved != NULL )
     {
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if( xP11Context.xIsInitialized == CK_FALSE )
+    if ( xResult == CKR_OK )
     {
-        xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
+        if ( xP11Context.xIsInitialized == CK_FALSE )
+        {
+            xResult = CKR_CRYPTOKI_NOT_INITIALIZED;
+        }
     }
 
     if( xResult == CKR_OK )
@@ -812,6 +816,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
 {   /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = NULL;
+    CK_BBOOL xSessionMemAllocated = CK_FALSE;
+    CK_BBOOL xSignMutexCreated = CK_FALSE;
+    CK_BBOOL xVerifyMutexCreated = CK_FALSE;
 
     ( void ) ( xSlotID );
     ( void ) ( pvApplication );
@@ -846,6 +853,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         {
             xResult = CKR_HOST_MEMORY;
         }
+        else
+        {
+            xSessionMemAllocated = CK_TRUE;
+        }
 
         /*
          * Zero out the session structure.
@@ -861,12 +872,20 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         {
             xResult = CKR_HOST_MEMORY;
         }
+        else
+        {
+            xSignMutexCreated = CK_TRUE;
+        }
 
         pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
 
         if( NULL == pxSessionObj->xVerifyMutex )
         {
             xResult = CKR_HOST_MEMORY;
+        }
+        else
+        {
+            xVerifyMutexCreated = CK_TRUE;
         }
     }
 
@@ -895,9 +914,22 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
         pxSessionObj->xOperationInProgress = pkcs11NO_OPERATION;
     }
 
-    if( ( NULL != pxSessionObj ) && ( CKR_OK != xResult ) )
+    if(  CKR_OK != xResult  )
     {
-        vPortFree( pxSessionObj );
+        if ( xSessionMemAllocated == CK_TRUE )
+        {
+            if ( xSignMutexCreated == CK_TRUE )
+            {
+                vSemaphoreDelete( pxSessionObj->xSignMutex );
+            }
+            if ( xVerifyMutexCreated == CK_TRUE )
+            {
+                vSemaphoreDelete( pxSessionObj->xVerifyMutex );
+            }
+
+            vPortFree( pxSessionObj );           
+        }
+        
     }
 
     return xResult;
@@ -2409,6 +2441,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
 
+    if( pMechanism == NULL )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     if( xResult == CKR_OK )
     {
         if( pMechanism->mechanism != CKM_SHA256 )
@@ -2449,18 +2486,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
  *
  *
  * @param[in] xSession                      Handle of a valid PKCS #11 session.
- * @param[out] pDigest                      Pointer to the location that receives
- *                                          the message digest.  Caller is
- *                                          responsible for allocating memory.
- *                                          Providing NULL for this input will cause
- *                                          pulDigestLen to be updated for length of
- *                                          buffer required.
- * @param[in,out] pulDigestLen              Points to the location that holds the length
- *                                          of the message digest.  If pDigest is NULL,
- *                                          this value is updated to contain the length
- *                                          of the buffer needed to hold the digest. Else
- *                                          it is updated to contain the actual length of
- *                                          the digest placed in pDigest.
+ * @param[in] pPart                         Pointer to the data to be added to the digest.
+ * @param[in] ulPartLen                     Length of the data located at pPart.
  *
  * @return CKR_OK if successful.
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
@@ -2472,6 +2499,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
+
+    if( pPart == NULL )
+    {
+        PKCS11_PRINT( ( "ERROR: Null digest mechanism provided. \r\n" ) );
+        xResult = CKR_ARGUMENTS_BAD;
+    }
 
     if( xResult == CKR_OK )
     {
@@ -2914,6 +2947,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
 
     if( NULL == pxMechanism )
     {
+        PKCS11_PRINT( ( "ERROR: Null verification mechanism provided. \r\n" ) );
         xResult = CKR_ARGUMENTS_BAD;
     }
 
@@ -3439,14 +3473,26 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalPublic = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPalPrivate = CK_INVALID_HANDLE;
 
+    if( ( pxPublicKeyTemplate == NULL ) ||
+        ( pxPrivateKeyTemplate == NULL ) ||
+        ( pxPublicKey == NULL ) ||
+        ( pxPrivateKey == NULL ) ||
+        ( pxMechanism == NULL ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     if( pucDerFile == NULL )
     {
         xResult = CKR_HOST_MEMORY;
     }
 
-    if( CKM_EC_KEY_PAIR_GEN != pxMechanism->mechanism )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_MECHANISM_PARAM_INVALID;
+        if( CKM_EC_KEY_PAIR_GEN != pxMechanism->mechanism )
+        {
+            xResult = CKR_MECHANISM_PARAM_INVALID;
+        }
     }
 
     if( xResult == CKR_OK )
@@ -3552,23 +3598,25 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                CK_ULONG ulRandomLen )
 {
     CK_RV xResult = CKR_OK;
+    int lMbedResult = 0;
 
     xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
+    if ( (NULL == pucRandomData) ||
+        (ulRandomLen == 0) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     if( xResult == CKR_OK )
     {
-        if( ( NULL == pucRandomData ) ||
-            ( ulRandomLen == 0 ) )
+        lMbedResult = mbedtls_ctr_drbg_random( &xP11Context.xMbedDrbgCtx, pucRandomData, ulRandomLen );
+        if (lMbedResult != 0)
         {
-            xResult = CKR_ARGUMENTS_BAD;
+            PKCS11_PRINT( ("ERROR: DRBG failed %d \r\n", lMbedResult) );
+            xResult = CKR_FUNCTION_FAILED;
         }
-        else
-        {
-            if( 0 != mbedtls_ctr_drbg_random( &xP11Context.xMbedDrbgCtx, pucRandomData, ulRandomLen ) )
-            {
-                xResult = CKR_FUNCTION_FAILED;
-            }
-        }
+        
     }
 
     return xResult;
