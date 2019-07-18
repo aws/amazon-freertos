@@ -195,6 +195,7 @@ static void RunTests( void )
     #if ( testrunnerFULL_HTTPS_CLIENT_ENABLED == 1)
         RUN_TEST_GROUP( HTTPS_Client_Unit_API );
         RUN_TEST_GROUP( HTTPS_Utils_Unit_API );
+        RUN_TEST_GROUP( HTTPS_Client_Unit_Sync );
     #endif
 }
 /*-----------------------------------------------------------*/
