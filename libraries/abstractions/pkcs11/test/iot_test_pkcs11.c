@@ -109,7 +109,7 @@ TEST_GROUP( Full_PKCS11_RSA );
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
 
-/* #define PKCS11_TEST_MEMORY_LEAK */
+ #define PKCS11_TEST_MEMORY_LEAK
 #ifdef PKCS11_TEST_MEMORY_LEAK
     BaseType_t xHeapBefore;
     BaseType_t xHeapAfter;
@@ -589,8 +589,8 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
         TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xSlotCount, "Slot count incorrectly updated" );
 
-        /* Allocate memory to receive the list of slots. */
-        pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * xSlotCount );
+        /* Allocate memory to receive the list of slots, plus one extra. */
+        pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * (xSlotCount + 1) );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxSlotId, "Failed malloc memory for slot list" );
 
         /* Call C_GetSlotList again to receive all slots with tokens present. */
@@ -602,7 +602,6 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
 
         /* Off the happy path. */
         xExtraSlotCount = xSlotCount + 1;
-        pvPortMalloc( sizeof( CK_SLOT_ID ) * xExtraSlotCount );
 
         /* Make sure that number of slots returned is updated when extra buffer room exists. */
         xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, pxSlotId, &xExtraSlotCount );

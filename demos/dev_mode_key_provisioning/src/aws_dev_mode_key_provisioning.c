@@ -269,8 +269,6 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     mbedtls_pk_context xMbedPkContext = { 0 };
     CK_BBOOL xTokenStorage = CK_TRUE;
 
-
-
     mbedtls_pk_init( &xMbedPkContext );
     lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucPrivateKey, xPrivateKeyLength, NULL, 0 );
 
@@ -599,7 +597,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            xResult = CKR_DEVICE_MEMORY;
+            xResult = CKR_HOST_MEMORY;
         }
     }
 
