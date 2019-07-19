@@ -53,30 +53,6 @@
 #define HTTPS_TEST_HOST_HEADER_LINE                 HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_TEST_ADDRESS HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
- * @brief Header data to share among the tests.
- */
-#define HTTPS_TEST_HEADER_LINES    \
-    "HTTP/1.1 200 OK\r\n"\
-    "Content-Type: image/gif\r\n"\
-    "Content-Length: 43\r\n"\
-    "Connection: keep-alive\r\n"\
-    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"\
-    "Server: Omniture DC/2.0.0\r\n"\
-    "Access-Control-Allow-Origin: *\r\n"\
-    "Set-Cookie: s_vi=[CS]v1|2E95635285034EA6-6000119E0002304C[CE]; Expires=Tue, 13 Jul 2021 06:07:52 GMT; Domain=amazonwebservices.d2.sc.omtrdc.net; Path=/; SameSite=None\r\n"\
-    "X-C: ms-6.8.1\r\n"\
-    "Expires: Sat, 13 Jul 2019 06:07:52 GMT\r\n"\
-    "Last-Modified: Mon, 15 Jul 2019 06:07:52 GMT\r\n"\
-    "Pragma: no-cache\r\n"\
-    "ETag: \"3356698344146796544-5233166835360424028\"\r\n"\
-    "Vary: *\r\n"\
-    "P3P: CP=\"This is not a P3P policy\"\r\n"\
-    "xserver: www1021\r\n"\
-    "Cache-Control: no-cache, no-store, max-age=0, no-transform, private\r\n"\
-    "X-XSS-Protection: 1; mode=block\r\n"\
-    "X-Content-Type-Options: nosniff\r\n\r\n"
-
-/**
  * @brief Header name and values to verify reading the header.
  */
 #define HTTPS_DATE_HEADER           "Date"
@@ -139,23 +115,6 @@ static IotNetworkError_t _setReceiveCallbackFail( void * pConnection,
     (void)receiveCallback;
     (void)pContext;
     return IOT_NETWORK_FAILURE;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Mock the http parser execution failing.
- */
-static size_t _httpParserExecuteFail( http_parser *parser,
-                                      const http_parser_settings *settings,
-                                      const char *data,
-                                      size_t len)
-{
-    (void)settings;
-    (void)data;
-    (void)len;
-    parser->http_errno = HPE_UNKNOWN;
-    return 0;
 }
 
 /*-----------------------------------------------------------*/
