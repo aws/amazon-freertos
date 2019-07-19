@@ -35,6 +35,7 @@
 /* mbedTLS includes. */
 #include "mbedtls/sha256.h"
 #include "mbedtls/pk.h"
+#include "mbedtls/pk_internal.h"
 #include "mbedtls/oid.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
@@ -158,6 +159,17 @@ typedef enum
     eStateUnknown         /* State of the credentials is unknown. */
 } CredentialsProvisioned_t;
 
+//// GLOBAL VARIABLES ////
+CK_SESSION_HANDLE xGlobalSession;
+CK_RV xResult;
+
+CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
+CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
+CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
+CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
+CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
+
+
 static int prvRNG ( void * pkcs_session,
                     unsigned char * pucRandom,
                     size_t xRandomLength )
@@ -168,7 +180,7 @@ static int prvRNG ( void * pkcs_session,
     xResult = C_GetFunctionList( &pxP11FunctionList );
 
 
-    xResult = pxP11FunctionList->C_GenerateRandom( pkcs_session, pucRandom, xRandomLength );
+    xResult = pxP11FunctionList->C_GenerateRandom( (*((CK_SESSION_HANDLE*)pkcs_session)), pucRandom, xRandomLength );
 
     if( xResult != 0 )
     {
@@ -179,22 +191,182 @@ static int prvRNG ( void * pkcs_session,
     return xResult;
 }
 
+static int prvPrivateKeySigningCallback( void * pvContext,
+                                         mbedtls_md_type_t xMdAlg,
+                                         const unsigned char * pucHash,
+                                         size_t xHashLen,
+                                         unsigned char * pucSig,
+                                         size_t * pxSigLen,
+                                         int ( *piRng )( void *,
+                                                         unsigned char *,
+                                                         size_t ), /*lint !e955 This parameter is unused. */
+                                         void * pvRng )
+{
+    CK_RV xResult = 0;
+    int lFinalResult = 0;
+    //TLSContext_t * pxTLSContext = ( TLSContext_t * ) pvContext;
+    CK_MECHANISM xMech = { 0 };
+    CK_BYTE xToBeSigned[ 256 ];
+    uint8_t ucTemp[ 64 ] = { 0 }; /* A temporary buffer for the pre-formatted signature. */
+    CK_ULONG xToBeSignedLen = sizeof( xToBeSigned );
+    
+
+    /* Unreferenced parameters. */
+    ( void ) ( piRng );
+    ( void ) ( pvRng );
+    ( void ) ( xMdAlg );
+
+    /* Sanity check buffer length. */
+    if( xHashLen > sizeof( xToBeSigned ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
+    /* If applicable, format the hash data to be signed. */
+    // if( CKK_RSA == pxTLSContext->xKeyType )
+    // {
+    //     xMech.mechanism = CKM_RSA_PKCS;
+    //     vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
+    //     xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
+    // }
+    // else if( CKK_EC == pxTLSContext->xKeyType )
+    // {
+    //     xMech.mechanism = CKM_ECDSA;
+    //     memcpy( xToBeSigned, pucHash, xHashLen );
+    //     xToBeSignedLen = xHashLen;
+    // }
+    // else
+    // {
+    //     xResult = CKR_ARGUMENTS_BAD;
+    // }
+    xMech.mechanism = CKM_ECDSA;
+    memcpy( xToBeSigned, pucHash, xHashLen );
+    xToBeSignedLen = xHashLen;
+
+    if( 0 == xResult )
+    {
+        /* Use the PKCS#11 module to sign. */
+        xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession,
+                                                               &xMech,
+                                                               xPrivateKeyHandle );
+    }
+
+    if( 0 == xResult )
+    {
+        *pxSigLen = sizeof( xToBeSigned );
+        xResult = pxGlobalFunctionList->C_Sign( ( CK_SESSION_HANDLE ) xGlobalSession,
+                                                           xToBeSigned,
+                                                           xToBeSignedLen,
+                                                           pucSig,
+                                                           ( CK_ULONG_PTR ) pxSigLen );
+    }
+
+    // if( CKK_EC == pxTLSContext->xKeyType )
+    // {
+        uint8_t * pucSigPtr;
+
+        /* PKCS #11 for P256 returns a 64-byte signature with 32 bytes for R and 32 bytes for S.
+         * This must be converted to an ASN1 encoded array. */
+        configASSERT( *pxSigLen == 64 );
+        memcpy( ucTemp, pucSig, *pxSigLen );
+
+        pucSig[ 0 ] = 0x30; /* Sequence. */
+        pucSig[ 1 ] = 0x44; /* The minimum length the signature could be. */
+        pucSig[ 2 ] = 0x02; /* Integer. */
+
+        if( ucTemp[ 0 ] & 0x80 )
+        {
+            pucSig[ 1 ]++;
+            pucSig[ 3 ] = 0x21;
+            pucSig[ 4 ] = 0x0;
+            memcpy( &pucSig[ 5 ], ucTemp, 32 );
+            pucSigPtr = pucSig + 33 + 4;
+        }
+        else
+        {
+            pucSig[ 3 ] = 0x20;
+            memcpy( &pucSig[ 4 ], ucTemp, 32 );
+            pucSigPtr = pucSig + 32 + 4;
+        }
+
+        pucSigPtr[ 0 ] = 0x02; /* Integer. */
+        pucSigPtr++;
+
+        if( ucTemp[ 32 ] & 0x80 )
+        {
+            pucSig[ 1 ]++;
+            pucSigPtr[ 0 ] = 0x21;
+            pucSigPtr[ 1 ] = 0x00;
+            pucSigPtr += 2;
+
+            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+        }
+        else
+        {
+            pucSigPtr[ 0 ] = 0x20;
+            pucSigPtr++;
+            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+        }
+
+        *pxSigLen = ( CK_ULONG ) pucSig[ 1 ] + 2;
+    //}
+
+    if( xResult != 0 )
+    {
+        configPRINTF( ( "ERROR: Failure in signing callback: %d \r\n", xResult ) );
+        lFinalResult = TLS_ERROR_SIGN;
+    }
+
+    return lFinalResult;
+}
+
+
+int write_certificate_request( mbedtls_x509write_csr *req, const char *output_file,
+                               int (*f_rng)(void *, unsigned char *, size_t),
+                               void *p_rng )
+{
+    int ret;
+    FILE *f;
+    unsigned char output_buf[4096];
+    size_t len = 0;
+
+    memset( output_buf, 0, 4096 );
+    if( ( ret = mbedtls_x509write_csr_pem( req, output_buf, 4096, f_rng, p_rng ) ) < 0 )
+        return( ret );
+
+    len = strlen( (char *) output_buf );
+
+    char test[] = "testing";
+
+    if( ( f = fopen( output_file, "w" ) ) == NULL )
+        return( -1 );
+    
+    fwrite(test , 1 , sizeof(test) , f );
+
+
+    if( fwrite( output_buf, 1, len, f ) != len )
+    {
+        fclose( f );
+        return( -1 );
+    }
+
+    fclose( f );
+
+    return( 0 );
+}
+
 static void vDevModeDeviceKeyProvisioning( void )
 {
-    CK_RV xResult;
-    CK_SESSION_HANDLE xGlobalSession;
 
     xResult = xInitializePKCS11();
     //TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
     xResult = xInitializePkcs11Session( &xGlobalSession );
     //TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
-
-
     // CK_OBJECT_HANDLE xPrivateKeyHandle;
     // CK_OBJECT_HANDLE xPublicKeyHandle;
     xResult = xDestroyCredentials( xGlobalSession );
 
-    CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
+    
     xResult = C_GetFunctionList( &pxGlobalFunctionList );
 
 
@@ -227,10 +399,7 @@ static void vDevModeDeviceKeyProvisioning( void )
     CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
     //CK_RV xResult;
-    CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
-    CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
+ 
     /* Note that mbedTLS does not permit a signature on all 0's. */
     CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xab };
     CK_MECHANISM xMechanism;
@@ -338,27 +507,32 @@ static void vDevModeDeviceKeyProvisioning( void )
     // TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
 
     /* C_Sign returns the R & S components one after another- import these into a format that mbedTLS can work with. */
-    mbedtls_mpi_init( &xR );
-    mbedtls_mpi_init( &xS );
-    lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
-    // TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
-    lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
-    // TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
+    // mbedtls_mpi_init( &xR );
+    // mbedtls_mpi_init( &xS );
+    // lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
+    // // TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
+    // lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
+    // // TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed in setup for signature verification." );
 
-    /* Verify using mbedTLS & exported public key. */
-    lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
-    // TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
+    // /* Verify using mbedTLS & exported public key. */
+    // lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
+    // // TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTLSResult, "mbedTLS failed to verify signature." );
 
-    /* Verify the signature with the generated public key. */
-    xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit ECDSA." );
-    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, xSignatureLength );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
+    // /* Verify the signature with the generated public key. */
+    // xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit ECDSA." );
+    // xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, xSignatureLength );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
 
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     mbedtls_pk_type_t type_key = MBEDTLS_PK_ECKEY;
-    mbedtls_pk_info_t *header = mbedtls_pk_info_from_type(type_key);
+    const mbedtls_pk_info_t *header = mbedtls_pk_info_from_type(type_key);
+
+    mbedtls_pk_info_t *header_copy = pvPortMalloc(sizeof(mbedtls_pk_info_t));
+    memcpy(header_copy, header, sizeof(struct mbedtls_pk_info_t));
+
+    header_copy->sign_func = &prvPrivateKeySigningCallback;
 
     // mbedtls_ecp_keypair keypair = pk_cont.pk_ctx;
     // void *key_stuff = mbedtls_ecdsa_context();
@@ -367,60 +541,82 @@ static void vDevModeDeviceKeyProvisioning( void )
     // mbedtls_ecdsa_init( &ecdsa );
     // mbedtls_ecdsa_from_keypair(&ecdsa, &xPublicKeyHandle);
 
-    mbedtls_pk_context pk_cont; // = malloc(sizeof(struct mbedtls_pk_context)); // = {temp, };
+    mbedtls_pk_context pk_cont; // = pvPortMalloc(sizeof(struct mbedtls_pk_context));
     mbedtls_pk_init( &pk_cont );
-    mbedtls_pk_setup(&pk_cont, header);
-    (&pk_cont)->pk_ctx = &xEcdsaContext;
+    int ret = mbedtls_pk_setup(&pk_cont, header_copy);
+    pk_cont.pk_ctx = &xEcdsaContext;
+
+    //mbedtls_pk_parse_keyfile( &pk_cont, (const char*) (&xPrivateKeyHandle), NULL );
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     
-    mbedtls_mpi_free( &xR );
-    mbedtls_mpi_free( &xS );
-    mbedtls_ecp_group_free( &xEcdsaContext.grp );
-    mbedtls_ecdsa_free( &xEcdsaContext );
+    // mbedtls_mpi_free( &xR );
+    // mbedtls_mpi_free( &xS );
+    // mbedtls_ecp_group_free( &xEcdsaContext.grp );
+    // mbedtls_ecdsa_free( &xEcdsaContext );
 
 
-    /* Check that FindObject works on Generated Key Pairs. */
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
-    // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
+    // /* Check that FindObject works on Generated Key Pairs. */
+    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
+    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
 
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
-    // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
+    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
+    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
 
-    /* Close & reopen the session.  Make sure you can still find the keys. */
-    xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error closing session after generating key pair." );
-    xResult = xInitializePkcs11Session( &xGlobalSession );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error re-opening session after generating key pair." );
+    // /* Close & reopen the session.  Make sure you can still find the keys. */
+    // xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error closing session after generating key pair." );
+    // xResult = xInitializePkcs11Session( &xGlobalSession );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error re-opening session after generating key pair." );
 
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
-    // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
+    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
+    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
 
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
-    // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
-    // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
-
-
-    //WRITING CSR
-    mbedtls_asn1_buf oid = {MBEDTLS_ASN1_UTF8_STRING, 3, "idk"};
-    mbedtls_asn1_buf thing_info = {MBEDTLS_ASN1_UTF8_STRING, 9, "ThingName"};
+    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
+    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
+    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
 
 
-    mbedtls_asn1_named_data subj = {oid, thing_info, NULL, 0};
-    mbedtls_x509write_csr my_csr = {&pk_cont, &subj, MBEDTLS_MD_SHA256, NULL};
-    unsigned char *final_csr = pvPortMalloc(2000) ; 
-
-    mbedtls_x509write_csr_pem( &my_csr, final_csr, 2000, &prvRNG, &xGlobalSession );
-
-    //configPRINTF((final_csr[50]));
-    fwrite(final_csr, 2000, 1, stdout);
-
-    // for (int i = 1; i < 10; i++) {
-    //     configPRINTF((final_csr[i]));
+    ///////////////////////////////////////////// CSR WRITING /////////////////////////////////////////////////// 
+    
+    // mbedtls_asn1_buf oid = {MBEDTLS_ASN1_UTF8_STRING, 3, "idk"};
+    // mbedtls_asn1_buf thing_info = {MBEDTLS_ASN1_UTF8_STRING, 9, "ThingName"};
+    // mbedtls_asn1_named_data subj = {oid, thing_info, NULL, 0};
+    // mbedtls_pk_context key;
+    // mbedtls_pk_init( &key );
+    // const char *test_key = &cValidRSAPrivateKey[0];
+    // int ret = mbedtls_pk_parse_keyfile( &key, test_key, NULL );
+    // if( ret != 0 )
+    // {
+    //     configPRINTF(( " failed\n  !  mbedtls_pk_parse_keyfile returned %d", ret ));
+  
     // }
+
+
+   
+    mbedtls_x509write_csr my_csr; // = pvPortMalloc(sizeof(struct mbedtls_x509write_csr));
+    mbedtls_x509write_csr_init(&my_csr);
+    ret = mbedtls_x509write_csr_set_subject_name(&my_csr, "CN=ThingName");
+    mbedtls_x509write_csr_set_key(&my_csr, &pk_cont); //pk_cont
+    mbedtls_x509write_csr_set_md_alg(&my_csr, MBEDTLS_MD_SHA256);
+    ret = mbedtls_x509write_csr_set_key_usage(&my_csr, MBEDTLS_X509_KU_DIGITAL_SIGNATURE);
+    ret = mbedtls_x509write_csr_set_ns_cert_type(&my_csr, MBEDTLS_X509_NS_CERT_TYPE_SSL_CLIENT); //do we need this?
+
+    unsigned char *final_csr = pvPortMalloc(4096) ; 
+    
+    //const char* filename = "csr.txt";
+    size_t len_buf = (size_t)4096;
+
+    ret = mbedtls_x509write_csr_pem( &my_csr, final_csr, len_buf, &prvRNG, &xGlobalSession );
+    // write_certificate_request( &my_csr, filename,
+    //                             &prvRNG,
+    //                             &xGlobalSession );
+
+    configPRINTF((final_csr));
+
 }
 
 void vStartKeyProvisioningDemo( void )
@@ -441,10 +637,13 @@ void vStartKeyProvisioningDemo( void )
     }
     #else
     {
-        configPRINTF( ( "TEST - REAL KEY PROVISIONING\r\n" ) );
+        configPRINTF( ( "Keys Are Being Generated on Device\r\n" ) );
+        configPRINTF( ( "Starting Key Provisioning\r\n" ) );
 
         (void) vDevModeDeviceKeyProvisioning( );
-        // (void) vDevModeKeyProvisioning( );
+        
+        configPRINTF( ( "Ending Key Provisioning\r\n" ) );
+
 
     }
     #endif
