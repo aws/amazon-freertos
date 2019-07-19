@@ -997,7 +997,8 @@ typedef struct IotMqttNetworkInfo
 /*------------------------- MQTT defined constants --------------------------*/
 
 /**
- * @constantspage{mqtt,MQTT library}
+ * @constants_page{mqtt}
+ * @constants_brief{MQTT library}
  *
  * @section mqtt_constants_initializers MQTT Initializers
  * @brief Provides default values for the data types of the MQTT library.

@@ -16,7 +16,9 @@ The Amazon FreeRTOS BLE library is made up of three layers: services, middleware
 
 @image html BLE-architecture.png width=40%
 
-@dependencies{ble,ble library}
+@dependencies_section{ble}
+@dependencies_brief{ble library}
+
 @dot "BLE direct dependencies"
 digraph ble_dependencies
 {
@@ -63,7 +65,8 @@ The current BLE tests use the [Unity test framework](http://www.throwtheswitch.o
 */
 
 /**
-@configpage{ble,BLE library}
+@config_page{ble}
+@config_brief{BLE library}
 
 Amazon FreeRTOS BLE Library Configuration File
 
@@ -93,7 +96,8 @@ Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an 
 */
 
 /**
-@constantspage{ble,BLE library}
+@constants_page{ble}
+@constants_brief{BLE library}
 
 - @subpage iotbledeviceinfo_constants <br>
   @copybrief iotbledeviceinfo_constants

@@ -46,7 +46,8 @@
 #include <stdint.h>
 
 /**
- * @constantspage{logging,logging library}
+ * @constants_page{logging}
+ * @constants_brief{logging library}
  *
  * @section logging_constants_levels Log levels
  * @brief Log levels for the libraries in this SDK.

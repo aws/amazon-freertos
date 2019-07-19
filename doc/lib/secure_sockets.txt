@@ -27,7 +27,8 @@ digraph library_dependencies
 */
 
 /**
-@configpage{SecureSockets,library}
+@config_page{SecureSockets}
+@config_brief{library}
 
 @section socketsconfigBYTE_ORDER
 @brief Byte order of the target MCU must be defined. For detail, please refer to [Endian](https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/endian.html) in freertos.org
@@ -70,18 +71,27 @@ This configuration is defined in  @ref iot_secure_sockets_config_defaults.h
 */
 
 /**
-@functionspage{SecureSockets,library}
+@page SecureSockets_functions Functions 
+@functions_brief{library}
 - @subpage secure_sockets_function_primary
 - @subpage secure_sockets_function_helper
 @page secure_sockets_function_primary Primary Functions
-- @functionname{secure_sockets_function_socket}
-- @functionname{secure_sockets_function_connect}
-- @functionname{secure_sockets_function_recv}
-- @functionname{secure_sockets_function_send}
-- @functionname{secure_sockets_function_shutdown}
-- @functionname{secure_sockets_function_close}
-- @functionname{secure_sockets_function_setsockopt}
-- @functionname{secure_sockets_function_gethostbyname}
+- @function_name{secure_sockets_function_socket}
+@function_brief{secure_sockets_function_socket}
+- @function_name{secure_sockets_function_connect}
+@function_brief{secure_sockets_function_connect}
+- @function_name{secure_sockets_function_recv}
+@function_brief{secure_sockets_function_recv}
+- @function_name{secure_sockets_function_send}
+@function_brief{secure_sockets_function_send}
+- @function_name{secure_sockets_function_shutdown}
+@function_brief{secure_sockets_function_shutdown}
+- @function_name{secure_sockets_function_close}
+@function_brief{secure_sockets_function_close}
+- @function_name{secure_sockets_function_setsockopt}
+@function_brief{secure_sockets_function_setsockopt}
+- @function_name{secure_sockets_function_gethostbyname}
+@function_brief{secure_sockets_function_gethostbyname}
 @page secure_sockets_function_helper Helper Functions
 - @subpage SOCKETS_htonl
 - @subpage SOCKETS_ntohl
@@ -92,14 +102,38 @@ This configuration is defined in  @ref iot_secure_sockets_config_defaults.h
 */
 
 /**
-@functionpage{SOCKETS_Socket,secure_sockets,socket,iot_secure_sockets.h}
-@functionpage{SOCKETS_Connect,secure_sockets,connect,iot_secure_sockets.h}
-@functionpage{SOCKETS_Recv,secure_sockets,recv,iot_secure_sockets.h}
-@functionpage{SOCKETS_Send,secure_sockets,send,iot_secure_sockets.h}
-@functionpage{SOCKETS_Shutdown,secure_sockets,shutdown,iot_secure_sockets.h}
-@functionpage{SOCKETS_Close,secure_sockets,close,iot_secure_sockets.h}
-@functionpage{SOCKETS_SetSockOpt,secure_sockets,setsockopt,iot_secure_sockets.h}
-@functionpage{SOCKETS_GetHostByName,secure_sockets,gethostbyname,iot_secure_sockets.h}
+@page secure_sockets_function_socket SOCKETS_Socket
+@snippet iot_secure_sockets.h declare_secure_sockets_socket
+@copydoc SOCKETS_Socket
+
+@page secure_sockets_function_connect SOCKETS_Connect
+@snippet iot_secure_sockets.h declare_secure_sockets_connect
+@copydoc SOCKETS_Connect
+
+@page secure_sockets_function_recv SOCKETS_Recv
+@snippet iot_secure_sockets.h declare_secure_sockets_recv
+@copydoc SOCKETS_Recv
+
+@page secure_sockets_function_send SOCKETS_Send
+@snippet iot_secure_sockets.h declare_secure_sockets_send
+@copydoc SOCKETS_Send
+
+@page secure_sockets_function_shutdown SOCKETS_Shutdown
+@snippet iot_secure_sockets.h declare_secure_sockets_shutdown
+@copydoc SOCKETS_Shutdown
+
+@page secure_sockets_function_close SOCKETS_Close
+@snippet iot_secure_sockets.h declare_secure_sockets_close
+@copydoc SOCKETS_Close
+
+@page secure_sockets_function_setsockopt SOCKETS_SetSockOpt
+@snippet iot_secure_sockets.h declare_secure_sockets_setsockopt
+@copydoc SOCKETS_SetSockOpt
+
+@page secure_sockets_function_gethostbyname SOCKETS_GetHostByName
+@snippet iot_secure_sockets.h declare_secure_sockets_gethostbyname
+@copydoc SOCKETS_GetHostByName
+
 */
 
 /**

@@ -83,7 +83,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@configpage{Foo,library}
+@config_page{Foo}
+@config_brief{library}
 
 @section ......
 @brief ......
@@ -100,7 +101,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@constantspage{Foo,library}
+@constants_page{Foo}
+@constants_brief{library}
 
 @section foo_constants_single Single Value Constants
 - @ref ......
@@ -115,11 +117,14 @@ TODO: this section is copy-pasted currently. Need a better way.
 ```
 /**
 @functionspage{Foo,library}
-- @functionname{foo_function_socket}
+- @function_name{foo_function_socket}
+- @function_brief{foo_function_socket}
 */
 
 /**
-@functionpage{FOO_func,foo,func,aws_foo.h}
+@page foo_function_func FOO_func
+@snippet aws_foo.h declare_foo_func
+@copydoc FOO_func"
 */
 ```
 

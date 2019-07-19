@@ -483,7 +483,8 @@ typedef struct AwsIotShadowDocumentInfo
 /*------------------------ Shadow defined constants -------------------------*/
 
 /**
- * @constantspage{shadow,Shadow library}
+ * @constants_page{shadow}
+ * @constants_brief{Shadow library}
  *
  * @section shadow_constants_initializers Shadow Initializers
  * @brief Provides default values for the data types of the Shadow library.

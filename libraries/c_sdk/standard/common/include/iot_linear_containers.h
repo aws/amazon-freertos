@@ -71,7 +71,8 @@ typedef IotLink_t   IotListDouble_t;
 typedef IotLink_t   IotDeQueue_t;
 
 /**
- * @constantspage{linear_containers,linear containers library}
+ * @constants_page{linear_containers}
+ * @constants_brief{linear containers library}
  *
  * @section linear_containers_constants_initializers Linear Containers Initializers
  * @brief Provides default values for initializing the linear containers data types.

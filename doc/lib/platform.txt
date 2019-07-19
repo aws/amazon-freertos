@@ -27,7 +27,9 @@ The platform clock component provides other libraries with functions relating to
 - Clocks for reading the current time.
 - Timers that create a notification thread when they expire.
 
-@dependencies{platform_clock,platform clock component}
+@dependencies_section{platform_clock}
+@dependencies_brief{platform clock component}
+
 @dot "Clock direct dependencies"
 digraph clock_dependencies
 {
@@ -62,7 +64,9 @@ Currently, the platform clock component has the following dependencies:
 
 The platform networking component provides other libraries with an abstraction for interacting with the network through an #IotNetworkInterface_t. Libraries that require the network will request an #IotNetworkInterface_t as a parameter and use those function pointers to access the network. This allows libraries to use different network stacks simultaneously.
 
-@dependencies{platform_network,platform networking component}
+@dependencies_section{platform_network}
+@dependencies_brief{platform networking component}
+
 @dot "Networking direct dependencies"
 digraph network_dependencies
 {
@@ -104,7 +108,9 @@ The platform thread management component provides other libraries with functions
 - A function to create new threads.
 - Synchronization mechanisms such as [mutexes](@ref IotMutex_t) and [counting semaphores](@ref IotSemaphore_t).
 
-@dependencies{platform_threads,platform thread management component}
+@dependencies_section{platform_threads}
+@dependencies_brief{platform thread management component}
+
 @dot "Thread management direct dependencies"
 digraph threads_dependencies
 {
@@ -133,7 +139,8 @@ Currently, the platform thread management component has the following dependenci
 */
 
 /**
-@configpage{platform,platform layer}
+@config_page{platform}
+@config_brief{platform layer}
 
 @section IOT_LOG_LEVEL_PLATFORM
 @brief Set the log level of all platform components except the [networking component](@ref platform_network).
