@@ -259,6 +259,7 @@ typedef struct
 {
     BLEHALEventsInternals_t xEvent;
     BTStatus_t xStatus;
+    bool bStart;
 } BLETESTAdvParamCallback_t;
 
 typedef struct
@@ -639,8 +640,9 @@ void prvAdapterPropertiesCb( BTStatus_t xStatus,
                              uint32_t ulNumProperties,
                              BTProperty_t * pxProperties );
 void prvSetAdvDataCb( BTStatus_t xStatus );
-void prvAdvStartCb( BTStatus_t xStatus,
-                    uint32_t ulServerIf );
+void prvAdvStatusCb( BTStatus_t xStatus,
+                     uint32_t ulServerIf,
+                     bool bStart );
 void prvConnectionCb( uint16_t usConnId,
                       uint8_t ucServerIf,
                       bool bConnected,
@@ -687,6 +689,7 @@ void prvRequestExecWriteCb( uint16_t usConnId,
 void prvBondedCb( BTStatus_t xStatus,
                   BTBdaddr_t * pxRemoteBdAddr,
                   bool bIsBonded );
+void prvStartStopAdvCheck( bool start );
 BTStatus_t bleStackInit( void );
 
 static BTCallbacks_t xBTManagerCb =
@@ -714,7 +717,7 @@ static BTBleAdapterCallbacks_t xBTBleAdapterCb =
     .pxOpenCb                        = NULL,
     .pxCloseCb                       = NULL,
     .pxReadRemoteRssiCb              = NULL,
-    .pxAdvStartCb                    = prvAdvStartCb,
+    .pxAdvStatusCb                   = prvAdvStatusCb,
     .pxSetAdvDataCb                  = prvSetAdvDataCb,
     .pxConnParameterUpdateCb         = prvConnParameterUpdateCb,
     .pxScanFilterCfgCb               = NULL,
@@ -939,7 +942,9 @@ void prvWaitConnection( bool bConnected )
     /* Stop advertisement. */
     xStatus = pxBTLeAdapterInterface->pxStopAdv( ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    prvStartStopAdvCheck( false );
 }
+
 TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 {
     BTStatus_t xStatus;
@@ -1205,8 +1210,10 @@ TEST( Full_BLE, BLE_Property_Notification )
 
     prvSendNotification( bletestATTR_SRVCB_CHAR_E, false );
     /* Wait a possible confirm for 2 max connections interval */
-    xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_SHORT_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusFail, xStatus );
+    xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( usBLEConnId, xIndicateEvent.usConnId );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xIndicateEvent.xStatus );
 }
 
 TEST( Full_BLE, BLE_Property_WriteNoResponse )
@@ -1326,17 +1333,25 @@ void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xAdvParamCallback.xStatus );
 }
 
-void prvStartAdvertisement( void )
+void prvStartStopAdvCheck( bool start )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTAdvParamCallback_t xAdvParamCallback;
 
+    xStatus = prvWaitEventFromQueue( eBLEHALEventStartAdvCb, NO_HANDLE, ( void * ) &xAdvParamCallback, sizeof( BLETESTAdvParamCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( start, xAdvParamCallback.bStart );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xAdvParamCallback.xStatus );
+}
+
+void prvStartAdvertisement( void )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
     xStatus = pxBTLeAdapterInterface->pxStartAdv( ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventStartAdvCb, NO_HANDLE, ( void * ) &xAdvParamCallback, sizeof( BLETESTAdvParamCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xAdvParamCallback.xStatus );
+    prvStartStopAdvCheck( true );
 }
 
 TEST( Full_BLE, BLE_Advertising_StartAdvertisement )
@@ -2120,12 +2135,14 @@ void prvSetAdvDataCb( BTStatus_t xStatus )
     pushToQueue( &xdvParamCallback->xEvent.eventList );
 }
 
-void prvAdvStartCb( BTStatus_t xStatus,
-                    uint32_t ulServerIf )
+void prvAdvStatusCb( BTStatus_t xStatus,
+                     uint32_t ulServerIf,
+                     bool bStart )
 {
     BLETESTAdvParamCallback_t * xdvParamCallback = pvPortMalloc( sizeof( BLETESTAdvParamCallback_t ) );
 
     xdvParamCallback->xStatus = xStatus;
+    xdvParamCallback->bStart = bStart;
     xdvParamCallback->xEvent.xEventTypes = eBLEHALEventStartAdvCb;
     xdvParamCallback->xEvent.lHandle = NO_HANDLE;
 

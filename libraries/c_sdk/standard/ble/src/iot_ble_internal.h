@@ -96,6 +96,7 @@ typedef struct
 extern _bleInterface_t _BTInterface;
 
 extern const BTGattServerCallbacks_t _BTGattServerCb;
+extern void _bleStartAdvCb( BTStatus_t status );
 
 
 #endif /* ifndef _AWS_BLE_INTERNALS_H_ */
