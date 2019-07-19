@@ -51,11 +51,14 @@ typedef struct ProvisioningParams_t
                                          *   See tools/certificate_configuration/PEMfileToCString.html
                                          *   for help with formatting.*/
     uint32_t ulClientCertificateLength; /**< Length of the device certificate in bytes. */
-    uint8_t * pucJITPCertificate;       /**< Pointer to the JITP certificate in PEM format.  If no
-                                         *   JITP certificate exists, this should be set to NULL.
+    uint8_t * pucJITPCertificate;       /**< Pointer to the Just-In-Time Provisioning (JITP) certificate in 
+                                         *   PEM format.  If no JITP certificate exists,
+                                         *   this should be set to NULL.
                                          *   See tools/certificate_configuration/PEMfileToCString.html
-                                         *   for help with formatting.*/
-    uint32_t ulJITPCertifiateLength;    /**< Length of the JITP certificate in bytes.
+                                         *   for help with formatting.
+                                         *   See https://tinyurl.com/y3qf3un5 for more information about 
+                                         *   getting started with J*/
+    uint32_t ulJITPCertifiateLength;    /**< Length of the Just-In-Time Provisioning (JITP) certificate in bytes.
                                          *   If no JITP certificate exists, this should be set to 0. */
 } ProvisioningParams_t;
 
@@ -192,10 +195,10 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
                                    CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                    CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
-/** \brief Destroys AFR credentials stored in device PKCS #11 module.
+/** \brief Destroys Amazon FreeRTOS credentials stored in device PKCS #11 module.
 *
 * \note Not all ports support the deletion of all objects.  Successful
-* function return only indicates that all objest for which destroy is 
+* function return only indicates that all objects for which destroy is 
 * supported on the port were erased from non-volatile memory.
 *
 * Destroys objects with the following labels, if applicable:

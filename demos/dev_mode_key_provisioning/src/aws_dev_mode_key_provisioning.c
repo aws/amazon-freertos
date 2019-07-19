@@ -242,7 +242,7 @@ CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
 
         xResult = pxFunctionList->C_CreateObject( xSession,
                                                   ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
-                                                  sizeof( PKCS11_PrivateRsaKeyTemplate_t ) / sizeof( CK_ATTRIBUTE ),
+                                                  sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
                                                   pxObjectHandle );
     }
 
@@ -420,7 +420,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
-/* NOTE: C_GenerateKeyPair for RSA keys is not supported by AFR mbedTLS PKCS #11 port. */
+/* NOTE: C_GenerateKeyPair for RSA keys is not supported by the Amazon FreeRTOS mbedTLS PKCS #11 port. */
 CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
                                     uint8_t * pucPrivateKeyLabel,
                                     uint8_t * pucPublicKeyLabel,
@@ -542,7 +542,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTokenStorage = CK_TRUE;
 
     /* TODO: Subject is a required attribute.
-     * Currently, this field is not used by AFR ports,
+     * Currently, this field is not used by Amazon FreeRTOS ports,
      * this should be updated so that subject matches proper
      * format for future ports. */
     CK_BYTE xSubject[] = "TestSubject";

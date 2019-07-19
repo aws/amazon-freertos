@@ -53,6 +53,8 @@
 
 /**
  * @brief Length of a curve P-256 ECDSA signature, in bytes.
+ * PKCS #11 EC signatures are represented as a 32-bit R followed
+ * by a 32-bit S value, and not ASN.1 encoded.
  */
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
 
@@ -122,39 +124,6 @@
 #endif
 
 #include "pkcs11.h"
-
-/* Elliptic Curve Private Key Template
- * The object class must be the first attribute in the array.
- * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__3__4__ELLIPTIC__CURVE__PRIVATE__KEY__OBJECTS.html */
-typedef struct PKCS11_PrivateEcKeyTemplate
-{
-    CK_ATTRIBUTE xObjectClass; /* CKA_CLASS, set to CKO_PRIVATE_KEY. */
-    CK_ATTRIBUTE xKeyType;     /* CKA_KEY_TYPE, set to CKK_EC. */
-    CK_ATTRIBUTE xLabel;       /* CKA_LABEL. */
-    CK_ATTRIBUTE xEcParams;    /* CKA_EC_PARAMS, the DER encoded OID for the curve. */
-    CK_ATTRIBUTE xValue;       /* CKA_VALUE, the value d, the private value. */
-    CK_ATTRIBUTE xTokenObject; /* CKA_TOKEN.  If true, the value should be persistent. */
-} PKCS11_PrivateEcKeyTemplate_t, * PKCS11_PrivateEcKeyTemplatePtr_t;
-
-/* RSA Private Key Template
- * The object class must be the first attribute in the array.
- * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__1__3__RSA__PRIVATE__KEY__OBJECTS.html */
-typedef struct PKCS11_PrivateRsaKeyTemplate
-{
-    CK_ATTRIBUTE xObjectClass;     /* CKA_CLASS, set to CKO_PRIVATE_KEY. */
-    CK_ATTRIBUTE xKeyType;         /* CKA_KEY_TYPE, set to CKK_RSA. */
-    CK_ATTRIBUTE xLabel;           /* CKA_LABEL. */
-    CK_ATTRIBUTE xCanSign;         /* CKA_SIGN. */
-    CK_ATTRIBUTE xModulus;         /* CKA_MODULUS, the modulus N */
-    CK_ATTRIBUTE xPrivateExponent; /* CKA_PRIVATE_EXPONENT, the private exponent D */
-    CK_ATTRIBUTE xPublicExponent;  /* CKA_PUBLIC_EXPONENT, the public exponent E */
-    CK_ATTRIBUTE xPrime1;          /* CKA_PRIME_1, P */
-    CK_ATTRIBUTE xPrime2;          /* CKA_PRIME_2, Q */
-    CK_ATTRIBUTE xExp1;            /* CKA_EXPONENT_1, DP */
-    CK_ATTRIBUTE xExp2;            /* CKA_EXPONENT_2, DQ */
-    CK_ATTRIBUTE xCoefficient;     /* CKA_COEFFICIENT, QP */
-    CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN, if true, the value should be persistent. */
-} PKCS11_PrivateRsaKeyTemplate_t, * PKCS11_PrivateRsaKeyTemplatePtr_t;
 
 /* Certificate Template */
 /* The object class must be the first attribute in the array. */
