@@ -349,7 +349,7 @@ static IotHttpsReturnCode_t _networkSend(_httpsConnection_t* pHttpsConnection, u
  * @param[in] len - The length of the data to receive.
  * 
  * @return #IOT_HTTPS_OK if the data was received successfully.
- *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
+ *         #IOT_HTTPS_NETWORK_ERROR if we timedout trying to receive data from the network.
  */
 static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* pHttpsConnection, uint8_t * pBuf, size_t bufLen);
 
@@ -368,7 +368,6 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* pHttpsConnection, 
  * 
  * @return #IOT_HTTPS_OK if the headers were fully sent successfully.
  *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
- *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
  */
 static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* pHttpsConnection, uint8_t* pHeadersBuf, uint32_t headersLength, bool isNonPersistent, uint32_t contentLength);
 
@@ -381,7 +380,6 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* pHttpsConnect
  * 
  * @return #IOT_HTTPS_OK if the body was fully sent successfully.
  *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
- *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
  */
 static IotHttpsReturnCode_t _sendHttpsBody( _httpsConnection_t* pHttpsConnection, uint8_t* pBodyBuf, uint32_t bodyLength);
 
@@ -409,18 +407,17 @@ static IotHttpsReturnCode_t _parseHttpsMessage(_httpParserInfo_t* pHttpParserInf
  * @param[in] finalParserState - The final state of the parser expected after this function finishes.
  * @param[in] pBufCur - Pointer to the next location to write data into the buffer pBuf. This is double pointer to update the response context buffer pointers.
  * @param[in] pBufEnd - Pointer to the end of the buffer to receive the HTTP response into.
- * @param[out] pNetworkStatus - The network status will be returned here. The network status can be any of the return values from _networkRecv().
- * 
+ *
  * @return #IOT_HTTPS_OK if we received the HTTP response message part successfully.
  *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the data.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
 static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConnection, 
                                                   _httpParserInfo_t* pParser,
                                                   IotHttpsResponseParserState_t *pCurrentParserState,
                                                   IotHttpsResponseParserState_t finalParserState, 
                                                   uint8_t** pBufCur,
-                                                  uint8_t** pBufEnd,
-                                                  IotHttpsReturnCode_t *pNetworkStatus);
+                                                  uint8_t** pBufEnd);
 
 /**
  * @brief Receive the HTTP response headers.
@@ -435,12 +432,12 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
  * 
  * @param[in] pHttpsConnection - HTTP connection context.
  * @param[in] pHttpsResponse - HTTP response context.
- * @param[out] pNetworkStatus - The network status will be returned here. The network status can be any of the return values from _networkRecv().
  * 
  * @return #IOT_HTTPS_OK if we received the HTTP headers successfully.
  *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the header buffer.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
-static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConnection, _httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t *pNetworkStatus);
+static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConnection, _httpsResponse_t* pHttpsResponse);
 
 /**
  * @brief Receive the HTTP response body.
@@ -449,12 +446,12 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConn
  * 
  * @param[in] pHttpsConnection - HTTP connection context.
  * @param[in] pHttpsResponse - HTTP response context.
- * @param[out] pNetworkStatus - The network status will be returned here. The network status can be any of the return values from _networkRecv().
  * 
  * @return #IOT_HTTPS_OK if we received the HTTP body successfully.
  *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the body buffer.
+ *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
-static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* pHttpsConnection, _httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t *pNetworkStatus);
+static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* pHttpsConnection, _httpsResponse_t* pHttpsResponse);
 
 /**
  * @brief Read the rest of any HTTP response that may be on the network.
@@ -481,7 +478,6 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* pHttpsConnect
  * @return #IOT_HTTPS_OK if we successfully flushed the network data.
  *         #IOT_HTTPS_PARSING_ERROR if there was an error with parsing the data.
  *         #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
- *         #IOT_HTTPS_TIMEOUT_ERROR if we timedout trying to receive data from the network.
  */
 static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsConnection, _httpsResponse_t* pHttpsResponse );
 
@@ -499,25 +495,25 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
  * @brief Receive the HTTPS body specific to an asynchronous type of response.
  * 
  * @param[in] pHttpsResponse - HTTP response context.
- * @param[out] pNetworkStatus - The network status of receiving the body synchronously.
  * 
  * @return  #IOT_HTTPS_OK - If the the response body was received with no issues. 
  *          #IOT_HTTPS_ASYNC_CANCELLED - If the request was cancelled by the Application
  *          #IOT_HTTPS_PARSING_ERROR - If there was an issue parsing the HTTP response body.
+ *          #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
-static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t* pNetworkStatus);
+static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse);
 
 /**
  * @brief Receive the HTTPS body specific to a synchronous type of response.
  * 
  * @param[in] pHttpsResponse - HTTP response context.
- * @param[out] pNetworkStatus - The network status of receiving the body synchronously.
  * 
  * @return  #IOT_HTTPS_OK - If the the response body was received with no issues. 
  *          #IOT_HTTPS_MESSAGE_TOO_LARGE - If the body from the network is too large to fit into the configured body buffer.
  *          #IOT_HTTPS_PARSING_ERROR - If there was an issue parsing the HTTP response body.
+ *          #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
-static IotHttpsReturnCode_t _receiveHttpsBodySync(_httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t* pNetworkStatus);
+static IotHttpsReturnCode_t _receiveHttpsBodySync(_httpsResponse_t* pHttpsResponse);
 
 /**
  * @brief Schedule the task to send the the HTTP request.
@@ -843,7 +839,7 @@ static int _httpParserOnChunkCompleteCallback(http_parser * pHttpParser)
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t* pNetworkStatus)
+static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
     /* Get the request reference from the response for the callback function pointers. */
@@ -881,14 +877,16 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsRespo
         }
     }
 
-    *pNetworkStatus = pHttpsResponse->bodyRxStatus;
+    status = pHttpsResponse->bodyRxStatus;
+    /* This GOTO cleanup is here for compiler warnings about using HTTPS_FUNCTION_EXIT_NO_CLEANUP() without a 
+       corresponding goto. */
     HTTPS_GOTO_CLEANUP();
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _receiveHttpsBodySync(_httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t* pNetworkStatus)
+static IotHttpsReturnCode_t _receiveHttpsBodySync(_httpsResponse_t* pHttpsResponse)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
     _httpsConnection_t* pHttpsConnection = pHttpsResponse->pHttpsConnection;
@@ -904,22 +902,13 @@ static IotHttpsReturnCode_t _receiveHttpsBodySync(_httpsResponse_t* pHttpsRespon
             ( pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE ) )
         {
             status = _receiveHttpsBody( pHttpsConnection,
-                pHttpsResponse,
-                pNetworkStatus );
+                pHttpsResponse );
             if( HTTPS_FAILED(status) )
             {
                 IotLogError( "Error receiving the HTTPS response body for response %d. Error code: %d.", 
                     pHttpsResponse,
-                    status, 
-                    *pNetworkStatus );
+                    status );
                 HTTPS_GOTO_CLEANUP();
-            }
-
-            if(HTTPS_FAILED(*pNetworkStatus) && (*pNetworkStatus != IOT_HTTPS_TIMEOUT_ERROR))
-            {
-                IotLogError( "Network error receiving HTTPS body. Error code: %d.", *pNetworkStatus);
-                /* A network error does signal that receiving the response failed. This is because we may receive a 
-                   network error if the server closes the connection, even after sending a valid HTTP response. */
             }
         }
         else
@@ -953,8 +942,8 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    IotHttpsReturnCode_t networkStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t flushStatus = IOT_HTTPS_OK;
+    IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
     _httpsConnection_t* pHttpsConnection = ( _httpsConnection_t* )pReceiveContext;
     _httpsResponse_t* pCurrentHttpsResponse = NULL;
     _httpsResponse_t* pNextHttpsResponse = NULL;
@@ -1010,22 +999,39 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 
     /* Receive the response from the network. */
     /* Receive the headers first. */
-    status = _receiveHttpsHeaders(pHttpsConnection, pCurrentHttpsResponse, &networkStatus);
-    if( HTTPS_FAILED(status) )
+    status = _receiveHttpsHeaders(pHttpsConnection, pCurrentHttpsResponse);
+    if(HTTPS_FAILED(status))
     {
-        IotLogError("Error receiving the HTTPS headers with error code: %d", status);
-        /* If there were errors parsing then we may have received rouge data from a rouge server and should disconnect. */
-        fatalDisconnect = true;
-        IOT_GOTO_CLEANUP();
+        if(status == IOT_HTTPS_PARSING_ERROR)
+        {
+            /* There was an error parsing the HTTPS response body. This may be an indication of a server that does
+                not adhere to protocol correctly. We should disconnect. */
+            IotLogError("Failed to parse the HTTPS headers for response %d, Error code: %d.", 
+                pCurrentHttpsResponse,
+                status);
+            fatalDisconnect = true;
+        }
+        else if(status == IOT_HTTPS_NETWORK_ERROR)
+        {
+            /* Given the function signature of IotNetworkInterface_t.receive, we can only receive 0 to the number of bytes 
+            requested. Receiving less than the number of bytes requests is OK since we do not how much data is expected, so 
+            we ask for the full size of the receive buffer. Thereofore, the only error that can be returned from receiving 
+            the headers or body is a timeout. We always disconnect from the network when there is a timeout because the 
+            server may be slow to respond. If the server happens to send the response later at the same time another response 
+            is waiting in the queue, then the workflow is corrupted. Pipelining is not current supported in this library. */
+            IotLogError("Network error receiving the HTTPS headers for response %d. Error code: %d",
+                pCurrentHttpsResponse, 
+                status);
+            fatalDisconnect = true;
+        }
+        else /* Any other error. */
+        {
+            IotLogError("Failed to retrive the HTTPS body for request %d. Error code: %d", status);
+        }
+        HTTPS_GOTO_CLEANUP();
     }
 
-    /* If the network status is a timeout error, then that does not mean anything went wrong. All other network
-       errors may be transient and we simply want to report it and move on.*/
-    if( HTTPS_FAILED(networkStatus) && (networkStatus != IOT_HTTPS_TIMEOUT_ERROR))
-    {
-        IotLogError("Network error when receiving HTTPS headers. Error code: %d", networkStatus);
-    }
-
+    /* Check if we received all of the headers into the header buffer. */
     if( pCurrentHttpsResponse->parserState < PARSER_STATE_HEADERS_COMPLETE )
     {
         IotLogDebug( "Headers received on the network did not all fit into the configured header buffer for request %d."
@@ -1038,36 +1044,37 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* Receive the body. */
     if(pCurrentHttpsResponse->isAsync)
     {
-        status = _receiveHttpsBodyAsync(pCurrentHttpsResponse, &networkStatus);
+        status = _receiveHttpsBodyAsync(pCurrentHttpsResponse);
     }
     else
     {
         /* Otherwise receive synchronously. */
-        status = _receiveHttpsBodySync(pCurrentHttpsResponse, &networkStatus);
-    }
-
-    /* If the network status is a timeout error, then that does not mean anything went wrong. All other network
-       errors may be transient and we simply want to pass that up to the application.*/
-    if(HTTPS_FAILED(networkStatus) && (networkStatus != IOT_HTTPS_TIMEOUT_ERROR))
-    {
-        IotLogError("Network error receiving HTTPS body synchronously. Error code %d", networkStatus);
+        status = _receiveHttpsBodySync(pCurrentHttpsResponse);
     }
 
     if(HTTPS_FAILED(status))
     {
         if(status == IOT_HTTPS_ASYNC_CANCELLED)
         {
-            /* The user could have cancelled which is not really an error, but we still want to end processing the 
-               current response. */
-            IotLogDebug("User cancelled during the async readReadyCallback() for request %d.", 
-                pCurrentHttpsRequest);
+            /* If the request was cancelled, this is logged, but does not close the connection. */
+            IotLogDebug("User cancelled during the async readReadyCallback() for response %d.", 
+                pCurrentHttpsResponse);
         }
         else if(status == IOT_HTTPS_PARSING_ERROR)
         {
             /* There was an error parsing the HTTPS response body. This may be an indication of a server that does
                 not adhere to protocol correctly. We should disconnect. */
-            IotLogError("Failed to parse the HTTPS body for request %d, Error code: %d.", 
-                pCurrentHttpsRequest,
+            IotLogError("Failed to parse the HTTPS body for response %d, Error code: %d.", 
+                pCurrentHttpsResponse,
+                status);
+            fatalDisconnect = true;
+        }
+        else if(status == IOT_HTTPS_NETWORK_ERROR)
+        {
+            /* We walways disconnect for a network error because failure to receive the HTTPS body will result in a 
+               corruption of the workflow. */
+            IotLogError("Network error receiving the HTTPS body for response %d. Error code: %d",
+                pCurrentHttpsResponse, 
                 status);
             fatalDisconnect = true;
         }
@@ -1075,59 +1082,36 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         {
             IotLogError("Failed to retrive the HTTPS body for request %d. Error code: %d", status);
         }
-        IOT_GOTO_CLEANUP();
+        HTTPS_GOTO_CLEANUP();
     }
 
     IOT_FUNCTION_CLEANUP_BEGIN();
 
-    /* Set the status to report back to the synchronous request processing. */
-    pCurrentHttpsResponse->syncStatus = status;
-    
-    /* If there was a network error, then report this to the application.  */
-    if(HTTPS_FAILED(networkStatus) && (networkStatus != IOT_HTTPS_TIMEOUT_ERROR))
-    {
-        if(pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->errorCallback)
-        {
-            pCurrentHttpsRequest->pCallbacks->errorCallback(pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsRequest, networkStatus);
-        }
-    }
-
-    /* If there was an error from the parser or other synchronous workflow error NOT from the network, then we want to report this.
-       Parsing errors will close the connection. */
+    /* Report errors back to the application. */
     if(HTTPS_FAILED(status))
     {
         if(pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->errorCallback)
         {
             pCurrentHttpsRequest->pCallbacks->errorCallback(pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsRequest, status);
         }
-
-        if(HTTPS_FAILED(networkStatus))
-        {
-            /* If there is a network error at the same time there is an error processing the response, then we want to 
-              report the network error to the synchronous workflow. */
-            pCurrentHttpsResponse->syncStatus = networkStatus;
-        }
-    }   
+        pCurrentHttpsResponse->syncStatus = status;
+    }
 
     /* If this is not a persistent request, the server would have closed it after sending a response, but we 
        disconnect anyways. If we are disconnecting there is is no point in wasting time 
        flushing the network. If the network is being disconnected we also do not schedule any pending requests. */
     if( fatalDisconnect || pCurrentHttpsRequest->isNonPersistent )
     {
-        if(pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->errorCallback)
-        {
-            pCurrentHttpsRequest->pCallbacks->errorCallback(pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsRequest, networkStatus);
-        }
-
-        status = IotHttpsClient_Disconnect(pHttpsConnection);
-        if( HTTPS_FAILED(status) )
-        {
-            IotLogWarn("Failed to disconnected from the server with return code: %d", status);
-        }
-
+        IotLogDebug("Disconnecting response %d.", pCurrentHttpsResponse);
+        disconnectStatus = IotHttpsClient_Disconnect(pHttpsConnection);
         if((pCurrentHttpsResponse != NULL) && pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->connectionClosedCallback)
         {
-            pCurrentHttpsRequest->pCallbacks->connectionClosedCallback(pCurrentHttpsRequest->pUserPrivData, pHttpsConnection, status);
+            pCurrentHttpsRequest->pCallbacks->connectionClosedCallback(pCurrentHttpsRequest->pUserPrivData, pHttpsConnection, disconnectStatus);
+        }
+
+        if(HTTPS_FAILED(disconnectStatus))
+        {
+            IotLogWarn("Failed to disconnect response %d. Error code: %d.", pCurrentHttpsResponse, disconnectStatus);
         }
 
         /* If we disconnect, we do not process anymore requests. */
@@ -1197,7 +1181,7 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* Signal to a synchronous reponse that the response is complete. */
     if( pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->responseCompleteCallback )
     {
-        pCurrentHttpsRequest->pCallbacks->responseCompleteCallback( pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsResponse, networkStatus, pCurrentHttpsResponse->status );
+        pCurrentHttpsRequest->pCallbacks->responseCompleteCallback( pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
     }
 
     /* For a synchronous request release the semaphore. */
@@ -1521,14 +1505,14 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* pHttpsConnection, 
         pBuf,
         bufLen);
 
-    /* We return IOT_HTTPS_TIMEOUT_ERROR only if we receive nothing. Receiving less
+    /* We return IOT_HTTPS_NETWORK_ERROR only if we receive nothing. Receiving less
        data than requested is okay because it is not known in advance how much data
        we are going to receive and therefore we request for the available buffer
        size. */
     if( numBytesRecv == 0)
     {
         IotLogError("Error in receiving the HTTPS response message. Socket Error code %d", numBytesRecv);
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_TIMEOUT_ERROR);
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_NETWORK_ERROR);
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP(); 
@@ -1659,16 +1643,23 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
     IotHttpsResponseParserState_t *pCurrentParserState,
     IotHttpsResponseParserState_t finalParserState, 
     uint8_t** pBufCur,
-    uint8_t** pBufEnd,
-    IotHttpsReturnCode_t *pNetworkStatus)
+    uint8_t** pBufEnd)
 {    
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     while( (*pCurrentParserState < finalParserState) && (*pBufEnd - *pBufCur > 0) ) 
     {
-        *pNetworkStatus = _networkRecv( pHttpsConnection,
+        status = _networkRecv( pHttpsConnection,
             *pBufCur, 
             *pBufEnd - *pBufCur);
+
+        /* A network error in _networkRecv is returned only when we received zero bytes. In that case, there is 
+           no point in parsing we return with the network error. */
+        if( HTTPS_FAILED( status ) )
+        {
+            IotLogError( "Network error receiving the HTTPS response headers. Error code: %d", status );
+            break;
+        }
 
         status = _parseHttpsMessage(pHttpParserInfo, (char*)(*pBufCur), *pBufEnd - *pBufCur);
         if(HTTPS_FAILED(status))
@@ -1679,18 +1670,6 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
 
         /* The _httResponse->pHeadersCur pointer is updated in the http_parser callbacks. */
         IotLogDebug( "There is %d of space left in the buffer.", *pBufEnd - *pBufCur );
-
-        /* A non-ok network status does not necessarily indicate an error because
-        we receive a network error if the server closes connection even after
-        sending a valid HTTP response. We therefore only return error if a valid
-        HTTP response is not received i.e. the parser failed to parse the received
-        response. That is the reason that this function returns "status" and not
-        *pNetworkStatus. */
-        if( HTTPS_FAILED(*pNetworkStatus) )
-        {
-            IotLogError( "Network error receiving the HTTPS response headers. Error code: %d", *pNetworkStatus );
-            break;
-        }
 
     }
 
@@ -1708,7 +1687,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConnection, _httpsResponse_t* pHttpsResponse, IotHttpsReturnCode_t *pNetworkStatus)
+static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConnection, _httpsResponse_t* pHttpsResponse)
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
@@ -1717,8 +1696,7 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConn
         &(pHttpsResponse->parserState),
         PARSER_STATE_HEADERS_COMPLETE,
         &(pHttpsResponse->pHeadersCur),
-        &(pHttpsResponse->pHeadersEnd),
-        pNetworkStatus);
+        &(pHttpsResponse->pHeadersEnd));
 
     if( HTTPS_FAILED(status))
     {
@@ -1733,8 +1711,7 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t* pHttpsConn
 
 /* _receiveHttpsHeaders() must be called first before this function is called. */
 static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* pHttpsConnection, 
-                                               _httpsResponse_t* pHttpsResponse, 
-                                               IotHttpsReturnCode_t *pNetworkStatus)
+                                               _httpsResponse_t* pHttpsResponse)
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
@@ -1745,8 +1722,7 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t* pHttpsConnect
         &(pHttpsResponse->parserState),
         PARSER_STATE_BODY_COMPLETE,
         &(pHttpsResponse->pBodyCur),
-        &(pHttpsResponse->pBodyEnd),
-        pNetworkStatus);
+        &(pHttpsResponse->pBodyEnd));
     if( HTTPS_FAILED(status) )
     {
         IotLogError("Error receiving the HTTP body. Error code %d", status);
@@ -1800,7 +1776,7 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsCo
     }
 
     /* All network errors except timeouts are returned. */
-    if( networkStatus != IOT_HTTPS_TIMEOUT_ERROR)
+    if(HTTPS_FAILED(networkStatus))
     {
         status = networkStatus;
     }
@@ -2460,8 +2436,6 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
 
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
 
-    IotHttpsReturnCode_t flushStatus = IOT_HTTPS_OK;
-    IotHttpsReturnCode_t networkStatus = IOT_HTTPS_OK;
     bool respFinishedSemCreated = false;
     _httpsResponse_t* pHttpsResponse = NULL;
 
@@ -2532,10 +2506,6 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
     if(respFinishedSemCreated)
     {
         IotSemaphore_Destroy(&(pHttpsResponse->respFinishedSem));
-    }
-    else
-    {
-        IotLogDebug("Received network error when flushing the socket. Error code: %d", flushStatus);
     }
 
     /* If the syncStatus is anything other than IOT_HTTPS_OK, then the request was scheduled. */
@@ -2623,12 +2593,14 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t re
        HTTP response message, then try to receive more body. */
     if(((respHandle->pBodyEnd - respHandle->pBodyCur) > 0) && (respHandle->parserState < PARSER_STATE_BODY_COMPLETE))
     {
-        status = _receiveHttpsBody(respHandle->pHttpsConnection, respHandle, &(respHandle->bodyRxStatus) );
+        status = _receiveHttpsBody(respHandle->pHttpsConnection, respHandle );
     }
 
     *pLen = respHandle->pBodyCur - respHandle->pBody;
 
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    respHandle->bodyRxStatus = status;
+    HTTPS_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
