@@ -29,6 +29,7 @@
  */
 
 #include "iot_tests_https_common.h"
+#include "platform/iot_clock.h"
 
 /*-----------------------------------------------------------*/
 
@@ -40,15 +41,93 @@
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief The connection handle that is needed by tests that are testing a workflow that involves receiving data on the 
+ * network. 
+ * 
+ * HTTP tests run sequentially, so there is no race condition here.
+ */
+static IotHttpsConnectionHandle_t _receiveCallbackConnHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+
+/**
+ * @brief Flag indicating that the _invokeNetworkReceiveCallback task was already created.
+ * 
+ * This is reset to false before each test. This is set during tests that are testing a workflow that involes 
+ * receiving data on the network. 
+ * 
+ * HTTP tests run sequentially, so there is no race condition here.
+ */
+static bool _alreadyCreatedReceiveCallbackThread = false;
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief thread that invokes the _networkReceiveCallback internal to the library.
+ */
+static void _invokeNetworkReceiveCallback( void *pArgument )
+{
+    void *pNetworkConnection = pArgument;
+
+    /* Sleep for a bit to wait for the rest of test request to finished sending and simulate a network response. */
+    IotClock_SleepMs( IOT_HTTPS_RESPONSE_WAIT_MS );
+
+    /* Envoke the network receive callback. */
+    IotTestHttps_networkReceiveCallback( pNetworkConnection, _receiveCallbackConnHandle );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Network abstraction send function that fails. 
  */
-static inline size_t _networkSendFail( void * pConnection,
-                                                  const uint8_t * pMessage,
-                                                  size_t messageLength )
+static size_t _networkSendFail( void * pConnection,
+                                const uint8_t * pMessage,
+                                size_t messageLength )
 {
     (void)pConnection;
     (void)pMessage;
     (void)messageLength;
+    return 0;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network abstraction send function that succeeds.
+ * 
+ * Because the network send succeeded we mimic the network by starting a thread to envoke the network receive callback.
+ */
+static size_t _networkSendSuccess( void * pConnection,
+                                   const uint8_t * pMessage,
+                                   size_t messageLength )
+{
+    (void)pConnection;
+    (void)pMessage;
+   
+    /* This thread must be created only once to mimic the behavior of the network abstraction.  */
+    if( !_alreadyCreatedReceiveCallbackThread )
+    {
+        Iot_CreateDetachedThread( _invokeNetworkReceiveCallback,
+                                  pConnection,
+                                  IOT_THREAD_DEFAULT_PRIORITY,
+                                  IOT_THREAD_DEFAULT_STACK_SIZE);
+        _alreadyCreatedReceiveCallbackThread = true;
+    }
+
+    return messageLength;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network abstraction receive function that timesout. 
+ */
+static size_t _networkReceiveFail( void * pConnection,
+                                   uint8_t * pBuffer,
+                                   size_t bytesRequested )
+{
+    (void)pConnection;
+    (void)pBuffer;
+    (void)bytesRequested;
     return 0;
 }
 
@@ -68,6 +147,10 @@ TEST_SETUP( HTTPS_Client_Unit_Sync )
 {
     /* Reset the shared network interface. */
     ( void ) memset( &_networkInterface, 0x00, sizeof( IotNetworkInterface_t ) );
+
+    /* Reset some global static variables. */
+    _receiveCallbackConnHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    _alreadyCreatedReceiveCallbackThread = false;
 
     /* This will initialize the library before every test case, which is OK. */
     TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
@@ -94,6 +177,7 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_Sync )
 {
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncInvalidParameters);
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureSending );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureReceiving );
 }
 
 /*-----------------------------------------------------------*/
@@ -161,7 +245,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncInvalidParameters)
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test failures to send synchronously the headers and the body.
+ * @brief Test failures to send over the network the headers and the body.
  */
 TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSending )
 {
@@ -171,6 +255,9 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSending )
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
 
+    /* Register a failing send function in the network interface. */
+    _networkInterface.send = _networkSendFail;
+
     /* Get a valid "connected" handled. */
     connHandle = _getConnHandle();
     TEST_ASSERT_NOT_NULL(connHandle);
@@ -178,10 +265,40 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSending )
     reqHandle = _getReqHandle();
     TEST_ASSERT_NOT_NULL(reqHandle);
 
-    /* Register a failing send function in the network interface. */
-    _networkInterface.send = _networkSendFail;
 
     /* Test the network send failing. */
+    returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test failures to receive over the network the headers and body.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncFailureReceiving )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+
+    _networkInterface.send = _networkSendSuccess;
+    _networkInterface.receive = _networkReceiveFail;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL(connHandle);
+    
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle();
+    TEST_ASSERT_NOT_NULL(reqHandle);
+
+    /* Set the global test connection handle to be passed to the library network receive callback. */
+    memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
+
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
 }

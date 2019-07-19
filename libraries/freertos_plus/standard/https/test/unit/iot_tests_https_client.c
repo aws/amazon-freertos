@@ -105,25 +105,6 @@ static IotNetworkError_t _networkCloseFail(void * pConnection)
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Network Abstraction close function that succeeds.
- */
-static inline IotNetworkError_t _networkCloseSuccess(void * pConnection)
-{
-    (void)pConnection;
-    return IOT_NETWORK_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
-static IotNetworkError_t _networkDestroySuccess(void * pConnection)
-{
-    (void)pConnection;
-    return IOT_NETWORK_SUCCESS;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Network Abstraction close function that fails. 
  */
 static IotNetworkError_t _networkDestroyFail(void * pConnection)

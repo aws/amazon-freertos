@@ -263,4 +263,23 @@ static inline IotHttpsRequestHandle_t _getReqHandle( void )
     return reqHandle;
 }
 
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network Abstraction close function that succeeds.
+ */
+static inline IotNetworkError_t _networkCloseSuccess(void * pConnection)
+{
+    (void)pConnection;
+    return IOT_NETWORK_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+static inline IotNetworkError_t _networkDestroySuccess(void * pConnection)
+{
+    (void)pConnection;
+    return IOT_NETWORK_SUCCESS;
+}
+
 #endif /* IOT_TESTS_HTTPS_COMMON_H_ */
