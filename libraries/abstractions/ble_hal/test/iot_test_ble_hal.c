@@ -1202,7 +1202,7 @@ TEST( Full_BLE, BLE_Property_Indication )
 
 TEST( Full_BLE, BLE_Property_Notification )
 {
-    BaseType_t xStatus;
+    BTStatus_t xStatus;
     BLETESTindicateCallback_t xIndicateEvent;
 
     memcpy( ucRespBuffer[ bletestATTR_SRVCB_CHAR_E ].ucBuffer, bletestsDEFAULT_CHAR_VALUE, sizeof( bletestsDEFAULT_CHAR_VALUE ) - 1 );
@@ -1744,7 +1744,7 @@ void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                               uint8_t ucAdapter_if,
                               BTUuid_t * pxAppUuid )
 {
-    BLETESTInitDeinitCallback_t * pxInitDeinitCb = pvPortMalloc( sizeof( BLETESTInitDeinitCallback_t ) );
+    BLETESTInitDeinitCallback_t * pxInitDeinitCb = IotTest_Malloc( sizeof( BLETESTInitDeinitCallback_t ) );
 
     pxInitDeinitCb->xStatus = xStatus;
     ucBLEAdapterIf = ucAdapter_if;
@@ -1780,7 +1780,7 @@ void prvRegisterBleAdapterCb( BTStatus_t xStatus,
 
 void prvDeviceStateChangedCb( BTState_t xState )
 {
-    BLETESTInitDeinitCallback_t * pxInitDeinitCb = pvPortMalloc( sizeof( BLETESTInitDeinitCallback_t ) );
+    BLETESTInitDeinitCallback_t * pxInitDeinitCb = IotTest_Malloc( sizeof( BLETESTInitDeinitCallback_t ) );
 
     pxInitDeinitCb->xBLEState = xState;
     pxInitDeinitCb->xEvent.lHandle = NO_HANDLE;
@@ -1792,7 +1792,7 @@ void prvBTRegisterServerCb( BTStatus_t xStatus,
                             uint8_t ucServerIf,
                             BTUuid_t * pxAppUuid )
 {
-    BLETESTInitDeinitCallback_t * pxInitDeinitCb = pvPortMalloc( sizeof( BLETESTInitDeinitCallback_t ) );
+    BLETESTInitDeinitCallback_t * pxInitDeinitCb = IotTest_Malloc( sizeof( BLETESTInitDeinitCallback_t ) );
 
     pxInitDeinitCb->xStatus = xStatus;
     ucBLEServerIf = ucServerIf;
@@ -1830,7 +1830,7 @@ void prvBTRegisterServerCb( BTStatus_t xStatus,
 void prvBTUnregisterServerCb( BTStatus_t xStatus,
                               uint8_t ucServerIf )
 {
-    BLETESTInitDeinitCallback_t * pxInitDeinitCb = pvPortMalloc( sizeof( BLETESTInitDeinitCallback_t ) );
+    BLETESTInitDeinitCallback_t * pxInitDeinitCb = IotTest_Malloc( sizeof( BLETESTInitDeinitCallback_t ) );
 
     pxInitDeinitCb->xStatus = xStatus;
 
@@ -1853,7 +1853,7 @@ void prvServiceAddedCb( BTStatus_t xStatus,
                         BTGattSrvcId_t * pxSrvcId,
                         uint16_t usServiceHandle )
 {
-    BLETESTServiceCallback_t * pxAddedServiceCb = pvPortMalloc( sizeof( BLETESTServiceCallback_t ) );
+    BLETESTServiceCallback_t * pxAddedServiceCb = IotTest_Malloc( sizeof( BLETESTServiceCallback_t ) );
 
     pxAddedServiceCb->xStatus = xStatus;
 
@@ -1886,7 +1886,7 @@ void prvServiceStartedCb( BTStatus_t xStatus,
                           uint8_t ucServerIf,
                           uint16_t usServiceHandle )
 {
-    BLETESTServiceCallback_t * pxStartServiceCb = pvPortMalloc( sizeof( BLETESTServiceCallback_t ) );
+    BLETESTServiceCallback_t * pxStartServiceCb = IotTest_Malloc( sizeof( BLETESTServiceCallback_t ) );
 
     pxStartServiceCb->xStatus = xStatus;
 
@@ -1908,7 +1908,7 @@ void prvServiceStoppedCb( BTStatus_t xStatus,
                           uint8_t ucServerIf,
                           uint16_t usServiceHandle )
 {
-    BLETESTServiceCallback_t * pxStopServiceCb = pvPortMalloc( sizeof( BLETESTServiceCallback_t ) );
+    BLETESTServiceCallback_t * pxStopServiceCb = IotTest_Malloc( sizeof( BLETESTServiceCallback_t ) );
 
     pxStopServiceCb->xStatus = xStatus;
 
@@ -1930,7 +1930,7 @@ void prvServiceDeletedCb( BTStatus_t xStatus,
                           uint8_t ucServerIf,
                           uint16_t usServiceHandle )
 {
-    BLETESTServiceCallback_t * pxDeleteServiceCb = pvPortMalloc( sizeof( BLETESTServiceCallback_t ) );
+    BLETESTServiceCallback_t * pxDeleteServiceCb = IotTest_Malloc( sizeof( BLETESTServiceCallback_t ) );
 
     pxDeleteServiceCb->xStatus = xStatus;
 
@@ -1954,7 +1954,7 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
                                uint16_t usServiceHandle,
                                uint16_t usCharHandle )
 {
-    BLETESTAttrCallback_t * pxAttrCb = pvPortMalloc( sizeof( BLETESTAttrCallback_t ) );
+    BLETESTAttrCallback_t * pxAttrCb = IotTest_Malloc( sizeof( BLETESTAttrCallback_t ) );
 
     pxAttrCb->xStatus = xStatus;
     pxAttrCb->usSrvHandle = usServiceHandle;
@@ -1990,7 +1990,7 @@ void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
                                     uint16_t usServiceHandle,
                                     uint16_t usCharHandle )
 {
-    BLETESTAttrCallback_t * pxAttrCb = pvPortMalloc( sizeof( BLETESTAttrCallback_t ) );
+    BLETESTAttrCallback_t * pxAttrCb = IotTest_Malloc( sizeof( BLETESTAttrCallback_t ) );
 
     pxAttrCb->xStatus = xStatus;
     pxAttrCb->usSrvHandle = usServiceHandle;
@@ -2026,7 +2026,7 @@ void prvIncludedServiceAddedCb( BTStatus_t xStatus,
                                 uint16_t usServiceHandle,
                                 uint16_t usInclSrvcHandle )
 {
-    BLETESTAttrCallback_t * pxAttrCb = pvPortMalloc( sizeof( BLETESTAttrCallback_t ) );
+    BLETESTAttrCallback_t * pxAttrCb = IotTest_Malloc( sizeof( BLETESTAttrCallback_t ) );
 
     pxAttrCb->xStatus = xStatus;
     pxAttrCb->usSrvHandle = usServiceHandle;
@@ -2050,7 +2050,7 @@ void prvAdapterPropertiesCb( BTStatus_t xStatus,
                              uint32_t ulNumProperties,
                              BTProperty_t * pxProperties )
 {
-    BLETESTSetGetPropertyCallback_t * pxSetGetPropertyCb = pvPortMalloc( sizeof( BLETESTSetGetPropertyCallback_t ) );
+    BLETESTSetGetPropertyCallback_t * pxSetGetPropertyCb = IotTest_Malloc( sizeof( BLETESTSetGetPropertyCallback_t ) );
 
     pxSetGetPropertyCb->xStatus = xStatus;
     pxSetGetPropertyCb->ulNumProperties = ulNumProperties;
@@ -2126,7 +2126,7 @@ void prvAdapterPropertiesCb( BTStatus_t xStatus,
 
 void prvSetAdvDataCb( BTStatus_t xStatus )
 {
-    BLETESTAdvParamCallback_t * xdvParamCallback = pvPortMalloc( sizeof( BLETESTAdvParamCallback_t ) );
+    BLETESTAdvParamCallback_t * xdvParamCallback = IotTest_Malloc( sizeof( BLETESTAdvParamCallback_t ) );
 
     xdvParamCallback->xStatus = xStatus;
     xdvParamCallback->xEvent.xEventTypes = eBLEHALEventSetAdvCb;
@@ -2139,7 +2139,7 @@ void prvAdvStatusCb( BTStatus_t xStatus,
                      uint32_t ulServerIf,
                      bool bStart )
 {
-    BLETESTAdvParamCallback_t * xdvParamCallback = pvPortMalloc( sizeof( BLETESTAdvParamCallback_t ) );
+    BLETESTAdvParamCallback_t * xdvParamCallback = IotTest_Malloc( sizeof( BLETESTAdvParamCallback_t ) );
 
     xdvParamCallback->xStatus = xStatus;
     xdvParamCallback->bStart = bStart;
@@ -2162,7 +2162,7 @@ void prvConnectionCb( uint16_t usConnId,
                       bool bConnected,
                       BTBdaddr_t * pxBda )
 {
-    BLETESTConnectionCallback_t * pxConnectionCallback = pvPortMalloc( sizeof( BLETESTConnectionCallback_t ) );
+    BLETESTConnectionCallback_t * pxConnectionCallback = IotTest_Malloc( sizeof( BLETESTConnectionCallback_t ) );
 
     pxConnectionCallback->xStatus = eBTStatusSuccess;
 
@@ -2200,7 +2200,7 @@ void prvConnParameterUpdateCb( BTStatus_t xStatus,
                                uint32_t usConnInterval,
                                uint32_t timeout )
 {
-    BLETESTUpdateConnectionParamReqCallback_t * pxUpdateConnectionParamReq = pvPortMalloc( sizeof( BLETESTUpdateConnectionParamReqCallback_t ) );
+    BLETESTUpdateConnectionParamReqCallback_t * pxUpdateConnectionParamReq = IotTest_Malloc( sizeof( BLETESTUpdateConnectionParamReqCallback_t ) );
 
     pxUpdateConnectionParamReq->xConnParam.minInterval = minInterval;
     pxUpdateConnectionParamReq->xConnParam.maxInterval = maxInterval;
@@ -2228,7 +2228,7 @@ void prvRequestReadCb( uint16_t usConnId,
                        uint16_t usAttrHandle,
                        uint16_t usOffset )
 {
-    BLETESTreadAttrCallback_t * pxreadAttrCallback = pvPortMalloc( sizeof( BLETESTreadAttrCallback_t ) );
+    BLETESTreadAttrCallback_t * pxreadAttrCallback = IotTest_Malloc( sizeof( BLETESTreadAttrCallback_t ) );
 
     if( pxreadAttrCallback != NULL )
     {
@@ -2263,7 +2263,7 @@ void prvRequestWriteCb( uint16_t usConnId,
                         bool bIsPrep,
                         uint8_t * pucValue )
 {
-    BLETESTwriteAttrCallback_t * pxWriteAttrCallback = pvPortMalloc( sizeof( BLETESTwriteAttrCallback_t ) );
+    BLETESTwriteAttrCallback_t * pxWriteAttrCallback = IotTest_Malloc( sizeof( BLETESTwriteAttrCallback_t ) );
 
     if( pxWriteAttrCallback != NULL )
     {
@@ -2385,7 +2385,7 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
     if( xStatus == eBTStatusSuccess )
     {
         memcpy( pxMessage, pvPtr, xMessageLength );
-        vPortFree( pvPtr );
+        IotTest_Free( pvPtr );
     }
 
     return xStatus;
@@ -2394,7 +2394,7 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
 void prvIndicationSentCb( uint16_t usConnId,
                           BTStatus_t xStatus )
 {
-    BLETESTindicateCallback_t * pxIndicateCallback = pvPortMalloc( sizeof( BLETESTindicateCallback_t ) );
+    BLETESTindicateCallback_t * pxIndicateCallback = IotTest_Malloc( sizeof( BLETESTindicateCallback_t ) );
 
     if( pxIndicateCallback != NULL )
     {
@@ -2410,7 +2410,7 @@ void prvIndicationSentCb( uint16_t usConnId,
 void prvResponseConfirmationCb( BTStatus_t xStatus,
                                 uint16_t usHandle )
 {
-    BLETESTconfirmCallback_t * pxConfirmCallback = pvPortMalloc( sizeof( BLETESTconfirmCallback_t ) );
+    BLETESTconfirmCallback_t * pxConfirmCallback = IotTest_Malloc( sizeof( BLETESTconfirmCallback_t ) );
 
     if( pxConfirmCallback != NULL )
     {
@@ -2429,7 +2429,7 @@ void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
                       BTSspVariant_t xPairingVariant,
                       uint32_t ulPassKey )
 {
-    BLETESTsspRequestCallback_t * pxSSPrequestCallback = pvPortMalloc( sizeof( BLETESTsspRequestCallback_t ) );
+    BLETESTsspRequestCallback_t * pxSSPrequestCallback = IotTest_Malloc( sizeof( BLETESTsspRequestCallback_t ) );
 
     if( pxSSPrequestCallback != NULL )
     {
@@ -2473,7 +2473,7 @@ void prvPairingStateChangedCb( BTStatus_t xStatus,
                                BTSecurityLevel_t xSecurityLevel,
                                BTAuthFailureReason_t xReason )
 {
-    BLETESTPairingStateChangedCallback_t * pxPairingStateChangedCallback = pvPortMalloc( sizeof( BLETESTPairingStateChangedCallback_t ) );
+    BLETESTPairingStateChangedCallback_t * pxPairingStateChangedCallback = IotTest_Malloc( sizeof( BLETESTPairingStateChangedCallback_t ) );
 
     if( pxPairingStateChangedCallback != NULL )
     {
@@ -2502,7 +2502,7 @@ void prvRequestExecWriteCb( uint16_t usConnId,
                             BTBdaddr_t * pxBda,
                             bool bExecWrite )
 {
-    BLETESTRequestExecWriteCallback_t * pxRequestExecWriteCallback = pvPortMalloc( sizeof( BLETESTRequestExecWriteCallback_t ) );
+    BLETESTRequestExecWriteCallback_t * pxRequestExecWriteCallback = IotTest_Malloc( sizeof( BLETESTRequestExecWriteCallback_t ) );
 
     if( pxRequestExecWriteCallback != NULL )
     {
@@ -2530,7 +2530,7 @@ void prvBondedCb( BTStatus_t xStatus,
                   BTBdaddr_t * pxRemoteBdAddr,
                   bool bIsBonded )
 {
-    BLETESTBondedCallback_t * pxBondedCallback = pvPortMalloc( sizeof( BLETESTBondedCallback_t ) );
+    BLETESTBondedCallback_t * pxBondedCallback = IotTest_Malloc( sizeof( BLETESTBondedCallback_t ) );
 
     if( pxBondedCallback != NULL )
     {
