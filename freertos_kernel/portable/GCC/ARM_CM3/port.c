@@ -33,6 +33,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+extern uint32_t SystemCoreClock; /* in Kinetis SDK, this contains the system core clock speed */
+
 /* For backward compatibility, ensure configKERNEL_INTERRUPT_PRIORITY is
 defined.  The value should also ensure backward compatibility.
 FreeRTOS.org versions prior to V4.4.0 did not include this definition. */

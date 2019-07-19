@@ -33,6 +33,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+extern uint32_t SystemCoreClock; /* in Kinetis SDK, this contains the system core clock speed */
+
 #ifndef __TARGET_FPU_VFP
 	#error This port can only be used when the project options are configured to enable hardware floating point support.
 #endif
@@ -49,15 +51,6 @@
 	/* The way the SysTick is clocked is not modified in case it is not the same
 	as the core. */
 	#define portNVIC_SYSTICK_CLK_BIT	( 0 )
-#endif
-
-/* The __weak attribute does not work as you might expect with the Keil tools
-so the configOVERRIDE_DEFAULT_TICK_CONFIGURATION constant must be set to 1 if
-the application writer wants to provide their own implementation of
-vPortSetupTimerInterrupt().  Ensure configOVERRIDE_DEFAULT_TICK_CONFIGURATION
-is defined. */
-#ifndef configOVERRIDE_DEFAULT_TICK_CONFIGURATION
-	#define configOVERRIDE_DEFAULT_TICK_CONFIGURATION 0
 #endif
 
 /* Constants required to manipulate the core.  Registers first... */
@@ -691,9 +684,8 @@ void xPortSysTickHandler( void )
  * Setup the SysTick timer to generate the tick interrupts at the required
  * frequency.
  */
-#if( configOVERRIDE_DEFAULT_TICK_CONFIGURATION == 0 )
 
-	void vPortSetupTimerInterrupt( void )
+__attribute__((weak)) void vPortSetupTimerInterrupt( void )
 	{
 		/* Calculate the constants required to configure the tick interrupt. */
 		#if( configUSE_TICKLESS_IDLE == 1 )
@@ -713,7 +705,6 @@ void xPortSysTickHandler( void )
 		portNVIC_SYSTICK_CTRL_REG = ( portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT | portNVIC_SYSTICK_ENABLE_BIT );
 	}
 
-#endif /* configOVERRIDE_DEFAULT_TICK_CONFIGURATION */
 /*-----------------------------------------------------------*/
 
 __asm uint32_t vPortGetIPSR( void )

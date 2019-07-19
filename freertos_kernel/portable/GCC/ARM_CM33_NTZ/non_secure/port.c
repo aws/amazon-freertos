@@ -34,6 +34,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+extern uint32_t SystemCoreClock; /* in Kinetis SDK, this contains the system core clock speed */
+
 /* MPU wrappers includes. */
 #include "mpu_wrappers.h"
 
