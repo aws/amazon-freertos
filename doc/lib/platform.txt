@@ -192,14 +192,18 @@ To use a header named `custom_errno.h` instead of `errno.h`, the `POSIX_ERRNO_HE
 */
 
 /**
-@handles{platform,platform layer}
-@enums{platform,platform layer}
-@paramstructs{platform, platform layer}
+@handles_group{platform}
+@handles_brief{platform layer}
+@enums_group{platform}
+@enums_brief{platform layer}
+@paramstructs{, }
+@paramstructs_group{platform}
+@paramstructs_brief{platform, platform layer}
 */
 
 /**
-@functionspage{platform,platform layer}
-
+@page Platform Functions 
+@functions_brief{platform layer}
 - @subpage platform_clock_functions <br>
   @copybrief platform_clock_functions
 - @subpage platform_network_functions <br>

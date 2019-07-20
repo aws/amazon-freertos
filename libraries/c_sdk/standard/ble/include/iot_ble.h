@@ -355,7 +355,8 @@ typedef union
 
 
 /**
- * @functionspage{iotble,BLE library,BLE Control and Services Management}
+ * @functions_page{iotble, BLE Control and Services Management}
+ * @functions_brief{BLE}
  * - @functionname{iotble_function_init}
  * - @functionname{iotble_function_on}
  * - @functionname{iotble_function_off}

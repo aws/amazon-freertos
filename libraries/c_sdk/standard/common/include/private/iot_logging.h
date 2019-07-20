@@ -113,7 +113,8 @@
 #define IOT_LOG_DEBUG    4
 
 /**
- * @paramstructs{logging,logging}
+ * @paramstructs_group{logging}
+ * @paramstructs_brief{logging,logging}
  */
 
 /**
@@ -154,7 +155,8 @@ typedef struct IotLogConfig
 } IotLogConfig_t;
 
 /**
- * @functionspage{logging,logging library}
+ * @page Logging Functions 
+ * @functions_brief{logging}
  *
  * - @functionname{logging_function_log}
  * - @functionname{logging_function_printbuffer}

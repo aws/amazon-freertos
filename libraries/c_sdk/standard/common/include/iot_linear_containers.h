@@ -135,7 +135,8 @@ typedef IotLink_t   IotDeQueue_t;
          ( pLink ) = ( pLink )->pNext )
 
 /**
- * @functionspage{linear_containers,linear containers library}
+ * @page linear_containers Functions 
+ * @functions_brief{linear containers}
  * - @functionname{linear_containers_function_link_islinked}
  * - @functionname{linear_containers_function_list_double_create}
  * - @functionname{linear_containers_function_list_double_count}

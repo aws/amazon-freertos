@@ -197,7 +197,8 @@ typedef struct AwsIotDefenderStartInfo
 } AwsIotDefenderStartInfo_t;
 
 /**
- * @functionspage{defender,Device Defender library}
+ * @page Defender Functions 
+ * @functions_brief{Device Defender}
  * - @functionname{defender_function_setmetrics}
  * - @functionname{defender_function_start}
  * - @functionname{defender_function_stop}

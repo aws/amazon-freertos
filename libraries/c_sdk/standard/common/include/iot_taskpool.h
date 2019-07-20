@@ -45,7 +45,8 @@
 /*------------------------- Task Pool library functions --------------------------*/
 
 /**
- * @functionspage{taskpool,task pool library}
+ * @page taskpool Functions 
+ * @functions_brief{task pool}
  * - @functionname{taskpool_function_createsystemtaskpool}
  * - @functionname{taskpool_function_getsystemtaskpool}
  * - @functionname{taskpool_function_create}

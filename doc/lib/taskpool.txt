@@ -134,9 +134,14 @@ Log messages from the task pool library at or below this setting will be printed
 */
 
 /**
-@enums{taskpool,task pool}
-@paramstructs{taskpool,task pool}
-@functionpointers{taskpool,task pool}
-@structs{taskpool,task pool}
-@handles{taskpool,task pool}
+@enums_group{taskpool}
+@enums_brief{task pool}
+@paramstructs_group{taskpool}
+@paramstructs_brief{taskpool,task pool}
+@functionpointers_group{taskpool}
+@functionpointers_brief{task pool}
+@structs_group{taskpool}
+@structs_brief{task pool}
+@handles_group{taskpool}
+@handles_brief{task pool}
 */

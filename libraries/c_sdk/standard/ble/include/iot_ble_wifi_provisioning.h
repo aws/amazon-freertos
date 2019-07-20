@@ -126,7 +126,8 @@ typedef struct IotBleWifiProvService
 } IotBleWifiProvService_t;
 
 /**
- * @functionspage{iotblewifiprov,GATT Service for WiFi Provisioning,WiFi Provisioning}
+ * @functions_page{iotblewifiprov, WiFi Provisioning}
+ * @functions_brief{GATT Service for WiFi Provisioning}
  * - @functionname{iotblewifiprov_function_init}
  * - @functionname{iotblewifiprov_function_start}
  * - @functionname{iotblewifiprov_function_stop}

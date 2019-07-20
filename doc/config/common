@@ -60,9 +60,6 @@ ENABLE_PREPROCESSING = YES
 MACRO_EXPANSION = YES
 EXPAND_ONLY_PREDEF = YES
 
-# Include path for expanding Unity test macros.
-INCLUDE_PATH = tests/unity/fixture
-
 # Expand the TEST macro, but ignore the _run functions generated from macro expansion.
 EXPAND_AS_DEFINED = TEST
 EXCLUDE_SYMBOLS += "TEST_*_run"
@@ -91,10 +88,8 @@ ALIASES += constants_page{1}="@page \1_constants Constants"
 ALIASES += constants_brief{1}="@brief Defined constants of the \1.<br><br>Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \1. Related constants are shown in a single section on this page.<br>"
 
 # Alias for starting a functions page.
-ALIASES += functionspage{2}="@page \1_functions Functions^^@brief Functions of the \2.^^^^The \2 consists of the following functions."
-ALIASES += functionspage{3}="@page \1_functions \3^^@brief Functions of the \2.^^^^The \2 consists of the following functions."
-ALIASES += functions_page{1}="@page \1_functions Functions"
-ALIASES += functions_brief{1}="@brief Functions of the \1.^^^^The \1 consists of the following functions."
+ALIASES += functions_page{2}="@page \1_functions \2"
+ALIASES += functions_brief{1}="@brief Functions of the \1 library.<br><br>The \1 library consists of the following functions."
 
 # Alias for listing a single function on a functions page.
 ALIASES += function_name{1}="@subpage \1"
@@ -105,22 +100,28 @@ ALIASES += functionpage{3}="@page \2_function_\3 \1^^^^@snippet this declare_\2_
 ALIASES += functionpage{4}="@page \2_function_\3 \1^^^^@snippet \4 declare_\2_\3^^@copydoc \1"
 
 # Alias for starting a handles group.
-ALIASES += handles{2}="@defgroup \1_datatypes_handles Handles^^@brief Opaque handles of the \2."
+ALIASES += handles_group{1}="@defgroup \1_datatypes_handles Handles"
+ALIASES += handles_brief{1}="@brief Opaque handles of the \1."
 
 # Alias for starting an enum group.
-ALIASES += enums{2}="@defgroup \1_datatypes_enums Enumerated types^^@brief Enumerated types of the \2."
+ALIASES += enums_group{1}="@defgroup \1_datatypes_enums Enumerated types"
+ALIASES += enums_brief{1}="@brief Enumerated types of the \1."
 
 # Alias for starting a function pointers group.
-ALIASES += functionpointers{2}="@defgroup \1_datatypes_functionpointers Function pointers types^^@brief Function pointers types of the \2."
+ALIASES += functionpointers_group{1}="@defgroup \1_datatypes_functionpointers Function pointer types"
+ALIASES += functionpointers_brief{1}="@brief Function pointer types of the \1."
 
 # Alias for starting a structs group.
-ALIASES += structs{2}="@defgroup \1_datatypes_structs Structured types^^@brief Structured types of the \2."
+ALIASES += structs_group{1}="@defgroup \1_datatypes_structs Structured types"
+ALIASES += structs_brief{1}="@brief Structured types of the \1."
 
 # Alias for starting a parameter structures group.
-ALIASES += paramstructs{2}="@defgroup \1_datatypes_paramstructs Parameter structures^^@brief Structures passed as parameters to [\2 functions](@ref \1_functions)^^^^These structures are passed as parameters to library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
+ALIASES += paramstructs_group{1}="@defgroup \1_datatypes_paramstructs Parameter structures"
+ALIASES += paramstructs_brief{2}="@brief Structures passed as parameters to [\2 functions](@ref \1_functions)<br>These structures are passed as parameters to library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
 
 # Alias for starting a return structures group.
-ALIASES += returnstructs{1}="@defgroup \1_datatypes_returnstructs Return structures^^@brief Structures returned from [\1 functions](@ref \1_functions)^^^^These structures are returned from library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
+ALIASES += returnstructs_group{1}="@defgroup \1_datatypes_returnstructs Return structures"
+ALIASES += returnstructs_brief{1}="@brief Structures returned from [\1 functions](@ref \1_functions)<br>These structures are returned from library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
 
 # Alias for "Parameter for".
 ALIASES += paramfor="<b>Parameter for:</b> "

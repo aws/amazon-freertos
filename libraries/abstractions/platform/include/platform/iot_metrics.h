@@ -44,7 +44,8 @@
 #include "iot_linear_containers.h"
 
 /**
- * @functionspage{platform_metrics,platform metrics component,Metrics}
+ * @functions_page{platform_metrics, Metrics}
+ * @functions_brief{platform metrics component}
  * - @functionname{platform_metrics_function_init}
  * - @functionname{platform_metrics_function_cleanup}
  * - @functionname{platform_metrics_function_gettcpconnections}

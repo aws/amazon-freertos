@@ -16,7 +16,8 @@ Provide lock-free and wait-free mutually exclusive access to a memory location.
 */
 
 /**
-@functionspage{Atomic,Library}
+@page Atomic Functions 
+@functions_brief{atomic}
 - @functionname{atomic_function_atomic_compareandswap_u32}
 - @functionname{atomic_function_atomic_swappointers_p32}
 - @functionname{atomic_function_atomic_compareandswappointers_p32}

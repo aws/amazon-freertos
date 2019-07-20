@@ -116,7 +116,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@functionspage{Foo,library}
+@page Foo Functions 
+@functions_brief{Foo}
 - @function_name{foo_function_socket}
 - @function_brief{foo_function_socket}
 */
@@ -132,9 +133,12 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@handles{Foo,library}
+@handles_group{Foo}
+@handles_brief{library}
 
 @paramstructs{Foo}
+@paramstructs_group{Foo}
+@paramstructs_brief{Foo, Foo library}
 */
 ```
 

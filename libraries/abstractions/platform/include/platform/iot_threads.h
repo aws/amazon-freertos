@@ -42,7 +42,8 @@
 #include "types/iot_platform_types.h"
 
 /**
- * @functionspage{platform_threads,platform thread management,Thread Management}
+ * @functions_page{platform_threads, Thread Management}
+ * @functions_brief{platform thread management}
  * - @functionname{platform_threads_function_createdetachedthread}
  * - @functionname{platform_threads_function_mutexcreate}
  * - @functionname{platform_threads_function_mutexdestroy}

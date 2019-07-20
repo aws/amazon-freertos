@@ -43,7 +43,9 @@
     #include <stdint.h>
 
 /**
- * @functionspage{static_memory,static memory component}
+ * @page static_memory Functions 
+ * @functions_brief{static memory component}
+ * 
  * - @functionname{static_memory_function_init}
  * - @functionname{static_memory_function_cleanup}
  * - @functionname{static_memory_function_findfree}

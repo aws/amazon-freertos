@@ -6,7 +6,7 @@ The Wi-Fi interface API provides a common abstraction layer that enables applica
 
 /**
 @config_page{SecureSockets}
-@config_brief{library}
+@config_brief{Wifi library}
 
 @brief The Wi-Fi Management library does not have a configuration file provided, but the following identifiers must be `#define`d in any application using the Wi-Fi Management library.  Example values for these identifiers can be found in aws_wifi_config.h from the AWS FreeRTOS demo for the specific board being used.
 
@@ -47,7 +47,8 @@ __Example value:__ 60000
 */
 
 /**
-@functionspage{WiFi,library}
+@page WiFi Functions 
+@functions_brief{WiFi}
 - @functionname{wifi_function_wifi_on}
 - @functionname{wifi_function_wifi_off}
 - @functionname{wifi_function_wifi_connectap}
@@ -98,8 +99,11 @@ __Example value:__ 60000
 */
 
 /**
-@enums{WiFi,library}
+@enums_group{WiFi}
+@enums_brief{WiFi library}
 
-@paramstructs{WiFi, wifi}
-@returnstructs{WiFi}
+@paramstructs_group{WiFi}
+@paramstructs_brief{WiFi,wifi}
+@returnstructs_group{WiFi}
+@returnstructs_brief{WiFi}
 */

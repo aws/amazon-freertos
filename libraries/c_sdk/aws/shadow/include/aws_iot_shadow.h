@@ -40,7 +40,8 @@
 /*------------------------ Shadow library functions -------------------------*/
 
 /**
- * @functionspage{shadow,Shadow library}
+ * @page Shadow Functions 
+ * @functions_brief{Shadow}
  * - @functionname{shadow_function_init}
  * - @functionname{shadow_function_cleanup}
  * - @functionname{shadow_function_delete}

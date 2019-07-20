@@ -75,16 +75,22 @@ Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an 
 */
 
 /**
-@enums{ble,BLE library}
-@paramstructs{ble,BLE library}
-@handles{ble,BLE library}
-@functionpointers{ble,BLE library}
-@structs{ble,BLE library}
+@enums_group{ble}
+@enums_brief{BLE library}
+@paramstructs_group{ble}
+@paramstructs_brief{ble,BLE library}
+@handles_group{ble}
+@handles_brief{BLE library}
+@functionpointers_group{ble}
+@functionpointers_brief{BLE library}
+@structs_group{ble}
+@structs_brief{BLE library}
+
 */
 
 /**
-@functionspage{ble,BLE library}
-
+@page BLE Functions 
+@functions_brief{BLE}
 - @subpage iotble_functions <br>
   @copybrief iotble_functions
 - @subpage iotbledeviceinfo_functions <br>

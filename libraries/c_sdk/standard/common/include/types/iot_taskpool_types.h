@@ -148,7 +148,8 @@ typedef enum IotTaskPoolError
 } IotTaskPoolError_t;
 
 /**
- * @enums{taskpool,Task pool library}
+ * @enums_group{taskpool}
+ * @enums_brief{Task pool library}
  */
 
 /**
