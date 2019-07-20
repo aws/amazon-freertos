@@ -8,7 +8,7 @@ The Wi-Fi interface API provides a common abstraction layer that enables applica
 @config_page{SecureSockets}
 @config_brief{Wifi library}
 
-@brief The Wi-Fi Management library does not have a configuration file provided, but the following identifiers must be `#define`d in any application using the Wi-Fi Management library.  Example values for these identifiers can be found in aws_wifi_config.h from the AWS FreeRTOS demo for the specific board being used.
+@brief The Wi-Fi Management library does not have a configuration file provided, but the following identifiers must be \c \#define'd in any application using the Wi-Fi Management library.  Example values for these identifiers can be found in aws_wifi_config.h from the AWS FreeRTOS demo for the specific board being used.
 
 Note that some of these identifiers are only utilized by certain ports of the Wi-Fi library and may not have an effect on all boards.
 
@@ -47,63 +47,129 @@ __Example value:__ 60000
 */
 
 /**
-@page WiFi Functions 
-@functions_brief{WiFi}
-- @functionname{wifi_function_wifi_on}
-- @functionname{wifi_function_wifi_off}
-- @functionname{wifi_function_wifi_connectap}
-- @functionname{wifi_function_wifi_disconnect}
-- @functionname{wifi_function_wifi_reset}
-- @functionname{wifi_function_wifi_setmode}
-- @functionname{wifi_function_wifi_getmode}
-- @functionname{wifi_function_wifi_networkadd}
-- @functionname{wifi_function_wifi_networkget}
-- @functionname{wifi_function_wifi_networkdelete}
-- @functionname{wifi_function_wifi_ping}
-- @functionname{wifi_function_wifi_getip}
-- @functionname{wifi_function_wifi_getmac}
-- @functionname{wifi_function_wifi_gethostip}
-- @functionname{wifi_function_wifi_scan}
-- @functionname{wifi_function_wifi_startap}
-- @functionname{wifi_function_wifi_stopap}
-- @functionname{wifi_function_wifi_configureap}
-- @functionname{wifi_function_wifi_setpmmode}
-- @functionname{wifi_function_wifi_getpmmode}
-- @functionname{wifi_function_wifi_isconnected}
-- @functionname{wifi_function_wifi_registernetworkstatechangeeventcallback}
+@functions_page{wifi, WiFi}
+@functions_brief{wifi}
+- @function_name{wifi_function_wifi_on}
+@function_brief{wifi_function_wifi_on}
+- @function_name{wifi_function_wifi_off}
+@function_brief{wifi_function_wifi_off}
+- @function_name{wifi_function_wifi_connectap}
+@function_brief{wifi_function_wifi_connectap}
+- @function_name{wifi_function_wifi_disconnect}
+@function_brief{wifi_function_wifi_disconnect}
+- @function_name{wifi_function_wifi_reset}
+@function_brief{wifi_function_wifi_reset}
+- @function_name{wifi_function_wifi_setmode}
+@function_brief{wifi_function_wifi_setmode}
+- @function_name{wifi_function_wifi_getmode}
+@function_brief{wifi_function_wifi_getmode}
+- @function_name{wifi_function_wifi_networkadd}
+@function_brief{wifi_function_wifi_networkadd}
+- @function_name{wifi_function_wifi_networkget}
+@function_brief{wifi_function_wifi_networkget}
+- @function_name{wifi_function_wifi_networkdelete}
+@function_brief{wifi_function_wifi_networkdelete}
+- @function_name{wifi_function_wifi_ping}
+@function_brief{wifi_function_wifi_ping}
+- @function_name{wifi_function_wifi_getip}
+@function_brief{wifi_function_wifi_getip}
+- @function_name{wifi_function_wifi_getmac}
+@function_brief{wifi_function_wifi_getmac}
+- @function_name{wifi_function_wifi_gethostip}
+@function_brief{wifi_function_wifi_gethostip}
+- @function_name{wifi_function_wifi_scan}
+@function_brief{wifi_function_wifi_scan}
+- @function_name{wifi_function_wifi_startap}
+@function_brief{wifi_function_wifi_startap}
+- @function_name{wifi_function_wifi_stopap}
+@function_brief{wifi_function_wifi_stopap}
+- @function_name{wifi_function_wifi_configureap}
+@function_brief{wifi_function_wifi_configureap}
+- @function_name{wifi_function_wifi_setpmmode}
+@function_brief{wifi_function_wifi_setpmmode}
+- @function_name{wifi_function_wifi_getpmmode}
+@function_brief{wifi_function_wifi_getpmmode}
+- @function_name{wifi_function_wifi_isconnected}
+@function_brief{wifi_function_wifi_isconnected}
+- @function_name{wifi_function_wifi_registernetworkstatechangeeventcallback}
+@function_brief{wifi_function_wifi_registernetworkstatechangeeventcallback}
 */
 
 /**
-@functionpage{WIFI_On,wifi,wifi_on,iot_wifi.h}
-@functionpage{WIFI_Off,wifi,wifi_off,iot_wifi.h}
-@functionpage{WIFI_ConnectAP,wifi,wifi_connectap,iot_wifi.h}
-@functionpage{WIFI_Disconnect,wifi,wifi_disconnect,iot_wifi.h}
-@functionpage{WIFI_Reset,wifi,wifi_reset,iot_wifi.h}
-@functionpage{WIFI_SetMode,wifi,wifi_setmode,iot_wifi.h}
-@functionpage{WIFI_GetMode,wifi,wifi_getmode,iot_wifi.h}
-@functionpage{WIFI_NetworkAdd,wifi,wifi_networkadd,iot_wifi.h}
-@functionpage{WIFI_NetworkGet,wifi,wifi_networkget,iot_wifi.h}
-@functionpage{WIFI_NetworkDelete,wifi,wifi_networkdelete,iot_wifi.h}
-@functionpage{WIFI_Ping,wifi,wifi_ping,iot_wifi.h}
-@functionpage{WIFI_GetIP,wifi,wifi_getip,iot_wifi.h}
-@functionpage{WIFI_GetMAC,wifi,wifi_getmac,iot_wifi.h}
-@functionpage{WIFI_GetHostIP,wifi,wifi_gethostip,iot_wifi.h}
-@functionpage{WIFI_Scan,wifi,wifi_scan,iot_wifi.h}
-@functionpage{WIFI_StartAP,wifi,wifi_startap,iot_wifi.h}
-@functionpage{WIFI_StopAP,wifi,wifi_stopap,iot_wifi.h}
-@functionpage{WIFI_ConfigureAP,wifi,wifi_configureap,iot_wifi.h}
-@functionpage{WIFI_SetPMMode,wifi,wifi_setpmmode,iot_wifi.h}
-@functionpage{WIFI_GetPMMode,wifi,wifi_getpmmode,iot_wifi.h}
-@functionpage{WIFI_IsConnected,wifi,wifi_isconnected,iot_wifi.h}
-@functionpage{WIFI_RegisterNetworkStateChangeEventCallback,wifi,wifi_registernetworkstatechangeeventcallback,iot_wifi.h}
+@function_page{WIFI_On,wifi,wifi_on}
+@function_snippet{wifi,wifi_on,iot_wifi.h}
+@copydoc WIFI_On
+@function_page{WIFI_Off,wifi,wifi_off}
+@function_snippet{wifi,wifi_off,iot_wifi.h}
+@copydoc WIFI_Off
+@function_page{WIFI_ConnectAP,wifi,wifi_connectap}
+@function_snippet{wifi,wifi_connectap,iot_wifi.h}
+@copydoc WIFI_ConnectAP
+@function_page{WIFI_Disconnect,wifi,wifi_disconnect}
+@function_snippet{wifi,wifi_disconnect,iot_wifi.h}
+@copydoc WIFI_Disconnect
+@function_page{WIFI_Reset,wifi,wifi_reset}
+@function_snippet{wifi,wifi_reset,iot_wifi.h}
+@copydoc WIFI_Reset
+@function_page{WIFI_SetMode,wifi,wifi_setmode}
+@function_snippet{wifi,wifi_setmode,iot_wifi.h}
+@copydoc WIFI_SetMode
+@function_page{WIFI_GetMode,wifi,wifi_getmode}
+@function_snippet{wifi,wifi_getmode,iot_wifi.h}
+@copydoc WIFI_GetMode
+@function_page{WIFI_NetworkAdd,wifi,wifi_networkadd}
+@function_snippet{wifi,wifi_networkadd,iot_wifi.h}
+@copydoc WIFI_NetworkAdd
+@function_page{WIFI_NetworkGet,wifi,wifi_networkget}
+@function_snippet{wifi,wifi_networkget,iot_wifi.h}
+@copydoc WIFI_NetworkGet
+@function_page{WIFI_NetworkDelete,wifi,wifi_networkdelete}
+@function_snippet{wifi,wifi_networkdelete,iot_wifi.h}
+@copydoc WIFI_NetworkDelete
+@function_page{WIFI_Ping,wifi,wifi_ping}
+@function_snippet{wifi,wifi_ping,iot_wifi.h}
+@copydoc WIFI_Ping
+@function_page{WIFI_GetIP,wifi,wifi_getip}
+@function_snippet{wifi,wifi_getip,iot_wifi.h}
+@copydoc WIFI_GetIP
+@function_page{WIFI_GetMAC,wifi,wifi_getmac}
+@function_snippet{wifi,wifi_getmac,iot_wifi.h}
+@copydoc WIFI_GetMAC
+@function_page{WIFI_GetHostIP,wifi,wifi_gethostip}
+@function_snippet{wifi,wifi_gethostip,iot_wifi.h}
+@copydoc WIFI_GetHostIP
+@function_page{WIFI_Scan,wifi,wifi_scan}
+@function_snippet{wifi,wifi_scan,iot_wifi.h}
+@copydoc WIFI_Scan
+@function_page{WIFI_StartAP,wifi,wifi_startap}
+@function_snippet{wifi,wifi_startap,iot_wifi.h}
+@copydoc WIFI_StartAP
+@function_page{WIFI_StopAP,wifi,wifi_stopap}
+@function_snippet{wifi,wifi_stopap,iot_wifi.h}
+@copydoc WIFI_StopAP
+@function_page{WIFI_ConfigureAP,wifi,wifi_configureap}
+@function_snippet{wifi,wifi_configureap,iot_wifi.h}
+@copydoc WIFI_ConfigureAP
+@function_page{WIFI_SetPMMode,wifi,wifi_setpmmode}
+@function_snippet{wifi,wifi_setpmmode,iot_wifi.h}
+@copydoc WIFI_SetPMMode
+@function_page{WIFI_GetPMMode,wifi,wifi_getpmmode}
+@function_snippet{wifi,wifi_getpmmode,iot_wifi.h}
+@copydoc WIFI_GetPMMode
+@function_page{WIFI_IsConnected,wifi,wifi_isconnected}
+@function_snippet{wifi,wifi_isconnected,iot_wifi.h}
+@copydoc WIFI_IsConnected
+@function_page{WIFI_RegisterNetworkStateChangeEventCallback,wifi,wifi_registernetworkstatechangeeventcallback}
+@function_snippet{wifi,wifi_registernetworkstatechangeeventcallback,iot_wifi.h}
+@copydoc WIFI_RegisterNetworkStateChangeEventCallback
 */
 
 /**
-@enums_group{WiFi}
+@enums_group{wifi}
 @enums_brief{WiFi library}
 
-@paramstructs_group{WiFi}
-@paramstructs_brief{WiFi,wifi}
-@returnstructs_group{WiFi}
-@returnstructs_brief{WiFi}
+@paramstructs_group{wifi}
+@paramstructs_brief{wifi,wifi}
+@returnstructs_group{wifi}
+@returnstructs_brief{wifi}
 */

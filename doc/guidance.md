@@ -33,7 +33,7 @@ Copy below as content:
 - [REQUIRED] update the library name accordingly (anywhere appear as "foo" below)
 - [REQUIRED] update "INPUT" configuration
 - [REQUIRED] update "EXAMPLE_PATH" configuraton
-- [OPTIONAL] update "FILE_PATTERNS" configuration if new fiile extension is introduced
+- [OPTIONAL] update "FILE_PATTERNS" configuration if new file extension is introduced
 
 
 
@@ -116,8 +116,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@page Foo Functions 
-@functions_brief{Foo}
+@functions_page{foo, Foo}
+@functions_brief{foo}
 - @function_name{foo_function_socket}
 - @function_brief{foo_function_socket}
 */
@@ -136,7 +136,6 @@ TODO: this section is copy-pasted currently. Need a better way.
 @handles_group{Foo}
 @handles_brief{library}
 
-@paramstructs{Foo}
 @paramstructs_group{Foo}
 @paramstructs_brief{Foo, Foo library}
 */

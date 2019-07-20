@@ -71,7 +71,7 @@ This configuration is defined in  @ref iot_secure_sockets_config_defaults.h
 */
 
 /**
-@functions_page{SecureSockets, Functions}
+@functions_page{SecureSockets,Secure Sockets}
 @functions_brief{Secure Sockets}
 - @subpage secure_sockets_function_primary
 - @subpage secure_sockets_function_helper

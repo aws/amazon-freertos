@@ -39,7 +39,7 @@
 
 /*------------------------- MQTT library functions --------------------------*/
 /**
- * @page mqtt_functions Functions 
+ * @functions_page{MQTT, MQTT}
  * @functions_brief{MQTT}
  * - @function_name{mqtt_function_init}
  * @function_brief{mqtt_function_init}

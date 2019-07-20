@@ -45,21 +45,39 @@
 /**
  * @functions_page{platform_clock, Clock}
  * @functions_brief{platform clock component}
- * - @functionname{platform_clock_function_gettimestring}
- * - @functionname{platform_clock_function_gettimems}
- * - @functionname{platform_clock_function_sleepms}
- * - @functionname{platform_clock_function_timercreate}
- * - @functionname{platform_clock_function_timerdestroy}
- * - @functionname{platform_clock_function_timerarm}
+ * - @function_name{platform_clock_function_gettimestring}
+ * @function_brief{platform_clock_function_gettimestring}
+ * - @function_name{platform_clock_function_gettimems}
+ * @function_brief{platform_clock_function_gettimems}
+ * - @function_name{platform_clock_function_sleepms}
+ * @function_brief{platform_clock_function_sleepms}
+ * - @function_name{platform_clock_function_timercreate}
+ * @function_brief{platform_clock_function_timercreate}
+ * - @function_name{platform_clock_function_timerdestroy}
+ * @function_brief{platform_clock_function_timerdestroy}
+ * - @function_name{platform_clock_function_timerarm}
+ * @function_brief{platform_clock_function_timerarm}
  */
 
 /**
- * @functionpage{IotClock_GetTimestring,platform_clock,gettimestring}
- * @functionpage{IotClock_GetTimeMs,platform_clock,gettimems}
- * @functionpage{IotClock_SleepMs,platform_clock,sleepms}
- * @functionpage{IotClock_TimerCreate,platform_clock,timercreate}
- * @functionpage{IotClock_TimerDestroy,platform_clock,timerdestroy}
- * @functionpage{IotClock_TimerArm,platform_clock,timerarm}
+ * @function_page{IotClock_GetTimestring,platform_clock,gettimestring}
+ * @function_snippet{platform_clock,gettimestring,this}
+ * @copydoc IotClock_GetTimestring
+ * @function_page{IotClock_GetTimeMs,platform_clock,gettimems}
+ * @function_snippet{platform_clock,gettimems,this}
+ * @copydoc IotClock_GetTimeMs
+ * @function_page{IotClock_SleepMs,platform_clock,sleepms}
+ * @function_snippet{platform_clock,sleepms,this}
+ * @copydoc IotClock_SleepMs
+ * @function_page{IotClock_TimerCreate,platform_clock,timercreate}
+ * @function_snippet{platform_clock,timercreate,this}
+ * @copydoc IotClock_TimerCreate
+ * @function_page{IotClock_TimerDestroy,platform_clock,timerdestroy}
+ * @function_snippet{platform_clock,timerdestroy,this}
+ * @copydoc IotClock_TimerDestroy
+ * @function_page{IotClock_TimerArm,platform_clock,timerarm}
+ * @function_snippet{platform_clock,timerarm,this}
+ * @copydoc IotClock_TimerArm
  */
 
 /**

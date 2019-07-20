@@ -43,23 +43,34 @@
     #include <stdint.h>
 
 /**
- * @page static_memory Functions 
+ * @functions_page{static_memory, Static Memory}
  * @functions_brief{static memory component}
  * 
- * - @functionname{static_memory_function_init}
- * - @functionname{static_memory_function_cleanup}
- * - @functionname{static_memory_function_findfree}
- * - @functionname{static_memory_function_returninuse}
- * - @functionname{static_memory_function_messagebuffersize}
- * - @functionname{static_memory_function_mallocmessagebuffer}
- * - @functionname{static_memory_function_freemessagebuffer}
+ * - @function_name{static_memory_function_init}
+ * @function_brief{static_memory_function_init}
+ * - @function_name{static_memory_function_cleanup}
+ * @function_brief{static_memory_function_cleanup}
+ * - @function_name{static_memory_function_findfree}
+ * @function_brief{static_memory_function_findfree}
+ * - @function_name{static_memory_function_returninuse}
+ * @function_brief{static_memory_function_returninuse}
+ * - @function_name{static_memory_function_messagebuffersize}
+ * @function_brief{static_memory_function_messagebuffersize}
+ * - @function_name{static_memory_function_mallocmessagebuffer}
+ * @function_brief{static_memory_function_mallocmessagebuffer}
+ * - @function_name{static_memory_function_freemessagebuffer}
+ * @function_brief{static_memory_function_freemessagebuffer}
  */
 
 /*----------------------- Initialization and cleanup ------------------------*/
 
 /**
- * @functionpage{IotStaticMemory_Init,static_memory,init}
- * @functionpage{IotStaticMemory_Cleanup,static_memory,cleanup}
+ * @function_page{IotStaticMemory_Init,static_memory,init}
+ * @function_snippet{static_memory,init,this}
+ * @copydoc IotStaticMemory_Init
+ * @function_page{IotStaticMemory_Cleanup,static_memory,cleanup}
+ * @function_snippet{static_memory,cleanup,this}
+ * @copydoc IotStaticMemory_Cleanup
  */
 
 /**
@@ -105,8 +116,12 @@
 /*------------------------- Buffer allocation and free ----------------------*/
 
 /**
- * @functionpage{IotStaticMemory_FindFree,static_memory,findfree}
- * @functionpage{IotStaticMemory_ReturnInUse,static_memory,returninuse}
+ * @function_page{IotStaticMemory_FindFree,static_memory,findfree}
+ * @function_snippet{static_memory,findfree,this}
+ * @copydoc IotStaticMemory_FindFree
+ * @function_page{IotStaticMemory_ReturnInUse,static_memory,returninuse}
+ * @function_snippet{static_memory,returninuse,this}
+ * @copydoc IotStaticMemory_ReturnInUse
  */
 
 /**
@@ -201,9 +216,15 @@
 /*------------------------ Message buffer management ------------------------*/
 
 /**
- * @functionpage{Iot_MessageBufferSize,static_memory,messagebuffersize}
- * @functionpage{Iot_MallocMessageBuffer,static_memory,mallocmessagebuffer}
- * @functionpage{Iot_FreeMessageBuffer,static_memory,freemessagebuffer}
+ * @function_page{Iot_MessageBufferSize,static_memory,messagebuffersize}
+ * @function_snippet{static_memory,messagebuffersize,this}
+ * @copydoc Iot_MessageBufferSize
+ * @function_page{Iot_MallocMessageBuffer,static_memory,mallocmessagebuffer}
+ * @function_snippet{static_memory,mallocmessagebuffer,this}
+ * @copydoc Iot_MallocMessageBuffer
+ * @function_page{Iot_FreeMessageBuffer,static_memory,freemessagebuffer}
+ * @function_snippet{static_memory,freemessagebuffer,this}
+ * @copydoc Iot_FreeMessageBuffer
  */
 
 /**

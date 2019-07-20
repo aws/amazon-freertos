@@ -89,7 +89,7 @@ Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an 
 */
 
 /**
-@page BLE Functions 
+@functions_page{BLE, BLE}
 @functions_brief{BLE}
 - @subpage iotble_functions <br>
   @copybrief iotble_functions

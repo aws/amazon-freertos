@@ -46,15 +46,24 @@
 /**
  * @functions_page{platform_metrics, Metrics}
  * @functions_brief{platform metrics component}
- * - @functionname{platform_metrics_function_init}
- * - @functionname{platform_metrics_function_cleanup}
- * - @functionname{platform_metrics_function_gettcpconnections}
+ * - @function_name{platform_metrics_function_init}
+ * @function_brief{platform_metrics_function_init}
+ * - @function_name{platform_metrics_function_cleanup}
+ * @function_brief{platform_metrics_function_cleanup}
+ * - @function_name{platform_metrics_function_gettcpconnections}
+ * @function_brief{platform_metrics_function_gettcpconnections}
  */
 
 /**
- * @functionpage{IotMetrics_Init,platform_metrics,init}
- * @functionpage{IotMetrics_Cleanup,platform_metrics,cleanup}
- * @functionpage{IotMetrics_GetTcpConnections,platform_metrics,gettcpconnections}
+ * @function_page{IotMetrics_Init,platform_metrics,init}
+ * @function_snippet{platform_metrics,init,this}
+ * @copydoc IotMetrics_Init
+ * @function_page{IotMetrics_Cleanup,platform_metrics,cleanup}
+ * @function_snippet{platform_metrics,cleanup,this}
+ * @copydoc IotMetrics_Cleanup
+ * @function_page{IotMetrics_GetTcpConnections,platform_metrics,gettcpconnections}
+ * @function_snippet{platform_metrics,gettcpconnections,this}
+ * @copydoc IotMetrics_GetTcpConnections
  */
 
 /**
