@@ -13,13 +13,12 @@ HTML_OUTPUT = taskpool
 GENERATE_TAGFILE = doc/tag/taskpool.tag
 
 # Directories containing library source code.
-INPUT = doc \
-        doc/lib \
-        lib/include \
-        lib/include/private \
-        lib/include/types \
-        lib/source/common \
-        tests/common/unit
+INPUT = doc/lib \
+        libraries/c_sdk/standard/common/include/private \
+        libraries/c_sdk/standard/common/include/types \
+        libraries/c_sdk/standard/common/include \
+        libraries/c_sdk/standard/common/taskpool \
+        libraries/c_sdk/standard/common/test
 
 # Library file names.
 FILE_PATTERNS = *taskpool*.c *taskpool*.h *taskpool*.txt

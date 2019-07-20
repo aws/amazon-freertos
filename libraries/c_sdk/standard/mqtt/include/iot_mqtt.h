@@ -40,40 +40,86 @@
 /*------------------------- MQTT library functions --------------------------*/
 
 /**
- * @functionspage{mqtt,MQTT library}
- * - @functionname{mqtt_function_init}
- * - @functionname{mqtt_function_cleanup}
- * - @functionname{mqtt_function_receivecallback}
- * - @functionname{mqtt_function_connect}
- * - @functionname{mqtt_function_disconnect}
- * - @functionname{mqtt_function_subscribe}
- * - @functionname{mqtt_function_timedsubscribe}
- * - @functionname{mqtt_function_unsubscribe}
- * - @functionname{mqtt_function_timedunsubscribe}
- * - @functionname{mqtt_function_publish}
- * - @functionname{mqtt_function_timedpublish}
- * - @functionname{mqtt_function_wait}
- * - @functionname{mqtt_function_strerror}
- * - @functionname{mqtt_function_operationtype}
- * - @functionname{mqtt_function_issubscribed}
+ * @functions_page{MQTT, MQTT}
+ * @functions_brief{MQTT}
+ * - @function_name{mqtt_function_init}
+ * @function_brief{mqtt_function_init}
+ * - @function_name{mqtt_function_cleanup}
+ * @function_brief{mqtt_function_cleanup}
+ * - @function_name{mqtt_function_receivecallback}
+ * @function_brief{mqtt_function_receivecallback}
+ * - @function_name{mqtt_function_connect}
+ * @function_brief{mqtt_function_connect}
+ * - @function_name{mqtt_function_disconnect}
+ * @function_brief{mqtt_function_disconnect}
+ * - @function_name{mqtt_function_subscribe}
+ * @function_brief{mqtt_function_subscribe}
+ * - @function_name{mqtt_function_timedsubscribe}
+ * @function_brief{mqtt_function_timedsubscribe}
+ * - @function_name{mqtt_function_unsubscribe}
+ * @function_brief{mqtt_function_unsubscribe}
+ * - @function_name{mqtt_function_timedunsubscribe}
+ * @function_brief{mqtt_function_timedunsubscribe}
+ * - @function_name{mqtt_function_publish}
+ * @function_brief{mqtt_function_publish}
+ * - @function_name{mqtt_function_timedpublish}
+ * @function_brief{mqtt_function_timedpublish}
+ * - @function_name{mqtt_function_wait}
+ * @function_brief{mqtt_function_wait}
+ * - @function_name{mqtt_function_strerror}
+ * @function_brief{mqtt_function_strerror}
+ * - @function_name{mqtt_function_operationtype}
+ * @function_brief{mqtt_function_operationtype}
+ * - @function_name{mqtt_function_issubscribed}
+ * @function_brief{mqtt_function_issubscribed}
  */
 
 /**
- * @functionpage{IotMqtt_Init,mqtt,init}
- * @functionpage{IotMqtt_Cleanup,mqtt,cleanup}
- * @functionpage{IotMqtt_ReceiveCallback,mqtt,receivecallback}
- * @functionpage{IotMqtt_Connect,mqtt,connect}
- * @functionpage{IotMqtt_Disconnect,mqtt,disconnect}
- * @functionpage{IotMqtt_Subscribe,mqtt,subscribe}
- * @functionpage{IotMqtt_TimedSubscribe,mqtt,timedsubscribe}
- * @functionpage{IotMqtt_Unsubscribe,mqtt,unsubscribe}
- * @functionpage{IotMqtt_TimedUnsubscribe,mqtt,timedunsubscribe}
- * @functionpage{IotMqtt_Publish,mqtt,publish}
- * @functionpage{IotMqtt_TimedPublish,mqtt,timedpublish}
- * @functionpage{IotMqtt_Wait,mqtt,wait}
- * @functionpage{IotMqtt_strerror,mqtt,strerror}
- * @functionpage{IotMqtt_OperationType,mqtt,operationtype}
- * @functionpage{IotMqtt_IsSubscribed,mqtt,issubscribed}
+ * @page mqtt_function_init IotMqtt_Init
+ * @snippet this declare_mqtt_init
+ * @copydoc IotMqtt_Init
+ * @page mqtt_function_cleanup IotMqtt_Cleanup
+ * @snippet this declare_mqtt_cleanup
+ * @copydoc IotMqtt_Cleanup
+ * @page mqtt_function_receivecallback IotMqtt_ReceiveCallback
+ * @snippet this declare_mqtt_receivecallback
+ * @copydoc IotMqtt_ReceiveCallback
+ * @page mqtt_function_connect IotMqtt_Connect
+ * @snippet this declare_mqtt_connect
+ * @copydoc IotMqtt_Connect
+ * @page mqtt_function_disconnect IotMqtt_Disconnect
+ * @snippet this declare_mqtt_disconnect
+ * @copydoc IotMqtt_Disconnect
+ * @page mqtt_function_subscribe IotMqtt_Subscribe
+ * @snippet this declare_mqtt_subscribe
+ * @copydoc IotMqtt_Subscribe
+ * @page mqtt_function_timedsubscribe IotMqtt_TimedSubscribe
+ * @snippet this declare_mqtt_timedsubscribe
+ * @copydoc IotMqtt_TimedSubscribe
+ * @page mqtt_function_unsubscribe IotMqtt_Unsubscribe
+ * @snippet this declare_mqtt_unsubscribe
+ * @copydoc IotMqtt_Unsubscribe
+ * @page mqtt_function_timedunsubscribe IotMqtt_TimedUnsubscribe
+ * @snippet this declare_mqtt_timedunsubscribe
+ * @copydoc IotMqtt_TimedUnsubscribe
+ * @page mqtt_function_publish IotMqtt_Publish
+ * @snippet this declare_mqtt_publish
+ * @copydoc IotMqtt_Publish
+ * @page mqtt_function_timedpublish IotMqtt_TimedPublish
+ * @snippet this declare_mqtt_timedpublish
+ * @copydoc IotMqtt_TimedPublish
+ * @page mqtt_function_wait IotMqtt_Wait
+ * @snippet this declare_mqtt_wait
+ * @copydoc IotMqtt_Wait
+ * @page mqtt_function_strerror IotMqtt_strerror
+ * @snippet this declare_mqtt_strerror
+ * @copydoc IotMqtt_strerror
+ * @page mqtt_function_operationtype IotMqtt_OperationType
+ * @snippet this declare_mqtt_operationtype
+ * @copydoc IotMqtt_OperationType
+ * @page mqtt_function_issubscribed IotMqtt_IsSubscribed
+ * @snippet this declare_mqtt_issubscribed
+ * @copydoc IotMqtt_IsSubscribed
  */
 
 /**

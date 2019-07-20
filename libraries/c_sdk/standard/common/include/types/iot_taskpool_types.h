@@ -148,7 +148,8 @@ typedef enum IotTaskPoolError
 } IotTaskPoolError_t;
 
 /**
- * @enums{taskpool,Task pool library}
+ * @enums_group{taskpool}
+ * @enums_brief{Task pool library}
  */
 
 /**
@@ -293,7 +294,8 @@ typedef struct IotTaskPoolInfo
 /*------------------------- TASKPOOL defined constants --------------------------*/
 
 /**
- * @constantspage{taskpool,task pool library}
+ * @constants_page{taskpool}
+ * @constants_brief{task pool library}
  *
  * @section taskpool_constants_initializers Task pool Initializers
  * @brief Provides default values for initializing the data types of the task pool library.

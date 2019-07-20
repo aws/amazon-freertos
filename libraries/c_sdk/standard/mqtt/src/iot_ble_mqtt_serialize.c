@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_mqtt_lib_ble.c
+ * @file iot_ble_mqtt_serialize.c
  * @brief MQTT library for BLE.
  */
 /* The config header is always included first. */

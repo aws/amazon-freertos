@@ -126,24 +126,46 @@ typedef struct IotBleWifiProvService
 } IotBleWifiProvService_t;
 
 /**
- * @functionspage{iotblewifiprov,GATT Service for WiFi Provisioning,WiFi Provisioning}
- * - @functionname{iotblewifiprov_function_init}
- * - @functionname{iotblewifiprov_function_start}
- * - @functionname{iotblewifiprov_function_stop}
- * - @functionname{iotblewifiprov_function_getnumnetworks}
- * - @functionname{iotblewifiprov_function_connect}
- * - @functionname{iotblewifiprov_function_eraseallnetworks}
- * - @functionname{iotblewifiprov_function_delete}
+ * @functions_page{iotblewifiprov, WiFi Provisioning}
+ * @functions_brief{GATT Service for WiFi Provisioning}
+ * - @function_name{iotblewifiprov_function_init}
+ * @function_brief{iotblewifiprov_function_init}
+ * - @function_name{iotblewifiprov_function_start}
+ * @function_brief{iotblewifiprov_function_start}
+ * - @function_name{iotblewifiprov_function_stop}
+ * @function_brief{iotblewifiprov_function_stop}
+ * - @function_name{iotblewifiprov_function_getnumnetworks}
+ * @function_brief{iotblewifiprov_function_getnumnetworks}
+ * - @function_name{iotblewifiprov_function_connect}
+ * @function_brief{iotblewifiprov_function_connect}
+ * - @function_name{iotblewifiprov_function_eraseallnetworks}
+ * @function_brief{iotblewifiprov_function_eraseallnetworks}
+ * - @function_name{iotblewifiprov_function_delete}
+ * @function_brief{iotblewifiprov_function_delete}
  */
 
 /**
- * @functionpage{IotBleWifiProv_Init,iotblewifiprov,init}
- * @functionpage{IotBleWifiProv_Start,iotblewifiprov,start}
- * @functionpage{IotBleWifiProv_Stop,iotblewifiprov,stop}
- * @functionpage{IotBleWifiProv_GetNumNetworks,iotblewifiprov,getnumnetworks}
- * @functionpage{IotBleWifiProv_Connect,iotblewifiprov,connect}
- * @functionpage{IotBleWifiProv_EraseAllNetworks,iotblewifiprov,eraseallnetworks}
- * @functionpage{IotBleWifiProv_Delete,iotblewifiprov,delete}
+ * @function_page{IotBleWifiProv_Init,iotblewifiprov,init}
+ * @function_snippet{iotblewifiprov,init,this}
+ * @copydoc IotBleWifiProv_Init
+ * @function_page{IotBleWifiProv_Start,iotblewifiprov,start}
+ * @function_snippet{iotblewifiprov,start,this}
+ * @copydoc IotBleWifiProv_Start
+ * @function_page{IotBleWifiProv_Stop,iotblewifiprov,stop}
+ * @function_snippet{iotblewifiprov,stop,this}
+ * @copydoc IotBleWifiProv_Stop
+ * @function_page{IotBleWifiProv_GetNumNetworks,iotblewifiprov,getnumnetworks}
+ * @function_snippet{iotblewifiprov,getnumnetworks,this}
+ * @copydoc IotBleWifiProv_GetNumNetworks
+ * @function_page{IotBleWifiProv_Connect,iotblewifiprov,connect}
+ * @function_snippet{iotblewifiprov,connect,this}
+ * @copydoc IotBleWifiProv_Connect
+ * @function_page{IotBleWifiProv_EraseAllNetworks,iotblewifiprov,eraseallnetworks}
+ * @function_snippet{iotblewifiprov,eraseallnetworks,this}
+ * @copydoc IotBleWifiProv_EraseAllNetworks
+ * @function_page{IotBleWifiProv_Delete,iotblewifiprov,delete}
+ * @function_snippet{iotblewifiprov,delete,this}
+ * @copydoc IotBleWifiProv_Delete
  */
 
 /**

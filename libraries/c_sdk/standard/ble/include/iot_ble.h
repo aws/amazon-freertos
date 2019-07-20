@@ -355,42 +355,91 @@ typedef union
 
 
 /**
- * @functionspage{iotble,BLE library,BLE Control and Services Management}
- * - @functionname{iotble_function_init}
- * - @functionname{iotble_function_on}
- * - @functionname{iotble_function_off}
- * - @functionname{iotble_function_startadv}
- * - @functionname{iotble_function_stopadv}
- * - @functionname{iotble_function_connparameterupdaterequest}
- * - @functionname{iotble_function_registereventcb}
- * - @functionname{iotble_function_unregistereventcb}
- * - @functionname{iotble_function_removebond}
- * - @functionname{iotble_function_createservice}
- * - @functionname{iotble_function_deleteservice}
- * - @functionname{iotble_function_sendindication}
- * - @functionname{iotble_function_sendresponse}
- * - @functionname{iotble_function_getconnectioninfolist}
- * - @functionname{iotble_function_getconnectioninfo}
- * - @functionname{iotble_function_confirmnumericcomparisonkeys}
+ * @functions_page{iotble, BLE Control and Services Management}
+ * @functions_brief{BLE}
+ * - @function_name{iotble_function_init}
+ * @function_brief{iotble_function_init}
+ * - @function_name{iotble_function_on}
+ * @function_brief{iotble_function_on}
+ * - @function_name{iotble_function_off}
+ * @function_brief{iotble_function_off}
+ * - @function_name{iotble_function_startadv}
+ * @function_brief{iotble_function_startadv}
+ * - @function_name{iotble_function_stopadv}
+ * @function_brief{iotble_function_stopadv}
+ * - @function_name{iotble_function_connparameterupdaterequest}
+ * @function_brief{iotble_function_connparameterupdaterequest}
+ * - @function_name{iotble_function_registereventcb}
+ * @function_brief{iotble_function_registereventcb}
+ * - @function_name{iotble_function_unregistereventcb}
+ * @function_brief{iotble_function_unregistereventcb}
+ * - @function_name{iotble_function_removebond}
+ * @function_brief{iotble_function_removebond}
+ * - @function_name{iotble_function_createservice}
+ * @function_brief{iotble_function_createservice}
+ * - @function_name{iotble_function_deleteservice}
+ * @function_brief{iotble_function_deleteservice}
+ * - @function_name{iotble_function_sendindication}
+ * @function_brief{iotble_function_sendindication}
+ * - @function_name{iotble_function_sendresponse}
+ * @function_brief{iotble_function_sendresponse}
+ * - @function_name{iotble_function_getconnectioninfolist}
+ * @function_brief{iotble_function_getconnectioninfolist}
+ * - @function_name{iotble_function_getconnectioninfo}
+ * @function_brief{iotble_function_getconnectioninfo}
+ * - @function_name{iotble_function_confirmnumericcomparisonkeys}
+ * @function_brief{iotble_function_confirmnumericcomparisonkeys}
  */
 
 /**
- * @functionpage{IotBle_Init,iotble,init}
- * @functionpage{IotBle_On,iotble,on}
- * @functionpage{IotBle_Off,iotble,off}
- * @functionpage{IotBle_StartAdv,iotble,startadv}
- * @functionpage{IotBle_StopAdv,iotble,stopadv}
- * @functionpage{IotBle_ConnParameterUpdateRequest,iotble,connparameterupdaterequest}
- * @functionpage{IotBle_RegisterEventCb,iotble,registereventcb}
- * @functionpage{IotBle_UnRegisterEventCb,iotble,unregistereventcb}
- * @functionpage{IotBle_RemoveBond,iotble,removebond}
- * @functionpage{IotBle_CreateService,iotble,createservice}
- * @functionpage{IotBle_DeleteService,iotble,deleteservice}
- * @functionpage{IotBle_SendIndication,iotble,sendindication}
- * @functionpage{IotBle_SendResponse,iotble,sendresponse}
- * @functionpage{IotBle_GetConnectionInfoList,iotble,getconnectioninfolist}
- * @functionpage{IotBle_GetConnectionInfo,iotble,getconnectioninfo}
- * @functionpage{IotBle_ConfirmNumericComparisonKeys,iotble,confirmnumericcomparisonkeys}
+ * @function_page{IotBle_Init,iotble,init}
+ * @function_snippet{iotble,init,this}
+ * @copydoc IotBle_Init
+ * @function_page{IotBle_On,iotble,on}
+ * @function_snippet{iotble,on,this}
+ * @copydoc IotBle_On
+ * @function_page{IotBle_Off,iotble,off}
+ * @function_snippet{iotble,off,this}
+ * @copydoc IotBle_Off
+ * @function_page{IotBle_StartAdv,iotble,startadv}
+ * @function_snippet{iotble,startadv,this}
+ * @copydoc IotBle_StartAdv
+ * @function_page{IotBle_StopAdv,iotble,stopadv}
+ * @function_snippet{iotble,stopadv,this}
+ * @copydoc IotBle_StopAdv
+ * @function_page{IotBle_ConnParameterUpdateRequest,iotble,connparameterupdaterequest}
+ * @function_snippet{iotble,connparameterupdaterequest,this}
+ * @copydoc IotBle_ConnParameterUpdateRequest
+ * @function_page{IotBle_RegisterEventCb,iotble,registereventcb}
+ * @function_snippet{iotble,registereventcb,this}
+ * @copydoc IotBle_RegisterEventCb
+ * @function_page{IotBle_UnRegisterEventCb,iotble,unregistereventcb}
+ * @function_snippet{iotble,unregistereventcb,this}
+ * @copydoc IotBle_UnRegisterEventCb
+ * @function_page{IotBle_RemoveBond,iotble,removebond}
+ * @function_snippet{iotble,removebond,this}
+ * @copydoc IotBle_RemoveBond
+ * @function_page{IotBle_CreateService,iotble,createservice}
+ * @function_snippet{iotble,createservice,this}
+ * @copydoc IotBle_CreateService
+ * @function_page{IotBle_DeleteService,iotble,deleteservice}
+ * @function_snippet{iotble,deleteservice,this}
+ * @copydoc IotBle_DeleteService
+ * @function_page{IotBle_SendIndication,iotble,sendindication}
+ * @function_snippet{iotble,sendindication,this}
+ * @copydoc IotBle_SendIndication
+ * @function_page{IotBle_SendResponse,iotble,sendresponse}
+ * @function_snippet{iotble,sendresponse,this}
+ * @copydoc IotBle_SendResponse
+ * @function_page{IotBle_GetConnectionInfoList,iotble,getconnectioninfolist}
+ * @function_snippet{iotble,getconnectioninfolist,this}
+ * @copydoc IotBle_GetConnectionInfoList
+ * @function_page{IotBle_GetConnectionInfo,iotble,getconnectioninfo}
+ * @function_snippet{iotble,getconnectioninfo,this}
+ * @copydoc IotBle_GetConnectionInfo
+ * @function_page{IotBle_ConfirmNumericComparisonKeys,iotble,confirmnumericcomparisonkeys}
+ * @function_snippet{iotble,confirmnumericcomparisonkeys,this}
+ * @copydoc IotBle_ConfirmNumericComparisonKeys
  */
 
 #if ( IOT_BLE_ADD_CUSTOM_SERVICES == 1 )

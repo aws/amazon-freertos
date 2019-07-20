@@ -16,7 +16,7 @@ INPUT = libraries/abstractions/wifi/include/iot_wifi.h \
         doc/lib/wifi.txt
 
 # Library file names.
-FILE_PATTERNS = *.h *.c *.txt
+FILE_PATTERNS = *wifi*.h *wifi*.c *wifi*.txt
 
 EXAMPLE_PATH = libraries/abstractions/wifi/include/iot_wifi.h
 
