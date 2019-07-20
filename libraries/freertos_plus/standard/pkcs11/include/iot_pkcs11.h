@@ -58,7 +58,7 @@
  */
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
 
- /**
+/**
  * @brief Public exponent for RSA - 2048
  */
 #define pkcs11RSA_2048_PUBLIC_EXPONENT       { 0x01, 0x00, 0x01 }
@@ -194,9 +194,11 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
  *                                      DigestInfo structure.  This memory
  *                                      must be allocated by the caller.
  *
+ * \return CKR_OK if successful, CKR_ARGUMENTS_BAD if NULL pointer passed in.
+ *
  */
-void vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
-                                               uint8_t * x51ByteHashOidBuffer );
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
+                                                uint8_t * x51ByteHashOidBuffer );
 
 
 #endif /* ifndef _AWS_PKCS11_H_ */

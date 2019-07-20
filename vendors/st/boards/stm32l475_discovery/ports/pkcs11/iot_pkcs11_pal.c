@@ -222,7 +222,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
                 if( pemBodyBuffer == NULL )
                 {
-                    xReturn = CKR_DEVICE_MEMORY;
+                    xReturn = CKR_HOST_MEMORY;
                 }
             }
 
@@ -254,7 +254,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
                 if( *ppcPemBuffer == NULL )
                 {
-                    xReturn = CKR_DEVICE_MEMORY;
+                    xReturn = CKR_HOST_MEMORY;
                 }
             }
 

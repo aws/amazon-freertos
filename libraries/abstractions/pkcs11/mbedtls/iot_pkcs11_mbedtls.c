@@ -83,6 +83,13 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
  * Note that this implementation does not have a concept of "slots" so this number is arbitrary. */
 #define pkcs11SLOT_ID                 1
 
+/* Private defines for checking that attribute templates are complete. */
+#define LABEL_IN_TEMPLATE             ( 1U )
+#define PRIVATE_IN_TEMPLATE           ( 1U << 1 )
+#define SIGN_IN_TEMPLATE              ( 1U << 2 )
+#define EC_PARAMS_IN_TEMPLATE         ( 1U << 3 )
+#define VERIFY_IN_TEMPLATE            ( 1U << 4 )
+
 typedef struct P11Object_t
 {
     CK_OBJECT_HANDLE xHandle;                           /* The "PAL Handle". */
@@ -1030,6 +1037,7 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     CK_CERTIFICATE_TYPE xCertificateType = 0; /* = CKC_X_509; */
     uint32_t ulIndex = 0;
+    CK_BBOOL xBool = CK_FALSE;
     CK_ATTRIBUTE xAttribute;
 
     /* Search for the pointer to the certificate VALUE. */
@@ -1067,9 +1075,19 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
 
                 break;
 
+            case ( CKA_TOKEN ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only token key object is supported. \r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
             case ( CKA_CLASS ):
             case ( CKA_SUBJECT ):
-            case ( CKA_TOKEN ):
 
                 /* Do nothing.  This was already parsed out of the template previously. */
                 break;
@@ -1221,6 +1239,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
 {
     CK_RV xResult = CKR_OK;
     int lMbedReturn;
+    CK_BBOOL xBool;
     uint32_t ulIndex;
     CK_ATTRIBUTE xAttribute;
 
@@ -1235,12 +1254,31 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
         {
             case ( CKA_CLASS ):
             case ( CKA_KEY_TYPE ):
-            case ( CKA_TOKEN ):
-            case ( CKA_SIGN ):
 
                 /* Do nothing.
-                 * At this time there is only token object & signing private key support.
                  * Key type and object type were checked previously. */
+                break;
+
+            case ( CKA_TOKEN ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only token key creation is supported. \r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
+                break;
+
+            case ( CKA_SIGN ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only keys with signing priveledges are supported. \r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
                 break;
 
             case ( CKA_LABEL ):
@@ -1307,8 +1345,6 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
     pxRsaContext = pxMbedContext->pk_ctx;
     mbedtls_rsa_init( pxRsaContext, MBEDTLS_RSA_PKCS_V15, 0 /*ignored.*/ );
 
-    /* Get the memory management of this context right in the morning. */
-
     /* Parse template and collect the relevant parts. */
     for( ulIndex = 0; ulIndex < ulCount; ulIndex++ )
     {
@@ -1316,14 +1352,23 @@ CK_RV prvCreateRsaPrivateKey( mbedtls_pk_context * pxMbedContext,
 
         switch( xAttribute.type )
         {
-            case ( CKA_TOKEN ):
             case ( CKA_CLASS ):
             case ( CKA_KEY_TYPE ):
 
                 /* Do nothing.
-                 * At this time there is only token object support.
                  * Key type & object type were checked previously.
                  */
+                break;
+
+            case ( CKA_TOKEN ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only token key creation is supported. \r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
                 break;
 
             case ( CKA_LABEL ):
@@ -1619,11 +1664,20 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
         {
             case ( CKA_CLASS ):
             case ( CKA_KEY_TYPE ):
-            case ( CKA_TOKEN ):
 
                 /* Do nothing.
-                 * At this time there is only token object support.
                  * Key type and class were checked previously. */
+                break;
+
+            case ( CKA_TOKEN ):
+                memcpy( &xBool, xAttribute.pValue, sizeof( CK_BBOOL ) );
+
+                if( xBool != CK_TRUE )
+                {
+                    PKCS11_PRINT( ( "ERROR: Only token key creation is supported. \r\n" ) );
+                    xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+                }
+
                 break;
 
             case ( CKA_LABEL ):
@@ -2959,10 +3013,15 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        /* If this an EC signature, reformat from ASN1 encoded to 64-byte R & S components */
+        /* If this an EC signature, reformat from ASN.1 encoded to 64-byte R & S components */
         if( ( pxSessionObj->xSignMechanism == CKM_ECDSA ) && ( xSignatureGenerated == CK_TRUE ) )
         {
-            PKI_mbedTLSSignatureToPkcs11Signature( pucSignature, ecSignature );
+            lMbedTLSResult = PKI_mbedTLSSignatureToPkcs11Signature( pucSignature, ecSignature );
+
+            if( lMbedTLSResult != 0 )
+            {
+                xResult = CKR_FUNCTION_FAILED;
+            }
         }
     }
 
@@ -3296,17 +3355,13 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                               CK_ATTRIBUTE_PTR pxTemplate,
                                               CK_ULONG ulTemplateLength )
 {
-#define LABEL      ( 1U )
-#define PRIVATE    ( 1U << 1 )
-#define SIGN       ( 1U << 2 )
-
     CK_ATTRIBUTE xAttribute;
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
     CK_ULONG xTemp;
     CK_ULONG xIndex;
     uint32_t xAttributeMap = 0;
-    uint32_t xRequiredAttributeMap = ( LABEL | PRIVATE | SIGN );
+    uint32_t xRequiredAttributeMap = ( LABEL_IN_TEMPLATE | PRIVATE_IN_TEMPLATE | SIGN_IN_TEMPLATE );
 
     for( xIndex = 0; xIndex < ulTemplateLength; xIndex++ )
     {
@@ -3316,7 +3371,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
         {
             case ( CKA_LABEL ):
                 *ppxLabel = &pxTemplate[ xIndex ];
-                xAttributeMap |= LABEL;
+                xAttributeMap |= LABEL_IN_TEMPLATE;
                 break;
 
             case ( CKA_TOKEN ):
@@ -3350,7 +3405,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
-                xAttributeMap |= PRIVATE;
+                xAttributeMap |= PRIVATE_IN_TEMPLATE;
                 break;
 
             case ( CKA_SIGN ):
@@ -3362,7 +3417,7 @@ CK_RV prvCheckGenerateKeyPairPrivateTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
-                xAttributeMap |= SIGN;
+                xAttributeMap |= SIGN_IN_TEMPLATE;
                 break;
 
             default:
@@ -3386,10 +3441,6 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                                              CK_ATTRIBUTE_PTR pxTemplate,
                                              CK_ULONG ulTemplateLength )
 {
-#define LABEL        ( 1U )
-#define EC_PARAMS    ( 1U << 1 )
-#define VERIFY       ( 1U << 2 )
-
     CK_ATTRIBUTE xAttribute;
     CK_RV xResult = CKR_OK;
     CK_BBOOL xBool;
@@ -3398,7 +3449,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
     int lCompare;
     CK_ULONG ulIndex;
     uint32_t xAttributeMap = 0;
-    uint32_t xRequiredAttributeMap = ( LABEL | EC_PARAMS | VERIFY );
+    uint32_t xRequiredAttributeMap = ( LABEL_IN_TEMPLATE | EC_PARAMS_IN_TEMPLATE | VERIFY_IN_TEMPLATE );
 
     for( ulIndex = 0; ulIndex < ulTemplateLength; ulIndex++ )
     {
@@ -3409,7 +3460,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
             case ( CKA_LABEL ):
 
                 *ppxLabel = &pxTemplate[ ulIndex ];
-                xAttributeMap |= LABEL;
+                xAttributeMap |= LABEL_IN_TEMPLATE;
                 break;
 
             case ( CKA_KEY_TYPE ):
@@ -3432,7 +3483,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
-                xAttributeMap |= EC_PARAMS;
+                xAttributeMap |= EC_PARAMS_IN_TEMPLATE;
                 break;
 
             case ( CKA_VERIFY ):
@@ -3444,7 +3495,7 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
                     xResult = CKR_TEMPLATE_INCONSISTENT;
                 }
 
-                xAttributeMap |= VERIFY;
+                xAttributeMap |= VERIFY_IN_TEMPLATE;
                 break;
 
             case ( CKA_TOKEN ):
@@ -3590,7 +3641,12 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         lMbedResult = mbedtls_pk_setup( &xCtx, mbedtls_pk_info_from_type( MBEDTLS_PK_ECKEY ) );
     }
 
-    if( ( xResult == CKR_OK ) && ( lMbedResult == 0 ) )
+    if( lMbedResult != 0 )
+    {
+        xResult = CKR_FUNCTION_FAILED;
+    }
+
+    if( xResult == CKR_OK )
     {
         if( 0 != mbedtls_ecp_gen_key( MBEDTLS_ECP_DP_SECP256R1,
                                       mbedtls_pk_ec( xCtx ),

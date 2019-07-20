@@ -265,7 +265,7 @@ static void prvExpectFailAfterDataSentWithProvisioning( ProvisioningParams_t * p
     }
 
     /* Regardless of whatever failed above, re-provision the
-     * device with default RSA certs so that subsequent tests
+     * device with default certs so that subsequent tests
      * are not changed. */
     vDevModeKeyProvisioning();
 }

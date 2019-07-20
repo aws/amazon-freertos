@@ -28,7 +28,7 @@ CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_SLOT_ID * pxSlotId= NULL;
+    CK_SLOT_ID * pxSlotId = NULL;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -43,11 +43,14 @@ CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
     {
         /* Allocate memory for the slot list. */
         pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * ( *pxSlotCount ) );
-        *ppxSlotId = pxSlotId;
 
-        if( *ppxSlotId == NULL )
+        if( pxSlotId == NULL )
         {
             xResult = CKR_HOST_MEMORY;
+        }
+        else
+        {
+            *ppxSlotId = pxSlotId;
         }
     }
 
@@ -56,7 +59,7 @@ CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
         xResult = pxFunctionList->C_GetSlotList( CK_TRUE, pxSlotId, pxSlotCount );
     }
 
-    if( xResult != CKR_OK )
+    if( ( xResult != CKR_OK ) && ( pxSlotId != NULL ) )
     {
         vPortFree( pxSlotId );
     }
@@ -132,10 +135,16 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
+    if( pxSession == NULL )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     /* Initialize the module. */
     if( xResult == CKR_OK )
     {
         xResult = xInitializePKCS11();
+
         if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
         {
             xResult = CKR_OK;
@@ -161,11 +170,11 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
         vPortFree( pxSlotId );
     }
 
-    if( xResult == CKR_OK && pxFunctionList->C_Login != NULL )
+    if( ( xResult == CKR_OK ) && ( pxFunctionList->C_Login != NULL ) )
     {
         xResult = pxFunctionList->C_Login( *pxSession,
                                            CKU_USER,
-                                           ( CK_UTF8CHAR_PTR )configPKCS11_DEFAULT_USER_PIN,
+                                           ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
                                            sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
@@ -201,11 +210,16 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ATTRIBUTE xTemplate[ 2 ] =
     {
-        { CKA_LABEL, ( char * ) pcLabelName, strlen( pcLabelName ) },
+        { CKA_LABEL, ( char * ) pcLabelName, strlen( pcLabelName )     },
         { CKA_CLASS, &xClass,                sizeof( CK_OBJECT_CLASS ) }
     };
 
     xResult = C_GetFunctionList( &pxFunctionList );
+
+    if( ( pcLabelName == NULL ) || ( pxHandle == NULL ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
 
     /* Get the certificate handle. */
     if( 0 == xResult )
@@ -235,13 +249,21 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-void vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
-                                               uint8_t * x51ByteHashOidBuffer )
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
+                                                uint8_t * x51ByteHashOidBuffer )
 {
+    CK_RV xResult = CKR_OK;
     uint8_t xOidSequence[] = pkcs11STUFF_APPENDED_TO_RSA_SIG;
+
+    if( ( x32ByteHashedMessage == NULL ) || ( x51ByteHashOidBuffer == NULL ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
     memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
-    return;
+
+    return xResult;
 }
 
 /*-----------------------------------------------------------*/

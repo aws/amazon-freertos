@@ -241,7 +241,7 @@ static CK_RV prvDerToPem( uint8_t * pDerBuffer,
 
             if( pemBodyBuffer == NULL )
             {
-                xReturn = CKR_DEVICE_MEMORY;
+                xReturn = CKR_HOST_MEMORY;
             }
         }
 
@@ -273,7 +273,7 @@ static CK_RV prvDerToPem( uint8_t * pDerBuffer,
 
             if( *ppcPemBuffer == NULL )
             {
-                xReturn = CKR_DEVICE_MEMORY;
+                xReturn = CKR_HOST_MEMORY;
             }
         }
 
@@ -510,7 +510,7 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
         if( NULL == *ppucData )
         {
-            ulReturn = CKR_DEVICE_MEMORY;
+            ulReturn = CKR_HOST_MEMORY;
         }
     }
 

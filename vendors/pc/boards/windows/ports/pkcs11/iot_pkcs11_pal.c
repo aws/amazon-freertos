@@ -323,7 +323,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
             if( NULL == *ppucData )
             {
-                ulReturn = CKR_DEVICE_MEMORY;
+                ulReturn = CKR_HOST_MEMORY;
             }
         }
 

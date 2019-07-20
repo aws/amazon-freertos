@@ -1127,7 +1127,8 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
 
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
 
-    vAppendSHA256AlgorithmIdentifierSequence( xHashedMessage, xHashPlusOid );
+    xResult = vAppendSHA256AlgorithmIdentifierSequence( xHashedMessage, xHashPlusOid );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to append hash algorithm to RSA signature material." );
 
     /* The RSA X.509 mechanism assumes a pre-hashed input. */
     xMechanism.mechanism = CKM_RSA_PKCS;
@@ -1774,8 +1775,9 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     mbedtls_entropy_free( &xEntropyContext );
 
     /* Reconstruct the signature in PKCS #11 format. */
-    PKI_mbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
-                                           xSignature );
+    lMbedResult = PKI_mbedTLSSignatureToPkcs11Signature( xSignaturePKCS,
+                                                         xSignature );
+    TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedResult, "Null buffers." );
 
     /* Verify with PKCS #11. */
     xMechanism.mechanism = CKM_ECDSA;

@@ -304,7 +304,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                                          size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
-    CK_RV xResult = 0;
+    CK_RV xResult = CKR_OK;
     int lFinalResult = 0;
     TLSContext_t * pxTLSContext = ( TLSContext_t * ) pvContext;
     CK_MECHANISM xMech = { 0 };
@@ -327,7 +327,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
     if( CKK_RSA == pxTLSContext->xKeyType )
     {
         xMech.mechanism = CKM_RSA_PKCS;
-        vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
+        xResult = vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
         xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
     }
     else if( CKK_EC == pxTLSContext->xKeyType )
@@ -341,7 +341,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         /* Use the PKCS#11 module to sign. */
         xResult = pxTLSContext->pxP11FunctionList->C_SignInit( pxTLSContext->xP11Session,
@@ -349,7 +349,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                                                pxTLSContext->xP11PrivateKey );
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         *pxSigLen = sizeof( xToBeSigned );
         xResult = pxTLSContext->pxP11FunctionList->C_Sign( ( CK_SESSION_HANDLE ) pxTLSContext->xP11Session,
@@ -359,7 +359,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                                            ( CK_ULONG_PTR ) pxSigLen );
     }
 
-    if( CKK_EC == pxTLSContext->xKeyType )
+    if( ( xResult == CKR_OK ) && ( CKK_EC == pxTLSContext->xKeyType ) )
     {
         uint8_t * pucSigPtr;
 
@@ -409,7 +409,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
         *pxSigLen = ( CK_ULONG ) pucSig[ 1 ] + 2;
     }
 
-    if( xResult != 0 )
+    if( xResult != CKR_OK )
     {
         TLS_PRINT( ( "ERROR: Failure in signing callback: %d \r\n", xResult ) );
         lFinalResult = TLS_ERROR_SIGN;
@@ -771,7 +771,6 @@ BaseType_t TLS_Connect( void * pvContext )
                                                MBEDTLS_SSL_IS_CLIENT,
                                                MBEDTLS_SSL_TRANSPORT_STREAM,
                                                MBEDTLS_SSL_PRESET_DEFAULT );
-
 
         if( 0 != xResult )
         {
