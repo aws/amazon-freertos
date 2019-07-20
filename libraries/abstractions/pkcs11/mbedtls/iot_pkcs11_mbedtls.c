@@ -1154,29 +1154,31 @@ void prvGetLabel( CK_ATTRIBUTE_PTR * ppxLabel,
  * importing one after the other requires a read of what was previously in the slot,
  * combination of the public and private key in DER format, and re-import of the
  * combination. */
-CK_RV prvGetExistingKeyComponent( mbedtls_pk_context * pxMbedContext,
+CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
+                                  mbedtls_pk_context * pxMbedContext,
                                   CK_ATTRIBUTE_PTR pxLabel )
 {
-    CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint8_t * pucData = NULL;
     size_t xDataLength = 0;
     CK_BBOOL xIsPrivate = CK_TRUE;
-    BaseType_t xResult = CKR_KEY_HANDLE_INVALID;
+    BaseType_t xResult = CKR_OK;
     int lMbedResult = 0;
     CK_BBOOL xNeedToFreeMem = CK_FALSE;
 
+    *pxPalHandle = CK_INVALID_HANDLE;
+
     if( 0 == memcmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
+        *pxPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
     }
     else if( 0 == memcmp( pxLabel->pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pxLabel->ulValueLen ) )
     {
-        xPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
+        *pxPalHandle = PKCS11_PAL_FindObject( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, ( uint8_t ) pxLabel->ulValueLen );
     }
 
-    if( xPalHandle != CK_INVALID_HANDLE )
+    if( *pxPalHandle != CK_INVALID_HANDLE )
     {
-        xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pucData, &xDataLength, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, &xDataLength, &xIsPrivate );
 
         if( xResult == CKR_OK )
         {
@@ -1198,7 +1200,7 @@ CK_RV prvGetExistingKeyComponent( mbedtls_pk_context * pxMbedContext,
 
     if( lMbedResult != 0 )
     {
-        xResult = CKR_KEY_HANDLE_INVALID;
+        *pxPalHandle = CK_INVALID_HANDLE;
     }
 
     if( xNeedToFreeMem == CK_TRUE )
@@ -1223,13 +1225,7 @@ CK_RV prvCreateEcPrivateKey( mbedtls_pk_context * pxMbedContext,
     CK_ATTRIBUTE xAttribute;
 
     /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
-    mbedtls_ecp_keypair * pxKeyPair;
-
-    pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
-    mbedtls_ecp_keypair_init( pxKeyPair );
-    mbedtls_ecp_group_init( &pxKeyPair->grp );
-    /* At this time, only P-256 curves are supported. */
-    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+    mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
     for( ulIndex = 0; ulIndex < ulCount; ulIndex++ )
     {
@@ -1437,6 +1433,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     mbedtls_pk_context xMbedContext;
     int lDerKeyLength = 0;
     int lActualKeyLength = 0;
+    int compare = 0;
     CK_BYTE_PTR pxDerKey = NULL;
     CK_RV xResult = CKR_OK;
     CK_KEY_TYPE xKeyType;
@@ -1475,15 +1472,30 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
         /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
         prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-        if( CKR_OK != prvGetExistingKeyComponent( &xMbedContext, pxLabel ) )
+        xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
+
+        if( xPalHandle == CK_INVALID_HANDLE )
         {
-            /* mbedtls_ecp_keypair must be malloc'ed to use with pk_free function. */
+            /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
+             * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
+             * the structure so that the mbedTLS structures will look the same as they would if a key
+             * had been found, minus the public key component. */
+
+            /* If a key had been found by prvGetExistingKeyComponent, the keypair context
+             * would have been malloc'ed. */
             pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
 
             if( pxKeyPair != NULL )
             {
-                xMbedContext.pk_ctx = pxKeyPair;
+                /* Initialize the info. */
                 xMbedContext.pk_info = &mbedtls_eckey_info;
+
+                /* Initialize the context. */
+                xMbedContext.pk_ctx = pxKeyPair;
+                mbedtls_ecp_keypair_init( pxKeyPair );
+                mbedtls_ecp_group_init( &pxKeyPair->grp );
+                /*/ * At this time, only P-256 curves are supported. * / */
+                mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
             }
             else
             {
@@ -1530,24 +1542,25 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     if( xResult == CKR_OK )
     {
         /* TODO: Remove this hack.
-         * mbedTLS call appends empty public key data when saving EC private key.
+         * mbedtls_pk_write_key_der appends empty public
+         * key data when saving EC private key
+         * that does not have a public key associated with it.
          * a1 04        -> Application identifier of length 4
          * 03 02     -> Bit string of length 2
          *    00 00  -> "Public key"
-         * This is not handled by the parser.
          * https://forums.mbed.com/t/how-do-i-write-an-ec-private-key-w-no-public-key-to-der-format/4728 */
         if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
+            /* If there was no public key in the structure, this byte
+             * array will be appended to the valid private key.
+             * It must be removed so that we can read the private
+             * key back at a later time. */
             uint8_t emptyPubKey[ 6 ] = { 0xa1, 0x04, 0x03, 0x02, 0x00, 0x00 };
-            xResult = memcmp( &pxDerKey[ MAX_LENGTH_KEY - 6 ], emptyPubKey, 6 );
+            compare = memcmp( &pxDerKey[ MAX_LENGTH_KEY - 6 ], emptyPubKey, 6 );
 
-            if( xResult != 0 )
+            if( compare == 0 )
             {
-                PKCS11_PRINT( ( "ERROR converting private key to DER storage.\r\n" ) );
-                xResult = CKR_ATTRIBUTE_VALUE_INVALID;
-            }
-            else
-            {
+                /* Do not write the last 6 bytes to key storage. */
                 pxDerKey[ MAX_LENGTH_KEY - lDerKeyLength + 1 ] -= 6;
                 lActualKeyLength -= 6;
             }
@@ -1591,17 +1604,12 @@ CK_RV prvCreateECPublicKey( mbedtls_pk_context * pxMbedContext,
 {
     CK_RV xResult = CKR_OK;
     int lMbedReturn;
-    /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
-    mbedtls_ecp_keypair * pxKeyPair;
     CK_BBOOL xBool;
     uint32_t ulIndex;
     CK_ATTRIBUTE xAttribute;
 
-    pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
-    mbedtls_ecp_group_init( &pxKeyPair->grp );
-
-    /* At this time, only P-256 curves are supported. */
-    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+    /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
+    mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedContext->pk_ctx;
 
     for( ulIndex = 0; ulIndex < ulCount; ulIndex++ )
     {
@@ -1689,7 +1697,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     CK_BBOOL xPrivateKeyFound = CK_FALSE;
     mbedtls_pk_init( &xMbedContext );
-    mbedtls_ecp_keypair xKeyPair;
+    mbedtls_ecp_keypair * pxKeyPair;
 
 
     prvGetKeyType( &xKeyType, pxTemplate, ulCount );
@@ -1701,11 +1709,35 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
     {
         prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-        if( CKR_OK != prvGetExistingKeyComponent( &xMbedContext, pxLabel ) )
+        xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
+
+        if( xPalHandle == CK_INVALID_HANDLE )
         {
-            mbedtls_ecp_keypair_init( &xKeyPair );
-            xMbedContext.pk_ctx = &xKeyPair;
-            xMbedContext.pk_info = &mbedtls_eckey_info; /* TODO: deprecated ecdsa vs eckey?*/
+            /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
+             * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
+             * the structure so that the mbedTLS structures will look the same as they would if a key
+             * had been found, minus the private key component. */
+
+            /* If a key had been found by prvGetExistingKeyComponent, the keypair context
+             * would have been malloc'ed. */
+            pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+
+            if( pxKeyPair != NULL )
+            {
+                /* Initialize the info. */
+                xMbedContext.pk_info = &mbedtls_eckey_info;
+
+                /* Initialize the context. */
+                xMbedContext.pk_ctx = pxKeyPair;
+                mbedtls_ecp_keypair_init( pxKeyPair );
+                mbedtls_ecp_group_init( &pxKeyPair->grp );
+                /*/ * At this time, only P-256 curves are supported. * / */
+                mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+            }
+            else
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
         }
         else
         {
@@ -1741,6 +1773,9 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
         {
             lDerKeyLength = mbedtls_pk_write_key_der( &xMbedContext, pxDerKey, MAX_PUBLIC_KEY_SIZE );
         }
+
+        /* Clean up the mbedTLS key context. */
+        mbedtls_pk_free( &xMbedContext );
     }
 
     if( xResult == CKR_OK )

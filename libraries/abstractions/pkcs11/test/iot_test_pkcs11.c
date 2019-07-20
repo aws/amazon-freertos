@@ -109,7 +109,7 @@ TEST_GROUP( Full_PKCS11_RSA );
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
 
- #define PKCS11_TEST_MEMORY_LEAK
+/* #define PKCS11_TEST_MEMORY_LEAK */
 #ifdef PKCS11_TEST_MEMORY_LEAK
     BaseType_t xHeapBefore;
     BaseType_t xHeapAfter;
@@ -590,7 +590,7 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
         TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xSlotCount, "Slot count incorrectly updated" );
 
         /* Allocate memory to receive the list of slots, plus one extra. */
-        pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * (xSlotCount + 1) );
+        pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * ( xSlotCount + 1 ) );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxSlotId, "Failed malloc memory for slot list" );
 
         /* Call C_GetSlotList again to receive all slots with tokens present. */
@@ -2164,6 +2164,8 @@ static void prvECGetAttributeValueMultiThreadTask( void * pvParameters )
                 xResult = 1;
                 break;
             }
+
+            mbedtls_x509_crt_free( &xMbedCert );
         }
     }
 
