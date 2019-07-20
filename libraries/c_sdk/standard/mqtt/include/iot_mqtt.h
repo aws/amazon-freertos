@@ -38,6 +38,7 @@
 #include "types/iot_mqtt_types.h"
 
 /*------------------------- MQTT library functions --------------------------*/
+
 /**
  * @functions_page{MQTT, MQTT}
  * @functions_brief{MQTT}

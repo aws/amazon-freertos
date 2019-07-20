@@ -45,7 +45,6 @@
 /**
  * @functions_page{static_memory, Static Memory}
  * @functions_brief{static memory component}
- * 
  * - @function_name{static_memory_function_init}
  * @function_brief{static_memory_function_init}
  * - @function_name{static_memory_function_cleanup}
