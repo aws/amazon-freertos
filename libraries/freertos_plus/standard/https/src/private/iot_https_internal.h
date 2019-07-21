@@ -373,11 +373,17 @@ typedef struct _httpsConnection
 
 /**
  * @brief Third party library http-parser information.
+ * 
+ * There are two separate structures for http_parser state information. This is so that the application can read
+ * a header during it's readReadyCallback. The readReadyCallback could be invoked many times and the parser will
+ * therefore be invoked many times for each response read from the network. In order to ensure that the state of 
+ * the parser remains intact whilst headers may be read, two structures holding the state are kept.
  */
 typedef struct _httpParserInfo
 {
-    http_parser parser; /**< @brief http_parser state information. */
+    http_parser responseParser;     /**< @brief http_parser state information for parsing the response. */
     size_t (*parseFunc)(http_parser *parser, const http_parser_settings *settings, const char *data, size_t len); /**< @brief http_parser_execute function is to be plugged in here during initialization of the response. */
+    http_parser readHeaderParser;   /**< @brief http_parser state information for parsing the header buffer for reading a header. */
 } _httpParserInfo_t;
 
 /**
@@ -395,7 +401,6 @@ typedef struct _httpsResponse
     _httpParserInfo_t httpParserInfo;    /** @brief Third party http-parser information. */
     uint16_t status;            /**< @brief The HTTP response status code of this response. */
     IotHttpsMethod_t method;    /**< @brief The method of the originating request. */
-    uint32_t contentLength;     /**< @brief The content length of the response body. This is initialized to zero and is updated when Content-Length header is parsed from the header buffer. */
     IotHttpsResponseParserState_t parserState;  /**< @brief The current state of the parser. See #IotHttpsResponseParserState_t documentation for more details. */
     IotHttpsResponseBufferState_t bufferProcessingState;    /**< @brief Which buffer is currently being processed and for what. See #IotHttpsResponseBufferState_t documentation. */
     char * pReadHeaderField;    /**< @brief Header field that we want to read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
