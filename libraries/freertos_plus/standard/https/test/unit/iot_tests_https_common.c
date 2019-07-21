@@ -55,3 +55,12 @@ uint8_t _pReqUserBuffer[HTTPS_TEST_REQ_USER_BUFFER_SIZE] = { 0 };
  * concern.
  */
 uint8_t _pRespUserBuffer[HTTPS_TEST_RESP_USER_BUFFER_SIZE] = { 0 };
+
+/**
+ * @brief HTTPS Response body buffer to share among the tests.
+ * 
+ * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
+ * The user buffers are always overwritten each utilizing test, so data left over affecting other tests is not a 
+ * concern.
+ */
+uint8_t _pRespBodyBuffer[HTTPS_TEST_RESP_BODY_BUFFER_SIZE] = { 0 };

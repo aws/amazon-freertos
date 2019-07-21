@@ -70,11 +70,6 @@
 #define HTTPS_TEST_PATH                             "/path.txt"
 
 /**
- * @brief Test HTTP method to share among the tests.
- */
-#define HTTPS_TEST_METHOD                           IOT_HTTPS_METHOD_GET
-
-/**
  * @brief Test HTTP/1.1 protocol to share among the tests.
  */
 #define HTTPS_TEST_ALPN_PROTOCOL                    "http/1.1"
@@ -114,36 +109,18 @@
 /**
  * @brief The size of the request user buffer to use among the tests.
  */
-#define HTTPS_TEST_REQ_USER_BUFFER_SIZE             ( 1024 )
+#define HTTPS_TEST_REQ_USER_BUFFER_SIZE             ( 512 )
 
 /**
- * @brief the size of the respons user buffer to use among the tests.
+ * @brief The size of the respons user buffer to use among the tests.
  */
-#define HTTPS_TEST_RESP_USER_BUFFER_SIZE            ( 1024 )
+#define HTTPS_TEST_RESP_USER_BUFFER_SIZE            ( 512 )
 
 /**
- * @brief Header data to share among the tests.
+ * @brief The size of the response body buffer to use among the tests.
  */
-#define HTTPS_TEST_HEADER_LINES    \
-    "HTTP/1.1 200 OK\r\n"\
-    "Content-Type: image/gif\r\n"\
-    "Content-Length: 43\r\n"\
-    "Connection: keep-alive\r\n"\
-    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"\
-    "Server: Omniture DC/2.0.0\r\n"\
-    "Access-Control-Allow-Origin: *\r\n"\
-    "Set-Cookie: s_vi=[CS]v1|2E95635285034EA6-6000119E0002304C[CE]; Expires=Tue, 13 Jul 2021 06:07:52 GMT; Domain=amazonwebservices.d2.sc.omtrdc.net; Path=/; SameSite=None\r\n"\
-    "X-C: ms-6.8.1\r\n"\
-    "Expires: Sat, 13 Jul 2019 06:07:52 GMT\r\n"\
-    "Last-Modified: Mon, 15 Jul 2019 06:07:52 GMT\r\n"\
-    "Pragma: no-cache\r\n"\
-    "ETag: \"3356698344146796544-5233166835360424028\"\r\n"\
-    "Vary: *\r\n"\
-    "P3P: CP=\"This is not a P3P policy\"\r\n"\
-    "xserver: www1021\r\n"\
-    "Cache-Control: no-cache, no-store, max-age=0, no-transform, private\r\n"\
-    "X-XSS-Protection: 1; mode=block\r\n"\
-    "X-Content-Type-Options: nosniff\r\n\r\n"
+#define HTTPS_TEST_RESP_BODY_BUFFER_SIZE            ( 512 )
+
 
 /*-----------------------------------------------------------*/
 
@@ -175,6 +152,15 @@ extern uint8_t _pReqUserBuffer[HTTPS_TEST_REQ_USER_BUFFER_SIZE];
 extern uint8_t _pRespUserBuffer[HTTPS_TEST_RESP_USER_BUFFER_SIZE];
 
 /**
+ * @brief HTTPS Response body buffer to share among the tests.
+ * 
+ * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
+ * The user buffers are always overwritten each utilizing test, so data left over affecting other tests is not a 
+ * concern.
+ */
+extern uint8_t _pRespBodyBuffer[HTTPS_TEST_RESP_BODY_BUFFER_SIZE];
+
+/**
  * @brief An #IotNetworkInterface_t to share among the tests.
  */
 static IotNetworkInterface_t _networkInterface = { 0 };
@@ -198,37 +184,6 @@ static IotHttpsConnectionInfo_t _connInfo = {
     .pAlpnProtocols = HTTPS_TEST_ALPN_PROTOCOL,
     .alpnProtocolsLen = sizeof(HTTPS_TEST_ALPN_PROTOCOL),
     .pNetworkInterface = &_networkInterface
-};
-
-/**
- * @brief A IotHttpsSyncInfo_t for requests and response to share among the tests.
- */ 
-static IotHttpsSyncInfo_t _syncRequestInfo = IOT_HTTPS_SYNC_INFO_INITIALIZER;
-static IotHttpsSyncInfo_t _syncResponseInfo = IOT_HTTPS_SYNC_INFO_INITIALIZER;
-
-/**
- * @brief A IotHttpsRequestInfo_t to share among the tests. 
- */
-static IotHttpsRequestInfo_t _reqInfo = {
-    .pPath = HTTPS_TEST_PATH,
-    .pathLen = sizeof( HTTPS_TEST_PATH ) - 1,
-    .method = HTTPS_TEST_METHOD,
-    .pHost = HTTPS_TEST_ADDRESS,
-    .hostLen = sizeof( HTTPS_TEST_ADDRESS ) - 1,
-    .isNonPersistent = false,
-    .userBuffer.pBuffer = _pReqUserBuffer,
-    .userBuffer.bufferLen = sizeof( _pReqUserBuffer ),
-    .isAsync = false,
-    .pSyncInfo = &_syncRequestInfo
-};
-
-/**
- * @brief A IotHttpsResponseInfo_t to share among the tests. 
- */
-static IotHttpsResponseInfo_t _respInfo = {
-    .userBuffer.pBuffer = _pRespUserBuffer,
-    .userBuffer.bufferLen = sizeof( _pRespUserBuffer ),
-    .pSyncInfo = &_syncResponseInfo
 };
 
 /*-----------------------------------------------------------*/
@@ -278,12 +233,12 @@ static inline IotHttpsConnectionHandle_t _getConnHandle( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Get a valid request handle using _pReqUserBuffer and _reqInfo.
+ * @brief Get a valid request handle with the input pReqInfo.
  */
-static inline IotHttpsRequestHandle_t _getReqHandle( void )
+static inline IotHttpsRequestHandle_t _getReqHandle( IotHttpsRequestInfo_t* pReqInfo )
 {
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
-    IotHttpsClient_InitializeRequest(&reqHandle, &_reqInfo);
+    IotHttpsClient_InitializeRequest(&reqHandle, pReqInfo);
     return reqHandle;
 }
 
@@ -300,28 +255,13 @@ static inline IotNetworkError_t _networkCloseSuccess(void * pConnection)
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Network abstraction destroy function that succeeds.
+ */
 static inline IotNetworkError_t _networkDestroySuccess(void * pConnection)
 {
     (void)pConnection;
     return IOT_NETWORK_SUCCESS;
 }
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Mock the http parser execution failing.
- */
-static inline size_t _httpParserExecuteFail( http_parser *parser,
-                                      const http_parser_settings *settings,
-                                      const char *data,
-                                      size_t len)
-{
-    (void)settings;
-    (void)data;
-    (void)len;
-    parser->http_errno = HPE_UNKNOWN;
-    return 0;
-}
-
 
 #endif /* IOT_TESTS_HTTPS_COMMON_H_ */

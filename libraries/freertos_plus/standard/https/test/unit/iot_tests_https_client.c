@@ -53,6 +53,39 @@
 #define HTTPS_TEST_HOST_HEADER_LINE                 HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_TEST_ADDRESS HTTPS_END_OF_HEADER_LINES_INDICATOR
 
 /**
+ * @brief HTTP response header lines to share among the tests.
+ */
+#define HTTPS_TEST_RESPONSE_HEADER_LINES    \
+    "HTTP/1.1 200 OK\r\n"\
+    "Content-Type: image/gif\r\n"\
+    "Content-Length: 43\r\n"\
+    "Connection: keep-alive\r\n"\
+    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"\
+    "ETag: \"3356698344146796544-5233166835360424028\"\r\n"\
+    "Vary: *\r\n"\
+    "P3P: CP=\"This is not a P3P policy\"\r\n"\
+    "xserver: www1021\r\n"\
+    "X-XSS-Protection: 1; mode=block\r\n"\
+    "X-Content-Type-Options: nosniff\r\n\r\n"
+#define HTTPS_TEST_RESPONSE_HEADER_LINES_LENGTH     sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES ) - 1
+
+/**
+ * @brief Header lines with no content-length for testing.
+ */
+#define HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH \
+    "HTTP/1.1 200 OK\r\n"\
+    "Content-Type: image/gif\r\n"\
+    "Connection: keep-alive\r\n"\
+    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"\
+    "ETag: \"3356698344146796544-5233166835360424028\"\r\n"\
+    "Vary: *\r\n"\
+    "P3P: CP=\"This is not a P3P policy\"\r\n"\
+    "xserver: www1021\r\n"\
+    "X-XSS-Protection: 1; mode=block\r\n"\
+    "X-Content-Type-Options: nosniff\r\n\r\n"
+#define HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH_LENGTH   sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH ) - 1
+
+/**
  * @brief Header name and values to verify reading the header.
  */
 #define HTTPS_DATE_HEADER           "Date"
@@ -60,12 +93,54 @@
 #define HTTPS_NONEXISTENT_HEADER    "Non-Existent-Header"
 #define HTTPS_DATE_HEADER_VALUE     "Sun, 14 Jul 2019 06:07:52 GMT"
 #define HTTPS_ETAG_HEADER_VALUE     "\"3356698344146796544-5233166835360424028\""
+#define HTTPS_CONTENT_LENGTH_VALUE  43
 
 /**
  * @brief The array lengths of to store the header values.
  */
 #define HTTPS_TEST_VALUE_BUFFER_LENGTH_LARGE_ENOUGH     64
 #define HTTPS_TEST_VALUE_BUFFER_LENGTH_TOO_SMALL        8
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A IotHttpsSyncInfo_t for a request to share among the tests.
+ */
+static IotHttpsSyncInfo_t _syncRequestInfo = IOT_HTTPS_SYNC_INFO_INITIALIZER;
+
+/**
+ * @brief A IotHttpsRequestInfo_t using the GET method to share among the tests. 
+ */
+static IotHttpsRequestInfo_t _reqInfo = {
+    .pPath = HTTPS_TEST_PATH,
+    .pathLen = sizeof( HTTPS_TEST_PATH ) - 1,
+    .method = IOT_HTTPS_METHOD_GET,
+    .pHost = HTTPS_TEST_ADDRESS,
+    .hostLen = sizeof( HTTPS_TEST_ADDRESS ) - 1,
+    .isNonPersistent = false,
+    .userBuffer.pBuffer = _pReqUserBuffer,
+    .userBuffer.bufferLen = sizeof( _pReqUserBuffer ),
+    .isAsync = false,
+    .pSyncInfo = &_syncRequestInfo
+};
+
+
+/**
+ * @brief A IotHttpsSyncInfo_t for a response to share among the tests.
+ */
+static IotHttpsSyncInfo_t _syncResponseInfo = {
+        .pBody = _pRespBodyBuffer,
+        .bodyLen = sizeof(_pRespBodyBuffer)
+};
+
+/**
+ * @brief A IotHttpsResponseInfo_t for a GET method to share among the tests. 
+ */
+static IotHttpsResponseInfo_t _respInfo = {
+    .userBuffer.pBuffer = _pRespUserBuffer,
+    .userBuffer.bufferLen = sizeof( _pRespUserBuffer ),
+    .pSyncInfo = &_syncResponseInfo
+};
 
 /*-----------------------------------------------------------*/
 
@@ -120,7 +195,7 @@ static IotNetworkError_t _setReceiveCallbackFail( void * pConnection,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Get a valid response handle using _pRespUserBuffer, _respInfo, and _reqInfo.
+ * @brief Get a valid response handle using _pRespUserBuffer, and respInfoGET.
  */
 static IotHttpsResponseHandle_t _getRespHandle( void )
 {
@@ -128,6 +203,24 @@ static IotHttpsResponseHandle_t _getRespHandle( void )
     IotTestHttps_initializeResponse(&respHandle, &_respInfo, _reqInfo.isAsync, _reqInfo.method);
     return respHandle;
 }
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Mock the http parser execution failing.
+ */
+static size_t _httpParserExecuteFail( http_parser *parser,
+                                      const http_parser_settings *settings,
+                                      const char *data,
+                                      size_t len)
+{
+    (void)settings;
+    (void)data;
+    (void)len;
+    parser->http_errno = HPE_UNKNOWN;
+    return 0;
+}
+
 
 /*-----------------------------------------------------------*/
 
@@ -179,6 +272,7 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadHeaderVaryingValues );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadContentLengthInvalidParameters );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadContentLengthSuccess );
+    RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadContentLengthNotFound );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusInvalidParameters );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusSuccess );
 
@@ -311,7 +405,7 @@ TEST( HTTPS_Client_Unit_API, ConnectFailure)
     /* Get a valid connection handle and put a failure condition (a request in the process of sending). */
     connHandle = _getConnHandle();
     TEST_ASSERT_NOT_NULL(connHandle);
-    reqHandle = _getReqHandle();
+    reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
     reqHandle->reqFinishedSending = false;
     IotDeQueue_EnqueueTail(&(connHandle->reqQ), &(reqHandle->link));
@@ -404,7 +498,7 @@ TEST( HTTPS_Client_Unit_API, DisconnectFailure )
 
     connHandle = _getConnHandle();
     TEST_ASSERT_NOT_NULL(connHandle);
-    reqHandle = _getReqHandle();
+    reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
     reqHandle->reqFinishedSending = false;
     IotDeQueue_EnqueueTail(&(connHandle->reqQ), &(reqHandle->link));
@@ -440,7 +534,7 @@ TEST( HTTPS_Client_Unit_API, DisconnectSuccess )
     _networkInterface.close = _networkDestroySuccess;
     connHandle = _getConnHandle();
     TEST_ASSERT_NOT_NULL( connHandle );
-    reqHandle = _getReqHandle();
+    reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL( reqHandle );
     reqHandle->reqFinishedSending = true;
     IotDeQueue_EnqueueTail( &( connHandle->reqQ ), &( reqHandle->link ) );
@@ -599,7 +693,7 @@ TEST( HTTPS_Client_Unit_API, AddHeaderInvalidParameters)
     uint32_t testLen = strlen(pTestValue);
 
     /* Get a valid request handle with some header buffer space. */
-    reqHandle = _getReqHandle();
+    reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL( reqHandle );
 
     /* Test parameter reqHandle is NULL. */
@@ -650,7 +744,7 @@ TEST( HTTPS_Client_Unit_API, AddHeaderFormatCheck )
     uint8_t* headersCurBefore = NULL;
 
     /* Get a valid request handle with some header buffer space. */
-    reqHandle = _getReqHandle();
+    reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL( reqHandle );
     headersCurBefore = reqHandle->pHeadersCur;
 
@@ -687,7 +781,7 @@ TEST( HTTPS_Client_Unit_API, AddHeaderMultipleHeaders )
     char * pLocation = NULL;
     
     /* Get a valid request handle with some header buffer space. */
-    reqHandle = _getReqHandle();
+    reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL( reqHandle );
     
     returnCode = IotHttpsClient_AddHeader(reqHandle, pHeader0, pValue0, strlen(pValue0));
@@ -741,12 +835,12 @@ TEST( HTTPS_Client_Unit_API, ReadHeaderVaryingValues )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    size_t testHeadersLen = sizeof( HTTPS_TEST_HEADER_LINES ) - 1; /* Not including NULL terminator */
+    size_t testHeadersLen = HTTPS_TEST_RESPONSE_HEADER_LINES_LENGTH;
     size_t headersBufferLen = 0;
     size_t copyLen = 0;
     char valueBufferLargeEnough[HTTPS_TEST_VALUE_BUFFER_LENGTH_LARGE_ENOUGH] = { 0 };
     char valueBufferTooSmall[HTTPS_TEST_VALUE_BUFFER_LENGTH_TOO_SMALL] = { 0 };
-    char* pTestPartialHeadersStart = HTTPS_TEST_HEADER_LINES;
+    char* pTestPartialHeadersStart = HTTPS_TEST_RESPONSE_HEADER_LINES;
     char* pTestPartialHeadersEnd = strstr(pTestPartialHeadersStart, HTTPS_DATE_HEADER) + strlen(HTTPS_DATE_HEADER);
     size_t pTestPartialHeadersLen = (size_t)(pTestPartialHeadersEnd - pTestPartialHeadersStart);
 
@@ -763,7 +857,7 @@ TEST( HTTPS_Client_Unit_API, ReadHeaderVaryingValues )
     {
         copyLen = headersBufferLen;
     }
-    memcpy(respHandle->pHeadersCur, HTTPS_TEST_HEADER_LINES, copyLen);
+    memcpy(respHandle->pHeadersCur, HTTPS_TEST_RESPONSE_HEADER_LINES, copyLen);
     respHandle->pHeadersCur += copyLen;
 
     /* Test reading some header values successfully. */
@@ -829,10 +923,9 @@ TEST( HTTPS_Client_Unit_API, ReadContentLengthInvalidParameters )
     returnCode = IotHttpsClient_ReadContentLength(respHandle, NULL);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
 
-    /* Test that the contentLength is not found, when it is equal to zero. */
+    /* Test that the contentLength is not found on respond handle with an empty header. */
     respHandle = _getRespHandle();
     TEST_ASSERT_NOT_NULL( respHandle );
-    respHandle->contentLength = 0;
     returnCode = IotHttpsClient_ReadContentLength(respHandle, &contentLength);
     TEST_ASSERT_EQUAL(IOT_HTTPS_NOT_FOUND, returnCode);
 }
@@ -847,16 +940,62 @@ TEST( HTTPS_Client_Unit_API, ReadContentLengthSuccess )
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     uint32_t contentLength = 0;
-    uint32_t testContentLengthGreaterThanZero = 1;
+    size_t headersBufferLen = 0;
+    size_t copyLen = 0;
 
-    /* Test that if the content-length of greater than zero is inside of the structure then it is returned 
-       with the API. */
+    /* Create a response handle. */
     respHandle = _getRespHandle();
-    TEST_ASSERT_NOT_NULL( respHandle );
-    respHandle->contentLength = testContentLengthGreaterThanZero;
+    TEST_ASSERT_NOT_NULL(respHandle);
+    headersBufferLen = respHandle->pHeadersEnd - respHandle->pHeadersCur;
+    /* Fill in with some header data. */
+    if(HTTPS_TEST_RESPONSE_HEADER_LINES_LENGTH < headersBufferLen)
+    {
+        copyLen = HTTPS_TEST_RESPONSE_HEADER_LINES_LENGTH;
+    }
+    else
+    {
+        copyLen = headersBufferLen;
+    }
+    memcpy(respHandle->pHeadersCur, HTTPS_TEST_RESPONSE_HEADER_LINES, copyLen);
+    respHandle->pHeadersCur += copyLen;
+
     returnCode = IotHttpsClient_ReadContentLength(respHandle, &contentLength);
     TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
-    TEST_ASSERT_EQUAL(testContentLengthGreaterThanZero, contentLength);
+    TEST_ASSERT_EQUAL(HTTPS_CONTENT_LENGTH_VALUE, contentLength);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test a reading the content length when the header does not exist.
+ */
+TEST( HTTPS_Client_Unit_API, ReadContentLengthNotFound )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t contentLength = 0;
+    size_t headersBufferLen = 0;
+    size_t copyLen = 0;
+
+    /* Create a response handle. */
+    respHandle = _getRespHandle();
+    TEST_ASSERT_NOT_NULL(respHandle);
+    headersBufferLen = respHandle->pHeadersEnd - respHandle->pHeadersCur;
+    /* Fill in with some header data. */
+    if(HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH_LENGTH < headersBufferLen)
+    {
+        copyLen = HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH_LENGTH;
+    }
+    else
+    {
+        copyLen = headersBufferLen;
+    }
+    memcpy(respHandle->pHeadersCur, HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH, copyLen);
+    respHandle->pHeadersCur += copyLen;
+
+    returnCode = IotHttpsClient_ReadContentLength(respHandle, &contentLength);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_NOT_FOUND, returnCode);
+    TEST_ASSERT_EQUAL(0, contentLength);
 }
 
 /*-----------------------------------------------------------*/
