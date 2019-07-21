@@ -445,7 +445,7 @@ static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_
     IotLogInfo("Downloaded: %d/%d", _bytesFileDownloadedSoFar, _fileSize);
     if( _bytesFileDownloadedSoFar >= _fileSize)
     {
-        IotLogDebug( "File fully downloaded. Amount downloaded: %d", _bytesFileDownloadedSoFar );
+        IotLogDebug( "File fully downloaded. Bytes downloaded: %d", _bytesFileDownloadedSoFar );
         IotSemaphore_Post( &(_fileFinishedSem) );
     }
 }
