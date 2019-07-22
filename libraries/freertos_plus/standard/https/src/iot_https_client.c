@@ -486,6 +486,19 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsCo
  */
 static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext );
 
+
+/**
+ * @brief Receive the HTTPS body specific to an asynchronous type of response.
+ * 
+ * @param[in] pHttpsResponse - HTTP response context.
+ * 
+ * @return  #IOT_HTTPS_OK - If the the response body was received with no issues. 
+ *          #IOT_HTTPS_ASYNC_CANCELLED - If the request was cancelled by the Application
+ *          #IOT_HTTPS_PARSING_ERROR - If there was an issue parsing the HTTP response body.
+ *          #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
+ */
+static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse);
+
 /**
  * @brief Receive the HTTPS body specific to a synchronous type of response.
  * 
@@ -683,10 +696,8 @@ static int _httpParserOnHeadersCompleteCallback(http_parser * pHttpParser)
 
     if(pHttpsResponse->bufferProcessingState < PROCESSING_STATE_FINISHED)
     {
-        /* For a HEAD method, there is no body expected in the response, so we return 1 to skip body parsing.
-        Also if it was configured in a synchronous response to ignore the HTTPS response body then also stop the body
-        parsing. */
-        if((pHttpsResponse->method == IOT_HTTPS_METHOD_HEAD) || (pHttpsResponse->pBody == NULL))
+        /* For a HEAD method, there is no body expected in the response, so we return 1 to skip body parsing. */
+        if( ( pHttpsResponse->method == IOT_HTTPS_METHOD_HEAD ) )
         {
             retVal = STOP_PARSING;
             /* Since the message is considered complete now for a HEAD response, then we set the parser state 
@@ -696,6 +707,14 @@ static int _httpParserOnHeadersCompleteCallback(http_parser * pHttpParser)
         /* If this is NOT a HEAD method and there is body configured, but the server does not send a body in the
            response, then the body buffer will be filled with the zeros from rest of the header buffer. http-parser
            will invoke the on_body callback and consider the zeros following the headers as body. */
+
+        /* If it was configured in a synchronous response to ignore the HTTPS response body then also stop the body
+           parsing. There could be body in the message, despite the body configured to be ignore, so the parser state
+           stays as is so that the network socket can be flushed of the body if needed. */
+        if(( pHttpsResponse->isAsync == false ) && ( pHttpsResponse->pBody == NULL ))
+        {
+            retVal = STOP_PARSING;
+        }
     }
 
     return retVal;
@@ -710,45 +729,70 @@ static int _httpParserOnBodyCallback(http_parser * pHttpParser, const char * pLo
     _httpsResponse_t * pHttpsResponse = (_httpsResponse_t *)(pHttpParser->data);
     pHttpsResponse->parserState = PARSER_STATE_IN_BODY;
 
-    /* Has the user provided a buffer and is it large enough to fit the body? The
-    case of body buffer not being large enough can happen if the body was received
-    in the header buffer and the body buffer can not fit in all the body. */
-    if((pHttpsResponse->pBodyCur != NULL) && (pHttpsResponse->pBodyEnd - pHttpsResponse->pBodyCur > 0))
+    if((pHttpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER) && (pHttpsResponse->isAsync))
     {
-        /* There are two scenarios when we need to copy data around:
-        1. Some or all of the response body may have been received in the header
-        buffer. If that is the case, we copy the response body received in the
-        header buffer to the user provided body buffer.
-        2. When we receive chunked header, the actual body is separated in
-        multiple chunks which are preceeded by length. For example, a chunked
-        body may look like:
-
-        7\r\n
-        Mozilla\r\n 
-        9\r\n
-        Developer\r\n
-        7\r\n
-        Network\r\n
-        0\r\n 
-        \r\n
-
-        In this case, we want the parsed body buffer to contain actual body only
-        (MozillaDeveloperNetwork in the above example).
+        /* For an asynchronous response, the buffer to store the body will be available after the headers 
+         * are read first. We may receive part of the body in the header buffer. We will want to leave this here
+         * and copy it over when the body buffer is available in the _readReadyCallback().
          */
-        /* If the response body found by the parser (pLoc) is not equal to the
-        current writable location in the body buffer (_httpsResponse->pBodyCur),
-        it indicates that:
-        - Either the data is in the header buffer and needs to be copied into the
-        body buffer.
-        - Or it is a chunked response and the data needs to be moved up in the
-        body buffer. */
-        if( (pHttpsResponse->pBodyCur + length) <= pHttpsResponse->pBodyEnd )
+        if( pHttpsResponse->pBodyInHeaderBuf == NULL )
         {
-            if(pHttpsResponse->pBodyCur != (uint8_t*)pLoc)
+            pHttpsResponse->pBodyInHeaderBuf = ( uint8_t* )( pLoc );
+            pHttpsResponse->pBodyCurInHeaderBuf = pHttpsResponse->pBodyInHeaderBuf;
+        }
+
+        /* If there is a chunk encoded body in the header buffer, we will want to overwrite the chunk headers with the 
+           actual body. This is so that when the application calls IotHttpsClient_ReadResponseBody(), in the 
+           readReadyCallback(), we can pass the body into the body buffer provided right away. */
+        if(pHttpsResponse->pBodyCurInHeaderBuf != (uint8_t*)pLoc)
+        {
+            memcpy(pHttpsResponse->pBodyCurInHeaderBuf, pLoc, length);
+        }
+        pHttpsResponse->pBodyCurInHeaderBuf += length;
+
+    }
+    else if(pHttpsResponse->bufferProcessingState < PROCESSING_STATE_FINISHED)
+    {
+        /* Has the user provided a buffer and is it large enough to fit the body? The
+        case of body buffer not being large enough can happen if the body was received
+        in the header buffer and the body buffer can not fit in all the body. */
+        if((pHttpsResponse->pBodyCur != NULL) && (pHttpsResponse->pBodyEnd - pHttpsResponse->pBodyCur > 0))
+        {
+            /* There are two scenarios when we need to copy data around:
+            1. Some or all of the response body may have been received in the header
+            buffer. If that is the case, we copy the response body received in the
+            header buffer to the user provided body buffer.
+            2. When we receive chunked header, the actual body is separated in
+            multiple chunks which are preceeded by length. For example, a chunked
+            body may look like:
+
+            7\r\n
+            Mozilla\r\n 
+            9\r\n
+            Developer\r\n
+            7\r\n
+            Network\r\n
+            0\r\n 
+            \r\n
+
+            In this case, we want the parsed body buffer to contain actual body only
+            (MozillaDeveloperNetwork in the above example).
+            */
+            /* If the response body found by the parser (pLoc) is not equal to the
+            current writable location in the body buffer (_httpsResponse->pBodyCur),
+            it indicates that:
+            - Either the data is in the header buffer and needs to be copied into the
+            body buffer.
+            - Or it is a chunked response and the data needs to be moved up in the
+            body buffer. */
+            if( (pHttpsResponse->pBodyCur + length) <= pHttpsResponse->pBodyEnd )
             {
-                memcpy(pHttpsResponse->pBodyCur, pLoc, length);
+                if(pHttpsResponse->pBodyCur != (uint8_t*)pLoc)
+                {
+                    memcpy(pHttpsResponse->pBodyCur, pLoc, length);
+                }
+                pHttpsResponse->pBodyCur += length;
             }
-             pHttpsResponse->pBodyCur += length;
         }
     }
 
@@ -797,6 +841,53 @@ static int _httpParserOnChunkCompleteCallback(http_parser * pHttpParser)
     return 0;
 }
 #endif
+
+/*-----------------------------------------------------------*/
+
+static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse)
+{
+    HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
+    /* Get the request reference from the response for the callback function pointers. */
+    _httpsRequest_t* pHttpsRequest = pHttpsResponse->pHttpsRequest;
+
+    if(pHttpsRequest->pCallbacks->readReadyCallback)
+    {
+        /* If there is still more body that has not been passed back to the user, then this callback is invoked again. */
+        do {
+            pHttpsRequest->pCallbacks->readReadyCallback(pHttpsRequest->pUserPrivData, 
+                pHttpsResponse, 
+                pHttpsResponse->bodyRxStatus, 
+                pHttpsResponse->status);
+            if(pHttpsResponse->cancelled == true)
+            {
+                IotLogDebug("Cancelled HTTP response %d.", pHttpsResponse);
+                status = IOT_HTTPS_ASYNC_CANCELLED;
+                /* We break out of the loop and do not goto clean up because we want to print debugging logs for 
+                   the parser state and the networks status. */
+                break;
+            }
+        } while((pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE) && (pHttpsResponse->bodyRxStatus == IOT_HTTPS_OK));
+
+        if(HTTPS_FAILED(pHttpsResponse->bodyRxStatus))
+        {
+            IotLogError("Error receiving the HTTP response body for response %d. Error code: %d",
+                pHttpsResponse,
+                pHttpsResponse->bodyRxStatus);
+        }
+
+        if(pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE)
+        {
+            IotLogDebug("Did not receive all of the HTTP response body for response %d.", 
+                pHttpsResponse);
+        }
+    }
+
+    status = pHttpsResponse->bodyRxStatus;
+    /* This GOTO cleanup is here for compiler warnings about using HTTPS_FUNCTION_EXIT_NO_CLEANUP() without a 
+       corresponding goto. */
+    HTTPS_GOTO_CLEANUP();
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+}
 
 /*-----------------------------------------------------------*/
 
@@ -956,7 +1047,15 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     }
 
     /* Receive the body. */
-    status = _receiveHttpsBodySync(pCurrentHttpsResponse);
+    if(pCurrentHttpsResponse->isAsync)
+    {
+        status = _receiveHttpsBodyAsync(pCurrentHttpsResponse);
+    }
+    else
+    {
+        /* Otherwise receive synchronously. */
+        status = _receiveHttpsBodySync(pCurrentHttpsResponse);
+    }
 
     if(HTTPS_FAILED(status))
     {
@@ -996,6 +1095,10 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* Report errors back to the application. */
     if(HTTPS_FAILED(status))
     {
+        if(pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->errorCallback)
+        {
+            pCurrentHttpsRequest->pCallbacks->errorCallback(pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsRequest, status);
+        }
         pCurrentHttpsResponse->syncStatus = status;
     }
 
@@ -1006,6 +1109,11 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     {
         IotLogDebug("Disconnecting response %d.", pCurrentHttpsResponse);
         disconnectStatus = IotHttpsClient_Disconnect(pHttpsConnection);
+        if((pCurrentHttpsResponse != NULL) && pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->connectionClosedCallback)
+        {
+            pCurrentHttpsRequest->pCallbacks->connectionClosedCallback(pCurrentHttpsRequest->pUserPrivData, pHttpsConnection, disconnectStatus);
+        }
+
         if(HTTPS_FAILED(disconnectStatus))
         {
             IotLogWarn("Failed to disconnect response %d. Error code: %d.", pCurrentHttpsResponse, disconnectStatus);
@@ -1059,7 +1167,14 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
             if(HTTPS_FAILED(status))
             {
                 IotLogError("Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, status);
-                pNextHttpsResponse->syncStatus = status;
+                if(pNextHttpsResponse->isAsync && pNextHttpsRequest->pCallbacks->errorCallback)
+                {
+                    pNextHttpsRequest->pCallbacks->errorCallback(pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, status);
+                }
+                else
+                {
+                    pNextHttpsResponse->syncStatus = status;
+                }
             }
         }
         else
@@ -1068,8 +1183,17 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         }
     }
 
+    /* Signal to a synchronous reponse that the response is complete. */
+    if( pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->responseCompleteCallback )
+    {
+        pCurrentHttpsRequest->pCallbacks->responseCompleteCallback( pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
+    }
+
     /* For a synchronous request release the semaphore. */
-    IotSemaphore_Post(&(pCurrentHttpsResponse->respFinishedSem));
+    if(pCurrentHttpsResponse->isAsync == false)
+    {
+        IotSemaphore_Post(&(pCurrentHttpsResponse->respFinishedSem));
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -1702,10 +1826,26 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     IotDeQueue_EnqueueTail(&(pHttpsConnection->respQ), &(pHttpsResponse->link));
     IotMutex_Unlock(&(pHttpsConnection->respQMutex));
 
+    /* Get the headers from the application. For a synchronous request we should have appended extra headers before
+       we got to this point. */
+    if(pHttpsResponse->isAsync && pHttpsRequest->pCallbacks->appendHeaderCallback)
+    {
+        pHttpsRequest->pCallbacks->appendHeaderCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
+    }
+
     if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
+    }
+
+    /* Ask the user for data to write body to the network. We only ask the user once. This is so that
+       we can calculate the Content-Length to send.*/
+    if(pHttpsResponse->isAsync && pHttpsRequest->pCallbacks->writeCallback)
+    {
+        /* If there is data, then a Content-Length header value will be provided and we send the headers
+           before that user data. */
+        pHttpsRequest->pCallbacks->writeCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
     }
 
     /* Send the HTTP headers. */
@@ -1750,7 +1890,17 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         pHttpsResponse->syncStatus = status;
 
         /* Post to the response finished semaphore to unlock the application waiting on a synchronous request. */
-        IotSemaphore_Post( &(pHttpsResponse->respFinishedSem));
+        if(pHttpsRequest->isAsync == false)
+        {
+            IotSemaphore_Post( &(pHttpsResponse->respFinishedSem));
+        }
+
+        /* Return the error status or cancel status to the application for an asynchronous workflow. */
+        if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->errorCallback)
+        {
+            pHttpsRequest->pCallbacks->errorCallback( pHttpsRequest->pUserPrivData, pHttpsRequest, status );
+        }
+        
     }
     else
     {
@@ -1916,6 +2066,7 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
 
     if( isAsync )
     {
+        pHttpsResponse->isAsync = true;
         /* For an asynchronous request the response body is provided by the application in the 
            IotHttpsCallbacks_t.readReadyCallback(). These pointers will be updated when IotHttpsClient_ReadResponseBody()
            is invoked. */
@@ -1925,6 +2076,7 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     }
     else
     {
+        pHttpsResponse->isAsync = false;
         /* The request body pointer is allowed to be NULL. pSyncInfo was checked for NULL earlier in this function. */
         pHttpsResponse->pBody = pRespInfo->pSyncInfo->pBody;
         pHttpsResponse->pBodyCur = pHttpsResponse->pBody;
@@ -1953,6 +2105,10 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     pHttpsResponse->readHeaderValueLength = 0;
     pHttpsResponse->foundHeaderField = 0;
     pHttpsResponse->pHttpsConnection = NULL;
+    
+    pHttpsResponse->pBodyInHeaderBuf = NULL;
+    pHttpsResponse->pBodyCurInHeaderBuf = NULL;
+    pHttpsResponse->bodyRxStatus = IOT_HTTPS_OK;
     pHttpsResponse->cancelled = false;
     pHttpsResponse->syncStatus = IOT_HTTPS_OK;
 
@@ -2100,7 +2256,15 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->userBuffer.pBuffer );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pHost );
-    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pSyncInfo );
+    if(pReqInfo->isAsync)
+    {
+        HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pAsyncInfo );
+    }
+    else
+    {
+        HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pSyncInfo );
+    }
+    
 
     /* Check of the user buffer is large enough for the request context + default headers. */
     HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( pReqInfo->userBuffer.bufferLen >= requestUserBufferMinimumSize,
@@ -2178,9 +2342,23 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
         HTTPS_GOTO_CLEANUP();
     }
 
-    /* Set the HTTP request entity body. This is allowed to be NULL for no body like for a GET request. */
-    pHttpsRequest->pBody = pReqInfo->pSyncInfo->pBody;
-    pHttpsRequest->bodyLength = pReqInfo->pSyncInfo->bodyLen;
+    if(pReqInfo->isAsync)
+    {
+        pHttpsRequest->isAsync = true;
+        /* If this is an asynchronous request then save the callbacks to use. */
+        pHttpsRequest->pCallbacks = &(pReqInfo->pAsyncInfo->callbacks);
+        pHttpsRequest->pUserPrivData = pReqInfo->pAsyncInfo->pPrivData;
+        /* The body pointer and body length will be filled in when the application sends data in the writeCallback. */
+        pHttpsRequest->pBody = NULL;
+        pHttpsRequest->bodyLength = 0;
+    }
+    else
+    {
+        pHttpsRequest->isAsync = false;
+        /* Set the HTTP request entity body. This is allowed to be NULL for no body like for a GET request. */
+        pHttpsRequest->pBody = pReqInfo->pSyncInfo->pBody;
+        pHttpsRequest->bodyLength = pReqInfo->pSyncInfo->bodyLen;
+    }
 
     /* Save the method of this request. */
     pHttpsRequest->method = pReqInfo->method;
@@ -2273,6 +2451,13 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
 
+    /* If an asynchronous request/response is configured, that is invalid for this API. */
+    if(reqHandle->isAsync)
+    {
+        IotLogError("Called IotHttpsClient_SendSync on an asynchronous configured request.");
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_INVALID_PARAMETER);
+    }
+
     /* Initialize the response handle to return. */
     status = _initializeResponse(pRespHandle, pRespInfo, false /* Not async */, reqHandle->method);
     if(HTTPS_FAILED(status))
@@ -2345,6 +2530,148 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
     }
 
     HTTPS_FUNCTION_CLEANUP_END();
+}
+
+/*-----------------------------------------------------------*/
+
+IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t reqHandle, char *pBuf, uint32_t len, int isComplete)
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
+    /* This function is not valid for a synchronous response. Applications need to configure the request body in 
+       IotHttpsRequestInfo_t.pSyncInfo_t.reqData before calling IotHttpsClient_SendSync(). */
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP(isComplete == 1,
+        IOT_HTTPS_NOT_SUPPORTED,
+        "isComplete must be 1 in IotHttpsClient_WriteRequestBody() for the current version of the HTTPS Client library.");
+
+    /* If the bodyLength is greater than 0, then we already called this function and we need to enforce that this
+       function must only be called once. We only call this function once so that we can calculate the Content-Length. */
+    if(reqHandle->bodyLength > 0)
+    {
+        IotLogError("Error this function must be called once with the data needed to send. Variable length HTTP "
+            "request body is not supported in this library.");
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_MESSAGE_FINISHED);
+    }
+
+    /* Set the pointer to the body and the length for the content-length calculation. */
+    reqHandle->pBody = pBuf;
+    reqHandle->bodyLength = len;
+
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+}
+
+/*-----------------------------------------------------------*/
+
+IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t respHandle, uint8_t * pBuf, uint32_t *pLen)
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    uint32_t bodyLengthInHeaderBuf = 0;
+
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(respHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pBuf);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pLen);
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(respHandle->isAsync);
+
+    /* Set the current body in the respHandle to use in _receiveHttpsBody(). _receiveHttpsBody is generic
+        to both async and sync request/response handling. In the sync version the body is configured during
+        initializing the request. In the async version the body is given in this function on the fly. */
+    respHandle->pBody = pBuf;
+    respHandle->pBodyCur = respHandle->pBody;
+    respHandle->pBodyEnd = respHandle->pBodyCur + *pLen;
+    /* When there is part of the body in the header pBuffer. We need to move that data to this body pBuffer 
+        provided in this fuction. */
+    bodyLengthInHeaderBuf = respHandle->pBodyCurInHeaderBuf - respHandle->pBodyInHeaderBuf;
+    if( bodyLengthInHeaderBuf > 0)
+    {
+        uint32_t copyLength = bodyLengthInHeaderBuf > *pLen ? *pLen : bodyLengthInHeaderBuf;
+        memcpy(respHandle->pBodyCur, respHandle->pBodyInHeaderBuf, copyLength);
+        respHandle->pBodyCur += copyLength;
+        /* This function may be called multiple times until all of the body that may be present in the header buffer is
+           moved out. */
+        respHandle->pBodyInHeaderBuf += copyLength;
+    }
+
+    /* If there is room in the body buffer just provided by the application and we have not completed the current 
+       HTTP response message, then try to receive more body. */
+    if(((respHandle->pBodyEnd - respHandle->pBodyCur) > 0) && (respHandle->parserState < PARSER_STATE_BODY_COMPLETE))
+    {
+        status = _receiveHttpsBody(respHandle->pHttpsConnection, respHandle );
+    }
+
+    *pLen = respHandle->pBodyCur - respHandle->pBody;
+
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    respHandle->bodyRxStatus = status;
+    HTTPS_FUNCTION_CLEANUP_END();
+}
+
+/*-----------------------------------------------------------*/
+
+IotHttpsReturnCode_t IotHttpsClient_CancelRequestAsync(IotHttpsRequestHandle_t reqHandle)
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
+
+    _cancelRequest(reqHandle);
+
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+}
+
+/*-----------------------------------------------------------*/
+
+IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync(IotHttpsResponseHandle_t respHandle)
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( respHandle );
+    
+    _cancelResponse(respHandle);
+
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+}
+
+
+/*-----------------------------------------------------------*/
+
+IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHandle, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t * pRespHandle, IotHttpsResponseInfo_t* pRespInfo)
+{
+    HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
+
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(connHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
+
+    /* Initialize the response handle to return. */
+    status = _initializeResponse(pRespHandle, pRespInfo, true /* Is async. */, reqHandle->method);
+    if(HTTPS_FAILED(status))
+    {
+        IotLogError("Failed to initialize the response on the synchronous request %d.", reqHandle);
+        HTTPS_GOTO_CLEANUP();
+    }
+
+    /* Set the connection handle in the request handle so that we can use it in the _writeResponseBody() callback. */
+    reqHandle->pHttpsConnection = connHandle;
+
+    /* Set the connection handle in the response handle sp that we can use it in the _readReadyCallback() callback. */
+    ( *pRespHandle )->pHttpsConnection = connHandle;
+
+    /* Associate the response to the request so that we can schedule it to be received when the request gets scheduled to send. */
+    reqHandle->pHttpsResponse = *pRespHandle;
+
+    /* Add the request to the connection's request queue. */
+    status = _addRequestToConnectionReqQ(reqHandle);
+    if(HTTPS_FAILED(status))
+    {
+        IotLogError("Failed to add request %d to the connection's request queue. Error code: %d.", reqHandle, status);
+        HTTPS_GOTO_CLEANUP();
+    }
+
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
 }
 
 /*-----------------------------------------------------------*/
