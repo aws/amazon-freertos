@@ -449,6 +449,7 @@ BTStatus_t IotBle_StopAdv( IotBle_StopAdvCallback_t pStopAdvCb )
 {
     BTStatus_t status = eBTStatusSuccess;
 
+    _BTInterface.pStopAdvCb = pStopAdvCb;
     status = _BTInterface.pBTLeAdapterInterface->pxStopAdv( _BTInterface.adapterIf );
 
     return status;
