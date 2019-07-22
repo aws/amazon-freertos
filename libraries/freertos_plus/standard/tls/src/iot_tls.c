@@ -309,7 +309,6 @@ static int prvPrivateKeySigningCallback( void * pvContext,
     TLSContext_t * pxTLSContext = ( TLSContext_t * ) pvContext;
     CK_MECHANISM xMech = { 0 };
     CK_BYTE xToBeSigned[ 256 ];
-    uint8_t ucTemp[ 64 ] = { 0 }; /* A temporary buffer for the pre-formatted signature. */
     CK_ULONG xToBeSignedLen = sizeof( xToBeSigned );
 
     /* Unreferenced parameters. */
@@ -366,52 +365,17 @@ static int prvPrivateKeySigningCallback( void * pvContext,
 
     if( ( xResult == CKR_OK ) && ( CKK_EC == pxTLSContext->xKeyType ) )
     {
-        uint8_t * pucSigPtr;
-
         /* PKCS #11 for P256 returns a 64-byte signature with 32 bytes for R and 32 bytes for S.
-         * This must be converted to an ASN1 encoded array. */
-        configASSERT( *pxSigLen == 64 );
-        memcpy( ucTemp, pucSig, *pxSigLen );
-
-        pucSig[ 0 ] = 0x30; /* Sequence. */
-        pucSig[ 1 ] = 0x44; /* The minimum length the signature could be. */
-        pucSig[ 2 ] = 0x02; /* Integer. */
-
-        if( ucTemp[ 0 ] & 0x80 )
+         * This must be converted to an ASN.1 encoded array. */
+        if( *pxSigLen != pkcs11ECDSA_P256_SIGNATURE_LENGTH )
         {
-            pucSig[ 1 ]++;
-            pucSig[ 3 ] = 0x21;
-            pucSig[ 4 ] = 0x0;
-            memcpy( &pucSig[ 5 ], ucTemp, 32 );
-            pucSigPtr = pucSig + 33 + 4;
-        }
-        else
-        {
-            pucSig[ 3 ] = 0x20;
-            memcpy( &pucSig[ 4 ], ucTemp, 32 );
-            pucSigPtr = pucSig + 32 + 4;
+            xResult = CKR_FUNCTION_FAILED;
         }
 
-        pucSigPtr[ 0 ] = 0x02; /* Integer. */
-        pucSigPtr++;
-
-        if( ucTemp[ 32 ] & 0x80 )
+        if( xResult == CKR_OK )
         {
-            pucSig[ 1 ]++;
-            pucSigPtr[ 0 ] = 0x21;
-            pucSigPtr[ 1 ] = 0x00;
-            pucSigPtr += 2;
-
-            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+            PKI_pkcs11SignatureTombedTLSSignature( pucSig, pxSigLen );
         }
-        else
-        {
-            pucSigPtr[ 0 ] = 0x20;
-            pucSigPtr++;
-            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
-        }
-
-        *pxSigLen = ( CK_ULONG ) pucSig[ 1 ] + 2;
     }
 
     if( xResult != CKR_OK )
