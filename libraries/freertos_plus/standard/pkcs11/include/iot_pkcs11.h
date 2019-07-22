@@ -103,6 +103,14 @@
 #endif
 
 /*
+ * @brief RSA signature padding for interoperability between providing hashed messages
+ * and providing hashed messages encoded with the digest information.
+ *
+ * The TLS connection for mbedTLS expects a hashed, but unpadded input,
+ * and it appended message digest algorithm encoding.  However, the PKCS #11 sign
+ * function either wants unhashed data which it will both hash and pad OR
+ * as done in this workaround, we provide hashed data with padding appended.
+ *
  * DigestInfo :: = SEQUENCE{
  *      digestAlgorithm DigestAlgorithmIdentifier,
  *      digest Digest }

@@ -323,10 +323,15 @@ static int prvPrivateKeySigningCallback( void * pvContext,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    /* If applicable, format the hash data to be signed. */
+    /* Format the hash data to be signed. */
     if( CKK_RSA == pxTLSContext->xKeyType )
     {
         xMech.mechanism = CKM_RSA_PKCS;
+
+        /* mbedTLS expects hashed data without padding, but PKCS #11 C_Sign function performs a hash
+         * & sign if hash algorithm is specified.  This helper function applies padding
+         * indicating data was hashed with SHA-256 while still allowing pre-hashed data to
+         * be provided. */
         xResult = vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
         xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
     }
