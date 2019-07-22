@@ -150,6 +150,9 @@ static uint32_t _nextResponseMessageByteToReceive = 0;
 
 /**
  * @brief A IotHttpsSyncInfo_t for requests and response to share among the tests.
+ * 
+ * Even though the method is a GET method for the test _reqInfo, we apply a request body for unit testing purposes. A
+ * request body is allowed for a GET method according to the HTTP specification, although it is pointless in practice.
  */ 
 static IotHttpsSyncInfo_t _syncRequestInfo = {
     .pBody = HTTPS_TEST_REQUEST_BODY,
@@ -168,7 +171,7 @@ static IotHttpsSyncInfo_t _syncResponseInfo = {
 static IotHttpsRequestInfo_t _reqInfo = {
     .pPath = HTTPS_TEST_PATH,
     .pathLen = sizeof( HTTPS_TEST_PATH ) - 1,
-    .method = IOT_HTTPS_METHOD_PUT,
+    .method = IOT_HTTPS_METHOD_GET,
     .pHost = HTTPS_TEST_ADDRESS,
     .hostLen = sizeof( HTTPS_TEST_ADDRESS ) - 1,
     .isNonPersistent = false,
@@ -636,6 +639,15 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_Sync )
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingBody );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureParsingHeaders );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureParsingBody );
+    // TODO: Without a content-length header we may never reach the onMessageCompleteCallback() so parsing state PARSER_STATE_BODY_COMPLETE may never be assigned 
+    // and we will always return IOT_HTTPS_MESSAGE_TOO_LARGE.
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncSomeBodyInHeaderBuffer );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncSomeHeaderInBodyBuffer );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncEntireResponseInHeaderBuffer );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyTooLarge );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyBufferNull );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncPersistentRequest );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncNonPersistentRequest );
 }
 
 /*-----------------------------------------------------------*/
