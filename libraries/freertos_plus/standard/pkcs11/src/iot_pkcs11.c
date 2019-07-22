@@ -98,8 +98,7 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
 
 /*-----------------------------------------------------------*/
 #ifdef CreateMutex
-    #undef CreateMutex
-    #define CreateMutex    CreateMutex /* This is a hack because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
+    #undef CreateMutex  /* This is a workaround because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
 #endif
 
 CK_RV xInitializePKCS11( void )
