@@ -44,6 +44,7 @@
 #include "aws_demo_config.h"
 #include "platform/iot_network.h"
 #include "private/iot_error.h"
+#include "iot_demo_https_common.h"
 
 /**
  * This demonstates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
@@ -147,14 +148,6 @@
 #define RANGE_HEADER_FIELD          "Range"
 
 /**
- * @brief HTTP standard header value for requesting a range of bytes from 0 to 0.
- * 
- * This is used to get the size of the file from S3. Performing a HEAD request with S3 requires generating a Sigv4 
- * signature in an Authorization header field. We work around this by performing a GET on Range: bytes=0-0. Then 
- * extracting the size of the file from the Content-Range header field in the response. */
-#define RANGE_0_TO_0_HEADER_VALUE   "bytes=0-0"
-
-/**
  * @brief HTTP standard header field "Content-Range"
  */
 #define CONTENT_RANGE_HEADER_FIELD  "Content-Range"
@@ -252,13 +245,6 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     /* The content length of HTTP responses for each request. */
     uint32_t contentLength = 0;
 
-    /* String to store the Content-Range header field value. This header field as we are requesting in this demo is of 
-       the form: "Content-Range: bytes 0-0/FILESIZE", where file size would be the length of the maximum 32 bit integer
-       which is 10.  Since the header field value "bytes 0-0/FILESIZE" is less than the maximum possible Range header
-       field value, we size this string to the Range header field value.*/
-    char contentRangeValStr[RANGE_VALUE_MAX_LENGTH]; 
-    /* The location of the file size in the contentRangeValStr. */
-    char * pFileSizeStr = NULL;
     /* The size of the file we are trying to download in S3. */
     uint32_t fileSize = 0;
     /* The number of bytes we want to request with in each range of the file bytes. */
@@ -267,8 +253,6 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     uint32_t curByte = 0;
     /* Buffer to write the Range: header value string. */
     char rangeValueStr[RANGE_VALUE_MAX_LENGTH] = { 0 };
-    /* Size in bytes of a single character. */
-    uint8_t sizeOfOneChar = 1;
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath(IOT_DEMO_HTTPS_PRESIGNED_GET_URL, 
@@ -300,7 +284,8 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     connConfig.pAddress = pAddress;
     connConfig.addressLen = addressLen;
     connConfig.port = IOT_DEMO_HTTPS_PORT;
-    connConfig.flags |= IOT_HTTPS_DISABLE_SNI; /* Disable SNI, enable TLS, enable Persistent connections, is HTTP/1.1 */
+    /* We disable SNI here because the address specified includes the S3 bucket name. */
+    connConfig.flags |= IOT_HTTPS_DISABLE_SNI;
     connConfig.pCaCert = IOT_DEMO_HTTPS_TRUSTED_ROOT_CA;
     connConfig.caCertLen = sizeof(IOT_DEMO_HTTPS_TRUSTED_ROOT_CA);
     connConfig.userBuffer.pBuffer = _pConnUserBuffer;
@@ -333,6 +318,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     reqConfig.isNonPersistent = false;
     reqConfig.userBuffer.pBuffer = _pReqUserBuffer;
     reqConfig.userBuffer.bufferLen = sizeof(_pReqUserBuffer);
+    reqConfig.isAsync = false;
     reqConfig.pSyncInfo = &reqSyncInfo;
 
     /* Set the response configurations. */ 
@@ -348,30 +334,6 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    /* Initialize the request. This will create a request line and add required headers into the reqUserBuffer. */
-    httpsClientStatus = IotHttpsClient_InitializeRequest( &reqHandle, &reqConfig );
-    if( httpsClientStatus != IOT_HTTPS_OK )
-    {
-        IotLogError("An error occurred in IotHttpsClient_InitializeRequest() with error code: %d", httpsClientStatus);
-        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
-    }
-
-    /* Get the size of the file specified in the S3 presigned URL. */
-
-    /* Performing a HEAD request with S3 requires generating a Sigv4 signature in an Authorization header field. We work 
-       around this by performing a GET on Range: bytes=0-0. Then extracting the size of the file from the 
-       Content-Range header field in the response. */
-    httpsClientStatus = IotHttpsClient_AddHeader( reqHandle, 
-        RANGE_HEADER_FIELD, 
-        RANGE_0_TO_0_HEADER_VALUE, 
-        strlen( RANGE_0_TO_0_HEADER_VALUE ) );
-    if( httpsClientStatus != IOT_HTTPS_OK )
-    {
-        IotLogError( "Failed to write the header \"Range: bytes=0-0\" into the request. With error code: %d", 
-            httpsClientStatus );
-        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
-    }
-
     /* Connect to S3. */
     httpsClientStatus = IotHttpsClient_Connect(&connHandle, &connConfig);
     if( httpsClientStatus != IOT_HTTPS_OK)
@@ -380,38 +342,23 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
-    if( httpsClientStatus != IOT_HTTPS_OK )
+    /* Get the size of the file specified in the S3 presigned URL. */
+
+    /* Verify the file was uploaded by retrieving the file size. */ 
+    if( _IotHttpsDemo_GetS3ObjectFileSize( &fileSize,
+            connHandle, 
+            pPath, 
+            strlen(pPath), 
+            pAddress, 
+            addressLen,
+            _pReqUserBuffer, 
+            IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE, 
+            _pRespUserBuffer, 
+            IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE) != EXIT_SUCCESS )
     {
-        IotLogError( "There has been an error receiving the response. The error code is: %d", httpsClientStatus );
+        IotLogError("Failed to retrieve the s3 object size.");
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
-
-    /* If the server could not response with a 206 Partial Content response, then there was a problem retrieving the
-       file size and we will exit the demo. */
-    IotHttpsClient_ReadResponseStatus(respHandle, &respStatus );
-    if( respStatus != IOT_HTTPS_STATUS_PARTIAL_CONTENT)
-    {
-        IotLogError("Could not retrieve the file size. s3 responded with response status: %d", respStatus);
-        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
-    }
-
-    /* Get the file size by parsing the "bytes 0-0/FILESIZE" Content-Range header value string. */
-    httpsClientStatus = IotHttpsClient_ReadHeader( respHandle, 
-        CONTENT_RANGE_HEADER_FIELD, 
-        contentRangeValStr, 
-        sizeof(contentRangeValStr) );
-    pFileSizeStr = strstr( contentRangeValStr, "/" );
-    if(pFileSizeStr == NULL)
-    {
-        IotLogError("Expected the header value \"bytes 0-0/FILESIZE\" to be retrieved, but \"/\" could not be found in \
-        in the header value.");
-        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
-
-    }
-    /* The file size string is the next character after the "/" */
-    pFileSizeStr += sizeOfOneChar;
-    fileSize = (uint32_t)strtoul(pFileSizeStr, NULL, 10);
 
     /* The number of bytes we want to request each time is the size of the buffer or the file size if it is smaller than 
        the buffer size, then the size of the file. */
@@ -438,7 +385,11 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         }
 
         /* Get the Range header value string. */
-        int numWritten = snprintf(rangeValueStr, RANGE_VALUE_MAX_LENGTH, "bytes=%d-%d", curByte, curByte + numReqBytes - 1);
+        int numWritten = snprintf(rangeValueStr, 
+            RANGE_VALUE_MAX_LENGTH, 
+            "bytes=%u-%u", 
+            (unsigned int)curByte, 
+            (unsigned int)(curByte + numReqBytes - 1));
         if(numWritten < 0)
         {
             IotLogError("Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",

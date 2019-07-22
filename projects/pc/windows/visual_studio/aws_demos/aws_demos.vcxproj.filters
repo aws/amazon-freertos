@@ -1577,7 +1577,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c">
       <Filter>libraries\3rdparty\mbedtls\utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_sync.c">
+    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c">
       <Filter>demos\https</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\https\src\iot_https_client.c">
@@ -1588,6 +1588,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c">
       <Filter>libraries\3rdparty\http-parser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c">
+      <Filter>demos\https</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_common.c">
+      <Filter>demos\https</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
