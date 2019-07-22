@@ -33,12 +33,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-/* HTTPS Client library includes. */
-#include "iot_https_client.h"
+#include <stdio.h>
 
 /* Third party http-parser include. */
 #include "http_parser.h"
+
+/* HTTPS Client library includes. */
+#include "iot_https_client.h"
 
 /* Task pool include. */
 #include "iot_taskpool.h"
@@ -214,6 +215,8 @@
  */
 #define HTTPS_HEADER_FIELD_SEPARATOR                ": "
 #define HTTPS_HEADER_FIELD_SEPARATOR_LENGTH         ( 2 )
+#define COLON_CHARACTER                             ':'
+#define SPACE_CHARACTER                             ' '
 
 /**
  * Constants for HTTP header formatting.
@@ -222,6 +225,8 @@
  */
 #define HTTPS_END_OF_HEADER_LINES_INDICATOR         "\r\n"
 #define HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH  ( 2 )
+#define CARRIAGE_RETURN_CHARACTER                   '\r'
+#define NEWLINE_CHARACTER                           '\n'
 
 /*
  * Constants for header fields added automatically during the request initialization.
@@ -369,10 +374,26 @@ typedef struct _httpsConnection
     const IotNetworkInterface_t * pNetworkInterface;  /**< @brief Network interface with calls for connect, disconnect, send, and receive. */
     void *pNetworkConnection;                   /**< @brief Pointer to the network connection to use pNetworkInterface calls on. */
     uint32_t timeout;                           /**< @brief Timeout for a connection and waiting for a response from the network. */
-    bool isConnected;                           /**< @brief true if a connection was successful most recently on this context. We have no way of knowing if the 
-                                                            server closed the connection because that error is unique to the underlying TLS layer. This is set
-                                                            to false initially, set to true for a successful intentional call to connect, and then set to false only
-                                                            after an explicit disconnect with a non-persistent request or a call to @ref https_client_function_disconnect. */
+    /**
+     * @brief true if a connection was successful most recently on this context
+     * 
+     * We have no way of knowing if the server closed the connection because that error is unique to the underlying TLS 
+     * layer. This is set to false initially, then set to true for a successful intentional call to connect.
+     * Post connection, this is set to false only after an implicit disconnect with a non-persistent request, an implicit
+     * disconnect with a network error, or an explicit disconnect with a call to @ref https_client_function_disconnect. 
+     */
+    bool isConnected;
+    bool isDestroyed;                           /**< @brief true if the connection is already destroyed and we should call anymore  */
+    /**
+     * @brief true if the a connection is in the process of disconnecting.
+     * 
+     * Mutexes are large and expensive, so it is better to just check a variable then return.
+     * No threads are planned to wait if disconnecting is in process and busy. If this is set to true, the thread will 
+     * return right away that the function is busy. If IotHttpsClient_Disconnect() is called by two threads at once, 
+     * then this variable protects the pNetworkInterface operations from being called after the connection has been
+     * destroyed.
+     */
+    bool isDisconnecting;                       
     IotMutex_t reqQMutex;                       /**< @brief Mutex protecting operations on the request queue. */
     IotMutex_t respQMutex;                      /**< @brief Mutex protecting operation son the response queue. */
     IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */
@@ -427,6 +448,10 @@ typedef struct _httpsResponse
      * This is also needed to to check if the associate response has finished sending all of it's header and body.
      */
     struct _httpsRequest *pHttpsRequest;        
+    bool isAsync;           /**< @brief This is set to true if this response is to be retrieved asynchronously. Set to false otherwise. */
+    uint8_t * pBodyInHeaderBuf;     /**< @brief Pointer to the start of body inside the header buffer for copying to a body buffer provided later by the asyncrhonous response process. */
+    uint8_t * pBodyCurInHeaderBuf;  /**< @brief Pointer to the next location to write body data during processing of the header buffer. This is necessary in case there is a chunk encoded HTTP response. */
+    IotHttpsReturnCode_t bodyRxStatus;  /**< @brief The status of the receiving the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.readReadyCallback(). */
     bool cancelled;         /**< @brief This is set to true to stop the request/response processing in the asynchronous request workflow. */
     IotSemaphore_t respFinishedSem;     /**< @brief This is for synchronous response to post that is is finished being received. It is better to use a task event signal, but that is not implemented yet in the iot_threads.h API. */
     IotHttpsReturnCode_t syncStatus;    /**< @brief The status of the synchronous response. */
@@ -448,6 +473,9 @@ typedef struct _httpsRequest
     struct _httpsResponse *pHttpsResponse;     /**< @brief Response associated with request. This is initialized during IotHttpsClient_InitializeRequest(), then returned to the application in IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
     struct _httpsConnection *pHttpsConnection;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync(). It is needed for the asynchronous workflow to use to send data given the reqHandle only in the callback. */
     bool isNonPersistent;   /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the response. */
+    bool isAsync;           /**< @brief This is set to true if this request is to be sent asynchronously. Set to false otherwise. */
+    void * pUserPrivData;   /**< @brief User private data to hand back in the asynchronous callbacks for context. */
+    IotHttpsClientCallbacks_t* pCallbacks;   /**< @brief Pointer to the asynchronous request callbacks. */
     bool cancelled;         /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
     /**
      * @brief This is set to true to when the request is finished being sent on the network
@@ -468,7 +496,7 @@ typedef struct _httpsRequest
  */
 static const char* _pHttpsMethodStrings[] = {
     "GET",
-    "HEAD"
+    "HEAD",
 };
 
 #endif /* IOT_HTTPS_INTERNAL_H_ */
