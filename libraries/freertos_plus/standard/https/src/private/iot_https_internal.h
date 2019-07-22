@@ -427,6 +427,10 @@ typedef struct _httpsResponse
      * This is also needed to to check if the associate response has finished sending all of it's header and body.
      */
     struct _httpsRequest *pHttpsRequest;        
+    bool isAsync;           /**< @brief This is set to true if this response is to be retrieved asynchronously. Set to false otherwise. */
+    uint8_t * pBodyInHeaderBuf;     /**< @brief Pointer to the start of body inside the header buffer for copying to a body buffer provided later by the asyncrhonous response process. */
+    uint8_t * pBodyCurInHeaderBuf;  /**< @brief Pointer to the next location to write body data during processing of the header buffer. This is necessary in case there is a chunk encoded HTTP response. */
+    IotHttpsReturnCode_t bodyRxStatus;  /**< @brief The status of the receiving the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.readReadyCallback(). */
     bool cancelled;         /**< @brief This is set to true to stop the request/response processing in the asynchronous request workflow. */
     IotSemaphore_t respFinishedSem;     /**< @brief This is for synchronous response to post that is is finished being received. It is better to use a task event signal, but that is not implemented yet in the iot_threads.h API. */
     IotHttpsReturnCode_t syncStatus;    /**< @brief The status of the synchronous response. */
@@ -448,6 +452,9 @@ typedef struct _httpsRequest
     struct _httpsResponse *pHttpsResponse;     /**< @brief Response associated with request. This is initialized during IotHttpsClient_InitializeRequest(), then returned to the application in IotHttpsClient_SendAsync() and IotHttpsClient_SendSync(). */
     struct _httpsConnection *pHttpsConnection;   /**< @brief Connection associated with request. This is set during IotHttpsClient_SendAsync(). It is needed for the asynchronous workflow to use to send data given the reqHandle only in the callback. */
     bool isNonPersistent;   /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the response. */
+    bool isAsync;           /**< @brief This is set to true if this request is to be sent asynchronously. Set to false otherwise. */
+    void * pUserPrivData;   /**< @brief User private data to hand back in the asynchronous callbacks for context. */
+    IotHttpsClientCallbacks_t* pCallbacks;   /**< @brief Pointer to the asynchronous request callbacks. */
     bool cancelled;         /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
     /**
      * @brief This is set to true to when the request is finished being sent on the network
@@ -468,7 +475,9 @@ typedef struct _httpsRequest
  */
 static const char* _pHttpsMethodStrings[] = {
     "GET",
-    "HEAD"
+    "HEAD",
+    "PUT",
+    "POST"
 };
 
 #endif /* IOT_HTTPS_INTERNAL_H_ */
