@@ -1805,6 +1805,9 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
     _httpsResponse_t* pHttpsResponse = pHttpsRequest->pHttpsResponse;
 
+    (void)pTaskPool;
+    (void)pJob;
+
     IotLogDebug( "Task with request ID: %d started.", pHttpsRequest );
 
     if(pHttpsRequest->cancelled == true)
@@ -2534,7 +2537,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t reqHandle, char *pBuf, uint32_t len, int isComplete)
+IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t reqHandle, uint8_t *pBuf, uint32_t len, int isComplete)
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
@@ -2556,7 +2559,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
     }
 
     /* Set the pointer to the body and the length for the content-length calculation. */
-    reqHandle->pBody = pBuf;
+    reqHandle->pBody = (uint8_t*)pBuf;
     reqHandle->bodyLength = len;
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();

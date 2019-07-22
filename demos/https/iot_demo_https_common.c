@@ -126,7 +126,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
 
     /* Set the request configurations. */
     fileSizeReqConfig.pPath = pPath; 
-    fileSizeReqConfig.pathLen = strlen( pPath );
+    fileSizeReqConfig.pathLen = pathLen;
     fileSizeReqConfig.pHost = pAddress;
     fileSizeReqConfig.hostLen = addressLen;
     fileSizeReqConfig.method = IOT_HTTPS_METHOD_GET;  /* Performing a HEAD request with S3 requires generating a Sigv4 signature 
