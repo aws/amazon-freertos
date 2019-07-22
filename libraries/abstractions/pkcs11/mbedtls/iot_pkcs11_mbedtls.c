@@ -364,11 +364,14 @@ void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
     *pxLabelLength = 0;
     *pxPalHandle = CK_INVALID_HANDLE;
 
-    if( xP11Context.xObjectList.xObjects[ lIndex ].xHandle != CK_INVALID_HANDLE )
+    if( lIndex < pkcs11configMAX_NUM_OBJECTS ) /* Check that handle is in bounds. */
     {
-        *ppcLabel = xP11Context.xObjectList.xObjects[ lIndex ].xLabel;
-        *pxLabelLength = strlen( ( const char * ) xP11Context.xObjectList.xObjects[ lIndex ].xLabel ) + 1;
-        *pxPalHandle = xP11Context.xObjectList.xObjects[ lIndex ].xHandle;
+        if( xP11Context.xObjectList.xObjects[ lIndex ].xHandle != CK_INVALID_HANDLE )
+        {
+            *ppcLabel = xP11Context.xObjectList.xObjects[ lIndex ].xLabel;
+            *pxLabelLength = strlen( ( const char * ) xP11Context.xObjectList.xObjects[ lIndex ].xLabel ) + 1;
+            *pxPalHandle = xP11Context.xObjectList.xObjects[ lIndex ].xHandle;
+        }
     }
 }
 
@@ -383,12 +386,20 @@ void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
 CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 {
     CK_RV xResult = CKR_OK;
-    BaseType_t xGotSemaphore;
+    BaseType_t xGotSemaphore = pdFALSE;
     int lIndex = xAppHandle - 1;
 
-    xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
+    if( lIndex >= pkcs11configMAX_NUM_OBJECTS )
+    {
+        xResult = CKR_OBJECT_HANDLE_INVALID;
+    }
 
-    if( xGotSemaphore == pdTRUE )
+    if( xResult == CKR_OK )
+    {
+        xGotSemaphore = xSemaphoreTake( xP11Context.xObjectList.xMutex, portMAX_DELAY );
+    }
+
+    if( ( xGotSemaphore == pdTRUE ) && ( xResult == CKR_OK ) )
     {
         if( xP11Context.xObjectList.xObjects[ lIndex ].xHandle != CK_INVALID_HANDLE )
         {
@@ -567,7 +578,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 )
 
 /* Returns True if the object is not stored in NVM & must be looked up in header file.
- * Returns fals if object is an NVM supported object. */
+ * Returns false if object is an NVM supported object. */
 
     BaseType_t xIsObjectWithNoNvmStorage( uint8_t * pucLabel,
                                           size_t xLength,
