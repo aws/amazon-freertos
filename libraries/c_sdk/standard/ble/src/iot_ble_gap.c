@@ -309,7 +309,8 @@ void _advStatusCb( BTStatus_t status,
         {
             _BTInterface.pStartAdvCb( status );
         }
-    }else
+    }
+    else
     {
         if( _BTInterface.pStopAdvCb != NULL )
         {
