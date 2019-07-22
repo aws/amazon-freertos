@@ -84,6 +84,7 @@ typedef struct
     IotListDouble_t subscrEventListHead[ eNbEvents ]; /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */
     uint16_t handlePendingPrepareWrite;
     IotBle_StartAdvCallback_t pStartAdvCb;
+    IotBle_StopAdvCallback_t pStopAdvCb;
     BTInterface_t * pBTInterface;
     BTBleAdapter_t * pBTLeAdapterInterface;
     BTGattServerInterface_t * pGattServerInterface;

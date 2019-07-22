@@ -777,6 +777,7 @@ typedef struct
      *
      * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp
      * @param[in] bSetScanRsp
+     * @param[in] bIncludeName
      * @param[in] bInclTxpower
      * @param[in] ulAppearance
      * @param[in] xManufacturerLen
@@ -789,6 +790,7 @@ typedef struct
      */
     BTStatus_t ( * pxMultiAdvSetInstData )( uint8_t ucAdapterIf,
                                             bool bSetScanRsp,
+                                            bool bIncludeName,
                                             bool bInclTxpower,
                                             uint32_t ulAppearance,
                                             size_t xManufacturerLen,

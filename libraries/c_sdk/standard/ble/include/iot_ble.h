@@ -254,11 +254,19 @@ typedef void (* IotBle_ConnectionCallback_t)( BTStatus_t status,
 
 /**
  * @ingroup ble_datatypes_functionpointers
- * @brief  Callback indicating the status of a listen() operation. Invoked on BLE_StartAdv.
+ * @brief  Callback indicating the status of start advertisement operation. Invoked on BLE_StartAdv.
  *
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
  */
 typedef void (* IotBle_StartAdvCallback_t)( BTStatus_t status );
+
+/**
+ * @ingroup ble_datatypes_functionpointers
+ * @brief  Callback indicating the status of stop advertisement operation. Invoked on BLE_StopAdv.
+ *
+ * @param[in] status Returns eBTStatusSuccess if operation succeeded.
+ */
+typedef void (* IotBle_StopAdvCallback_t)( BTStatus_t status );
 
 /**
  * @ingroup ble_datatypes_functionpointers
@@ -498,7 +506,7 @@ BTStatus_t IotBle_Off( void );
 
 /**
  * @brief Start advertisements to listen for incoming connections.
- *
+ * Triggers IotBle_StartAdvCallback_t
  * @return Returns eBTStatusSuccess on successful call.
  */
 /* @[declare_iotble_startadv] */
@@ -507,11 +515,11 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb );
 
 /**
  * @brief Stop advertisements to listen for incoming connections.
- *
+ * Triggers IotBle_StopAdvCallback_t
  * @return Returns eBTStatusSuccess on successful call.
  */
 /* @[declare_iotble_stopadv] */
-BTStatus_t IotBle_StopAdv( void );
+BTStatus_t IotBle_StopAdv( IotBle_StopAdvCallback_t pStopAdvCb );
 /* @[declare_iotble_stopadv] */
 
 /**
