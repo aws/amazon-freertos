@@ -64,16 +64,6 @@
  */
 #define HTTPS_PARTIAL_HOST_HEADER_LINE          HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_END_OF_HEADER_LINES_INDICATOR   
 
-/**
- * @brief The maximum Content-Length header line size.
- * 
- * This is the length of header line string: "Content-Length: 4294967296\r\n". 4294967296 is 2^32. This number is chosen
- * because it is the maximum file size that can be represented in a 32 bit system.
- * 
- * This is used to initialize a local array for the final headers to send.
- */
-#define HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH    ( 26 )
-
 /*
  * String constants for the Connection header and possible values.
  * 

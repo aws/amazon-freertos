@@ -236,12 +236,22 @@
 #define HTTPS_CONNECTION_HEADER                     "Connection"
 
 /**
+ * @brief The maximum Content-Length header line size.
+ * 
+ * This is the length of header line string: "Content-Length: 4294967296\r\n". 4294967296 is 2^32. This number is chosen
+ * because it is the maximum file size that can be represented in a 32 bit system.
+ * 
+ * This is used to initialize a local array for the final headers to send.
+ */
+#define HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH    ( 26 )
+
+/**
  * @brief Macro for fast string length calculation of string macros.
  * 
  * We subtract 1 to subtract the NULL terminating character.
  * We do not assume that the size of a character is a single byte or 8 bits with this calculation.
  */
-#define FAST_MACRO_STRLEN( x )  (sizeof( x ) / sizeof( char )) - 1
+#define FAST_MACRO_STRLEN( x )                  ( (sizeof( x ) / sizeof( char )) - 1 )
 
 /*-----------------------------------------------------------*/ 
 
