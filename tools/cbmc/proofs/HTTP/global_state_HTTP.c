@@ -124,7 +124,7 @@ IotHttpsConnectionInfo_t * newConnectionInfo() {
 IotHttpsConnectionHandle_t newIotConnectionHandle () {
   IotHttpsConnectionHandle_t pConnectionHandle = safeMalloc(sizeof(_connHandle_t));
   if(pConnectionHandle) {
-    pConnectionHandle->pNetworkConnection = safeMalloc(sizeof(_connHandle_t));
+    pConnectionHandle->pNetworkConnection = safeMalloc(sizeof(uint32_t));
     pConnectionHandle->pNetworkInterface = newNetworkInterface();
     pConnectionHandle->reqQ.pPrevious = safeMalloc(sizeof(IotLink_t));
     pConnectionHandle->reqQ.pNext = safeMalloc(sizeof(IotLink_t));
@@ -143,12 +143,12 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
     if(pResponseHandle->pHttpsRequest) {
       pResponseHandle->pHttpsRequest->pHttpsResponse = pResponseHandle;
     }
-    pResponseHandle->pHeaders = (uint8_t *)pResponseHandle;
+    pResponseHandle->pHeaders = safeMalloc(sizeof(pResponseHandle) + sizeof(struct _httpResponse));
     pResponseHandle->pHeadersCur = pResponseHandle->pHeaders;
-    pResponseHandle->httpParserInfo.readHeaderParser.data = pResponseHandle; //???
+    pResponseHandle->httpParserInfo.readHeaderParser.data = pResponseHandle;
     pResponseHandle->httpParserInfo.parseFunc = http_parser_execute;
     pResponseHandle->pReadHeaderValue = safeMalloc(sizeof(uint32_t));
-    pResponseHandle->pHeadersEnd = pResponseHandle->pHeaders + sizeof(_resHandle_t) ;
+    pResponseHandle->pHeadersEnd = safeMalloc(sizeof(pResponseHandle) + sizeof(_resHandle_t)); ;
     __CPROVER_assume(pResponseHandle->readHeaderValueLength >= 0 &&
     pResponseHandle->readHeaderValueLength <= (pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders));
     pResponseHandle->pReadHeaderValue = malloc(pResponseHandle->readHeaderValueLength);
@@ -158,17 +158,17 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
 
 /* Creates a Request Handle and assigns memory accordingly. */
 IotHttpsRequestHandle_t newIotRequestHandle() {
-  IotHttpsRequestHandle_t requestHandle = safeMalloc(sizeof(_reqHandle_t));
-  if (requestHandle) {
-    requestHandle->pHttpsResponse = newIotResponseHandle();
-    requestHandle->pHttpsConnection = newIotConnectionHandle();
-    requestHandle->pBody = malloc(sizeof(uint32_t));
-    requestHandle->pHeaders = (uint8_t *)requestHandle;
-    requestHandle->pHeadersCur = requestHandle->pHeaders;
-    requestHandle->pHeadersEnd = requestHandle->pHeaders  + sizeof(_resHandle_t) ;
-    requestHandle->pConnInfo = newConnectionInfo();
+  IotHttpsRequestHandle_t pRequestHandle = safeMalloc(sizeof(_reqHandle_t));
+  if (pRequestHandle) {
+    pRequestHandle->pHttpsResponse = newIotResponseHandle();
+    pRequestHandle->pHttpsConnection = newIotConnectionHandle();
+    pRequestHandle->pBody = malloc(sizeof(uint32_t));
+    pRequestHandle->pHeaders = safeMalloc(sizeof(pRequestHandle) + sizeof(struct _httpRequest));
+    pRequestHandle->pHeadersCur = pRequestHandle->pHeaders;
+    pRequestHandle->pHeadersEnd = safeMalloc(sizeof(pRequestHandle) + sizeof(_reqHandle_t));
+    pRequestHandle->pConnInfo = newConnectionInfo();
   }
-  return requestHandle;
+  return pRequestHandle;
 }
 
 /* Creates a Request Info and assigns memory accordingly. */
