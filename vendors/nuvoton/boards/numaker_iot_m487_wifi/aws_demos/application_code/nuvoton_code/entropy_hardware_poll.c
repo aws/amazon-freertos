@@ -42,7 +42,10 @@ int  adc_trng_gen_bit()
 {
     uint32_t   new_val, average;
     int        ret_val;
-    int ref_bg_ub = ((1.2/3.3)*4095) + 50;
+    /* Internal full scale voltage 3.3v, internal measure voltage 1.2v  */
+    /* ADC 12 bits, it's resolution 0~4095 */
+    /* To filter peak, set sampling data range as -50 ~ +50 */
+    int ref_bg_ub = ((1.2/3.3)*4095) + 50; 
     int ref_bg_lb = ((1.2/3.3)*4095) - 50;
     
     do{
