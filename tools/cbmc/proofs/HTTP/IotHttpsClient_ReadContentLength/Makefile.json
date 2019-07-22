@@ -1,0 +1,13 @@
+{
+  "ENTRY": "IotHttpsClient_ReadContentLength",
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--nondet-static"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/iot_https_client.goto"
+  ]
+}

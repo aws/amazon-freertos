@@ -23,6 +23,8 @@
 	"$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/include",
 	"$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement",
 	"$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/MSVC",
+	"$(FREERTOS)/libraries/freertos_plus/standard/https/include",
+	"$(FREERTOS)/libraries/freertos_plus/standard/https/src/private",
 	"$(FREERTOS)/libraries/freertos_plus/aws/ota/include",
 	"$(FREERTOS)/libraries/3rdparty/mbedtls/include/mbedtls",
 	"$(FREERTOS)/libraries/3rdparty/tracealyzer_recorder/Include",
@@ -30,9 +32,14 @@
 	"$(FREERTOS)/libraries/3rdparty/pkcs11",
 	"$(FREERTOS)/libraries/3rdparty/tinycbor",
 	"$(FREERTOS)/libraries/3rdparty/win_pcap",
+	"$(FREERTOS)/libraries/3rdparty/http-parser",
 	"$(FREERTOS)/libraries/c_sdk/standard/serializer/src/cbor",
 	"$(FREERTOS)/libraries/c_sdk/aws/defender/include",
-	"$(FREERTOS)/tools/cbmc/include"
+	"$(FREERTOS)/tools/cbmc/include",
+	"$(FREERTOS)/libraries/c_sdk/standard/common/include/",
+	"$(FREERTOS)/libraries/abstractions/platform/include/",
+	"$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
+	"../../include"
     ],
 
     "CBMCFLAGS ": [
