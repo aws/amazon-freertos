@@ -289,19 +289,6 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * 
  * This function blocks waiting for the entirety of sending the request and receiving the response. 
  * 
- * If parameter pConnHandle is passed in pointing to a NULL #IotHttpsConnectionHandle_t, then a connection is to be made 
- * implicitly and a valid connection handle in pConnHandle will be returned. 
- * If parameter pConnHandle points to a non-NULL #IotHttpsConnectionHandle_t and it is in a disconnected state, then a 
- * connection is to be made implicitly and valid connection handle in pConnHandle will be returned. 
- * In each implicit connection case #IotHttpsRequestHandle_t reqHandle must have been returned from 
- * @ref https_client_function_initializerequest where the #IotHttpsRequestInfo_t request configuration contained a 
- * non-NULL #IotHttpsRequestInfo_t.pConnInfo. Please see #IotHttpsConnectionInfo_t for connection configurations. 
- * 
- * For am implicit connection:
- * This function opens a new HTTPS connection to the server specified in #IotHttpsConnectionInfo_t. The connection 
- * is established by default on top of TLS over TCP. If the application wants to connect over TCP only, then it must
- * add the @ref IOT_HTTPS_IS_NON_TLS_FLAG to #IotHttpsConnectionInfo_t.flags. This is done at the application's own risk.
- * 
  * If #IotHttpsRequestInfo_t.isNonPersistent is set to true, then the connection will disconnect, close, and clean all 
  * taken resources automatically after receiving the first response.
  * 
