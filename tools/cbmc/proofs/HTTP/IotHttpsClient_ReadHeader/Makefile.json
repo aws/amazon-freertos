@@ -1,0 +1,23 @@
+{
+  "ENTRY": "IotHttpsClient_ReadHeader",
+  ################################################################
+  # This configuration sets MAX_ACCEPTED_SIZE to 20.
+  "MAX_ACCEPTED_SIZE": 20,
+  "STRNCPY_UNWIND": "__eval {MAX_ACCEPTED_SIZE} + 1",
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--unwindset __builtin___strncpy_chk.0:{STRNCPY_UNWIND},strncpy.0:{STRNCPY_UNWIND}",
+    "--nondet-static"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/iot_https_client.goto"
+  ],
+  "DEF":
+  [
+    "MAX_ACCEPTED_SIZE={MAX_ACCEPTED_SIZE}"
+  ]
+}
+

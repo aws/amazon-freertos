@@ -1,0 +1,20 @@
+{
+  "ENTRY": "IotHttpsClient_Connect",
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--unwindset strlen.0:5"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/iot_https_client.goto"
+  ],
+  "INSTFLAGS":
+  [
+    "--remove-function-body _httpParserOnHeadersCompleteCallback",
+    "--remove-function-body _httpParserOnMessageBeginCallback",
+    "--remove-function-body _httpParserOnMessageCompleteCallback",
+    "--remove-function-body IotNetworkInterfaceDestroy"
+  ]
+}
