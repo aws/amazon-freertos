@@ -346,7 +346,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * - Please see #IotHttpsReturnCode_t for other failure codes.
  */
 /* @[declare_https_client_writerequestbody] */
-IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t reqHandle, char *pBuf, uint32_t len, int isComplete);
+IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t reqHandle, uint8_t* pBuf, uint32_t len, int isComplete);
 /* @[declare_https_client_writerequestbody] */
 
 /**

@@ -351,7 +351,7 @@ static void _appendHeaderCallback(void *pPrivData, IotHttpsRequestHandle_t reqHa
 static void _readReadyCallback( void * pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status )
 {
     /* The content length of this HTTP response. */
-    uint32_t contentLength = -1;
+    uint32_t contentLength = 0;
     /* The amount of body read during this callback. */
     uint32_t readLen;
     /* The range value string, of the increment of file to download, from the user private data will be referenced with 
@@ -423,6 +423,11 @@ static void _readReadyCallback( void * pPrivData, IotHttpsResponseHandle_t respH
 static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status )
 {
     _asyncDownloadData_t* pDownloadData = ( _asyncDownloadData_t* )( pPrivData );
+
+    ( void )respHandle;
+    ( void )rc;
+    ( void )status;
+
     IotLogInfo( "Part %s has been fully processed.", pDownloadData->rangeValueStr );
     
     /* Free up this request from the request pool. */
@@ -461,6 +466,9 @@ static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_
  */
 static void _connectionClosedCallback(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc)
 {
+    ( void )pPrivData;
+    ( void )connHandle;
+    ( void )rc;
     IotLogInfo( "Connection with the s3 server has been closed." );
 }
 
@@ -475,6 +483,7 @@ static void _connectionClosedCallback(void * pPrivData, IotHttpsConnectionHandle
  */
 static void _errorCallback(void * pPrivData, IotHttpsRequestHandle_t reqHandle, IotHttpsReturnCode_t rc)
 {
+    ( void )reqHandle;
     char * rangeValueStr = ((_asyncDownloadData_t*)(pPrivData))->rangeValueStr;
     IotLogError( "An error occurred during asynchronous operation with code: %d", rangeValueStr, rc );
 }
@@ -609,7 +618,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     if( _IotHttpsDemo_GetS3ObjectFileSize( &_fileSize,
             connHandle, 
             pPath, 
-            pathLen, 
+            strlen(pPath), 
             pAddress, 
             addressLen,
             _pReqUserBuffers[0], 
