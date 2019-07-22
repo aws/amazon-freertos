@@ -78,8 +78,8 @@ void vDevModeKeyProvisioning( void );
  * \param[in] pxParams       Pointer to an initialized provisioning
  *                           structure.
  *
- * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
- * Note that PKCS #11 error codes are positive.
+ * \return CKR_OK upon successful key creation. 
+ * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                         ProvisioningParams_t * pxParams );
@@ -103,8 +103,8 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
  * \param[out] pxObjectHandle      Points to the location that receives the PKCS #11
  *                                 private key handle created.
  *
- * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
- * Note that PKCS #11 error codes are positive.
+ * \return CKR_OK upon successful key creation. 
+ * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
@@ -124,8 +124,8 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
  * \param[out] pxPublicKeyHandle     Points to the location that receives the PKCS #11 public
  *                                   key handle created.
  *
- * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
- * Note that PKCS #11 error codes are positive.
+ * \return CKR_OK upon successful key creation.
+ * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
                            uint8_t * pucKey,
@@ -214,7 +214,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
  *   \param[in] xSession         A valid PKCS #11 session handle.
  *
  *   \return CKR_OK if all credentials were destroyed.
- *   Otherwise, a postiive PKCS #11 error code.
+ *   Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession );
 

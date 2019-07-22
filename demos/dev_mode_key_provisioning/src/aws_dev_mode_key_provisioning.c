@@ -139,9 +139,9 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
 
 
 /* Length parameters for importing RSA-2048 private keys. */
-#define MODULUS_LENGTH        256
+#define MODULUS_LENGTH        pkcs11RSA_2048_MODULUS_BITS / 8
 #define E_LENGTH              3
-#define D_LENGTH              256
+#define D_LENGTH              pkcs11RSA_2048_MODULUS_BITS / 8
 #define PRIME_1_LENGTH        128
 #define PRIME_2_LENGTH        128
 #define EXPONENT_1_LENGTH     128
@@ -433,8 +433,8 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
         CKM_RSA_PKCS_KEY_PAIR_GEN, NULL_PTR, 0
     };
     CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_ULONG xModulusBits = 2048;
-    CK_BYTE xPublicExponent[] = pkcs11RSA_2048_PUBLIC_EXPONENT;
+    CK_ULONG xModulusBits = pkcs11RSA_2048_MODULUS_BITS;
+    CK_BYTE xPublicExponent[] = pkcs11RSA_PUBLIC_EXPONENT;
 
     CK_BBOOL xTrue = CK_TRUE;
     CK_ATTRIBUTE xPublicKeyTemplate[] =

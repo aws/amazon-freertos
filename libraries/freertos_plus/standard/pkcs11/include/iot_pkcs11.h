@@ -59,14 +59,20 @@
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
 
 /**
- * @brief Public exponent for RSA - 2048
+ * @brief Public exponent for RSA.
  */
-#define pkcs11RSA_2048_PUBLIC_EXPONENT       { 0x01, 0x00, 0x01 }
+#define pkcs11RSA_PUBLIC_EXPONENT            { 0x01, 0x00, 0x01 }
+
+/**
+ * @brief The number of bits in the RSA-2048 modulus.
+ *
+ */
+#define pkcs11RSA_2048_MODULUS_BITS          2048
 
 /**
  * @brief Length of PKCS #11 signature for RSA 2048 key, in bytes.
  */
-#define pkcs11RSA_2048_SIGNATURE_LENGTH      ( 2048 / 8 )
+#define pkcs11RSA_2048_SIGNATURE_LENGTH      ( pkcs11RSA_2048_MODULUS_BITS / 8 )
 
 /**
  * @brief Length of RSA signature data before padding.
