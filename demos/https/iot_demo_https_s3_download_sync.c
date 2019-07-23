@@ -284,7 +284,8 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     connConfig.pAddress = pAddress;
     connConfig.addressLen = addressLen;
     connConfig.port = IOT_DEMO_HTTPS_PORT;
-    connConfig.flags |= IOT_HTTPS_DISABLE_SNI; /* Disable SNI, enable TLS, enable Persistent connections, is HTTP/1.1 */
+    /* We disable SNI here because the address specified includes the S3 bucket name. */
+    connConfig.flags |= IOT_HTTPS_DISABLE_SNI;
     connConfig.pCaCert = IOT_DEMO_HTTPS_TRUSTED_ROOT_CA;
     connConfig.caCertLen = sizeof(IOT_DEMO_HTTPS_TRUSTED_ROOT_CA);
     connConfig.userBuffer.pBuffer = _pConnUserBuffer;
@@ -384,7 +385,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         }
 
         /* Get the Range header value string. */
-        int numWritten = snprintf(rangeValueStr, RANGE_VALUE_MAX_LENGTH, "bytes=%d-%d", curByte, curByte + numReqBytes - 1);
+        int numWritten = snprintf(rangeValueStr, RANGE_VALUE_MAX_LENGTH, "bytes=%lu-%lu", curByte, curByte + numReqBytes - 1);
         if(numWritten < 0)
         {
             IotLogError("Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
