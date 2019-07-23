@@ -50,11 +50,9 @@ target_compile_definitions(
     -DLWIP_TIMEVAL_PRIVATE=1
     -D__little_endian__=1
     -DNDEBUG
-    -DMBEDTLS_USER_CONFIG_FILE="mbedtls_user_config.h"
     -DUNITY_INCLUDE_CONFIG_H 
     -DRVDS_ARMCM4_NUC4xx 
     -D__LITTLE_ENDIAN__ 
-    -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS 
     -DM487
 )
 target_compile_definitions(
