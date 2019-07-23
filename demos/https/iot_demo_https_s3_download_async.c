@@ -39,16 +39,15 @@
 #include "iot_demo_logging.h"
 
 /* Amazon FreeRTOS includes. */
-#include "iot_https_client.h"
+#include "iot_demo_https_common.h"
 #include "iot_https_utils.h"
 #include "aws_demo_config.h"
 #include "platform/iot_network.h"
 #include "platform/iot_threads.h"
 #include "private/iot_error.h"
-#include "iot_demo_https_common.h"
 
 /**
- * This demonstates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
+ * This demonstrates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
  * The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other webservers as
  * well.
  * 
@@ -65,7 +64,7 @@
  * @cond DOXYGEN_IGNORE
  * Doxygen should ignore this section.
  *
- * Provide default values for undefined configuration settings. You can se these configurations in iot_config.h.
+ * Provide default values for undefined configuration settings. You can see these configurations in iot_config.h.
  */
 
 /* Presigned URL for S3 GET Object access. */
@@ -79,7 +78,7 @@
 #endif
 
 #ifndef IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
-    /* This the Baltomore Cybertrust issued root CA that the s3 server uses. */
+    /* This the Baltimore Cybertrust associated with the S3 server certificate. */
     #define IOT_DEMO_HTTPS_TRUSTED_ROOT_CA    \
     "-----BEGIN CERTIFICATE-----\n"\
     "MIIDdzCCAl+gAwIBAgIEAgAAuTANBgkqhkiG9w0BAQUFADBaMQswCQYDVQQGEwJJ\n"\
@@ -108,7 +107,7 @@
    a request asynchronously the memory for both the request buffers and the response buffers must not be shared between 
    other asynchronous requests on the same connection. You can reuse the buffer only after the request/response process
    has been finished. It is finished when the responseCompleteCallback() is invoked. We create a pool of memory so that 
-   all available requests in the pool can be scheduled right away without overwritting eachother. */
+   all available requests in the pool can be scheduled right away without over-writing each other. */
 #ifndef IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS
     #define IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS       ( 3 )
 #endif
@@ -117,7 +116,7 @@
    storage of the internal connection context. The minimum size can be found in extern const unint32_t 
    connectionUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_CONN_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE         ( 512 )
+    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE         ( 400 )
 #endif
 
 /* Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
@@ -132,7 +131,7 @@
 #endif
 
 /* Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines. 
-   The size presented here accounts for the storeage of the internal context, the first request line in the HTTP
+   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
    formatted header and extra headers. The minimum can be found in requestUserBufferMinimumSize.
    Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
    will be discarded. The minimum size can be found in extern const uint32_t responseUserBufferMinimumSize. */
@@ -155,7 +154,17 @@
 /** @endcond */
 
 /**
- * @brief The size of the header value string for the Range: field. 
+ * @brief HTTP standard header field "Range".
+ */
+#define RANGE_HEADER_FIELD          "Range"
+
+/**
+ * @brief HTTP standard header field "Content-Range"
+ */
+#define CONTENT_RANGE_HEADER_FIELD  "Content-Range"
+
+/**
+ * @brief The size of the header value string for the "Range" header field.
  * 
  * This is used to specify which parts of the file
  * we want to download. Let's say the maximum file size is what can fit in a 32 bit unsigned integer. 2^32 = 4294967296
@@ -169,16 +178,6 @@
  * @brief The time for the application task to wait to try again finding a free request from the pool of requests.
  */
 #define GET_FREE_REQUEST_RETRY_WAIT_TIME_MS         ( 1000 )
-
-/**
- * @brief HTTP standard header field "Range".
- */
-#define RANGE_HEADER_FIELD          "Range"
-
-/**
- * @brief HTTP standard header field "Content-Range"
- */
-#define CONTENT_RANGE_HEADER_FIELD  "Content-Range"
 
 /*-----------------------------------------------------------*/
 
@@ -345,7 +344,7 @@ static void _appendHeaderCallback(void *pPrivData, IotHttpsRequestHandle_t reqHa
  * 
  * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
  * @param[in] respHandle - Identifier for the current response in progress.
- * @param[in] rc - Return code from the HTTPS Client Library signalling a possible error.
+ * @param[in] rc - Return code from the HTTPS Client Library signaling a possible error.
  * @param[in] status - The HTTP response status.
  */
 static void _readReadyCallback( void * pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status )
@@ -417,7 +416,7 @@ static void _readReadyCallback( void * pPrivData, IotHttpsResponseHandle_t respH
  * 
  * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
  * @param[in] respHandle - Identifier for the current response finished.
- * @param[in] rc - Return code from the HTTPS Client Library signalling a possible error.
+ * @param[in] rc - Return code from the HTTPS Client Library signaling a possible error.
  * @param[in] status - The HTTP response status.
  */
 static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status )
@@ -462,7 +461,7 @@ static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_
  * 
  * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
  * @param[in] connHandle - Identifier for the current connection.
- * @param[in] rc - Return code from the HTTPS Client Library signalling a possible error..
+ * @param[in] rc - Return code from the HTTPS Client Library signaling a possible error..
  */
 static void _connectionClosedCallback(void * pPrivData, IotHttpsConnectionHandle_t connHandle, IotHttpsReturnCode_t rc)
 {
@@ -475,7 +474,7 @@ static void _connectionClosedCallback(void * pPrivData, IotHttpsConnectionHandle
 /*-----------------------------------------------------------*/   
   
 /**
- * @brief Callback to notify of errors that occured during this asynchronous request.
+ * @brief Callback to notify of errors that occurred during this asynchronous request.
  * 
  * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
  * @param[in] reqHandle - Identifier for the request.
@@ -563,7 +562,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     connConfig.addressLen = addressLen;
     connConfig.port = IOT_DEMO_HTTPS_PORT;
     /* We disable SNI here because the address specified includes the S3 bucket name. */
-    connConfig.flags |= IOT_HTTPS_DISABLE_SNI; /* Disable SNI, enable TLS, enable Persistent connections, is HTTP/1.1 */
+    connConfig.flags |= IOT_HTTPS_DISABLE_SNI;
     connConfig.pCaCert = IOT_DEMO_HTTPS_TRUSTED_ROOT_CA;
     connConfig.caCertLen = sizeof( IOT_DEMO_HTTPS_TRUSTED_ROOT_CA );
     connConfig.userBuffer.pBuffer = _pConnUserBuffer;
@@ -614,7 +613,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     }
 
 
-    /* Retrieve the size of the file specified in the S3 Presigned URL. */
+    /* Retrieve the size of the file specified in the S3 pre-signed URL. */
     if( _IotHttpsDemo_GetS3ObjectFileSize( &_fileSize,
             connHandle, 
             pPath, 
@@ -671,7 +670,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         _pRespConfigs[reqIndex].pSyncInfo = NULL;
 
         /* Get the Range header value string. */
-        int numWritten = snprintf( _pDownloadDatas[reqIndex].rangeValueStr, sizeof( _pDownloadDatas[reqIndex].rangeValueStr ), "bytes=%d-%d", curByte, curByte + numReqBytes - 1 );
+        int numWritten = snprintf( _pDownloadDatas[reqIndex].rangeValueStr, sizeof( _pDownloadDatas[reqIndex].rangeValueStr ), "bytes=%lu-%lu", curByte, curByte + numReqBytes - 1 );
         if( numWritten < 0 )
         {
             IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
@@ -711,7 +710,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         curByte += numReqBytes;
 
         /* If amount of file remaining to request is less than the current amount of bytes to request next time, then
-           udpdate the amount of bytes to request, on the next iteration, to be the amount remaining. */
+           update the amount of bytes to request, on the next iteration, to be the amount remaining. */
         if( ( _fileSize - curByte ) < numReqBytes )
         {
             numReqBytes = _fileSize - curByte;
@@ -734,7 +733,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
 
     /* Disconnect from the server even if it is already disconnected. */
     IotHttpsClient_Disconnect( connHandle );
-    /* Deinitialize the library because we are done using it. */
+    /* De-initialize the library because we are done using it. */
     IotHttpsClient_Deinit();
 
     IOT_FUNCTION_CLEANUP_END();
