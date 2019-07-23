@@ -310,6 +310,13 @@ void _advStatusCb( BTStatus_t status,
             _BTInterface.pStartAdvCb( status );
         }
     }
+    else
+    {
+        if( _BTInterface.pStopAdvCb != NULL )
+        {
+            _BTInterface.pStopAdvCb( status );
+        }
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -438,10 +445,11 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t IotBle_StopAdv( void )
+BTStatus_t IotBle_StopAdv( IotBle_StopAdvCallback_t pStopAdvCb )
 {
     BTStatus_t status = eBTStatusSuccess;
 
+    _BTInterface.pStopAdvCb = pStopAdvCb;
     status = _BTInterface.pBTLeAdapterInterface->pxStopAdv( _BTInterface.adapterIf );
 
     return status;

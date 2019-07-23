@@ -368,7 +368,7 @@ static IotNetworkManager_t networkManager =
 
         if( ret == true )
         {
-            if( IotBle_StopAdv() != eBTStatusSuccess )
+            if( IotBle_StopAdv( NULL ) != eBTStatusSuccess )
             {
                 ret = false;
             }
@@ -396,7 +396,7 @@ static IotNetworkManager_t networkManager =
         if( isConnected == true )
         {
             IotLogInfo( "BLE Connected to remote device, connId = %d\n", connectionID );
-            IotBle_StopAdv();
+            IotBle_StopAdv( NULL );
             newState = eNetworkStateEnabled;
         }
         else
