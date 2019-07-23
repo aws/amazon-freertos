@@ -30,7 +30,7 @@ afr_set_board_metadata(RECOMMENDED_IDE "uVision")
 afr_set_board_metadata(IDE_uVision_NAME "Keil uVision")
 afr_set_board_metadata(IDE_uVision_COMPILER "ARMCC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
-afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/keil")
+afr_set_board_metadata(IDE_uVision_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nuvoton/numaker_iot_m487_wifi/uvision/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
