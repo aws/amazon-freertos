@@ -14,7 +14,7 @@
 /*
  * Get Random number generator.
  */
- #define PRNG_KEY_SIZE  (0x20UL)
+#define PRNG_KEY_SIZE  (0x20UL)
  
 static volatile int  g_PRNG_done;
 volatile int  g_AES_done;
@@ -26,6 +26,8 @@ volatile int  g_AES_done;
 static uint32_t   adc_val[SNUM];
 static uint32_t   val_sum;
 static int        oldest;
+
+static SemaphoreHandle_t xTrngMutex = xSemaphoreCreateMutex();
 
 #ifdef __ICCARM__
 #define __inline   inline
@@ -142,15 +144,8 @@ static void trng_get(unsigned char *pConversionData)
   
 	p32ConversionData = (uint32_t *)pConversionData;
 	
-    /* Unlock protected registers */
-    SYS_UnlockReg();	
-    /* Enable IP clock */
-    CLK_EnableModuleClock(CRPT_MODULE);
-	
-    /* Lock protected registers */
-    SYS_LockReg();	
-	
-    NVIC_EnableIRQ(CRPT_IRQn);
+    xSemaphoreTake( xTrngMutex, ( TickType_t ) 0);
+    
     PRNG_ENABLE_INT(CRPT);
 	
     u32val = adc_trng_gen_rnd();
@@ -166,11 +161,33 @@ static void trng_get(unsigned char *pConversionData)
 //    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *(p32ConversionData+4), *(p32ConversionData+5), *(p32ConversionData+6), *(p32ConversionData+7));
 
     PRNG_DISABLE_INT(CRPT);
-///    NVIC_DisableIRQ(CRPT_IRQn);
- //    CLK_DisableModuleClock(CRPT_MODULE);
-		
+    
+    xSemaphoreGive( xTrngMutex );    
 }
 
+static bool trng_init()
+{
+    static bool init_done = FALSE;
+    
+    if( init_done == TRUE )  return TRUE;
+
+    if( xTrngMutex == NULL ) return FALSE;
+    
+    xSemaphoreTake( xTrngMutex, ( TickType_t ) 0);
+    init_adc_init();
+    /* Unlock protected registers */
+    SYS_UnlockReg();	
+    /* Enable IP clock */
+    CLK_EnableModuleClock(CRPT_MODULE);
+	
+    /* Lock protected registers */
+    SYS_LockReg();	
+	
+    NVIC_EnableIRQ(CRPT_IRQn);    
+    xSemaphoreGive( xTrngMutex );
+    init_done = TRUE;
+    return TRUE;
+}
 
 /*
  * Get len bytes of entropy from the hardware RNG.
@@ -192,9 +209,11 @@ int mbedtls_hardware_poll( void *data,
 #else
     unsigned char tmpBuff[PRNG_KEY_SIZE];
     size_t cur_length = 0;
+    *olen = 0;
     ((void) data);
 
-    init_adc_init();
+    if( trng_init() == FALSE ) return (-1);
+    
     while (len >= sizeof(tmpBuff)) {
         trng_get(output);
         output += sizeof(tmpBuff);
