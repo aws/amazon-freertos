@@ -20,7 +20,9 @@ User jobs are queued through a non-blocking call and processed asynchronously in
 
 Threads are created with @ref platform_threads_function_createdetachedthread. Because the platform layer may be re-implemented across systems, threads will be allocated for the task pool library on-the-go on some systems, while other systems may use an always-allocated thread pool.
 
-@dependencies{taskpool,task pool library}
+@dependencies_section{taskpool}
+@dependencies_brief{task pool library}
+
 @dot "Task pool direct dependencies"
 digraph taskpool_dependencies
 {
@@ -92,7 +94,8 @@ The current task pool tests use the [Unity test framework](http://www.throwthesw
 */
 
 /**
-@configpage{taskpool,task pool library}
+@config_page{taskpool}
+@config_brief{task pool library}
 
 @section IOT_TASKPOOL_JOB_WAIT_TIMEOUT_MS
 @brief Set this to the desired wait timeout in milliseconds for a worker in the task pool to wait for an incoming job.
@@ -131,9 +134,14 @@ Log messages from the task pool library at or below this setting will be printed
 */
 
 /**
-@enums{taskpool,task pool}
-@paramstructs{taskpool,task pool}
-@functionpointers{taskpool,task pool}
-@structs{taskpool,task pool}
-@handles{taskpool,task pool}
+@enums_group{taskpool}
+@enums_brief{task pool}
+@paramstructs_group{taskpool}
+@paramstructs_brief{taskpool,task pool}
+@functionpointers_group{taskpool}
+@functionpointers_brief{task pool}
+@structs_group{taskpool}
+@structs_brief{task pool}
+@handles_group{taskpool}
+@handles_brief{task pool}
 */

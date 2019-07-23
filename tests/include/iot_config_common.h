@@ -42,11 +42,11 @@
 #include "platform/iot_platform_types_freertos.h"
 
 /* SDK version. */
-#define IOT_SDK_VERSION             "4.0.0"
+#define IOT_SDK_VERSION    "4.0.0"
 
 /* This config file is for the tests. */
 #ifndef IOT_BUILD_TESTS
-    #define IOT_BUILD_TESTS         ( 1 )
+    #define IOT_BUILD_TESTS    ( 1 )
 #endif
 
 #if IOT_BUILD_TESTS != 1
@@ -54,15 +54,15 @@
 #endif
 
 /* Unity on FreeRTOS does not provide malloc overrides. */
-#define IOT_TEST_NO_MALLOC_OVERRIDES            ( 1 )
+#define IOT_TEST_NO_MALLOC_OVERRIDES    ( 1 )
 
 /* Supported network types.*/
-#define AWSIOT_NETWORK_TYPE_NONE    0x00000000
-#define AWSIOT_NETWORK_TYPE_WIFI    0x00000001
-#define AWSIOT_NETWORK_TYPE_BLE     0x00000002
+#define AWSIOT_NETWORK_TYPE_NONE        0x00000000
+#define AWSIOT_NETWORK_TYPE_WIFI        0x00000001
+#define AWSIOT_NETWORK_TYPE_BLE         0x00000002
 
 /* Logging puts function. */
-#define IotLogging_Puts( str )                 configPRINTF( ( "%s\r\n", str ) )
+#define IotLogging_Puts( str )    configPRINTF( ( "%s\r\n", str ) )
 
 /* Enable asserts in libraries. */
 #define IOT_METRICS_ENABLE_ASSERTS         ( 1 )
@@ -96,7 +96,7 @@
 #define IotLogging_Malloc    pvPortMalloc
 #define IotLogging_Free      vPortFree
 #define IotBle_Malloc        pvPortMalloc
-#define IotBle_Free          vPortFree  
+#define IotBle_Free          vPortFree
 /* #define IotLogging_StaticBufferSize */
 #define IotTest_Malloc       pvPortMalloc
 #define IotTest_Free         vPortFree
@@ -152,49 +152,49 @@
 #define IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES    ( 1 )
 
 /* Platform and SDK name for AWS MQTT metrics. Only used when AWS_IOT_MQTT_ENABLE_METRICS is 1. */
-#define IOT_SDK_NAME             "AmazonFreeRTOS"
+#define IOT_SDK_NAME                            "AmazonFreeRTOS"
 #ifdef configPLATFORM_NAME
-    #define IOT_PLATFORM_NAME    configPLATFORM_NAME
+    #define IOT_PLATFORM_NAME                   configPLATFORM_NAME
 #else
-    #define IOT_PLATFORM_NAME    "Unknown"
+    #define IOT_PLATFORM_NAME                   "Unknown"
 #endif
 
 /* Cloud endpoint to which the device connects to. */
-#define IOT_CLOUD_ENDPOINT                    clientcredentialMQTT_BROKER_ENDPOINT
+#define IOT_CLOUD_ENDPOINT        clientcredentialMQTT_BROKER_ENDPOINT
 
 /* Certificate for the device.*/
-#define IOT_DEVICE_CERTIFICATE                keyCLIENT_CERTIFICATE_PEM
+#define IOT_DEVICE_CERTIFICATE    keyCLIENT_CERTIFICATE_PEM
 
- /**
-  * @brief Unique identifier used to recognize a device by the cloud.
-  * This could be SHA-256 of the device certificate.
-  */
-extern const char *getDeviceIdentifier(void);
-#define IOT_DEVICE_IDENTIFIER                getDeviceIdentifier()
+/**
+ * @brief Unique identifier used to recognize a device by the cloud.
+ * This could be SHA-256 of the device certificate.
+ */
+extern const char * getDeviceIdentifier( void );
+#define IOT_DEVICE_IDENTIFIER    getDeviceIdentifier()
 
 /**
  * @brief Metrics emitted by the device.
  */
-extern const char *getDeviceMetrics(void);
-#define AWS_IOT_METRICS_USERNAME     getDeviceMetrics()
+extern const char * getDeviceMetrics( void );
+#define AWS_IOT_METRICS_USERNAME    getDeviceMetrics()
 
 /**
  * @brief Length of the metrics emitted by device.
  */
-extern uint16_t getDeviceMetricsLength(void);
-#define AWS_IOT_METRICS_USERNAME_LENGTH getDeviceMetricsLength()
+extern uint16_t getDeviceMetricsLength( void );
+#define AWS_IOT_METRICS_USERNAME_LENGTH    getDeviceMetricsLength()
 
 /* Set Thing Name. */
-#define AWS_IOT_TEST_SHADOW_THING_NAME    clientcredentialIOT_THING_NAME
+#define AWS_IOT_TEST_SHADOW_THING_NAME     clientcredentialIOT_THING_NAME
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT           AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT            AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG     ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG      ( 1 )
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
-#define IotMetricsConnectionId_t          void *
+#define IotMetricsConnectionId_t           void *
 
 /* For compatibility with the Amazon FreeRTOS test framework, UnityPrint and similar
  * must be redefined. */
@@ -225,7 +225,7 @@ extern int snprintf( char *,
 
 /* Use Amazon FreeRTOS Secure Sockets network for tests. */
 #ifndef IOT_TEST_NETWORK_HEADER
-    #define IOT_TEST_NETWORK_HEADER        "platform/iot_network_freertos.h"
+    #define IOT_TEST_NETWORK_HEADER    "platform/iot_network_freertos.h"
 #endif
 
 /* All tests use a secured connection. */

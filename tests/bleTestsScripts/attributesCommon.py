@@ -1,9 +1,9 @@
 class attributesCommon:
-	uuid = {}
-	value = {}
+    uuid = {}
+    value = {}
 
-	def readValue():
-		printf("Hello")
+    def readValue():
+        printf("Hello")
 
-	def writeValue():
-		print("hello")
+    def writeValue():
+        print("hello")

@@ -45,40 +45,86 @@
 /*------------------------- Task Pool library functions --------------------------*/
 
 /**
- * @functionspage{taskpool,task pool library}
- * - @functionname{taskpool_function_createsystemtaskpool}
- * - @functionname{taskpool_function_getsystemtaskpool}
- * - @functionname{taskpool_function_create}
- * - @functionname{taskpool_function_destroy}
- * - @functionname{taskpool_function_setmaxthreads}
- * - @functionname{taskpool_function_createjob}
- * - @functionname{taskpool_function_createrecyclablejob}
- * - @functionname{taskpool_function_destroyrecyclablejob}
- * - @functionname{taskpool_function_recyclejob}
- * - @functionname{taskpool_function_schedule}
- * - @functionname{taskpool_function_scheduledeferred}
- * - @functionname{taskpool_function_getstatus}
- * - @functionname{taskpool_function_trycancel}
- * - @functionname{taskpool_function_getjobstoragefromhandle}
- * - @functionname{taskpool_function_strerror}
+ * @functions_page{taskpool, Taskpool}
+ * @functions_brief{task pool}
+ * - @function_name{taskpool_function_createsystemtaskpool}
+ * @function_brief{taskpool_function_createsystemtaskpool}
+ * - @function_name{taskpool_function_getsystemtaskpool}
+ * @function_brief{taskpool_function_getsystemtaskpool}
+ * - @function_name{taskpool_function_create}
+ * @function_brief{taskpool_function_create}
+ * - @function_name{taskpool_function_destroy}
+ * @function_brief{taskpool_function_destroy}
+ * - @function_name{taskpool_function_setmaxthreads}
+ * @function_brief{taskpool_function_setmaxthreads}
+ * - @function_name{taskpool_function_createjob}
+ * @function_brief{taskpool_function_createjob}
+ * - @function_name{taskpool_function_createrecyclablejob}
+ * @function_brief{taskpool_function_createrecyclablejob}
+ * - @function_name{taskpool_function_destroyrecyclablejob}
+ * @function_brief{taskpool_function_destroyrecyclablejob}
+ * - @function_name{taskpool_function_recyclejob}
+ * @function_brief{taskpool_function_recyclejob}
+ * - @function_name{taskpool_function_schedule}
+ * @function_brief{taskpool_function_schedule}
+ * - @function_name{taskpool_function_scheduledeferred}
+ * @function_brief{taskpool_function_scheduledeferred}
+ * - @function_name{taskpool_function_getstatus}
+ * @function_brief{taskpool_function_getstatus}
+ * - @function_name{taskpool_function_trycancel}
+ * @function_brief{taskpool_function_trycancel}
+ * - @function_name{taskpool_function_getjobstoragefromhandle}
+ * @function_brief{taskpool_function_getjobstoragefromhandle}
+ * - @function_name{taskpool_function_strerror}
+ * @function_brief{taskpool_function_strerror}
  */
 
 /**
- * @functionpage{IotTaskPool_CreateSystemTaskPool,taskpool,createsystemtaskpool}
- * @functionpage{IotTaskPool_GetSystemTaskPool,taskpool,getsystemtaskpool}
- * @functionpage{IotTaskPool_Create,taskpool,create}
- * @functionpage{IotTaskPool_Destroy,taskpool,destroy}
- * @functionpage{IotTaskPool_SetMaxThreads,taskpool,setmaxthreads}
- * @functionpage{IotTaskPool_CreateJob,taskpool,createjob}
- * @functionpage{IotTaskPool_CreateRecyclableJob,taskpool,createrecyclablejob}
- * @functionpage{IotTaskPool_DestroyRecyclableJob,taskpool,destroyrecyclablejob}
- * @functionpage{IotTaskPool_RecycleJob,taskpool,recyclejob}
- * @functionpage{IotTaskPool_Schedule,taskpool,schedule}
- * @functionpage{IotTaskPool_ScheduleDeferred,taskpool,scheduledeferred}
- * @functionpage{IotTaskPool_GetStatus,taskpool,getstatus}
- * @functionpage{IotTaskPool_TryCancel,taskpool,trycancel}
- * @functionpage{IotTaskPool_GetJobStorageFromHandle,taskpool,getjobstoragefromhandle}
- * @functionpage{IotTaskPool_strerror,taskpool,strerror}
+ * @function_page{IotTaskPool_CreateSystemTaskPool,taskpool,createsystemtaskpool}
+ * @function_snippet{taskpool,createsystemtaskpool,this}
+ * @copydoc IotTaskPool_CreateSystemTaskPool
+ * @function_page{IotTaskPool_GetSystemTaskPool,taskpool,getsystemtaskpool}
+ * @function_snippet{taskpool,getsystemtaskpool,this}
+ * @copydoc IotTaskPool_GetSystemTaskPool
+ * @function_page{IotTaskPool_Create,taskpool,create}
+ * @function_snippet{taskpool,create,this}
+ * @copydoc IotTaskPool_Create
+ * @function_page{IotTaskPool_Destroy,taskpool,destroy}
+ * @function_snippet{taskpool,destroy,this}
+ * @copydoc IotTaskPool_Destroy
+ * @function_page{IotTaskPool_SetMaxThreads,taskpool,setmaxthreads}
+ * @function_snippet{taskpool,setmaxthreads,this}
+ * @copydoc IotTaskPool_SetMaxThreads
+ * @function_page{IotTaskPool_CreateJob,taskpool,createjob}
+ * @function_snippet{taskpool,createjob,this}
+ * @copydoc IotTaskPool_CreateJob
+ * @function_page{IotTaskPool_CreateRecyclableJob,taskpool,createrecyclablejob}
+ * @function_snippet{taskpool,createrecyclablejob,this}
+ * @copydoc IotTaskPool_CreateRecyclableJob
+ * @function_page{IotTaskPool_DestroyRecyclableJob,taskpool,destroyrecyclablejob}
+ * @function_snippet{taskpool,destroyrecyclablejob,this}
+ * @copydoc IotTaskPool_DestroyRecyclableJob
+ * @function_page{IotTaskPool_RecycleJob,taskpool,recyclejob}
+ * @function_snippet{taskpool,recyclejob,this}
+ * @copydoc IotTaskPool_RecycleJob
+ * @function_page{IotTaskPool_Schedule,taskpool,schedule}
+ * @function_snippet{taskpool,schedule,this}
+ * @copydoc IotTaskPool_Schedule
+ * @function_page{IotTaskPool_ScheduleDeferred,taskpool,scheduledeferred}
+ * @function_snippet{taskpool,scheduledeferred,this}
+ * @copydoc IotTaskPool_ScheduleDeferred
+ * @function_page{IotTaskPool_GetStatus,taskpool,getstatus}
+ * @function_snippet{taskpool,getstatus,this}
+ * @copydoc IotTaskPool_GetStatus
+ * @function_page{IotTaskPool_TryCancel,taskpool,trycancel}
+ * @function_snippet{taskpool,trycancel,this}
+ * @copydoc IotTaskPool_TryCancel
+ * @function_page{IotTaskPool_GetJobStorageFromHandle,taskpool,getjobstoragefromhandle}
+ * @function_snippet{taskpool,getjobstoragefromhandle,this}
+ * @copydoc IotTaskPool_GetJobStorageFromHandle
+ * @function_page{IotTaskPool_strerror,taskpool,strerror}
+ * @function_snippet{taskpool,strerror,this}
+ * @copydoc IotTaskPool_strerror
  */
 
 /**
@@ -536,7 +582,7 @@ const char * IotTaskPool_strerror( IotTaskPoolError_t status );
  * a memory pool.
  */
 #ifndef IOT_TASKPOOLS
-#define IOT_TASKPOOLS                          ( 4 )
+    #define IOT_TASKPOOLS    ( 4 )
 #endif
 
 /**

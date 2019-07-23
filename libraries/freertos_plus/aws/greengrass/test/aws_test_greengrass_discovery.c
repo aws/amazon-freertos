@@ -44,8 +44,8 @@
 #define ggdTestJSON_MAX_TOKENS             128       /* Size of the array used by jsmn to store the tokens. */
 #define ggdTestJSON_GROUPID_TOKEN_INDEX    4
 #define ggdTestJSON_CORE_TOKEN_INDEX       9
-#define ggdTestJSON_PORT_ADDRESS_1          1234
-#define ggdTestJSON_PORT_ADDRESS_3          4321
+#define ggdTestJSON_PORT_ADDRESS_1         1234
+#define ggdTestJSON_PORT_ADDRESS_3         4321
 #define ggdTestLOOP_NUMBER                 10
 
 #define ggdJSON_FILE_GROUPID               "GGGroupId"

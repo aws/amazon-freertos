@@ -41,9 +41,9 @@
 
 #include "iot_doubly_linked_list.h"
 
- /**
-  * @brief Opaque handle to represent an MQTT buffer.
-  */
+/**
+ * @brief Opaque handle to represent an MQTT buffer.
+ */
 typedef void * MQTTBufferHandle_t;
 
 /**

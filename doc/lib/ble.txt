@@ -16,7 +16,9 @@ The Amazon FreeRTOS BLE library is made up of three layers: services, middleware
 
 @image html BLE-architecture.png width=40%
 
-@dependencies{ble,ble library}
+@dependencies_section{ble}
+@dependencies_brief{ble library}
+
 @dot "BLE direct dependencies"
 digraph ble_dependencies
 {
@@ -63,7 +65,8 @@ The current BLE tests use the [Unity test framework](http://www.throwtheswitch.o
 */
 
 /**
-@configpage{ble,BLE library}
+@config_page{ble}
+@config_brief{BLE library}
 
 Amazon FreeRTOS BLE Library Configuration File
 
@@ -72,16 +75,22 @@ Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an 
 */
 
 /**
-@enums{ble,BLE library}
-@paramstructs{ble,BLE library}
-@handles{ble,BLE library}
-@functionpointers{ble,BLE library}
-@structs{ble,BLE library}
+@enums_group{ble}
+@enums_brief{BLE library}
+@paramstructs_group{ble}
+@paramstructs_brief{ble,BLE library}
+@handles_group{ble}
+@handles_brief{BLE library}
+@functionpointers_group{ble}
+@functionpointers_brief{BLE library}
+@structs_group{ble}
+@structs_brief{BLE library}
+
 */
 
 /**
-@functionspage{ble,BLE library}
-
+@functions_page{BLE, BLE}
+@functions_brief{BLE}
 - @subpage iotble_functions <br>
   @copybrief iotble_functions
 - @subpage iotbledeviceinfo_functions <br>
@@ -93,7 +102,8 @@ Applications that use the Amazon FreeRTOS MQTT over BLE service must provide an 
 */
 
 /**
-@constantspage{ble,BLE library}
+@constants_page{ble}
+@constants_brief{BLE library}
 
 - @subpage iotbledeviceinfo_constants <br>
   @copybrief iotbledeviceinfo_constants

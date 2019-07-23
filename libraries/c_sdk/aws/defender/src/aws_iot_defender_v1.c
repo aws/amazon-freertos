@@ -193,7 +193,7 @@ DefenderReportStatus_t DEFENDER_ReportStatusGet( void )
 
 int32_t GetLastReportId( void )
 {
-	/* This function is not supported anymore. */
+    /* This function is not supported anymore. */
     return 0;
 }
 

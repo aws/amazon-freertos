@@ -50,17 +50,17 @@
  extern "C" {
 #endif  
 
-//#define WIFI_USE_CMSIS_OS
+#define WIFI_USE_CMSIS_OS
 
 #ifdef WIFI_USE_CMSIS_OS
 #include "cmsis_os.h"
 
 extern osMutexId es_wifi_mutex;
 
-#define LOCK_SPI()              osMutexWait(spi_mutex, 0)
-#define UNLOCK_SPI()            osMutexRelease(spi_mutex)
-#define LOCK_WIFI()             osMutexWait(es_wifi_mutex, 0)
-#define UNLOCK_WIFI()           osMutexRelease(es_wifi_mutex)
+#define LOCK_SPI()              osRecursiveMutexWait(spi_mutex, 0)
+#define UNLOCK_SPI()            osRecursiveMutexRelease(spi_mutex)
+#define LOCK_WIFI()             osRecursiveMutexWait(es_wifi_mutex, 0)
+#define UNLOCK_WIFI()           osRecursiveMutexRelease(es_wifi_mutex)
 #define SEM_SIGNAL(a)           osSemaphoreRelease(a)
 #define SEM_WAIT(a,timeout)     osSemaphoreWait(a,timeout)
 
