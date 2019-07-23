@@ -10,7 +10,7 @@
 #include "../global_state_HTTP.c"
 
 void harness() {
-	IotHttpsResponseHandle_t respHandle = newIotResponseHandle();
-  	uint16_t *pStatus = safeMalloc(sizeof(uint16_t));
-  	IotHttpsClient_ReadResponseStatus(respHandle, pStatus);
+  IotHttpsResponseHandle_t respHandle = newIotResponseHandle();
+  uint16_t pStatus;
+  IotHttpsClient_ReadResponseStatus(respHandle, &pStatus);
 }
