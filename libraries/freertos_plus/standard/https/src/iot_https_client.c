@@ -31,7 +31,7 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 
-/* HTTPS Client library private inclues. */
+/* HTTPS Client library private includes. */
 #include "private/iot_https_internal.h"
 
 /*-----------------------------------------------------------*/
@@ -1554,7 +1554,7 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* pHttpsConnect
     {
         numWritten = snprintf(contentLengthHeaderStr, 
             sizeof(contentLengthHeaderStr), 
-            "%s: %d\r\n",
+            "%s: %lu\r\n",
             HTTPS_CONTENT_LENGTH_HEADER,
             contentLength);
     }
@@ -1654,7 +1654,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     /* The final parser state is either the end of the header lines or the end of the entity body. This state is set in
-       the http-parser callsback. */
+       the http-parser callbacks. */
     while( (*pCurrentParserState < finalParserState) && (*pBufEnd - *pBufCur > 0) ) 
     {
         status = _networkRecv( pHttpsConnection,
@@ -1768,7 +1768,9 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsCo
         if(HTTPS_FAILED(parserStatus))
         {
             pHttpParserErrorDescription = http_errno_description( HTTP_PARSER_ERRNO( &pHttpsResponse->httpParserInfo.responseParser ) );
-            IotLogError("Network Flush: Failed to parse the response body buffer with error: %d", pHttpsResponse->httpParserInfo.responseParser.http_errno);
+            IotLogError("Network Flush: Failed to parse the response body buffer with error: %d, %s",
+					pHttpsResponse->httpParserInfo.responseParser.http_errno,
+					pHttpParserErrorDescription);
             break;
         }
 
@@ -2299,7 +2301,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     if( (additionalLength + pHttpsRequest->pHeadersCur) > (pHttpsRequest->pHeadersEnd ))
     {
         IotLogError("Request line does not fit into the request user buffer: \"%s %.*s HTTP/1.1\\r\\n\" . ",
-            _pHttpsMethodStrings[IOT_HTTPS_METHOD_GET],
+            _pHttpsMethodStrings[pReqInfo->method],
             pReqInfo->pathLen,
             pReqInfo->pPath);
         IotLogError( "The length needed is %d and the space available is %d.", additionalLength, pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur );

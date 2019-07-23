@@ -33,12 +33,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-/* HTTPS Client library includes. */
-#include "iot_https_client.h"
+#include <stdio.h>
 
 /* Third party http-parser include. */
 #include "http_parser.h"
+
+/* HTTPS Client library includes. */
+#include "iot_https_client.h"
 
 /* Task pool include. */
 #include "iot_taskpool.h"
