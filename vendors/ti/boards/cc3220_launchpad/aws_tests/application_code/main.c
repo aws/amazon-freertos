@@ -142,15 +142,15 @@ void vApplicationDaemonTaskStartupHook( void )
         }
     }
 
-    /* A simple example to demonstrate key and certificate provisioning in
-     * flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();
-    prvProvisionRootCA();
-
     /* Initialize the AWS Libraries system. */
     if( SYSTEM_Init() == pdPASS )
     {
+        /* A simple example to demonstrate key and certificate provisioning in
+         * flash using PKCS#11 interface. This should be replaced
+         * by production ready key provisioning mechanism. */
+        vDevModeKeyProvisioning();
+        prvProvisionRootCA();
+
         prvWifiConnect();
 
         /* Show the possible security alerts that will affect re-flashing the device. 
