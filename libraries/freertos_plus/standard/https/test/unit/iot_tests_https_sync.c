@@ -55,13 +55,18 @@
 #define HTTPS_TEST_RESPONSE_MESSAGE_LENGTH              ( 2048 )
 
 /**
- * @brief The generic response status line and header line information for generating a test HTTP response message.
+ * @brief The generic response status line and header line information for generating a test HTTP response message header.
  */
 #define HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE         "HTTP/1.1 200 OK\r\n"
 #define HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH  ( sizeof(HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE) - 1 )
 #define HTTPS_TEST_GENERIC_HEADER                       "header"
 #define HTTPS_TEST_GENERIC_VALUE                        "value"
-#define HTTPS_TEST_GENERIC_BODY_REPEATED_CHAR           'a'
+
+/**
+ * @brief Starting character and maximum letters to increment to generate a test HTTP response message body.
+ */
+#define HTTPS_TEST_GENERIC_BODY_STARTING_CHAR           'a'
+#define NUM_LETTERS_IN_ALPHABET                         26
 
 /**
  * @brief The maximum and minimum digits in a uint32_t. 
@@ -205,14 +210,16 @@ static const size_t _currentHeaderBufferSize = sizeof(_pRespUserBuffer) - sizeof
  * This generates the test HTTP response message into _pResponseMessageBuffer. 
  * The provied buffer must be zeroed out before calling this routine.
  * The length of buf must not exceed headerLength + bodyLength. 
- * The length of headerLength must be greater than HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH + MAX_GENERIC_HEADER_LINE_LENGTH + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH.
+ * The length of headerLength must be greater than 
+ * HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH + HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + MIN_GENERIC_HEADER_LINE_LENGTH + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH.
  * The headerLength is the length of the raw HTTP headers includes delimiters like ": " and \r\n.
  */
 static void _generateHttpsResponseMessage( int headerLength, int bodyLength )
 {
     /* The content length header is needed so that http-parser will give the body length back to the application 
-       correctly during it's callback. */
-    char contentLengthHeaderLine[HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH] = { 0 };
+       correctly during it's callback. +1 for the NULL terminator generated in snprintf. the NULL terminator is not
+       included in the HTTP response message. */
+    char contentLengthHeaderLine[HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + 1] = { 0 };
     int index = 0;
     int nextCopyIndex = 0;
     int currentHeaderLineLength = 0;
@@ -226,15 +233,31 @@ static void _generateHttpsResponseMessage( int headerLength, int bodyLength )
         headerLength + bodyLength,
         "Tried to generate a test HTTP response message into a buffer too small.");
 
-    /* We want the headerLength desired to be at least the size of: "HTTP/1.1 200 OK\r\nheader0: value0\r\n\r\n". This
-       is in order to generate meaningful test data. */
-    TEST_ASSERT_GREATER_THAN_MESSAGE(HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH + MIN_GENERIC_HEADER_LINE_LENGTH + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH, 
+    /* We want the headerLength desired to be at least the size of: 
+       "HTTP/1.1 200 OK\r\nContent-Length: <bodyLengthStr>\r\nheader0: value0\r\n\r\n".
+       This is in order to generate meaningful test data. */
+    TEST_ASSERT_GREATER_THAN_MESSAGE(HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH + \
+        HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH + \
+        MIN_GENERIC_HEADER_LINE_LENGTH + \
+        HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH, 
         headerLength,
         "Tried to generate a test HTTP response message with specifying too small a desired headerLength.");
 
-    /* Generate the HTTP response status line. */
+    /* Generate the HTTP response status line. This is a required HTTP response message line. */
     memcpy(&(_pResponseMessageBuffer[nextCopyIndex]), HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE, HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH);
     nextCopyIndex += HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH;
+
+    /* Generate the Content-Length header line. This is needed so that during testing we reach the onMessageCompleteCallback(). */
+    currentHeaderLineLength = snprintf(contentLengthHeaderLine,
+        sizeof(contentLengthHeaderLine),
+        "%s%s%d%s",
+        HTTPS_CONTENT_LENGTH_HEADER,
+        HTTPS_HEADER_FIELD_SEPARATOR,
+        bodyLength,
+        HTTPS_END_OF_HEADER_LINES_INDICATOR);
+    memcpy(&(_pResponseMessageBuffer[nextCopyIndex]), contentLengthHeaderLine, currentHeaderLineLength);
+    nextCopyIndex += currentHeaderLineLength;
+    headerSpaceLeft -= currentHeaderLineLength;
 
     /* Generate the header lines */
     while( headerSpaceLeft > 0 )
@@ -251,7 +274,8 @@ static void _generateHttpsResponseMessage( int headerLength, int bodyLength )
             HTTPS_END_OF_HEADER_LINES_INDICATOR);
 
         /* We need to check if the current header line will fit into the header space left.
-           Given that the input headerLength desired MUST be less than the length of "HTTP/1.1 200 OK\r\nheader0: value0\r\n\r\n", we
+           Given that the input headerLength desired MUST be less than the length of 
+           "HTTP/1.1 200 OK\r\nContent-Length: <bodyLengthStr>\r\nheader0: value0\r\n\r\n", we
            are guaranteed to have written "HTTP/1.1 200 OK\r\nheader0: value0\r\n" before we reach this if case. */
         if(headerSpaceLeft < currentHeaderLineLength)
         {
@@ -278,8 +302,12 @@ static void _generateHttpsResponseMessage( int headerLength, int bodyLength )
     memcpy( &(_pResponseMessageBuffer[nextCopyIndex]), HTTPS_END_OF_HEADER_LINES_INDICATOR, HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH);
     nextCopyIndex += HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
 
-    /* Generate the body */
-    memset( &(_pResponseMessageBuffer[nextCopyIndex]), HTTPS_TEST_GENERIC_BODY_REPEATED_CHAR, bodyLength); 
+    /* Generate the body. Write 'a' through 'z' repeating so that proper copying can be verified. */
+    for(index = 0; index < bodyLength; index++)
+    {
+        _pResponseMessageBuffer[nextCopyIndex] = HTTPS_TEST_GENERIC_BODY_STARTING_CHAR + (index % NUM_LETTERS_IN_ALPHABET); /* Is modulus too expensive for MCUs? */
+        nextCopyIndex++;
+    }
 
     /* Set this to mimic reading from the network. */
     _nextResponseMessageByteToReceive = 0;
@@ -369,7 +397,6 @@ static size_t _networkReceiveSuccess( void * pConnection,
     (void)pBuffer;
     (void)bytesRequested;
 
-    /* Fill with random response data so that this function succeeds if used in a test where the parser must succeed. */
     if( responseMessageLengthLeft < bytesRequested )
     {
         copyLen = responseMessageLengthLeft;
@@ -639,8 +666,6 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_Sync )
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingBody );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureParsingHeaders );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncFailureParsingBody );
-    // TODO: Without a content-length header we may never reach the onMessageCompleteCallback() so parsing state PARSER_STATE_BODY_COMPLETE may never be assigned 
-    // and we will always return IOT_HTTPS_MESSAGE_TOO_LARGE.
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncSomeBodyInHeaderBuffer );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncSomeHeaderInBodyBuffer );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncEntireResponseInHeaderBuffer );
@@ -802,6 +827,8 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingHeaders )
 
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
+    /* Verify that the connection was closed. */
+    TEST_ASSERT_FALSE(connHandle->isConnected);
 }
 
 /*-----------------------------------------------------------*/
@@ -839,6 +866,8 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingBody )
     _generateHttpsResponseMessage( _currentHeaderBufferSize, HTTPS_TEST_RESP_BODY_BUFFER_SIZE );
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
+    /* Verify that the connection was closed. */
+    TEST_ASSERT_FALSE(connHandle->isConnected);
 }
 
 /*-----------------------------------------------------------*/
@@ -873,6 +902,8 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingHeaders )
 
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_PARSING_ERROR, returnCode);
+    /* Verify that the connection was closed. */
+    TEST_ASSERT_FALSE(connHandle->isConnected);
 }
 
 /*-----------------------------------------------------------*/
@@ -889,7 +920,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingBody )
     uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
 
     /* Test a parsing failure in the body buffer. */
-    _alreadyCreatedReceiveCallbackThread = false;
     _networkInterface.send = _networkSendSuccessWithSettingParseFailForBody;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -911,4 +941,82 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingBody )
 
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_PARSING_ERROR, returnCode);
+    /* Verify that the connection was closed. */
+    TEST_ASSERT_FALSE(connHandle->isConnected);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test what happens when there is some of the body found while processing the header buffer of a HTTP response
+ * messages.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncSomeBodyInHeaderBuffer )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+
+    /* Test a parsing failure in the body buffer. */
+    _networkInterface.send = _networkSendSuccess;
+    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL(connHandle);
+    
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle( &_reqInfo );
+    TEST_ASSERT_NOT_NULL(reqHandle);
+    _currentlySendingRequestHandle = reqHandle;
+
+    /* Set the global test connection handle to be passed to the library network receive callback. */
+    memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
+
+    /* Generate a response message where half of the body is received into the header buffer. */
+    int headerLength = _currentHeaderBufferSize - ( HTTPS_TEST_RESP_BODY_BUFFER_SIZE / 2);
+    int bodyLength = HTTPS_TEST_RESP_BODY_BUFFER_SIZE;
+    _generateHttpsResponseMessage( headerLength, bodyLength);
+
+    returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
+    TEST_ASSERT_EQUAL(IOT_HTTPS_OK, returnCode);
+    /* Verify the body buffer. TODO: This may be moved to a separate function if many tests use it. */
+    uint32_t bodyIndex = 0;
+    for(bodyIndex = 0; bodyIndex < bodyLength; bodyIndex++)
+    {
+        TEST_ASSERT_EQUAL(HTTPS_TEST_GENERIC_BODY_STARTING_CHAR + (bodyIndex % NUM_LETTERS_IN_ALPHABET), _respInfo.pSyncInfo->pBody[bodyIndex]);
+    }
+}
+
+TEST( HTTPS_Client_Unit_Sync, SendSyncSomeHeaderInBodyBuffer )
+{
+
+}
+
+TEST( HTTPS_Client_Unit_Sync, SendSyncEntireResponseInHeaderBuffer )
+{
+
+}
+
+TEST( HTTPS_Client_Unit_Sync, SendSyncBodyTooLarge )
+{
+
+}
+
+TEST( HTTPS_Client_Unit_Sync, SendSyncBodyBufferNull )
+{
+
+}
+
+TEST( HTTPS_Client_Unit_Sync, SendSyncPersistentRequest )
+{
+
+}
+
+TEST( HTTPS_Client_Unit_Sync, SendSyncNonPersistentRequest )
+{
+
 }
