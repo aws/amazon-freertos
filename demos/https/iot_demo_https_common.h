@@ -31,6 +31,10 @@
 #ifndef IOT_DEMO_HTTPS_COMMON_H_
 #define IOT_DEMO_HTTPS_COMMON_H_
 
+/* C standard includes shared among the demos. */
+#include <stdio.h>
+
+/* Include of the HTTPS Client library. */
 #include "iot_https_client.h"
 
 /**
