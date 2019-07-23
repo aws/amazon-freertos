@@ -73,6 +73,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)tests/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs/include \
                     $(AFR_PORTS_MODULES_PATH)mbedtls/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/include \
                     $(AFR_ABSTRACTIONS_PATH)wifi/test \
