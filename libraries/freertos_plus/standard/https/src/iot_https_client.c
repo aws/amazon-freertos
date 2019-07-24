@@ -1564,9 +1564,9 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t* pHttpsConnect
     {
         numWritten = snprintf(contentLengthHeaderStr, 
             sizeof(contentLengthHeaderStr), 
-            "%s: %lu\r\n",
+            "%s: %u\r\n",
             HTTPS_CONTENT_LENGTH_HEADER,
-            contentLength);
+            (unsigned int)contentLength);
     }
     if( numWritten < 0 )
     {

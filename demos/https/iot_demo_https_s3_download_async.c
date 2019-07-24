@@ -670,7 +670,11 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         _pRespConfigs[reqIndex].pSyncInfo = NULL;
 
         /* Get the Range header value string. */
-        int numWritten = snprintf( _pDownloadDatas[reqIndex].rangeValueStr, sizeof( _pDownloadDatas[reqIndex].rangeValueStr ), "bytes=%lu-%lu", curByte, curByte + numReqBytes - 1 );
+        int numWritten = snprintf( _pDownloadDatas[reqIndex].rangeValueStr,
+            sizeof( _pDownloadDatas[reqIndex].rangeValueStr ),
+            "bytes=%u-%u",
+            (unsigned int)curByte,
+            (unsigned int)(curByte + numReqBytes - 1) );
         if( numWritten < 0 )
         {
             IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",

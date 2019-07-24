@@ -385,7 +385,11 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         }
 
         /* Get the Range header value string. */
-        int numWritten = snprintf(rangeValueStr, RANGE_VALUE_MAX_LENGTH, "bytes=%lu-%lu", curByte, curByte + numReqBytes - 1);
+        int numWritten = snprintf(rangeValueStr, 
+            RANGE_VALUE_MAX_LENGTH, 
+            "bytes=%u-%u", 
+            (unsigned int)curByte, 
+            (unsigned int)(curByte + numReqBytes - 1));
         if(numWritten < 0)
         {
             IotLogError("Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
