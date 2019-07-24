@@ -1224,6 +1224,7 @@ static IotHttpsReturnCode_t _createHttpsConnection(IotHttpsConnectionHandle_t * 
     IotNetworkServerInfo_t networkServerInfo = { 0 };
     IotNetworkCredentials_t networkCredentials = { 0 };
     _httpsConnection_t *pHttpsConnection = NULL;
+    IotNetworkCredentials_t *pNetworkCredentials = NULL;
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pConnInfo->userBuffer.pBuffer);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pConnInfo->pNetworkInterface);
@@ -1255,6 +1256,10 @@ static IotHttpsReturnCode_t _createHttpsConnection(IotHttpsConnectionHandle_t * 
     
     /* Start with the disconnected state. */
     pHttpsConnection->isConnected = false;
+    
+    /* Initialize disconnection state keepers. */
+    pHttpsConnection->isDisconnecting = false;
+    pHttpsConnection->isDestroyed = false;
 
     /* Initialize the queue of responses and requests. */
     IotDeQueue_Create( &(pHttpsConnection->reqQ) );
@@ -1271,14 +1276,16 @@ static IotHttpsReturnCode_t _createHttpsConnection(IotHttpsConnectionHandle_t * 
         pHttpsConnection->timeout = pConnInfo->timeout;
     }
 
-    /* pNetworkInterface contains the connect, disconnect, send, and receive functions. */
+    /* pNetworkInterface contains all the routines to be able to send/receive data on the network. */
     pHttpsConnection->pNetworkInterface = pConnInfo->pNetworkInterface;
     
-    /* Copy the host name configuration from the address in the connection information. */
+    /* The address from the connection configuration information is copied to a local buffer because a NULL pointer
+       is required in IotNetworkServerInfo_t.pHostName. IotNetworkServerInfo_t contains the server information needed
+       by the network interface to create the connection. */
     memcpy( pHostName, pConnInfo->pAddress, pConnInfo->addressLen );
     pHostName[pConnInfo->addressLen] = '\0';
     /* Set it in the IOT network abstractions server information parameter. */
-    networkServerInfo.pHostName = pHostName; /* This requires a NULL terminated string. */
+    networkServerInfo.pHostName = pHostName;
     networkServerInfo.port = pConnInfo->port;
 
     /* If this is TLS connection, then set the network credentials. */
@@ -1296,38 +1303,41 @@ static IotHttpsReturnCode_t _createHttpsConnection(IotHttpsConnectionHandle_t * 
         
         if( pConnInfo->pAlpnProtocols != NULL )
         {
+            /* The alpn protocol strings in IotNetworkCredentials_t require a NULL terminator, so the alpn protocol
+               string in the connection configuration information is copied to a local buffer to append the NULL 
+               terminator. */
             memcpy( pAlpnProtos, pConnInfo->pAlpnProtocols, pConnInfo->alpnProtocolsLen );
             pAlpnProtos[pConnInfo->alpnProtocolsLen] = '\0';
-            networkCredentials.pAlpnProtos = pAlpnProtos; /* This requires a NULL termination. It is inconsistent with other members in the struct. */
+            networkCredentials.pAlpnProtos = pAlpnProtos; 
         }
         else
         {
             networkCredentials.pAlpnProtos = NULL;
         }
 
-        /* If any of these are NULL a network error will result depending on the connection. */
+        /* If any of these are NULL a network error will result when trying to make the connection. Because there is 
+           no invalid memory access resulting from these configurations being NULL, it is not check at the start
+           of the function. */
         networkCredentials.pRootCa = pConnInfo->pCaCert;
         networkCredentials.rootCaSize = pConnInfo->caCertLen;
         networkCredentials.pClientCert = pConnInfo->pClientCert;
         networkCredentials.clientCertSize = pConnInfo->clientCertLen;
         networkCredentials.pPrivateKey = pConnInfo->pPrivateKey;
         networkCredentials.privateKeySize = pConnInfo->privateKeyLen;
-    }
 
-    /* If this is a TLS connection connect with networkCredentials. Otherwise pass NULL. */
-    if( ( pConnInfo->flags & IOT_HTTPS_IS_NON_TLS_FLAG ) == 0 )
-    {
-        /* create() will connect to the server specified. */
-        networkStatus = pHttpsConnection->pNetworkInterface->create( &networkServerInfo,
-            &networkCredentials,
-            &( pHttpsConnection->pNetworkConnection ) );
+        pNetworkCredentials = &networkCredentials;
     }
     else
     {
-        networkStatus = pHttpsConnection->pNetworkInterface->create( &networkServerInfo,
-            NULL,
-            &( pHttpsConnection->pNetworkConnection ) );
+        /* create() takes a NULL if there is no TLS configuration. */
+        pNetworkCredentials = NULL;
     }
+
+    /* create() will connect to the server specified in addition to creating other network layer 
+        specific resources. */
+    networkStatus = pHttpsConnection->pNetworkInterface->create( &networkServerInfo,
+        pNetworkCredentials,
+        &( pHttpsConnection->pNetworkConnection ) );
 
     /* Check to see if the network connection succeeded. If it did not succeed,
        then the output parameter pConnHandle will be used to return NULL and the
@@ -1341,11 +1351,9 @@ static IotHttpsReturnCode_t _createHttpsConnection(IotHttpsConnectionHandle_t * 
             networkStatus );
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_CONNECTION_ERROR);
     }
-    else
-    {
-        /* The connection succeeded so set the state to connected. */
-        pHttpsConnection->isConnected = true;
-    }
+
+    /* The connection succeeded so set the state to connected. */
+    pHttpsConnection->isConnected = true;
 
     /* The receive callback is invoked by the network layer when data is ready
       to be read from the network. */
@@ -1890,6 +1898,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     _httpsRequest_t* pHttpsRequest = (_httpsRequest_t*)( pUserContext );
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
     _httpsResponse_t* pHttpsResponse = pHttpsRequest->pHttpsResponse;
+    IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
 
     (void)pTaskPool;
     (void)pJob;
@@ -1967,6 +1976,11 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
 
+    /* The request has finished sending. This indicates to the network receive callback that the request was
+        finished, so a response received on the network is valid. This also lets a possible application called
+        IotHttpsClient_Disconnect() know that the connection is not busy, so the connection can be destroyed. */
+    pHttpsRequest->reqFinishedSending = true;
+
     if( HTTPS_FAILED(status) )
     {
         /* If the headers or body failed to send, then there should be no response expected from the server. */
@@ -1978,23 +1992,35 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         /* Set the error status in the sync workflow. */
         pHttpsResponse->syncStatus = status;
 
-        /* Post to the response finished semaphore to unlock the application waiting on a synchronous request. */
-        if(pHttpsRequest->isAsync == false)
-        {
-            IotSemaphore_Post( &(pHttpsResponse->respFinishedSem));
-        }
-
         /* Return the error status or cancel status to the application for an asynchronous workflow. */
         if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->errorCallback)
         {
             pHttpsRequest->pCallbacks->errorCallback( pHttpsRequest->pUserPrivData, pHttpsRequest, status );
         }
-        
-    }
-    else
-    {
-        /* The request has finished sending. */
-        pHttpsRequest->reqFinishedSending = true;
+
+        /* We close the connection on all network errors. All network errors in receiving the response, close the 
+           connection. For consistency in behavior, if there is a network error in send, the connection should also be 
+           closed. */
+        if( status == IOT_HTTPS_NETWORK_ERROR )
+        {
+             IotLogDebug("Disconnecting request %d.", pHttpsRequest);
+            disconnectStatus = IotHttpsClient_Disconnect(pHttpsConnection);
+            if(pHttpsResponse->isAsync && pHttpsRequest->pCallbacks->connectionClosedCallback)
+            {
+                pHttpsRequest->pCallbacks->connectionClosedCallback(pHttpsRequest->pUserPrivData, pHttpsConnection, disconnectStatus);
+            }
+
+            if(HTTPS_FAILED(disconnectStatus))
+            {
+                IotLogWarn("Failed to disconnect request %d. Error code: %d.", pHttpsRequest, disconnectStatus);
+            }
+        }
+
+        /* Post to the response finished semaphore to unlock the application waiting on a synchronous request. */
+        if(pHttpsRequest->isAsync == false)
+        {
+            IotSemaphore_Post( &(pHttpsResponse->respFinishedSem));
+        }
     }
 }
 
@@ -2267,6 +2293,17 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( connHandle );
 
+    /* If this routine is currently is progress by another thread, for instance the taskpool worker that received a 
+       network error after sending, then return right away because connection resources are being used. */
+    if( connHandle->isDisconnecting )
+    {
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_BUSY);
+    }
+    else
+    {
+        connHandle->isDisconnecting = true;
+    }
+
     /* Do not attempt to disconnect an already disconnected connection.
     It can happen when a user calls this functions and we return
     IOT_HTTPS_BUSY. */
@@ -2274,8 +2311,6 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
     {
         /* Mark the network as disconnected whether the disconnect passes or not. */
         connHandle->isConnected = false;
-        
-        /* Disconnect from the network. */
         _networkDisconnect(connHandle);
     }
 
@@ -2290,7 +2325,8 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
         {
             IotLogError("Connection is in use. Disconnected, but cannot destroy the connection.");
             status = IOT_HTTPS_BUSY;
-            /* Attempt to cancel the busy request. */
+            /* The request is busy, to as quickly as possible allow a successful retry call of this function we must
+               the busy request. */
             _cancelRequest(pHttpsRequest);
             /* We set the status as busy, but we do not goto the cleanup right away because we still want to remove 
                all pending requests. */
@@ -2299,7 +2335,8 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
         /* Delete all of the other possible pending requests on the connection. */
         IotDeQueue_RemoveAll(&(connHandle->reqQ), NULL, 0);
 
-        /* Put the request that was dequeued back so that the application can call this function again to check later. 
+        /* Put the request that was dequeued back so that the application can call this function again to check later 
+           that is exited and marked itself as finished sending. 
           If during the last check and this check reqFinishedSending gets set to true, that is OK because then the next
           time this function is called, there will be no requests in the reqQ. */
         if(pHttpsRequest->reqFinishedSending == false)
@@ -2316,15 +2353,27 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
        network receive callback context returns. */
     IotMutex_Lock(&(connHandle->respQMutex));
     IotDeQueue_RemoveAll(&(connHandle->respQ), NULL, 0);
-    IotMutex_Unlock(&(connHandle->reqQMutex));
+    IotMutex_Unlock(&(connHandle->respQMutex ));
 
-    /* Destroy the network connection (cleaning up network socket resources). */
+    /* Do not attempt to destroy an already destroyed connection. This can happen when the user calls this function and
+       IOT_HTTPS_BUSY is returned. */
     if( HTTPS_SUCCEEDED(status))
     {
-        _networkDestroy(connHandle);
+        if( connHandle->isDestroyed == false )
+        {
+            connHandle->isDestroyed = true;
+            _networkDestroy(connHandle);
+        }
     }
 
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    /* This function is no longer in process, so disconnecting is no longer in process. This signals to the a retry
+       on this function that it can proceed with the disconnecting activities. */
+    if( connHandle )
+    {
+        connHandle->isDisconnecting = false;
+    }
+    HTTPS_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
