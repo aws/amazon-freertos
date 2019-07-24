@@ -42,6 +42,7 @@ endif()
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
 
+
 set(
     kernel_inc_dirs
     "${esp_idf_dir}/components/app_update/include/"
@@ -56,6 +57,7 @@ set(
     "${esp_idf_dir}/components/soc/esp32/include"
     "${esp_idf_dir}/components/soc/include"
     "${esp_idf_dir}/components/spi_flash/include"
+    "${esp_idf_dir}/components/newlib/platform_include"
     "${board_dir}/application_code/espressif_code/freertos/include"
     "${board_dir}/application_code/espressif_code/ethernet/include"
     "${board_dir}/application_code/espressif_code/mbedtls/port/include"
@@ -67,7 +69,8 @@ target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
         ${kernel_inc_dirs}
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include"
         "${aws_credentials_include}"
         "${board_dir}/config_files"
         "$<$<NOT:${AFR_METADATA_MODE}>:${CMAKE_BINARY_DIR}/config>"
@@ -161,6 +164,16 @@ target_link_libraries(
         AFR::crypto
         AFR::pkcs11
 )
+
+# ESP-IDF version of FreeRTOS kernel requires these flags.
+# Instead, we want only the kernel to inherit these
+#   AFR::freertos <--PRIVATE-- kernel 
+#   AFR::kernel::mcu_port <--PRIVATE-- kernel 
+target_compile_definitions(
+	AFR::kernel::mcu_port
+	INTERFACE
+	-D_ESP_FREERTOS_INTERNAL
+	)
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
@@ -312,3 +325,4 @@ add_custom_target(monitor
     -P run_idf_monitor.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
     )
+

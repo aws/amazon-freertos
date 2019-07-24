@@ -7,6 +7,7 @@ set(
     ../../../config_files
     ${AMAZON_FREERTOS_KERNEL_DIR}/include
     ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include
+    ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32
 )
 
 # Edit following two lines to set component requirements (see docs)

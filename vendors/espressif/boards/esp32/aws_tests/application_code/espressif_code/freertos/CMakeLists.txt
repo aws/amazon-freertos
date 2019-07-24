@@ -8,6 +8,7 @@ set(
     ../../../config_files
     ${AMAZON_FREERTOS_KERNEL_DIR}/include
     ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include
+    ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32
     ${AMAZON_FREERTOS_FREERTOS_PLUS_DIR}/standard/freertos_plus_posix/include
     ${AMAZON_FREERTOS_3RDPARTY_DIR}/unity/src
 )

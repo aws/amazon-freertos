@@ -7,7 +7,6 @@ afr_module_sources(
         "${AFR_KERNEL_DIR}/event_groups.c"
         "${AFR_KERNEL_DIR}/list.c"
         "${AFR_KERNEL_DIR}/queue.c"
-        "${AFR_KERNEL_DIR}/stream_buffer.c"
         "${AFR_KERNEL_DIR}/tasks.c"
         "${AFR_KERNEL_DIR}/timers.c"
         ${freertos_inc}
