@@ -70,6 +70,10 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+/* The ESP32 development environment defines application configurations in this header.
+ * The configurations are updated in the "Espressif IDF Configuration" menu that appears
+ * when a "make menuconfig" is run from a 32 bit GNU compatible environment.
+ */
 #include "sdkconfig.h"
 
 
@@ -149,9 +153,27 @@ int xt_clock_freq(void) __attribute__((deprecated));
 #define UNTESTED_FUNCTION()
 #endif
 
+    /* The function that implements FreeRTOS printf style output, and the macro
+     * that maps the configPRINTF() macros to that function. */
+    extern void vLoggingPrintf( const char * pcFormat, ... );
+    #define configPRINTF( X )    vLoggingPrintf X
+
+    /* Non-format version thread-safe print. */
+    extern void vLoggingPrint( const char * pcMessage );
+    #define configPRINT( X )     vLoggingPrint( X )
+
+    /* Map the logging task's printf to the board specific output function. */
+    #define configPRINT_STRING( x )    printf( x )
 
 #endif /* def __ASSEMBLER__ */
 
+/* Sets the length of the buffers into which logging messages are written - so
+ * also defines the maximum length of each log message. */
+#define configLOGGING_MAX_MESSAGE_LENGTH            192
+
+/* Set to 1 to prepend each log message with a message number, the task name,
+ * and a time stamp. */
+#define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
 
 /*-----------------------------------------------------------
  * Application specific definitions.
@@ -224,6 +246,68 @@ int xt_clock_freq(void) __attribute__((deprecated));
 #define configGENERATE_RUN_TIME_STATS   1       /* Used by vTaskGetRunTimeStats() */
 #endif
 
+/* This demo creates a virtual network connection by accessing the raw Ethernet
+ * or WiFi data to and from a real network connection.  Many computers have more
+ * than one real network port, and configNETWORK_INTERFACE_TO_USE is used to tell
+ * the demo which real port should be used to create the virtual port.  The ports
+ * available are displayed on the console when the application is executed.  For
+ * example, on my development laptop setting configNETWORK_INTERFACE_TO_USE to 4
+ * results in the wired network being used, while setting
+ * configNETWORK_INTERFACE_TO_USE to 2 results in the wireless network being
+ * used. */
+#define configNETWORK_INTERFACE_TO_USE       2L
+
+/* The address of an echo server that will be used by the two demo echo client
+ * tasks:
+ * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Echo_Clients.html,
+ * http://www.freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/UDP_Echo_Clients.html. */
+#define configECHO_SERVER_ADDR0              192
+#define configECHO_SERVER_ADDR1              168
+#define configECHO_SERVER_ADDR2              2
+#define configECHO_SERVER_ADDR3              7
+#define configTCP_ECHO_CLIENT_PORT           7
+
+/* Default MAC address configuration.  The demo creates a virtual network
+ * connection that uses this MAC address by accessing the raw Ethernet/WiFi data
+ * to and from a real network connection on the host PC.  See the
+ * configNETWORK_INTERFACE_TO_USE definition above for information on how to
+ * configure the real network connection to use. */
+#define configMAC_ADDR0                      0x00
+#define configMAC_ADDR1                      0x11
+#define configMAC_ADDR2                      0x22
+#define configMAC_ADDR3                      0x33
+#define configMAC_ADDR4                      0x44
+#define configMAC_ADDR5                      0x21
+
+/* Default IP address configuration.  Used in ipconfigUSE_DHCP is set to 0, or
+ * ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */
+#define configIP_ADDR0                       192
+#define configIP_ADDR1                       168
+#define configIP_ADDR2                       0
+#define configIP_ADDR3                       105
+
+/* Default gateway IP address configuration.  Used in ipconfigUSE_DHCP is set to
+ * 0, or ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */
+#define configGATEWAY_ADDR0                  192
+#define configGATEWAY_ADDR1                  168
+#define configGATEWAY_ADDR2                  0
+#define configGATEWAY_ADDR3                  1
+
+/* Default DNS server configuration.  OpenDNS addresses are 208.67.222.222 and
+ * 208.67.220.220.  Used in ipconfigUSE_DHCP is set to 0, or ipconfigUSE_DHCP is
+ * set to 1 but a DNS server cannot be contacted.*/
+#define configDNS_SERVER_ADDR0               208
+#define configDNS_SERVER_ADDR1               67
+#define configDNS_SERVER_ADDR2               222
+#define configDNS_SERVER_ADDR3               222
+
+/* Default netmask configuration.  Used in ipconfigUSE_DHCP is set to 0, or
+ * ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */
+#define configNET_MASK0                      255
+#define configNET_MASK1                      255
+#define configNET_MASK2                      255
+#define configNET_MASK3                      0
+
 #define configUSE_TRACE_FACILITY_2      0		/* Provided by Xtensa port patch */
 #define configBENCHMARK					0		/* Provided by Xtensa port patch */
 #define configUSE_16_BIT_TICKS			0
@@ -281,6 +365,9 @@ int xt_clock_freq(void) __attribute__((deprecated));
 #define configSUPPORT_STATIC_ALLOCATION CONFIG_SUPPORT_STATIC_ALLOCATION
 
 #ifndef __ASSEMBLER__
+
+extern struct _reent *_impure_ptr;
+
 #if CONFIG_ENABLE_STATIC_TASK_CLEAN_UP_HOOK
 extern void vPortCleanUpTCB ( void *pxTCB );
 #define portCLEAN_UP_TCB( pxTCB )           vPortCleanUpTCB( pxTCB )
@@ -307,6 +394,14 @@ extern void vPortCleanUpTCB ( void *pxTCB );
 #define configXT_SIMULATOR					0
 
 #define configENABLE_TASK_SNAPSHOT			1
+
+/* Provide a value for this type that is required by Amazon FreeRTOS but absent
+ * from esp-idf FreeRTOS */
+#ifndef configSTACK_DEPTH_TYPE
+       /* Defaults to uint16_t for backward compatibility, but can be overridden
+       in FreeRTOSConfig.h if uint16_t is too restrictive. */
+       #define configSTACK_DEPTH_TYPE uint16_t
+#endif
 
 #if CONFIG_SYSVIEW_ENABLE
 #ifndef __ASSEMBLER__
