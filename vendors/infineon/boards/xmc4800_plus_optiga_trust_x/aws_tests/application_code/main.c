@@ -92,15 +92,6 @@ int main( void )
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    /* FIX ME: If you are using Ethernet network connections and the FreeRTOS+TCP stack,
-     * uncomment the initialization function, FreeRTOS_IPInit(), below. */
-    /*FreeRTOS_IPInit( ucIPAddress,
-     *                 ucNetMask,
-     *                 ucGatewayAddress,
-     *                 ucDNSServerAddress,
-     *                 ucMACAddress );
-     */
-
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the Wi-Fi initialization, is performed in the RTOS daemon task
      * startup hook. */
@@ -118,10 +109,6 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    /* FIX ME: Perform any hardware initialization, that require the RTOS to be
-     * running, here. */
-    //vDevModeKeyProvisioning();
-
     /* FIX ME: If your MCU is using Wi-Fi, delete surrounding compiler directives to 
      * enable the unit tests and after MQTT, Bufferpool, and Secure Sockets libraries 
      * have been imported into the project. If you are not using Wi-Fi, see the 
