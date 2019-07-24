@@ -49,7 +49,8 @@
 /*---------------------------- MQTT handle types ----------------------------*/
 
 /**
- * @handles{mqtt,MQTT library}
+ * @handles_group{mqtt}
+ * @handles_brief{MQTT library}
  */
 
 /**
@@ -94,7 +95,8 @@ typedef struct _mqttOperation    * IotMqttOperation_t;
 /*-------------------------- MQTT enumerated types --------------------------*/
 
 /**
- * @enums{mqtt,MQTT library}
+ * @enums_group{mqtt}
+ * @enums_brief{MQTT library}
  */
 
 /**
@@ -316,7 +318,8 @@ typedef enum IotMqttDisconnectReason
 /*------------------------- MQTT parameter structs --------------------------*/
 
 /**
- * @paramstructs{mqtt,MQTT}
+ * @paramstructs_group{mqtt}
+ * @paramstructs_brief{mqtt,MQTT}
  */
 
 /**
@@ -997,7 +1000,8 @@ typedef struct IotMqttNetworkInfo
 /*------------------------- MQTT defined constants --------------------------*/
 
 /**
- * @constantspage{mqtt,MQTT library}
+ * @constants_page{mqtt}
+ * @constants_brief{MQTT library}
  *
  * @section mqtt_constants_initializers MQTT Initializers
  * @brief Provides default values for the data types of the MQTT library.

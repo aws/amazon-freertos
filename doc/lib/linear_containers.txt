@@ -9,7 +9,8 @@ Currently, linear containers are implemented with `static inline` functions and 
 */
 
 /**
-@configpage{linear_containers,linear containers library}
+@config_page{linear_containers}
+@config_brief{linear containers library}
 
 @section IOT_CONTAINERS_ENABLE_ASSERTS
 @brief Set this to `1` to perform sanity checks when using linear containers.

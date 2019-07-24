@@ -422,7 +422,11 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
         xStatus = eBTStatusFail;
     }
 
-    xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, ulGattServerIFhandle );
+    if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
+    {
+    	xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
+    }
+
     return xStatus;
 }
 
@@ -432,8 +436,19 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    int xESPStatus;
 
     ble_gap_adv_stop();
+
+    if( xESPStatus != 0 )
+    {
+        xStatus = eBTStatusFail;
+    }
+
+    if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
+    {
+    	xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
+    }
 
     return xStatus;
 }

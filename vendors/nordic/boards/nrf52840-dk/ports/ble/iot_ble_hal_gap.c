@@ -555,9 +555,9 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     xStatus = BTNRFError( xErrCode );
 
-    if( xBTBleAdapterCallbacks.pxAdvStartCb )
+    if( xBTBleAdapterCallbacks.pxAdvStatusCb )
     {
-        xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, usGattConnHandle );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, usGattConnHandle, true );
     }
 
     if( xStatus != eBTStatusSuccess )
@@ -590,6 +590,11 @@ BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 
     BT_NRF_PRINT_ERROR( sd_ble_gap_adv_stop, xErrCode );
     xStatus = BTNRFError( xErrCode );
+
+    if( xBTBleAdapterCallbacks.pxAdvStatusCb )
+    {
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, usGattConnHandle, false );
+    }
     return xStatus;
 }
 

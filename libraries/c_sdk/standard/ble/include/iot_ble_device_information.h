@@ -33,12 +33,16 @@
 #include <stdbool.h>
 
 /**
- * @functionspage{iotbledeviceinfo,GATT Service for Device Information,Device Information}
- * - @functionname{iotbledeviceinfo_function_init}
+ * @functions_page{iotbledeviceinfo, Device Information}
+ * @functions_brief{GATT Service for Device Information}
+ * - @function_name{iotbledeviceinfo_function_init}
+ * @function_brief{iotbledeviceinfo_function_init}
  */
 
 /**
- * @functionpage{IotBleDeviceInfo_Init,iotbledeviceinfo,init}
+ * @function_page{IotBleDeviceInfo_Init,iotbledeviceinfo,init}
+ * @function_snippet{iotbledeviceinfo,init,this}
+ * @copydoc IotBleDeviceInfo_Init
  */
 
 /**
