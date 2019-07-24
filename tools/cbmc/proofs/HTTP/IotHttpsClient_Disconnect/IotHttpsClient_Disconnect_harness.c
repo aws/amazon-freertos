@@ -15,9 +15,8 @@ void harness() {
   /* This is done to insert an element in reqQ and get coverage in IotHttpsClient_Disconnect. */
   	_httpsRequest_t * pReq = malloc(sizeof(_httpsRequest_t));
   	pReq->pHttpsResponse = malloc(sizeof(_httpsResponse_t));
-  	IotLink_t * pLink = pReq;
   /* This function inserts the element in the reqQ.*/
-  	IotDeQueue_EnqueueTail(&(connHandle->reqQ), pLink);
+  	IotDeQueue_EnqueueTail(&(connHandle->reqQ), &(pReq->link));
   }
   IotHttpsClient_Disconnect(connHandle);
 }
