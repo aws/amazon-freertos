@@ -10,6 +10,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "NuMicro.h"
+#include "semphr.h"
 
 /*
  * Get Random number generator.
@@ -27,7 +28,7 @@ static uint32_t   adc_val[SNUM];
 static uint32_t   val_sum;
 static int        oldest;
 
-static SemaphoreHandle_t xTrngMutex = xSemaphoreCreateMutex();
+static SemaphoreHandle_t xTrngMutex = NULL;
 
 #ifdef __ICCARM__
 #define __inline   inline
@@ -130,7 +131,7 @@ void CRYPTO_IRQHandler()
     if (PRNG_GET_INT_FLAG(CRPT)) {
         g_PRNG_done = 1;
         PRNG_CLR_INT_FLAG(CRPT);
-    } else	if (AES_GET_INT_FLAG(CRPT)) {
+    } else  if (AES_GET_INT_FLAG(CRPT)) {
         g_AES_done = 1;
         AES_CLR_INT_FLAG(CRPT);
     }
@@ -139,15 +140,15 @@ void CRYPTO_IRQHandler()
 
 static void trng_get(unsigned char *pConversionData)
 {
-	uint32_t *p32ConversionData;
+    uint32_t *p32ConversionData;
     uint32_t u32val;
   
-	p32ConversionData = (uint32_t *)pConversionData;
-	
+    p32ConversionData = (uint32_t *)pConversionData;
+    
     xSemaphoreTake( xTrngMutex, ( TickType_t ) 0);
     
     PRNG_ENABLE_INT(CRPT);
-	
+    
     u32val = adc_trng_gen_rnd();
     //printf("=== %s: 0x%x \n", __FUNCTION__, u32val);
     PRNG_Open(CRPT, PRNG_KEY_SIZE_256, 1, u32val); //adc_trng_gen_rnd());
@@ -165,28 +166,30 @@ static void trng_get(unsigned char *pConversionData)
     xSemaphoreGive( xTrngMutex );    
 }
 
-static bool trng_init()
+static BaseType_t trng_init()
 {
-    static bool init_done = FALSE;
+    static BaseType_t init_done = pdFALSE;
     
-    if( init_done == TRUE )  return TRUE;
+    if( init_done == pdTRUE )  return pdTRUE;
 
-    if( xTrngMutex == NULL ) return FALSE;
-    
+    if( xTrngMutex == NULL ) {
+        xTrngMutex = xSemaphoreCreateMutex();
+        if( xTrngMutex == NULL) return pdFALSE;
+    }
     xSemaphoreTake( xTrngMutex, ( TickType_t ) 0);
     init_adc_init();
     /* Unlock protected registers */
-    SYS_UnlockReg();	
+    SYS_UnlockReg();    
     /* Enable IP clock */
     CLK_EnableModuleClock(CRPT_MODULE);
-	
+    
     /* Lock protected registers */
-    SYS_LockReg();	
-	
+    SYS_LockReg();  
+    
     NVIC_EnableIRQ(CRPT_IRQn);    
     xSemaphoreGive( xTrngMutex );
-    init_done = TRUE;
-    return TRUE;
+    init_done = pdTRUE;
+    return pdTRUE;
 }
 
 /*
@@ -198,7 +201,7 @@ int mbedtls_hardware_poll( void *data,
 {
 #if 0
     unsigned long timer = xTaskGetTickCount();
-	  ((void) data);
+      ((void) data);
     *olen = 0;
  
     if( len < sizeof(unsigned long) )
@@ -212,7 +215,7 @@ int mbedtls_hardware_poll( void *data,
     *olen = 0;
     ((void) data);
 
-    if( trng_init() == FALSE ) return (-1);
+    if( trng_init() == pdFALSE ) return (-1);
     
     while (len >= sizeof(tmpBuff)) {
         trng_get(output);
@@ -227,17 +230,17 @@ int mbedtls_hardware_poll( void *data,
     }
     *olen = cur_length;
 #endif
-	
+    
     return( 0 );
 }
  
 #if 1
 uint32_t numaker_ulRand( void )
 {
-	unsigned char tmpBuff[PRNG_KEY_SIZE];
+    unsigned char tmpBuff[PRNG_KEY_SIZE];
     init_adc_init();
-	trng_get(tmpBuff);
-	return *((uint32_t*)tmpBuff);
+    trng_get(tmpBuff);
+    return *((uint32_t*)tmpBuff);
 }
 #endif
 

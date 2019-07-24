@@ -78,7 +78,7 @@ target_compile_options(
 )
 
 # Linker flags
-set(linker_flags --cpu Cortex-M4.fp --diag_suppress 6340,6329,6314 --entry Reset_Handler --strict --scatter "${CMAKE_CURRENT_LIST_DIR}/m487_flash.sct" --summary_stderr --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols )
+set(linker_flags --cpu Cortex-M4.fp --diag_suppress 6340,6329,6314 --entry Reset_Handler --library_type=microlib --strict --scatter "${CMAKE_CURRENT_LIST_DIR}/m487_flash.sct" --summary_stderr --info summarysizes,sizes,totals,unused,veneers --map --xref --callgraph --symbols )
 
 target_link_options(
     AFR::compiler::mcu_port
