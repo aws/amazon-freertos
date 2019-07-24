@@ -71,19 +71,6 @@
 
 #define MAX_PUBLIC_KEY_SIZE           100
 
-#undef keyCLIENT_CERTIFICATE_PEM
-#undef keyCLIENT_PRIVATE_KEY_PEM
-
-char keyCLIENT_CERTIFICATE_PEM[1124];
-
-#define keyCLIENT_PRIVATE_KEY_PEM                   \
-"-----BEGIN EC PRIVATE KEY-----\n" \
-"MHcCAQEEIH84O6hf145Awun9lH6GbesjSmwJ5w1ODaYhp7xLZRA3oAoGCCqGSM49\n" \
-"AwEHoUQDQgAEb5ERgUCa0019j5JWdEiH0JyldJF9cv/MW2Lx94n9HVJ9FiQcooFi\n" \
-"KegulIrIuCLE1a7zsv8Izs/6gY9rxOdHHA==\n" \
-"-----END EC PRIVATE KEY-----\n"
-
-
 typedef struct P11Object_t
 {
     CK_OBJECT_HANDLE xHandle;
@@ -126,10 +113,8 @@ typedef struct P11Session
     CK_BYTE * pxFindObjectLabel; /* Pointer to the label for the search in progress. Should be NULL if no search in progress. */
     uint8_t xFindObjectLabelLength;
     CK_MECHANISM_TYPE xVerifyMechanism;
-    SemaphoreHandle_t xVerifyMutex; /* Protects the verification key from being modified while in use. */
     uint16_t usVerifyKeyOid;
     CK_MECHANISM_TYPE xSignMechanism;
-    SemaphoreHandle_t xSignMutex; /* Protects the signing key from being modified while in use. */
     uint16_t usSignKeyOid;
     OptigaSha256Ctx_t xSHA256Context;
 } P11Session_t, * P11SessionPtr_t;
@@ -139,8 +124,6 @@ typedef struct P11Session
  * @brief Cryptoki module attribute definitions.
  */
 #define pkcs11SLOT_ID               1
-
-#define pkcs11SUPPORTED_KEY_BITS    2048
 
 
 /**
@@ -156,7 +139,7 @@ typedef struct P11Session
 #define PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSessionHandle )    ( PKCS11_MODULE_IS_INITIALIZED ? PKCS11_SESSION_IS_VALID( xSessionHandle ) : CKR_CRYPTOKI_NOT_INITIALIZED )
 /*-----------------------------------------------------------*/
 
-#define pkcs11OBJECT_CERTIFICATE_MAX_SIZE    2048
+#define pkcs11OBJECT_CERTIFICATE_MAX_SIZE    1728
 
 enum eObjectHandles
 {
@@ -474,10 +457,6 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
     *pIsPrivate = CK_FALSE;
 
-    *ppucData = pvPortMalloc( 1200 );
-    *pulDataSize = 1200;
-
-
     switch (xHandle) {
     case eAwsDeviceCertificate:
     	lOptigaOid = strtol(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
@@ -499,22 +478,31 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
     	break;
     }
 
-    if ( (0 != lOptigaOid) && (USHRT_MAX > lOptigaOid) &&
-         (NULL != *ppucData) && (NULL != pulDataSize))
+    // We need to allocate a buffer for a certificate/certificate chain
+    // This data is later should be freed with PKCS11_PAL_GetObjectValueCleanup
+    *ppucData = pvPortMalloc( pkcs11OBJECT_CERTIFICATE_MAX_SIZE );
+    if (NULL != *ppucData)
     {
+    	*pulDataSize = pkcs11OBJECT_CERTIFICATE_MAX_SIZE;
 
-        xReturn = optiga_util_read_data(lOptigaOid, xOffset, *ppucData, (uint16_t*)pulDataSize);
+		if ( (0 != lOptigaOid) && (USHRT_MAX > lOptigaOid) && (NULL != pulDataSize))
+		{
+			xReturn = optiga_util_read_data(lOptigaOid, xOffset, *ppucData, (uint16_t*)pulDataSize);
 
-	    if (OPTIGA_LIB_SUCCESS != xReturn)
-	    {
-	    	*ppucData = NULL;
-	    	*pulDataSize = 0;
-	    	ulReturn = CKR_KEY_HANDLE_INVALID;
-	    }
+			if (OPTIGA_LIB_SUCCESS != xReturn)
+			{
+				*ppucData = NULL;
+				*pulDataSize = 0;
+				ulReturn = CKR_KEY_HANDLE_INVALID;
+			}
+		}
     }
+
 
     return ulReturn;
 }
+
+
 
 /*-----------------------------------------------------------*/
 
@@ -629,74 +617,6 @@ static CK_FUNCTION_LIST prvP11FunctionList =
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
-#define MAX_DEFAULT_TLS_CERTIFICATE_LENGTH 1124
-char keyCLIENT_CERTIFICATE_PEM[MAX_DEFAULT_TLS_CERTIFICATE_LENGTH];
-uint16_t xDefaultTLSCertificateLength = 0;
-
-static uint8_t prvReadDefaultCertificate(char* pxCertificate, uint16_t* pxCertificateLength)
-{
-		uint8_t ifx_cert_hex[800];
-		uint16_t  ifx_cert_hex_len = sizeof(ifx_cert_hex);
-		size_t  ifx_cert_b64_len = 0;
-		uint8_t ifx_cert_b64_temp[1124];
-		uint16_t offset_to_read = 0;
-		uint16_t offset_to_write = 0;
-		uint16_t size_to_copy = 0;
-		optiga_lib_status_t status;
-		long lOptigaOid = 0;
-		char* xEnd = NULL;
-		uint8_t xError = 1;
-
-		do {
-			
-			if (pxCertificate == NULL || pxCertificateLength == NULL || *pxCertificateLength == 0)
-				break;
-			
-			lOptigaOid = strtol(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
-			
-			// We have an offset of 9 bytes occupied by the service information inside the Trust X
-			status = optiga_util_read_data(lOptigaOid, 9, ifx_cert_hex, &ifx_cert_hex_len);
-
-			if ( status != OPTIGA_LIB_SUCCESS)
-				break;
-			
-			mbedtls_base64_encode((unsigned char *)ifx_cert_b64_temp, sizeof(ifx_cert_b64_temp),
-								  &ifx_cert_b64_len,
-								  ifx_cert_hex, ifx_cert_hex_len);
-
-			memcpy(pxCertificate, "-----BEGIN CERTIFICATE-----\n", 28);
-			offset_to_write += 28;
-
-			//Properly copy certificate and format it as pkcs expects
-			for (offset_to_read = 0; offset_to_read < ifx_cert_b64_len;)
-			{
-				// The last block of data usually is less than 64, thus we need to find the leftover
-				if ((offset_to_read + 64) >= ifx_cert_b64_len)
-					size_to_copy = ifx_cert_b64_len - offset_to_read;
-				else
-					size_to_copy = 64;
-				memcpy(pxCertificate + offset_to_write, ifx_cert_b64_temp + offset_to_read, size_to_copy);
-				offset_to_write += size_to_copy;
-				offset_to_read += size_to_copy;
-				pxCertificate[offset_to_write] = '\n';
-				offset_to_write++;
-			}
-
-			memcpy(pxCertificate + offset_to_write, "-----END CERTIFICATE-----\n\0", 27);
-
-			*pxCertificateLength = offset_to_write + 27;
-			
-			printf("My Certitficate is: \n %s\n",pxCertificate);
-			
-			xError = CKR_OK;
-			
-		}while(0);
-		
-		if (xError)
-			*pxCertificateLength = 0;
-		
-}
-
 
 CK_RV prvOPTIGATrustX_Initialize( void )
 {
@@ -729,19 +649,6 @@ CK_RV prvOPTIGATrustX_Initialize( void )
 		{
 			xResult = CKR_FUNCTION_FAILED;
 		}
-
-		xDefaultTLSCertificateLength = MAX_DEFAULT_TLS_CERTIFICATE_LENGTH;
-		
-		if (CKR_OK != xResult)
-		{
-			xResult = prvReadDefaultCertificate(keyCLIENT_CERTIFICATE_PEM, &xDefaultTLSCertificateLength);
-		}
-		
-		if (CKR_OK != xResult)
-		{
-			xResult = CKR_FUNCTION_FAILED;
-		}
-
     }
 
     return xResult;
@@ -927,94 +834,6 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     return xResult;
 }
 
-#if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 )
-
-    CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xAppHandle )
-    {
-        uint8_t * pcLabel = NULL;
-        size_t xLabelLength = 0;
-        uint32_t ulObjectLength = 0;
-        CK_BBOOL xIsPrivate = CK_TRUE;
-        CK_RV xResult = CKR_OK;
-        CK_BBOOL xFreeMemory = CK_FALSE;
-        CK_BYTE_PTR pxObject = NULL;
-        CK_ATTRIBUTE xLabel;
-        CK_OBJECT_HANDLE xPalHandle;
-        CK_OBJECT_HANDLE xPalHandle2;
-        CK_OBJECT_HANDLE xAppHandle2;
-        CK_BYTE_PTR pxZeroedData = NULL;
-
-        prvFindObjectInListByHandle( xAppHandle, &xPalHandle, &pcLabel, &xLabelLength );
-
-        if( pcLabel != NULL )
-        {
-			xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObject, &ulObjectLength, &xIsPrivate );
-
-			if( xResult == CKR_OK )
-			{
-				xFreeMemory = CK_TRUE;
-				/* Some ports return a pointer to memory for which using memset directly won't work. */
-				pxZeroedData = pvPortMalloc( ulObjectLength );
-
-				if( NULL != pxZeroedData )
-				{
-					/* Zero out the object. */
-					memset( pxZeroedData, 0x0, ulObjectLength );
-					/* Create an object label attribute. */
-					xLabel.type = CKA_LABEL;
-					xLabel.pValue = pcLabel;
-					xLabel.ulValueLen = xLabelLength;
-					/* Overwrite the object in NVM with zeros. */
-					xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ulObjectLength );
-
-					if( xPalHandle2 != xPalHandle )
-					{
-						xResult = CKR_GENERAL_ERROR;
-					}
-
-					vPortFree( pxZeroedData );
-				}
-				else
-				{
-					xResult = CKR_HOST_MEMORY;
-				}
-			}
-        }
-
-        if( xResult == CKR_OK )
-        {
-            if( 0 == memcmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
-            {
-                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
-
-                if( xPalHandle != CK_INVALID_HANDLE )
-                {
-                    xResult = prvDeleteObjectFromList( xAppHandle2 );
-                }
-            }
-            else if( 0 == memcmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
-            {
-                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
-
-                if( xPalHandle != CK_INVALID_HANDLE )
-                {
-                    xResult = prvDeleteObjectFromList( xAppHandle2 );
-                }
-            }
-
-            xResult = prvDeleteObjectFromList( xAppHandle );
-        }
-
-        if( xFreeMemory == CK_TRUE )
-        {
-            PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
-        }
-
-        return xResult;
-    }
-
-#endif /* if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 ) */
-
 #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 )
 
 /* Returns True if the object is not stored in NVM & must be looked up in header file.
@@ -1068,6 +887,105 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
 #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 ) */
 
+
+#if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 )
+
+    CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xAppHandle )
+    {
+        uint8_t * pcLabel = NULL;
+        size_t xLabelLength = 0;
+        uint32_t ulObjectLength = 0;
+        CK_RV xResult = CKR_OK;
+        CK_BBOOL xFreeMemory = CK_FALSE;
+        CK_BYTE_PTR pxObject = NULL;
+        CK_OBJECT_HANDLE xPalHandle;
+        CK_OBJECT_HANDLE xAppHandle2;
+        CK_LONG lOptigaOid = 0;
+        char* xEnd = NULL;
+
+        prvFindObjectInListByHandle( xAppHandle, &xPalHandle, &pcLabel, &xLabelLength );
+
+        if( pcLabel != NULL )
+        {
+            if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
+            {
+                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+
+                if( xPalHandle != CK_INVALID_HANDLE )
+                {
+                    xResult = prvDeleteObjectFromList( xAppHandle2 );
+                }
+            }
+            else if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
+            {
+            	lOptigaOid = strtol(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16);
+
+            	if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid) )
+            	{
+
+            		// Erase the object
+            		CK_BYTE pucData[] = {0};
+            		xResult = optiga_util_write_data((uint16_t)lOptigaOid,
+    												 OPTIGA_UTIL_ERASE_AND_WRITE,
+    												 0,
+    												 pucData,
+    												 1);
+
+    				if (OPTIGA_LIB_SUCCESS == xResult)
+    				{
+    					prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+
+						if( xPalHandle != CK_INVALID_HANDLE )
+						{
+							xResult = prvDeleteObjectFromList( xAppHandle2 );
+						}
+    				}
+
+            	}
+            }
+            else if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
+		    {
+
+            	lOptigaOid = strtol(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
+
+				if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid) )
+				{
+					// Erase the object
+					CK_BYTE pucData[] = {0};
+					xResult = optiga_util_write_data((uint16_t)lOptigaOid,
+													 OPTIGA_UTIL_ERASE_AND_WRITE,
+													 0,
+													 pucData,
+													 1);
+
+					if (OPTIGA_LIB_SUCCESS == xResult)
+					{
+						prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+
+						if( xPalHandle != CK_INVALID_HANDLE )
+						{
+							xResult = prvDeleteObjectFromList( xAppHandle2 );
+						}
+					}
+				}
+		    }
+
+            xResult = prvDeleteObjectFromList( xAppHandle );
+        }
+        else
+        {
+        	xResult = CKR_KEY_HANDLE_INVALID;
+        }
+
+        if( xFreeMemory == CK_TRUE )
+        {
+            PKCS11_PAL_GetObjectValueCleanup( pxObject, ulObjectLength );
+        }
+
+        return xResult;
+    }
+
+#endif /* if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 ) */
 
 /*-------------------------------------------------------------*/
 
@@ -1245,20 +1163,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
             memset( pxSessionObj, 0, sizeof( P11Session_t ) );
         }
 
-        pxSessionObj->xSignMutex = xSemaphoreCreateMutex();
-
-        if( NULL == pxSessionObj->xSignMutex )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-
-        pxSessionObj->xVerifyMutex = xSemaphoreCreateMutex();
-
-        if( NULL == pxSessionObj->xVerifyMutex )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-
     }
 
     if( CKR_OK == xResult )
@@ -1304,20 +1208,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
 
     if( (xResult == CKR_OK) && (NULL != pxSession) )
     {
-        /*
-         * Tear down the session.
-         */
-
-        if( NULL != pxSession->xSignMutex )
-        {
-            vSemaphoreDelete( pxSession->xSignMutex );
-        }
-
-        if( NULL != pxSession->xVerifyMutex )
-        {
-            vSemaphoreDelete( pxSession->xVerifyMutex );
-        }
-
         vPortFree( pxSession );
     }
     else
@@ -2452,35 +2342,25 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
             /* Sign the data.*/
             if( CKR_OK == xResult )
             {
-                if( pdTRUE == xSemaphoreTake( pxSession->xSignMutex, portMAX_DELAY ) )
-                {
-
-                	if (0 != pxSession->usSignKeyOid)
-                	{
-                		/*
-                		 * An example of a returned signature
-                		 * 0x000000: 02 20 38 0f 56 c8 90 53 18 9d 8f 58 b4 46 35 a0 . 8.V..S...X.F5.
-                		 * 0x000010: d7 07 63 ef 9f a2 30 64 93 e4 3d bf 7b db 57 a1 ..c...0d..=.{.W.
-                		 * 0x000020: b6 d7 02 20 4f 5e 3a db 6b 1a eb ac 66 9a 15 69 ... O^:.k...f..i
-                		 * 0x000030: 0d 7d 46 5b 44 72 40 06 a5 7b 06 84 0f d7 6e 0f .}F[Dr@..{....n.
-                		 * 0x000040: 4b 45 7f 50                                     KE.P
-                		 */
-                        if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_sign(pucData,
-																		   xExpectedInputLength,
-																		   pxSession->usSignKeyOid,
-																		   ecSignature,
-																		   &ecSignatureLength))
-                        {
-                        	xResult = CKR_FUNCTION_FAILED;
-                        }
-                	}
-
-                	xSemaphoreGive( pxSession->xSignMutex );
-                }
-                else
-                {
-                    xResult = CKR_CANT_LOCK;
-                }
+				if (0 != pxSession->usSignKeyOid)
+				{
+					/*
+					 * An example of a returned signature
+					 * 0x000000: 02 20 38 0f 56 c8 90 53 18 9d 8f 58 b4 46 35 a0 . 8.V..S...X.F5.
+					 * 0x000010: d7 07 63 ef 9f a2 30 64 93 e4 3d bf 7b db 57 a1 ..c...0d..=.{.W.
+					 * 0x000020: b6 d7 02 20 4f 5e 3a db 6b 1a eb ac 66 9a 15 69 ... O^:.k...f..i
+					 * 0x000030: 0d 7d 46 5b 44 72 40 06 a5 7b 06 84 0f d7 6e 0f .}F[Dr@..{....n.
+					 * 0x000040: 4b 45 7f 50                                     KE.P
+					 */
+					if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_sign(pucData,
+																	   xExpectedInputLength,
+																	   pxSession->usSignKeyOid,
+																	   ecSignature,
+																	   &ecSignatureLength))
+					{
+						xResult = CKR_FUNCTION_FAILED;
+					}
+				}
             }
         }
     }
