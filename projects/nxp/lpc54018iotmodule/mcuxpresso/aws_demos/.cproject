@@ -122,6 +122,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/nxp/boards/lpc54018iotmodule/aws_demos/config_files"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/nxp/boards/lpc54018iotmodule/aws_demos/application_code/nxp_code"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/network_manager"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include/private"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/common/include"/>
