@@ -108,12 +108,6 @@ TEST_GROUP( Full_PKCS11_RSA );
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
 
-/* The model based session machine test group is for test
- * that have be automatically sythensized from the API test
- * generation utility for the session management fragment
- * of the PKCS#11 API */
-//TEST_GROUP(Full_PKCS11_ModelBased_SessionMachine);
-
 /* #define PKCS11_TEST_MEMORY_LEAK */
 #ifdef PKCS11_TEST_MEMORY_LEAK
     BaseType_t xHeapBefore;
