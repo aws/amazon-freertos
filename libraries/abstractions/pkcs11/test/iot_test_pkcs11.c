@@ -43,6 +43,9 @@
 #include "iot_test_pkcs11_config.h"
 #include "mbedtls/x509_crt.h"
 
+/* Model-based testing includes. */
+#include "MBT_SessionMachine.h"
+
 #if ( pkcs11testRSA_KEY_SUPPORT == 0 ) && ( pkcs11testEC_KEY_SUPPORT == 0 )
     #error "RSA or Elliptic curve keys (or both) must be supported."
 #endif
@@ -52,6 +55,7 @@
 #endif
 
 
+#include "iot_test_pkcs11_globals.h"
 #include "iot_pkcs11_config.h"
 
 /* Test includes. */
@@ -78,11 +82,6 @@ typedef enum
     eStateUnknown         /* State of the credentials is unknown. */
 } CredentialsProvisioned_t;
 
-/* PKCS #11 Globals.
- * These are used to reduce setup and tear down calls, and to
- * prevent memory leaks in the case of TEST_PROTECT() actions being triggered. */
-CK_SESSION_HANDLE xGlobalSession;
-CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
 CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
 
 /* Function Prototypes. */
@@ -108,6 +107,12 @@ TEST_GROUP( Full_PKCS11_NoObject );
 TEST_GROUP( Full_PKCS11_RSA );
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
+
+/* The model based session machine test group is for test
+ * that have be automatically sythensized from the API test
+ * generation utility for the session management fragment
+ * of the PKCS#11 API */
+//TEST_GROUP(Full_PKCS11_ModelBased_SessionMachine);
 
 /* #define PKCS11_TEST_MEMORY_LEAK */
 #ifdef PKCS11_TEST_MEMORY_LEAK

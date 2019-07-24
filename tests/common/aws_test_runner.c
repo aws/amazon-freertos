@@ -139,6 +139,7 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_PKCS11_NoObject );
         RUN_TEST_GROUP( Full_PKCS11_RSA );
         RUN_TEST_GROUP( Full_PKCS11_EC );
+        RUN_TEST_GROUP( Full_PKCS11_ModelBased_SessionMachine );
     #endif
 
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )

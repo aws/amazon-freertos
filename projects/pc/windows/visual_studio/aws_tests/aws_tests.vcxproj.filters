@@ -1083,6 +1083,24 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
       <Filter>libraries\freertos_plus\standard\utils\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_CloseSession.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Finalize.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Initialize.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_OpenSession.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\aws_run-time-stats-utils.c">
@@ -1714,6 +1732,24 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
       <Filter>libraries\freertos_plus\standard\utils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_CloseSession.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Finalize.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Initialize.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_OpenSession.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
