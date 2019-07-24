@@ -404,7 +404,7 @@ static IotHttpsReturnCode_t _parseHttpsMessage(_httpParserInfo_t* pHttpParserInf
  * @param[in] pParser - Pointer to the instance of the http-parser.
  * @param[in] pCurrentParserState - The current state of what has been parsed in the HTTP response.
  * @param[in] finalParserState - The final state of the parser expected after this function finishes.
- * @param[in] pBufCur - Pointer to the next location to write data into the buffer pBuf. This is double pointer to update the response context buffer pointers.
+ * @param[in] pBufCur - Pointer to the next location to write data into the buffer pBuf. This is a double pointer to update the response context buffer pointers.
  * @param[in] pBufEnd - Pointer to the end of the buffer to receive the HTTP response into.
  *
  * @return #IOT_HTTPS_OK if we received the HTTP response message part successfully.
@@ -571,6 +571,16 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
                                                  IotHttpsResponseInfo_t* pRespInfo, 
                                                  bool isAsync, 
                                                  IotHttpsMethod_t method );
+
+/**
+ * @brief Increment the pointer stored in pBufCur depending on the character found in there.
+ * 
+ * This function increments the pHeadersCur pointer further if the message ended with a header line delimitter.
+ * 
+ * @param[in] pBufCur - Pointer to the next location to write data into the buffer pBuf. This is a double pointer to update the response context buffer pointers.
+ * @param[in] pBufEnd - Pointer to the end of the buffer to receive the HTTP response into.
+ */
+static void _incrementNextLocationToWriteBeyondParsed(uint8_t **pBufCur, uint8_t **pBufEnd);
 
 /*-----------------------------------------------------------*/
 
@@ -1644,6 +1654,78 @@ static IotHttpsReturnCode_t _parseHttpsMessage(_httpParserInfo_t* pHttpParserInf
 
 /*-----------------------------------------------------------*/
 
+static void _incrementNextLocationToWriteBeyondParsed(uint8_t **pBufCur, uint8_t **pBufEnd)
+{
+    /* There is an edge case where the final one or two character received in the header buffer is part of 
+    the header field separator ": " or part of the header line end "\r\n" delimitters. When this 
+    happens, pHeadersCur in the response will point not the end of the buffer, but to a character in 
+    the delimiter. For example:
+    Let's say this is our current header buffer after receiving and parsing: 
+    ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\n"] 
+    pHeadersCur will point to \r because the http-parser does not invoke a callback on the
+    delimitters. Since no callback is invoked, pHeadersCur is not incremented. pHeadersEnd points to
+    the end of the header buffer which is the unwritable memory location right after the final '\n'.
+    Because pHeadersCur is less than pHeaderEnd we loop again and receive on the network causing the
+    buffer to look like this:
+    ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1he"]
+    Which will cause an incorrect header1 value to be read if the application decides to read it with
+    IotHttpsClient_ReadHeader(). 
+    
+    If our header buffer looks like:
+    ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: "]
+    then pHeaderCur will point to the colon.
+
+    If our header buffer looks like:
+    ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1:"]
+    then pHeaderCur will point to the colon.
+    
+    If our header buffer looks like
+    ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1 "]
+    then http-parser will consider that space as part of value1.
+    
+    If our header buffer looks like
+    ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r"]
+    then pHeaderCur will point to the carriage return. 
+    
+    If our header buffer looks like
+    ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\n"]
+    As explained in the example above, pHeaderCur will point to the carriage return.
+    
+    If we somehow receive a partial HTTP response message in our zeroed-out header buffer:
+    case 1: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\0\0\0\0\0\0\0"]
+    case 2: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\n\0\0\0\0\0\0"]
+    case 3: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1:\0\0\0\0\0\0\0\0\0\0\0"]
+    case 4: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: \0\0\0\0\0\0\0\0\0\0\0"]  
+    then this function will cover the cases above and increment the pHeadersCur. */
+    while( *pBufCur < *pBufEnd)
+    {
+        if( **pBufCur == CARRIAGE_RETURN_CHARACTER )
+        {
+            (*pBufCur)++;
+        }
+        else if( **pBufCur == NEWLINE_CHARACTER )
+        {
+            (*pBufCur)++;
+            break;
+        }
+        else if( **pBufCur == COLON_CHARACTER )
+        {
+            (*pBufCur)++;
+        }
+        else if( (**pBufCur == SPACE_CHARACTER) && (*(*pBufCur - 1) == COLON_CHARACTER ) )
+        {
+            (*pBufCur)++;
+            break;
+        }
+        else
+        {
+            break;
+        }
+    }
+}
+
+/*-----------------------------------------------------------*/
+
 static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConnection, 
     _httpParserInfo_t *pHttpParserInfo,
     IotHttpsResponseParserState_t *pCurrentParserState,
@@ -1675,6 +1757,8 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t* pHttpsConn
             IotLogError("Failed to parse the message buffer with error: %d", pHttpParserInfo->responseParser.http_errno);
             break;
         }
+
+        _incrementNextLocationToWriteBeyondParsed(pBufCur, pBufEnd);
 
         /* The _httResponse->pHeadersCur pointer is updated in the http_parser callbacks. */
         IotLogDebug( "There is %d of space left in the buffer.", *pBufEnd - *pBufCur );
