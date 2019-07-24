@@ -459,6 +459,14 @@ static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_
 /**
  * @brief Callback for an asynchronous request to notify that the connection was closed.
  * 
+ * The connection will close and this callback will be invoked if there are network errors or if there was an error 
+ * parsing the response.
+ * The connection will also close and this callback invoked, if a request is marked as non-persistent in 
+ * #IotHttpsRequestInfo_t.isNonPersistent.
+ * This demo does not send a non-persistent marked request.
+ * This callback will not be invoked when the application calls API IotHttpsClient_Disconnect() to disconnect 
+ * explicitly.
+ * 
  * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
  * @param[in] connHandle - Identifier for the current connection.
  * @param[in] rc - Return code from the HTTPS Client Library signaling a possible error..

@@ -374,10 +374,26 @@ typedef struct _httpsConnection
     const IotNetworkInterface_t * pNetworkInterface;  /**< @brief Network interface with calls for connect, disconnect, send, and receive. */
     void *pNetworkConnection;                   /**< @brief Pointer to the network connection to use pNetworkInterface calls on. */
     uint32_t timeout;                           /**< @brief Timeout for a connection and waiting for a response from the network. */
-    bool isConnected;                           /**< @brief true if a connection was successful most recently on this context. We have no way of knowing if the 
-                                                            server closed the connection because that error is unique to the underlying TLS layer. This is set
-                                                            to false initially, set to true for a successful intentional call to connect, and then set to false only
-                                                            after an explicit disconnect with a non-persistent request or a call to @ref https_client_function_disconnect. */
+    /**
+     * @brief true if a connection was successful most recently on this context
+     * 
+     * We have no way of knowing if the server closed the connection because that error is unique to the underlying TLS 
+     * layer. This is set to false initially, then set to true for a successful intentional call to connect.
+     * Post connection, this is set to false only after an implicit disconnect with a non-persistent request, an implicit
+     * disconnect with a network error, or an explicit disconnect with a call to @ref https_client_function_disconnect. 
+     */
+    bool isConnected;
+    bool isDestroyed;                           /**< @brief true if the connection is already destroyed and we should call anymore  */
+    /**
+     * @brief true if the a connection is in the process of disconnecting.
+     * 
+     * Mutexes are large and expensive, so it is better to just check a variable then return.
+     * No threads are planned to wait if disconnecting is in process and busy. If this is set to true, the thread will 
+     * return right away that the function is busy. If IotHttpsClient_Disconnect() is called by two threads at once, 
+     * then this variable protects the pNetworkInterface operations from being called after the connection has been
+     * destroyed.
+     */
+    bool isDisconnecting;                       
     IotMutex_t reqQMutex;                       /**< @brief Mutex protecting operations on the request queue. */
     IotMutex_t respQMutex;                      /**< @brief Mutex protecting operation son the response queue. */
     IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */
