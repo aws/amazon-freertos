@@ -236,6 +236,8 @@ TEST_GROUP( HTTPS_Client_Unit_API );
  */
 TEST_SETUP( HTTPS_Client_Unit_API )
 {
+    /* Initialize the library. */
+    TEST_ASSERT_EQUAL( IOT_HTTPS_OK, IotHttpsClient_Init());
 }
 
 /*-----------------------------------------------------------*/
@@ -245,6 +247,8 @@ TEST_SETUP( HTTPS_Client_Unit_API )
  */
 TEST_TEAR_DOWN( HTTPS_Client_Unit_API )
 {
+    /* Deinitialize the library after the tests. */
+    IotHttpsClient_Deinit();
 }
 
 /*-----------------------------------------------------------*/
@@ -254,9 +258,6 @@ TEST_TEAR_DOWN( HTTPS_Client_Unit_API )
  */
 TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
 {
-    /* Initialize the library once. */
-    IotHttpsClient_Init();
-
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ConnectInvalidParameters);
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ConnectFailure);
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ConnectSuccess);
@@ -275,9 +276,6 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_API )
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadContentLengthNotFound );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusInvalidParameters );
     RUN_TEST_CASE( HTTPS_Client_Unit_API, ReadResponseStatusSuccess );
-
-    /* Deinitialize the library after the tests. */
-    IotHttpsClient_Deinit();
 }
 
 /*-----------------------------------------------------------*/
