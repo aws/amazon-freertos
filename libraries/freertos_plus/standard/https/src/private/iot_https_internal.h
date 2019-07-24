@@ -215,6 +215,8 @@
  */
 #define HTTPS_HEADER_FIELD_SEPARATOR                ": "
 #define HTTPS_HEADER_FIELD_SEPARATOR_LENGTH         ( 2 )
+#define COLON_CHARACTER                             ':'
+#define SPACE_CHARACTER                             ' '
 
 /**
  * Constants for HTTP header formatting.
@@ -223,6 +225,8 @@
  */
 #define HTTPS_END_OF_HEADER_LINES_INDICATOR         "\r\n"
 #define HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH  ( 2 )
+#define CARRIAGE_RETURN_CHARACTER                   '\r'
+#define NEWLINE_CHARACTER                           '\n'
 
 /*
  * Constants for header fields added automatically during the request initialization.
