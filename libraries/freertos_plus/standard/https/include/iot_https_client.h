@@ -109,14 +109,14 @@ void IotHttpsClient_Deinit( void );
  * 
  * This routine blocks until the connection is complete. 
  * 
- * This function opens a new HTTPS connection between the server specified in #IotHttpsConnectionInfo_t.pAddress. The 
+ * This function opens a new HTTPS connection with the server specified in #IotHttpsConnectionInfo_t.pAddress. The 
  * connection is established by default on top of TLS over TCP. If the application wants to connect over TCP only, then 
  * it must add the @ref IOT_HTTPS_IS_NON_TLS_FLAG to #IotHttpsConnectionInfo_t.flags. This is done at the application's 
  * own risk.
  * 
- * When the HTTP request is specified as persistent and we want to close the connection, @ref https_client_function_disconnect 
- * must always  be called on the valid #IotHttpsConnectionHandle_t. For more information about persistent HTTP connections 
- * please see #IotHttpsRequestInfo_t.isNonPersistent.
+ * When the the last HTTP request sent on the connection is specified as persistent and we want to close the connection, 
+ * @ref https_client_function_disconnect must always be called on the valid #IotHttpsConnectionHandle_t. For more 
+ * information about persistent HTTP connections please see #IotHttpsRequestInfo_t.isNonPersistent.
  * 
  * If the application receives a #IOT_HTTPS_NETWORK_ERROR from @ref https_client_function_sendsync or 
  * @ref https_client_function_sendasync, on a persistent request, then the connection will be closed. The application 
@@ -617,7 +617,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
  *      IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &respInfo, timeout);
  *      uint32_t contentLength = 0;
  *      IotHttpsClient_ReadContentLength(respHandle, &contentLength);
- *      printf("Content-Length: %lu", contentLength);
+ *      printf("Content-Length: %u", (unsigned int)contentLength);
  *      ...
  * @endcode
  * 
