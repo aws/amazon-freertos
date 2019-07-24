@@ -120,14 +120,26 @@ void IotHttpsClient_Deinit( void );
  * 
  * If the application receives a #IOT_HTTPS_NETWORK_ERROR from @ref https_client_function_sendsync or 
  * @ref https_client_function_sendasync, on a persistent request, then the connection will be closed. The application 
- * can call this this function again to reestablish the connection. To know if the connection was closed by the server, 
- * debug logging can be turned on to view the network error code received. Debug logging is configured when 
- * IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h. 
+ * can call this this function again to reestablish the connection. 
  * 
  * If pConnHandle passed in is valid and represents a previously opened connection, this function will disconnect,
  * then reconnect. Before calling this function make sure that all outstanding requests on the connection have
  * completed. Outstanding requests are completed when @ref https_client_function_sendsync has returned or when
- * #IotHttpsClientCallbacks.responseComplete has been invoked for requests scheduled with @ref https_client_function_sendasync.
+ * #IotHttpsClientCallbacks.responseComplete has been invoked for requests scheduled with 
+ * @ref https_client_function_sendasync.
+ * 
+ * Keep in mind that many HTTP servers will close a connection, if it does not receive any requests, after a certain 
+ * amount of time. Many webservers may close the connection after 30-60 seconds. The state of pConnHandle will still be 
+ * in a connected state if this happens. If the server closed the connection, then the next request on the connection 
+ * ill fail to send with a network error and the connection will move to a closed state. 
+ * 
+ * Also keep in mind that some HTTP servers do not accept persistent requests. Some HTTP servers will ignore that the 
+ * request contains the "Connection: keep-alive" header and close the connection immediately after sending the response. 
+ * If this happens, then the next request on the connection will fail to send with a network error and the connection 
+ * will close. 
+ * 
+ * To know if the connection was closed by the server, debug logging can be turned on to view the network error code 
+ * received. Debug logging is configured when IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h. 
  * 
  * #IotHttpsConnectionInfo_t.userBuffer is used to store the internal context and therefore, multiple threads
  * calling this function simultaneously must ensure to use different #IotHttpsConnectionInfo_t objects.
@@ -143,6 +155,41 @@ void IotHttpsClient_Deinit( void );
  * - #IOT_HTTPS_CONNECTION_ERROR if the connection failed. 
  * - #IOT_HTTPS_INVALID_PARAMETER if NULL parameters were passed in.
  * - #IOT_HTTPS_INTERNAL_ERROR if there was an error creating resources for the connection context.
+ * 
+ * <b>Example</b>
+ * @code{c}
+ * // An initialized network interface.
+ * IotNetworkInterface_t* pNetworkInterface;
+ * 
+ * // Parameters to HTTPS Client connect.
+ * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
+ * IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+ * uint8_t* pConnUserBuffer = (uint8_t*)malloc(responseUserBufferMinimumSize);
+ * 
+ * // Set the connection configuration information.
+ * connConfig.pAddress = "www.amazon.com";
+ * connConfig.addressLen = strlen("www.amazon.com");
+ * connConfig.port = 443;
+ * connConfig.flags = 0;
+ * connConfig.pCaCert = HTTPS_TRUSTED_ROOT_CA; // defined elsewhere
+ * connConfig.caCertLen = sizeof( HTTPS_TRUSTED_ROOT_CA );
+ * connConfig.userBuffer.pBuffer = pConnUserBuffer;
+ * connConfig.userBuffer.bufferLen = sizeof(pConnUserBuffer);
+ * connConfig.pClientCert = TLS_CLIENT_CERT;
+ * connConfig.clientCertLen = sizeof( TLS_CLIENT_CERT );
+ * connConfig.pPrivateKey = TLS_CLIENT_PRIV_KEY;
+ * connConfig.privateKeyLen = sizeof( TLS_CLIENT_PRIV_KEY );
+ * connConfig.pNetworkInterface = pNetworkInterface;
+ * 
+ * IotHttpsReturnCode_t returnCode = IotHttpsClient_Connect(connHandle, &connInfo);
+ * if( returnCode == IOT_HTTPS_OK )
+ * {
+ *      // Do something with the HTTPS connection...
+ * 
+ *      // Clean up and close the HTTPS connection once it's no longer needed.
+ *      IotHttpsClient_Disconnect(connHandle); 
+ * }
+ * @endcode
  */
 /* @[declare_https_client_connect] */
 IotHttpsReturnCode_t IotHttpsClient_Connect(IotHttpsConnectionHandle_t * pConnHandle, IotHttpsConnectionInfo_t *pConnInfo);
@@ -307,13 +354,11 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * #IotHttpsClientCallbacks_t.writeCallback.
  * 
  * In HTTP/1.1 the headers are sent on the network first before any body can be sent. The auto-generated header
- * Content-Length is taken from the len parameter and sent first before the data in parameter pBuf is sent. In order for this function
- * to be called twice with variable lengths of data, a request with Transfer-Encoding: chunked would be needed. This 
- * library does not support Transfer-Encoding: chunked requests, so this function cannot be called more than once in 
- * #IotHttpsClientCallbacks_t.writeCallback for an HTTP/1.1 request. 
+ * Content-Length is taken from the len parameter and sent first before the data in parameter pBuf is sent. 
+ * This library does not support Transfer-Encoding: chunked or other requests where the Content-Length is unknown, so 
+ * this function cannot be called more than once in #IotHttpsClientCallbacks_t.writeCallback for an HTTP/1.1 request. 
  * 
- * For placeholder possible future support of sending a variable legnth body, isComplete is used so that this 
- * function can be called more than once.
+ * isComplete must always be set to 1 in this current version of the HTTPS client library.
  * 
  * If there are network errors in sending the HTTP headers, then the #IotHttpsClientCallbacks_t.errorCallback will be
  * invoked following a return from the #IotHttpsClientCallbacks_t.writeCallback.
@@ -332,10 +377,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * @param[in] reqHandle - identifier of the connection.
  * @param[in] pBuf - client write data buffer pointer.
  * @param[in] len - length of data to write.
- * @param[in] isComplete - This parameter is for future support of sending a variable length body.
- *                         If this is set to 0, then the writeCallback will be invoked again after the data
- *                         in pBuf is written to the network.
- *                         If this is set to 1, then the request body is complete.
+ * @param[in] isComplete - This parameter parameter must be set to 1.
  *
  * @return one of the following:
  * - #IOT_HTTPS_OK if write successfully, failure code otherwise.
