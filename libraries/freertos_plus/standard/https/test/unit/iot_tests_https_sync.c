@@ -101,7 +101,7 @@
 /**
  * @brief Test HTTP request body to share among the tests.
  */
-#define HTTPS_TEST_REQUEST_BODY \
+#define HTTPS_TEST_REQUEST_BODY     \
     "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore "\
     "magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo"\
     " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla paria"\
@@ -160,7 +160,7 @@ static uint32_t _nextResponseMessageByteToReceive = 0;
  * request body is allowed for a GET method according to the HTTP specification, although it is pointless in practice.
  */ 
 static IotHttpsSyncInfo_t _syncRequestInfo = {
-    .pBody = HTTPS_TEST_REQUEST_BODY,
+    .pBody = (uint8_t*)( HTTPS_TEST_REQUEST_BODY ),
     /* Constant C string in macros have a NULL terminating character that we want to omit. */
     .bodyLen = HTTPS_TEST_REQUEST_BODY_LENGTH
 };
@@ -406,7 +406,7 @@ static size_t _networkReceiveSuccess( void * pConnection,
                                       uint8_t * pBuffer,
                                       size_t bytesRequested )
 {
-    size_t responseMessageLengthLeft = strlen(_pResponseMessageBuffer) - _nextResponseMessageByteToReceive;
+    size_t responseMessageLengthLeft = strlen((char*)_pResponseMessageBuffer) - _nextResponseMessageByteToReceive;
     size_t copyLen = 0;
 
     (void)pConnection;
