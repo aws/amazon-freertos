@@ -1,5 +1,13 @@
 # Change Log for Amazon FreeRTOS
 
+## Unreleased changes to master
+
+### New Features
+
+### Updates
+#### TLS Library Tests
+- Remove elliptic curve tests from "quarantine" test group and add them back to the TLS test group.
+
 ## 201906.00 Major 06/17/2019
 ### Release Versioning
 - Move Amazon FreeRTOS to a new versioning scheme (YYYYMM.NN [optional "Major" tag]), while retaining semantic versioning (x.y.z) used for individual libraries within Amazon FreeRTOS. This release contains multiple major version updates for individual libraries. See below for details.
