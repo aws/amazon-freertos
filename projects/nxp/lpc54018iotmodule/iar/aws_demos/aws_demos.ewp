@@ -224,7 +224,6 @@
 					<state>FSL_RTOS_FREE_RTOS</state>
 					<state>A_LITTLE_ENDIAN</state>
 					<state>_DLIB_FILE_DESCRIPTOR=1</state>
-					<state>__little_endian__=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>

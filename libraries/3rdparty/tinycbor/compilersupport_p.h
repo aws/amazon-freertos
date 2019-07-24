@@ -132,6 +132,23 @@ with these intrinsics. */
 #  define cbor_htonl        _byteswap_ulong
 #  define cbor_ntohs        _byteswap_ushort
 #  define cbor_htons        _byteswap_ushort
+#elif defined(__ICCARM__)
+#  if __LITTLE_ENDIAN__ == 1
+#    include <intrinsics.h>
+#    define ntohll(x)       ((__REV((uint32_t)(x)) * UINT64_C(0x100000000)) + (__REV((x) >> 32)))
+#    define htonll          ntohll
+#    define cbor_ntohl     __REV
+#    define cbor_htonl     __REV
+#    define cbor_ntohs     __REVSH
+#    define cbor_htons     __REVSH
+#  else
+#    define cbor_ntohll
+#    define cbor_htonll
+#    define cbor_ntohl
+#    define cbor_htonl
+#    define cbor_ntohs
+#    define cbor_htons
+#  endif
 #endif
 #endif
 #ifndef cbor_ntohs

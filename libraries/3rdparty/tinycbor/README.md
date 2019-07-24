@@ -34,6 +34,30 @@ Three files are excluded: cborjson.h, cbortojson.c, open_memstream.c.
 define ntohll(x)       ((cbor_ntohl((uint32_t)(x)) * UINT64_C(0x100000000)) + (cbor_ntohl((x) >> 32)))
 ```
 
+4. Add IAR compiler support.
+
+This code is copied from [ARMmbed/tinycbor](https://github.com/ARMmbed/tinycbor/blob/master/src/compilersupport_p.h)
+
+```
+#elif defined(__ICCARM__)
+#  if __LITTLE_ENDIAN__ == 1
+#    include <intrinsics.h>
+#    define ntohll(x)       ((__REV((uint32_t)(x)) * UINT64_C(0x100000000)) + (__REV((x) >> 32)))
+#    define htonll          ntohll
+#    define cbor_ntohl     __REV
+#    define cbor_htonl     __REV
+#    define cbor_ntohs     __REVSH
+#    define cbor_htons     __REVSH
+#  else
+#    define cbor_ntohll
+#    define cbor_htonll
+#    define cbor_ntohl
+#    define cbor_htonl
+#    define cbor_ntohs
+#    define cbor_htons
+#  endif
+```
+
 ## Modified "cborvalidation.c"
 
 Initialize local variable in function validate_floating_point; otherwise it is a may-not-be-initialized error when compiling with "make" on ESP.

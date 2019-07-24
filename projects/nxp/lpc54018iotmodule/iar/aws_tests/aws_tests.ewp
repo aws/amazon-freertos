@@ -224,7 +224,6 @@
 					<state>AMAZON_FREERTOS_ENABLE_UNIT_TESTS</state>
 					<state>UNITY_INCLUDE_CONFIG_H</state>
 					<state>_DLIB_FILE_DESCRIPTOR=1</state>
-					<state>__little_endian__=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -2113,13 +2112,13 @@
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c</name>
-						</file>
-						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c</name>
 						</file>
 					</group>
 				</group>
