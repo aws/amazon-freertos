@@ -3,7 +3,7 @@
 @INCLUDE = common
 
 # Basic project information.
-PROJECT_NAME = "Atomic"
+PROJECT_NAME = "Atomics"
 
 # Library documentation output directory.
 HTML_OUTPUT = atomic
@@ -12,12 +12,15 @@ HTML_OUTPUT = atomic
 GENERATE_TAGFILE = doc/tag/atomic.tag
 
 # Directories containing library source code.
-INPUT = lib/include/atomic.h 
+INPUT = doc \
+        doc/lib \
+        libraries/c_sdk/standard/common/include \
+        freertos_kernel/include
 
 # Library file names.
-FILE_PATTERNS = *.h *.c *.txt
+FILE_PATTERNS = *atomic*.h *atomic*.c *atomic*.txt
 
-EXAMPLE_PATH = lib/include/atomic.h
+EXAMPLE_PATH = libraries/c_sdk/standard/common/include/iot_atomic.h
 
 # External tag files required by this library.
 TAGFILES = doc/tag/main.tag=../main \

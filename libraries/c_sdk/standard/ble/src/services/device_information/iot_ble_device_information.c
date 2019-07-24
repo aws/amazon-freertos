@@ -37,8 +37,8 @@
 #include "iot_ble.h"
 
 
-#define INT64_WIDTH                 ( 20 )
-#define MAX_INTEGER_BUFFER_WIDTH    ( INT64_WIDTH + 1 )
+#define INT64_WIDTH                                 ( 20 )
+#define MAX_INTEGER_BUFFER_WIDTH                    ( INT64_WIDTH + 1 )
 
 /**
  * @brief GATT Service, characteristic and descriptor UUIDs used by the Device information service.
@@ -53,13 +53,14 @@
 #define IOT_BLE_DEVICE_INFO_CLIENT_CHAR_CFG_UUID    0x2902                                                  /**< @brief Client configuration. */
 
 /*-------------------------------------------------------------------------------------*/
+
 /**
  * @brief Structure used for Device Information Service
  */
 typedef struct IotBleDeviceInfoService
 {
     BTService_t * pBLEService; /**< A pointer to the GATT service for Device Information. */
-    uint16_t CCFGVal;     /**< The configuration descriptor. */
+    uint16_t CCFGVal;          /**< The configuration descriptor. */
     uint16_t BLEConnId;        /**< The connection ID. */
     uint16_t BLEMtu;           /**< The MTU size. */
 } IotBleDeviceInfoService_t;
@@ -114,7 +115,7 @@ static const BTAttribute_t _pAttributeTable[] =
         .xAttributeType = eBTDbCharacteristic,
         .xCharacteristic =
         {
-            .xUuid        = _UUID128( IOT_BLE_DEVICE_INFO_VERSION_UUID ), 
+            .xUuid        = _UUID128( IOT_BLE_DEVICE_INFO_VERSION_UUID ),
             .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
             .xProperties  = ( eBTPropRead )
         }
@@ -266,7 +267,9 @@ static void _connectionCallback( BTStatus_t status,
 /**
  * @bried Sends reply for a device information read request from peer device.
  */
-static void _sendDeviceInfoReply( IotBleAttributeEvent_t* pEventParam, const char * pData, size_t length );
+static void _sendDeviceInfoReply( IotBleAttributeEvent_t * pEventParam,
+                                  const char * pData,
+                                  size_t length );
 
 
 static const IotBleAttributeEventCallback_t pxCallBackArray[ _ATTR_NUMBER ] =
@@ -327,9 +330,10 @@ void _deviceInfoCCFGCallback( IotBleAttributeEvent_t * pEventParam )
 /*-----------------------------------------------------------*/
 
 
-static void _sendDeviceInfoReply( IotBleAttributeEvent_t* pEventParam, const char * pData, size_t length )
+static void _sendDeviceInfoReply( IotBleAttributeEvent_t * pEventParam,
+                                  const char * pData,
+                                  size_t length )
 {
-
     IotBleAttributeData_t attrData = { 0 };
     IotBleEventResponse_t resp =
     {
@@ -352,12 +356,12 @@ static void _sendDeviceInfoReply( IotBleAttributeEvent_t* pEventParam, const cha
 /*-----------------------------------------------------------*/
 static void _deviceInfoCloudEndpointCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    const char* pCloudEndpoint = IOT_CLOUD_ENDPOINT;
+    const char * pCloudEndpoint = IOT_CLOUD_ENDPOINT;
     size_t length = strlen( pCloudEndpoint );
 
     if( pEventParam->xEventType == eBLERead )
     {
-       _sendDeviceInfoReply( pEventParam, pCloudEndpoint, length );
+        _sendDeviceInfoReply( pEventParam, pCloudEndpoint, length );
     }
 }
 
@@ -365,13 +369,12 @@ static void _deviceInfoCloudEndpointCharCallback( IotBleAttributeEvent_t * pEven
 
 void _deviceInfoVersionCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-   
-    const char* pDeviceVersion = IOT_SDK_VERSION;
+    const char * pDeviceVersion = IOT_SDK_VERSION;
     size_t length = strlen( pDeviceVersion );
 
     if( pEventParam->xEventType == eBLERead )
     {
-       _sendDeviceInfoReply( pEventParam, pDeviceVersion, length );
+        _sendDeviceInfoReply( pEventParam, pDeviceVersion, length );
     }
 }
 
@@ -395,7 +398,7 @@ void _deviceInfoMTUCharCallback( IotBleAttributeEvent_t * pEventParam )
 
 static void _deviceInfoPlatformNameCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    const char* pPlatformName = IOT_PLATFORM_NAME;
+    const char * pPlatformName = IOT_PLATFORM_NAME;
     size_t length = strlen( pPlatformName );
 
     if( pEventParam->xEventType == eBLERead )
@@ -408,12 +411,12 @@ static void _deviceInfoPlatformNameCharCallback( IotBleAttributeEvent_t * pEvent
 
 static void _deviceInfoDeviceIDCharCallback( IotBleAttributeEvent_t * pEventParam )
 {
-    const char *pDeviceIdentifier = IOT_DEVICE_IDENTIFIER;
+    const char * pDeviceIdentifier = IOT_DEVICE_IDENTIFIER;
     size_t length = strlen( pDeviceIdentifier );
 
     if( pEventParam->xEventType == eBLERead )
     {
-       _sendDeviceInfoReply( pEventParam, pDeviceIdentifier, length );
+        _sendDeviceInfoReply( pEventParam, pDeviceIdentifier, length );
     }
 }
 

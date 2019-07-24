@@ -32,21 +32,24 @@
 
 #include "queue.h"
 
-typedef struct{
-	uint8_t * pcData;
+typedef struct
+{
+    uint8_t * pcData;
     size_t xDataSize;
-}INPUTMessage_t;
+} INPUTMessage_t;
 
 extern QueueHandle_t xNumericComparisonQueue;
 
-extern void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey);
+extern void BLENumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr,
+                                    uint32_t ulPassKey );
 
 extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
-        BTBdaddr_t * pxRemoteBdAddr,
-        BTSecurityLevel_t xSecurityLevel,
-        BTAuthFailureReason_t xReason );
-extern void NumericComparisonInit(void);
-extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout );
+                                         BTBdaddr_t * pxRemoteBdAddr,
+                                         BTSecurityLevel_t xSecurityLevel,
+                                         BTAuthFailureReason_t xReason );
+extern void NumericComparisonInit( void );
+extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
+                                  TickType_t xAuthTimeout );
 
 
 #endif /* _AWS_IOT_NETWORK_MANAGER_H_ */

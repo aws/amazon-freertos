@@ -273,7 +273,6 @@ typedef void (* pxOTACompleteCallback_t)( OTA_JobEvent_t eEvent );
 
 
 
-
 typedef enum
 {
     eOTA_PAL_ImageState_Unknown = 0,
@@ -314,7 +313,7 @@ typedef OTA_Err_t (* pxOTAPALAbortCallback_t)( OTA_FileContext_t * const C );
  * @brief OTA new image received callback function typedef.
  *
  * The user may register a callback function when initializing the OTA Agent. This
- * callback is used to override the behavior of what happens when a new image is 
+ * callback is used to override the behavior of what happens when a new image is
  * activated.
  *
  * @param[in] ulServerFileID File ID of the image received
@@ -372,7 +371,8 @@ typedef OTA_Err_t (* pxOTAPALResetDeviceCallback_t)( uint32_t ulServerFileID );
  * @param[in] ulServerFileID File ID of the image received
  * @param[in] eState Platform Image State to be state
  */
-typedef OTA_Err_t (* pxOTAPALSetPlatformImageStateCallback_t)( uint32_t ulServerFileID, OTA_ImageState_t eState ); 
+typedef OTA_Err_t (* pxOTAPALSetPlatformImageStateCallback_t)( uint32_t ulServerFileID,
+                                                               OTA_ImageState_t eState );
 
 /**
  * @brief OTA Write Block callback function typedef.
@@ -385,7 +385,10 @@ typedef OTA_Err_t (* pxOTAPALSetPlatformImageStateCallback_t)( uint32_t ulServer
  * @param[in] pacData Data to be written at the offset
  * @param[in] iBlocksize Block size of the data to be written
  */
-typedef int16_t (* pxOTAPALWriteBlockCallback_t)( OTA_FileContext_t * const C, uint32_t iOffset, uint8_t * const pacData, uint32_t iBlockSize );
+typedef int16_t (* pxOTAPALWriteBlockCallback_t)( OTA_FileContext_t * const C,
+                                                  uint32_t iOffset,
+                                                  uint8_t * const pacData,
+                                                  uint32_t iBlockSize );
 
 /**
  * @brief Custom Job callback function typedef.
@@ -396,23 +399,23 @@ typedef int16_t (* pxOTAPALWriteBlockCallback_t)( OTA_FileContext_t * const C, u
  * @param[in] pcJSON Pointer to the json document received by the OTA agent
  * @param[in] ulMsgLen Length of the json document received by the agent
  */
-typedef OTA_JobParseErr_t (* pxOTACustomJobCallback_t)( const char * pcJSON, uint32_t ulMsgLen );
+typedef OTA_JobParseErr_t (* pxOTACustomJobCallback_t)( const char * pcJSON,
+                                                        uint32_t ulMsgLen );
 
 /* OTA PAL callback structure */
-typedef struct {
-    pxOTAPALAbortCallback_t xAbort;                                   /* OTA Abort callback pointer */
-    pxOTAPALActivateNewImageCallback_t xActivateNewImage;             /* OTA Activate New Image callback pointer */
-    pxOTAPALCloseFileCallback_t xCloseFile;                           /* OTA Close File callback pointer */
-    pxOTAPALCreateFileForRxCallback_t xCreateFileForRx;               /* OTA Create File for Receive callback pointer */
-    pxOTAPALGetPlatformImageStateCallback_t xGetPlatformImageState;   /* OTA Get Platform Image State callback pointer */
-    pxOTAPALResetDeviceCallback_t xResetDevice;                       /* OTA Reset Device callback pointer */
-    pxOTAPALSetPlatformImageStateCallback_t xSetPlatformImageState;   /* OTA Set Platform Image State callback pointer */
-    pxOTAPALWriteBlockCallback_t xWriteBlock;                         /* OTA Write Block callback pointer */
-    pxOTACompleteCallback_t xCompleteCallback;                        /* OTA Job Completed callback pointer */
-    pxOTACustomJobCallback_t xCustomJobCallback;                      /* OTA Custom Job callback pointer */
+typedef struct
+{
+    pxOTAPALAbortCallback_t xAbort;                                 /* OTA Abort callback pointer */
+    pxOTAPALActivateNewImageCallback_t xActivateNewImage;           /* OTA Activate New Image callback pointer */
+    pxOTAPALCloseFileCallback_t xCloseFile;                         /* OTA Close File callback pointer */
+    pxOTAPALCreateFileForRxCallback_t xCreateFileForRx;             /* OTA Create File for Receive callback pointer */
+    pxOTAPALGetPlatformImageStateCallback_t xGetPlatformImageState; /* OTA Get Platform Image State callback pointer */
+    pxOTAPALResetDeviceCallback_t xResetDevice;                     /* OTA Reset Device callback pointer */
+    pxOTAPALSetPlatformImageStateCallback_t xSetPlatformImageState; /* OTA Set Platform Image State callback pointer */
+    pxOTAPALWriteBlockCallback_t xWriteBlock;                       /* OTA Write Block callback pointer */
+    pxOTACompleteCallback_t xCompleteCallback;                      /* OTA Job Completed callback pointer */
+    pxOTACustomJobCallback_t xCustomJobCallback;                    /* OTA Custom Job callback pointer */
 } OTA_PAL_Callbacks_t;
-
-
 
 
 
@@ -465,9 +468,9 @@ OTA_State_t OTA_AgentInit( void * pvClient,
  * eOTA_AgentState_Ready. Otherwise, it will be one of the other OTA_State_t enum values.
  */
 OTA_State_t OTA_AgentInit_internal( void * pvClient,
-                           const uint8_t * pucThingName,
-                           OTA_PAL_Callbacks_t * xCallbacks,
-                           TickType_t xTicksToWait );
+                                    const uint8_t * pucThingName,
+                                    OTA_PAL_Callbacks_t * xCallbacks,
+                                    TickType_t xTicksToWait );
 
 
 

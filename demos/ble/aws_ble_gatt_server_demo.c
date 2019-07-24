@@ -38,69 +38,70 @@
 
 static BaseType_t vGattDemoSvcHook( void );
 
-#define xServiceUUID_TYPE \
-{\
-    .uu.uu128 = gattDemoSVC_UUID, \
-    .ucType   = eBTuuidType128 \
-}
-#define xCharCounterUUID_TYPE \
-{\
-    .uu.uu128 = gattDemoCHAR_COUNTER_UUID,\
-    .ucType   = eBTuuidType128\
-}
-#define xCharControlUUID_TYPE \
-{\
-    .uu.uu128 = gattDemoCHAR_CONTROL_UUID,\
-    .ucType   = eBTuuidType128\
-}
-#define xClientCharCfgUUID_TYPE \
-{\
-    .uu.uu16 = gattDemoCLIENT_CHAR_CFG_UUID,\
-    .ucType  = eBTuuidType16\
-}
+#define xServiceUUID_TYPE             \
+    {                                 \
+        .uu.uu128 = gattDemoSVC_UUID, \
+        .ucType = eBTuuidType128      \
+    }
+#define xCharCounterUUID_TYPE                  \
+    {                                          \
+        .uu.uu128 = gattDemoCHAR_COUNTER_UUID, \
+        .ucType = eBTuuidType128               \
+    }
+#define xCharControlUUID_TYPE                  \
+    {                                          \
+        .uu.uu128 = gattDemoCHAR_CONTROL_UUID, \
+        .ucType = eBTuuidType128               \
+    }
+#define xClientCharCfgUUID_TYPE                  \
+    {                                            \
+        .uu.uu16 = gattDemoCLIENT_CHAR_CFG_UUID, \
+        .ucType = eBTuuidType16                  \
+    }
 
-static uint16_t usHandlesBuffer[egattDemoNbAttributes];
+static uint16_t usHandlesBuffer[ egattDemoNbAttributes ];
 
 
-static const BTAttribute_t pxAttributeTable[] = {
-     {    
-         .xServiceUUID =  xServiceUUID_TYPE
-     },
+static const BTAttribute_t pxAttributeTable[] =
+{
     {
-         .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
-         {
-              .xUuid = xCharCounterUUID_TYPE,
-              .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
-              .xProperties = ( eBTPropRead | eBTPropNotify )
-          }
-     },
-     {
-         .xAttributeType = eBTDbDescriptor,
-         .xCharacteristicDescr =
-         {
-             .xUuid = xClientCharCfgUUID_TYPE,
-             .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
-          }
-     },
+        .xServiceUUID = xServiceUUID_TYPE
+    },
     {
-         .xAttributeType = eBTDbCharacteristic,
-         .xCharacteristic = 
-         {
-              .xUuid = xCharControlUUID_TYPE,
-              .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM  ),
-              .xProperties = ( eBTPropRead | eBTPropWrite )
-          }
-     }
+        .xAttributeType = eBTDbCharacteristic,
+        .xCharacteristic =
+        {
+            .xUuid        = xCharCounterUUID_TYPE,
+            .xPermissions = ( IOT_BLE_CHAR_READ_PERM ),
+            .xProperties  = ( eBTPropRead | eBTPropNotify )
+        }
+    },
+    {
+        .xAttributeType = eBTDbDescriptor,
+        .xCharacteristicDescr =
+        {
+            .xUuid        = xClientCharCfgUUID_TYPE,
+            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM )
+        }
+    },
+    {
+        .xAttributeType = eBTDbCharacteristic,
+        .xCharacteristic =
+        {
+            .xUuid        = xCharControlUUID_TYPE,
+            .xPermissions = ( IOT_BLE_CHAR_READ_PERM | IOT_BLE_CHAR_WRITE_PERM ),
+            .xProperties  = ( eBTPropRead | eBTPropWrite )
+        }
+    }
 };
 
-static const BTService_t xGattDemoService = 
+static const BTService_t xGattDemoService =
 {
-  .xNumberOfAttributes = egattDemoNbAttributes,
-  .ucInstId = 0,
-  .xType = eBTServiceTypePrimary,
-  .pusHandlesBuffer = usHandlesBuffer,
-  .pxBLEAttributes = (BTAttribute_t *)pxAttributeTable
+    .xNumberOfAttributes = egattDemoNbAttributes,
+    .ucInstId            = 0,
+    .xType               = eBTServiceTypePrimary,
+    .pusHandlesBuffer    = usHandlesBuffer,
+    .pxBLEAttributes     = ( BTAttribute_t * ) pxAttributeTable
 };
 
 /**
@@ -129,8 +130,8 @@ BaseType_t xNotifyCounterUpdate = pdFALSE;
 uint16_t usBLEConnectionID;
 
 
-#define CHAR_HANDLE( svc, ch_idx )        ( ( svc )->pusHandlesBuffer[ch_idx] )
-#define CHAR_UUID( svc, ch_idx )          ( ( svc )->pxBLEAttributes[ch_idx].xCharacteristic.xUuid )
+#define CHAR_HANDLE( svc, ch_idx )    ( ( svc )->pusHandlesBuffer[ ch_idx ] )
+#define CHAR_UUID( svc, ch_idx )      ( ( svc )->pxBLEAttributes[ ch_idx ].xCharacteristic.xUuid )
 
 /**
  * @brief Callback to read request from a GATT client on the Counter value characteristic.
@@ -186,19 +187,19 @@ static void _connectionCallback( BTStatus_t xStatus,
                                  BTBdaddr_t * pxRemoteBdAddr );
 /* ---------------------------------------------------------------------------------------*/
 
-#if (IOT_BLE_ADD_CUSTOM_SERVICES == 1)
-void IotBle_AddCustomServicesCb(void)
-{
-	vGattDemoSvcHook();
-}
+#if ( IOT_BLE_ADD_CUSTOM_SERVICES == 1 )
+    void IotBle_AddCustomServicesCb( void )
+    {
+        vGattDemoSvcHook();
+    }
 #endif
 
-static const IotBleAttributeEventCallback_t pxCallBackArray[egattDemoNbAttributes] =
-    {
-  NULL,
-  vReadCounter,
-  vEnableNotification,
-  vWriteCommand
+static const IotBleAttributeEventCallback_t pxCallBackArray[ egattDemoNbAttributes ] =
+{
+    NULL,
+    vReadCounter,
+    vEnableNotification,
+    vWriteCommand
 };
 
 /*-----------------------------------------------------------*/
@@ -255,19 +256,20 @@ void vCounterUpdateTaskFunction( void * pvParams )
 
 /*-----------------------------------------------------------*/
 int vGattDemoSvcInit( bool awsIotMqttMode,
-        const char * pIdentifier,
-        void * pNetworkServerInfo,
-        void * pNetworkCredentialInfo,
-        const IotNetworkInterface_t * pNetworkInterface )
+                      const char * pIdentifier,
+                      void * pNetworkServerInfo,
+                      void * pNetworkCredentialInfo,
+                      const IotNetworkInterface_t * pNetworkInterface )
 {
     int status = EXIT_SUCCESS;
 
 
-    while(1)
+    while( 1 )
     {
-    	vTaskDelay(1000);
+        vTaskDelay( 1000 );
     }
-	return status;
+
+    return status;
 }
 
 static BaseType_t vGattDemoSvcHook( void )
@@ -277,7 +279,8 @@ static BaseType_t vGattDemoSvcHook( void )
     IotBleEventsCallbacks_t xCallback;
 
     /* Select the handle buffer. */
-    xStatus = IotBle_CreateService( (BTService_t *)&xGattDemoService, (IotBleAttributeEventCallback_t *)pxCallBackArray );
+    xStatus = IotBle_CreateService( ( BTService_t * ) &xGattDemoService, ( IotBleAttributeEventCallback_t * ) pxCallBackArray );
+
     if( xStatus == eBTStatusSuccess )
     {
         xRet = pdTRUE;
@@ -365,7 +368,6 @@ void vWriteCommand( IotBleAttributeEvent_t * pEventParam )
         pxWriteParam = pEventParam->pParamWrite;
         xResp.pAttrData->handle = pxWriteParam->attrHandle;
 
-
         if( pxWriteParam->length == 1 )
         {
             ucEvent = pxWriteParam->pValue[ 0 ];
@@ -397,11 +399,10 @@ void vEnableNotification( IotBleAttributeEvent_t * pEventParam )
     xResp.rspErrorStatus = eBTRspErrorNone;
     xResp.eventStatus = eBTStatusFail;
     xResp.attrDataOffset = 0;
- 
+
     if( ( pEventParam->xEventType == eBLEWrite ) || ( pEventParam->xEventType == eBLEWriteNoResponse ) )
     {
         pxWriteParam = pEventParam->pParamWrite;
-
 
         xResp.pAttrData->handle = pxWriteParam->attrHandle;
 
@@ -445,7 +446,7 @@ static void _connectionCallback( BTStatus_t xStatus,
     {
         if( connId == usBLEConnectionID )
         {
-            IotLogInfo( " Disconnected from BLE device. Stopping the counter update \n");
+            IotLogInfo( " Disconnected from BLE device. Stopping the counter update \n" );
             vGattDemoSvcStop();
         }
     }

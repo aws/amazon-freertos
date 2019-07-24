@@ -828,6 +828,31 @@
 			<locationURI>BASE_DIR/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
 		</link>
 		<link>
+			<name>vendors/nxp/LPC54018/mcuxpresso/startup_lpc54018.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/startup_lpc54018.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/GCC/ARM_CM4F/port.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/portable/GCC/ARM_CM4F/port.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/GCC/ARM_CM4F/portmacro.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/freertos_kernel/portable/GCC/ARM_CM4F/portmacro.h</locationURI>
+		</link>
+		<link>
+			<name>linkscripts/data.ldt</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/linkscripts/data.ldt</locationURI>
+		</link>
+		<link>
+			<name>linkscripts/main_text.ldt</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/vendors/nxp/LPC54018/mcuxpresso/linkscripts/main_text.ldt</locationURI>
+		</link>
+		<link>
 			<name>demos/demo_runner/aws_demo_version.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/demos/demo_runner/aws_demo_version.c</locationURI>
@@ -1098,16 +1123,6 @@
 			<locationURI>BASE_DIR/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
-		</link>
-		<link>
 			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
@@ -1116,6 +1131,16 @@
 			<name>vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/hw_poll.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR/vendors/nxp/boards/lpc54018iotmodule/ports/pkcs11/hw_poll.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>

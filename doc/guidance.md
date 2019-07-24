@@ -33,7 +33,7 @@ Copy below as content:
 - [REQUIRED] update the library name accordingly (anywhere appear as "foo" below)
 - [REQUIRED] update "INPUT" configuration
 - [REQUIRED] update "EXAMPLE_PATH" configuraton
-- [OPTIONAL] update "FILE_PATTERNS" configuration if new fiile extension is introduced
+- [OPTIONAL] update "FILE_PATTERNS" configuration if new file extension is introduced
 
 
 
@@ -83,7 +83,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@configpage{Foo,library}
+@config_page{Foo}
+@config_brief{library}
 
 @section ......
 @brief ......
@@ -100,7 +101,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@constantspage{Foo,library}
+@constants_page{Foo}
+@constants_brief{library}
 
 @section foo_constants_single Single Value Constants
 - @ref ......
@@ -114,12 +116,16 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@functionspage{Foo,library}
-- @functionname{foo_function_socket}
+@functions_page{foo, Foo}
+@functions_brief{foo}
+- @function_name{foo_function_socket}
+- @function_brief{foo_function_socket}
 */
 
 /**
-@functionpage{FOO_func,foo,func,aws_foo.h}
+@page foo_function_func FOO_func
+@snippet aws_foo.h declare_foo_func
+@copydoc FOO_func"
 */
 ```
 
@@ -127,9 +133,11 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@handles{Foo,library}
+@handles_group{Foo}
+@handles_brief{library}
 
-@paramstructs{Foo}
+@paramstructs_group{Foo}
+@paramstructs_brief{Foo, Foo library}
 */
 ```
 

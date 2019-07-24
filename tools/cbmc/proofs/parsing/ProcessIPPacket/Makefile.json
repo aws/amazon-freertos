@@ -12,7 +12,7 @@
   ],
   "DEF":
   [
-    "AMAZON_FREERTOS_ENABLE_UNIT_TESTS"
+    "FREERTOS_TCP_ENABLE_VERIFICATION"
   ],
   "INC":
   [

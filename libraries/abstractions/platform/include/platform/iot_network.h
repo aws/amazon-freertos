@@ -61,23 +61,44 @@ typedef enum IotNetworkError
  *
  * The following function pointers are associated with an #IotNetworkInterface_t.
  * Together, they represent a network stack.
- * - @functionname{platform_network_function_create}
- * - @functionname{platform_network_function_setreceivecallback}
- * - @functionname{platform_network_function_send}
- * - @functionname{platform_network_function_receive}
- * - @functionname{platform_network_function_close}
- * - @functionname{platform_network_function_destroy}
- * - @functionname{platform_network_function_receivecallback}
+ * - @function_name{platform_network_function_create}
+ * @function_brief{platform_network_function_create}
+ * - @function_name{platform_network_function_setreceivecallback}
+ * @function_brief{platform_network_function_setreceivecallback}
+ * - @function_name{platform_network_function_send}
+ * @function_brief{platform_network_function_send}
+ * - @function_name{platform_network_function_receive}
+ * @function_brief{platform_network_function_receive}
+ * - @function_name{platform_network_function_close}
+ * @function_brief{platform_network_function_close}
+ * - @function_name{platform_network_function_destroy}
+ * @function_brief{platform_network_function_destroy}
+ * - @function_name{platform_network_function_receivecallback}
+ * @function_brief{platform_network_function_receivecallback}
  */
 
 /**
- * @functionpage{IotNetworkInterface_t::create,platform_network,create}
- * @functionpage{IotNetworkInterface_t::setReceiveCallback,platform_network,setreceivecallback}
- * @functionpage{IotNetworkInterface_t::send,platform_network,send}
- * @functionpage{IotNetworkInterface_t::receive,platform_network,receive}
- * @functionpage{IotNetworkInterface_t::close,platform_network,close}
- * @functionpage{IotNetworkInterface_t::destroy,platform_network,destroy}
- * @functionpage{IotNetworkReceiveCallback_t,platform_network,receivecallback}
+ * @function_page{IotNetworkInterface_t::create,platform_network,create}
+ * @function_snippet{platform_network,create,this}
+ * @copydoc IotNetworkInterface_t::create
+ * @function_page{IotNetworkInterface_t::setReceiveCallback,platform_network,setreceivecallback}
+ * @function_snippet{platform_network,setreceivecallback,this}
+ * @copydoc IotNetworkInterface_t::setReceiveCallback
+ * @function_page{IotNetworkInterface_t::send,platform_network,send}
+ * @function_snippet{platform_network,send,this}
+ * @copydoc IotNetworkInterface_t::send
+ * @function_page{IotNetworkInterface_t::receive,platform_network,receive}
+ * @function_snippet{platform_network,receive,this}
+ * @copydoc IotNetworkInterface_t::receive
+ * @function_page{IotNetworkInterface_t::close,platform_network,close}
+ * @function_snippet{platform_network,close,this}
+ * @copydoc IotNetworkInterface_t::close
+ * @function_page{IotNetworkInterface_t::destroy,platform_network,destroy}
+ * @function_snippet{platform_network,destroy,this}
+ * @copydoc IotNetworkInterface_t::destroy
+ * @function_page{IotNetworkReceiveCallback_t,platform_network,receivecallback}
+ * @function_snippet{platform_network,receivecallback,this}
+ * @copydoc IotNetworkReceiveCallback_t
  */
 
 /**

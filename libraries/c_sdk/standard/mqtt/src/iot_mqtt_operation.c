@@ -741,9 +741,9 @@ void _IotMqtt_ProcessKeepAlive( IotTaskPool_t pTaskPool,
 
         if( taskPoolStatus == IOT_TASKPOOL_SUCCESS )
         {
-            IotLogDebug( "(MQTT connection %p) Next keep-alive job in %d ms.",
+            IotLogDebug( "(MQTT connection %p) Next keep-alive job in %lu ms.",
                          pMqttConnection,
-                         IOT_MQTT_RESPONSE_WAIT_MS );
+                         ( unsigned long ) pMqttConnection->nextKeepAliveMs );
         }
         else
         {
@@ -1185,7 +1185,7 @@ _mqttOperation_t * _IotMqtt_FindOperation( _mqttConnection_t * pMqttConnection,
 
     if( pResult != NULL )
     {
-        IotLogDebug( "(MQTT connection %p) Found operation %s." ,
+        IotLogDebug( "(MQTT connection %p) Found operation %s.",
                      pMqttConnection,
                      IotMqtt_OperationType( type ) );
 
