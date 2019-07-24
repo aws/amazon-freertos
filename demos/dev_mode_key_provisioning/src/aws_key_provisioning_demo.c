@@ -7,9 +7,6 @@
 #include "task.h"
 #include "message_buffer.h"
 
-/* MQTT includes. */
-//#include "aws_mqtt_agent.h"
-
 /* Credentials includes. */
 #include "aws_clientcredential.h"
 
@@ -20,17 +17,9 @@
 #include <stdint.h>
 
 /* Crypto includes. */
-//#include "aws_crypto.h"
-#include "aws_clientcredential.h"
-//#include "aws_default_root_certificates.h"
-#include "iot_pkcs11.h" //used to be aws
-//#include "aws_pkcs11_mbedtls.h"
+#include "iot_pkcs11.h"
+#include "iot_pkcs11_config.h"
 #include "aws_dev_mode_key_provisioning.h"
-//#include "aws_test_pkcs11_config.h"
-#include "mbedtls/x509_crt.h"
-
-//#include "aws_pkcs11_config.h"
-
 
 /* mbedTLS includes. */
 #include "mbedtls/sha256.h"
@@ -41,12 +30,9 @@
 #include "mbedtls/ctr_drbg.h"
 #include "mbedtls/x509.h"
 #include "mbedtls/x509_csr.h"
+#include "mbedtls/x509_crt.h"
 
 #include "iot_tls.h"
-
-/* Test includes. */
-//#include "unity_fixture.h"
-//#include <unity.h>
 
 
 
@@ -68,67 +54,7 @@
 #ifndef AWS_CLIENT_CREDENTIAL_KEYS_H
 #define AWS_CLIENT_CREDENTIAL_KEYS_H
 
-
-#define keyCLIENT_PRIVATE_KEY_PEM \
-"-----BEGIN RSA PRIVATE KEY-----\n"\
-"MIIEowIBAAKCAQEApyQJJUNHySqmv62Lf8bDby2fcGHGRycph4TaFzXum9fi5pvG\n"\
-"g7kV2Yn+0ZKqDdgqqekB3C9wM8EX9reEL55jXrofW8HTJo1VlIFo0QVOfFURJ5qw\n"\
-"r1Dtf9y/KoTRX2ZZiLuR/4/gQjVqtK75WT/yIwtgqtnG+gB1ItU4ntI00PSh0j87\n"\
-"drEzofEerD+G3McQATYg8qTizTjdMrOTRrJFpUJvOw9Guges596AtaPA6/x/2SRD\n"\
-"rDtKKn3LJpZEXWhy4QhJqG9+4FijS5APutNmE7yOFv0WEyz6BmDp37AvXlkwqKCU\n"\
-"J2XqH5NiQP1V4pZZtOJu2if68i2bXT1Vi/ETAQIDAQABAoIBAQCmyKHLqkCW79Wn\n"\
-"TdD3N2tLpPYF2btWwzCAx8QtBydMIfiMcAN+7BFum3JIxJam6/9ev2GYy0mmi1eT\n"\
-"XPst3VqBay7hjB9cyAoO/7eNZEM2dFiC8ay/tPzZ63hjQFgBX4uWkr2UjIiW6ODK\n"\
-"3hN5yQKhj7ftpRUV4aEBmk0+xrnni6g5kPoT1beDLdZTo0TM22hcdSkeLD0WUeRR\n"\
-"X3S024KDDU0YNw8dGJlZPhXD8ERAAIt85Xl0CpY92B1j6EbGiu5dFAjmUSmDZTk7\n"\
-"Vpiy95eWv1DMCwJqUWrE44WvKDLIVu6Frxlus/RTMPOITvNXkW2VPr8+crJaAU/N\n"\
-"aJ9NBTtlAoGBANgbFm26y76kImzPefc3wLxSh1b7q40tgC/poRSgqX58uzO1fRp6\n"\
-"SxuxMTS5Q3smx2YL2paHdtWYZVh4IJSb9rknH/V5l0/bSh+8aRhcPrAjr8otWy88\n"\
-"pc4/do11lh/YEtdSiJPluwcQ3XuZppoBW122B7vx/EO1w6C/3NMnQXZDAoGBAMX+\n"\
-"6pBLucHqrfWVEQgvWTl5lnAq4inIW8MytJOTFUWSmwQd+MSgUUuF/u5NfEfKCO1T\n"\
-"srHQydEy9W9vrO4RdXbZliGTA4K28V0atenyutwYbckMD8oLkSMZ5iCK6f58fFHH\n"\
-"X+MsEsZwBnasRu6mRzR62bHfagVEFHpiB9yM/vdrAoGAGw1pBVt43eiWFqDyV6w3\n"\
-"CFwcbRscIpQrk9PfQkHKdfcPSC3T91iPxmusCTmX5Pa5x2B8gJN8oMhvB2AiU/gi\n"\
-"LpNjQMtz0Z9V7Bsd3NrPTiVpgBmlbIhfCS6QnKy3mkzmLuY6CqmbfAr0buCRJn48\n"\
-"/cInvbNRLPi4AIuEDTrAyxkCgYBI+z7A83jENtnqhQjjKHjOC7hdHiGBXz4bxGv1\n"\
-"XajgnTqQmO+ioql0mi6u7lbaK2mA+XILwzcw6oS3j8WBd2QB7BA/ze3kV8S+GeNm\n"\
-"Gbew+zw0eEK1qe/UrW47HplD2eUFS+VXWl6NUKvBQJ1gyF/Ew2fM/doZmM+nkMzv\n"\
-"CfXNgwKBgClyO3M87x9JXNKBuLyVGYwbWqN5lTHXS6J4HioBkQuVDcdrqwGACN8h\n"\
-"0q2aGlI5SkSb0fvj7IIE4aN/OD/N7uoaCW3DqONsxcGiYjLuV9NysV8sfkzkkJQm\n"\
-"vWlt5Hh8hv3giCt/Q8sgve3FQSzJDjwWNPano39dDJrXGkFtZI2V\n"\
-"-----END RSA PRIVATE KEY-----\n"
-
 #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H */
-
-/* Valid RSA private key. */
-static const char cValidRSAPrivateKey[] =
-    "-----BEGIN RSA PRIVATE KEY-----\n"
-    "MIIEpAIBAAKCAQEAsIqRecRxLz3PZXzZOHF7jMlB25tfv2LDGR7nGTJiey5zxd7o\n"
-    "swihe7+26yx8medpNvX1ym9jphty+9IR053k1WGnQQ4aaDeJonqn7V50Vesw6zFx\n"
-    "/x8LMdXFoBAkRXIL8WS5YKafC87KPnye8A0piVWUFy7+IEEaK3hQEJTzB6LC/N10\n"
-    "0XL5ykLCa4xJBOqlIvbDvJ+bKty1EBA3sStlTNuXi3nBWZbXwCB2A+ddjijFf5+g\n"
-    "Ujinr7h6e2uQeipWyiIw9NKWbvq8AG1Mj4XBoFL9wP2YTf2SQAgAzx0ySPNrIYOz\n"
-    "BNl1YZ4lIW5sJLATES9+Z8nHi7yRDLw6x/kcVQIDAQABAoIBADd+h3ZIeu/HtT8I\n"
-    "vNuSSK0bwpj+wV1O9VcbMLfp760bEAd+J5XHu8NDo4NPi6dxZ9CABpBo7WEUtdNU\n"
-    "2Ie11W4B8WpwvXpPIvOxLMJf85/ie5EjDNuObZ1vvlyvVkeCLyDlcaRhHBPBIC/+\n"
-    "SpPY/1qNTSzwd6+55zkM69YajD60tFv8WuCsgkAteCoDjcqwDcowyAy4pILhOYaW\n"
-    "1x+0ZPMUqwtld+06ct/yqBPB8C9IH7ZIeJr5e58R9SxytbuTwTN4jceOoeD5MBbG\n"
-    "A+A0WxGdQ8N+kwWkz77qDbZfP4G8wNxeUXobnfqfDGqb0O5zeEaU7EI+mlEQH58Z\n"
-    "B1edj6ECgYEA3rldciCQc4t2qYKiZSffnl7Pg7L+ojzH/Eam4Dlk27+DqOo70MnX\n"
-    "LVWUWkLOMQ27dRSBQsUDUaqVRZLkcFKc6C8k2cIpPBMpA9WdZVd9kFawZ8lJ7jko\n"
-    "qTbJxnDxvhdHrZRvLRjEenbdNXdAGy2EuqvThUJgPEybLAWg6sE3LB0CgYEAyurT\n"
-    "14h4BGEGBpl2KevoPQ4PPS+IoDXMS29mtfcascVkYcxxW1v8wOQVyD4VrsRMErck\n"
-    "ZMpu2evd+aQSPSrAod/sQ20C+wCCA7ipBlhAUeuS/FpqFIZWkHzZnVccp8O3nOFO\n"
-    "KNeAmw4udq8PyjVVouey/6F386itJdxWt/d8i5kCgYA3Aru045wqHck6RvzLVVTj\n"
-    "LfG9Sqmf8rlGc0DmYuapbB0dzHTnteLC3L9ep997uDOT0HO4xSZztllWLNjlcVI1\n"
-    "+ub0LgO3Rdg8jTdp/3kQ/IhnqgzrnQyQ9upRbDYZSHC4y8/F6LcmtFMg0Ipx7AU7\n"
-    "ghMld+aDHjy5W86KDR0OdQKBgQCAZoPSONqo+rQTbPwmns6AA+uErhVoO2KgwUdf\n"
-    "EZPktaFFeVapltWjQTC/WvnhcvkoRpdS5/2pC+WUWEvqRKlMRSN9rvdZ2QJsVGcw\n"
-    "Spu4urZx1MyXXEJef4I8W6kYR3JiZPdORL9uXlTsaO425/Tednr/4y7CEhQuhvSg\n"
-    "yIwY0QKBgQC2NtKDOwcgFykKRYqtHuo6VpSeLmgm1DjlcAuaGJsblX7C07ZH8Tjm\n"
-    "IHQb01oThNEa4tC0vO3518PkQwvyi/TWGHm9SLYdXvpVnBwkk5yRioKPgPmrs4Xi\n"
-    "ERIYrvveGGtQ3vSknLWUJ/0BgmuYj5U6aJBZPv8COM2eKIbTQbtQaQ==\n"
-    "-----END RSA PRIVATE KEY-----\n";
 
 
 /* The constants above are set to const char * pointers defined in aws_demo_runner.c,
@@ -159,14 +85,12 @@ typedef enum
     eStateUnknown         /* State of the credentials is unknown. */
 } CredentialsProvisioned_t;
 
-//// GLOBAL VARIABLES ////
+/* GLOBAL VARIABLES */
 CK_SESSION_HANDLE xGlobalSession;
 CK_RV xResult;
 
 CK_OBJECT_HANDLE xPrivateKeyHandle = CK_INVALID_HANDLE;
 CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
-CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
-CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
 CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
 
 
@@ -174,7 +98,6 @@ static int prvRNG ( void * pkcs_session,
                     unsigned char * pucRandom,
                     size_t xRandomLength )
 {
-   // TLSContext_t * pxCtx = ( TLSContext_t * ) pkcs_session; /*lint !e9087 !e9079 Allow casting void* to other types. */
     BaseType_t xResult;
     CK_FUNCTION_LIST_PTR pxP11FunctionList;
     xResult = C_GetFunctionList( &pxP11FunctionList );
@@ -204,7 +127,6 @@ static int prvPrivateKeySigningCallback( void * pvContext,
 {
     CK_RV xResult = 0;
     int lFinalResult = 0;
-    //TLSContext_t * pxTLSContext = ( TLSContext_t * ) pvContext;
     CK_MECHANISM xMech = { 0 };
     CK_BYTE xToBeSigned[ 256 ];
     uint8_t ucTemp[ 64 ] = { 0 }; /* A temporary buffer for the pre-formatted signature. */
@@ -222,23 +144,6 @@ static int prvPrivateKeySigningCallback( void * pvContext,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    /* If applicable, format the hash data to be signed. */
-    // if( CKK_RSA == pxTLSContext->xKeyType )
-    // {
-    //     xMech.mechanism = CKM_RSA_PKCS;
-    //     vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
-    //     xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
-    // }
-    // else if( CKK_EC == pxTLSContext->xKeyType )
-    // {
-    //     xMech.mechanism = CKM_ECDSA;
-    //     memcpy( xToBeSigned, pucHash, xHashLen );
-    //     xToBeSignedLen = xHashLen;
-    // }
-    // else
-    // {
-    //     xResult = CKR_ARGUMENTS_BAD;
-    // }
     xMech.mechanism = CKM_ECDSA;
     memcpy( xToBeSigned, pucHash, xHashLen );
     xToBeSignedLen = xHashLen;
@@ -261,55 +166,53 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                                            ( CK_ULONG_PTR ) pxSigLen );
     }
 
-    // if( CKK_EC == pxTLSContext->xKeyType )
-    // {
-        uint8_t * pucSigPtr;
+    uint8_t * pucSigPtr;
 
-        /* PKCS #11 for P256 returns a 64-byte signature with 32 bytes for R and 32 bytes for S.
-         * This must be converted to an ASN1 encoded array. */
-        configASSERT( *pxSigLen == 64 );
-        memcpy( ucTemp, pucSig, *pxSigLen );
+    /* PKCS #11 for P256 returns a 64-byte signature with 32 bytes for R and 32 bytes for S.
+        * This must be converted to an ASN1 encoded array. */
+    configASSERT( *pxSigLen == 64 );
+    memcpy( ucTemp, pucSig, *pxSigLen );
 
-        pucSig[ 0 ] = 0x30; /* Sequence. */
-        pucSig[ 1 ] = 0x44; /* The minimum length the signature could be. */
-        pucSig[ 2 ] = 0x02; /* Integer. */
+    pucSig[ 0 ] = 0x30; /* Sequence. */
+    pucSig[ 1 ] = 0x44; /* The minimum length the signature could be. */
+    pucSig[ 2 ] = 0x02; /* Integer. */
 
-        if( ucTemp[ 0 ] & 0x80 )
-        {
-            pucSig[ 1 ]++;
-            pucSig[ 3 ] = 0x21;
-            pucSig[ 4 ] = 0x0;
-            memcpy( &pucSig[ 5 ], ucTemp, 32 );
-            pucSigPtr = pucSig + 33 + 4;
-        }
-        else
-        {
-            pucSig[ 3 ] = 0x20;
-            memcpy( &pucSig[ 4 ], ucTemp, 32 );
-            pucSigPtr = pucSig + 32 + 4;
-        }
+    if( ucTemp[ 0 ] & 0x80 )
+    {
+        pucSig[ 1 ]++;
+        pucSig[ 3 ] = 0x21;
+        pucSig[ 4 ] = 0x0;
+        memcpy( &pucSig[ 5 ], ucTemp, 32 );
+        pucSigPtr = pucSig + 33 + 4;
+    }
+    else
+    {
+        pucSig[ 3 ] = 0x20;
+        memcpy( &pucSig[ 4 ], ucTemp, 32 );
+        pucSigPtr = pucSig + 32 + 4;
+    }
 
-        pucSigPtr[ 0 ] = 0x02; /* Integer. */
+    pucSigPtr[ 0 ] = 0x02; /* Integer. */
+    pucSigPtr++;
+
+    if( ucTemp[ 32 ] & 0x80 )
+    {
+        pucSig[ 1 ]++;
+        pucSigPtr[ 0 ] = 0x21;
+        pucSigPtr[ 1 ] = 0x00;
+        pucSigPtr += 2;
+
+        memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+    }
+    else
+    {
+        pucSigPtr[ 0 ] = 0x20;
         pucSigPtr++;
+        memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+    }
 
-        if( ucTemp[ 32 ] & 0x80 )
-        {
-            pucSig[ 1 ]++;
-            pucSigPtr[ 0 ] = 0x21;
-            pucSigPtr[ 1 ] = 0x00;
-            pucSigPtr += 2;
+    *pxSigLen = ( CK_ULONG ) pucSig[ 1 ] + 2;
 
-            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
-        }
-        else
-        {
-            pucSigPtr[ 0 ] = 0x20;
-            pucSigPtr++;
-            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
-        }
-
-        *pxSigLen = ( CK_ULONG ) pucSig[ 1 ] + 2;
-    //}
 
     if( xResult != 0 )
     {
@@ -320,39 +223,44 @@ static int prvPrivateKeySigningCallback( void * pvContext,
     return lFinalResult;
 }
 
-
-int write_certificate_request( mbedtls_x509write_csr *req, const char *output_file,
-                               int (*f_rng)(void *, unsigned char *, size_t),
-                               void *p_rng )
+static void vProvisionDevice ( void )
 {
-    int ret;
-    FILE *f;
-    unsigned char output_buf[4096];
-    size_t len = 0;
+    /* Provisioning Device Certificate */
+    CK_OBJECT_HANDLE xObject = 0;
+    xResult = xProvisionCertificate( xGlobalSession,
+                                     keyCLIENT_CERTIFICATE_PEM,
+                                     sizeof(keyCLIENT_CERTIFICATE_PEM),
+                                     ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                     &xObject );
 
-    memset( output_buf, 0, 4096 );
-    if( ( ret = mbedtls_x509write_csr_pem( req, output_buf, 4096, f_rng, p_rng ) ) < 0 )
-        return( ret );
-
-    len = strlen( (char *) output_buf );
-
-    char test[] = "testing";
-
-    if( ( f = fopen( output_file, "w" ) ) == NULL )
-        return( -1 );
-    
-    fwrite(test , 1 , sizeof(test) , f );
-
-
-    if( fwrite( output_buf, 1, len, f ) != len )
+    if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
     {
-        fclose( f );
-        return( -1 );
+        configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
     }
 
-    fclose( f );
+    /* Provisioning JITR CA Certificate */
+    if( xResult == CKR_OK )
+    {
+        if( sizeof(keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM) != 0 )
+        {
+            xResult = xProvisionCertificate( xGlobalSession,
+                                             keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM,
+                                             sizeof(keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM),
+                                             ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
+                                             &xObject );
 
-    return( 0 );
+            xResult = CKR_OK;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
+        configPRINTF( ( "Device credential provisioning succeeded.\r\n" ) );
+    }
+    else
+    {
+        configPRINTF( ( "Device credential provisioning failed.\r\n" ) );
+    }
 }
 
 static void vDevModeDeviceKeyProvisioning( void )
@@ -362,31 +270,12 @@ static void vDevModeDeviceKeyProvisioning( void )
     //TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
     xResult = xInitializePkcs11Session( &xGlobalSession );
     //TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
-    // CK_OBJECT_HANDLE xPrivateKeyHandle;
-    // CK_OBJECT_HANDLE xPublicKeyHandle;
+
     xResult = xDestroyCredentials( xGlobalSession );
 
     
     xResult = C_GetFunctionList( &pxGlobalFunctionList );
 
-
-
-    // xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
-    //                                         ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-    //                                         ( uint8_t * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-    //                                         &xPrivateKeyHandle,
-    //                                         &xPublicKeyHandle );
-
-    // CK_ATTRIBUTE xTemplate;
-    // xTemplate.type = CKA_EC_POINT;
-
-    // CK_BYTE xEC[ 4 ] = { 0 };
-    // xTemplate.pValue = xEC;
-    // xTemplate.ulValueLen = sizeof( xEC );
-    // xResult = pxFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
-
-
-    // configPRINTF((cValidRSAPrivateKey));
 
 
     #define SHA256_DIGEST_SIZE      32
@@ -397,8 +286,6 @@ static void vDevModeDeviceKeyProvisioning( void )
     #define MBEDTLS_PEM_WRITE_C
     
     CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
-
-    //CK_RV xResult;
  
     /* Note that mbedTLS does not permit a signature on all 0's. */
     CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xab };
@@ -415,9 +302,6 @@ static void vDevModeDeviceKeyProvisioning( void )
     mbedtls_ecdsa_context xEcdsaContext;
     uint8_t ucSecp256r1Oid[] = pkcs11DER_ENCODED_OID_P256; /*"\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1; */
 
-    /* An ECDSA signature is comprised of 2 components - R & S. */
-    mbedtls_mpi xR;
-    mbedtls_mpi xS;
 
     xResult = xDestroyCredentials( xGlobalSession );
     //TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before Generating Key Pair" );
@@ -534,97 +418,52 @@ static void vDevModeDeviceKeyProvisioning( void )
 
     header_copy->sign_func = &prvPrivateKeySigningCallback;
 
-    // mbedtls_ecp_keypair keypair = pk_cont.pk_ctx;
-    // void *key_stuff = mbedtls_ecdsa_context();
-
-    // mbedtls_ecdsa_context ecdsa;
-    // mbedtls_ecdsa_init( &ecdsa );
-    // mbedtls_ecdsa_from_keypair(&ecdsa, &xPublicKeyHandle);
-
-    mbedtls_pk_context pk_cont; // = pvPortMalloc(sizeof(struct mbedtls_pk_context));
+    mbedtls_pk_context pk_cont; 
     mbedtls_pk_init( &pk_cont );
     int ret = mbedtls_pk_setup(&pk_cont, header_copy);
     pk_cont.pk_ctx = &xEcdsaContext;
 
-    //mbedtls_pk_parse_keyfile( &pk_cont, (const char*) (&xPrivateKeyHandle), NULL );
 
     //////////////////////////////////////////////////////////////////////////////////////////////
-    
-    // mbedtls_mpi_free( &xR );
-    // mbedtls_mpi_free( &xS );
+
     // mbedtls_ecp_group_free( &xEcdsaContext.grp );
     // mbedtls_ecdsa_free( &xEcdsaContext );
 
-
-    // /* Check that FindObject works on Generated Key Pairs. */
-    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
-    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
-    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
-
-    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
-    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
-    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
-
-    // /* Close & reopen the session.  Make sure you can still find the keys. */
-    // xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
-    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error closing session after generating key pair." );
-    // xResult = xInitializePkcs11Session( &xGlobalSession );
-    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error re-opening session after generating key pair." );
-
-    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, CKO_PRIVATE_KEY, &xFoundPrivateKeyHandle );
-    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated private key." );
-    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid private key handle found." );
-
-    // xResult = xFindObjectWithLabelAndClass( xGlobalSession, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, CKO_PUBLIC_KEY, &xFoundPublicKeyHandle );
-    // // TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error finding generated public key." );
-    // // TEST_ASSERT_NOT_EQUAL_MESSAGE( CK_INVALID_HANDLE, xFoundPrivateKeyHandle, "Invalid public key handle found." );
-
-
     ///////////////////////////////////////////// CSR WRITING /////////////////////////////////////////////////// 
     
-    // mbedtls_asn1_buf oid = {MBEDTLS_ASN1_UTF8_STRING, 3, "idk"};
-    // mbedtls_asn1_buf thing_info = {MBEDTLS_ASN1_UTF8_STRING, 9, "ThingName"};
-    // mbedtls_asn1_named_data subj = {oid, thing_info, NULL, 0};
-    // mbedtls_pk_context key;
-    // mbedtls_pk_init( &key );
-    // const char *test_key = &cValidRSAPrivateKey[0];
-    // int ret = mbedtls_pk_parse_keyfile( &key, test_key, NULL );
-    // if( ret != 0 )
-    // {
-    //     configPRINTF(( " failed\n  !  mbedtls_pk_parse_keyfile returned %d", ret ));
-  
-    // }
-
-
-   
-    mbedtls_x509write_csr my_csr; // = pvPortMalloc(sizeof(struct mbedtls_x509write_csr));
+    mbedtls_x509write_csr my_csr;
     mbedtls_x509write_csr_init(&my_csr);
     ret = mbedtls_x509write_csr_set_subject_name(&my_csr, "CN=ThingName");
-    mbedtls_x509write_csr_set_key(&my_csr, &pk_cont); //pk_cont
+    mbedtls_x509write_csr_set_key(&my_csr, &pk_cont);
     mbedtls_x509write_csr_set_md_alg(&my_csr, MBEDTLS_MD_SHA256);
     ret = mbedtls_x509write_csr_set_key_usage(&my_csr, MBEDTLS_X509_KU_DIGITAL_SIGNATURE);
-    ret = mbedtls_x509write_csr_set_ns_cert_type(&my_csr, MBEDTLS_X509_NS_CERT_TYPE_SSL_CLIENT); //do we need this?
+    ret = mbedtls_x509write_csr_set_ns_cert_type(&my_csr, MBEDTLS_X509_NS_CERT_TYPE_SSL_CLIENT);
 
-    unsigned char *final_csr = pvPortMalloc(4096) ; 
-    
-    //const char* filename = "csr.txt";
-    size_t len_buf = (size_t)4096;
+    unsigned char *final_csr = pvPortMalloc(2000); 
+    size_t len_buf = (size_t)2000;
 
     ret = mbedtls_x509write_csr_pem( &my_csr, final_csr, len_buf, &prvRNG, &xGlobalSession );
-    // write_certificate_request( &my_csr, filename,
-    //                             &prvRNG,
-    //                             &xGlobalSession );
 
-    configPRINTF((final_csr));
+    unsigned char *csr_message = "1) PLEASE COPY THE FOLLOWING CERTIFICATE REQUEST INTO tools/create_certs/device_cert.csr :";
+    unsigned char *script_message = "2) ONCE YOU'VE COPIED THE CERTIFICATE REQUEST, PLEASE RUN THE SCRIPT NAMED \"device_cert.h\" LOCATED IN tools/create_certs";
+    unsigned char *cert_message = "3) ONCE YOU HAVE COMPLETED RUNNING THE SCRIPT, OPEN \"aws_clientcrediental_keys.h\" AND:"\
+                                    "\n\ta) FORMAT THE TWO CERTIFICATES LOCATED IN tools/create_certs/deviceCertAndCACert.crt USING tools/certificate_configuration/PEMfileToCString.html"\
+                                    "\n\tb) PASTE THE RESULTING TWO C STRINGS INTO keyCLIENT_CERTIFICATE_PEM AND keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM, RESPECTIVELY, IN \"aws_clientcrediental_keys.h\"";
+
+    configPRINTF( ("\n\n%s\n\n%s\n\n%s\n\n%s\r\n\n", csr_message, final_csr, script_message, cert_message) );
+    
+
+    //configPRINTF( ("\n\nONCE YOU'VE COPIED THE CERTIFICATE REQUEST, PLEASE RUN THE SCRIPT NAMED \"device_cert.h\" LOCATED IN tools/create_certs\r\n\n") );
+    //configPRINTF( ("\n\n%s\r\n\n", cert_message) );
+    
+    vProvisionDevice( ); 
+
+    return;
 
 }
 
+
 void vStartKeyProvisioningDemo( void )
-                                // (bool awsIotMqttMode,
-                                // const char * pIdentifier,
-                                // void * pNetworkServerInfo,
-                                // void * pNetworkCredentialInfo,
-                                // const IotNetworkInterface_t * pNetworkInterface)
 {
     #if(!GENERATE_KEYS_ON_DEVICE)
     {
@@ -643,8 +482,6 @@ void vStartKeyProvisioningDemo( void )
         (void) vDevModeDeviceKeyProvisioning( );
         
         configPRINTF( ( "Ending Key Provisioning\r\n" ) );
-
-
     }
     #endif
 }
