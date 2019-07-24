@@ -427,7 +427,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                               &pcFileName,
                               &xHandle );
 
-    if (pcFileName != NULL)
+    if( pcFileName != NULL )
     {
         /* Check if object exists/has been created before returning. */
         iStatus = sl_FsGetInfo( ( const unsigned char * ) pcFileName, 0, &FsFileInfo );
@@ -587,6 +587,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     char * pcFileName = NULL;
     char * pcPemBuffer = NULL;
     size_t xPemLength = 0;
+    int i;
+    CK_BBOOL isDestroy = CK_FALSE;
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
 
     /* Converts a label to its respective filename and handle. */
@@ -610,6 +612,37 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             {
                 xHandle = eInvalidHandle;
             }
+        }
+        else
+        {
+            /* DestroyObject workaround is to overwrite the memory with zeros.
+             * Check if this looks like a deliberate destroy call, and if so,
+             * overwrite the file with all 0s. */
+            isDestroy = CK_TRUE;
+
+            for( i = 0; i < ulDataSize; i++ )
+            {
+                if( pucData[ i ] != 0 )
+                {
+                    isDestroy = CK_FALSE;
+                    break;
+                }
+            }
+
+            if( isDestroy == CK_TRUE )
+            {
+                if( pdFALSE == prvSaveFile( pcFileName,
+                                            ( char * ) pucData,
+                                            ulDataSize ) )
+                {
+                    xHandle = eInvalidHandle;
+                }
+            }
+            else /* This is not a valid key or cert, and is also not a DestroyObject call. */
+            {
+                xHandle = eInvalidHandle;
+            }
+
         }
 
         if( NULL != pcPemBuffer )
