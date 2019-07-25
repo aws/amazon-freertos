@@ -1,0 +1,23 @@
+{
+  "ENTRY": "IotHttpsClient_ReadResponseStatus",
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--nondet-static"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/iot_https_client.goto"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/include",
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/private",
+    "$(FREERTOS)/libraries/3rdparty/http-parser",
+    "$(FREERTOS)/libraries/c_sdk/standard/common/include/",
+    "$(FREERTOS)/libraries/abstractions/platform/include/",
+    "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
+    "../../include"
+  ]
+}
