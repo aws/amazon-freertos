@@ -78,7 +78,7 @@ void vDevModeKeyProvisioning( void );
  * \param[in] pxParams       Pointer to an initialized provisioning
  *                           structure.
  *
- * \return CKR_OK upon successful key creation. 
+ * \return CKR_OK upon successful key creation.
  * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
@@ -103,7 +103,7 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
  * \param[out] pxObjectHandle      Points to the location that receives the PKCS #11
  *                                 private key handle created.
  *
- * \return CKR_OK upon successful key creation. 
+ * \return CKR_OK upon successful key creation.
  * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,

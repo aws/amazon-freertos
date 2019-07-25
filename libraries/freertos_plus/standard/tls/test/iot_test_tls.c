@@ -165,7 +165,7 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
     }
     else
     {
-    	TEST_FAIL();
+        TEST_FAIL();
     }
 
     /* Make sure to close the socket. */
@@ -180,21 +180,20 @@ static void prvConnectWithProvisioning( ProvisioningParams_t * pxProvisioningPar
     }
     else
     {
-    	TEST_FAIL();
+        TEST_FAIL();
     }
 
-    if (TEST_PROTECT())
+    if( TEST_PROTECT() )
     {
-		/* Regardless of whatever failed above, re-provision the
-		 * device with default RSA certs so that subsequent tests
-		 * are not changed. */
-		vDevModeKeyProvisioning();
+        /* Regardless of whatever failed above, re-provision the
+         * device with default RSA certs so that subsequent tests
+         * are not changed. */
+        vDevModeKeyProvisioning();
     }
     else
     {
-    	TEST_FAIL();
+        TEST_FAIL();
     }
-
 }
 /*-----------------------------------------------------------*/
 

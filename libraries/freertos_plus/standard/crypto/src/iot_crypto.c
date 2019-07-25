@@ -84,32 +84,31 @@ static void * prvCalloc( size_t xNmemb,
 /*-----------------------------------------------------------*/
 
 /**
-* @brief Implementation of mbedtls_mutex_init for thread-safety.
-*
-*/
+ * @brief Implementation of mbedtls_mutex_init for thread-safety.
+ *
+ */
 void aws_mbedtls_mutex_init( mbedtls_threading_mutex_t * mutex )
 {
     mutex->mutex = xSemaphoreCreateMutex();
 
-    if ( mutex->mutex != NULL )
+    if( mutex->mutex != NULL )
     {
         mutex->is_valid = 1;
     }
     else
     {
         mutex->is_valid = 0;
-        CRYPTO_PRINT( ("Failed to initialize mbedTLS mutex.\r\n") );
+        CRYPTO_PRINT( ( "Failed to initialize mbedTLS mutex.\r\n" ) );
     }
-    
 }
 
 /**
-* @brief Implementation of mbedtls_mutex_free for thread-safety.
-*
-*/
+ * @brief Implementation of mbedtls_mutex_free for thread-safety.
+ *
+ */
 void aws_mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex )
 {
-    if ( mutex->is_valid == 1 )
+    if( mutex->is_valid == 1 )
     {
         vSemaphoreDelete( mutex->mutex );
         mutex->is_valid = 0;
@@ -117,25 +116,25 @@ void aws_mbedtls_mutex_free( mbedtls_threading_mutex_t * mutex )
 }
 
 /**
-* @brief Implementation of mbedtls_mutex_lock for thread-safety.
-*
-* @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
-* MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
-*/
+ * @brief Implementation of mbedtls_mutex_lock for thread-safety.
+ *
+ * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+ * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+ */
 int aws_mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex )
 {
     int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
 
-    if ( mutex->is_valid == 1 )
+    if( mutex->is_valid == 1 )
     {
-        if ( xSemaphoreTake( mutex->mutex, portMAX_DELAY ) )
+        if( xSemaphoreTake( mutex->mutex, portMAX_DELAY ) )
         {
             ret = 0;
         }
         else
         {
             ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
-            CRYPTO_PRINT( ("Failed to obtain mbedTLS mutex.\r\n") );
+            CRYPTO_PRINT( ( "Failed to obtain mbedTLS mutex.\r\n" ) );
         }
     }
 
@@ -143,25 +142,25 @@ int aws_mbedtls_mutex_lock( mbedtls_threading_mutex_t * mutex )
 }
 
 /**
-* @brief Implementation of mbedtls_mutex_unlock for thread-safety.
-*
-* @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
-* MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
-*/
+ * @brief Implementation of mbedtls_mutex_unlock for thread-safety.
+ *
+ * @return 0 if successful, MBEDTLS_ERR_THREADING_MUTEX_ERROR if timeout,
+ * MBEDTLS_ERR_THREADING_BAD_INPUT_DATA if the mutex is not valid.
+ */
 int aws_mbedtls_mutex_unlock( mbedtls_threading_mutex_t * mutex )
 {
     int ret = MBEDTLS_ERR_THREADING_BAD_INPUT_DATA;
 
-    if ( mutex->is_valid == 1 )
+    if( mutex->is_valid == 1 )
     {
-        if ( xSemaphoreGive( mutex->mutex ) )
+        if( xSemaphoreGive( mutex->mutex ) )
         {
             ret = 0;
         }
         else
         {
             ret = MBEDTLS_ERR_THREADING_MUTEX_ERROR;
-            CRYPTO_PRINT( ("Failed to unlock mbedTLS mutex.\r\n") );
+            CRYPTO_PRINT( ( "Failed to unlock mbedTLS mutex.\r\n" ) );
         }
     }
 
