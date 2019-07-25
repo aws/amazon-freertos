@@ -357,6 +357,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\application_code\ti_code</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
@@ -1157,6 +1158,21 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c</name>
 				</file>
 			</group>
+			<group>
+				<name>IAR</name>
+				<group>
+					<name>ARM_CM3</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\port.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\portasm.s</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\portmacro.h</name>
+					</file>
+				</group>
+			</group>
 		</group>
 	</group>
 	<group>
@@ -1193,6 +1209,12 @@
 								</file>
 								<file>
 									<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\SystemP_freertos.c</name>
+								</file>
+							</group>
+							<group>
+								<name>startup</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\startup\startup_cc32xx_iar.c</name>
 								</file>
 							</group>
 						</group>

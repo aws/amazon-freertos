@@ -173,6 +173,26 @@
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/MemMang/heap_4.c</locationURI>
 		</link>
 		<link>
+			<name>vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/SimpleLink_CC32xx/v2_10_00_04/kernel/freertos/startup/startup_cc32xx_ccs.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/CCS/ARM_CM3/port.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/port.c</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/CCS/ARM_CM3/portasm.asm</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/portasm.asm</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/portable/CCS/ARM_CM3/portmacro.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/portable/CCS/ARM_CM3/portmacro.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</locationURI>
@@ -568,6 +588,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
@@ -586,11 +611,6 @@
 			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
