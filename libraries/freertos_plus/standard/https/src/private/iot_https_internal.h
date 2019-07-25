@@ -453,7 +453,7 @@ typedef struct _httpsResponse
     uint8_t * pBodyCurInHeaderBuf;  /**< @brief Pointer to the next location to write body data during processing of the header buffer. This is necessary in case there is a chunk encoded HTTP response. */
     IotHttpsReturnCode_t bodyRxStatus;  /**< @brief The status of the receiving the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.readReadyCallback(). */
     bool cancelled;         /**< @brief This is set to true to stop the request/response processing in the asynchronous request workflow. */
-    IotSemaphore_t respFinishedSem;     /**< @brief This is for synchronous response to post that is is finished being received. It is better to use a task event signal, but that is not implemented yet in the iot_threads.h API. */
+    IotSemaphore_t respFinishedSem;     /**< @brief This is for synchronous response to post that is finished being received. It is better to use a task event signal, but that is not implemented yet in the iot_threads.h API. */
     IotHttpsReturnCode_t syncStatus;    /**< @brief The status of the synchronous response. */
 } _httpsResponse_t;
 
