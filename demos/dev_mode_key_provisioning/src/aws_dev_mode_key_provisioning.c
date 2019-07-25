@@ -611,7 +611,7 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     /* Create an object using the encoded client certificate. */
     if( xResult == CKR_OK )
     {
-        configPRINTF( ( "Write code signing certificate...\r\n" ) );
+        configPRINTF( ( "Write certificate...\r\n" ) );
 
         xResult = pxFunctionList->C_CreateObject( xSession,
                                                   ( CK_ATTRIBUTE_PTR ) &xCertificateTemplate,
@@ -651,7 +651,7 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
-    for( ; uiIndex < sizeof( pxPkcsLabels ) / sizeof( pxPkcsLabels[ 0 ] ); uiIndex++ )
+    for( uiIndex = 0; uiIndex < sizeof( pxPkcsLabels ) / sizeof( pxPkcsLabels[ 0 ] ); uiIndex++ )
     {
         pxLabel = pxPkcsLabels[ uiIndex ];
 

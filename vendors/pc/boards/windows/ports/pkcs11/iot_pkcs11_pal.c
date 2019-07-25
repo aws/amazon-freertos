@@ -159,7 +159,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         /* Create the file. */
         hFile = CreateFileA( pcFileName,
                              GENERIC_WRITE,
-                             FILE_SHARE_READ,
+                             0,
                              NULL,
                              CREATE_ALWAYS,
                              FILE_ATTRIBUTE_NORMAL,

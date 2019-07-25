@@ -264,7 +264,7 @@ CK_RV prvMbedTLS_Initialize( void )
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
         CRYPTO_Init();
-        /* Initialze the entropy source and DRBG for the PKCS#11 module */
+        /* Initialize the entropy source and DRBG for the PKCS#11 module */
         mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
         mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
 
@@ -2499,9 +2499,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            /*xIsObjectWithNoNvmStorage(pxSession->pxFindObjectLabel, strlen(pxSession->pxFindObjectLabel), ) */
+            /* Note: Objects living in header files are not destroyed. */
+            /* According to the PKCS #11 standard, not finding an object results in a CKR_OK return value with an object count of 0. */
+            *pulObjectCount = 0;
             PKCS11_WARNING_PRINT( ( "WARN: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
-            xResult = CKR_FUNCTION_FAILED;
         }
     }
 

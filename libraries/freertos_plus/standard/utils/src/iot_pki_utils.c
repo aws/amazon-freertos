@@ -34,7 +34,8 @@
 #define FAILURE    ( -1 )
 
 /*-----------------------------------------------------------*/
-/* Reconstruct the signature in PKCS #11 format. */
+
+/* Convert the EC signature from DER encoded to PKCS #11 format. */
 int PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
                                            uint8_t * pxMbedSignature )
 {
@@ -105,10 +106,12 @@ int PKI_mbedTLSSignatureToPkcs11Signature( uint8_t * pxSignaturePKCS,
     return xReturn;
 }
 
+/*-----------------------------------------------------------*/
 
 
+/* Convert an EC signature from PKCS #11 format to DER encoded. */
 int PKI_pkcs11SignatureTombedTLSSignature( uint8_t * pucSig,
-                                           size_t * pxSigLen ) 
+                                           size_t * pxSigLen )
 {
     int xResult = 0;
     uint8_t * pucSigPtr;
