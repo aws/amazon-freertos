@@ -135,11 +135,13 @@ static IotHttpsConnectionHandle_t _receiveCallbackConnHandle = IOT_HTTPS_CONNECT
 static bool _alreadyCreatedReceiveCallbackThread = false;
 
 /**
- * @brief The request handle that is currently being serviced in a test.
+ * @brief The request handle that is currently being serviced in a test where some part fails.
  * 
- * This is needed to replace the parseFunc, in the corresponding response, with a unit test mock. 
+ * This is needed to replace the parseFunc, in the corresponding response, with a unit test mock.
+ * This is needed to check if the network receive or network send buffer is the header or the body to get
+ * proper failure coverage. 
  */
-static IotHttpsRequestHandle_t _currentlySendingRequestHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+static IotHttpsRequestHandle_t _currentlySendingRequestHandleForNegativeTests = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
 
 /**
  * @brief An HTTP response message to share among the tests.
@@ -223,8 +225,6 @@ static void _generateHttpsResponseMessage( int headerLength, int bodyLength )
     int index = 0;
     int nextCopyIndex = 0;
     int currentHeaderLineLength = 0;
-    int debugValue0 = HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
-    int debugValue1 = HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH;
     int headerSpaceLeft = headerLength - HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH - HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH;
     /* +1 for the NULL terminator for snprintf. This is not included in the final set of headers. */
     char currentHeaderLine[MAX_GENERIC_HEADER_LINE_LENGTH + 1] = { 0 };
@@ -359,7 +359,7 @@ static size_t _httpParserExecuteFailHeaders( http_parser *parser,
     ( void )data;
     ( void )len;
 
-    if( data == _currentlySendingRequestHandle->pHttpsResponse->pHeadersCur )
+    if( data == (char*)(_currentlySendingRequestHandleForNegativeTests->pHttpsResponse->pHeadersCur) )
     {
         parser->http_errno = HPE_UNKNOWN;
     }
@@ -385,7 +385,7 @@ static size_t _httpParserExecuteFailBody( http_parser *parser,
     ( void )data;
     ( void )len;
 
-    if( data == _currentlySendingRequestHandle->pHttpsResponse->pBodyCur )
+    if( data == (char*)(_currentlySendingRequestHandleForNegativeTests->pHttpsResponse->pBodyCur) )
     {
         parser->http_errno = HPE_UNKNOWN;
     }
@@ -424,7 +424,7 @@ static size_t _networkReceiveSuccess( void * pConnection,
     memcpy(pBuffer, &(_pResponseMessageBuffer[_nextResponseMessageByteToReceive]), copyLen);
     _nextResponseMessageByteToReceive += copyLen;
 
-    return bytesRequested;
+    return copyLen;
 }
 
 /*-----------------------------------------------------------*/
@@ -443,7 +443,7 @@ static size_t _networkSendFailHeaders( void * pConnection,
     size_t retValue = 0;
 
     /* Check if we are sending the headers to return failure. */
-    if( pMessage == _currentlySendingRequestHandle->pHeaders)
+    if( pMessage == _currentlySendingRequestHandleForNegativeTests->pHeaders)
     {
         retValue = 0;
     }
@@ -470,7 +470,7 @@ static size_t _networkSendFailBody( void * pConnection,
     size_t retValue = 0;
 
     /* Check if we are sending the body to return failure. */
-    if( pMessage == _currentlySendingRequestHandle->pBody )
+    if( pMessage == _currentlySendingRequestHandleForNegativeTests->pBody )
     {
         retValue = 0;
     }
@@ -523,7 +523,7 @@ static size_t _networkReceiveFailHeaders( void * pConnection,
 
     size_t retValue = 0;
 
-    if( pBuffer == _currentlySendingRequestHandle->pHttpsResponse->pHeadersCur )
+    if( pBuffer == _currentlySendingRequestHandleForNegativeTests->pHttpsResponse->pHeadersCur )
     {
         retValue = 0;
     }
@@ -553,7 +553,7 @@ static size_t _networkReceiveFailBody( void * pConnection,
     /* We may have recieved some body in the headers, so pBodyCur will be incremented during the parsing of 
        data received when receiving into the header buffer. Given this case, when receiving from the network 
        into the body buffer, start of the pBuffer should always be pBodyCur. */
-    if( pBuffer == _currentlySendingRequestHandle->pHttpsResponse->pBodyCur )
+    if( pBuffer == _currentlySendingRequestHandleForNegativeTests->pHttpsResponse->pBodyCur )
     {
         retValue = 0;
     }
@@ -581,7 +581,7 @@ static size_t _networkSendSuccessWithSettingParseFailForHeaders( void * pConnect
     (void)pMessage;
 
     /* Set the response parser function to mock a failure. */
-    _currentlySendingRequestHandle->pHttpsResponse->httpParserInfo.parseFunc = _httpParserExecuteFailHeaders;
+    _currentlySendingRequestHandleForNegativeTests->pHttpsResponse->httpParserInfo.parseFunc = _httpParserExecuteFailHeaders;
 
     /* This thread must be created only once to mimic the behavior of the network abstraction.  */
     if( !_alreadyCreatedReceiveCallbackThread )
@@ -612,7 +612,7 @@ static size_t _networkSendSuccessWithSettingParseFailForBody( void * pConnection
     (void)pMessage;
 
     /* Set the response parser function to mock a failure. */
-    _currentlySendingRequestHandle->pHttpsResponse->httpParserInfo.parseFunc = _httpParserExecuteFailBody;
+    _currentlySendingRequestHandleForNegativeTests->pHttpsResponse->httpParserInfo.parseFunc = _httpParserExecuteFailBody;
 
     /* This thread must be created only once to mimic the behavior of the network abstraction.  */
     if( !_alreadyCreatedReceiveCallbackThread )
@@ -646,10 +646,10 @@ TEST_SETUP( HTTPS_Client_Unit_Sync )
     /* Reset the shared response message buffer. */
     ( void ) memset( &_pResponseMessageBuffer, 0x00, sizeof(_pResponseMessageBuffer) );
 
-    /* Reset some global static variables. */
+    /* Reset some global static variables needed for mimicing the network. */
     _receiveCallbackConnHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     _alreadyCreatedReceiveCallbackThread = false;
-    _currentlySendingRequestHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    _currentlySendingRequestHandleForNegativeTests = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     _nextResponseMessageByteToReceive = 0;
 
     /* This will initialize the library before every test case, which is OK. */
@@ -689,6 +689,11 @@ TEST_GROUP_RUNNER( HTTPS_Client_Unit_Sync )
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyBufferNull );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncPersistentRequest );
     RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncNonPersistentRequest );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithCarriageReturnSeparator );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithNewlineSeparator );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithColonSeparator );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithSpaceSeparator );
+    RUN_TEST_CASE( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithSpaceAfterHeaderValue );
 }
 
 /*-----------------------------------------------------------*/
@@ -768,6 +773,8 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSendingHeaders )
 
     /* Test a failure to the send the headers. */
     _networkInterface.send = _networkSendFailHeaders;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
 
     /* Get a valid "connected" handled. */
     connHandle = _getConnHandle();
@@ -776,10 +783,11 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSendingHeaders )
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
 
-    _currentlySendingRequestHandle = reqHandle;
+    _currentlySendingRequestHandleForNegativeTests = reqHandle;
 
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
+    TEST_ASSERT_FALSE( connHandle->isConnected );
 }
 
 /*-----------------------------------------------------------*/
@@ -797,6 +805,8 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSendingBody )
 
     /* Test a failure to send the body */
     _networkInterface.send = _networkSendFailBody;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
 
     /* Get a valid "connected" handled. */
     connHandle = _getConnHandle();
@@ -805,10 +815,11 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureSendingBody )
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
 
-    _currentlySendingRequestHandle = reqHandle;
+    _currentlySendingRequestHandleForNegativeTests = reqHandle;
 
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_NETWORK_ERROR, returnCode);
+    TEST_ASSERT_FALSE( connHandle->isConnected );
 }
 
 /*-----------------------------------------------------------*/
@@ -836,7 +847,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingHeaders )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
+    _currentlySendingRequestHandleForNegativeTests = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
@@ -873,7 +884,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingBody )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
+    _currentlySendingRequestHandleForNegativeTests = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
@@ -911,11 +922,13 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingHeaders )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
+    _currentlySendingRequestHandleForNegativeTests = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
 
+    /* Generate an ideal case header and body message size just for testing a failure to parse. */
+    _generateHttpsResponseMessage( _currentHeaderBufferSize, HTTPS_TEST_RESP_BODY_BUFFER_SIZE );
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_PARSING_ERROR, returnCode);
     /* Verify that the connection was closed. */
@@ -947,7 +960,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingBody )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
+    _currentlySendingRequestHandleForNegativeTests = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
@@ -955,6 +968,8 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingBody )
     /* Generate an ideal case header and body message size just for testing a failure to receive. */
     _generateHttpsResponseMessage( _currentHeaderBufferSize, HTTPS_TEST_RESP_BODY_BUFFER_SIZE );
 
+    /* Generate an ideal case header and body message size just for testing a failure to parse. */
+    _generateHttpsResponseMessage( _currentHeaderBufferSize, HTTPS_TEST_RESP_BODY_BUFFER_SIZE );
     returnCode = IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &_respInfo, timeout);
     TEST_ASSERT_EQUAL(IOT_HTTPS_PARSING_ERROR, returnCode);
     /* Verify that the connection was closed. */
@@ -977,7 +992,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncSomeBodyInHeaderBuffer )
     int headerLength = 0;
     int bodyLength = 0;
 
-    /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -990,7 +1004,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncSomeBodyInHeaderBuffer )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
@@ -1027,7 +1040,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncSomeHeaderInBodyBuffer )
     int headerLength = 0;
     int bodyLength = 0;
 
-    /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -1040,7 +1052,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncSomeHeaderInBodyBuffer )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
@@ -1071,7 +1082,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncEntireResponseInHeaderBuffer )
     int headerLength = 0;
     int bodyLength = 0;
 
-    /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -1084,7 +1094,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncEntireResponseInHeaderBuffer )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
@@ -1115,7 +1124,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncBodyTooLarge )
     int headerLength = 0;
     int bodyLength = 0;
 
-    /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -1128,7 +1136,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncBodyTooLarge )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL(reqHandle);
-    _currentlySendingRequestHandle = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy(&_receiveCallbackConnHandle, &connHandle, sizeof(IotHttpsConnectionHandle_t));
@@ -1158,7 +1165,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncBodyBufferNull )
     int headerLength = 0;
     int bodyLength = 0;
 
-    /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -1171,7 +1177,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncBodyBufferNull )
     /* Get a valid request handle. */
     reqHandle = _getReqHandle( &_reqInfo );
     TEST_ASSERT_NOT_NULL( reqHandle );
-    _currentlySendingRequestHandle = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
@@ -1202,7 +1207,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncPersistentRequest )
     int headerLength = 0;
     int bodyLength = 0;
 
-    /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -1218,7 +1222,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncPersistentRequest )
     reqInfo.isNonPersistent = false;
     reqHandle = _getReqHandle( &reqInfo );
     TEST_ASSERT_NOT_NULL( reqHandle );
-    _currentlySendingRequestHandle = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
@@ -1251,7 +1254,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncNonPersistentRequest )
     int headerLength = 0;
     int bodyLength = 0;
 
-    /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
@@ -1267,7 +1269,6 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncNonPersistentRequest )
     reqInfo.isNonPersistent = true;
     reqHandle = _getReqHandle( &reqInfo );
     TEST_ASSERT_NOT_NULL( reqHandle );
-    _currentlySendingRequestHandle = reqHandle;
 
     /* Set the global test connection handle to be passed to the library network receive callback. */
     memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
@@ -1282,4 +1283,406 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncNonPersistentRequest )
     _verifyHttpResponseBody( bodyLength, _respInfo.pSyncInfo->pBody );
     /* Verify that the connection is closed. */
     TEST_ASSERT_FALSE( connHandle->isConnected );
+}
+
+/*-----------------------------------------------------------*/
+
+#define HTTPS_TEST_SMALL_RESPONSE \
+    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"\
+    "header2: value2 value2a\r\nContent-Length: 26\r\n\r\nabcdefghijklmnopqrstuvwxyz"
+#define HTTPS_TEST_SMALL_RESPONSE_LENGTH                (sizeof(HTTPS_TEST_SMALL_RESPONSE) - 1)
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_CARRIAGE_RETURN "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r"
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_NEWLINE         "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_COLON           "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:"
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_SPACE           "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: "
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_SPACE_IN_BETWEEN_VALUE \
+    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\nheader2: value2 "
+#define HTTPS_TEST_HEADER1              "header1"
+#define HTTPS_TEST_HEADER1_PLUS_COLON   "header1:"
+#define HTTPS_TEST_HEADER1_PLUS_SPACE   "header1: "
+#define HTTPS_TEST_HEADER2              "header2"
+#define HTTPS_TEST_HEADER_VALUE1        "value1"
+#define HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE             "value2 "
+#define HTTPS_TEST_HEADER_VALUE1_PLUS_CARRIAGE_RETURN   "value1\r"
+#define HTTPS_TEST_HEADER_VALUE1_PLUS_NEWLINE           "value1\r\n"
+static uint8_t _smallResponseReceiveCallNumber = 0;
+static char * _pCurrentSmallResponseTestString = NULL;
+/**
+ * @brief Receive up to the carriage return the first call, then receive the rest
+ * the next call.
+ * 
+ * The tests using this function, it is expected that pBuffer (the header buffer) is
+ * larger than strlen(HTTPS_TEST_SMALL_RESPONSE).
+ * 
+ * This is to test what happens in the parser when only part of the response is receive.
+ */
+void _networkReceiveUpSmallResponseTestString( void * pConnection,
+                                        uint8_t * pBuffer,
+                                        size_t bytesRequested )
+{
+    (void)pConnection;
+    (void)pBuffer;
+    (void)bytesRequested;
+
+    size_t smallResponseTestStringLength = strlen(_pCurrentSmallResponseTestString);
+
+    if(_smallResponseReceiveCallNumber == 0)
+    {
+        memcpy(pBuffer, 
+            _pResponseMessageBuffer, 
+            smallResponseTestStringLength);
+    }
+    else
+    {
+        memcpy(pBuffer, 
+            &_pResponseMessageBuffer[smallResponseTestStringLength],
+            HTTPS_TEST_SMALL_RESPONSE_LENGTH - smallResponseTestStringLength);
+    }
+}
+
+/**
+ * @brief Test that we have the correct header data when it ends on the carriage return of the end of the header lines
+ * separator.
+ * 
+ * The end of the header lines separator is "\r\n". This test is important because it makes sure that the pHeaderCur pointer
+ * in the internal response context is updated even though the http-parser callback does not notify the library of
+ * these characters.
+ * 
+ * These tests are separated into difference cases so that I can easily free the memory allocated.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithCarriageReturnSeparator )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+    uint32_t userBufferWithHeaderSpaceUpToCarriageReturnLength = 
+        responseUserBufferMinimumSize + sizeof(HTTPS_TEST_SMALL_RESPONSE_UP_TO_CARRIAGE_RETURN) - 1;
+    uint8_t* pUserBufferWithHeaderSpaceUpToCarriageReturn = NULL;
+    char pValueBuffer[sizeof(HTTPS_TEST_HEADER_VALUE1)] = { 0 };
+
+    _networkInterface.send = _networkSendSuccess;
+    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
+
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL( connHandle );
+    /* Set the global test connection handle to be passed to the library network receive callback. */
+    memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
+
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle( &_reqInfo );
+    TEST_ASSERT_NOT_NULL( reqHandle );
+
+    /* Setup the test response message to receive a small test message. */
+    memcpy( _pResponseMessageBuffer, HTTPS_TEST_SMALL_RESPONSE, sizeof(HTTPS_TEST_SMALL_RESPONSE));
+
+    /* Test the header buffer receives up to a carriage return in the header separator.  */
+    memcpy(&respInfo, &_respInfo, sizeof(IotHttpsResponseInfo_t));
+    pUserBufferWithHeaderSpaceUpToCarriageReturn = 
+        (uint8_t*)IotTest_Malloc(userBufferWithHeaderSpaceUpToCarriageReturnLength);
+    TEST_ASSERT_NOT_NULL(pUserBufferWithHeaderSpaceUpToCarriageReturn);
+
+    /* Test protect here so that we can free the memory after a failure. */
+    if( TEST_PROTECT() )
+    {
+        respInfo.userBuffer.pBuffer = pUserBufferWithHeaderSpaceUpToCarriageReturn;
+        respInfo.userBuffer.bufferLen = userBufferWithHeaderSpaceUpToCarriageReturnLength;
+
+        returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* If the internal pointers were incremented correctly then we should successfully find the "value1" header value. */
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer)); 
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* Assert that ReadHeader() found the correct "value1" header value. */
+        TEST_ASSERT_EQUAL( 0, strncmp(pValueBuffer, HTTPS_TEST_HEADER_VALUE1, sizeof(HTTPS_TEST_HEADER_VALUE1)));
+        /* Assert that "value1\r" is found in the header buffer. */
+        TEST_ASSERT_NOT_NULL(strstr((char*)(respHandle->pHeaders), HTTPS_TEST_HEADER_VALUE1_PLUS_CARRIAGE_RETURN));
+        /* Assert that the final character in the header buffer is '\r'. */
+        TEST_ASSERT_EQUAL(CARRIAGE_RETURN_CHARACTER, (char)(*(respHandle->pHeadersCur - 1)));
+    }
+
+    IotTest_Free(pUserBufferWithHeaderSpaceUpToCarriageReturn);
+
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that we have the correct header data when it ends on the newline of the end of the header lines
+ * separator.
+ * 
+ * The end of the header lines separator is "\r\n". This test is important because it makes sure that the pHeaderCur pointer
+ * in the internal response context is updated even though the http-parser callback does not notify the library of
+ * these characters.
+ * 
+ * These tests are separated into difference cases so that I can easily free the memory allocated.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithNewlineSeparator )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+    uint32_t userBufferWithHeaderSpaceUpToNewLineLength =
+        responseUserBufferMinimumSize + sizeof(HTTPS_TEST_SMALL_RESPONSE_UP_TO_NEWLINE) - 1;
+    uint8_t* pUserBufferWithHeaderSpaceUpToNewLine = NULL;
+    char pValueBuffer[sizeof(HTTPS_TEST_HEADER_VALUE1)] = { 0 };
+
+    _networkInterface.send = _networkSendSuccess;
+    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
+
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL( connHandle );
+    /* Set the global test connection handle to be passed to the library network receive callback. */
+    memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
+
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle( &_reqInfo );
+    TEST_ASSERT_NOT_NULL( reqHandle );
+
+    /* Setup the test response message to receive a small test message. */
+    memcpy( _pResponseMessageBuffer, HTTPS_TEST_SMALL_RESPONSE, sizeof(HTTPS_TEST_SMALL_RESPONSE));
+
+    /* Test the header buffer receives up to a carriage return in the header separator.  */
+    memcpy(&respInfo, &_respInfo, sizeof(IotHttpsResponseInfo_t));
+    pUserBufferWithHeaderSpaceUpToNewLine = 
+        (uint8_t*)IotTest_Malloc(userBufferWithHeaderSpaceUpToNewLineLength);
+    TEST_ASSERT_NOT_NULL(pUserBufferWithHeaderSpaceUpToNewLine);
+
+    /* Test protect here so that we can free the memory after a failure. */
+    if( TEST_PROTECT() )
+    {
+        respInfo.userBuffer.pBuffer = pUserBufferWithHeaderSpaceUpToNewLine;
+        respInfo.userBuffer.bufferLen = userBufferWithHeaderSpaceUpToNewLineLength;
+
+        returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* If the internal pointers were incremented correctly then we should successfully find the "value1" header value. */
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer)); 
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* Assert that ReadHeader() found the correct "value1" header value. */
+        TEST_ASSERT_EQUAL( 0, strncmp(pValueBuffer, HTTPS_TEST_HEADER_VALUE1, sizeof(HTTPS_TEST_HEADER_VALUE1)));
+        /* Assert that "value1\r" is found in the header buffer. */
+        TEST_ASSERT_NOT_NULL(strstr((char*)(respHandle->pHeaders), HTTPS_TEST_HEADER_VALUE1_PLUS_CARRIAGE_RETURN));
+        /* Assert that the final string in the header buffer is "\r\n". */
+        TEST_ASSERT_EQUAL(0,
+            strncmp(HTTPS_END_OF_HEADER_LINES_INDICATOR, 
+                (char*)(respHandle->pHeadersCur - HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH),
+                HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH));
+    }
+
+    IotTest_Free(pUserBufferWithHeaderSpaceUpToNewLine);
+
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that we have the correct header data when it ends on the colon character of the header field value 
+ * separator.
+ * 
+ * The header field value separator is ": ". This test is important because it makes sure that the pHeaderCur pointer
+ * in the internal response context is updated even though the http-parser callback does not notify the library of
+ * these characters.
+ * 
+ * These tests are separated into difference cases so that I can easily free the memory allocated.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithColonSeparator )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+    uint32_t userBufferWithHeaderSpaceUpToColonLength = 
+        responseUserBufferMinimumSize + sizeof(HTTPS_TEST_SMALL_RESPONSE_UP_TO_COLON) - 1;
+    uint8_t* pUserBufferWithHeaderSpaceUpToColon = NULL;
+    char pValueBuffer[sizeof(HTTPS_TEST_HEADER_VALUE1)] = { 0 };
+
+    _networkInterface.send = _networkSendSuccess;
+    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
+
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL( connHandle );
+    /* Set the global test connection handle to be passed to the library network receive callback. */
+    memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
+
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle( &_reqInfo );
+    TEST_ASSERT_NOT_NULL( reqHandle );
+
+    /* Setup the test response message to receive a small test message. */
+    memcpy( _pResponseMessageBuffer, HTTPS_TEST_SMALL_RESPONSE, sizeof(_pResponseMessageBuffer));
+
+    /* Test the header buffer receives up to a carriage return in the header separator.  */
+    memcpy(&respInfo, &_respInfo, sizeof(IotHttpsResponseInfo_t));
+    pUserBufferWithHeaderSpaceUpToColon = 
+        (uint8_t*)IotTest_Malloc(userBufferWithHeaderSpaceUpToColonLength);
+    TEST_ASSERT_NOT_NULL(pUserBufferWithHeaderSpaceUpToColon);
+
+    /* Test protect here so that we can free the memory after a failure. */
+    if( TEST_PROTECT() )
+    {
+        respInfo.userBuffer.pBuffer = pUserBufferWithHeaderSpaceUpToColon;
+        respInfo.userBuffer.bufferLen = userBufferWithHeaderSpaceUpToColonLength;
+
+        returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* If the internal pointers were incremented correctly then we should NOT find value1. */
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer)); 
+        TEST_ASSERT_EQUAL( IOT_HTTPS_NOT_FOUND, returnCode );
+        /* Assert that "header1:" is found in the header buffer. */
+        TEST_ASSERT_NOT_NULL(strstr((char*)(respHandle->pHeaders), HTTPS_TEST_HEADER1_PLUS_COLON));
+        /* Assert that the final character in the header buffer is ':'. */
+        TEST_ASSERT_EQUAL(COLON_CHARACTER, (char)(*(respHandle->pHeadersCur - 1)));
+    }
+
+    IotTest_Free(pUserBufferWithHeaderSpaceUpToColon);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test that we have the correct header data when it ends on the space character of the header field value 
+ * separator.
+ * 
+ * The header field value separator is ": ". This test is important because it makes sure that the pHeaderCur pointer
+ * in the internal response context is updated even though the http-parser callback does not notify the library of
+ * these characters.
+ * 
+ * These tests are separated into difference cases so that I can easily free the memory allocated.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithSpaceSeparator )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+    uint32_t userBufferWithHeaderSpaceUpToSpaceLength =
+        responseUserBufferMinimumSize + sizeof(HTTPS_TEST_SMALL_RESPONSE_UP_TO_SPACE) - 1;
+    uint8_t* pUserBufferWithHeaderSpaceUpToSpace = NULL;
+    char pValueBuffer[sizeof(HTTPS_TEST_HEADER_VALUE1)] = { 0 };
+
+    _networkInterface.send = _networkSendSuccess;
+    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
+
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL( connHandle );
+    /* Set the global test connection handle to be passed to the library network receive callback. */
+    memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
+
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle( &_reqInfo );
+    TEST_ASSERT_NOT_NULL( reqHandle );
+
+    /* Setup the test response message to receive a small test message. */
+    memcpy( _pResponseMessageBuffer, HTTPS_TEST_SMALL_RESPONSE, sizeof(_pResponseMessageBuffer));
+
+    /* Test the header buffer receives up to a carriage return in the header separator.  */
+    memcpy(&respInfo, &_respInfo, sizeof(IotHttpsResponseInfo_t));
+    pUserBufferWithHeaderSpaceUpToSpace = 
+        (uint8_t*)IotTest_Malloc(userBufferWithHeaderSpaceUpToSpaceLength);
+    TEST_ASSERT_NOT_NULL(pUserBufferWithHeaderSpaceUpToSpace);
+
+    /* Test protect here so that we can free the memory after a failure. */
+    if( TEST_PROTECT() )
+    {
+        respInfo.userBuffer.pBuffer = pUserBufferWithHeaderSpaceUpToSpace;
+        respInfo.userBuffer.bufferLen = userBufferWithHeaderSpaceUpToSpaceLength;
+
+        returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* If the internal pointers were incremented correctly then we should NOT find value1. */
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer));
+        TEST_ASSERT_EQUAL( IOT_HTTPS_NOT_FOUND, returnCode );
+        /* Assert that "header1:" is found in the header buffer. */
+        TEST_ASSERT_NOT_NULL(strstr((char*)(respHandle->pHeaders), HTTPS_TEST_HEADER1_PLUS_SPACE));
+        /* Assert that the final string in the header buffer is ": ". */
+        TEST_ASSERT_EQUAL(0,
+            strncmp(HTTPS_HEADER_FIELD_SEPARATOR, 
+                (char*)(respHandle->pHeadersCur - HTTPS_HEADER_FIELD_SEPARATOR_LENGTH),
+                HTTPS_HEADER_FIELD_SEPARATOR_LENGTH));
+    }
+
+    IotTest_Free(pUserBufferWithHeaderSpaceUpToSpace);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * Test that when the header buffer ends on a space after a header value that this space is treated as parted of 
+ * the header value.
+ */
+TEST( HTTPS_Client_Unit_Sync, SendSyncBodyEndsWithSpaceAfterHeaderValue )
+{
+    IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
+    IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
+    IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+    IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
+    uint32_t userBufferWithHeaderSpaceUpToSpaceInBetweenValueLength =
+        responseUserBufferMinimumSize + sizeof(HTTPS_TEST_SMALL_RESPONSE_UP_TO_SPACE_IN_BETWEEN_VALUE) - 1;
+    uint8_t* pUserBufferWithHeaderSpaceUpToSpaceInBetweenValue = NULL;
+    char pValueBuffer[sizeof(HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE)] = { 0 };
+
+    _networkInterface.send = _networkSendSuccess;
+    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.close = _networkCloseSuccess;
+    _networkInterface.destroy = _networkDestroySuccess;
+
+    /* Get a valid "connected" handled. */
+    connHandle = _getConnHandle();
+    TEST_ASSERT_NOT_NULL( connHandle );
+    /* Set the global test connection handle to be passed to the library network receive callback. */
+    memcpy( &_receiveCallbackConnHandle, &connHandle, sizeof( IotHttpsConnectionHandle_t ) );
+
+    /* Get a valid request handle. */
+    reqHandle = _getReqHandle( &_reqInfo );
+    TEST_ASSERT_NOT_NULL( reqHandle );
+
+    /* Setup the test response message to receive a small test message. */
+    memcpy( _pResponseMessageBuffer, HTTPS_TEST_SMALL_RESPONSE, sizeof(_pResponseMessageBuffer));
+
+    /* Test the header buffer receives up to a carriage return in the header separator.  */
+    memcpy(&respInfo, &_respInfo, sizeof(IotHttpsResponseInfo_t));
+    pUserBufferWithHeaderSpaceUpToSpaceInBetweenValue = 
+        (uint8_t*)IotTest_Malloc(userBufferWithHeaderSpaceUpToSpaceInBetweenValueLength);
+    TEST_ASSERT_NOT_NULL(pUserBufferWithHeaderSpaceUpToSpaceInBetweenValue);
+
+    /* Test protect here so that we can free the memory after a failure. */
+    if( TEST_PROTECT() )
+    {
+        respInfo.userBuffer.pBuffer = pUserBufferWithHeaderSpaceUpToSpaceInBetweenValue;
+        respInfo.userBuffer.bufferLen = userBufferWithHeaderSpaceUpToSpaceInBetweenValueLength;
+
+        returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* If the internal pointers were incremented correctly and so we can find the correct "value2 " header value. */
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER2, pValueBuffer, sizeof(pValueBuffer));
+        TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
+        /* Assert that ReadHeader() found the correct "value2 " header value. */
+        TEST_ASSERT_EQUAL( 0, strncmp(pValueBuffer, HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE, sizeof(HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE)));
+    }
+
+    IotTest_Free(pUserBufferWithHeaderSpaceUpToSpaceInBetweenValue);
 }
