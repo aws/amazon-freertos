@@ -1008,7 +1008,6 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 
     /* Reset the http-parser state to an initial state. This is done so that a new response can be parsed from the 
        beginning. */
-    pCurrentHttpsResponse->httpParserInfo.responseParser.data = (void *)(pCurrentHttpsResponse);
     pCurrentHttpsResponse->parserState = PARSER_STATE_NONE;
     pCurrentHttpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_HEADER_BUFFER;
 
@@ -1700,11 +1699,11 @@ static void _incrementNextLocationToWriteBeyondParsed(uint8_t **pBufCur, uint8_t
     As explained in the example above, pHeaderCur will point to the carriage return.
     
     If we somehow receive a partial HTTP response message in our zeroed-out header buffer:
-    case 1: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\0\0\0\0\0\0\0"]
-    case 2: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\n\0\0\0\0\0\0"]
-    case 3: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1:\0\0\0\0\0\0\0\0\0\0\0"]
-    case 4: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: \0\0\0\0\0\0\0\0\0\0\0"]  
-    then this function will cover the cases above and increment the pHeadersCur. */
+    case 1: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\0\0\0\0\0\0\0"]
+    case 2: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n\0\0\0\0\0\0"]
+    case 3: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:\0\0\0\0\0\0\0\0\0\0\0"]
+    case 4: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: \0\0\0\0\0\0\0\0\0\0\0"]  
+    then parser may fail or append all of the NULL characters to a header field name or value. */
     while( *pBufCur < *pBufEnd)
     {
         if( **pBufCur == CARRIAGE_RETURN_CHARACTER )
@@ -2210,6 +2209,8 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     http_parser_init(&(pHttpsResponse->httpParserInfo.readHeaderParser), HTTP_RESPONSE);
     /* Set the third party http parser function. */
     pHttpsResponse->httpParserInfo.parseFunc = http_parser_execute;
+    pHttpsResponse->httpParserInfo.readHeaderParser.data = ( void * )( pHttpsResponse );
+    pHttpsResponse->httpParserInfo.responseParser.data = ( void * )( pHttpsResponse );
 
     pHttpsResponse->status = 0;
     pHttpsResponse->method = method;
@@ -2677,6 +2678,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pBuf );
     /* This function is not valid for a synchronous response. Applications need to configure the request body in 
        IotHttpsRequestInfo_t.pSyncInfo_t.reqData before calling IotHttpsClient_SendSync(). */
     HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
@@ -2742,7 +2744,10 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t re
     *pLen = respHandle->pBodyCur - respHandle->pBody;
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
-    respHandle->bodyRxStatus = status;
+    if( respHandle != NULL )
+    {
+        respHandle->bodyRxStatus = status;
+    }
     HTTPS_FUNCTION_CLEANUP_END();
 }
 
@@ -2865,7 +2870,6 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
 
     /* Start over the HTTP parser so that it will parser from the beginning of the message. */
     http_parser_init( &( respHandle->httpParserInfo.readHeaderParser ), HTTP_RESPONSE );
-    respHandle->httpParserInfo.readHeaderParser.data = (void *)(respHandle);
 
     IotLogDebug( "Now parsing HTTP Message buffer to read a header." );
     numParsed = respHandle->httpParserInfo.parseFunc(&(respHandle->httpParserInfo.readHeaderParser), &_httpParserSettings, (char*)(respHandle->pHeaders), respHandle->pHeadersCur - respHandle->pHeaders);
