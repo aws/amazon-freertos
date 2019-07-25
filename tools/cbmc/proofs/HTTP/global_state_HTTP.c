@@ -1,7 +1,8 @@
 #define MAX_DATA_SIZE 1000
 
 /* Implementation of safe malloc which returns NULL if the requested size is 0.
- Depending on the platform the malloc may return either NULL or an address. */
+ Warning: The behavior of malloc(0) is platform dependent.
+ It is possible for malloc(0) to return an address without allocating memory.*/
 void *safeMalloc(size_t xWantedSize) {
   if(xWantedSize == 0) {
     return NULL;
@@ -206,7 +207,8 @@ IotHttpsResponseInfo_t * newIotResponseInfo() {
     uint32_t bufferSize;
     uint32_t bodySize;
     pRespInfo->userBuffer.bufferLen = bufferSize;
-    pRespInfo->userBuffer.pBuffer = malloc(bufferSize);
+    pRespInfo->userBuffer.pBuffer = safeMalloc(bufferSize);
+    /* We assume that these two pointers can not be NULL.*/
     pRespInfo->pSyncInfo = malloc(sizeof(IotHttpsSyncInfo_t));
     pRespInfo->pSyncInfo->pBody = malloc(bodySize);
     pRespInfo->pSyncInfo->bodyLen = bodySize;
