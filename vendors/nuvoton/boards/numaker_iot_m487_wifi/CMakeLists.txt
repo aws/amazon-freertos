@@ -223,6 +223,7 @@ afr_module_dependencies(
     AFR::secure_sockets::mcu_port
     INTERFACE
         AFR::tls
+        AFR::wifi
 )
 
 
