@@ -1,0 +1,30 @@
+{
+  "ENTRY": "IotHttpsClient_Disconnect",
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--unwindset strlen.0:5,IotListDouble_RemoveAll.0:2"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/iot_https_client.goto"
+  ],
+  "INSTFLAGS":
+  [
+    "--remove-function-body _httpParserOnHeadersCompleteCallback",
+    "--remove-function-body _httpParserOnMessageBeginCallback",
+    "--remove-function-body _httpParserOnMessageCompleteCallback",
+    "--remove-function-body IotNetworkInterfaceDestroy"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/include",
+    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/private",
+    "$(FREERTOS)/libraries/3rdparty/http-parser",
+    "$(FREERTOS)/libraries/c_sdk/standard/common/include/",
+    "$(FREERTOS)/libraries/abstractions/platform/include/",
+    "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
+    "../../include"
+  ]
+}
