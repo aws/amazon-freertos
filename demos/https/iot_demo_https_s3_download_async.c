@@ -441,16 +441,18 @@ static void _responseCompleteCallback( void * pPrivData, IotHttpsResponseHandle_
         pDownloadData->numReqBytes );
         IotSemaphore_Post( &( _fileFinishedSem ) );
     }
-
-    /* The main application is waiting for the response to finish. We signal it is finished when the bytes
+    else
+    {
+        /* The main application is waiting for the response to finish. We signal it is finished when the bytes
        downloaded so far is equal to the file size we expect. If there were problems in any of the async requests 
        scheduled, then the demo will timeout anyways. */
-    _bytesFileDownloadedSoFar += pDownloadData->currDownloaded;
-    IotLogInfo("Downloaded: %d/%d", _bytesFileDownloadedSoFar, _fileSize);
-    if( _bytesFileDownloadedSoFar >= _fileSize)
-    {
-        IotLogDebug( "File fully downloaded. Bytes downloaded: %d", _bytesFileDownloadedSoFar );
-        IotSemaphore_Post( &(_fileFinishedSem) );
+        _bytesFileDownloadedSoFar += pDownloadData->currDownloaded;
+        IotLogInfo("Downloaded: %d/%d", _bytesFileDownloadedSoFar, _fileSize);
+        if( _bytesFileDownloadedSoFar >= _fileSize)
+        {
+            IotLogDebug( "File fully downloaded. Bytes downloaded: %d", _bytesFileDownloadedSoFar );
+            IotSemaphore_Post( &(_fileFinishedSem) );
+        }
     }
 }
 
@@ -549,12 +551,16 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     /* curByte indicates which starting byte we want to download next. */
     uint32_t curByte = 0;
 
+    /* Signal if the global semaphores were created for cleanup. */
+    bool inUseRequestMutexCreated = false;
+    bool fileFinishedSemCreated = false;
+
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_GET_URL, (size_t)strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ), &pPath, &pathLen);
     if (httpsClientStatus != IOT_HTTPS_OK)
     {
         IotLogError("An error occurred in IotHttpsClient_GetUrlPath() with error code %d.", httpsClientStatus);
-        return EXIT_FAILURE;
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
     /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
@@ -562,7 +568,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     if (httpsClientStatus != IOT_HTTPS_OK)
     {
         IotLogError("An error occurred in IotHttpsClient_GetUrlAddress() with error code %d.", httpsClientStatus );
-        return EXIT_FAILURE;
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
     /* Set the connection configurations. */
@@ -589,18 +595,20 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     asyncInfo.callbacks.errorCallback = _errorCallback;
     
     /* Create the mutex to protect the pool of requests. */
-    if( IotMutex_Create( &( _inUseRequestsMutex ), false ) == false)
+    inUseRequestMutexCreated = IotMutex_Create( &( _inUseRequestsMutex ), false );
+    if( inUseRequestMutexCreated == false)
     {
         IotLogError("Failed to create a mutex to protect the request pool.");
-        return EXIT_FAILURE;
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
     
     /* Create the semaphore for waiting for the response to finish. */
-    if( IotSemaphore_Create( &( _fileFinishedSem ), 0, 1 ) == false )
+    fileFinishedSemCreated = IotSemaphore_Create( &( _fileFinishedSem ), 0 /* Initial count. */, 1 /* Max count. */ );
+    if( fileFinishedSemCreated == false )
     {
         IotLogError( "Failed to create a semaphore to wait for the response to finish." );
         IotMutex_Destroy( &( _inUseRequestsMutex ) );
-        return EXIT_FAILURE;
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
     /* Initialize the HTTPS library. */
@@ -655,7 +663,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         int reqIndex = _getFreeRequestIndex();
         if( reqIndex == -1)
         {
-            vTaskDelay(GET_FREE_REQUEST_RETRY_WAIT_TIME_MS);
+            IotClock_SleepMs(GET_FREE_REQUEST_RETRY_WAIT_TIME_MS);
             continue;
         }
 
@@ -740,8 +748,15 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     IOT_FUNCTION_CLEANUP_BEGIN();
 
     /* Clean up all resources created with this demo. */
-    IotMutex_Destroy( &( _inUseRequestsMutex ) );
-    IotSemaphore_Destroy( &( _fileFinishedSem ) ); 
+    if( inUseRequestMutexCreated == false)
+    {
+        IotMutex_Destroy( &( _inUseRequestsMutex ) );
+    }
+
+    if( fileFinishedSemCreated == false)
+    {
+        IotSemaphore_Destroy( &( _fileFinishedSem ) ); 
+    }
 
     /* Disconnect from the server even if it is already disconnected. */
     IotHttpsClient_Disconnect( connHandle );
