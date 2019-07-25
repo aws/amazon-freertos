@@ -1,0 +1,5 @@
+# Ignore script outputs
+*.pem
+*.csr
+*.key
+*.crt
