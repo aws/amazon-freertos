@@ -11,7 +11,7 @@
 #include "task.h"
 #include "NuMicro.h"
 #include "semphr.h"
-
+#include "task.h"
 /*
  * Get Random number generator.
  */
@@ -87,7 +87,7 @@ uint32_t  adc_trng_gen_rnd()
     return val32;
 }
 
-void  init_adc_init()
+static void  adc_init()
 {
     static uint8_t init_flag = FALSE;
     int    i;
@@ -131,65 +131,73 @@ void CRYPTO_IRQHandler()
     if (PRNG_GET_INT_FLAG(CRPT)) {
         g_PRNG_done = 1;
         PRNG_CLR_INT_FLAG(CRPT);
-    } else  if (AES_GET_INT_FLAG(CRPT)) {
+    } else	if (AES_GET_INT_FLAG(CRPT)) {
         g_AES_done = 1;
         AES_CLR_INT_FLAG(CRPT);
     }
 
 } 
 
+//extern void *pxCurrentTCB;
+
 static void trng_get(unsigned char *pConversionData)
 {
-    uint32_t *p32ConversionData;
+	uint32_t *p32ConversionData;
     uint32_t u32val;
   
-    p32ConversionData = (uint32_t *)pConversionData;
-    
-    xSemaphoreTake( xTrngMutex, ( TickType_t ) 0);
-    
-    PRNG_ENABLE_INT(CRPT);
-    
-    u32val = adc_trng_gen_rnd();
-    //printf("=== %s: 0x%x \n", __FUNCTION__, u32val);
-    PRNG_Open(CRPT, PRNG_KEY_SIZE_256, 1, u32val); //adc_trng_gen_rnd());
+	p32ConversionData = (uint32_t *)pConversionData;
 
-    PRNG_Start(CRPT);
-    while (!g_PRNG_done);
+    if( xSemaphoreTake( xTrngMutex, ( TickType_t ) 10 ) == pdTRUE ) {
 
-    PRNG_Read(CRPT, p32ConversionData);
+        //printf("### SemaphoreTake 0x%x\r\n", pxCurrentTCB);    
+        PRNG_ENABLE_INT(CRPT);
+	
+        u32val = adc_trng_gen_rnd();
+        //printf("=== %s: 0x%x \n", __FUNCTION__, u32val);
+        PRNG_Open(CRPT, PRNG_KEY_SIZE_256, 1, u32val); //adc_trng_gen_rnd());
 
-//    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *p32ConversionData, *(p32ConversionData+1), *(p32ConversionData+2), *(p32ConversionData+3));
-//    printf("    0x%08x  0x%08x  0x%08x  0x%08x\n\r", *(p32ConversionData+4), *(p32ConversionData+5), *(p32ConversionData+6), *(p32ConversionData+7));
+        PRNG_Start(CRPT);
+        while (!g_PRNG_done);
 
-    PRNG_DISABLE_INT(CRPT);
-    
-    xSemaphoreGive( xTrngMutex );    
+        PRNG_Read(CRPT, p32ConversionData);
+
+        PRNG_DISABLE_INT(CRPT);
+        //printf("### SemaphoreGive 0x%x\r\n", pxCurrentTCB);        
+        xSemaphoreGive( xTrngMutex );   
+    }
 }
+
 
 static BaseType_t trng_init()
 {
     static BaseType_t init_done = pdFALSE;
     
-    if( init_done == pdTRUE )  return pdTRUE;
-
+    taskENTER_CRITICAL();
     if( xTrngMutex == NULL ) {
         xTrngMutex = xSemaphoreCreateMutex();
         if( xTrngMutex == NULL) return pdFALSE;
     }
-    xSemaphoreTake( xTrngMutex, ( TickType_t ) 0);
-    init_adc_init();
-    /* Unlock protected registers */
-    SYS_UnlockReg();    
-    /* Enable IP clock */
-    CLK_EnableModuleClock(CRPT_MODULE);
-    
-    /* Lock protected registers */
-    SYS_LockReg();  
-    
-    NVIC_EnableIRQ(CRPT_IRQn);    
-    xSemaphoreGive( xTrngMutex );
-    init_done = pdTRUE;
-    return pdTRUE;
+    taskEXIT_CRITICAL();
+
+    if( xSemaphoreTake( xTrngMutex, ( TickType_t ) 10 ) == pdTRUE ) {
+        if( init_done != pdTRUE ) {
+            adc_init();
+            /* Unlock protected registers */
+            SYS_UnlockReg();	
+            /* Enable IP clock */
+            CLK_EnableModuleClock(CRPT_MODULE);
+	
+            /* Lock protected registers */
+            SYS_LockReg();	
+	
+            NVIC_EnableIRQ(CRPT_IRQn);    
+            init_done = pdTRUE;
+        }
+        xSemaphoreGive( xTrngMutex );
+        return pdTRUE;
+    } else {
+        return pdFALSE;
+    }
 }
 
 /*
@@ -201,7 +209,7 @@ int mbedtls_hardware_poll( void *data,
 {
 #if 0
     unsigned long timer = xTaskGetTickCount();
-      ((void) data);
+	  ((void) data);
     *olen = 0;
  
     if( len < sizeof(unsigned long) )
@@ -230,17 +238,17 @@ int mbedtls_hardware_poll( void *data,
     }
     *olen = cur_length;
 #endif
-    
+	
     return( 0 );
 }
  
 #if 1
 uint32_t numaker_ulRand( void )
 {
-    unsigned char tmpBuff[PRNG_KEY_SIZE];
-    init_adc_init();
-    trng_get(tmpBuff);
-    return *((uint32_t*)tmpBuff);
+	unsigned char tmpBuff[PRNG_KEY_SIZE];
+  if( trng_init() == pdFALSE ) return (-1);
+	trng_get(tmpBuff);
+	return *((uint32_t*)tmpBuff);
 }
 #endif
 
