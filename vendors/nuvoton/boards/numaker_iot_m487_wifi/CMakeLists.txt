@@ -249,11 +249,8 @@ add_executable(
 target_link_libraries(
     ${exe_target}
     PRIVATE
-        AFR::wifi::mcu_port
-        AFR::utils       
-        ${link_extra_flags}
-        AFR::crypto
-        AFR::pkcs11
+        AFR::wifi
+        AFR::utils
 )
 
 if(NOT AFR_METADATA_MODE)
