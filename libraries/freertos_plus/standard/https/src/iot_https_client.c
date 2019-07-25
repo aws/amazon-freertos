@@ -1700,10 +1700,10 @@ static void _incrementNextLocationToWriteBeyondParsed(uint8_t **pBufCur, uint8_t
     As explained in the example above, pHeaderCur will point to the carriage return.
     
     If we somehow receive a partial HTTP response message in our zeroed-out header buffer:
-    case 1: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\0\0\0\0\0\0\0"]
-    case 2: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: value1\r\n\0\0\0\0\0\0"]
-    case 3: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1:\0\0\0\0\0\0\0\0\0\0\0"]
-    case 4: ["HTTP/1.1 200 OK\r\n\header0: value0\r\nheader1: \0\0\0\0\0\0\0\0\0\0\0"]  
+    case 1: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\0\0\0\0\0\0\0"]
+    case 2: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n\0\0\0\0\0\0"]
+    case 3: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:\0\0\0\0\0\0\0\0\0\0\0"]
+    case 4: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: \0\0\0\0\0\0\0\0\0\0\0"]  
     then this function will cover the cases above and increment the pHeadersCur. */
     while( *pBufCur < *pBufEnd)
     {

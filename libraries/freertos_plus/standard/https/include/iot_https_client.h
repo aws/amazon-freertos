@@ -454,9 +454,9 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
 /**
  * @brief Asynchronous send of the the HTTPS request.
  * 
- * This function will invoke each of the non-NULL callbacks configured in #IotHttpsAsyncInfo_t.callbacks when the
- * scheduled asynchronous request is progress. Please see #IotHttpsClientCallbacks_t for information on each of the 
- * callbacks.
+ * This function will invoke, as needed, each of the non-NULL callbacks configured in #IotHttpsAsyncInfo_t.callbacks 
+ * when the scheduled asynchronous request is progress. Please see #IotHttpsClientCallbacks_t for information on each of 
+ * the callbacks.
  * 
  * After this API is executed, the scheduled async response will store the response headers as received from 
  * the network, in the header buffer space configured in #IotHttpsResponseInfo_t.userBuffer. If the 
@@ -496,11 +496,14 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHan
 /**
  * @brief Cancel an Asynchronous request.
  * 
- * This will stop an asynchronous request.
+ * This will stop an asynchronous request. When an asynchronous request is stopped it will not proceed to do any of
+ * the following: send headers, send body, receive headers, or receive body. This depends on where in the process
+ * the request is. For example, if the request is cancelled after sending the headers, then it will not attempt tp
+ * send the body. A cancelled return code will be returned to the application.
  * 
  * If this is called before the scheduled asynchronous request actually runs, then request will not be sent. 
- * If this is called during any of the asynchronous callbacks, then the request/response will stop processing when the 
- * callback returns. This is useful for any error conditions, found during the asynchronous callbacks, where the
+ * If this is called during any of the asynchronous callbacks, then the library will stop processing the request when 
+ * the callback returns. This is useful for any error conditions, found during the asynchronous callbacks, where the
  * application wants to stop the rest of the request processing.
  * 
  * If the asynchronous request stops processing, the buffers configured in #IotHttpsResponseInfo_t.userBuffer and 
@@ -543,11 +546,14 @@ IotHttpsReturnCode_t IotHttpsClient_CancelRequestAsync(IotHttpsRequestHandle_t r
 /**
  * @brief Cancel an Asynchronous response.
  * 
- * This will stop an asynchronous response.
+ * This will stop an asynchronous response. When an asynchronous response is stopped it will not proceed to do any of
+ * the following: send headers, send body, receive headers, or receive body. This depends on where in the process
+ * the response is. For example, if the response is cancelled after receiving the headers, then it will not attempt tp
+ * receive the body. A cancelled return code will be returned to the application.
  * 
- * If this is called during ANY of the asynchronous callbacks, then the response will stop processing when the callback
- * returns. This is useful for any error conditions, found during the asynchronous callbacks, where the application 
- * wants to stop the rest of the response processing.
+ * If this is called during ANY of the asynchronous callbacks, then the library will stop processing the response when 
+ * the callback returns. This is useful for any error conditions, found during the asynchronous callbacks, where the 
+ * application wants to stop the rest of the response processing.
  * 
  * If the asynchronous request stops processing, the buffers configured in #IotHttpsResponseInfo_t.userBuffer and 
  * #IotHttpsRequestInfo_t.userBuffer can be freed, modified, or reused only after the 
@@ -747,7 +753,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
  * @endcode
  * 
  * For a syncrhonous response, to retrieve the response body applications must directly refer to the 
- * #pSyncInfo_t.pRespData configured in #IotHttpsRequestInfo_t.pSyncInfo_t. Otherwise this function will return an 
+ * #IotHttpsResponseInfo_t.pSyncInfo_t.pBody. Otherwise this function will return an 
  * #IOT_HTTPS_INVALID_PARAMETER error code. This function is intended to read the response entity body from the network 
  * and the synchronous response process handles all of that in @ref https_client_function_sendsync.
  * 

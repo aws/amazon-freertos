@@ -439,7 +439,8 @@ typedef struct IotHttpsClientCallbacks
     void (* responseCompleteCallback)(void * pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status);
 
     /**
-     * @brief User-provided callback function signature to indicate that the asynchronous connection has been closed.
+     * @brief User-provided callback function signature to indicate that the connection has been close in an asynchronous 
+     * request process.
      * 
      * If this is set to NULL, then it will not be invoked.
      * If there are errors during sending/receiving in the asynchronous process, the connection is not automatically
@@ -455,7 +456,7 @@ typedef struct IotHttpsClientCallbacks
     
     /**
      * @brief User-provided callback function signature to indicate that an error occurred during the asynchronous 
-     * process.
+     * request process.
      * 
      * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
      * @param[in] reqHandle - The handle for the current HTTP request.
