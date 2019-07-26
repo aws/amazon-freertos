@@ -50,6 +50,7 @@ afr_module_sources(
         "${test_dir}/unit/iot_tests_https_utils.c"
         "${test_dir}/unit/iot_tests_https_common.c"
         "${test_dir}/unit/iot_tests_https_sync.c"
+        "${test_dir}/unit/iot_tests_https_async.c"
 )
 
 afr_module_include_dirs(
