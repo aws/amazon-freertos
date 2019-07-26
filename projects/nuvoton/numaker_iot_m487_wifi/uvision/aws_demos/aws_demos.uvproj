@@ -377,7 +377,7 @@
               <MiscControls>--diag_suppress=550,177,C4017,111,2770,223</MiscControls>
               <Define>RVDS_ARMCM4_NUC4xx __little_endian__=1 NDEBUG</Define>
               <Undefine></Undefine>
-              <IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/include;../../../../../demos/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/c_sdk/mqtt/include;../../../../../libraries/c_sdk/common/include;../../../../../libraries/3rdparty/lwip/src/include;../../../../../libraries/3rdparty/lwip/test/fuzz;../../../../../libraries/3rdparty/lwip/src/portable;../../../../../libraries/3rdparty/lwip/src/portable/arch;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include/types;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/freertos_plus/standard/provisioning/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/3rdparty/tracealyzer_recorder/Include;../../../../../demos/network_manager;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/3rdparty/lwip/src/include/lwip;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/jsmn;</IncludePath>
+              <IncludePath>../../../../../freertos_kernel/include;../../../../../freertos_kernel/portable/RVDS/ARM_CM4F;../../../../../vendors/nuvoton/sdk/CMSIS/Include;../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Include;../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266;../../../../../vendors/nuvoton/sdk/StdDriver/inc;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files;../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code;../../../../../demos/include;../../../../../demos/network_manager;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../libraries/abstractions/wifi/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/jsmn</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -535,16 +535,6 @@
               <FileName>timers.h</FileName>
               <FileType>5</FileType>
               <FilePath>../../../../../freertos_kernel/include/timers.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/sdk/middleware/wifi_esp8266/</GroupName>
-          <Files>
-            <File>
-              <FileName>esp8266_wifi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -939,37 +929,52 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>demos/dev_mode_key_provisioning/src/</GroupName>
+          <GroupName>libraries/freertos_plus/standard/tls/include/</GroupName>
           <Files>
             <File>
-              <FileName>aws_dev_mode_key_provisioning.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</FilePath>
-            </File>
-            <File>
-              <FileName>pem2der.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/dev_mode_key_provisioning/src/pem2der.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/dev_mode_key_provisioning/include/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_dev_mode_key_provisioning.h</FileName>
+              <FileName>iot_tls.h</FileName>
               <FileType>5</FileType>
-              <FilePath>../../../../../demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</FilePath>
+              <FilePath>../../../../../libraries/freertos_plus/standard/tls/include/iot_tls.h</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/abstractions/pkcs11/include/</GroupName>
+          <GroupName>libraries/freertos_plus/standard/crypto/src/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_crypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/freertos_plus/standard/crypto/include/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_crypto.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/freertos_plus/standard/pkcs11/include/</GroupName>
           <Files>
             <File>
               <FileName>iot_pkcs11.h</FileName>
               <FileType>5</FileType>
-              <FilePath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11.h</FilePath>
+              <FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/freertos_plus/standard/pkcs11/src/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_pkcs11.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -999,12 +1004,42 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/crypto/src/</GroupName>
+          <GroupName>libraries/freertos_plus/standard/utils/src/</GroupName>
           <Files>
             <File>
-              <FileName>iot_crypto.c</FileName>
+              <FileName>iot_system_init.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pki_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/freertos_plus/standard/utils/include/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_system_init.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pki_utils.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/abstractions/wifi/include/</GroupName>
+          <Files>
+            <File>
+              <FileName>iot_wifi.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/abstractions/wifi/include/iot_wifi.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1019,32 +1054,32 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/utils/src/</GroupName>
+          <GroupName>vendors/nuvoton/sdk/middleware/wifi_esp8266/</GroupName>
           <Files>
             <File>
-              <FileName>iot_system_init.c</FileName>
+              <FileName>esp8266_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
+              <FilePath>../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/utils/include/</GroupName>
+          <GroupName>demos/dev_mode_key_provisioning/src/</GroupName>
           <Files>
             <File>
-              <FileName>iot_system_init.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</FilePath>
+              <FileName>aws_dev_mode_key_provisioning.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/crypto/include/</GroupName>
+          <GroupName>demos/dev_mode_key_provisioning/include/</GroupName>
           <Files>
             <File>
-              <FileName>iot_crypto.h</FileName>
+              <FileName>aws_dev_mode_key_provisioning.h</FileName>
               <FileType>5</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</FilePath>
+              <FilePath>../../../../../demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1289,16 +1324,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/abstractions/wifi/include/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_wifi.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/abstractions/wifi/include/iot_wifi.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>demos/defender/</GroupName>
           <Files>
             <File>
@@ -1392,11 +1417,6 @@
               <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/aws_mqtt_config.h</FilePath>
             </File>
             <File>
-              <FileName>aws_pkcs11_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/aws_pkcs11_config.h</FilePath>
-            </File>
-            <File>
               <FileName>aws_secure_sockets_config.h</FileName>
               <FileType>5</FileType>
               <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/aws_secure_sockets_config.h</FilePath>
@@ -1422,9 +1442,9 @@
               <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/iot_mqtt_agent_config.h</FilePath>
             </File>
             <File>
-              <FileName>lwipopts.h</FileName>
+              <FileName>iot_pkcs11_config.h</FileName>
               <FileType>5</FileType>
-              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/lwipopts.h</FilePath>
+              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/iot_pkcs11_config.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1820,6 +1840,16 @@
               <FileName>xtea.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../libraries/3rdparty/mbedtls/library/xtea.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>libraries/3rdparty/mbedtls/utils/</GroupName>
+          <Files>
+            <File>
+              <FileName>mbedtls_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</FilePath>
             </File>
           </Files>
         </Group>
