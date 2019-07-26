@@ -45,6 +45,7 @@
 #include "platform/iot_network.h"
 #include "platform/iot_threads.h"
 #include "private/iot_error.h"
+#include "platform/iot_clock.h"
 
 /**
  * This demonstrates downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
