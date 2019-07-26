@@ -168,7 +168,7 @@ extern void vLoggingPrint( const char * pcMessage );
  * results in the wired network being used, while setting
  * configNETWORK_INTERFACE_TO_USE to 2 results in the wireless network being
  * used. */
-#define configNETWORK_INTERFACE_TO_USE       ( 0L )
+#define configNETWORK_INTERFACE_TO_USE       ( 3L )
 
 /* The address of an echo server that will be used by the two demo echo client
  * tasks:
@@ -190,7 +190,7 @@ extern void vLoggingPrint( const char * pcMessage );
 #define configMAC_ADDR2                      0x22
 #define configMAC_ADDR3                      0x33
 #define configMAC_ADDR4                      0x44
-#define configMAC_ADDR5                      0x12
+#define configMAC_ADDR5                      0x32
 
 /* Default IP address configuration.  Used in ipconfigUSE_DHCP is set to 0, or
  * ipconfigUSE_DHCP is set to 1 but a DNS server cannot be contacted. */

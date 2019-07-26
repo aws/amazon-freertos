@@ -354,19 +354,19 @@ static BaseType_t prvConnectHelper( Socket_t xSocket,
                                     Server_t xConn )
 {
     BaseType_t xResult = pdFAIL;
-    SocketsSockaddr_t xEchoServerAddress;
+    SocketsSockaddr_t xAddress;
 
     if( xConn == eSecure )
     {
-        xResult = prvSecureConnectHelper( xSocket, &xEchoServerAddress );
+        xResult = prvSecureConnectHelper( xSocket, &xAddress );
     }
     else if( xConn == eNonsecure )
     {
-        xResult = prvNonSecureConnectHelper( xSocket, &xEchoServerAddress );
+        xResult = prvNonSecureConnectHelper( xSocket, &xAddress );
     }
     else if( xConn == eAwsBroker )
     {
-        xResult = prvAwsIotBrokerConnectHelper( xSocket, &xEchoServerAddress );
+        xResult = prvAwsIotBrokerConnectHelper( xSocket, &xAddress );
     }
     else
     {
@@ -379,8 +379,8 @@ static BaseType_t prvConnectHelper( Socket_t xSocket,
         uint32_t ulInitialRetryPeriodMs = tcptestLOOP_DELAY_MS;
         BaseType_t xMaxRetries = tcptestRETRY_CONNECTION_TIMES;
         RETRY_EXPONENTIAL( xResult = SOCKETS_Connect( xSocket,
-                                                      &xEchoServerAddress,
-                                                      sizeof( xEchoServerAddress ) ),
+                                                      &xAddress,
+                                                      sizeof( xAddress ) ),
                            SOCKETS_ERROR_NONE,
                            ulInitialRetryPeriodMs,
                            xMaxRetries );
@@ -508,7 +508,8 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
                 }
             }
         }
-    } while( pdFALSE == xIsConnected );
+    }
+    while( pdFALSE == xIsConnected );
 
     return xResult;
 }
@@ -614,7 +615,8 @@ static BaseType_t prvShutdownHelper( Socket_t xSocket )
                                     pcRxBuffer,         /* The buffer into which the received data will be written. */
                                     tcptestBUFFER_SIZE, /* The size of the buffer provided to receive the data. */
                                     0 );
-        } while( xResult >= 0 );
+        }
+        while( xResult >= 0 );
 
         xResult = 0;
     }
@@ -1203,7 +1205,8 @@ static void prvSOCKETS_NonBlocking_Test( Server_t xConn )
             }
 
             xEndTime = xTaskGetTickCount();
-        } while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
+        }
+        while( ( ( xEndTime - xStartTime ) < xWaitTime ) && ( xMessageLength > xNumBytesReceived ) );
 
         TEST_ASSERT_EQUAL_INT32_MESSAGE( xMessageLength, xNumBytesReceived, "Data was not received \r\n" );
 
@@ -1342,7 +1345,8 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     do
     {
         xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    } while( xResult >= 0 );
+    }
+    while( xResult >= 0 );
 
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
@@ -1385,7 +1389,8 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     do
     {
         xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    } while( xResult >= 0 );
+    }
+    while( xResult >= 0 );
 
     TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
 
@@ -1957,8 +1962,8 @@ TEST( Full_TCP, AFQP_SOCKETS_Connect_InvalidAddressLength )
     /* AddressLength 0. */
     prvConnect_InvalidAddressLength( eNonsecure, 0 );
 
-    /* AddressLength 1000. */
-    prvConnect_InvalidAddressLength( eNonsecure, 1000 );
+    /* AddressLength 100. */
+    prvConnect_InvalidAddressLength( eNonsecure, 100 );
 
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }
@@ -1971,8 +1976,8 @@ TEST( Full_TCP, AFQP_SECURE_SOCKETS_Connect_InvalidAddressLength )
     /* AddressLength 0. */
     prvConnect_InvalidAddressLength( eSecure, 0 );
 
-    /* AddressLength 1000. */
-    prvConnect_InvalidAddressLength( eSecure, 1000 );
+    /* AddressLength 100. */
+    prvConnect_InvalidAddressLength( eSecure, 100 );
 
     tcptestPRINTF( ( "%s complete.\r\n", __FUNCTION__ ) );
 }

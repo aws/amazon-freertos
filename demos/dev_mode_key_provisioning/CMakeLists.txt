@@ -7,7 +7,6 @@ afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
         "${src_dir}/aws_dev_mode_key_provisioning.c"
-        "${src_dir}/pem2der.c"
         "${inc_dir}/aws_dev_mode_key_provisioning.h"
 )
 afr_module_include_dirs(
@@ -20,5 +19,6 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PUBLIC
         AFR::pkcs11
+        AFR::utils
         3rdparty::mbedtls
 )

@@ -387,10 +387,11 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
@@ -1846,9 +1847,6 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_mqtt_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_pkcs11_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\aws_secure_sockets_config.h</name>
 							</file>
 							<file>
@@ -1862,6 +1860,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_mqtt_agent_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files\iot_pkcs11_config.h</name>
 							</file>
 						</group>
 					</group>
@@ -1934,9 +1935,6 @@
 				<name>src</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c</name>
 				</file>
 			</group>
 			<group>
@@ -2269,12 +2267,6 @@
 			<group>
 				<name>pkcs11</name>
 				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11.h</name>
-					</file>
-				</group>
-				<group>
 					<name>mbedtls</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c</name>
@@ -2374,17 +2366,38 @@
 					</group>
 				</group>
 				<group>
+					<name>pkcs11</name>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h</name>
+						</file>
+					</group>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
 					<name>utils</name>
 					<group>
 						<name>src</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c</name>
+						</file>
 					</group>
 					<group>
 						<name>include</name>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h</name>
 						</file>
 					</group>
 				</group>
@@ -2692,6 +2705,12 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c</name>
+					</file>
+				</group>
+				<group>
+					<name>utils</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c</name>
 					</file>
 				</group>
 				<group>

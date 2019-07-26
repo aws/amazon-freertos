@@ -87,9 +87,9 @@ target_link_libraries(
 )
 
 # PKCS11
-afr_mcu_port(pkcs11 DEPENDS AFR::pkcs11_mbedtls)
+afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
@@ -170,4 +170,5 @@ target_link_libraries(
     PRIVATE
         AFR::freertos_plus_tcp
         AFR::utils
+        AFR::dev_mode_key_provisioning
 )

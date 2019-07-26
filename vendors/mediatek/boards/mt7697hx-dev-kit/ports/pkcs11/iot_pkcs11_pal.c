@@ -39,7 +39,7 @@
 #include "task.h"
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
-#include "aws_pkcs11_config.h"
+#include "iot_pkcs11_config.h"
 
 /* C runtime includes. */
 #include <stdio.h>
@@ -49,7 +49,7 @@
 /* flash driver includes. */
 #include "hal_file.h"
 
-#include "aws_pkcs11_config.h"
+#include "iot_pkcs11_config.h"
 
 /*-----------------------------------------------------------*/
 
