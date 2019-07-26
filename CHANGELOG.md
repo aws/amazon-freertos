@@ -1,5 +1,9 @@
 # Change Log for Amazon FreeRTOS
 
+### Updates
+### Demo specific stack size and priority
+- Make stack size and priority to be demo specific. In current release all demos have same stack size and priority. This change will make stack size and priority configurable for each demo. Demo can use default stack size/ priority or define its own.  
+
 ## 201906.00 Major 06/17/2019
 ### Release Versioning
 - Move Amazon FreeRTOS to a new versioning scheme (YYYYMM.NN [optional "Major" tag]), while retaining semantic versioning (x.y.z) used for individual libraries within Amazon FreeRTOS. This release contains multiple major version updates for individual libraries. See below for details.
