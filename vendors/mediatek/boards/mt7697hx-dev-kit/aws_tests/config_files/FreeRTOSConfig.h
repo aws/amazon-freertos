@@ -1,47 +1,47 @@
 /*
-FreeRTOS Kernel V10.2.0
-Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-the Software, and to permit persons to whom the Software is furnished to do so,
-subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
- http://aws.amazon.com/freertos
- http://www.FreeRTOS.org
-*/
+ * FreeRTOS Kernel V10.2.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
 
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
-#define LWIP_NO_UNISTD_H  1
+#define LWIP_NO_UNISTD_H    1
 
 /* Unity includes for testing. */
 #include "unity_internals.h"
 
 /*-----------------------------------------------------------
- * Application specific definitions.
- *
- * These definitions should be adjusted for your particular hardware and
- * application requirements.
- *
- * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
- * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
- *
- * http://www.freertos.org/a00110.html
- *----------------------------------------------------------*/
+* Application specific definitions.
+*
+* These definitions should be adjusted for your particular hardware and
+* application requirements.
+*
+* THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
+* FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
+*
+* http://www.freertos.org/a00110.html
+*----------------------------------------------------------*/
 
 /* Invoke vApplicationDaemonTaskStartupHook when timer task starts */
 #define configUSE_DAEMON_TASK_STARTUP_HOOK         0
@@ -61,9 +61,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configTICK_RATE_HZ                         ( ( TickType_t ) 1000 )
 #define configMINIMAL_STACK_SIZE                   ( ( unsigned short ) 256 )
 #if MTK_WIFI_OS_MM_OPTION == 2
-#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( 135U * 1024U ) )
+    #define configTOTAL_HEAP_SIZE                  ( ( size_t ) ( 135U * 1024U ) )
 #else
-#define configTOTAL_HEAP_SIZE                      ( ( size_t ) ( ( 135U + 35U ) * 1024U ) )
+    #define configTOTAL_HEAP_SIZE                  ( ( size_t ) ( ( 135U + 35U ) * 1024U ) )
 #endif
 
 #define configMAX_TASK_NAME_LEN                    ( 15 )
@@ -89,42 +89,43 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configUSE_EVENT_GROUPS                     1
 
 /* Run time stats gathering definitions. */
+
 /* FIX ME: Uncomment if you plan to use Tracealyzer.
-unsigned long ulGetRunTimeCounterValue( void );
-void vConfigureTimerForRunTimeStats( void );
-#define configGENERATE_RUN_TIME_STATS    1
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()    vConfigureTimerForRunTimeStats()
-#define portGET_RUN_TIME_COUNTER_VALUE()            ulGetRunTimeCounterValue()
-*/
+ * unsigned long ulGetRunTimeCounterValue( void );
+ * void vConfigureTimerForRunTimeStats( void );
+ #define configGENERATE_RUN_TIME_STATS    1
+ #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()    vConfigureTimerForRunTimeStats()
+ #define portGET_RUN_TIME_COUNTER_VALUE()            ulGetRunTimeCounterValue()
+ */
 
 /* Co-routine definitions. */
-#define configUSE_CO_ROUTINES                   0
-#define configMAX_CO_ROUTINE_PRIORITIES         ( 2 )
+#define configUSE_CO_ROUTINES                  0
+#define configMAX_CO_ROUTINE_PRIORITIES        ( 2 )
 
 /* Currently the TCP/IP stack is using dynamic allocation, and the MQTT task is
  * using static allocation. */
-#define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configSUPPORT_STATIC_ALLOCATION         1
+#define configSUPPORT_DYNAMIC_ALLOCATION       1
+#define configSUPPORT_STATIC_ALLOCATION        1
 
 /* Set the following definitions to 1 to include the API function, or zero
  * to exclude the API function. */
-#define INCLUDE_vTaskPrioritySet                1
-#define INCLUDE_uxTaskPriorityGet               1
-#define INCLUDE_vTaskDelete                     1
-#define INCLUDE_vTaskCleanUpResources           1
-#define INCLUDE_vTaskSuspend                    1
-#define INCLUDE_vTaskDelayUntil                 1
-#define INCLUDE_vTaskDelay                      1
-#define INCLUDE_uxTaskGetStackHighWaterMark     1
-#define INCLUDE_xTaskGetSchedulerState          1
-#define INCLUDE_xTimerGetTimerTaskHandle        0
-#define INCLUDE_xTaskGetIdleTaskHandle          0
-#define INCLUDE_xQueueGetMutexHolder            1
-#define INCLUDE_eTaskGetState                   1
-#define INCLUDE_xEventGroupSetBitsFromISR       1
-#define INCLUDE_xTimerPendFunctionCall          1
-#define INCLUDE_xTaskGetCurrentTaskHandle       1
-#define INCLUDE_xTaskAbortDelay                 1
+#define INCLUDE_vTaskPrioritySet               1
+#define INCLUDE_uxTaskPriorityGet              1
+#define INCLUDE_vTaskDelete                    1
+#define INCLUDE_vTaskCleanUpResources          1
+#define INCLUDE_vTaskSuspend                   1
+#define INCLUDE_vTaskDelayUntil                1
+#define INCLUDE_vTaskDelay                     1
+#define INCLUDE_uxTaskGetStackHighWaterMark    1
+#define INCLUDE_xTaskGetSchedulerState         1
+#define INCLUDE_xTimerGetTimerTaskHandle       0
+#define INCLUDE_xTaskGetIdleTaskHandle         0
+#define INCLUDE_xQueueGetMutexHolder           1
+#define INCLUDE_eTaskGetState                  1
+#define INCLUDE_xEventGroupSetBitsFromISR      1
+#define INCLUDE_xTimerPendFunctionCall         1
+#define INCLUDE_xTaskGetCurrentTaskHandle      1
+#define INCLUDE_xTaskAbortDelay                1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
@@ -147,29 +148,30 @@ void vConfigureTimerForRunTimeStats( void );
 void vAssertCalled( const char * pcFile,
                     uint32_t ulLine );
 
-#define configASSERT( x )    if( ( x ) == 0 )  TEST_ABORT()
+#define configASSERT( x )    if( ( x ) == 0 ) TEST_ABORT( )
 
 #include <stdio.h>
 
 /* The function that implements FreeRTOS printf style outout, and the macro
  * that maps the configPRINTF() macros to that function. */
-extern void vLoggingPrintf( const char * pcFormat, ... );
-#define configPRINTF( X )                 vLoggingPrintf X
+extern void vLoggingPrintf( const char * pcFormat,
+                            ... );
+#define configPRINTF( X )    vLoggingPrintf X
 
 /* Non-format version thread-safe print */
 extern void vLoggingPrint( const char * pcMessage );
-#define configPRINT( X )                  vLoggingPrint( X )
+#define configPRINT( X )           vLoggingPrint( X )
 
 /* Map the logging task's printf to the board specific output function. */
-#define configPRINT_STRING( X )                     printf( "%s", X )
+#define configPRINT_STRING( X )    printf( "%s", X )
 
 /* Sets the length of the buffers into which logging messages are written - so
  * also defines the maximum length of each log message. */
-#define configLOGGING_MAX_MESSAGE_LENGTH            100
+#define configLOGGING_MAX_MESSAGE_LENGTH                100
 
 /* Set to 1 to prepend each log message with a message number, the task name,
  * and a time stamp. */
-#define configLOGGING_INCLUDE_TIME_AND_TASK_NAME    1
+#define configLOGGING_INCLUDE_TIME_AND_TASK_NAME        1
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"
  * function. */
@@ -182,11 +184,11 @@ extern void vLoggingPrint( const char * pcMessage );
 #define configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY    0x4
 
 /* The priority at which the tick interrupt runs.  This should probably be kept at 1. */
-#define configKERNEL_INTERRUPT_PRIORITY             (( configLIBRARY_LOWEST_INTERRUPT_PRIORITY << (8 - configPRIO_BITS)) & 0xFF )
+#define configKERNEL_INTERRUPT_PRIORITY                 ( ( configLIBRARY_LOWEST_INTERRUPT_PRIORITY << ( 8 - configPRIO_BITS ) ) & 0xFF )
 
 /* The maximum interrupt priority from which FreeRTOS API functions can be called.
  * Only API functions that end in ...FromISR() can be used within interrupts. */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY        ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << (8 - configPRIO_BITS) )
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY            ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << ( 8 - configPRIO_BITS ) )
 
 /* Application specific definitions follow. **********************************/
 
@@ -266,7 +268,7 @@ extern void vLoggingPrint( const char * pcMessage );
 #define configPROFILING                      ( 0 )
 
 /* The platform FreeRTOS is running on. */
-#define configPLATFORM_NAME    "MT7697HxDevKit"
+#define configPLATFORM_NAME                  "MT7697HxDevKit"
 
 /* Pseudo random number generater used by some demo tasks. */
 extern uint32_t ulRand( void );
@@ -274,32 +276,35 @@ extern uint32_t ulRand( void );
 
 
 /* byte order setting */
-#define __little_endian__                   1
+#define __little_endian__            1
 
 /* use tickless */
-#define configUSE_TICKLESS_IDLE             0
+#define configUSE_TICKLESS_IDLE      0
 
 /* MTK customized */
-#define configTICKLESS_DEEP_SLEEP           0
+#define configTICKLESS_DEEP_SLEEP    0
 
 /* cpu frequency */
-extern uint32_t                             SystemCoreClock;
-#define configCPU_CLOCK_HZ                  ( SystemCoreClock )
+extern uint32_t SystemCoreClock;
+#define configCPU_CLOCK_HZ    ( SystemCoreClock )
 
 /* for assert() */
 #include "assert.h"
 
 /* override service hander names */
-#define vPortSVCHandler                     SVC_Handler
-#define xPortPendSVHandler                  PendSV_Handler
-#define xPortSysTickHandler                 SysTick_Handler
+#define vPortSVCHandler          SVC_Handler
+#define xPortPendSVHandler       PendSV_Handler
+#define xPortSysTickHandler      SysTick_Handler
 
-#define configUSE_POSIX_ERRNO               ( 1 )
+#define configUSE_POSIX_ERRNO    ( 1 )
 
 /* chip include (also indirectly includes core_cm4.h) */
 #include "mt7687.h"
 
 /* Header required for the tracealyzer recorder library. */
 #include "trcRecorder.h"
+
+/* The platform has UDP socket layer implemented */
+#define configPLATFORM_SOCKET_UDP_SUPPORT    ( 1 )
 
 #endif /* FREERTOS_CONFIG_H */
