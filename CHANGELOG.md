@@ -5,6 +5,10 @@
 ### New Features
 
 ### Updates
+
+#### Ethernet for Microchip Curiosity PIC32MZEF
+- Update Microchip Curiosity PIC32MZEF project and configuration files to support Ethernet connectivty.
+
 #### TLS Library Tests
 - Remove elliptic curve tests from "quarantine" test group and add them back to the TLS test group.
 
