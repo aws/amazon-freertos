@@ -299,9 +299,9 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
-                                         int ( *piRng )( void *,
-                                                         unsigned char *,
-                                                         size_t ), /*lint !e955 This parameter is unused. */
+                                         int ( * piRng )( void *,
+                                                          unsigned char *,
+                                                          size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
     CK_RV xResult = CKR_OK;
