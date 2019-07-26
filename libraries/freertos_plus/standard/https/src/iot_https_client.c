@@ -1704,7 +1704,7 @@ static void _incrementNextLocationToWriteBeyondParsed(uint8_t **pBufCur, uint8_t
     case 2: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n\0\0\0\0\0\0"]
     case 3: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:\0\0\0\0\0\0\0\0\0\0\0"]
     case 4: ["HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: \0\0\0\0\0\0\0\0\0\0\0"]  
-    then this function will cover the cases above and increment the pHeadersCur. */
+    then parser may fail or append all of the NULL characters to a header field name or value. */
     while( *pBufCur < *pBufEnd)
     {
         if( **pBufCur == CARRIAGE_RETURN_CHARACTER )
@@ -2677,6 +2677,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pBuf );
     /* This function is not valid for a synchronous response. Applications need to configure the request body in 
        IotHttpsRequestInfo_t.pSyncInfo_t.reqData before calling IotHttpsClient_SendSync(). */
     HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
