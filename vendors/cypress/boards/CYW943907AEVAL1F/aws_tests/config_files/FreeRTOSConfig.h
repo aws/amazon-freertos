@@ -172,7 +172,8 @@
     void vAssertCalled( const char * pcFile,
                         uint32_t ulLine );
 
-    #define configASSERT( x )    if( ( x ) == 0 ) TEST_ABORT()
+    #define configASSERT( x )    if( ( x ) == 0 ) { printf( "ASSERTERROR\n" ); vAssertCalled( __FILE__, __LINE__ ); for( ; ; ) {; } } /* */
+
 
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */
@@ -335,8 +336,10 @@
 
     #endif /* ifdef NETWORK_NOTIFY_RELEASED_PACKETS */
 
+/* The platform has UDP socket layer implemented */
+    #define configPLATFORM_SOCKET_UDP_SUPPORT    ( 1 )
 
     #ifdef __cplusplus
-        } /*extern "C" */
+}         /*extern "C" */
     #endif
 #endif /* FREERTOS_CONFIG_H */
