@@ -125,7 +125,7 @@
  * length of any timestring it may get. This value should be generous enough
  * to accommodate the vast majority of timestrings.
  *
- * @see @ref platform_clock_function_gettimestring
+ * @see IotClock_GetTimestring
  */
 #define MAX_TIMESTRING_LENGTH    ( 64 )
 
