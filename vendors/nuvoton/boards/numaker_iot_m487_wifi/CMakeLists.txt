@@ -99,7 +99,6 @@ target_sources(
     AFR::kernel::mcu_port
     INTERFACE
         # Nuvoton SDK sources (driver)		
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/clk.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/crypto.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/fmc.c"
@@ -109,7 +108,6 @@ target_sources(
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
         "${AFR_KERNEL_DIR}/portable/RVDS/ARM_CM4F/port.c"
         "${board_dir}/application_code/nuvoton_code/entropy_hardware_poll.c"
-        ${compiler_specific_src}
 )
 
 target_include_directories(
@@ -122,59 +120,24 @@ target_include_directories(
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
         "${board_dir}/config_files"
         "${board_dir}/application_code/nuvoton_code"
-        "${board_dir}/application_code/nuvoton_code/include"
         # Need aws_clientcredential.h
         "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
-        "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"
-        "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
-        "${AFR_MODULES_C_SDK_DIR}/mqtt/include"
-        "${AFR_MODULES_C_SDK_DIR}/common/include"
-        "${AFR_3RDPARTY_DIR}/lwip/src/include"
-        "${AFR_3RDPARTY_DIR}/lwip/test/fuzz"
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-        "${AFR_3RDPARTY_DIR}/lwip/src/portable/arch"		
-        "${AFR_3RDPARTY_DIR}/pkcs11"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
-		"${AFR_MODULES_C_SDK_DIR}/standard/common/include"
-        "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
-		"${AFR_MODULES_C_SDK_DIR}/standard/common/include/types"
-		"${AFR_MODULES_C_SDK_DIR}/standard/serializer/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/provisioning/include"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
         "${board_dir}/config_files"
-        "${AFR_3RDPARTY_DIR}/tracealyzer_recorder/Include"
-        ${compiler_specific_include}
 )
-
 
 # WiFi
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
-
-    # LWIP files
-    
-    
-    # Nuvoton SDK Wifi Files
-
+    INTERFACE 
+        "${afr_ports_dir}/wifi/iot_wifi.c"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
 )
 
 target_include_directories(
     AFR::wifi::mcu_port
     INTERFACE
         "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
-        #"${AFR_3RDPARTY_DIR}/lwip/src/portable"
-        #"${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
-)
-
-# WiFi on MTK requires Secure Sockets 
-target_link_libraries(
-    AFR::wifi::mcu_port
-    INTERFACE
-        AFR::secure_sockets::mcu_port
 )
 
 # PKCS11
@@ -183,43 +146,26 @@ target_sources(
     AFR::pkcs11::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/iot_pkcs11_mbedtls.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/iot_crypto.c"
 )
+
 target_link_libraries(
     AFR::pkcs11::mcu_port
-    INTERFACE 3rdparty::mbedtls
+    INTERFACE 
+        3rdparty::mbedtls
+        AFR::pkcs11_mbedtls
+        AFR::crypto
 )
 
-target_include_directories(
-    AFR::pkcs11::mcu_port
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include/"
-        #"${board_dir}/application_code/mediatek_code/include"
-)
-
-#Secure sockets
+# Secure sockets
 afr_mcu_port(secure_sockets)
+
 target_sources(
     AFR::secure_sockets::mcu_port
     INTERFACE 
         "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/src/iot_tls.c"
-)
-target_include_directories(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-       "${AFR_3RDPARTY_DIR}/lwip/src/include/lwip"
-       "${AFR_3RDPARTY_DIR}/lwip/src/portable"
-       "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
-       "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
-       "${AFR_3RDPARTY_DIR}/mbedtls/include"
-       "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
-       "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls"
 )
 
-afr_module_dependencies(
+target_link_libraries(
     AFR::secure_sockets::mcu_port
     INTERFACE
         AFR::tls
