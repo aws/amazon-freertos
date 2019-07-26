@@ -121,6 +121,24 @@
  */
 #define HTTPS_TEST_RESP_BODY_BUFFER_SIZE            ( 512 )
 
+/**
+ * @brief Test HTTP request body to share among the tests.
+ */
+#define HTTPS_TEST_REQUEST_BODY     \
+    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore "\
+    "magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo"\
+    " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla paria"\
+    "tur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est lab"\
+    "orum."
+#define HTTPS_TEST_REQUEST_BODY_LENGTH              ( sizeof( HTTPS_TEST_REQUEST_BODY ) - 1 )
+
+/**
+ * @brief A small test HTTPS response to share among the tests.
+ */
+#define HTTPS_TEST_SMALL_RESPONSE \
+    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"\
+    "header2: value2 value2a\r\nContent-Length: 26\r\n\r\nabcdefghijklmnopqrstuvwxyz"
+#define HTTPS_TEST_SMALL_RESPONSE_LENGTH            (sizeof(HTTPS_TEST_SMALL_RESPONSE) - 1)
 
 /*-----------------------------------------------------------*/
 
@@ -240,6 +258,20 @@ static inline IotHttpsRequestHandle_t _getReqHandle( IotHttpsRequestInfo_t* pReq
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     IotHttpsClient_InitializeRequest(&reqHandle, pReqInfo);
     return reqHandle;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Get a valid response handle using _pRespUserBuffer, and respInfoGET.
+ */
+static inline IotHttpsResponseHandle_t _getRespHandle( IotHttpsResponseInfo_t* pRespInfo, 
+                                                       bool isAsync, 
+                                                       IotHttpsMethod_t method )
+{
+    IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+    IotTestHttps_initializeResponse(&respHandle, pRespInfo, isAsync, method);
+    return respHandle;
 }
 
 /*-----------------------------------------------------------*/
