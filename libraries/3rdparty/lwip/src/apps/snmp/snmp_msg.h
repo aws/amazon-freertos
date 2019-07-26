@@ -57,24 +57,12 @@
 extern "C" {
 #endif
 
-/* The listen port of the SNMP agent. Clients have to make their requests to
-   this port. Most standard clients won't work if you change this! */
-#ifndef SNMP_IN_PORT
-#define SNMP_IN_PORT 161
-#endif
-/* The remote port the SNMP agent sends traps to. Most standard trap sinks won't
-   work if you change this! */
-#ifndef SNMP_TRAP_PORT
-#define SNMP_TRAP_PORT 162
-#endif
-
 /* version defines used in PDU */
 #define SNMP_VERSION_1  0
 #define SNMP_VERSION_2c 1
 #define SNMP_VERSION_3  3
 
-struct snmp_varbind_enumerator
-{
+struct snmp_varbind_enumerator {
   struct snmp_pbuf_stream pbuf_stream;
   u16_t varbind_count;
 };
@@ -86,11 +74,10 @@ typedef enum {
   SNMP_VB_ENUMERATOR_ERR_INVALIDLENGTH = 3
 } snmp_vb_enumerator_err_t;
 
-void snmp_vb_enumerator_init(struct snmp_varbind_enumerator* enumerator, struct pbuf* p, u16_t offset, u16_t length);
-snmp_vb_enumerator_err_t snmp_vb_enumerator_get_next(struct snmp_varbind_enumerator* enumerator, struct snmp_varbind* varbind);
+void snmp_vb_enumerator_init(struct snmp_varbind_enumerator *enumerator, struct pbuf *p, u16_t offset, u16_t length);
+snmp_vb_enumerator_err_t snmp_vb_enumerator_get_next(struct snmp_varbind_enumerator *enumerator, struct snmp_varbind *varbind);
 
-struct snmp_request
-{
+struct snmp_request {
   /* Communication handle */
   void *handle;
   /* source IP address */
@@ -115,7 +102,10 @@ struct snmp_request
   s32_t non_repeaters;
   /* max-repetitions (getBulkRequest (SNMPv2c)) */
   s32_t max_repetitions;
-  
+
+  /* Usually response-pdu (2). When snmpv3 errors are detected report-pdu(8) */
+  u8_t request_out_type;
+
 #if LWIP_SNMP_V3
   s32_t msg_id;
   s32_t msg_max_size;
@@ -128,7 +118,9 @@ struct snmp_request
   u8_t  msg_user_name[SNMP_V3_MAX_USER_LENGTH];
   u8_t  msg_user_name_len;
   u8_t  msg_authentication_parameters[SNMP_V3_MAX_AUTH_PARAM_LENGTH];
+  u8_t  msg_authentication_parameters_len;
   u8_t  msg_privacy_parameters[SNMP_V3_MAX_PRIV_PARAM_LENGTH];
+  u8_t  msg_privacy_parameters_len;
   u8_t  context_engine_id[SNMP_V3_MAX_ENGINE_ID_LENGTH];
   u8_t  context_engine_id_len;
   u8_t  context_name[SNMP_V3_MAX_ENGINE_ID_LENGTH];
@@ -162,8 +154,7 @@ struct snmp_request
 };
 
 /** A helper struct keeping length information about varbinds */
-struct snmp_varbind_len
-{
+struct snmp_varbind_len {
   u8_t  vb_len_len;
   u16_t vb_value_len;
   u8_t  oid_len_len;
@@ -177,13 +168,13 @@ extern const char *snmp_community;
 /** Agent community string for write access */
 extern const char *snmp_community_write;
 /** handle for sending traps */
-extern void* snmp_traps_handle;
+extern void *snmp_traps_handle;
 
 void snmp_receive(void *handle, struct pbuf *p, const ip_addr_t *source_ip, u16_t port);
 err_t snmp_sendto(void *handle, struct pbuf *p, const ip_addr_t *dst, u16_t port);
-u8_t snmp_get_local_ip_for_dst(void* handle, const ip_addr_t *dst, ip_addr_t *result);
+u8_t snmp_get_local_ip_for_dst(void *handle, const ip_addr_t *dst, ip_addr_t *result);
 err_t snmp_varbind_length(struct snmp_varbind *varbind, struct snmp_varbind_len *len);
-err_t snmp_append_outbound_varbind(struct snmp_pbuf_stream *pbuf_stream, struct snmp_varbind* varbind);
+err_t snmp_append_outbound_varbind(struct snmp_pbuf_stream *pbuf_stream, struct snmp_varbind *varbind);
 
 #ifdef __cplusplus
 }
