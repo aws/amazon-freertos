@@ -97,27 +97,11 @@
         + MIN_UINT32_DIGITS \
         + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH
 
-        
 /**
- * @brief Test HTTP request body to share among the tests.
- */
-#define HTTPS_TEST_REQUEST_BODY     \
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore "\
-    "magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo"\
-    " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla paria"\
-    "tur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est lab"\
-    "orum."
-#define HTTPS_TEST_REQUEST_BODY_LENGTH              ( sizeof( HTTPS_TEST_REQUEST_BODY ) - 1 )
-
-/**
- * @brief A small test HTTP response and definitions for parts of it.
+ * @brief Definitions for part of the small HTTP test response.
  * 
  * Theser are used to verify behavior when the header buffer ends with just a part of the HTTP response headers.
  */
-#define HTTPS_TEST_SMALL_RESPONSE \
-    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"\
-    "header2: value2 value2a\r\nContent-Length: 26\r\n\r\nabcdefghijklmnopqrstuvwxyz"
-#define HTTPS_TEST_SMALL_RESPONSE_LENGTH                (sizeof(HTTPS_TEST_SMALL_RESPONSE) - 1)
 #define HTTPS_TEST_SMALL_RESPONSE_UP_TO_CARRIAGE_RETURN "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r"
 #define HTTPS_TEST_SMALL_RESPONSE_UP_TO_NEWLINE         "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"
 #define HTTPS_TEST_SMALL_RESPONSE_UP_TO_COLON           "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:"
@@ -135,7 +119,7 @@
 #define HTTPS_TEST_HEADER_VALUE1_PLUS_NEWLINE           "value1\r\n"
 
 /**
- * @brief Test HTTP chunked respponse message to share among the tests.
+ * @brief Test HTTP chunked response message to share among the tests.
  */
 #define HTTPS_TEST_CHUNKED_RESPONSE \
     "HTTP/1.1 403 Forbidden\r\n"\
@@ -218,7 +202,7 @@ static IotHttpsSyncInfo_t _syncResponseInfo = {
 };
 
 /**
- * @brief A IotHttpsRequestInfo_t using the PUT method to share among the tests. 
+ * @brief A IotHttpsRequestInfo_t to share among the tests. 
  */
 static IotHttpsRequestInfo_t _reqInfo = {
     .pPath = HTTPS_TEST_PATH,
@@ -234,9 +218,7 @@ static IotHttpsRequestInfo_t _reqInfo = {
 };
 
 /**
- * @brief A IotHttpsResponseInfo_t for a PUT method to share among the tests. 
- * 
- * A PUT request will typically have no response in the body.
+ * @brief A IotHttpsResponseInfo_t to share among the tests.
  */
 static IotHttpsResponseInfo_t _respInfo = {
     .userBuffer.pBuffer = _pRespUserBuffer,
@@ -559,8 +541,8 @@ static size_t _networkSendSuccess( void * pConnection,
  * @brief Network abstraction receive function that timesout when sending the HTTP headers. 
  */
 static size_t _networkReceiveFailHeaders( void * pConnection,
-                                   uint8_t * pBuffer,
-                                   size_t bytesRequested )
+                                          uint8_t * pBuffer,
+                                          size_t bytesRequested )
 {
     (void)pConnection;
     (void)pBuffer;
@@ -595,7 +577,7 @@ static size_t _networkReceiveFailBody( void * pConnection,
 
     size_t retValue = 0;
 
-    /* We may have recieved some body in the headers, so pBodyCur will be incremented during the parsing of 
+    /* We may have received some body in the headers, so pBodyCur will be incremented during the parsing of 
        data received when receiving into the header buffer. Given this case, when receiving from the network 
        into the body buffer, start of the pBuffer should always be pBodyCur. */
     if( pBuffer == _currentlySendingRequestHandle->pHttpsResponse->pBodyCur )
@@ -675,14 +657,14 @@ static size_t _networkSendSuccessWithSettingParseFailForBody( void * pConnection
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test group for HTTPS Client API tests.
+ * @brief Test group for HTTPS Client Sync Unit tests.
  */
 TEST_GROUP( HTTPS_Client_Unit_Sync );
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test setup for HTTPS Client API tests.
+ * @brief Test setup for HTTPS Client Sync Unit tests.
  */
 TEST_SETUP( HTTPS_Client_Unit_Sync )
 {
@@ -705,7 +687,7 @@ TEST_SETUP( HTTPS_Client_Unit_Sync )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test tear down for HTTPS Client API tests.
+ * @brief Test tear down for HTTPS Client Sync Unit tests..
  */
 TEST_TEAR_DOWN( HTTPS_Client_Unit_Sync )
 {
