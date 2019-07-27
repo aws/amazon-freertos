@@ -15,14 +15,18 @@ def main(): # pragma: no cover
         files_to_check = filter_checkable_files(file_names)
         check_uncrustify(files_to_check, uncrustify=True)
     elif args['uncrustify']:
-        file_names = get_modified_files()
+        file_names = args['files']
+        if not file_names:
+            file_names = get_modified_files()
+
         files_to_check = filter_checkable_files(file_names)
         check_uncrustify(files_to_check, uncrustify=True)
     else:
-        failed_files = commit_is_ready()
+        failed_files = commit_is_ready(args['files'])
         if failed_files:
             print("\nYou may run the following command to repeat the check: python tools/git/hooks/src/pre_commit.py")
-            print("\nYou may run the following command to uncrustify modified files: python tools/git/hooks/src/pre_commit.py --uncrustify")
+            print("\nYou may run the following command to uncrustify staged files: python tools/git/hooks/src/pre_commit.py --uncrustify")
+            print("\nYou may run the following command to uncrustify a list of files: python tools/git/hooks/src/pre_commit.py --uncrustify <files>")
             print("\nYou may run the following command to uncrustify all files: python tools/git/hooks/src/pre_commit.py --uncrustify-all-files")
             print("Hint: You may need to be at the repository's root directory.")
             print('Aborting Commit.')
@@ -35,14 +39,17 @@ def parse_args():
 
     parser.add_argument('--uncrustify', default = False, action='store_true', help='Uncrustify modified files.')
     parser.add_argument('--uncrustify-all-files', default = False, action='store_true', help='Uncrustify all files.')
+    parser.add_argument('files', nargs='*', help='List of files to check.')
 
     args = parser.parse_args()
     return vars(args)
 
 
-def commit_is_ready():
+def commit_is_ready(file_names=[]):
     """Return False if not ready.  Return True if commit is ready"""
-    file_names = get_modified_files()
+    if not file_names:
+        file_names = get_modified_files()
+
     files_to_check = filter_checkable_files(file_names)
 
     checks = [
