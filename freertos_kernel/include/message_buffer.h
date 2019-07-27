@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -61,10 +61,6 @@
 
 #ifndef FREERTOS_MESSAGE_BUFFER_H
 #define FREERTOS_MESSAGE_BUFFER_H
-
-#ifndef INC_FREERTOS_H
-    #error "include FreeRTOS.h must appear in source files before include message_buffer.h"
-#endif
 
 /* Message buffers are built onto of stream buffers. */
 #include "stream_buffer.h"
@@ -696,6 +692,7 @@ size_t xMessageBufferSpaceAvailable( MessageBufferHandle_t xMessageBuffer ) );
  * \ingroup MessageBufferManagement
  */
 #define xMessageBufferSpaceAvailable( xMessageBuffer ) xStreamBufferSpacesAvailable( ( StreamBufferHandle_t ) xMessageBuffer )
+#define xMessageBufferSpacesAvailable( xMessageBuffer ) xStreamBufferSpacesAvailable( ( StreamBufferHandle_t ) xMessageBuffer ) /* Corrects typo in original macro name. */
 
 /**
  * message_buffer.h
