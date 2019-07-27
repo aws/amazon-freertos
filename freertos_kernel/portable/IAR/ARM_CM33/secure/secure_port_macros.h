@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,9 +38,9 @@
  * @brief Macro to declare a function as non-secure callable.
  */
 #if defined( __IAR_SYSTEMS_ICC__ )
-	#define secureportNON_SECURE_CALLABLE			__cmse_nonsecure_entry
+	#define secureportNON_SECURE_CALLABLE			__cmse_nonsecure_entry __root
 #else
-	#define secureportNON_SECURE_CALLABLE			__attribute__((cmse_nonsecure_entry))
+	#define secureportNON_SECURE_CALLABLE			__attribute__((cmse_nonsecure_entry)) __attribute__((used))
 #endif
 
 /**
