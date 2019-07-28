@@ -343,19 +343,19 @@
     <Filter Include="demos\https">
       <UniqueIdentifier>{8ab97222-7e15-40a9-9f41-3fff86f0d604}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\https">
+    <Filter Include="libraries\c_sdk\standard\https">
       <UniqueIdentifier>{70dc2cbd-83c1-4d1b-bb9f-1b3da9d4cd92}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\https\include">
+    <Filter Include="libraries\c_sdk\standard\https\include">
       <UniqueIdentifier>{f64275fe-f18f-4dae-8a39-8ebf534358e1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\https\src">
+    <Filter Include="libraries\c_sdk\standard\https\src">
       <UniqueIdentifier>{edd920f5-7e3b-4133-8a75-b6cd35c5bd88}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\https\include\types">
+    <Filter Include="libraries\c_sdk\standard\https\include\types">
       <UniqueIdentifier>{eee297cd-f198-4ecf-8248-99a9efd53c7d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libraries\freertos_plus\standard\https\src\private">
+    <Filter Include="libraries\c_sdk\standard\https\src\private">
       <UniqueIdentifier>{312fc362-7ce5-4a2b-922c-e90c62e75d1d}</UniqueIdentifier>
     </Filter>
     <Filter Include="libraries\3rdparty\http-parser">
@@ -1029,17 +1029,17 @@
     <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\iot_pkcs11_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\include\types\iot_https_types.h">
-      <Filter>libraries\freertos_plus\standard\https\include\types</Filter>
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\https\include\types\iot_https_types.h">
+      <Filter>libraries\c_sdk\standard\https\include\types</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\include\iot_https_client.h">
-      <Filter>libraries\freertos_plus\standard\https\include</Filter>
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\https\include\iot_https_client.h">
+      <Filter>libraries\c_sdk\standard\https\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\include\iot_https_utils.h">
-      <Filter>libraries\freertos_plus\standard\https\include</Filter>
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\https\include\iot_https_utils.h">
+      <Filter>libraries\c_sdk\standard\https\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\https\src\private\iot_https_internal.h">
-      <Filter>libraries\freertos_plus\standard\https\src\private</Filter>
+    <ClInclude Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\private\iot_https_internal.h">
+      <Filter>libraries\c_sdk\standard\https\src\private</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h">
       <Filter>libraries\3rdparty\http-parser</Filter>
@@ -1580,11 +1580,11 @@
     <ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c">
       <Filter>demos\https</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\https\src\iot_https_client.c">
-      <Filter>libraries\freertos_plus\standard\https\src</Filter>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c">
+      <Filter>libraries\c_sdk\standard\https\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\https\src\iot_https_utils.c">
-      <Filter>libraries\freertos_plus\standard\https\src</Filter>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c">
+      <Filter>libraries\c_sdk\standard\https\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c">
       <Filter>libraries\3rdparty\http-parser</Filter>
