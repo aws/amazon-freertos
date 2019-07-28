@@ -1008,7 +1008,6 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 
     /* Reset the http-parser state to an initial state. This is done so that a new response can be parsed from the 
        beginning. */
-    pCurrentHttpsResponse->httpParserInfo.responseParser.data = (void *)(pCurrentHttpsResponse);
     pCurrentHttpsResponse->parserState = PARSER_STATE_NONE;
     pCurrentHttpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_HEADER_BUFFER;
 
@@ -2210,6 +2209,8 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     http_parser_init(&(pHttpsResponse->httpParserInfo.readHeaderParser), HTTP_RESPONSE);
     /* Set the third party http parser function. */
     pHttpsResponse->httpParserInfo.parseFunc = http_parser_execute;
+    pHttpsResponse->httpParserInfo.readHeaderParser.data = ( void * )( pHttpsResponse );
+    pHttpsResponse->httpParserInfo.responseParser.data = ( void * )( pHttpsResponse );
 
     pHttpsResponse->status = 0;
     pHttpsResponse->method = method;
@@ -2743,7 +2744,10 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t re
     *pLen = respHandle->pBodyCur - respHandle->pBody;
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
-    respHandle->bodyRxStatus = status;
+    if( respHandle != NULL )
+    {
+        respHandle->bodyRxStatus = status;
+    }
     HTTPS_FUNCTION_CLEANUP_END();
 }
 
@@ -2866,7 +2870,6 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
 
     /* Start over the HTTP parser so that it will parser from the beginning of the message. */
     http_parser_init( &( respHandle->httpParserInfo.readHeaderParser ), HTTP_RESPONSE );
-    respHandle->httpParserInfo.readHeaderParser.data = (void *)(respHandle);
 
     IotLogDebug( "Now parsing HTTP Message buffer to read a header." );
     numParsed = respHandle->httpParserInfo.parseFunc(&(respHandle->httpParserInfo.readHeaderParser), &_httpParserSettings, (char*)(respHandle->pHeaders), respHandle->pHeadersCur - respHandle->pHeaders);
