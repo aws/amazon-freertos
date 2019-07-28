@@ -8,7 +8,7 @@
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/iot_https_client.goto"
+    "$(FREERTOS)/libraries/c_sdk/standard/https/src/iot_https_client.goto"
   ],
   "INSTFLAGS":
   [
@@ -19,8 +19,8 @@
   ],
   "INC":
   [
-    "$(FREERTOS)/libraries/freertos_plus/standard/https/include",
-    "$(FREERTOS)/libraries/freertos_plus/standard/https/src/private",
+    "$(FREERTOS)/libraries/c_sdk/standard/https/include",
+    "$(FREERTOS)/libraries/c_sdk/standard/https/src/private",
     "$(FREERTOS)/libraries/3rdparty/http-parser",
     "$(FREERTOS)/libraries/c_sdk/standard/common/include/",
     "$(FREERTOS)/libraries/abstractions/platform/include/",
