@@ -98,14 +98,10 @@
         + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH
 
 /**
- * @brief A small test HTTP response and definitions for parts of it.
+ * @brief Definitions for part of the small HTTP test response.
  * 
  * Theser are used to verify behavior when the header buffer ends with just a part of the HTTP response headers.
  */
-#define HTTPS_TEST_SMALL_RESPONSE \
-    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"\
-    "header2: value2 value2a\r\nContent-Length: 26\r\n\r\nabcdefghijklmnopqrstuvwxyz"
-#define HTTPS_TEST_SMALL_RESPONSE_LENGTH                (sizeof(HTTPS_TEST_SMALL_RESPONSE) - 1)
 #define HTTPS_TEST_SMALL_RESPONSE_UP_TO_CARRIAGE_RETURN "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r"
 #define HTTPS_TEST_SMALL_RESPONSE_UP_TO_NEWLINE         "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"
 #define HTTPS_TEST_SMALL_RESPONSE_UP_TO_COLON           "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:"
@@ -545,8 +541,8 @@ static size_t _networkSendSuccess( void * pConnection,
  * @brief Network abstraction receive function that timesout when sending the HTTP headers. 
  */
 static size_t _networkReceiveFailHeaders( void * pConnection,
-                                   uint8_t * pBuffer,
-                                   size_t bytesRequested )
+                                          uint8_t * pBuffer,
+                                          size_t bytesRequested )
 {
     (void)pConnection;
     (void)pBuffer;
@@ -581,7 +577,7 @@ static size_t _networkReceiveFailBody( void * pConnection,
 
     size_t retValue = 0;
 
-    /* We may have recieved some body in the headers, so pBodyCur will be incremented during the parsing of 
+    /* We may have received some body in the headers, so pBodyCur will be incremented during the parsing of 
        data received when receiving into the header buffer. Given this case, when receiving from the network 
        into the body buffer, start of the pBuffer should always be pBodyCur. */
     if( pBuffer == _currentlySendingRequestHandle->pHttpsResponse->pBodyCur )
