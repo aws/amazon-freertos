@@ -235,16 +235,18 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
 set(IDF_TARGET esp32)
 set(ENV{IDF_PATH} ${esp_idf_dir})
 
-# Fetch sdkconfig.defaults and modify the custom partition table csv path
-file(READ "${board_dir}/sdkconfig.defaults" file_sdkconfig_default)
-string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
-file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
-set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+# If external project has set sdkconfig.defaults do not overwrite
+if (NOT IDF_SDKCONFIG_DEFAULTS)
+    # Fetch sdkconfig.defaults and modify the custom partition table csv path
+    file(READ "${board_dir}/sdkconfig.defaults" file_sdkconfig_default)
+    string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
+    file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
+    set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+endif()
+
 # Set sdkconfig generation path inside build
 set(SDKCONFIG "${CMAKE_BINARY_DIR}/sdkconfig")
 
-# Remove previously generated sdkconfig file
-file(REMOVE "${CMAKE_BINARY_DIR}/sdkconfig")
 # Do some configuration for idf_import_components. This enables creation of artifacts (which might not be
 # needed) for some projects
 set(IDF_BUILD_ARTIFACTS ON)
