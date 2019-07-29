@@ -45,7 +45,7 @@ def parse_args():
     return vars(args)
 
 
-def commit_is_ready(file_names=[]):
+def commit_is_ready(file_names=None):
     """Return False if not ready.  Return True if commit is ready"""
     if not file_names:
         file_names = get_modified_files()
