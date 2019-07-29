@@ -324,8 +324,6 @@ void runDemoTask( void * pArgument )
     {
         IotLogError( "Failed to initialize the demo. exiting..." );
     }
-
-    vTaskDelete( NULL );
 }
 
 /*-----------------------------------------------------------*/
