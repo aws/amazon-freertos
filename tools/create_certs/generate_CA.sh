@@ -7,7 +7,7 @@ echo "Creating CA Certificate"
 country=US
 state=Seattle
 locality="."
-organization="."
+organization=Amazon
 organizationalunit="."
 commonname="."
 email="."
@@ -31,7 +31,7 @@ echo "Registering CA Certificate with AWS IoT"
 
 echo "Getting Registration Code"
 registration_code_str=$(aws iot get-registration-code)  # registraton code / common name
-registration_code="${registration_code_str:27:64}" # CHECK THIS: REGISTRATION CODE LENGTH MAY NOT BE THE SAME ALWAYS
+registration_code="${registration_code_str:27:64}" # @TODO : REGISTRATION CODE LENGTH MAY NOT BE THE SAME ALWAYS
 echo "Registration code is $registration_code"
 
 openssl genrsa -out verificationCert.key 2048   # key pair for private key verification certificate
