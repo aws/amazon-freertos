@@ -1,0 +1,19 @@
+# Reserved Configuration for a device
+# The objects in this file will be created and marked as undeletable
+# These are processed in order. Configuration parameters must be comma
+# delimited and may not contain spaces
+
+interface = i2c,0xB0
+freeslots = 1,2,3
+
+# Slot 0 is the primary private key
+object = private,device,0
+
+# Slot 10 is the certificate data for the device's public key
+#object = certificate,device,10
+
+# Slot 12 is the intermedate/signer certificate data
+#object = certificate,signer,12
+
+# Slot 15 is a public key
+object = public,root,15

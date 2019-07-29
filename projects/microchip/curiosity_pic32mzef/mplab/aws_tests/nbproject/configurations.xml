@@ -293,7 +293,6 @@
                      projectFiles="true">
         <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
           <logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
-            <itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</itemPath>
             <itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</itemPath>
           </logicalFolder>
           <logicalFolder name="test" displayName="test" projectFiles="true">
@@ -751,6 +750,7 @@
                 <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/iot_pkcs11_pal.c</itemPath>
                 <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/pkcs11_nvm.c</itemPath>
                 <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/pkcs11_nvm.h</itemPath>
+                <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/iot_pkcs11_secure_element.c</itemPath>
               </logicalFolder>
               <logicalFolder name="posix" displayName="posix" projectFiles="true">
                 <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix/FreeRTOS_POSIX_portable.h</itemPath>
@@ -789,6 +789,32 @@
                   <logicalFolder name="src" displayName="src" projectFiles="true">
                     <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/flash/src/drv_flash_static.c</itemPath>
                   </logicalFolder>
+                </logicalFolder>
+                <logicalFolder name="i2c" displayName="i2c" projectFiles="true">
+                  <logicalFolder name="config" displayName="config" projectFiles="true">
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/config/drv_i2c_config_template.h</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="src" displayName="src" projectFiles="true">
+                    <logicalFolder name="dynamic" displayName="dynamic" projectFiles="true">
+                      <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/dynamic/drv_i2c.c</itemPath>
+                      <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/dynamic/drv_i2c_bb.c</itemPath>
+                      <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/dynamic/drv_i2c_bb_a.c</itemPath>
+                      <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/dynamic/drv_i2c_forced.c</itemPath>
+                      <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/dynamic/drv_i2c_forced_bb.c</itemPath>
+                    </logicalFolder>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/drv_i2c_local.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/drv_i2c_local_bb.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/src/drv_i2c_variant_mapping.h</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="templates" displayName="templates" projectFiles="true">
+                  </logicalFolder>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/drv_i2c.h</itemPath>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/drv_i2c_bb.h</itemPath>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/drv_i2c_bb_a.h</itemPath>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/drv_i2c_bb_a_compatibility.h</itemPath>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/drv_i2c_compatibility.h</itemPath>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/drv_i2c_device_pic32m.h</itemPath>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c/drv_i2c_mapping.h</itemPath>
                 </logicalFolder>
                 <logicalFolder name="miim" displayName="miim" projectFiles="true">
                   <logicalFolder name="src" displayName="src" projectFiles="true">
@@ -900,6 +926,112 @@
                 </logicalFolder>
               </logicalFolder>
               <logicalFolder name="peripheral" displayName="peripheral" projectFiles="true">
+                <logicalFolder name="i2c" displayName="i2c" projectFiles="true">
+                  <logicalFolder name="config" displayName="config" projectFiles="true">
+                  </logicalFolder>
+                  <logicalFolder name="processor" displayName="processor" projectFiles="true">
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz1024efm064.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz1024efm100.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz1024efm124.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz1024efm144.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz2048efm064.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz2048efm100.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz2048efm124.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32mz2048efm144.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_p32xxxx.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/processor/i2c_processor.h</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="templates" displayName="templates" projectFiles="true">
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_AcksequenceIsInProgress_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_AcksequenceIsInProgress_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ArbitrationLoss_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ArbitrationLoss_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_BaudRate_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_BaudRate_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_BusIdle_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_BusIdle_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ClockStretching_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ClockStretching_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_DataLineHoldTime_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_DataLineHoldTime_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_GeneralCallAddressDetect_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_GeneralCallAddressDetect_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_GeneralCall_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_GeneralCall_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_HighFrequency_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_HighFrequency_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_IPMI_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_IPMI_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterReceiverClock1Byte_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterReceiverClock1Byte_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterStartRepeat_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterStartRepeat_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterStart_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterStart_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterStop_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_MasterStop_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ModuleEnable_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ModuleEnable_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceivedByteAcknowledge_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceivedByteAcknowledge_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceivedByteAvailable_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceivedByteAvailable_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceivedByteGet_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceivedByteGet_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceiverOverflow_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReceiverOverflow_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_Registers.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReservedAddressProtect_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_ReservedAddressProtect_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddress10Bit_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddress10Bit_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddress7Bit_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddress7Bit_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddressDetect_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddressDetect_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddressHoldEnable_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveAddressHoldEnable_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveBufferOverwrite_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveBufferOverwrite_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveBusCollisionDetect_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveBusCollisionDetect_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveClockHold_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveClockHold_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveClockStretching_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveDataDetect_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveDataDetect_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveDataHoldEnable_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveDataHoldEnable_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveInterruptOnStart_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveInterruptOnStart_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveInterruptOnStop_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveInterruptOnStop_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveMask_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveMask_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveReadRequest_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SlaveReadRequest_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SMBus_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_SMBus_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_StartDetect_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_StartDetect_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_StopDetect_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_StopDetect_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_StopInIdle_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_StopInIdle_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterBusy_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterBusy_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterByteAcknowledge_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterByteAcknowledge_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterByteComplete_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterByteComplete_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterByteSend_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterByteSend_Unsupported.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterOverflow_Default.h</itemPath>
+                    <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/templates/i2c_TransmitterOverflow_Unsupported.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/plib_i2c.h</itemPath>
+                  <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c/plib_i2c_helper_macros.h</itemPath>
+                </logicalFolder>
                 <logicalFolder name="tmr" displayName="tmr" projectFiles="true">
                   <logicalFolder name="src" displayName="src" projectFiles="true">
                     <itemPath>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/tmr/src/plib_tmr_pic32.c</itemPath>
@@ -984,9 +1116,109 @@
             </logicalFolder>
           </logicalFolder>
         </logicalFolder>
+        <logicalFolder name="secure_elements"
+                       displayName="secure_elements"
+                       projectFiles="true">
+          <logicalFolder name="app" displayName="app" projectFiles="true">
+            <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
+              <itemPath>../../../../../vendors/microchip/secure_elements/app/pkcs11/example_cert_chain.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="lib" displayName="lib" projectFiles="true">
+            <logicalFolder name="atcacert" displayName="atcacert" projectFiles="true">
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_client.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_date.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_def.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_der.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_host_hw.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_host_sw.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_pem.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="basic" displayName="basic" projectFiles="true">
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_aes.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_aes_cbc.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_aes_cmac.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_aes_ctr.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_aes_gcm.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_checkmac.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_counter.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_derivekey.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_ecdh.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_gendig.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_genkey.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_hmac.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_info.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_kdf.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_lock.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_mac.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_nonce.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_privwrite.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_random.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_read.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_secureboot.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_selftest.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_sha.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_sign.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_updateextra.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_verify.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_basic_write.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/basic/atca_helpers.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="crypto" displayName="crypto" projectFiles="true">
+              <logicalFolder name="hashes" displayName="hashes" projectFiles="true">
+                <itemPath>../../../../../vendors/microchip/secure_elements/lib/crypto/hashes/sha1_routines.c</itemPath>
+                <itemPath>../../../../../vendors/microchip/secure_elements/lib/crypto/hashes/sha2_routines.c</itemPath>
+              </logicalFolder>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/crypto/atca_crypto_sw_ecdsa.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/crypto/atca_crypto_sw_rand.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/crypto/atca_crypto_sw_sha1.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/crypto/atca_crypto_sw_sha2.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="hal" displayName="hal" projectFiles="true">
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/hal/atca_hal.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/hal/hal_freertos.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/hal/hal_pic32mz2048efm_i2c.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/hal/hal_pic32mz2048efm_timer.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="host" displayName="host" projectFiles="true">
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/host/atca_host.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_attrib.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_cert.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_config.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_debug.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_digest.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_find.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_info.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_init.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_key.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_main.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_mech.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_object.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_os.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_session.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_signature.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_slot.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_token.c</itemPath>
+              <itemPath>../../../../../vendors/microchip/secure_elements/lib/pkcs11/pkcs11_util.c</itemPath>
+            </logicalFolder>
+            <itemPath>../../../../../vendors/microchip/secure_elements/lib/atca_command.c</itemPath>
+            <itemPath>../../../../../vendors/microchip/secure_elements/lib/atca_device.c</itemPath>
+            <itemPath>../../../../../vendors/microchip/secure_elements/lib/atca_execution.c</itemPath>
+            <itemPath>../../../../../vendors/microchip/secure_elements/lib/atca_iface.c</itemPath>
+          </logicalFolder>
+        </logicalFolder>
       </logicalFolder>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>../../../../../vendors/microchip/secure_elements</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11</Elem>
+    <Elem>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c</Elem>
+    <Elem>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="pic32mz_ef_curiosity" type="2">
@@ -995,9 +1227,9 @@
         <targetDevice>PIC32MZ2048EFM100</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD4Tool</platformTool>
+        <platformTool>pk4hybrid</platformTool>
         <languageToolchain>XC32</languageToolchain>
-        <languageToolchainVersion>2.05</languageToolchainVersion>
+        <languageToolchainVersion>2.20</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <packs>
@@ -1052,7 +1284,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src"/>
+                  value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../vendors/microchip/secure_elements/lib;../../../../../vendors/microchip/secure_elements/app"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -1062,7 +1294,7 @@
         <property key="post-instruction-scheduling" value="default"/>
         <property key="pre-instruction-scheduling" value="default"/>
         <property key="preprocessor-macros"
-                  value="UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__"/>
+                  value="UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__;ATCA_HAL_I2C"/>
         <property key="strict-ansi" value="false"/>
         <property key="support-ansi" value="false"/>
         <property key="toplevel-reordering" value=""/>
@@ -1244,7 +1476,8 @@
         <property key="TIMER9" value="true"/>
         <property key="ToolFirmwareFilePath"
                   value="Press to browse for a specific firmware version"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="ToolFirmwareOption.UpdateOptions"
+                  value="ToolFirmwareOption.UseLatest"/>
         <property key="UART1" value="true"/>
         <property key="UART2" value="true"/>
         <property key="UART3" value="true"/>
@@ -1429,6 +1662,116 @@
         <property key="tracecontrol.tracefilemax" value="10000000"/>
         <property key="voltagevalue" value="3.25"/>
       </RealICEPlatformTool>
+      <pk4hybrid>
+        <property key="ADC" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CAN1" value="true"/>
+        <property key="CAN2" value="true"/>
+        <property key="CHANGE NOTICE A" value="true"/>
+        <property key="CHANGE NOTICE B" value="true"/>
+        <property key="CHANGE NOTICE C" value="true"/>
+        <property key="CHANGE NOTICE D" value="true"/>
+        <property key="CHANGE NOTICE E" value="true"/>
+        <property key="CHANGE NOTICE F" value="true"/>
+        <property key="CHANGE NOTICE G" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="DMA" value="true"/>
+        <property key="ETHERNET CONTROLLER" value="true"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="I2C 1" value="true"/>
+        <property key="I2C 2" value="true"/>
+        <property key="I2C 3" value="true"/>
+        <property key="I2C 4" value="true"/>
+        <property key="I2C 5" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="INTERRUPT CONTROL" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="REAL TIME CLOCK" value="true"/>
+        <property key="REFERENCE CLOCK1" value="true"/>
+        <property key="REFERENCE CLOCK2" value="true"/>
+        <property key="REFERENCE CLOCK3" value="true"/>
+        <property key="REFERENCE CLOCK4" value="true"/>
+        <property key="SPI/I2S 1" value="true"/>
+        <property key="SPI/I2S 2" value="true"/>
+        <property key="SPI/I2S 3" value="true"/>
+        <property key="SPI/I2S 4" value="true"/>
+        <property key="SPI/I2S 5" value="true"/>
+        <property key="SPI/I2S 6" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="TIMER6" value="true"/>
+        <property key="TIMER7" value="true"/>
+        <property key="TIMER8" value="true"/>
+        <property key="TIMER9" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UpdateOptions"
+                  value="ToolFirmwareOption.UseLatest"/>
+        <property key="UART1" value="true"/>
+        <property key="UART2" value="true"/>
+        <property key="UART3" value="true"/>
+        <property key="UART4" value="true"/>
+        <property key="UART5" value="true"/>
+        <property key="UART6" value="true"/>
+        <property key="communication.interface"
+                  value="${communication.interface.default}"/>
+        <property key="communication.speed" value="${communication.speed.default}"/>
+        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.exclude.configurationmemory" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.ranges" value="1d000000-1d1fffff"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.ledbrightness" value="5"/>
+        <property key="programoptions.pgcconfig" value="pull down"/>
+        <property key="programoptions.pgcresistor.value" value="4.7"/>
+        <property key="programoptions.pgdconfig" value="pull down"/>
+        <property key="programoptions.pgdresistor.value" value="4.7"/>
+        <property key="programoptions.pgmentry.voltage" value="low"/>
+        <property key="programoptions.pgmspeed" value="Med"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value=""/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="voltagevalue" value="3.25"/>
+      </pk4hybrid>
     </conf>
   </confs>
 </configurationDescriptor>

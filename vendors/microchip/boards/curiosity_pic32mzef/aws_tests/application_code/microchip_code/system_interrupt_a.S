@@ -277,8 +277,91 @@ IntVector_ETHMAC:
     portRESTORE_CONTEXT
     .end	IntVector_ETHMAC
 
+/* Use 0 for Channel 2 and 1 for channel 2. */
+.if 1
+/* I2C Instance 0 Interrupt */
+   .extern  IntHandlerDrvI2CInstance0
+
+   .section	.vector_117,code, keep
+   .equ     __vector_dispatch_117, IntVectorDrvI2CInstance0
+   .global  __vector_dispatch_117
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorDrvI2CInstance0
+
+IntVectorDrvI2CInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerDrvI2CInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorDrvI2CInstance0
 
 
+/* I2C Instance 0 Bus Interrupt */
+   .extern  IntHandlerDrvI2CBusInstance0
+
+   .section	.vector_115,code, keep
+   .equ     __vector_dispatch_115, IntVectorDrvI2CBusInstance0
+   .global  __vector_dispatch_115
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorDrvI2CBusInstance0
+
+IntVectorDrvI2CBusInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerDrvI2CBusInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorDrvI2CBusInstance0
+
+.else    
+/* I2C Instance 0 Interrupt -- i2c2 */
+   .extern  IntHandlerDrvI2CInstance0
+
+   .section	.vector_150,code, keep
+   .equ     __vector_dispatch_150, IntVectorDrvI2CInstance0
+   .global  __vector_dispatch_150
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorDrvI2CInstance0
+
+IntVectorDrvI2CInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerDrvI2CInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorDrvI2CInstance0
+
+
+/* I2C Instance 0 Bus Interrupt */
+   .extern  IntHandlerDrvI2CBusInstance0
+
+   .section	.vector_148,code, keep
+   .equ     __vector_dispatch_148, IntVectorDrvI2CBusInstance0
+   .global  __vector_dispatch_148
+   .set     nomicromips
+   .set     noreorder
+   .set     nomips16
+   .set     noat
+   .ent  IntVectorDrvI2CBusInstance0
+
+IntVectorDrvI2CBusInstance0:
+    portSAVE_CONTEXT
+    la    s6,  IntHandlerDrvI2CBusInstance0
+    jalr  s6
+    nop
+    portRESTORE_CONTEXT
+    .end	IntVectorDrvI2CBusInstance0
+.endif
 /*******************************************************************************
  End of File
  */

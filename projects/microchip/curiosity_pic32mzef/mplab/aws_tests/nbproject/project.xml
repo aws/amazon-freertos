@@ -15,7 +15,12 @@
             <make-dep-projects>
                 <make-dep-project>../bootloader_tests</make-dep-project>
             </make-dep-projects>
-            <sourceRootList/>
+            <sourceRootList>
+                <sourceRootElem>../../../../../vendors/microchip/secure_elements</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c</sourceRootElem>
+            </sourceRootList>
             <confList>
                 <confElem>
                     <name>pic32mz_ef_curiosity</name>

@@ -155,6 +155,23 @@ const DRV_MIIM_INIT drvMiimInitData =
     .ethphyId = DRV_MIIM_ETH_MODULE_ID,
 };
 
+const DRV_I2C_INIT drvI2C0InitData =
+{
+    .i2cId = DRV_I2C_PERIPHERAL_ID_IDX0,
+    .i2cMode = DRV_I2C_OPERATION_MODE_IDX0,
+    .portSCL = DRV_SCL_PORT_IDX0,
+	.pinSCL  = DRV_SCL_PIN_POSITION_IDX0,
+	.portSDA = DRV_SDA_PORT_IDX0,
+	.pinSDA  = DRV_SDA_PIN_POSITION_IDX0,
+    .baudRate = DRV_I2C_BAUD_RATE_IDX0,
+    .busspeed = DRV_I2C_SLEW_RATE_CONTROL_IDX0,
+    .buslevel = DRV_I2C_SMBus_SPECIFICATION_IDX0,
+    .mstrInterruptSource = DRV_I2C_MASTER_INT_SRC_IDX0,
+    .errInterruptSource = DRV_I2C_ERR_MZ_INT_SRC_IDX0,
+
+};
+
+
 // <editor-fold defaultstate="collapsed" desc="DRV_Timer Initialization Data">
 /*** TMR Driver Initialization Data ***/
 
@@ -509,6 +526,11 @@ void SYS_Initialize ( void* data )
     BSP_Initialize();        
 
     /* Initialize Drivers */
+    sysObj.drvI2C0 = DRV_I2C_Initialize(DRV_I2C_INDEX_0, (SYS_MODULE_INIT *)&drvI2C0InitData);
+    SYS_INT_VectorPrioritySet(DRV_I2C_MASTER_INT_VECTOR_IDX0, INT_PRIORITY_LEVEL1);
+    SYS_INT_VectorSubprioritySet(DRV_I2C_MASTER_INT_VECTOR_IDX0, INT_SUBPRIORITY_LEVEL0);
+    SYS_INT_VectorPrioritySet(DRV_I2C_ERR_INT_VECTOR_IDX0, INT_PRIORITY_LEVEL1);
+    SYS_INT_VectorSubprioritySet(DRV_I2C_ERR_INT_VECTOR_IDX0, INT_SUBPRIORITY_LEVEL0);
 
     sysObj.sysDma = SYS_DMA_Initialize((SYS_MODULE_INIT *)&sysDmaInit);
     SYS_INT_VectorPrioritySet(INT_VECTOR_DMA0, INT_PRIORITY_LEVEL1);

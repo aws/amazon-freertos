@@ -62,6 +62,7 @@ SOFTWARE
 #include "driver/ethmac/drv_ethmac.h"
 #include "driver/miim/drv_miim.h"
 #include "driver/spi/drv_spi.h"
+#include "driver/i2c/drv_i2c.h"
 #include "tcpip/tcpip.h"
 #include "osal/osal.h"
 #include "driver/wifi/wilc1000/include/wdrv_wilc1000_api.h"
@@ -109,6 +110,7 @@ typedef struct
     SYS_MODULE_OBJ  sysDebug;
     SYS_MODULE_OBJ  sysConsole0;
     SYS_MODULE_OBJ  sysDma;
+    SYS_MODULE_OBJ  drvI2C0;
     /*** SPI Object for Index 0 ***/
     SYS_MODULE_OBJ	spiObjectIdx0;
     SYS_MODULE_OBJ  tcpip;

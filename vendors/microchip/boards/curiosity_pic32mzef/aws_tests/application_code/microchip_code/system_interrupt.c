@@ -138,6 +138,21 @@ bool SYS_INT_SourceRestore(INT_SOURCE src, int level)
     return level;
 }
 
+//void __ISR(_I2C1_MASTER_VECTOR, ipl1AUTO) _IntHandlerDrvI2CMasterInstance0(void)
+void IntHandlerDrvI2CInstance0(void)
+{
+    DRV_I2C_Tasks(sysObj.drvI2C0);
+}
+
+
+//void __ISR(_I2C1_BUS_VECTOR, ipl1AUTO) _IntHandlerDrvI2CErrorInstance0(void)
+void IntHandlerDrvI2CBusInstance0(void)
+{
+    /* TODO: Add code to process interrupt here */
+    /* Clear pending interrupt */
+    PLIB_INT_SourceFlagClear(INT_ID_0, INT_SOURCE_I2C_2_BUS);}
+
+
 /*******************************************************************************
  End of File
 */
