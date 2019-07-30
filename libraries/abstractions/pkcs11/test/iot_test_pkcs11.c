@@ -327,6 +327,33 @@ static MultithreadTaskParams_t xGlobalTaskParams[ pkcs11testMULTI_THREAD_TASK_CO
 #define pkcs11testALL_BITS    ( ( 1 << pkcs11testMULTI_THREAD_TASK_COUNT ) - 1 )
 
 
+static CK_RV prvDestroyTestCredentials( void )
+{
+    CK_RV xResult = CKR_OK;
+
+    CK_BYTE * pxPkcsLabels[] =
+    {
+        ( CK_BYTE * ) pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+        ( CK_BYTE * ) pkcs11testLABEL_CODE_VERIFICATION_KEY,
+        ( CK_BYTE * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+        ( CK_BYTE * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+    };
+    CK_OBJECT_CLASS xClass[] =
+    {
+        CKO_CERTIFICATE,
+        CKO_PUBLIC_KEY,
+        CKO_PRIVATE_KEY,
+        CKO_PUBLIC_KEY
+    };
+
+    xResult = xDestroyProvidedCredentials( xGlobalSession,
+                                           pxPkcsLabels,
+                                           xClass,
+                                           sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
+
+    return xResult;
+}
+
 CK_RV prvBeforeRunningTests( void )
 {
     CK_RV xResult;
@@ -378,6 +405,7 @@ void prvAfterRunningTests_Object( void )
      * slots which were not modified, so nothing special
      * needs to be done. */
 }
+
 
 
 static void prvMultiThreadHelper( void * pvTaskFxnPtr )
@@ -974,7 +1002,7 @@ void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
 
     if( xCurrentCredentials != eRsaTest )
     {
-        xResult = xDestroyCredentials( xGlobalSession );
+        xResult = prvDestroyTestCredentials();
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
         xCurrentCredentials = eNone;
 
@@ -1023,7 +1051,7 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectFindObject )
 
     if( xCurrentCredentials != eNone )
     {
-        xResult = xDestroyCredentials( xGlobalSession );
+        xResult = prvDestroyTestCredentials();
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
         xCurrentCredentials = eNone;
     }
@@ -1183,7 +1211,7 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
     CK_BYTE xPaddedHash[ RSA_SIGNATURE_SIZE ] = { 0 };
     mbedtls_rsa_context xRsaContext;
 
-    xResult = xDestroyCredentials( xGlobalSession );
+    xResult = prvDestroyTestCredentials();
     xCurrentCredentials = eNone;
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before RSA generate key pair test." );
 
@@ -1289,7 +1317,7 @@ void prvProvisionCredentialsWithKeyImport( CK_OBJECT_HANDLE_PTR pxPrivateKeyHand
 
     if( xCurrentCredentials != eEllipticCurveTest )
     {
-        xResult = xDestroyCredentials( xGlobalSession );
+        xResult = prvDestroyTestCredentials();
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
         xCurrentCredentials = eNone;
 
@@ -1418,7 +1446,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys )
     #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
 
-    xResult = xDestroyCredentials( xGlobalSession );
+    xResult = prvDestroyTestCredentials();
     xCurrentCredentials = eNone;
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
 
@@ -1581,7 +1609,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     mbedtls_mpi xR;
     mbedtls_mpi xS;
 
-    xResult = xDestroyCredentials( xGlobalSession );
+    xResult = prvDestroyTestCredentials();
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials before Generating Key Pair" );
     xCurrentCredentials = eNone;
 

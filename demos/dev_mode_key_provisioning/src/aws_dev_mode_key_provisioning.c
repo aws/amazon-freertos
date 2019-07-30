@@ -627,33 +627,22 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
+CK_RV xDestroyProvidedCredentials( CK_SESSION_HANDLE xSession,
+                                   CK_BYTE_PTR * ppxPkcsLabels,
+                                   CK_OBJECT_CLASS * xClass,
+                                   CK_ULONG ulCount )
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_HANDLE xObjectHandle;
     CK_BYTE * pxLabel;
     uint32_t uiIndex = 0;
-    CK_BYTE * pxPkcsLabels[] =
-    {
-        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-        ( CK_BYTE * ) pkcs11configLABEL_CODE_VERIFICATION_KEY,
-        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
-    };
-    CK_OBJECT_CLASS xClass[] =
-    {
-        CKO_CERTIFICATE,
-        CKO_PUBLIC_KEY,
-        CKO_PRIVATE_KEY,
-        CKO_PUBLIC_KEY
-    };
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
-    for( uiIndex = 0; uiIndex < sizeof( pxPkcsLabels ) / sizeof( pxPkcsLabels[ 0 ] ); uiIndex++ )
+    for( uiIndex = 0; uiIndex < ulCount; uiIndex++ )
     {
-        pxLabel = pxPkcsLabels[ uiIndex ];
+        pxLabel = ppxPkcsLabels[ uiIndex ];
 
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 ( const char * ) pxLabel,
@@ -689,6 +678,33 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
             break;
         }
     }
+
+    return xResult;
+}
+
+CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
+{
+    CK_RV xResult;
+    uint32_t uiIndex = 0;
+    CK_BYTE * pxPkcsLabels[] =
+    {
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+        ( CK_BYTE * ) pkcs11configLABEL_CODE_VERIFICATION_KEY,
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+    };
+    CK_OBJECT_CLASS xClass[] =
+    {
+        CKO_CERTIFICATE,
+        CKO_PUBLIC_KEY,
+        CKO_PRIVATE_KEY,
+        CKO_PUBLIC_KEY
+    };
+
+    xResult = xDestroyProvidedCredentials( xSession,
+                                           pxPkcsLabels,
+                                           xClass,
+                                           sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
 
     return xResult;
 }

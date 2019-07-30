@@ -199,7 +199,8 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
                                    CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                    CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
-/** \brief Destroys Amazon FreeRTOS credentials stored in device PKCS #11 module.
+/**
+ *\brief Destroys Amazon FreeRTOS credentials stored in device PKCS #11 module.
  *
  * \note Not all ports support the deletion of all objects.  Successful
  * function return only indicates that all objects for which destroy is
@@ -217,5 +218,36 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
  *   Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession );
+
+/**
+ * \brief Destroys specified credentials in PKCS #11 module.
+ *
+ * \note Some ports only support lookup of objects by label (and
+ * not label + class).  For these ports, only the label field is used
+ * for determining what objects to destroy.
+ *
+ * \note Not all ports support the deletion of all objects.  Successful
+ * function return only indicates that all objects for which destroy is
+ * supported on the port were erased from non-volatile memory.
+ *
+ *   \param[in] xSession         A valid PKCS #11 session handle.
+ *   \param[in] ppxPkcsLabels    An array of pointers to object labels.
+ *                               Labels are assumed to be NULL terminated
+ *                               strings.
+ *   \param[in] pxClass          An array of object classes, corresponding
+ *                               to the array of ppxPkcsLabels.  For example
+ *                               the first label pointer and first class in
+ *                               ppxPkcsLabels are used in combination for
+ *                               lookup of the object to be deleted.
+ *   \param[in] ulCount          The number of label-class pairs passed in
+ *                               to be destroyed.
+ *
+ *   \return CKR_OK if all credentials were destroyed.
+ *   Otherwise, a positive PKCS #11 error code.
+ */
+CK_RV xDestroyProvidedCredentials( CK_SESSION_HANDLE xSession,
+                                   CK_BYTE_PTR * ppxPkcsLabels,
+                                   CK_OBJECT_CLASS * pxClass,
+                                   CK_ULONG ulCount );
 
 #endif /* _AWS_DEV_MODE_KEY_PROVISIONING_H_ */
