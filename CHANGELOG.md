@@ -7,6 +7,10 @@
 - Add support to automatically switch between 32-bit and 64-bit cores to RISC-V port.
 
 ### Updates
+#### PKCS #11
+- Update the Amazon FreeRTOS mbedTLS-based PKCS #11 implementation, tests, demos, and PKCS #11 consuming libraries for compliance with standard.
+- Add PKCS #11 wrapper functions for easy use of commonly grouped PKCS #11 calls.
+
 #### Demo specific stack size and priority
 - Make stack size and priority to be demo specific. In current release all demos have same stack size and priority. This change will make stack size and priority configurable for each demo. Demo can use default stack size/ priority or define its own.  
 #### Ethernet for Microchip Curiosity PIC32MZEF
