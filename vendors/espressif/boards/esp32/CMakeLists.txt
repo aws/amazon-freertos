@@ -89,12 +89,20 @@ target_sources(
 set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
 
 afr_mcu_port(ble_hal)
+
+# Include Bluedroid HAL files as header files.
+afr_glob_src( bluedroid_src DIRECTORY ${afr_ports_dir}/ble/bluedroid  RECURSE )
+set_source_files_properties( ${bluedroid_src} PROPERTIES HEADER_FILE_ONLY TRUE )
+
+# TODO: Include Nimble HAL files as header files.
+
 target_sources(
     AFR::ble_hal::mcu_port
     INTERFACE
         "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
+        ${bluedroid_src}
 )
 target_include_directories(
     AFR::ble_hal::mcu_port

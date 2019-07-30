@@ -1,6 +1,10 @@
 # Change Log for Amazon FreeRTOS
 
 ### New Features
+#### FreeRTOS Kernel V10.2.1
+- Kernel version for Amazon FreeRTOS is updated to V10.2.1.
+- Add ARM Cortex-M23 (ARMv8-M) GCC/ARMclang and IAR ports.
+- Add support to automatically switch between 32-bit and 64-bit cores to RISC-V port.
 
 ### Updates
 #### Demo specific stack size and priority
