@@ -21,5 +21,5 @@ void harness() {
     /* We need to bound respHandle->readHeaderValueLength in order to terminate strncpy */
     __CPROVER_assume(respHandle->readHeaderValueLength >= 0 && respHandle->readHeaderValueLength <= MAX_ACCEPTED_SIZE + 1);
   }
-  IotHttpsClient_ReadHeader(respHandle, pName, pValue, len);
+  IotHttpsClient_ReadHeader(respHandle, pName, pName_len, pValue, len);
 }
