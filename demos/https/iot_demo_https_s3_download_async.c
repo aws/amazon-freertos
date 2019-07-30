@@ -158,6 +158,7 @@
  * @brief HTTP standard header field "Range".
  */
 #define RANGE_HEADER_FIELD          "Range"
+#define RANGE_HEADER_FIELD_LENGTH   5
 
 /**
  * @brief HTTP standard header field "Content-Range"
@@ -329,7 +330,7 @@ static void _appendHeaderCallback(void *pPrivData, IotHttpsRequestHandle_t reqHa
     /* The length of the range value string. */
     uint32_t rangeValueLen = strlen(rangeValueStr);
     /* Set the header for a range request and check the HTTPS Client library return code. */
-    IotHttpsReturnCode_t status = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, rangeValueStr, rangeValueLen);
+    IotHttpsReturnCode_t status = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, RANGE_HEADER_FIELD_LENGTH, rangeValueStr, rangeValueLen);
     if( status != IOT_HTTPS_OK )
     {
         IotLogError( "Failed to write the header Range: %.*s into the request. With error code: %d", rangeValueLen, rangeValueStr, status );
@@ -679,7 +680,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         _pReqConfigs[reqIndex].userBuffer.pBuffer = _pReqUserBuffers[reqIndex];
         _pReqConfigs[reqIndex].userBuffer.bufferLen = sizeof( _pReqUserBuffers[reqIndex] );
         _pReqConfigs[reqIndex].isAsync = true;
-        _pReqConfigs[reqIndex].pAsyncInfo = &asyncInfo;
+        _pReqConfigs[reqIndex].u.pAsyncInfo = &asyncInfo;
 
         /* Set the HTTP response configurations. */
         _pRespConfigs[reqIndex].userBuffer.pBuffer = _pRespUserBuffers[reqIndex];
