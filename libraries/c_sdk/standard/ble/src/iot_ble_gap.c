@@ -72,7 +72,11 @@ static const BTUuid_t _serverUUID =
 static IotBleAdvertisementParams_t _scanRespParams =
 {
     .includeTxPower    = true,
-    .nameType          = BTGattAdvNameNone,
+    .name              =
+    {
+        BTGattAdvNameNone,
+        0
+    },
     .setScanRsp        = true,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
     .minInterval       = IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN,
@@ -87,8 +91,8 @@ static IotBleAdvertisementParams_t _scanRespParams =
 
 static IotBleAdvertisementParams_t _advParams =
 {
-    .includeTxPower    = false,
-    .nameType          = BTGattAdvNameShort,
+    .includeTxPower    = true,
+    .name              = { BTGattAdvNameShort,          IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE},
     .setScanRsp        = false,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
     .minInterval       = 0,
@@ -159,8 +163,9 @@ static void _pairingStateChangedCb( BTStatus_t status,
 static void _registerBleAdapterCb( BTStatus_t status,
                                    uint8_t adapter_if,
                                    BTUuid_t * pAppUuid );
-static void _advStartCb( BTStatus_t status,
-                         uint32_t serverIf );
+static void _advStatusCb( BTStatus_t status,
+                          uint32_t serverIf,
+                          bool bStart );
 static void _setAdvDataCb( BTStatus_t status );
 static void _bondedCb( BTStatus_t status,
                        BTBdaddr_t * pRemoteBdAddr,
@@ -191,7 +196,7 @@ static const BTBleAdapterCallbacks_t _BTBleAdapterCb =
     .pxOpenCb                        = NULL,
     .pxCloseCb                       = NULL,
     .pxReadRemoteRssiCb              = NULL,
-    .pxAdvStartCb                    = _advStartCb,
+    .pxAdvStatusCb                   = _advStatusCb,
     .pxSetAdvDataCb                  = _setAdvDataCb,
     .pxScanFilterCfgCb               = NULL,
     .pxScanFilterParamCb             = NULL,
@@ -292,10 +297,31 @@ void _registerBleAdapterCb( BTStatus_t status,
 
 /*-----------------------------------------------------------*/
 
-void _advStartCb( BTStatus_t status,
-                  uint32_t serverIf )
+void _advStatusCb( BTStatus_t status,
+                   uint32_t serverIf,
+                   bool bStart )
 {
     _BTInterface.cbStatus = status;
+
+    if( bStart == true )
+    {
+        if( _BTInterface.pStartAdvCb != NULL )
+        {
+            _BTInterface.pStartAdvCb( status );
+        }
+    }
+    else
+    {
+        if( _BTInterface.pStopAdvCb != NULL )
+        {
+            _BTInterface.pStopAdvCb( status );
+        }
+    }
+}
+/*-----------------------------------------------------------*/
+
+void _bleStartAdvCb( BTStatus_t status )
+{
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
@@ -306,6 +332,7 @@ void _setAdvDataCb( BTStatus_t status )
     _BTInterface.cbStatus = status;
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
+
 
 /*-----------------------------------------------------------*/
 
@@ -332,29 +359,30 @@ void _bondedCb( BTStatus_t status,
 
 BTStatus_t _startAllServices()
 {
-    BTStatus_t status = eBTStatusSuccess;
-    BaseType_t error;
+    BTStatus_t ret = eBTStatusSuccess;
+    bool status = true;
 
-    error = IotBleDeviceInfo_Init();
+    #if ( IOT_BLE_ENABLE_DEVICE_INFO_SERVICE == 1 )
+        status = IotBleDeviceInfo_Init();
+    #endif
 
-    if( error == pdPASS )
-    {
-        if( IotBleDataTransfer_Init() == false )
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        if( status == true )
         {
-            error = pdFAIL;
+            status = IotBleDataTransfer_Init();
         }
-    }
+    #endif
 
-    if( error != pdPASS )
+    if( status == false )
     {
-        status = eBTStatusFail;
+        ret = eBTStatusFail;
     }
 
     #if ( IOT_BLE_ADD_CUSTOM_SERVICES == 1 )
         IotBle_AddCustomServicesCb();
     #endif
 
-    return status;
+    return ret;
 }
 /*-----------------------------------------------------------*/
 
@@ -365,7 +393,7 @@ BTStatus_t _setAdvData( IotBleAdvertisementParams_t * pAdvParams )
     size_t countService = 0;
     BTUuid_t pServiceUuide[ _BLE_MAX_UUID_PER_ADV_MESSAGE ];
 
-    pParams.ucNameType = pAdvParams->nameType;
+    pParams.ucName = pAdvParams->name;
     pParams.bIncludeTxPower = pAdvParams->includeTxPower;
     pParams.bSetScanRsp = pAdvParams->setScanRsp;
 
@@ -417,10 +445,11 @@ BTStatus_t IotBle_StartAdv( IotBle_StartAdvCallback_t pStartAdvCb )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t IotBle_StopAdv( void )
+BTStatus_t IotBle_StopAdv( IotBle_StopAdvCallback_t pStopAdvCb )
 {
     BTStatus_t status = eBTStatusSuccess;
 
+    _BTInterface.pStopAdvCb = pStopAdvCb;
     status = _BTInterface.pBTLeAdapterInterface->pxStopAdv( _BTInterface.adapterIf );
 
     return status;
@@ -652,17 +681,20 @@ BTStatus_t IotBle_Init( void )
         #endif
 
         status = _setAdvData( &_advParams );
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
 
         if( status == eBTStatusSuccess )
         {
             status = _setAdvData( &_scanRespParams );
+            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
         }
     }
 
     /* Start advertisement. */
     if( status == eBTStatusSuccess )
     {
-        IotBle_StartAdv( NULL );
+        IotBle_StartAdv( &_bleStartAdvCb );
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
     }
 
     /* Clean up memory. */

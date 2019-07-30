@@ -39,13 +39,22 @@
 #include "iot_ble.h"
 #include "iot_ble_internal.h"
 
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_GATT" )
+#include "iot_logging_setup.h"
 
 static BTStatus_t _createAttributes( BTService_t * pService );
 static size_t _computeNumberOfHandles( BTService_t * pService );
 static void _serviceClean( BLEServiceListElement_t * pServiceElem );
 static BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle );
-static BaseType_t _getCallbackFromHandle( uint16_t attrHandle,
-                                          IotBleAttributeEventCallback_t * pEventsCallbacks );
+static bool _getCallbackFromHandle( uint16_t attrHandle,
+                                    IotBleAttributeEventCallback_t * pEventsCallbacks );
 static BLEServiceListElement_t * _getLastAddedServiceElem( void );
 static void _attributeAdded( uint16_t handle,
                              BTStatus_t status );
@@ -64,9 +73,9 @@ static void _connectionCb( uint16_t connId,
                            bool connected,
                            BTBdaddr_t * pBda );
 static void _serviceAddedCb( BTStatus_t status,
-                            uint8_t serverIf,
-                            BTGattSrvcId_t * pSrvcId,
-                            uint16_t srvcHandle );
+                             uint8_t serverIf,
+                             BTGattSrvcId_t * pSrvcId,
+                             uint16_t srvcHandle );
 static void _charAddedCb( BTStatus_t status,
                           uint8_t serverIf,
                           BTUuid_t * pUuid,
@@ -157,7 +166,7 @@ void _serviceClean( BLEServiceListElement_t * pServiceElem )
 BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle )
 {
     IotLink_t * pTmpElem;
-    BLEServiceListElement_t * pServiceElem = NULL;
+    BLEServiceListElement_t * pServiceElem = NULL, * pTmpServiceElem;
 
     IotMutex_Lock( &_BTInterface.threadSafetyMutex );
 
@@ -165,11 +174,12 @@ BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle )
     /* IotContainers_ForEach( &_BTInterface.xServiceListHead, pxTmpElem ) */
     for( ( pTmpElem ) = _BTInterface.serviceListHead.pNext; ( pTmpElem ) != ( &_BTInterface.serviceListHead ); ( pTmpElem ) = ( pTmpElem )->pNext )
     {
-        pServiceElem = IotLink_Container( BLEServiceListElement_t, pTmpElem, serviceList );
+        pTmpServiceElem = IotLink_Container( BLEServiceListElement_t, pTmpElem, serviceList );
 
-        if( ( pServiceElem->pService->pusHandlesBuffer[ 0 ] <= handle ) &&
-            ( handle <= pServiceElem->endHandle ) )
+        if( ( pTmpServiceElem->pService->pusHandlesBuffer[ 0 ] <= handle ) &&
+            ( handle <= pTmpServiceElem->endHandle ) )
         {
+            pServiceElem = pTmpServiceElem;
             break;
         }
     }
@@ -181,11 +191,11 @@ BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t _getCallbackFromHandle( uint16_t attrHandle,
-                                   IotBleAttributeEventCallback_t * pEventsCallbacks )
+bool _getCallbackFromHandle( uint16_t attrHandle,
+                             IotBleAttributeEventCallback_t * pEventsCallbacks )
 {
     BLEServiceListElement_t * pServiceElem;
-    BaseType_t foundService = pdFAIL;
+    bool foundService = false;
     size_t attributeIndex;
 
     /* The service that was just added is the last in the list */
@@ -198,7 +208,7 @@ BaseType_t _getCallbackFromHandle( uint16_t attrHandle,
             if( pServiceElem->pService->pusHandlesBuffer[ attributeIndex ] == attrHandle )
             {
                 *pEventsCallbacks = pServiceElem->pEventsCallbacks[ attributeIndex ];
-                foundService = pdPASS;
+                foundService = true;
                 break;
             }
         }
@@ -343,19 +353,19 @@ void _attributeAdded( uint16_t handle,
 
         pServiceElem->endHandle = handle;
     }
-
-    _BTInterface.cbStatus = status;
-    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
 /*-----------------------------------------------------------*/
 
 void _serviceAddedCb( BTStatus_t status,
-                     uint8_t serverIf,
-                     BTGattSrvcId_t * pSrvcId,
-                     uint16_t srvcHandle )
+                      uint8_t serverIf,
+                      BTGattSrvcId_t * pSrvcId,
+                      uint16_t srvcHandle )
 {
     _attributeAdded( srvcHandle, status );
+
+    _BTInterface.cbStatus = status;
+    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -367,6 +377,9 @@ void _charAddedCb( BTStatus_t status,
                    uint16_t handle )
 {
     _attributeAdded( handle, status );
+
+    _BTInterface.cbStatus = status;
+    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -378,6 +391,9 @@ void _charDescrAddedCb( BTStatus_t status,
                         uint16_t handle )
 {
     _attributeAdded( handle, status );
+
+    _BTInterface.cbStatus = status;
+    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
 
@@ -389,6 +405,9 @@ void _includedServiceAdded( BTStatus_t status,
                             uint16_t inclSrvcHandle )
 {
     _attributeAdded( inclSrvcHandle, status );
+
+    _BTInterface.cbStatus = status;
+    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -449,7 +468,7 @@ void _requestReadCb( uint16_t connId,
     IotBleReadEventParams_t readParam;
     IotBleAttributeEvent_t eventParam;
 
-    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == true )
     {
         readParam.attrHandle = attrHandle;
         readParam.pRemoteBdAddr = pBda;
@@ -480,7 +499,7 @@ void _requestWriteCb( uint16_t connId,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == true )
     {
         if( isPrep == true )
         {
@@ -522,7 +541,7 @@ void _execWriteCb( uint16_t connId,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( _BTInterface.handlePendingPrepareWrite, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( _BTInterface.handlePendingPrepareWrite, &eventsCallbacks ) == true )
     {
         execWriteParam.pRemoteBdAddr = pBda;
         execWriteParam.transId = transId;
@@ -562,7 +581,7 @@ static void _responseConfirmationCb( BTStatus_t status,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( handle, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( handle, &eventsCallbacks ) == true )
     {
         respConfirmParam.handle = handle;
         respConfirmParam.status = status;
@@ -583,7 +602,7 @@ static void _indicationSentCb( uint16_t connId,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( _BTInterface.handlePendingIndicationResponse, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( _BTInterface.handlePendingIndicationResponse, &eventsCallbacks ) == true )
     {
         indicationSentParam.connId = connId;
         indicationSentParam.status = status;
@@ -725,6 +744,7 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
                                  IotBleAttributeEventCallback_t pEventsCallbacks[] )
 {
     BTStatus_t status = eBTStatusParamInvalid;
+    BLEServiceListElement_t * pServiceElem;
 
     IotMutex_Lock( &_BTInterface.waitCbMutex );
 
@@ -735,21 +755,42 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
         status = _addServiceToList( pService, pEventsCallbacks );
     }
 
-    /* After all attributes have been create successfully, the service is added to the list. */
     if( status == eBTStatusSuccess )
     {
-        status = _createAttributes( pService );
+        status = _BTInterface.pGattServerInterface->pxAddServiceBlob( _BTInterface.serverIf, pService );
     }
 
-    if( status == eBTStatusSuccess )
+    /* If blob creation is not supported, created element one by one. */
+    if( status == eBTStatusUnsupported )
     {
-        status = _BTInterface.pGattServerInterface->pxStartService( _BTInterface.serverIf,
-                                                                    pService->pusHandlesBuffer[ 0 ],
-                                                                    BTTransportLe );
+        /* After all attributes have been create successfully, the service is added to the list. */
+
+        status = _createAttributes( pService );
 
         if( status == eBTStatusSuccess )
         {
-            IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+            status = _BTInterface.pGattServerInterface->pxStartService( _BTInterface.serverIf,
+                                                                        pService->pusHandlesBuffer[ 0 ],
+                                                                        BTTransportLe );
+
+            if( status == eBTStatusSuccess )
+            {
+                IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+            }
+        }
+    }
+    else
+    {
+        pServiceElem = _getLastAddedServiceElem();
+
+        if( pServiceElem != NULL )
+        {
+            pServiceElem->endHandle = pService->pusHandlesBuffer[ pService->xNumberOfAttributes - 1 ];
+        }
+        else
+        {
+            status = eBTStatusFail;
+            IotLogError( "Could not get last created service." );
         }
     }
 

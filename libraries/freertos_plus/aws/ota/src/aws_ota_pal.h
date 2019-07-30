@@ -29,15 +29,6 @@
 #include "aws_ota_types.h"
 #include "aws_ota_agent.h"
 
-typedef enum
-{
-    eOTA_PAL_ImageState_Unknown = 0,
-    eOTA_PAL_ImageState_PendingCommit,
-    eOTA_PAL_ImageState_Valid,
-    eOTA_PAL_ImageState_Invalid,
-} OTA_PAL_ImageState_t;
-
-
 /**
  * @brief Abort an OTA transfer.
  *

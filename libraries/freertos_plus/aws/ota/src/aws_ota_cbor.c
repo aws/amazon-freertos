@@ -99,7 +99,7 @@ BaseType_t OTA_CBOR_Decode_GetStreamResponseMessage( const uint8_t * pucMessageB
     if( CborNoError == xCborResult )
     {
         xCborResult = cbor_value_get_int( &xCborValue,
-                                          ( int* )plFileId );
+                                          ( int * ) plFileId );
     }
 
     /* Find the block ID. */
@@ -121,7 +121,7 @@ BaseType_t OTA_CBOR_Decode_GetStreamResponseMessage( const uint8_t * pucMessageB
     if( CborNoError == xCborResult )
     {
         xCborResult = cbor_value_get_int( &xCborValue,
-                                          ( int* )plBlockId );
+                                          ( int * ) plBlockId );
     }
 
     /* Find the block size. */
@@ -143,7 +143,7 @@ BaseType_t OTA_CBOR_Decode_GetStreamResponseMessage( const uint8_t * pucMessageB
     if( CborNoError == xCborResult )
     {
         xCborResult = cbor_value_get_int( &xCborValue,
-                                          ( int* )plBlockSize );
+                                          ( int * ) plBlockSize );
     }
 
     /* Find the payload bytes. */

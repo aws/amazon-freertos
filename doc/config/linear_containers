@@ -14,8 +14,8 @@ GENERATE_TAGFILE = doc/tag/linear_containers.tag
 
 # Directories containing library source code.
 INPUT = doc/lib \
-        lib/include/
-
+        libraries/c_sdk/standard/common/include 
+        
 # Library file names.
 FILE_PATTERNS = *linear_containers*.h *linear_containers*.txt
 

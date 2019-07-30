@@ -192,15 +192,14 @@ target_include_directories(
 )
 
 # PKCS11
-afr_mcu_port(pkcs11 DEPENDS AFR::pkcs11_mbedtls)
+afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.c"
         "${afr_ports_dir}/pkcs11/pkcs11_nvm.h"
 )
-
 
 # FreeRTOS Plus TCP
 afr_mcu_port(freertos_plus_tcp)
@@ -249,6 +248,10 @@ target_sources(
     INTERFACE "${afr_ports_dir}/ota/aws_ota_pal.c"
     INTERFACE "${afr_ports_dir}/ota/aws_nvm.c"
     INTERFACE "${afr_ports_dir}/ota/aws_nvm.h"
+)
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE AFR::pkcs11
 )
 
 # -------------------------------------------------------------------------------------------------
@@ -342,7 +345,7 @@ set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this s
 find_program(hexmate_path hexmate PATHS "${MCHP_HEXMATE_PATH}" PATH_SUFFIXES bin)
 if (NOT AFR_METADATA_MODE)
     if(NOT hexmate_path)
-        message(FATAL_ERROR "Cannot find microchip's hexmate tool.")
+        message(FATAL_ERROR "Cannot find Microchip's hexmate tool. Set MCHP_HEXMATE_PATH to the hexmate tool that comes with MPLAB. Try MPLABX\{VERSION}\mplab_platform\bin or /Applications/microchip/mplabx/{VERSION}/mplab_ide.app/Contents/Resources/mplab_ide/bin.")
     endif()
 endif()
 

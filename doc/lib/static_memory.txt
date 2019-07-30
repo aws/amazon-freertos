@@ -32,7 +32,9 @@ Shadow operations correspond to in-progress Shadow [DELETE](@ref shadow_function
 @subsubsection static_memory_types_shadowsubscriptions Subscriptions
 A Shadow subscriptions object groups MQTT subscriptions for a Thing. Shadow operations require pairs of subscriptions to determine their status (i.e. `/accepted` or `/rejected`); these subscriptions (as well as subscriptions for Shadow callbacks) are tracked by a Shadow subscriptions object. In static memory mode, the number of simultaneous, active Shadow subscriptions is controlled by the constant @ref AWS_IOT_SHADOW_SUBSCRIPTIONS.
 
-@dependencies{static_memory,static memory component}
+@dependencies_section{static_memory}
+@dependencies_brief{static memory component}
+
 @dot "Static memory direct dependencies"
 digraph static_memory_dependencies
 {
@@ -54,7 +56,8 @@ Currently, the static memory component has the following dependencies:
 */
 
 /**
-@configpage{static_memory,statically-allocated buffer pools}
+@config_page{static_memory}
+@config_brief{statically-allocated buffer pools}
 
 @section IOT_MESSAGE_BUFFERS
 @brief The number of statically-allocated [message buffers](@ref static_memory_types_messagebuffers). This setting has no effect if @ref IOT_STATIC_MEMORY_ONLY is `0`.

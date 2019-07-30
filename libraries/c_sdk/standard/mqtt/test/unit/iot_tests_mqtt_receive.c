@@ -118,16 +118,16 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
 /**
  * @brief Initializer for operations in the tests.
  */
-#define INITIALIZE_OPERATION( name )                                                             \
-    {                                                                                            \
-        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,            \
-        .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER, \
-        .u.operation =                                                                           \
-        {                                                                                        \
-            .jobReference = 1, .type = name, .flags = IOT_MQTT_FLAG_WAITABLE,                    \
-            .packetIdentifier = 1, .pMqttPacket = NULL, .packetSize = 0,                         \
-            .notify = { .callback = { 0 } }, .status = IOT_MQTT_STATUS_PENDING, .retry = { 0 }   \
-        }                                                                                        \
+#define INITIALIZE_OPERATION( name )                                                                             \
+    {                                                                                                            \
+        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,                            \
+        .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER,                 \
+        .u.operation =                                                                                           \
+        {                                                                                                        \
+            .jobReference     = 1, .type        = name,                    .flags      = IOT_MQTT_FLAG_WAITABLE, \
+            .packetIdentifier = 1, .pMqttPacket = NULL,                    .packetSize = 0,                      \
+            .notify           = { .callback = { 0 } },.status      = IOT_MQTT_STATUS_PENDING, .retry      = { 0 }                   \
+        }                                                                                                        \
     }
 
 /*-----------------------------------------------------------*/

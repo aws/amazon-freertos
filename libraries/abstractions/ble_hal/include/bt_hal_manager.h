@@ -45,6 +45,39 @@
 #include "bt_hal_manager_types.h"
 
 /**
+ * @brief  Incompatible API changes without backward compatibility.
+ */
+#define btMAJOR_VERSION    2
+
+/**
+ * @brief Add new functionality with backward compatibility.
+ */
+#define btMINOR_VERSION    0
+
+/**
+ * @brief Make changes in the API with backward compatibility.
+ */
+#define btPATCH_VERSION    0
+
+/**
+ * @brief  Help functions to convert version to string.
+ */
+#define STR_HELPER( x, y, z )    # x "." # y "." # z
+#define STR( x, y, z )           STR_HELPER( x, y, z )
+
+/**
+ * @brief  Stringified version number.
+ */
+#define btSTRING_VERSION                        STR( btMAJOR_VERSION, btMINOR_VERSION, btPATCH_VERSION )
+
+/**
+ * Stack feature support bit mask
+ */
+#define btBLE_ADD_BLOB_SERVICE_SUPPORTED_BIT    0x0001 /** Support GATT server database decleration as a blob. */
+#define btBLE_ADD_BLE_DYNAMIC_PRIVACY           0x0002 /** Stack can dynamicall enable or disable privacy. */
+#define btBLE_BLE_CENTRAL_WHITELISTING          0x0004 /** Provide a mechanism to manage whitelist for Gatt server. */
+
+/**
  * @brief Security Level.
  */
 enum
@@ -823,6 +856,15 @@ typedef struct
      * @return error no of the last operation.
      */
     uint32_t ( * pxGetLastError )();
+
+    /**
+     *
+     * @brief get stack features supported.
+     *
+     * @param[out] pulFeatureMask feature mask
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxGetStackFeaturesSupport )( uint32_t * pulFeatureMask );
 } BTInterface_t;
 
 extern const BTInterface_t * BTGetBluetoothInterface();

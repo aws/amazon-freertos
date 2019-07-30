@@ -38,6 +38,7 @@ afr_module_sources(
     INTERFACE
         "${test_dir}/iot_tests_serializer_cbor.c"
         "${test_dir}/iot_tests_serializer_json.c"
+	"${test_dir}/iot_tests_deserializer_json.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

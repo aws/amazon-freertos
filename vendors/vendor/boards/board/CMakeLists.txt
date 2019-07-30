@@ -119,11 +119,11 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # ==================== Example ====================
 # set(vendor ${AFR_VENDOR_NAME})
 # set(board ${AFR_BOARD_NAME})
-# set(portable_dir "portable/${vendor}/${board}")
 
-# set(driver_dir "${AFR_3RDPARTY_DIR}/mcu_vendor/${vendor}")
-# set(board_demos_dir "${AFR_ROOT_DIR}/demos/${vendor}/${board}/common")
-# set(board_tests_dir "${AFR_ROOT_DIR}/tests/${vendor}/${board}/common")
+# set(portable_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
+# set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
+# set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
+
 # if(AFR_IS_TESTING)
 #     set(board_dir "${board_tests_dir}")
 #     set(aws_credentials_include "${AFR_TESTS_DIR}/include")
@@ -138,8 +138,8 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 #     AFR::kernel::mcu_port
 #     INTERFACE
 #         ${board_src}              # Normally in ${board_dir}/application_code/${vendor}_code
-#         ${driver_src}             # Normally in ${driver_dir}
-#         ${freertos_portable_src}  # Normally in ${AFR_MODULES_DIR}/FreeRTOS/portable
+#         ${driver_src}             # Normally in ${AFR_VENDORS_DIR}/${AFR_VENDOR_NAME}/<board specific code>
+#         ${freertos_portable_src}  # Normally in ${AFR_KERNEL_DIR}/portable
 # )
 # target_include_directories(
 #     AFR::kernel::mcu_port
@@ -147,7 +147,7 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 #         "${board_specific_include}"       # Normally ${board_dir}/application_code/${vendor}_code
 #         "${board_configs_include}"        # Normally ${board_dir}/application_code/config_files
 #         "${driver_public_include}"        # Normally in ${driver_dir}
-#         "${freertos_portable_include}"    # Normally in ${AFR_MODULES_DIR}/FreeRTOS/portable
+#         "${freertos_portable_include}"    # Normally in ${AFR_KERNEL_DIR}/portable
 #         "${aws_credentials_include}"      # Optional, but in case you need it.
 # )
 # target_link_libraries(
@@ -163,25 +163,25 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # afr_mcu_port(posix)
 # target_include_directories(
 #     AFR::posix::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/FreeRTOS-Plus-POSIX/include/${portable_dir}"
+#     INTERFACE "${portable_dir}/posix"
 # )
 
 # WiFi
 # afr_mcu_port(wifi)
 # target_sources(
 #     AFR::wifi::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/wifi/${portable_dir}/iot_wifi.c"
+#     INTERFACE "${portable_dir}/wifi/iot_wifi.c"
 # )
 
 # PKCS11
-# afr_mcu_port(pkcs11)
+# afr_mcu_port(pkcs11_implementation)
 # target_sources(
-#     AFR::pkcs11::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/pkcs11/${portable_dir}/iot_pkcs11_pal.c"
+#     AFR::pkcs11_implementation::mcu_port
+#     INTERFACE "${portable_dir}/pkcs11/iot_pkcs11_pal.c"
 # )
 # Link to AFR::pkcs11_mbedtls if you want to use default implementation based on mbedtls.
 # target_link_libraries(
-#     AFR::pkcs11::mcu_port
+#     AFR::pkcs11_implementation::mcu_port
 #     INTERFACE AFR::pkcs11_mbedtls
 # )
 
@@ -196,14 +196,14 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # Or provide your own implementation.
 # target_sources(
 #     AFR::secure_sockets::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/secure_sockets/${portable_dir}/iot_secure_sockets.c"
+#     INTERFACE "${portable_dir}/secure_sockets/iot_secure_sockets.c"
 # )
 
 # OTA
 # afr_mcu_port(ota)
 # target_sources(
 #     AFR::ota::mcu_port
-#     INTERFACE "${AFR_MODULES_DIR}/ota/${portable_dir}/aws_ota_pal.c"
+#     INTERFACE "${portable_dir}/ota/aws_ota_pal.c"
 # )
 
 # -------------------------------------------------------------------------------------------------

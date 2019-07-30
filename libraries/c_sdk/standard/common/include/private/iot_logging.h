@@ -46,7 +46,8 @@
 #include <stdint.h>
 
 /**
- * @constantspage{logging,logging library}
+ * @constants_page{logging}
+ * @constants_brief{logging library}
  *
  * @section logging_constants_levels Log levels
  * @brief Log levels for the libraries in this SDK.
@@ -112,7 +113,8 @@
 #define IOT_LOG_DEBUG    4
 
 /**
- * @paramstructs{logging,logging}
+ * @paramstructs_group{logging}
+ * @paramstructs_brief{logging,logging}
  */
 
 /**
@@ -153,17 +155,26 @@ typedef struct IotLogConfig
 } IotLogConfig_t;
 
 /**
- * @functionspage{logging,logging library}
+ * @functions_page{logging, Logging}
+ * @functions_brief{logging}
  *
- * - @functionname{logging_function_log}
- * - @functionname{logging_function_printbuffer}
- * - @functionname{logging_function_generic}
- * - @functionname{logging_function_genericprintbuffer}
+ * - @function_name{logging_function_log}
+ * @function_brief{logging_function_log}
+ * - @function_name{logging_function_printbuffer}
+ * @function_brief{logging_function_printbuffer}
+ * - @function_name{logging_function_generic}
+ * @function_brief{logging_function_generic}
+ * - @function_name{logging_function_genericprintbuffer}
+ * @function_brief{logging_function_genericprintbuffer}
  */
 
 /**
- * @functionpage{IotLog_Generic,logging,generic}
- * @functionpage{IotLog_PrintBuffer,logging,genericprintbuffer}
+ * @function_page{IotLog_Generic,logging,generic}
+ * @function_snippet{logging,generic,this}
+ * @copydoc IotLog_Generic
+ * @function_page{IotLog_PrintBuffer,logging,genericprintbuffer}
+ * @function_snippet{logging,genericprintbuffer,this}
+ * @copydoc IotLog_PrintBuffer
  */
 
 /**

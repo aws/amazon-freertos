@@ -71,7 +71,7 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_TASKPOOL_ENABLED == 1 )
-            RUN_TEST_GROUP( Common_Unit_Task_Pool );
+        RUN_TEST_GROUP( Common_Unit_Task_Pool );
     #endif
 
     #if ( testrunnerFULL_WIFI_PROVISIONING_ENABLED == 1 )
@@ -135,8 +135,10 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_PKCS11_ENABLED == 1 )
-        RUN_TEST_GROUP( Full_PKCS11_CryptoOperation );
-        RUN_TEST_GROUP( Full_PKCS11_GeneralPurpose );
+        RUN_TEST_GROUP( Full_PKCS11_StartFinish );
+        RUN_TEST_GROUP( Full_PKCS11_NoObject );
+        RUN_TEST_GROUP( Full_PKCS11_RSA );
+        RUN_TEST_GROUP( Full_PKCS11_EC );
     #endif
 
     #if ( testrunnerFULL_CRYPTO_ENABLED == 1 )
@@ -145,7 +147,6 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_TLS_ENABLED == 1 )
         RUN_TEST_GROUP( Full_TLS );
-        RUN_TEST_GROUP( Quarantine_TLS );
     #endif
 
     #if ( testrunnerFULL_DEFENDER_ENABLED == 1 )
@@ -188,6 +189,7 @@ static void RunTests( void )
     #if ( testrunnerFULL_SERIALIZER_ENABLED == 1 )
         RUN_TEST_GROUP( Full_Serializer_CBOR );
         RUN_TEST_GROUP( Full_Serializer_JSON );
+        RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
     #endif
 }
 /*-----------------------------------------------------------*/

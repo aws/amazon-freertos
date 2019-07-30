@@ -141,15 +141,17 @@ target_link_libraries(
 )
 
 # PKCS11
-afr_mcu_port(pkcs11)
+afr_mcu_port(pkcs11_implementation)
 target_sources(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 target_link_libraries(
-    AFR::pkcs11::mcu_port
-    INTERFACE 3rdparty::mbedtls
+    AFR::pkcs11_implementation::mcu_port    
+    INTERFACE
+        AFR::pkcs11_mbedtls
+        3rdparty::mbedtls
 )
 
 # Secure sockets

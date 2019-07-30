@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -87,6 +87,7 @@ typedef unsigned long										UBaseType_t;
 /**
  * Architecture specifics.
  */
+#define portARCH_NAME										"Cortex-M33"
 #define portSTACK_GROWTH									( -1 )
 #define portTICK_PERIOD_MS									( ( TickType_t ) 1000 / configTICK_RATE_HZ )
 #define portBYTE_ALIGNMENT									8
@@ -96,6 +97,7 @@ typedef unsigned long										UBaseType_t;
 	#define portFORCE_INLINE								inline __attribute__(( always_inline ))
 #endif
 #define portHAS_STACK_OVERFLOW_CHECKING						1
+#define portDONT_DISCARD									__root
 /*-----------------------------------------------------------*/
 
 /**
@@ -110,8 +112,8 @@ extern uint32_t ulSetInterruptMaskFromISR( void ) /* __attribute__(( naked )) PR
 extern void vClearInterruptMaskFromISR( uint32_t ulMask ) /* __attribute__(( naked )) PRIVILEGED_FUNCTION */;
 
 #if( configENABLE_TRUSTZONE == 1 )
-	extern void vPortAllocateSecureContext( uint32_t ulSecureStackSize );
-	extern void vPortFreeSecureContext( uint32_t *pulTCB ) /* PRIVILEGED_FUNCTION */;
+	extern void vPortAllocateSecureContext( uint32_t ulSecureStackSize ); /* __attribute__ (( naked )) */
+	extern void vPortFreeSecureContext( uint32_t *pulTCB ) /* __attribute__ (( naked )) PRIVILEGED_FUNCTION */;
 #endif /* configENABLE_TRUSTZONE */
 
 #if( configENABLE_MPU == 1 )
@@ -134,17 +136,13 @@ extern void vClearInterruptMaskFromISR( uint32_t ulMask ) /* __attribute__(( nak
 /* MPU regions. */
 #define portPRIVILEGED_FLASH_REGION							( 0UL )
 #define portUNPRIVILEGED_FLASH_REGION						( 1UL )
-#define portPRIVILEGED_RAM_REGION							( 2UL )
-#define portUNPRIVILEGED_DEVICE_REGION						( 3UL )
+#define portUNPRIVILEGED_SYSCALLS_REGION					( 2UL )
+#define portPRIVILEGED_RAM_REGION							( 3UL )
 #define portSTACK_REGION									( 4UL )
 #define portFIRST_CONFIGURABLE_REGION						( 5UL )
 #define portLAST_CONFIGURABLE_REGION						( 7UL )
 #define portNUM_CONFIGURABLE_REGIONS						( ( portLAST_CONFIGURABLE_REGION - portFIRST_CONFIGURABLE_REGION ) + 1 )
 #define portTOTAL_NUM_REGIONS								( portNUM_CONFIGURABLE_REGIONS + 1 ) /* Plus one to make space for the stack region. */
-
-/* Devices Region. */
-#define portDEVICE_REGION_START_ADDRESS						( 0x50000000 )
-#define portDEVICE_REGION_END_ADDRESS						( 0x5FFFFFFF )
 
 /* Device memory attributes used in MPU_MAIR registers.
  *
@@ -286,6 +284,12 @@ typedef struct MPU_SETTINGS
 	#define portRAISE_PRIVILEGE()
 	#define portRESET_PRIVILEGE()
 #endif /* configENABLE_MPU */
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Barriers.
+ */
+#define portMEMORY_BARRIER() __asm volatile( "" ::: "memory" )
 /*-----------------------------------------------------------*/
 
 #ifdef __cplusplus

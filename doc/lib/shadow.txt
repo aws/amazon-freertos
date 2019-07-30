@@ -13,7 +13,9 @@ This library provides an API for interacting with AWS IoT Thing Shadows. Feature
 - Both fully asynchronous and blocking API functions.
 - API functions for modifying Thing Shadows and for registering notifications of a Thing Shadow change.
 
-@dependencies{shadow,Shadow library}
+@dependencies_section{shadow}
+@dependencies_brief{Shadow library}
+
 @dot "Shadow direct dependencies"
 digraph shadow_dependencies
 {
@@ -53,7 +55,8 @@ In addition to the components above, the Shadow library also depends on C standa
 */
 
 /**
-@configpage{shadow,Shadow library}
+@config_page{shadow}
+@config_brief{Shadow library}
 
 @section AWS_IOT_SHADOW_ENABLE_ASSERTS
 @brief Set this to `1` to perform sanity checks when using the Shadow library.

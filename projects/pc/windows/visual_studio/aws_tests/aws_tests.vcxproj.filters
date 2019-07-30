@@ -373,6 +373,18 @@
     <Filter Include="demos\dev_mode_key_provisioning\src">
       <UniqueIdentifier>{5c36bd0a-8610-4245-aa01-7fb882491560}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libraries\freertos_plus\standard\pkcs11">
+      <UniqueIdentifier>{fb054d33-b506-4b23-a428-def0b78ac28a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\pkcs11\src">
+      <UniqueIdentifier>{c0d308cf-3ea7-4c5d-a4e6-76e262782e75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\pkcs11\include">
+      <UniqueIdentifier>{7c3d6811-1d05-4db0-986d-1da6a27827dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\3rdparty\mbedtls\utils">
+      <UniqueIdentifier>{cac78ffd-874d-44be-a02d-5471b7a0dfad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\config_files\aws_bufferpool_config.h">
@@ -509,9 +521,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\tests\include\iot_config_common.h">
       <Filter>tests\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11.h">
-      <Filter>libraries\abstractions\pkcs11\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
       <Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
@@ -1065,6 +1074,15 @@
     <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
       <Filter>demos\dev_mode_key_provisioning\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
+      <Filter>libraries\abstractions\pkcs11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h">
+      <Filter>libraries\freertos_plus\standard\pkcs11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
+      <Filter>libraries\freertos_plus\standard\utils\include</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_tests\application_code\aws_run-time-stats-utils.c">
@@ -1568,6 +1586,9 @@
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\aws\defender\src\aws_iot_defender_api.c">
       <Filter>libraries\c_sdk\aws\defender\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c">
+      <Filter>libraries\c_sdk\standard\serializer\test</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_cbor.c">
       <Filter>libraries\c_sdk\standard\serializer\test</Filter>
     </ClCompile>
@@ -1679,14 +1700,20 @@
     <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
       <Filter>demos\dev_mode_key_provisioning\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c">
-      <Filter>demos\dev_mode_key_provisioning\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c">
       <Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c">
       <Filter>libraries\c_sdk\standard\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c">
+      <Filter>libraries\freertos_plus\standard\pkcs11\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c">
+      <Filter>libraries\3rdparty\mbedtls\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
+      <Filter>libraries\freertos_plus\standard\utils\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

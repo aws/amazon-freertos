@@ -8,6 +8,8 @@ afr_module_sources(
     INTERFACE
         "${src_dir}/iot_system_init.c"
         "${inc_dir}/iot_system_init.h"
+        "${src_dir}/iot_pki_utils.c"
+        "${inc_dir}/iot_pki_utils.h"
 )
 
 afr_module_include_dirs(
@@ -19,4 +21,6 @@ afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
         AFR::secure_sockets
+    AFR::crypto
+    3rdparty::mbedtls
 )

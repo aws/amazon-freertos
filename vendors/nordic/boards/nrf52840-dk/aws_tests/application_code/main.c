@@ -373,8 +373,6 @@ static void prvDeleteBonds( void )
 }
 void vApplicationDaemonTaskStartupHook( void )
 {
-    IotTestNetwork_SelectNetworkType(AWSIOT_NETWORK_TYPE_BLE);
-
     xTaskCreate( TEST_RUNNER_RunTests_task,
             "RunTests_task",
             mainTEST_RUNNER_TASK_STACK_SIZE,

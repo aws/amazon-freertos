@@ -71,7 +71,8 @@ BaseType_t prvTestUpdatedCallback( void * pvUserData,
                                    MQTTBufferHandle_t xBuffer );
 
 /* Called when delta is reported in shadow document*/
-BaseType_t prvTestDeltaCallback( const char * const pcThingName,
+BaseType_t prvTestDeltaCallback( void * pvUserData,
+                                 const char * const pcThingName,
                                  const char * const pcDeltaDocument,
                                  uint32_t ulDocumentLength,
                                  MQTTBufferHandle_t xBuffer );
