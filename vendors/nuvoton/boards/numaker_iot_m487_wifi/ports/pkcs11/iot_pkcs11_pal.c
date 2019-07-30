@@ -353,8 +353,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
     uint8_t usLength )
 {
-    uint8_t     **ppucData;
-    uint32_t    dataSize;  
+    uint8_t     *pucData = NULL;
+    uint32_t    dataSize = 0;  
     /* Avoid compiler warnings about unused variables. */
     ( void ) usLength;
   
@@ -370,7 +370,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
     {
         /* Check if object exists/has been created before returning. */
 
-        if( pdTRUE != prvFLASH_ReadFile( pcFileName, ppucData, &dataSize) )
+        if( pdTRUE != prvFLASH_ReadFile( pcFileName, &pucData, &dataSize) )
         {
             xHandle = eInvalidHandle;
         }
