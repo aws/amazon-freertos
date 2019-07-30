@@ -791,11 +791,19 @@ CK_RV xInitializePkcs11Token()
         /* Check if token is initialized */
         pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
 
-        /* We will take the first slot available.
-         * If your application has multiple slots, insert logic
-         * for selecting an appropriate slot here.
-         */
-        xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
+        if( pxTokenInfo != NULL )
+        {
+            /* We will take the first slot available.
+             * If your application has multiple slots, insert logic
+             * for selecting an appropriate slot here.
+             * TODO: Consider a define here instead.
+             */
+            xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
+        }
+        else
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
     }
 
     if( CKR_OK == xResult )
