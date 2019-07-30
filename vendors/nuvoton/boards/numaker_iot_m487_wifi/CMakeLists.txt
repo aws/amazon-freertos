@@ -17,11 +17,11 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "numaker_iot_m487_wifi")
-afr_set_board_metadata(DISPLAY_NAME "numaker_iot_m487_wifi Development Kit")
-afr_set_board_metadata(DESCRIPTION "numaker_iot_m487_wifi Development Kit")
+afr_set_board_metadata(ID "NuMaker-IoT-M487")
+afr_set_board_metadata(DISPLAY_NAME "NuMaker-IoT-M487")
+afr_set_board_metadata(DESCRIPTION "NuMaker-IoT-M487 Development Board")
 afr_set_board_metadata(VENDOR_NAME "Nuvoton")
-afr_set_board_metadata(FAMILY_NAME "numaker_iot_m487_wifi Series")
+afr_set_board_metadata(FAMILY_NAME "NuMicro M487 Series")
 afr_set_board_metadata(DATA_RAM_MEMORY "160KB")
 afr_set_board_metadata(PROGRAM_MEMORY "512KB")
 afr_set_board_metadata(CODE_SIGNER "AmazonFreeRTOS-Default")
