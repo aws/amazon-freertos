@@ -7,7 +7,7 @@
 ### Updates
 
 #### Ethernet for Microchip Curiosity PIC32MZEF
-- Update Microchip Curiosity PIC32MZEF project and configuration files to support Ethernet connectivty.
+- Update Microchip Curiosity PIC32MZEF project and configuration files to support Ethernet connectivty. Developers must define PIC32_USE_ETHERNET at the project level to use Ethernet instead of Wi-Fi.
 
 #### Tests and Demos
 - Remove elliptic curve tests from "quarantine" test group and add them back to the TLS test group.
