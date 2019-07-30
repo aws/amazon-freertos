@@ -57,6 +57,7 @@
  * @brief HTTP standard header field "Range".
  */
 #define RANGE_HEADER_FIELD          "Range"
+#define RANGE_HEADER_FIELD_LENGTH   5
 
 /**
  * @brief HTTP standard header value for requesting a range of bytes from 0 to 0.
@@ -64,12 +65,14 @@
  * This is used to get the size of the file from S3. Performing a HEAD request with S3 requires generating a Sigv4 
  * signature in an Authorization header field. We work around this by performing a GET on Range: bytes=0-0. Then 
  * extracting the size of the file from the Content-Range header field in the response. */
-#define RANGE_0_TO_0_HEADER_VALUE   "bytes=0-0"
+#define RANGE_0_TO_0_HEADER_VALUE           "bytes=0-0"
+#define RANGE_0_TO_0_HEADER_VALUE_LENGTH    9
 
 /**
  * @brief HTTP standard header field "Content-Range"
  */
-#define CONTENT_RANGE_HEADER_FIELD  "Content-Range"
+#define CONTENT_RANGE_HEADER_FIELD          "Content-Range"
+#define CONTENT_RANGE_HEADER_FIELD_LENGTH   13
 
 /*-----------------------------------------------------------*/
 
@@ -136,7 +139,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     fileSizeReqConfig.userBuffer.pBuffer = pReqUserBuffer;
     fileSizeReqConfig.userBuffer.bufferLen = reqUserBufferLen;
     fileSizeReqConfig.isAsync = false;
-    fileSizeReqConfig.pSyncInfo = &reqSyncInfo;
+    fileSizeReqConfig.u.pSyncInfo = &reqSyncInfo;
 
     /* Set the response configurations. */
     fileSizeRespConfig.userBuffer.pBuffer = pRespUserBuffer;
@@ -154,7 +157,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     /* Add the header to get bytes=0-0. S3 will respond with a Content-Range header that contains the size of the file 
        in it. This header will look like: "Content-Range: bytes 0-0/FILESIZE". The body will have a single byte that 
        we are ignoring. */
-    httpsClientStatus = IotHttpsClient_AddHeader( fileSizeReqHandle, RANGE_HEADER_FIELD, RANGE_0_TO_0_HEADER_VALUE, strlen( RANGE_0_TO_0_HEADER_VALUE ) );
+    httpsClientStatus = IotHttpsClient_AddHeader( fileSizeReqHandle, RANGE_HEADER_FIELD, RANGE_HEADER_FIELD_LENGTH, RANGE_0_TO_0_HEADER_VALUE, RANGE_0_TO_0_HEADER_VALUE_LENGTH );
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Failed to write the header \"Range: bytes=0-0\" into the request. With error code: %d", httpsClientStatus );
@@ -185,7 +188,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     }
 
     /* Get the file size by parsing the "bytes 0-0/FILESIZE" Content-Range header value string. */
-    httpsClientStatus = IotHttpsClient_ReadHeader( fileSizeRespHandle, CONTENT_RANGE_HEADER_FIELD, contentRangeValStr, sizeof(contentRangeValStr) );
+    httpsClientStatus = IotHttpsClient_ReadHeader( fileSizeRespHandle, CONTENT_RANGE_HEADER_FIELD, CONTENT_RANGE_HEADER_FIELD_LENGTH, contentRangeValStr, sizeof(contentRangeValStr) );
     if(httpsClientStatus != IOT_HTTPS_OK)
     {
         IotLogError("Could find the Content-Range header in the response. Error code %d",httpsClientStatus);

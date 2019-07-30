@@ -146,11 +146,7 @@
  * @brief HTTP standard header field "Range".
  */
 #define RANGE_HEADER_FIELD          "Range"
-
-/**
- * @brief HTTP standard header field "Content-Range"
- */
-#define CONTENT_RANGE_HEADER_FIELD  "Content-Range"
+#define RANGE_HEADER_FIELD_LENGTH   5
 
 /*-----------------------------------------------------------*/
 
@@ -319,7 +315,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     reqConfig.userBuffer.pBuffer = _pReqUserBuffer;
     reqConfig.userBuffer.bufferLen = sizeof(_pReqUserBuffer);
     reqConfig.isAsync = false;
-    reqConfig.pSyncInfo = &reqSyncInfo;
+    reqConfig.u.pSyncInfo = &reqSyncInfo;
 
     /* Set the response configurations. */ 
     respConfig.userBuffer.pBuffer = _pRespUserBuffer;
@@ -400,7 +396,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         }
 
         /* Set the header for a range request. */
-        httpsClientStatus = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, rangeValueStr, numWritten);
+        httpsClientStatus = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, RANGE_HEADER_FIELD_LENGTH, rangeValueStr, numWritten);
         if( httpsClientStatus != IOT_HTTPS_OK )
         {
             IotLogError( "Failed to write the header Range: %.*s into the request. With error code: %d", numWritten, rangeValueStr, httpsClientStatus );

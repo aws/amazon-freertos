@@ -435,6 +435,7 @@ typedef struct _httpsResponse
     IotHttpsResponseParserState_t parserState;  /**< @brief The current state of the parser. See #IotHttpsResponseParserState_t documentation for more details. */
     IotHttpsResponseBufferState_t bufferProcessingState;    /**< @brief Which buffer is currently being processed and for what. See #IotHttpsResponseBufferState_t documentation. */
     char * pReadHeaderField;    /**< @brief Header field that we want to read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
+    size_t readHeaderFieldLength;   /** @brief Length of pReadHeaderField */
     char * pReadHeaderValue;    /**< @brief Header value that we read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
     size_t readHeaderValueLength;   /**< @brief Length of pReadHeaderValue. */
     bool foundHeaderField;  /**< @brief State to use during parsing to let us know when we found the header field in the https-parser callbacks. 
