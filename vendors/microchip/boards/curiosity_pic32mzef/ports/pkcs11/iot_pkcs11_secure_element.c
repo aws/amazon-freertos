@@ -33,6 +33,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "iot_pkcs11_config.h"
+#include "iot_test_pkcs11_config.h"
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_pal.h"
@@ -48,10 +49,11 @@
 #endif
 
 /* Microchip Secure Element */
+#include "atca_config.h"
+#include "atca_cert_chain.h"
 #include "pkcs11_config.h"
 #include "pkcs11/pkcs11_object.h"
 #include "pkcs11/pkcs11_slot.h"
-#include "pkcs11/example_cert_chain.h"
 #include "hal/hal_pic32mz2048efm_i2c.h"
 extern DRV_I2C_Object cryptoObj;
 
@@ -145,7 +147,7 @@ CK_FUNCTION_LIST pkcs11FunctionList =
 ATCAIfaceCfg cfg_ateccx08a_i2c_default = {
     .iface_type             = ATCA_I2C_IFACE,
     .devtype                = ATECC608A,
-    .atcai2c.slave_address  = 0x6C,
+    .atcai2c.slave_address  = ATCA_I2C_ECC_ADDRESS,
     .atcai2c.bus            = 0,
     .atcai2c.baud           = 100000,
     //.atcai2c.baud = 100000,
@@ -154,10 +156,24 @@ ATCAIfaceCfg cfg_ateccx08a_i2c_default = {
     .cfg_data               = (void *)&cryptoObj
 };
 
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+/* This configuration is only suitable for testing of a device and does not enforce good 
+security policies that should be practiced in production */
+const uint8_t atecc608_config[] = {
+    0x01, 0x23, 0x00, 0x00, 0x00, 0x00, 0x60, 0x01, 0x00, 0x00, 0x00, 0x00, 0xEE, 0x01, 0x01, 0x00,
+    ATCA_I2C_ECC_ADDRESS, 0x00, 0x00, 0x01, 0x85, 0x66, 0x82, 0x00, 0x85, 0x20, 0x85, 0x20, 0x85, 0x20, 0xC6, 0x46,
+    0x8F, 0x0F, 0x9F, 0x8F, 0x0F, 0x0F, 0x8F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
+    0x0D, 0x1F, 0x0F, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03, 0xF7, 0x00, 0x69, 0x76, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x55, 0xFF, 0xFF, 0x0E, 0x60, 0x00, 0x00, 0x00, 0x00,
+    0x53, 0x00, 0x53, 0x00, 0x73, 0x00, 0x73, 0x00, 0x73, 0x00, 0x38, 0x00, 0x7C, 0x00, 0x1C, 0x00,
+    0x3C, 0x00, 0x1A, 0x00, 0x3C, 0x00, 0x30, 0x00, 0x3C, 0x00, 0x30, 0x00, 0x12, 0x00, 0x30, 0x00
+};
+#else
 /** Standard Configuration Structure for ATECC608A devices */
 const uint8_t atecc608_config[] = {
     0x01, 0x23, 0x00, 0x00, 0x00, 0x00, 0x60, 0x01, 0x00, 0x00, 0x00, 0x00, 0xEE, 0x01, 0x01, 0x00,
-    0x6C, 0x00, 0x00, 0x01, 0x8F, 0x20, 0xC4, 0x44, 0x87, 0x20, 0x87, 0x20, 0x8F, 0x0F, 0xC4, 0x36,
+    ATCA_I2C_ECC_ADDRESS, 0x00, 0x00, 0x01, 0x8F, 0x20, 0xC4, 0x44, 0x87, 0x20, 0x87, 0x20, 0x8F, 0x0F, 0xC4, 0x36,
     0x9F, 0x0F, 0x82, 0x20, 0x0F, 0x0F, 0xC4, 0x44, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F,
     0x0F, 0x0F, 0x0F, 0x0F, 0xFF, 0xFF, 0xFF, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -165,12 +181,14 @@ const uint8_t atecc608_config[] = {
     0x33, 0x00, 0x1C, 0x00, 0x13, 0x00, 0x13, 0x00, 0x7C, 0x00, 0x1C, 0x00, 0x3C, 0x00, 0x33, 0x00,
     0x3C, 0x00, 0x3C, 0x00, 0x3C, 0x00, 0x30, 0x00, 0x3C, 0x00, 0x3C, 0x00, 0x3C, 0x00, 0x30, 0x00,
 };
+#endif
+
 
 /* Helper function to assign the proper fields to an certificate object from a cert def */
 CK_RV pkcs11_config_cert(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, pkcs11_object_ptr pObject, CK_ATTRIBUTE_PTR pLabel)
 {
     CK_RV rv = CKR_OK;
-    size_t len;
+	size_t len;
     
     (void)pLibCtx;
     (void)pSlot;
@@ -180,29 +198,47 @@ CK_RV pkcs11_config_cert(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, 
         return CKR_ARGUMENTS_BAD;
     }
 
-    if (pLabel->ulValueLen >= PKCS11_MAX_LABEL_SIZE)
-    {
-        return CKR_ARGUMENTS_BAD;
-    }
+	if (pLabel->ulValueLen >= PKCS11_MAX_LABEL_SIZE)
+	{
+		return CKR_ARGUMENTS_BAD;
+	}
 
-    if (!strncmp(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
+	if (!strncmp(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
+	{
+    	/* Slot 10 - Device Cert for Slot 0*/
+        pkcs11_config_init_cert(pObject, pLabel->pValue, pLabel->ulValueLen);
+    	pObject->slot = 10;
+    	pObject->class_type = CK_CERTIFICATE_CATEGORY_TOKEN_USER;
+    	pObject->size = g_cert_def_2_device.cert_template_size;
+    	pObject->data = &g_cert_def_2_device;
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
+#endif
+	}
+	else if (!strncmp(pkcs11configLABEL_JITP_CERTIFICATE, (char*)pLabel->pValue, pLabel->ulValueLen))
+	{
+    	/* Slot 12 - Signer Cert for Slot 10 */
+        pkcs11_config_init_cert(pObject, pLabel->pValue, pLabel->ulValueLen);
+    	pObject->slot = 12;
+    	pObject->class_type = CK_CERTIFICATE_CATEGORY_AUTHORITY;
+    	pObject->size = g_cert_def_1_signer.cert_template_size;
+    	pObject->data = &g_cert_def_1_signer;
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
+#endif
+	}
+#ifdef pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS
+    else if (!strncmp(pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
     {
         /* Slot 10 - Device Cert for Slot 0*/
         pkcs11_config_init_cert(pObject, pLabel->pValue, pLabel->ulValueLen);
         pObject->slot = 10;
         pObject->class_type = CK_CERTIFICATE_CATEGORY_TOKEN_USER;
-        pObject->size = g_cert_def_2_device.cert_template_size;
-        pObject->data = &g_cert_def_2_device;
+        pObject->size = g_cert_def_3_test.cert_template_size;
+        pObject->data = &g_cert_def_3_test;
+        pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
     }
-    else if (!strncmp(pkcs11configLABEL_JITP_CERTIFICATE, (char*)pLabel->pValue, pLabel->ulValueLen))
-    {
-        /* Slot 12 - Signer Cert for Slot 10 */
-        pkcs11_config_init_cert(pObject, pLabel->pValue, pLabel->ulValueLen);
-        pObject->slot = 12;
-        pObject->class_type = CK_CERTIFICATE_CATEGORY_AUTHORITY;
-        pObject->size = g_cert_def_1_signer.cert_template_size;
-        pObject->data = &g_cert_def_1_signer;
-    }
+#endif
     else
     {
         rv = CKR_ARGUMENTS_BAD;
@@ -215,7 +251,7 @@ CK_RV pkcs11_config_cert(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, 
 CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, pkcs11_object_ptr pObject, CK_ATTRIBUTE_PTR pLabel)
 {
     CK_RV rv = CKR_OK;
-    size_t len;
+	size_t len;
     
     (void)pLibCtx;
 
@@ -224,25 +260,51 @@ CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, p
         return CKR_ARGUMENTS_BAD;
     }
 
-    if (pLabel->ulValueLen >= PKCS11_MAX_LABEL_SIZE)
-    {
-        return CKR_ARGUMENTS_BAD;
-    }
+	if (pLabel->ulValueLen >= PKCS11_MAX_LABEL_SIZE)
+	{
+		return CKR_ARGUMENTS_BAD;
+	}
 
     if (!strncmp(pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
+    {
+		/* Slot 0 - Device Private Key */
+        pkcs11_config_init_private(pObject, pLabel->pValue, pLabel->ulValueLen);
+		pObject->slot = 0;
+        pObject->config = &pSlot->cfg_zone;
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
+#endif
+    }
+    else if (!strncmp(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
+    {
+		/* Slot 0 - Device Private Key */
+        pkcs11_config_init_public(pObject, pLabel->pValue, pLabel->ulValueLen);
+		pObject->slot = 0;
+        pObject->config = &pSlot->cfg_zone;
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+        pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
+#endif
+    }
+#ifdef pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
+    else if (!strncmp(pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
     {
         /* Slot 0 - Device Private Key */
         pkcs11_config_init_private(pObject, pLabel->pValue, pLabel->ulValueLen);
         pObject->slot = 0;
         pObject->config = &pSlot->cfg_zone;
+        pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
     }
-    else if (!strncmp(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
+#endif
+#ifdef pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+    else if (!strncmp(pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, (char*)pLabel->pValue, pLabel->ulValueLen))
     {
         /* Slot 0 - Device Private Key */
         pkcs11_config_init_public(pObject, pLabel->pValue, pLabel->ulValueLen);
         pObject->slot = 0;
         pObject->config = &pSlot->cfg_zone;
+        pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
     }
+#endif
     else
     {
         rv = CKR_ARGUMENTS_BAD;
@@ -253,61 +315,104 @@ CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, p
 
 CK_RV pkcs11_config_load_objects(pkcs11_slot_ctx_ptr pSlot)
 {
-    pkcs11_object_ptr pObject;
-    CK_RV rv = CKR_OK;
+	pkcs11_object_ptr pObject;
+	CK_RV rv = CKR_OK;
     CK_ATTRIBUTE xLabel;
 
+	if (CKR_OK == rv)
+	{
+		rv = pkcs11_object_alloc(&pObject);
+		if (pObject)
+		{
+			/* Slot 0 - Device Private Key */
+			xLabel.pValue = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+            xLabel.ulValueLen = strlen(xLabel.pValue);
+            xLabel.type = CKA_LABEL;
+			pkcs11_config_key(NULL, pSlot, pObject, &xLabel );
+		}
+	}
+    
+	if (CKR_OK == rv)
+	{
+		rv = pkcs11_object_alloc(&pObject);
+		if (pObject)
+		{
+			/* Slot 0 - Device Public Key */
+			xLabel.pValue = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+            xLabel.ulValueLen = strlen(xLabel.pValue);
+            xLabel.type = CKA_LABEL;
+			pkcs11_config_key(NULL, pSlot, pObject, &xLabel );
+		}
+	}
+
+	if (CKR_OK == rv)
+	{
+		rv = pkcs11_object_alloc(&pObject);
+		if (pObject)
+		{
+			/* Slot 0 - Device Public Key */
+			xLabel.pValue = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+            xLabel.ulValueLen = strlen(xLabel.pValue);
+            xLabel.type = CKA_LABEL;
+			pkcs11_config_cert(NULL, pSlot, pObject, &xLabel );
+		}
+	}
+    
+	if (CKR_OK == rv)
+	{
+		rv = pkcs11_object_alloc(&pObject);
+		if (pObject)
+		{
+			/* Slot 0 - Device Public Key */
+			xLabel.pValue = pkcs11configLABEL_JITP_CERTIFICATE;
+            xLabel.ulValueLen = strlen(xLabel.pValue);
+            xLabel.type = CKA_LABEL;
+			pkcs11_config_cert(NULL, pSlot, pObject, &xLabel );
+		}
+	}
+
+#ifdef pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
     if (CKR_OK == rv)
     {
         rv = pkcs11_object_alloc(&pObject);
         if (pObject)
         {
             /* Slot 0 - Device Private Key */
-            xLabel.pValue = pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
+            xLabel.pValue = pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS;
             xLabel.ulValueLen = strlen(xLabel.pValue);
             xLabel.type = CKA_LABEL;
-            pkcs11_config_key(NULL, pSlot, pObject, &xLabel );
+            pkcs11_config_key(NULL, pSlot, pObject, &xLabel);
         }
     }
-    
+#endif
+#ifdef pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
     if (CKR_OK == rv)
     {
         rv = pkcs11_object_alloc(&pObject);
         if (pObject)
         {
             /* Slot 0 - Device Public Key */
-            xLabel.pValue = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+            xLabel.pValue = pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
             xLabel.ulValueLen = strlen(xLabel.pValue);
             xLabel.type = CKA_LABEL;
-            pkcs11_config_key(NULL, pSlot, pObject, &xLabel );
+            pkcs11_config_key(NULL, pSlot, pObject, &xLabel);
         }
     }
+#endif
+#ifdef pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS
+    if (CKR_OK == rv)
+    {
+        rv = pkcs11_object_alloc(&pObject);
+        if (pObject)
+        {
+            /* Slot 0 - Device Public Key */
+            xLabel.pValue = pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+            xLabel.ulValueLen = strlen(xLabel.pValue);
+            xLabel.type = CKA_LABEL;
+            pkcs11_config_cert(NULL, pSlot, pObject, &xLabel);
+        }
+    }
+#endif
 
-    if (CKR_OK == rv)
-    {
-        rv = pkcs11_object_alloc(&pObject);
-        if (pObject)
-        {
-            /* Slot 0 - Device Public Key */
-            xLabel.pValue = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
-            xLabel.ulValueLen = strlen(xLabel.pValue);
-            xLabel.type = CKA_LABEL;
-            pkcs11_config_cert(NULL, pSlot, pObject, &xLabel );
-        }
-    }
-    
-    if (CKR_OK == rv)
-    {
-        rv = pkcs11_object_alloc(&pObject);
-        if (pObject)
-        {
-            /* Slot 0 - Device Public Key */
-            xLabel.pValue = pkcs11configLABEL_JITP_CERTIFICATE;
-            xLabel.ulValueLen = strlen(xLabel.pValue);
-            xLabel.type = CKA_LABEL;
-            pkcs11_config_cert(NULL, pSlot, pObject, &xLabel );
-        }
-    }
-
-    return rv;
+	return rv;
 }

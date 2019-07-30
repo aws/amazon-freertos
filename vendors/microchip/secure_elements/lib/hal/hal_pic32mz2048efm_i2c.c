@@ -307,7 +307,7 @@ ATCA_STATUS hal_i2c_wake(ATCAIface iface)
     else
     {
         // Send the wake by writing to an address of 0x00
-        write_bufHandle = DRV_I2C_Transmit(drvI2CMasterHandle, cfg->atcai2c.slave_address, &data, 1, NULL);
+        write_bufHandle = DRV_I2C_Transmit(drvI2CMasterHandle, 0x00, &data, 1, NULL);
         if ( ((DRV_I2C_BUFFER_HANDLE)(-1)) == write_bufHandle)
         {
             while (1)

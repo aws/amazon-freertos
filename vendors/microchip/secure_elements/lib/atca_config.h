@@ -32,7 +32,7 @@
 //#define ATCA_HAL_I2C
 
 /** Use the following address for ECC devices */
-#define ATCA_I2C_ECC_ADDRESS    0x6A
+#define ATCA_I2C_ECC_ADDRESS    0x6C
 
 /** Define if cryptoauthlib is to use the maximum execution time method */
 #define ATCA_NO_POLL

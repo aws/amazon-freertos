@@ -64,7 +64,7 @@
 /*
  * @brief Set to 1 if RSA private keys are supported by the platform.  0 if not.
  */
-#define pkcs11testRSA_KEY_SUPPORT             ( 1 )
+#define pkcs11testRSA_KEY_SUPPORT             ( 0 )
 
 /*
  * @brief Set to 1 if elliptic curve private keys are supported by the platform.  0 if not.
@@ -88,7 +88,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       "Test Priv Key"
 
 /**
  * @brief The PKCS #11 label for device public key.
@@ -97,7 +97,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "Test Pub TLS Key"
 
 /**
  * @brief The PKCS #11 label for the device certificate.
@@ -106,7 +106,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS
+#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       "Test Cert"
 
 /**
  * @brief The PKCS #11 label for the object to be used for code verification.
