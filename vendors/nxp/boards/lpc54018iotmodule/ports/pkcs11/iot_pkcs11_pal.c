@@ -38,7 +38,7 @@
 #include "iot_crypto.h"
 #include "task.h"
 #include "iot_pkcs11.h"
-#include "aws_pkcs11_config.h"
+#include "iot_pkcs11_config.h"
 
 /* Flash write */
 #include "mflash_file.h"

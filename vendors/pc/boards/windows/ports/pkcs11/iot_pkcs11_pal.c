@@ -25,7 +25,7 @@
 
 
 /**
- * @file iot_pkcs11_pal.c
+ * @file aws_pkcs11_pal.c
  * @brief Windows Simulator file save and read implementation
  * for PKCS#11 based on mbedTLS with for software keys. This
  * file deviates from the FreeRTOS style standard for some function names and
@@ -37,7 +37,7 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "iot_pkcs11.h"
-#include "aws_pkcs11_config.h"
+#include "iot_pkcs11_config.h"
 
 
 /* C runtime includes. */
@@ -48,6 +48,9 @@
 #define pkcs11palFILE_NAME_CLIENT_CERTIFICATE    "FreeRTOS_P11_Certificate.dat"
 #define pkcs11palFILE_NAME_KEY                   "FreeRTOS_P11_Key.dat"
 #define pkcs11palFILE_CODE_SIGN_PUBLIC_KEY       "FreeRTOS_P11_CodeSignKey.dat"
+
+#define PKCS11_PAL_PRINT( X )    vLoggingPrintf X
+
 
 enum eObjectHandles
 {
@@ -127,7 +130,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
  *
  * Port-specific file write for cryptographic information.
  *
- * @param[in] pxLabel       The label of the object to be stored.
+ * @param[in] pxLabel       Attribute containing label of the object to be stored.
  * @param[in] pucData       The object data to be saved
  * @param[in] pulDataSize   Size (in bytes) of object data.
  *
@@ -165,6 +168,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         if( INVALID_HANDLE_VALUE == hFile )
         {
             ulStatus = GetLastError();
+            PKCS11_PAL_PRINT( ( "ERROR: Unable to create file %d \r\n", ulStatus ) );
             xHandle = eInvalidHandle;
         }
 
@@ -305,6 +309,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         if( INVALID_HANDLE_VALUE == hFile )
         {
             ulDriverReturn = GetLastError();
+            PKCS11_PAL_PRINT( ( "ERROR: Unable to open file %d \r\n", ulDriverReturn ) );
             ulReturn = CKR_FUNCTION_FAILED;
         }
 
@@ -318,7 +323,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
 
             if( NULL == *ppucData )
             {
-                ulReturn = CKR_DEVICE_MEMORY;
+                ulReturn = CKR_HOST_MEMORY;
             }
         }
 
@@ -331,6 +336,7 @@ CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                    ( LPDWORD ) ( &ulSize ),
                                    NULL ) )
             {
+                PKCS11_PAL_PRINT( ( "ERROR: Unable to read file \r\n" ) );
                 ulReturn = CKR_FUNCTION_FAILED;
             }
         }

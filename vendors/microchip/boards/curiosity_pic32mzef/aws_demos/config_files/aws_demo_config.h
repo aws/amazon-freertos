@@ -55,20 +55,11 @@
 #define democonfigMQTT_ECHO_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY              ( tskIDLE_PRIORITY )
 
-/* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS      ( 0 )
-/* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS        ( 1 )
-
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY           ( tskIDLE_PRIORITY + 5 )
-
-
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
-#define democonfigMQTT_TIMEOUT                pdMS_TO_TICKS( 3000 )
+#define democonfigMQTT_TIMEOUT                         pdMS_TO_TICKS( 3000 )
 
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
-#define democonfigMQTT_AGENT_CONNECT_FLAGS    ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
+#define democonfigMQTT_AGENT_CONNECT_FLAGS             ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

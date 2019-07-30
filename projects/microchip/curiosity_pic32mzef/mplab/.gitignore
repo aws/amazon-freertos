@@ -1,0 +1,7 @@
+build/
+debug/
+dist/
+private/
+*.mk
+*.bash
+*.properties

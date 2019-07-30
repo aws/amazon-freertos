@@ -32,7 +32,7 @@
 
 /* Amazon FreeRTOS Includes. */
 #include "iot_pkcs11.h"
-#include "aws_pkcs11_config.h"
+#include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"
 #include "ff.h"
 #include "xil_printf.h"
