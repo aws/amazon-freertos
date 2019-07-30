@@ -20,10 +20,16 @@
                 <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11</sourceRootElem>
                 <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c</sourceRootElem>
                 <sourceRootElem>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c</sourceRootElem>
+                <sourceRootElem>../../../../../libraries/abstractions/pkcs11/mbedtls</sourceRootElem>
+                <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
                     <name>pic32mz_ef_curiosity</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>pic32mz_ef_curiosity_ecc</name>
                     <type>2</type>
                 </confElem>
             </confList>

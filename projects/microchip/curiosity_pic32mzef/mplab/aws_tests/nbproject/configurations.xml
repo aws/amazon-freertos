@@ -294,6 +294,7 @@
         <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
           <logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
             <itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</itemPath>
+            <itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</itemPath>
           </logicalFolder>
           <logicalFolder name="test" displayName="test" projectFiles="true">
             <itemPath>../../../../../libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</itemPath>
@@ -712,6 +713,8 @@
                   <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code/system_config.h</itemPath>
                   <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code/system_definitions.h</itemPath>
                   <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code/system_interrupt_a.S</itemPath>
+                  <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code/atca_cert_chain.c</itemPath>
+                  <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code/atca_cert_chain.h</itemPath>
                 </logicalFolder>
                 <itemPath>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/main.c</itemPath>
               </logicalFolder>
@@ -1008,11 +1011,6 @@
         <logicalFolder name="secure_elements"
                        displayName="secure_elements"
                        projectFiles="true">
-          <logicalFolder name="app" displayName="app" projectFiles="true">
-            <logicalFolder name="pkcs11" displayName="pkcs11" projectFiles="true">
-              <itemPath>../../../../../vendors/microchip/secure_elements/app/pkcs11/example_cert_chain.c</itemPath>
-            </logicalFolder>
-          </logicalFolder>
           <logicalFolder name="lib" displayName="lib" projectFiles="true">
             <logicalFolder name="atcacert" displayName="atcacert" projectFiles="true">
               <itemPath>../../../../../vendors/microchip/secure_elements/lib/atcacert/atcacert_client.c</itemPath>
@@ -1107,6 +1105,8 @@
     <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11</Elem>
     <Elem>../../../../../vendors/microchip/harmony/v2.05/framework/driver/i2c</Elem>
     <Elem>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c</Elem>
+    <Elem>../../../../../libraries/abstractions/pkcs11/mbedtls</Elem>
+    <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -1164,6 +1164,574 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <C32>
+        <property key="additional-warnings" value="true"/>
+        <property key="addresss-attribute-use" value="false"/>
+        <property key="enable-app-io" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="exclude-floating-point" value="false"/>
+        <property key="extra-include-directories"
+                  value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../vendors/microchip/secure_elements/lib;../../../../../vendors/microchip/secure_elements/app"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="isolate-each-function" value="true"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="optimization-level" value="-O1"/>
+        <property key="place-data-into-section" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros"
+                  value="UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__;ATCA_HAL_I2C"/>
+        <property key="strict-ansi" value="false"/>
+        <property key="support-ansi" value="false"/>
+        <property key="toplevel-reordering" value=""/>
+        <property key="unaligned-access" value=""/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+        <property key="use-indirect-calls" value="false"/>
+        <appendMe value="-mnewlib-libc -std=gnu99 -fgnu89-inline"/>
+      </C32>
+      <C32-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C32-AR>
+      <C32-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="enable-symbols" value="true"/>
+        <property key="exclude-floating-point-library" value="false"/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-preprocessor"
+                  value="../../../../../freertos_kernel/include;../../../../../libraries/c_sdk/standard/common/include;../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../libraries/freertos_plus/standard/tls/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../libraries/abstractions/wifi/include;../../../../../libraries/abstractions/pkcs11/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code;../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../vendors/microchip/harmony/v2.05/framework;../../../../../vendors/microchip/harmony/v2.05/bsp;../../../../../tests/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files;../../../../../libraries/c_sdk/standard/common/include/private;../../../../../libraries/abstractions/platform/include;../../../../../libraries/abstractions/platform/freertos/include;../../../../../libraries/abstractions/secure_sockets/include;../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/include;../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../libraries/freertos_plus/aws/ota/test;../../../../../libraries/freertos_plus/standard/utils/include;../../../../../demos/dev_mode_key_provisioning/include;../../../../../vendors/microchip/harmony/v2.05/framework/system/common;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/common/include;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver_extension/driver/source;../../../../../vendors/microchip/harmony/v2.05/framework/driver/wifi/wilc1000/wireless_driver/include;../../../../../libraries/c_sdk/aws/defender/include;../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../libraries/c_sdk/standard/serializer/include;../../../../../libraries/c_sdk/aws/shadow/include;../../../../../libraries/c_sdk/aws/shadow/src;../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../libraries/freertos_plus/aws/ota/src;../../../../../libraries/freertos_plus/aws/ota/include;../../../../../libraries/3rdparty/mbedtls/include;../../../../../libraries/abstractions/posix/include;../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../libraries/3rdparty/jsmn;../../../../../libraries/3rdparty/pkcs11;../../../../../libraries/3rdparty/tinycbor;../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../libraries/3rdparty/unity/src;../../../../../libraries/3rdparty/unity/extras/fixture/src"/>
+        <property key="false-conditionals" value="false"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="oXC32asm-list-to-file" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="warning-level" value=""/>
+      </C32-AS>
+      <C32-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="additional-options-write-sla" value="false"/>
+        <property key="allocate-dinit" value="false"/>
+        <property key="code-dinit" value="false"/>
+        <property key="ebase-addr" value=""/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="exclude-floating-point-library" value="false"/>
+        <property key="exclude-standard-libraries" value="false"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="heap-size" value="170000"/>
+        <property key="input-libraries" value=""/>
+        <property key="kseg-length" value=""/>
+        <property key="kseg-origin" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
+        <property key="no-device-startup-code" value="false"/>
+        <property key="no-startup-files" value="false"/>
+        <property key="oXC32ld-extra-opts" value="-mnewlib-libc"/>
+        <property key="optimization-level" value=""/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="true"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="serial-length" value=""/>
+        <property key="serial-origin" value=""/>
+        <property key="stack-size" value="10000"/>
+        <property key="symbol-stripping" value=""/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+        <appendMe value="--allow-multiple-definition"/>
+      </C32-LD>
+      <C32CPP>
+        <property key="additional-warnings" value="false"/>
+        <property key="addresss-attribute-use" value="false"/>
+        <property key="check-new" value="false"/>
+        <property key="eh-specs" value="true"/>
+        <property key="enable-app-io" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="exceptions" value="true"/>
+        <property key="exclude-floating-point" value="false"/>
+        <property key="extra-include-directories" value=""/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="optimization-level" value=""/>
+        <property key="place-data-into-section" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="rtti" value="true"/>
+        <property key="strict-ansi" value="false"/>
+        <property key="toplevel-reordering" value=""/>
+        <property key="unaligned-access" value=""/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+        <property key="use-indirect-calls" value="false"/>
+      </C32CPP>
+      <C32Global>
+        <property key="common-include-directories" value=""/>
+        <property key="gp-relative-option" value=""/>
+        <property key="legacy-libc" value="false"/>
+        <property key="mdtcm" value=""/>
+        <property key="mitcm" value=""/>
+        <property key="mstacktcm" value="false"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
+        <property key="wpo-lto" value="false"/>
+      </C32Global>
+      <ICD3PlatformTool>
+        <property key="firmware.download.all" value="false"/>
+      </ICD3PlatformTool>
+      <ICD4Tool>
+        <property key="ADC" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CAN1" value="true"/>
+        <property key="CAN2" value="true"/>
+        <property key="CHANGE NOTICE A" value="true"/>
+        <property key="CHANGE NOTICE B" value="true"/>
+        <property key="CHANGE NOTICE C" value="true"/>
+        <property key="CHANGE NOTICE D" value="true"/>
+        <property key="CHANGE NOTICE E" value="true"/>
+        <property key="CHANGE NOTICE F" value="true"/>
+        <property key="CHANGE NOTICE G" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="DMA" value="true"/>
+        <property key="ETHERNET CONTROLLER" value="true"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="I2C 1" value="true"/>
+        <property key="I2C 2" value="true"/>
+        <property key="I2C 3" value="true"/>
+        <property key="I2C 4" value="true"/>
+        <property key="I2C 5" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="INTERRUPT CONTROL" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="REAL TIME CLOCK" value="true"/>
+        <property key="REFERENCE CLOCK1" value="true"/>
+        <property key="REFERENCE CLOCK2" value="true"/>
+        <property key="REFERENCE CLOCK3" value="true"/>
+        <property key="REFERENCE CLOCK4" value="true"/>
+        <property key="SPI/I2S 1" value="true"/>
+        <property key="SPI/I2S 2" value="true"/>
+        <property key="SPI/I2S 3" value="true"/>
+        <property key="SPI/I2S 4" value="true"/>
+        <property key="SPI/I2S 5" value="true"/>
+        <property key="SPI/I2S 6" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="TIMER6" value="true"/>
+        <property key="TIMER7" value="true"/>
+        <property key="TIMER8" value="true"/>
+        <property key="TIMER9" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UpdateOptions"
+                  value="ToolFirmwareOption.UseLatest"/>
+        <property key="UART1" value="true"/>
+        <property key="UART2" value="true"/>
+        <property key="UART3" value="true"/>
+        <property key="UART4" value="true"/>
+        <property key="UART5" value="true"/>
+        <property key="UART6" value="true"/>
+        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.exclude.configurationmemory" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.ranges" value="1d000000-1d1fffff"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.ledbrightness" value="5"/>
+        <property key="programoptions.pgcconfig" value="pull down"/>
+        <property key="programoptions.pgcresistor.value" value="4.7"/>
+        <property key="programoptions.pgdconfig" value="pull down"/>
+        <property key="programoptions.pgdresistor.value" value="4.7"/>
+        <property key="programoptions.pgmentry.voltage" value="low"/>
+        <property key="programoptions.pgmspeed" value="Med"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value=""/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="voltagevalue" value="3.25"/>
+      </ICD4Tool>
+      <PKOBSKDEPlatformTool>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.ranges" value="1d000000-1d1fffff"/>
+        <property key="memories.userotp" value="true"/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preservedataflash.ranges" value=""/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value=""/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="true"/>
+      </PKOBSKDEPlatformTool>
+      <RealICEPlatformTool>
+        <property key="ADC" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CAN1" value="true"/>
+        <property key="CAN2" value="true"/>
+        <property key="CHANGE NOTICE A" value="true"/>
+        <property key="CHANGE NOTICE B" value="true"/>
+        <property key="CHANGE NOTICE C" value="true"/>
+        <property key="CHANGE NOTICE D" value="true"/>
+        <property key="CHANGE NOTICE E" value="true"/>
+        <property key="CHANGE NOTICE F" value="true"/>
+        <property key="CHANGE NOTICE G" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="DMA" value="true"/>
+        <property key="ETHERNET CONTROLLER" value="true"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="I2C 1" value="true"/>
+        <property key="I2C 2" value="true"/>
+        <property key="I2C 3" value="true"/>
+        <property key="I2C 4" value="true"/>
+        <property key="I2C 5" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="INTERRUPT CONTROL" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="REAL TIME CLOCK" value="true"/>
+        <property key="REFERENCE CLOCK1" value="true"/>
+        <property key="REFERENCE CLOCK2" value="true"/>
+        <property key="REFERENCE CLOCK3" value="true"/>
+        <property key="REFERENCE CLOCK4" value="true"/>
+        <property key="RIExTrigs.Five" value="OFF"/>
+        <property key="RIExTrigs.Four" value="OFF"/>
+        <property key="RIExTrigs.One" value="OFF"/>
+        <property key="RIExTrigs.Seven" value="OFF"/>
+        <property key="RIExTrigs.Six" value="OFF"/>
+        <property key="RIExTrigs.Three" value="OFF"/>
+        <property key="RIExTrigs.Two" value="OFF"/>
+        <property key="RIExTrigs.Zero" value="OFF"/>
+        <property key="SPI/I2S 1" value="true"/>
+        <property key="SPI/I2S 2" value="true"/>
+        <property key="SPI/I2S 3" value="true"/>
+        <property key="SPI/I2S 4" value="true"/>
+        <property key="SPI/I2S 5" value="true"/>
+        <property key="SPI/I2S 6" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="TIMER6" value="true"/>
+        <property key="TIMER7" value="true"/>
+        <property key="TIMER8" value="true"/>
+        <property key="TIMER9" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART1" value="true"/>
+        <property key="UART2" value="true"/>
+        <property key="UART3" value="true"/>
+        <property key="UART4" value="true"/>
+        <property key="UART5" value="true"/>
+        <property key="UART6" value="true"/>
+        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="hwtoolclock.instructionspeed" value="4"/>
+        <property key="hwtoolclock.units" value="mips"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram" value="true"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.ranges" value="1d000000-1d1fffff"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preservedataflash.ranges" value=""/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value=""/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="tracecontrol.include.timestamp" value="summarydataenabled"/>
+        <property key="tracecontrol.select" value="0"/>
+        <property key="tracecontrol.stallontracebufferfull" value="false"/>
+        <property key="tracecontrol.tracebufmax" value="546000"/>
+        <property key="tracecontrol.tracefile" value="defmplabxtrace.log"/>
+        <property key="tracecontrol.tracefilemax" value="10000000"/>
+        <property key="voltagevalue" value="3.25"/>
+      </RealICEPlatformTool>
+      <pk4hybrid>
+        <property key="ADC" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CAN1" value="true"/>
+        <property key="CAN2" value="true"/>
+        <property key="CHANGE NOTICE A" value="true"/>
+        <property key="CHANGE NOTICE B" value="true"/>
+        <property key="CHANGE NOTICE C" value="true"/>
+        <property key="CHANGE NOTICE D" value="true"/>
+        <property key="CHANGE NOTICE E" value="true"/>
+        <property key="CHANGE NOTICE F" value="true"/>
+        <property key="CHANGE NOTICE G" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="DMA" value="true"/>
+        <property key="ETHERNET CONTROLLER" value="true"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="I2C 1" value="true"/>
+        <property key="I2C 2" value="true"/>
+        <property key="I2C 3" value="true"/>
+        <property key="I2C 4" value="true"/>
+        <property key="I2C 5" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="INTERRUPT CONTROL" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="REAL TIME CLOCK" value="true"/>
+        <property key="REFERENCE CLOCK1" value="true"/>
+        <property key="REFERENCE CLOCK2" value="true"/>
+        <property key="REFERENCE CLOCK3" value="true"/>
+        <property key="REFERENCE CLOCK4" value="true"/>
+        <property key="SPI/I2S 1" value="true"/>
+        <property key="SPI/I2S 2" value="true"/>
+        <property key="SPI/I2S 3" value="true"/>
+        <property key="SPI/I2S 4" value="true"/>
+        <property key="SPI/I2S 5" value="true"/>
+        <property key="SPI/I2S 6" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="TIMER6" value="true"/>
+        <property key="TIMER7" value="true"/>
+        <property key="TIMER8" value="true"/>
+        <property key="TIMER9" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UpdateOptions"
+                  value="ToolFirmwareOption.UseLatest"/>
+        <property key="UART1" value="true"/>
+        <property key="UART2" value="true"/>
+        <property key="UART3" value="true"/>
+        <property key="UART4" value="true"/>
+        <property key="UART5" value="true"/>
+        <property key="UART6" value="true"/>
+        <property key="communication.interface"
+                  value="${communication.interface.default}"/>
+        <property key="communication.speed" value="${communication.speed.default}"/>
+        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.exclude.configurationmemory" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.ranges" value="1d000000-1d1fffff"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.ledbrightness" value="5"/>
+        <property key="programoptions.pgcconfig" value="pull down"/>
+        <property key="programoptions.pgcresistor.value" value="4.7"/>
+        <property key="programoptions.pgdconfig" value="pull down"/>
+        <property key="programoptions.pgdresistor.value" value="4.7"/>
+        <property key="programoptions.pgmentry.voltage" value="low"/>
+        <property key="programoptions.pgmspeed" value="Med"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value=""/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+        <property key="voltagevalue" value="3.25"/>
+      </pk4hybrid>
+    </conf>
+    <conf name="pic32mz_ef_curiosity_ecc" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC32MZ2048EFM100</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>pk4hybrid</platformTool>
+        <languageToolchain>XC32</languageToolchain>
+        <languageToolchainVersion>2.20</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <packs>
+        <pack name="PIC32MZ-EF_DFP" vendor="Microchip" version="1.0.20"/>
+      </packs>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+            <linkerLibFileItem>../../../../../vendors/microchip/harmony/v2.05/bin/framework/peripheral/PIC32MZ2048EFM100_peripherals.a</linkerLibFileItem>
+          </linkerLibItems>
+        </linkerTool>
+        <archiverTool>
+        </archiverTool>
+        <loading>
+          <makeArtifact PL="../bootloader_tests"
+                        CT="1"
+                        CN="pic32mz_ef_curiosity"
+                        AC="true"
+                        BL="true"
+                        WD="../bootloader_tests"
+                        BC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity"
+                        DBC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity TYPE_IMAGE=DEBUG_RUN"
+                        CC="rm -rf &quot;build/pic32mz_ef_curiosity&quot; &quot;dist/pic32mz_ef_curiosity&quot;"
+                        OP="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
+                        DOP="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf"
+                        FL="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
+                        PD="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.elf"
+                        DD="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf">
+          </makeArtifact>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+        <subordinates>
+        </subordinates>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep>python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}/mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ../../../../../vendors/microchip/boards/curiosity_pic32mzef/bootloader/bootloader/utility/ota_image_generator.py -b ${ImageDir}/mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <item path="../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c"
+            ex="true"
+            overriding="false">
+        <C32>
+        </C32>
+        <C32-AR>
+        </C32-AR>
+        <C32-AS>
+        </C32-AS>
+        <C32-LD>
+        </C32-LD>
+        <C32CPP>
+        </C32CPP>
+        <C32Global>
+        </C32Global>
+      </item>
       <C32>
         <property key="additional-warnings" value="true"/>
         <property key="addresss-attribute-use" value="false"/>

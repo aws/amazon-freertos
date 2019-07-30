@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/vendors/microchip/boards/curiosity_pic32mzef/ports/pkcs11/iot_pkcs11_secure_element.c</file>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_pkcs11_config.h</file>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/iot_test_pkcs11_config.h</file>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</file>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</file>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/vendors/microchip/boards/curiosity_pic32mzef/aws_tests/config_files/aws_test_runner_config.h</file>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code/atca_cert_chain.c</file>
+            <file>file:/C:/projects/aws/amazon-freertos_fork/libraries/freertos_plus/standard/tls/test/iot_test_tls.c</file>
+        </group>
+    </open-files>
+</project-private>

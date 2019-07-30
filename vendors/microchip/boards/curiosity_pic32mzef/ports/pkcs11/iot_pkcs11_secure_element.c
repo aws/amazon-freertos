@@ -33,11 +33,15 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "iot_pkcs11_config.h"
-#include "iot_test_pkcs11_config.h"
+
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_pal.h"
 #include "iot_pki_utils.h"
+
+#ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
+#include "iot_test_pkcs11_config.h"
+#endif
 
 /* Credential includes. */
 #include "aws_clientcredential.h"
@@ -57,6 +61,7 @@
 #include "hal/hal_pic32mz2048efm_i2c.h"
 extern DRV_I2C_Object cryptoObj;
 
+
 /*
  * PKCS#11 module implementation.
  */
@@ -73,10 +78,10 @@ CK_FUNCTION_LIST pkcs11FunctionList =
     C_GetFunctionList,
     C_GetSlotList,
     NULL, /*C_GetSlotInfo*/
-    NULL, /*C_GetTokenInfo*/
+    C_GetTokenInfo,
     NULL, /*C_GetMechanismList*/
     NULL, /*C_GetMechansimInfo */
-    NULL, /*C_InitToken*/
+    C_InitToken,
     NULL, /*C_InitPIN*/
     NULL, /*C_SetPIN*/
     C_OpenSession,

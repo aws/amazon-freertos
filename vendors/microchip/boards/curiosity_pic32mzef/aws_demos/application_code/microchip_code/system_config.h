@@ -203,7 +203,80 @@ extern "C" {
 // Section: Driver Configuration
 // *****************************************************************************
 // *****************************************************************************
+    // Please see the system_interrupt_a.S file as well.
+#define I2C_CHANNEL 1
+    
+#if (I2C_CHANNEL == 1)
+#define DRV_I2C_INTERRUPT_MODE                    		true
+#define DRV_I2C_CLIENTS_NUMBER                    		1
+#define DRV_I2C_INSTANCES_NUMBER                  		1
 
+#define DRV_I2C_PERIPHERAL_ID_IDX0                		I2C_ID_1
+#define DRV_I2C_OPERATION_MODE_IDX0               		DRV_I2C_MODE_MASTER
+#define DRV_SCL_PORT_IDX0                               PORT_CHANNEL_A
+#define DRV_SCL_PIN_POSITION_IDX0                       PORTS_BIT_POS_14
+#define DRV_SDA_PORT_IDX0                               PORT_CHANNEL_A
+#define DRV_SDA_PIN_POSITION_IDX0                       PORTS_BIT_POS_15
+#define DRV_I2C_BIT_BANG_IDX0                           false
+#define DRV_I2C_STOP_IN_IDLE_IDX0                       false
+#define DRV_I2C_SMBus_SPECIFICATION_IDX0			    false
+#define DRV_I2C_BAUD_RATE_IDX0                    		100000
+#define DRV_I2C_BRG_CLOCK_IDX0	                  		100000000
+#define DRV_I2C_SLEW_RATE_CONTROL_IDX0      			false
+#define DRV_I2C_MASTER_INT_SRC_IDX0               		INT_SOURCE_I2C_1_MASTER
+#define DRV_I2C_SLAVE_INT_SRC_IDX0                		
+#define DRV_I2C_ERR_MZ_INT_SRC_IDX0               		INT_SOURCE_I2C_1_BUS
+#define DRV_I2C_MASTER_INT_VECTOR_IDX0            		INT_VECTOR_I2C1_MASTER
+#define DRV_I2C_MASTER_ISR_VECTOR_IDX0                  _I2C1_MASTER_VECTOR
+#define DRV_I2C_MASTER_INT_PRIORITY_IDX0          		INT_PRIORITY_LEVEL1
+#define DRV_I2C_MASTER_INT_SUB_PRIORITY_IDX0      		INT_SUBPRIORITY_LEVEL0
+#define DRV_I2C_SLAVE_INT_VECTOR_IDX0             		INT_VECTOR_I2C1_SLAVE
+#define DRV_I2C_SLAVE_ISR_VECTOR_IDX0			  	    _I2C1_SLAVE_VECTOR
+#define DRV_I2C_SLAVE_INT_PRIORITY_IDX0           		
+#define DRV_I2C_SLAVE_INT_SUB_PRIORITY_IDX0       		
+#define DRV_I2C_ERR_INT_VECTOR_IDX0               		INT_VECTOR_I2C1_BUS
+#define DRV_I2C_ERR_ISR_VECTOR_IDX0                     _I2C1_BUS_VECTOR
+#define DRV_I2C_ERR_INT_PRIORITY_IDX0             		INT_PRIORITY_LEVEL1
+#define DRV_I2C_ERR_INT_SUB_PRIORITY_IDX0         		INT_SUBPRIORITY_LEVEL0
+#define DRV_I2C_POWER_STATE_IDX0                  		SYS_MODULE_POWER_RUN_FULL
+#define DRV_I2C_INTERRUPT_MODE                    		true
+    
+#elif (I2C_CHANNEL == 2)
+#define DRV_I2C_INTERRUPT_MODE                    		true
+#define DRV_I2C_CLIENTS_NUMBER                    		1
+#define DRV_I2C_INSTANCES_NUMBER                  		1
+
+#define DRV_I2C_PERIPHERAL_ID_IDX0                		I2C_ID_2
+#define DRV_I2C_OPERATION_MODE_IDX0               		DRV_I2C_MODE_MASTER
+#define DRV_SCL_PORT_IDX0                               PORT_CHANNEL_A
+#define DRV_SCL_PIN_POSITION_IDX0                       PORTS_BIT_POS_2
+#define DRV_SDA_PORT_IDX0                               PORT_CHANNEL_A
+#define DRV_SDA_PIN_POSITION_IDX0                       PORTS_BIT_POS_3
+#define DRV_I2C_BIT_BANG_IDX0                           false
+#define DRV_I2C_STOP_IN_IDLE_IDX0                       false
+#define DRV_I2C_SMBus_SPECIFICATION_IDX0			    false
+#define DRV_I2C_BAUD_RATE_IDX0                    		100000
+#define DRV_I2C_BRG_CLOCK_IDX0	                  		100000000
+#define DRV_I2C_SLEW_RATE_CONTROL_IDX0      			false
+#define DRV_I2C_MASTER_INT_SRC_IDX0               		INT_SOURCE_I2C_2_MASTER
+#define DRV_I2C_SLAVE_INT_SRC_IDX0                		
+#define DRV_I2C_ERR_MZ_INT_SRC_IDX0               		INT_SOURCE_I2C_2_BUS
+#define DRV_I2C_MASTER_INT_VECTOR_IDX0            		INT_VECTOR_I2C2_MASTER
+#define DRV_I2C_MASTER_ISR_VECTOR_IDX0                  _I2C2_MASTER_VECTOR
+#define DRV_I2C_MASTER_INT_PRIORITY_IDX0          		INT_PRIORITY_LEVEL1
+#define DRV_I2C_MASTER_INT_SUB_PRIORITY_IDX0      		INT_SUBPRIORITY_LEVEL0
+#define DRV_I2C_SLAVE_INT_VECTOR_IDX0             		INT_VECTOR_I2C2_SLAVE
+#define DRV_I2C_SLAVE_ISR_VECTOR_IDX0			  	    _I2C2_SLAVE_VECTOR
+#define DRV_I2C_SLAVE_INT_PRIORITY_IDX0           		
+#define DRV_I2C_SLAVE_INT_SUB_PRIORITY_IDX0       		
+#define DRV_I2C_ERR_INT_VECTOR_IDX0               		INT_VECTOR_I2C2_BUS
+#define DRV_I2C_ERR_ISR_VECTOR_IDX0                     _I2C2_BUS_VECTOR
+#define DRV_I2C_ERR_INT_PRIORITY_IDX0             		INT_PRIORITY_LEVEL1
+#define DRV_I2C_ERR_INT_SUB_PRIORITY_IDX0         		INT_SUBPRIORITY_LEVEL0
+#define DRV_I2C_POWER_STATE_IDX0                  		SYS_MODULE_POWER_RUN_FULL
+#define DRV_I2C_INTERRUPT_MODE                    		true
+#endif
+    
 /*** NVM Driver Configuration ***/
 #define DRV_NVM_INSTANCES_NUMBER     	1
 #define DRV_NVM_CLIENTS_NUMBER        	2
