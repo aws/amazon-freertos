@@ -2899,8 +2899,8 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
         }
         else
         {
-            /* strncpy adds a NULL terminator. */
-            strncpy(pValue, respHandle->pReadHeaderValue, respHandle->readHeaderValueLength);
+            memcpy(pValue, respHandle->pReadHeaderValue, respHandle->readHeaderValueLength);
+            pValue[respHandle->readHeaderValueLength] = '\0';
         }
     }
     else
