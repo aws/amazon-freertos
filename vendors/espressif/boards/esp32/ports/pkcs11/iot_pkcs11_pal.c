@@ -59,9 +59,9 @@ static void initialize_nvs_partition()
 {
     static bool nvs_inited;
 
-    portENTER_CRITICAL();
+    portENTER_CRITICAL_DISABLED();
     if (nvs_inited == true) {
-        portEXIT_CRITICAL();
+        portEXIT_CRITICAL_DISABLED();
         return;
     }
 
@@ -102,7 +102,7 @@ static void initialize_nvs_partition()
     }
 #endif // CONFIG_NVS_ENCRYPTION
     nvs_inited = true;
-    portEXIT_CRITICAL();
+    portEXIT_CRITICAL_DISABLED();
 
     return;
 }

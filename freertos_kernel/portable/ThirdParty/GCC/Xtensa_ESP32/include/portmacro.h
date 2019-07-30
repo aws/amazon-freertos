@@ -454,6 +454,9 @@ void exit(int);
 
 #endif // __ASSEMBLER__
 
+#define portENTER_CRITICAL_DISABLED()
+#define portEXIT_CRITICAL_DISABLED()
+
 #ifdef __cplusplus
 }
 #endif
