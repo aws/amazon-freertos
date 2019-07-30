@@ -26,43 +26,34 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
-/* To run a particular demo you need to define one of these. 
-   Only one demo can be configured at a time
-
-            CONFIG_MQTT_DEMO_ENABLED
-            CONFIG_SHADOW_DEMO_ENABLED
-            CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
-            CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
-            CONFIG_DEFENDER_DEMO_ENABLED
-            CONFIG_POSIX_DEMO_ENABLED
-            CONFIG_OTA_UPDATE_DEMO_ENABLED
-            
-    These defines are used in iot_demo_runner.h for demo selection */
+/* To run a particular demo you need to define one of these.
+ * Only one demo can be configured at a time
+ *
+ *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_SHADOW_DEMO_ENABLED
+ *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
+ *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
+ *          CONFIG_DEFENDER_DEMO_ENABLED
+ *          CONFIG_POSIX_DEMO_ENABLED
+ *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+ *
+ *  These defines are used in iot_demo_runner.h for demo selection */
 
 #define CONFIG_MQTT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE    ( configMINIMAL_STACK_SIZE * 15 )
-#define democonfigDEMO_PRIORITY     ( tskIDLE_PRIORITY + 1 )
-#define democonfigNETWORK_TYPES     ( AWSIOT_NETWORK_TYPE_WIFI )
+#define democonfigDEMO_STACKSIZE                          ( configMINIMAL_STACK_SIZE * 15 )
+#define democonfigDEMO_PRIORITY                           ( tskIDLE_PRIORITY + 1 )
+#define democonfigNETWORK_TYPES                           ( AWSIOT_NETWORK_TYPE_WIFI )
 
-#define democonfigSHADOW_DEMO_NUM_TASKS                ( 2 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigSHADOW_DEMO_TASK_PRIORITY            ( tskIDLE_PRIORITY + 1 )
-#define shadowDemoUPDATE_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 2 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY               ( tskIDLE_PRIORITY + 1 )
+#define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 5 )
 
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT    pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 4 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY              ( tskIDLE_PRIORITY )
-
-/* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS      ( 0 )
-/* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS        ( 1 )
-
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY           ( tskIDLE_PRIORITY + 1 )
-
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT       pdMS_TO_TICKS( 12000 )
+#define democonfigMQTT_ECHO_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Greengrass discovery example task parameters. */
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 22 )

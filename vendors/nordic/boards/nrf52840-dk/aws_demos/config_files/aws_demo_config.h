@@ -26,73 +26,67 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
-/* To run a particular demo you need to define one of these. 
-   Only one demo can be configured at a time
-
-            CONFIG_MQTT_DEMO_ENABLED
-            CONFIG_SHADOW_DEMO_ENABLED
-            CONFIG_OTA_UPDATE_DEMO_ENABLED
-            CONFIG_POSIX_DEMO_ENABLED
-            CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
-            
-    These defines are used in iot_demo_runner.h for demo selection */
+/* To run a particular demo you need to define one of these.
+ * Only one demo can be configured at a time
+ *
+ *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_SHADOW_DEMO_ENABLED
+ *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+ *          CONFIG_POSIX_DEMO_ENABLED
+ *          CONFIG_BLE_GATT_SERVER_DEMO_ENABLED
+ *
+ *  These defines are used in iot_demo_runner.h for demo selection */
 
 #define CONFIG_MQTT_DEMO_ENABLED
 
 /* Default configuration for all demos. Individual demos can override these below */
-#define democonfigDEMO_STACKSIZE               ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigDEMO_PRIORITY                ( tskIDLE_PRIORITY + 5 )
-#define democonfigNETWORK_TYPES                ( AWSIOT_NETWORK_TYPE_BLE )
+#define democonfigDEMO_STACKSIZE                             ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigDEMO_PRIORITY                              ( tskIDLE_PRIORITY + 5 )
+#define democonfigNETWORK_TYPES                              ( AWSIOT_NETWORK_TYPE_BLE )
 
-/* Number of sub pub tasks that connect to a broker that is not using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_UNSECURE_TASKS         ( 0 )
-
-/* Number of sub pub tasks that connect to a broker that is using TLS. */
-#define democonfigMQTT_SUB_PUB_NUM_SECURE_TASKS           ( 1 )
-
-#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 1 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                      ( 1 )
 
 /* IoT simple subscribe/publish example task parameters. */
-#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigMQTT_SUB_PUB_TASK_PRIORITY              ( tskIDLE_PRIORITY + 5 )
+#define democonfigMQTT_SUB_PUB_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigMQTT_SUB_PUB_TASK_PRIORITY                 ( tskIDLE_PRIORITY + 5 )
 
 /* Greengrass discovery example task parameters. */
-#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY + 5 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE       ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY         ( tskIDLE_PRIORITY + 5 )
 
 /* Shadow demo task parameters. */
 #define democonfigSHADOW_DEMO_TASK_STACK_SIZE                ( configMINIMAL_STACK_SIZE * 4 )
 #define democonfigSHADOW_DEMO_TASK_PRIORITY                  ( tskIDLE_PRIORITY )
 
 /* TCP Echo Client tasks single example parameters. */
-#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY      ( tskIDLE_PRIORITY + 5 )
+#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY        ( tskIDLE_PRIORITY + 5 )
 
 /* OTA Update task example parameters. */
-#define democonfigOTA_UPDATE_TASK_STACK_SIZE               ( 4 * configMINIMAL_STACK_SIZE )
-#define democonfigOTA_UPDATE_TASK_TASK_PRIORITY            ( tskIDLE_PRIORITY + 5 )
+#define democonfigOTA_UPDATE_TASK_STACK_SIZE                 ( 4 * configMINIMAL_STACK_SIZE )
+#define democonfigOTA_UPDATE_TASK_TASK_PRIORITY              ( tskIDLE_PRIORITY + 5 )
 
 /* Simple TCP Echo Server task example parameters */
-#define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE          ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigTCP_ECHO_SERVER_TASK_PRIORITY            ( tskIDLE_PRIORITY + 5)
+#define democonfigTCP_ECHO_SERVER_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigTCP_ECHO_SERVER_TASK_PRIORITY              ( tskIDLE_PRIORITY + 5 )
 
 /* TCP Echo Client tasks multi task example parameters. */
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE  ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY    ( tskIDLE_PRIORITY + 5 )
+#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigTCP_ECHO_TASKS_SEPARATE_TASK_PRIORITY      ( tskIDLE_PRIORITY + 5 )
 
 /* MQTT echo task example parameters. */
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE                ( configMINIMAL_STACK_SIZE * 8 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY                  ( tskIDLE_PRIORITY + 5 )
+#define democonfigMQTT_ECHO_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 8 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                    ( tskIDLE_PRIORITY + 5 )
 
 /* Timeout used when establishing a connection, which required TLS
-negotiation. */
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT	       pdMS_TO_TICKS( 12000 )
+ * negotiation. */
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT          pdMS_TO_TICKS( 12000 )
 
 /* Timeout used when performing MQTT operations that do not need extra time
-to perform a TLS negotiation. */
-#define democonfigMQTT_TIMEOUT						       pdMS_TO_TICKS( 3000 )
+ * to perform a TLS negotiation. */
+#define democonfigMQTT_TIMEOUT                               pdMS_TO_TICKS( 3000 )
 
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
-#define democonfigMQTT_AGENT_CONNECT_FLAGS                 ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
+#define democonfigMQTT_AGENT_CONNECT_FLAGS                   ( mqttagentREQUIRE_TLS | mqttagentUSE_AWS_IOT_ALPN_443 )
 
 #endif /* _AWS_DEMO_CONFIG_H_ */
