@@ -9,6 +9,11 @@
 ### Updates
 #### Demo specific stack size and priority
 - Make stack size and priority to be demo specific. In current release all demos have same stack size and priority. This change will make stack size and priority configurable for each demo. Demo can use default stack size/ priority or define its own.  
+#### Ethernet for Microchip Curiosity PIC32MZEF
+- Update Microchip Curiosity PIC32MZEF project and configuration files to support Ethernet connectivty. Developers must define PIC32_USE_ETHERNET at the project level to use Ethernet instead of Wi-Fi.
+
+### Test Updates
+- Remove elliptic curve tests from "quarantine" test group and add them back to the TLS test group.
 
 ## 201906.00 Major 06/17/2019
 ### Release Versioning
