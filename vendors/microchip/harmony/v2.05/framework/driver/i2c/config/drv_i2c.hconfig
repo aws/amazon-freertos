@@ -1,0 +1,3 @@
+# file: framework/driver/i2c/config/drv_i2c.hconfig
+
+source "$HARMONY_VERSION_PATH/framework/driver/i2c/config/$DATA_SHEET_ID.hconfig"

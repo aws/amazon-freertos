@@ -1,0 +1,1 @@
+source "$HARMONY_VERSION_PATH/framework/driver/i2c/config/drv_i2c_pic32m.hconfig"

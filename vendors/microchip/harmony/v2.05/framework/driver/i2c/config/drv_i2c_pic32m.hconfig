@@ -1,0 +1,219 @@
+menu "I2C"
+    depends on HAVE_I2C
+
+enum DRV_I2C_INDEX
+    "DRV_I2C_INDEX_0"
+    || "DRV_I2C_INDEX_1"
+    || "DRV_I2C_INDEX_2"
+    || "DRV_I2C_INDEX_3"
+    || "DRV_I2C_INDEX_4"
+    || "DRV_I2C_INDEX_5"
+
+enum DRV_I2C_OP_MODE
+    "DRV_I2C_MODE_MASTER"
+    || "DRV_I2C_MODE_SLAVE"
+
+enum DRV_I2C_ADDRESS_WIDTH
+    "DRV_I2C_7BIT_SLAVE"
+	|| "DRV_I2C_10BIT_SLAVE"
+
+enum DRV_I2C_STRICT_ADDRESS_RULE
+    "DRV_I2C_STRICT_ADDRESS_RULE_ENABLE"
+    || "DRV_I2C_STRICT_ADDRESS_RULE_DISABLE"
+
+enum DRV_I2C_SLEW_RATE_CONTROL
+	"DRV_I2C_HIGH_SPEED_ENABLE"
+	|| "DRV_I2C_HIGH_SPEED_DISABLE"
+
+enum DRV_I2C_GENERAL_CALL_ADDRESS
+	"DRV_I2C_GEN_CALL_ENABLE"
+	|| "DRV_I2C_GEN_CALL_DISABLE"
+
+enum DRV_I2C_CLOCK_STRETCH
+	"DRV_I2C_CLOCK_STRETCH_ENABLE"
+	|| "DRV_I2C_CLOCK_STRETCH_DISABLE"
+
+enum DRV_I2C_CLOCK_RELEASE_CONTROL
+	"DRV_I2C_CLK_RELEASE_CTRL_ENABLE"
+	|| "DRV_I2C_CLK_RELEASE_CTRL_DISABLE"
+
+enum DRV_I2C_MODE
+       "DYNAMIC"
+	|| "STATIC"
+
+enum DRV_I2C_STATIC_DRIVER_SELECTION
+    "BYTE_MODEL_STATIC"
+    || "BUFFER_MODEL_STATIC"
+
+enum I2C_MZ_EC_ERRATA_CHOICE
+	"MZ_EC_ERRATA_25_BIT_BANG_STOP"
+	|| "MZ_EC_MODULE_RESET"
+
+config USE_DRV_I2C_NEEDED
+    bool
+
+config DRV_I2C_BB_USED
+    bool
+
+config DRV_I2C_BIT_BANG_NEEDED
+    bool
+
+config DRV_I2C_INTERRUPT_MODE_NEEDED
+    bool
+    default y
+
+config USE_DRV_I2C_DYNAMIC_NEEDED
+    bool
+
+config USE_DRV_I2C
+    bool "Use I2C Driver?"
+    default n if !USE_DRV_I2C_NEEDED
+    default y if USE_DRV_I2C_NEEDED
+	select DRIVER
+    ---help---
+    IDH_HTML_I2C_Driver_Library
+    ---endhelp---
+
+config DRV_I2C_DRIVER_MODE
+    string "Driver Implementation"
+    depends on USE_DRV_I2C
+    range DRV_I2C_MODE
+    default "DYNAMIC"
+    ---help---
+    IDH_HTML_I2C_Driver_Library
+    ---endhelp---
+
+config DRV_I2C_STATIC_DRIVER_MODE
+    string "Static Driver Type"
+    depends on USE_DRV_I2C
+    depends on DRV_I2C_DRIVER_MODE = "STATIC"
+    default "BUFFER_MODEL_STATIC"
+    range DRV_I2C_STATIC_DRIVER_SELECTION
+    ---help---
+    IDH_HTML_I2C_STATIC_DRIVER_MODE
+    ---endhelp---
+
+ comment "**** Warning: This implementation will be deprecated in future release. Please use BUFFER_MODEL_STATIC instead. ****"
+    depends on USE_DRV_I2C
+    depends on DRV_I2C_STATIC_DRIVER_MODE = "BYTE_MODEL_STATIC"
+
+
+config DRV_I2C_INCLUDE_DRIVER
+    bool
+    depends on USE_DRV_I2C
+    depends on DRV_I2C_DRIVER_MODE = "DYNAMIC"
+    select DRIVER
+    default y
+
+config DRV_I2C_INCLUDE_INTERRUPT_SERVICE
+    bool
+    depends on USE_DRV_I2C
+    depends on DRV_I2C_DRIVER_MODE = "DYNAMIC"
+    depends on DRV_I2C_INTERRUPT_MODE
+    select USE_SYS_INT_NEEDED
+    default y
+
+config DRV_I2C_INTERRUPT_MODE
+    bool "Interrupt Mode"
+    depends on USE_DRV_I2C
+    default y if DRV_I2C_INTERRUPT_MODE_NEEDED
+    default n
+    select USE_SYS_INT_NEEDED
+    ---help---
+    IDH_HTML_DRV_I2C_INTERRUPT_MODE
+    ---endhelp---
+
+config DRV_I2C_MZEC_ERRATA_CHOICE
+    string "MZ-EC Errata Method"
+    depends on USE_DRV_I2C
+	depends on DS60001191
+    range I2C_MZ_EC_ERRATA_CHOICE
+	default "MZ_EC_MODULE_RESET"
+    ---help---
+    IDH_HTML_DRV_I2C_INTERRUPT_MODE
+    ---endhelp---
+
+ifblock DRV_I2C_DRIVER_MODE = "DYNAMIC"
+
+config DRV_I2C_CLIENTS_NUMBER
+    int "Number of I2C Driver Clients"
+    depends on USE_DRV_I2C
+    default DRV_I2C_INSTANCES_NUMBER
+    ---help---
+    IDH_HTML_DRV_I2C_CLIENTS_NUMBER
+    ---endhelp---
+
+endif
+
+config DRV_I2C_INSTANCES_NUMBER
+    int "Number of I2C Driver Instances"
+    depends on USE_DRV_I2C
+    range 1 I2C_NUMBER_OF_MODULES
+    default 1
+    ---help---
+    IDH_HTML_DRV_I2C_INSTANCES_NUMBER
+    ---endhelp---
+
+config DRV_I2C_FORCED_WRITE
+    bool "Include Force Write I2C Function (Master Mode Only - Ignore NACK from Slave)"
+    depends on USE_DRV_I2C
+    default n
+    ---help---
+    IDH_HTML_DRV_I2C_FORCED_WRITE
+    ---endhelp---
+
+source "$HARMONY_VERSION_PATH/framework/driver/i2c/config/drv_i2c_pic32m.ftl" 5 instances
+
+endmenu
+
+ifblock USE_DRV_I2C
+
+add "<#include \"/framework/driver/i2c/templates/drv_i2c.c.ftl\">"  to list SYSTEM_INIT_C_DRIVER_INITIALIZATION_DATA
+add "<#include \"/framework/driver/i2c/templates/drv_i2c_init.c.ftl\">"  to list SYSTEM_INIT_C_SYS_INITIALIZE_DEPENDENT_DRIVERS
+add "<#include \"/framework/driver/i2c/templates/drv_i2c_tasks.c.ftl\">"  to list SYSTEM_TASKS_C_CALL_DRIVER_TASKS
+add "<#include \"/framework/driver/i2c/templates/drv_i2c.h.ftl\">"  to list SYSTEM_CONFIG_H_DRIVER_CONFIGURATION
+add "<#include \"/framework/driver/i2c/templates/drv_i2c_int.c.ftl\">"  to list SYSTEM_INTERRUPT_C_VECTORS
+add "<#include \"/framework/driver/i2c/templates/drv_i2c_system_definitions.h.ftl\">" to list SYSTEM_DEFINITIONS_H_INCLUDES
+
+file DRV_I2C_DYNAMIC_H  "$HARMONY_VERSION_PATH/framework/driver/i2c/drv_i2c.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/drv_i2c.h"
+file DRV_I2C_DYNAMIC_PIC32_H  "$HARMONY_VERSION_PATH/framework/driver/i2c/drv_i2c_device_pic32m.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/drv_i2c_device_pic32m.h"
+file DRV_I2C_LOCAL_H  "$HARMONY_VERSION_PATH/framework/driver/i2c/src/drv_i2c_local.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/src/drv_i2c_local.h"
+file DRV_I2C_LOCAL_VAR_H  "$HARMONY_VERSION_PATH/framework/driver/i2c/src/drv_i2c_variant_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/src/drv_i2c_variant_mapping.h"
+file DRV_I2C_DYNAMIC_HC  "$HARMONY_VERSION_PATH/framework/driver/i2c/drv_i2c_compatibility.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/drv_i2c_compatibility.h"
+file DRV_I2C_DYNAMIC_HM  "$HARMONY_VERSION_PATH/framework/driver/i2c/drv_i2c_mapping.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/drv_i2c_mapping.h"
+
+ifblock DRV_I2C_STATIC_DRIVER_MODE = "BYTE_MODEL_STATIC" || DRV_I2C_STATIC_DRIVER_MODE = "STATIC"
+
+template DRV_I2C_STATIC_H_FTL "$HARMONY_VERSION_PATH/framework/driver/i2c/templates/drv_i2c_static.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/i2c/drv_i2c_static.h"
+template DRV_I2C_STATIC_C_FTL "$HARMONY_VERSION_PATH/framework/driver/i2c/templates/drv_i2c_static.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/i2c/src/drv_i2c_static.c"
+template DRV_I2C_MAPPING_C_FTL "$HARMONY_VERSION_PATH/framework/driver/i2c/templates/drv_i2c_mapping.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/i2c/src/drv_i2c_mapping.c"
+endif
+
+ifblock DRV_I2C_STATIC_DRIVER_MODE = "BUFFER_MODEL_STATIC"
+template DRV_I2C_STATIC_BUFFER_MODEL_H_FTL "$HARMONY_VERSION_PATH/framework/driver/i2c/templates/drv_i2c_static_buffer_model.h.ftl" to "$PROJECT_HEADER_FILES/app/system_config/$CONFIGURATION/framework/driver/i2c/drv_i2c_static_buffer_model.h"
+template DRV_I2C_STATIC_BUFFER_MODEL_C_FTL "$HARMONY_VERSION_PATH/framework/driver/i2c/templates/drv_i2c_static_buffer_model.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/i2c/src/drv_i2c_static_buffer_model.c"
+template DRV_I2C_MAPPING1_C_FTL "$HARMONY_VERSION_PATH/framework/driver/i2c/templates/drv_i2c_mapping.c.ftl" to "$PROJECT_SOURCE_FILES/app/system_config/$CONFIGURATION/framework/driver/i2c/src/drv_i2c_mapping.c"
+endif
+
+ifblock DRV_I2C_DRIVER_MODE = "DYNAMIC"
+ifblock !DRV_I2C_BB_USED
+file DRV_I2C_DYNAMIC_C  "$HARMONY_VERSION_PATH/framework/driver/i2c/src/dynamic/drv_i2c.c" to "$PROJECT_SOURCE_FILES/framework/driver/i2c/src/dynamic/drv_i2c.c"
+ifblock DRV_I2C_FORCED_WRITE
+file DRV_I2C_DYNAMIC_CF  "$HARMONY_VERSION_PATH/framework/driver/i2c/src/dynamic/drv_i2c_forced.c" to "$PROJECT_SOURCE_FILES/framework/driver/i2c/src/dynamic/drv_i2c_forced.c"
+endif
+
+endif
+ifblock DRV_I2C_BB_USED
+file DRV_I2C_DYNAMIC_H2  "$HARMONY_VERSION_PATH/framework/driver/i2c/drv_i2c_bb_a.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/drv_i2c_bb_a.h"
+file DRV_I2C_DYNAMIC_HC2  "$HARMONY_VERSION_PATH/framework/driver/i2c/drv_i2c_bb_a_compatibility.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/drv_i2c_bb_a_compatibility.h"
+file DRV_I2C_DYNAMIC_C2  "$HARMONY_VERSION_PATH/framework/driver/i2c/src/dynamic/drv_i2c_bb_a.c" to "$PROJECT_SOURCE_FILES/framework/driver/i2c/src/dynamic/drv_i2c_bb_a.c"
+file DRV_I2C_DYNAMIC_H1 "$HARMONY_VERSION_PATH/framework/driver/i2c/drv_i2c_bb.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/drv_i2c_bb.h"
+file DRV_I2C_DYNAMIC_C1 "$HARMONY_VERSION_PATH/framework/driver/i2c/src/dynamic/drv_i2c_bb.c" to "$PROJECT_SOURCE_FILES/framework/driver/i2c/src/dynamic/drv_i2c_bb.c"
+file DRV_I2C_LOCAL_BB_H  "$HARMONY_VERSION_PATH/framework/driver/i2c/src/drv_i2c_local_bb.h" to "$PROJECT_HEADER_FILES/framework/driver/i2c/src/drv_i2c_local_bb.h"
+ifblock DRV_I2C_FORCED_WRITE
+file DRV_I2C_DYNAMIC_CFB "$HARMONY_VERSION_PATH/framework/driver/i2c/src/dynamic/drv_i2c_forced_bb.c" to "$PROJECT_SOURCE_FILES/framework/driver/i2c/src/dynamic/drv_i2c_forced_bb.c"
+endif
+endif
+endif
+
+endif
