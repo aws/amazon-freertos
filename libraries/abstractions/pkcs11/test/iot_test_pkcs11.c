@@ -618,8 +618,8 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Finalize failed" );
 }
 
-extern CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
-                             CK_ULONG * pxSlotCount );
+extern CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
+                           CK_ULONG * pxSlotCount );
 TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
 {
     CK_SLOT_ID_PTR pxSlotId = NULL;
@@ -634,11 +634,11 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
 
     if( TEST_PROTECT() )
     {
-        xResult = prvGetSlotList( &pxSlotId,
-                                  &xSlotCount );
+        xResult = xGetSlotList( &pxSlotId,
+                                &xSlotCount );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot list" );
         xSlotId = pxSlotId[ pkcs11testSLOT_NUMBER ];
-        vPortFree( pxSlotId ); /* prvGetSlotList allocates memory. */
+        vPortFree( pxSlotId ); /* xGetSlotList allocates memory. */
         TEST_ASSERT_GREATER_THAN( 0, xSlotCount );
 
 
