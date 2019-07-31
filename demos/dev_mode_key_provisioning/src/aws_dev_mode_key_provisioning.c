@@ -627,10 +627,10 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-CK_RV xDestroyProvidedCredentials( CK_SESSION_HANDLE xSession,
-                                   CK_BYTE_PTR * ppxPkcsLabels,
-                                   CK_OBJECT_CLASS * xClass,
-                                   CK_ULONG ulCount )
+CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
+                               CK_BYTE_PTR * ppxPkcsLabels,
+                               CK_OBJECT_CLASS * xClass,
+                               CK_ULONG ulCount )
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
@@ -701,10 +701,10 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
         CKO_PUBLIC_KEY
     };
 
-    xResult = xDestroyProvidedCredentials( xSession,
-                                           pxPkcsLabels,
-                                           xClass,
-                                           sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
+    xResult = xDestroyProvidedObjects( xSession,
+                                       pxPkcsLabels,
+                                       xClass,
+                                       sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
 
     return xResult;
 }

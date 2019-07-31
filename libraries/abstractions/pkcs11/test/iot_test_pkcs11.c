@@ -346,10 +346,10 @@ static CK_RV prvDestroyTestCredentials( void )
         CKO_PUBLIC_KEY
     };
 
-    xResult = xDestroyProvidedCredentials( xGlobalSession,
-                                           pxPkcsLabels,
-                                           xClass,
-                                           sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
+    xResult = xDestroyProvidedObjects( xGlobalSession,
+                                       pxPkcsLabels,
+                                       xClass,
+                                       sizeof( xClass ) / sizeof( CK_OBJECT_CLASS ) );
 
     return xResult;
 }

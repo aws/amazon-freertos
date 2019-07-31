@@ -245,9 +245,9 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession );
  *   \return CKR_OK if all credentials were destroyed.
  *   Otherwise, a positive PKCS #11 error code.
  */
-CK_RV xDestroyProvidedCredentials( CK_SESSION_HANDLE xSession,
-                                   CK_BYTE_PTR * ppxPkcsLabels,
-                                   CK_OBJECT_CLASS * pxClass,
-                                   CK_ULONG ulCount );
+CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
+                               CK_BYTE_PTR * ppxPkcsLabels,
+                               CK_OBJECT_CLASS * pxClass,
+                               CK_ULONG ulCount );
 
 #endif /* _AWS_DEV_MODE_KEY_PROVISIONING_H_ */
