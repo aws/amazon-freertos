@@ -49,7 +49,7 @@ openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAc
 
 # Register CA Certificate
 echo "Registering CA Certificate"
-aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config file://test.json
+aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config file://provisioning-template.json
 
 
 # CREATING DEVICE CERTIFICATE
