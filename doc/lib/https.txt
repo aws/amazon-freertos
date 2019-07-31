@@ -1,0 +1,50 @@
+/**
+@mainpage
+@anchor https
+@brief HTTPS Client v1.0.0 library.
+
+- HTTP Main page text.
+
+@dependencies_section{https}
+@dependencies_brief{HTTPS library}
+
+@dot "HTTPS direct dependencies"
+digraph https_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph
+    {
+        https[label="HTTPS", fillcolor="#cc00ccff"];
+    }
+    subgraph
+    {
+        node[fillcolor="#aed8a9ff"];
+        rank = same;
+        linear_containers[label="List/Queue", URL="@ref linear_containers"];
+        logging[label="Logging", URL="@ref logging"];
+    }
+    subgraph
+    {
+        rank = same;
+        platform_threads[label="Thread management", fillcolor="#e89025ff", URL="@ref platform_threads"];
+        platform_clock[label="Clock", fillcolor="#e89025ff", URL="@ref platform_clock"];
+        platform_network[label="Network", fillcolor="#e89025ff", URL="@ref platform_network"];
+    }
+    https -> linear_containers;
+    https -> logging [label=" if logging enabled", style="dashed"];
+    https -> platform_threads;
+    https -> platform_clock;
+    https -> platform_network;
+    logging -> platform_clock;
+}
+@enddot
+
+*/
+
+/**
+@page https_design Design
+@brief Architecture behind the HTTPS library.
+
+
+*/
