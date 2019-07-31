@@ -77,7 +77,7 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlPath(const char * pUrl, size_t urlLen,
  * @param[in] pUrl - URL string to parse.
  * @param[in] urlLen - The length of the URL string input.
  * @param[out] pAddress - pointer within input url that the address starts at.
- * @param[out] addresssLen - Length of the address.
+ * @param[out] pAddressLen - Length of the address.
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the path was successfully parsed.

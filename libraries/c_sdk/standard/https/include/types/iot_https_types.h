@@ -39,19 +39,63 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-/*-----------------------------------------------------------*/
+/*------------------------- HTTPS defined constants --------------------------*/
 
 /**
- * @constantspage{https_client,HTTPS Client library}
- */
-
-/**
+ * @constants_page{https_client}
+ * @constants_brief{HTTPS Client library}
+ *
  * @section https_minimum_user_buffer_sizes HTTPS Client Minimum User Buffer Sizes
- * @brief variables calculating the size of #IotHttpsUserBuffer_t.bufferLen needed for the request, response, and
+ * @brief Variables calculating the size of #IotHttpsUserBuffer_t.bufferLen needed for the request, response, and
  * connection.
  *
  * @note These user buffer minumum values may change at any time in future versions, but their names will remain the
  * same.
+ * - @ref requestUserBufferMinimumSize <br>
+ *   @copybrief requestUserBufferMinimumSize
+ * - @ref responseUserBufferMinimumSize <br>
+ *   @copybrief responseUserBufferMinimumSize
+ * - @ref connectionUserBufferMinimumSize <br>
+ *   @copybrief connectionUserBufferMinimumSize
+ *
+ * @section https_connection_flags HTTPS Client Connection Flags
+ * @brief Flags that modify the behavior of the HTTPS Connection.
+ *
+ * Flags should be bitwised-ORed with each other to change the behavior of @ref https_client_function_sendasync and
+ * @ref https_client_function_sendsync. These flags are set in #IotHttpsConnectionInfo_t.flags.
+ *
+ * @note The values of flags may change at any time in future versions, but their names will remain the same.
+ *
+ * @section https_initializers HTTP Initializers
+ * @brief Provide default values for the data types of the HTTP Client Library.
+ *
+ * @snippet this define_https_initializers
+ *
+ * All user-facing data types of the HTTPS Client library should be initialized using one of the following.
+ *
+ * @warning Failing to initialize an HTTPS Client data type with the appropriate initializer may result in undefined
+ * behavior.
+ * @note The initializers may change at any time in future versions, but their names will remain the same.
+ *
+ * <b>Example</b>
+ * @code{c}
+ * IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+ * IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+ * IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+ * IotHttpsUserBuffer_t userBuffer = IOT_HTTPS_USER_BUFFER_INITIALIZER;
+ * IotHttpsSyncInfo_t syncInfoReq = IOT_HTTPS_SYNC_INFO_INITIALIZER;
+ * IotHttpsSyncInfo_t syncInfoResp = IOT_HTTPS_SYNC_INFO_INITIALIZER;
+ * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
+ * IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER
+ * IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER
+ * @endcode
+ *
+ * @section http_constants_connection_flags HTTPS Client Connection Flags
+ * @brief Flags that modify the behavior the HTTPS connection.
+ * - #IOT_HTTPS_IS_NON_TLS_FLAG <br>
+ *   @copybrief IOT_HTTPS_IS_NON_TLS_FLAG
+ * - #IOT_HTTPS_DISABLE_SNI <br>
+ *   @copybrief IOT_HTTPS_DISABLE_SNI
  */
 
 /**
@@ -105,16 +149,6 @@ extern const uint32_t responseUserBufferMinimumSize;
 extern const uint32_t connectionUserBufferMinimumSize;
 
 /**
- * @section https_connection_flags HTTPS Client Connection Flags
- * @brief Flags that modify the behavior of the HTTPS Connection.
- *
- * Flags should be bitwised-ORed with each other to change the behavior of @ref https_client_function_sendasync and
- * @ref https_client_function_sendsync. These flags are set in #IotHttpsConnectionInfo_t.flags.
- *
- * @note The values of flags may change at any time in future versions, but their names will remain the same.
- */
-
-/**
  * @brief Flag for #IotHttpsConnectionInfo_t that disables TLS.
  *
  * Set this bit in #IotHttpsConnectionInfo_t.flags to disable use of TLS when the connection is created. This library
@@ -130,32 +164,6 @@ extern const uint32_t connectionUserBufferMinimumSize;
  */
 #define IOT_HTTPS_DISABLE_SNI               ( 0x00000008 )
 
-/**
- * @section https_initializers HTTP Initializers
- * @brief Provide default values for the data types of the HTTP Client Library.
- *
- * @snippet this define_https_initializers
- *
- * All user-facing data types of the HTTPS Client library should be initialized using one of the following.
- *
- * @warning Failing to initialize an HTTPS Client data type with the appropriate initializer may result in undefined
- * behavior.
- * @note The initializers may change at any time in future versions, but their names will remain the same.
- *
- * <b>Example</b>
- * @code{c}
- * IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
- * IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
- * IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
- * IotHttpsUserBuffer_t userBuffer = IOT_HTTPS_USER_BUFFER_INITIALIZER;
- * IotHttpsSyncInfo_t syncInfoReq = IOT_HTTPS_SYNC_INFO_INITIALIZER;
- * IotHttpsSyncInfo_t syncInfoResp = IOT_HTTPS_SYNC_INFO_INITIALIZER;
- * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
- * IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER
- * IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER
- * @code
- *
- */
 /* @[define_https_initializers] */
 /** @brief Initializer for #IotHttpsConnectionHandle_t. */
 #define IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER     NULL
@@ -167,6 +175,8 @@ extern const uint32_t connectionUserBufferMinimumSize;
 #define IOT_HTTPS_USER_BUFFER_INITIALIZER           { 0 }
 /** @brief Initializer for #IotHttpsSyncInfo_t. */
 #define IOT_HTTPS_SYNC_INFO_INITIALIZER             { 0 }
+/** @brief Initializer for #IotHttpsAsyncInfo_t. */
+#define IOT_HTTPS_ASYNC_INFO_INITIALIZER            { 0 }
 /** @brief Initializer for #IotHttpsConnectionInfo_t. */
 #define IOT_HTTPS_CONNECTION_INFO_INITIALIZER       { 0 }
 /** @brief Initializer for #IotHttpsRequestInfo_t. */
@@ -184,10 +194,11 @@ extern const uint32_t connectionUserBufferMinimumSize;
  */
 #define IOT_HTTPS_NETWORK_INTERFACE_TYPE                      const IotNetworkInterface_t*
 
-/*-----------------------------------------------------------*/
+/*---------------------------- HTTPS handle types ----------------------------*/
 
 /**
- * @handles{https_client,HTTPS Client library}
+ * @handles_group{https_client}
+ * @handles_brief{HTTPS Client library}
  */
 
 /**
@@ -247,10 +258,11 @@ typedef struct _httpsRequest *IotHttpsRequestHandle_t;
  */
 typedef struct _httpsResponse *IotHttpsResponseHandle_t;
 
-/*-----------------------------------------------------------*/
+/*-------------------------- HTTPS enumerated types --------------------------*/
 
 /**
- * @enums{https_client,HTTPS Client library}
+ * @enums_group{https_client}
+ * @enums_brief{HTTPS Client library}
  */
 
 /**
@@ -259,41 +271,151 @@ typedef struct _httpsResponse *IotHttpsResponseHandle_t;
  */
 typedef enum IotHttpsReturnCode
 {
+    /**
+     * @brief Returned for a successful operation.
+     */
     IOT_HTTPS_OK = 0,
 
-    /* input/output related */
+    /**
+     * @brief An invalid parameter was passed into an API function.
+     */
     IOT_HTTPS_INVALID_PARAMETER = 101,
+
+    /**
+     * @brief Invalid payload.
+     */
     IOT_HTTPS_INVALID_PAYLOAD = 102,
+
+    /**
+     * @brief HTTPS message was too large to fit into a configured synchronous body buffer.
+     */
     IOT_HTTPS_MESSAGE_TOO_LARGE = 103,
+
+    /**
+     * @brief Overflow occurred somewhere.
+     */
     IOT_HTTPS_OVERFLOW = 104,
+
+    /**
+     * @brief A buffer provided could not hold data required by the library.
+     */
     IOT_HTTPS_INSUFFICIENT_MEMORY = 105,
+
+    /**
+     * @brief Queue full.
+     */
     IOT_HTTPS_QUEUE_FULL = 106,
+
+    /**
+     * @brief Operation retry.
+     */
     IOT_HTTPS_RETRY = 107,
+
+    /**
+     * @brief Could not find an item specified by an API.
+     * 
+     * Returned for not being able to find the address in a URL, the path in a URL, or a header field from the response 
+     * headers.
+     */
     IOT_HTTPS_NOT_FOUND = 108,
+
+    /**
+     * @brief The HTTP request message was finished being written and we cannot write more with @ref https_client_function_writerequestbody.
+     */
     IOT_HTTPS_MESSAGE_FINISHED = 109,
 
-    /* internal error  */
+    /**
+     * @brief An error occurred internally to the library.
+     */
     IOT_HTTPS_INTERNAL_ERROR = 201,
+
+    /**
+     * @brief A network error occurred.
+     */
     IOT_HTTPS_NETWORK_ERROR = 202,
+
+    /**
+     * @brief A network connection error occurred.
+     */
     IOT_HTTPS_CONNECTION_ERROR = 203,
+
+    /**
+     * @brief A stream error occurred. 
+     */
     IOT_HTTPS_STREAM_ERROR = 204,
+
+    /**
+     * @brief An authentication error occurred.
+     */
     IOT_HTTPS_AUTHENTICATION_ERROR = 205,
+
+    /**
+     * @brief A TLS error occurred.
+     */
     IOT_HTTPS_TLS_ERROR = 206,
+
+    /**
+     * @brief An error occurred during the user callback.
+     */
     IOT_HTTPS_USER_CALLBACK_ERROR = 207,
+
+    /**
+     * @brief The synchronous response could not be received in the specified timeout in @ref https_client_function_sendsync.
+     */
     IOT_HTTPS_TIMEOUT_ERROR = 208,
+
+    /**
+     * @brief An error in the HTTP protocol.
+     */
     IOT_HTTPS_PROTOCOL_ERROR = 209,
+
+    /**
+     * @brief The HTTPS request send was cancelled.
+     */
     IOT_HTTPS_SEND_ABORT = 210,
+
+    /**
+     * @brief The HTTPS response receiving was cancelled.
+     */
     IOT_HTTPS_RECEIVE_ABORT = 211,
+
+    /**
+     * @brief The asynchronous request had an error being scheduled.
+     */
     IOT_HTTPS_ASYNC_SCHEDULING_ERROR = 212,
+
+    /**
+     * @brief There was an error parsing the HTTP response.
+     */
     IOT_HTTPS_PARSING_ERROR = 213,
 
-    /* other */
+    /**
+     * @brief Fatal HTTP library error.
+     */
     IOT_HTTPS_FATAL = 901,
+
+    /**
+     * @brief The connection is busy and cannot be cleaned up.
+     * 
+     * The connection was closed, but @ref https_client_function_disconnect must be called again to cleanup connection
+     * resources.
+     */
     IOT_HTTPS_BUSY = 902,
+
+    /**
+     * @brief Try again.
+     */
     IOT_HTTPS_TRY_AGAIN = 903,
+
+    /**
+     * @brief Data exists.
+     */
     IOT_HTTPS_DATA_EXIST = 904,
-    IOT_HTTPS_NOT_SUPPORTED = 905,
-    IOT_HTTPS_ASYNC_CANCELLED = 906
+
+    /**
+     * @brief The operation on the public API is not supported.
+     */
+    IOT_HTTPS_NOT_SUPPORTED = 905
 } IotHttpsReturnCode_t;
 
 /**
@@ -359,10 +481,11 @@ enum IotHttpsResponseStatus
     IOT_HTTPS_STATUS_HTTP_VERSION_NOT_SUPPORTED
 };
 
-/*-----------------------------------------------------------*/
+/*------------------------- HTTPS parameter structs --------------------------*/
 
 /**
- * @paramstructs{https_client,HTTPS Client Libray}
+ * @paramstructs_group{https_client}
+ * @paramstructs_brief{https_client,HTTPS Client Libray}
  */
 
 /**
@@ -370,7 +493,7 @@ enum IotHttpsResponseStatus
  * 
  * @brief HTTPS Client library callbacks for asynchronous requests.
  * 
- * @paramfor @ https_client_function_initialize_request
+ * @paramfor @ref https_client_function_initializerequest
  * 
  * This type is a parameter in #IotHttpsResponseInfo_t.u.pAsyncInfo.callbacks.
  * 
@@ -526,7 +649,7 @@ typedef struct IotHttpsSyncRequestInfo
  * An asynchronous request will have the application read headers and body as soon as the response is received
  * on the network.
  */
-typedef struct IotHttpsAsyncRequestInfo
+typedef struct IotHttpsAsyncInfo
 {
     /**
      * @brief Callbacks are used for an asynchronous request. 
@@ -573,7 +696,7 @@ typedef struct IotHttpsConnectionInfo
     /**
      * @brief Timeout waiting for a response from the network in milliseconds.
      * 
-     * If this is set to zero, it will default to IOT_HTTPS_RESPONSE_WAIT_MS.
+     * If this is set to zero, it will default to @ref IOT_HTTPS_RESPONSE_WAIT_MS.
      */
     uint32_t timeout;
 
@@ -661,7 +784,7 @@ typedef struct IotHttpsRequestInfo
      * @brief Application owned buffer for storing the request headers and internal request context.
      *
      * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
-     * freed, or reused until the the #IotHttpCallbacks_t.responseCompleteCallback is invoked.
+     * freed, or reused until the the #IotHttpsCallbacks_t.responseCompleteCallback is invoked.
      *
      * Please see #IotHttpsUserBuffer_t for more information.
      */
