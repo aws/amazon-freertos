@@ -680,7 +680,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         _pReqConfigs[reqIndex].userBuffer.pBuffer = _pReqUserBuffers[reqIndex];
         _pReqConfigs[reqIndex].userBuffer.bufferLen = sizeof( _pReqUserBuffers[reqIndex] );
         _pReqConfigs[reqIndex].isAsync = true;
-        _pReqConfigs[reqIndex].pAsyncInfo = &asyncInfo;
+        _pReqConfigs[reqIndex].u.pAsyncInfo = &asyncInfo;
 
         /* Set the HTTP response configurations. */
         _pRespConfigs[reqIndex].userBuffer.pBuffer = _pRespUserBuffers[reqIndex];

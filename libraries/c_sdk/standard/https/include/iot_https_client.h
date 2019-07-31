@@ -409,10 +409,10 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
  * 
  * To retrieve the response body applications must directly refer #IotHttpsRequestInfo_t.pSyncInfo_t.pRespData. 
  * 
- * If the response body does not fit in the configured #IotHttpsRequestInfo_t.pSyncInfo.pRespData, then 
- * #IotHttpsRequestInfo_t.pSyncInfo.pRespData will contain only the first #IotHttpsRequestInfo_t.pSyncInfo.respDataLen 
+ * If the response body does not fit in the configured #IotHttpsRequestInfo_t.u.pSyncInfo.pRespData, then 
+ * #IotHttpsRequestInfo_t.u.pSyncInfo.pRespData will contain only the first #IotHttpsRequestInfo_t.u.pSyncInfo.respDataLen 
  * of the body requested and the rest of the body requested will be thrown away. This function will return with error 
- * #IOT_HTTPS_MESSAGE_TOO_LARGE if the response body does fit into #IotHttpsRequestInfo_t.pSyncInfo.pRespData. To avoid
+ * #IOT_HTTPS_MESSAGE_TOO_LARGE if the response body does fit into #IotHttpsRequestInfo_t.u.pSyncInfo.pRespData. To avoid
  * this issue, the application needs to determine beforehand how large the file to download is. This can be done with a
  * HEAD request first, then extracting the "Content-Length" with @ref https_client_function_readcontentlength. This 
  * could also be done with a GET request with the header "Range: bytes=0-0", then extracing the "Content-Range" with 
@@ -442,7 +442,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the request was sent and the response was received successfully.
- * - #IOT_HTTPS_MESSAGE_TOO_LARGE if the response cannot fit in the configured struct IotHttpsRequestHandle.userBuffer.pBuffer and struct IotHttpsRequestHandle.pSyncInfo.pRespData.
+ * - #IOT_HTTPS_MESSAGE_TOO_LARGE if the response cannot fit in the configured struct IotHttpsRequestHandle.userBuffer.pBuffer and struct IotHttpsRequestHandle.u.pSyncInfo.pRespData.
  * - #IOT_HTTPS_CONNECTION_ERROR if the connection failed.
  * - #IOT_HTTPS_INVALID_PARAMETER if there are NULL parameters or the request is asynchronous.
  * - #IOT_HTTPS_NETWORK_ERROR if there was an error sending the data on the network.
