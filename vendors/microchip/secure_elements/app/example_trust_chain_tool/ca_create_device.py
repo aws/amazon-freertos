@@ -13,6 +13,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
 
+from common import *
+
 
 def pubnums_to_bytes(pub_nums):
     try:
@@ -54,23 +56,10 @@ def device_cert_sn(size, builder):
         return int(binascii.hexlify(raw_sn), 16)
 
 
-def create_device_cert(signer_file, signer_key_file):
+def create_device_cert(public_key, signer_file, signer_key_file):
     # Make sure files exist
     if not (os.path.isfile(signer_file) and os.path.isfile(signer_key_file)):
-        raise FileNotFoundError('Failed to find {}, {}, or {}'.format(signer_file, signer_key_file))
-
-    assert atcab_init(cfg_ateccx08a_kithid_default()) == Status.ATCA_SUCCESS
-
-    # Load device public key
-    public_key = bytearray(64)
-    assert Status.ATCA_SUCCESS == atcab_get_pubkey(0, public_key)
-
-    # Convert to the key to PEM format
-    public_key_pem = bytearray.fromhex('3059301306072A8648CE3D020106082A8648CE3D03010703420004') + public_key
-    public_key_pem = '-----BEGIN PUBLIC KEY-----\n' + base64.b64encode(public_key_pem).decode('ascii') + '\n-----END PUBLIC KEY-----'
-
-    # Convert the key into the cryptography format
-    public_key = serialization.load_pem_public_key(public_key_pem.encode('ascii'), default_backend())
+        raise FileNotFoundError('Failed to find {} or {}'.format(signer_file, signer_key_file))
 
     # Load the Signing key from the file
     with open(signer_key_file, 'rb') as f:
@@ -109,7 +98,7 @@ def create_device_cert(signer_file, signer_key_file):
 
     issuer_ski = signer_ca_cert.extensions.get_extension_for_class(x509.SubjectKeyIdentifier)
     builder = builder.add_extension(
-        x509.AuthorityKeyIdentifier.from_issuer_subject_key_identifier(issuer_ski),
+        x509.AuthorityKeyIdentifier.from_issuer_subject_key_identifier(issuer_ski.value),
         critical=False)
 
     # Sign certificate 
@@ -121,12 +110,43 @@ def create_device_cert(signer_file, signer_key_file):
     print('Done');
 
 
+def read_public_key_from_device():
+    assert atcab_init(cfg_ateccx08a_kithid_default()) == Status.ATCA_SUCCESS
+
+    # Load device public key
+    public_key = bytearray(64)
+    assert Status.ATCA_SUCCESS == atcab_get_pubkey(0, public_key)
+
+    # Convert to the key to PEM format
+    public_key_pem = convert_ec_pub_to_pem(public_key)
+
+    # Convert the key into the cryptography format
+    public_key = serialization.load_pem_public_key(public_key_pem.encode('ascii'), default_backend())
+
+
+def read_public_key_from_file(filename):
+    with open(filename, 'rb') as f:
+        content = f.read()
+
+        if b'REQUEST' in content:
+            csr = x509.load_pem_x509_csr(content, default_backend())
+            return csr.public_key()
+        elif b'PUBLIC' in content:
+            return serialization.load_pem_public_key(content, default_backend())
+        else:
+            raise ValueError('Unknown file content')
+
 if __name__ == '__main__':
     # Create argument parser to document script use
     parser = argparse.ArgumentParser(description='Provisions the kit by requesting a CSR and returning signed certificates.')
+    parser.add_argument('--file', default=None, help='Input Public key or Certificate Signing Request')
     parser.add_argument('--cert', default='signer-ca.crt', help='Certificate file of the signer')
     parser.add_argument('--key', default='signer-ca.key', help='Private Key file of the signer')
     args = parser.parse_args()
 
-    assert atcab_init(cfg_ateccx08a_kithid_default()) == Status.ATCA_SUCCESS
-    create_device_cert(args.cert, args.key)
+    if args.file is None:
+        public_key = read_public_key_from_device()
+    else:
+        public_key = read_public_key_from_file(args.file)
+
+    create_device_cert(public_key, args.cert, args.key)

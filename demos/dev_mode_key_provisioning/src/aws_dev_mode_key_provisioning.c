@@ -899,10 +899,10 @@ void vDevModeKeyProvisioning( void )
         xParams.ulJITPCertifiateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
     }
 
-    if( ( NULL == xParams.pucClientPrivateKey ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) ||
-        ( NULL == xParams.pucClientCertificate ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
+    if( (( NULL == xParams.pucClientPrivateKey ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) )) &&
+        (( NULL == xParams.pucClientCertificate ) ||
+        ( 0 == strcmp( "", ( const char * ) xParams.pucClientCertificate ) )) )
     {
         configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key and certificate.\r\n" ) );
         configASSERT( pdFALSE );

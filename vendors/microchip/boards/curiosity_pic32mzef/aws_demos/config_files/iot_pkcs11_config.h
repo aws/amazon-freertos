@@ -44,7 +44,7 @@
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
  */
-#define configPKCS11_DEFAULT_USER_PIN    "0000"
+#define configPKCS11_DEFAULT_USER_PIN    "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
 
 /**
  * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL
@@ -66,6 +66,7 @@
  */
 #define pkcs11configPAL_DESTROY_SUPPORTED                  0
 
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          0
 /**
  * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.
  *
