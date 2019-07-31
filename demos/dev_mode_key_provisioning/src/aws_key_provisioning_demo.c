@@ -50,7 +50,7 @@
  * 1 to run second part of demo, after user has copied device and CA certificates into aws_clientcredential_keys.h
  * NOTE: User must change value from 0 to 1 after running scripts (generating certificates) to provision device
  */
-#define DEMO_PART                  ( 0 )
+#define DEMO_PART                  ( 1 )
 
 /**
  * @brief Gives users the option to reprovision each time the demo is run
@@ -61,31 +61,9 @@
 
 
 #define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS    "Device Priv TLS Key"
-#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS      pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
-
 #define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS     "Device Pub TLS Key"
-#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS       pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
 
-#define SHA256_DIGEST_SIZE                              32
-#define ECDSA_SIGNATURE_SIZE                            64
-#define RSA_SIGNATURE_SIZE                              256
 #define MBEDTLS_X509_CSR_H
-#define MBEDTLS_X509_CSR_WRITE_C
-#define MBEDTLS_PEM_WRITE_C
-
-typedef enum
-{
-    eNone,                /* Device is not provisioned.  All credentials have been destroyed. */
-    eRsaTest,             /* Provisioned using the RSA test credentials located in this file. */
-    eEllipticCurveTest,   /* Provisioned using EC test credentials located in this file. */
-    eClientCredential,    /* Provisioned using the credentials in aws_clientcredential_keys. */
-    eGeneratedEc,         /* Provisioned using elliptic curve generated on device.  Private key unknown.  No corresponding certificate. */
-    eGeneratedRsa,
-    eDeliberatelyInvalid, /* Provisioned using credentials that are meant to trigger an error condition. */
-    eStateUnknown         /* State of the credentials is unknown. */
-} CredentialsProvisioned_t;
-
-
 
 /* GLOBAL VARIABLES */
 CK_SESSION_HANDLE xGlobalSession;
@@ -137,7 +115,10 @@ static int prvRNG( void * pkcs_session,
 
 /*-----------------------------------------------------------*/
 
-/* @brief Alternate Signing Function to be Passed into PK Context Header */
+/* @brief Alternate Signing Function to be Passed into PK Context Header 
+ * This function was copied from "iot_tls.c"
+ * Recreated to be passed into a PK Context header as our customized signing function.
+ * */
 static int prvPrivateKeySigningCallback( void * pvContext,
                                          mbedtls_md_type_t xMdAlg,
                                          const unsigned char * pucHash,
@@ -255,7 +236,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
  *  Prints error message upon failure, success message upon success
  *
  */
-static void vProvisionDevice( void )
+static int xProvisionDeviceForJITP( void )
 {
     /* Provisioning Device Certificate */
     CK_OBJECT_HANDLE xObject = 0;
@@ -269,6 +250,7 @@ static void vProvisionDevice( void )
     if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
     {
         configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
+        return -1;
     }
 
     /* Provisioning JITR CA Certificate */
@@ -289,10 +271,12 @@ static void vProvisionDevice( void )
     if( xResult == CKR_OK )
     {
         configPRINTF( ( "Device credential provisioning succeeded.\r\n" ) );
+        return 0;
     }
     else
     {
-        configPRINTF( ( "Device credential provisioning failed.\r\n" ) );
+        configPRINTF( ( "ERROR: %d - Device credential provisioning failed.\r\n", xResult ) );
+        return -1;
     }
 }
 
@@ -304,30 +288,27 @@ static void vProvisionDevice( void )
  *  \return Void function, console outputs upon success/failure
  *
  */
-static void vDevModeDeviceKeyProvisioning( void )
+static void xDeviceProvisioningForJITP( void )
 {
     xResult = xInitializePkcs11Session( &xGlobalSession );
 
     if( xResult != CKR_OK )
     {
-        configPRINTF( ( "Failed to open PKCS #11 session.\r\n" ) );
+        configPRINTF( ( "ERROR: %d - Failed to open PKCS #11 session.\r\n", xResult ) );
     }
 
     xResult = C_GetFunctionList( &pxGlobalFunctionList );
 
     if( xResult != CKR_OK )
     {
-        configPRINTF( ( "Failed to get function list.\r\n" ) );
+        configPRINTF( ( "ERROR: %d - Failed to get function list.\r\n", xResult ) );
     }
 
     #if ( !DEMO_PART )
         {
-            CredentialsProvisioned_t xCurrentCredentials = eStateUnknown;
-
-            /* Note that mbedTLS does not permit a signature on all 0's. */
-            CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xab };
+            CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
             CK_MECHANISM xMechanism;
-            CK_BYTE xSignature[ RSA_SIGNATURE_SIZE ] = { 0 };
+            CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
             CK_BYTE xEcPoint[ 256 ] = { 0 };
             CK_BYTE xEcParams[ 11 ] = { 0 };
             CK_KEY_TYPE xKeyType;
@@ -345,30 +326,30 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "Failed to destroy credentials before Generating Key Pair.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to destroy credentials before Generating Key Pair.\r\n", xResult ) );
             }
 
             xCurrentCredentials = eNone;
 
             xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
-                                                   ( uint8_t * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                   ( uint8_t * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                                    &xPrivateKeyHandle,
                                                    &xPublicKeyHandle );
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "Generating EC key pair failed." ) );
+                configPRINTF( ( "ERROR: %d - Generating EC key pair failed.", xResult ) );
             }
 
             if( xPrivateKeyHandle == CK_INVALID_HANDLE )
             {
-                configPRINTF( ( "Invalid private key handle generated by GenerateKeyPair.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Invalid private key handle generated by GenerateKeyPair.\r\n", xPrivateKeyHandle ) );
             }
 
             if( xPublicKeyHandle == CK_INVALID_HANDLE )
             {
-                configPRINTF( ( "Invalid public key handle generated by GenerateKeyPair.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Invalid public key handle generated by GenerateKeyPair.\r\n", xPublicKeyHandle ) );
             }
 
             /* Call GetAttributeValue to retrieve information about the keypair stored. */
@@ -380,7 +361,7 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "GetAttributeValue for length of public EC key class failed.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - GetAttributeValue for length of public EC key class failed.\r\n", xResult ) );
             }
 
             if( xTemplate.ulValueLen != sizeof( CK_OBJECT_CLASS ) )
@@ -393,12 +374,12 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "GetAttributeValue for private EC key class failed.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - GetAttributeValue for private EC key class failed.\r\n", xResult ) );
             }
 
             if( xClass != CKO_PRIVATE_KEY )
             {
-                configPRINTF( ( "Incorrect object class returned from GetAttributeValue.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Incorrect object class returned from GetAttributeValue.\r\n", xClass ) );
             }
 
             xTemplate.pValue = &xClass;
@@ -406,12 +387,12 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "GetAttributeValue for public EC key class failed.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - GetAttributeValue for public EC key class failed.\r\n", xResult ) );
             }
 
             if( xClass != CKO_PUBLIC_KEY )
             {
-                configPRINTF( ( "Incorrect object class returned from GetAttributeValue.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Incorrect object class returned from GetAttributeValue.\r\n", xClass ) );
             }
 
             /* Check that both keys are stored as EC Keys. */
@@ -422,7 +403,7 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "Error getting attribute value of EC key type.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Error getting attribute value of EC key type.\r\n", xResult ) );
             }
 
             if( xTemplate.ulValueLen != sizeof( CK_KEY_TYPE ) )
@@ -432,14 +413,14 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xKeyType != CKK_EC )
             {
-                configPRINTF( ( "Incorrect key type for private key.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Incorrect key type for private key.\r\n", xKeyType ) );
             }
 
             xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "Error getting attribute value of EC key type.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Error getting attribute value of EC key type.\r\n", xResult ) );
             }
 
             if( xTemplate.ulValueLen != sizeof( CK_KEY_TYPE ) )
@@ -449,7 +430,7 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xKeyType != CKK_EC )
             {
-                configPRINTF( ( "Incorrect key type for public key.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Incorrect key type for public key.\r\n", xKeyType ) );
             }
 
             /* Check that public key point can be retrieved for public key. */
@@ -460,7 +441,7 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "Failed to retrieve EC Point.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to retrieve EC Point.\r\n", xResult ) );
             }
 
             /* Perform a sign with the generated private key. */
@@ -471,15 +452,15 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "Failed to SignInit ECDSA.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to SignInit ECDSA.\r\n", xResult ) );
             }
 
             xSignatureLength = sizeof( xSignature );
-            xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, &xSignatureLength );
+            xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
 
             if( xResult != CKR_OK )
             {
-                configPRINTF( ( "Failed to ECDSA Sign.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to ECDSA Sign.\r\n", xResult ) );
             }
 
             /* Verify the signature with mbedTLS */
@@ -487,11 +468,15 @@ static void vDevModeDeviceKeyProvisioning( void )
             mbedtls_ecp_group_init( &xEcdsaContext.grp );
 
 
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            mbedtls_mpi xR;
+            mbedtls_mpi xS;
+
             lMbedTLSResult = mbedtls_ecp_group_load( &xEcdsaContext.grp, MBEDTLS_ECP_DP_SECP256R1 );
 
             if( lMbedTLSResult != 0 )
             {
-                configPRINTF( ( "mbedTLS failed in setup for signature verification.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
             }
 
             /* The first 2 bytes are for ASN1 type/length encoding. */
@@ -499,8 +484,54 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( lMbedTLSResult != 0 )
             {
-                configPRINTF( ( "mbedTLS failed in setup for signature verification.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
             }
+            
+            /* C_Sign returns the R & S components one after another- import these into a format that mbedTLS can work with. */
+            mbedtls_mpi_init( &xR );
+            mbedtls_mpi_init( &xS );
+            lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
+
+            if( lMbedTLSResult != 0 )
+            {
+                configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
+            }
+
+            lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
+
+            if( lMbedTLSResult != 0 )
+            {
+                configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
+            }
+
+            /* Verify using mbedTLS & exported public key. */
+            lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
+
+            if( lMbedTLSResult != 0 )
+            {
+                configPRINTF( ( "ERROR: %d - mbedTLS failed to verify signature.\r\n", lMbedTLSResult ) );
+            }
+
+            /* Verify the signature with the generated public key. */
+            xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
+
+            if( xResult != CKR_OK )
+            {
+                configPRINTF( ( "ERROR: %d - Failed to VerifyInit ECDSA.\r\n", xResult ) );
+            }
+
+            xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, xSignatureLength );
+
+            if( xResult != CKR_OK )
+            {
+                configPRINTF( ( "ERROR: %d - Failed to Verify ECDSA.\r\n", xResult ) );
+            }
+            
+            mbedtls_mpi_free( &xR );
+            mbedtls_mpi_free( &xS );
+                       
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
             /* Generate a PK Context for CSR */
             /* Getting header info from ECKEY type */
@@ -520,7 +551,7 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( ret != 0 )
             {
-                configPRINTF( ( "Failed to initialize PK context with given information.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to initialize PK context with given information.\r\n", ret ) );
             }
 
             pk_cont.pk_ctx = &xEcdsaContext;
@@ -530,11 +561,11 @@ static void vDevModeDeviceKeyProvisioning( void )
             /* Initializing CSR Context */
             mbedtls_x509write_csr my_csr;
             mbedtls_x509write_csr_init( &my_csr );
-            ret = mbedtls_x509write_csr_set_subject_name( &my_csr, "CN=ThingName" );
+            ret = mbedtls_x509write_csr_set_subject_name( &my_csr, "CN=ThingName" ); // This name is configurable to your personal thing name.
 
             if( ret != 0 )
             {
-                configPRINTF( ( "Failed to set subject name of CSR context.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to set subject name of CSR context.\r\n", ret ) );
             }
 
             mbedtls_x509write_csr_set_key( &my_csr, &pk_cont );
@@ -543,14 +574,14 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( ret != 0 )
             {
-                configPRINTF( ( "Failed to set key usage of CSR context.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to set key usage of CSR context.\r\n", ret ) );
             }
 
             ret = mbedtls_x509write_csr_set_ns_cert_type( &my_csr, MBEDTLS_X509_NS_CERT_TYPE_SSL_CLIENT );
 
             if( ret != 0 )
             {
-                configPRINTF( ( "Failed to set NS Cert Type of CSR context.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to set NS Cert Type of CSR context.\r\n", ret ) );
             }
 
             /* Output Buffer */
@@ -561,7 +592,7 @@ static void vDevModeDeviceKeyProvisioning( void )
 
             if( ret != 0 )
             {
-                configPRINTF( ( "Failed to write CSR.\r\n" ) );
+                configPRINTF( ( "ERROR: %d - Failed to write CSR.\r\n", ret ) );
             }
 
             /* Console Outputs */
@@ -583,7 +614,11 @@ static void vDevModeDeviceKeyProvisioning( void )
     #else  /* if ( !DEMO_PART ) */
         {
             /* Provision device using certificates in aws_clientcredential_keys.h */
-            vProvisionDevice();
+            int ret = xProvisionDeviceForJITP();
+            if( ret != 0 )
+            {
+                configPRINTF( ( "ERROR: %d - Provisioning Function Failed.\r\n", ret ) );
+            }
         }
     #endif /* if ( !DEMO_PART ) */
 }
@@ -605,9 +640,16 @@ void vStartKeyProvisioningDemo( void )
             configPRINTF( ( "Keys Are Being Generated on Device\r\n" ) );
             configPRINTF( ( "Starting Key Provisioning\r\n" ) );
 
-            ( void ) vDevModeDeviceKeyProvisioning();
-
-            configPRINTF( ( "Ending Key Provisioning\r\n" ) );
+            ( void ) xDeviceProvisioningForJITP();
+            #if( DEMO_PART == 1)
+            {
+                configPRINTF( ( "Ending Key Provisioning\r\n" ) );
+            }
+            #else 
+            {
+                configPRINTF( ("PLEASE CHANGE #DEMO_PART to 1, AND RERUN THE DEMO\r\n") );
+            }
+            #endif
         }
     #endif /* if ( !GENERATE_KEYS_ON_DEVICE ) */
 }

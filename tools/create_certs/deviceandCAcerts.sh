@@ -4,12 +4,15 @@
 echo "Creating CA Certificate"
 
 # Pass-in Variables
+# These values are configurable and can be modified
+# If setting a value, do not use quotation marks ""
+# If no value is to be set, set the fields to "."
 country=US
 state=Seattle
 locality="."
 organization="."
 organizationalunit="."
-commonname="."
+commonname=ThingName
 email="."
 
 password=""
@@ -53,3 +56,5 @@ openssl x509 -req -in deviceCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreates
 
 echo "Creating File Containing Device Certificate and CA Certificate"
 cat deviceCert.crt rootCA.pem > deviceCertAndCACert.crt
+
+#mosquitto_pub --cafile root.cert --cert deviceCertAndCACert.crt --key deviceCert.key -h a2hzqyax9o1q8r.iot.us-west-2.amazonaws.com -p 8883 -q 1 -t foo/bar -I anyclientID --tls-version tlsv1.2 -m "Hello" -d
