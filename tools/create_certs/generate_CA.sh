@@ -4,15 +4,17 @@
 echo "Creating CA Certificate"
 
 # Pass-in Variables
+# These values are configurable and can be modified
+# If setting a value, do not use quotation marks ""
+# If no value is to be set, set the fields to "."
 country=US
 state=Seattle
 locality="."
-organization=Amazon
+organization="."
 organizationalunit="."
-commonname="."
+commonname=ThingName
 email="."
 
-password=""
 
 # CA Key
 echo "Generating CA Key"
@@ -24,15 +26,16 @@ openssl req -x509 -config rootCA_openssl.conf -new -nodes -key rootCA.key -sha25
     -subj "/C=$country/ST=$state/L=$locality/O=$organization/OU=$organizationalunit/CN=$commonname/emailAddress=$email"
 
 
-
-
 # REGISTERING CA CERTIFICATE
 echo "Registering CA Certificate with AWS IoT"
 
 echo "Getting Registration Code"
-registration_code_str=$(aws iot get-registration-code)  # registraton code / common name
-registration_code="${registration_code_str:27:64}" # @TODO : REGISTRATION CODE LENGTH MAY NOT BE THE SAME ALWAYS
-echo "Registration code is $registration_code"
+registration_code_str=$(aws iot get-registration-code)  # registration code / common name
+# registration_code="${registration_code_str:27:64}" # CHECK THIS: REGISTRATION CODE LENGTH MAY NOT BE THE SAME ALWAYS
+registration_code=$(awk  'BEGIN{FS="\""}{print $4}' <<< "${registration_code_str}") # fixes issue in line comment above
+registration_code="${registration_code:1}" # deletes newline at front
+echo "Registration code is ${registration_code}"
+
 
 openssl genrsa -out verificationCert.key 2048   # key pair for private key verification certificate
 
@@ -46,4 +49,4 @@ openssl x509 -req -in verificationCert.csr -CA rootCA.pem -CAkey rootCA.key -CAc
 
 # Register CA Certificate
 echo "Registering CA Certificate"
-aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config file://provisioning-template.json
+aws iot register-ca-certificate --ca-certificate file://rootCA.pem --verification-cert file://verificationCert.pem --set-as-active --allow-auto-registration --registration-config file://test.json
