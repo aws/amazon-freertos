@@ -1,5 +1,7 @@
 ## Running the demos
-More details available on our getting started page (on development): https://docs.aws.amazon.com/freertos/latest/userguide/freertos-getting-started.html
+More details available on our getting started page (on development): https://docs.aws.amazon.com/freertos/latest/userguide/freertos-getting-started.html.
+
+Amazon FreeRTOS can be built utilizing a supported IDE project provided under <test project path> or with cmake.  
 
 ### Selecting your demos
 Select your demo by changing the ```aws_demo_config.h``` file. 
@@ -7,6 +9,10 @@ Select your demo by changing the ```aws_demo_config.h``` file.
 For example for ESP32 it is located here ```./vendors/espressif/boards/esp32/aws_demos/common/config_files```  
 
 By default ```#define CONFIG_MQTT_DEMO_ENABLED``` MQTT demos is selected. 
+
+### IDE
+Refer to the <path to project folder>.  Refer to the top level readme for the Getting Started Guides for each qualified board.  
+
 
 ### Cmake
 Refer to CMake readme page in folder
@@ -16,8 +22,8 @@ Refer to CMake readme page in folder
 **Note**: The cmake commands provided in example are made to be executed from the root directory or with the following command:  
 ```-C <your-build-directory>``` 
 
-### Buiding instruction per boards
-#### ESP32 
+#### Build instruction per boards
+##### ESP32 
 
 First use _cmake_ to generate the project files for Espressif, which uses _make_ to build: 
 
