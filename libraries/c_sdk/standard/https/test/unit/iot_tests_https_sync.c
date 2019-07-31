@@ -1368,7 +1368,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithCarriageReturnSeparator )
         returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* If the internal pointers were incremented correctly then we should successfully find the "value1" header value. */
-        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer)); 
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, FAST_MACRO_STRLEN(HTTPS_TEST_HEADER1), pValueBuffer, sizeof(pValueBuffer)); 
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* Assert that ReadHeader() found the correct "value1" header value. */
         TEST_ASSERT_EQUAL( 0, strncmp(pValueBuffer, HTTPS_TEST_HEADER_VALUE1, sizeof(HTTPS_TEST_HEADER_VALUE1)));
@@ -1440,7 +1440,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithNewlineSeparator )
         returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* If the internal pointers were incremented correctly then we should successfully find the "value1" header value. */
-        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer)); 
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, FAST_MACRO_STRLEN(HTTPS_TEST_HEADER1), pValueBuffer, sizeof(pValueBuffer)); 
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* Assert that ReadHeader() found the correct "value1" header value. */
         TEST_ASSERT_EQUAL( 0, strncmp(pValueBuffer, HTTPS_TEST_HEADER_VALUE1, sizeof(HTTPS_TEST_HEADER_VALUE1)));
@@ -1515,7 +1515,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithColonSeparator )
         returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* If the internal pointers were incremented correctly then we should NOT find value1. */
-        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer)); 
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, FAST_MACRO_STRLEN(HTTPS_TEST_HEADER1), pValueBuffer, sizeof(pValueBuffer)); 
         TEST_ASSERT_EQUAL( IOT_HTTPS_NOT_FOUND, returnCode );
         /* Assert that "header1:" is found in the header buffer. */
         TEST_ASSERT_NOT_NULL(strstr((char*)(respHandle->pHeaders), HTTPS_TEST_HEADER1_PLUS_COLON));
@@ -1584,7 +1584,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithSpaceSeparator )
         returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* If the internal pointers were incremented correctly then we should NOT find value1. */
-        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, pValueBuffer, sizeof(pValueBuffer));
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER1, FAST_MACRO_STRLEN(HTTPS_TEST_HEADER1), pValueBuffer, sizeof(pValueBuffer));
         TEST_ASSERT_EQUAL( IOT_HTTPS_NOT_FOUND, returnCode );
         /* Assert that "header1:" is found in the header buffer. */
         TEST_ASSERT_NOT_NULL(strstr((char*)(respHandle->pHeaders), HTTPS_TEST_HEADER1_PLUS_SPACE));
@@ -1650,7 +1650,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithSpaceAfterHeaderValue )
         returnCode = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respInfo, timeout );
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* If the internal pointers were incremented correctly and so we can find the correct "value2 " header value. */
-        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER2, pValueBuffer, sizeof(pValueBuffer));
+        returnCode = IotHttpsClient_ReadHeader( respHandle, HTTPS_TEST_HEADER2, FAST_MACRO_STRLEN(HTTPS_TEST_HEADER2), pValueBuffer, sizeof(pValueBuffer));
         TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
         /* Assert that ReadHeader() found the correct "value2 " header value. */
         TEST_ASSERT_EQUAL( 0, strncmp(pValueBuffer, HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE, sizeof(HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE)));
