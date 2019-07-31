@@ -165,9 +165,6 @@
 #ifndef IOT_HTTPS_USER_AGENT
     #define IOT_HTTPS_USER_AGENT                "amazon-freertos"
 #endif
-#ifndef IOT_HTTPS_MAX_CONN_USAGE_WAIT_MS
-    #define IOT_HTTPS_MAX_CONN_USAGE_WAIT_MS    ( 60000 )
-#endif 
 #ifndef IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE
     #define IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE     ( 1024 )
 #endif

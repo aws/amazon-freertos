@@ -250,6 +250,8 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     /* Buffer to write the Range: header value string. */
     char rangeValueStr[RANGE_VALUE_MAX_LENGTH] = { 0 };
 
+    IotLogInfo("S3 Download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL);
+
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath(IOT_DEMO_HTTPS_PRESIGNED_GET_URL, 
         (size_t)strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ), 
