@@ -1,5 +1,24 @@
 # Change Log for Amazon FreeRTOS
 
+### New Features
+#### FreeRTOS Kernel V10.2.1
+- Kernel version for Amazon FreeRTOS is updated to V10.2.1.
+- Add ARM Cortex-M23 (ARMv8-M) GCC/ARMclang and IAR ports.
+- Add support to automatically switch between 32-bit and 64-bit cores to RISC-V port.
+
+### Updates
+#### PKCS #11
+- Update the Amazon FreeRTOS mbedTLS-based PKCS #11 implementation, tests, demos, and PKCS #11 consuming libraries for compliance with standard.
+- Add PKCS #11 wrapper functions for easy use of commonly grouped PKCS #11 calls.
+
+#### Demo specific stack size and priority
+- Make stack size and priority to be demo specific. In current release all demos have same stack size and priority. This change will make stack size and priority configurable for each demo. Demo can use default stack size/ priority or define its own.  
+#### Ethernet for Microchip Curiosity PIC32MZEF
+- Update Microchip Curiosity PIC32MZEF project and configuration files to support Ethernet connectivty. Developers must define PIC32_USE_ETHERNET at the project level to use Ethernet instead of Wi-Fi.
+
+### Test Updates
+- Remove elliptic curve tests from "quarantine" test group and add them back to the TLS test group.
+
 ## 201906.00 Major 06/17/2019
 ### Release Versioning
 - Move Amazon FreeRTOS to a new versioning scheme (YYYYMM.NN [optional "Major" tag]), while retaining semantic versioning (x.y.z) used for individual libraries within Amazon FreeRTOS. This release contains multiple major version updates for individual libraries. See below for details.
@@ -298,13 +317,13 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - C_Initialize handles initialization of randomness in an effort to minimize entropy generation (or seed access) every time sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
 - C_SignInit and C_VerifyInit utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard
 - C_FindObject APIs no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
-- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
+- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see iot_pkcs11.h for pkcs11configLABEL_* defines to access labels, and iot_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
 - C_FindObject and C_GetAttributeValue accept different attribute arguments.
 - C_CreateObject requires DER encoded certificates and keys instead of PEM formatted and object attributes required for creating objects have changed.  Note that vDevModeKeyProvisioning() has been updated to supply required attributes and convert inputs from DER to PEM if necessary.
 - C_GenerateKeyPair now stores keys in non-volatile memory.
 - C_Finalize is no longer invoked by helper functions to prevent threads from interfering with each other's PKCS #11 instances.
 - Some error codes have been changes to better match the PKCS #11 standard.
-- aws_tls.c and PKCS #11 AFQP tests have updates to reflect these changes.
+- iot_tls.c and PKCS #11 AFQP tests have updates to reflect these changes.
     - mbedTLS-based PKCS #11 V1.0.5
     - TLS V1.1.3
 

@@ -193,41 +193,6 @@
 #endif
 
 /**
- * @brief Enable WIFI provisioning GATT service.
- *
- * By default WIFI provisioning will be disabled.
- */
-#ifndef IOT_BLE_ENABLE_WIFI_PROVISIONING
-    #define IOT_BLE_ENABLE_WIFI_PROVISIONING    ( 0 )
-#endif
-
-/**
- * @brief Controls the number of network that can be discovered for WIFI provisionning.
- *
- * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t).
- */
-#ifndef IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
-    #define IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS    ( 10 )
-#endif
-
-
-/* @brief Controls the number of network that can be saved using WIFI provisionning.
- *
- * The number should be set according to amount of flash space available on the device.
- * The size increase in multiple of sizeof(WIFINetworkProfile_t).
- */
-#ifndef IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS
-    #define IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS    ( 8 )
-#endif
-
-/**
- * @brief Set to true if user wants to add its own custom services.
- */
-#ifndef IOT_BLE_ADD_CUSTOM_SERVICES
-    #define IOT_BLE_ADD_CUSTOM_SERVICES    ( 0 )
-#endif
-
-/**
  * @brief Maximum number of device this device can be bonded with.
  */
 #ifndef IOT_BLE_MAX_BONDED_DEVICES
@@ -247,8 +212,92 @@
     #define IOT_BLE_CHAR_WRITE_PERM        eBTPermWrite
 #endif
 
-#define IOT_BLE_MESG_ENCODER               ( _IotSerializerCborEncoder )
-#define IOT_BLE_MESG_DECODER               ( _IotSerializerCborDecoder )
+/**
+ * @brief This configuration flag can be used to enable or disable all Amazon FreeRTOS GATT services.
+ * Configuration is useful if a custom GATT service is used instead of the default GATT services.
+ */
+#ifndef IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES
+    #define IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES    ( 1 )
+#endif
+
+/**
+ * @brief Set to true if user wants to add its own custom GATT services.
+ */
+#ifndef IOT_BLE_ADD_CUSTOM_SERVICES
+    #define IOT_BLE_ADD_CUSTOM_SERVICES    ( 0 )
+#endif
+
+
+/**
+ * @brief Flag to enable Amazon FreeRTOS Device Information Service.
+ *
+ * Device Information service is used by the Amazon FreeRTOS mobile SDK to fetch device related information.
+ */
+#if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
+    #ifndef IOT_BLE_ENABLE_DEVICE_INFO_SERVICE
+        #define IOT_BLE_ENABLE_DEVICE_INFO_SERVICE    ( 1 )
+    #endif
+#else
+    #define IOT_BLE_ENABLE_DEVICE_INFO_SERVICE        ( 0 )
+#endif
+
+
+/**
+ * @brief Enable WIFI provisioning GATT service.
+ *
+ * By default WIFI provisioning will be disabled.
+ */
+#if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
+    #ifndef IOT_BLE_ENABLE_WIFI_PROVISIONING
+        #define IOT_BLE_ENABLE_WIFI_PROVISIONING    ( 0 )
+    #endif
+#else
+    #define IOT_BLE_ENABLE_WIFI_PROVISIONING        ( 0 )
+#endif
+
+/**
+ * @brief Flag to enable MQTT over BLE using Amazon FreeRTOS Mobile SDK.
+ */
+#if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
+    #ifndef IOT_BLE_ENABLE_MQTT
+        #define IOT_BLE_ENABLE_MQTT    ( 1 )
+    #endif
+#else
+    #define IOT_BLE_ENABLE_MQTT        ( 0 )
+#endif
+
+
+/**
+ * @brief Flag to enable data transfer service.
+ * Data transfer service can be used to exchange raw data between  Amazon FreeRTOS device and Amazon FreeRTOS Mobile SDK.
+ */
+#if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
+    #ifndef IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE
+        #define IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE    ( 1 )
+    #endif
+#else
+    #define IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE        ( 0 )
+#endif
+
+
+/**
+ * @brief Controls the number of network that can be discovered for WIFI provisioning.
+ *
+ * A higher number will consume more stack space. The size increase in multiple of sizeof(WIFIScanResult_t).
+ */
+#ifndef IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS
+    #define IOT_BLE_WIFI_PROVISIONIG_MAX_SCAN_NETWORKS    ( 10 )
+#endif
+
+
+/* @brief Controls the number of network that can be saved using WIFI provisioning.
+ *
+ * The number should be set according to amount of flash space available on the device.
+ * The size increase in multiple of sizeof(WIFINetworkProfile_t).
+ */
+#ifndef IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS
+    #define IOT_BLE_WIFI_PROVISIONING_MAX_SAVED_NETWORKS    ( 8 )
+#endif
 
 /**
  * @brief Waiting time between checks for connection established.
@@ -263,6 +312,7 @@
 #ifndef IOT_BLE_MQTT_CREATE_CONNECTION_RETRY
     #define IOT_BLE_MQTT_CREATE_CONNECTION_RETRY    ( 60 )
 #endif
+
 
 /*
  * @brief UUID mask for data transfer services.
@@ -280,17 +330,6 @@
  * Type will be part of the service UUID.
  */
 #define IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING    0x01
-
-/**
- * @brief Number of data transfer services.
- * User should change this when adding a new data transfer service type  or
- * removing the existing ones.
- */
-#if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-    #define  IOT_BLE_NUM_DATA_TRANSFER_SERVICES    ( 2 )
-#else
-    #define IOT_BLE_NUM_DATA_TRANSFER_SERVICES     ( 1 )
-#endif
 
 /**
  *@brief Size of the buffer to store pending bytes to be sent out through data transfer service.
@@ -311,18 +350,22 @@
  * @brief The  timeout in milliseconds for sending a message through data transfer service.
  */
 #ifndef IOT_BLE_DATA_TRANSFER_TIMEOUT_MS
-    #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS       ( 2000 )
+    #define IOT_BLE_DATA_TRANSFER_TIMEOUT_MS    ( 2000 )
 #endif
+
+
+#define IOT_BLE_MESG_ENCODER    ( _IotSerializerCborEncoder )
+#define IOT_BLE_MESG_DECODER    ( _IotSerializerCborDecoder )
 
 /**
  * @brief Default configuration for memory allocation of data transfer service buffers.
  */
 #ifndef IotBle_MallocDataBuffer
-    #define IotBle_MallocDataBuffer                malloc
+    #define IotBle_MallocDataBuffer    malloc
 #endif
 
 #ifndef IotBle_FreeDataBuffer
-    #define IotBle_FreeDataBuffer                  free
+    #define IotBle_FreeDataBuffer    free
 #endif
 
 /**
@@ -330,7 +373,7 @@
  */
 #ifndef IotBle_Assert
     #include <assert.h>
-    #define IotBle_Assert( expression )    assert( expression ) 
+    #define IotBle_Assert( expression )    assert( expression )
 #endif
 
 #endif /* _IOT_BLE_CONFIG_DEFAULTS_H_ */

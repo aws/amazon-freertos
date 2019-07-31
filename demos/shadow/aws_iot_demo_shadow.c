@@ -97,14 +97,14 @@
  * token must be unique at any given time, but may be reused once the update is
  * completed. For this demo, a timestamp is used for a client token.
  */
-#define SHADOW_DESIRED_JSON      \
-    "{"                          \
-    "\"state\":{"                \
-    "\"desired\":{"              \
-    "\"powerOn\":%01d"           \
-    "}"                          \
-    "},"                         \
-    "\"clientToken\":\"%06lu\""  \
+#define SHADOW_DESIRED_JSON     \
+    "{"                         \
+    "\"state\":{"               \
+    "\"desired\":{"             \
+    "\"powerOn\":%01d"          \
+    "}"                         \
+    "},"                        \
+    "\"clientToken\":\"%06lu\"" \
     "}"
 
 /**
@@ -122,14 +122,14 @@
  * token must be unique at any given time, but may be reused once the update is
  * completed. For this demo, a timestamp is used for a client token.
  */
-#define SHADOW_REPORTED_JSON     \
-    "{"                          \
-    "\"state\":{"                \
-    "\"reported\":{"             \
-    "\"powerOn\":%01d"           \
-    "}"                          \
-    "},"                         \
-    "\"clientToken\":\"%06lu\""  \
+#define SHADOW_REPORTED_JSON    \
+    "{"                         \
+    "\"state\":{"               \
+    "\"reported\":{"            \
+    "\"powerOn\":%01d"          \
+    "}"                         \
+    "},"                        \
+    "\"clientToken\":\"%06lu\"" \
     "}"
 
 /**

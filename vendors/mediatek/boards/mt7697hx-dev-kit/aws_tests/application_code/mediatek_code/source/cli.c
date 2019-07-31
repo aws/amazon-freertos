@@ -46,7 +46,7 @@
 
 #include "io_def.h"
 
-#include "aws_wifi.h"
+#include "iot_wifi.h"
 
 #include "lwip/inet.h"
 

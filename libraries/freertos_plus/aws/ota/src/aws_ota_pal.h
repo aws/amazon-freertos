@@ -29,15 +29,6 @@
 #include "aws_ota_types.h"
 #include "aws_ota_agent.h"
 
-typedef enum
-{
-    eOTA_PAL_ImageState_Unknown = 0,
-    eOTA_PAL_ImageState_PendingCommit,
-    eOTA_PAL_ImageState_Valid,
-    eOTA_PAL_ImageState_Invalid,
-} OTA_PAL_ImageState_t;
-
-
 /**
  * @brief Abort an OTA transfer.
  *
@@ -115,7 +106,7 @@ OTA_Err_t prvPAL_CloseFile( OTA_FileContext_t * const C );
  *
  * @note The input OTA_FileContext_t C is checked for NULL by the OTA agent before this
  * function is called.
- * The file pointer/handl,e C->pucFile, is checked for NULL by the OTA agent before this
+ * The file pointer/handle C->pucFile, is checked for NULL by the OTA agent before this
  * function is called.
  * pacData is checked for NULL by the OTA agent before this function is called.
  * ulBlockSize is validated for range by the OTA agent before this function is called.

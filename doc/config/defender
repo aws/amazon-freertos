@@ -13,13 +13,14 @@ HTML_OUTPUT = defender
 GENERATE_TAGFILE = doc/tag/defender.tag
 
 # Directories containing library source code.
-INPUT = doc/lib/ \
-        lib/include \
-        lib/include/private \
-        lib/source/defender
+INPUT = doc/lib \
+        libraries/c_sdk/aws/defender/include \
+        libraries/c_sdk/aws/defender/src \
+        libraries/c_sdk/aws/defender/src/private 
+
 
 # Library file names.
-FILE_PATTERNS = *defender*.h *defender*.txt
+FILE_PATTERNS = *defender*.h *defender*.c *defender*.txt
 
 # External tag files required by this library.
 TAGFILES = doc/tag/main.tag=../main \

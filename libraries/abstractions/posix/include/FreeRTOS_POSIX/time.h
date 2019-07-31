@@ -67,7 +67,7 @@
  * For functions taking timer objects, this refers to the clock associated with the timer.
  */
 /**@{ */
-#define TIMER_ABSTIME     0x01
+#define TIMER_ABSTIME    0x01
 /**@} */
 
 #if !defined( posixconfigENABLE_TIMESPEC ) || ( posixconfigENABLE_TIMESPEC == 1 )
@@ -77,8 +77,8 @@
  */
     struct timespec
     {
-        time_t tv_sec;     /**< Seconds. */
-        long tv_nsec;      /**< Nanoseconds. */
+        time_t tv_sec; /**< Seconds. */
+        long tv_nsec;  /**< Nanoseconds. */
     };
 #endif
 
@@ -89,8 +89,8 @@
  */
     struct itimerspec
     {
-        struct timespec it_interval;     /**< Timer period. */
-        struct timespec it_value;        /**< Timer expiration. */
+        struct timespec it_interval; /**< Timer period. */
+        struct timespec it_value;    /**< Timer expiration. */
     };
 #endif
 
@@ -243,7 +243,7 @@ int timer_gettime( timer_t timerid,
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/timer_settime.html
  *
  * @retval 0 - Upon successful completion.
- * @retval -1 - An error occured, errno is also set.
+ * @retval -1 - An error occurred, errno is also set.
  *
  * @sideeffect Possible errno values
  * <br>

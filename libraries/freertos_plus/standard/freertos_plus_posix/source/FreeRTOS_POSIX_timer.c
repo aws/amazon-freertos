@@ -258,7 +258,7 @@ int timer_settime( timer_t timerid,
                 {
                     xNextTimerExpiration = 0;
 
-                    if ( iStatus == ETIMEDOUT )
+                    if( iStatus == ETIMEDOUT )
                     {
                         /* Set Status to 0 as absolute time is past is treated as expiry but not an error */
                         iStatus = 0;

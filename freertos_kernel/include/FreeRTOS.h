@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -239,6 +239,22 @@ extern "C" {
 	#define configASSERT_DEFINED 0
 #else
 	#define configASSERT_DEFINED 1
+#endif
+
+/* configPRECONDITION should be resolve to configASSERT.
+   The CBMC proofs need a way to track assumptions and assertions.
+   A configPRECONDITION statement should express an implicit invariant or assumption made.
+   A configASSERT statement should express an invariant that must hold explicit before calling
+   the code. */
+#ifndef configPRECONDITION
+	#define configPRECONDITION( X ) configASSERT(X)
+	#define configPRECONDITION_DEFINED 0
+#else
+	#define configPRECONDITION_DEFINED 1
+#endif
+
+#ifndef portMEMORY_BARRIER
+	#define portMEMORY_BARRIER()
 #endif
 
 /* The timers module relies on xTaskGetSchedulerState(). */
@@ -764,6 +780,10 @@ extern "C" {
 
 #ifndef portALLOCATE_SECURE_CONTEXT
 	#define portALLOCATE_SECURE_CONTEXT( ulSecureStackSize )
+#endif
+
+#ifndef portDONT_DISCARD
+	#define portDONT_DISCARD
 #endif
 
 #ifndef configUSE_TIME_SLICING

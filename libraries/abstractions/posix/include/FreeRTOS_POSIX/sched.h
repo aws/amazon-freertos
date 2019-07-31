@@ -37,7 +37,7 @@
  * @name Scheduling Policies
  */
 /**@{ */
-#define SCHED_OTHER       0 /**< Another scheduling policy. */
+#define SCHED_OTHER    0    /**< Another scheduling policy. */
 /**@} */
 
 /**
@@ -56,10 +56,10 @@ struct sched_param
  *
  * @note policy is ignored.
  *
- * @return the maxium priority value (0-based) system configuration allows.
+ * @return the maximum priority value (0-based) system configuration allows.
  * <br>
  * e.g. if configMAX_PRIORITIES == 7, this function returns (configMAX_PRIORITIES - 1).
- * configMAX_PRIORITIES is configured in appication FreeRTOSConfig.h file.
+ * configMAX_PRIORITIES is configured in application FreeRTOSConfig.h file.
  */
 int sched_get_priority_max( int policy );
 

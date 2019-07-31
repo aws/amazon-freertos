@@ -36,14 +36,14 @@
 #include "aws_clientcredential_keys.h"
 
 #include "platform/iot_metrics.h"
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 #include "unity_fixture.h"
 
 /* Platform includes. */
 #include "platform/iot_clock.h"
 #include "platform/iot_threads.h"
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 #include "platform/iot_metrics.h"
 
 #include "iot_serializer.h"
@@ -77,11 +77,11 @@
 /* Define a decoder based on chosen format. */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
 
-    #define _Decoder    _IotSerializerCborDecoder/**< Global defined in aws_iot_serializer.h . */
+    #define _Decoder    _IotSerializerCborDecoder /**< Global defined in aws_iot_serializer.h . */
 
 #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
 
-    #define _Decoder    _IotSerializerJsonDecoder/**< Global defined in aws_iot_serializer.h . */
+    #define _Decoder    _IotSerializerJsonDecoder /**< Global defined in aws_iot_serializer.h . */
 
 #endif
 
@@ -128,15 +128,15 @@ static bool _waitForAnyEvent( uint32_t timeoutSec );
 static void _assertEvent( AwsIotDefenderEventType_t event,
                           uint32_t timeoutSec );
 
-/* Wait for metrics to be accepted by defender service, for maxinum timeout. */
+/* Wait for metrics to be accepted by defender service, for maximum timeout. */
 static void _waitForMetricsAccepted( uint32_t timeoutSec );
 
 /* Verify common section of metrics report. */
 static void _verifyMetricsCommon();
 
 /* Verify tcp connections in metrics report. */
-static void _verifyTcpConections( int total,
-                                  ... );
+static void _verifyTcpConnections( int total,
+                                   ... );
 
 /* Indicate this test doesn't actually publish report. */
 static void _publishMetricsNotNeeded();
@@ -223,7 +223,7 @@ TEST_GROUP_RUNNER( Full_DEFENDER )
 
     /*
      * Setup: none
-     * Action: call Start API with invliad IoT endpoint
+     * Action: call Start API with invalid IoT endpoint
      * Expectation: Start API returns network connection failure
      */
     RUN_TEST_CASE( Full_DEFENDER, Start_with_wrong_network_information );
@@ -437,7 +437,7 @@ TEST( Full_DEFENDER, Metrics_empty_are_published )
     _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
-    _verifyTcpConections( 0 );
+    _verifyTcpConnections( 0 );
 }
 
 TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published )
@@ -465,7 +465,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published )
     _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
-    _verifyTcpConections( 1, pIotAddress );
+    _verifyTcpConnections( 1, pIotAddress );
 }
 
 TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published_multiple_sockets )
@@ -497,7 +497,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published_multiple_sockets 
         _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
 
         _verifyMetricsCommon();
-        _verifyTcpConections( 2, _ECHO_SERVER_ADDRESS, pIotAddress );
+        _verifyTcpConnections( 2, _ECHO_SERVER_ADDRESS, pIotAddress );
     }
 
     SOCKETS_Shutdown( socket, SOCKETS_SHUT_RDWR );
@@ -529,7 +529,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_total_are_published )
     _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
-    _verifyTcpConections( 1 );
+    _verifyTcpConnections( 1 );
 }
 
 TEST( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
@@ -557,7 +557,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
     _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
-    _verifyTcpConections( 1, pIotAddress );
+    _verifyTcpConnections( 1, pIotAddress );
 }
 
 TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
@@ -580,7 +580,7 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
-    _verifyTcpConections( 1, pIotAddress );
+    _verifyTcpConnections( 1, pIotAddress );
 
     AwsIotDefender_Stop();
 
@@ -601,7 +601,7 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
-    _verifyTcpConections( 1, pIotAddress );
+    _verifyTcpConnections( 1, pIotAddress );
 }
 
 TEST( Full_DEFENDER, SetPeriod_too_short )
@@ -755,10 +755,10 @@ static void _assertRejectDueToThrottle()
 
 static void _waitForMetricsAccepted( uint32_t timeoutSec )
 {
-    /* If not event has occured, simply fail the test. */
+    /* If not event has occurred, simply fail the test. */
     if( !_waitForAnyEvent( timeoutSec ) )
     {
-        TEST_FAIL_MESSAGE( "No event has occured within timeout." );
+        TEST_FAIL_MESSAGE( "No event has occurred within timeout." );
     }
 
     if( _callbackInfo.eventType == AWS_IOT_DEFENDER_METRICS_REJECTED )
@@ -822,8 +822,8 @@ static void _verifyMetricsCommon()
 
 /*-----------------------------------------------------------*/
 
-static void _verifyTcpConections( int total,
-                                  ... )
+static void _verifyTcpConnections( int total,
+                                   ... )
 {
     uint8_t i = 0;
 

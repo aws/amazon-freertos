@@ -240,6 +240,9 @@ BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t *pxNetworkBuffer
 {
 BaseType_t xReturn = pdPASS;
 FreeRTOS_Socket_t *pxSocket;
+configASSERT(pxNetworkBuffer);
+configASSERT(pxNetworkBuffer->pucEthernetBuffer);
+
 
 UDPPacket_t *pxUDPPacket = (UDPPacket_t *) pxNetworkBuffer->pucEthernetBuffer;
 

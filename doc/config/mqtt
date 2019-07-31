@@ -18,15 +18,15 @@ GENERATE_TAGFILE = doc/tag/mqtt.tag
 # Directories containing library source code.
 INPUT = doc \
         doc/lib \
-        lib/include \
-        lib/include/types \
-        lib/include/private \
-        lib/source/mqtt \
+        libraries/c_sdk/standard/mqtt/include \
+        libraries/c_sdk/standard/mqtt/include/types \
+        libraries/c_sdk/standard/mqtt/src/private \
+        libraries/c_sdk/standard/mqtt/src \
         demos/ \
-        tests/ \
-        tests/mqtt/unit \
-        tests/mqtt/access \
-        tests/mqtt/system
+        libraries/c_sdk/standard/mqtt/test \
+        libraries/c_sdk/standard/mqtt/test/unit \
+        libraries/c_sdk/standard/mqtt/test/access \
+        libraries/c_sdk/standard/mqtt/test/system 
 
 # Library file names.
 FILE_PATTERNS = *mqtt*.c *mqtt*.h *mqtt*.txt

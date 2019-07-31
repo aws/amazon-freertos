@@ -75,16 +75,16 @@
 
 /**
  * @name Compile-time initializers.
- * 
- * @brief To use PTHREAD_COND_INITIALIZER, posixconfigENABLE_PTHREAD_COND_T needs to be set to 1 
- * in port specific POSIX config file. 
- * 
+ *
+ * @brief To use PTHREAD_COND_INITIALIZER, posixconfigENABLE_PTHREAD_COND_T needs to be set to 1
+ * in port specific POSIX config file.
+ *
  * To use PTHREAD_MUTEX_INITIALIZER, posixconfigENABLE_PTHREAD_MUTEX_T needs to be set to 1 in
- * port specific POSIX conig file.
+ * port specific POSIX config file.
  */
 /**@{ */
 #if posixconfigENABLE_PTHREAD_COND_T == 1
-    #define PTHREAD_COND_INITIALIZER         FREERTOS_POSIX_COND_INITIALIZER  /**< pthread_cond_t. */
+    #define PTHREAD_COND_INITIALIZER    FREERTOS_POSIX_COND_INITIALIZER       /**< pthread_cond_t. */
 #endif
 
 #if posixconfigENABLE_PTHREAD_MUTEX_T == 1
@@ -117,7 +117,7 @@ int pthread_attr_getdetachstate( const pthread_attr_t * attr,
  *
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_getschedparam.html
  *
- * @retval 0 - Upon successful completion. 
+ * @retval 0 - Upon successful completion.
  */
 int pthread_attr_getschedparam( const pthread_attr_t * attr,
                                 struct sched_param * param );
@@ -138,7 +138,7 @@ int pthread_attr_getstacksize( const pthread_attr_t * attr,
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_init.html
  *
  * @retval 0 - Upon successful completion.
- * 
+ *
  * @note Currently, only stack size, sched_param, and detach state attributes
  * are supported. Also see pthread_attr_get*() and pthread_attr_set*().
  */
@@ -150,7 +150,7 @@ int pthread_attr_init( pthread_attr_t * attr );
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_attr_setdetachstate.html
  *
  * @retval 0 - Upon successful completion
- * @retval EINVAL - The value of detachstate is not valid. Currently, supported detach states are -- 
+ * @retval EINVAL - The value of detachstate is not valid. Currently, supported detach states are --
  *                  PTHREAD_CREATE_DETACHED and PTHREAD_CREATE_JOINABLE.
  */
 int pthread_attr_setdetachstate( pthread_attr_t * attr,
@@ -177,7 +177,7 @@ int pthread_attr_setschedparam( pthread_attr_t * attr,
  *
  * @warning This function is a stub and always returns 0.
  */
-int pthread_attr_setschedpolicy( pthread_attr_t *attr,
+int pthread_attr_setschedpolicy( pthread_attr_t * attr,
                                  int policy );
 
 /**
@@ -214,10 +214,10 @@ int pthread_barrier_destroy( pthread_barrier_t * barrier );
  * @note attr is ignored.
  *
  * @note pthread_barrier_init() is implemented with FreeRTOS event group.
- * To ensure count fits in event group, count may be at most 8 when configUSE_16_BIT_TICKS is 1; 
- * it may be at most 24 otherwise. configUSE_16_BIT_TICKS is configured in application FreeRTOSConfig.h 
- * file, which defines how many bits tick count type has. See further details and limitation about event 
- * group and configUSE_16_BIT_TICKS in FreeRTOS site.  
+ * To ensure count fits in event group, count may be at most 8 when configUSE_16_BIT_TICKS is 1;
+ * it may be at most 24 otherwise. configUSE_16_BIT_TICKS is configured in application FreeRTOSConfig.h
+ * file, which defines how many bits tick count type has. See further details and limitation about event
+ * group and configUSE_16_BIT_TICKS in FreeRTOS site.
  */
 int pthread_barrier_init( pthread_barrier_t * barrier,
                           const pthread_barrierattr_t * attr,
@@ -227,7 +227,7 @@ int pthread_barrier_init( pthread_barrier_t * barrier,
  * @brief Synchronize at a barrier.
  *
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_barrier_wait.html
- * 
+ *
  * @retval PTHREAD_BARRIER_SERIAL_THREAD - Upon successful completion, the first thread.
  * @retval 0 - Upon successful completion, other thread(s).
  */
@@ -250,7 +250,7 @@ int pthread_create( pthread_t * thread,
  * @brief Broadcast a condition.
  *
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_cond_broadcast.html
- * 
+ *
  * @retval 0 - Upon successful completion.
  */
 int pthread_cond_broadcast( pthread_cond_t * cond );
@@ -281,7 +281,7 @@ int pthread_cond_init( pthread_cond_t * cond,
  * @brief Signal a condition.
  *
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_cond_signal.html
- * 
+ *
  * @retval 0 - Upon successful completion.
  */
 int pthread_cond_signal( pthread_cond_t * cond );
@@ -293,7 +293,7 @@ int pthread_cond_signal( pthread_cond_t * cond );
  *
  * @retval 0 - Upon successful completion.
  * @retval EINVAL - The abstime argument passed in does not refer to an initialized structure OR
- *                  the abstime parameter specified a nanoseconds field value less than zero or 
+ *                  the abstime parameter specified a nanoseconds field value less than zero or
  *                  greater than or equal to 1000 million.
  * @retval ETIMEDOUT - The time specified by abstime to pthread_cond_timedwait() has passed.
  */
@@ -352,7 +352,7 @@ int pthread_getschedparam( pthread_t thread,
  * @retval 0 - Upon successful completion.
  * @retval EDEADLK - The value specified by the thread argument to pthread_join() does not refer
  *                   to a joinable thread OR multiple simultaneous calls to pthread_join()
- *                   specifying the same target thread OR the value specified by the thread argument 
+ *                   specifying the same target thread OR the value specified by the thread argument
  *                   to pthread_join() refers to the calling thread.
  */
 int pthread_join( pthread_t thread,
@@ -364,7 +364,7 @@ int pthread_join( pthread_t thread,
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_mutex_destroy.html
  *
  * @retval 0 - Upon successful completion.
- * 
+ *
  * @note If there exists a thread holding this mutex, this function returns 0 with mutex not being destroyed.
  */
 int pthread_mutex_destroy( pthread_mutex_t * mutex );
@@ -385,11 +385,11 @@ int pthread_mutex_init( pthread_mutex_t * mutex,
  * @brief Lock a mutex.
  *
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_mutex_lock.html
- * 
+ *
  * @retval 0 - Upon successful completion.
- * @retval EINVAL - the abstime parameter specified a nanoseconds field value less than zero 
+ * @retval EINVAL - the abstime parameter specified a nanoseconds field value less than zero
  *                  or greater than or equal to 1000 million.
- * @retval EDEADLK - The mutex type is PTHREAD_MUTEX_ERRORCHECK and the current thread already 
+ * @retval EDEADLK - The mutex type is PTHREAD_MUTEX_ERRORCHECK and the current thread already
  *                   owns the mutex.
  */
 int pthread_mutex_lock( pthread_mutex_t * mutex );
@@ -401,8 +401,8 @@ int pthread_mutex_lock( pthread_mutex_t * mutex );
  *
  * @retval 0 - Upon successful completion.
  * @retval EINVAL - The abstime argument passed in does not refer to an initialized structure OR
- *                  the abstime parameter specified a nanoseconds field value less than zero or 
-                    greater than or equal to 1000 million.
+ *                  the abstime parameter specified a nanoseconds field value less than zero or
+ *                  greater than or equal to 1000 million.
  * @retval EDEADLK - The mutex type is PTHREAD_MUTEX_ERRORCHECK and the current thread already owns the mutex.
  * @retval ETIMEDOUT - The mutex could not be locked before the specified timeout expired.
  */
@@ -415,9 +415,9 @@ int pthread_mutex_timedlock( pthread_mutex_t * mutex,
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_mutex_trylock.html
  *
  * @retval 0 - Upon successful completion.
- * @retval EINVAL - the abstime parameter specified a nanoseconds field value less than zero 
+ * @retval EINVAL - the abstime parameter specified a nanoseconds field value less than zero
  *                  or greater than or equal to 1000 million.
- * @retval EDEADLK - The mutex type is PTHREAD_MUTEX_ERRORCHECK and the current thread already 
+ * @retval EDEADLK - The mutex type is PTHREAD_MUTEX_ERRORCHECK and the current thread already
  *                   owns the mutex.
  * @retval EBUSY - The mutex could not be acquired because it was already locked.
  */
@@ -429,8 +429,8 @@ int pthread_mutex_trylock( pthread_mutex_t * mutex );
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_mutex_unlock.html
  *
  * @retval 0 - Upon successful completion.
- * @retval EPERM - The mutex type is PTHREAD_MUTEX_ERRORCHECK or PTHREAD_MUTEX_RECURSIVE, and 
- *                 the current thread does not own the mutex.  
+ * @retval EPERM - The mutex type is PTHREAD_MUTEX_ERRORCHECK or PTHREAD_MUTEX_RECURSIVE, and
+ *                 the current thread does not own the mutex.
  */
 int pthread_mutex_unlock( pthread_mutex_t * mutex );
 
@@ -460,7 +460,7 @@ int pthread_mutexattr_gettype( const pthread_mutexattr_t * attr,
  *
  * @retval 0 - Upon successful completion.
  *
- * @note Currently, only the type attribute is supported. Also see pthread_mutexattr_settype() 
+ * @note Currently, only the type attribute is supported. Also see pthread_mutexattr_settype()
  *       and pthread_mutexattr_gettype().
  */
 int pthread_mutexattr_init( pthread_mutexattr_t * attr );
@@ -480,7 +480,7 @@ int pthread_mutexattr_settype( pthread_mutexattr_t * attr,
  * @brief Get the calling thread ID.
  *
  * @see http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_self.html
- * 
+ *
  * @retval the thread ID of the calling thread.
  */
 pthread_t pthread_self( void );

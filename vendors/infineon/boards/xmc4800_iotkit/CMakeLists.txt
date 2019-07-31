@@ -210,23 +210,15 @@ target_link_libraries(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${xmc4800_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${xmc4800_ports_dir}/wifi/iot_wifi.c"
 )
 
 # PKCS11
-afr_mcu_port(pkcs11)
+afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${xmc4800_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-)
-
-target_link_libraries(
-    AFR::pkcs11::mcu_port
-    INTERFACE
-        3rdparty::mbedtls
-        AFR::pkcs11_mbedtls
-        AFR::crypto
+        "${xmc4800_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 # Secure sockets
@@ -241,7 +233,7 @@ target_link_libraries(
 
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE "${xmc4800_ports_dir}/secure_sockets/aws_secure_sockets.c"
+    INTERFACE "${xmc4800_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
 # -------------------------------------------------------------------------------------------------

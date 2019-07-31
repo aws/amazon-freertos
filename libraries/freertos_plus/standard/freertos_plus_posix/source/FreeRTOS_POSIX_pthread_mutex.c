@@ -113,7 +113,7 @@ int pthread_mutex_init( pthread_mutex_t * mutex,
                         const pthread_mutexattr_t * attr )
 {
     int iStatus = 0;
-    pthread_mutex_internal_t * pxMutex = ( pthread_mutex_internal_t* ) mutex;
+    pthread_mutex_internal_t * pxMutex = ( pthread_mutex_internal_t * ) mutex;
 
     if( pxMutex == NULL )
     {

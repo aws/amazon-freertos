@@ -23,8 +23,8 @@
 #include <string.h>
 #include "aws_ota_agent.h"
 #include "aws_ota_pal.h"
-#include "aws_crypto.h"
-#include "aws_pkcs11.h"
+#include "iot_crypto.h"
+#include "iot_pkcs11.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "soc/rtc_cntl_reg.h"

@@ -150,6 +150,11 @@
  */
 #define _TRANSMIT_LENGTH( mtu )                      ( ( mtu ) - 3 )
 
+/**
+ * @brief Number of data transfer services is determined by number of rows of attribute table.
+ */
+#define _NUM_DATA_TRANSFER_SERVICES    ( sizeof( _attributeTable ) / sizeof( _attributeTable[ 0 ] ) )
+
 /*-------------------------------------------------------------------------------------------------------------------------*/
 
 /**
@@ -278,7 +283,7 @@ static void _TXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
 
 /*
  * @brief Callback to register for events (write) on RX large message characteristic.
- * Copies the individual write packets into a buffer untill a packet less than BLE MTU size
+ * Copies the individual write packets into a buffer until a packet less than BLE MTU size
  * is received. Sends the buffered message to the upper layer.
  */
 static void _RXLargeMesgCharCallback( IotBleAttributeEvent_t * pEventParam );
@@ -313,22 +318,32 @@ extern int snprintf( char *,
 
 /*----------------------------------------------------------------------------------------------------------*/
 
-
-static const BTAttribute_t _attributeTable[ IOT_BLE_NUM_DATA_TRANSFER_SERVICES ][ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] =
+static const BTAttribute_t _attributeTable[][ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] =
 {
-    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-        _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+            _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+        #endif
+        #if ( IOT_BLE_ENABLE_MQTT == 1 )
+            _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
+        #endif
     #endif
-    _ATTRIBUTE_TABLE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
 };
 
-static IotBleDataTransferService_t _services[ IOT_BLE_NUM_DATA_TRANSFER_SERVICES ] =
+static IotBleDataTransferService_t _services[] =
 {
-    #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
-        _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+    #if ( IOT_BLE_ENABLE_DATA_TRANSFER_SERVICE == 1 )
+        #if ( IOT_BLE_ENABLE_WIFI_PROVISIONING == 1 )
+            _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_WIFI_PROVISIONING ),
+        #endif
+        #if ( IOT_BLE_ENABLE_MQTT == 1 )
+            _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
+        #endif
     #endif
-    _SERVICE_INITIALIZER( IOT_BLE_DATA_TRANSFER_SERVICE_TYPE_MQTT )
 };
+
+static const uint16_t _numDataTransferServices = _NUM_DATA_TRANSFER_SERVICES;
+
 
 static const IotBleAttributeEventCallback_t _callbacks[ IOT_BLE_DATA_TRANSFER_MAX_ATTRIBUTES ] =
 {
@@ -360,7 +375,7 @@ static IotBleDataTransferService_t * _getServiceFromHandle( uint16_t handle )
     uint8_t id;
     IotBleDataTransferService_t * pService = NULL;
 
-    for( id = 0; id < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; id++ )
+    for( id = 0; id < _numDataTransferServices; id++ )
     {
         /* Check that the handle is included in the service. */
         if( ( handle > _services[ id ].handles[ 0 ] ) &&
@@ -520,7 +535,7 @@ static void _ControlCharCallback( IotBleAttributeEvent_t * pEventParam )
         if( pService != NULL )
         {
             resp.pAttrData->handle = pEventParam->pParamRead->attrHandle;
-            resp.pAttrData->pData = ( uint8_t * ) pService->isReady;
+            resp.pAttrData->pData = ( uint8_t * ) &pService->isReady;
             resp.pAttrData->size = 1;
             resp.attrDataOffset = 0;
             resp.eventStatus = eBTStatusSuccess;
@@ -823,7 +838,7 @@ static void _connectionCallback( BTStatus_t status,
         }
         else
         {
-            for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
+            for( index = 0; index < _numDataTransferServices; index++ )
             {
                 IotBleDataTransfer_Close( &_services[ index ].channel );
                 _services[ index ].isReady = false;
@@ -941,7 +956,7 @@ bool IotBleDataTransfer_Init( void )
     /* Initialize all data transfer services */
     if( ret == true )
     {
-        for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
+        for( index = 0; index < _numDataTransferServices; index++ )
         {
             ret = _initializeChannel( &_services[ index ].channel );
 
@@ -974,7 +989,7 @@ IotBleDataTransferChannel_t * IotBleDataTransfer_Open( uint8_t serviceIdentifier
     uint8_t index;
     IotBleDataTransferChannel_t * pChannel = NULL;
 
-    for( index = 0; index < IOT_BLE_NUM_DATA_TRANSFER_SERVICES; index++ )
+    for( index = 0; index < _numDataTransferServices; index++ )
     {
         if( _services[ index ].identifier == serviceIdentifier )
         {

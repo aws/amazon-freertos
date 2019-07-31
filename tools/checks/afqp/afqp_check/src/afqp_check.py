@@ -146,9 +146,9 @@ def get_license_match_error(lic, lic_file_path):
 
 PORTABLE_LAYER_NAMES = {
     'aws_ota_pal.c': 'OTA PAL',
-    'aws_pkcs11_pal.c': 'PKCS #11 PAL',
-    'aws_secure_sockets.c':'Secure Sockets',
-    'aws_wifi.c': 'Wi-Fi'
+    'iot_pkcs11_pal.c': 'PKCS #11 PAL',
+    'iot_secure_sockets.c':'Secure Sockets',
+    'iot_wifi.c': 'Wi-Fi'
 }
 
 COPYRIGHT_NAME = 'Amazon FreeRTOS'
@@ -223,10 +223,10 @@ def get_copyright_errors(lic, file_path, is_config_file):
 
 # Valid portable layer paths to the all current set of portable code.
 PORTABLE_LAYER_PATHS = [
-    'lib/pkcs11/portable/{vendor}/{board}/aws_pkcs11_pal.c',
-    'lib/wifi/portable/{vendor}/{board}/aws_wifi.c',
+    'lib/pkcs11/portable/{vendor}/{board}/iot_pkcs11_pal.c',
+    'lib/wifi/portable/{vendor}/{board}/iot_wifi.c',
     'lib/ota/portable/{vendor}/{board}/aws_ota_pal.c',
-    'lib/secure_sockets/portable/{vendor}/{board}/aws_secure_sockets.c'
+    'lib/secure_sockets/portable/{vendor}/{board}/iot_secure_sockets.c'
 ]
 
 # Files to ignore in the check_license routine.

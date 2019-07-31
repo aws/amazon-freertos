@@ -12,7 +12,7 @@ afr_module_sources(
         "${AFR_DEMOS_DIR}/network_manager/aws_iot_network_manager.c"
         "${AFR_DEMOS_DIR}/network_manager/aws_iot_demo_network.c"
         "${AFR_DEMOS_DIR}/network_manager/iot_network_manager_private.h"
-        "${AFR_DEMOS_DIR}/demo_runner/iot_demo_afr.c"
+        "${AFR_DEMOS_DIR}/demo_runner/iot_demo_freertos.c"
         "${AFR_DEMOS_DIR}/demo_runner/iot_demo_runner.c"
         "${AFR_DEMOS_DIR}/include/aws_application_version.h"
         "${AFR_DEMOS_DIR}/include/aws_clientcredential.h"
@@ -36,7 +36,7 @@ afr_module_dependencies(
         AFR::kernel
         AFR::common
 )
-if(TARGET AFR::pkcs11::mcu_port)
+if(TARGET AFR::pkcs11_implementation::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         INTERFACE

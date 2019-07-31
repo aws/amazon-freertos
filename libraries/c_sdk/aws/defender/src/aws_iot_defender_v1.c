@@ -31,7 +31,7 @@
 
 #include "aws_clientcredential.h"
 
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 
 /* Defender agent's status, initialized with eDefenderRepInit. */
 static DefenderReportStatus_t _status = eDefenderRepInit;
@@ -193,7 +193,7 @@ DefenderReportStatus_t DEFENDER_ReportStatusGet( void )
 
 int32_t GetLastReportId( void )
 {
-	/* This function is not supported anymore. */
+    /* This function is not supported anymore. */
     return 0;
 }
 

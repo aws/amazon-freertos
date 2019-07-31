@@ -290,7 +290,7 @@ Amazon FreeRTOS modules. Here's a simple example for Wi-Fi:
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${AFR_MODULES_DIR}/wifi/portable/<vendor>/<board>/aws_wifi.c"
+    INTERFACE "${AFR_MODULES_DIR}/wifi/portable/<vendor>/<board>/iot_wifi.c"
 )
 ```
 

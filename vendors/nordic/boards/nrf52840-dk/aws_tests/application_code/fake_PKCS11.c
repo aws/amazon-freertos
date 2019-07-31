@@ -25,13 +25,13 @@
 
 /**
  * @file fake_PKCS11.c
- * @brief This port is not using pkcs11, however it is used in the test to retrive ccode signer.
+ * @brief This port is not using pkcs11, however it is used in the test to retrive code signer.
  */
 
  /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 CK_FUNCTION_LIST xFunctionList;
 

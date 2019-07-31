@@ -43,9 +43,9 @@
 
 /* Demo includes */
 #include "aws_demo.h"
-#include "aws_system_init.h"
-#include "aws_logging_task.h"
-#include "aws_wifi.h"
+#include "iot_system_init.h"
+#include "iot_logging_task.h"
+#include "iot_wifi.h"
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
 
@@ -83,7 +83,7 @@ extern void SPI_WIFI_ISR(void);
 extern SPI_HandleTypeDef hspi;
 
 #ifdef USE_OFFLOAD_SSL
-    /* Defined in aws_wifi.c. */
+    /* Defined in iot_wifi.c. */
     extern WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t *pucBuffer );
 #endif /* USE_OFFLOAD_SSL */
 

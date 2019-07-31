@@ -8,7 +8,8 @@ This library allows other libraries to generate and print log messages, which ca
 - Automatic printing of log level, library name, and time with every message. The information printed with each message [may be customized](@ref IotLogConfig_t).
 - A [function to print the contents of buffers](@ref logging_function_printbuffer) when using the [debug](@ref IOT_LOG_DEBUG) log level. This allows the contents of memory to be easily examined.
 
-@dependencies{logging,logging library}
+@dependencies_section{logging}
+@dependencies_brief{logging library}
 
 @dot "Logging direct dependencies"
 digraph logging_dependencies
@@ -73,7 +74,8 @@ The code above will print something like the following:
 */
 
 /**
-@configpage{logging,logging library}
+@config_page{logging}
+@config_brief{logging library}
 
 @section _LIBRARY_LOG_LEVEL
 @brief The log level for a source file.

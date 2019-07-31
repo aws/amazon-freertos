@@ -23,49 +23,49 @@
  * http://www.FreeRTOS.org
  */
 
- /**
-  * @brief Demo intro: job distribution with actor model.
-  *
-  * This demo simulates job distribution with actor model.
-  * https://en.wikipedia.org/wiki/Actor_model
-  *
-  * In this demo, vStartPOSIXDemo() first creates all mailboxes
-  * which will be used by actors to send and receive messages.
-  * Then it spins up two types of actors -- Dispatcher and Workers.
-  *
-  * Dispatcher -- Distributing sub-tasks to workers.
-  *               Distribution is done by putting messages into each worker's inbox,
-  *               which is essentially an mqueue. Dispatcher keeps distributing tasks
-  *               until all intended tasks are distributed.
-  *
-  * Workers -- Take sub-tasks and perform predefined routine for each type of tasks.
-  *
-  * Upon finishing distributing all tasks, Dispatcher will send a "terminate" message to
-  * each worker. vStartPOSIXDemo() will then join all actor threads and clean up mailboxes.
-  *
-  * @note A few assumptions are made in this demo, which a user might have to alter
-  * if to adopt this model in a new application:
-  *
-  *  - The upper limit for MQUEUE_NUMBER_OF_WORKERS is set to 10.
-  *    This is not due to physical constraint (e.g. memory), rather to make queue
-  *    names end with a single digit number.
-  *
-  *  - Message enum is cast to char/uint8_t directly, with the assumption that
-  *    the system is not going to have more than 254 messages, which is often true
-  *    in practice. Could extend bits used in a message to either have more messages
-  *    or include additional arguments for a message. Proper typecasting is needed
-  *    in that case.
-  *
-  *  - The philosophy is "failure is expected". It is shown in both the way dispatcher
-  *    delivers messages (i.e. messages can be dropped by worker(s)), and also the
-  *    way workers process messages (i.e. workers do not inform dispatcher success or
-  *    failure).
-  *
-  *  - Following the philosophy, dispatcher shall never use blocking calls to distribute
-  *    tasks. The only exception made here is that dispatcher needs to make sure the
-  *    successful delivery of "terminate" messages. So that, main thread could join
-  *    all actor threads and finish the demo.
-  */
+/**
+ * @brief Demo intro: job distribution with actor model.
+ *
+ * This demo simulates job distribution with actor model.
+ * https://en.wikipedia.org/wiki/Actor_model
+ *
+ * In this demo, vStartPOSIXDemo() first creates all mailboxes
+ * which will be used by actors to send and receive messages.
+ * Then it spins up two types of actors -- Dispatcher and Workers.
+ *
+ * Dispatcher -- Distributing sub-tasks to workers.
+ *               Distribution is done by putting messages into each worker's inbox,
+ *               which is essentially an mqueue. Dispatcher keeps distributing tasks
+ *               until all intended tasks are distributed.
+ *
+ * Workers -- Take sub-tasks and perform predefined routine for each type of tasks.
+ *
+ * Upon finishing distributing all tasks, Dispatcher will send a "terminate" message to
+ * each worker. vStartPOSIXDemo() will then join all actor threads and clean up mailboxes.
+ *
+ * @note A few assumptions are made in this demo, which a user might have to alter
+ * if to adopt this model in a new application:
+ *
+ *  - The upper limit for MQUEUE_NUMBER_OF_WORKERS is set to 10.
+ *    This is not due to physical constraint (e.g. memory), rather to make queue
+ *    names end with a single digit number.
+ *
+ *  - Message enum is cast to char/uint8_t directly, with the assumption that
+ *    the system is not going to have more than 254 messages, which is often true
+ *    in practice. Could extend bits used in a message to either have more messages
+ *    or include additional arguments for a message. Proper typecasting is needed
+ *    in that case.
+ *
+ *  - The philosophy is "failure is expected". It is shown in both the way dispatcher
+ *    delivers messages (i.e. messages can be dropped by worker(s)), and also the
+ *    way workers process messages (i.e. workers do not inform dispatcher success or
+ *    failure).
+ *
+ *  - Following the philosophy, dispatcher shall never use blocking calls to distribute
+ *    tasks. The only exception made here is that dispatcher needs to make sure the
+ *    successful delivery of "terminate" messages. So that, main thread could join
+ *    all actor threads and finish the demo.
+ */
 
 /* FreeRTOS includes. */
 #include "FreeRTOS_POSIX.h"
@@ -264,17 +264,17 @@ static void * prvDispatcherThread( void * pvArgs )
 }
 
 /*-----------------------------------------------------------*/
- 
+
 /**
  * @brief Job distribution with actor model.
- * 
+ *
  * See the top of this file for detailed description.
  */
 int vStartPOSIXDemo( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface )
+                     const char * pIdentifier,
+                     void * pNetworkServerInfo,
+                     void * pNetworkCredentialInfo,
+                     const IotNetworkInterface_t * pNetworkInterface )
 {
     int i = 0;
     int iStatus = 0;

@@ -155,6 +155,7 @@ int clock_nanosleep( clockid_t clock_id,
             {
                 iStatus = EINVAL;
             }
+
             /* Get number of ticks until absolute time. */
             if( ( iStatus == 0 ) && ( UTILS_AbsoluteTimespecToDeltaTicks( rqtp, &xCurrentTime, &xSleepTime ) == 0 ) )
             {

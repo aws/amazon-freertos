@@ -78,11 +78,15 @@ typedef enum
     BTAdvNonconnInd,
 } BTAdvProperties_t;
 
-typedef enum
+typedef struct
 {
-    BTGattAdvNameNone,
-    BTGattAdvNameShort,
-    BTGattAdvNameComplete,
+    enum
+    {
+        BTGattAdvNameNone,
+        BTGattAdvNameShort,
+        BTGattAdvNameComplete
+    } xType;
+    uint8_t ucShortNameLen;
 } BTGattAdvName_t;
 
 /*TODO enum for usAdvertisingEventProperties */
@@ -90,7 +94,7 @@ typedef struct
 {
     BTAdvProperties_t usAdvertisingEventProperties;
     bool bIncludeTxPower;
-    BTGattAdvName_t ucNameType;
+    BTGattAdvName_t ucName;
     bool bSetScanRsp;
     uint32_t ulAppearance;
     uint32_t ulMinInterval; /* Min connection interval, set to 0 to ignore. */
@@ -193,13 +197,15 @@ typedef void (* BTScanResultCallback_t)( BTBdaddr_t * pxBda,
 
 /**
  *
- * @brief  Callback invoked on pxStartAdv.
+ * @brief  Callback invoked on pxStartAdv and stop advertisement.
  *
  * @param[in] xStatus Returns eBTStatusSuccess if operation succeeded.
  * @param[in] ulServerIf GATT server interface.
+ * @param[in] bStarted: True for start advertisement, flase for stop
  */
-typedef void (* BTAdvStartCallback_t)( BTStatus_t xStatus,
-                                       uint32_t ulServerIf );
+typedef void (* BTAdvStatusCallback_t)( BTStatus_t xStatus,
+                                        uint32_t ulServerIf,
+                                        bool bStart );
 
 /**
  *
@@ -420,7 +426,7 @@ typedef struct
     BTConnectCallback_t pxOpenCb;
     BTDisconnectCallback_t pxCloseCb;
     BTReadRemoteRssiCallback_t pxReadRemoteRssiCb;
-    BTAdvStartCallback_t pxAdvStartCb;
+    BTAdvStatusCallback_t pxAdvStatusCb;
     BTSetAdvDataCallback_t pxSetAdvDataCb;
     BTConnParameterUpdateCallback_t pxConnParameterUpdateCb;
     BTScanFilterCfgCallback_t pxScanFilterCfgCb;
@@ -569,7 +575,7 @@ typedef struct
      *
      * @brief Start advertisements to listen for incoming connections.
      *
-     * Triggers BTAdvStartCallback_t.
+     * Triggers BTAdvStatusCallback_t with bStart = true.
      *
      * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp
      * @return Returns eBTStatusSuccess on successful call.
@@ -579,6 +585,8 @@ typedef struct
     /**
      *
      * @brief Stop advertisements to listen for incoming connections.
+     *
+     * Triggers BTAdvStatusCallback_t with bStart = false.
      *
      * @param[in] ucAdapterIf Adapter interface ID. Returned from BTRegisterBleAdapterCallback_t after calling pxRegisterBleApp.
      * @return Returns eBTStatusSuccess on successful call.

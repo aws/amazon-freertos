@@ -54,7 +54,7 @@ unsigned sleep( unsigned seconds );
  * This is a useful, non-POSIX function.
  * @param[in] usec The number of microseconds to suspend execution.
  *
- * @retval 0 - Upon successful cocmpletion.
+ * @retval 0 - Upon successful completion.
  */
 int usleep( useconds_t usec );
 

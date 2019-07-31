@@ -32,10 +32,13 @@
 #include "FreeRTOS.h"
 
 /* Use platform types on FreeRTOS. */
-#include "platform/iot_platform_types_afr.h"
+#include "platform/iot_platform_types_freertos.h"
 
 /* Used to get the cloud broker endpoint for FreeRTOS. */
 #include "aws_clientcredential.h"
+
+/* Used to get the certificate used by the device. */
+#include "aws_clientcredential_keys.h"
 
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
@@ -44,7 +47,7 @@
 #define IOT_BUILD_TESTS    ( 0 )
 
 /* Logging puts function. */
-#define IotLogging_Puts( str )                 configPRINTF( ( "%s\r\n", str ) )
+#define IotLogging_Puts( str )    configPRINTF( ( "%s\r\n", str ) )
 
 /* Enable asserts in libraries by default. */
 #ifndef IOT_METRICS_ENABLE_ASSERTS
@@ -167,35 +170,38 @@
 #endif
 
 /* Cloud endpoint to which the device connects to. */
-#define IOT_CLOUD_ENDPOINT                    clientcredentialMQTT_BROKER_ENDPOINT
+#define IOT_CLOUD_ENDPOINT        clientcredentialMQTT_BROKER_ENDPOINT
+
+/* Certificate for the device. */
+#define IOT_DEVICE_CERTIFICATE    keyCLIENT_CERTIFICATE_PEM
 
 /**
  * @brief Unique identifier used to recognize a device by the cloud.
  * This could be SHA-256 of the device certificate.
  */
-extern const char *getDeviceIdentifier( void );
-#define IOT_DEVICE_IDENTIFIER                getDeviceIdentifier()
+extern const char * getDeviceIdentifier( void );
+#define IOT_DEVICE_IDENTIFIER    getDeviceIdentifier()
 
 /**
  * @brief Metrics emitted by the device.
  */
-extern const char *getDeviceMetrics( void );
-#define AWS_IOT_METRICS_USERNAME     getDeviceMetrics()
+extern const char * getDeviceMetrics( void );
+#define AWS_IOT_METRICS_USERNAME    getDeviceMetrics()
 
 /**
  * @brief Length of the metrics emitted by device.
  */
 extern uint16_t getDeviceMetricsLength( void );
-#define AWS_IOT_METRICS_USERNAME_LENGTH getDeviceMetricsLength()
+#define AWS_IOT_METRICS_USERNAME_LENGTH    getDeviceMetricsLength()
 
 /* Define the data type of metrics connection id as same as Socket_t in aws_secure_socket.h */
-#define IotMetricsConnectionId_t            void *
+#define IotMetricsConnectionId_t           void *
 
 /* Configuration for defender demo: set format to CBOR. */
-#define AWS_IOT_DEFENDER_FORMAT             AWS_IOT_DEFENDER_FORMAT_CBOR
+#define AWS_IOT_DEFENDER_FORMAT            AWS_IOT_DEFENDER_FORMAT_CBOR
 
 /* Configuration for defender demo: use long tag for readable output. Please use short tag for the real application. */
-#define AWS_IOT_DEFENDER_USE_LONG_TAG       ( 1 )
+#define AWS_IOT_DEFENDER_USE_LONG_TAG      ( 1 )
 
 /* Demo runner configuration. */
 #include "aws_demo_config.h"

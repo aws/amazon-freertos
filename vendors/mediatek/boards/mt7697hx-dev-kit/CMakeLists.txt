@@ -233,7 +233,7 @@ target_include_directories(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/aws_wifi.c"
+    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 
     # MediaTek SDK Wifi Files
     "${AFR_VENDORS_DIR}/mediatek/sdk/middleware/MTK/dhcpd/src/dhcpd.c"
@@ -281,21 +281,21 @@ target_link_libraries(
 )
 
 # PKCS11
-afr_mcu_port(pkcs11)
+afr_mcu_port(pkcs11_implementation)
 target_sources(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${afr_ports_dir}/pkcs11/aws_pkcs11_pal.c"
-        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/aws_pkcs11_mbedtls.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/aws_crypto.c"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/mbedtls/iot_pkcs11_mbedtls.c"
+        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/src/iot_crypto.c"
 )
 target_link_libraries(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE 3rdparty::mbedtls
 )
 
 target_include_directories(
-    AFR::pkcs11::mcu_port
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include/"
         "${AFR_VENDORS_DIR}/mediatek/sdk/driver/chip/mt7687/inc"
