@@ -271,7 +271,7 @@ IotTaskPoolError_t IotTaskPool_CreateJob( IotTaskPoolRoutine_t userCallback,
 /* @[declare_taskpool_createjob] */
 
 /**
- * brief Creates a job for the task pool by allocating the job dynamically.
+ * @brief Creates a job for the task pool by allocating the job dynamically.
  *
  * A recyclable job does not need to be allocated twice, but it can rather be reused through
  * subsequent calls to @ref IotTaskPool_CreateRecyclableJob.

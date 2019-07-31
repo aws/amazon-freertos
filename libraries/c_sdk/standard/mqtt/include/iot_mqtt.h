@@ -40,8 +40,8 @@
 /*------------------------- MQTT library functions --------------------------*/
 
 /**
- * @functions_page{MQTT, MQTT}
- * @functions_brief{MQTT}
+ * @functions_page{mqtt, MQTT}
+ * @functions_brief{mqtt}
  * - @function_name{mqtt_function_init}
  * @function_brief{mqtt_function_init}
  * - @function_name{mqtt_function_cleanup}
