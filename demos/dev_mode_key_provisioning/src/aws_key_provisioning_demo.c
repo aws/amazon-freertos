@@ -49,7 +49,7 @@
  * 1 to run second part of demo, after user has copied device and CA certificates into aws_clientcredential_keys.h
  * NOTE: User must change value from 0 to 1 after running scripts (generating certificates) to provision device
  */
-#define DEMO_PART                  ( 1 )
+#define DEMO_PART                  ( 0 )
 
 /**
  * @brief Gives users the option to reprovision each time the demo is run
@@ -114,7 +114,7 @@ static int prvRNG( void * pkcs_session,
 
 /*-----------------------------------------------------------*/
 
-/* @brief Alternate Signing Function to be Passed into PK Context Header 
+/* @brief Alternate Signing Function to be Passed into PK Context Header
  * This function was copied from "iot_tls.c"
  * Recreated to be passed into a PK Context header as our customized signing function.
  * */
@@ -291,6 +291,12 @@ static void xDeviceProvisioningForJITP( void )
 {
     xResult = xInitializePkcs11Session( &xGlobalSession );
 
+    BaseType_t xHeapBefore;
+    BaseType_t xHeapAfter;
+
+    xHeapBefore = xPortGetFreeHeapSize();
+    configPRINTF(("Heap size before is %d", xHeapBefore));
+
     if( xResult != CKR_OK )
     {
         configPRINTF( ( "ERROR: %d - Failed to open PKCS #11 session.\r\n", xResult ) );
@@ -309,7 +315,6 @@ static void xDeviceProvisioningForJITP( void )
             CK_MECHANISM xMechanism;
             CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
             CK_BYTE xEcPoint[ 256 ] = { 0 };
-            CK_BYTE xEcParams[ 11 ] = { 0 };
             CK_KEY_TYPE xKeyType;
             CK_ULONG xSignatureLength;
             CK_ATTRIBUTE xTemplate;
@@ -319,7 +324,6 @@ static void xDeviceProvisioningForJITP( void )
             int lMbedTLSResult;
             int ret;
             mbedtls_ecdsa_context xEcdsaContext;
-            uint8_t ucSecp256r1Oid[] = pkcs11DER_ENCODED_OID_P256; /*"\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1; */
 
             xResult = xDestroyCredentials( xGlobalSession );
 
@@ -327,8 +331,6 @@ static void xDeviceProvisioningForJITP( void )
             {
                 configPRINTF( ( "ERROR: %d - Failed to destroy credentials before Generating Key Pair.\r\n", xResult ) );
             }
-
-            xCurrentCredentials = eNone;
 
             xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
                                                    ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
@@ -467,7 +469,7 @@ static void xDeviceProvisioningForJITP( void )
             mbedtls_ecp_group_init( &xEcdsaContext.grp );
 
 
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
             mbedtls_mpi xR;
             mbedtls_mpi xS;
 
@@ -485,7 +487,7 @@ static void xDeviceProvisioningForJITP( void )
             {
                 configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
             }
-            
+
             /* C_Sign returns the R & S components one after another- import these into a format that mbedTLS can work with. */
             mbedtls_mpi_init( &xR );
             mbedtls_mpi_init( &xS );
@@ -525,11 +527,11 @@ static void xDeviceProvisioningForJITP( void )
             {
                 configPRINTF( ( "ERROR: %d - Failed to Verify ECDSA.\r\n", xResult ) );
             }
-            
+
             mbedtls_mpi_free( &xR );
             mbedtls_mpi_free( &xS );
-                       
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */
 
 
             /* Generate a PK Context for CSR */
@@ -539,6 +541,13 @@ static void xDeviceProvisioningForJITP( void )
 
             /* Creating copy of header to pass in custom sign function (original header is immutable) */
             mbedtls_pk_info_t * header_copy = pvPortMalloc( sizeof( mbedtls_pk_info_t ) );
+
+            if( header_copy == NULL )
+            {
+                configPRINTF( ( "ERROR: Failed to allocate memory for header_copy variable. CSR cannot be generated\r\n" ) );
+                return;
+            }
+
             memcpy( header_copy, header, sizeof( struct mbedtls_pk_info_t ) );
 
             header_copy->sign_func = &prvPrivateKeySigningCallback;
@@ -560,7 +569,7 @@ static void xDeviceProvisioningForJITP( void )
             /* Initializing CSR Context */
             mbedtls_x509write_csr my_csr;
             mbedtls_x509write_csr_init( &my_csr );
-            ret = mbedtls_x509write_csr_set_subject_name( &my_csr, "CN=ThingName" ); // This name is configurable to your personal thing name.
+            ret = mbedtls_x509write_csr_set_subject_name( &my_csr, "CN=ThingName" ); /* This name is configurable to your personal thing name. */
 
             if( ret != 0 )
             {
@@ -585,6 +594,13 @@ static void xDeviceProvisioningForJITP( void )
 
             /* Output Buffer */
             unsigned char * final_csr = pvPortMalloc( 2000 );
+
+            if( final_csr == NULL )
+            {
+                configPRINTF( ( "ERROR: Failed to allocate memory for final_csr variable. CSR cannot be generated\r\n" ) );
+                return;
+            }
+
             size_t len_buf = ( size_t ) 2000;
 
             ret = mbedtls_x509write_csr_pem( &my_csr, final_csr, len_buf, &prvRNG, &xGlobalSession );
@@ -607,13 +623,18 @@ static void xDeviceProvisioningForJITP( void )
             mbedtls_ecp_group_free( &xEcdsaContext.grp );
             mbedtls_ecdsa_free( &xEcdsaContext );
             /*mbedtls_pk_free( &pk_cont ); */
+            //header_copy->ctx_free_func( &pk_cont );
             mbedtls_x509write_csr_free( &my_csr );
             vPortFree( final_csr );
+
+            xHeapAfter = xPortGetFreeHeapSize();
+            configPRINTF(("Heap size before is %d", xHeapAfter));
         }
-    #else  /* if ( !DEMO_PART ) */
+    #else /* if ( !DEMO_PART ) */
         {
             /* Provision device using certificates in aws_clientcredential_keys.h */
             int ret = xProvisionDeviceForJITP();
+
             if( ret != 0 )
             {
                 configPRINTF( ( "ERROR: %d - Provisioning Function Failed.\r\n", ret ) );
@@ -640,14 +661,14 @@ void vStartKeyProvisioningDemo( void )
             configPRINTF( ( "Starting Key Provisioning\r\n" ) );
 
             ( void ) xDeviceProvisioningForJITP();
-            #if( DEMO_PART == 1)
-            {
-                configPRINTF( ( "Ending Key Provisioning\r\n" ) );
-            }
-            #else 
-            {
-                configPRINTF( ("PLEASE CHANGE #DEMO_PART to 1, AND RERUN THE DEMO\r\n") );
-            }
+            #if ( DEMO_PART == 1 )
+                {
+                    configPRINTF( ( "Ending Key Provisioning\r\n" ) );
+                }
+            #else
+                {
+                    configPRINTF( ( "PLEASE CHANGE #DEMO_PART to 1, AND RERUN THE DEMO\r\n" ) );
+                }
             #endif
         }
     #endif /* if ( !GENERATE_KEYS_ON_DEVICE ) */
