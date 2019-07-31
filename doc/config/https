@@ -3,7 +3,7 @@
 @INCLUDE = common
 
 # Basic project information.
-PROJECT_NAME = "HTTPS"
+PROJECT_NAME = "HTTPS Client"
 PROJECT_BRIEF = "HTTPS Client v1.0.0 library"
 
 # Library documentation output directory.
