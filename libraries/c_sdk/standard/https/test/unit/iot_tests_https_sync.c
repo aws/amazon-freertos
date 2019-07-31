@@ -214,7 +214,7 @@ static IotHttpsRequestInfo_t _reqInfo = {
     .userBuffer.pBuffer = _pReqUserBuffer,
     .userBuffer.bufferLen = sizeof( _pReqUserBuffer ),
     .isAsync = false,
-    .pSyncInfo = &_syncRequestInfo
+    .u.pSyncInfo = &_syncRequestInfo
 };
 
 /**

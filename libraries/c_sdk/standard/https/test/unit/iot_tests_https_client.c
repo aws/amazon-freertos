@@ -126,7 +126,7 @@ static IotHttpsRequestInfo_t _reqInfo = {
     .userBuffer.pBuffer = _pReqUserBuffer,
     .userBuffer.bufferLen = sizeof( _pReqUserBuffer ),
     .isAsync = true,
-    .pAsyncInfo = &_asyncInfo
+    .u.pAsyncInfo = &_asyncInfo
 };
 
 /**
@@ -645,23 +645,23 @@ TEST( HTTPS_Client_Unit_API, InitializeRequestInvalidParameters)
 
     /* If IotHttpsRequestInfo_t.isAsync is false, then pSyncInfo must not be NULL. */
     testReqInfo.isAsync = false;
-    testReqInfo.pSyncInfo = NULL;
+    testReqInfo.u.pSyncInfo = NULL;
     returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
     TEST_ASSERT_NULL(reqHandle);
     /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
     testReqInfo.isAsync = _reqInfo.isAsync;
-    testReqInfo.pSyncInfo = _reqInfo.pSyncInfo;
+    testReqInfo.u.pSyncInfo = _reqInfo.u.pSyncInfo;
 
-    /* If IotHttpsRequestInfo_t.isAsync is true, then pAsyncInfo must not be NULL. */
+    /* If IotHttpsRequestInfo_t.isAsync is true, then u.pAsyncInfo must not be NULL. */
     testReqInfo.isAsync = true;
-    testReqInfo.pAsyncInfo = NULL;
+    testReqInfo.u.pAsyncInfo = NULL;
     returnCode = IotHttpsClient_InitializeRequest(&reqHandle, &testReqInfo);
     TEST_ASSERT_EQUAL(IOT_HTTPS_INVALID_PARAMETER, returnCode);
     TEST_ASSERT_NULL(reqHandle);
     /* Restore the local IotHttpsRequestInfo_t to use in the next tests. */
     testReqInfo.isAsync = _reqInfo.isAsync;
-    testReqInfo.pSyncInfo = _reqInfo.pSyncInfo;
+    testReqInfo.u.pSyncInfo = _reqInfo.u.pSyncInfo;
 }
 
 /*-----------------------------------------------------------*/
@@ -719,9 +719,9 @@ TEST( HTTPS_Client_Unit_API, AddHeaderInvalidParameters)
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
-    const char pTestName[] = "Accept";
-    const char pTestValue[] = "text";
-    const char pTestContentLengthValueStr[] = "0";
+    char * pTestName = "Accept";
+    char * pTestValue = "text";
+    char * pTestContentLengthValueStr = "0";
     uint32_t testValueLen = strlen(pTestValue);
     uint32_t testNameLen = strlen(pTestName);
 
@@ -769,9 +769,9 @@ TEST( HTTPS_Client_Unit_API, AddHeaderFormatCheck )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
-    const char * pTestName = "Accept";
-    const char * pTestValue = "text";
-    const char * pTestHeaderLine = "Accept: text\r\n";
+    char * pTestName = "Accept";
+    char * pTestValue = "text";
+    char * pTestHeaderLine = "Accept: text\r\n";
     uint32_t testNameLen = strlen(pTestName);
     uint32_t testValueLen = strlen(pTestValue);
     char * pLocation = NULL;
@@ -802,13 +802,13 @@ TEST( HTTPS_Client_Unit_API, AddHeaderMultipleHeaders )
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     /* Intead of iterating in a loop, all the dummy headers are declared immediately because in the unit testing
        infrastructure and workflow the number of repetitions is typically not changed from the original.  */
-    const char * pHeader0 = "header0";
-    const char * pHeader1 = "header1";
-    const char * pHeader2 = "header2";
-    const char * pValue0 = "value0";
-    const char * pValue1 = "value1";
-    const char * pValue2 = "value2";
-    const char * pExpectedHeaderLines = 
+    char * pHeader0 = "header0";
+    char * pHeader1 = "header1";
+    char * pHeader2 = "header2";
+    char * pValue0 = "value0";
+    char * pValue1 = "value1";
+    char * pValue2 = "value2";
+    char * pExpectedHeaderLines = 
         "header0: value0\r\n"
         "header1: value1\r\n"
         "header2: value2\r\n";
