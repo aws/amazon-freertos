@@ -139,7 +139,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     fileSizeReqConfig.userBuffer.pBuffer = pReqUserBuffer;
     fileSizeReqConfig.userBuffer.bufferLen = reqUserBufferLen;
     fileSizeReqConfig.isAsync = false;
-    fileSizeReqConfig.pSyncInfo = &reqSyncInfo;
+    fileSizeReqConfig.u.pSyncInfo = &reqSyncInfo;
 
     /* Set the response configurations. */
     fileSizeRespConfig.userBuffer.pBuffer = pRespUserBuffer;
