@@ -3,12 +3,21 @@
 @anchor https
 @brief HTTPS Client v1.0.0 library.
 
-- HTTP Main page text.
+- HTTPS Client Main page text.
+
+> The Hypertext Transfer Protocol (HTTP) is a stateless application-level protocol for distributed, collaborative, hypertext information systems.
+
+<span style="float:right;margin-right:4em"> &mdash; <i>Official description of HTTP from [RFC 7231](https://tools.ietf.org/html/rfc7231)</i></span><br>
+
+This HTTP library implements a subset of the HTTP/1.1 standard for compatibility with the [AWS IoT HTTP Server](https://docs.aws.amazon.com/iot/latest/developerguide/http.html) and the [AWS S3 HTTP Server](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectOps.html). It is also compatible with other HTTP servers. Feature of this library include: 
+- Both fully asynchronous and synchronous (blocking) API functions.
+- Application managed memory for internal context and HTTP formatted headers.
+- Thread-aware and parallelized connections.
 
 @dependencies_section{https}
-@dependencies_brief{HTTPS library}
+@dependencies_brief{HTTPS Client library}
 
-@dot "HTTPS direct dependencies"
+@dot "HTTPS Client direct dependencies"
 digraph https_dependencies
 {
     node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
@@ -40,11 +49,16 @@ digraph https_dependencies
 }
 @enddot
 
+Currently, the HTTPS Client library has the following dependencies:
+- The queue library for maintaining of list of pending requests and responses on the connection.
+- The logging library may be used if IOT_LOG_LEVEL_HTTPS is not IOT_LOG_NONE.
+- The platform layer provides an interface to the operating system for thread management, clock functions, networking, etc.
+
+In addition to the components above, the HTTPS Client library also depends on C standard library headers.
 */
 
 /**
 @page https_design Design
 @brief Architecture behind the HTTPS library.
-
 
 */
