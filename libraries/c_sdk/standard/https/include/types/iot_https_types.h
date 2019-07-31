@@ -39,19 +39,51 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-/*-----------------------------------------------------------*/
+/*------------------------- HTTPS defined constants --------------------------*/
 
 /**
- * @constantspage{https_client,HTTPS Client library}
- */
-
-/**
+ * @constants_page{https_client}
+ * @constants_brief{HTTPS Client library}
+ *
  * @section https_minimum_user_buffer_sizes HTTPS Client Minimum User Buffer Sizes
  * @brief variables calculating the size of #IotHttpsUserBuffer_t.bufferLen needed for the request, response, and
  * connection.
  *
  * @note These user buffer minumum values may change at any time in future versions, but their names will remain the
  * same.
+ *
+ * @section https_connection_flags HTTPS Client Connection Flags
+ * @brief Flags that modify the behavior of the HTTPS Connection.
+ *
+ * Flags should be bitwised-ORed with each other to change the behavior of @ref https_client_function_sendasync and
+ * @ref https_client_function_sendsync. These flags are set in #IotHttpsConnectionInfo_t.flags.
+ *
+ * @note The values of flags may change at any time in future versions, but their names will remain the same.
+ *
+ * @section https_initializers HTTP Initializers
+ * @brief Provide default values for the data types of the HTTP Client Library.
+ *
+ * @snippet this define_https_initializers
+ *
+ * All user-facing data types of the HTTPS Client library should be initialized using one of the following.
+ *
+ * @warning Failing to initialize an HTTPS Client data type with the appropriate initializer may result in undefined
+ * behavior.
+ * @note The initializers may change at any time in future versions, but their names will remain the same.
+ *
+ * <b>Example</b>
+ * @code{c}
+ * IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
+ * IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
+ * IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
+ * IotHttpsUserBuffer_t userBuffer = IOT_HTTPS_USER_BUFFER_INITIALIZER;
+ * IotHttpsSyncInfo_t syncInfoReq = IOT_HTTPS_SYNC_INFO_INITIALIZER;
+ * IotHttpsSyncInfo_t syncInfoResp = IOT_HTTPS_SYNC_INFO_INITIALIZER;
+ * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
+ * IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER
+ * IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER
+ * @endcode
+ *
  */
 
 /**
@@ -105,16 +137,6 @@ extern const uint32_t responseUserBufferMinimumSize;
 extern const uint32_t connectionUserBufferMinimumSize;
 
 /**
- * @section https_connection_flags HTTPS Client Connection Flags
- * @brief Flags that modify the behavior of the HTTPS Connection.
- *
- * Flags should be bitwised-ORed with each other to change the behavior of @ref https_client_function_sendasync and
- * @ref https_client_function_sendsync. These flags are set in #IotHttpsConnectionInfo_t.flags.
- *
- * @note The values of flags may change at any time in future versions, but their names will remain the same.
- */
-
-/**
  * @brief Flag for #IotHttpsConnectionInfo_t that disables TLS.
  *
  * Set this bit in #IotHttpsConnectionInfo_t.flags to disable use of TLS when the connection is created. This library
@@ -130,32 +152,6 @@ extern const uint32_t connectionUserBufferMinimumSize;
  */
 #define IOT_HTTPS_DISABLE_SNI               ( 0x00000008 )
 
-/**
- * @section https_initializers HTTP Initializers
- * @brief Provide default values for the data types of the HTTP Client Library.
- *
- * @snippet this define_https_initializers
- *
- * All user-facing data types of the HTTPS Client library should be initialized using one of the following.
- *
- * @warning Failing to initialize an HTTPS Client data type with the appropriate initializer may result in undefined
- * behavior.
- * @note The initializers may change at any time in future versions, but their names will remain the same.
- *
- * <b>Example</b>
- * @code{c}
- * IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
- * IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
- * IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
- * IotHttpsUserBuffer_t userBuffer = IOT_HTTPS_USER_BUFFER_INITIALIZER;
- * IotHttpsSyncInfo_t syncInfoReq = IOT_HTTPS_SYNC_INFO_INITIALIZER;
- * IotHttpsSyncInfo_t syncInfoResp = IOT_HTTPS_SYNC_INFO_INITIALIZER;
- * IotHttpsConnectionInfo_t connInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
- * IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER
- * IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER
- * @code
- *
- */
 /* @[define_https_initializers] */
 /** @brief Initializer for #IotHttpsConnectionHandle_t. */
 #define IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER     NULL
@@ -184,10 +180,11 @@ extern const uint32_t connectionUserBufferMinimumSize;
  */
 #define IOT_HTTPS_NETWORK_INTERFACE_TYPE                      const IotNetworkInterface_t*
 
-/*-----------------------------------------------------------*/
+/*---------------------------- HTTPS handle types ----------------------------*/
 
 /**
- * @handles{https_client,HTTPS Client library}
+ * @handles_group{https_client}
+ * @handles_brief{HTTPS Client library}
  */
 
 /**
@@ -247,10 +244,11 @@ typedef struct _httpsRequest *IotHttpsRequestHandle_t;
  */
 typedef struct _httpsResponse *IotHttpsResponseHandle_t;
 
-/*-----------------------------------------------------------*/
+/*-------------------------- HTTPS enumerated types --------------------------*/
 
 /**
- * @enums{https_client,HTTPS Client library}
+ * @enums_group{https_client}
+ * @enums_brief{HTTPS Client library}
  */
 
 /**
@@ -359,10 +357,11 @@ enum IotHttpsResponseStatus
     IOT_HTTPS_STATUS_HTTP_VERSION_NOT_SUPPORTED
 };
 
-/*-----------------------------------------------------------*/
+/*------------------------- HTTPS parameter structs --------------------------*/
 
 /**
- * @paramstructs{https_client,HTTPS Client Libray}
+ * @paramstructs_group{https_client}
+ * @paramstructs_brief{https_client,HTTPS Client Libray}
  */
 
 /**

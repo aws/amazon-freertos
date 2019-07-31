@@ -38,41 +38,88 @@
 #include "types/iot_https_types.h"
 
 /**
- * @functionspage{https_client,HTTPS Client Library}
- * - @functionname{https_client_function_init}
- * - @functionname{https_client_function_deinit}
- * - @functionname{https_client_function_disconnect}
- * - @functionname{https_client_function_connect}
- * - @functionname{https_client_function_initializerequest}
- * - @functionname{https_client_function_addheader}
- * - @functionname{https_client_function_writerequestbody}
- * - @functionname{https_client_function_sendsync}
- * - @functionname{https_client_function_sendasync}
- * - @functionname{https_client_function_cancelrequestasync}
- * - @functionname{https_client_function_cancelresponseasync}
- * - @functionname{https_client_function_readresponsestatus}
- * - @functionname{https_client_function_readcontentlength}
- * - @functionname{https_client_function_readheader}
- * - @functionname{https_client_function_readresponsebody}
+ * @functions_page{https_client,HTTPS Client Library}
+ * @functions_brief{https_client}
+ * - @function_name{https_client_function_init}
+ * @function_brief{https_client_function_init}
+ * - @function_name{https_client_function_deinit}
+ * @function_brief{https_client_function_deinit}
+ * - @function_name{https_client_function_disconnect}
+ * @function_brief{https_client_function_disconnect}
+ * - @function_name{https_client_function_connect}
+ * @function_brief{https_client_function_connect}
+ * - @function_name{https_client_function_initializerequest}
+ * @function_brief{https_client_function_initializerequest}
+ * - @function_name{https_client_function_addheader}
+ * @function_brief{https_client_function_addheader}
+ * - @function_name{https_client_function_writerequestbody}
+ * @function_brief{https_client_function_writerequestbody}
+ * - @function_name{https_client_function_sendsync}
+ * @function_brief{https_client_function_sendsync}
+ * - @function_name{https_client_function_sendasync}
+ * @function_brief{https_client_function_sendasync}
+ * - @function_name{https_client_function_cancelrequestasync}
+ * @function_brief{https_client_function_cancelrequestasync}
+ * - @function_name{https_client_function_cancelresponseasync}
+ * @function_brief{https_client_function_cancelresponseasync}
+ * - @function_name{https_client_function_readresponsestatus}
+ * @function_brief{https_client_function_readresponsestatus}
+ * - @function_name{https_client_function_readcontentlength}
+ * @function_brief{https_client_function_readcontentlength}
+ * - @function_name{https_client_function_readheader}
+ * @function_brief{https_client_function_readheader}
+ * - @function_name{https_client_function_readresponsebody}
+ * @function_brief{https_client_function_readresponsebody}
  */
 
 /**
- * @functionpage{IotHttpsClient_Init,https_client,init}
- * @functionpage{IotHttpsClient_Deinit,https_client,deinit}
- * @functionpage{IotHttpsClient_Connect,https_client,connect}
- * @functionpage{IotHttpsClient_Disconnect,https_client,disconnect}
- * @functionpage{IotHttpsClient_InitializeRequest,https_client,initializerequest}
- * @functionpage{IotHttpsClient_AddHeader,https_client,addheader}
- * @functionpage{IotHttpsClient_WriteRequestBody,https_client,writerequestbody}
- * @functionpage{IotHttpsClient_SendSync,https_client,sendsync}
- * @functionpage{IotHttpsClient_SendAsync,https_client,sendasync}
- * @functionpage{IotHttpsClient_CancelRequestAsync,https_client,cancelrequestasync}
- * @functionpage{IotHttpsClient_CancelResponseAsync,https_client,cancelresponseasync}
- * @functionpage{IotHttpsClient_ReadResponseStatus,https_client,readresponsestatus}
- * @functionpage{IotHttpsClient_ReadContentLength,https_client,readcontentlength}
- * @functionpage{IotHttpsClient_ReadHeader,https_client,readheader}
- * @functionpage{IotHttpsClient_ReadResponseBody,https_client,readresponsebody}
+ * @page https_client_function_init IotHttpsClient_Init
+ * @snippet this declare_https_client_init
+ * @copydoc IotHttpsClient_Init
+ * @page https_client_function_deinit IotHttpsClient_Deinit
+ * @snippet this declare_https_client_deinit
+ * @copydoc IotHttpsClient_Deinit
+ * @page https_client_function_disconnect IotHttpsClient_Disconnect
+ * @snippet this declare_https_client_disconnect
+ * @copydoc IotHttpsClient_Disconnect
+ * @page https_client_function_connect IotHttpsClient_Connect
+ * @snippet this declare_https_client_connect
+ * @copydoc IotHttpsClient_Connect
+ * @page https_client_function_initializerequest IotHttpsClient_InitializeRequest
+ * @snippet this IotHttpsClient_InitializeRequest
+ * @copydoc IotHttpsClient_InitializeRequest
+ * @page https_client_function_addheader IotHttpsClient_AddHeader
+ * @snippet this declare_https_client_addheader
+ * @copydoc IotHttpsClient_AddHeader
+ * @page https_client_function_writerequestbody IotHttpsClient_WriteRequestBody
+ * @snippet this declare_https_client_writerequestbody
+ * @copydoc IotHttpsClient_WriteRequestBody
+ * @page https_client_function_sendsync IotHttpsClient_SendSync
+ * @snippet this declare_https_client_sendsync
+ * @copydoc IotHttpsClient_SendSync
+ * @page https_client_function_sendasync IotHttpsClient_SendAsync
+ * @snippet this declare_https_client_sendasync
+ * @copydoc IotHttpsClient_SendAsync
+ * @page https_client_function_cancelrequestasync IotHttpsClient_CancelRequestAsync
+ * @snippet this declare_https_client_cancelrequestasync
+ * @copydoc IotHttpsClient_CancelRequestAsync
+ * @page https_client_function_cancelresponseasync IotHttpsClient_CancelResponseAsync
+ * @snippet this declare_https_client_cancelresponseasync
+ * @copydoc IotHttpsClient_CancelResponseAsync
+ * @page https_client_function_readresponsestatus IotHttpsClient_ReadResponseStatus
+ * @snippet this declare_https_client_readresponsestatus
+ * @copydoc IotHttpsClient_ReadResponseStatus
+ * @page https_client_function_readcontentlength IotHttpsClient_ReadContentLength
+ * @snippet this declare_https_client_readcontentlength
+ * @copydoc IotHttpsClient_ReadContentLength
+ * @page https_client_function_readheader IotHttpsClient_ReadHeader
+ * @snippet this declare_https_client_readheader
+ * @copydoc IotHttpsClient_ReadHeader
+ * @page https_client_function_readresponsebody IotHttpsClient_ReadResponseBody
+ * @snippet this declare_https_client_readresponsebody
+ * @copydoc IotHttpsClient_ReadResponseBody
  */
+
 
 /**
  * @brief One-time initialization of the IoT HTTPS Client library. 
