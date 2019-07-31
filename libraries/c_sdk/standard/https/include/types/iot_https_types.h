@@ -372,7 +372,7 @@ enum IotHttpsResponseStatus
  * 
  * @paramfor @ https_client_function_initialize_request
  * 
- * This type is a parameter in #IotHttpsResponseInfo_t.pAsyncInfo.callbacks.
+ * This type is a parameter in #IotHttpsResponseInfo_t.u.pAsyncInfo.callbacks.
  * 
  * If any of the members in this type are set to NULL, then they will not be invoked during the asynchronous 
  * request/response process.
@@ -490,7 +490,7 @@ typedef struct IotHttpsUserBuffer
  * @paramfor @ref https_client_function_initializerequest, @ref https_client_function_sendsync, 
  * @ref https_client_function_sendasync
  *
- * This structure is configured in #IotHttpsRequestInfo_t.pSyncInfo and #IotHttpsResponseInfo_t.pSyncInfo.
+ * This structure is configured in #IotHttpsRequestInfo_t.u.pSyncInfo and #IotHttpsResponseInfo_t.u.pSyncInfo.
  *
  * A synchronous request will block until the response is fully received from the network.
  * This structure defines memory locations to store the response body.
@@ -519,7 +519,7 @@ typedef struct IotHttpsSyncRequestInfo
  * 
  * @paramfor @ref https_client_function_initializerequest.
  * 
- * This is parameter in #IotHttpsRequestInfo_t.pAsyncInfo.
+ * This is parameter in #IotHttpsRequestInfo_t.u.pAsyncInfo.
  * 
  * An asynchronous request will ask the application for headers and body right before the request is ready 
  * to be sent onto the network. 
@@ -678,12 +678,12 @@ typedef struct IotHttpsRequestInfo
      * @brief Specific information for either a synchronous request or an asynchronous request.
      * 
      * See #IotHttpsAsyncInfo_t for information on pAsyncInfo.
-     * See #IotHttpsSyncInfo_t for information on pSyncInfo.
+     * See #IotHttpsSyncInfo_t for information on u.pSyncInfo.
      */
     union {
         IotHttpsAsyncInfo_t *pAsyncInfo;  /**< @brief Information specifically for Asynchronous requests. */
         IotHttpsSyncInfo_t *pSyncInfo;    /**< @brief Information specifically for synchronous requests. */
-    };
+    } u;
 } IotHttpsRequestInfo_t;
 
 /**
@@ -712,7 +712,7 @@ typedef struct IotHttpsResponseInfo
      * 
      * Set this to NULL if the response is to be received asynchronously.
      * 
-     * See #IotHttpsSyncInfo_t for information on pSyncInfo.
+     * See #IotHttpsSyncInfo_t for information on u.pSyncInfo.
      */
     IotHttpsSyncInfo_t* pSyncInfo;
 } IotHttpsResponseInfo_t;

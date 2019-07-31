@@ -315,7 +315,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     reqConfig.userBuffer.pBuffer = _pReqUserBuffer;
     reqConfig.userBuffer.bufferLen = sizeof(_pReqUserBuffer);
     reqConfig.isAsync = false;
-    reqConfig.pSyncInfo = &reqSyncInfo;
+    reqConfig.u.pSyncInfo = &reqSyncInfo;
 
     /* Set the response configurations. */ 
     respConfig.userBuffer.pBuffer = _pRespUserBuffer;

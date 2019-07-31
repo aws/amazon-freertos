@@ -2195,7 +2195,7 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     else
     {
         pHttpsResponse->isAsync = false;
-        /* The request body pointer is allowed to be NULL. pSyncInfo was checked for NULL earlier in this function. */
+        /* The request body pointer is allowed to be NULL. u.pSyncInfo was checked for NULL earlier in this function. */
         pHttpsResponse->pBody = pRespInfo->pSyncInfo->pBody;
         pHttpsResponse->pBodyCur = pHttpsResponse->pBody;
         pHttpsResponse->pBodyEnd = pHttpsResponse->pBody + pRespInfo->pSyncInfo->bodyLen;
@@ -2402,11 +2402,11 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pHost );
     if(pReqInfo->isAsync)
     {
-        HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pAsyncInfo );
+        HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->u.pAsyncInfo );
     }
     else
     {
-        HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->pSyncInfo );
+        HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pReqInfo->u.pSyncInfo );
     }
     
 
@@ -2490,8 +2490,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     {
         pHttpsRequest->isAsync = true;
         /* If this is an asynchronous request then save the callbacks to use. */
-        pHttpsRequest->pCallbacks = &(pReqInfo->pAsyncInfo->callbacks);
-        pHttpsRequest->pUserPrivData = pReqInfo->pAsyncInfo->pPrivData;
+        pHttpsRequest->pCallbacks = &(pReqInfo->u.pAsyncInfo->callbacks);
+        pHttpsRequest->pUserPrivData = pReqInfo->u.pAsyncInfo->pPrivData;
         /* The body pointer and body length will be filled in when the application sends data in the writeCallback. */
         pHttpsRequest->pBody = NULL;
         pHttpsRequest->bodyLength = 0;
@@ -2500,8 +2500,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     {
         pHttpsRequest->isAsync = false;
         /* Set the HTTP request entity body. This is allowed to be NULL for no body like for a GET request. */
-        pHttpsRequest->pBody = pReqInfo->pSyncInfo->pBody;
-        pHttpsRequest->bodyLength = pReqInfo->pSyncInfo->bodyLen;
+        pHttpsRequest->pBody = pReqInfo->u.pSyncInfo->pBody;
+        pHttpsRequest->bodyLength = pReqInfo->u.pSyncInfo->bodyLen;
     }
 
     /* Save the method of this request. */
