@@ -121,7 +121,7 @@
 #endif
 
 /* Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
-   The size presented here accounts for the storeage of the internal context, the first request line in the HTTP
+   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
    formatted header and extra headers. The minimum size can be found in extern const uint32_t 
    requestUserBufferMinimumSize. Keep in mind that this requestUserBufferMinimumSize does not include the size of the 
    path in the request line. The path could be well over 100 characters long as it includes not only the object key name
@@ -147,7 +147,7 @@
 #endif
 
 /* Timeout in milliseconds to wait for all asynchronous requests to finish. This timeout starts when the last 
-   IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS set has been scheduled. */
+   IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS sent has been scheduled. */
 #ifndef IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS
     #define IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS         ( 300000 ) /* 5 minute timeout for this demo. */
 #endif
@@ -556,6 +556,8 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     /* Signal if the global semaphores were created for cleanup. */
     bool inUseRequestMutexCreated = false;
     bool fileFinishedSemCreated = false;
+
+    IotLogInfo("S3 Download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL);
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_GET_URL, (size_t)strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ), &pPath, &pathLen);

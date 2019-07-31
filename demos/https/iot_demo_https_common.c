@@ -184,6 +184,19 @@ int _IotHttpsDemo_GetS3ObjectFileSize(
     if( respStatus != IOT_HTTPS_STATUS_PARTIAL_CONTENT)
     {
         IotLogError("Could not retrieve the file size. s3 responded with response status: %d", respStatus);
+        if( respStatus == IOT_HTTPS_STATUS_TEMPORARY_REDIRECT)
+        {
+            IotLogInfo( "If the bucket was created less than 24 hours ago, you must add the region the bucket was created to the presigned URL. " );
+            IotLogInfo( "You can change the Origin Domain Name from bucketname.s3.amazonaws.com to bucketname.s3-<region>.amazonaws.com." );
+        }
+        if( respStatus == IOT_HTTPS_STATUS_FORBIDDEN )
+        {
+            IotLogInfo("Pre-signed URL may have expired or you do not have permissions on this account to access the S3 object.");
+        }
+        if( respStatus == IOT_HTTPS_STATUS_NOT_FOUND )
+        {
+            IotLogInfo( "The specific object key in the presigned URL was not found in the bucket. " );
+        }
         return EXIT_FAILURE;
     }
 
