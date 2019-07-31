@@ -303,9 +303,11 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * void _applicationDefined_appendHeaderCallback(void * pPrivData, IotHttpsRequestHandle_t reqHandle)
  * {
  *      ...
- *      char * date_in_iso8601[17];
+ *      char date_in_iso8601[17] = { 0 };
  *      GET_DATE_IN_ISO8601(date_in_iso8601);
- *      IotHttpsClient_AddHeader(reqHandle, "x-amz-date", date_in_iso8601, strlen(date_in_iso8601));
+ *      const char amz_date_header[] = "x-amz-date";
+ *      uint32_t amz_date_header_length = strlen(amz_date_header);
+ *      IotHttpsClient_AddHeader(reqHandle, amz_date_header, amz_date_header_length, date_in_iso8601, strlen(date_in_iso8601));
  *      ...
  * }
  * @endcode
@@ -315,9 +317,11 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * <b> Synchronous Example </b>
  * @code{c}
  * ...
- * char * date_in_iso8601[17];
+ * char date_in_iso8601[17] = { 0 };
  * GET_DATE_IN_ISO8601(date_in_iso8601);
- * IotHttpsClient_AddHeader(reqHandle, "x-amz-date", date_in_iso8601, strlen(date_in_iso8601));
+ * const char amz_date_header[] = "x-amz-date";
+ * uint32_t amz_date_header_length = strlen(amz_date_header);
+ * IotHttpsClient_AddHeader(reqHandle, amz_date_header, amz_date_header_length, date_in_iso8601, strlen(date_in_iso8601));
  * ...
  * IotHttpsClient_SendSync(connHandle, reqHandle, &respHandle, &respInfo, timeout);
  * ...
@@ -334,9 +338,10 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * time, garbage strings may be written to the reqHandle.
  *
  * @param[in] reqHandle - HTTPS request to write the header line to.
- * @param[in] pName - String header field name to write. This is NULL terminated.
+ * @param[in] pName - String header field name to write.
+ * @param[in] nameLen - The length of the header name to write.
  * @param[in] pValue - https header value buffer pointer. Do not include token name.
- * @param[in] len - length of header value to write.
+ * @param[in] valueLen - length of header value to write.
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the header line was successfully added to the header space in #IotHttpsRequestInfo_t.userBuffer.
@@ -344,7 +349,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters or if an attempt to add automatically added headers is made.
  */
 /* @[declare_https_client_addheader] */
-IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle, char * pName, char * pValue, uint32_t len);
+IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle, char * pName, uint32_t nameLen, char * pValue, uint32_t valueLen);
 /* @[declare_https_client_addheader] */
 
 /**
@@ -702,7 +707,9 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t 
  * {
  *      ...
  *      char valueBuf[64];
- *      IotHttpsClient_ReadHeader(respHandle, "Content-Type", valueBuf, sizeof(valueBuf));
+ *      const char contentTypeName[] = "Content-Type";
+ *      uint32_t contentTypeNmeLength = strlen(contentTypeName);
+ *      IotHttpsClient_ReadHeader(respHandle, contentTypeName, contentTypeNameLength, valueBuf, sizeof(valueBuf));
  *      ...
  * }
  * @endcode
@@ -714,16 +721,19 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t 
  *      ...
  *      IotHttpsClient_SendSync(&connHandle, reqHandle, &respHandle, &respInfo, timeout);
  *      char valueBuf[10];
- *      IotHttpsClient_ReadHeader(respHandle, "Content-Length", valueBuf, sizeof(valueBuf));
+ *      const char contentTypeName[] = "Content-Type";
+ *      uint32_t contentTypeNmeLength = strlen(contentTypeName);
+ *      IotHttpsClient_ReadHeader(respHandle, contentTypeName, contentTypeNmeLength, valueBuf, sizeof(valueBuf));
  *      uint32_t length = strtoul(valueBuf, NULL, 10);
  *      ...
  * @endcode
  * 
  * @param[in] respHandle - Unique handle representing the HTTPS response.
- * @param[in] pName - HTTPS Header field name we want the value of. This should be NULL terminated.
+ * @param[in] pName - HTTPS Header field name we want the value of. This must be NULL terminated.
+ * @param[in] nameLen - The length of the name string.
  * @param[out] pValue - Buffer to hold the HTTPS field's value. The returned value will be NULL terminated
  *                      and therfore the buffer must be large enough to hold the terminating NULL character.
- * @param[in] len - The length of the value buffer.
+ * @param[in] valueLen - The length of the value buffer.
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the header's corresponding value was read into *pValue. 
@@ -732,7 +742,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength( IotHttpsResponseHandle_t 
  * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the value is too large to fit into *pValue.
  */
 /* @[declare_https_client_readheader] */
-IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHandle, char *pName, char *pValue, uint32_t len);
+IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHandle, char *pName, uint32_t nameLen, char *pValue, uint32_t valueLen);
 /* @[declare_https_client_readheader] */
 
 /**

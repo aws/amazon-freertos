@@ -319,14 +319,15 @@ static void _networkDestroy(_httpsConnection_t* pHttpsConnection);
  * The headers are stored in reqHandle->pHeaders.
  * 
  * @param[in] pHttpsRequest - HTTP request context.
- * @param[in] pName - The name of the header to add. This is a NULL terminated string.
+ * @param[in] pName - The name of the header to add.
+ * @param[in] nameLen - The length of the header name string.
  * @param[in] pValue - The buffer containing the value string.
  * @param[in] valueLen - The length of the header value string.
  * 
  * @return #IOT_HTTPS_OK if the header was added to the request successfully.
  *         #IOT_HTTPS_INSUFFICIENT_MEMORY if there was not enough room in the IotHttpsRequestHandle_t->pHeaders.
  */
-static IotHttpsReturnCode_t _addHeader(_httpsRequest_t * pHttpsRequest, const char * pName, const char * pValue, uint32_t valueLen );
+static IotHttpsReturnCode_t _addHeader(_httpsRequest_t * pHttpsRequest, const char * pName, uint32_t nameLen, const char * pValue, uint32_t valueLen );
 
 /**
  * @brief Send data on the network.
@@ -642,7 +643,11 @@ static int _httpParserOnHeaderFieldCallback(http_parser * pHttpParser, const cha
     /* If the IotHttpsClient_ReadHeader() was called, then we check for the header field of interest. */
     if(pHttpsResponse->bufferProcessingState == PROCESSING_STATE_SEARCHING_HEADER_BUFFER)
     {
-        if(strncmp(pHttpsResponse->pReadHeaderField, pLoc, length) == 0)
+        if(pHttpsResponse->readHeaderFieldLength != length)
+        {
+            pHttpsResponse->foundHeaderField = false;
+        }
+        else if(strncmp(pHttpsResponse->pReadHeaderField, pLoc, length) == 0)
         {
             pHttpsResponse->foundHeaderField = true;   
         }
@@ -1442,11 +1447,10 @@ static void _networkDestroy(_httpsConnection_t* pHttpsConnection)
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _addHeader(_httpsRequest_t * pHttpsRequest, const char * pName, const char * pValue, uint32_t valueLen )
+static IotHttpsReturnCode_t _addHeader(_httpsRequest_t * pHttpsRequest, const char * pName, uint32_t nameLen, const char * pValue, uint32_t valueLen )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    int nameLen = strlen( pName ) ;
     int headerFieldSeparatorLen = HTTPS_HEADER_FIELD_SEPARATOR_LENGTH;
     uint32_t additionalLength = nameLen + headerFieldSeparatorLen + valueLen + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
     uint32_t possibleLastHeaderAdditionalLength = HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
@@ -2217,6 +2221,7 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     pHttpsResponse->parserState = PARSER_STATE_NONE;
     pHttpsResponse->bufferProcessingState = PROCESSING_STATE_NONE;
     pHttpsResponse->pReadHeaderField = NULL;
+    pHttpsResponse->readHeaderFieldLength = 0;
     pHttpsResponse->pReadHeaderValue = NULL;
     pHttpsResponse->readHeaderValueLength = 0;
     pHttpsResponse->foundHeaderField = 0;
@@ -2462,7 +2467,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     pHttpsRequest->pHeadersCur += HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH;
 
     /* Add the User-Agent header. */
-    status = _addHeader(pHttpsRequest, "User-Agent", IOT_HTTPS_USER_AGENT, FAST_MACRO_STRLEN( IOT_HTTPS_USER_AGENT ));
+    status = _addHeader(pHttpsRequest, HTTPS_USER_AGENT_HEADER, FAST_MACRO_STRLEN(HTTPS_USER_AGENT_HEADER), IOT_HTTPS_USER_AGENT, FAST_MACRO_STRLEN( IOT_HTTPS_USER_AGENT ));
     if( HTTPS_FAILED(status) )
     {
         IotLogError("Failed to write header to the request user buffer: \"User-Agent: %s\\r\\n\" . Error code: %d", 
@@ -2471,7 +2476,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
         HTTPS_GOTO_CLEANUP();
     }
 
-    status = _addHeader(pHttpsRequest, "Host", pReqInfo->pHost, pReqInfo->hostLen);
+    status = _addHeader(pHttpsRequest, HTTPS_HOST_HEADER, FAST_MACRO_STRLEN(HTTPS_HOST_HEADER), pReqInfo->pHost, pReqInfo->hostLen);
     if( HTTPS_FAILED(status) )
     {
         IotLogError("Failed to write \"Host: %.*s\\r\\n\" to the request user buffer. Error code: %d", 
@@ -2522,7 +2527,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle, char * pName, char * pValue, uint32_t len )
+IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle, char * pName, uint32_t nameLen, char * pValue, uint32_t valueLen)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
 
@@ -2560,7 +2565,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
         HTTPS_USER_AGENT_HEADER);
 
 
-    status = _addHeader(reqHandle, pName, pValue, len );
+    status = _addHeader(reqHandle, pName, nameLen, pValue, valueLen );
     if(HTTPS_FAILED(status))
     {
         IotLogError("Error in IotHttpsClient_AddHeader(), error code %d.", status);
@@ -2837,7 +2842,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseStatus(IotHttpsResponseHandle_t 
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHandle, char *pName, char *pValue, uint32_t len)
+IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHandle, char *pName, uint32_t nameLen, char *pValue, uint32_t valueLen)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
 
@@ -2863,6 +2868,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
     to skip the logic pertaining to when the response is being parsed for the first time. pReadHeaderValue will store
     the header value found. readHeaderValueLength will store the the header value found's length. */
     respHandle->pReadHeaderField = pName;
+    respHandle->readHeaderFieldLength = nameLen;
     respHandle->foundHeaderField = false;
     respHandle->bufferProcessingState = PROCESSING_STATE_SEARCHING_HEADER_BUFFER;
     respHandle->pReadHeaderValue = NULL;
@@ -2892,7 +2898,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
     if(respHandle->foundHeaderField && ( respHandle->pReadHeaderValue != NULL))
     {
         /* The len of the pValue buffer must account for the NULL terminator. */
-        if(respHandle->readHeaderValueLength > (len - 1))
+        if(respHandle->readHeaderValueLength > (valueLen - 1))
         {
             IotLogError("IotHttpsClient_ReadHeader(): The length of the pValue buffer specified is less than the actual length of the pValue. ");
             HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INSUFFICIENT_MEMORY );
@@ -2934,7 +2940,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadContentLength(IotHttpsResponseHandle_t r
     /* If there is no content-length header or if we were not able to store it in the header buffer this will be
        invalid. We do not use the content-length member of the http-parser state structure to get the content
        length as this is a PRIVATE member. Because it is a PRIVATE member it can be any value. */
-    status = IotHttpsClient_ReadHeader(respHandle, HTTPS_CONTENT_LENGTH_HEADER, pContentLengthStr, HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH);
+    status = IotHttpsClient_ReadHeader(respHandle, HTTPS_CONTENT_LENGTH_HEADER, FAST_MACRO_STRLEN(HTTPS_CONTENT_LENGTH_HEADER), pContentLengthStr, HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH);
     if(HTTPS_FAILED(status))
     {
         *pContentLength = 0;
