@@ -22,9 +22,10 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+
 /**
  * @file iot_logging_task.h
- * @brief Logging task interface
+ * @brief Logging task interface.
  */
 
 #ifndef AWS_LOGGING_TASK_H
@@ -35,8 +36,8 @@
 #endif
 
 /**
- * @brief Initialization function for logging task
- * 
+ * @brief Initialization function for logging task.
+ *
  * Called once to create the logging task and queue.  Must be called before any
  * calls to vLoggingPrintf().
  */
@@ -45,8 +46,8 @@ BaseType_t xLoggingTaskInitialize( uint16_t usStackSize,
                                    UBaseType_t uxQueueLength );
 
 /**
- * @brief Interface to print via the logging interface
- * 
+ * @brief Interface to print via the logging interface.
+ *
  * Uses the same semantics as printf().  How the print is performed depends on
  * which files are being built.  Some vLoggingPrintf() implementations will
  * output directly, others will use a logging task to allow log message to be
