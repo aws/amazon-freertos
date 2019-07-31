@@ -1491,7 +1491,7 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
     CK_OBJECT_HANDLE xPrivateKeyHandle;
     CK_OBJECT_HANDLE xPublicKeyHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
-    /* Note that mbedTLS does not permit a signature on all 0's. */
+    /* Note that ECDSA operations on a signature of all 0's is not permitted. */
     CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
     CK_MECHANISM xMechanism;
     CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
@@ -1557,7 +1557,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
-    /* Note that mbedTLS does not permit a signature on all 0's. */
+    /* Note that ECDSA operations on a signature of all 0's is not permitted. */
     CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
     CK_MECHANISM xMechanism;
     CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
@@ -2226,7 +2226,7 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
     CK_OBJECT_HANDLE xPublicKey = pxSignStruct->xPublicKey;
     BaseType_t xCount;
     CK_RV xResult;
-    /* Note that mbedTLS does not permit a signature on all 0's. */
+    /* Note that ECDSA operations on a signature of all 0's is not permitted. */
     CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
     CK_MECHANISM xMechanism;
     CK_BYTE xSignature[ 64 ] = { 0 };

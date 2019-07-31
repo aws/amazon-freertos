@@ -813,7 +813,7 @@ CK_RV xInitializePkcs11Token()
 
     if( ( CKR_OK == xResult ) && !( CKF_TOKEN_INITIALIZED & xTokenFlags ) )
     {
-        /* If token is not initialized - initialize it */
+        /* Initialize the token if it is not already. */
         xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
                                                configPKCS11_DEFAULT_USER_PIN,
                                                sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1,
