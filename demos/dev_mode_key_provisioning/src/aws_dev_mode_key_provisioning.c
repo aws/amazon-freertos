@@ -636,7 +636,7 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_HANDLE xObjectHandle;
     CK_BYTE * pxLabel;
-    uint32_t uiIndex = 0;
+    CK_ULONG uiIndex = 0;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -649,27 +649,24 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
                                                 xClass[ uiIndex ],
                                                 &xObjectHandle );
 
-        if( ( xResult == CKR_OK ) && ( xObjectHandle != CK_INVALID_HANDLE ) )
+        while( ( xResult == CKR_OK ) && ( xObjectHandle != CK_INVALID_HANDLE ) )
         {
-            while( ( xResult == CKR_OK ) && ( xObjectHandle != CK_INVALID_HANDLE ) )
-            {
-                xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
+            xResult = pxFunctionList->C_DestroyObject( xSession, xObjectHandle );
 
-                /* PKCS #11 allows a module to maintain multiple objects with the same
-                 * label and type. The intent of this loop is to try to delete all of them.
-                 * However, to avoid getting stuck, we won't try to find another object
-                 * of the same label/type if the previous delete failed. */
-                if( xResult == CKR_OK )
-                {
-                    xResult = xFindObjectWithLabelAndClass( xSession,
-                                                            ( const char * ) pxLabel,
-                                                            xClass[ uiIndex ],
-                                                            &xObjectHandle );
-                }
-                else
-                {
-                    break;
-                }
+            /* PKCS #11 allows a module to maintain multiple objects with the same
+             * label and type. The intent of this loop is to try to delete all of them.
+             * However, to avoid getting stuck, we won't try to find another object
+             * of the same label/type if the previous delete failed. */
+            if( xResult == CKR_OK )
+            {
+                xResult = xFindObjectWithLabelAndClass( xSession,
+                                                        ( const char * ) pxLabel,
+                                                        xClass[ uiIndex ],
+                                                        &xObjectHandle );
+            }
+            else
+            {
+                break;
             }
         }
 
@@ -685,7 +682,6 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
 CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
 {
     CK_RV xResult;
-    uint32_t uiIndex = 0;
     CK_BYTE * pxPkcsLabels[] =
     {
         ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
@@ -763,7 +759,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             if( xResult == CKR_DEVICE_MEMORY )
             {
                 xResult = CKR_OK;
-                configPRINTF( ( "Warning: Device does not have memory allocated for JITP certificate.  Certificate from aws_clientcredential_keys.h will be used for JITR. \r\n" ) );
+                configPRINTF( ( "Warning: Device does not have memory allocated for just in time provisioning (JITP) certificate.  Certificate from aws_clientcredential_keys.h will be used for JITP. \r\n" ) );
             }
         }
     }
@@ -823,7 +819,6 @@ void vDevModeKeyProvisioning( void )
         ( 0 == strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
     {
         xParams.ulJITPCertifiateLength = 0;
-        configPRINTF( ( "No JITP certificate supplied (JITP certificate is not necessary when using AWS issued credentials). \r\n" ) );
     }
     else
     {
