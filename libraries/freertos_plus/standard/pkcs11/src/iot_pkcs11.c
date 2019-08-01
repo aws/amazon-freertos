@@ -10,21 +10,9 @@
 
 /*-----------------------------------------------------------*/
 
-/* @brief Get a list of available PKCS #11 slots.
- *
- * \note This function allocates memory for slots.
- * Freeing this memory is the responsibility of the caller.
- *
- *	\param[out] ppxSlotId       Pointer to slot list.  This slot list is
- *                              malloc'ed by the function and must be
- *                              freed by the caller.
- *  \param[out] pxSlotCount     Pointer to the number of slots found.
- *
- *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
- *
- */
-CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
-                      CK_ULONG * pxSlotCount )
+
+CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
+                    CK_ULONG * pxSlotCount )
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
@@ -153,7 +141,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
     /* Get a list of slots available. */
     if( xResult == CKR_OK )
     {
-        xResult = prvGetSlotList( &pxSlotId, &xSlotCount );
+        xResult = xGetSlotList( &pxSlotId, &xSlotCount );
     }
 
     /* Open a PKCS #11 session. */
@@ -165,7 +153,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
          */
         xResult = prvOpenSession( pxSession, pxSlotId[ 0 ] );
 
-        /* Free the memory allocated by prvGetSlotList. */
+        /* Free the memory allocated by xGetSlotList. */
         vPortFree( pxSlotId );
     }
 

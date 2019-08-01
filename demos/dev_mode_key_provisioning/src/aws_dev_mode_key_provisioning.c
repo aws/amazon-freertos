@@ -764,6 +764,75 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+CK_RV xInitializePkcs11Token()
+{
+    CK_RV xResult;
+
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_SLOT_ID * pxSlotId = NULL;
+    CK_ULONG xSlotCount;
+    CK_FLAGS xTokenFlags = 0;
+    CK_TOKEN_INFO_PTR pxTokenInfo = NULL;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    if( xResult == CKR_OK )
+    {
+        xResult = xInitializePKCS11();
+    }
+
+    if( ( xResult == CKR_OK ) || ( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
+    {
+        xResult = xGetSlotList( &pxSlotId, &xSlotCount );
+    }
+
+    if( xResult == CKR_OK )
+    {
+        /* Check if token is initialized */
+        pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
+
+        if( pxTokenInfo != NULL )
+        {
+            /* We will take the first slot available.
+             * If your application has multiple slots, insert logic
+             * for selecting an appropriate slot here.
+             * TODO: Consider a define here instead.
+             */
+            xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
+        }
+        else
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+    }
+
+    if( CKR_OK == xResult )
+    {
+        xTokenFlags = pxTokenInfo->flags;
+    }
+
+    if( ( CKR_OK == xResult ) && !( CKF_TOKEN_INITIALIZED & xTokenFlags ) )
+    {
+        /* Initialize the token if it is not already. */
+        xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
+                                               configPKCS11_DEFAULT_USER_PIN,
+                                               sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1,
+                                               ( CK_UTF8CHAR_PTR ) "FreeRTOS" );
+    }
+
+    if( pxTokenInfo != NULL )
+    {
+        vPortFree( pxTokenInfo );
+    }
+
+    if( pxSlotId != NULL )
+    {
+        vPortFree( pxSlotId );
+    }
+
+    return xResult;
+}
+
 /*-----------------------------------------------------------*/
 
 void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
@@ -775,6 +844,11 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
     xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Initialize the PKCS Module */
+    if( xResult == CKR_OK )
+    {
+        xResult = xInitializePkcs11Token();
+    }
+
     if( xResult == CKR_OK )
     {
         xResult = xInitializePkcs11Session( &xSession );

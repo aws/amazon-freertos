@@ -90,11 +90,6 @@ CK_RV prvBeforeRunningTests( void );
 void prvAfterRunningTests_NoObject( void );
 void prvAfterRunningTests_Object( void );
 
-/* Test buffer size definitions. */
-#define SHA256_DIGEST_SIZE      32
-#define ECDSA_SIGNATURE_SIZE    64
-#define RSA_SIGNATURE_SIZE      256
-
 /* The StartFinish test group is for General Purpose,
  * Session, Slot, and Token management functions.
  * These tests do not require provisioning. */
@@ -623,8 +618,8 @@ TEST( Full_PKCS11_StartFinish, AFQP_GetSlotList )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Finalize failed" );
 }
 
-extern CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
-                             CK_ULONG * pxSlotCount );
+extern CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
+                           CK_ULONG * pxSlotCount );
 TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
 {
     CK_SLOT_ID_PTR pxSlotId = NULL;
@@ -639,11 +634,11 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
 
     if( TEST_PROTECT() )
     {
-        xResult = prvGetSlotList( &pxSlotId,
-                                  &xSlotCount );
+        xResult = xGetSlotList( &pxSlotId,
+                                &xSlotCount );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot list" );
         xSlotId = pxSlotId[ pkcs11testSLOT_NUMBER ];
-        vPortFree( pxSlotId ); /* prvGetSlotList allocates memory. */
+        vPortFree( pxSlotId ); /* xGetSlotList allocates memory. */
         TEST_ASSERT_GREATER_THAN( 0, xSlotCount );
 
 
@@ -1120,8 +1115,8 @@ TEST( Full_PKCS11_RSA, AFQP_Sign )
     CK_OBJECT_HANDLE xPrivateKeyHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
     CK_MECHANISM xMechanism;
-    CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0 };
-    CK_BYTE xSignature[ RSA_SIGNATURE_SIZE ] = { 0 };
+    CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0 };
+    CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     CK_ULONG xSignatureLength;
     CK_BYTE xHashPlusOid[ pkcs11RSA_SIGNATURE_INPUT_LENGTH ];
 
@@ -1173,14 +1168,14 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
     CK_OBJECT_HANDLE xPrivateKeyHandle;
     CK_OBJECT_HANDLE xPublicKeyHandle;
     CK_MECHANISM xMechanism;
-    CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0 };
-    CK_BYTE xSignature[ RSA_SIGNATURE_SIZE ] = { 0 };
+    CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0 };
+    CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     CK_ULONG xSignatureLength;
-    CK_BYTE xModulus[ RSA_SIGNATURE_SIZE ] = { 0 };
+    CK_BYTE xModulus[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     unsigned int ulModulusLength = 0;
     CK_BYTE xExponent[ 4 ] = { 0 };
     unsigned int ulExponentLength = 0;
-    CK_BYTE xPaddedHash[ RSA_SIGNATURE_SIZE ] = { 0 };
+    CK_BYTE xPaddedHash[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     mbedtls_rsa_context xRsaContext;
 
     xResult = xDestroyCredentials( xGlobalSession );
@@ -1210,7 +1205,7 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
     ulExponentLength = xTemplate.ulValueLen;
 
-    xResult = PKI_RSA_RSASSA_PKCS1_v15_Encode( xHashedMessage, RSA_SIGNATURE_SIZE, xPaddedHash );
+    xResult = PKI_RSA_RSASSA_PKCS1_v15_Encode( xHashedMessage, pkcs11RSA_2048_SIGNATURE_LENGTH, xPaddedHash );
     TEST_ASSERT_EQUAL( CKR_OK, xResult );
 
     /* The RSA X.509 mechanism assumes a pre-hashed input. */
@@ -1221,7 +1216,7 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit RSA." );
 
     xSignatureLength = sizeof( xSignature );
-    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xPaddedHash, RSA_SIGNATURE_SIZE, xSignature, &xSignatureLength );
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xPaddedHash, pkcs11RSA_2048_SIGNATURE_LENGTH, xSignature, &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to RSA Sign." );
 
     /* Verify the signature with mbedTLS */
@@ -1235,7 +1230,7 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
         TEST_ASSERT_EQUAL( 0, xResult );
         xResult = mbedtls_mpi_read_binary( &xRsaContext.E, xExponent, ulExponentLength );
         TEST_ASSERT_EQUAL( 0, xResult );
-        xRsaContext.len = RSA_SIGNATURE_SIZE;
+        xRsaContext.len = pkcs11RSA_2048_SIGNATURE_LENGTH;
         xResult = mbedtls_rsa_check_pubkey( &xRsaContext );
         TEST_ASSERT_EQUAL( 0, xResult );
         xResult = mbedtls_rsa_pkcs1_verify( &xRsaContext, NULL, NULL, MBEDTLS_RSA_PUBLIC, MBEDTLS_MD_SHA256, 32, xHashedMessage, xSignature );
@@ -1243,7 +1238,7 @@ TEST( Full_PKCS11_RSA, AFQP_GenerateKeyPair )
         /* Verify the signature with the generated public key. */
         xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit RSA." );
-        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xPaddedHash, RSA_SIGNATURE_SIZE, xSignature, xSignatureLength );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xPaddedHash, pkcs11RSA_2048_SIGNATURE_LENGTH, xSignature, xSignatureLength );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify RSA." );
     }
 
@@ -1496,10 +1491,10 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
     CK_OBJECT_HANDLE xPrivateKeyHandle;
     CK_OBJECT_HANDLE xPublicKeyHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
-    /* Note that mbedTLS does not permit a signature on all 0's. */
-    CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xab };
+    /* Note that ECDSA operations on a signature of all 0's is not permitted. */
+    CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
     CK_MECHANISM xMechanism;
-    CK_BYTE xSignature[ RSA_SIGNATURE_SIZE ] = { 0 };
+    CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     CK_ULONG xSignatureLength;
 
     prvProvisionCredentialsWithKeyImport( &xPrivateKeyHandle, &xCertificateHandle, &xPublicKeyHandle );
@@ -1511,7 +1506,7 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit ECDSA." );
 
     xSignatureLength = sizeof( xSignature );
-    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, &xSignatureLength );
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to ECDSA Sign." );
 
     /* Verify the signature with mbedTLS */
@@ -1562,10 +1557,10 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     CK_OBJECT_HANDLE xPublicKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xFoundPrivateKeyHandle = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xFoundPublicKeyHandle = CK_INVALID_HANDLE;
-    /* Note that mbedTLS does not permit a signature on all 0's. */
-    CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xab };
+    /* Note that ECDSA operations on a signature of all 0's is not permitted. */
+    CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
     CK_MECHANISM xMechanism;
-    CK_BYTE xSignature[ RSA_SIGNATURE_SIZE ] = { 0 };
+    CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     CK_BYTE xEcPoint[ 256 ] = { 0 };
     CK_BYTE xEcParams[ 11 ] = { 0 };
     CK_KEY_TYPE xKeyType;
@@ -1653,7 +1648,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to SignInit ECDSA." );
 
     xSignatureLength = sizeof( xSignature );
-    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, &xSignatureLength );
+    xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to ECDSA Sign." );
 
     /* Verify the signature with mbedTLS */
@@ -1683,7 +1678,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
         /* Verify the signature with the generated public key. */
         xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to VerifyInit ECDSA." );
-        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, xSignatureLength );
+        xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, xSignatureLength );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to Verify ECDSA." );
     }
 
@@ -1725,10 +1720,10 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     CK_OBJECT_HANDLE xPublicKey;
     CK_OBJECT_HANDLE xCertificate;
     CK_MECHANISM xMechanism;
-    CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xbe };
-    CK_BYTE xSignature[ ECDSA_SIGNATURE_SIZE + 10 ] = { 0 };
+    CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xbe };
+    CK_BYTE xSignature[ pkcs11ECDSA_P256_SIGNATURE_LENGTH + 10 ] = { 0 };
     CK_BYTE xSignaturePKCS[ 64 ] = { 0 };
-    size_t xSignatureLength = ECDSA_SIGNATURE_SIZE;
+    size_t xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
     mbedtls_pk_context xPkContext;
     /* TODO: Consider switching this out for a C_GenerateRandom dependent function for ports not implementing mbedTLS. */
     mbedtls_entropy_context xEntropyContext;
@@ -1749,7 +1744,7 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKey );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "VerifyInit failed." );
 
-    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, sizeof( xSignaturePKCS ) );
+    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, sizeof( xSignaturePKCS ) );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Verify failed." );
     /* Sign data with mbedTLS. */
 
@@ -1786,7 +1781,7 @@ TEST( Full_PKCS11_EC, AFQP_Verify )
     xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKey );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "VerifyInit failed." );
 
-    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignaturePKCS, sizeof( xSignaturePKCS ) );
+    xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignaturePKCS, sizeof( xSignaturePKCS ) );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Verify failed." );
 
     /* Modify signature value and make sure verification fails. */
@@ -2231,8 +2226,8 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
     CK_OBJECT_HANDLE xPublicKey = pxSignStruct->xPublicKey;
     BaseType_t xCount;
     CK_RV xResult;
-    /* Note that mbedTLS does not permit a signature on all 0's. */
-    CK_BYTE xHashedMessage[ SHA256_DIGEST_SIZE ] = { 0xab };
+    /* Note that ECDSA operations on a signature of all 0's is not permitted. */
+    CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
     CK_MECHANISM xMechanism;
     CK_BYTE xSignature[ 64 ] = { 0 };
     CK_ULONG xSignatureLength;
@@ -2251,7 +2246,7 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
         }
 
         xSignatureLength = sizeof( xSignature );
-        xResult = pxGlobalFunctionList->C_Sign( xSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, &xSignatureLength );
+        xResult = pxGlobalFunctionList->C_Sign( xSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
 
         if( xResult != CKR_OK )
         {
@@ -2267,7 +2262,7 @@ static void prvECSignVerifyMultiThreadTask( void * pvParameters )
             break;
         }
 
-        xResult = pxGlobalFunctionList->C_Verify( xSession, xHashedMessage, SHA256_DIGEST_SIZE, xSignature, sizeof( xSignature ) );
+        xResult = pxGlobalFunctionList->C_Verify( xSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, sizeof( xSignature ) );
 
         if( xResult != CKR_OK )
         {
