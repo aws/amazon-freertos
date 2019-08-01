@@ -183,10 +183,10 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     C_GetFunctionList,
     C_GetSlotList,
     NULL, /*C_GetSlotInfo*/
-    NULL, /*C_GetTokenInfo*/
+    C_GetTokenInfo,
     NULL, /*C_GetMechanismList*/
     NULL, /*C_GetMechansimInfo */
-    NULL, /*C_InitToken*/
+    C_InitToken,
     NULL, /*C_InitPIN*/
     NULL, /*C_SetPIN*/
     C_OpenSession,
@@ -804,6 +804,53 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
     }
 
     return xResult;
+}
+
+
+/**
+ * @brief This function is not implemented for this port.
+ *
+ * C_GetTokenInfo() is only implemented for compatibility with other ports.
+ * All inputs to this function are ignored, and calling this
+ * function on this port does provide any information about
+ * the PKCS #11 token.
+ *
+ * @return CKR_OK.
+ */
+CK_DEFINE_FUNCTION( CK_RV, C_GetTokenInfo )(
+    CK_SLOT_ID slotID,
+    CK_TOKEN_INFO_PTR pInfo )
+{
+    /* Avoid compiler warnings about unused variables. */
+    ( void ) slotID;
+    ( void ) pInfo;
+
+    return CKR_OK;
+}
+
+
+/**
+ * @brief This function is not implemented for this port.
+ *
+ * C_InitToken() is only implemented for compatibility with other ports.
+ * All inputs to this function are ignored, and calling this
+ * function on this port does not add any security.
+ *
+ * @return CKR_OK.
+ */
+CK_DEFINE_FUNCTION( CK_RV, C_InitToken )(
+    CK_SLOT_ID slotID,
+    CK_UTF8CHAR_PTR pPin,
+    CK_ULONG ulPinLen,
+    CK_UTF8CHAR_PTR pLabel )
+{
+    /* Avoid compiler warnings about unused variables. */
+    ( void ) slotID;
+    ( void ) pPin;
+    ( void ) ulPinLen;
+    ( void ) pLabel;
+
+    return CKR_OK;
 }
 
 /**
