@@ -572,7 +572,7 @@ typedef struct IotHttpsConnectionInfo
     /**
      * @brief Timeout waiting for a response from the network in milliseconds.
      * 
-     * If this is set to zero, it will default to IOT_HTTPS_RESPONSE_WAIT_MS.
+     * If this is set to zero, it will default to @ref IOT_HTTPS_RESPONSE_WAIT_MS.
      */
     uint32_t timeout;
 

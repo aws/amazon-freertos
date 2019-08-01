@@ -9,6 +9,9 @@ PROJECT_BRIEF = "HTTPS Client v1.0.0 library"
 # Library documentation output directory.
 HTML_OUTPUT = https
 
+# Directories containing extra files.
+HTML_EXTRA_FILES = doc/extra_files/https/gettysburg.txt
+
 # Generate Doxygen tag file for this library.
 GENERATE_TAGFILE = doc/tag/https.tag
 
