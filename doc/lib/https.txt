@@ -61,4 +61,123 @@ In addition to the components above, the HTTPS Client library also depends on C 
 @page https_design Design
 @brief Architecture behind the HTTPS library.
 
+The HTTPS Client library will invoke a task pool worker to send a request. It will then receive the response during the network receive callback context. If there are more requests in the connection's request queue, it will schedule another task pool worker to send that request.
+
+@image html https_client_async_workflow.png width=100%
+*/
+
+/**
+@page https_demo Demos
+@brief The HTTPS Client demos demonstrates usage of the HTTPS Client library.
+
+These demos shows downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library. The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other web servers as well.
+
+See @subpage https_demo_config for configuration settings that change the behavior of the demo.
+
+The main HTTPS Client demo files are iot_demo_https_s3_download_sync.c and iot_demo_https_s3_download_sync.c, which contain platform-independent code. See @ref building_demo for instructions on building the HTTPS Client demo.
+
+<h2>iot_demo_https_s3_download_sync.c</h2>
+@brief Synchronously download a file from S3 using a pre-signed URL.
+
+This demo will use @ref https_client_function_sendsync to download the file specified in S3.
+
+<h2>iot_demo_https_s3_download_async.c</h2>
+@brief Asynchronously download a file from S3 using a pre-signed URL.
+
+This demo will use @ref https_client_function_sendasync to download the file specified in S3.
+
+<h1> Demo usage instructions </h1>
+
+1. Make sure that you have permissions in your AWS account to access S3.
+
+*/
+
+/**
+@config_page{https_demo,Demo}
+@config_brief{https_demo,HTTP Client demo,demos}
+
+@section IOT_DEMO_HTTPS_PRESIGNED_GET_URL
+@brief Presigned URL for AWS S3 GET Object access.
+
+This is generated using the script demos/https/presigned_url_gen.py. demos/https/README.md explains how to use the script.
+
+@configpossible Presigned URL of the form: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D. <br>
+@configdefault `"Please configure a presigned GET URL in iot_config.h."`
+
+@section IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
+@brief The port number for the TLS connection to AWS S3's HTTP server.
+
+@configpossible Any positive integer up to 2^16. <br>
+@configdefault `443`
+
+@section IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
+@brief The trusted root CA needed to connected to AWS S3's HTTP server.
+
+@configpossible A valid PEM encoded certificate string. <br>
+@configdefault The Baltimore Cybertrust root CA.
+
+@section IOT_DEMO_HTTPS_CONN_BUFFER_SIZE
+@brief The size of the static user buffer to store the HTTP Client connection context. 
+
+Size in bytes of the User Buffer used to store the internal connection context. The size presented here accounts for
+   storage of the internal connection context. The minimum size can be found in @ref connectionUserBufferMinimumSize.
+
+@configpossible Any positive integer. <br>
+@configdefault `400`
+
+@section IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE
+@brief The size of the static user buffer to store the HTTP Client request context and HTTP formatted request headers.
+
+Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
+   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
+   formatted header and extra headers. The minimum size can be found in @ref requestUserBufferMinimumSize. Keep in mind that this @ref requestUserBufferMinimumSize does not include the size of the 
+   path in the request line. The path could be well over 100 characters long as it includes not only the object key name
+   in S3, but also the query following. The query following has the AWSAccessKeyId, the expiration time, and the 
+   AWS Signature Version 4 signature.
+
+@configpossible Any positive integer. <br>
+@configdefault `512`
+
+@section IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
+@brief The size of the static user buffer to store the HTTP Client response context and HTTP formatted response headers.
+
+Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines. 
+   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
+   formatted header and extra headers. The minimum can be found in @ref requestUserBufferMinimumSize.
+   Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
+   will be discarded. The minimum size can be found in @ref responseUserBufferMinimumSize.
+
+@configpossible Any positive integer. <br>
+@configdefault `1024`
+
+@section IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE
+@brief The size of the static buffer to store an increment of the response body.
+
+Size in bytes of the buffer used to store the response body (parts of it). This should be greater than or equal to
+   the size of the file we want to download
+
+@configpossible Any positive integer. <br>
+@configdefault `512`
+
+
+<h1> iot_demo_https_s3_download_async.c specific configurations: </h1> 
+@section IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS
+@brief The maximum number of inflight asynchronous requests. 
+
+This configures the total number of requests in the pool of HTTPS Client library configurations and handles. In order to send 
+   a request asynchronously the memory for both the request buffers and the response buffers must not be shared between 
+   other asynchronous requests on the same connection. You can reuse the buffer only after the request/response process
+   has been finished. It is finished when the responseCompleteCallback() is invoked. We create a pool of memory so that 
+   all available requests in the pool can be scheduled right away without over-writing each other.
+
+@configpossible Any positive integer. <br>
+@configdefault `3`
+
+@section IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS
+@brief Timeout in milliseconds to wait for all asynchronous requests to finish.
+
+This timeout starts when the last @ref IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS set have been scheduled.
+
+@configpossible Any positive integer. <br>
+@configdefault `300000`
 */
