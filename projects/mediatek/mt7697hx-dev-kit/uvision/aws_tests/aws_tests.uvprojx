@@ -1852,6 +1852,16 @@
 					</Files>
 				</Group>
 				<Group>
+					<GroupName>libraries/c_sdk/standard/https/test/system/</GroupName>
+					<Files>
+						<File>
+							<FileName>iot_tests_https_system.c</FileName>
+							<FileType>1</FileType>
+							<FilePath>../../../../../libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
 					<GroupName>libraries/c_sdk/standard/mqtt/test/unit/</GroupName>
 					<Files>
 						<File>

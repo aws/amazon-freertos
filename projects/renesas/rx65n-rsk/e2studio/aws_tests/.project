@@ -1557,6 +1557,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/https/test/unit/iot_tests_https_async.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</locationURI>

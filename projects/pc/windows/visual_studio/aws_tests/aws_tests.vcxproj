@@ -366,6 +366,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_common.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_sync.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_async.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_receive.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_subscription.c"/>

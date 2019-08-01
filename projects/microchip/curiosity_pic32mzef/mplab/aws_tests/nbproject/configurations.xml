@@ -156,6 +156,9 @@
 								<itemPath>../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_sync.c</itemPath>
 								<itemPath>../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_async.c</itemPath>
 							</logicalFolder>
+							<logicalFolder name="system" displayName="system" projectFiles="true">
+								<itemPath>../../../../../libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</itemPath>
+							</logicalFolder>
 						</logicalFolder>
 					</logicalFolder>
 				</logicalFolder>

@@ -105,6 +105,7 @@
 		<Filter Include="libraries\c_sdk\standard\common\test"/>
 		<Filter Include="libraries\c_sdk\standard\https\test\unit"/>
 		<Filter Include="libraries\c_sdk\standard\https\test"/>
+		<Filter Include="libraries\c_sdk\standard\https\test\system"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt\test\unit"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt\test"/>
 		<Filter Include="libraries\c_sdk\standard\mqtt\test\system"/>
@@ -978,6 +979,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_async.c">
 			<Filter>libraries\c_sdk\standard\https\test\unit</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c">
+			<Filter>libraries\c_sdk\standard\https\test\system</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_api.c">
 			<Filter>libraries\c_sdk\standard\mqtt\test\unit</Filter>

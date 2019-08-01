@@ -23,6 +23,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>CC3220SF.ccxml</name>
+			<type>1</type>
+			<locationURI>PARENT-5-PROJECT_LOC/vendors/ti/boards/cc3220_launchpad/CC3220SF.ccxml</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/event_groups.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/event_groups.c</locationURI>
@@ -931,6 +936,11 @@
 			<name>libraries/c_sdk/standard/https/test/unit/iot_tests_https_async.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/https/test/unit/iot_tests_https_async.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</name>
