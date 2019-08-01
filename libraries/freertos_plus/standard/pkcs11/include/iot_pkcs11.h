@@ -108,7 +108,7 @@
     #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    1
 #endif
 
-/*
+/**
  * @brief RSA signature padding for interoperability between providing hashed messages
  * and providing hashed messages encoded with the digest information.
  *
@@ -151,7 +151,7 @@ typedef struct PKCS11_CertificateTemplate
     CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN. */
 } PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
 
-/*
+/**
  * @brief Initializes a PKCS #11 session.
  *
  * @return CKR_OK if successful.
@@ -159,6 +159,24 @@ typedef struct PKCS11_CertificateTemplate
  * for more information.
  */
 CK_RV xInitializePKCS11( void );
+
+
+/**
+ * @brief Get a list of available PKCS #11 slots.
+ *
+ * \note This function allocates memory for slots.
+ * Freeing this memory is the responsibility of the caller.
+ *
+ *	\param[out] ppxSlotId       Pointer to slot list.  This slot list is
+ *                              malloc'ed by the function and must be
+ *                              freed by the caller.
+ *  \param[out] pxSlotCount     Pointer to the number of slots found.
+ *
+ *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
+ *
+ */
+CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
+                    CK_ULONG * pxSlotCount );
 
 /**
  * \brief Initializes the PKCS #11 module and opens a session.
