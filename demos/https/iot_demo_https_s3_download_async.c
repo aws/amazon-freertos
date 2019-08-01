@@ -121,7 +121,7 @@
 #endif
 
 /* Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
-   The size presented here accounts for the storeage of the internal context, the first request line in the HTTP
+   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
    formatted header and extra headers. The minimum size can be found in extern const uint32_t 
    requestUserBufferMinimumSize. Keep in mind that this requestUserBufferMinimumSize does not include the size of the 
    path in the request line. The path could be well over 100 characters long as it includes not only the object key name
