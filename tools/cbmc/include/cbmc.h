@@ -37,14 +37,11 @@ enum CBMC_LOOP_CONDITION { CBMC_LOOP_BREAK, CBMC_LOOP_CONTINUE, CBMC_LOOP_RETURN
  */
 void *pvPortMalloc( size_t xWantedSize )
 {
-	if ( xWantedSize == 0 )
-	{
-		return NULL;
-	}
 	return nondet_bool() ? malloc( xWantedSize ) : NULL;
 }
 
 void vPortFree( void *pv )
 {
+	(void)pv;
 	free(pv);
 }
