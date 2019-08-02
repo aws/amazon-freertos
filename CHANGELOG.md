@@ -4,7 +4,7 @@
 ### Demo specific stack size and priority
 - Make stack size and priority to be demo specific. In current release all demos have same stack size and priority. This change will make stack size and priority configurable for each demo. Demo can use default stack size/ priority or define its own.  
 
-### OTA Agent
+#### AWS OTA Agent
 - OTA Callback changes for custom and secondary processor jobs. Modifying the OTA Agent to use callback structure instead of directly calling PAL functions. This allows users to pass in custom callbacks for the PAL functions.
 
 ## 201906.00 Major 06/17/2019
