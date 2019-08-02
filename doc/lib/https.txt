@@ -161,7 +161,7 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         \code
         11 682 [iot_thread] [INFO ][INIT][682] SDK successfully initialized.
         12 682 [iot_thread] [INFO ][DEMO][682] Successfully initialized the demo. Network type for the demo: 4
-        13 682 [iot_thread] [INFO ][DEMO][682] S3 Download demo using pres-signed URL: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+        13 682 [iot_thread] [INFO ][DEMO][682] S3 Download demo using pre-signed URL: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
         14 2977 [NetRecv] [ERROR][NET][2977] Error 0 while receiving data.
         15 2977 [NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead.
         16 2977 [iot_thread] [INFO ][DEMO][2977] Inside of the append header callback for part bytes=0-511
@@ -198,9 +198,9 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         37 5179 [iot_thread] [INFO ][INIT][5179] SDK cleanup done.
         \endcode
           
-        Note:
-        Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.  
-        "Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the buffer.
+        Note:  
+        Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br>
+        "[NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the buffer.
     </li>
 </ol>
 

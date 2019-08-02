@@ -494,7 +494,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
  * @param[in] pHttpsResponse - HTTP response context.
  * 
  * @return  #IOT_HTTPS_OK - If the the response body was received with no issues. 
- *          #IOT_HTTPS_ASYNC_CANCELLED - If the request was cancelled by the Application
+ *          #IOT_HTTPS_RECEIVE_ABORT - If the request was cancelled by the Application
  *          #IOT_HTTPS_PARSING_ERROR - If there was an issue parsing the HTTP response body.
  *          #IOT_HTTPS_NETWORK_ERROR if there was an error receiving the data on the network.
  */
@@ -876,7 +876,7 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsRespo
             if(pHttpsResponse->cancelled == true)
             {
                 IotLogDebug("Cancelled HTTP response %d.", pHttpsResponse);
-                status = IOT_HTTPS_ASYNC_CANCELLED;
+                status = IOT_HTTPS_RECEIVE_ABORT;
                 /* We break out of the loop and do not goto clean up because we want to print debugging logs for 
                    the parser state and the networks status. */
                 break;
@@ -1008,7 +1008,7 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     if(pCurrentHttpsResponse->cancelled)
     {
         IotLogDebug("Response ID: %d was cancelled.", pCurrentHttpsResponse);
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
     }
 
     /* Reset the http-parser state to an initial state. This is done so that a new response can be parsed from the 
@@ -1073,7 +1073,7 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 
     if(HTTPS_FAILED(status))
     {
-        if(status == IOT_HTTPS_ASYNC_CANCELLED)
+        if(status == IOT_HTTPS_RECEIVE_ABORT)
         {
             /* If the request was cancelled, this is logged, but does not close the connection. */
             IotLogDebug("User cancelled during the async readReadyCallback() for response %d.", 
@@ -1911,7 +1911,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
     }
 
     /* To protect against out of order network data from a rouge server signal that the request is
@@ -1937,7 +1937,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
     }
 
     /* Ask the user for data to write body to the network. We only ask the user once. This is so that
@@ -1974,7 +1974,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_ASYNC_CANCELLED);
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
     }
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
@@ -2648,7 +2648,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
         {
             IotLogError("Timed out waiting for the synchronous request to finish. Timeout ms: %d", timeoutMs);
             _cancelRequest(reqHandle);
-            HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_BUSY);
+            HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_TIMEOUT_ERROR);
         }
     }
 
