@@ -115,7 +115,7 @@ CK_RV pkcs11_token_init(CK_SLOT_ID slotID, CK_UTF8CHAR_PTR pPin, CK_ULONG ulPinL
 #if PKCS11_TOKEN_INIT_SUPPORT
     CK_RV rv;
     uint8_t buf[32];
-    uint8_t * pConfig;
+    uint8_t * pConfig = NULL;
     bool lock = false;
     ATCADeviceType devtype = ATCA_DEV_UNKNOWN;
     pkcs11_lib_ctx_ptr pLibCtx;

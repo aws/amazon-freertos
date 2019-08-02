@@ -14,7 +14,7 @@ from cryptography.hazmat.primitives import serialization
 
 ROOT_PUBKEY_SLOT = 15
 
-ATCACERT_DEF_SIGNER_CONFIG_ELEMENTS = (atcacert_cert_element_t*2)(
+ATCACERT_DEF_SIGNER_CONFIG_ELEMENTS = (atcacert_cert_element_t*3)(
     atcacert_cert_element_t(
 #        id='IssueDate',
         device_loc = atcacert_device_loc_t(**{
@@ -34,6 +34,16 @@ ATCACERT_DEF_SIGNER_CONFIG_ELEMENTS = (atcacert_cert_element_t*2)(
             'offset': 50-13,
             'count': 13}),
         cert_loc = atcacert_cert_loc_t(offset=112, count=13)
+    ),
+    atcacert_cert_element_t(
+#        id='AuthorityKeyId',
+        device_loc = atcacert_device_loc_t(**{
+            'zone': atcacert_device_zone_t.DEVZONE_DATA,
+            'slot': 8,
+            'is_genkey': 0,
+            'offset': 0,
+            'count': 20}),
+        cert_loc = atcacert_cert_loc_t(offset=354, count=20)
     )
 )
 
@@ -52,7 +62,7 @@ ATCACERT_DEF_SIGNER_CONFIG = {
         'count': 16
     },
     'issue_date_format': atcacert_date_format_t.DATEFMT_RFC5280_UTC,
-    'expire_date_format': atcacert_date_format_t.DATEFMT_RFC5280_GEN,
+    'expire_date_format': atcacert_date_format_t.DATEFMT_RFC5280_UTC,
     'tbs_cert_loc': {'offset': 4, 'count': 370},
     'expire_years': 10,
     'public_key_dev_loc': {
@@ -80,7 +90,7 @@ ATCACERT_DEF_SIGNER_CONFIG = {
         {'offset': 321, 'count': 20},
     ],
     'cert_elements': ctypes.cast(ATCACERT_DEF_SIGNER_CONFIG_ELEMENTS, ctypes.POINTER(atcacert_cert_element_t)),
-    'cert_elements_count': 2
+    'cert_elements_count': len(ATCACERT_DEF_SIGNER_CONFIG_ELEMENTS)
 }
 
 ATCACERT_DEF_DEVICE_CONFIG = {
@@ -166,7 +176,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     assert atcab_init(cfg_ateccx08a_kithid_default()) == Status.ATCA_SUCCESS
-    write_root(args.root)
+#    write_root(args.root)
     write_signer(args.signer)
     write_device(args.cert)
 

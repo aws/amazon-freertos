@@ -72,12 +72,18 @@ void atca_delay_10us(uint32_t delay)
  * \param[in] delay number of milliseconds to delay
  */
 
-/* ASF already has delay_ms - see delay.h */
+#ifndef ATCA_USE_RTOS_TIMER
 void atca_delay_ms(uint32_t delay)
+#else
+void atca_delay_ms_internal(uint32_t delay)
+#endif
 {
     // use Windows supplied delay
     Sleep(delay);
 }
+
+
+#ifndef ATCA_USE_RTOS_TIMER
 
 /**
  * \brief Application callback for creating a mutex object
@@ -170,5 +176,7 @@ ATCA_STATUS hal_unlock_mutex(void* pMutex)
 
     return rv;
 }
+
+#endif
 
 /** @} */

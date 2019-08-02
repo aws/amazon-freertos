@@ -408,7 +408,7 @@ int atcacert_read_subj_key_id(const atcacert_def_t* cert_def, uint8_t subj_key_i
 int atcacert_read_cert_size(const atcacert_def_t* cert_def,
                             size_t*               cert_size)
 {
-    uint8_t buffer[74];
+    uint8_t buffer[75];
     size_t buflen = sizeof(buffer);
     int ret = ATCACERT_E_SUCCESS;
 
