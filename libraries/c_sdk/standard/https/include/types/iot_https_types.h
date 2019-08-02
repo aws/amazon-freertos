@@ -46,11 +46,17 @@
  * @constants_brief{HTTPS Client library}
  *
  * @section https_minimum_user_buffer_sizes HTTPS Client Minimum User Buffer Sizes
- * @brief variables calculating the size of #IotHttpsUserBuffer_t.bufferLen needed for the request, response, and
+ * @brief Variables calculating the size of #IotHttpsUserBuffer_t.bufferLen needed for the request, response, and
  * connection.
  *
  * @note These user buffer minumum values may change at any time in future versions, but their names will remain the
  * same.
+ * - @ref requestUserBufferMinimumSize <br>
+ *   @copybrief requestUserBufferMinimumSize
+ * - @ref responseUserBufferMinimumSize <br>
+ *   @copybrief responseUserBufferMinimumSize
+ * - @ref connectionUserBufferMinimumSize <br>
+ *   @copybrief connectionUserBufferMinimumSize
  *
  * @section https_connection_flags HTTPS Client Connection Flags
  * @brief Flags that modify the behavior of the HTTPS Connection.
@@ -84,6 +90,12 @@
  * IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER
  * @endcode
  *
+ * @section http_constants_connection_flags HTTPS Client Connection Flags
+ * @brief Flags that modify the behavior the HTTPS connection.
+ * - #IOT_HTTPS_IS_NON_TLS_FLAG <br>
+ *   @copybrief IOT_HTTPS_IS_NON_TLS_FLAG
+ * - #IOT_HTTPS_DISABLE_SNI <br>
+ *   @copybrief IOT_HTTPS_DISABLE_SNI
  */
 
 /**
