@@ -122,6 +122,19 @@
 #define HTTPS_TEST_RESP_BODY_BUFFER_SIZE            ( 512 )
 
 /**
+ * @brief The maximum length of the HTTP response message buffer shared among the test.
+ * 
+ * The buffer of this length is used to test a few scenarios where the headers or body are found in either the header
+ * buffer or body buffer and need to be copied over appropriately. 
+ */
+#define HTTPS_TEST_RESPONSE_MESSAGE_LENGTH              ( 2048 )
+
+/**
+ * @brief The length of the response header buffer shared among the tests.
+ */
+#define HTTPS_TEST_RESP_HEADER_BUFFER_LENGTH        ( HTTPS_TEST_RESP_USER_BUFFER_SIZE - sizeof(_httpsResponse_t) )
+
+/**
  * @brief Test HTTP request body to share among the tests.
  */
 #define HTTPS_TEST_REQUEST_BODY     \
@@ -139,6 +152,25 @@
     "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"\
     "header2: value2 value2a\r\nContent-Length: 26\r\n\r\nabcdefghijklmnopqrstuvwxyz"
 #define HTTPS_TEST_SMALL_RESPONSE_LENGTH            (sizeof(HTTPS_TEST_SMALL_RESPONSE) - 1)
+
+/**
+ * @brief Test HTTP chunked response message to share among the tests.
+ */
+#define HTTPS_TEST_CHUNKED_RESPONSE \
+    "HTTP/1.1 403 Forbidden\r\n"\
+    "header0: value0\r\n"\
+    "header1: value1\r\n"\
+    "Transfer-Encoding: chunked\r\n"\
+    "\r\n"\
+    "b\r\n"\
+    "abcdefghijk\r\n"\
+    "c\r\n"\
+    "lmnopqrstuvw\r\n"\
+    "3\r\n"\
+    "xyz\r\n"\
+    "0\r\n"\
+    "\r\n"
+#define HTTPS_TEST_CHUNKED_RESPONSE_BODY_LENGTH         ( 0xB + 0xC + 3 )
 
 /*-----------------------------------------------------------*/
 
@@ -179,7 +211,24 @@ extern uint8_t _pRespUserBuffer[HTTPS_TEST_RESP_USER_BUFFER_SIZE];
 extern uint8_t _pRespBodyBuffer[HTTPS_TEST_RESP_BODY_BUFFER_SIZE];
 
 /**
+ * @brief An HTTP response message to share among the tests.
+ * 
+ * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
+ * The user buffers are always overwritten each utilizing test, so data left over affecting other tests is not a 
+ * concern.
+ */
+extern uint8_t _pRespMessageBuffer[ HTTPS_TEST_RESPONSE_MESSAGE_LENGTH ];
+
+/**
+ * @brief The current place in _pRespMessageBuffer to receive the next byte.
+ * 
+ * This is used to mimic receiving the HTTP response message from the network during testing.
+ */
+static uint32_t _nextRespMessageBufferByteToReceive = 0;
+
+/**
  * @brief An #IotNetworkInterface_t to share among the tests.
+ * 
  */
 static IotNetworkInterface_t _networkInterface = { 0 };
 
@@ -266,11 +315,10 @@ static inline IotHttpsRequestHandle_t _getReqHandle( IotHttpsRequestInfo_t* pReq
  * @brief Get a valid response handle using _pRespUserBuffer, and respInfoGET.
  */
 static inline IotHttpsResponseHandle_t _getRespHandle( IotHttpsResponseInfo_t* pRespInfo, 
-                                                       bool isAsync, 
-                                                       IotHttpsMethod_t method )
+                                                       IotHttpsRequestHandle_t reqHandle )
 {
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    IotTestHttps_initializeResponse(&respHandle, pRespInfo, isAsync, method);
+    IotTestHttps_initializeResponse(&respHandle, pRespInfo, reqHandle);
     return respHandle;
 }
 
@@ -282,6 +330,9 @@ static inline IotHttpsResponseHandle_t _getRespHandle( IotHttpsResponseInfo_t* p
 static inline IotNetworkError_t _networkCloseSuccess(void * pConnection)
 {
     (void)pConnection;
+    /* When the network closes there should be no data on the socket. */
+    _nextRespMessageBufferByteToReceive = 0;
+    ( void ) memset( _pRespMessageBuffer, 0x00, sizeof(_pRespMessageBuffer) );
     return IOT_NETWORK_SUCCESS;
 }
 
@@ -295,5 +346,59 @@ static inline IotNetworkError_t _networkDestroySuccess(void * pConnection)
     (void)pConnection;
     return IOT_NETWORK_SUCCESS;
 }
+
+
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Network abstraction receive function that succeeds. 
+ */
+static inline size_t _networkReceiveSuccess( void * pConnection,
+                                      uint8_t * pBuffer,
+                                      size_t bytesRequested )
+{
+    size_t responseMessageLengthLeft = strlen((char*)_pRespMessageBuffer) - _nextRespMessageBufferByteToReceive;
+    size_t copyLen = 0;
+
+    (void)pConnection;
+    (void)pBuffer;
+    (void)bytesRequested;
+
+    if( responseMessageLengthLeft < bytesRequested )
+    {
+        copyLen = responseMessageLengthLeft;
+    }
+    else
+    {
+        copyLen = bytesRequested;
+    }
+    memcpy(pBuffer, &(_pRespMessageBuffer[_nextRespMessageBufferByteToReceive]), copyLen);
+    _nextRespMessageBufferByteToReceive += copyLen;
+
+    return copyLen;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Generate an test HTTP response message with the specified header length and the specified body length.
+ * 
+ * This generates the test HTTP response message into _pRespMessageBuffer. 
+ * _pRespMessageBuffer must be zeroed out before calling this routine.
+ * The length of _pRespMessageBuffer must not exceed headerLength + bodyLength. 
+ * The headerLength is the length of the raw HTTP headers includes delimiters like ": " and \r\n.
+ * The length of headerLength must be greater than:
+ *      "HTTP/1.1 200 OK\r\nContent-Length: <bodyLengthStr>\r\nheader0: value0\r\n\r\n" 
+ * in order to generate meaningful header data.
+ */
+void _generateHttpResponseMessage( int headerLength, int bodyLength );
+
+/**
+ * @brief Test verify the response body in pBody up to bodyLength. 
+ * 
+ * This will verify that 'a' through 'z' (then repeated) are written properly.
+ */
+void _verifyHttpResponseBody(int bodyLength, uint8_t* pBody, int startIndex);
 
 #endif /* IOT_TESTS_HTTPS_COMMON_H_ */
