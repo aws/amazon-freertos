@@ -2791,6 +2791,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHan
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(connHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
     HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
 
     /* Initialize the response handle to return. */
