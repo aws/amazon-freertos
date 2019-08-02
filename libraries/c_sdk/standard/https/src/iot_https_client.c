@@ -565,13 +565,11 @@ static void _cancelResponse(_httpsResponse_t *pHttpsResponse);
  * 
  * @param[in] pHttpsResponse - Non-null HTTP response context.
  * @param[in] pRespInfo - Response configuration information.
- * @param[in] isAsync - Set to true for an asynchronous response, false otherwise.
- * @param[in] method - The HTTPS method of the originating request. 
+ * @param[in] pHttpsRequest - HTTP request to grab async information, persistence, and method from.
  */
 static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pRespHandle, 
                                                  IotHttpsResponseInfo_t* pRespInfo, 
-                                                 bool isAsync, 
-                                                 IotHttpsMethod_t method );
+                                                 _httpsRequest_t* pHttpsRequest );
 
 /**
  * @brief Increment the pointer stored in pBufCur depending on the character found in there.
@@ -582,6 +580,16 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
  * @param[in] pBufEnd - Pointer to the end of the buffer to receive the HTTP response into.
  */
 static void _incrementNextLocationToWriteBeyondParsed(uint8_t **pBufCur, uint8_t **pBufEnd);
+
+/**
+ * @brief Send the HTTPS headers and body referenced in pHttpsRequest.
+ * 
+ * Sends both the headers and body over the network.
+ * 
+ * @param[in] pHttpsConnection - HTTPS connection context.
+ * @param[in] pHttpsRequest - HTTPS request context.
+ */
+static IotHttpsReturnCode_t _sendHttpsHeadersAndBody(_httpsConnection_t* pHttpsConnection, _httpsRequest_t* pHttpsRequest);
 
 /*-----------------------------------------------------------*/
 
@@ -862,32 +870,32 @@ static int _httpParserOnChunkCompleteCallback(http_parser * pHttpParser)
 static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsResponse)
 {
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
-    /* Get the request reference from the response for the callback function pointers. */
-    _httpsRequest_t* pHttpsRequest = pHttpsResponse->pHttpsRequest;
 
-    if(pHttpsRequest->pCallbacks->readReadyCallback)
+    if( pHttpsResponse->pCallbacks->readReadyCallback)
     {
         /* If there is still more body that has not been passed back to the user, then this callback is invoked again. */
         do {
-            pHttpsRequest->pCallbacks->readReadyCallback(pHttpsRequest->pUserPrivData, 
-                pHttpsResponse, 
-                pHttpsResponse->bodyRxStatus, 
-                pHttpsResponse->status);
-            if(pHttpsResponse->cancelled == true)
+            pHttpsResponse->pCallbacks->readReadyCallback( pHttpsResponse->pUserPrivData,
+                pHttpsResponse,
+                pHttpsResponse->bodyRxStatus,
+                pHttpsResponse->status );
+            if( pHttpsResponse->cancelled == true )
             {
-                IotLogDebug("Cancelled HTTP response %d.", pHttpsResponse);
+                IotLogDebug( "Cancelled HTTP response %d.", pHttpsResponse );
                 status = IOT_HTTPS_RECEIVE_ABORT;
-                /* We break out of the loop and do not goto clean up because we want to print debugging logs for 
+                /* We break out of the loop and do not goto clean up because we want to print debugging logs for
                    the parser state and the networks status. */
                 break;
             }
-        } while((pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE) && (pHttpsResponse->bodyRxStatus == IOT_HTTPS_OK));
+        } while( ( pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE ) && ( pHttpsResponse->bodyRxStatus == IOT_HTTPS_OK ) );
 
         if(HTTPS_FAILED(pHttpsResponse->bodyRxStatus))
         {
             IotLogError("Error receiving the HTTP response body for response %d. Error code: %d",
                 pHttpsResponse,
                 pHttpsResponse->bodyRxStatus);
+            /* An error in the network or the parser takes precedence  */
+            status = pHttpsResponse->bodyRxStatus;
         }
 
         if(pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE)
@@ -897,7 +905,6 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync(_httpsResponse_t* pHttpsRespo
         }
     }
 
-    status = pHttpsResponse->bodyRxStatus;
     /* This GOTO cleanup is here for compiler warnings about using HTTPS_FUNCTION_EXIT_NO_CLEANUP() without a 
        corresponding goto. */
     HTTPS_GOTO_CLEANUP();
@@ -964,10 +971,9 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 
     IotHttpsReturnCode_t flushStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
+    IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
     _httpsConnection_t* pHttpsConnection = ( _httpsConnection_t* )pReceiveContext;
     _httpsResponse_t* pCurrentHttpsResponse = NULL;
-    _httpsResponse_t* pNextHttpsResponse = NULL;
-    _httpsRequest_t* pCurrentHttpsRequest = NULL;
     _httpsRequest_t* pNextHttpsRequest = NULL;
     IotLink_t * pQItem = NULL;
     bool fatalDisconnect = false; 
@@ -975,9 +981,9 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* The network connection is already in the connection context. */
     ( void )pNetworkConnection;
 
-    /* Dequeue response from the response queue. */
+    /* Get the response from the response queue. */
     IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
-    pQItem = IotDeQueue_DequeueHead( &(pHttpsConnection->respQ));
+    pQItem = IotDeQueue_PeekHead( &(pHttpsConnection->respQ));
     IotMutex_Unlock( &(pHttpsConnection->respQMutex) );
 
     /* If the receive callback is invoked and there is no response expected, then this a violation of the HTTP/1.1
@@ -992,12 +998,9 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* Set the current HTTP response context to use. */
     pCurrentHttpsResponse = IotLink_Container(_httpsResponse_t, pQItem, link);
 
-    /* Set the current HTTP request associated with this response. */
-    pCurrentHttpsRequest = pCurrentHttpsResponse->pHttpsRequest;
-
     /* If the receive callback has invoked, but the request associated with this response has not finished sending 
        to the server, then this is a violation of the HTTP/1.1 protocol.  */
-    if(pCurrentHttpsRequest->reqFinishedSending == false)
+    if(pCurrentHttpsResponse->reqFinishedSending == false)
     {
         IotLogError("Received response data on the network when the request was not finished sending. This is unexpected.");
         fatalDisconnect = true;
@@ -1008,7 +1011,7 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     if(pCurrentHttpsResponse->cancelled)
     {
         IotLogDebug("Response ID: %d was cancelled.", pCurrentHttpsResponse);
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_RECEIVE_ABORT);
     }
 
     /* Reset the http-parser state to an initial state. This is done so that a new response can be parsed from the 
@@ -1045,7 +1048,7 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         }
         else /* Any other error. */
         {
-            IotLogError("Failed to retrive the HTTPS body for request %d. Error code: %d", status);
+            IotLogError("Failed to retrive the HTTPS body for response %d. Error code: %d", pCurrentHttpsResponse, status);
         }
         HTTPS_GOTO_CLEANUP();
     }
@@ -1053,9 +1056,9 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* Check if we received all of the headers into the header buffer. */
     if( pCurrentHttpsResponse->parserState < PARSER_STATE_HEADERS_COMPLETE )
     {
-        IotLogDebug( "Headers received on the network did not all fit into the configured header buffer for request %d."
+        IotLogDebug( "Headers received on the network did not all fit into the configured header buffer for response %d."
             " The length of the headers buffer is: %d",
-            pCurrentHttpsRequest,
+            pCurrentHttpsResponse,
             pCurrentHttpsResponse->pHeadersEnd - pCurrentHttpsResponse->pHeaders );
         /* It is not error if the headers did not all fit into the buffer. */
     }
@@ -1099,7 +1102,7 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         }
         else /* Any other error. */
         {
-            IotLogError("Failed to retrive the HTTPS body for request %d. Error code: %d", status);
+            IotLogError("Failed to retrive the HTTPS body for response %d. Error code: %d", pCurrentHttpsResponse, status);
         }
         HTTPS_GOTO_CLEANUP();
     }
@@ -1109,9 +1112,9 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* Report errors back to the application. */
     if(HTTPS_FAILED(status))
     {
-        if(pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->errorCallback)
+        if(pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->errorCallback)
         {
-            pCurrentHttpsRequest->pCallbacks->errorCallback(pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsRequest, status);
+            pCurrentHttpsResponse->pCallbacks->errorCallback(pCurrentHttpsResponse->pUserPrivData, NULL, pCurrentHttpsResponse, status);
         }
         pCurrentHttpsResponse->syncStatus = status;
     }
@@ -1119,13 +1122,13 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     /* If this is not a persistent request, the server would have closed it after sending a response, but we 
        disconnect anyways. If we are disconnecting there is is no point in wasting time 
        flushing the network. If the network is being disconnected we also do not schedule any pending requests. */
-    if( fatalDisconnect || pCurrentHttpsRequest->isNonPersistent )
+    if( fatalDisconnect || pCurrentHttpsResponse->isNonPersistent )
     {
         IotLogDebug("Disconnecting response %d.", pCurrentHttpsResponse);
         disconnectStatus = IotHttpsClient_Disconnect(pHttpsConnection);
-        if((pCurrentHttpsResponse != NULL) && pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->connectionClosedCallback)
+        if((pCurrentHttpsResponse != NULL) && pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->connectionClosedCallback)
         {
-            pCurrentHttpsRequest->pCallbacks->connectionClosedCallback(pCurrentHttpsRequest->pUserPrivData, pHttpsConnection, disconnectStatus);
+            pCurrentHttpsResponse->pCallbacks->connectionClosedCallback(pCurrentHttpsResponse->pUserPrivData, pHttpsConnection, disconnectStatus);
         }
 
         if(HTTPS_FAILED(disconnectStatus))
@@ -1161,8 +1164,6 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         }
         
         IotMutex_Lock(&(pHttpsConnection->reqQMutex));
-        /* Now that the current request/response pair is finished, we dequeue the current request from the queue. */
-        pQItem = IotDeQueue_DequeueHead( &(pHttpsConnection->reqQ));
         /* Get the next request to process. */
         pQItem = IotDeQueue_PeekHead( &(pHttpsConnection->reqQ));
         IotMutex_Unlock(&(pHttpsConnection->reqQMutex));
@@ -1172,22 +1173,22 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         {
             /* Set this next request to send. */
             pNextHttpsRequest = IotLink_Container(_httpsRequest_t, pQItem, link);
-            /* Set the next response to receive. */
-            pNextHttpsResponse = pNextHttpsRequest->pHttpsResponse;
-
-            IotLogDebug("Request %d is next in the queue. Now scheduling a task to send the request.", pNextHttpsRequest);
-            status = _scheduleHttpsRequestSend(pNextHttpsRequest);
-            /* If there was an error with scheduling the new task, then report it. */
-            if(HTTPS_FAILED(status))
+            if(pNextHttpsRequest->scheduled == false)
             {
-                IotLogError("Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, status);
-                if(pNextHttpsResponse->isAsync && pNextHttpsRequest->pCallbacks->errorCallback)
+                IotLogDebug("Request %d is next in the queue. Now scheduling a task to send the request.", pNextHttpsRequest);
+                scheduleStatus = _scheduleHttpsRequestSend(pNextHttpsRequest);
+                /* If there was an error with scheduling the new task, then report it. */
+                if(HTTPS_FAILED( scheduleStatus ))
                 {
-                    pNextHttpsRequest->pCallbacks->errorCallback(pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, status);
-                }
-                else
-                {
-                    pNextHttpsResponse->syncStatus = status;
+                    IotLogError("Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, scheduleStatus );
+                    if(pNextHttpsRequest->isAsync && pNextHttpsRequest->pCallbacks->errorCallback)
+                    {
+                        pNextHttpsRequest->pCallbacks->errorCallback(pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, NULL, scheduleStatus );
+                    }
+                    else
+                    {
+                        pNextHttpsRequest->pHttpsResponse->syncStatus = scheduleStatus;
+                    }
                 }
             }
         }
@@ -1197,10 +1198,22 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         }
     }
 
-    /* Signal to a synchronous reponse that the response is complete. */
-    if( pCurrentHttpsResponse->isAsync && pCurrentHttpsRequest->pCallbacks->responseCompleteCallback )
+    /* Dequeue response from the response queue now that it is finished. */
+    IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
+    /* There could be a scenario where the request fails to send and the network server still responds,
+       In this case, the failed response will have been cancelled and removed from the queue. If the network
+       server still got a response, then the safest way to remove the current response is to remove it explicitly
+       from the queue instead of dequeuing the header of the queue which might not be the current response. */
+    if( IotLink_IsLinked( &(pCurrentHttpsResponse->link) ) )
     {
-        pCurrentHttpsRequest->pCallbacks->responseCompleteCallback( pCurrentHttpsRequest->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
+        IotDeQueue_Remove( &(pCurrentHttpsResponse->link) );
+    }
+    IotMutex_Unlock( &(pHttpsConnection->respQMutex) );
+
+    /* Signal to a synchronous reponse that the response is complete. */
+    if( pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->responseCompleteCallback )
+    {
+        pCurrentHttpsResponse->pCallbacks->responseCompleteCallback( pCurrentHttpsResponse->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
     }
 
     /* For a synchronous request release the semaphore. */
@@ -1530,6 +1543,8 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* pHttpsConnection, 
     numBytesRecv = pHttpsConnection->pNetworkInterface->receive( pHttpsConnection->pNetworkConnection,
         pBuf,
         bufLen);
+
+    IotLogDebug( "The network interface receive returned %d.", numBytesRecv );
 
     /* We return IOT_HTTPS_NETWORK_ERROR only if we receive nothing. Receiving less
        data than requested is okay because it is not known in advance how much data
@@ -1894,60 +1909,9 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsCo
 
 /*-----------------------------------------------------------*/
 
-static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext )
+static IotHttpsReturnCode_t _sendHttpsHeadersAndBody(_httpsConnection_t* pHttpsConnection, _httpsRequest_t* pHttpsRequest)
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
-
-    _httpsRequest_t* pHttpsRequest = (_httpsRequest_t*)( pUserContext );
-    _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
-    _httpsResponse_t* pHttpsResponse = pHttpsRequest->pHttpsResponse;
-    IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
-
-    (void)pTaskPool;
-    (void)pJob;
-
-    IotLogDebug( "Task with request ID: %d started.", pHttpsRequest );
-
-    if(pHttpsRequest->cancelled == true)
-    {
-        IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
-    }
-
-    /* To protect against out of order network data from a rouge server signal that the request is
-       not finished sending. */
-    pHttpsRequest->reqFinishedSending = false;
-
-    /* Set the request associated with this response so that the network receive task can check if the request
-       has finished sending and invoke callbacks. */
-    pHttpsResponse->pHttpsRequest = pHttpsRequest;
-
-    /* Queue the response to expect from the network. */
-    IotMutex_Lock(&(pHttpsConnection->respQMutex));
-    IotDeQueue_EnqueueTail(&(pHttpsConnection->respQ), &(pHttpsResponse->link));
-    IotMutex_Unlock(&(pHttpsConnection->respQMutex));
-
-    /* Get the headers from the application. For a synchronous request we should have appended extra headers before
-       we got to this point. */
-    if(pHttpsResponse->isAsync && pHttpsRequest->pCallbacks->appendHeaderCallback)
-    {
-        pHttpsRequest->pCallbacks->appendHeaderCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
-    }
-
-    if(pHttpsRequest->cancelled == true)
-    {
-        IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
-    }
-
-    /* Ask the user for data to write body to the network. We only ask the user once. This is so that
-       we can calculate the Content-Length to send.*/
-    if(pHttpsResponse->isAsync && pHttpsRequest->pCallbacks->writeCallback)
-    {
-        /* If there is data, then a Content-Length header value will be provided and we send the headers
-           before that user data. */
-        pHttpsRequest->pCallbacks->writeCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
-    }
 
     /* Send the HTTP headers. */
     status = _sendHttpsHeaders(pHttpsConnection,
@@ -1958,7 +1922,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     if( HTTPS_FAILED(status) )
     {
         IotLogError("Error sending the HTTPS headers with error code: %d", status);
-        IOT_SET_AND_GOTO_CLEANUP(status);
+        HTTPS_GOTO_CLEANUP(); 
     }
 
     if((pHttpsRequest->pBody != NULL) && (pHttpsRequest->bodyLength > 0))
@@ -1971,10 +1935,92 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         }
     }
 
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+}
+
+/*-----------------------------------------------------------*/
+
+static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext )
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    _httpsRequest_t* pHttpsRequest = (_httpsRequest_t*)( pUserContext );
+    _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
+    _httpsResponse_t* pHttpsResponse = pHttpsRequest->pHttpsResponse;
+    IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
+    IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
+    IotLink_t * pQItem = NULL;
+    _httpsRequest_t* pNextHttpsRequest = NULL;
+
+    (void)pTaskPool;
+    (void)pJob;
+
+    IotLogDebug( "Task with request ID: %d started.", pHttpsRequest );
+
     if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
+    }
+
+    /* To protect against out of order network data from a rouge server, signal that the request is
+       not finished sending. */
+    pHttpsResponse->reqFinishedSending = false;
+
+    /* Queue the response to expect from the network. */
+    IotMutex_Lock(&(pHttpsConnection->respQMutex));
+    IotDeQueue_EnqueueTail(&(pHttpsConnection->respQ), &(pHttpsResponse->link));
+    IotMutex_Unlock(&(pHttpsConnection->respQMutex));
+
+    /* Get the headers from the application. For a synchronous request the application should have appended extra 
+       headers before this point. */
+    if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->appendHeaderCallback)
+    {
+        pHttpsRequest->pCallbacks->appendHeaderCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
+    }
+
+    if(pHttpsRequest->cancelled == true)
+    {
+        IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
+    }
+
+    /* Ask the user for data to write body to the network. We only ask the user once. This is so that
+       we can calculate the Content-Length to send.*/
+    if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->writeCallback)
+    {
+        /* If there is data, then a Content-Length header value will be provided and we send the headers
+           before that user data. */
+        pHttpsRequest->pCallbacks->writeCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
+    }
+
+    if(HTTPS_FAILED(pHttpsRequest->bodyTxStatus))
+    {
+        IotLogError("Failed to send the headers and body over the network during the writeCallback. Error code: %d.", 
+            status);
+        HTTPS_SET_AND_GOTO_CLEANUP( pHttpsRequest->bodyTxStatus );
+    }
+
+    if(pHttpsRequest->cancelled == true)
+    {
+        IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
+    }
+
+    /* If this is a synchronous request then the header and body were configured beforehand. The header and body
+       are sent now. For an asynchronous request, the header and body are sent in IotHttpsClient_WriteRequestBody()
+       which is to be invoked in #IotHttpsClientCallbacks_t.writeCallback(). If the application never invokes 
+       IotHttpsClient_WriteRequestBody(), then pHttpsRequest->pBody will be NULL. In this case we still want to 
+       send whatever headers we have.  */
+    if( ( pHttpsRequest->isAsync == false ) || 
+        ( ( pHttpsRequest->isAsync ) && ( pHttpsRequest->pBody == NULL ) ) )
+    {
+        status = _sendHttpsHeadersAndBody(pHttpsConnection, pHttpsRequest);
+        if(HTTPS_FAILED(status))
+        {
+            IotLogError("Failed to send the headers and body on the network. Error code: %d", status);
+            HTTPS_GOTO_CLEANUP();
+        }
     }
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
@@ -1982,14 +2028,18 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     /* The request has finished sending. This indicates to the network receive callback that the request was
         finished, so a response received on the network is valid. This also lets a possible application called
         IotHttpsClient_Disconnect() know that the connection is not busy, so the connection can be destroyed. */
-    pHttpsRequest->reqFinishedSending = true;
+    pHttpsResponse->reqFinishedSending = true;
 
     if( HTTPS_FAILED(status) )
     {
         /* If the headers or body failed to send, then there should be no response expected from the server. */
+        /* Cancel the response incase there is a response from the server. */
         _cancelResponse(pHttpsResponse);
         IotMutex_Lock(&(pHttpsConnection->respQMutex));
-        IotDeQueue_Remove(&(pHttpsResponse->link));
+        if(IotLink_IsLinked(&(pHttpsResponse->link)))
+        {
+            IotDeQueue_Remove(&(pHttpsResponse->link));
+        }
         IotMutex_Unlock(&(pHttpsConnection->respQMutex));
 
         /* Set the error status in the sync workflow. */
@@ -1998,7 +2048,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         /* Return the error status or cancel status to the application for an asynchronous workflow. */
         if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->errorCallback)
         {
-            pHttpsRequest->pCallbacks->errorCallback( pHttpsRequest->pUserPrivData, pHttpsRequest, status );
+            pHttpsRequest->pCallbacks->errorCallback( pHttpsRequest->pUserPrivData, pHttpsRequest, NULL, status);
         }
 
         /* We close the connection on all network errors. All network errors in receiving the response, close the 
@@ -2008,9 +2058,11 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         {
              IotLogDebug("Disconnecting request %d.", pHttpsRequest);
             disconnectStatus = IotHttpsClient_Disconnect(pHttpsConnection);
-            if(pHttpsResponse->isAsync && pHttpsRequest->pCallbacks->connectionClosedCallback)
+            if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->connectionClosedCallback)
             {
-                pHttpsRequest->pCallbacks->connectionClosedCallback(pHttpsRequest->pUserPrivData, pHttpsConnection, disconnectStatus);
+                pHttpsRequest->pCallbacks->connectionClosedCallback(pHttpsRequest->pUserPrivData, 
+                    pHttpsConnection, 
+                    disconnectStatus);
             }
 
             if(HTTPS_FAILED(disconnectStatus))
@@ -2018,13 +2070,63 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
                 IotLogWarn("Failed to disconnect request %d. Error code: %d.", pHttpsRequest, disconnectStatus);
             }
         }
+        else
+        {
+            /* Because this request failed, the network receive callback may never be invoked to schedule other possible
+               requests in the queue. In order to avoid requests never getting scheduled on an connected connection,
+               the first item in the queue is scheduled if it can be. */
+            IotMutex_Lock(&(pHttpsConnection->reqQMutex));
+            /* Get the next item in the queue by removing this current (which is the first) and peeking at the head again. */
+            IotDeQueue_Remove( &( pHttpsRequest->link ) );
+            pQItem = IotDeQueue_PeekHead( &(pHttpsConnection->reqQ));
+            /* This current request is put back because it is removed again for all cases at the end of this routine. */
+            IotDeQueue_EnqueueHead( &( pHttpsConnection->reqQ ), &( pHttpsRequest->link ) );
+            IotMutex_Unlock(&(pHttpsConnection->reqQMutex));
+            if(pQItem != NULL)
+            {
+                /* Set this next request to send. */
+                pNextHttpsRequest = IotLink_Container(_httpsRequest_t, pQItem, link);
+                if( pNextHttpsRequest->scheduled == false )
+                {
+                    IotLogDebug("Request %d is next in the queue. Now scheduling a task to send the request.", pNextHttpsRequest);
+                    scheduleStatus = _scheduleHttpsRequestSend(pNextHttpsRequest);
+                    /* If there was an error with scheduling the new task, then report it. */
+                    if(HTTPS_FAILED( scheduleStatus ))
+                    {
+                        IotLogError("Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, scheduleStatus );
+                        if(pNextHttpsRequest->isAsync && pNextHttpsRequest->pCallbacks->errorCallback)
+                        {
+                            pNextHttpsRequest->pCallbacks->errorCallback(pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, NULL, scheduleStatus );
+                        }
+                        else
+                        {
+                            pNextHttpsRequest->pHttpsResponse->syncStatus = scheduleStatus;
+                        }
+                    }
+                }
+            } 
+        }
 
         /* Post to the response finished semaphore to unlock the application waiting on a synchronous request. */
         if(pHttpsRequest->isAsync == false)
         {
             IotSemaphore_Post( &(pHttpsResponse->respFinishedSem));
         }
+
+        /* Call the response complete callback. We always call this even if we did not receive the response to 
+           let the application know that the request has completed. */
+        if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->responseCompleteCallback)
+        {   
+            pHttpsRequest->pCallbacks->responseCompleteCallback(pHttpsRequest->pUserPrivData, NULL, status, 0);
+        }
     }
+
+    IotMutex_Lock(&(pHttpsConnection->reqQMutex));
+    /* Now that the current request is finished, we dequeue the current request from the queue. */
+    IotDeQueue_DequeueHead( &(pHttpsConnection->reqQ));
+    IotMutex_Unlock(&(pHttpsConnection->reqQMutex));
+
+    /* This routine returns a void so there is no HTTPS_FUNCTION_CLEANUP_END();. */
 }
 
 /*-----------------------------------------------------------*/
@@ -2035,6 +2137,9 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend(_httpsRequest_t* pHttpsRequest)
 
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
+
+    /* Set the request to scheduled even if scheduling fails. */
+    pHttpsRequest->scheduled = true;
 
     taskPoolStatus = IotTaskPool_CreateJob( _sendHttpsRequest,
         ( void* )(pHttpsRequest),
@@ -2065,29 +2170,62 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ(_httpsRequest_t* pHttpsRequest)
     HTTPS_FUNCTION_ENTRY(IOT_HTTPS_OK);
 
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
-    bool isOnlyRequest = false;
+    bool scheduleRequest = false;
 
-    /* Place the request into the queue. */
-    IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
-
-    /* If this is the first and only item in the list, then we will want to schedule a new task to service this 
-        request. If this is the first and only item in the list, then there is no task currently sending a request 
-        and there is no response currently being received. */
-    if(IotDeQueue_IsEmpty(&( pHttpsConnection->reqQ )))
+    /* Log information about the request*/
+    IotLogDebug( "Now queueing request %d.", pHttpsRequest );
+    if( pHttpsRequest->isNonPersistent )
     {
-        isOnlyRequest = true;
+        IotLogDebug( "Request %d is non-persistent.", pHttpsRequest );
+    }
+    else
+    {
+        IotLogDebug( "Request %d is persistent. ", pHttpsRequest );
     }
 
-    IotDeQueue_EnqueueTail(&( pHttpsConnection->reqQ ), &(pHttpsRequest->link));
+    if( pHttpsRequest->isAsync )
+    {
+        IotLogDebug( " Request %d is asynchronous.", pHttpsRequest );
+    }
+    else
+    {
+        IotLogDebug( " Request %d is synchronous.", pHttpsRequest );
+    }
+        
 
+    /* This is a new request and has not been scheduled if this routine is called. */
+    pHttpsRequest->scheduled = false;
+
+    /* Place the request into the queue. This is the ONLY place in the code that attempts to lock both 
+       the request and response queues at the same time. */
+    IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
+    IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
+
+    /* If there is an active response, scheduling the next request at the same time may corrupt the workflow. Part of 
+       the next response for the next request may be present in the currently receiving response's buffers. To avoid 
+       this, check if there are pending responses to determine if this request should be scheduled right away or not. 
+       
+       If there are other requests in the queue, and there are responses in the queue, then the network receive callback
+       will handle scheduling the next requests (or is already scheduled and currently sending). */
+    if( ( IotDeQueue_IsEmpty( &( pHttpsConnection->reqQ ) ) ) && 
+        ( IotDeQueue_IsEmpty( &( pHttpsConnection->respQ ) ) ) )
+    {
+        scheduleRequest = true;
+    }
+
+    /* Place into the connection's request to have a taskpool worker schedule to serve it later. */
+    IotDeQueue_EnqueueTail(&( pHttpsConnection->reqQ ), &(pHttpsRequest->link));
+    IotMutex_Unlock( &(pHttpsConnection->respQMutex) );
     IotMutex_Unlock( &(pHttpsConnection->reqQMutex) );
 
-    if(isOnlyRequest)
+    if(scheduleRequest)
     {
+        /* This routine schedules a task pool worker to send the request. If a worker is available immediately, then
+           the request is sent right away. */
         status = _scheduleHttpsRequestSend(pHttpsRequest);
         if( HTTPS_FAILED(status) )
         {
-            IotLogError( "Failed to schedule the only request in the queue for request %d. Error code: %d", pHttpsRequest, status );
+            IotLogError( "Failed to schedule the request in the queue for request %d. Error code: %d", pHttpsRequest, status );
 
             /* If we fail to schedule the only request in the queue we should remove it. */
             IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
@@ -2106,10 +2244,6 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ(_httpsRequest_t* pHttpsRequest)
 static void _cancelRequest(_httpsRequest_t *pHttpsRequest)
 {
     pHttpsRequest->cancelled = true;
-    if(pHttpsRequest->pHttpsResponse != NULL)
-    {
-        pHttpsRequest->pHttpsResponse->cancelled = true;
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -2117,10 +2251,6 @@ static void _cancelRequest(_httpsRequest_t *pHttpsRequest)
 static void _cancelResponse(_httpsResponse_t *pHttpsResponse)
 {
     pHttpsResponse->cancelled = true;
-    if(pHttpsResponse->pHttpsRequest != NULL)
-    {
-        pHttpsResponse->pHttpsRequest->cancelled = true;
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -2152,7 +2282,7 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void )
 
 /*-----------------------------------------------------------*/
 
-static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pRespHandle, IotHttpsResponseInfo_t* pRespInfo, bool isAsync, IotHttpsMethod_t method )
+static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pRespHandle, IotHttpsResponseInfo_t* pRespInfo, _httpsRequest_t* pHttpsRequest )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
@@ -2182,7 +2312,7 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     pHttpsResponse->pHeadersEnd = (uint8_t*)(pHttpsResponse) + pRespInfo->userBuffer.bufferLen;
     pHttpsResponse->pHeadersCur = pHttpsResponse->pHeaders;
 
-    if( isAsync )
+    if( pHttpsRequest->isAsync )
     {
         pHttpsResponse->isAsync = true;
         /* For an asynchronous request the response body is provided by the application in the 
@@ -2191,6 +2321,9 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
         pHttpsResponse->pBody = NULL;
         pHttpsResponse->pBodyCur = NULL;
         pHttpsResponse->pBodyEnd = NULL;
+
+        pHttpsResponse->pCallbacks = pHttpsRequest->pCallbacks;
+        pHttpsResponse->pUserPrivData = pHttpsRequest->pUserPrivData;
     }
     else
     {
@@ -2217,7 +2350,7 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     pHttpsResponse->httpParserInfo.responseParser.data = ( void * )( pHttpsResponse );
 
     pHttpsResponse->status = 0;
-    pHttpsResponse->method = method;
+    pHttpsResponse->method = pHttpsRequest->method;
     pHttpsResponse->parserState = PARSER_STATE_NONE;
     pHttpsResponse->bufferProcessingState = PROCESSING_STATE_NONE;
     pHttpsResponse->pReadHeaderField = NULL;
@@ -2232,6 +2365,9 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
     pHttpsResponse->bodyRxStatus = IOT_HTTPS_OK;
     pHttpsResponse->cancelled = false;
     pHttpsResponse->syncStatus = IOT_HTTPS_OK;
+    /* There is no request associated with this response right now, so it is finished sending. */
+    pHttpsResponse->reqFinishedSending = true;
+    pHttpsResponse->isNonPersistent = pHttpsRequest->isNonPersistent;
 
     /* Set the response handle to return. */
     *pRespHandle  = pHttpsResponse;
@@ -2295,7 +2431,9 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
     _httpsRequest_t* pHttpsRequest = NULL;
-    IotLink_t* pItem = NULL;
+    _httpsResponse_t* pHttpsResponse = NULL;
+    IotLink_t* pRespItem = NULL;
+    IotLink_t* pReqItem = NULL;
 
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( connHandle );
 
@@ -2311,8 +2449,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
     }
 
     /* Do not attempt to disconnect an already disconnected connection.
-    It can happen when a user calls this functions and we return
-    IOT_HTTPS_BUSY. */
+       It can happen when a user calls this functions and we return IOT_HTTPS_BUSY. */
     if( connHandle->isConnected )
     {
         /* Mark the network as disconnected whether the disconnect passes or not. */
@@ -2320,46 +2457,51 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
         _networkDisconnect(connHandle);
     }
 
-    /* If there is a request in the connection's request queue and it has not finished sending, then we cannot
-       destroy the connection until it finishes. */
-    IotMutex_Lock(&(connHandle->reqQMutex));
-    pItem = IotDeQueue_DequeueHead(&(connHandle->reqQ));
-    if(pItem != NULL)
+    /* If there is a response in the connection's response queue and the associated request has not finished sending,
+       then we cannot destroy the connection until it finishes. */
+    IotMutex_Lock(&(connHandle->respQMutex));
+    pRespItem = IotDeQueue_DequeueHead(&(connHandle->respQ));
+    if(pRespItem != NULL)
     {
-        pHttpsRequest = IotLink_Container(_httpsRequest_t, pItem, link);
-        if(pHttpsRequest->reqFinishedSending == false)
+        pHttpsResponse = IotLink_Container(_httpsResponse_t, pRespItem, link);
+        if(pHttpsResponse->reqFinishedSending == false)
         {
             IotLogError("Connection is in use. Disconnected, but cannot destroy the connection.");
             status = IOT_HTTPS_BUSY;
             /* The request is busy, to as quickly as possible allow a successful retry call of this function we must
-               the busy request. */
-            _cancelRequest(pHttpsRequest);
+               cancel the busy request which is the first in the queue. */
+            IotMutex_Lock(&(connHandle->reqQMutex));
+            pReqItem = IotDeQueue_PeekHead(&(connHandle->reqQ));
+            if( pReqItem != NULL)
+            {
+                pHttpsRequest = IotLink_Container(_httpsRequest_t, pReqItem, link);
+                _cancelRequest(pHttpsRequest);
+            }
+            IotMutex_Unlock(&(connHandle->reqQMutex));
             /* We set the status as busy, but we do not goto the cleanup right away because we still want to remove 
                all pending requests. */
         }
 
-        /* Delete all of the other possible pending requests on the connection. */
-        IotDeQueue_RemoveAll(&(connHandle->reqQ), NULL, 0);
+        /* Delete all possible pending responses. (This is defensive.) */
+        IotDeQueue_RemoveAll(&(connHandle->respQ), NULL, 0);
 
-        /* Put the request that was dequeued back so that the application can call this function again to check later 
+        /* Put the response that was dequeued back so that the application can call this function again to check later 
            that is exited and marked itself as finished sending. 
-          If during the last check and this check reqFinishedSending gets set to true, that is OK because then the next
-          time this function is called, there will be no requests in the reqQ. */
-        if(pHttpsRequest->reqFinishedSending == false)
+           If during the last check and this check reqFinishedSending gets set to true, that is OK because then the next */
+        if(pHttpsResponse->reqFinishedSending == false)
         {
-            IotDeQueue_EnqueueHead(&(connHandle->reqQ), pItem);
+            IotDeQueue_EnqueueHead(&(connHandle->respQ), pRespItem);
         }
     }
-    IotMutex_Unlock(&(connHandle->reqQMutex));
+    IotMutex_Unlock(&(connHandle->respQMutex));
 
-    /* Remove all pending responses. The network receive callback dequeues a response then proceeds to use the network 
-       interface to receive the response. If this routine is called from the application context and there is a 
+    /* Remove all pending requests. If this routine is called from the application context and there is a 
        network receive callback in process, this routine will wait in _networkDestroy until that routine returns. 
        If this is routine is called from the network receive callback context, then the destroy happens after the 
        network receive callback context returns. */
-    IotMutex_Lock(&(connHandle->respQMutex));
-    IotDeQueue_RemoveAll(&(connHandle->respQ), NULL, 0);
-    IotMutex_Unlock(&(connHandle->respQMutex ));
+    IotMutex_Lock(&(connHandle->reqQMutex));
+    IotDeQueue_RemoveAll(&(connHandle->reqQ), NULL, 0);
+    IotMutex_Unlock(&(connHandle->reqQMutex ));
 
     /* Do not attempt to destroy an already destroyed connection. This can happen when the user calls this function and
        IOT_HTTPS_BUSY is returned. */
@@ -2508,10 +2650,12 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     pHttpsRequest->method = pReqInfo->method;
     /* Set the connection persistence flag for keeping the connection open after receiving a response. */
     pHttpsRequest->isNonPersistent = pReqInfo->isNonPersistent;
-    /* Initialize the request to not finished sending. */
-    pHttpsRequest->reqFinishedSending = false;
     /* Initialize the request cancellation. */
     pHttpsRequest->cancelled = false;
+    /* Initialize the status of sending the body over the network in a possible asynchronous request. */
+    pHttpsRequest->bodyTxStatus = IOT_HTTPS_OK;
+    /* This is a new request and therefore not scheduled yet. */
+    pHttpsRequest->scheduled = false;
 
     /* Set the request handle to return. */
     *pReqHandle = pHttpsRequest;
@@ -2594,6 +2738,8 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
+    /* Stop the application from scheduling requests on a closed connection. */
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(connHandle->isConnected);
 
     /* If an asynchronous request/response is configured, that is invalid for this API. */
     if(reqHandle->isAsync)
@@ -2603,7 +2749,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
     }
 
     /* Initialize the response handle to return. */
-    status = _initializeResponse(pRespHandle, pRespInfo, false /* Not async */, reqHandle->method);
+    status = _initializeResponse(pRespHandle, pRespInfo, reqHandle);
     if(HTTPS_FAILED(status))
     {
         IotLogError("Failed to initialize the response on the synchronous request %d.", reqHandle);
@@ -2704,7 +2850,21 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
     reqHandle->pBody = (uint8_t*)pBuf;
     reqHandle->bodyLength = len;
 
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+    /* We send the HTTPS headers and body in this function so that the application has the freedom to specify a body 
+       that may be buffer on stack. */ 
+    status = _sendHttpsHeadersAndBody(reqHandle->pHttpsConnection, reqHandle);
+    if(HTTPS_FAILED(status))
+    {
+        IotLogError("Failed to send the headers and body. Error code %d.", status);
+        HTTPS_GOTO_CLEANUP();
+    }
+
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    if(reqHandle != NULL)
+    {
+        reqHandle->bodyTxStatus = status;
+    }
+    HTTPS_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -2744,12 +2904,17 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t re
     if(((respHandle->pBodyEnd - respHandle->pBodyCur) > 0) && (respHandle->parserState < PARSER_STATE_BODY_COMPLETE))
     {
         status = _receiveHttpsBody(respHandle->pHttpsConnection, respHandle );
+        if(HTTPS_FAILED(status))
+        {
+            IotLogError("Failed to receive the HTTP response body on the network. Error code: %d.", status);
+            HTTPS_GOTO_CLEANUP();
+        }
     }
 
     *pLen = respHandle->pBodyCur - respHandle->pBody;
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
-    if( respHandle != NULL )
+    if(respHandle != NULL)
     {
         respHandle->bodyRxStatus = status;
     }
@@ -2792,17 +2957,20 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHan
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(connHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
+    HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
     HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
+    /* Stop the application from scheduling requests on a closed connection. */
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(connHandle->isConnected);
 
     /* Initialize the response handle to return. */
-    status = _initializeResponse(pRespHandle, pRespInfo, true /* Is async. */, reqHandle->method);
+    status = _initializeResponse(pRespHandle, pRespInfo, reqHandle);
     if(HTTPS_FAILED(status))
     {
         IotLogError("Failed to initialize the response on the synchronous request %d.", reqHandle);
         HTTPS_GOTO_CLEANUP();
     }
 
-    /* Set the connection handle in the request handle so that we can use it in the _writeResponseBody() callback. */
+    /* Set the connection handle in the request handle so that we can use it in the _writeRequestBody() callback. */
     reqHandle->pHttpsConnection = connHandle;
 
     /* Set the connection handle in the response handle sp that we can use it in the _readReadyCallback() callback. */
