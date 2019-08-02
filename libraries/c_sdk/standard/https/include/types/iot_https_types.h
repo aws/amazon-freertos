@@ -567,11 +567,15 @@ typedef struct IotHttpsClientCallbacks
      * @brief User-provided callback function signature to indicate that an error occurred during the asynchronous 
      * request process.
      * 
+     * If respHandle is NULL, then reqHandle will not be NULL and vise-versa. This signals which handle the error 
+     * occurred and if it is during the sending or receiving.
+     * 
      * @param[in] pPrivData - User context configured in #IotHttpsAsyncInfo_t.pPrivData
+     * @param[in] respHandle - The handle for the current HTTP response.
      * @param[in] reqHandle - The handle for the current HTTP request.
      * @param[in] rc - A return code indicating any errors before this callback was invoked.
      */
-    void(* errorCallback)(void * pPrivData, IotHttpsRequestHandle_t reqHandle, IotHttpsReturnCode_t rc);
+    void(* errorCallback)(void * pPrivData, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc);
 } IotHttpsClientCallbacks_t;
 
 /**
