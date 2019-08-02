@@ -51,7 +51,7 @@ digraph https_dependencies
 
 Currently, the HTTPS Client library has the following dependencies:
 - The queue library for maintaining of list of pending requests and responses on the connection.
-- The logging library may be used if IOT_LOG_LEVEL_HTTPS is not IOT_LOG_NONE.
+- The logging library may be used if @ref IOT_LOG_LEVEL_HTTPS is not @ref IOT_LOG_NONE.
 - The platform layer provides an interface to the operating system for thread management, clock functions, networking, etc.
 
 In addition to the components above, the HTTPS Client library also depends on C standard library headers.
@@ -335,7 +335,7 @@ This configuration will dictate the header value written to required header fiel
 Log messages from the HTTPS Client library at or below this setting will be printed.
 
 @configpossible One of the @ref logging_constants_levels.<br>
-@configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then #IOT_LOG_NONE.
+@configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then @ref IOT_LOG_NONE.
 
 @section IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE
 @brief The size of a buffer instantiated in stack to flush the socket of the rest of possible unread response.
@@ -355,7 +355,7 @@ Log messages from the HTTPS Client library at or below this setting will be prin
 An array of this length is allocated on stack during @ref https_client_function_connect. 
 
 @configpossible Any positive integer. <br>
-@configrecommended It is recommended that this be less or equal to 255. 255 is the maximum host length according to FQDN.
+@configrecommended It is recommended that this be less or equal to 255. 255 is the maximum host length according to FQDN. <br>
 @configdefault `255`
 
 @section IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
