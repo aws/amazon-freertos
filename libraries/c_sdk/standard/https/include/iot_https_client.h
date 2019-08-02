@@ -317,7 +317,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
  * 
  * @return One of the following:
  * - #IOT_HTTPS_OK if the request line was successfully added to the header space in #IotHttpsRequestInfo_t.userBuffer.
- * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the request line generated exceeds #IotHttpsRequestInfo_t.userBuffer.bufferLen.
+ * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the request line generated exceeds #IotHttpsUserBuffer_t.bufferLen in #IotHttpsRequestInfo_t.userBuffer.
  * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
  * - #IOT_HTTPS_INTERNAL_ERROR for library internal errors.
  * 
@@ -383,7 +383,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
  * IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h. 
  * 
  * For an asynchronous request, this function can be invoked before the request is sent with 
- * @ref https_client_function_sendasync, or during the @ref https_client_function_appendheadercallback. It is 
+ * @ref https_client_function_sendasync, or during #IotHttpsClientCallbacks_t.appendHeaderCallback. It is 
  * recommended to invoke this function in #IotHttpsClientCallbacks_t.appendHeaderCallback.
  * 
  * <b> Asynchronous Example </b>
@@ -441,7 +441,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
 /* @[declare_https_client_addheader] */
 
 /**
- * @brief Set the request body to write to the network for the request represented by reqHandle.
+ * @brief Writes the request body to the network for the request represented by reqHandle.
  * 
  * This function is intended to be used by an asynchronous request. It must be called within the 
  * #IotHttpsClientCallbacks_t.writeCallback.
@@ -477,6 +477,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * - #IOT_HTTPS_MESSAGE_FINISHED if this function is called a second time with the same reqHandle.
  * - #IOT_HTTPS_NOT_SUPPORTED if isComplete is set to 0.
  * - #IOT_HTTPS_INVALID_PARAMETER if this API is used for a synchronous request.
+ * - #IOT_HTTPS_NETWORK_ERROR if there was an error sending the headers or body on the network.
  * - Please see #IotHttpsReturnCode_t for other failure codes.
  */
 /* @[declare_https_client_writerequestbody] */
@@ -850,10 +851,10 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader(IotHttpsResponseHandle_t respHand
  * }
  * @endcode
  * 
- * For a syncrhonous response, to retrieve the response body applications must directly refer to the 
- * #IotHttpsResponseInfo_t.pSyncInfo_t.pBody. Otherwise this function will return an 
- * #IOT_HTTPS_INVALID_PARAMETER error code. This function is intended to read the response entity body from the network 
- * and the synchronous response process handles all of that in @ref https_client_function_sendsync.
+ * For a syncrhonous response, to retrieve the response body applications must directly refer to the memory configured 
+ * to receive the response body: #IotHttpsSyncInfo_t.pBody in #IotHttpsResponseInfo_t.pSyncInfo. Otherwise this function 
+ * will return an #IOT_HTTPS_INVALID_PARAMETER error code. This function is intended to read the response entity body 
+ * from the network and the synchronous response process handles all of that in @ref https_client_function_sendsync.
  * 
  * @param[in] respHandle - Unique handle representing the HTTPS response.
  * @param[out] pBuf - Pointer to the response body memory location. This is not a char* because the body may have binary data.
