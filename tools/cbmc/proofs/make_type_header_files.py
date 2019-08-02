@@ -23,15 +23,28 @@
 # SOFTWARE.
 
 
+import argparse
 import logging
 import os
 import re
 import shutil
 import subprocess
 import sys
-import textwrap
 from tempfile import TemporaryDirectory
 
+def epilog():
+    return """\
+        This program dumps a header file containing the types and macros
+        contained in the C file passed as input. It uses `goto-instrument`
+        from the CBMC tool suite instead of the preprocessor, to dump types
+        and other constructs as well as preprocessor directives.
+
+        This program should be used in cases where types or macros declared
+        for internal use in a C file use are needed to write a test harness
+        or CBMC proof.  The intention is that the build process will run
+        this program to dump the header file, and the proof will #include
+        the header.
+    """
 
 _DEFINE_REGEX_HEADER = re.compile(r"\s*#\s*define\s*([\w]+)")
 
@@ -96,26 +109,54 @@ def make_header_file(goto_binary, fyle, target_folder):
             sys.exit(1)
 
         header = os.path.normpath(os.path.join(tmpdir, header_file))
+        collected = collect_defines(fyle)
+        logging.debug("Dumping the following header file to '%s':\n%s\n"
+                      "// END GENERATED HEADER FILE", header, collected)
         with open(header, "a") as out:
-            print(collect_defines(fyle), file=out)
+            print(collected, file=out)
 
         target_file = os.path.normpath(os.path.join(target_folder, header_file))
         shutil.move(header, target_file)
 
 
-if __name__ == '__main__':
-    logging.basicConfig(
-        format="{script}: %(levelname)s %(message)s".format(
-            script=os.path.basename(__file__)))
+_ARGS = [{
+    "flags": ["--c-file"],
+    "metavar": "F",
+    "help": "source file to extract types and headers from",
+    "required": True
+}, {
+    "flags": ["--binary"],
+    "metavar": "B",
+    "help": "file compiled from the source file with CBMC's goto-cc compiler",
+    "required": True
+}, {
+    "flags": ["--out-dir"],
+    "metavar": "D",
+    "help": ("directory to write the generated header file to "
+             "(default: %(default)s)"),
+    "default": os.path.abspath(os.getcwd()),
+}, {
+    "flags": ["--verbose", "-v"],
+    "help": "verbose output",
+    "action": "store_true"
+}]
 
-    if(len(sys.argv) == 3 or len(sys.argv) == 4):
-        ARG_BINARY = os.path.abspath(os.path.normpath(sys.argv[1]))
-        ARG_C_FILE = os.path.abspath(os.path.normpath(sys.argv[2]))
-        ARG_TARGET_FOLDER = os.path.abspath(os.getcwd())
-        if len(sys.argv) == 4:
-            ARG_TARGET_FOLDER = sys.argv[3]
-        make_header_file(ARG_BINARY, ARG_C_FILE, ARG_TARGET_FOLDER)
+
+if __name__ == '__main__':
+    pars = argparse.ArgumentParser(
+        epilog=epilog(),
+        description="Dump a C file's types and macros to a separate file")
+    for arg in _ARGS:
+        flags = arg.pop("flags")
+        pars.add_argument(*flags, **arg)
+
+    args = pars.parse_args()
+
+    fmt = "{script}: %(levelname)s %(message)s".format(
+        script=os.path.basename(__file__))
+    if args.verbose:
+        logging.basicConfig(format=fmt, level=logging.DEBUG)
     else:
-        print(textwrap.dedent("""\
-            Expected invocation:
-                make_type_header_files.py binary c-file [target_folder]"""))
+        logging.basicConfig(format=fmt, level=logging.INFO)
+
+    make_header_file(args.binary, args.c_file, args.out_dir)
