@@ -63,6 +63,10 @@ In addition to the components above, the HTTPS Client library also depends on C 
 
 The HTTPS Client library will invoke a task pool worker to send a request. It will then receive the response during the network receive callback context. If there are more requests in the connection's request queue, it will schedule another task pool worker to send that request.
 
+@section Synchronous_Design
+@image html https_client_sync_workflow.png width=100%
+
+@section Asynchronous_Design
 @image html https_client_async_workflow.png width=100%
 */
 
@@ -131,10 +135,68 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         Please see https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/ for more information.  
     </li>
     <li>
-        Paste your RSA-2048 or ECC-P256 keys into aws_clientcredential_keys.h. This is needed to for the TLS handshake with the AWS S3 HTTP Server.  
+        Paste your RSA-2048 or ECC-P256 keys into [aws_clientcredential_keys.h](https://github.com/aws/amazon-freertos/blob/master/demos/include/aws_clientcredential_keys.h). This is needed to for the TLS handshake with the AWS S3 HTTP Server.  
     </li>
     <li>
-        Enable either the Synchronous download demo or the Asynchronous download demo by defining either CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED or CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:  
+        Enable the <b>Synchronous download demo</b> by defining @ref CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:
+        \code
+        /* To run a particular demo you need to define one of these.
+        * Only one demo can be configured at a time
+        *
+        *          CONFIG_MQTT_DEMO_ENABLED
+        *          CONFIG_SHADOW_DEMO_ENABLED
+        *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
+        *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
+        *          CONFIG_DEFENDER_DEMO_ENABLED
+        *          CONFIG_POSIX_DEMO_ENABLED
+        *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+        *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+        *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+        *
+        *  These defines are used in iot_demo_runner.h for demo selection */
+
+        #define CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+        \endcode
+    </li>
+    <li>
+        See @ref building_demo for instructions on building the demo.  
+        A successful output looks like this:
+        \code
+        11 558 [iot_thread] [INFO ][INIT][557] SDK successfully initialized.
+        12 558 [iot_thread] [INFO ][DEMO][558] Successfully initialized the demo. Network type for the demo: 4
+        13 558 [iot_thread] [INFO ][DEMO][558] S3 Download demo using pre-signed URL: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+        14 2880 [NetRecv] [ERROR][NET][2880] Error 0 while receiving data.
+        15 2880 [NetRecv] [WARN ][NET][2880] Receive requested 760 bytes, but 400 bytes received instead.
+        16 2880 [iot_thread] [INFO ][DEMO][2880] Now requesting Range: bytes=0-511.
+        17 2920 [iot_thread] [INFO ][DEMO][2920] Response return code: 206
+        18 2920 [iot_thread] [INFO ][DEMO][2920] Response Body:
+        Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.
+
+        Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altoge
+        19 2920 [iot_thread] [INFO ][DEMO][2920] Downloaded 512/1517
+        20 2920 [iot_thread] [INFO ][DEMO][2920] Now requesting Range: bytes=512-1023.
+        21 2979 [iot_thread] [INFO ][DEMO][2979] Response return code: 206
+        22 2979 [iot_thread] [INFO ][DEMO][2979] Response Body:
+        ther fitting and proper that we should do this.
+
+        But, in a larger sense, we can not dedicate -- we can not consecrate -- we can not hallow -- this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly adv
+        23 2979 [iot_thread] [INFO ][DEMO][2979] Downloaded 1024/1517
+        24 2979 [iot_thread] [INFO ][DEMO][2979] Now requesting Range: bytes=1024-1516.
+        25 5019 [NetRecv] [ERROR][NET][5019] Error 0 while receiving data.
+        26 5019 [NetRecv] [WARN ][NET][5019] Receive requested 159 bytes, but 140 bytes received instead.
+        27 5019 [iot_thread] [INFO ][DEMO][5019] Response return code: 206
+        28 5019 [iot_thread] [INFO ][DEMO][5019] Response Body:
+        anced. It is rather for us to be here dedicated to the great task remaining before us -- that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion -- that we here highly resolve that these dead shall not have died in vain -- that this nation, under God, shall have a new birth of freedom -- and that government of the people, by the people, for the people, shall not perish from the earth.
+
+        Abraham Lincoln
+        November 19, 1863
+        29 5019 [iot_thread] [INFO ][DEMO][5019] Downloaded 1517/1517
+        30 5058 [iot_thread] [INFO ][DEMO][5058] Demo completed successfully.
+        31 5060 [iot_thread] [INFO ][INIT][5060] SDK cleanup done.
+        \endcode
+    </li>
+    <li>
+        Enable the <b>Asynchronous download demo</b> by defining either @ref CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:  
         \code
         /* To run a particular demo you need to define one of these.
         * Only one demo can be configured at a time
@@ -198,11 +260,12 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         37 5179 [iot_thread] [INFO ][INIT][5179] SDK cleanup done.
         \endcode
           
-        Note:  
-        Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br>
-        "[NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the buffer.
     </li>
 </ol>
+
+Note:  
+    Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br>
+    "[NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the header buffer or body buffer.
 
 */
 
@@ -274,7 +337,9 @@ Size in bytes of the buffer used to store the response body (parts of it). This 
 @configdefault `512`
 
 
-<h1> iot_demo_https_s3_download_async.c specific configurations: </h1> 
+<h1> Asynchronous Download Demo specific configurations:  </h1> 
+These configurations apply only to [iot_demo_https_s3_download_async.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_async.c).
+
 @section IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS
 @brief The maximum number of inflight asynchronous requests. 
 
