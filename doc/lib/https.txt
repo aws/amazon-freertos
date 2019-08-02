@@ -63,11 +63,14 @@ In addition to the components above, the HTTPS Client library also depends on C 
 
 The HTTPS Client library will invoke a task pool worker to send a request. It will then receive the response during the network receive callback context. If there are more requests in the connection's request queue, it will schedule another task pool worker to send that request.
 
-@section Synchronous_Design
+@section Synchronous_Design Synchronous Design
 @image html https_client_sync_workflow.png width=100%
 
-@section Asynchronous_Design
+@section Asynchronous_Design Asynchronous Design
 @image html https_client_async_workflow.png width=100%
+
+@section Asynchronous_Callback_Order Asynchronous Callbacks Ordering
+@image html https_client_async_callback_order.png width=100%
 */
 
 /**
@@ -278,7 +281,7 @@ Note:
 
 This is generated using the script demos/https/presigned_url_gen.py. demos/https/README.md explains how to use the script.
 
-@configpossible Presigned URL of the form: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D. <br>
+@configpossible Presigned URL of the form: `https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D`. <br>
 @configdefault `"Please configure a presigned GET URL in iot_config.h."`
 
 @section IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
