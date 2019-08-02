@@ -37,10 +37,9 @@
 
 IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t* pRespHandle, 
                                                       IotHttpsResponseInfo_t* pRespInfo, 
-                                                      bool isAsync, 
-                                                      IotHttpsMethod_t method )
+                                                      IotHttpsRequestHandle_t reqHandle )
 {
-    return _initializeResponse( pRespHandle, pRespInfo, isAsync, method );
+    return _initializeResponse( pRespHandle, pRespInfo, reqHandle );
 }
 
 /*-----------------------------------------------------------*/
