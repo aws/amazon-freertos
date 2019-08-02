@@ -599,7 +599,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 
     if( CKR_OK != xResult )
     {
-        TLS_PRINT( ( "ERROR: Loading credentials from flash into TLS context failed with error %d.\r\n", xResult ) );
+        TLS_PRINT( ( "ERROR: Loading credentials into TLS context failed with error %d.\r\n", xResult ) );
     }
 
     return xResult;
