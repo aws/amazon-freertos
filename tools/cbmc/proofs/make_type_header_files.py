@@ -21,6 +21,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+
+
 import logging
 import os
 import re
@@ -30,21 +32,24 @@ import sys
 import textwrap
 from tempfile import TemporaryDirectory
 
-DEFINE_REGEX_HEADER = re.compile(r"\s*#\s*define\s*([\w]+)")
 
-def get_module_name(file):
-    base = os.path.basename(file)
+_DEFINE_REGEX_HEADER = re.compile(r"\s*#\s*define\s*([\w]+)")
+
+
+def get_module_name(fyle):
+    base = os.path.basename(fyle)
     return base.split(".")[0]
 
-def collect_defines(file):
+
+def collect_defines(fyle):
     collector_result = ""
-    with open(file, "r") as in_file:
-        continue_define = False
-        in_potential_def_scope = ""
-        potential_define = False
-        potential_define_confirmed = False
+    continue_define = False
+    in_potential_def_scope = ""
+    potential_define = False
+    potential_define_confirmed = False
+    with open(fyle) as in_file:
         for line in in_file:
-            matched = DEFINE_REGEX_HEADER.match(line)
+            matched = _DEFINE_REGEX_HEADER.match(line)
             if line.strip().startswith("#if"):
                 potential_define = True
                 in_potential_def_scope += line
@@ -66,10 +71,10 @@ def collect_defines(file):
     return collector_result
 
 
-def make_header_file(goto_binary, file, target_folder):
-    file = os.path.normpath(file)
+def make_header_file(goto_binary, fyle, target_folder):
+    fyle = os.path.normpath(fyle)
     with TemporaryDirectory() as tmpdir:
-        module = get_module_name(file)
+        module = get_module_name(fyle)
         header_file = "{}_datastructure.h".format(module)
 
         drop_header_cmd = ["goto-instrument",
@@ -80,30 +85,29 @@ def make_header_file(goto_binary, file, target_folder):
         res = subprocess.run(drop_header_cmd,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
-                             check=False,
-                             universal_newlines=True,
-                             cwd=tmpdir,
-                             shell=False)
+                             text=True,
+                             cwd=tmpdir)
         if res.returncode:
-            logging.basicConfig(
-                format="{script}: %(levelname)s %(message)s".format(
-                    script=os.path.basename(__file__)))
-            logging.error("Processing for file: %s failed", file)
-            logging.error("The command %s resulted with: %s",
+            logging.error("Dumping type header for file '%s' failed", fyle)
+            logging.error("The command `%s` returned %s",
                           drop_header_cmd,
                           res.stdout)
-            logging.error("The returncode is: %s", res.returncode)
+            logging.error("The return code is %d", int(res.returncode))
             sys.exit(1)
 
         header = os.path.normpath(os.path.join(tmpdir, header_file))
         with open(header, "a") as out:
-            print(collect_defines(file), file=out)
+            print(collect_defines(fyle), file=out)
 
         target_file = os.path.normpath(os.path.join(target_folder, header_file))
         shutil.move(header, target_file)
 
 
 if __name__ == '__main__':
+    logging.basicConfig(
+        format="{script}: %(levelname)s %(message)s".format(
+            script=os.path.basename(__file__)))
+
     if(len(sys.argv) == 3 or len(sys.argv) == 4):
         ARG_BINARY = os.path.abspath(os.path.normpath(sys.argv[1]))
         ARG_C_FILE = os.path.abspath(os.path.normpath(sys.argv[2]))
