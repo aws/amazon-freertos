@@ -257,41 +257,151 @@ typedef struct _httpsResponse *IotHttpsResponseHandle_t;
  */
 typedef enum IotHttpsReturnCode
 {
+    /**
+     * @brief Returned for a successful operation.
+     */
     IOT_HTTPS_OK = 0,
 
-    /* input/output related */
+    /**
+     * @brief An invalid parameter was passed into an API function.
+     */
     IOT_HTTPS_INVALID_PARAMETER = 101,
+
+    /**
+     * @brief Invalid payload.
+     */
     IOT_HTTPS_INVALID_PAYLOAD = 102,
+
+    /**
+     * @brief HTTPS message was too large to fit into a configured synchronous body buffer.
+     */
     IOT_HTTPS_MESSAGE_TOO_LARGE = 103,
+
+    /**
+     * @brief Overflow occurred somewhere.
+     */
     IOT_HTTPS_OVERFLOW = 104,
+
+    /**
+     * @brief A buffer provided could not hold data required by the library.
+     */
     IOT_HTTPS_INSUFFICIENT_MEMORY = 105,
+
+    /**
+     * @brief Queue full.
+     */
     IOT_HTTPS_QUEUE_FULL = 106,
+
+    /**
+     * @brief Operation retry.
+     */
     IOT_HTTPS_RETRY = 107,
+
+    /**
+     * @brief Could not find an item specified by an API.
+     * 
+     * Returned for not being able to find the address in a URL, the path in a URL, or a header field from the response 
+     * headers.
+     */
     IOT_HTTPS_NOT_FOUND = 108,
+
+    /**
+     * @brief The HTTP request message was finished being written and we cannot write more with @ref https_client_function_writerequestbody.
+     */
     IOT_HTTPS_MESSAGE_FINISHED = 109,
 
-    /* internal error  */
+    /**
+     * @brief An error occurred internally to the library.
+     */
     IOT_HTTPS_INTERNAL_ERROR = 201,
+
+    /**
+     * @brief A network error occurred.
+     */
     IOT_HTTPS_NETWORK_ERROR = 202,
+
+    /**
+     * @brief A network connection error occurred.
+     */
     IOT_HTTPS_CONNECTION_ERROR = 203,
+
+    /**
+     * @brief A stream error occurred. 
+     */
     IOT_HTTPS_STREAM_ERROR = 204,
+
+    /**
+     * @brief An authentication error occurred.
+     */
     IOT_HTTPS_AUTHENTICATION_ERROR = 205,
+
+    /**
+     * @brief A TLS error occurred.
+     */
     IOT_HTTPS_TLS_ERROR = 206,
+
+    /**
+     * @brief An error occurred during the user callback.
+     */
     IOT_HTTPS_USER_CALLBACK_ERROR = 207,
+
+    /**
+     * @brief The synchronous response could not be received in the specified timeout in @ref https_client_function_sendsync.
+     */
     IOT_HTTPS_TIMEOUT_ERROR = 208,
+
+    /**
+     * @brief An error in the HTTP protocol.
+     */
     IOT_HTTPS_PROTOCOL_ERROR = 209,
+
+    /**
+     * @brief The HTTPS request send was cancelled.
+     */
     IOT_HTTPS_SEND_ABORT = 210,
+
+    /**
+     * @brief The HTTPS response receiving was cancelled.
+     */
     IOT_HTTPS_RECEIVE_ABORT = 211,
+
+    /**
+     * @brief The asynchronous request had an error being scheduled.
+     */
     IOT_HTTPS_ASYNC_SCHEDULING_ERROR = 212,
+
+    /**
+     * @brief There was an error parsing the HTTP response.
+     */
     IOT_HTTPS_PARSING_ERROR = 213,
 
-    /* other */
+    /**
+     * @brief Fatal HTTP library error.
+     */
     IOT_HTTPS_FATAL = 901,
+
+    /**
+     * @brief The connection is busy and cannot be cleaned up.
+     * 
+     * The connection was closed, but @ref https_client_function_disconnect must be called again to cleanup connection
+     * resources.
+     */
     IOT_HTTPS_BUSY = 902,
+
+    /**
+     * @brief Try again.
+     */
     IOT_HTTPS_TRY_AGAIN = 903,
+
+    /**
+     * @brief Data exists.
+     */
     IOT_HTTPS_DATA_EXIST = 904,
-    IOT_HTTPS_NOT_SUPPORTED = 905,
-    IOT_HTTPS_ASYNC_CANCELLED = 906
+
+    /**
+     * @brief The operation on the public API is not supported.
+     */
+    IOT_HTTPS_NOT_SUPPORTED = 905
 } IotHttpsReturnCode_t;
 
 /**
@@ -660,7 +770,7 @@ typedef struct IotHttpsRequestInfo
      * @brief Application owned buffer for storing the request headers and internal request context.
      *
      * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
-     * freed, or reused until the the #IotHttpCallbacks_t.responseCompleteCallback is invoked.
+     * freed, or reused until the the #IotHttpsCallbacks_t.responseCompleteCallback is invoked.
      *
      * Please see #IotHttpsUserBuffer_t for more information.
      */
