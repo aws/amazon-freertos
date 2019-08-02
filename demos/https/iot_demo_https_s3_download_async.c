@@ -492,7 +492,7 @@ static void _connectionClosedCallback(void * pPrivData, IotHttpsConnectionHandle
  * @param[in] reqHandle - Identifier for the request.
  * @param[in] rc - Return code from the HTTPS Client Library of the error.
  */
-static void _errorCallback(void * pPrivData, IotHttpsRequestHandle_t reqHandle, IotHttpsReturnCode_t rc)
+static void _errorCallback(void * pPrivData, IotHttpsRequestHandle_t reqHandle, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc)
 {
     ( void )reqHandle;
     char * rangeValueStr = ((_asyncDownloadData_t*)(pPrivData))->rangeValueStr;
