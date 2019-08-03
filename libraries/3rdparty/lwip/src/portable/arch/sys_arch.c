@@ -195,6 +195,17 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     return xReturn;
 }
 
+err_t sys_mbox_trypost_fromisr( sys_mbox_t *pxMailBox, void *pxMessageToPost )
+{
+    err_t xReturn;
+
+    xInsideISR = pdTRUE;
+    xReturn = sys_mbox_trypost( pxMailBox, pxMessageToPost );
+    xInsideISR = pdFALSE;
+
+    return xReturn;
+}
+
 /*---------------------------------------------------------------------------*
  * Routine:  sys_arch_mbox_fetch
  *---------------------------------------------------------------------------*
