@@ -116,6 +116,18 @@ PACK_STRUCT_END
 #define LL_IP6_MULTICAST_ADDR_0 0x33
 #define LL_IP6_MULTICAST_ADDR_1 0x33
 
+/** MEMCPY-like macro to copy to/from struct eth_addr's that are local variables
+ * or known to be 32-bit aligned within the protocol header. */
+#ifndef ETHADDR32_COPY
+#define ETHADDR32_COPY(dst, src)  SMEMCPY(dst, src, ETH_HWADDR_LEN)
+#endif
+
+/** MEMCPY-like macro to copy to/from struct eth_addr's that are no local
+ * variables and known to be 16-bit aligned within the protocol header. */
+#ifndef ETHADDR16_COPY
+#define ETHADDR16_COPY(dst, src)  SMEMCPY(dst, src, ETH_HWADDR_LEN)
+#endif
+
 #define eth_addr_cmp(addr1, addr2) (memcmp((addr1)->addr, (addr2)->addr, ETH_HWADDR_LEN) == 0)
 
 #ifdef __cplusplus
