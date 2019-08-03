@@ -153,10 +153,6 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
     uint32_t len;
     pResponseHandle->pBody = malloc(len);
     pResponseHandle->pHttpsConnection = newIotConnectionHandle();
-    pResponseHandle->pHttpsRequest = safeMalloc(sizeof(_reqHandle_t));
-    if(pResponseHandle->pHttpsRequest) {
-      pResponseHandle->pHttpsRequest->pHttpsResponse = pResponseHandle;
-    }
     pResponseHandle->pHeaders = ((_resHandle_t*)pResponseHandle)->data;
     pResponseHandle->pHeadersCur = pResponseHandle->pHeaders;
     pResponseHandle->pHeadersEnd = pResponseHandle->pHeaders + sizeof(((_resHandle_t*)pResponseHandle)->data);
