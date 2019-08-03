@@ -52,7 +52,7 @@ struct sys_mbox {
 typedef struct sys_mbox sys_mbox_t;
 
 #define sys_mbox_valid( x ) ( ( ( ( x ) == NULL ) || ( ( x )->xMbox == NULL ) ) ? pdFALSE : pdTRUE )
-#define sys_mbox_set_invalid( x ) ( ( ( x ) != NULL ) && ( ( x )->xMbox = NULL ) && ( ( x )->xTask = NULL ) )
+#define sys_mbox_set_invalid( x ) do { if ( ( x ) != NULL ) { ( x )->xMbox = NULL; ( x )->xTask = NULL; } } while ( 0 )
 #define sys_sem_valid( x ) ( ( ( *x ) == NULL) ? pdFALSE : pdTRUE )
 #define sys_sem_set_invalid( x ) ( ( *x ) = NULL )
 

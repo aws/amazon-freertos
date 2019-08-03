@@ -26,6 +26,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#define LWIP_NO_UNISTD_H  1
+
 /* Unity includes for testing. */
 #include "unity_internals.h"
 
