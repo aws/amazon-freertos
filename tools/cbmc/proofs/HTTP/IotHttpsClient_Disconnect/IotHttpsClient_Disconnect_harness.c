@@ -12,14 +12,12 @@
 void harness() {
   IotHttpsConnectionHandle_t connHandle = newIotConnectionHandle();
   if(connHandle) {
-  /* This is done to insert two elements in reqQ and get coverage in IotHttpsClient_Disconnect. */
-  	_httpsRequest_t * p1Req = malloc(sizeof(_httpsRequest_t));
-  	p1Req->pHttpsResponse = malloc(sizeof(_httpsResponse_t));
-  	_httpsRequest_t * p2Req = malloc(sizeof(_httpsRequest_t));
-  	p2Req->pHttpsResponse = malloc(sizeof(_httpsResponse_t));
-  /* This function inserts an element in the reqQ.*/
-  	IotDeQueue_EnqueueTail(&(connHandle->reqQ), &(p1Req->link));
-  	IotDeQueue_EnqueueTail(&(connHandle->reqQ), &(p2Req->link));
+  /* This is done to insert two elements in respQ and get coverage in IotHttpsClient_Disconnect. */
+  	_httpsResponse_t * p1Resp = malloc(sizeof(_httpsResponse_t));
+  	_httpsResponse_t * p2Resp = malloc(sizeof(_httpsResponse_t));
+  /* This function inserts an element in the respQ.*/
+  	IotDeQueue_EnqueueTail(&(connHandle->respQ), &(p1Resp->link));
+  	IotDeQueue_EnqueueTail(&(connHandle->respQ), &(p2Resp->link));
   }
   IotHttpsClient_Disconnect(connHandle);
 }
