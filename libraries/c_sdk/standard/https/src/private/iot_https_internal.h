@@ -442,7 +442,7 @@ typedef struct _httpsResponse
     bool isAsync;           /**< @brief This is set to true if this response is to be retrieved asynchronously. Set to false otherwise. */
     uint8_t * pBodyInHeaderBuf;     /**< @brief Pointer to the start of body inside the header buffer for copying to a body buffer provided later by the asyncrhonous response process. */
     uint8_t * pBodyCurInHeaderBuf;  /**< @brief Pointer to the next location to write body data during processing of the header buffer. This is necessary in case there is a chunk encoded HTTP response. */
-    IotHttpsReturnCode_t bodyRxStatus;  /**< @brief The status of the receiving the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.readReadyCallback(). */
+    IotHttpsReturnCode_t bodyRxStatus;  /**< @brief The status of network receiving the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.readReadyCallback. */
     bool cancelled;         /**< @brief This is set to true to stop the request/response processing in the asynchronous request workflow. */
     IotSemaphore_t respFinishedSem;     /**< @brief This is for synchronous response to post that is finished being received. It is better to use a task event signal, but that is not implemented yet in the iot_threads.h API. */
     IotHttpsReturnCode_t syncStatus;    /**< @brief The status of the synchronous response. */
@@ -479,6 +479,7 @@ typedef struct _httpsRequest
     void * pUserPrivData;   /**< @brief User private data to hand back in the asynchronous callbacks for context. */
     IotHttpsClientCallbacks_t* pCallbacks;   /**< @brief Pointer to the asynchronous request callbacks. */
     bool cancelled;         /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
+    IotHttpsReturnCode_t bodyTxStatus;      /**< @brief The status of network sending the HTTPS body to be returned during the #IotHttpsClientCallback_t.writeCallack. */
 } _httpsRequest_t;
 
 /*-----------------------------------------------------------*/
