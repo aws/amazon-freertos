@@ -1941,6 +1941,12 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         pHttpsRequest->pCallbacks->writeCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
     }
 
+    if(pHttpsRequest->cancelled == true)
+    {
+        IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
+        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
+    }
+
     /* Send the HTTP headers. */
     status = _sendHttpsHeaders(pHttpsConnection,
         pHttpsRequest->pHeaders,
@@ -1961,12 +1967,6 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
             IotLogError("Error sending final HTTPS body. Return code: %d", status);
             HTTPS_GOTO_CLEANUP(); 
         }
-    }
-
-    if(pHttpsRequest->cancelled == true)
-    {
-        IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
-        HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
     }
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
@@ -2020,6 +2020,13 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         if(pHttpsRequest->isAsync == false)
         {
             IotSemaphore_Post( &(pHttpsResponse->respFinishedSem));
+        }
+
+        /* Call the response complete callback. We always call this even if we did not receive the response to 
+           let the application know that the request has completed. */
+        if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->responseCompleteCallback)
+        {   
+            pHttpsRequest->pCallbacks->responseCompleteCallback(pHttpsRequest->pUserPrivData, NULL, status, 0);
         }
     }
 }
