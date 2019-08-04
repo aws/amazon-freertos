@@ -581,6 +581,16 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t* pResp
  */
 static void _incrementNextLocationToWriteBeyondParsed(uint8_t **pBufCur, uint8_t **pBufEnd);
 
+/**
+ * @brief Send the HTTPS headers and body referenced in pHttpsRequest.
+ * 
+ * Sends both the headers and body over the network.
+ * 
+ * @param[in] pHttpsConnection - HTTPS connection context.
+ * @param[in] pHttpsRequest - HTTPS request context.
+ */
+static IotHttpsReturnCode_t _sendHttpsHeadersAndBody(_httpsConnection_t* pHttpsConnection, _httpsRequest_t* pHttpsRequest);
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -963,7 +973,6 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
     _httpsConnection_t* pHttpsConnection = ( _httpsConnection_t* )pReceiveContext;
     _httpsResponse_t* pCurrentHttpsResponse = NULL;
     _httpsResponse_t* pNextHttpsResponse = NULL;
-    _httpsRequest_t* pCurrentHttpsRequest = NULL;
     _httpsRequest_t* pNextHttpsRequest = NULL;
     IotLink_t * pQItem = NULL;
     bool fatalDisconnect = false; 
@@ -1890,6 +1899,37 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t* pHttpsCo
 
 /*-----------------------------------------------------------*/
 
+static IotHttpsReturnCode_t _sendHttpsHeadersAndBody(_httpsConnection_t* pHttpsConnection, _httpsRequest_t* pHttpsRequest)
+{
+    HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    /* Send the HTTP headers. */
+    status = _sendHttpsHeaders(pHttpsConnection,
+        pHttpsRequest->pHeaders,
+        pHttpsRequest->pHeadersCur - pHttpsRequest->pHeaders,
+        pHttpsRequest->isNonPersistent,
+        pHttpsRequest->bodyLength);
+    if( HTTPS_FAILED(status) )
+    {
+        IotLogError("Error sending the HTTPS headers with error code: %d", status);
+        HTTPS_GOTO_CLEANUP(); 
+    }
+
+    if((pHttpsRequest->pBody != NULL) && (pHttpsRequest->bodyLength > 0))
+    {
+        status = _sendHttpsBody( pHttpsConnection, pHttpsRequest->pBody, pHttpsRequest->bodyLength);
+        if( HTTPS_FAILED(status) )
+        {
+            IotLogError("Error sending final HTTPS body. Return code: %d", status);
+            HTTPS_GOTO_CLEANUP(); 
+        }
+    }
+
+    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+}
+
+/*-----------------------------------------------------------*/
+
 static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, void * pUserContext )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
@@ -1941,31 +1981,31 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
         pHttpsRequest->pCallbacks->writeCallback(pHttpsRequest->pUserPrivData, pHttpsRequest);
     }
 
+    if(HTTPS_FAILED(pHttpsRequest->bodyTxStatus))
+    {
+        IotLogError("Failed to send the headers and body over the network during the writeCallback. Error code: %d.", status);
+        HTTPS_SET_AND_GOTO_CLEANUP( pHttpsRequest->bodyTxStatus );
+    }
+
     if(pHttpsRequest->cancelled == true)
     {
         IotLogDebug("Request ID: %d was cancelled.", pHttpsRequest );
         HTTPS_SET_AND_GOTO_CLEANUP(IOT_HTTPS_SEND_ABORT);
     }
 
-    /* Send the HTTP headers. */
-    status = _sendHttpsHeaders(pHttpsConnection,
-        pHttpsRequest->pHeaders,
-        pHttpsRequest->pHeadersCur - pHttpsRequest->pHeaders,
-        pHttpsRequest->isNonPersistent,
-        pHttpsRequest->bodyLength);
-    if( HTTPS_FAILED(status) )
+    /* If this is a synchronous request then the header and body were configured beforehand. The header and body
+       are sent now. For an asynchronous request, the header and body are sent in IotHttpsClient_WriteRequestBody()
+       which is to be invoked in #IotHttpsClientCallbacks_t.writeCallback(). If the application never invokes 
+       IotHttpsClient_WriteRequestBody(), then pHttpsRequest->pBody will be NULL. In this case we still want to 
+       send whatever headers we have.  */
+    if( ( pHttpsRequest->isAsync == false ) || 
+        ( ( pHttpsRequest->isAsync ) && ( pHttpsRequest->pBody == NULL ) ) )
     {
-        IotLogError("Error sending the HTTPS headers with error code: %d", status);
-        IOT_SET_AND_GOTO_CLEANUP(status);
-    }
-
-    if((pHttpsRequest->pBody != NULL) && (pHttpsRequest->bodyLength > 0))
-    {
-        status = _sendHttpsBody( pHttpsConnection, pHttpsRequest->pBody, pHttpsRequest->bodyLength);
-        if( HTTPS_FAILED(status) )
+        status = _sendHttpsHeadersAndBody(pHttpsConnection, pHttpsRequest);
+        if(HTTPS_FAILED(status))
         {
-            IotLogError("Error sending final HTTPS body. Return code: %d", status);
-            HTTPS_GOTO_CLEANUP(); 
+            IotLogError("Failed to send the headers and body on the network. Error code: %d", status);
+            HTTPS_GOTO_CLEANUP();
         }
     }
 
@@ -2518,6 +2558,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     pHttpsRequest->isNonPersistent = pReqInfo->isNonPersistent;
     /* Initialize the request cancellation. */
     pHttpsRequest->cancelled = false;
+    /* Initialize the status of sending the body over the network in a possible asynchronous request. */
+    pHttpsRequest->bodyTxStatus = IOT_HTTPS_OK;
 
     /* Set the request handle to return. */
     *pReqHandle = pHttpsRequest;
@@ -2710,7 +2752,21 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody(IotHttpsRequestHandle_t req
     reqHandle->pBody = (uint8_t*)pBuf;
     reqHandle->bodyLength = len;
 
-    HTTPS_FUNCTION_EXIT_NO_CLEANUP();
+    /* We send the HTTPS headers and body in this function so that the application has the freedom to specify a body 
+       that may be buffer on stack. */ 
+    status = _sendHttpsHeadersAndBody(reqHandle->pHttpsConnection, reqHandle);
+    if(HTTPS_FAILED(status))
+    {
+        IotLogError("Failed to send the headers and body. Error code %d.", status);
+        HTTPS_GOTO_CLEANUP();
+    }
+
+    HTTPS_FUNCTION_CLEANUP_BEGIN();
+    if(reqHandle != NULL)
+    {
+        reqHandle->bodyTxStatus = status;
+    }
+    HTTPS_FUNCTION_CLEANUP_END();
 }
 
 /*-----------------------------------------------------------*/
@@ -2750,12 +2806,17 @@ IotHttpsReturnCode_t IotHttpsClient_ReadResponseBody(IotHttpsResponseHandle_t re
     if(((respHandle->pBodyEnd - respHandle->pBodyCur) > 0) && (respHandle->parserState < PARSER_STATE_BODY_COMPLETE))
     {
         status = _receiveHttpsBody(respHandle->pHttpsConnection, respHandle );
+        if(HTTPS_FAILED(status))
+        {
+            IotLogError("Failed to receive the HTTP response body on the network. Error code: %d.", status);
+            HTTPS_GOTO_CLEANUP();
+        }
     }
 
     *pLen = respHandle->pBodyCur - respHandle->pBody;
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
-    if( respHandle != NULL )
+    if(respHandle != NULL)
     {
         respHandle->bodyRxStatus = status;
     }
@@ -2809,7 +2870,7 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHan
         HTTPS_GOTO_CLEANUP();
     }
 
-    /* Set the connection handle in the request handle so that we can use it in the _writeResponseBody() callback. */
+    /* Set the connection handle in the request handle so that we can use it in the _writeRequestBody() callback. */
     reqHandle->pHttpsConnection = connHandle;
 
     /* Set the connection handle in the response handle sp that we can use it in the _readReadyCallback() callback. */

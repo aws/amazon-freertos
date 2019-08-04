@@ -441,7 +441,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
 /* @[declare_https_client_addheader] */
 
 /**
- * @brief Set the request body to write to the network for the request represented by reqHandle.
+ * @brief Writes the request body to the network for the request represented by reqHandle.
  * 
  * This function is intended to be used by an asynchronous request. It must be called within the 
  * #IotHttpsClientCallbacks_t.writeCallback.
@@ -477,6 +477,7 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader(IotHttpsRequestHandle_t reqHandle,
  * - #IOT_HTTPS_MESSAGE_FINISHED if this function is called a second time with the same reqHandle.
  * - #IOT_HTTPS_NOT_SUPPORTED if isComplete is set to 0.
  * - #IOT_HTTPS_INVALID_PARAMETER if this API is used for a synchronous request.
+ * - #IOT_HTTPS_NETWORK_ERROR if there was an error sending the headers or body on the network.
  * - Please see #IotHttpsReturnCode_t for other failure codes.
  */
 /* @[declare_https_client_writerequestbody] */
