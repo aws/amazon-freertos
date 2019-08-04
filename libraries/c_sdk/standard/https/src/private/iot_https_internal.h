@@ -426,13 +426,13 @@ typedef struct _httpsResponse
     uint8_t * pBody;            /**< @brief Pointer to the start of the body buffer. */
     uint8_t * pBodyEnd;         /**< @brief Pointer to the end of the body buffer. */
     uint8_t * pBodyCur;         /**< @brief Pointer to the next location to write in the body buffer. */
-    _httpParserInfo_t httpParserInfo;    /** @brief Third party http-parser information. */
+    _httpParserInfo_t httpParserInfo;    /**< @brief Third party http-parser information. */
     uint16_t status;            /**< @brief The HTTP response status code of this response. */
     IotHttpsMethod_t method;    /**< @brief The method of the originating request. */
     IotHttpsResponseParserState_t parserState;  /**< @brief The current state of the parser. See #IotHttpsResponseParserState_t documentation for more details. */
     IotHttpsResponseBufferState_t bufferProcessingState;    /**< @brief Which buffer is currently being processed and for what. See #IotHttpsResponseBufferState_t documentation. */
     char * pReadHeaderField;    /**< @brief Header field that we want to read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
-    size_t readHeaderFieldLength;   /** @brief Length of pReadHeaderField */
+    size_t readHeaderFieldLength;   /**< @brief Length of pReadHeaderField */
     char * pReadHeaderValue;    /**< @brief Header value that we read from the headers buffer when IotHttpsClient_ReadHeader() is called. */
     size_t readHeaderValueLength;   /**< @brief Length of pReadHeaderValue. */
     bool foundHeaderField;  /**< @brief State to use during parsing to let us know when we found the header field in the https-parser callbacks. 
@@ -456,7 +456,7 @@ typedef struct _httpsResponse
     bool reqFinishedSending;
     IotHttpsClientCallbacks_t* pCallbacks;   /**< @brief Pointer to the asynchronous request callbacks. */
     void * pUserPrivData;   /**< @brief User private data to hand back in the asynchronous callbacks for context. */
-    bool isNonPersistent;
+    bool isNonPersistent;   /**< @brief Non-persistent flag to indicate closing the connection immediately after receiving the response. */
 } _httpsResponse_t;
 
 /**

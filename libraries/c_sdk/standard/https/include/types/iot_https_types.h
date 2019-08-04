@@ -204,12 +204,12 @@ extern const uint32_t connectionUserBufferMinimumSize;
  * @brief Opaque handle of an HTTP connection.
  *
  * A connection handle is needed to send many requests over a single persistent connection. This handle is valid after
- * a successful call to @ref https_client_function_connect or @ref https_client_sendsync or
+ * a successful call to @ref https_client_function_connect or @ref https_client_function_sendsync or
  * @ref https_client_function_sendasync. A variable of this type is passed to @ref https_client_function_sendsync,
  * @ref https_client_function_sendasync, and @ref https_client_function_disconnect to identify which connection that
  * function acts on.
  *
- * A call to @ref https_client_disconnect makes a connection handle invalid. Once @ref https_client_function_disconnect
+ * A call to @ref https_client_function_disconnect makes a connection handle invalid. Once @ref https_client_function_disconnect
  * returns, the connection handle should no longer be used. The application must call @ref https_client_function_connect
  * again to retrieve a new handle and a new connection.
  *
@@ -491,12 +491,14 @@ enum IotHttpsResponseStatus
  * 
  * @brief HTTPS Client library callbacks for asynchronous requests.
  * 
- * @paramfor @ https_client_function_initialize_request
+ * @paramfor @ref https_client_function_initialize_request
  * 
- * This type is a parameter in #IotHttpsResponseInfo_t.u.pAsyncInfo.callbacks.
+ * This type is a parameter in #IotHttpsResponseInfo_t.
  * 
  * If any of the members in this type are set to NULL, then they will not be invoked during the asynchronous 
  * request/response process.
+ * 
+ * See @ref Asynchronous_Callback_Order for the order of the order of the callbacks and when they will be invoked.
  */
 typedef struct IotHttpsClientCallbacks
 {
@@ -530,7 +532,7 @@ typedef struct IotHttpsClientCallbacks
      * response.
      * 
      * The network indicated that after sending the associated request, the response is available for reading. 
-     * If this is set to NULL, then it will not be invoked.
+     * If this is set to NULL, then it will not be invoked and any response body received will be ignored.
      * See @ref https_client_function_readresponsebody for more information about reading the response body in this
      * callback.
      * 
@@ -547,8 +549,12 @@ typedef struct IotHttpsClientCallbacks
      * If this is set to NULL, then it will not be invoked.
      * 
      * This callback is invoked when the response is fully received from the network and the request/response pair is 
-     * complete. After this function returns any memory configured in #IotHttpsRequestInfo_t.userBuffer and
-     * #IotHttpsResponseInfo_t.userBuffer can be freed, modified, or reused
+     * complete. 
+     * If there was an error in sending the request or an error in receiving the associated response, this callback will 
+     * be invoked, if the error caused the request or associated response to finish. 
+     * #IotHttpsClientCallbacks_t.errorCallback will be invoked first before this callback. 
+     * This callback is invoked to let the application know that memory used by #IotHttpsRequestInfo_t.userBuffer and 
+     * #IotHttpsResponseInfo_t.userBuffer can be freed, modified, or reused.
      * 
      * For a non-persistent connection, the connection will be closed first before invoking this callback.
      * 
@@ -596,7 +602,7 @@ typedef struct IotHttpsClientCallbacks
  * 
  * @paramfor @ref https_client_function_initializerequest. 
  * 
- * The user buffer is configured in #IotHttpsConnectionInfo_t.userBuffe, #IotHttpsRequestInfo_t.userBufferm and
+ * The user buffer is configured in #IotHttpsConnectionInfo_t.userBuffer, #IotHttpsRequestInfo_t.userBuffer and
  * #IotHttpsResponseInfo_t.userBuffer.
  *
  * The minimum size that the buffer must be configured to is indicated by requestUserBufferMinimumSize,
@@ -615,7 +621,7 @@ typedef struct IotHttpsUserBuffer
  * @paramfor @ref https_client_function_initializerequest, @ref https_client_function_sendsync, 
  * @ref https_client_function_sendasync
  *
- * This structure is configured in #IotHttpsRequestInfo_t.u.pSyncInfo and #IotHttpsResponseInfo_t.u.pSyncInfo.
+ * This structure is configured in #IotHttpsRequestInfo_t.u and #IotHttpsResponseInfo_t.
  *
  * A synchronous request will block until the response is fully received from the network.
  * This structure defines memory locations to store the response body.
@@ -630,12 +636,12 @@ typedef struct IotHttpsSyncRequestInfo
      * 
      * For a response this where to receive the response entity body.
      * If the length of the buffer provided to store response body is smaller than the amount of body received,
-     * then @ref http_client_function_sendsync will return a IOT_HTTPS_INSUFFICIENT_MEMORY error code. Although an error
+     * then @ref https_client_function_sendsync will return a IOT_HTTPS_INSUFFICIENT_MEMORY error code. Although an error
      * was returned, the first #IotHttpsSyncInfo_t.bodyLen of the response received on the network will
      * still be available in the buffer.
      */
     uint8_t * pBody;
-    uint32_t bodyLen;
+    uint32_t bodyLen;   /**< @brief The length of the HTTP message body. */
 } IotHttpsSyncInfo_t;
 
 /**
@@ -644,7 +650,7 @@ typedef struct IotHttpsSyncRequestInfo
  * 
  * @paramfor @ref https_client_function_initializerequest.
  * 
- * This is parameter in #IotHttpsRequestInfo_t.u.pAsyncInfo.
+ * This is parameter in #IotHttpsRequestInfo_t.u.
  * 
  * An asynchronous request will ask the application for headers and body right before the request is ready 
  * to be sent onto the network. 
@@ -668,9 +674,7 @@ typedef struct IotHttpsAsyncRequestInfo
  * @paramfor @ref https_client_function_connect or @ref https_client_function_sendsync or
  * @ref https_client_function_sendasync.
  *
- * This parameter is used for explicit connection in @ref https_client_function_connect.
- * For implicit connection it is a parameter in #IotHttpsRequestInfo_t.pConnInfo and passed into
- * @ref https_client_function_sendsync or @ref https_client_function_sendasync.
+ * This parameter is used to connection in @ref https_client_function_connect.
  *
  * @note The lengths of the strings in this struct should not include the NULL
  * terminator. Strings in this struct do not need to be NULL-terminated.
@@ -689,7 +693,7 @@ typedef struct IotHttpsConnectionInfo
     /**
      * @brief Flags to configure the HTTPS connection.
      *
-     * See @constantspage{https_client,HTTPS Client library} for the available flags.
+     * See @ref https_connection_flags for the available flags.
      * 
      * Unknown flags are ignored.
      */
@@ -786,7 +790,7 @@ typedef struct IotHttpsRequestInfo
      * @brief Application owned buffer for storing the request headers and internal request context.
      *
      * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
-     * freed, or reused until the the #IotHttpsCallbacks_t.responseCompleteCallback is invoked.
+     * freed, or reused until the the #IotHttpsClientCallbacks_t.responseCompleteCallback is invoked.
      *
      * Please see #IotHttpsUserBuffer_t for more information.
      */
@@ -826,7 +830,7 @@ typedef struct IotHttpsResponseInfo
      * The application owned buffer for storing the response headers and internal response context.
      *
      * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
-     * freed, or reused until the the #IotHttpCallbacks_t.responseCompleteCallback is invoked.
+     * freed, or reused until the the #IotHttpsClientCallbacks_t.responseCompleteCallback is invoked.
      *
      * Please see #IotHttpsUserBuffer_t for more information.
      */
@@ -837,7 +841,7 @@ typedef struct IotHttpsResponseInfo
      * 
      * Set this to NULL if the response is to be received asynchronously.
      * 
-     * See #IotHttpsSyncInfo_t for information on u.pSyncInfo.
+     * See #IotHttpsSyncInfo_t for more information.
      */
     IotHttpsSyncInfo_t* pSyncInfo;
 } IotHttpsResponseInfo_t;
