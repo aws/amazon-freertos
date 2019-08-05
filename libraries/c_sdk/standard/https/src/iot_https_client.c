@@ -2715,6 +2715,8 @@ IotHttpsReturnCode_t IotHttpsClient_SendSync(IotHttpsConnectionHandle_t connHand
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(reqHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
+    /* Stop the application from scheduling requests on a closed connection. */
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(connHandle->isConnected);
 
     /* If an asynchronous request/response is configured, that is invalid for this API. */
     if(reqHandle->isAsync)
@@ -2934,6 +2936,8 @@ IotHttpsReturnCode_t IotHttpsClient_SendAsync(IotHttpsConnectionHandle_t connHan
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespHandle);
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP(pRespInfo);
     HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(reqHandle->isAsync);
+    /* Stop the application from scheduling requests on a closed connection. */
+    HTTPS_ON_ARG_ERROR_GOTO_CLEANUP(connHandle->isConnected);
 
     /* Initialize the response handle to return. */
     status = _initializeResponse(pRespHandle, pRespInfo, reqHandle);
