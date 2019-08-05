@@ -118,16 +118,17 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
 /**
  * @brief Initializer for operations in the tests.
  */
-#define INITIALIZE_OPERATION( name )                                                                             \
-    {                                                                                                            \
-        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,                            \
-        .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER,                 \
-        .u.operation =                                                                                           \
-        {                                                                                                        \
-            .jobReference     = 1, .type        = name,                    .flags      = IOT_MQTT_FLAG_WAITABLE, \
-            .packetIdentifier = 1, .pMqttPacket = NULL,                    .packetSize = 0,                      \
-            .notify           = { .callback = { 0 } },.status      = IOT_MQTT_STATUS_PENDING, .retry      = { 0 }                   \
-        }                                                                                                        \
+#define INITIALIZE_OPERATION( name )                                                             \
+    {                                                                                            \
+        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,            \
+        .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER, \
+        .u.operation =                                                                           \
+        {                                                                                        \
+            .jobReference = 1, .type = name, .flags = IOT_MQTT_FLAG_WAITABLE,                    \
+            .packetIdentifier = 1, .pMqttPacket = NULL, .packetSize = 0,                         \
+            .notify = { .callback = { 0 } }, .status = IOT_MQTT_STATUS_PENDING,                  \
+            .periodic = { .retry = { 0 } }                                                       \
+        }                                                                                        \
     }
 
 /*-----------------------------------------------------------*/
@@ -208,6 +209,20 @@ static size_t _getRemainingLength( void * pNetworkConnection,
     _getRemainingLengthCalled = true;
 
     return _IotMqtt_GetRemainingLength( pNetworkConnection, pNetworkInterface );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Serializer override for PUBACK.
+ */
+static IotMqttError_t _serializePuback( uint16_t packetIdentifier,
+                                        uint8_t ** pPubackPacket,
+                                        size_t * pPacketSize )
+{
+    return _IotMqtt_SerializePuback( packetIdentifier,
+                                     pPubackPacket,
+                                     pPacketSize );
 }
 
 /*-----------------------------------------------------------*/
@@ -417,24 +432,6 @@ static void _publishCallback( void * pCallbackContext,
 /*-----------------------------------------------------------*/
 
 /**
- * @brief A PUBACK serializer function that does nothing, but always returns failure.
- *
- * Prevents any tests on QoS 1 PUBLISH packets from sending any PUBACKS.
- */
-static IotMqttError_t _serializePuback( uint16_t packetIdentifier,
-                                        uint8_t ** pPubackPacket,
-                                        size_t * pPacketSize )
-{
-    ( void ) packetIdentifier;
-    ( void ) pPubackPacket;
-    ( void ) pPacketSize;
-
-    return IOT_MQTT_NO_MEMORY;
-}
-
-/*-----------------------------------------------------------*/
-
-/**
  * @brief Simulates a network receive function.
  */
 static size_t _receive( void * pConnection,
@@ -473,6 +470,37 @@ static size_t _receive( void * pConnection,
     }
 
     return bytesReceived;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief A network send function that checks the message is a PUBACK.
+ */
+static size_t _checkPuback( void * pConnection,
+                            const uint8_t * pMessage,
+                            size_t messageLength )
+{
+    _mqttPacket_t pubackPacket = { .u = { 0 } };
+    IotMqttError_t deserializeStatus = IOT_MQTT_STATUS_PENDING;
+
+    /* Silence warnings about unused parameters. */
+    ( void ) pConnection;
+
+    /* All PUBACK packets should be 4 bytes long. */
+    TEST_ASSERT_EQUAL( 4, messageLength );
+
+    /* Deserialize the PUBACK. */
+    pubackPacket.type = MQTT_PACKET_TYPE_PUBACK;
+    pubackPacket.remainingLength = 2;
+    pubackPacket.pRemainingData = ( uint8_t * ) ( pMessage + 2 );
+    deserializeStatus = _IotMqtt_DeserializePuback( &pubackPacket );
+
+    /* Check the results of the PUBACK deserialization. */
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, deserializeStatus );
+    TEST_ASSERT_EQUAL( 1, pubackPacket.packetIdentifier );
+
+    return messageLength;
 }
 
 /*-----------------------------------------------------------*/
@@ -543,6 +571,7 @@ TEST_SETUP( MQTT_Unit_Receive )
     serializer.getPacketType = _getPacketType;
     serializer.getRemainingLength = _getRemainingLength;
 
+    _networkInterface.send = _checkPuback;
     _networkInterface.receive = _receive;
     _networkInterface.close = _close;
     networkInfo.pNetworkInterface = &_networkInterface;
@@ -603,6 +632,7 @@ TEST_GROUP_RUNNER( MQTT_Unit_Receive )
 {
     RUN_TEST_CASE( MQTT_Unit_Receive, DecodeRemainingLength );
     RUN_TEST_CASE( MQTT_Unit_Receive, InvalidPacket );
+    RUN_TEST_CASE( MQTT_Unit_Receive, ReceiveMallocFail );
     RUN_TEST_CASE( MQTT_Unit_Receive, ConnackValid );
     RUN_TEST_CASE( MQTT_Unit_Receive, ConnackInvalid );
     RUN_TEST_CASE( MQTT_Unit_Receive, PublishValid );
@@ -746,6 +776,52 @@ TEST( MQTT_Unit_Receive, InvalidPacket )
     _deserializeOverrideCalled = true;
     TEST_ASSERT_EQUAL_INT( false, _getRemainingLengthCalled );
     _getRemainingLengthCalled = true;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Tests the behavior of @ref mqtt_function_receivecallback when memory
+ * allocation fails.
+ */
+TEST( MQTT_Unit_Receive, ReceiveMallocFail )
+{
+    /* Logging uses malloc and will interfere with this test. Only run if logging
+     * is disabled. */
+    #if ( LIBRARY_LOG_LEVEL == IOT_LOG_NONE )
+        _receiveContext_t receiveContext = { 0 };
+
+        /* Data stream to process. Contains 2 SUBACKs. */
+        const uint8_t pDataStream[] =
+        {
+            0x90, 0x05, 0x00, 0x01, 0x00, 0x01, 0x02,
+            0x90, 0x05, 0x00, 0x01, 0x00, 0x01, 0x02
+        };
+
+        /* Set the members of the receive context. */
+        receiveContext.pData = pDataStream;
+        receiveContext.dataLength = sizeof( pDataStream );
+
+        /* Set malloc to fail and process the first SUBACK. */
+        UnityMalloc_MakeMallocFailAfterCount( 0 );
+        IotMqtt_ReceiveCallback( &receiveContext,
+                                 _pMqttConnection );
+
+        /* Allow the use of malloc and process the second SUBACK. */
+        UnityMalloc_MakeMallocFailAfterCount( -1 );
+        IotMqtt_ReceiveCallback( &receiveContext,
+                                 _pMqttConnection );
+
+        /* Network close function should not have been invoked. */
+        TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
+        TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
+    #else
+        /* Test tear down for this test group checks that deserializer overrides
+         * were called. Set these values to true so that the checks pass. */
+        _deserializeOverrideCalled = true;
+        _getPacketTypeCalled = true;
+        _getRemainingLengthCalled = true;
+    #endif /* if LIBRARY_LOG_LEVEL != IOT_LOG_NONE */
 }
 
 /*-----------------------------------------------------------*/
@@ -1649,7 +1725,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
     /* Even though no PINGREQ is expected, the keep-alive failure flag should
      * be cleared (should not crash). */
     {
-        _pMqttConnection->keepAliveFailure = false;
+        _pMqttConnection->pingreq.u.operation.periodic.ping.failure = 0;
 
         DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
@@ -1657,14 +1733,14 @@ TEST( MQTT_Unit_Receive, Pingresp )
                                                      pingrespSize,
                                                      IOT_MQTT_SUCCESS ) );
 
-        TEST_ASSERT_EQUAL_INT( false, _pMqttConnection->keepAliveFailure );
+        TEST_ASSERT_EQUAL_INT( 0, _pMqttConnection->pingreq.u.operation.periodic.ping.failure );
         TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
         TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
     }
 
     /* Process a valid PINGRESP. */
     {
-        _pMqttConnection->keepAliveFailure = true;
+        _pMqttConnection->pingreq.u.operation.periodic.ping.failure = 1;
 
         DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
@@ -1672,7 +1748,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
                                                      pingrespSize,
                                                      IOT_MQTT_SUCCESS ) );
 
-        TEST_ASSERT_EQUAL_INT( false, _pMqttConnection->keepAliveFailure );
+        TEST_ASSERT_EQUAL_INT( 0, _pMqttConnection->pingreq.u.operation.periodic.ping.failure );
         TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
         TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
     }
@@ -1680,7 +1756,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
     /* An incomplete PINGRESP should not be processed, and the keep-alive failure
      * flag should not be cleared. */
     {
-        _pMqttConnection->keepAliveFailure = true;
+        _pMqttConnection->pingreq.u.operation.periodic.ping.failure = 1;
 
         DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         TEST_ASSERT_EQUAL_INT( true, _processBuffer( NULL,
@@ -1688,7 +1764,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
                                                      pingrespSize - 1,
                                                      IOT_MQTT_SUCCESS ) );
 
-        TEST_ASSERT_EQUAL_INT( true, _pMqttConnection->keepAliveFailure );
+        TEST_ASSERT_EQUAL_INT( 1, _pMqttConnection->pingreq.u.operation.periodic.ping.failure );
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
         TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
@@ -1697,7 +1773,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
 
     /* A PINGRESP should have a remaining length of 0. */
     {
-        _pMqttConnection->keepAliveFailure = true;
+        _pMqttConnection->pingreq.u.operation.periodic.ping.failure = 1;
 
         DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         pPingresp[ 1 ] = 0x01;
@@ -1706,7 +1782,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
                                                      pingrespSize,
                                                      IOT_MQTT_SUCCESS ) );
 
-        TEST_ASSERT_EQUAL_INT( true, _pMqttConnection->keepAliveFailure );
+        TEST_ASSERT_EQUAL_INT( 1, _pMqttConnection->pingreq.u.operation.periodic.ping.failure );
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
         TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;
@@ -1715,7 +1791,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
 
     /* The PINGRESP control packet type must be 0xd0. */
     {
-        _pMqttConnection->keepAliveFailure = true;
+        _pMqttConnection->pingreq.u.operation.periodic.ping.failure = 1;
 
         DECLARE_PACKET( _pPingrespTemplate, pPingresp, pingrespSize );
         pPingresp[ 0 ] = 0xd1;
@@ -1724,7 +1800,7 @@ TEST( MQTT_Unit_Receive, Pingresp )
                                                      pingrespSize,
                                                      IOT_MQTT_SUCCESS ) );
 
-        TEST_ASSERT_EQUAL_INT( true, _pMqttConnection->keepAliveFailure );
+        TEST_ASSERT_EQUAL_INT( 1, _pMqttConnection->pingreq.u.operation.periodic.ping.failure );
         TEST_ASSERT_EQUAL_INT( true, _networkCloseCalled );
         TEST_ASSERT_EQUAL_INT( true, _disconnectCallbackCalled );
         _networkCloseCalled = false;

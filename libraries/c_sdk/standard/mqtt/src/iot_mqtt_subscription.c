@@ -588,7 +588,7 @@ void _IotMqtt_RemoveSubscriptionByTopicFilter( _mqttConnection_t * pMqttConnecti
 bool IotMqtt_IsSubscribed( IotMqttConnection_t mqttConnection,
                            const char * pTopicFilter,
                            uint16_t topicFilterLength,
-                           IotMqttSubscription_t * pCurrentSubscription )
+                           IotMqttSubscription_t * const pCurrentSubscription )
 {
     bool status = false;
     _mqttSubscription_t * pSubscription = NULL;

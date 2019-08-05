@@ -50,6 +50,9 @@
 /* MQTT test access include. */
 #include "iot_test_access_mqtt.h"
 
+/* Atomics include. */
+#include "iot_atomic.h"
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -132,17 +135,17 @@ static bool _publishSetDupCalled = false;
 /**
  * @brief Counts how many time #_sendPingreq has been called.
  */
-static int32_t _pingreqSendCount = 0;
+static uint32_t _pingreqSendCount = 0;
 
 /**
  * @brief Counts how many times #_close has been called.
  */
-static int32_t _closeCount = 0;
+static uint32_t _closeCount = 0;
 
 /**
  * @brief Counts how many times #_disconnectCallback has been called.
  */
-static int32_t _disconnectCallbackCount = 0;
+static uint32_t _disconnectCallbackCount = 0;
 
 /**
  * @brief An MQTT connection to share among the tests.
@@ -458,7 +461,7 @@ static IotNetworkError_t _close( void * pCloseContext )
     /* Silence warnings about unused parameters. */
     ( void ) pCloseContext;
 
-    _closeCount++;
+    Atomic_Increment_u32( &_closeCount );
 
     return IOT_NETWORK_SUCCESS;
 }
@@ -476,7 +479,7 @@ static void _disconnectCallback( void * pCallbackContext,
     /* Only increment counter if the reasons match. */
     if( pCallbackParam->u.disconnectReason == *pExpectedReason )
     {
-        _disconnectCallbackCount++;
+        Atomic_Increment_u32( &_disconnectCallbackCount );
     }
 }
 
@@ -588,7 +591,7 @@ TEST( MQTT_Unit_API, OperationCreateDestroy )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Adjustment to reference count based on keep-alive status. */
-    const int32_t keepAliveReference = 1 + ( ( _pMqttConnection->keepAliveMs != 0 ) ? 1 : 0 );
+    const int32_t keepAliveReference = 1 + ( ( _pMqttConnection->pingreq.u.operation.periodic.ping.keepAliveMs != 0 ) ? 1 : 0 );
 
     /* A new MQTT connection should only have a possible reference for keep-alive. */
     TEST_ASSERT_EQUAL_INT32( keepAliveReference, _pMqttConnection->references );
@@ -1384,14 +1387,14 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
     TEST_ASSERT_NOT_NULL( _pMqttConnection );
 
     /* Set a short keep-alive interval so this test runs faster. */
-    _pMqttConnection->keepAliveMs = SHORT_KEEP_ALIVE_MS;
-    _pMqttConnection->nextKeepAliveMs = SHORT_KEEP_ALIVE_MS;
+    _pMqttConnection->pingreq.u.operation.periodic.ping.keepAliveMs = SHORT_KEEP_ALIVE_MS;
+    _pMqttConnection->pingreq.u.operation.periodic.ping.nextPeriodMs = SHORT_KEEP_ALIVE_MS;
 
     /* Schedule the initial PINGREQ. */
     TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
                        IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
-                                                     _pMqttConnection->keepAliveJob,
-                                                     _pMqttConnection->nextKeepAliveMs ) );
+                                                     _pMqttConnection->pingreq.job,
+                                                     _pMqttConnection->pingreq.u.operation.periodic.ping.nextPeriodMs ) );
 
     /* Sleep to allow ample time for periodic PINGREQ sends and PINGRESP responses. */
     IotClock_SleepMs( sleepTimeMs );
@@ -1405,7 +1408,7 @@ TEST( MQTT_Unit_API, KeepAlivePeriodic )
 
     /* Check that the disconnect callback was invoked once (with reason
      * "keep-alive timeout"). */
-    TEST_ASSERT_EQUAL_INT32( 1, _disconnectCallbackCount );
+    TEST_ASSERT_EQUAL_INT32( 1, Atomic_Add_u32( &_disconnectCallbackCount, 0 ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -1435,14 +1438,14 @@ TEST( MQTT_Unit_API, KeepAliveJobCleanup )
         _pMqttConnection->pNetworkConnection = &waitSem;
 
         /* Set a short keep-alive interval so this test runs faster. */
-        _pMqttConnection->keepAliveMs = SHORT_KEEP_ALIVE_MS;
-        _pMqttConnection->nextKeepAliveMs = SHORT_KEEP_ALIVE_MS;
+        _pMqttConnection->pingreq.u.operation.periodic.ping.keepAliveMs = SHORT_KEEP_ALIVE_MS;
+        _pMqttConnection->pingreq.u.operation.periodic.ping.nextPeriodMs = SHORT_KEEP_ALIVE_MS;
 
         /* Schedule the initial PINGREQ. */
         TEST_ASSERT_EQUAL( IOT_TASKPOOL_SUCCESS,
                            IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
-                                                         _pMqttConnection->keepAliveJob,
-                                                         _pMqttConnection->nextKeepAliveMs ) );
+                                                         _pMqttConnection->pingreq.job,
+                                                         _pMqttConnection->pingreq.u.operation.periodic.ping.nextPeriodMs ) );
 
         /* Wait for the keep-alive job to send a PINGREQ. */
         IotSemaphore_Wait( &waitSem );
