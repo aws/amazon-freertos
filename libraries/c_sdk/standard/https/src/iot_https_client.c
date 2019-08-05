@@ -971,9 +971,9 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 
     IotHttpsReturnCode_t flushStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
+    IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
     _httpsConnection_t* pHttpsConnection = ( _httpsConnection_t* )pReceiveContext;
     _httpsResponse_t* pCurrentHttpsResponse = NULL;
-    _httpsResponse_t* pNextHttpsResponse = NULL;
     _httpsRequest_t* pNextHttpsRequest = NULL;
     IotLink_t * pQItem = NULL;
     bool fatalDisconnect = false; 
@@ -1173,22 +1173,22 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
         {
             /* Set this next request to send. */
             pNextHttpsRequest = IotLink_Container(_httpsRequest_t, pQItem, link);
-            /* Set the next response to receive. */
-            pNextHttpsResponse = pNextHttpsRequest->pHttpsResponse;
-
-            IotLogDebug("Request %d is next in the queue. Now scheduling a task to send the request.", pNextHttpsRequest);
-            status = _scheduleHttpsRequestSend(pNextHttpsRequest);
-            /* If there was an error with scheduling the new task, then report it. */
-            if(HTTPS_FAILED(status))
+            if(pNextHttpsRequest->scheduled == false)
             {
-                IotLogError("Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, status);
-                if(pNextHttpsResponse->isAsync && pNextHttpsRequest->pCallbacks->errorCallback)
+                IotLogDebug("Request %d is next in the queue. Now scheduling a task to send the request.", pNextHttpsRequest);
+                scheduleStatus = _scheduleHttpsRequestSend(pNextHttpsRequest);
+                /* If there was an error with scheduling the new task, then report it. */
+                if(HTTPS_FAILED( scheduleStatus ))
                 {
-                    pNextHttpsRequest->pCallbacks->errorCallback(pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, NULL, status);
-                }
-                else
-                {
-                    pNextHttpsResponse->syncStatus = status;
+                    IotLogError("Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, scheduleStatus );
+                    if(pNextHttpsRequest->isAsync && pNextHttpsRequest->pCallbacks->errorCallback)
+                    {
+                        pNextHttpsRequest->pCallbacks->errorCallback(pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, NULL, scheduleStatus );
+                    }
+                    else
+                    {
+                        pNextHttpsRequest->pHttpsResponse->syncStatus = scheduleStatus;
+                    }
                 }
             }
         }
@@ -1200,7 +1200,14 @@ static void _networkReceiveCallback( void* pNetworkConnection, void* pReceiveCon
 
     /* Dequeue response from the response queue now that it is finished. */
     IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
-    IotDeQueue_DequeueHead( &(pHttpsConnection->respQ));
+    /* There could be a scenario where the request fails to send and the network server still responds,
+       In this case, the failed response will have been cancelled and removed from the queue. If the network
+       server still got a response, then the safest way to remove the current response is to remove it explicitly
+       from the queue instead of dequeuing the header of the queue which might not be the current response. */
+    if( IotLink_IsLinked( &(pCurrentHttpsResponse->link) ) )
+    {
+        IotDeQueue_Remove( &(pCurrentHttpsResponse->link) );
+    }
     IotMutex_Unlock( &(pHttpsConnection->respQMutex) );
 
     /* Signal to a synchronous reponse that the response is complete. */
@@ -1939,6 +1946,9 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
     _httpsResponse_t* pHttpsResponse = pHttpsRequest->pHttpsResponse;
     IotHttpsReturnCode_t disconnectStatus = IOT_HTTPS_OK;
+    IotHttpsReturnCode_t scheduleStatus = IOT_HTTPS_OK;
+    IotLink_t * pQItem = NULL;
+    _httpsRequest_t* pNextHttpsRequest = NULL;
 
     (void)pTaskPool;
     (void)pJob;
@@ -1984,7 +1994,8 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
 
     if(HTTPS_FAILED(pHttpsRequest->bodyTxStatus))
     {
-        IotLogError("Failed to send the headers and body over the network during the writeCallback. Error code: %d.", status);
+        IotLogError("Failed to send the headers and body over the network during the writeCallback. Error code: %d.", 
+            status);
         HTTPS_SET_AND_GOTO_CLEANUP( pHttpsRequest->bodyTxStatus );
     }
 
@@ -2020,6 +2031,7 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
     if( HTTPS_FAILED(status) )
     {
         /* If the headers or body failed to send, then there should be no response expected from the server. */
+        /* Cancel the response incase there is a response from the server. */
         _cancelResponse(pHttpsResponse);
         IotMutex_Lock(&(pHttpsConnection->respQMutex));
         if(IotLink_IsLinked(&(pHttpsResponse->link)))
@@ -2046,13 +2058,51 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool, IotTaskPoolJob_t pJob, v
             disconnectStatus = IotHttpsClient_Disconnect(pHttpsConnection);
             if(pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->connectionClosedCallback)
             {
-                pHttpsRequest->pCallbacks->connectionClosedCallback(pHttpsRequest->pUserPrivData, pHttpsConnection, disconnectStatus);
+                pHttpsRequest->pCallbacks->connectionClosedCallback(pHttpsRequest->pUserPrivData, 
+                    pHttpsConnection, 
+                    disconnectStatus);
             }
 
             if(HTTPS_FAILED(disconnectStatus))
             {
                 IotLogWarn("Failed to disconnect request %d. Error code: %d.", pHttpsRequest, disconnectStatus);
             }
+        }
+        else
+        {
+            /* Because this request failed, the network receive callback may never be invoked to schedule other possible
+               requests in the queue. In order to avoid requests never getting scheduled on an connected connection,
+               the first item in the queue is scheduled if it can be. */
+            IotMutex_Lock(&(pHttpsConnection->reqQMutex));
+            /* Get the next item in the queue by removing this current (which is the first) and peeking at the head again. */
+            IotDeQueue_Remove( &( pHttpsRequest->link ) );
+            pQItem = IotDeQueue_PeekHead( &(pHttpsConnection->reqQ));
+            /* This current request is put back because it is removed again for all cases at the end of this routine. */
+            IotDeQueue_EnqueueHead( &( pHttpsConnection->reqQ ), &( pHttpsRequest->link ) );
+            IotMutex_Unlock(&(pHttpsConnection->reqQMutex));
+            if(pQItem != NULL)
+            {
+                /* Set this next request to send. */
+                pNextHttpsRequest = IotLink_Container(_httpsRequest_t, pQItem, link);
+                if( pNextHttpsRequest->scheduled == false )
+                {
+                    IotLogDebug("Request %d is next in the queue. Now scheduling a task to send the request.", pNextHttpsRequest);
+                    scheduleStatus = _scheduleHttpsRequestSend(pNextHttpsRequest);
+                    /* If there was an error with scheduling the new task, then report it. */
+                    if(HTTPS_FAILED( scheduleStatus ))
+                    {
+                        IotLogError("Error scheduling HTTPS request %d. Error code: %d", pNextHttpsRequest, scheduleStatus );
+                        if(pNextHttpsRequest->isAsync && pNextHttpsRequest->pCallbacks->errorCallback)
+                        {
+                            pNextHttpsRequest->pCallbacks->errorCallback(pNextHttpsRequest->pUserPrivData, pNextHttpsRequest, NULL, scheduleStatus );
+                        }
+                        else
+                        {
+                            pNextHttpsRequest->pHttpsResponse->syncStatus = scheduleStatus;
+                        }
+                    }
+                }
+            } 
         }
 
         /* Post to the response finished semaphore to unlock the application waiting on a synchronous request. */
@@ -2086,6 +2136,9 @@ IotHttpsReturnCode_t _scheduleHttpsRequestSend(_httpsRequest_t* pHttpsRequest)
     IotTaskPoolError_t taskPoolStatus = IOT_TASKPOOL_SUCCESS;
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
 
+    /* Set the request to scheduled even if scheduling fails. */
+    pHttpsRequest->scheduled = true;
+
     taskPoolStatus = IotTaskPool_CreateJob( _sendHttpsRequest,
         ( void* )(pHttpsRequest),
         &( pHttpsConnection->taskPoolJobStorage ),
@@ -2116,6 +2169,9 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ(_httpsRequest_t* pHttpsRequest)
 
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
     bool scheduleRequest = false;
+
+    /* This is a new request and has not been scheduled if this routine is called. */
+    pHttpsRequest->scheduled = false;
 
     /* Place the request into the queue. This is the ONLY place in the code that attempts to lock both 
        the request and response queues at the same time. */
@@ -2575,6 +2631,8 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest(IotHttpsRequestHandle_t * 
     pHttpsRequest->cancelled = false;
     /* Initialize the status of sending the body over the network in a possible asynchronous request. */
     pHttpsRequest->bodyTxStatus = IOT_HTTPS_OK;
+    /* This is a new request and therefore not scheduled yet. */
+    pHttpsRequest->scheduled = false;
 
     /* Set the request handle to return. */
     *pReqHandle = pHttpsRequest;
