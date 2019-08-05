@@ -480,6 +480,7 @@ typedef struct _httpsRequest
     IotHttpsClientCallbacks_t* pCallbacks;   /**< @brief Pointer to the asynchronous request callbacks. */
     bool cancelled;         /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
     IotHttpsReturnCode_t bodyTxStatus;      /**< @brief The status of network sending the HTTPS body to be returned during the #IotHttpsClientCallback_t.writeCallack. */
+    bool scheduled;         /**< @brief Set to true when this request has already been scheduled to the task pool. */
 } _httpsRequest_t;
 
 /*-----------------------------------------------------------*/
