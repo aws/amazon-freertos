@@ -152,7 +152,7 @@ IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 {
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
-    publishInfo.qos = IOT_MQTT_QOS_0;
+    publishInfo.qos = IOT_MQTT_QOS_1;
     publishInfo.pTopicName = _pPublishTopic;
     publishInfo.topicNameLength = ( uint16_t ) strlen( _pPublishTopic );
     publishInfo.pPayload = pData;
