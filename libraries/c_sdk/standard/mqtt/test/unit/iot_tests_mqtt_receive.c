@@ -118,17 +118,17 @@ static const uint8_t _pPingrespTemplate[] = { 0xd0, 0x00 };
 /**
  * @brief Initializer for operations in the tests.
  */
-#define INITIALIZE_OPERATION( name )                                                             \
-    {                                                                                            \
-        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,            \
-        .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER, \
-        .u.operation =                                                                           \
-        {                                                                                        \
-            .jobReference = 1, .type = name, .flags = IOT_MQTT_FLAG_WAITABLE,                    \
-            .packetIdentifier = 1, .pMqttPacket = NULL, .packetSize = 0,                         \
-            .notify = { .callback = { 0 } }, .status = IOT_MQTT_STATUS_PENDING,                  \
-            .periodic = { .retry = { 0 } }                                                       \
-        }                                                                                        \
+#define INITIALIZE_OPERATION( name )                                                                             \
+    {                                                                                                            \
+        .link = { 0 }, .incomingPublish = false, .pMqttConnection = _pMqttConnection,                            \
+        .jobStorage = IOT_TASKPOOL_JOB_STORAGE_INITIALIZER, .job = IOT_TASKPOOL_JOB_INITIALIZER,                 \
+        .u.operation =                                                                                           \
+        {                                                                                                        \
+            .jobReference     = 1, .type        = name,                    .flags      = IOT_MQTT_FLAG_WAITABLE, \
+            .packetIdentifier = 1, .pMqttPacket = NULL,                    .packetSize =                      0, \
+            .notify           = { .callback = { 0 } },.status      = IOT_MQTT_STATUS_PENDING,                                       \
+            .periodic         = { .retry = { 0 } }                                                               \
+        }                                                                                                        \
     }
 
 /*-----------------------------------------------------------*/
@@ -815,7 +815,8 @@ TEST( MQTT_Unit_Receive, ReceiveMallocFail )
         /* Network close function should not have been invoked. */
         TEST_ASSERT_EQUAL_INT( false, _networkCloseCalled );
         TEST_ASSERT_EQUAL_INT( false, _disconnectCallbackCalled );
-    #else
+    #else  /* if ( LIBRARY_LOG_LEVEL == IOT_LOG_NONE ) */
+
         /* Test tear down for this test group checks that deserializer overrides
          * were called. Set these values to true so that the checks pass. */
         _deserializeOverrideCalled = true;

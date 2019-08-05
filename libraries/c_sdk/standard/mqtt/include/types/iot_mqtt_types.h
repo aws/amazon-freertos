@@ -466,7 +466,7 @@ typedef struct IotMqttCallbackParam
 
         /* Valid when a connection is disconnected. */
         IotMqttDisconnectReason_t disconnectReason; /**< @brief Why the MQTT connection was disconnected. */
-    } u; /**< @brief Valid member depends on callback type. */
+    } u;                                            /**< @brief Valid member depends on callback type. */
 } IotMqttCallbackParam_t;
 
 /**
