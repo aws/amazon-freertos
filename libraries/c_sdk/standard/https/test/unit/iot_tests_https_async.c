@@ -61,7 +61,7 @@ typedef struct _asyncVerificationParams
 {
     IotSemaphore_t completeSem;             /**< @brief Semaphore to signal to the test that the asynchronous requests have all finished. */
     uint8_t numRequestsTotal;               /**< @brief The starting total of scheduled request. */
-    uint8_t numRequestsLeft;                /**< @brief The number of scheduled requests left that have not finished. */
+    int8_t numRequestsLeft;                 /**< @brief The number of scheduled requests left that have not finished. */
     uint8_t appendHeaderCallbackCount;      /**< @brief A count of the times #IotHttpsClientCallbacks_t.appendHeaderCallback has been called. */
     uint8_t writeCallbackCount;             /**< @brief A count of the times #IotHttpsClientCallbacks_t.writeCallbackCount has been called. */
     uint8_t readReadyCallbackCount;         /**< @brief A count of the times #IotHttpsClientCallbacks_t.readReadyCallbackCount has been called. */
@@ -602,7 +602,6 @@ static void _writeCallbackThatCancels(void *pPrivData, IotHttpsRequestHandle_t r
  */
 static void _readReadyCallbackThatCancels(void *pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status)
 {
-    uint32_t bodyLen = HTTPS_TEST_RESP_BODY_BUFFER_SIZE;
     _asyncVerificationParams_t* verifParams = (_asyncVerificationParams_t*)pPrivData;
     
     IotHttpsClient_CancelResponseAsync(respHandle);
@@ -1259,8 +1258,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncIgnoreResponseBody )
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
@@ -1306,8 +1303,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelBeforeScheduled )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
 
     /* This test is only valid if there are 2 or more async requests available to schedule. */
     TEST_ASSERT_GREATER_THAN(1, HTTPS_TEST_MAX_ASYNC_REQUESTS);
@@ -1374,8 +1369,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelDuringAppendHeaderCallback )
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
 
     /* Assign a test custom appendHeaderCallback that cancels the request. */
     _asyncInfoBase.callbacks.appendHeaderCallback = _appendHeaderCallbackThatCancels;
@@ -1425,8 +1418,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelDuringWriteCallback )
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
 
     /* Assign a test custom writeCallback that cancels the request. */
     _asyncInfoBase.callbacks.writeCallback = _writeCallbackThatCancels;
@@ -1476,8 +1467,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelDuringReadReadyCallback )
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
 
     /* Assign a test custom writeCallback that cancels the request. */
     _asyncInfoBase.callbacks.readReadyCallback = _readReadyCallbackThatCancels;
@@ -1524,8 +1513,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsSuccess )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
     int reqIndex = 0;
 
     _networkInterface.send = _networkSendSuccess;
@@ -1590,8 +1577,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsSecondHasNetworkSendFail
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
     int reqIndex = 0;
 
     /* This test is only valid if there are 3 or more async requests available to schedule. */
@@ -1663,8 +1648,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstHasNetworkReceiveFa
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
     int reqIndex = 0;
 
     /* This test is only valid if there are 2 or more async requests available to schedule. */
@@ -1735,8 +1718,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstHasParsingFailure )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
     int reqIndex = 0;
 
     /* This test is only valid if there are 2 or more async requests available to schedule. */
@@ -1807,8 +1788,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstIsNonPersistent )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
     int reqIndex = 0;
 
     /* This test is only valid if there are 2 or more async requests available to schedule. */
@@ -1884,8 +1863,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstIgnoresPresentRespo
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
     int reqIndex = 0;
     IotHttpsAsyncInfo_t testAsyncInfo;
 
@@ -1950,8 +1927,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsOneGetsCancelled )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
     int reqIndex = 0;
     /* Cancelling request 1, which is after request 0. */
     int reqToCancel = 1;
@@ -2028,8 +2003,6 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncChunkedResponse )
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    int headerLength = 0;
-    int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
     _networkInterface.receive = _networkReceiveSuccess;
