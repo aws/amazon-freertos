@@ -378,7 +378,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\application_code\nxp_code</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F_MPU</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\network_manager</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\private</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include</state>
@@ -1161,6 +1161,12 @@
 		<group>
 			<name>portable</name>
 			<group>
+				<name>Common</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\Common\mpu_wrappers.c</name>
+				</file>
+			</group>
+			<group>
 				<name>MemMang</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c</name>
@@ -1169,15 +1175,15 @@
 			<group>
 				<name>IAR</name>
 				<group>
-					<name>ARM_CM4F</name>
+					<name>ARM_CM4F_MPU</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F\port.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F_MPU\port.c</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F\portmacro.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F_MPU\portmacro.h</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F\portasm.s</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F_MPU\portasm.s</name>
 					</file>
 				</group>
 			</group>

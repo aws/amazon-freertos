@@ -74,6 +74,7 @@
 #define configOVERRIDE_DEFAULT_TICK_CONFIGURATION    0
 #define configRECORD_STACK_HIGH_ADDRESS              1
 #define configUSE_POSIX_ERRNO                        1
+#define configENABLE_MPU                             1
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES                        0
@@ -97,6 +98,7 @@
 #define INCLUDE_xTaskGetSchedulerState               1
 #define INCLUDE_xTimerPendFunctionCall               1
 #define INCLUDE_xSemaphoreGetMutexHolder             1
+#define INCLUDE_xTaskGetCurrentTaskHandle            1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
