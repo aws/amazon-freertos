@@ -194,7 +194,11 @@
  */
 
 #ifndef AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS
-    #define AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS    ( 300 )
+    #if ( DEVICE_DEFENDER_TEST_MODE == 1 )
+        #define AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS    ( 10 )
+    #else
+        #define AWS_IOT_DEFENDER_DEFAULT_PERIOD_SECONDS    ( 300 )
+    #endif
 #endif
 
 #ifndef AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS
@@ -230,7 +234,7 @@
 /*----------------- Below this line is INTERNAL used only --------------------*/
 
 /* This MUST be consistent with enum AwsIotDefenderMetricsGroup_t. */
-#define DEFENDER_METRICS_GROUP_COUNT    1
+#define DEFENDER_METRICS_GROUP_COUNT    AWS_IOT_DEFENDER_METRICS_GROUP_COUNT
 
 /**
  * Define encoder/decoder based on configuration AWS_IOT_DEFENDER_FORMAT.
