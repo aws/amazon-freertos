@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,14 +44,26 @@ extern "C" {
  */
 
 /* Type definitions. */
-#define portSTACK_TYPE	uint32_t
-#define portBASE_TYPE	long
+#if __riscv_xlen == 64
+	#define portSTACK_TYPE			uint64_t
+	#define portBASE_TYPE			int64_t
+	#define portUBASE_TYPE			uint64_t
+	#define portMAX_DELAY 			( TickType_t ) 0xffffffffffffffffUL
+	#define portPOINTER_SIZE_TYPE 	uint64_t
+#elif __riscv_xlen == 32
+	#define portSTACK_TYPE	uint32_t
+	#define portBASE_TYPE	int32_t
+	#define portUBASE_TYPE	uint32_t
+	#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
+#else
+	#error Assembler did not define __riscv_xlen
+#endif
+
 
 typedef portSTACK_TYPE StackType_t;
-typedef long BaseType_t;
-typedef unsigned long UBaseType_t;
-typedef uint32_t TickType_t;
-#define portMAX_DELAY ( TickType_t ) 0xffffffffUL
+typedef portBASE_TYPE BaseType_t;
+typedef portUBASE_TYPE UBaseType_t;
+typedef portUBASE_TYPE TickType_t;
 
 /* 32-bit tick type on a 32-bit architecture, so reads of the tick count do
 not need to be guarded with a critical section. */
@@ -132,6 +144,8 @@ not necessary for to use this port.  They are defined so the common demo files
 #ifndef portFORCE_INLINE
 	#define portFORCE_INLINE inline __attribute__(( always_inline))
 #endif
+
+#define portMEMORY_BARRIER() __asm volatile( "" ::: "memory" )
 
 #ifdef __cplusplus
 }

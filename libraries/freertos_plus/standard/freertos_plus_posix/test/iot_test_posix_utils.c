@@ -114,7 +114,7 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecAdd )
     x.tv_nsec = 100000000;
     y.tv_nsec = -2100000000;
     /* should return 1 for negative value */
-    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y,  &xResult ) );
+    TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecAdd( &x, &y, &xResult ) );
 
     /* Add non-compliant timespec where y.tv_nsec > 1 billion. */
     x.tv_sec = y.tv_sec = 0;
@@ -160,7 +160,7 @@ TEST( Full_POSIX_UTILS, UTILS_TimespecSubtract )
     x.tv_sec = y.tv_sec = 0;
     x.tv_nsec = 5;
     y.tv_nsec = 3;
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &x, &y,  &xResult ) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecSubtract( &x, &y, &xResult ) );
     TEST_ASSERT_EQUAL_INT( 0, xResult.tv_sec );
     TEST_ASSERT_EQUAL_INT( 2, xResult.tv_nsec );
 
@@ -249,18 +249,18 @@ TEST( Full_POSIX_UTILS, UTILS_strnlen )
 
 /*-----------------------------------------------------------*/
 
-TEST( Full_POSIX_UTILS,  UTILS_TimespecCompare )
+TEST( Full_POSIX_UTILS, UTILS_TimespecCompare )
 {
     struct timespec xTimeX = { .tv_sec = 0, .tv_nsec = 0 };
     struct timespec xTimeY = { .tv_sec = 0, .tv_nsec = 0 };
 
     /* Check return value with NULL parameters. */
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecCompare( NULL, NULL) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecCompare( NULL, NULL ) );
     TEST_ASSERT_EQUAL_INT( -1, UTILS_TimespecCompare( NULL, &xTimeY ) );
     TEST_ASSERT_EQUAL_INT( 1, UTILS_TimespecCompare( &xTimeX, NULL ) );
 
     /* check equal value */
-    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecCompare( &xTimeX, &xTimeY) );
+    TEST_ASSERT_EQUAL_INT( 0, UTILS_TimespecCompare( &xTimeX, &xTimeY ) );
 
     /* check greater value */
     xTimeX.tv_nsec = 1;
@@ -278,7 +278,7 @@ TEST( Full_POSIX_UTILS,  UTILS_TimespecCompare )
 
 /*-----------------------------------------------------------*/
 
-TEST(  Full_POSIX_UTILS, UTILS_TimespecToTicks )
+TEST( Full_POSIX_UTILS, UTILS_TimespecToTicks )
 {
     struct timespec xTimeX = { .tv_sec = 0, .tv_nsec = 0 };
     TickType_t xResult;
@@ -303,7 +303,7 @@ TEST(  Full_POSIX_UTILS, UTILS_TimespecToTicks )
 
 /*-----------------------------------------------------------*/
 
-TEST(  Full_POSIX_UTILS, UTILS_AbsoluteTimespecToDeltaTicks )
+TEST( Full_POSIX_UTILS, UTILS_AbsoluteTimespecToDeltaTicks )
 {
     struct timespec xTimeX = { .tv_sec = 0, .tv_nsec = 0 };
     struct timespec xTimeY = { .tv_sec = 0, .tv_nsec = 0 };
@@ -325,7 +325,6 @@ TEST(  Full_POSIX_UTILS, UTILS_AbsoluteTimespecToDeltaTicks )
     /* check return value for invalid nano seconds */
     xTimeY.tv_nsec = NANOSECONDS_PER_SECOND + 1;
     TEST_ASSERT_EQUAL_INT( EINVAL, UTILS_AbsoluteTimespecToDeltaTicks( &xTimeX, &xTimeY, &xResult ) );
-
 }
 
 /*-----------------------------------------------------------*/

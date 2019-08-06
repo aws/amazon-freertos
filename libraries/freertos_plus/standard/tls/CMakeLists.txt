@@ -23,6 +23,7 @@ afr_module_dependencies(
     PRIVATE
         AFR::crypto
         AFR::pkcs11
+        AFR::utils
         3rdparty::mbedtls
 )
 

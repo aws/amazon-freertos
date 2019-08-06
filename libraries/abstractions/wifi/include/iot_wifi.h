@@ -56,7 +56,7 @@ typedef enum
 
 /**
  * @brief Wi-Fi Security types.
- * 
+ *
  * @ingroup WiFi_datatypes_enums
  */
 typedef enum
@@ -98,9 +98,9 @@ typedef enum
 
 /**
  * @brief Parameters passed to the WIFI_ConnectAP API for connection.
- * 
+ *
  * @see WIFI_ConnectAP
- * 
+ *
  * @ingroup WiFi_datatypes_paramstructs
  */
 typedef struct
@@ -123,7 +123,7 @@ typedef struct
  * strings.
  *
  * @see WIFI_Scan
- * 
+ *
  * @ingroup WiFi_datatypes_returnstructs
  */
 typedef struct
@@ -142,7 +142,7 @@ typedef struct
  * @note The size of char arrays are the MAX lengths + 1 to
  * account for possible null terminating at the end of the
  * strings.
- * 
+ *
  * @ingroup WiFi_datatypes_paramstructs
  */
 typedef struct

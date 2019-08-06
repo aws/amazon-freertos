@@ -186,9 +186,9 @@ static void _networkReceiveTask( void * pArgument )
         /* Check if the connection was destroyed by the receive callback. This
          * does not need to be thread-safe because the destroy connection function
          * may only be called once (per its API doc). */
-        connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t )&( pNetworkConnection->connectionFlags ) );
+        connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
 
-        if( (connectionFlags & _FLAG_CONNECTION_DESTROYED ) == _FLAG_CONNECTION_DESTROYED )
+        if( ( connectionFlags & _FLAG_CONNECTION_DESTROYED ) == _FLAG_CONNECTION_DESTROYED )
         {
             destroyConnection = true;
             break;

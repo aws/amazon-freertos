@@ -43,7 +43,7 @@
  * @brief A value representing the system default for new thread priority.
  */
 #ifndef IOT_THREAD_DEFAULT_PRIORITY
-    #define IOT_THREAD_DEFAULT_PRIORITY      0
+    #define IOT_THREAD_DEFAULT_PRIORITY    0
 #endif
 
 /**

@@ -37,7 +37,7 @@
 #include "FreeRTOSIPConfig.h"
 #include "task.h"
 #include "iot_pkcs11.h"
-#include "aws_pkcs11_config.h"
+#include "iot_pkcs11_config.h"
 
 /* C runtime includes. */
 #include <stdio.h>
@@ -53,12 +53,18 @@
     #include "mbedtls/pk.h"
     #include "mbedtls/base64.h"
     #include "mbedtls/platform.h"
-#endif
 
-#define pkcs11OBJECT_MAX_SIZE         2048
-#define pkcs11OBJECT_PRESENT_MAGIC    ( 0xABCD0000uL )
-#define pkcs11OBJECT_LENGTH_MASK      ( 0x0000FFFFuL )
-#define pkcs11OBJECT_PRESENT_MASK     ( 0xFFFF0000uL )
+/* The maximum lengths (in bytes) that the Inventek
+ * module has for credential storage. */
+    #define pkcs11ROOT_CA_MAX_LENGTH            1792
+    #define pkcs11CLIENT_CERT_MAX_LENGTH        1408
+    #define pkcs11CLIENT_PRIV_KEY_MAX_LENGTH    1792
+#endif /* ifdef USE_OFFLOAD_SSL */
+
+#define pkcs11OBJECT_MAX_SIZE                   2048
+#define pkcs11OBJECT_PRESENT_MAGIC              ( 0xABCD0000uL )
+#define pkcs11OBJECT_LENGTH_MASK                ( 0x0000FFFFuL )
+#define pkcs11OBJECT_PRESENT_MASK               ( 0xFFFF0000uL )
 
 enum eObjectHandles
 {
@@ -216,7 +222,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
                 if( pemBodyBuffer == NULL )
                 {
-                    xReturn = CKR_DEVICE_MEMORY;
+                    xReturn = CKR_HOST_MEMORY;
                 }
             }
 
@@ -248,7 +254,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
                 if( *ppcPemBuffer == NULL )
                 {
-                    xReturn = CKR_DEVICE_MEMORY;
+                    xReturn = CKR_HOST_MEMORY;
                 }
             }
 
@@ -312,11 +318,23 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 {
     CK_OBJECT_HANDLE xHandle = eInvalidHandle;
     CK_RV xBytesWritten = 0;
-    CK_RV xReturn;
+    CK_RV xReturn = CKR_OK;
     uint32_t ulFlashMark = ( pkcs11OBJECT_PRESENT_MAGIC | ( ulDataSize ) );
-    uint8_t * pemBuffer;
+    uint8_t * pemBuffer = NULL;
     size_t pemLength;
+    CK_BBOOL xIsDestroy = CK_TRUE;
+    int temp;
 
+    #ifdef USE_OFFLOAD_SSL
+        for( int i = 0; i < ulDataSize; i++ )
+        {
+            if( pucData[ i ] != 0 )
+            {
+                xIsDestroy = CK_FALSE;
+                break;
+            }
+        }
+    #endif
 
     if( ulDataSize <= pkcs11OBJECT_MAX_SIZE )
     {
@@ -344,12 +362,28 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
                 /* If we are using offload SSL, write the certificate to the
                  * WiFi module as well. */
+                if( xIsDestroy == CK_FALSE )
+                {
+                    /* WiFi module needs PEM format. */
+                    xReturn = prvDerToPem( pucData,
+                                           ulDataSize,
+                                           ( char ** ) &pemBuffer,
+                                           &pemLength,
+                                           CKO_CERTIFICATE );
+                }
+                else
+                {
+                    pemBuffer = pvPortMalloc( pkcs11CLIENT_CERT_MAX_LENGTH );
 
-                xReturn = prvDerToPem( pucData,
-                                       ulDataSize,
-                                       ( char ** ) &pemBuffer,
-                                       &pemLength,
-                                       CKO_CERTIFICATE );
+                    if( pemBuffer == NULL )
+                    {
+                        xReturn = CKR_HOST_MEMORY;
+                    }
+                    else
+                    {
+                        memset( pemBuffer, 0x00, pkcs11CLIENT_CERT_MAX_LENGTH );
+                    }
+                }
 
                 if( xReturn != CKR_OK )
                 {
@@ -358,12 +392,16 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
                 if( xHandle == eAwsDeviceCertificate )
                 {
-                    if( WIFI_StoreCertificate( pemBuffer, ( uint16_t ) pemLength ) != eWiFiSuccess )
+                    if( (temp = WIFI_StoreCertificate( pemBuffer, ( uint16_t ) pemLength )) != eWiFiSuccess )
                     {
                         xHandle = eInvalidHandle;
                     }
                 }
-                vPortFree( pemBuffer );
+
+                if( xReturn == CKR_OK )
+                {
+                    vPortFree( pemBuffer );
+                }
             #endif /* USE_OFFLOAD_SSL */
         }
 
@@ -388,27 +426,49 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             }
 
             #ifdef USE_OFFLOAD_SSL
-                xReturn = prvDerToPem( pucData,
-                                       ulDataSize,
-                                       ( char ** ) &pemBuffer,
-                                       &pemLength,
-                                       CKO_PRIVATE_KEY );
+
+                /* If we are using offload SSL, write the private key to the
+                 * WiFi module as well. */
+                if( xIsDestroy == CK_FALSE )
+                {
+                    /* WiFi module needs PEM format. */
+                    xReturn = prvDerToPem( pucData,
+                                           ulDataSize,
+                                           ( char ** ) &pemBuffer,
+                                           &pemLength,
+                                           CKO_PRIVATE_KEY );
+                }
+                else
+                {
+                    pemBuffer = pvPortMalloc( pkcs11CLIENT_PRIV_KEY_MAX_LENGTH );
+
+                    if( pemBuffer == NULL )
+                    {
+                        xReturn = CKR_HOST_MEMORY;
+                    }
+                    else
+                    {
+                        memset( pemBuffer, 0x00, pkcs11CLIENT_PRIV_KEY_MAX_LENGTH );
+                    }
+                }
 
                 if( xReturn != CKR_OK )
                 {
                     xHandle = eInvalidHandle;
                 }
 
-                /* If we are using offload SSL, write the key to the WiFi
-                 * module as well. */
                 if( xHandle == eAwsDevicePrivateKey )
                 {
-                    if( WIFI_StoreKey( pemBuffer, ( uint16_t ) pemLength ) != eWiFiSuccess )
+                    if( (temp = WIFI_StoreKey( pemBuffer, ( uint16_t ) pemLength )) != eWiFiSuccess )
                     {
                         xHandle = eInvalidHandle;
                     }
                 }
-                vPortFree( pemBuffer );
+
+                if( xReturn == CKR_OK )
+                {
+                    vPortFree( pemBuffer );
+                }
             #endif /* USE_OFFLOAD_SSL */
         }
 
@@ -433,6 +493,8 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
     return xHandle;
 }
+
+
 
 /*-----------------------------------------------------------*/
 

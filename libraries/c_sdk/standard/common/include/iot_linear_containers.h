@@ -71,7 +71,8 @@ typedef IotLink_t   IotListDouble_t;
 typedef IotLink_t   IotDeQueue_t;
 
 /**
- * @constantspage{linear_containers,linear containers library}
+ * @constants_page{linear_containers}
+ * @constants_brief{linear containers library}
  *
  * @section linear_containers_constants_initializers Linear Containers Initializers
  * @brief Provides default values for initializing the linear containers data types.
@@ -128,76 +129,167 @@ typedef IotLink_t   IotDeQueue_t;
  * @param[in] pStart The first element to iterate from.
  * @param[out] pLink Pointer to a container element.
  */
-#define IotContainers_ForEach( pStart, pLink )  \
-    for( ( pLink ) = ( pStart )->pNext;         \
-         ( pLink ) != ( pStart );               \
+#define IotContainers_ForEach( pStart, pLink ) \
+    for( ( pLink ) = ( pStart )->pNext;        \
+         ( pLink ) != ( pStart );              \
          ( pLink ) = ( pLink )->pNext )
 
 /**
- * @functionspage{linear_containers,linear containers library}
- * - @functionname{linear_containers_function_link_islinked}
- * - @functionname{linear_containers_function_list_double_create}
- * - @functionname{linear_containers_function_list_double_count}
- * - @functionname{linear_containers_function_list_double_isempty}
- * - @functionname{linear_containers_function_list_double_peekhead}
- * - @functionname{linear_containers_function_list_double_peektail}
- * - @functionname{linear_containers_function_list_double_inserthead}
- * - @functionname{linear_containers_function_list_double_inserttail}
- * - @functionname{linear_containers_function_list_double_insertbefore}
- * - @functionname{linear_containers_function_list_double_insertafter}
- * - @functionname{linear_containers_function_list_double_insertsorted}
- * - @functionname{linear_containers_function_list_double_remove}
- * - @functionname{linear_containers_function_list_double_removehead}
- * - @functionname{linear_containers_function_list_double_removetail}
- * - @functionname{linear_containers_function_list_double_removeall}
- * - @functionname{linear_containers_function_list_double_findfirstmatch}
- * - @functionname{linear_containers_function_list_double_removefirstmatch}
- * - @functionname{linear_containers_function_list_double_removeallmatches}
- * - @functionname{linear_containers_function_queue_create}
- * - @functionname{linear_containers_function_queue_count}
- * - @functionname{linear_containers_function_queue_isempty}
- * - @functionname{linear_containers_function_queue_peekhead}
- * - @functionname{linear_containers_function_queue_peektail}
- * - @functionname{linear_containers_function_queue_enqueuehead}
- * - @functionname{linear_containers_function_queue_dequeuehead}
- * - @functionname{linear_containers_function_queue_enqueuetail}
- * - @functionname{linear_containers_function_queue_dequeuetail}
- * - @functionname{linear_containers_function_queue_remove}
- * - @functionname{linear_containers_function_queue_removeall}
- * - @functionname{linear_containers_function_queue_removeallmatches}
+ * @functions_page{linear_containers, Linear Containers}
+ * @functions_brief{linear containers}
+ * - @function_name{linear_containers_function_link_islinked}
+ * @function_brief{linear_containers_function_link_islinked}
+ * - @function_name{linear_containers_function_list_double_create}
+ * @function_brief{linear_containers_function_list_double_create}
+ * - @function_name{linear_containers_function_list_double_count}
+ * @function_brief{linear_containers_function_list_double_count}
+ * - @function_name{linear_containers_function_list_double_isempty}
+ * @function_brief{linear_containers_function_list_double_isempty}
+ * - @function_name{linear_containers_function_list_double_peekhead}
+ * @function_brief{linear_containers_function_list_double_peekhead}
+ * - @function_name{linear_containers_function_list_double_peektail}
+ * @function_brief{linear_containers_function_list_double_peektail}
+ * - @function_name{linear_containers_function_list_double_inserthead}
+ * @function_brief{linear_containers_function_list_double_inserthead}
+ * - @function_name{linear_containers_function_list_double_inserttail}
+ * @function_brief{linear_containers_function_list_double_inserttail}
+ * - @function_name{linear_containers_function_list_double_insertbefore}
+ * @function_brief{linear_containers_function_list_double_insertbefore}
+ * - @function_name{linear_containers_function_list_double_insertafter}
+ * @function_brief{linear_containers_function_list_double_insertafter}
+ * - @function_name{linear_containers_function_list_double_insertsorted}
+ * @function_brief{linear_containers_function_list_double_insertsorted}
+ * - @function_name{linear_containers_function_list_double_remove}
+ * @function_brief{linear_containers_function_list_double_remove}
+ * - @function_name{linear_containers_function_list_double_removehead}
+ * @function_brief{linear_containers_function_list_double_removehead}
+ * - @function_name{linear_containers_function_list_double_removetail}
+ * @function_brief{linear_containers_function_list_double_removetail}
+ * - @function_name{linear_containers_function_list_double_removeall}
+ * @function_brief{linear_containers_function_list_double_removeall}
+ * - @function_name{linear_containers_function_list_double_findfirstmatch}
+ * @function_brief{linear_containers_function_list_double_findfirstmatch}
+ * - @function_name{linear_containers_function_list_double_removefirstmatch}
+ * @function_brief{linear_containers_function_list_double_removefirstmatch}
+ * - @function_name{linear_containers_function_list_double_removeallmatches}
+ * @function_brief{linear_containers_function_list_double_removeallmatches}
+ * - @function_name{linear_containers_function_queue_create}
+ * @function_brief{linear_containers_function_queue_create}
+ * - @function_name{linear_containers_function_queue_count}
+ * @function_brief{linear_containers_function_queue_count}
+ * - @function_name{linear_containers_function_queue_isempty}
+ * @function_brief{linear_containers_function_queue_isempty}
+ * - @function_name{linear_containers_function_queue_peekhead}
+ * @function_brief{linear_containers_function_queue_peekhead}
+ * - @function_name{linear_containers_function_queue_peektail}
+ * @function_brief{linear_containers_function_queue_peektail}
+ * - @function_name{linear_containers_function_queue_enqueuehead}
+ * @function_brief{linear_containers_function_queue_enqueuehead}
+ * - @function_name{linear_containers_function_queue_dequeuehead}
+ * @function_brief{linear_containers_function_queue_dequeuehead}
+ * - @function_name{linear_containers_function_queue_enqueuetail}
+ * @function_brief{linear_containers_function_queue_enqueuetail}
+ * - @function_name{linear_containers_function_queue_dequeuetail}
+ * @function_brief{linear_containers_function_queue_dequeuetail}
+ * - @function_name{linear_containers_function_queue_remove}
+ * @function_brief{linear_containers_function_queue_remove}
+ * - @function_name{linear_containers_function_queue_removeall}
+ * @function_brief{linear_containers_function_queue_removeall}
+ * - @function_name{linear_containers_function_queue_removeallmatches}
+ * @function_brief{linear_containers_function_queue_removeallmatches}
  */
 
 /**
- * @functionpage{IotLink_IsLinked,linear_containers,link_islinked}
- * @functionpage{IotListDouble_Create,linear_containers,list_double_create}
- * @functionpage{IotListDouble_Count,linear_containers,list_double_count}
- * @functionpage{IotListDouble_IsEmpty,linear_containers,list_double_isempty}
- * @functionpage{IotListDouble_PeekHead,linear_containers,list_double_peekhead}
- * @functionpage{IotListDouble_PeekTail,linear_containers,list_double_peektail}
- * @functionpage{IotListDouble_InsertHead,linear_containers,list_double_inserthead}
- * @functionpage{IotListDouble_InsertTail,linear_containers,list_double_inserttail}
- * @functionpage{IotListDouble_InsertBefore,linear_containers,list_double_insertbefore}
- * @functionpage{IotListDouble_InsertAfter,linear_containers,list_double_insertafter}
- * @functionpage{IotListDouble_InsertSorted,linear_containers,list_double_insertsorted}
- * @functionpage{IotListDouble_Remove,linear_containers,list_double_remove}
- * @functionpage{IotListDouble_RemoveHead,linear_containers,list_double_removehead}
- * @functionpage{IotListDouble_RemoveTail,linear_containers,list_double_removetail}
- * @functionpage{IotListDouble_RemoveAll,linear_containers,list_double_removeall}
- * @functionpage{IotListDouble_FindFirstMatch,linear_containers,list_double_findfirstmatch}
- * @functionpage{IotListDouble_RemoveFirstMatch,linear_containers,list_double_removefirstmatch}
- * @functionpage{IotListDouble_RemoveAllMatches,linear_containers,list_double_removeallmatches}
- * @functionpage{IotDeQueue_Create,linear_containers,queue_create}
- * @functionpage{IotDeQueue_Count,linear_containers,queue_count}
- * @functionpage{IotDeQueue_IsEmpty,linear_containers,queue_isempty}
- * @functionpage{IotDeQueue_PeekHead,linear_containers,queue_peekhead}
- * @functionpage{IotDeQueue_PeekTail,linear_containers,queue_peektail}
- * @functionpage{IotDeQueue_EnqueueHead,linear_containers,queue_enqueuehead}
- * @functionpage{IotDeQueue_DequeueHead,linear_containers,queue_dequeuehead}
- * @functionpage{IotDeQueue_EnqueueTail,linear_containers,queue_enqueuetail}
- * @functionpage{IotDeQueue_DequeueTail,linear_containers,queue_dequeuetail}
- * @functionpage{IotDeQueue_Remove,linear_containers,queue_remove}
- * @functionpage{IotDeQueue_RemoveAll,linear_containers,queue_removeall}
- * @functionpage{IotDeQueue_RemoveAllMatches,linear_containers,queue_removeallmatches}
+ * @function_page{IotLink_IsLinked,linear_containers,link_islinked}
+ * @function_snippet{linear_containers,link_islinked,this}
+ * @copydoc IotLink_IsLinked
+ * @function_page{IotListDouble_Create,linear_containers,list_double_create}
+ * @function_snippet{linear_containers,list_double_create,this}
+ * @copydoc IotListDouble_Create
+ * @function_page{IotListDouble_Count,linear_containers,list_double_count}
+ * @function_snippet{linear_containers,list_double_count,this}
+ * @copydoc IotListDouble_Count
+ * @function_page{IotListDouble_IsEmpty,linear_containers,list_double_isempty}
+ * @function_snippet{linear_containers,list_double_isempty,this}
+ * @copydoc IotListDouble_IsEmpty
+ * @function_page{IotListDouble_PeekHead,linear_containers,list_double_peekhead}
+ * @function_snippet{linear_containers,list_double_peekhead,this}
+ * @copydoc IotListDouble_PeekHead
+ * @function_page{IotListDouble_PeekTail,linear_containers,list_double_peektail}
+ * @function_snippet{linear_containers,list_double_peektail,this}
+ * @copydoc IotListDouble_PeekTail
+ * @function_page{IotListDouble_InsertHead,linear_containers,list_double_inserthead}
+ * @function_snippet{linear_containers,list_double_inserthead,this}
+ * @copydoc IotListDouble_InsertHead
+ * @function_page{IotListDouble_InsertTail,linear_containers,list_double_inserttail}
+ * @function_snippet{linear_containers,list_double_inserttail,this}
+ * @copydoc IotListDouble_InsertTail
+ * @function_page{IotListDouble_InsertBefore,linear_containers,list_double_insertbefore}
+ * @function_snippet{linear_containers,list_double_insertbefore,this}
+ * @copydoc IotListDouble_InsertBefore
+ * @function_page{IotListDouble_InsertAfter,linear_containers,list_double_insertafter}
+ * @function_snippet{linear_containers,list_double_insertafter,this}
+ * @copydoc IotListDouble_InsertAfter
+ * @function_page{IotListDouble_InsertSorted,linear_containers,list_double_insertsorted}
+ * @function_snippet{linear_containers,list_double_insertsorted,this}
+ * @copydoc IotListDouble_InsertSorted
+ * @function_page{IotListDouble_Remove,linear_containers,list_double_remove}
+ * @function_snippet{linear_containers,list_double_remove,this}
+ * @copydoc IotListDouble_Remove
+ * @function_page{IotListDouble_RemoveHead,linear_containers,list_double_removehead}
+ * @function_snippet{linear_containers,list_double_removehead,this}
+ * @copydoc IotListDouble_RemoveHead
+ * @function_page{IotListDouble_RemoveTail,linear_containers,list_double_removetail}
+ * @function_snippet{linear_containers,list_double_removetail,this}
+ * @copydoc IotListDouble_RemoveTail
+ * @function_page{IotListDouble_RemoveAll,linear_containers,list_double_removeall}
+ * @function_snippet{linear_containers,list_double_removeall,this}
+ * @copydoc IotListDouble_RemoveAll
+ * @function_page{IotListDouble_FindFirstMatch,linear_containers,list_double_findfirstmatch}
+ * @function_snippet{linear_containers,list_double_findfirstmatch,this}
+ * @copydoc IotListDouble_FindFirstMatch
+ * @function_page{IotListDouble_RemoveFirstMatch,linear_containers,list_double_removefirstmatch}
+ * @function_snippet{linear_containers,list_double_removefirstmatch,this}
+ * @copydoc IotListDouble_RemoveFirstMatch
+ * @function_page{IotListDouble_RemoveAllMatches,linear_containers,list_double_removeallmatches}
+ * @function_snippet{linear_containers,list_double_removeallmatches,this}
+ * @copydoc IotListDouble_RemoveAllMatches
+ * @function_page{IotDeQueue_Create,linear_containers,queue_create}
+ * @function_snippet{linear_containers,queue_create,this}
+ * @copydoc IotDeQueue_Create
+ * @function_page{IotDeQueue_Count,linear_containers,queue_count}
+ * @function_snippet{linear_containers,queue_count,this}
+ * @copydoc IotDeQueue_Count
+ * @function_page{IotDeQueue_IsEmpty,linear_containers,queue_isempty}
+ * @function_snippet{linear_containers,queue_isempty,this}
+ * @copydoc IotDeQueue_IsEmpty
+ * @function_page{IotDeQueue_PeekHead,linear_containers,queue_peekhead}
+ * @function_snippet{linear_containers,queue_peekhead,this}
+ * @copydoc IotDeQueue_PeekHead
+ * @function_page{IotDeQueue_PeekTail,linear_containers,queue_peektail}
+ * @function_snippet{linear_containers,queue_peektail,this}
+ * @copydoc IotDeQueue_PeekTail
+ * @function_page{IotDeQueue_EnqueueHead,linear_containers,queue_enqueuehead}
+ * @function_snippet{linear_containers,queue_enqueuehead,this}
+ * @copydoc IotDeQueue_EnqueueHead
+ * @function_page{IotDeQueue_DequeueHead,linear_containers,queue_dequeuehead}
+ * @function_snippet{linear_containers,queue_dequeuehead,this}
+ * @copydoc IotDeQueue_DequeueHead
+ * @function_page{IotDeQueue_EnqueueTail,linear_containers,queue_enqueuetail}
+ * @function_snippet{linear_containers,queue_enqueuetail,this}
+ * @copydoc IotDeQueue_EnqueueTail
+ * @function_page{IotDeQueue_DequeueTail,linear_containers,queue_dequeuetail}
+ * @function_snippet{linear_containers,queue_dequeuetail,this}
+ * @copydoc IotDeQueue_DequeueTail
+ * @function_page{IotDeQueue_Remove,linear_containers,queue_remove}
+ * @function_snippet{linear_containers,queue_remove,this}
+ * @copydoc IotDeQueue_Remove
+ * @function_page{IotDeQueue_RemoveAll,linear_containers,queue_removeall}
+ * @function_snippet{linear_containers,queue_removeall,this}
+ * @copydoc IotDeQueue_RemoveAll
+ * @function_page{IotDeQueue_RemoveAllMatches,linear_containers,queue_removeallmatches}
+ * @function_snippet{linear_containers,queue_removeallmatches,this}
+ * @copydoc IotDeQueue_RemoveAllMatches
  */
 
 /**
@@ -442,7 +534,7 @@ static inline void IotListDouble_InsertAfter( IotLink_t * const pElement,
 /* @[declare_linear_containers_list_double_insertsorted] */
 static inline void IotListDouble_InsertSorted( IotListDouble_t * const pList,
                                                IotLink_t * const pLink,
-                                               int32_t ( *compare )( const IotLink_t * const, const IotLink_t * const ) )
+                                               int32_t ( * compare )( const IotLink_t * const, const IotLink_t * const ) )
 /* @[declare_linear_containers_list_double_insertsorted] */
 {
     /* This function must not be called with NULL parameters. */
@@ -565,7 +657,7 @@ static inline IotLink_t * IotListDouble_RemoveTail( IotListDouble_t * const pLis
  */
 /* @[declare_linear_containers_list_double_removeall] */
 static inline void IotListDouble_RemoveAll( IotListDouble_t * const pList,
-                                            void ( *freeElement )( void * ),
+                                            void ( * freeElement )( void * ),
                                             size_t linkOffset )
 /* @[declare_linear_containers_list_double_removeall] */
 {
@@ -617,7 +709,7 @@ static inline void IotListDouble_RemoveAll( IotListDouble_t * const pList,
 /* @[declare_linear_containers_list_double_findfirstmatch] */
 static inline IotLink_t * IotListDouble_FindFirstMatch( const IotListDouble_t * const pList,
                                                         const IotLink_t * const pStartPoint,
-                                                        bool ( *isMatch )( const IotLink_t * const, void * ),
+                                                        bool ( * isMatch )( const IotLink_t * const, void * ),
                                                         void * pMatch )
 /* @[declare_linear_containers_list_double_findfirstmatch] */
 {
@@ -683,7 +775,7 @@ static inline IotLink_t * IotListDouble_FindFirstMatch( const IotListDouble_t * 
 /* @[declare_linear_containers_list_double_removefirstmatch] */
 static inline IotLink_t * IotListDouble_RemoveFirstMatch( IotListDouble_t * const pList,
                                                           const IotLink_t * const pStartPoint,
-                                                          bool ( *isMatch )( const IotLink_t *, void * ),
+                                                          bool ( * isMatch )( const IotLink_t *, void * ),
                                                           void * pMatch )
 /* @[declare_linear_containers_list_double_removefirstmatch] */
 {
@@ -718,9 +810,9 @@ static inline IotLink_t * IotListDouble_RemoveFirstMatch( IotListDouble_t * cons
  */
 /* @[declare_linear_containers_list_double_removeallmatches] */
 static inline void IotListDouble_RemoveAllMatches( IotListDouble_t * const pList,
-                                                   bool ( *isMatch )( const IotLink_t *, void * ),
+                                                   bool ( * isMatch )( const IotLink_t *, void * ),
                                                    void * pMatch,
-                                                   void ( *freeElement )( void * ),
+                                                   void ( * freeElement )( void * ),
                                                    size_t linkOffset )
 /* @[declare_linear_containers_list_double_removeallmatches] */
 {
@@ -842,7 +934,7 @@ static inline IotLink_t * IotDeQueue_PeekTail( const IotDeQueue_t * const pQueue
  */
 /* @[declare_linear_containers_queue_enqueuehead] */
 static inline void IotDeQueue_EnqueueHead( IotDeQueue_t * const pQueue,
-                                     IotLink_t * const pLink )
+                                           IotLink_t * const pLink )
 /* @[declare_linear_containers_queue_enqueuehead] */
 {
     IotListDouble_InsertHead( pQueue, pLink );
@@ -872,7 +964,7 @@ static inline IotLink_t * IotDeQueue_DequeueHead( IotDeQueue_t * const pQueue )
  */
 /* @[declare_linear_containers_queue_enqueuetail] */
 static inline void IotDeQueue_EnqueueTail( IotDeQueue_t * const pQueue,
-                                     IotLink_t * const pLink )
+                                           IotLink_t * const pLink )
 /* @[declare_linear_containers_queue_enqueuetail] */
 {
     IotListDouble_InsertTail( pQueue, pLink );
@@ -919,8 +1011,8 @@ static inline void IotDeQueue_Remove( IotLink_t * const pLink )
  */
 /* @[declare_linear_containers_queue_removeall] */
 static inline void IotDeQueue_RemoveAll( IotDeQueue_t * const pQueue,
-                                       void ( * freeElement )( void * ),
-                                       size_t linkOffset )
+                                         void ( * freeElement )( void * ),
+                                         size_t linkOffset )
 /* @[declare_linear_containers_queue_removeall] */
 {
     IotListDouble_RemoveAll( pQueue, freeElement, linkOffset );
@@ -944,10 +1036,10 @@ static inline void IotDeQueue_RemoveAll( IotDeQueue_t * const pQueue,
  */
 /* @[declare_linear_containers_queue_removeallmatches] */
 static inline void IotDeQueue_RemoveAllMatches( IotDeQueue_t * const pQueue,
-                                              bool ( * isMatch )( const IotLink_t *, void * ),
-                                              void * pMatch,
-                                              void ( * freeElement )( void * ),
-                                              size_t linkOffset )
+                                                bool ( * isMatch )( const IotLink_t *, void * ),
+                                                void * pMatch,
+                                                void ( * freeElement )( void * ),
+                                                size_t linkOffset )
 /* @[declare_linear_containers_queue_removeallmatches] */
 {
     IotListDouble_RemoveAllMatches( pQueue, isMatch, pMatch, freeElement, linkOffset );

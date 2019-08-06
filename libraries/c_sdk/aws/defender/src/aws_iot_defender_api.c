@@ -401,13 +401,14 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
             }
         }
     }
+
     /* If no MQTT error and report has been created, it indicates everything is good. */
     if( ( mqttError == IOT_MQTT_SUCCESS ) && reportCreated )
     {
         IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJobStorage, &_disconnectJob );
 
         /* Silence warnings when asserts are disabled. */
-        ( void ) taskPoolError;		
+        ( void ) taskPoolError;
         AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
         IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
@@ -483,10 +484,10 @@ static void _disconnectRoutine( IotTaskPool_t pTaskPool,
     AwsIotDefenderInternal_MqttDisconnect();
     /* Re-create metrics job. */
     IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _metricsPublishRoutine, NULL, &_metricsPublishJobStorage, &_metricsPublishJob );
-	
+
     /* Silence warnings when asserts are disabled. */
     ( void ) taskPoolError;
-	
+
     AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
     /* Re-schedule metrics job with period as deferred interval. */
