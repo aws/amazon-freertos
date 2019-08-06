@@ -28,8 +28,11 @@
 /* Defender internal include. */
 #include "private/aws_iot_defender_internal.h"
 
-/* Define topics segments used by defender. */
-#define TOPIC_PREFIX             "$aws/things/"
+#if ( DEVICE_DEFENDER_TEST_MODE==1 )
+    #define TOPIC_PREFIX             "iotdemo/"
+#else 
+    #define TOPIC_PREFIX             "$aws/things/"
+#endif
 
 #define TOPIC_SUFFIX_PUBLISH     "/defender/metrics/" DEFENDER_FORMAT
 
