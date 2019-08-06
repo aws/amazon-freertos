@@ -479,7 +479,7 @@ typedef struct _httpsRequest
     void * pUserPrivData;   /**< @brief User private data to hand back in the asynchronous callbacks for context. */
     IotHttpsClientCallbacks_t* pCallbacks;   /**< @brief Pointer to the asynchronous request callbacks. */
     bool cancelled;         /**< @brief Set this to true to stop the response processing in the asynchronous workflow. */
-    IotHttpsReturnCode_t bodyTxStatus;      /**< @brief The status of network sending the HTTPS body to be returned during the #IotHttpsClientCallback_t.writeCallack. */
+    IotHttpsReturnCode_t bodyTxStatus;      /**< @brief The status of network sending the HTTPS body to be returned during the #IotHttpsClientCallbacks_t.writeCallback. */
     bool scheduled;         /**< @brief Set to true when this request has already been scheduled to the task pool. */
 } _httpsRequest_t;
 

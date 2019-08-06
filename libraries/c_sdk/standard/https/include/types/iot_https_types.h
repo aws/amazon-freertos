@@ -175,6 +175,8 @@ extern const uint32_t connectionUserBufferMinimumSize;
 #define IOT_HTTPS_USER_BUFFER_INITIALIZER           { 0 }
 /** @brief Initializer for #IotHttpsSyncInfo_t. */
 #define IOT_HTTPS_SYNC_INFO_INITIALIZER             { 0 }
+/** @brief Initializer for #IotHttpsAsyncInfo_t. */
+#define IOT_HTTPS_ASYNC_INFO_INITIALIZER            { 0 }
 /** @brief Initializer for #IotHttpsConnectionInfo_t. */
 #define IOT_HTTPS_CONNECTION_INFO_INITIALIZER       { 0 }
 /** @brief Initializer for #IotHttpsRequestInfo_t. */
@@ -491,7 +493,7 @@ enum IotHttpsResponseStatus
  * 
  * @brief HTTPS Client library callbacks for asynchronous requests.
  * 
- * @paramfor @ref https_client_function_initialize_request
+ * @paramfor @ref https_client_function_initializerequest
  * 
  * This type is a parameter in #IotHttpsResponseInfo_t.
  * 
@@ -657,7 +659,7 @@ typedef struct IotHttpsSyncRequestInfo
  * An asynchronous request will have the application read headers and body as soon as the response is received
  * on the network.
  */
-typedef struct IotHttpsAsyncRequestInfo
+typedef struct IotHttpsAsyncInfo
 {
     /**
      * @brief Callbacks are used for an asynchronous request. 
