@@ -33,7 +33,7 @@
 
 #include "platform/iot_clock.h"
 
-#include "iot_defender_schema_v1.h"
+#include "aws_iot_defender_schema_v1.h"
 
 /* FreeRTOS specific. -- todo: this file should not take dependency on FreeRTOS.  */
 #include "task.h"

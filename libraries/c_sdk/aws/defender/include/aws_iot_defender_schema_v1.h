@@ -34,33 +34,33 @@
  * Long tags are for readability and not recommended to be used.
  */
 
-#ifndef _IOT_DEFENDER_SCHEMA_V1_H_
-#define _IOT_DEFENDER_SCHEMA_V1_H_
+#ifndef AWS_IOT_DEFENDER_SCHEMA_V1_H_
+#define AWS_IOT_DEFENDER_SCHEMA_V1_H_
 
 
 /*
  * A sample report could look like below.
-{
-  "hed": {
-    "rid": 1,
-    "v": "1.1"
-  },
-  "met": {
-    "km": {
-      "hp": 48264,
-      "hplo": 48264,
-      ...
-      "tno": 8,
-      "tdet": [...],
-      ...
-      "mupt": "114146063",
-      "mpct": "99"
-      },
-    "tc": {
-      ...
-    }
-  }
-}
+ * {
+ * "hed": {
+ *  "rid": 1,
+ *  "v": "1.1"
+ * },
+ * "met": {
+ *  "km": {
+ *    "hp": 48264,
+ *    "hplo": 48264,
+ *    ...
+ *    "tno": 8,
+ *    "tdet": [...],
+ *    ...
+ *    "mupt": "114146063",
+ *    "mpct": "99"
+ *    },
+ *  "tc": {
+ *    ...
+ *  }
+ * }
+ * }
  */
 #define  HEADER_TAG                     AwsIotDefenderInternal_SelectTag( "header", "hed" )
 #define  REPORTID_TAG                   AwsIotDefenderInternal_SelectTag( "report_id", "rid" )
@@ -111,4 +111,4 @@
 
 
 
-#endif /* _IOT_DEFENDER_SCHEMA_V1_H_ */
+#endif /* AWS_IOT_DEFENDER_SCHEMA_V1_H_ */
