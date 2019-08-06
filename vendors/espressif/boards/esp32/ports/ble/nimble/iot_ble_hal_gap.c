@@ -441,7 +441,7 @@ BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
     BTStatus_t xStatus = eBTStatusSuccess;
     int xESPStatus;
 
-    ble_gap_adv_stop();
+    xESPStatus = ble_gap_adv_stop();
 
     if( xESPStatus != 0 )
     {
