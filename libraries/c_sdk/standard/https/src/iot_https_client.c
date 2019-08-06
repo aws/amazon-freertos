@@ -1544,6 +1544,8 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t* pHttpsConnection, 
         pBuf,
         bufLen);
 
+    IotLogDebug( "The network interface receive returned %d.", numBytesRecv );
+
     /* We return IOT_HTTPS_NETWORK_ERROR only if we receive nothing. Receiving less
        data than requested is okay because it is not known in advance how much data
        we are going to receive and therefore we request for the available buffer
@@ -2169,6 +2171,27 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ(_httpsRequest_t* pHttpsRequest)
 
     _httpsConnection_t* pHttpsConnection = pHttpsRequest->pHttpsConnection;
     bool scheduleRequest = false;
+
+    /* Log information about the request*/
+    IotLogDebug( "Now queueing request %d.", pHttpsRequest );
+    if( pHttpsRequest->isNonPersistent )
+    {
+        IotLogDebug( "Request %d is non-persistent.", pHttpsRequest );
+    }
+    else
+    {
+        IotLogDebug( "Request %d is persistent. ", pHttpsRequest );
+    }
+
+    if( pHttpsRequest->isAsync )
+    {
+        IotLogDebug( " Request %d is asynchronous.", pHttpsRequest );
+    }
+    else
+    {
+        IotLogDebug( " Request %d is synchronous.", pHttpsRequest );
+    }
+        
 
     /* This is a new request and has not been scheduled if this routine is called. */
     pHttpsRequest->scheduled = false;
