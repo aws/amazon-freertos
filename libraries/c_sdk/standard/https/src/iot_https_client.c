@@ -2657,6 +2657,18 @@ IotHttpsReturnCode_t IotHttpsClient_AddHeader( IotHttpsRequestHandle_t reqHandle
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pValue );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( reqHandle );
 
+    /* Check for name long enough for header length calculation to overflow */
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP(nameLen <= UINT32_MAX>>2,
+        IOT_HTTPS_INVALID_PARAMETER,
+	"Attempting to generate headers with name length %d > %d. This is not allowed.",
+	nameLen, UINT32_MAX>>2);
+
+    /* Check for value long enough for header length calculation to overflow */
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP(valueLen <= UINT32_MAX>>2,
+        IOT_HTTPS_INVALID_PARAMETER,
+	"Attempting to generate headers with value length %d > %d. This is not allowed.",
+	valueLen, UINT32_MAX>>2);
+
     /* Check for auto-generated header "Content-Length". This header is created and send automatically when right before
        request body is sent on the network. */
     HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP(strncmp(pName, HTTPS_CONTENT_LENGTH_HEADER, FAST_MACRO_STRLEN(HTTPS_CONTENT_LENGTH_HEADER)) != 0,
