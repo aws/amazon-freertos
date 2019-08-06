@@ -52,7 +52,6 @@
 #define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 5 )
 
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT       pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 2 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Timeout used when performing MQTT operations that do not need extra time
