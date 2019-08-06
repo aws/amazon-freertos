@@ -354,7 +354,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
     ( void ) pJob;
     ( void ) pUserContext;
 
-    IotLogDebug( "Metrics publish job starts." );
+    IotLogInfo( "Metrics publish job starts." );
 
     if( !IotSemaphore_TryWait( &_doneSem ) )
     {
@@ -399,6 +399,12 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
                 {
                     IotLogDebug( "Metrics report has been published successfully." );
                 }
+
+                IotLogInfo( "Device Defender metrics report size: %d.", reportSize );
+            }
+            else
+            {
+                IotLogError( "Failed to create report." );
             }
         }
     }
@@ -497,7 +503,7 @@ static void _disconnectRoutine( IotTaskPool_t pTaskPool,
 
     IotSemaphore_Post( &_doneSem );
 
-    IotLogDebug( "Disconnect job ends." );
+    IotLogInfo( "Disconnect job ends." );
 }
 
 /*-----------------------------------------------------------*/
