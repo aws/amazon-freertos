@@ -54,7 +54,6 @@
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT          pdMS_TO_TICKS( 12000 )
 
 /* MQTT echo task example parameters. */
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 2 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY                    ( tskIDLE_PRIORITY + 5 )
 
 /* IoT simple subscribe/publish example task parameters. */
