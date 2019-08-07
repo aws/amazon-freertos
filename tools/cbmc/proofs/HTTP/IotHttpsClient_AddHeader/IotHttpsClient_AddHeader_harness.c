@@ -22,6 +22,7 @@
 * memcpy instead of the standard memcpy.
 ****************************************************************/
 
+/* This is a clang macro not available on linux */
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
