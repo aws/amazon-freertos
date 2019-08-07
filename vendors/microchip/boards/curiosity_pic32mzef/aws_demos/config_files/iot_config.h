@@ -45,6 +45,7 @@
 #define IOT_LOG_LEVEL_MQTT                      IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_SHADOW                IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_INFO
+#define IOT_LOG_LEVEL_HTTPS                     IOT_LOG_INFO
 
 /* Platform thread priority. */
 #define IOT_THREAD_DEFAULT_PRIORITY      5
