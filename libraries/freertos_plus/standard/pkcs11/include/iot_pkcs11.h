@@ -30,7 +30,7 @@
 #include <stdint.h>
 
 #ifdef _WIN32
-#pragma pack(push, cryptoki, 1)
+    #pragma pack(push, cryptoki, 1)
 #endif
 
 /**
@@ -237,7 +237,7 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
                                                 uint8_t * x51ByteHashOidBuffer );
 
 #ifdef _WIN32
-#pragma pack(pop, cryptoki)
+    #pragma pack(pop, cryptoki)
 #endif
 
 #endif /* ifndef _AWS_PKCS11_H_ */

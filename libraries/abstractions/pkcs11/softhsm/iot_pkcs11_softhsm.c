@@ -26,8 +26,8 @@
 /**
  * @file iot_pkcs11_softhsm.c
  * @brief Wrapper module for using https://github.com/opendnssec/SoftHSMv2 with
- * Amazon FreeRTOS. This file deviates from the FreeRTOS style standard for 
- * some function names and data types in order to maintain compliance with 
+ * Amazon FreeRTOS. This file deviates from the FreeRTOS style standard for
+ * some function names and data types in order to maintain compliance with
  * the PKCS #11 standard.
  */
 
@@ -35,16 +35,16 @@
 #include "FreeRTOS.h"
 #include "iot_pkcs11.h"
 
-typedef CK_RV( *PFN_GET_FUNCTION_LIST )( CK_FUNCTION_LIST_PTR_PTR ppFunctionList );
+typedef CK_RV ( * PFN_GET_FUNCTION_LIST )( CK_FUNCTION_LIST_PTR_PTR ppFunctionList );
 
 /**
  * @brief Obtain a pointer to the PKCS #11 module function pointer structure.
- * All other PKCS #11 functions must be invoked using the pointers in the 
+ * All other PKCS #11 functions must be invoked using the pointers in the
  * returned structure.
  *
  * \warn Do not overwrite the function list.
  *
- * \param[in] ppxFunctionList       Pointer to the location where the function 
+ * \param[in] ppxFunctionList       Pointer to the location where the function
  *                                  list pointer will be placed.
  *
  * @return CKR_OK if successful.
@@ -64,10 +64,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunc
     }
 
     /* Load the PKCS #11 module DLL. This will fail if the binary isn't in the
-    execution path of the simulator. */
+     * execution path of the simulator. */
     if( 0 == xResult )
     {
         hModule = LoadLibraryA( "softhsm2.dll" );
+
         if( NULL == hModule )
         {
             xResult = GetLastError();
@@ -75,10 +76,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunc
     }
 
     /* Use the Windows loader to get the DLL export routine for querying the
-    PKCS #11 function list for this module. */
+     * PKCS #11 function list for this module. */
     if( 0 == xResult )
     {
-        pfnGetFunctionList = (PFN_GET_FUNCTION_LIST )GetProcAddress( hModule, "C_GetFunctionList" );
+        pfnGetFunctionList = ( PFN_GET_FUNCTION_LIST ) GetProcAddress( hModule, "C_GetFunctionList" );
+
         if( NULL == pfnGetFunctionList )
         {
             xResult = GetLastError();
@@ -86,7 +88,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunc
     }
 
     /* Call the first routine. This will fail on WIN32 if structure packing
-    isn't set to one-byte alignment. */
+     * isn't set to one-byte alignment. */
     if( 0 == xResult )
     {
         xResult = pfnGetFunctionList( ppxFunctionList );
