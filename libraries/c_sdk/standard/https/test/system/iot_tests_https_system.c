@@ -50,11 +50,11 @@
 
 /**
  * @brief The DNS resolvable host name of the server to perform testing.
- * 
+ *
  * This address MUST NOT start with http:// or https://.
  */
 #ifndef IOT_TEST_HTTPS_SERVER_HOST_NAME
-    #define IOT_TEST_HTTPS_SERVER_HOST_NAME         "httpbin.org"
+    #define IOT_TEST_HTTPS_SERVER_HOST_NAME    "httpbin.org"
 #endif
 
 /**
@@ -62,9 +62,9 @@
  */
 #ifndef IOT_TEST_HTTPS_PORT
     #if IOT_TEST_SECURED_CONNECTION == 1
-        #define IOT_TEST_HTTPS_PORT                 ( (uint16_t)443 )
+        #define IOT_TEST_HTTPS_PORT    ( ( uint16_t ) 443 )
     #else
-        #define IOT_TEST_HTTPS_PORT                 ( (uint16_t)80 )
+        #define IOT_TEST_HTTPS_PORT    ( ( uint16_t ) 80 )
     #endif
 #endif
 
@@ -72,70 +72,70 @@
  * @brief ALPN protocols string.
  */
 #ifndef IOT_TEST_HTTPS_ALPN_PROTOCOLS
-    #define IOT_TEST_HTTPS_ALPN_PROTOCOLS           NULL
+    #define IOT_TEST_HTTPS_ALPN_PROTOCOLS    NULL
 #endif
 
 /**
  * @brief Root certificate authority to verify the server connecting to.
  */
-#ifndef IOT_TEST_HTTPS_ROOT_CA 
-    #define IOT_TEST_HTTPS_ROOT_CA                  NULL
+#ifndef IOT_TEST_HTTPS_ROOT_CA
+    #define IOT_TEST_HTTPS_ROOT_CA    NULL
 #endif
 
 /**
  * @brief Client certificate and private key configurations.
- * 
- * With PKCS #11 provisioning of the keys these parameters are deprecated. 
+ *
+ * With PKCS #11 provisioning of the keys these parameters are deprecated.
  */
 #ifndef IOT_TEST_HTTPS_CLIENT_CERTIFICATE
-    #define IOT_TEST_HTTPS_CLIENT_CERTIFICATE       keyCLIENT_CERTIFICATE_PEM
+    #define IOT_TEST_HTTPS_CLIENT_CERTIFICATE    keyCLIENT_CERTIFICATE_PEM
 #endif
 #ifndef IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY
-    #define IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY       keyCLIENT_PRIVATE_KEY_PEM
+    #define IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY    keyCLIENT_PRIVATE_KEY_PEM
 #endif
 
 /**
  * @brief Timeout in milliseconds for tests that synchronously send HTTP requests.
- * 
+ *
  * This timeout encompasses the sending of the request and receiving the response.
  */
 #ifndef IOT_TEST_HTTPS_SYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS          60000
+    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
 #endif
 
 /**
  * @brief Timeout in milliseconds for tests asynchronously send HTTP requests.
- * 
+ *
  * This timeout is use to wait for the test to finish.
  */
 #ifndef IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS         60000
+    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
 #endif
 
 /**
  * @brief The size of the connection user buffer to use among the tests.
  */
-#define HTTPS_TEST_CONN_USER_BUFFER_SIZE            ( 512 )
+#define HTTPS_TEST_CONN_USER_BUFFER_SIZE    ( 512 )
 
 /**
  * @brief The size of the request user buffer to use among the tests.
  */
-#define HTTPS_TEST_REQ_USER_BUFFER_SIZE             ( 512 )
+#define HTTPS_TEST_REQ_USER_BUFFER_SIZE     ( 512 )
 
 /**
  * @brief The size of the respons user buffer to use among the tests.
  */
-#define HTTPS_TEST_RESP_USER_BUFFER_SIZE            ( 512 )
+#define HTTPS_TEST_RESP_USER_BUFFER_SIZE    ( 512 )
 
 /**
  * @brief The size of the response body buffer to use among the tests.
  */
-#define HTTPS_TEST_RESP_BODY_BUFFER_SIZE            ( 512 )
+#define HTTPS_TEST_RESP_BODY_BUFFER_SIZE    ( 512 )
 
 /**
  * @brief The HTTP path for the get request.
  */
-#define HTTPS_TEST_GET_REQUEST_PATH                 "/get"
+#define HTTPS_TEST_GET_REQUEST_PATH         "/get"
 
 /*-----------------------------------------------------------*/
 
@@ -143,7 +143,7 @@
  * @brief These parameters get set during the asynchronous test to verify.
  */
 typedef struct _asyncVerificationParams
-{   
+{
     IotSemaphore_t finishedSem;
     uint16_t responseStatus;
     uint32_t contentLength;
@@ -155,80 +155,87 @@ typedef struct _asyncVerificationParams
 /*-----------------------------------------------------------*/
 
 /**
- * @brief HTTPS Client connection user buffer to share among the tests. 
+ * @brief HTTPS Client connection user buffer to share among the tests.
  */
-static uint8_t _pConnUserBuffer[HTTPS_TEST_CONN_USER_BUFFER_SIZE] = { 0 };
+static uint8_t _pConnUserBuffer[ HTTPS_TEST_CONN_USER_BUFFER_SIZE ] = { 0 };
 
 /**
  * @brief HTTPS Request user buffer to share among the tests.
  */
-static uint8_t _pReqUserBuffer[HTTPS_TEST_REQ_USER_BUFFER_SIZE] = { 0 };
+static uint8_t _pReqUserBuffer[ HTTPS_TEST_REQ_USER_BUFFER_SIZE ] = { 0 };
 
 /**
- * @brief HTTPS Response user buffer to share among the tests. 
+ * @brief HTTPS Response user buffer to share among the tests.
  */
-static uint8_t _pRespUserBuffer[HTTPS_TEST_RESP_USER_BUFFER_SIZE] = { 0 };
+static uint8_t _pRespUserBuffer[ HTTPS_TEST_RESP_USER_BUFFER_SIZE ] = { 0 };
 
 /**
  * @brief HTTPS Response body buffer to share among the tests.
  */
-static uint8_t _pRespBodyBuffer[HTTPS_TEST_RESP_BODY_BUFFER_SIZE] = { 0 };
+static uint8_t _pRespBodyBuffer[ HTTPS_TEST_RESP_BODY_BUFFER_SIZE ] = { 0 };
 
 /**
  * @brief A IotHttpsConnectionInfo_t to share among the tests.
  */
-static IotHttpsConnectionInfo_t _connInfo = {
-    .pAddress = IOT_TEST_HTTPS_SERVER_HOST_NAME,
-    .addressLen = sizeof( IOT_TEST_HTTPS_SERVER_HOST_NAME ) - 1,
-    .port = IOT_TEST_HTTPS_PORT,
-    .flags = 0,
-    .userBuffer.pBuffer = _pConnUserBuffer,
+static IotHttpsConnectionInfo_t _connInfo =
+{
+    .pAddress             = IOT_TEST_HTTPS_SERVER_HOST_NAME,
+    .addressLen           = sizeof( IOT_TEST_HTTPS_SERVER_HOST_NAME ) - 1,
+    .port                 = IOT_TEST_HTTPS_PORT,
+    .flags                = 0,
+    .userBuffer.pBuffer   = _pConnUserBuffer,
     .userBuffer.bufferLen = sizeof( _pConnUserBuffer ),
-#if IOT_TEST_SECURED_CONNECTION == 1    
-    .pCaCert = IOT_TEST_HTTPS_ROOT_CA,
-    .caCertLen = sizeof( IOT_TEST_HTTPS_ROOT_CA ),
-    .pClientCert = IOT_TEST_HTTPS_CLIENT_CERTIFICATE,
-    .clientCertLen = sizeof( IOT_TEST_HTTPS_CLIENT_CERTIFICATE ),
-    .pPrivateKey = IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY,
-    .privateKeyLen = sizeof( IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY ),
-    .pAlpnProtocols = IOT_TEST_HTTPS_ALPN_PROTOCOLS,
-    .alpnProtocolsLen = sizeof( IOT_TEST_HTTPS_ALPN_PROTOCOLS ),
-#endif
-    .pNetworkInterface = NULL   /* This will be set during TEST_SETUP(). */
+    #if IOT_TEST_SECURED_CONNECTION == 1
+        .pCaCert          = IOT_TEST_HTTPS_ROOT_CA,
+        .caCertLen        = sizeof( IOT_TEST_HTTPS_ROOT_CA ),
+        .pClientCert      = IOT_TEST_HTTPS_CLIENT_CERTIFICATE,
+        .clientCertLen    = sizeof( IOT_TEST_HTTPS_CLIENT_CERTIFICATE ),
+        .pPrivateKey      = IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY,
+        .privateKeyLen    = sizeof( IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY ),
+        .pAlpnProtocols   = IOT_TEST_HTTPS_ALPN_PROTOCOLS,
+        .alpnProtocolsLen = sizeof( IOT_TEST_HTTPS_ALPN_PROTOCOLS ),
+    #endif
+    .pNetworkInterface    = NULL /* This will be set during TEST_SETUP(). */
 };
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Asynchronous #IotHttpsClientCallbacks_t.readReadyCallback implementation to share among the tests. 
+ * @brief Asynchronous #IotHttpsClientCallbacks_t.readReadyCallback implementation to share among the tests.
  */
-static void _readReadyCallback(void *pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status)
+static void _readReadyCallback( void * pPrivData,
+                                IotHttpsResponseHandle_t respHandle,
+                                IotHttpsReturnCode_t rc,
+                                uint16_t status )
 {
     IotHttpsReturnCode_t returnCode;
     uint32_t bodyLen = HTTPS_TEST_RESP_BODY_BUFFER_SIZE;
-    _asyncVerificationParams_t* verifParams = (_asyncVerificationParams_t*)pPrivData;
+    _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
 
     /* Reset the buffer we receive HTTP body into. */
-    ( void ) memset( _pRespBodyBuffer, 0x00, sizeof(_pRespBodyBuffer));
+    ( void ) memset( _pRespBodyBuffer, 0x00, sizeof( _pRespBodyBuffer ) );
 
     verifParams->responseStatus = status;
-    returnCode = IotHttpsClient_ReadResponseBody(respHandle, _pRespBodyBuffer, &bodyLen );
+    returnCode = IotHttpsClient_ReadResponseBody( respHandle, _pRespBodyBuffer, &bodyLen );
     verifParams->readResponseBodyReturnCode = returnCode;
     verifParams->bodyReceivedLength = bodyLen;
-    returnCode = IotHttpsClient_ReadContentLength(respHandle, &(verifParams->contentLength));
+    returnCode = IotHttpsClient_ReadContentLength( respHandle, &( verifParams->contentLength ) );
     verifParams->contentLengthReturnCode = returnCode;
 }
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Asynchronous #IotHttpsClientCallbacks_t.responseCompleteCallback implementation to share among the tests. 
+ * @brief Asynchronous #IotHttpsClientCallbacks_t.responseCompleteCallback implementation to share among the tests.
  */
-static void _responseCompleteCallback(void *pPrivData, IotHttpsResponseHandle_t respHandle, IotHttpsReturnCode_t rc, uint16_t status)
+static void _responseCompleteCallback( void * pPrivData,
+                                       IotHttpsResponseHandle_t respHandle,
+                                       IotHttpsReturnCode_t rc,
+                                       uint16_t status )
 {
-    _asyncVerificationParams_t* verifParams = (_asyncVerificationParams_t*)pPrivData;
+    _asyncVerificationParams_t * verifParams = ( _asyncVerificationParams_t * ) pPrivData;
 
-    IotSemaphore_Post( &(verifParams->finishedSem) );
+    IotSemaphore_Post( &( verifParams->finishedSem ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -236,7 +243,8 @@ static void _responseCompleteCallback(void *pPrivData, IotHttpsResponseHandle_t 
 /**
  * @brief Send a GET request synchronously and verify the results.
  */
-static void _testRequestSynchronous( bool isNonPersistent, IotHttpsMethod_t method )
+static void _testRequestSynchronous( bool isNonPersistent,
+                                     IotHttpsMethod_t method )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
@@ -264,7 +272,7 @@ static void _testRequestSynchronous( bool isNonPersistent, IotHttpsMethod_t meth
     reqInfo.pHost = IOT_TEST_HTTPS_SERVER_HOST_NAME;
     reqInfo.hostLen = sizeof( IOT_TEST_HTTPS_SERVER_HOST_NAME ) - 1;
     reqInfo.method = method;
-    reqInfo.isNonPersistent = isNonPersistent; 
+    reqInfo.isNonPersistent = isNonPersistent;
     reqInfo.userBuffer.pBuffer = _pReqUserBuffer;
     reqInfo.userBuffer.bufferLen = sizeof( _pReqUserBuffer );
     reqInfo.isAsync = false;
@@ -293,8 +301,9 @@ static void _testRequestSynchronous( bool isNonPersistent, IotHttpsMethod_t meth
 
     /* Verify the content length is greater than zero for a GET request. */
     returnCode = IotHttpsClient_ReadContentLength( respHandle, &contentLength );
+
     /* This is only verified if the read was successful. If the Content-Length header is far down in the list of
-       response headers, it may not fit into the configured header buffer space. */
+     * response headers, it may not fit into the configured header buffer space. */
     if( returnCode == IOT_HTTPS_OK )
     {
         TEST_ASSERT_GREATER_THAN( 0, contentLength );
@@ -303,11 +312,11 @@ static void _testRequestSynchronous( bool isNonPersistent, IotHttpsMethod_t meth
     if( method == IOT_HTTPS_METHOD_GET )
     {
         /* Verify the response body has some stuff in it. */
-        TEST_ASSERT_GREATER_THAN( 0, strlen( (char*)(respInfo.pSyncInfo->pBody) ) );
+        TEST_ASSERT_GREATER_THAN( 0, strlen( ( char * ) ( respInfo.pSyncInfo->pBody ) ) );
     }
 
     /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection context
-       state is controlled by the application. */
+     * state is controlled by the application. */
     if( isNonPersistent )
     {
         TEST_ASSERT_FALSE( connHandle->isConnected );
@@ -322,7 +331,8 @@ static void _testRequestSynchronous( bool isNonPersistent, IotHttpsMethod_t meth
 /**
  * @brief Send a GET request asynchronously and verify the results.
  */
-static void _testRequestAsynchronous(bool isNonPersistent, IotHttpsMethod_t method)
+static void _testRequestAsynchronous( bool isNonPersistent,
+                                      IotHttpsMethod_t method )
 {
     IotHttpsReturnCode_t returnCode = IOT_HTTPS_OK;
     IotHttpsConnectionHandle_t connHandle = IOT_HTTPS_CONNECTION_HANDLE_INITIALIZER;
@@ -331,7 +341,7 @@ static void _testRequestAsynchronous(bool isNonPersistent, IotHttpsMethod_t meth
     IotHttpsRequestInfo_t reqInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER;
     IotHttpsResponseInfo_t respInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
     IotHttpsAsyncInfo_t asyncRespInfo = IOT_HTTPS_ASYNC_INFO_INITIALIZER;
-    _asyncVerificationParams_t verifParams = {0};
+    _asyncVerificationParams_t verifParams = { 0 };
 
     asyncRespInfo.callbacks.appendHeaderCallback = NULL;
     asyncRespInfo.callbacks.writeCallback = NULL;
@@ -375,19 +385,21 @@ static void _testRequestAsynchronous(bool isNonPersistent, IotHttpsMethod_t meth
         TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &( verifParams.finishedSem ), IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS ) );
 
         /* Verify all of the parameters set durign the callbacks. */
-        TEST_ASSERT_EQUAL(IOT_HTTPS_STATUS_OK, verifParams.responseStatus);
+        TEST_ASSERT_EQUAL( IOT_HTTPS_STATUS_OK, verifParams.responseStatus );
+
         if( verifParams.contentLengthReturnCode == IOT_HTTPS_OK )
         {
-            TEST_ASSERT_GREATER_THAN(0, verifParams.contentLength);
+            TEST_ASSERT_GREATER_THAN( 0, verifParams.contentLength );
         }
+
         if( method == IOT_HTTPS_METHOD_GET )
         {
-            TEST_ASSERT_GREATER_THAN(0, verifParams.bodyReceivedLength);
-            TEST_ASSERT_EQUAL(IOT_HTTPS_OK, verifParams.readResponseBodyReturnCode);
+            TEST_ASSERT_GREATER_THAN( 0, verifParams.bodyReceivedLength );
+            TEST_ASSERT_EQUAL( IOT_HTTPS_OK, verifParams.readResponseBodyReturnCode );
         }
 
         /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection context
-           state is controlled by the application. */
+         * state is controlled by the application. */
         if( isNonPersistent )
         {
             TEST_ASSERT_FALSE( connHandle->isConnected );
@@ -418,7 +430,7 @@ TEST_SETUP( HTTPS_Client_System )
 {
     /* This will initialize the library before every test case, which is OK. */
     TEST_ASSERT_EQUAL_INT( true, IotSdk_Init() );
-    TEST_ASSERT_EQUAL( IOT_HTTPS_OK, IotHttpsClient_Init());
+    TEST_ASSERT_EQUAL( IOT_HTTPS_OK, IotHttpsClient_Init() );
 
     _connInfo.pNetworkInterface = IOT_TEST_NETWORK_INTERFACE;
 }
