@@ -55,11 +55,16 @@ size_t http_parser_execute (http_parser *parser,
                             const http_parser_settings *settings,
                             const char *data,
                             size_t len) {
-  size_t ret;
+  __CPROVER_assert(parser, "http_parser_execute parser nonnull");
+  __CPROVER_assert(settings, "http_parser_execute settings nonnull");
+  __CPROVER_assert(data, "http_parser_execute data nonnull");  
+
   _httpsResponse_t *_httpsResponse = (_httpsResponse_t *)(parser->data);
   /* nondet_bool is required to get coverage. */
   _httpsResponse->foundHeaderField = nondet_bool();
   _httpsResponse->parserState = PARSER_STATE_BODY_COMPLETE;
+
+  size_t ret;
   return ret;
 }
 
@@ -70,14 +75,15 @@ size_t http_parser_execute (http_parser *parser,
 IotNetworkError_t IotNetworkInterfaceCreate( void * pConnectionInfo,
 					     void * pCredentialInfo,
 					     void * pConnection ) {
-  __CPROVER_assert(pConnectionInfo, "IotNetworkInterfaceCreate pConnectionInfo");
-  /* create accepts pCredentialInfo==NULL if there is no TLS configuration. */
+  __CPROVER_assert(pConnectionInfo,
+		   "IotNetworkInterfaceCreate pConnectionInfo");
+  /* create accepts NULL credentials when there is no TLS configuration. */
   __CPROVER_assert(pConnection, "IotNetworkInterfaceCreate pConnection");
 
   /* The network connection created by this function is an opaque type
    * that is simply passed to the other network functions we are
-   * stubbing out, so we just ensure that the type points to a trivial
-   * memory object. */
+   * stubbing out, so we just ensure that it points to a memory
+   * object. */
   *(char **)pConnection = malloc(1); /* network connection is opaque.  */
 
   IotNetworkError_t error;
@@ -97,6 +103,7 @@ size_t IotNetworkInterfaceSend( void * pConnection,
 
 IotNetworkError_t IotNetworkInterfaceClose( void * pConnection ) {
   __CPROVER_assert(pConnection, "IotNetworkInterfaceClose pConnection");
+
   IotNetworkError_t error;
   return error;
 }
@@ -119,11 +126,15 @@ size_t IotNetworkInterfaceReceive( void * pConnection,
 }
 
 IotNetworkError_t IotNetworkInterfaceCallback( void * pConnection,
-					       IotNetworkReceiveCallback_t receiveCallback,
+					       IotNetworkReceiveCallback_t
+					         receiveCallback,
 					       void * pContext ) {
-  __CPROVER_assert(pConnection, "IotNetworkInterfaceCallback pConnection");
-  __CPROVER_assert(receiveCallback, "IotNetworkInterfaceCallback receiveCallback");
-  __CPROVER_assert(pContext, "IotNetworkInterfaceCallback pContext");
+  __CPROVER_assert(pConnection,
+		   "IotNetworkInterfaceCallback pConnection");
+  __CPROVER_assert(receiveCallback,
+		   "IotNetworkInterfaceCallback receiveCallback");
+  __CPROVER_assert(pContext,
+		   "IotNetworkInterfaceCallback pContext");
 
   IotNetworkError_t error;
   return error;
@@ -147,8 +158,26 @@ IotNetworkInterface_t IOTNI = {
 
 /* Models the Network Interface. */
 IotNetworkInterface_t *newNetworkInterface() {
+  // Should NULL be possible return value?
   return &IOTNI;
 }
+
+int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
+  return
+    netif &&
+    netif->create &&
+    netif->close &&
+    netif->send &&
+    netif->receive &&
+    netif->setReceiveCallback &&
+    netif->destroy;
+}
+
+/* Use 
+ *   __CPROVER_assume(is_stubbed_NetworkInterface(netif)); 
+ * to ensure the stubbed out functions are used.  The initializer for
+ * IOTNI appears to be ignored when CBMC is run with
+ * --nondet-static. */
 
 int is_stubbed_NetworkInterface(IotNetworkInterface_t *netif) {
   return
@@ -160,39 +189,34 @@ int is_stubbed_NetworkInterface(IotNetworkInterface_t *netif) {
     netif->destroy == IotNetworkInterfaceDestroy;
 }
 
-int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
-  return
-    netif->create &&
-    netif->close &&
-    netif->send &&
-    netif->receive &&
-    netif->setReceiveCallback &&
-    netif->destroy;
-}
-
 /****************************************************************
  * IotHttpsConnectionInfo constructor
  ****************************************************************/
 
 /* Creates a Connection Info and assigns memory accordingly. */
 IotHttpsConnectionInfo_t * newConnectionInfo() {
-  IotHttpsConnectionInfo_t * pConnInfo = safeMalloc(sizeof(IotHttpsConnectionInfo_t));
+  IotHttpsConnectionInfo_t * pConnInfo =
+    safeMalloc(sizeof(IotHttpsConnectionInfo_t));
   if(pConnInfo) {
     pConnInfo->pNetworkInterface = newNetworkInterface();
-    /* Function _createHttpsConnection checks if pConnInfo->addressLen is less than
-    IOT_HTTPS_MAX_HOST_NAME_LENGTH. The +1 is added to cover all cases. */
-    __CPROVER_assume(pConnInfo->addressLen >= 0 && pConnInfo->addressLen <= IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1);
     pConnInfo->pAddress = safeMalloc(pConnInfo->addressLen);
-    /* Function _createHttpsConnection checks if pConnInfo->alpnProtocolsLen is less than
-    IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH. The +1 is added to cover all cases. */
-    __CPROVER_assume(pConnInfo->alpnProtocolsLen >= 0 && pConnInfo->alpnProtocolsLen <= IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH + 1);
     pConnInfo->pAlpnProtocols = safeMalloc(pConnInfo->alpnProtocolsLen);
-    pConnInfo->pCaCert = malloc(sizeof(uint32_t));
-    pConnInfo->pClientCert = malloc(sizeof(uint32_t));
-    pConnInfo->pPrivateKey = malloc(sizeof(uint32_t));
+    pConnInfo->pCaCert = safeMalloc(sizeof(uint32_t));
+    pConnInfo->pClientCert = safeMalloc(sizeof(uint32_t));
+    pConnInfo->pPrivateKey = safeMalloc(sizeof(uint32_t));
     pConnInfo->userBuffer.pBuffer = safeMalloc(sizeof(_connHandle_t));
   }
   return pConnInfo;
+}
+
+int is_valid_ConnectionInfo(IotHttpsConnectionInfo_t *pConnInfo) {
+  return
+    pConnInfo &&
+    pConnInfo->pCaCert &&
+    pConnInfo->pClientCert &&
+    pConnInfo->pPrivateKey &&
+    pConnInfo->userBuffer.pBuffer &&
+    is_valid_NetworkInterface(pConnInfo->pNetworkInterface);
 }
 
 /****************************************************************
@@ -216,6 +240,7 @@ IotHttpsConnectionHandle_t newIotConnectionHandle () {
 
 int is_valid_IotConnectionHandle(IotHttpsConnectionHandle_t handle) {
   return
+    handle &&
     handle->pNetworkConnection &&
     is_valid_NetworkInterface(handle->pNetworkInterface);
 }
