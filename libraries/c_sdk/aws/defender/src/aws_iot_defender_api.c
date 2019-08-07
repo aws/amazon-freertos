@@ -420,7 +420,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
 
         IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
                                       _disconnectJob,
-                                      0 );
+                                      _defenderToMilliseconds( AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS ) );
     }
     else
     {
