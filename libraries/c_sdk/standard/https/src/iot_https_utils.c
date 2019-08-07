@@ -38,7 +38,10 @@
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl, size_t urlLen, const char **pPath, size_t * pPathLen )
+IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl,
+                                                size_t urlLen,
+                                                const char ** pPath,
+                                                size_t * pPathLen )
 {
     /* http-parser status. Initialized to 0 to signify success. */
     int parserStatus = 0;
@@ -46,37 +49,38 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl, size_t urlLen
     IotHttpsReturnCode_t returnStatus = IOT_HTTPS_OK;
 
     /* Sets all members in urlParser to 0. */
-    http_parser_url_init(&urlParser);
+    http_parser_url_init( &urlParser );
 
-    if((pUrl == NULL) || (pPath == NULL) || (pPathLen == NULL))
+    if( ( pUrl == NULL ) || ( pPath == NULL ) || ( pPathLen == NULL ) )
     {
-        IotLogError("NULL parameter passed to IotHttpsClient_GetUrlPath().");
+        IotLogError( "NULL parameter passed to IotHttpsClient_GetUrlPath()." );
         returnStatus = IOT_HTTPS_INVALID_PARAMETER;
     }
 
     if( returnStatus == IOT_HTTPS_OK )
     {
         parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
-        if(parserStatus != 0)
+
+        if( parserStatus != 0 )
         {
-            IotLogError("Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, parserStatus);
+            IotLogError( "Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, parserStatus );
             returnStatus = IOT_HTTPS_PARSING_ERROR;
         }
     }
 
     if( returnStatus == IOT_HTTPS_OK )
     {
-        *pPathLen = ( size_t )( urlParser.field_data[UF_PATH].len );
-        if(*pPathLen == 0)
+        *pPathLen = ( size_t ) ( urlParser.field_data[ UF_PATH ].len );
+
+        if( *pPathLen == 0 )
         {
             returnStatus = IOT_HTTPS_NOT_FOUND;
             *pPath = NULL;
         }
         else
         {
-            *pPath = &pUrl[urlParser.field_data[UF_PATH].off];
+            *pPath = &pUrl[ urlParser.field_data[ UF_PATH ].off ];
         }
-        
     }
 
     return returnStatus;
@@ -84,7 +88,10 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl, size_t urlLen
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress( const char * pUrl, size_t urlLen, const char **pAddress, size_t * pAddressLen )
+IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress( const char * pUrl,
+                                                   size_t urlLen,
+                                                   const char ** pAddress,
+                                                   size_t * pAddressLen )
 {
     /* http-parser status. Initialized to 0 to signify success. */
     int parserStatus = 0;
@@ -92,37 +99,39 @@ IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress( const char * pUrl, size_t url
     IotHttpsReturnCode_t returnStatus = IOT_HTTPS_OK;
 
     /* Sets all members in urlParser to 0. */
-    http_parser_url_init(&urlParser);
+    http_parser_url_init( &urlParser );
 
-    if((pUrl == NULL) || (pAddress == NULL) || (pAddressLen == NULL))
+    if( ( pUrl == NULL ) || ( pAddress == NULL ) || ( pAddressLen == NULL ) )
     {
-        IotLogError("NULL parameter passed to IotHttpsClient_GetUrlAddress().");
+        IotLogError( "NULL parameter passed to IotHttpsClient_GetUrlAddress()." );
         returnStatus = IOT_HTTPS_INVALID_PARAMETER;
     }
 
     if( returnStatus == IOT_HTTPS_OK )
     {
         parserStatus = http_parser_parse_url( pUrl, urlLen, 0, &urlParser );
-        if(parserStatus != 0)
+
+        if( parserStatus != 0 )
         {
-            IotLogError("Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, parserStatus);
+            IotLogError( "Error parsing the input URL %.*s. Error code: %d.", urlLen, pUrl, parserStatus );
             returnStatus = IOT_HTTPS_PARSING_ERROR;
         }
     }
 
     if( returnStatus == IOT_HTTPS_OK )
     {
-        *pAddressLen = ( size_t )( urlParser.field_data[UF_HOST].len );
-        if(*pAddressLen == 0)
+        *pAddressLen = ( size_t ) ( urlParser.field_data[ UF_HOST ].len );
+
+        if( *pAddressLen == 0 )
         {
             returnStatus = IOT_HTTPS_NOT_FOUND;
             *pAddress = NULL;
         }
         else
         {
-            *pAddress = &pUrl[urlParser.field_data[UF_HOST].off];
+            *pAddress = &pUrl[ urlParser.field_data[ UF_HOST ].off ];
         }
     }
-    
+
     return returnStatus;
 }

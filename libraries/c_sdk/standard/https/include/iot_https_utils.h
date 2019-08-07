@@ -36,54 +36,60 @@
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Retrieve the path from the input URL. 
- * 
+ * @brief Retrieve the path from the input URL.
+ *
  * This function retrieves the location and length of the path from within the
  * input the URL. The query is not included in the length returned.
- * 
+ *
  * The URL MUST start with "http://" or "https://" to find the path.
- * 
+ *
  * For example, if the URL is:
  * pUrl = "https://www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
- * 
+ *
  * *pPath = "/path/to/item.txt?optionalquery=stuff"
  * *pPathLen = 17
- * 
+ *
  * @param[in] pUrl - URL string to parse.
  * @param[in] urlLen - The length of the URL string input.
  * @param[out] pPath - pointer within input url that the path starts at.
  * @param[out] pPathLen - Length of the path.
- * 
+ *
  * - #IOT_HTTPS_OK if the path was successfully parsed.
  * - #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
  * - #IOT_HTTPS_NOT_FOUND if the path was not found.
  */
-IotHttpsReturnCode_t IotHttpsClient_GetUrlPath(const char * pUrl, size_t urlLen, const char **pPath, size_t * pPathLen);
+IotHttpsReturnCode_t IotHttpsClient_GetUrlPath( const char * pUrl,
+                                                size_t urlLen,
+                                                const char ** pPath,
+                                                size_t * pPathLen );
 
 /**
  * @brief Retrieve the Address from the input URL.
- * 
+ *
  * This function retrieves the location and length of the address from within
  * the input URL. The path and query are not included in the length returned.
- * 
+ *
  * The URL MUST start with "http://" or "https://" to find the address.
- * 
+ *
  * For example, if the URL is:
  * pUrl = "https://www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
- * 
+ *
  * *pAddress = "www.somewebsite.com/path/to/item.txt?optionalquery=stuff"
  * *pAddressLen = 19
- * 
+ *
  * @param[in] pUrl - URL string to parse.
  * @param[in] urlLen - The length of the URL string input.
  * @param[out] pAddress - pointer within input url that the address starts at.
  * @param[out] pAddressLen - Length of the address.
- * 
+ *
  * @return One of the following:
  * - #IOT_HTTPS_OK if the path was successfully parsed.
  * - #IOT_HTTPS_PARSING_ERROR if there was an error parsing the URL.
  * - #IOT_HTTPS_NOT_FOUND if the address was not found.
  */
-IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress(const char * pUrl, size_t urlLen, const char **pAddress, size_t * pAddressLen);
+IotHttpsReturnCode_t IotHttpsClient_GetUrlAddress( const char * pUrl,
+                                                   size_t urlLen,
+                                                   const char ** pAddress,
+                                                   size_t * pAddressLen );
 
 #endif /* IOT_HTTPS_UTILS_H_ */

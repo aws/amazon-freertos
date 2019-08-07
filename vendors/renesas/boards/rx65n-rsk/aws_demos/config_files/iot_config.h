@@ -25,11 +25,11 @@
 #define IOT_CONFIG_H_
 
 /* How long the MQTT library will wait for PINGRESPs or PUBACKs. */
-#define IOT_MQTT_RESPONSE_WAIT_MS            ( 10000 )
+#define IOT_MQTT_RESPONSE_WAIT_MS               ( 10000 )
 
 /* MQTT demo configuration. */
-#define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
-#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
+#define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT       ( 10 )
+#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE        ( 2 )
 
 /* Shadow demo configuration. The demo publishes periodic Shadow updates and responds
  * to changing Shadows. */
@@ -51,8 +51,8 @@
 #define IOT_LOG_LEVEL_HTTPS                     IOT_LOG_INFO
 
 /* Platform thread stack size and priority. */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    1024
-#define IOT_THREAD_DEFAULT_PRIORITY      5
+#define IOT_THREAD_DEFAULT_STACK_SIZE           1024
+#define IOT_THREAD_DEFAULT_PRIORITY             5
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
