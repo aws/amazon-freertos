@@ -105,7 +105,9 @@ target_sources(
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
         ${bluedroid_src}
+        ${nimble_src}
 )
+
 target_include_directories(
     AFR::ble_hal::mcu_port
     INTERFACE
