@@ -9,20 +9,22 @@
 
 #include "../global_state_HTTP.c"
 
-#ifndef HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH
-#define HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH    ( 26 )
-#endif
-
 /****************************************************************
 * Stub out snprintf so that it writes nothing but simply checks that
-* the arguments are readable and writeable, and returns an
-* unconstrained length.
+* the arguments are readable and writeable, and returns a length.
+*
+* The snprintf function is used by SendSync only to build a header
+* whose length is bounded by HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH,
+* so snprintf returns an unconstrained length between 0 and this 
+* bound.  This value is defined in iot_https_internal.h.
 *
 * MacOS header file /usr/include/secure/_stdio.h defines snprintf to
-* use a builtin function supported by CBMC, so we stub out the builtin
-* snprintf instead of the standard snprintf.
+* use a builtin function supported by CBMC, so when this builtin is
+* available, we stub out the builtin snprintf instead of the standard
+* snprintf.
 ****************************************************************/
 
+/* This is a clang macro not available on linux */
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif

@@ -1,10 +1,6 @@
 {
   "ENTRY": "HttpsClient_SendSync",
 
-  # This comes from libraries/c_sdk/standard/https/src/private/iot_https_internal.h
-  # But can't this be removed by including this header in the test harness?
-  "HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH": "26",
-
   "CBMCFLAGS":
   [
     "--unwind 1",
@@ -45,7 +41,6 @@
   ],
   "DEF":
   [
-    "HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH={HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH}"
   ]
 
 }
