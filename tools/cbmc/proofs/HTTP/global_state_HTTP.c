@@ -2,9 +2,13 @@
 #define USER_DATA_SIZE 1000
 #endif
 
-/* Implementation of safe malloc which returns NULL if the requested size is 0.
- Warning: The behavior of malloc(0) is platform dependent.
- It is possible for malloc(0) to return an address without allocating memory.*/
+/****************************************************************/
+
+/* Implementation of safe malloc which returns NULL if the requested
+ * size is 0.  Warning: The behavior of malloc(0) is platform
+ * dependent.  It is possible for malloc(0) to return an address
+ * without allocating memory.
+ */
 void *safeMalloc(size_t xWantedSize) {
   if(xWantedSize == 0) {
     return NULL;
@@ -13,12 +17,16 @@ void *safeMalloc(size_t xWantedSize) {
   return byte ? malloc(xWantedSize) : NULL;
 }
 
-/* It is common for a buffer to contain a header struct followed by user data.
-We optimize CBMC performance by allocating space for the buffer using a
-struct with two members: the first member is the header struct and the
-second member is the user data. This is faster than just allocating a
-sequence of bytes large enough to hold the header struct and the user data.
-We modeled responseHandle, requestHandle and connectionHandle similarly. */
+/****************************************************************/
+
+/* It is common for a buffer to contain a header struct followed by
+ * user data.  We optimize CBMC performance by allocating space for
+ * the buffer using a struct with two members: the first member is the
+ * header struct and the second member is the user data. This is
+ * faster than just allocating a sequence of bytes large enough to
+ * hold the header struct and the user data.  We modeled
+ * responseHandle, requestHandle and connectionHandle similarly.
+ */
 
 typedef struct _responseHandle
 {
@@ -38,7 +46,11 @@ typedef struct _connectionHandle
   char data[USER_DATA_SIZE];
 } _connHandle_t;
 
-/* Models the third party HTTP Parser. */
+/****************************************************************
+ * HTTP parser stubs
+ ****************************************************************/
+
+/* Model the third party HTTP Parser. */
 size_t http_parser_execute (http_parser *parser,
                             const http_parser_settings *settings,
                             const char *data,
@@ -51,34 +63,54 @@ size_t http_parser_execute (http_parser *parser,
   return ret;
 }
 
+/****************************************************************
+ * IotNetworkInterface constructor
+ ****************************************************************/
+
 IotNetworkError_t IotNetworkInterfaceCreate( void * pConnectionInfo,
-               void * pCredentialInfo,
-               void * pConnection ) {
-  /* This connection created is only used by the send, receive, close, and destroy functions*/
+					     void * pCredentialInfo,
+					     void * pConnection ) {
+  __CPROVER_assert(pConnectionInfo, "IotNetworkInterfaceCreate pConnectionInfo");
+  /* create accepts pCredentialInfo==NULL if there is no TLS configuration. */
+  __CPROVER_assert(pConnection, "IotNetworkInterfaceCreate pConnection");
+
+  /* The network connection created by this function is an opaque type
+   * that is simply passed to the other network functions we are
+   * stubbing out, so we just ensure that the type points to a trivial
+   * memory object. */
   *(char **)pConnection = malloc(1); /* network connection is opaque.  */
+
   IotNetworkError_t error;
   return error;
 }
 
 size_t IotNetworkInterfaceSend( void * pConnection,
-           const uint8_t * pMessage,
-           size_t messageLength ) {
+				const uint8_t * pMessage,
+				size_t messageLength ) {
+  __CPROVER_assert(pConnection, "IotNetworkInterfaceSend pConnection");
+  __CPROVER_assert(pMessage, "IotNetworkInterfaceSend pMessage");
+
   size_t size;
   __CPROVER_assume(size <= messageLength);
   return size;
 }
 
 IotNetworkError_t IotNetworkInterfaceClose( void * pConnection ) {
+  __CPROVER_assert(pConnection, "IotNetworkInterfaceClose pConnection");
   IotNetworkError_t error;
   return error;
 }
 
 size_t IotNetworkInterfaceReceive( void * pConnection,
-        uint8_t * pBuffer,
-        size_t bytesRequested ) {
+				   uint8_t * pBuffer,
+				   size_t bytesRequested ) {
+  __CPROVER_assert(pConnection, "IotNetworkInterfaceReceive pConnection");
+  __CPROVER_assert(pBuffer, "IotNetworkInterfaceReceive pBuffer");
+
+  /* Fill the entire memory object pointed to by pBuffer with
+   * unconstrained data.  This use of __CPROVER_array_copy with a
+   * single byte is a common CBMC idiom. */
   uint8_t byte;
-  /* This intrinsic copies a source to a destination, and fills the
-  remainder of the destination with unconstrained data.*/
   __CPROVER_array_copy(pBuffer,&byte);
 
   size_t size;
@@ -87,14 +119,19 @@ size_t IotNetworkInterfaceReceive( void * pConnection,
 }
 
 IotNetworkError_t IotNetworkInterfaceCallback( void * pConnection,
-                 IotNetworkReceiveCallback_t
-                 receiveCallback,
-                 void * pContext ) {
+					       IotNetworkReceiveCallback_t receiveCallback,
+					       void * pContext ) {
+  __CPROVER_assert(pConnection, "IotNetworkInterfaceCallback pConnection");
+  __CPROVER_assert(receiveCallback, "IotNetworkInterfaceCallback receiveCallback");
+  __CPROVER_assert(pContext, "IotNetworkInterfaceCallback pContext");
+
   IotNetworkError_t error;
   return error;
 }
 
 IotNetworkError_t IotNetworkInterfaceDestroy( void * pConnection ) {
+  __CPROVER_assert(pConnection, "IotNetworkInterfaceDestroy pConnection");
+
   IotNetworkError_t error;
   return error;
 }
@@ -113,7 +150,7 @@ IotNetworkInterface_t *newNetworkInterface() {
   return &IOTNI;
 }
 
-int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
+int is_stubbed_NetworkInterface(IotNetworkInterface_t *netif) {
   return
     netif->create == IotNetworkInterfaceCreate &&
     netif->close == IotNetworkInterfaceClose &&
@@ -122,6 +159,20 @@ int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
     netif->setReceiveCallback == IotNetworkInterfaceCallback &&
     netif->destroy == IotNetworkInterfaceDestroy;
 }
+
+int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
+  return
+    netif->create &&
+    netif->close &&
+    netif->send &&
+    netif->receive &&
+    netif->setReceiveCallback &&
+    netif->destroy;
+}
+
+/****************************************************************
+ * IotHttpsConnectionInfo constructor
+ ****************************************************************/
 
 /* Creates a Connection Info and assigns memory accordingly. */
 IotHttpsConnectionInfo_t * newConnectionInfo() {
@@ -144,11 +195,16 @@ IotHttpsConnectionInfo_t * newConnectionInfo() {
   return pConnInfo;
 }
 
+/****************************************************************
+ * IotHttpsConnectionHandle constructor
+ ****************************************************************/
+
 /* Creates a Connection Handle and assigns memory accordingly. */
 IotHttpsConnectionHandle_t newIotConnectionHandle () {
   IotHttpsConnectionHandle_t pConnectionHandle = safeMalloc(sizeof(_connHandle_t));
   if(pConnectionHandle) {
-    pConnectionHandle->pNetworkConnection = safeMalloc(sizeof(_connHandle_t));
+    /* network connection just points to an allocated memory object */
+    pConnectionHandle->pNetworkConnection = safeMalloc(1);
     pConnectionHandle->pNetworkInterface = newNetworkInterface();
     pConnectionHandle->reqQ.pPrevious = &(pConnectionHandle->reqQ);
     pConnectionHandle->reqQ.pNext = &(pConnectionHandle->reqQ);
@@ -157,6 +213,16 @@ IotHttpsConnectionHandle_t newIotConnectionHandle () {
   }
   return pConnectionHandle;
 }
+
+int is_valid_IotConnectionHandle(IotHttpsConnectionHandle_t handle) {
+  return
+    handle->pNetworkConnection &&
+    is_valid_NetworkInterface(handle->pNetworkInterface);
+}
+
+/****************************************************************
+ * IotHttpsResponseHandle constructor
+ ****************************************************************/
 
 /* Creates a Response Handle and assigns memory accordingly. */
 IotHttpsResponseHandle_t newIotResponseHandle() {
@@ -178,6 +244,10 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
   return pResponseHandle;
 }
 
+/****************************************************************
+ * IotHttpsRequestHandle constructor
+ ****************************************************************/
+
 /* Creates a Request Handle and assigns memory accordingly. */
 IotHttpsRequestHandle_t newIotRequestHandle() {
   IotHttpsRequestHandle_t pRequestHandle = safeMalloc(sizeof(_reqHandle_t));
@@ -193,6 +263,11 @@ IotHttpsRequestHandle_t newIotRequestHandle() {
   }
   return pRequestHandle;
 }
+
+/****************************************************************
+ * IotHttpsRequestInfo constructor
+ ****************************************************************/
+
 /* Creates a Request Info and assigns memory accordingly. */
 IotHttpsRequestInfo_t * newIotRequestInfo() {
   IotHttpsRequestInfo_t * pReqInfo = safeMalloc(sizeof(IotHttpsRequestInfo_t));
@@ -207,6 +282,10 @@ IotHttpsRequestInfo_t * newIotRequestInfo() {
   }
   return pReqInfo;
 }
+
+/****************************************************************
+ * IotHttpsResponseInfo constructor
+ ****************************************************************/
 
 /* Creates a Response Info and assigns memory accordingly. */
 IotHttpsResponseInfo_t * newIotResponseInfo() {
