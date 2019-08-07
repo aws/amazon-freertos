@@ -12,7 +12,7 @@ try:
 except ImportError:
   import gobject as GObject
 import testutils
-import startTests
+import startTests_kpi as startTests
 import threading
 import securityAgent
 
