@@ -57,7 +57,7 @@ size_t http_parser_execute (http_parser *parser,
                             size_t len) {
   __CPROVER_assert(parser, "http_parser_execute parser nonnull");
   __CPROVER_assert(settings, "http_parser_execute settings nonnull");
-  __CPROVER_assert(data, "http_parser_execute data nonnull");  
+  __CPROVER_assert(data, "http_parser_execute data nonnull");
 
   _httpsResponse_t *_httpsResponse = (_httpsResponse_t *)(parser->data);
   /* nondet_bool is required to get coverage. */
@@ -158,8 +158,7 @@ IotNetworkInterface_t IOTNI = {
 
 /* Models the Network Interface. */
 IotNetworkInterface_t *newNetworkInterface() {
-  // Should NULL be possible return value?
-  return &IOTNI;
+  return nondet_bool() ? &IOTNI : NULL;
 }
 
 int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
@@ -173,8 +172,8 @@ int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
     netif->destroy;
 }
 
-/* Use 
- *   __CPROVER_assume(is_stubbed_NetworkInterface(netif)); 
+/* Use
+ *   __CPROVER_assume(is_stubbed_NetworkInterface(netif));
  * to ensure the stubbed out functions are used.  The initializer for
  * IOTNI appears to be ignored when CBMC is run with
  * --nondet-static. */
@@ -225,7 +224,8 @@ int is_valid_ConnectionInfo(IotHttpsConnectionInfo_t *pConnInfo) {
 
 /* Creates a Connection Handle and assigns memory accordingly. */
 IotHttpsConnectionHandle_t newIotConnectionHandle () {
-  IotHttpsConnectionHandle_t pConnectionHandle = safeMalloc(sizeof(_connHandle_t));
+  IotHttpsConnectionHandle_t pConnectionHandle =
+    safeMalloc(sizeof(_connHandle_t));
   if(pConnectionHandle) {
     /* network connection just points to an allocated memory object */
     pConnectionHandle->pNetworkConnection = safeMalloc(1);
@@ -254,20 +254,40 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
   IotHttpsResponseHandle_t pResponseHandle = safeMalloc(sizeof(_resHandle_t));
   if(pResponseHandle) {
     uint32_t len;
-    pResponseHandle->pBody = malloc(len);
-    pResponseHandle->pHttpsConnection = newIotConnectionHandle();
-    pResponseHandle->pHeaders = ((_resHandle_t*)pResponseHandle)->data;
-    pResponseHandle->pHeadersCur = pResponseHandle->pHeaders;
-    pResponseHandle->pHeadersEnd = pResponseHandle->pHeaders + sizeof(((_resHandle_t*)pResponseHandle)->data);
-    pResponseHandle->httpParserInfo.readHeaderParser.data = pResponseHandle;
+
     pResponseHandle->httpParserInfo.parseFunc = http_parser_execute;
-    pResponseHandle->pReadHeaderValue = safeMalloc(sizeof(uint32_t));
-    __CPROVER_assume(pResponseHandle->readHeaderValueLength >= 0 &&
-    pResponseHandle->readHeaderValueLength <= (pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders));
-    pResponseHandle->pReadHeaderValue = malloc(pResponseHandle->readHeaderValueLength);
+
+    pResponseHandle->pBody = saveMalloc(len);
+    pResponseHandle->pHttpsConnection = newIotConnectionHandle();
+    pResponseHandle->pReadHeaderValue =
+      safeMalloc(pResponseHandle->readHeaderValueLength);
   }
   return pResponseHandle;
 }
+
+int is_valid_newIotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
+  int required =
+    pResponseHandle &&
+    __CPROVER_same_object(pResponseHandle->pHeaders,
+			  pResponseHandle->pHeadersCur) &&
+    // Does this overconstrain End?!?
+    __CPROVER_same_object(pResponseHandle->pHeaders,
+			  pResponseHandle->pHeadersEnd);
+  if (!required) return 0;
+
+  int valid_headers =
+    pResponseHandle->pHeaders == ((_resHandle_t*)pResponseHandle)->data;
+  int valid_order =
+    pResponseHandle->pHeaders <= pResponseHandle->pHeadersCur &&
+    pResponseHandle->pHeadersCur <=  pResponseHandle->pHeadersEnd;
+  int valid_parserdata =
+    pResponseHandle->httpParserInfo.readHeaderParser.data == pResponseHandle;
+  return
+    valid_headers &&
+    valid_order &&
+    valid_parserdata;
+}
+
 
 /****************************************************************
  * IotHttpsRequestHandle constructor
