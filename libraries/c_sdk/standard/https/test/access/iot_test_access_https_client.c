@@ -28,15 +28,15 @@
  * @brief Provides access to the internal functions and variables of
  * iot_https_client.c
  *
- * This file should only be included at the bottom of iot_https_client.c and never 
+ * This file should only be included at the bottom of iot_https_client.c and never
  * be compiled by itself.
  */
 
 
 /*-----------------------------------------------------------*/
 
-IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t* pRespHandle, 
-                                                      IotHttpsResponseInfo_t* pRespInfo, 
+IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t * pRespHandle,
+                                                      IotHttpsResponseInfo_t * pRespInfo,
                                                       IotHttpsRequestHandle_t reqHandle )
 {
     return _initializeResponse( pRespHandle, pRespInfo, reqHandle );
@@ -44,7 +44,8 @@ IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t* 
 
 /*-----------------------------------------------------------*/
 
-void IotTestHttps_networkReceiveCallback( void* pNetworkConnection, void* pReceiveContext )
+void IotTestHttps_networkReceiveCallback( void * pNetworkConnection,
+                                          void * pReceiveContext )
 {
     _networkReceiveCallback( pNetworkConnection, pReceiveContext );
 }

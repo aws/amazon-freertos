@@ -39,8 +39,8 @@
  *
  * @see #_initializeResponse.
  */
-IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t* pRespHandle, 
-                                                      IotHttpsResponseInfo_t* pRespInfo, 
+IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t * pRespHandle,
+                                                      IotHttpsResponseInfo_t * pRespInfo,
                                                       IotHttpsRequestHandle_t reqHandle );
 
 /**
@@ -48,7 +48,8 @@ IotHttpsReturnCode_t IotTestHttps_initializeResponse( IotHttpsResponseHandle_t* 
  *
  * @see #_networkReceiveCallback.
  */
-void IotTestHttps_networkReceiveCallback( void* pNetworkConnection, void* pReceiveContext );
+void IotTestHttps_networkReceiveCallback( void * pNetworkConnection,
+                                          void * pReceiveContext );
 
 
 #endif /* ifndef IOT_TEST_ACCESS_HTTPS_ */

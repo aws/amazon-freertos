@@ -28,16 +28,16 @@
 /* Uncomment this line if you want to run AFQP tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED               0
+#define testrunnerUNSUPPORTED              0
 
 /* Unsupported tests. */
-#define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_CBOR_ENABLED    testrunnerUNSUPPORTED
 
 /* Supported tests. 0 = Disabled, 1 = Enabled */
 
 /* This define should be available only if the Wi-Fi code is enabled. */
 #ifndef PIC32_USE_ETHERNET
-    #define testrunnerFULL_WIFI_ENABLED            0
+    #define testrunnerFULL_WIFI_ENABLED    0
 #endif
 
 /* clang-format off */
