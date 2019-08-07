@@ -354,7 +354,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
     ( void ) pJob;
     ( void ) pUserContext;
 
-    IotLogDebug( "Metrics publish job starts." );
+    IotLogInfo( "Metrics publish job starts." );
 
     if( !IotSemaphore_TryWait( &_doneSem ) )
     {
@@ -391,13 +391,20 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
             if( reportCreated )
             {
                 /* Step 4: publish report to defender topic. */
+                size_t reportSize = AwsIotDefenderInternal_GetReportBufferSize();
                 mqttError = AwsIotDefenderInternal_MqttPublish( AwsIotDefenderInternal_GetReportBuffer(),
-                                                                AwsIotDefenderInternal_GetReportBufferSize() );
+                                                                reportSize );
 
                 if( mqttError == IOT_MQTT_SUCCESS )
                 {
                     IotLogDebug( "Metrics report has been published successfully." );
                 }
+
+                IotLogInfo( "Device Defender metrics report size: %d.", reportSize );
+            }
+            else
+            {
+                IotLogError( "Failed to create report." );
             }
         }
     }
@@ -496,7 +503,7 @@ static void _disconnectRoutine( IotTaskPool_t pTaskPool,
 
     IotSemaphore_Post( &_doneSem );
 
-    IotLogDebug( "Disconnect job ends." );
+    IotLogInfo( "Disconnect job ends." );
 }
 
 /*-----------------------------------------------------------*/

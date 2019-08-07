@@ -28,8 +28,11 @@
 /* Defender internal include. */
 #include "private/aws_iot_defender_internal.h"
 
-/* Define topics segments used by defender. */
-#define TOPIC_PREFIX             "$aws/things/"
+#if ( DEVICE_DEFENDER_TEST_MODE==1 )
+    #define TOPIC_PREFIX             "iotdemo/"
+#else 
+    #define TOPIC_PREFIX             "$aws/things/"
+#endif
 
 #define TOPIC_SUFFIX_PUBLISH     "/defender/metrics/" DEFENDER_FORMAT
 
@@ -152,7 +155,7 @@ IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 {
     IotMqttPublishInfo_t publishInfo = IOT_MQTT_PUBLISH_INFO_INITIALIZER;
 
-    publishInfo.qos = IOT_MQTT_QOS_0;
+    publishInfo.qos = IOT_MQTT_QOS_1;
     publishInfo.pTopicName = _pPublishTopic;
     publishInfo.topicNameLength = ( uint16_t ) strlen( _pPublishTopic );
     publishInfo.pPayload = pData;

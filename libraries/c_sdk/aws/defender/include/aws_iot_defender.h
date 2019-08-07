@@ -124,7 +124,12 @@
  */
 typedef enum
 {
-    AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS, /**< TCP connection metrics group. */
+    AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS = 0, /**< TCP connection metrics group. */
+    AWS_IOT_DEFENDER_METRICS_TASK_RUNTIME_STAT,   /**< FreeRTOS kernel task runtime stat. */
+
+    /* Add defender metrics group above this line. */
+
+    AWS_IOT_DEFENDER_METRICS_GROUP_COUNT /**< Number of metrics groups for defender. */
 } AwsIotDefenderMetricsGroup_t;
 
 /**
@@ -197,41 +202,22 @@ typedef struct AwsIotDefenderStartInfo
 } AwsIotDefenderStartInfo_t;
 
 /**
- * @functions_page{defender, Device Defender}
- * @functions_brief{Device Defender}
- * - @function_name{defender_function_setmetrics}
- * @function_brief{defender_function_setmetrics}
- * - @function_name{defender_function_start}
- * @function_brief{defender_function_start}
- * - @function_name{defender_function_stop}
- * @function_brief{defender_function_stop}
- * - @function_name{defender_function_setperiod}
- * @function_brief{defender_function_setperiod}
- * - @function_name{defender_function_getperiod}
- * @function_brief{defender_function_getperiod}
- * - @function_name{defender_function_strerror}
- * @function_brief{defender_function_strerror}
+ * @functionspage{defender,Device Defender library}
+ * - @functionname{defender_function_setmetrics}
+ * - @functionname{defender_function_start}
+ * - @functionname{defender_function_stop}
+ * - @functionname{defender_function_setperiod}
+ * - @functionname{defender_function_getperiod}
+ * - @functionname{defender_function_strerror}
  */
 
 /**
- * @function_page{AwsIotDefender_SetMetrics,defender,setmetrics}
- * @function_snippet{defender,setmetrics,this}
- * @copydoc AwsIotDefender_SetMetrics
- * @function_page{AwsIotDefender_Start,defender,start}
- * @function_snippet{defender,start,this}
- * @copydoc AwsIotDefender_Start
- * @function_page{AwsIotDefender_Stop,defender,stop}
- * @function_snippet{defender,stop,this}
- * @copydoc AwsIotDefender_Stop
- * @function_page{AwsIotDefender_SetPeriod,defender,setperiod}
- * @function_snippet{defender,setperiod,this}
- * @copydoc AwsIotDefender_SetPeriod
- * @function_page{AwsIotDefender_GetPeriod,defender,getperiod}
- * @function_snippet{defender,getperiod,this}
- * @copydoc AwsIotDefender_GetPeriod
- * @function_page{AwsIotDefender_strerror,defender,strerror}
- * @function_snippet{defender,strerror,this}
- * @copydoc AwsIotDefender_strerror
+ * @functionpage{AwsIotDefender_SetMetrics,defender,setmetrics}
+ * @functionpage{AwsIotDefender_Start,defender,start}
+ * @functionpage{AwsIotDefender_Stop,defender,stop}
+ * @functionpage{AwsIotDefender_SetPeriod,defender,setperiod}
+ * @functionpage{AwsIotDefender_GetPeriod,defender,getperiod}
+ * @functionpage{AwsIotDefender_strerror,defender,strerror}
  */
 
 /**
