@@ -257,7 +257,7 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
 
     pResponseHandle->httpParserInfo.parseFunc = http_parser_execute;
 
-    pResponseHandle->pBody = saveMalloc(len);
+    pResponseHandle->pBody = safeMalloc(len);
     pResponseHandle->pHttpsConnection = newIotConnectionHandle();
     pResponseHandle->pReadHeaderValue =
       safeMalloc(pResponseHandle->readHeaderValueLength);
@@ -337,14 +337,17 @@ int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
 
 /* Creates a Request Info and assigns memory accordingly. */
 IotHttpsRequestInfo_t * newIotRequestInfo() {
-  IotHttpsRequestInfo_t * pReqInfo = safeMalloc(sizeof(IotHttpsRequestInfo_t));
+  IotHttpsRequestInfo_t * pReqInfo
+    = safeMalloc(sizeof(IotHttpsRequestInfo_t));
   if(pReqInfo) {
     uint32_t bufferSize;
     uint32_t hostNameLen;
-    __CPROVER_assume(bufferSize >=0 && bufferSize <= requestUserBufferMinimumSize);
+    __CPROVER_assume(bufferSize >=0 && bufferSize <=
+		     requestUserBufferMinimumSize);
     pReqInfo->userBuffer.bufferLen = bufferSize;
     pReqInfo->userBuffer.pBuffer = safeMalloc(bufferSize);
-    __CPROVER_assume(hostNameLen >= 0 && hostNameLen <= IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1);
+    __CPROVER_assume(hostNameLen >= 0 && hostNameLen <=
+		     IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1);
     pReqInfo->pHost = safeMalloc(hostNameLen);
   }
   return pReqInfo;
@@ -356,7 +359,8 @@ IotHttpsRequestInfo_t * newIotRequestInfo() {
 
 /* Creates a Response Info and assigns memory accordingly. */
 IotHttpsResponseInfo_t * newIotResponseInfo() {
-  IotHttpsResponseInfo_t * pRespInfo = safeMalloc(sizeof(IotHttpsResponseInfo_t));
+  IotHttpsResponseInfo_t * pRespInfo =
+    safeMalloc(sizeof(IotHttpsResponseInfo_t));
   if(pRespInfo) {
     uint32_t bufferSize;
     uint32_t bodySize;
