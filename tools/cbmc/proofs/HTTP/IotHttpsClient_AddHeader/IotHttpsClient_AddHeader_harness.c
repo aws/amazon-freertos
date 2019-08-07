@@ -43,15 +43,14 @@ void *memcpy(void *dest, const void *src, size_t n) {
 
 void harness() {
   IotHttpsRequestHandle_t reqHandle = newIotRequestHandle();
-  __CPROVER_assume(is_valid_IotRequestHandle(reqHandle));
+  if (reqHandle)
+    __CPROVER_assume(is_valid_IotRequestHandle(reqHandle));
   uint32_t nameLen;
   uint32_t valueLen;
   __CPROVER_assume(nameLen < UINT32_MAX-1);
   __CPROVER_assume(valueLen < UINT32_MAX-1);
   char * pName = safeMalloc(nameLen+1);
   char * pValue = safeMalloc(valueLen+1);
-  __CPROVER_assume(pName);
-  __CPROVER_assume(pValue);
   if (pName)
     pName[nameLen] = 0;
   if (pValue)
