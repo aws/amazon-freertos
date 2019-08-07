@@ -39,7 +39,7 @@
 
 /**
  * @brief Retrieve the size of the S3 object that is specified in pPath.
- * 
+ *
  * @param[out] pFileSize - The size of the S3 object.
  * @param[in] connHandle - A valid connected connection handle.
  * @param[in] pPath - The path to the S3 object. This includes all of the queries in the pre-signed URL as well.
@@ -51,7 +51,7 @@
  * @param[in] pRespUserBuffer - Buffer for storing the response context and headers.
  * @param[in] respUserBufferLen - Length of the response user buffer.
  */
-int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t* pFileSize,
+int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
                                        IotHttpsConnectionHandle_t connHandle,
                                        const char * pPath,
                                        uint32_t pathLen,
@@ -60,6 +60,6 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t* pFileSize,
                                        uint8_t * pReqUserBuffer,
                                        uint32_t reqUserBufferLen,
                                        uint8_t * pRespUserBuffer,
-                                       uint32_t respUserBufferLen);
+                                       uint32_t respUserBufferLen );
 
-#endif
+#endif /* ifndef IOT_DEMO_HTTPS_COMMON_H_ */
