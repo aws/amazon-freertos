@@ -1,4 +1,6 @@
-#define MAX_DATA_SIZE 1000
+#ifndef USER_DATA_SIZE
+#define USER_DATA_SIZE 1000
+#endif
 
 /* Implementation of safe malloc which returns NULL if the requested size is 0.
  Warning: The behavior of malloc(0) is platform dependent.
@@ -21,19 +23,19 @@ We modeled responseHandle, requestHandle and connectionHandle similarly. */
 typedef struct _responseHandle
 {
   struct _httpsResponse RespHandle;
-  char data[MAX_DATA_SIZE];
+  char data[USER_DATA_SIZE];
 } _resHandle_t;
 
 typedef struct _requestHandle
 {
   struct _httpsRequest ReqHandle;
-  char data[MAX_DATA_SIZE];
+  char data[USER_DATA_SIZE];
 } _reqHandle_t;
 
 typedef struct _connectionHandle
 {
   struct _httpsConnection pConnHandle;
-  char data[MAX_DATA_SIZE];
+  char data[USER_DATA_SIZE];
 } _connHandle_t;
 
 /* Models the third party HTTP Parser. */
@@ -109,6 +111,16 @@ IotNetworkInterface_t IOTNI = {
 /* Models the Network Interface. */
 IotNetworkInterface_t *newNetworkInterface() {
   return &IOTNI;
+}
+
+int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
+  return
+    netif->create == IotNetworkInterfaceCreate &&
+    netif->close == IotNetworkInterfaceClose &&
+    netif->send == IotNetworkInterfaceSend &&
+    netif->receive == IotNetworkInterfaceReceive &&
+    netif->setReceiveCallback == IotNetworkInterfaceCallback &&
+    netif->destroy == IotNetworkInterfaceDestroy;
 }
 
 /* Creates a Connection Info and assigns memory accordingly. */

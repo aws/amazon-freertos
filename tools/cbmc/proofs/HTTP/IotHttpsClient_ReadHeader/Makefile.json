@@ -1,14 +1,27 @@
 {
   "ENTRY": "IotHttpsClient_ReadHeader",
+
   ################################################################
   # This configuration sets MAX_ACCEPTED_SIZE to 20.
   "MAX_ACCEPTED_SIZE": 20,
   "STRNCPY_UNWIND": "__eval {MAX_ACCEPTED_SIZE} + 1",
+
   "CBMCFLAGS":
   [
     "--unwind 1",
     "--unwindset __builtin___strncpy_chk.0:{STRNCPY_UNWIND},strncpy.0:{STRNCPY_UNWIND}",
-    "--nondet-static"
+
+    # uninitialized global variables have arbitrary values
+    "--nondet-static",
+
+    # interesting checks in addtion to memory safety
+    "--div-by-zero-check",
+    "--float-overflow-check",
+    "--nan-check",
+    "--pointer-overflow-check",
+    "--undefined-shift-check",
+    "--signed-overflow-check",
+    "--unsigned-overflow-check"
   ],
   "OBJS":
   [
