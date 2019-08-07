@@ -1,5 +1,10 @@
 {
   "ENTRY": "IotHttpsClient_Disconnect",
+
+  # This is the length of the user data after the header in a buffer.
+  # This can be set to any size.
+  "USER_DATA_SIZE": "1000",
+
   "CBMCFLAGS":
   [
     "--unwind 1",
@@ -38,5 +43,9 @@
     "$(FREERTOS)/libraries/abstractions/platform/include/",
     "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
     "../../include"
+  ],
+  "DEF":
+  [
+    "USER_DATA_SIZE={USER_DATA_SIZE}"
   ]
 }
