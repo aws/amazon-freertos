@@ -265,7 +265,7 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
   return pResponseHandle;
 }
 
-int is_valid_newIotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
+int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
   int required =
     pResponseHandle &&
     __CPROVER_same_object(pResponseHandle->pHeaders,
@@ -300,13 +300,35 @@ IotHttpsRequestHandle_t newIotRequestHandle() {
     uint32_t len;
     pRequestHandle->pHttpsResponse = newIotResponseHandle();
     pRequestHandle->pHttpsConnection = newIotConnectionHandle();
-    pRequestHandle->pBody = malloc(len);
-    pRequestHandle->pHeaders = ((_reqHandle_t*)pRequestHandle)->data;
-    pRequestHandle->pHeadersCur = pRequestHandle->pHeaders;
-    pRequestHandle->pHeadersEnd = pRequestHandle->pHeaders + sizeof(((_reqHandle_t*)pRequestHandle)->data);
+    pRequestHandle->pBody = safeMalloc(len);
     pRequestHandle->pConnInfo = newConnectionInfo();
   }
   return pRequestHandle;
+}
+
+int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
+  int required =
+    pRequestHandle &&
+    __CPROVER_same_object(pRequestHandle->pHeaders,
+			  pRequestHandle->pHeadersCur) &&
+    // Does this overconstrain End?!?
+    __CPROVER_same_object(pRequestHandle->pHeaders,
+			  pRequestHandle->pHeadersEnd);
+  if (!required) return 0;
+
+  int valid_headers =
+    pRequestHandle->pHeaders == ((_reqHandle_t*)pRequestHandle)->data;
+  int valid_order =
+    pRequestHandle->pHeaders <= pRequestHandle->pHeadersCur &&
+    pRequestHandle->pHeadersCur <=  pRequestHandle->pHeadersEnd;
+  int valid_body =
+    pRequestHandle->pBody != NULL;
+  return
+    valid_headers &&
+    valid_order &&
+    valid_body &&
+    // valid_order and short circuit evaluation prevents integer overflow
+    pRequestHandle->pHeadersEnd - pRequestHandle->pHeaders <= USER_DATA_SIZE;
 }
 
 /****************************************************************

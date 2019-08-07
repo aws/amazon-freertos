@@ -12,6 +12,6 @@
 void harness() {
   IotHttpsResponseHandle_t respHandle = newIotResponseHandle();
   uint32_t pContentLength;
-  __CPROVER_assume(is_valid_newIotResponseHandle(respHandle));
+  __CPROVER_assume(is_valid_IotResponseHandle(respHandle));
   IotHttpsClient_ReadContentLength(respHandle, &pContentLength);
 }

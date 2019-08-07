@@ -23,7 +23,7 @@ void harness() {
      * terminate strncpy */
     __CPROVER_assume(respHandle->readHeaderValueLength >= 0 &&
 		     respHandle->readHeaderValueLength <= MAX_ACCEPTED_SIZE + 1);
-    __CPROVER_assume(is_valid_newIotResponseHandle(respHandle));
+    __CPROVER_assume(is_valid_IotResponseHandle(respHandle));
   }
   IotHttpsClient_ReadHeader(respHandle, pName, pName_len, pValue, len);
 }
