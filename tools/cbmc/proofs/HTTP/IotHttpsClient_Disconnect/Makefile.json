@@ -3,7 +3,19 @@
   "CBMCFLAGS":
   [
     "--unwind 1",
-    "--unwindset strlen.0:5,IotListDouble_RemoveAll.0:2"
+    "--unwindset strlen.0:5,IotListDouble_RemoveAll.0:2",
+
+    # uninitialized global variables have arbitrary values
+    "--nondet-static",
+
+    # interesting checks in addtion to memory safety
+    "--div-by-zero-check",
+    "--float-overflow-check",
+    "--nan-check",
+    "--pointer-overflow-check",
+    "--undefined-shift-check",
+    "--signed-overflow-check",
+    "--unsigned-overflow-check"
   ],
   "OBJS":
   [
