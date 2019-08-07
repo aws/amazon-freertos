@@ -105,9 +105,9 @@ static BTStatus_t prvBTSetScanParameters( uint8_t ucAdapterIf,
                                           uint32_t ulScanInterval,
                                           uint32_t ulScanWindow );
 static BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t xAdvParams );
+                                       BTGattAdvertismentParams_t * xAdvParams );
 static BTStatus_t prvBTMultiAdvUpdate( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t advParams );
+                                       BTGattAdvertismentParams_t * advParams );
 static BTStatus_t prvBTMultiAdvSetInstData( uint8_t ucAdapterIf,
                                             bool bSetScanRsp,
                                             bool bIncludeName,
@@ -745,7 +745,7 @@ BTStatus_t prvBTSetScanParameters( uint8_t ucAdapterIf,
 /*-----------------------------------------------------------*/
 
 BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
-                                BTGattAdvertismentParams_t xAdvParams )
+                                BTGattAdvertismentParams_t * xAdvParams )
 {
     BTStatus_t xStatus = eBTStatusUnsupported;
 
@@ -756,7 +756,7 @@ BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
 /*-----------------------------------------------------------*/
 
 BTStatus_t prvBTMultiAdvUpdate( uint8_t ucAdapterIf,
-                                BTGattAdvertismentParams_t advParams )
+                                BTGattAdvertismentParams_t * advParams )
 {
     BTStatus_t xStatus = eBTStatusUnsupported;
 
