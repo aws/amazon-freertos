@@ -21,7 +21,7 @@ void harness() {
     __CPROVER_assume(is_stubbed_NetworkInterface(pConnHandle->pNetworkInterface));
   }
   if (pConnConfig) {
-    __CPROVER_assume(is_valid_NetworkInterface(pConnConfig->pNetworkInterface));
+    __CPROVER_assume(is_valid_ConnectionInfo(pConnConfig));
     __CPROVER_assume(is_stubbed_NetworkInterface(pConnConfig->pNetworkInterface));    
   }
   IotHttpsClient_Connect(&pConnHandle, pConnConfig);
