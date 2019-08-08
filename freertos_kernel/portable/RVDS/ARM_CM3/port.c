@@ -33,8 +33,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-extern uint32_t SystemCoreClock; /* in Kinetis SDK, this contains the system core clock speed */
-
 #ifndef configKERNEL_INTERRUPT_PRIORITY
 	#define configKERNEL_INTERRUPT_PRIORITY 255
 #endif

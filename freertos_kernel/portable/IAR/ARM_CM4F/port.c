@@ -36,8 +36,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-extern uint32_t SystemCoreClock; /* in Kinetis SDK, this contains the system core clock speed */
-
 #ifndef __ARMVFP__
 	#error This port can only be used when the project options are configured to enable hardware floating point support.
 #endif
@@ -635,4 +633,3 @@ __weak void vPortSetupTimerInterrupt( void )
 	}
 
 #endif /* configASSERT_DEFINED */
-

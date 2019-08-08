@@ -36,8 +36,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-extern uint32_t SystemCoreClock; /* in Kinetis SDK, this contains the system core clock speed */
-
 #if( configMAX_SYSCALL_INTERRUPT_PRIORITY == 0 )
 	#error configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to 0.  See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html
 #endif
