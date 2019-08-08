@@ -110,12 +110,6 @@ StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t px
 }
 /*-----------------------------------------------------------*/
 
-#if INCLUDE_vTaskEndScheduler
-#include <setjmp.h>
-static jmp_buf xJumpBuf; /* Used to restore the original context when the scheduler is ended. */
-#endif
-
-/*-----------------------------------------------------------*/
 static void prvTaskExitError( void )
 {
 volatile uint32_t ulDummy = 0UL;
@@ -192,19 +186,6 @@ BaseType_t xPortStartScheduler( void )
 	/* Initialise the critical nesting count ready for the first task. */
 	uxCriticalNesting = 0;
 
-#if INCLUDE_vTaskEndScheduler
-    if(setjmp(xJumpBuf) != 0 ) {
-      /* here we will get in case of call to vTaskEndScheduler() */
-      __asm volatile(
-        " movs r0, #1         \n" /* Switch back to the MSP stack. */
-        " msr CONTROL, r0     \n"
-      );
-      __asm volatile("dsb");
-      __asm volatile("isb");
-      return pdFALSE;
-    }
-#endif
-
 	/* Start the first task. */
 	vPortStartFirstTask();
 
@@ -221,17 +202,12 @@ BaseType_t xPortStartScheduler( void )
 	return 0;
 }
 /*-----------------------------------------------------------*/
-void vPortEndScheduler(void) {
-    /* stop tick timer */
-    *( portNVIC_SYSTICK_CTRL ) = portNVIC_SYSTICK_CLK | portNVIC_SYSTICK_INT;
-    /* Jump back to the processor state prior to starting the
-     scheduler.  This means we are not going to be using a
-     task stack frame so the task can be deleted. */
-#if INCLUDE_vTaskEndScheduler
-    longjmp(xJumpBuf, 1);
-#else
-  for(;;){} /* wait here */
-#endif
+
+void vPortEndScheduler( void )
+{
+	/* Not implemented in ports where there is nothing to return to.
+	Artificially force an assert. */
+	configASSERT( uxCriticalNesting == 1000UL );
 }
 /*-----------------------------------------------------------*/
 

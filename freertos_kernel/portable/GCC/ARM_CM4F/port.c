@@ -214,11 +214,6 @@ StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t px
 }
 /*-----------------------------------------------------------*/
 
-#if INCLUDE_vTaskEndScheduler
-#include <setjmp.h>
-static jmp_buf xJumpBuf; /* Used to restore the original context when the scheduler is ended. */
-#endif
-
 static void prvTaskExitError( void )
 {
 volatile uint32_t ulDummy = 0;
@@ -270,20 +265,18 @@ static void prvPortStartFirstTask( void )
 	would otherwise result in the unnecessary leaving of space in the SVC stack
 	for lazy saving of FPU registers. */
 	__asm volatile(
-#if !INCLUDE_vTaskEndScheduler
-                    " ldr r0, =0xE000ED08   \n" /* Use the NVIC offset register to locate the stack. */
-                    " ldr r0, [r0]          \n"
-                    " ldr r0, [r0]          \n"
-                    " msr msp, r0           \n" /* Set the msp back to the start of the stack. */
-                    " mov r0, #0            \n" /* Clear the bit that indicates the FPU is in use, see comment above. */
-                    " msr control, r0       \n"
-#endif
-                    " cpsie i               \n" /* Globally enable interrupts. */
-                    " cpsie f               \n"
-                    " dsb                   \n"
-                    " isb                   \n"
-                    " svc 0                 \n" /* System call to start first task. */
-                    " nop                   \n"
+					" ldr r0, =0xE000ED08 	\n" /* Use the NVIC offset register to locate the stack. */
+					" ldr r0, [r0] 			\n"
+					" ldr r0, [r0] 			\n"
+					" msr msp, r0			\n" /* Set the msp back to the start of the stack. */
+					" mov r0, #0			\n" /* Clear the bit that indicates the FPU is in use, see comment above. */
+					" msr control, r0		\n"
+					" cpsie i				\n" /* Globally enable interrupts. */
+					" cpsie f				\n"
+					" dsb					\n"
+					" isb					\n"
+					" svc 0					\n" /* System call to start first task. */
+					" nop					\n"
 				);
 }
 /*-----------------------------------------------------------*/
@@ -382,19 +375,6 @@ BaseType_t xPortStartScheduler( void )
 	/* Lazy save always. */
 	*( portFPCCR ) |= portASPEN_AND_LSPEN_BITS;
 
-#if INCLUDE_vTaskEndScheduler
-    if(setjmp(xJumpBuf) != 0 ) {
-      /* here we will get in case of call to vTaskEndScheduler() */
-      __asm volatile(
-        " movs r0, #1         \n" /* Switch back to the MSP stack. */
-        " msr CONTROL, r0     \n"
-      );
-      __asm volatile("dsb");
-      __asm volatile("isb");
-      return pdFALSE;
-    }
-#endif
-
 	/* Start the first task. */
 	prvPortStartFirstTask();
 
@@ -411,17 +391,12 @@ BaseType_t xPortStartScheduler( void )
 	return 0;
 }
 /*-----------------------------------------------------------*/
-void vPortEndScheduler(void) {
-    /* stop tick timer */
-    portNVIC_SYSTICK_CTRL_REG = portNVIC_SYSTICK_CLK_BIT | portNVIC_SYSTICK_INT_BIT;
-    /* Jump back to the processor state prior to starting the
-     scheduler.  This means we are not going to be using a
-     task stack frame so the task can be deleted. */
-#if INCLUDE_vTaskEndScheduler
-    longjmp(xJumpBuf, 1);
-#else
-    for(;;){} /* wait here */
-#endif
+
+void vPortEndScheduler( void )
+{
+	/* Not implemented in ports where there is nothing to return to.
+	Artificially force an assert. */
+	configASSERT( uxCriticalNesting == 1000UL );
 }
 /*-----------------------------------------------------------*/
 
