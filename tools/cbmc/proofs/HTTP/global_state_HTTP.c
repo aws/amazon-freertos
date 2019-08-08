@@ -9,8 +9,7 @@ void *safeMalloc(size_t xWantedSize) {
   if(xWantedSize == 0) {
     return NULL;
   }
-  uint8_t byte;
-  return byte ? malloc(xWantedSize) : NULL;
+  return nondet_bool() ? malloc(xWantedSize) : NULL;
 }
 
 /****************************************************************/
@@ -60,8 +59,7 @@ size_t http_parser_execute (http_parser *parser,
   _httpsResponse->foundHeaderField = nondet_bool();
   _httpsResponse->parserState = PARSER_STATE_BODY_COMPLETE;
 
-  size_t ret;
-  return ret;
+  return nondet_size_t();
 }
 
 /****************************************************************
