@@ -32,6 +32,9 @@
  * the default. */
 #define TEST_TASKPOOL_ITERATIONS         50
 
+/* Temporary debug logging. This is to debug issue in TI board on the test framework. */
+#define IOT_LOG_LEVEL_HTTPS              IOT_LOG_DEBUG
+
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
