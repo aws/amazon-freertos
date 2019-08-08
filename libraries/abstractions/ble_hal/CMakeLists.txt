@@ -31,8 +31,22 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/iot_test_ble_hal.c"
+        "${test_dir}/src/iot_test_ble_hal_afqp.c"
+        "${test_dir}/src/iot_test_ble_hal_stress_test.c"
+        "${test_dir}/src/iot_test_ble_hal_kpi.c"
+        "${test_dir}/src/iot_test_ble_hal_integration.c"
+        "${test_dir}/include/iot_test_ble_hal_common.h"
+        "${test_dir}/include/iot_test_ble_hal_afqp.h"
+        "${test_dir}/include/iot_test_ble_hal_stress_test.h"
+        "${test_dir}/include/iot_test_ble_hal_kpi.h"
+        "${test_dir}/include/iot_test_ble_hal_integration.h"
 )
+
+afr_module_include_dirs(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE "${test_dir}/include"
+)
+
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
