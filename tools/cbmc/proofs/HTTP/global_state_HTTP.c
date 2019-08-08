@@ -333,6 +333,7 @@ int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
 
 /****************************************************************
  * IotHttpsRequestInfo constructor
+ * This is currently unusued and untested.
  ****************************************************************/
 
 /* Creates a Request Info and assigns memory accordingly. */
@@ -340,17 +341,17 @@ IotHttpsRequestInfo_t * newIotRequestInfo() {
   IotHttpsRequestInfo_t * pReqInfo
     = safeMalloc(sizeof(IotHttpsRequestInfo_t));
   if(pReqInfo) {
-    uint32_t bufferSize;
-    uint32_t hostNameLen;
-    __CPROVER_assume(bufferSize >=0 && bufferSize <=
-		     requestUserBufferMinimumSize);
-    pReqInfo->userBuffer.bufferLen = bufferSize;
-    pReqInfo->userBuffer.pBuffer = safeMalloc(bufferSize);
-    __CPROVER_assume(hostNameLen >= 0 && hostNameLen <=
-		     IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1);
-    pReqInfo->pHost = safeMalloc(hostNameLen);
+    pReqInfo->userBuffer.pBuffer = safeMalloc(pReqInfo->userBuffer.bufferLen);
+    pReqInfo->pHost = safeMalloc(pReqInfo->hostLen);
   }
   return pReqInfo;
+}
+
+int is_valid_IotRequestInfo(IotHttpsRequestInfo_t * pReqInfo) {
+  return
+    // Should the global minimum size really be an upper bound?
+    pReqInfo->userBuffer.bufferLen <= requestUserBufferMinimumSize &&
+    pReqInfo->hostLen <= IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1;
 }
 
 /****************************************************************
@@ -362,14 +363,17 @@ IotHttpsResponseInfo_t * newIotResponseInfo() {
   IotHttpsResponseInfo_t * pRespInfo =
     safeMalloc(sizeof(IotHttpsResponseInfo_t));
   if(pRespInfo) {
-    uint32_t bufferSize;
-    uint32_t bodySize;
-    pRespInfo->userBuffer.bufferLen = bufferSize;
-    pRespInfo->userBuffer.pBuffer = safeMalloc(bufferSize);
-    /* We assume that these two pointers can not be NULL.*/
-    pRespInfo->pSyncInfo = malloc(sizeof(IotHttpsSyncInfo_t));
-    pRespInfo->pSyncInfo->pBody = malloc(bodySize);
-    pRespInfo->pSyncInfo->bodyLen = bodySize;
+    pRespInfo->userBuffer.pBuffer = safeMalloc(pRespInfo->userBuffer.bufferLen);
+    pRespInfo->pSyncInfo = safeMalloc(sizeof(IotHttpsSyncInfo_t));
+    if (pRespInfo->pSyncInfo)
+      pRespInfo->pSyncInfo->pBody = safeMalloc(pRespInfo->pSyncInfo->bodyLen);
   }
   return pRespInfo;
+}
+
+int is_valid_IotResponseInfo(IotHttpsResponseInfo_t * pRespInfo){
+  return
+    pRespInfo &&
+    pRespInfo->pSyncInfo &&
+    pRespInfo->pSyncInfo->pBody;
 }

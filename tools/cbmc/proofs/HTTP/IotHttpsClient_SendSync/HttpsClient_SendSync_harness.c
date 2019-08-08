@@ -15,7 +15,7 @@
 *
 * The snprintf function is used by SendSync only to build a header
 * whose length is bounded by HTTPS_MAX_CONTENT_LENGTH_LINE_LENGTH,
-* so snprintf returns an unconstrained length between 0 and this 
+* so snprintf returns an unconstrained length between 0 and this
 * bound.  This value is defined in iot_https_internal.h.
 *
 * MacOS header file /usr/include/secure/_stdio.h defines snprintf to
@@ -57,5 +57,7 @@ void harness() {
   IotHttpsResponseHandle_t pRespHandle = newIotResponseHandle();
   IotHttpsResponseInfo_t *pRespInfo = newIotResponseInfo();
   uint32_t timeoutMs;
+
+  __CPROVER_assume(is_valid_IotResponseInfo(pRespInfo));
   IotHttpsClient_SendSync(pConnHandle, reqHandle, &pRespHandle, pRespInfo, timeoutMs);
 }
