@@ -24,4 +24,4 @@ Enable full PKCS #11 tests in $\vendors\pc\boards\windows\aws_tests\config_files
 ```
 Ensure that your configuration for networking and AWS IoT endpoint and Thing settings are working, as per the Baseline section above.
 
-Modify the Visual Studio solution to include the new file and filter (i.e. folder) aws_tests\libraries\abstractions\pkcs11\softhsm\iot_pkcs11_softhsm.c. Then remove the filters for abstractions\pkcs11\mbedtls and abstractions\pkcs11\include. 
+Modify the Visual Studio solution to include the new file and filter $\vendors\pc\boards\windows\ports\pkcs11\softhsm\iot_pkcs11_softhsm.c. Then remove the filters for abstractions\pkcs11\mbedtls and abstractions\pkcs11\include.
