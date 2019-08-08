@@ -14,15 +14,15 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
 
 
 void harness() {
-  IotHttpsConnectionHandle_t pConnHandle = newIotConnectionHandle();
-  IotHttpsConnectionInfo_t *pConnConfig = newConnectionInfo();
+  IotHttpsConnectionHandle_t pConnHandle = allocate_IotConnectionHandle();
+  IotHttpsConnectionInfo_t *pConnConfig = allocate_IotConnectionInfo();
   if(pConnHandle) {
     __CPROVER_assume(is_valid_IotConnectionHandle(pConnHandle));
     __CPROVER_assume(is_stubbed_NetworkInterface(pConnHandle->pNetworkInterface));
   }
   if (pConnConfig) {
-    __CPROVER_assume(is_valid_ConnectionInfo(pConnConfig));
-    __CPROVER_assume(is_stubbed_NetworkInterface(pConnConfig->pNetworkInterface));    
+    __CPROVER_assume(is_valid_IotConnectionInfo(pConnConfig));
+    __CPROVER_assume(is_stubbed_NetworkInterface(pConnConfig->pNetworkInterface));
   }
   IotHttpsClient_Connect(&pConnHandle, pConnConfig);
 }

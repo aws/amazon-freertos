@@ -153,7 +153,7 @@ IotNetworkInterface_t IOTNI = {
 };
 
 /* Models the Network Interface. */
-IotNetworkInterface_t *newNetworkInterface() {
+IotNetworkInterface_t *allocate_NetworkInterface() {
   return nondet_bool() ? &IOTNI : NULL;
 }
 
@@ -188,11 +188,11 @@ int is_stubbed_NetworkInterface(IotNetworkInterface_t *netif) {
  ****************************************************************/
 
 /* Creates a Connection Info and assigns memory accordingly. */
-IotHttpsConnectionInfo_t * newConnectionInfo() {
+IotHttpsConnectionInfo_t * allocate_IotConnectionInfo() {
   IotHttpsConnectionInfo_t * pConnInfo =
     safeMalloc(sizeof(IotHttpsConnectionInfo_t));
   if(pConnInfo) {
-    pConnInfo->pNetworkInterface = newNetworkInterface();
+    pConnInfo->pNetworkInterface = allocate_NetworkInterface();
     pConnInfo->pAddress = safeMalloc(pConnInfo->addressLen);
     pConnInfo->pAlpnProtocols = safeMalloc(pConnInfo->alpnProtocolsLen);
     pConnInfo->pCaCert = safeMalloc(sizeof(uint32_t));
@@ -203,7 +203,7 @@ IotHttpsConnectionInfo_t * newConnectionInfo() {
   return pConnInfo;
 }
 
-int is_valid_ConnectionInfo(IotHttpsConnectionInfo_t *pConnInfo) {
+int is_valid_IotConnectionInfo(IotHttpsConnectionInfo_t *pConnInfo) {
   return
     pConnInfo->pCaCert &&
     pConnInfo->pClientCert &&
@@ -218,13 +218,13 @@ int is_valid_ConnectionInfo(IotHttpsConnectionInfo_t *pConnInfo) {
  ****************************************************************/
 
 /* Creates a Connection Handle and assigns memory accordingly. */
-IotHttpsConnectionHandle_t newIotConnectionHandle () {
+IotHttpsConnectionHandle_t allocate_IotConnectionHandle () {
   IotHttpsConnectionHandle_t pConnectionHandle =
     safeMalloc(sizeof(_connHandle_t));
   if(pConnectionHandle) {
     // network connection just points to an allocated memory object
     pConnectionHandle->pNetworkConnection = safeMalloc(1);
-    pConnectionHandle->pNetworkInterface = newNetworkInterface();
+    pConnectionHandle->pNetworkInterface = allocate_NetworkInterface();
     // ???: Should reqQ initialization be an assumption?
     pConnectionHandle->reqQ.pPrevious = &(pConnectionHandle->reqQ);
     pConnectionHandle->reqQ.pNext = &(pConnectionHandle->reqQ);
@@ -247,7 +247,7 @@ int is_valid_IotConnectionHandle(IotHttpsConnectionHandle_t handle) {
  ****************************************************************/
 
 /* Creates a Response Handle and assigns memory accordingly. */
-IotHttpsResponseHandle_t newIotResponseHandle() {
+IotHttpsResponseHandle_t allocate_IotResponseHandle() {
   IotHttpsResponseHandle_t pResponseHandle = safeMalloc(sizeof(_resHandle_t));
   if(pResponseHandle) {
     uint32_t len;
@@ -255,7 +255,7 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
     pResponseHandle->httpParserInfo.parseFunc = http_parser_execute;
 
     pResponseHandle->pBody = safeMalloc(len);
-    pResponseHandle->pHttpsConnection = newIotConnectionHandle();
+    pResponseHandle->pHttpsConnection = allocate_IotConnectionHandle();
     pResponseHandle->pReadHeaderField =
       safeMalloc(pResponseHandle->readHeaderFieldLength);
     pResponseHandle->pReadHeaderValue =
@@ -292,14 +292,14 @@ int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
  ****************************************************************/
 
 /* Creates a Request Handle and assigns memory accordingly. */
-IotHttpsRequestHandle_t newIotRequestHandle() {
+IotHttpsRequestHandle_t allocate_IotRequestHandle() {
   IotHttpsRequestHandle_t pRequestHandle = safeMalloc(sizeof(_reqHandle_t));
   if (pRequestHandle) {
     uint32_t len;
-    pRequestHandle->pHttpsResponse = newIotResponseHandle();
-    pRequestHandle->pHttpsConnection = newIotConnectionHandle();
+    pRequestHandle->pHttpsResponse = allocate_IotResponseHandle();
+    pRequestHandle->pHttpsConnection = allocate_IotConnectionHandle();
     pRequestHandle->pBody = safeMalloc(len);
-    pRequestHandle->pConnInfo = newConnectionInfo();
+    pRequestHandle->pConnInfo = allocate_IotConnectionInfo();
   }
   return pRequestHandle;
 }
@@ -334,7 +334,7 @@ int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
  ****************************************************************/
 
 /* Creates a Request Info and assigns memory accordingly. */
-IotHttpsRequestInfo_t * newIotRequestInfo() {
+IotHttpsRequestInfo_t * allocate_IotRequestInfo() {
   IotHttpsRequestInfo_t * pReqInfo
     = safeMalloc(sizeof(IotHttpsRequestInfo_t));
   if(pReqInfo) {
@@ -356,7 +356,7 @@ int is_valid_IotRequestInfo(IotHttpsRequestInfo_t * pReqInfo) {
  ****************************************************************/
 
 /* Creates a Response Info and assigns memory accordingly. */
-IotHttpsResponseInfo_t * newIotResponseInfo() {
+IotHttpsResponseInfo_t * allocate_IotResponseInfo() {
   IotHttpsResponseInfo_t * pRespInfo =
     safeMalloc(sizeof(IotHttpsResponseInfo_t));
   if(pRespInfo) {

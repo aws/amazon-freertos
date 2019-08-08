@@ -10,7 +10,7 @@
 #include "../global_state_HTTP.c"
 
 void harness() {
-  IotHttpsConnectionHandle_t connHandle = newIotConnectionHandle();
+  IotHttpsConnectionHandle_t connHandle = allocate_IotConnectionHandle();
   if(connHandle) {
     __CPROVER_assume(is_valid_IotConnectionHandle(connHandle));
     __CPROVER_assume(is_stubbed_NetworkInterface(connHandle->pNetworkInterface));
