@@ -203,6 +203,10 @@ static void RunTests( void )
         RUN_TEST_GROUP( Full_Serializer_JSON );
         RUN_TEST_GROUP( Full_Serializer_JSON_deserialize );
     #endif
+
+    #if ( testrunnerFULL_COMMON_IO_PERF_CNTR == 1 )
+        RUN_TEST_GROUP( IOT_PERFCOUNTER_TEST );
+    #endif
 }
 /*-----------------------------------------------------------*/
 
