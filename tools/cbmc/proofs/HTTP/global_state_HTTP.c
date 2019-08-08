@@ -1,7 +1,3 @@
-#ifndef USER_DATA_SIZE
-#define USER_DATA_SIZE 1000
-#endif
-
 /****************************************************************/
 
 /* Implementation of safe malloc which returns NULL if the requested
@@ -163,7 +159,6 @@ IotNetworkInterface_t *newNetworkInterface() {
 
 int is_valid_NetworkInterface(IotNetworkInterface_t *netif) {
   return
-    netif &&
     netif->create &&
     netif->close &&
     netif->send &&
@@ -210,11 +205,11 @@ IotHttpsConnectionInfo_t * newConnectionInfo() {
 
 int is_valid_ConnectionInfo(IotHttpsConnectionInfo_t *pConnInfo) {
   return
-    pConnInfo &&
     pConnInfo->pCaCert &&
     pConnInfo->pClientCert &&
     pConnInfo->pPrivateKey &&
     pConnInfo->userBuffer.pBuffer &&
+    pConnInfo->pNetworkInterface &&
     is_valid_NetworkInterface(pConnInfo->pNetworkInterface);
 }
 
@@ -227,11 +222,13 @@ IotHttpsConnectionHandle_t newIotConnectionHandle () {
   IotHttpsConnectionHandle_t pConnectionHandle =
     safeMalloc(sizeof(_connHandle_t));
   if(pConnectionHandle) {
-    /* network connection just points to an allocated memory object */
+    // network connection just points to an allocated memory object
     pConnectionHandle->pNetworkConnection = safeMalloc(1);
     pConnectionHandle->pNetworkInterface = newNetworkInterface();
+    // ???: Should reqQ initialization be an assumption?
     pConnectionHandle->reqQ.pPrevious = &(pConnectionHandle->reqQ);
     pConnectionHandle->reqQ.pNext = &(pConnectionHandle->reqQ);
+    // ???: Should respQ initialization be an assumption?
     pConnectionHandle->respQ.pPrevious = &(pConnectionHandle->respQ);
     pConnectionHandle->respQ.pNext = &(pConnectionHandle->respQ);
   }
@@ -240,8 +237,8 @@ IotHttpsConnectionHandle_t newIotConnectionHandle () {
 
 int is_valid_IotConnectionHandle(IotHttpsConnectionHandle_t handle) {
   return
-    handle &&
     handle->pNetworkConnection &&
+    handle->pNetworkInterface &&
     is_valid_NetworkInterface(handle->pNetworkInterface);
 }
 
@@ -259,6 +256,8 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
 
     pResponseHandle->pBody = safeMalloc(len);
     pResponseHandle->pHttpsConnection = newIotConnectionHandle();
+    pResponseHandle->pReadHeaderField =
+      safeMalloc(pResponseHandle->readHeaderFieldLength);
     pResponseHandle->pReadHeaderValue =
       safeMalloc(pResponseHandle->readHeaderValueLength);
   }
@@ -267,10 +266,9 @@ IotHttpsResponseHandle_t newIotResponseHandle() {
 
 int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
   int required =
-    pResponseHandle &&
     __CPROVER_same_object(pResponseHandle->pHeaders,
 			  pResponseHandle->pHeadersCur) &&
-    // Does this overconstrain End?!?
+    // ???: Does this overconstrain End?
     __CPROVER_same_object(pResponseHandle->pHeaders,
 			  pResponseHandle->pHeadersEnd);
   if (!required) return 0;
@@ -308,10 +306,9 @@ IotHttpsRequestHandle_t newIotRequestHandle() {
 
 int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
   int required =
-    pRequestHandle &&
     __CPROVER_same_object(pRequestHandle->pHeaders,
 			  pRequestHandle->pHeadersCur) &&
-    // Does this overconstrain End?!?
+    // ???: Does this overconstrain End?
     __CPROVER_same_object(pRequestHandle->pHeaders,
 			  pRequestHandle->pHeadersEnd);
   if (!required) return 0;
@@ -349,7 +346,7 @@ IotHttpsRequestInfo_t * newIotRequestInfo() {
 
 int is_valid_IotRequestInfo(IotHttpsRequestInfo_t * pReqInfo) {
   return
-    // Should the global minimum size really be an upper bound?
+    // ???: Should the global minimum size really be an upper bound?
     pReqInfo->userBuffer.bufferLen <= requestUserBufferMinimumSize &&
     pReqInfo->hostLen <= IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1;
 }
@@ -373,7 +370,6 @@ IotHttpsResponseInfo_t * newIotResponseInfo() {
 
 int is_valid_IotResponseInfo(IotHttpsResponseInfo_t * pRespInfo){
   return
-    pRespInfo &&
     pRespInfo->pSyncInfo &&
     pRespInfo->pSyncInfo->pBody;
 }
