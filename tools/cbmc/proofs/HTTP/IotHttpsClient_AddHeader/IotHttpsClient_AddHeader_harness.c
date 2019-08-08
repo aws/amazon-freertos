@@ -42,7 +42,7 @@ void *memcpy(void *dest, const void *src, size_t n) {
 #endif
 
 void harness() {
-  IotHttpsRequestHandle_t reqHandle = newIotRequestHandle();
+  IotHttpsRequestHandle_t reqHandle = allocate_IotRequestHandle();
   if (reqHandle)
     __CPROVER_assume(is_valid_IotRequestHandle(reqHandle));
   uint32_t nameLen;

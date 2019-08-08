@@ -52,10 +52,10 @@ int snprintf(char *buf, size_t size, const char *fmt, ...)
 #endif
 
 void harness() {
-  IotHttpsConnectionHandle_t pConnHandle = newIotConnectionHandle();
-  IotHttpsRequestHandle_t reqHandle = newIotRequestHandle();
-  IotHttpsResponseHandle_t pRespHandle = newIotResponseHandle();
-  IotHttpsResponseInfo_t *pRespInfo = newIotResponseInfo();
+  IotHttpsConnectionHandle_t pConnHandle = allocate_IotConnectionHandle();
+  IotHttpsRequestHandle_t reqHandle = allocate_IotRequestHandle();
+  IotHttpsResponseHandle_t pRespHandle = allocate_IotResponseHandle();
+  IotHttpsResponseInfo_t *pRespInfo = allocate_IotResponseInfo();
   uint32_t timeoutMs;
 
   if (pRespInfo)

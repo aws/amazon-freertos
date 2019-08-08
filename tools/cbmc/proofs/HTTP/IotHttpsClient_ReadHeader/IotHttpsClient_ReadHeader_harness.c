@@ -10,7 +10,7 @@
 #include "../global_state_HTTP.c"
 
 void harness() {
-  IotHttpsResponseHandle_t respHandle = newIotResponseHandle();
+  IotHttpsResponseHandle_t respHandle = allocate_IotResponseHandle();
   size_t pName_len;
   __CPROVER_assume(pName_len >= 0 &&
 		   pName_len <= IOT_HTTPS_MAX_HOST_NAME_LENGTH);
