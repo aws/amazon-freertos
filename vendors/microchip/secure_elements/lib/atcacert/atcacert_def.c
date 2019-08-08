@@ -289,11 +289,11 @@ int atcacert_cert_build_start(atcacert_build_state_t* build_state,
     build_state->max_cert_size = *cert_size;
     build_state->is_device_sn  = FALSE;
 
-    if (build_state->max_cert_size < build_state->cert_def->cert_template_size)
-    {
-        *build_state->cert_size = build_state->cert_def->cert_template_size;
-        return ATCACERT_E_BUFFER_TOO_SMALL; // cert buffer is too small to contain the template
-    }
+//    if (build_state->max_cert_size < build_state->cert_def->cert_template_size)
+//    {
+//        *build_state->cert_size = build_state->cert_def->cert_template_size;
+//        return ATCACERT_E_BUFFER_TOO_SMALL; // cert buffer is too small to contain the template
+//    }
 
     // Initialize the cert buffer with the cert template
     *build_state->cert_size = build_state->cert_def->cert_template_size;

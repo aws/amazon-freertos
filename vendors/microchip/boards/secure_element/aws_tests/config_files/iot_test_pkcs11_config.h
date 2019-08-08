@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS V1.1.4
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,8 +28,6 @@
  * @brief Port-specific variables for PKCS11 tests.
  */
 
-#include "iot_pkcs11_config.h"
-
 #ifndef _AWS_TEST_PKCS11_CONFIG_H_
 #define _AWS_TEST_PKCS11_CONFIG_H_
 
@@ -39,7 +37,7 @@
  * Each task consumes both stack and heap space, which may cause memory allocation
  * failures if too many tasks are created.
  */
-#define pkcs11testMULTI_THREAD_TASK_COUNT     ( 4 )
+#define pkcs11testMULTI_THREAD_TASK_COUNT     ( 2 )
 
 /**
  * @brief The number of iterations of the test that will run in multithread tests.
@@ -48,7 +46,7 @@
  * boards. Ensure that pkcs11testEVENT_GROUP_TIMEOUT is long enough to accommodate
  * all iterations of the loop.
  */
-#define pkcs11testMULTI_THREAD_LOOP_COUNT     ( 50 )
+#define pkcs11testMULTI_THREAD_LOOP_COUNT     ( 10 )
 
 /**
  * @brief
@@ -56,7 +54,7 @@
  * All tasks of the SignVerifyRoundTrip_MultitaskLoop test must finish within
  * this timeout, or the test will fail.
  */
-#define pkcs11testEVENT_GROUP_TIMEOUT_MS      ( pdMS_TO_TICKS( 500000UL ) )
+#define pkcs11testEVENT_GROUP_TIMEOUT_MS      ( pdMS_TO_TICKS( 1000000UL ) )
 
 /**
  * @brief The index of the slot that should be used to open sessions for PKCS #11 tests.
@@ -66,7 +64,7 @@
 /*
  * @brief Set to 1 if RSA private keys are supported by the platform.  0 if not.
  */
-#define pkcs11testRSA_KEY_SUPPORT             ( 1 )
+#define pkcs11testRSA_KEY_SUPPORT             ( 0 )
 
 /*
  * @brief Set to 1 if elliptic curve private keys are supported by the platform.  0 if not.
@@ -75,8 +73,6 @@
 
 /*
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
- *
- * TODO: devModeKeyProvsioningconfigIMPORT_PRIVATE_KEYS_SUPPORTED is redundant to this.
  */
 #define pkcs11testIMPORT_PRIVATE_KEY_SUPPORT       ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED )
 
@@ -92,7 +88,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       "Test Priv Key"
 
 /**
  * @brief The PKCS #11 label for device public key.
@@ -101,7 +97,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "Test Pub TLS Key"
 
 /**
  * @brief The PKCS #11 label for the device certificate.
@@ -110,7 +106,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS
+#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       "Test Cert"
 
 /**
  * @brief The PKCS #11 label for the object to be used for code verification.
@@ -142,6 +138,5 @@
  * @see aws_default_root_certificates.h
  */
 #define pkcs11testLABEL_ROOT_CERTIFICATE                 pkcs11configLABEL_ROOT_CERTIFICATE
-
 
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */

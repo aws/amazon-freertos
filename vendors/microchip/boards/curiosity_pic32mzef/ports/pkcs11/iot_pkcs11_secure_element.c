@@ -39,6 +39,8 @@
 #include "iot_pkcs11_pal.h"
 #include "iot_pki_utils.h"
 
+#include <string.h>
+
 #ifdef AMAZON_FREERTOS_ENABLE_UNIT_TESTS
 #include "iot_test_pkcs11_config.h"
 #endif
@@ -60,7 +62,6 @@
 #include "pkcs11/pkcs11_slot.h"
 #include "hal/hal_pic32mz2048efm_i2c.h"
 extern DRV_I2C_Object cryptoObj;
-
 
 /*
  * PKCS#11 module implementation.
@@ -142,7 +143,68 @@ CK_FUNCTION_LIST pkcs11FunctionList =
     NULL  /*C_WaitForSlotEvent*/
 };
 
+static char gcPkcs11ThingNameCache[33];
 
+const char * pcPkcs11GetThingName(void)
+{
+    if (0 == gcPkcs11ThingNameCache[0])
+    {
+        CK_RV xResult;
+        CK_FUNCTION_LIST_PTR pxFunctionList;
+        CK_SLOT_ID * pxSlotId = NULL;
+        CK_ULONG xSlotCount;
+        CK_TOKEN_INFO_PTR pxTokenInfo = NULL;
+
+        xResult = C_GetFunctionList( &pxFunctionList );
+
+        if( xResult == CKR_OK )
+        {
+            xResult = xInitializePKCS11();
+        }
+
+        if( ( xResult == CKR_OK ) || ( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
+        {
+            xResult = xGetSlotList( &pxSlotId, &xSlotCount );
+        }
+
+        if( xResult == CKR_OK )
+        {
+            /* Check if token is initialized */
+            pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
+
+            if( pxTokenInfo != NULL )
+            {
+                /* We will take the first slot available.
+                 * If your application has multiple slots, insert logic
+                 * for selecting an appropriate slot here.
+                 * TODO: Consider a define here instead.
+                 */
+                xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
+            }
+            else
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+
+        if (0 == xResult)
+        {
+            CK_CHAR_PTR end = memchr(pxTokenInfo->label, ' ', sizeof(pxTokenInfo->label));
+            memcpy(gcPkcs11ThingNameCache, pxTokenInfo->label, end - pxTokenInfo->label);
+        }
+
+        if( pxTokenInfo != NULL )
+        {
+            vPortFree( pxTokenInfo );
+        }
+
+        if( pxSlotId != NULL )
+        {
+            vPortFree( pxSlotId );
+        }
+    }
+    return gcPkcs11ThingNameCache;
+}
 
 /** \defgroup config Configuration (cfg_)
  * \brief Logical device configurations describe the CryptoAuth device type and logical interface.

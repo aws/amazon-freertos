@@ -1,7 +1,6 @@
 /**
  * \file
- *
- * \brief Provides required interface to access IO protection key.
+ * \brief Cryptoauthlib Configuration Defines
  *
  * \copyright (c) 2015-2018 Microchip Technology Inc. and its subsidiaries.
  *
@@ -26,23 +25,20 @@
  * THIS SOFTWARE.
  */
 
-#ifndef IO_PROTECTION_H
-#define IO_PROTECTION_H
+#ifndef _ATCA_CONFIG_H
+#define _ATCA_CONFIG_H
 
-#ifdef __cplusplus
-extern "C" {
+/** Use HID */
+#define ATCA_HAL_KIT_HID
+
+/** Use the following address for ECC devices */
+#define ATCA_I2C_ECC_ADDRESS    0x6C
+
+/** Define if cryptoauthlib is to use the maximum execution time method */
+#define ATCA_NO_POLL
+
+/** Use RTOS timers (i.e. delays that yield) */
+#define ATCA_USE_RTOS_TIMER
+
+
 #endif
-
-#include "atca_status.h"
-
-extern ATCA_STATUS io_protection_get_key(uint8_t* io_key);
-extern ATCA_STATUS io_protection_set_key(uint8_t* io_key);
-
-#ifdef __cplusplus
-}
-#endif
-/** @} */
-#endif
-
-
-

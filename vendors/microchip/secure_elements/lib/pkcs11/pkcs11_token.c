@@ -364,13 +364,11 @@ CK_RV pkcs11_token_get_info(CK_SLOT_ID slotID, CK_TOKEN_INFO_PTR pInfo)
         /* Read the serial number */
         if (!atcab_read_serial_number(buf))
         {
-            size_t len = sizeof(pInfo->serialNumber);
+            size_t len = sizeof(pInfo->label);
 
-            /* Bytes 2-7 are the unique serial number */
-            atcab_bin2hex_(&buf[2], 6, (char*)pInfo->serialNumber, &len, FALSE, FALSE, TRUE);
+            atcab_bin2hex_(buf, 9, (char*)pInfo->label, &len, FALSE, FALSE, TRUE);
 
-            /* Bytes 0, 1 & 8 is the customer code */
-            snprintf((char*)pInfo->label, sizeof(pInfo->label), "%02X%02X%02X", buf[0], buf[1], buf[8]);
+            memcpy(pInfo->serialNumber, &pInfo->label[2], sizeof(pInfo->serialNumber) );
         }
 
         /* Read the hardware revision data */

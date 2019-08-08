@@ -9,6 +9,7 @@ extern "C" {
 
 extern const atcacert_def_t g_cert_def_1_signer;
 extern const atcacert_def_t g_cert_def_2_device;
+extern const atcacert_def_t g_cert_def_3_test;
 
 #ifdef __cplusplus
 }

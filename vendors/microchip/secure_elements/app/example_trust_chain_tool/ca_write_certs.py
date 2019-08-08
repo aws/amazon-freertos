@@ -108,7 +108,7 @@ ATCACERT_DEF_DEVICE_CONFIG = {
     },
     'issue_date_format': atcacert_date_format_t.DATEFMT_RFC5280_UTC,
     'expire_date_format': atcacert_date_format_t.DATEFMT_RFC5280_GEN,
-    'tbs_cert_loc': {'offset': 4, 'count': 335},
+    'tbs_cert_loc': {'offset': 4, 'count': 339},
     'expire_years': 0,
     'public_key_dev_loc': {
         'zone': atcacert_device_zone_t.DEVZONE_DATA,
@@ -125,14 +125,14 @@ ATCACERT_DEF_DEVICE_CONFIG = {
         'count': 72
     },
     'std_cert_elements' : [
-        {'offset': 207, 'count': 64},
-        {'offset': 351, 'count': 75},
+        {'offset': 211, 'count': 64},
+        {'offset': 355, 'count': 75},
         {'offset': 101, 'count': 13},
         {'offset': 0, 'count': 0},
         {'offset': 93, 'count': 4},
         {'offset': 15, 'count': 16},
-        {'offset': 319, 'count': 20},
-        {'offset': 286, 'count': 20},
+        {'offset': 323, 'count': 20},
+        {'offset': 290, 'count': 20},
     ]
 }
 

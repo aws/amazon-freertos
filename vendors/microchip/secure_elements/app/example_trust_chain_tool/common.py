@@ -7,10 +7,16 @@ import sys
 # Maps common name to the specific name used internally
 atca_names_map = {'i2c': 'i2c', 'hid': 'kithid', 'sha': 'sha204', 'ecc': 'eccx08'}
 
+# Python 2/3 compatibility
 try:
     FileNotFoundError
 except NameError:
     FileNotFoundError = IOError
+
+try:
+    to_unicode = unicode
+except NameError:
+    to_unicode = str
 
 
 def get_device_name(revision):

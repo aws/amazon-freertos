@@ -378,49 +378,46 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_demo_logging.h">
       <Filter>application_code\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_bufferpool_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_bufferpool_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_demo_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_demo_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_ggd_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_ggd_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_iot_network_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_iot_network_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\iot_mqtt_agent_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\iot_mqtt_agent_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_mqtt_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_mqtt_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_ota_agent_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_ota_agent_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_secure_sockets_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_secure_sockets_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_shadow_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_shadow_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\FreeRTOSConfig.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\FreeRTOSIPConfig.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\FreeRTOSIPConfig.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\iot_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\iot_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\trcConfig.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\trcConfig.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\trcSnapshotConfig.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\trcSnapshotConfig.h">
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\demos\include\aws_application_version.h">
@@ -654,7 +651,7 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC\pack_struct_start.h">
       <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\MSVC</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\ports\posix\FreeRTOS_POSIX_portable.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\ports\posix\FreeRTOS_POSIX_portable.h">
       <Filter>ports\posix</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h">
@@ -1041,7 +1038,7 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
       <Filter>libraries\freertos_plus\standard\utils\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\iot_pkcs11_config.h">
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\iot_pkcs11_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\crypto\hashes\sha1_routines.h">
@@ -1200,18 +1197,21 @@
     <ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\cryptoauthlib.h">
       <Filter>vendors\microchip\secure_elements\lib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\FreeRTOSConfig.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c">
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_demo_logging.c">
       <Filter>application_code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_entropy_hardware_poll.c">
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_entropy_hardware_poll.c">
       <Filter>application_code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_run-time-stats-utils.c">
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_run-time-stats-utils.c">
       <Filter>application_code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\main.c">
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\main.c">
       <Filter>application_code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c">
@@ -1364,7 +1364,7 @@
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\WinPCap\NetworkInterface.c">
       <Filter>libraries\freertos_plus\standard\freertos_plus_tcp\source\portable</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c">
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\ports\ota\aws_ota_pal.c">
       <Filter>ports\ota</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c">

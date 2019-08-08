@@ -1,3 +1,0 @@
-# Cryptoauthlib Configuration File
-
-filestore = @DEFAULT_STORE_PATH@
