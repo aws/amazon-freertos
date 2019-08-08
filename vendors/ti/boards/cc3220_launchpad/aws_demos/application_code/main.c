@@ -41,6 +41,8 @@
 
 #include "iot_default_root_certificates.h"
 #include "aws_secure_sockets_config.h"
+#include "iot_pkcs11.h"
+#include "iot_pkcs11_config.h"
 
 /* Demo priorities & stack sizes. */
 #include "aws_demo_config.h"
@@ -51,7 +53,6 @@
 
 /* Wi-Fi Interface files. */
 #include "iot_wifi.h"
-#include "iot_pkcs11.h"
 
 /* Demo files. */
 #include "aws_demo.h"
@@ -135,17 +136,20 @@ void vApplicationDaemonTaskStartupHook( void )
     // Emit some serial port debugging
     vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
-    /* A simple example to demonstrate key and certificate provisioning in
-     * flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. This function must be called after
-     * initializing the TI File System using WIFI_On. */
-    WIFI_On();
-    vDevModeKeyProvisioning();
-    prvProvisionRootCA();
+
+
 
     /* Initialize the AWS Libraries system. */
     if( SYSTEM_Init() == pdPASS )
     {
+        /* A simple example to demonstrate key and certificate provisioning in
+         * flash using PKCS#11 interface. This should be replaced
+         * by production ready key provisioning mechanism. This function must be called after
+         * initializing the TI File System using WIFI_On. */
+        WIFI_On();
+        vDevModeKeyProvisioning();
+        prvProvisionRootCA();
+
         /* Show the possible security alerts that will affect re-flashing the device.
          * When the number of security alerts reaches the threshold, the device file system is locked and
          * the device cannot be automatically flashed, but must be reprogrammed with uniflash. This routine is placed
@@ -169,8 +173,6 @@ CK_RV prvProvisionRootCA( void )
     uint8_t * pucRootCA = NULL;
     uint32_t ulRootCALength = 0;
     CK_RV xResult = CKR_OK;
-    CK_FUNCTION_LIST_PTR xFunctionList;
-    CK_SLOT_ID xSlotId;
     CK_SESSION_HANDLE xSessionHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
 
@@ -187,9 +189,7 @@ CK_RV prvProvisionRootCA( void )
         ulRootCALength = tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH;
     }
 
-    xResult = xInitializePkcsSession( &xFunctionList,
-                                      &xSlotId,
-                                      &xSessionHandle );
+    xResult = xInitializePkcs11Session( &xSessionHandle );
 
     if( xResult == CKR_OK )
     {

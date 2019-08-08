@@ -328,6 +328,18 @@
     <Filter Include="demos\dev_mode_key_provisioning\src">
       <UniqueIdentifier>{c2a6be1f-d472-4ddb-86e3-1c7049d163d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="libraries\freertos_plus\standard\pkcs11">
+      <UniqueIdentifier>{2176b22e-8752-4871-a937-2f35460cc189}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\pkcs11\src">
+      <UniqueIdentifier>{1ba79f9d-87e0-431f-9a86-94da60b369c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\freertos_plus\standard\pkcs11\include">
+      <UniqueIdentifier>{495a170b-9563-4ac2-bd39-3e7f55b558a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="libraries\3rdparty\mbedtls\utils">
+      <UniqueIdentifier>{9e7d0369-8038-4655-bd90-890cdf958f5e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h">
@@ -352,9 +364,6 @@
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_ota_agent_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_pkcs11_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\aws_secure_sockets_config.h">
@@ -488,9 +497,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\platform\include\platform\iot_threads.h">
       <Filter>libraries\abstractions\platform\include\platform</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11.h">
-      <Filter>libraries\abstractions\pkcs11\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
       <Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
@@ -989,6 +995,18 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h">
       <Filter>demos\dev_mode_key_provisioning\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
+      <Filter>libraries\abstractions\pkcs11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h">
+      <Filter>libraries\freertos_plus\standard\pkcs11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h">
+      <Filter>libraries\freertos_plus\standard\utils\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\config_files\iot_pkcs11_config.h">
+      <Filter>config_files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1511,11 +1529,17 @@
     <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c">
       <Filter>demos\dev_mode_key_provisioning\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c">
-      <Filter>demos\dev_mode_key_provisioning\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c">
       <Filter>libraries\c_sdk\standard\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c">
+      <Filter>libraries\freertos_plus\standard\pkcs11\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c">
+      <Filter>libraries\freertos_plus\standard\utils\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c">
+      <Filter>libraries\3rdparty\mbedtls\utils</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

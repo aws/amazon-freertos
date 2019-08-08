@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -305,7 +305,7 @@ void SysTick_Handler( void ) PRIVILEGED_FUNCTION;
 /**
  * @brief C part of SVC handler.
  */
-void vPortSVCHandler_C( uint32_t *pulCallerStackAddress ) PRIVILEGED_FUNCTION;
+portDONT_DISCARD void vPortSVCHandler_C( uint32_t *pulCallerStackAddress ) PRIVILEGED_FUNCTION;
 /*-----------------------------------------------------------*/
 
 /**
@@ -319,7 +319,7 @@ static volatile uint32_t ulCriticalNesting = 0xaaaaaaaaUL;
 	 * @brief Saved as part of the task context to indicate which context the
 	 * task is using on the secure side.
 	 */
-	volatile SecureContextHandle_t xSecureContext = portNO_SECURE_CONTEXT;
+	portDONT_DISCARD volatile SecureContextHandle_t xSecureContext = portNO_SECURE_CONTEXT;
 #endif /* configENABLE_TRUSTZONE */
 /*-----------------------------------------------------------*/
 
@@ -369,6 +369,8 @@ volatile uint32_t ulDummy = 0UL;
 		extern uint32_t * __privileged_functions_start__;
 		extern uint32_t * __privileged_functions_end__;
 		extern uint32_t * __syscalls_flash_start__;
+		extern uint32_t * __syscalls_flash_end__;
+		extern uint32_t * __unprivileged_flash_start__;
 		extern uint32_t * __unprivileged_flash_end__;
 		extern uint32_t * __privileged_sram_start__;
 		extern uint32_t * __privileged_sram_end__;
@@ -377,6 +379,8 @@ volatile uint32_t ulDummy = 0UL;
 		extern uint32_t __privileged_functions_start__[];
 		extern uint32_t __privileged_functions_end__[];
 		extern uint32_t __syscalls_flash_start__[];
+		extern uint32_t __syscalls_flash_end__[];
+		extern uint32_t __unprivileged_flash_start__[];
 		extern uint32_t __unprivileged_flash_end__[];
 		extern uint32_t __privileged_sram_start__[];
 		extern uint32_t __privileged_sram_end__[];
@@ -400,14 +404,23 @@ volatile uint32_t ulDummy = 0UL;
 								( portMPU_RLAR_ATTR_INDEX0 ) |
 								( portMPU_RLAR_REGION_ENABLE );
 
-			/* Setup unprivileged flash and system calls flash as Read Only by
-			 * both privileged and unprivileged tasks. All tasks can read it but
-			 * no-one can modify. */
+			/* Setup unprivileged flash as Read Only by both privileged and
+			 * unprivileged tasks. All tasks can read it but no-one can modify. */
 			portMPU_RNR_REG = portUNPRIVILEGED_FLASH_REGION;
-			portMPU_RBAR_REG =	( ( ( uint32_t ) __syscalls_flash_start__ ) & portMPU_RBAR_ADDRESS_MASK ) |
+			portMPU_RBAR_REG =	( ( ( uint32_t ) __unprivileged_flash_start__ ) & portMPU_RBAR_ADDRESS_MASK ) |
 								( portMPU_REGION_NON_SHAREABLE ) |
 								( portMPU_REGION_READ_ONLY );
 			portMPU_RLAR_REG =	( ( ( uint32_t ) __unprivileged_flash_end__ ) & portMPU_RLAR_ADDRESS_MASK ) |
+								( portMPU_RLAR_ATTR_INDEX0 ) |
+								( portMPU_RLAR_REGION_ENABLE );
+
+			/* Setup unprivileged syscalls flash as Read Only by both privileged
+			 * and unprivileged tasks. All tasks can read it but no-one can modify. */
+			portMPU_RNR_REG = portUNPRIVILEGED_SYSCALLS_REGION;
+			portMPU_RBAR_REG =	( ( ( uint32_t ) __syscalls_flash_start__ ) & portMPU_RBAR_ADDRESS_MASK ) |
+								( portMPU_REGION_NON_SHAREABLE ) |
+								( portMPU_REGION_READ_ONLY );
+			portMPU_RLAR_REG =	( ( ( uint32_t ) __syscalls_flash_end__ ) & portMPU_RLAR_ADDRESS_MASK ) |
 								( portMPU_RLAR_ATTR_INDEX0 ) |
 								( portMPU_RLAR_REGION_ENABLE );
 
@@ -419,17 +432,6 @@ volatile uint32_t ulDummy = 0UL;
 								( portMPU_REGION_EXECUTE_NEVER );
 			portMPU_RLAR_REG =	( ( ( uint32_t ) __privileged_sram_end__ ) & portMPU_RLAR_ADDRESS_MASK ) |
 								( portMPU_RLAR_ATTR_INDEX0 ) |
-								( portMPU_RLAR_REGION_ENABLE );
-
-			/* By default allow everything to access the general peripherals.
-			 * The system peripherals and registers are protected. */
-			portMPU_RNR_REG = portUNPRIVILEGED_DEVICE_REGION;
-			portMPU_RBAR_REG =	( ( ( uint32_t ) portDEVICE_REGION_START_ADDRESS ) & portMPU_RBAR_ADDRESS_MASK ) |
-								( portMPU_REGION_NON_SHAREABLE ) |
-								( portMPU_REGION_READ_WRITE ) |
-								( portMPU_REGION_EXECUTE_NEVER );
-			portMPU_RLAR_REG =	( ( ( uint32_t ) portDEVICE_REGION_END_ADDRESS ) & portMPU_RLAR_ADDRESS_MASK ) |
-								( portMPU_RLAR_ATTR_INDEX1 ) |
 								( portMPU_RLAR_REGION_ENABLE );
 
 			/* Enable mem fault. */
@@ -521,7 +523,7 @@ uint32_t ulPreviousMask;
 }
 /*-----------------------------------------------------------*/
 
-void vPortSVCHandler_C( uint32_t *pulCallerStackAddress ) /* PRIVILEGED_FUNCTION */
+void vPortSVCHandler_C( uint32_t *pulCallerStackAddress ) /* PRIVILEGED_FUNCTION portDONT_DISCARD */
 {
 #if( configENABLE_MPU == 1 )
 	#if defined( __ARMCC_VERSION )

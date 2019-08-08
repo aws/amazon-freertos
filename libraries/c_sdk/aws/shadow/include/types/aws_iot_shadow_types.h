@@ -40,7 +40,8 @@
 /*--------------------------- Shadow handle types ---------------------------*/
 
 /**
- * @handles{shadow,Shadow library}
+ * @handles_group{shadow}
+ * @handles_brief{Shadow library}
  */
 
 /**
@@ -69,7 +70,8 @@ typedef struct _shadowOperation * AwsIotShadowOperation_t;
 /*------------------------- Shadow enumerated types -------------------------*/
 
 /**
- * @enums{shadow,Shadow library}
+ * @enums_group{shadow}
+ * @enums_brief{Shadow library}
  */
 
 /**
@@ -341,7 +343,8 @@ typedef enum AwsIotShadowCallbackType
 /*------------------------- Shadow parameter structs ------------------------*/
 
 /**
- * @paramstructs{shadow,Shadow}
+ * @paramstructs_group{shadow}
+ * @paramstructs_brief{shadow,Shadow}
  */
 
 /**
@@ -483,7 +486,8 @@ typedef struct AwsIotShadowDocumentInfo
 /*------------------------ Shadow defined constants -------------------------*/
 
 /**
- * @constantspage{shadow,Shadow library}
+ * @constants_page{shadow}
+ * @constants_brief{Shadow library}
  *
  * @section shadow_constants_initializers Shadow Initializers
  * @brief Provides default values for the data types of the Shadow library.

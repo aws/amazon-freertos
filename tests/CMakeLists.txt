@@ -36,7 +36,7 @@ afr_module_dependencies(
         AFR::common
         3rdparty::unity
 )
-if(TARGET AFR::pkcs11::mcu_port)
+if(TARGET AFR::pkcs11_implementation::mcu_port)
     afr_module_dependencies(
         ${AFR_CURRENT_MODULE}
         INTERFACE

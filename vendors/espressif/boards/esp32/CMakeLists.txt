@@ -89,31 +89,59 @@ target_sources(
 set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
 
 afr_mcu_port(ble_hal)
+
+# Include Bluedroid HAL files as header files.
+afr_glob_src( bluedroid_src DIRECTORY ${afr_ports_dir}/ble/bluedroid  RECURSE )
+set_source_files_properties( ${bluedroid_src} PROPERTIES HEADER_FILE_ONLY TRUE )
+
+# Include Nimble HAL files as header files.
+afr_glob_src( nimble_src DIRECTORY ${afr_ports_dir}/ble/nimble  RECURSE )
+set_source_files_properties( ${nimble_src} PROPERTIES HEADER_FILE_ONLY TRUE )
+
 target_sources(
     AFR::ble_hal::mcu_port
     INTERFACE
         "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
+        ${bluedroid_src}
+        ${nimble_src}
 )
+
 target_include_directories(
     AFR::ble_hal::mcu_port
     INTERFACE
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
+        "${esp_idf_dir}/components/nimble/nimble/porting/nimble/include"
+        "${esp_idf_dir}/components/nimble/port/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/ans/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/bas/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/gap/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/gatt/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/ias/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/lls/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/tps/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/util/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/store/ram/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/store/config/include"
+        "${esp_idf_dir}/components/nimble/nimble/porting/npl/freertos/include"
+        "${esp_idf_dir}/components/nimble/nimble/ext/tinycrypt/include"
+        "${esp_idf_dir}/components/nimble/esp-hci/include"
+
         "${afr_ports_dir}/ble"
         "${afr_ports_dir}/ble/bluedroid"
+        "${afr_ports_dir}/ble/nimble"
 )
 
 # PKCS11
-afr_mcu_port(pkcs11)
-target_link_libraries(
-    AFR::pkcs11::mcu_port
-    INTERFACE AFR::pkcs11_mbedtls
-)
+afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
-    AFR::pkcs11::mcu_port
-    INTERFACE "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+    AFR::pkcs11_implementation::mcu_port
+    INTERFACE
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
 # FreeRTOS Plus TCP
@@ -238,16 +266,18 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
 set(IDF_TARGET esp32)
 set(ENV{IDF_PATH} ${esp_idf_dir})
 
-# Fetch sdkconfig.defaults and modify the custom partition table csv path
-file(READ "${board_dir}/sdkconfig.defaults" file_sdkconfig_default)
-string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
-file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
-set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+# If external project has set sdkconfig.defaults do not overwrite
+if (NOT IDF_SDKCONFIG_DEFAULTS)
+    # Fetch sdkconfig.defaults and modify the custom partition table csv path
+    file(READ "${board_dir}/sdkconfig.defaults" file_sdkconfig_default)
+    string(REGEX REPLACE "partition-table.csv" "${board_dir}/partition-table.csv" file_sdkconfig_default "${file_sdkconfig_default}")
+    file(WRITE "${CMAKE_BINARY_DIR}/sdkconfig.defaults" "${file_sdkconfig_default}")
+    set(IDF_SDKCONFIG_DEFAULTS "${CMAKE_BINARY_DIR}/sdkconfig.defaults")
+endif()
+
 # Set sdkconfig generation path inside build
 set(SDKCONFIG "${CMAKE_BINARY_DIR}/sdkconfig")
 
-# Remove previously generated sdkconfig file
-file(REMOVE "${CMAKE_BINARY_DIR}/sdkconfig")
 # Do some configuration for idf_import_components. This enables creation of artifacts (which might not be
 # needed) for some projects
 set(IDF_BUILD_ARTIFACTS ON)

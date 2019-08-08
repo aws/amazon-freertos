@@ -19,7 +19,7 @@ import securityAgent
 devices = {}
 
 def backGroundEvents():
-    try:        
+    try:
         mainloop = GObject.MainLoop()
         mainloop.run()
 
@@ -29,11 +29,11 @@ def backGroundEvents():
     return
 
 if __name__ == '__main__':
-	
-	dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-	testutils.removeBondedDevices()
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-	#startBackGroundEvents = threading.Thread(target=backGroundEvents)
-	#startBackGroundEvents.start()
-	startTests.main()
+    testutils.removeBondedDevices()
+
+    #startBackGroundEvents = threading.Thread(target=backGroundEvents)
+    #startBackGroundEvents.start()
+    startTests.main()

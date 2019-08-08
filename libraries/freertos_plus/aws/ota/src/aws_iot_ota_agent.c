@@ -1420,17 +1420,18 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                     {
                         OTA_LOG_L1( "[%s] OK: %s\r\n", OTA_METHOD_NAME, pcTopicBuffer );
                     }
+
                     /* Restart the timer regardless if we published the Get Stream Request message
-                       or not.
-
-                       If we published the message, then the timer will be used to time
-                       out the OTA not continuing again.
-
-                       If we failed to publish the message, then
-                       the timer will be used to retry publishing the message again later.
-
-                       In both cases the max momentum, if reached, will be used to stop publishing
-                       the Get Stream Request message. */
+                     * or not.
+                     *
+                     * If we published the message, then the timer will be used to time
+                     * out the OTA not continuing again.
+                     *
+                     * If we failed to publish the message, then
+                     * the timer will be used to retry publishing the message again later.
+                     *
+                     * In both cases the max momentum, if reached, will be used to stop publishing
+                     * the Get Stream Request message. */
                     prvStartRequestTimer( C );
                 }
                 else

@@ -14,9 +14,10 @@ GENERATE_TAGFILE = doc/tag/logging.tag
 
 # Directories containing library source code.
 INPUT = doc/lib \
-        lib/include \
-        lib/include/private \
-        lib/source/common
+        libraries/c_sdk/standard/common/include \
+        libraries/c_sdk/standard/common/include/private \
+        libraries/c_sdk/standard/common/include \
+        libraries/c_sdk/standard/common/logging
 
 # Library file names.
 FILE_PATTERNS = *logging*.c *logging*.h *logging*.txt

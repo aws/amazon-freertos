@@ -14,7 +14,9 @@ This MQTT library implements a subset of the MQTT 3.1.1 standard for compatibili
 
 @attention Currently, this library does not support QoS 2 MQTT messages.
 
-@dependencies{mqtt,MQTT library}
+@dependencies_section{mqtt}
+@dependencies_brief{MQTT library}
+
 @dot "MQTT direct dependencies"
 digraph mqtt_dependencies
 {
@@ -93,7 +95,8 @@ The current MQTT tests use the [Unity test framework](http://www.throwtheswitch.
 */
 
 /**
-@configpage{mqtt_tests,MQTT tests,Test,tests}
+@config_page{mqtt_tests,Test}
+@config_brief{mqtt_tests,MQTT tests,tests}
 
 @section IOT_TEST_MQTT_CLIENT_IDENTIFIER
 @brief The MQTT client identifier to use for the tests.
@@ -184,7 +187,8 @@ Up to @ref IOT_TEST_MQTT_THREADS `*` @ref IOT_TEST_MQTT_PUBLISHES_PER_THREAD pub
 */
 
 /**
-@configpage{mqtt_demo,MQTT demo,Demo,demos}
+@config_page{mqtt_demo,Demo}
+@config_brief{mqtt_demo,MQTT demo,demos}
 
 @section IOT_DEMO_MQTT_TOPIC_PREFIX
 @brief The string prepended to topic filters in the demo.
@@ -214,7 +218,8 @@ This setting can be increased for a longer demo. The MQTT demo publishes a total
 */
 
 /**
-@configpage{mqtt,MQTT library}
+@config_page{mqtt}
+@config_brief{MQTT library}
 
 @section IOT_MQTT_ENABLE_ASSERTS
 @brief Set this to `1` to perform sanity checks when using the MQTT library.

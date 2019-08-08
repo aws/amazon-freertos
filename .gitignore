@@ -3,6 +3,11 @@
 doc/html/*
 /.metadata/
 .vscode/*
+*.o
+*.d 
+*.elf
+*.hex
+*.bin
 
 RemoteSystemsTempFiles/*
 

@@ -573,19 +573,19 @@
 			<locationURI>BASE_DIR_ROOT/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
 		</link>
 		<link>
-			<name>demos/dev_mode_key_provisioning/src/pem2der.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/dev_mode_key_provisioning/src/pem2der.c</locationURI>
-		</link>
-		<link>
 			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/iot_pkcs11.h</name>
+			<name>libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</name>
@@ -593,14 +593,24 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
+			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</name>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
@@ -611,6 +621,26 @@
 			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
@@ -953,11 +983,6 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_ota_agent_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_pkcs11_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_pkcs11_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_secure_sockets_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_secure_sockets_config.h</locationURI>
@@ -983,6 +1008,11 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_pkcs11_config.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/main.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/main.c</locationURI>
@@ -991,6 +1021,21 @@
 			<name>application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
@@ -1348,6 +1393,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
@@ -1701,26 +1751,6 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>

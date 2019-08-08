@@ -1,0 +1,5 @@
+Makefile
+Makefile.common
+cbmc-batch.yaml
+**/*.txt
+**/*.goto

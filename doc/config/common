@@ -60,21 +60,22 @@ ENABLE_PREPROCESSING = YES
 MACRO_EXPANSION = YES
 EXPAND_ONLY_PREDEF = YES
 
-# Include path for expanding Unity test macros.
-INCLUDE_PATH = tests/unity/fixture
-
 # Expand the TEST macro, but ignore the _run functions generated from macro expansion.
 EXPAND_AS_DEFINED = TEST
 EXCLUDE_SYMBOLS += "TEST_*_run"
 
 # Alias for starting a dependencies section.
-ALIASES += dependencies{2}="@section \1_dependencies Dependencies^^@brief Dependencies of the \2.^^^^"
+ALIASES += dependencies_section{1}="@section \1_dependencies Dependencies"
+ALIASES += dependencies_brief{1}="@brief Dependencies of the \1."
 
 # Alias for starting a configuration settings page.
 ALIASES += describeconfig="Configuration settings are C pre-processor constants. They can be set with a @c #`define` in the iot_config.h or by using a compiler option such as `-D` in gcc. If a configuration setting is not defined, the library will use a \"sensible\" default value (unless otherwise noted). Because they are compile-time constants, a library must be rebuilt if a configuration setting is changed."
-ALIASES += configpage{2}="@page \1_config Configuration^^@brief Configuration settings of the \2.^^^^@describeconfig^^@par configpagemarker"
-ALIASES += configpage{4}="@page \1_config \3 Configuration^^@brief Configuration settings of the \2.^^^^@describeconfig^^^^The settings on this page only affect the [\2](@ref \1). In addition to the settings on this page, them \2 will also be affected by [settings that affect all \4](@ref global_\4_config).^^@par configpagemarker"
-ALIASES += globalconfigpage{3}="@page global_\1_config Global \2 Configuration^^^^@describeconfig^^@brief Configuration settings that affect all \3.^^@par configpagemarker"
+
+ALIASES += config_page{1}="@page \1_config Configuration"
+ALIASES += config_page{2}="@page \1_config \2 Configuration"
+
+ALIASES += config_brief{1}="@brief Configuration settings of the \1.<br>@describeconfig @par configpagemarker"
+ALIASES += config_brief{3}="@brief Configuration settings of the \2.<br>@describeconfig<br><br>The settings on this page only affect the [\2](@ref \1). In addition to the settings on this page, the \2 will also be affected by [settings that affect all \3](@ref global_\3_config).@par configpagemarker"
 
 # Aliases for "Possible values", "Recommended values", and "Default values"
 # used in configuration setting pages.
@@ -83,40 +84,47 @@ ALIASES += configrecommended="<b>Recommended values:</b> "
 ALIASES += configdefault="<b>Default value (if undefined):</b> "
 
 # Alias for starting a constants page.
-ALIASES += constantspage{2}="@page \1_constants Constants^^@brief Defined constants of the \2.^^^^Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \2. Related constants are shown in a single section on this page.^^"
-ALIASES += constantspage{3}="@page \1_constants \3^^@brief Defined constants of the \2.^^^^Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \2. Related constants are shown in a single section on this page.^^"
+ALIASES += constants_page{1}="@page \1_constants Constants"
+ALIASES += constants_brief{1}="@brief Defined constants of the \1.<br><br>Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \1. Related constants are shown in a single section on this page.<br>"
 
 # Alias for starting a functions page.
-ALIASES += functionspage{2}="@page \1_functions Functions^^@brief Functions of the \2.^^^^The \2 consists of the following functions."
-ALIASES += functionspage{3}="@page \1_functions \3^^@brief Functions of the \2.^^^^The \2 consists of the following functions."
+ALIASES += functions_page{2}="@page \1_functions Functions"
+ALIASES += functions_brief{1}="@brief Functions of the \1 library.<br><br>The \1 library consists of the following functions."
 
 # Alias for listing a single function on a functions page.
-ALIASES += functionname{1}="@subpage \1 <br>^^ @copybrief \1^^"
+ALIASES += function_name{1}="@subpage \1"
+ALIASES += function_brief{1}="<br>@copybrief \1"
 
 # Alias for creating a page for a single function.
-ALIASES += functionpage{3}="@page \2_function_\3 \1^^^^@snippet this declare_\2_\3^^@copydoc \1"
-ALIASES += functionpage{4}="@page \2_function_\3 \1^^^^@snippet \4 declare_\2_\3^^@copydoc \1"
+ALIASES += function_page{3}="@page \2_function_\3 \1"
+ALIASES += function_snippet{3}="@snippet \3 declare_\1_\2"
 
 # Alias for starting a handles group.
-ALIASES += handles{2}="@defgroup \1_datatypes_handles Handles^^@brief Opaque handles of the \2."
+ALIASES += handles_group{1}="@defgroup \1_datatypes_handles Handles"
+ALIASES += handles_brief{1}="@brief Opaque handles of the \1."
 
 # Alias for starting an enum group.
-ALIASES += enums{2}="@defgroup \1_datatypes_enums Enumerated types^^@brief Enumerated types of the \2."
+ALIASES += enums_group{1}="@defgroup \1_datatypes_enums Enumerated types"
+ALIASES += enums_brief{1}="@brief Enumerated types of the \1."
 
 # Alias for starting a function pointers group.
-ALIASES += functionpointers{2}="@defgroup \1_datatypes_functionpointers Function pointers types^^@brief Function pointers types of the \2."
+ALIASES += functionpointers_group{1}="@defgroup \1_datatypes_functionpointers Function pointer types"
+ALIASES += functionpointers_brief{1}="@brief Function pointer types of the \1."
 
 # Alias for starting a structs group.
-ALIASES += structs{2}="@defgroup \1_datatypes_structs Structured types^^@brief Structured types of the \2."
+ALIASES += structs_group{1}="@defgroup \1_datatypes_structs Structured types"
+ALIASES += structs_brief{1}="@brief Structured types of the \1."
 
 # Alias for starting a parameter structures group.
-ALIASES += paramstructs{2}="@defgroup \1_datatypes_paramstructs Parameter structures^^@brief Structures passed as parameters to [\2 functions](@ref \1_functions)^^^^These structures are passed as parameters to library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
+ALIASES += paramstructs_group{1}="@defgroup \1_datatypes_paramstructs Parameter structures"
+ALIASES += paramstructs_brief{2}="@brief Structures passed as parameters to [\2 functions](@ref \1_functions)<br>These structures are passed as parameters to library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
 
 # Alias for starting a return structures group.
-ALIASES += returnstructs{1}="@defgroup \1_datatypes_returnstructs Return structures^^@brief Structures returned from [\1 functions](@ref \1_functions)^^^^These structures are returned from library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
+ALIASES += returnstructs_group{1}="@defgroup \1_datatypes_returnstructs Return structures"
+ALIASES += returnstructs_brief{1}="@brief Structures returned from [\1 functions](@ref \1_functions)<br>These structures are returned from library functions. Documentation for these structures will state the functions associated with each parameter structure and the purpose of each member."
 
 # Alias for "Parameter for".
 ALIASES += paramfor="<b>Parameter for:</b> "
 
 # Alias for parameter structure initializers.
-ALIASES += initializer{2}="All instances of #\1 should be initialized with #\2.^^"
+ALIASES += initializer{2}="All instances of #\1 should be initialized with #\2.<br>"

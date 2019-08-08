@@ -39,8 +39,12 @@
 #include "private/iot_logging.h"
 
 /**
- * @functionpage{IotLog,logging,log}
- * @functionpage{IotLog_PrintBuffer,logging,printbuffer}
+ * @function_page{IotLog,logging,log}
+ * @function_snippet{logging,log,this}
+ * @copydoc IotLog
+ * @function_page{IotLog_PrintBuffer,logging,printbuffer}
+ * @function_snippet{logging,printbuffer,this}
+ * @copydoc IotLog_PrintBuffer
  */
 
 /**

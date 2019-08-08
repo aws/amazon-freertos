@@ -543,14 +543,14 @@
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/iot_pkcs11.h</name>
+			<name>libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/xilinx/boards/microzed/ports/pkcs11/iot_pkcs11_pal.c</name>
+			<name>libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
@@ -563,19 +563,9 @@
 			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<name>vendors/xilinx/boards/microzed/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
-		</link>
-		<link>
-			<name>demos/dev_mode_key_provisioning/src/pem2der.c</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/src/pem2der.c</locationURI>
-		</link>
-		<link>
-			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
@@ -586,6 +576,26 @@
 			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</locationURI>
+		</link>
+		<link>
+			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
+		</link>
+		<link>
+			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
@@ -848,6 +858,11 @@
 			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</locationURI>
@@ -958,11 +973,6 @@
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/aws_mqtt_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_pkcs11_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/aws_pkcs11_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_secure_sockets_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/aws_secure_sockets_config.h</locationURI>
@@ -971,11 +981,6 @@
 			<name>config_files/aws_shadow_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/aws_shadow_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_test_pkcs11_config.h</name>
-			<type>1</type>
-			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/aws_test_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_test_runner_config.h</name>
@@ -1006,6 +1011,16 @@
 			<name>config_files/iot_mqtt_agent_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_pkcs11_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_test_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/vendors/xilinx/boards/microzed/aws_tests/config_files/iot_test_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/unity_config.h</name>
@@ -1376,6 +1391,11 @@
 			<name>libraries/3rdparty/mbedtls/library/xtea.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
