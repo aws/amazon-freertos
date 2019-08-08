@@ -325,7 +325,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     JSON_DocModel_t xDocModel = { 0 };
     JSON_DocParam_t xDocParam = { 0 };
 
-    /* Initialize the OTA Agent for the following test. */
+    /* Initialize the OTA Agent for the following tests. */
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
                                xMQTTClientHandle,
                                ( const uint8_t * ) clientcredentialIOT_THING_NAME,
