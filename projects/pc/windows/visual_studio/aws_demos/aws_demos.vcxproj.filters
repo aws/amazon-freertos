@@ -1541,5 +1541,13 @@
     <ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c">
       <Filter>libraries\3rdparty\mbedtls\utils</Filter>
     </ClCompile>
+    <ClCompile Include="\\mac\Home\Desktop\freertos_wp\amazon-freertos\demos\dev_mode_key_provisioning\src\aws_key_provisioning_demo.c">
+      <Filter>demos\dev_mode_key_provisioning\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="\\mac\Home\Desktop\freertos_wp\amazon-freertos\demos\dev_mode_key_provisioning\src\csr.txt">
+      <Filter>demos\dev_mode_key_provisioning\src</Filter>
+    </Text>
   </ItemGroup>
 </Project>
