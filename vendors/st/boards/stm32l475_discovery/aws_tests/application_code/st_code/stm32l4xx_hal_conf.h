@@ -202,6 +202,9 @@
 #define  INSTRUCTION_CACHE_ENABLE     1U
 #define  DATA_CACHE_ENABLE            1U
 
+/* ######################## FreeRTOS Additional ############################ */
+#define USE_HAL_TIM_REGISTER_CALLBACKS    1U
+
 /* ########################## Assert Selection ############################## */
 /**
   * @brief Uncomment the line below to expanse the "assert_param" macro in the 
