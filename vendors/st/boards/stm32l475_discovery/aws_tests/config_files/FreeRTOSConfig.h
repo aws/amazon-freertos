@@ -123,6 +123,13 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY \
     ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY << ( 8 - configPRIO_BITS ) )
 
+/* Performance counter frequency in Hz. */
+#define configHAL_PERF_COUNTER_FREQ                     ( 10000000 )    // 10MHz
+
+/* Performance counter interrupt priority.
+ * Do not disable performance counter interrupt in critical section. */
+#define configHAL_PERF_COUNTER_INTERRUPT_PRIORITY       ( configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY - 1 )
+
 /* Normal assert() semantics without relying on the provision of an assert.h
  * header file. */
 #define configASSERT( x )                                       \
