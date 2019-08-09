@@ -22,6 +22,7 @@
 * memcpy instead of the standard memcpy.
 ****************************************************************/
 
+/* This is a clang macro not available on linux */
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
@@ -41,15 +42,15 @@ void *memcpy(void *dest, const void *src, size_t n) {
 #endif
 
 void harness() {
-  IotHttpsRequestHandle_t reqHandle = newIotRequestHandle();
+  IotHttpsRequestHandle_t reqHandle = allocate_IotRequestHandle();
+  if (reqHandle)
+    __CPROVER_assume(is_valid_IotRequestHandle(reqHandle));
   uint32_t nameLen;
   uint32_t valueLen;
   __CPROVER_assume(nameLen < UINT32_MAX-1);
   __CPROVER_assume(valueLen < UINT32_MAX-1);
   char * pName = safeMalloc(nameLen+1);
   char * pValue = safeMalloc(valueLen+1);
-  __CPROVER_assume(pName);
-  __CPROVER_assume(pValue);
   if (pName)
     pName[nameLen] = 0;
   if (pValue)

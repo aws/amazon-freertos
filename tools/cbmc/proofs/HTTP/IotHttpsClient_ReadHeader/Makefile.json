@@ -6,6 +6,10 @@
   "MAX_ACCEPTED_SIZE": 20,
   "STRNCPY_UNWIND": "__eval {MAX_ACCEPTED_SIZE} + 1",
 
+  # This is the length of the user data after the header in a buffer.
+  # This can be set to any size.
+  "USER_DATA_SIZE": "1000",
+
   "CBMCFLAGS":
   [
     "--unwind 1",
@@ -28,10 +32,6 @@
     "$(ENTRY)_harness.goto",
     "$(FREERTOS)/libraries/c_sdk/standard/https/src/iot_https_client.goto"
   ],
-  "DEF":
-  [
-    "MAX_ACCEPTED_SIZE={MAX_ACCEPTED_SIZE}"
-  ],
   "INC":
   [
     "$(FREERTOS)/libraries/c_sdk/standard/https/include",
@@ -41,6 +41,11 @@
     "$(FREERTOS)/libraries/abstractions/platform/include/",
     "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
     "../../include"
+  ],
+  "DEF":
+  [
+    "USER_DATA_SIZE={USER_DATA_SIZE}",
+    "MAX_ACCEPTED_SIZE={MAX_ACCEPTED_SIZE}"
   ]
 }
 

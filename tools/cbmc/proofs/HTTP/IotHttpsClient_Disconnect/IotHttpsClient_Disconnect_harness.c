@@ -10,9 +10,11 @@
 #include "../global_state_HTTP.c"
 
 void harness() {
-  IotHttpsConnectionHandle_t connHandle = newIotConnectionHandle();
+  IotHttpsConnectionHandle_t connHandle = allocate_IotConnectionHandle();
+  initialize_IotConnectionHandle(connHandle);
   if(connHandle) {
-    __CPROVER_assume(is_valid_NetworkInterface(connHandle->pNetworkInterface));
+    __CPROVER_assume(is_valid_IotConnectionHandle(connHandle));
+    __CPROVER_assume(is_stubbed_NetworkInterface(connHandle->pNetworkInterface));
 
     /* initialize connHandle->respQ to a list of two responses */
     _httpsResponse_t * p1Resp = malloc(sizeof(_httpsResponse_t));
