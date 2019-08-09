@@ -12,8 +12,11 @@
 void harness() {
   IotHttpsResponseHandle_t respHandle = allocate_IotResponseHandle();
   initialize_IotResponseHandle(respHandle);
-  if (respHandle)
+  if (respHandle) {
     __CPROVER_assume(is_valid_IotResponseHandle(respHandle));
+    // ???: replace assumption above with initialization
+    respHandle->httpParserInfo.readHeaderParser.data = respHandle;
+  }
   uint32_t pContentLength;
   IotHttpsClient_ReadContentLength(respHandle, &pContentLength);
 }
