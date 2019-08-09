@@ -71,7 +71,9 @@ TEST_TEAR_DOWN( UTIL_Platform_Threads )
 TEST_GROUP_RUNNER( UTIL_Platform_Threads )
 {
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_CreateDetachedThread );
+#if( configUSE_TRACE_FACILITY == 1 )
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_ThreadPriority );
+#endif
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_MutexTest );
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_SemaphoreTest );
 }
@@ -114,6 +116,7 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 /**
  * @brief helper function for testing thread priority
  */
+#if( configUSE_TRACE_FACILITY == 1 )
 void threadPriorityTestFunction( void * param )
 {
     TaskStatus_t xTaskDetails;
@@ -201,6 +204,7 @@ void threadStackSizeTestFunction( void * param )
 
     *( int32_t * ) param = 300 + xTaskDetails.usStackHighWaterMark;
 }
+#endif
 
 /**
  * @brief helper function for testing mutex

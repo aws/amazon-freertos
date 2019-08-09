@@ -71,8 +71,6 @@
    a lot of data that needs to be copied, this should be set high. */
 #if defined(MTK_WIFI_TGN_VERIFY_ENABLE) && !defined(MTK_HOMEKIT_ENABLE)
 #define MEM_SIZE                (100 * 1024)
-#else
-#define MEM_SIZE                (40 * 1024)
 #endif
 
 /* Declare the existence/type/size of LwIP's own heap. */
