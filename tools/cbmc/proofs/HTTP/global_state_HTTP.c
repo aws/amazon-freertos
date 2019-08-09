@@ -1,5 +1,11 @@
 /****************************************************************/
 
+// TODO: Generate a header file for function declarations
+IotHttpsResponseHandle_t allocate_IotResponseHandle();
+IotHttpsRequestHandle_t allocate_IotRequestHandle();
+
+/****************************************************************/
+
 /* Implementation of safe malloc which returns NULL if the requested
  * size is 0.  Warning: The behavior of malloc(0) is platform
  * dependent.  It is possible for malloc(0) to return an address
@@ -22,6 +28,9 @@ void *safeMalloc(size_t xWantedSize) {
  * hold the header struct and the user data.  We modeled
  * responseHandle, requestHandle and connectionHandle similarly.
  */
+
+// TODO: Replace this with a model allowing unconstrained sizes,
+// or at least allowing a small set of differing sizes.
 
 typedef struct _responseHandle
 {
@@ -55,10 +64,21 @@ size_t http_parser_execute (http_parser *parser,
   __CPROVER_assert(data, "http_parser_execute data nonnull");
 
   _httpsResponse_t *_httpsResponse = (_httpsResponse_t *)(parser->data);
-  /* nondet_bool is required to get coverage. */
+  // Choose whether the parser found the header
   _httpsResponse->foundHeaderField = nondet_bool();
   _httpsResponse->parserState = PARSER_STATE_BODY_COMPLETE;
 
+  // Generate the header value found
+  if (_httpsResponse->foundHeaderField) {
+    size_t valueLen;
+    __CPROVER_assume(valueLen <= len);
+    _httpsResponse->pReadHeaderValue = malloc(valueLen+1);
+    _httpsResponse->pReadHeaderValue[valueLen] = 0;
+    _httpsResponse->readHeaderValueLength = valueLen;
+  }
+
+  // ???: Should this be valueLen?
+  // ???: Does it suggest a problem that returning any length works?
   return nondet_size_t();
 }
 
@@ -231,13 +251,21 @@ IotHttpsConnectionHandle_t
 initialize_IotConnectionHandle (IotHttpsConnectionHandle_t
 				pConnectionHandle) {
   if(pConnectionHandle) {
-    // initialize to empty queue
-    pConnectionHandle->reqQ.pPrevious = &(pConnectionHandle->reqQ);
-    pConnectionHandle->reqQ.pNext = &(pConnectionHandle->reqQ);
-    // initialize to empty queue
-    pConnectionHandle->respQ.pPrevious = &(pConnectionHandle->respQ);
-    pConnectionHandle->respQ.pNext = &(pConnectionHandle->respQ);
-  }
+    IotListDouble_Create(&pConnectionHandle->reqQ);
+    IotListDouble_Create(&pConnectionHandle->respQ);
+    // Add zero or one element to response queue
+    if (nondet_bool()) {
+      IotHttpsResponseHandle_t resp = allocate_IotResponseHandle();
+      __CPROVER_assume(resp);
+      IotListDouble_InsertHead(&pConnectionHandle->respQ, &resp->link);
+    }
+    // Add zero or one element to request queue
+    if (nondet_bool()) {
+      IotHttpsRequestHandle_t req = allocate_IotRequestHandle();
+      __CPROVER_assume(req);
+      IotListDouble_InsertHead(&pConnectionHandle->reqQ, &req->link);
+    }
+ }
   return pConnectionHandle;
 }
 
