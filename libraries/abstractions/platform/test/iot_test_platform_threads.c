@@ -71,9 +71,9 @@ TEST_TEAR_DOWN( UTIL_Platform_Threads )
 TEST_GROUP_RUNNER( UTIL_Platform_Threads )
 {
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_CreateDetachedThread );
-#if( configUSE_TRACE_FACILITY == 1 )
-    RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_ThreadPriority );
-#endif
+    #if ( configUSE_TRACE_FACILITY == 1 )
+        RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_ThreadPriority );
+    #endif
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_MutexTest );
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_SemaphoreTest );
 }
@@ -116,95 +116,95 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 /**
  * @brief helper function for testing thread priority
  */
-#if( configUSE_TRACE_FACILITY == 1 )
-void threadPriorityTestFunction( void * param )
-{
-    TaskStatus_t xTaskDetails;
-
-    /* Use the handle to obtain further information about the task. */
-    vTaskGetInfo( /* The handle of the task being queried. */
-        NULL,
-
-        /* The TaskStatus_t structure to complete with information
-         * on xTask. */
-        &xTaskDetails,
-
-        /* Include the stack high water mark value in the
-         * TaskStatus_t structure. */
-        pdTRUE,
-        /* Include the task state in the TaskStatus_t structure. */
-        eInvalid );
-
-    *( int32_t * ) param = xTaskDetails.uxCurrentPriority;
-}
-
-TEST( UTIL_Platform_Threads, IotThreads_ThreadPriority )
-{
-    static int32_t attrData = -1;
-
-    /* Create thread with priority 0 */
-    Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 0, 3072 );
-
-    /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 )
+#if ( configUSE_TRACE_FACILITY == 1 )
+    void threadPriorityTestFunction( void * param )
     {
-        vTaskDelay( 1 );
+        TaskStatus_t xTaskDetails;
+
+        /* Use the handle to obtain further information about the task. */
+        vTaskGetInfo( /* The handle of the task being queried. */
+            NULL,
+
+            /* The TaskStatus_t structure to complete with information
+             * on xTask. */
+            &xTaskDetails,
+
+            /* Include the stack high water mark value in the
+             * TaskStatus_t structure. */
+            pdTRUE,
+            /* Include the task state in the TaskStatus_t structure. */
+            eInvalid );
+
+        *( int32_t * ) param = xTaskDetails.uxCurrentPriority;
     }
 
-    TEST_ASSERT_EQUAL( 0, attrData );
-    printf( "Expected Pri = 0, actual = %d\r\n", ( int ) attrData );
-    attrData = -1;
-
-    /* Create thread with priority 5 */
-    Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 5, 3072 );
-
-    /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 )
+    TEST( UTIL_Platform_Threads, IotThreads_ThreadPriority )
     {
-        vTaskDelay( 1 );
+        static int32_t attrData = -1;
+
+        /* Create thread with priority 0 */
+        Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 0, 3072 );
+
+        /* Wait for the thread to complete before checking result*/
+        while( attrData == -1 )
+        {
+            vTaskDelay( 1 );
+        }
+
+        TEST_ASSERT_EQUAL( 0, attrData );
+        printf( "Expected Pri = 0, actual = %d\r\n", ( int ) attrData );
+        attrData = -1;
+
+        /* Create thread with priority 5 */
+        Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 5, 3072 );
+
+        /* Wait for the thread to complete before checking result*/
+        while( attrData == -1 )
+        {
+            vTaskDelay( 1 );
+        }
+
+        printf( "Expected Pri = 5, actual = %d\r\n", ( int ) attrData );
+        TEST_ASSERT_EQUAL( 5, attrData );
+        attrData = -1;
+
+        /* Create thread with priority 5 */
+        Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 7, 3072 );
+
+        /* Wait for the thread to complete before checking result*/
+        while( attrData == -1 )
+        {
+            vTaskDelay( 1 );
+        }
+
+        printf( "Expected Pri = 7, actual = %d\r\n", ( int ) attrData );
     }
-
-    printf( "Expected Pri = 5, actual = %d\r\n", ( int ) attrData );
-    TEST_ASSERT_EQUAL( 5, attrData );
-    attrData = -1;
-
-    /* Create thread with priority 5 */
-    Iot_CreateDetachedThread( threadPriorityTestFunction, &attrData, 7, 3072 );
-
-    /* Wait for the thread to complete before checking result*/
-    while( attrData == -1 )
-    {
-        vTaskDelay( 1 );
-    }
-
-    printf( "Expected Pri = 7, actual = %d\r\n", ( int ) attrData );
-}
 /*-----------------------------------------------------------*/
 
 /**
  * @brief helper function for testing thread priority
  */
-void threadStackSizeTestFunction( void * param )
-{
-    TaskStatus_t xTaskDetails;
+    void threadStackSizeTestFunction( void * param )
+    {
+        TaskStatus_t xTaskDetails;
 
-    /* Use the handle to obtain further information about the task. */
-    vTaskGetInfo( /* The handle of the task being queried. */
-        NULL,
+        /* Use the handle to obtain further information about the task. */
+        vTaskGetInfo( /* The handle of the task being queried. */
+            NULL,
 
-        /* The TaskStatus_t structure to complete with information
-         * on xTask. */
-        &xTaskDetails,
+            /* The TaskStatus_t structure to complete with information
+             * on xTask. */
+            &xTaskDetails,
 
-        /* Include the stack high water mark value in the
-         * TaskStatus_t structure. */
-        pdTRUE,
-        /* Include the task state in the TaskStatus_t structure. */
-        eInvalid );
+            /* Include the stack high water mark value in the
+             * TaskStatus_t structure. */
+            pdTRUE,
+            /* Include the task state in the TaskStatus_t structure. */
+            eInvalid );
 
-    *( int32_t * ) param = 300 + xTaskDetails.usStackHighWaterMark;
-}
-#endif
+        *( int32_t * ) param = 300 + xTaskDetails.usStackHighWaterMark;
+    }
+#endif /* if ( configUSE_TRACE_FACILITY == 1 ) */
 
 /**
  * @brief helper function for testing mutex
