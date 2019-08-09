@@ -11,6 +11,7 @@
 
 void harness() {
   IotHttpsConnectionHandle_t connHandle = allocate_IotConnectionHandle();
+  initialize_IotConnectionHandle(connHandle);
   if(connHandle) {
     __CPROVER_assume(is_valid_IotConnectionHandle(connHandle));
     __CPROVER_assume(is_stubbed_NetworkInterface(connHandle->pNetworkInterface));

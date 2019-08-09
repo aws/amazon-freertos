@@ -223,10 +223,18 @@ IotHttpsConnectionHandle_t allocate_IotConnectionHandle () {
     // network connection just points to an allocated memory object
     pConnectionHandle->pNetworkConnection = safeMalloc(1);
     pConnectionHandle->pNetworkInterface = allocate_NetworkInterface();
-    // ???: Should reqQ initialization be an assumption?
+  }
+  return pConnectionHandle;
+}
+
+IotHttpsConnectionHandle_t
+initialize_IotConnectionHandle (IotHttpsConnectionHandle_t
+				pConnectionHandle) {
+  if(pConnectionHandle) {
+    // initialize to empty queue
     pConnectionHandle->reqQ.pPrevious = &(pConnectionHandle->reqQ);
     pConnectionHandle->reqQ.pNext = &(pConnectionHandle->reqQ);
-    // ???: Should respQ initialization be an assumption?
+    // initialize to empty queue
     pConnectionHandle->respQ.pPrevious = &(pConnectionHandle->respQ);
     pConnectionHandle->respQ.pNext = &(pConnectionHandle->respQ);
   }
@@ -249,9 +257,6 @@ IotHttpsResponseHandle_t allocate_IotResponseHandle() {
   IotHttpsResponseHandle_t pResponseHandle = safeMalloc(sizeof(_resHandle_t));
   if(pResponseHandle) {
     uint32_t len;
-
-    pResponseHandle->httpParserInfo.parseFunc = http_parser_execute;
-
     pResponseHandle->pBody = safeMalloc(len);
     pResponseHandle->pHttpsConnection = allocate_IotConnectionHandle();
     pResponseHandle->pReadHeaderField =
@@ -262,11 +267,18 @@ IotHttpsResponseHandle_t allocate_IotResponseHandle() {
   return pResponseHandle;
 }
 
+IotHttpsResponseHandle_t
+initialize_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
+  if(pResponseHandle) {
+    pResponseHandle->httpParserInfo.parseFunc = http_parser_execute;
+  }
+  return pResponseHandle;
+}
+
 int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
   int required =
     __CPROVER_same_object(pResponseHandle->pHeaders,
 			  pResponseHandle->pHeadersCur) &&
-    // ???: Does this overconstrain End?
     __CPROVER_same_object(pResponseHandle->pHeaders,
 			  pResponseHandle->pHeadersEnd);
   if (!required) return 0;
@@ -281,9 +293,10 @@ int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
   return
     valid_headers &&
     valid_order &&
-    valid_parserdata;
+    valid_parserdata &&
+    // valid_order and short circuit evaluation prevents integer overflow
+    pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders <= USER_DATA_SIZE;
 }
-
 
 /****************************************************************
  * IotHttpsRequestHandle constructor
@@ -306,7 +319,6 @@ int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
   int required =
     __CPROVER_same_object(pRequestHandle->pHeaders,
 			  pRequestHandle->pHeadersCur) &&
-    // ???: Does this overconstrain End?
     __CPROVER_same_object(pRequestHandle->pHeaders,
 			  pRequestHandle->pHeadersEnd);
   if (!required) return 0;
@@ -344,8 +356,6 @@ IotHttpsRequestInfo_t * allocate_IotRequestInfo() {
 
 int is_valid_IotRequestInfo(IotHttpsRequestInfo_t * pReqInfo) {
   return
-    // ???: Should the global minimum size really be an upper bound?
-    pReqInfo->userBuffer.bufferLen <= requestUserBufferMinimumSize &&
     pReqInfo->hostLen <= IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1;
 }
 

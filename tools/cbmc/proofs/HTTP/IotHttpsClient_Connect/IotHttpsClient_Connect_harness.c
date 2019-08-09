@@ -16,6 +16,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect(IotHttpsConnectionHandle_t connHa
 void harness() {
   IotHttpsConnectionHandle_t pConnHandle = allocate_IotConnectionHandle();
   IotHttpsConnectionInfo_t *pConnConfig = allocate_IotConnectionInfo();
+  initialize_IotConnectionHandle(pConnHandle);
   if(pConnHandle) {
     __CPROVER_assume(is_valid_IotConnectionHandle(pConnHandle));
     __CPROVER_assume(is_stubbed_NetworkInterface(pConnHandle->pNetworkInterface));
