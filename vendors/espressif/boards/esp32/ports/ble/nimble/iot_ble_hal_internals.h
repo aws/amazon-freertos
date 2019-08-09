@@ -36,10 +36,6 @@
 
 #define TAG    "AFR-BLE"
 
-typedef enum
-{
-    GATT_SERVICE = 1, GATT_CHAR, GATT_DESCR
-} BTGattAttributeType_t;
 
 typedef struct
 {
