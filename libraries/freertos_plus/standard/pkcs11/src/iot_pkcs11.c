@@ -1,5 +1,4 @@
 #include "iot_pkcs11.h"
-#include "pkcs11.h"
 #include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"
 
@@ -9,7 +8,6 @@
 #include <string.h>
 
 /*-----------------------------------------------------------*/
-
 
 CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
                     CK_ULONG * pxSlotCount )
