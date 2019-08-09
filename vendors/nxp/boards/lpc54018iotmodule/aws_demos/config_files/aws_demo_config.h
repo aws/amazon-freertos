@@ -52,7 +52,6 @@
 #define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 10 )
 
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT       pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 15 )
 #define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Greengrass discovery example task parameters. */
