@@ -12,5 +12,6 @@
 void harness() {
   IotHttpsResponseHandle_t respHandle = allocate_IotResponseHandle();
   uint16_t pStatus;
+  initialize_IotResponseHandle(respHandle);
   IotHttpsClient_ReadResponseStatus(respHandle, &pStatus);
 }

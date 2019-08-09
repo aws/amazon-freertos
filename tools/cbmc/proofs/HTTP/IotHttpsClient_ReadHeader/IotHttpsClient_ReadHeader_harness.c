@@ -15,6 +15,7 @@ void harness() {
   size_t valueLen;
   char *pName = safeMalloc(nameLen);
   char  *pValue = safeMalloc(valueLen);
+  initialize_IotResponseHandle(respHandle);
   if (respHandle) {
     __CPROVER_assume(is_valid_IotResponseHandle(respHandle));
   }

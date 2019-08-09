@@ -58,6 +58,8 @@ void harness() {
   IotHttpsResponseInfo_t *pRespInfo = allocate_IotResponseInfo();
   uint32_t timeoutMs;
 
+  initialize_IotConnectionHandle(pConnHandle);
+  initialize_IotResponseHandle(pRespHandle);
   if (pRespInfo)
     __CPROVER_assume(is_valid_IotResponseInfo(pRespInfo));
   IotHttpsClient_SendSync(pConnHandle, reqHandle, &pRespHandle, pRespInfo, timeoutMs);
