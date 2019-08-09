@@ -31,7 +31,6 @@ echo "Registering CA Certificate with AWS IoT"
 
 echo "Getting Registration Code"
 registration_code_str=$(aws iot get-registration-code)  # registration code / common name
-# registration_code="${registration_code_str:27:64}" # CHECK THIS: REGISTRATION CODE LENGTH MAY NOT BE THE SAME ALWAYS
 registration_code=$(awk  'BEGIN{FS="\""}{print $4}' <<< "${registration_code_str}") # fixes issue in line comment above
 registration_code="${registration_code:1}" # deletes newline at front
 echo "Registration code is ${registration_code}"

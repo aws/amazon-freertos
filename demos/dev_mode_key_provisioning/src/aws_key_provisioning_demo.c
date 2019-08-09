@@ -49,7 +49,7 @@
  * 1 to run second part of demo, after user has copied device and CA certificates into aws_clientcredential_keys.h
  * NOTE: User must change value from 0 to 1 after running scripts (generating certificates) to provision device
  */
-#define DEMO_PART                  ( 0 )
+#define DEMO_PART                  ( 1 )
 
 /**
  * @brief Gives users the option to reprovision each time the demo is run
@@ -287,29 +287,31 @@ static int xProvisionDeviceForJITP( void )
  *  \return Void function, console outputs upon success/failure
  *
  */
-static void xDeviceProvisioningForJITP( void )
+static int xDeviceProvisioningForJITP( void )
 {
     xResult = xInitializePkcs11Session( &xGlobalSession );
 
     BaseType_t xHeapBefore;
     BaseType_t xHeapAfter;
 
-    xHeapBefore = xPortGetFreeHeapSize();
-    configPRINTF(("Heap size before is %d", xHeapBefore));
+    /* xHeapBefore = xPortGetFreeHeapSize(); */
+    /* configPRINTF(("Heap size before is %d", xHeapBefore)); */
 
-    if( xResult != CKR_OK )
+    if( xResult == CKR_OK )
+    {
+        xResult = C_GetFunctionList( &pxGlobalFunctionList );
+    }
+    else
     {
         configPRINTF( ( "ERROR: %d - Failed to open PKCS #11 session.\r\n", xResult ) );
     }
-
-    xResult = C_GetFunctionList( &pxGlobalFunctionList );
 
     if( xResult != CKR_OK )
     {
         configPRINTF( ( "ERROR: %d - Failed to get function list.\r\n", xResult ) );
     }
 
-    #if ( !DEMO_PART )
+    #if ( !DEMO_PART && xResult == CKR_OK )
         {
             CK_BYTE xHashedMessage[ pkcs11SHA256_DIGEST_LENGTH ] = { 0xab };
             CK_MECHANISM xMechanism;
@@ -327,20 +329,17 @@ static void xDeviceProvisioningForJITP( void )
 
             xResult = xDestroyCredentials( xGlobalSession );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
+            {
+                xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
+                                                       ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                       ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                       &xPrivateKeyHandle,
+                                                       &xPublicKeyHandle );
+            }
+            else
             {
                 configPRINTF( ( "ERROR: %d - Failed to destroy credentials before Generating Key Pair.\r\n", xResult ) );
-            }
-
-            xResult = xProvisionGenerateKeyPairEC( xGlobalSession,
-                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                                                   &xPrivateKeyHandle,
-                                                   &xPublicKeyHandle );
-
-            if( xResult != CKR_OK )
-            {
-                configPRINTF( ( "ERROR: %d - Generating EC key pair failed.", xResult ) );
             }
 
             if( xPrivateKeyHandle == CK_INVALID_HANDLE )
@@ -358,11 +357,14 @@ static void xDeviceProvisioningForJITP( void )
             xTemplate.type = CKA_CLASS;
             xTemplate.pValue = NULL;
             xTemplate.ulValueLen = 0;
-            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
             {
-                configPRINTF( ( "ERROR: %d - GetAttributeValue for length of public EC key class failed.\r\n", xResult ) );
+                xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Generating EC key pair failed.", xResult ) );
             }
 
             if( xTemplate.ulValueLen != sizeof( CK_OBJECT_CLASS ) )
@@ -371,11 +373,14 @@ static void xDeviceProvisioningForJITP( void )
             }
 
             xTemplate.pValue = &xClass;
-            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
             {
-                configPRINTF( ( "ERROR: %d - GetAttributeValue for private EC key class failed.\r\n", xResult ) );
+                xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - GetAttributeValue for length of public EC key class failed.\r\n", xResult ) );
             }
 
             if( xClass != CKO_PRIVATE_KEY )
@@ -384,11 +389,14 @@ static void xDeviceProvisioningForJITP( void )
             }
 
             xTemplate.pValue = &xClass;
-            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
             {
-                configPRINTF( ( "ERROR: %d - GetAttributeValue for public EC key class failed.\r\n", xResult ) );
+                xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - GetAttributeValue for private EC key class failed.\r\n", xResult ) );
             }
 
             if( xClass != CKO_PUBLIC_KEY )
@@ -400,11 +408,14 @@ static void xDeviceProvisioningForJITP( void )
             xTemplate.type = CKA_KEY_TYPE;
             xTemplate.pValue = &xKeyType;
             xTemplate.ulValueLen = sizeof( CK_KEY_TYPE );
-            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
             {
-                configPRINTF( ( "ERROR: %d - Error getting attribute value of EC key type.\r\n", xResult ) );
+                xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - GetAttributeValue for public EC key class failed.\r\n", xResult ) );
             }
 
             if( xTemplate.ulValueLen != sizeof( CK_KEY_TYPE ) )
@@ -417,9 +428,11 @@ static void xDeviceProvisioningForJITP( void )
                 configPRINTF( ( "ERROR: %d - Incorrect key type for private key.\r\n", xKeyType ) );
             }
 
-            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
-
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
+            {
+                xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
+            }
+            else
             {
                 configPRINTF( ( "ERROR: %d - Error getting attribute value of EC key type.\r\n", xResult ) );
             }
@@ -438,26 +451,40 @@ static void xDeviceProvisioningForJITP( void )
             xTemplate.type = CKA_EC_POINT;
             xTemplate.pValue = xEcPoint;
             xTemplate.ulValueLen = sizeof( xEcPoint );
-            xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
             {
-                configPRINTF( ( "ERROR: %d - Failed to retrieve EC Point.\r\n", xResult ) );
+                xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPublicKeyHandle, &xTemplate, 1 );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Error getting attribute value of EC key type.\r\n", xResult ) );
             }
 
             /* Perform a sign with the generated private key. */
             xMechanism.mechanism = CKM_ECDSA;
             xMechanism.pParameter = NULL;
             xMechanism.ulParameterLen = 0;
-            xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
             {
-                configPRINTF( ( "ERROR: %d - Failed to SignInit ECDSA.\r\n", xResult ) );
+                xResult = pxGlobalFunctionList->C_SignInit( xGlobalSession, &xMechanism, xPrivateKeyHandle );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Failed to retrieve EC Point.\r\n", xResult ) );
             }
 
             xSignatureLength = sizeof( xSignature );
-            xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
+
+            if( xResult == CKR_OK )
+            {
+                xResult = pxGlobalFunctionList->C_Sign( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, &xSignatureLength );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Failed to SignInit ECDSA.\r\n", xResult ) );
+            }
 
             if( xResult != CKR_OK )
             {
@@ -475,15 +502,12 @@ static void xDeviceProvisioningForJITP( void )
 
             lMbedTLSResult = mbedtls_ecp_group_load( &xEcdsaContext.grp, MBEDTLS_ECP_DP_SECP256R1 );
 
-            if( lMbedTLSResult != 0 )
+            if( lMbedTLSResult == 0 )
             {
-                configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
+                /* The first 2 bytes are for ASN1 type/length encoding. */
+                lMbedTLSResult = mbedtls_ecp_point_read_binary( &xEcdsaContext.grp, &xEcdsaContext.Q, &xEcPoint[ 2 ], xTemplate.ulValueLen - 2 );
             }
-
-            /* The first 2 bytes are for ASN1 type/length encoding. */
-            lMbedTLSResult = mbedtls_ecp_point_read_binary( &xEcdsaContext.grp, &xEcdsaContext.Q, &xEcPoint[ 2 ], xTemplate.ulValueLen - 2 );
-
-            if( lMbedTLSResult != 0 )
+            else
             {
                 configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
             }
@@ -491,22 +515,34 @@ static void xDeviceProvisioningForJITP( void )
             /* C_Sign returns the R & S components one after another- import these into a format that mbedTLS can work with. */
             mbedtls_mpi_init( &xR );
             mbedtls_mpi_init( &xS );
-            lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
 
-            if( lMbedTLSResult != 0 )
+            if( lMbedTLSResult == 0 )
+            {
+                lMbedTLSResult = mbedtls_mpi_read_binary( &xR, &xSignature[ 0 ], 32 );
+            }
+            else
             {
                 configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
             }
 
-            lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
-
-            if( lMbedTLSResult != 0 )
+            if( lMbedTLSResult == 0 )
+            {
+                lMbedTLSResult = mbedtls_mpi_read_binary( &xS, &xSignature[ 32 ], 32 );
+            }
+            else
             {
                 configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
             }
 
-            /* Verify using mbedTLS & exported public key. */
-            lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
+            if( lMbedTLSResult == 0 )
+            {
+                /* Verify using mbedTLS & exported public key. */
+                lMbedTLSResult = mbedtls_ecdsa_verify( &xEcdsaContext.grp, xHashedMessage, sizeof( xHashedMessage ), &xEcdsaContext.Q, &xR, &xS );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - mbedTLS failed in setup for signature verification.\r\n", lMbedTLSResult ) );
+            }
 
             if( lMbedTLSResult != 0 )
             {
@@ -516,12 +552,14 @@ static void xDeviceProvisioningForJITP( void )
             /* Verify the signature with the generated public key. */
             xResult = pxGlobalFunctionList->C_VerifyInit( xGlobalSession, &xMechanism, xPublicKeyHandle );
 
-            if( xResult != CKR_OK )
+            if( xResult == CKR_OK )
+            {
+                xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, xSignatureLength );
+            }
+            else
             {
                 configPRINTF( ( "ERROR: %d - Failed to VerifyInit ECDSA.\r\n", xResult ) );
             }
-
-            xResult = pxGlobalFunctionList->C_Verify( xGlobalSession, xHashedMessage, pkcs11SHA256_DIGEST_LENGTH, xSignature, xSignatureLength );
 
             if( xResult != CKR_OK )
             {
@@ -557,11 +595,6 @@ static void xDeviceProvisioningForJITP( void )
             mbedtls_pk_init( &pk_cont );
             ret = mbedtls_pk_setup( &pk_cont, header_copy );
 
-            if( ret != 0 )
-            {
-                configPRINTF( ( "ERROR: %d - Failed to initialize PK context with given information.\r\n", ret ) );
-            }
-
             pk_cont.pk_ctx = &xEcdsaContext;
 
 
@@ -569,27 +602,35 @@ static void xDeviceProvisioningForJITP( void )
             /* Initializing CSR Context */
             mbedtls_x509write_csr my_csr;
             mbedtls_x509write_csr_init( &my_csr );
-            ret = mbedtls_x509write_csr_set_subject_name( &my_csr, "CN=ThingName" ); /* This name is configurable to your personal thing name. */
 
-            if( ret != 0 )
+            if( ret == 0 )
             {
-                configPRINTF( ( "ERROR: %d - Failed to set subject name of CSR context.\r\n", ret ) );
+                ret = mbedtls_x509write_csr_set_subject_name( &my_csr, "CN=ThingName" ); /* This name is configurable to your personal thing name. */
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Failed to initialize PK context with given information.\r\n", ret ) );
             }
 
             mbedtls_x509write_csr_set_key( &my_csr, &pk_cont );
             mbedtls_x509write_csr_set_md_alg( &my_csr, MBEDTLS_MD_SHA256 );
-            ret = mbedtls_x509write_csr_set_key_usage( &my_csr, MBEDTLS_X509_KU_DIGITAL_SIGNATURE );
 
-            if( ret != 0 )
+            if( ret == 0 )
             {
-                configPRINTF( ( "ERROR: %d - Failed to set key usage of CSR context.\r\n", ret ) );
+                ret = mbedtls_x509write_csr_set_key_usage( &my_csr, MBEDTLS_X509_KU_DIGITAL_SIGNATURE );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Failed to set subject name of CSR context.\r\n", ret ) );
             }
 
-            ret = mbedtls_x509write_csr_set_ns_cert_type( &my_csr, MBEDTLS_X509_NS_CERT_TYPE_SSL_CLIENT );
-
-            if( ret != 0 )
+            if( ret == 0 )
             {
-                configPRINTF( ( "ERROR: %d - Failed to set NS Cert Type of CSR context.\r\n", ret ) );
+                ret = mbedtls_x509write_csr_set_ns_cert_type( &my_csr, MBEDTLS_X509_NS_CERT_TYPE_SSL_CLIENT );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Failed to set key usage of CSR context.\r\n", ret ) );
             }
 
             /* Output Buffer */
@@ -603,7 +644,14 @@ static void xDeviceProvisioningForJITP( void )
 
             size_t len_buf = ( size_t ) 2000;
 
-            ret = mbedtls_x509write_csr_pem( &my_csr, final_csr, len_buf, &prvRNG, &xGlobalSession );
+            if( ret == 0 )
+            {
+                ret = mbedtls_x509write_csr_pem( &my_csr, final_csr, len_buf, &prvRNG, &xGlobalSession );
+            }
+            else
+            {
+                configPRINTF( ( "ERROR: %d - Failed to set NS Cert Type of CSR context.\r\n", ret ) );
+            }
 
             if( ret != 0 )
             {
@@ -623,12 +671,14 @@ static void xDeviceProvisioningForJITP( void )
             mbedtls_ecp_group_free( &xEcdsaContext.grp );
             mbedtls_ecdsa_free( &xEcdsaContext );
             /*mbedtls_pk_free( &pk_cont ); */
-            //header_copy->ctx_free_func( &pk_cont );
+            /*header_copy->ctx_free_func( &pk_cont ); */
             mbedtls_x509write_csr_free( &my_csr );
             vPortFree( final_csr );
 
-            xHeapAfter = xPortGetFreeHeapSize();
-            configPRINTF(("Heap size before is %d", xHeapAfter));
+            /* xHeapAfter = xPortGetFreeHeapSize(); */
+            /* configPRINTF(("Heap size before is %d", xHeapAfter)); */
+
+            return( xResult || lMbedTLSResult || ret );
         }
     #else /* if ( !DEMO_PART ) */
         {
@@ -660,7 +710,13 @@ void vStartKeyProvisioningDemo( void )
             configPRINTF( ( "Keys Are Being Generated on Device\r\n" ) );
             configPRINTF( ( "Starting Key Provisioning\r\n" ) );
 
-            ( void ) xDeviceProvisioningForJITP();
+            int ret = xDeviceProvisioningForJITP();
+
+            if( ret != 0 )
+            {
+                configPRINTF( ( "ERROR PROVISIONING DEVICE" ) );
+            }
+
             #if ( DEMO_PART == 1 )
                 {
                     configPRINTF( ( "Ending Key Provisioning\r\n" ) );
