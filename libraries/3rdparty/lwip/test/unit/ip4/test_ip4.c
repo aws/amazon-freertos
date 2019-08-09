@@ -6,6 +6,8 @@
 #include "lwip/prot/ip.h"
 #include "lwip/prot/ip4.h"
 
+#include "lwip/tcpip.h"
+
 #if !LWIP_IPV4 || !IP_REASSEMBLY || !MIB2_STATS || !IPFRAG_STATS
 #error "This tests needs LWIP_IPV4, IP_REASSEMBLY; MIB2- and IPFRAG-statistics enabled"
 #endif
@@ -55,6 +57,7 @@ create_ip4_input_fragment(u16_t ip_id, u16_t start, u16_t len, int last)
 static void
 ip4_setup(void)
 {
+  lwip_check_ensure_no_alloc(SKIP_POOL(MEMP_SYS_TIMEOUT));
 }
 
 static void
@@ -65,6 +68,9 @@ ip4_teardown(void)
     netif_list->loop_first = NULL;
   }
   netif_list->loop_last = NULL;
+  /* poll until all memory is released... */
+  tcpip_thread_poll_one();
+  lwip_check_ensure_no_alloc(SKIP_POOL(MEMP_SYS_TIMEOUT));
 }
 
 
