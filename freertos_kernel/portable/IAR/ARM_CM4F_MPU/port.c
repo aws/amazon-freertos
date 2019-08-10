@@ -43,8 +43,6 @@ task.h is included from an application file. */
 
 #undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
-#warning This is not yet a documented port as it has not been fully tested, so no demo projects that use this port are provided.
-
 #ifndef __ARMVFP__
 	#error This port can only be used when the project options are configured to enable hardware floating point support.
 #endif
@@ -484,57 +482,38 @@ __weak void vPortSetupTimerInterrupt( void )
 
 static void prvSetupMPU( void )
 {
-extern uint32_t __privileged_functions_end__[];
-extern uint32_t __FLASH_segment_start__[];
-extern uint32_t __FLASH_segment_end__[];
-extern uint32_t __privileged_data_start__[];
-extern uint32_t __privileged_data_end__[];
-
 	/* Check the expected MPU is present. */
 	if( portMPU_TYPE_REG == portEXPECTED_MPU_TYPE_VALUE )
 	{
-		/* First setup the entire flash for unprivileged read only access. */
-		portMPU_REGION_BASE_ADDRESS_REG =	( ( uint32_t ) __FLASH_segment_start__ ) | /* Base address. */
-											( portMPU_REGION_VALID ) |
-											( portUNPRIVILEGED_FLASH_REGION );
+		/* Set the data segment to be read/write, no-execute. */
+		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configDATA_SEGMENT_START ) |
+                                                  ( portMPU_REGION_VALID ) |
+                                                  ( 0 );
 
-		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_READ_ONLY ) |
-										( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-										( prvGetMPURegionSizeSetting( ( uint32_t ) __FLASH_segment_end__ - ( uint32_t ) __FLASH_segment_start__ ) ) |
-										( portMPU_REGION_ENABLE );
+		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
+                                               ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+					       ( prvGetMPURegionSizeSetting( ( uint32_t ) configDATA_SEGMENT_END - ( uint32_t ) configDATA_SEGMENT_START ) ) |
+					       ( portMPU_REGION_ENABLE );
 
-		/* Setup the first 16K for privileged only access (even though less
-		than 10K is actually being used).  This is where the kernel code is
-		placed. */
-		portMPU_REGION_BASE_ADDRESS_REG =	( ( uint32_t ) __FLASH_segment_start__ ) | /* Base address. */
-											( portMPU_REGION_VALID ) |
-											( portPRIVILEGED_FLASH_REGION );
+		/* Set the text segment to be read-only. */
+		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configTEXT_SEGMENT_START ) |
+                                                  ( portMPU_REGION_VALID ) |
+                                                  ( 1 );
 
-		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_PRIVILEGED_READ_ONLY ) |
-										( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-										( prvGetMPURegionSizeSetting( ( uint32_t ) __privileged_functions_end__ - ( uint32_t ) __FLASH_segment_start__ ) ) |
-										( portMPU_REGION_ENABLE );
+		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_ONLY ) |
+                                               ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+					       ( prvGetMPURegionSizeSetting( ( uint32_t ) configTEXT_SEGMENT_END - ( uint32_t ) configTEXT_SEGMENT_START ) ) |
+					       ( portMPU_REGION_ENABLE );
 
-		/* Setup the privileged data RAM region.  This is where the kernel data
-		is placed. */
-		portMPU_REGION_BASE_ADDRESS_REG =	( ( uint32_t ) __privileged_data_start__ ) | /* Base address. */
-											( portMPU_REGION_VALID ) |
-											( portPRIVILEGED_RAM_REGION );
+                /* Set the interrupts segment to be read-only. */
+		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configINTERRUPTS_SEGMENT_START ) |
+                                                  ( portMPU_REGION_VALID ) |
+                                                  ( 2 );
 
-		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_PRIVILEGED_READ_WRITE ) |
-										( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-										prvGetMPURegionSizeSetting( ( uint32_t ) __privileged_data_end__ - ( uint32_t ) __privileged_data_start__ ) |
-										( portMPU_REGION_ENABLE );
-
-		/* By default allow everything to access the general peripherals.  The
-		system peripherals and registers are protected. */
-		portMPU_REGION_BASE_ADDRESS_REG =	( portPERIPHERALS_START_ADDRESS ) |
-											( portMPU_REGION_VALID ) |
-											( portGENERAL_PERIPHERALS_REGION );
-
-		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
-										( prvGetMPURegionSizeSetting( portPERIPHERALS_END_ADDRESS - portPERIPHERALS_START_ADDRESS ) ) |
-										( portMPU_REGION_ENABLE );
+		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_ONLY ) |
+                                               ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+					       ( prvGetMPURegionSizeSetting( ( uint32_t ) configINTERRUPTS_SEGMENT_END - ( uint32_t ) configINTERRUPTS_SEGMENT_START ) ) |
+					       ( portMPU_REGION_ENABLE );
 
 		/* Enable the memory fault exception. */
 		portNVIC_SYS_CTRL_STATE_REG |= portNVIC_MEM_FAULT_ENABLE;
@@ -569,8 +548,12 @@ uint32_t ulRegionSize, ulReturnValue = 4;
 }
 /*-----------------------------------------------------------*/
 
-void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, const struct xMEMORY_REGION * const xRegions, StackType_t *pxBottomOfStack, uint32_t ulStackDepth )
+void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, 
+                                const struct xMEMORY_REGION * const xRegions, 
+                                StackType_t *pxBottomOfStack, 
+                                uint32_t ulStackDepth )
 {
+#if 0
 extern uint32_t __SRAM_segment_start__[];
 extern uint32_t __SRAM_segment_end__[];
 extern uint32_t __privileged_data_start__[];
@@ -662,6 +645,7 @@ uint32_t ul;
 			lIndex++;
 		}
 	}
+#endif
 }
 /*-----------------------------------------------------------*/
 
