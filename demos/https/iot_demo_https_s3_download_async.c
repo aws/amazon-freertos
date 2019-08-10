@@ -155,28 +155,6 @@
 /** @endcond */
 
 /**
- * @brief HTTP standard header field "Range".
- */
-#define RANGE_HEADER_FIELD                     "Range"
-#define RANGE_HEADER_FIELD_LENGTH              ( 5 )
-
-/**
- * @brief HTTP standard header field "Content-Range"
- */
-#define CONTENT_RANGE_HEADER_FIELD             "Content-Range"
-
-/**
- * @brief The size of the header value string for the "Range" header field.
- *
- * This is used to specify which parts of the file
- * we want to download. Let's say the maximum file size is what can fit in a 32 bit unsigned integer. 2^32 = 4294967296
- * which is 10 digits. The header value string is of the form: "bytes=N-M" where N and M are integers. So the length
- * of this string is strlen(N) + strlen(M) + strlen("bytes=-") + NULL terminator. Given the maximum number of digits is
- * 10 we get the maximum length of this header value as: 10 * 2 + 7 + 1.
- */
-#define RANGE_VALUE_MAX_LENGTH                 ( 28 )
-
-/**
  * @brief The time for the application task to wait to try again finding a free request from the pool of requests.
  */
 #define GET_FREE_REQUEST_RETRY_WAIT_TIME_MS    ( 1000 )
@@ -340,6 +318,7 @@ static void _appendHeaderCallback( void * pPrivData,
     if( status != IOT_HTTPS_OK )
     {
         IotLogError( "Failed to write the header Range: %.*s into the request. With error code: %d", rangeValueLen, rangeValueStr, status );
+        IotHttpsClient_CancelRequestAsync( reqHandle );
     }
 }
 
@@ -392,9 +371,7 @@ static void _readReadyCallback( void * pPrivData,
     if( returnStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Failed to read the response body with error %d", returnStatus );
-
-        /* We may get an error where the server closed the connection, but data was still filled
-         * in the buffer. So we do not want to necessarily cancel the request. */
+        IotHttpsClient_CancelResponseAsync( respHandle );
     }
 
     /* Process the body here. */
@@ -407,6 +384,7 @@ static void _readReadyCallback( void * pPrivData,
     if( contentLength == 0 )
     {
         IotLogError( "Failed to retrieve the increment %s. The content length was %d.", rangeValueStr, contentLength );
+        IotHttpsClient_CancelResponseAsync( respHandle );
     }
 
     /* If the content length of the message is not equal to the size of the byte range we want to download then
