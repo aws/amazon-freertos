@@ -3216,6 +3216,9 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader( IotHttpsResponseHandle_t respHan
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( respHandle );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pName );
     HTTPS_ON_NULL_ARG_GOTO_CLEANUP( pValue );
+    HTTPS_ON_ARG_ERROR_MSG_GOTO_CLEANUP( valueLen > 0,
+                                         IOT_HTTPS_INVALID_PARAMETER,
+                                         "pValue has insufficient space to store a value string (length in 0)" );
 
     /* The buffer processing state is changed to searching the header buffer in this function. The parser state is
     * changed in the response to wherever the parser is currently located in the response. If this function is called
