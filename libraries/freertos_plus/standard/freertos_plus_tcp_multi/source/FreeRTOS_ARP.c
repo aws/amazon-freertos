@@ -90,8 +90,7 @@ ARPPacket_t * const pxARPFrame = ipPOINTER_CAST( ARPPacket_t * const, pxNetworkB
 eFrameProcessingResult_t eReturn = eReleaseBuffer;
 ARPHeader_t *pxARPHeader = &( pxARPFrame->xARPHeader );
 uint32_t ulTargetProtocolAddress, ulSenderProtocolAddress;
-/*_RB_ I think this was determined before eARPProcessPacket was called so perhaps could just be passed in as a parameter. */
-NetworkEndPoint_t *pxTargetEndPoint = FreeRTOS_FindEndPointOnIP( pxARPHeader->ulTargetProtocolAddress, 1 );
+NetworkEndPoint_t *pxTargetEndPoint = pxNetworkBuffer->pxEndPoint;
 #if( ipconfigARP_USE_CLASH_DETECTION != 0 )
 	NetworkEndPoint_t *pxSourceEndPoint;
 #endif
@@ -103,7 +102,7 @@ NetworkEndPoint_t *pxTargetEndPoint = FreeRTOS_FindEndPointOnIP( pxARPHeader->ul
 
 	#if( ipconfigARP_USE_CLASH_DETECTION != 0 )
 	{
-		pxSourceEndPoint = FreeRTOS_FindEndPointOnIP( ulSenderProtocolAddress, 2 );
+		pxSourceEndPoint = FreeRTOS_FindEndPointOnIP( ulSenderProtocolAddress, 2 );	/* Clash detection. */
 	}
 	#endif
 
@@ -118,6 +117,10 @@ NetworkEndPoint_t *pxTargetEndPoint = FreeRTOS_FindEndPointOnIP( pxARPHeader->ul
 		switch( pxARPHeader->usOperation )
 		{
 			case ipARP_REQUEST	:
+				if( ulSenderProtocolAddress != ulTargetProtocolAddress )
+				{
+					FreeRTOS_printf( ( "ipARP_REQUEST from %lxip to %lxip\n", FreeRTOS_ntohl( ulSenderProtocolAddress ), FreeRTOS_ntohl( ulTargetProtocolAddress ) ) );
+				}
 				/* The packet contained an ARP request.  Was it for the IP
 				address of one of the end-points? */
 				if( pxTargetEndPoint != NULL )
@@ -127,7 +130,7 @@ NetworkEndPoint_t *pxTargetEndPoint = FreeRTOS_FindEndPointOnIP( pxARPHeader->ul
 					/* The request is for the address of this node.  Add the
 					entry into the ARP cache, or refresh the entry if it
 					already exists. */
-					vARPRefreshCacheEntry( &( pxARPHeader->xSenderHardwareAddress ), ulSenderProtocolAddress, pxNetworkBuffer->pxEndPoint );
+					vARPRefreshCacheEntry( &( pxARPHeader->xSenderHardwareAddress ), ulSenderProtocolAddress, pxTargetEndPoint );
 
 					/* Generate a reply payload in the same buffer. */
 					pxARPHeader->usOperation = ( uint16_t ) ipARP_REPLY;
@@ -147,16 +150,15 @@ NetworkEndPoint_t *pxTargetEndPoint = FreeRTOS_FindEndPointOnIP( pxARPHeader->ul
 					}
 					memcpy( pxARPHeader->xSenderHardwareAddress.ucBytes, pxTargetEndPoint->xMACAddress.ucBytes, sizeof( MACAddress_t ) );
 					memcpy( pxARPHeader->ucSenderProtocolAddress, &pxTargetEndPoint->ulIPAddress, sizeof( pxARPHeader->ucSenderProtocolAddress ) );
-					pxNetworkBuffer->pxEndPoint = pxTargetEndPoint;
 
 					eReturn = eReturnEthernetFrame;
 				}
 				break;
 
 			case ipARP_REPLY :
-				FreeRTOS_printf( ( "ipARP_REPLY from %lxip\n", ulSenderProtocolAddress ) );
+				FreeRTOS_printf( ( "ipARP_REPLY from %lxip to %lxip\n", FreeRTOS_ntohl( ulSenderProtocolAddress ), FreeRTOS_ntohl( ulTargetProtocolAddress ) ) );
 				iptracePROCESSING_RECEIVED_ARP_REPLY( ulTargetProtocolAddress );
-				vARPRefreshCacheEntry( &( pxARPHeader->xSenderHardwareAddress ), ulSenderProtocolAddress, pxNetworkBuffer->pxEndPoint );
+				vARPRefreshCacheEntry( &( pxARPHeader->xSenderHardwareAddress ), ulSenderProtocolAddress, pxTargetEndPoint );
 				/* Process received ARP frame to see if there is a clash. */
 				#if( ipconfigARP_USE_CLASH_DETECTION != 0 )
 				{
@@ -218,7 +220,7 @@ uint8_t ucMinAgeFound = 0U;
 #if( ipconfigARP_STORES_REMOTE_ADDRESSES == 0 )
 	/* Only process the IP address if it matches with one of the end-points,
 	or as long as not all end-points are up. */
-	if( ( FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 1 ) != NULL ) ||
+	if( ( FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 1 ) != NULL ) ||	/* Refresh ARP cache. */
 		( FreeRTOS_AllEndPointsUp( NULL ) == pdFALSE ) )
 #else
 	/* If ipconfigARP_STORES_REMOTE_ADDRESSES is non-zero, IP addresses with
@@ -294,12 +296,12 @@ uint8_t ucMinAgeFound = 0U;
 				/* If ARP stores the MAC address of IP addresses outside the
 				network, than the MAC address of the gateway should not be
 				overwritten. */
-				BaseType_t xOtherIsLocal = FreeRTOS_FindEndPointOnNetMask( xARPCache[ x ].ulIPAddress, 3 ) != NULL;
+				BaseType_t xOtherIsLocal = FreeRTOS_FindEndPointOnNetMask( xARPCache[ x ].ulIPAddress, 3 ) != NULL;	/* ARP remote address. */
 
 					if( xAddressIsLocal < ( BaseType_t ) 0 )
 					{
 						/* Only look-up the address when needed. */
-						xAddressIsLocal = FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 2 ) != NULL;
+						xAddressIsLocal = FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 2 ) != NULL;	/* ARP remote address. */
 					}
 					if( xAddressIsLocal == xOtherIsLocal )
 					{
@@ -423,7 +425,7 @@ NetworkEndPoint_t *pxEndPoint = NULL;
 	}
 	else
 #endif
-	if( ( pxEndPoint = FreeRTOS_FindEndPointOnIP( ulAddressToLookup, 0 ) ) != NULL )/*lint !e9084*/
+	if( ( pxEndPoint = FreeRTOS_FindEndPointOnIP( ulAddressToLookup, 0 ) ) != NULL )/*lint !e9084*/	/* ARP lookup loop-back? */
 	{
 		/* Targeted at this device? Make sure that xNetworkInterfaceOutput()
 		in NetworkInterface.c calls xCheckLoopback(). */

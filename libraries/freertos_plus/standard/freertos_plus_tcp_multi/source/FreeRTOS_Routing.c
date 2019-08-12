@@ -327,7 +327,7 @@ NetworkEndPoint_t *FreeRTOS_FindEndPointOnNetMask( uint32_t ulIPAddress, uint32_
 NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxInterface, uint32_t ulIPAddress, uint32_t ulWhere )
 {
 NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
-NetworkEndPoint_t *pxDefault = NULL;
+//NetworkEndPoint_t *pxDefault = NULL;
 
 	xRoutingStats.ulOnNetMask++;
 	if( ulWhere < ARRAY_SIZE( xRoutingStats.ulLocations ) )
@@ -349,7 +349,7 @@ NetworkEndPoint_t *pxDefault = NULL;
 		{
 			if( pxEndPoint->bits.bIsDefault != pdFALSE_UNSIGNED )
 			{
-				pxDefault = pxEndPoint;
+				//pxDefault = pxEndPoint;
 			}
 
 			if( ( ulIPAddress & pxEndPoint->ulNetMask ) == ( pxEndPoint->ulIPAddress & pxEndPoint->ulNetMask ) )
@@ -482,7 +482,12 @@ ProtocolPacket_t *pxPacket = ipPOINTER_CAST( ProtocolPacket_t *, pucEthernetBuff
 uint32_t ulIPTargetAddress = 0uL;
 uint32_t ulIPSourceAddress = 0uL;
 
-BaseType_t xDoLog = pdTRUE;
+/*
+	BaseType_t xDoLog = pdTRUE;
+*/
+	#warning For logging only, take this away
+	const char *name = "";
+	
 	/* An Ethernet packet has been received. Inspect the contents to see which
 	 * defined end-point has the best mathc.
 	 */
@@ -490,8 +495,6 @@ BaseType_t xDoLog = pdTRUE;
 	/* Some stats while developing. */
 	xRoutingStats.ulMatching++;
 
-	#warning For logging only, take this away
-	const char *name = "";
 
 	/* Probably an ARP packet or a broadcast. */
 	switch( pxPacket->xUDPPacket.xEthernetHeader.usFrameType )
@@ -576,9 +579,11 @@ BaseType_t xDoLog = pdTRUE;
 					pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes[1] ) );
 			}
 */
+			( void ) xMACBroadcast;
+			( void ) name;
 			if( pxEndPoint->ulIPAddress == ulIPTargetAddress  )
 			{
-				xDoLog = pdFALSE;
+/*				xDoLog = pdFALSE; */
 				xDone = pdTRUE;
 			}
 			else
@@ -676,17 +681,17 @@ BaseType_t xDoLog = pdTRUE;
 	NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 	size_t xNeededSize;
 
-//		if( ICMPHeader_IPv6->ucTypeOfMessage != ipICMP_PING_REQUEST_IPv6 )
-//		{
-//			FreeRTOS_printf( ( "ICMPv6 message %d from %02x:%02x:%02x:%02x:%02x:%02x\n",
-//				ICMPHeader_IPv6->ucTypeOfMessage,
-//				ICMPHeader_IPv6->ucOptions[ 2 ],
-//				ICMPHeader_IPv6->ucOptions[ 3 ],
-//				ICMPHeader_IPv6->ucOptions[ 4 ],
-//				ICMPHeader_IPv6->ucOptions[ 5 ],
-//				ICMPHeader_IPv6->ucOptions[ 6 ],
-//				ICMPHeader_IPv6->ucOptions[ 7 ] ) );
-//		}
+		if( ICMPHeader_IPv6->ucTypeOfMessage != ipICMP_PING_REQUEST_IPv6 )
+		{
+			FreeRTOS_printf( ( "ICMPv6 message %d from %02x:%02x:%02x:%02x:%02x:%02x\n",
+				ICMPHeader_IPv6->ucTypeOfMessage,
+				ICMPHeader_IPv6->ucOptions[ 2 ],
+				ICMPHeader_IPv6->ucOptions[ 3 ],
+				ICMPHeader_IPv6->ucOptions[ 4 ],
+				ICMPHeader_IPv6->ucOptions[ 5 ],
+				ICMPHeader_IPv6->ucOptions[ 6 ],
+				ICMPHeader_IPv6->ucOptions[ 7 ] ) );
+		}
 		if( pxEndPoint != NULL )
 		{
 			switch( ICMPHeader_IPv6->ucTypeOfMessage )

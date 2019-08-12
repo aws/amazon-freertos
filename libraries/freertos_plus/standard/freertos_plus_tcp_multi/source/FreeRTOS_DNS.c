@@ -1210,9 +1210,13 @@ TickType_t xExpectedID = xIdentifier;
 			{
 				/* NetworkInterface is obliged to set 'pxEndPoint' in every received packet,
 				but in case this has not be done, set it here. */
-				FreeRTOS_printf( ( "prvParseDNSReply: No pxEndPoint yet?\n" ) );
 
 				pxNetworkBuffer->pxEndPoint = prvFindEndPointOnNetMask( pxNetworkBuffer );
+				#ifndef _lint
+				FreeRTOS_printf( ( "prvParseDNSReply: No pxEndPoint yet? Using %lxip\n",
+					FreeRTOS_ntohl( pxNetworkBuffer->pxEndPoint ? pxNetworkBuffer->pxEndPoint->ulIPAddress : 0uL ) ) );
+				#endif
+
 				if( pxNetworkBuffer->pxEndPoint == NULL )
 				{
 					break;
@@ -1592,7 +1596,7 @@ TickType_t xTimeoutTime = pdMS_TO_TICKS( 200 );
 			}
 
 			/* calculate the UDP checksum for outgoing package */
-			usGenerateProtocolChecksum( ( uint8_t * ) pxUDPPacket, xDataLength, pdTRUE );
+			( void ) usGenerateProtocolChecksum( ( uint8_t * ) pxUDPPacket, xDataLength, pdTRUE );
 		}
 		#endif
 

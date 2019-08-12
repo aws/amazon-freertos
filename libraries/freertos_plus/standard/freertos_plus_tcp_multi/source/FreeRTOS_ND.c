@@ -120,12 +120,12 @@ eARPLookupResult_t eReturn;
 			memcpy( xNDCache[ xEntryFound ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( MACAddress_t ) );
 			xNDCache[ xEntryFound ].ucAge = ( uint8_t ) ipconfigMAX_ARP_AGE;
 			xNDCache[ xEntryFound ].ucValid = ( uint8_t ) pdTRUE;
-			FreeRTOS_printf( ( "vNDRefreshCacheEntry[ %d ] %pip with %02x:%02x:%02x\n",
-				( int ) xEntryFound,
-				pxIPAddress->ucBytes,
-				pxMACAddress->ucBytes[ 3 ],
-				pxMACAddress->ucBytes[ 4 ],
-				pxMACAddress->ucBytes[ 5 ] ) );
+//			FreeRTOS_printf( ( "vNDRefreshCacheEntry[ %d ] %pip with %02x:%02x:%02x\n",
+//				( int ) xEntryFound,
+//				pxIPAddress->ucBytes,
+//				pxMACAddress->ucBytes[ 3 ],
+//				pxMACAddress->ucBytes[ 4 ],
+//				pxMACAddress->ucBytes[ 5 ] ) );
 		}
 	}
 #endif /* ipconfigUSE_IPv6 */

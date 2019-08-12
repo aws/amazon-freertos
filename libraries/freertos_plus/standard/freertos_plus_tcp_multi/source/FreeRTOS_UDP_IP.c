@@ -174,12 +174,17 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 			{
 				FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: End-point already known\n" ) );
 			}
-			else
+			else if( pxEndPoint != NULL )
 			{
+				/* Using the end-point found in the ARP table. */
 				pxNetworkBuffer->pxEndPoint = pxEndPoint;
 //				FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: remote IP = %lxip end-point = %lxip\n",
 //					FreeRTOS_htonl( pxNetworkBuffer->ulIPAddress ),
 //					FreeRTOS_htonl( pxNetworkBuffer->pxEndPoint != 0 ? pxNetworkBuffer->pxEndPoint->ulIPAddress : 0x0ul ) ) );
+			}
+			else
+			{
+				/* Look it up. */
 			}
 
 			/* Which end point should the ping go out on? */
@@ -222,7 +227,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 
 				if( ( ucSocketOptions & ( uint8_t ) FREERTOS_SO_UDPCKSUM_OUT ) != 0u )
 				{
-					usGenerateProtocolChecksum( (uint8_t*)pxUDPPacket, pxNetworkBuffer->xDataLength, pdTRUE );
+					( void ) usGenerateProtocolChecksum( (uint8_t*)pxUDPPacket, pxNetworkBuffer->xDataLength, pdTRUE );
 				}
 				else
 				{
@@ -244,7 +249,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 
 			/* 'ulIPAddress' might have become the address of the Gateway.
 			Find the route again. */
-			pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 11 );
+			pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 11 );	/* ARP request */
 			vARPGenerateRequestPacket( pxNetworkBuffer );
 		}
 		else
@@ -255,38 +260,30 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 		}
 	}
 
-	if( eReturned != eCantSendPacket )
+	if( ( eReturned != eCantSendPacket ) && ( pxNetworkBuffer->pxEndPoint != NULL ) )
 	{
-		/* The network driver is responsible for freeing the network buffer
-		after the packet has been sent. */
-		if( pxNetworkBuffer->pxEndPoint != NULL )
-		{
-		NetworkInterface_t *pxInterface = pxNetworkBuffer->pxEndPoint->pxNetworkInterface;
+	/* The network driver is responsible for freeing the network buffer
+	after the packet has been sent. */
+	NetworkInterface_t *pxInterface = pxNetworkBuffer->pxEndPoint->pxNetworkInterface;
 
-			memcpy( &( pxUDPPacket->xEthernetHeader.xSourceAddress), pxNetworkBuffer->pxEndPoint->xMACAddress.ucBytes, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
-			#if defined( ipconfigETHERNET_MINIMUM_PACKET_BYTES )
+		memcpy( &( pxUDPPacket->xEthernetHeader.xSourceAddress), pxNetworkBuffer->pxEndPoint->xMACAddress.ucBytes, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
+		#if defined( ipconfigETHERNET_MINIMUM_PACKET_BYTES )
+		{
+			if( pxNetworkBuffer->xDataLength < ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES )
 			{
-				if( pxNetworkBuffer->xDataLength < ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES )
-				{
-				BaseType_t xIndex;
-	
-					FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: length %u\n", pxNetworkBuffer->xDataLength ) );
-					for( xIndex = ( BaseType_t ) pxNetworkBuffer->xDataLength; xIndex < ( BaseType_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES; xIndex++ )
-					{
-						pxNetworkBuffer->pucEthernetBuffer[ xIndex ] = 0u;
-					}
-					pxNetworkBuffer->xDataLength = ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES;
-				}
-			}
-			#endif
+			BaseType_t xIndex;
 
-			( void ) pxInterface->pfOutput( pxInterface, pxNetworkBuffer, pdTRUE );
+				FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: length %u\n", pxNetworkBuffer->xDataLength ) );
+				for( xIndex = ( BaseType_t ) pxNetworkBuffer->xDataLength; xIndex < ( BaseType_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES; xIndex++ )
+				{
+					pxNetworkBuffer->pucEthernetBuffer[ xIndex ] = 0u;
+				}
+				pxNetworkBuffer->xDataLength = ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES;
+			}
 		}
-		else
-		{
-			/* The packet can't be sent (no route found).  Drop the packet. */
-			vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
-		}
+		#endif
+
+		( void ) pxInterface->pfOutput( pxInterface, pxNetworkBuffer, pdTRUE );
 	}
 	else
 	{

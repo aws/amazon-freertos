@@ -807,12 +807,9 @@ IPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
 					{
 					EthernetHeader_t *pxEthernetHeader;
 						pxEthernetHeader = ( EthernetHeader_t * )pxDescriptor->pucEthernetBuffer;
+
 						pxDescriptor->pxInterface = pxMyInterface;
-						pxDescriptor->pxEndPoint = FreeRTOS_FindEndPointOnMAC( &( pxEthernetHeader->xDestinationAddress ), pxMyInterface );
-						if( pxDescriptor->pxEndPoint == NULL )
-						{
-							pxDescriptor->pxEndPoint = FreeRTOS_FirstEndPoint( pxMyInterface );
-						}
+						pxDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxDescriptor->pucEthernetBuffer );
 
 						pxDescriptor->xDataLength = ( size_t ) usLength;
 						#if( ipconfigZERO_COPY_RX_DRIVER == 0 )

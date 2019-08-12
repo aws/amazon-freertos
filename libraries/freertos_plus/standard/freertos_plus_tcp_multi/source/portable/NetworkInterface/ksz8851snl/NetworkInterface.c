@@ -1470,13 +1470,7 @@ uint32_t ulReturnValue = 0;
 		ulReturnValue++;
 
 		pxNetworkBuffer->pxInterface = pxMyInterface;
-/*		pxNetworkBuffer->pxEndPoint = FreeRTOS_FirstEndPoint( pxMyInterface ); */
-
-		pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnMAC( &( pxEthernetHeader->xDestinationAddress ), pxMyInterface );
-		if( pxNetworkBuffer->pxEndPoint == NULL )
-		{
-			pxNetworkBuffer->pxEndPoint = FreeRTOS_FirstEndPoint( pxMyInterface );
-		}
+		pxNetworkBuffer->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxNetworkBuffer->pucEthernetBuffer );
 
 		if( logFlags & RX_LOGGING )
 		{
