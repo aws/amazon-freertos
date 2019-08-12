@@ -853,9 +853,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_ota_cbor_internal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</name>
+			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/ota/include/aws_ota_types.h</name>

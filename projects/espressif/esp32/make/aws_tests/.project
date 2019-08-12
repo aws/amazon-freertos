@@ -3281,11 +3281,6 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/freertos_plus/aws/ota/include/aws_ota_types.h</name>
 			<type>1</type>
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_ota_types.h</locationURI>

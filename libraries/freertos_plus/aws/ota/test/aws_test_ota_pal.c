@@ -36,7 +36,7 @@
 #include "unity.h"
 #include "aws_ota_pal_test_access_declare.h"
 #include "aws_ota_pal.h"
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
 #include "aws_ota_codesigner_certificate.h"

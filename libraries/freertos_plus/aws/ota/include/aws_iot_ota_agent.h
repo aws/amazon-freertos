@@ -24,12 +24,12 @@
  */
 
 /**
- * @file aws_ota_agent.h
+ * @file aws_iot_ota_agent.h
  * @brief OTA Agent Interface
  */
 
-#ifndef _AWS_OTA_AGENT_H_
-#define _AWS_OTA_AGENT_H_
+#ifndef _AWS_IOT_OTA_AGENT_H_
+#define _AWS_IOT_OTA_AGENT_H_
 
 /* Type definitions for OTA Agent */
 #include "aws_ota_types.h"
@@ -410,4 +410,4 @@ uint32_t OTA_GetPacketsProcessed( void );
  */
 uint32_t OTA_GetPacketsDropped( void );
 
-#endif /* ifndef _AWS_OTA_AGENT_H_ */
+#endif /* ifndef _AWS_IOT_OTA_AGENT_H_ */
