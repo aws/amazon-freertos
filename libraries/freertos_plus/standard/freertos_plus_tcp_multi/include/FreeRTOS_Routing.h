@@ -212,8 +212,9 @@ NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxIn
 	void FreeRTOS_OutputAdvertiseIPv6( NetworkEndPoint_t *pxEndPoint );
 #endif
 
-/* A ethernet packet has come in on 'pxMyInterface'. Find the best matching end-point. */
-NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxMyInterface, uint8_t *pucEthernetBuffer );
+/* A ethernet packet has come in on a certain network interface.
+Find the best matching end-point. */
+NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxNetworkInterface, uint8_t *pucEthernetBuffer );
 
 /* Return the default end-point. */
 NetworkEndPoint_t *FreeRTOS_FindDefaultEndPoint( void );

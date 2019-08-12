@@ -366,6 +366,33 @@
   * @}
   */
 
+#ifdef _lint
+	#ifdef __IO
+		#undef __IO
+	#endif
+	#define __IO
+
+	#ifdef ETH_TypeDef
+		#undef ETH_TypeDef
+	#endif
+	#define ETH_TypeDef	void
+
+	#ifdef HAL_LockTypeDef
+		#undef HAL_LockTypeDef
+	#endif
+	#define HAL_LockTypeDef	unsigned
+
+	#ifdef ETH_RX_BUF_SIZE
+		#undef ETH_RX_BUF_SIZE
+	#endif
+	#define ETH_RX_BUF_SIZE	1536
+
+	#ifdef ETH_TX_BUF_SIZE
+		#undef ETH_TX_BUF_SIZE
+	#endif
+	#define ETH_TX_BUF_SIZE	1536
+#endif
+
 /* Exported types ------------------------------------------------------------*/
 /** @defgroup ETH_Exported_Types ETH Exported Types
   * @{

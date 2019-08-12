@@ -52,7 +52,7 @@ extern "C" {
 
 /* NOTE PUBLIC API FUNCTIONS. */
 BaseType_t xNetworkBuffersInitialise( void );
-NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xRequestedSizeBytes, TickType_t xBlockTimeTicks );
+NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xByteCount, TickType_t xBlockTimeTicks );
 NetworkBufferDescriptor_t *pxNetworkBufferGetFromISR( size_t xRequestedSizeBytes );
 void vReleaseNetworkBufferAndDescriptor( NetworkBufferDescriptor_t * const pxNetworkBuffer );
 BaseType_t vNetworkBufferReleaseFromISR( NetworkBufferDescriptor_t * const pxNetworkBuffer );
@@ -67,12 +67,12 @@ UBaseType_t uxGetMinimumFreeNetworkBuffers( void );
 
 /* Copy a network buffer into a bigger buffer. */
 NetworkBufferDescriptor_t *pxDuplicateNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * const pxNetworkBuffer,
-	BaseType_t xNewLength);
+	size_t uxNewLength );
 
 /* Increase the size of a Network Buffer.
 In case BufferAllocation_2.c is used, the new space must be allocated. */
-NetworkBufferDescriptor_t *pxResizeNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * pxNetworkBuffer,
-	size_t xNewSizeBytes );
+NetworkBufferDescriptor_t *pxResizeNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * pxDescriptor,
+	size_t xByteCount );
 
 #if ipconfigTCP_IP_SANITY
 	/*

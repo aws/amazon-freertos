@@ -4,7 +4,7 @@
  */
 
 /*
- * FreeRTOS+TCP V2.0.1
+ * FreeRTOS+TCP V2.0.11
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,6 +51,7 @@
 #include "FreeRTOS_DHCP.h"
 #include "FreeRTOS_Routing.h"
 
+/*lint -e9071 defined macro is reserved to the compiler [MISRA 2012 Rule 21.1, required]. */
 #define __STM32_HAL_LEGACY   1
 
 /* ST includes. */
@@ -60,7 +61,7 @@
 	#include "stm32f4xx_hal.h"
 #elif defined( STM32F2xx )
 	#include "stm32f2xx_hal.h"
-#else
+#elif !defined( _lint )	/* Lint does not like an #error */
 	#error What part?
 #endif
 
@@ -217,7 +218,7 @@ static BaseType_t xSTM32F_GetPhyLinkStatus( NetworkInterface_t *pxInterface );
 /*
  * Check if a given packet should be accepted.
  */
-static BaseType_t xMayAcceptPacket( uint8_t *pcBuffer );
+static BaseType_t xMayAcceptPacket( NetworkBufferDescriptor_t *pxDescriptor );
 
 /*
  * Initialise the TX descriptors.
@@ -238,7 +239,7 @@ static void vClearTXBuffers( void );
 /* Bit map of outstanding ETH interrupt events for processing.  Currently only
 the Rx interrupt is handled, although code is included for other events to
 enable future expansion. */
-static volatile uint32_t ulISREvents;
+static volatile uint32_t ulISREvents = 0uL;
 
 #if( ipconfigUSE_LLMNR == 1 )
 	static const uint8_t xLLMNR_MACAddress[] = { 0x01, 0x00, 0x5E, 0x00, 0x00, 0xFC };
@@ -365,7 +366,6 @@ BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 		vTaskNotifyGiveFromISR( xEMACTaskHandle, &xHigherPriorityTaskWoken );
 		portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 	}
-
 }
 /*-----------------------------------------------------------*/
 
@@ -441,7 +441,7 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 		/* Value of PhyAddress doesn't matter, will be probed for. */
 		xETH.Init.PhyAddress = 0;
 
-		xETH.Init.MACAddr = ( uint8_t *) pxEndPoint->xMACAddress.ucBytes;
+		xETH.Init.MACAddr = ( uint8_t * ) pxEndPoint->xMACAddress.ucBytes;
 		xETH.Init.RxMode = ETH_RXINTERRUPT_MODE;
 
 		/* using the ETH_CHECKSUM_BY_HARDWARE option:
@@ -491,20 +491,20 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 		}
 		#endif
 
-		#if( ipconfigUSE_IPv6 != 0 )
+		#if( ( ipconfigUSE_LLMNR == 1 ) && ( ipconfigUSE_IPv6 != 0 ) )
 		{
-			NetworkEndPoint_t *pxEndPoint;
-			#if( ipconfigUSE_LLMNR == 1 )
-			{
-				prvMACAddressConfig( &xETH, xMACEntry, ( uint8_t *)xLLMNR_MacAdressIPv6.ucBytes );
-				xMACEntry += 8;
-			}
-			#endif /* ipconfigUSE_LLMNR */
+			prvMACAddressConfig( &xETH, xMACEntry, ( uint8_t *)xLLMNR_MacAdressIPv6.ucBytes );
+			xMACEntry += 8;
+		}
+		#endif /* ipconfigUSE_LLMNR */
 
-			for( pxEndPoint = FreeRTOS_FirstEndPoint( pxMyInterface );
-				pxEndPoint != NULL;
-				pxEndPoint = FreeRTOS_NextEndPoint( pxMyInterface, pxEndPoint ) )
+		{
+			/* The EMAC address of the first end-point has been registered in HAL_ETH_Init(). */
+			for( pxEndPoint = FreeRTOS_NextEndPoint( pxMyInterface, pxEndPoint );
+				 pxEndPoint != NULL;
+				 pxEndPoint = FreeRTOS_NextEndPoint( pxMyInterface, pxEndPoint ) )
 			{
+#if( ipconfigUSE_IPv6 != 0 )
 				if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
 				{
 				uint8_t ucMACAddress[ 6 ] = { 0x33, 0x33, 0xff, 0, 0, 0 };
@@ -512,17 +512,24 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 					ucMACAddress[ 3 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 13 ];
 					ucMACAddress[ 4 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 14 ];
 					ucMACAddress[ 5 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 15 ];
-					prvMACAddressConfig( &xETH, xMACEntry++, ucMACAddress );
-					if( xMACEntry == ETH_MAC_ADDRESS3 )
-					{
-						/* No more locations available. */
-						break;
-					}
+					prvMACAddressConfig( &xETH, xMACEntry, ucMACAddress );
 					xMACEntry += 8;
 				}
+				else
+#else
+				{
+					prvMACAddressConfig( &xETH, xMACEntry, pxEndPoint->xMACAddress.ucBytes );
+					xMACEntry += 8;
+				}
+#endif
+				if( xMACEntry > ETH_MAC_ADDRESS3 )
+				{
+					/* No more locations available. */
+					break;
+				}
+				xMACEntry += 8;
 			}
 		}
-		#endif /* ipconfigUSE_IPv6 */
 
 		/* Force a negotiation with the Switch or Router and wait for LS. */
 		prvEthernetUpdateConfig( pdTRUE );
@@ -801,9 +808,9 @@ const TickType_t xBlockTimeTicks = pdMS_TO_TICKS( 50u );
 }
 /*-----------------------------------------------------------*/
 
-static BaseType_t xMayAcceptPacket( uint8_t *pcBuffer )
+static BaseType_t xMayAcceptPacket( NetworkBufferDescriptor_t *pxDescriptor )
 {
-const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pcBuffer;
+const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pxDescriptor->pucEthernetBuffer;
 
 	switch( pxProtPacket->xTCPPacket.xEthernetHeader.usFrameType )
 	{
@@ -843,35 +850,51 @@ const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pcBuffer;
 			return pdFALSE;
 		}
 
-		ulDestinationIPAddress = pxIPHeader->ulDestinationIPAddress;
-		/* Is the packet for this node? */
-		if( ( ulDestinationIPAddress != *ipLOCAL_IP_ADDRESS_POINTER ) &&
-			/* Is it a broadcast address x.x.x.255 ? */
-			( ( FreeRTOS_ntohl( ulDestinationIPAddress ) & 0xff ) != 0xff ) &&
+//		ulDestinationIPAddress = pxIPHeader->ulDestinationIPAddress;
+//		/* Is the packet for this node? */
+//		if( ( ulDestinationIPAddress != *ipLOCAL_IP_ADDRESS_POINTER ) &&
+//			/* Is it a broadcast address x.x.x.255 ? */
+//			( ( FreeRTOS_ntohl( ulDestinationIPAddress ) & 0xff ) != 0xff ) &&
+//		#if( ipconfigUSE_LLMNR == 1 )
+//			( ulDestinationIPAddress != ipLLMNR_IP_ADDR ) &&
+//		#endif
+//			( *ipLOCAL_IP_ADDRESS_POINTER != 0 ) ) {
+//			FreeRTOS_printf( ( "Drop IP %lxip\n", FreeRTOS_ntohl( ulDestinationIPAddress ) ) );
+//			return pdFALSE;
+//		}
+		pxDescriptor->pxInterface = pxMyInterface;
+		pxDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxDescriptor->pucEthernetBuffer );
+
+		if( pxDescriptor->pxEndPoint == NULL )
+		{
 		#if( ipconfigUSE_LLMNR == 1 )
-			( ulDestinationIPAddress != ipLLMNR_IP_ADDR ) &&
+			if( ulDestinationIPAddress != ipLLMNR_IP_ADDR )
 		#endif
-			( *ipLOCAL_IP_ADDRESS_POINTER != 0 ) ) {
-			FreeRTOS_printf( ( "Drop IP %lxip\n", FreeRTOS_ntohl( ulDestinationIPAddress ) ) );
-			return pdFALSE;
+			{
+				return pdFALSE;
+			}
 		}
 
 		if( pxIPHeader->ucProtocol == ipPROTOCOL_UDP )
 		{
-			uint16_t port = pxProtPacket->xUDPPacket.xUDPHeader.usDestinationPort;
+		uint16_t usSourcePort = FreeRTOS_ntohs( pxProtPacket->xUDPPacket.xUDPHeader.usSourcePort );
+		uint16_t usDestinationPort = FreeRTOS_ntohs( pxProtPacket->xUDPPacket.xUDPHeader.usDestinationPort );
 
-			if( ( xPortHasUDPSocket( port ) == pdFALSE )
+			if( ( xPortHasUDPSocket( pxProtPacket->xUDPPacket.xUDPHeader.usDestinationPort ) == pdFALSE )
 			#if ipconfigUSE_LLMNR == 1
-				&& ( port != FreeRTOS_ntohs( ipLLMNR_PORT ) )
+				&& ( usDestinationPort != ipLLMNR_PORT )
+				&& ( usSourcePort != ipLLMNR_PORT )
 			#endif
 			#if ipconfigUSE_NBNS == 1
-				&& ( port != FreeRTOS_ntohs( ipNBNS_PORT ) )
+				&& ( usDestinationPort != ipNBNS_PORT )
+				&& ( usSourcePort != ipNBNS_PORT )
 			#endif
 			#if ipconfigUSE_DNS == 1
-				&& ( pxProtPacket->xUDPPacket.xUDPHeader.usSourcePort != FreeRTOS_ntohs( ipDNS_PORT ) )
+				&& ( usSourcePort != ipDNS_PORT )
 			#endif
 				) {
 				/* Drop this packet, not for this device. */
+				/* FreeRTOS_printf( ( "Drop: UDP port %d -> %d\n", usSourcePort, usDestinationPort ) ); */
 				return pdFALSE;
 			}
 		}
@@ -885,7 +908,7 @@ static BaseType_t prvNetworkInterfaceInput( void )
 {
 NetworkBufferDescriptor_t *pxCurDescriptor;
 NetworkBufferDescriptor_t *pxNewDescriptor = NULL;
-BaseType_t xReceivedLength, xAccepted;
+BaseType_t xReceivedLength, xAccepted = pdTRUE;
 __IO ETH_DMADescTypeDef *pxDMARxDescriptor;
 xIPStackEvent_t xRxEvent = { eNetworkRxEvent, NULL };
 const TickType_t xDescriptorWaitTime = pdMS_TO_TICKS( 250 );
@@ -926,11 +949,6 @@ uint8_t *pucBuffer;
 			/* Not an Ethernet frame-type or a checmsum error. */
 			xAccepted = pdFALSE;
 		}
-		else
-		{
-			/* See if this packet must be handled. */
-			xAccepted = xMayAcceptPacket( pucBuffer );
-		}
 
 		if( xAccepted != pdFALSE )
 		{
@@ -965,15 +983,9 @@ uint8_t *pucBuffer;
 
 		if( xAccepted != pdFALSE )
 		{
-		EthernetHeader_t *pxEthernetHeader;
+			/* See if this packet must be handled. */
+			xAccepted = xMayAcceptPacket( pxCurDescriptor );
 
-			pxEthernetHeader = ( EthernetHeader_t * )pxCurDescriptor->pucEthernetBuffer;
-			pxCurDescriptor->pxInterface = pxMyInterface;
-			pxCurDescriptor->pxEndPoint = FreeRTOS_FindEndPointOnMAC( &( pxEthernetHeader->xDestinationAddress ), pxMyInterface );
-			if( pxCurDescriptor->pxEndPoint == NULL )
-			{
-				pxCurDescriptor->pxEndPoint = FreeRTOS_FirstEndPoint( pxMyInterface );
-			}
 			pxCurDescriptor->xDataLength = xReceivedLength;
 			xRxEvent.pvData = ( void * ) pxCurDescriptor;
 

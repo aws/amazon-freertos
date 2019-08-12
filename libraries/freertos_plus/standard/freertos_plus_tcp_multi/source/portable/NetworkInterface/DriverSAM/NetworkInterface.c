@@ -797,7 +797,7 @@ static void prvEthernetUpdateConfig( BaseType_t xForce )
 
 			/* Calculate the IP header checksum. */
 			pxIPHeader->usHeaderChecksum = 0x00;
-			pxIPHeader->usHeaderChecksum = usGenerateChecksum( 0u, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ipSIZE_OF_IP_HEADER_IPv4 );
+			pxIPHeader->usHeaderChecksum = usGenerateChecksum( 0u, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ipSIZE_OF_IPv4_HEADER );
 			pxIPHeader->usHeaderChecksum = ~FreeRTOS_htons( pxIPHeader->usHeaderChecksum );
 
 			/* Calculate the TCP checksum for an outgoing packet. */

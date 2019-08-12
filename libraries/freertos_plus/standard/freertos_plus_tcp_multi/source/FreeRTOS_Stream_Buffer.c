@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.0.10
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -64,9 +44,10 @@
  * will be used when TCP data is received while earlier data is still missing.
  * If 'pucData' equals NULL, the function is called to advance 'uxHead' only.
  */
-size_t uxStreamBufferAdd( StreamBuffer_t *pxBuffer, size_t uxOffset, const uint8_t *pucData, size_t uxCount )
+size_t uxStreamBufferAdd( StreamBuffer_t *pxBuffer, size_t uxOffset, const uint8_t *pucData, size_t uxByteCount )
 {
 size_t uxSpace, uxNextHead, uxFirst;
+size_t uxCount = uxByteCount;
 
 	uxSpace = uxStreamBufferGetSpace( pxBuffer );
 
@@ -106,7 +87,7 @@ size_t uxSpace, uxNextHead, uxFirst;
 			uxFirst = FreeRTOS_min_uint32( pxBuffer->LENGTH - uxNextHead, uxCount );
 
 			/* Write as many bytes as can be written in the first write. */
-			memcpy( ( void* ) ( pxBuffer->ucArray + uxNextHead ), pucData, uxFirst );
+			memcpy( &( pxBuffer->ucArray[ uxNextHead ] ), pucData, uxFirst );
 
 			/* If the number of bytes written was less than the number that
 			could be written in the first write... */
@@ -114,7 +95,7 @@ size_t uxSpace, uxNextHead, uxFirst;
 			{
 				/* ...then write the remaining bytes to the start of the
 				buffer. */
-				memcpy( ( void * )pxBuffer->ucArray, pucData + uxFirst, uxCount - uxFirst );
+				memcpy( pxBuffer->ucArray, &( pucData[ uxFirst ] ), uxCount - uxFirst );
 			}
 		}
 
@@ -188,14 +169,14 @@ size_t uxSize, uxCount, uxFirst, uxNextTail;
 
 			/* Obtain the number of bytes it is possible to obtain in the first
 			read. */
-			memcpy( pucData, pxBuffer->ucArray + uxNextTail, uxFirst );
+			memcpy( pucData, &( pxBuffer->ucArray[ uxNextTail ] ), uxFirst );
 
 			/* If the total number of wanted bytes is greater than the number
 			that could be read in the first read... */
 			if( uxCount > uxFirst )
 			{
 				/*...then read the remaining bytes from the start of the buffer. */
-				memcpy( pucData + uxFirst, pxBuffer->ucArray, uxCount - uxFirst );
+				memcpy( &( pucData[ uxFirst ] ), pxBuffer->ucArray, uxCount - uxFirst );
 			}
 		}
 
