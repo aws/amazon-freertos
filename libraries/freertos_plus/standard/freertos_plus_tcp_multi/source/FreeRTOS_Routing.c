@@ -53,6 +53,12 @@ struct xNetworkInterface *pxNetworkInterfaces = NULL;
 
 RoutingStats_t xRoutingStats;
 
+/*
+ * Add a new IP-address to a Network Interface.  The object pointed to by
+ * 'pxEndPoint' must continue to exist.
+ */
+static NetworkEndPoint_t *FreeRTOS_AddEndPoint( NetworkInterface_t *pxInterface, NetworkEndPoint_t *pxEndPoint );
+
 /*-----------------------------------------------------------*/
 
 NetworkInterface_t *FreeRTOS_AddNetworkInterface( NetworkInterface_t *pxInterface )
@@ -116,7 +122,7 @@ NetworkInterface_t *pxReturn;
 }
 /*-----------------------------------------------------------*/
 
-NetworkEndPoint_t *FreeRTOS_AddEndPoint( NetworkInterface_t *pxInterface, NetworkEndPoint_t *pxEndPoint )
+static NetworkEndPoint_t *FreeRTOS_AddEndPoint( NetworkInterface_t *pxInterface, NetworkEndPoint_t *pxEndPoint )
 {
 NetworkEndPoint_t *pxIterator = NULL;
 
@@ -153,10 +159,22 @@ NetworkEndPoint_t *pxIterator = NULL;
 		pxIterator->pxNext = pxEndPoint;
 	}
 
-	FreeRTOS_printf( ( "FreeRTOS_AddEndPoint: MAC: %02x-%02x IPv4: %lxip\n",
-		pxEndPoint->xMACAddress.ucBytes[ 4 ],
-		pxEndPoint->xMACAddress.ucBytes[ 5 ],
-		FreeRTOS_ntohl( pxEndPoint->ulDefaultIPAddress ) ) );
+#if( ipconfigUSE_IPv6 != 0 )
+	if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
+	{
+		FreeRTOS_printf( ( "FreeRTOS_AddEndPoint: MAC: %02x-%02x IPv4: %pip\n",
+			pxEndPoint->xMACAddress.ucBytes[ 4 ],
+			pxEndPoint->xMACAddress.ucBytes[ 5 ],
+			pxEndPoint->ipv6.xDefaultIPAddress.ucBytes ) );
+	}
+	else
+#endif
+	{
+		FreeRTOS_printf( ( "FreeRTOS_AddEndPoint: MAC: %02x-%02x IPv4: %lxip\n",
+			pxEndPoint->xMACAddress.ucBytes[ 4 ],
+			pxEndPoint->xMACAddress.ucBytes[ 5 ],
+			FreeRTOS_ntohl( pxEndPoint->ipv4.ulDefaultIPAddress ) ) );
+	}
 
 	return pxEndPoint;
 }
@@ -168,22 +186,20 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 	/* Find and return the NetworkEndPoint_t structure that is associated with
 	the pxInterface NetworkInterface_t. *//*_RB_ Could this be made a two way link, so the NetworkEndPoint_t can just be read from the NetworkInterface_t structure?  Looks like there is a pointer in the struct already. */
-	if( pxInterface != NULL )
+	while( pxEndPoint != NULL )
 	{
-		while( pxEndPoint != NULL )
+		if( ( pxInterface == NULL ) || ( pxEndPoint->pxNetworkInterface == pxInterface ) )
 		{
-			if( pxEndPoint->pxNetworkInterface == pxInterface )
-			{
-				break;
-			}
-			pxEndPoint = pxEndPoint->pxNext;
+			break;
 		}
+		pxEndPoint = pxEndPoint->pxNext;
 	}
 
 	return pxEndPoint;
 }
 /*-----------------------------------------------------------*/
 
+/* Get the next end-point.  When pxInterface is null, all end-points can be iterated. */
 NetworkEndPoint_t *FreeRTOS_NextEndPoint( NetworkInterface_t *pxInterface, NetworkEndPoint_t *pxEndPoint )
 {
 NetworkEndPoint_t *pxResult = pxEndPoint;
@@ -191,16 +207,13 @@ NetworkEndPoint_t *pxResult = pxEndPoint;
 	if( pxResult != NULL )
 	{
 		pxResult = pxResult->pxNext;
-		if( pxInterface != NULL )
+		while( pxResult != NULL )
 		{
-			while( pxResult != NULL )
+			if( ( pxInterface == NULL ) || ( pxResult->pxNetworkInterface == pxInterface ) )
 			{
-				if( pxResult->pxNetworkInterface == pxInterface )
-				{
-					break;
-				}
-				pxResult = pxResult->pxNext;
+				break;
 			}
+			pxResult = pxResult->pxNext;
 		}
 	}
 
@@ -209,7 +222,7 @@ NetworkEndPoint_t *pxResult = pxEndPoint;
 /*-----------------------------------------------------------*/
 
 /* Find the end-point with given IP-address. */
-NetworkEndPoint_t *FreeRTOS_FindEndPointOnIP( uint32_t ulIPAddress, uint32_t ulWhere )
+NetworkEndPoint_t *FreeRTOS_FindEndPointOnIP_IPv4( uint32_t ulIPAddress, uint32_t ulWhere )
 {
 NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
@@ -220,7 +233,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 	}
 	while( pxEndPoint != NULL )
 	{
-		if( pxEndPoint->ulIPAddress == ulIPAddress )
+		if( ENDPOINT_IS_IPv4( pxEndPoint ) && ( pxEndPoint->ipv4.ulIPAddress == ulIPAddress ) )
 		{
 			break;
 		}
@@ -241,24 +254,25 @@ void FreeRTOS_GetAddressConfiguration( NetworkEndPoint_t *pxEndPoint, uint32_t *
 	if( pxEndPoint != NULL )
 #endif
 	{
+		CONFIRM_EP_v4( pxEndPoint );
 		if( pulIPAddress != NULL )
 		{
-			*pulIPAddress = pxEndPoint->ulIPAddress;
+			*pulIPAddress = pxEndPoint->ipv4.ulIPAddress;
 		}
 
 		if( pulNetMask != NULL )
 		{
-			*pulNetMask = pxEndPoint->ulNetMask;
+			*pulNetMask = pxEndPoint->ipv4.ulNetMask;
 		}
 
 		if( pulGatewayAddress != NULL )
 		{
-			*pulGatewayAddress = pxEndPoint->ulGatewayAddress;
+			*pulGatewayAddress = pxEndPoint->ipv4.ulGatewayAddress;
 		}
 
 		if( pulDNSServerAddress != NULL )
 		{
-			*pulDNSServerAddress = pxEndPoint->ulDNSServerAddresses[ 0 ]; /*_RB_ Only returning the address of the first DNS server. */
+			*pulDNSServerAddress = pxEndPoint->ipv4.ulDNSServerAddresses[ 0 ]; /*_RB_ Only returning the address of the first DNS server. */
 		}
 	}
 }
@@ -272,7 +286,7 @@ void FreeRTOS_GetAddressConfiguration( NetworkEndPoint_t *pxEndPoint, uint32_t *
 
 		while( pxEndPoint != NULL )
 		{
-			if( xCompareIPv6_Address( &( pxEndPoint->ulIPAddress_IPv6 ), pxIPAddress ) == 0 )
+			if( ( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED ) && ( xCompareIPv6_Address( &( pxEndPoint->ipv6.xIPAddress ), pxIPAddress, pxEndPoint->ipv6.uxPrefixLength ) == 0 ) )
 			{
 				break;
 			}
@@ -320,7 +334,6 @@ NetworkEndPoint_t *FreeRTOS_FindEndPointOnNetMask( uint32_t ulIPAddress, uint32_
 NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxInterface, uint32_t ulIPAddress, uint32_t ulWhere )
 {
 NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
-//NetworkEndPoint_t *pxDefault = NULL;
 
 	xRoutingStats.ulOnNetMask++;
 	if( ulWhere < ARRAY_SIZE( xRoutingStats.ulLocations ) )
@@ -332,7 +345,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 	if( ulWhere == 1 )
 	{
-	#warning debugging
+	//#warning debugging
 	//    configPRINTF( ( "ulWhere = 1\n" ) );
 	}
 
@@ -340,15 +353,15 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 	{
 		if( ( pxInterface == NULL ) || ( pxEndPoint->pxNetworkInterface == pxInterface ) )
 		{
-			if( pxEndPoint->bits.bIsDefault != pdFALSE_UNSIGNED )
+#if( ipconfigUSE_IPv6 != 0 )
+			if( pxEndPoint->bits.bIPv6 == pdFALSE )
+#endif
 			{
-				//pxDefault = pxEndPoint;
-			}
-
-			if( ( ulIPAddress & pxEndPoint->ulNetMask ) == ( pxEndPoint->ulIPAddress & pxEndPoint->ulNetMask ) )
-			{
-				/* Found a match. */
-				break;
+				if( ( ulIPAddress & pxEndPoint->ipv4.ulNetMask ) == ( pxEndPoint->ipv4.ulIPAddress & pxEndPoint->ipv4.ulNetMask ) )
+				{
+					/* Found a match. */
+					break;
+				}
 			}
 		}
 
@@ -357,17 +370,8 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 	if( ( pxEndPoint == NULL ) && ( ulWhere != 1 ) && ( ulWhere != 2 ) )
 	{
-//		if( pxDefault != NULL )
-//		{
-//			pxEndPoint = pxDefault;
-//			FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask[%ld]: No match for %lxip using %lxip\n",
-//				ulWhere, FreeRTOS_ntohl( ulIPAddress ), FreeRTOS_ntohl( pxDefault->ulIPAddress ) ) );
-//		}
-//		else
-		{
-			FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask[%ld]: No match for %lxip\n",
-                ulWhere, FreeRTOS_ntohl( ulIPAddress ) ) );
-		}
+		FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask[%ld]: No match for %lxip\n",
+			ulWhere, FreeRTOS_ntohl( ulIPAddress ) ) );
 	}
 
 	return pxEndPoint;
@@ -421,26 +425,69 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 	/* A helper function to fill in a network end-point,
 	and add it to a network interface. */
-void FreeRTOS_FillEndPoint(	NetworkEndPoint_t *pxNetworkEndPoint,
-	const uint8_t ucIPAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucNetMask[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucGatewayAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucDNSServerAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] )
+void FreeRTOS_FillEndPoint(	NetworkInterface_t *pxNetworkInterface,
+							NetworkEndPoint_t *pxEndPoint,
+							const uint8_t ucIPAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucNetMask[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucGatewayAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucDNSServerAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] )
 {
 	/* Fill in and add an end-point to a network interface.
-	Make sure that the object pointed to by 'pxNetworkEndPoint'
+	Make sure that the object pointed to by 'pxEndPoint'
 	will remain to exist. */
-	memset( pxNetworkEndPoint, '\0', sizeof( *pxNetworkEndPoint ) );
-	pxNetworkEndPoint->ulDefaultIPAddress      = FreeRTOS_inet_addr_quick( ucIPAddress[ 0 ], ucIPAddress[ 1 ], ucIPAddress[ 2 ], ucIPAddress[ 3 ] );
-	pxNetworkEndPoint->ulNetMask               = FreeRTOS_inet_addr_quick( ucNetMask[ 0 ], ucNetMask[ 1 ], ucNetMask[ 2 ], ucNetMask[ 3 ] );
-	pxNetworkEndPoint->ulGatewayAddress        = FreeRTOS_inet_addr_quick( ucGatewayAddress[ 0 ], ucGatewayAddress[ 1 ], ucGatewayAddress[ 2 ], ucGatewayAddress[ 3 ] );
-	pxNetworkEndPoint->ulDNSServerAddresses[ 0 ] = FreeRTOS_inet_addr_quick( ucDNSServerAddress[ 0 ], ucDNSServerAddress[ 1 ], ucDNSServerAddress[ 2 ], ucDNSServerAddress[ 3 ] );
-	memcpy( pxNetworkEndPoint->xMACAddress.ucBytes, ucMACAddress, sizeof( pxNetworkEndPoint->xMACAddress ) );
+	memset( pxEndPoint, '\0', sizeof( *pxEndPoint ) );
+	/*
+		pxEndPoint->bits.bIPv6 = pdFALSE;
+	*/
+	pxEndPoint->ipv4.ulDefaultIPAddress      = FreeRTOS_inet_addr_quick( ucIPAddress[ 0 ], ucIPAddress[ 1 ], ucIPAddress[ 2 ], ucIPAddress[ 3 ] );
+	pxEndPoint->ipv4.ulNetMask               = FreeRTOS_inet_addr_quick( ucNetMask[ 0 ], ucNetMask[ 1 ], ucNetMask[ 2 ], ucNetMask[ 3 ] );
+	pxEndPoint->ipv4.ulGatewayAddress        = FreeRTOS_inet_addr_quick( ucGatewayAddress[ 0 ], ucGatewayAddress[ 1 ], ucGatewayAddress[ 2 ], ucGatewayAddress[ 3 ] );
+	pxEndPoint->ipv4.ulDNSServerAddresses[ 0 ] = FreeRTOS_inet_addr_quick( ucDNSServerAddress[ 0 ], ucDNSServerAddress[ 1 ], ucDNSServerAddress[ 2 ], ucDNSServerAddress[ 3 ] );
+	memcpy( pxEndPoint->xMACAddress.ucBytes, ucMACAddress, sizeof( pxEndPoint->xMACAddress ) );
 
-	pxNetworkEndPoint->ulBroadcastAddress      = pxNetworkEndPoint->ulDefaultIPAddress | ~( pxNetworkEndPoint->ulNetMask );
+	pxEndPoint->ipv4.ulBroadcastAddress      = pxEndPoint->ipv4.ulDefaultIPAddress | ~( pxEndPoint->ipv4.ulNetMask );
+	FreeRTOS_AddEndPoint( pxNetworkInterface, pxEndPoint );
 }
 /*-----------------------------------------------------------*/
+
+#if( ipconfigUSE_IPv6 != 0 )
+	/* Fill-in the end-point structure. */
+	void FreeRTOS_FillEndPoint_IPv6( NetworkInterface_t *pxNetworkInterface,
+									 NetworkEndPoint_t *pxEndPoint,
+									 IPv6_Address_t *pxIPAddress,
+									 IPv6_Address_t *pxNetPrefix,
+									 size_t uxPrefixLength,
+									 IPv6_Address_t *pxGatewayAddress,
+									 IPv6_Address_t *pxDNSServerAddress,	/* Not used yet. */
+									 const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] )
+	{
+		/* Fill in and add an end-point to a network interface.
+		Make sure that the object pointed to by 'pxEndPoint'
+		will remain to exist. */
+		memset( pxEndPoint, '\0', sizeof( *pxEndPoint ) );
+
+		configASSERT( pxIPAddress != NULL );
+		configASSERT( ucMACAddress != NULL );
+
+		pxEndPoint->bits.bIPv6 = pdTRUE_UNSIGNED;
+
+		pxEndPoint->ipv6.uxPrefixLength = uxPrefixLength;
+		memcpy( pxEndPoint->ipv6.xIPAddress.ucBytes, pxIPAddress->ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+		memcpy( pxEndPoint->ipv6.xDefaultIPAddress.ucBytes, pxIPAddress->ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+		if( pxGatewayAddress != NULL )
+		{
+			memcpy( pxEndPoint->ipv6.xGatewayAddress.ucBytes, pxGatewayAddress->ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+		}
+		if( pxDNSServerAddress != NULL )
+		{
+			memcpy( pxEndPoint->ipv6.xDNSServerAddresses[ 0 ].ucBytes, pxDNSServerAddress->ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+		}
+
+		memcpy( pxEndPoint->xMACAddress.ucBytes, ucMACAddress, ipMAC_ADDRESS_LENGTH_BYTES );
+		FreeRTOS_AddEndPoint( pxNetworkInterface, pxEndPoint );
+	}
+#endif
 
 #if( ipconfigUSE_IPv6 != 0 )
 	static NetworkEndPoint_t *prvFindFirstAddress_IPv6( void )
@@ -500,8 +547,9 @@ uint32_t ulIPSourceAddress = 0uL;
 			pxEndPoint = pxNetworkEndPoints;
 			while( pxEndPoint != NULL )
 			{
-				if( ( pxEndPoint->pxNetworkInterface == pxNetworkInterface ) &&
-					( xCompareIPv6_Address( &( pxEndPoint->ulIPAddress_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+				if( ( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED ) &&
+					( pxEndPoint->pxNetworkInterface == pxNetworkInterface ) &&
+					( xCompareIPv6_Address( &( pxEndPoint->ipv6.xIPAddress ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ), pxEndPoint->ipv6.uxPrefixLength ) == 0 ) )
 				{
 					break;
 				}
@@ -509,7 +557,7 @@ uint32_t ulIPSourceAddress = 0uL;
 			}
 			#if( ipconfigUSE_LLMNR != 0 )
 			{
-				if( ( pxEndPoint == NULL ) && ( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+				if( ( pxEndPoint == NULL ) && ( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ), ipSIZE_OF_IPv6_ADDRESS ) == 0 ) )
 				{
 					pxEndPoint = FreeRTOS_FirstEndPoint_IPv6( pxNetworkInterface );
 				}
@@ -578,13 +626,19 @@ uint32_t ulIPSourceAddress = 0uL;
 */
 			( void ) xMACBroadcast;
 			( void ) name;
-			if( pxEndPoint->ulIPAddress == ulIPTargetAddress  )
+		#if( ipconfigUSE_IPv6 != 0 )
+			if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
+			{
+				continue;
+			}
+		#endif /* ( ipconfigUSE_IPv6 != 0 ) */
+			if( pxEndPoint->ipv4.ulIPAddress == ulIPTargetAddress  )
 			{
 /*				xDoLog = pdFALSE; */
 				xDone = pdTRUE;
 			}
 			else
-			if( ( xIPBroadcast != pdFALSE ) && ( ( pxEndPoint->ulIPAddress & pxEndPoint->ulNetMask ) == ( ulIPTargetAddress & pxEndPoint->ulNetMask ) ) )
+			if( ( xIPBroadcast != pdFALSE ) && ( ( pxEndPoint->ipv4.ulIPAddress & pxEndPoint->ipv4.ulNetMask ) == ( ulIPTargetAddress & pxEndPoint->ipv4.ulNetMask ) ) )
 			{
 				xDone = pdTRUE;
 			}
@@ -592,7 +646,7 @@ uint32_t ulIPSourceAddress = 0uL;
 			if( ( xIPBroadcast != pdFALSE ) && ( pxPacket->xUDPPacket.xEthernetHeader.usFrameType == ipARP_FRAME_TYPE ) )
 			{
 				/* Test for a matching source address like 192.168.1.255 */
-				if( ( pxEndPoint->ulIPAddress & pxEndPoint->ulNetMask ) == ( ulIPSourceAddress & pxEndPoint->ulNetMask ) )
+				if( ( pxEndPoint->ipv4.ulIPAddress & pxEndPoint->ipv4.ulNetMask ) == ( ulIPSourceAddress & pxEndPoint->ipv4.ulNetMask ) )
 				{
 					xDone = pdTRUE;
 				}
@@ -617,6 +671,44 @@ uint32_t ulIPSourceAddress = 0uL;
 		configPRINTF( ( "Compare[%s] returning %lxip\n", name, ( pxEndPoint != NULL ) ? FreeRTOS_ntohl( pxEndPoint->ulIPAddress ) : 0uL ) );
 	}
 */
+	return pxEndPoint;
+}
+/*-----------------------------------------------------------*/
+
+/* Return the default end-point.
+xIPType should equal ipTYPE_IPv4 or ipTYPE_IPv6. */
+
+NetworkEndPoint_t *FreeRTOS_FindGateWay( BaseType_t xIPType )
+{
+	NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
+
+	while( pxEndPoint != NULL )
+	{
+	#if( ipconfigUSE_IPv6 == 0 )
+		if( pxEndPoint->ulGatewayAddress != 0uL )
+		{
+			break;
+		}
+	#else
+		if( (xIPType == ipTYPE_IPv6 ) && ( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED ) )
+		{
+			if( pxEndPoint->ipv6.xGatewayAddress.ulWords[ 0 ] != 0uL )
+			{
+				break;
+			}
+		}
+		else
+		if( (xIPType == ipTYPE_IPv4 ) && ( pxEndPoint->bits.bIPv6 == pdFALSE_UNSIGNED ) )
+		{
+			if( pxEndPoint->ipv4.ulGatewayAddress != 0uL )
+			{
+				break;
+			}
+		}
+	#endif	/* ( ipconfigUSE_IPv6 != 0 ) */
+		pxEndPoint = pxEndPoint->pxNext;
+	}
+
 	return pxEndPoint;
 }
 /*-----------------------------------------------------------*/

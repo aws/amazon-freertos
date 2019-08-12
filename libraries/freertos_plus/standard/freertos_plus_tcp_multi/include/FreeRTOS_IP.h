@@ -72,7 +72,7 @@ extern "C" {
 	/* Note that 'xCompareIPv6_Address' will also check if 'pxRight' is
 	the special unicast address: ff02::1:ffnn:nnnn, where nn:nnnn are
 	the last 3 bytes of the IPv6 address. */
-	BaseType_t xCompareIPv6_Address( const IPv6_Address_t *pxLeft, const IPv6_Address_t *pxRight );
+	BaseType_t xCompareIPv6_Address( const IPv6_Address_t *pxLeft, const IPv6_Address_t *pxRight, size_t uxPrefixLength );
 
 #endif /* ipconfigUSE_IPv6 */
 
@@ -106,6 +106,10 @@ BaseType_t xRandom32( uint32_t *pulValue );
 #define ipTYPE_IPv6				( 0x60u )
 
 /* Some IPv6 ICMP requests. */
+#define ipICMP_DEST_UNREACHABLE_IPv6		( ( uint8_t )   1 )
+#define ipICMP_PACKET_TOO_BIG_IPv6			( ( uint8_t )   2 )
+#define ipICMP_TIME_EXEEDED_IPv6			( ( uint8_t )   3 )
+#define ipICMP_PARAMETER_PROBLEM_IPv6		( ( uint8_t )   4 )
 #define ipICMP_PING_REQUEST_IPv6			( ( uint8_t ) 128 )
 #define ipICMP_PING_REPLY_IPv6				( ( uint8_t ) 129 )
 #define ipICMP_ROUTER_SOLICITATION_IPv6		( ( uint8_t ) 133 )

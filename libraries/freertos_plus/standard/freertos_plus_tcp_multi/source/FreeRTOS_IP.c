@@ -937,10 +937,20 @@ void *pvReturn;
 		#if( ipconfigUSE_IPv6 != 0 )
 		{
 		uint8_t *pucIPType;
+		size_t uxIPHeaderLength;
+
+			if( ucIPType == ipTYPE_IPv6)
+			{
+				uxIPHeaderLength = ipSIZE_OF_IPv6_HEADER;
+			}
+			else
+			{
+				uxIPHeaderLength = ipSIZE_OF_IPv4_HEADER;
+			}
 
 			/* Skip 3 headers. */
 			pvReturn = ( void * ) ( pxNetworkBuffer->pucEthernetBuffer +
-				ipSIZE_OF_ETH_HEADER + xIPHeaderSize( pxNetworkBuffer ) + ipSIZE_OF_UDP_HEADER );
+				ipSIZE_OF_ETH_HEADER + uxIPHeaderLength + ipSIZE_OF_UDP_HEADER );
 			/* Later a pointer to a UDP payload is used to retrieve a NetworkBuffer.
 			Store the packet type at 48 bytes before the start of the UDP payload. */
 			pucIPType = ( ( uint8_t * ) pvReturn ) - ipUDP_PAYLOAD_IP_TYPE_OFFSET;
@@ -1030,6 +1040,11 @@ NetworkBufferDescriptor_t * pxNewBuffer;
 #endif /* ipconfigZERO_COPY_TX_DRIVER != 0 */
 /*-----------------------------------------------------------*/
 
+UBaseType_t bIsValidNetworkDescriptor( const NetworkBufferDescriptor_t * pxDesc );
+
+static uint8_t *pucIPType2;
+static uint8_t ucIPType2;
+
 NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( void *pvBuffer )
 {
 uint8_t *pucBuffer;
@@ -1066,6 +1081,8 @@ NetworkBufferDescriptor_t *pxResult;
 			{
 				pucBuffer = ( ( uint8_t *) pvBuffer ) - ( sizeof( UDPPacket_t ) + ipBUFFER_PADDING );
 			}
+pucIPType2 = pucIPType;
+ucIPType2 = ucIPType;
 		}
 		#else
 		{
@@ -1087,6 +1104,12 @@ NetworkBufferDescriptor_t *pxResult;
 			warning: cast increases required alignment of target type [-Wcast-align].
 			It has been confirmed though that the alignment is suitable. */
 			pxResult = * ( ipPOINTER_CAST( NetworkBufferDescriptor_t **, pucBuffer ) );
+			configASSERT( bIsValidNetworkDescriptor( pxResult ) != pdFALSE_UNSIGNED );
+			{
+				uint8_t *pucEthBuffer1 = &( pxResult->pucEthernetBuffer[ -ipBUFFER_PADDING ] );
+				uint8_t *pucEthBuffer2 = pucBuffer;
+				configASSERT( pucEthBuffer1 == pucEthBuffer2 );
+			}
 		}
 		else
 		{
@@ -1142,7 +1165,15 @@ NetworkEndPoint_t *pxFirstEndPoint, *pxEndPoint;
 	pxFirstNetwork = FreeRTOS_FirstNetworkInterface();
 	configASSERT( pxFirstNetwork != NULL );
 
-	pxFirstEndPoint = FreeRTOS_FirstEndPoint( pxFirstNetwork );
+	for( pxFirstEndPoint = FreeRTOS_FirstEndPoint( NULL );
+		pxFirstEndPoint != NULL;
+		pxFirstEndPoint = FreeRTOS_NextEndPoint( NULL, pxFirstEndPoint ) )
+	{
+		if( ENDPOINT_IS_IPv4( pxFirstEndPoint ) )
+		{
+			break;
+		}
+	}
 	configASSERT( pxFirstEndPoint != NULL );
 
 	/* This function should only be called once. */
@@ -1187,31 +1218,28 @@ NetworkEndPoint_t *pxFirstEndPoint, *pxEndPoint;
 			/* _HT_ : 'xNetworkAddressing' obsolete since the multi version. */
 			/* Store the local IP and MAC address.
 			'xNetworkAddressing' will be dropped in the next release. */
-			xNetworkAddressing.ulDefaultIPAddress = pxFirstEndPoint->ulDefaultIPAddress;
-			xNetworkAddressing.ulNetMask = pxFirstEndPoint->ulNetMask;
-			xNetworkAddressing.ulDNSServerAddress = pxFirstEndPoint->ulDNSServerAddresses[ 0 ];
-			xNetworkAddressing.ulBroadcastAddress = pxFirstEndPoint->ulBroadcastAddress;
+			xNetworkAddressing.ulDefaultIPAddress = pxFirstEndPoint->ipv4.ulDefaultIPAddress;
+			xNetworkAddressing.ulNetMask = pxFirstEndPoint->ipv4.ulNetMask;
+			xNetworkAddressing.ulDNSServerAddress = pxFirstEndPoint->ipv4.ulDNSServerAddresses[ 0 ];
+			xNetworkAddressing.ulBroadcastAddress = pxFirstEndPoint->ipv4.ulBroadcastAddress;
 
 			memcpy( &xDefaultAddressing, &xNetworkAddressing, sizeof( xDefaultAddressing ) );
 
 			/* Start with each endpoint using its default IP address. */
-			pxEndPoint = pxFirstEndPoint;
+			pxEndPoint = FreeRTOS_FirstEndPoint( NULL );
 			while( pxEndPoint != NULL )
 			{
-			#if( ipconfigUSE_DHCP == 1 )
-				if( pxEndPoint->bits.bWantDHCP != pdFALSE_UNSIGNED )
+			#if( ipconfigUSE_IPv6 != 0 )
+				if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
 				{
-					pxEndPoint->ulIPAddress = pxEndPoint->ulDefaultIPAddress;
 				}
 				else
 			#endif
 				{
-					pxEndPoint->ulIPAddress = pxEndPoint->ulDefaultIPAddress;
-				}
-
-				if( pxEndPoint->ulGatewayAddress != 0uL )
-				{
-					xNetworkAddressing.ulGatewayAddress = pxEndPoint->ulGatewayAddress;
+					if( pxEndPoint->ipv4.ulGatewayAddress != 0uL )
+					{
+						xNetworkAddressing.ulGatewayAddress = pxEndPoint->ipv4.ulGatewayAddress;
+					}
 				}
 				pxEndPoint = pxEndPoint->pxNext;
 			}
@@ -1741,7 +1769,7 @@ volatile eFrameProcessingResult_t eReturned; /* Volatile to prevent complier war
 /*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_IPv6 != 0 )
-	static BaseType_t prvIsIPv6Multicast( const IPv6_Address_t *pxIPAddress )
+	BaseType_t prvIsIPv6Multicast( const IPv6_Address_t *pxIPAddress )
 	{
 	BaseType_t xReturn;
 
@@ -1759,7 +1787,7 @@ volatile eFrameProcessingResult_t eReturned; /* Volatile to prevent complier war
 /*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_IPv6 != 0 )
-	BaseType_t xCompareIPv6_Address( const IPv6_Address_t *pxLeft, const IPv6_Address_t *pxRight )
+	BaseType_t xCompareIPv6_Address( const IPv6_Address_t *pxLeft, const IPv6_Address_t *pxRight, size_t uxPrefixLength )
 	{
 	BaseType_t xResult;
 
@@ -1773,8 +1801,7 @@ volatile eFrameProcessingResult_t eReturned; /* Volatile to prevent complier war
 		}
 		else
 		if( ( pxRight->ucBytes[  0 ] == 0xff ) &&
-			( pxRight->ucBytes[  1 ] == 0x02 ) &&
-			( pxRight->ucBytes[ 15 ] == 0x01 ) )
+			( pxRight->ucBytes[  1 ] == 0x02 ) )
 		{
 			/* FF02::1 is all node address to reach out all nodes in the same link. */
 			xResult = 0;
@@ -1790,7 +1817,35 @@ volatile eFrameProcessingResult_t eReturned; /* Volatile to prevent complier war
 		}
 		else
 		{
-			xResult = memcmp( pxLeft->ucBytes, pxRight->ucBytes, sizeof( pxLeft->ucBytes ) );
+			if( uxPrefixLength == 0 )
+			{
+				xResult = 0;
+			}
+			else if( uxPrefixLength == ( 8u * ipSIZE_OF_IPv6_ADDRESS ) )
+			{
+				xResult = memcmp( pxLeft->ucBytes, pxRight->ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+			}
+			else
+			{
+			size_t uxLength = uxPrefixLength / 8;
+
+				xResult = 0;
+				if( uxLength > 0u )
+				{
+					xResult = memcmp( pxLeft->ucBytes, pxRight->ucBytes, uxLength );
+				}
+				if( ( xResult == 0u ) && ( ( uxPrefixLength % 8 ) != 0 ) )
+				{
+				size_t uxBits = uxPrefixLength % 8;
+				size_t uxHostLen = 8u - uxBits;
+				uint8_t uxHostMask = ( ( ( size_t ) 1u ) << uxHostLen ) - 1u;
+				uint8_t uxNetMask = ~( uxHostMask );
+					if( ( pxLeft->ucBytes[ uxLength ] & uxNetMask ) != ( pxRight->ucBytes[ uxLength ] & uxNetMask ) )
+					{
+						xResult = 1;
+					}
+				}
+			}
 		}
 
 		return xResult;
@@ -1904,7 +1959,7 @@ eFrameProcessingResult_t eReturn = eProcessBuffer;
 			}
 			else if(
 				( pxNetworkBuffer->pxEndPoint == NULL ) &&
-				( FreeRTOS_FindEndPointOnIP( ulDestinationIPAddress, 4 ) == NULL ) &&
+				( FreeRTOS_FindEndPointOnIP_IPv4( ulDestinationIPAddress, 4 ) == NULL ) &&
 				/* Is it an IPv4 broadcast address x.x.x.255 ? */
 				( ( FreeRTOS_ntohl( ulDestinationIPAddress ) & 0xff ) != 0xff ) &&
 				( prvIsIPv4Multicast( ulDestinationIPAddress ) == pdFALSE ) &&
@@ -2706,21 +2761,30 @@ IPPacket_t *pxIPPacket;
 
 uint32_t FreeRTOS_GetIPAddress( void )
 {
-NetworkEndPoint_t *pxEndPoint = FreeRTOS_FindDefaultEndPoint();
+NetworkEndPoint_t * pxEndPoint;
 uint32_t ulIPAddress;
 
+	for( pxEndPoint = FreeRTOS_FirstEndPoint( NULL );
+		 pxEndPoint != NULL;
+		 pxEndPoint = FreeRTOS_NextEndPoint( NULL, pxEndPoint ) )
+	{
+		if( ENDPOINT_IS_IPv4( pxEndPoint ) )
+		{
+			break;
+		}
+	}
 	/* Returns the IP address of the NIC. */
 	if( pxEndPoint == NULL )
 	{
 		ulIPAddress = 0uL;
 	}
-	else if( pxEndPoint->ulIPAddress != 0uL )
+	else if( pxEndPoint->ipv4.ulIPAddress != 0uL )	/* access to 'ipv4' is checked. */
 	{
-		ulIPAddress = pxEndPoint->ulIPAddress;
+		ulIPAddress = pxEndPoint->ipv4.ulIPAddress;
 	}
 	else
 	{
-		ulIPAddress = pxEndPoint->ulDefaultIPAddress;
+		ulIPAddress = pxEndPoint->ipv4.ulDefaultIPAddress;
 	}
 
 	return ulIPAddress;

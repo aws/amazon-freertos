@@ -117,6 +117,11 @@ void vNDAgeCache( void );
 void vNDGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer, IPv6_Address_t *pxIPAddress );
 
 /*
+ * Send out a ROuter Sollicitaion.
+ */
+void vNDGenerateRASolicitationPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer, IPv6_Address_t *pxIPAddress );
+
+/*
  * After DHCP is ready and when changing IP address, force a quick send of our new IP
  * address
  */
@@ -127,7 +132,7 @@ void FreeRTOS_PrintNDCache( void );
 #if( ipconfigUSE_IPv6 != 0 )
 	void FreeRTOS_OutputAdvertiseIPv6( NetworkEndPoint_t *pxEndPoint );
 	BaseType_t FreeRTOS_SendPingRequestIPv6( IPv6_Address_t *pxIPAddress, size_t xNumberOfBytesToSend, TickType_t xBlockTimeTicks );
-	BaseType_t FreeRTOS_CreateIPv6Address( IPv6_Address_t *pxIPAddress, const IPv6_Address_t *pxPrefix, BaseType_t xPrefixLength );
+	BaseType_t FreeRTOS_CreateIPv6Address( IPv6_Address_t *pxIPAddress, const IPv6_Address_t *pxPrefix, size_t uxPrefixLength, BaseType_t xDoRandom );
 #endif
 
 #endif /* ipconfigUSE_IPv6 != 0 */

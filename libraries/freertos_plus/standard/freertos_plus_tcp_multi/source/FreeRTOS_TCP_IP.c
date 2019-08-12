@@ -787,7 +787,7 @@ FreeRTOS_printf( ( "prvTCPReturnPacket: No pxEndPoint yet?\n" ) );
 				{
 #pragma warning "pxIPHeader_IPv4->ulDestinationIPAddress pxIPHeader_IPv4->ulSourceAddress are equal when sending data here."
 					pxIPHeader_IPv4 = ipPOINTER_CAST( IPHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER ] ) ); /*_RB_ Isn't this already set? */
-					pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( pxIPHeader_IPv4->ulDestinationIPAddress, 8 ); /*_RB_ Was FreeRTOS_FindEndPointOnIP() but changed to FreeRTOS_FindEndPointOnNetMask() as it is using the destination address.  I'm confused here as sometimes the addresses are swapped. */
+					pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( pxIPHeader_IPv4->ulDestinationIPAddress, 8 ); /*_RB_ Was FreeRTOS_FindEndPointOnIP_IPv4() but changed to FreeRTOS_FindEndPointOnNetMask() as it is using the destination address.  I'm confused here as sometimes the addresses are swapped. */
 					if( pxNetworkBuffer->pxEndPoint == NULL )
 					{
 						FreeRTOS_printf( ( "prvTCPReturnPacket: no such end-point %lxip => %lxip\n",
@@ -963,8 +963,8 @@ FreeRTOS_printf( ( "prvTCPReturnPacket: No pxEndPoint yet?\n" ) );
 		if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
 		{
 			pxIPHeader_IPv6->usPayloadLength = FreeRTOS_htons( ulLen - sizeof( IPHeader_IPv6_t ) );
-			memcpy( &( pxIPHeader_IPv6->xDestinationIPv6Address ), &( pxIPHeader_IPv6->xSourceIPv6Address ), sizeof( IPv6_Address_t ) );
-			memcpy( &( pxIPHeader_IPv6->xSourceIPv6Address ), &( pxNetworkBuffer->pxEndPoint->ulIPAddress_IPv6 ), sizeof( IPv6_Address_t ) );
+			memcpy( &( pxIPHeader_IPv6->xDestinationIPv6Address ), &( pxIPHeader_IPv6->xSourceIPv6Address ), ipSIZE_OF_IPv6_ADDRESS );
+			memcpy( &( pxIPHeader_IPv6->xSourceIPv6Address ), &( pxNetworkBuffer->pxEndPoint->ipv6.xIPAddress ), ipSIZE_OF_IPv6_ADDRESS );
 
 			#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
 			{
@@ -988,7 +988,7 @@ FreeRTOS_printf( ( "prvTCPReturnPacket: No pxEndPoint yet?\n" ) );
 			pxIPHeader_IPv4->ucTimeToLive           = ipconfigTCP_TIME_TO_LIVE;
 			pxIPHeader_IPv4->usLength               = FreeRTOS_htons( ulLen );
 			pxIPHeader_IPv4->ulDestinationIPAddress = pxIPHeader_IPv4->ulSourceIPAddress;
-			pxIPHeader_IPv4->ulSourceIPAddress      = pxNetworkBuffer->pxEndPoint->ulIPAddress;
+			pxIPHeader_IPv4->ulSourceIPAddress      = pxNetworkBuffer->pxEndPoint->ipv4.ulIPAddress;
 
 			/* Just an increasing number. */
 			pxIPHeader_IPv4->usIdentification = FreeRTOS_htons( usPacketIdentifier );
@@ -1150,7 +1150,7 @@ ProtocolHeaders_t *pxProtocolHeaders;	/*lint !e9018 ddeclaration of symbol with 
 			pxSocket->pxEndPoint = pxEndPointFound;
 			if( pxEndPointFound != NULL )
 			{
-				pxSocket->ulLocalAddress = FreeRTOS_ntohl( pxSocket->pxEndPoint->ulIPAddress );
+				pxSocket->ulLocalAddress = FreeRTOS_ntohl( pxSocket->pxEndPoint->ipv4.ulIPAddress );
 			}
 			FreeRTOS_printf( ( "prvTCPPrepareConnect: remote IP = %lxip end-point = %lxip\n",
 				pxSocket->u.xTCP.ulRemoteIP,
@@ -1263,7 +1263,7 @@ ProtocolHeaders_t *pxProtocolHeaders;	/*lint !e9018 ddeclaration of symbol with 
 			}
 			if( pxEndPoint != NULL )
 			{
-				pxIPHeader->ulDestinationIPAddress = pxEndPoint->ulIPAddress; /*_RB_ Access function required to get address? */
+				pxIPHeader->ulDestinationIPAddress = pxEndPoint->ipv4.ulIPAddress; /*_RB_ Access function required to get address? */
 			}
 		}
 
@@ -3450,7 +3450,7 @@ FreeRTOS_Socket_t *pxReturn;
 				if( pxNetworkBuffer->pxEndPoint != NULL )
 				{
 					pxNewSocket->pxEndPoint = pxNetworkBuffer->pxEndPoint;
-					pxNewSocket->ulLocalAddress = FreeRTOS_ntohl( pxNetworkBuffer->pxEndPoint->ulIPAddress );
+					pxNewSocket->ulLocalAddress = FreeRTOS_ntohl( pxNetworkBuffer->pxEndPoint->ipv4.ulIPAddress );
 				}
 				FreeRTOS_printf( ( "Client socket bound to %lxip:%u\n",
 					pxNewSocket->ulLocalAddress,
@@ -3493,7 +3493,7 @@ FreeRTOS_Socket_t *pxReturn;
 		IPHeader_IPv6_t *pxIPHeader_IPv6;
 
 			pxIPHeader_IPv6 = ( IPHeader_IPv6_t * ) ( pxNetworkBuffer->pucEthernetBuffer + ipSIZE_OF_ETH_HEADER );
-			memcpy( &( pxReturn->u.xTCP.xRemoteIP_IPv6 ), &( pxIPHeader_IPv6->xSourceIPv6Address ), sizeof( IPv6_Address_t ) );
+			memcpy( &( pxReturn->u.xTCP.xRemoteIP_IPv6 ), &( pxIPHeader_IPv6->xSourceIPv6Address ), ipSIZE_OF_IPv6_ADDRESS );
 			pxReturn->u.xTCP.ulRemoteIP = 0;
 		}
 		else

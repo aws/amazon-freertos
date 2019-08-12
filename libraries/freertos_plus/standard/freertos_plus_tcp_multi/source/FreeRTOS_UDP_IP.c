@@ -119,6 +119,10 @@ BaseType_t xIsIPV6 = pdFALSE;
 	if( xIsIPV6 )
 	{
 		eReturned = eNDGetCacheEntry( &( pxNetworkBuffer->xIPv6_Address ), &( pxUDPPacket->xEthernetHeader.xDestinationAddress ), &( pxEndPoint ) );
+		if( pxNetworkBuffer->pxEndPoint == NULL )
+		{
+			pxNetworkBuffer->pxEndPoint = pxEndPoint;
+		}
 	}
 	else
 	#endif
@@ -130,6 +134,10 @@ BaseType_t xIsIPV6 = pdFALSE;
     else
     {
     	eReturned = eARPGetCacheEntry( &( ulIPAddress ), &( pxUDPPacket->xEthernetHeader.xDestinationAddress ), &( pxEndPoint ) );
+		if( pxNetworkBuffer->pxEndPoint == NULL )
+		{
+			pxNetworkBuffer->pxEndPoint = pxEndPoint;
+		}
     }
 
 	if( eReturned != eCantSendPacket )
@@ -261,7 +269,7 @@ BaseType_t xIsIPV6 = pdFALSE;
 					if( pxNetworkBuffer->pxEndPoint == NULL )
 					{
 						FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: No pxEndPoint found? Using %lxip\n",
-							pxNetworkBuffer->pxEndPoint ? FreeRTOS_ntohl( pxNetworkBuffer->pxEndPoint->ulIPAddress ) : 0uL ) );	/*lint !e9027: Unpermitted operand to operator '?' [MISRA 2012 Rule 10.1, required] */
+							pxNetworkBuffer->pxEndPoint ? FreeRTOS_ntohl( pxNetworkBuffer->pxEndPoint->ipv4.ulIPAddress ) : 0uL ) );	/*lint !e9027: Unpermitted operand to operator '?' [MISRA 2012 Rule 10.1, required] */
 					}
 				}
 			}
@@ -281,12 +289,12 @@ BaseType_t xIsIPV6 = pdFALSE;
 				#if( ipconfigUSE_IPv6 != 0 )
 				if( xIsIPV6 != pdFALSE )
 				{
-					memcpy( pxIPHeader_IPv6->xSourceIPv6Address.ucBytes, pxNetworkBuffer->pxEndPoint->ulIPAddress_IPv6.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					memcpy( pxIPHeader_IPv6->xSourceIPv6Address.ucBytes, pxNetworkBuffer->pxEndPoint->ipv6.xIPAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 				}
 				else
 				#endif
 				{
-					pxIPHeader->ulSourceIPAddress = pxNetworkBuffer->pxEndPoint->ulIPAddress;
+					pxIPHeader->ulSourceIPAddress = pxNetworkBuffer->pxEndPoint->ipv4.ulIPAddress;
 				}
 			}
 			#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
@@ -316,17 +324,22 @@ BaseType_t xIsIPV6 = pdFALSE;
 			#if( ipconfigUSE_IPv6 != 0 )
 			if( xIsIPV6 )
 			{
-				pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &( pxNetworkBuffer->xIPv6_Address ) );
+//				pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &( pxNetworkBuffer->xIPv6_Address ) );
 FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", pxNetworkBuffer->xIPv6_Address.ucBytes, ( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
 				if( pxNetworkBuffer->pxEndPoint )
 				{
 					vNDGenerateRequestPacket( pxNetworkBuffer, &( pxNetworkBuffer->xIPv6_Address ) );
+					memcpy( pxIPHeader_IPv6->xDestinationIPv6Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 				}
 			}
 			else
 			#endif
 			{
-FreeRTOS_printf( ( "Looking up %lxip with%s end-point\n", FreeRTOS_ntohl( pxNetworkBuffer->ulIPAddress ), ( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
+				FreeRTOS_printf( ( "Looking up %lxip%s with%s end-point\n",
+					FreeRTOS_ntohl( ulIPAddress ),
+					( pxNetworkBuffer->ulIPAddress != ulIPAddress ) ? " (gateway)" : "",
+					( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
+
 				/* Add an entry to the ARP table with a null hardware address.
 				This allows the ARP timer to know that an ARP reply is
 				outstanding, and perform retransmissions if necessary. */
@@ -365,7 +378,7 @@ FreeRTOS_printf( ( "Looking up %lxip with%s end-point\n", FreeRTOS_ntohl( pxNetw
 				{
 				BaseType_t xIndex;
 	
-					FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: length %u\n", pxNetworkBuffer->xDataLength ) );
+					//FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: length %u\n", pxNetworkBuffer->xDataLength ) );
 					for( xIndex = ( BaseType_t ) pxNetworkBuffer->xDataLength; xIndex < ( BaseType_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES; xIndex++ )
 					{
 						pxNetworkBuffer->pucEthernetBuffer[ xIndex ] = 0u;

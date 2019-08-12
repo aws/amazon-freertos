@@ -409,7 +409,7 @@ BaseType_t xGivingUp = pdFALSE;
 		case eWaitingSendFirstDiscover :
 			/* Ask the user if a DHCP discovery is required. */
 		#if( ipconfigUSE_DHCP_HOOK != 0 )
-			eAnswer = xApplicationDHCPHook( eDHCPPhasePreDiscover, pxEndPoint->ulDefaultIPAddress );
+			eAnswer = xApplicationDHCPHook( eDHCPPhasePreDiscover, pxEndPoint->ipv4.ulDefaultIPAddress );
 			if( eAnswer == eDHCPContinue )
 		#endif	/* ipconfigUSE_DHCP_HOOK */
 			{
@@ -417,7 +417,7 @@ BaseType_t xGivingUp = pdFALSE;
 				have not already been created. */
 				prvInitialiseDHCP( pxEndPoint );
 				/* Put 'ulIPAddress' to zero to indicate that the end-point is down. */
-				pxEndPoint->ulIPAddress = 0UL;
+				pxEndPoint->ipv4.ulIPAddress = 0UL;
 
 				/* Send the first discover request. */
 				if( xDHCPSocket != NULL )
@@ -468,7 +468,7 @@ BaseType_t xGivingUp = pdFALSE;
 					if( eAnswer == eDHCPUseDefaults )
 					{
 						memcpy( &xNetworkAddressing, &xDefaultAddressing, sizeof( xNetworkAddressing ) );
-						pxEndPoint->ulIPAddress = pxEndPoint->ulDefaultIPAddress;	/* Use this address in case DHCP has failed. */
+						pxEndPoint->ipv4.ulIPAddress = pxEndPoint->ipv4.ulDefaultIPAddress;	/* Use this address in case DHCP has failed. */
 					}
 					/* The user indicates that the DHCP process does not continue. */
 					xGivingUp = pdTRUE;
@@ -559,11 +559,11 @@ BaseType_t xGivingUp = pdFALSE;
 
 				/* DHCP completed.  The IP address can now be used, and the
 				timer set to the lease timeout time. */
-				pxEndPoint->ulIPAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress;
+				pxEndPoint->ipv4.ulIPAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress;
 
 				/* Setting the 'local' broadcast address, something like 192.168.1.255' */
 				xNetworkAddressing.ulBroadcastAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress |  ~xNetworkAddressing.ulNetMask;
-				pxEndPoint->ulBroadcastAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress | ~( pxEndPoint->ulNetMask );
+				pxEndPoint->ipv4.ulBroadcastAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress | ~( pxEndPoint->ipv4.ulNetMask );
 
 				pxEndPoint->xDHCPData.eDHCPState = eLeasedAddress;
 
@@ -662,7 +662,7 @@ BaseType_t xGivingUp = pdFALSE;
 		/* Revert to static IP address. */
 		taskENTER_CRITICAL();
 		{
-			pxEndPoint->ulIPAddress = xNetworkAddressing.ulDefaultIPAddress;
+			pxEndPoint->ipv4.ulIPAddress = xNetworkAddressing.ulDefaultIPAddress;
 
 			iptraceDHCP_REQUESTS_FAILED_USING_DEFAULT_IP_ADDRESS( xNetworkAddressing.ulDefaultIPAddress );
 		}
@@ -922,7 +922,7 @@ const uint32_t ulMandatoryOptions = 2; /* DHCP server address, and the correct D
 							if( uxLength == sizeof( uint32_t ) )
 							{
 								xNetworkAddressing.ulNetMask = ulParameter;
-								pxEndPoint->ulNetMask = ulParameter;
+								pxEndPoint->ipv4.ulNetMask = ulParameter;
 							}
 							break;
 
@@ -933,7 +933,7 @@ const uint32_t ulMandatoryOptions = 2; /* DHCP server address, and the correct D
 								/* ulProcessed is not incremented in this case
 								because the gateway is not essential. */
 								xNetworkAddressing.ulGatewayAddress = ulParameter;
-								pxEndPoint->ulGatewayAddress = ulParameter;
+								pxEndPoint->ipv4.ulGatewayAddress = ulParameter;
 							}
 							break;
 
@@ -943,7 +943,7 @@ const uint32_t ulMandatoryOptions = 2; /* DHCP server address, and the correct D
 							because the DNS server is not essential.  Only the
 							first DNS server address is taken. */
 							xNetworkAddressing.ulDNSServerAddress = ulParameter;
-							pxEndPoint->ulDNSServerAddresses[ 0 ] = ulParameter;
+							pxEndPoint->ipv4.ulDNSServerAddresses[ 0 ] = ulParameter;
 							break;
 
 						case dhcpIPv4_SERVER_IP_ADDRESS_OPTION_CODE :
