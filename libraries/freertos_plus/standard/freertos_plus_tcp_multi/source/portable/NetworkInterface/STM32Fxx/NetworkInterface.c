@@ -51,6 +51,8 @@
 #include "FreeRTOS_DHCP.h"
 #include "FreeRTOS_Routing.h"
 
+#include "eventLogging.h"
+
 /*lint -e9071 defined macro is reserved to the compiler [MISRA 2012 Rule 21.1, required]. */
 #define __STM32_HAL_LEGACY   1
 
@@ -707,6 +709,8 @@ uint32_t ulTransmitSize = 0;
 __IO ETH_DMADescTypeDef *pxDmaTxDesc;
 /* Do not wait too long for a free TX DMA buffer. */
 const TickType_t xBlockTimeTicks = pdMS_TO_TICKS( 50u );
+
+eventLogAdd("Outp %p", pxDescriptor);
 
 	/* Open a do {} while ( 0 ) loop to be able to call break. */
 	do

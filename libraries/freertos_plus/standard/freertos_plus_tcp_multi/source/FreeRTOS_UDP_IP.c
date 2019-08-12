@@ -78,6 +78,10 @@ void vProcessGeneratedUDPPacket( NetworkBufferDescriptor_t * const pxNetworkBuff
 {
 UDPPacket_t *pxUDPPacket;
 IPHeader_t *pxIPHeader;
+#if( ipconfigUSE_IPv6 != 0 )
+	UDPPacket_IPv6_t *pxUDPPacket_IPv6;
+	IPHeader_IPv6_t *pxIPHeader_IPv6;
+#endif
 eARPLookupResult_t eReturned;
 uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
 NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
@@ -86,21 +90,44 @@ BaseType_t xIsIPV6 = pdFALSE;
 	/* Map the UDP packet onto the start of the frame. */
 	pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 
+	/* Create short cuts to the data within the packet. */
+	pxIPHeader = &( pxUDPPacket->xIPHeader );
+
 	#if( ipconfigUSE_IPv6 != 0 )
+	pxUDPPacket_IPv6 = ipPOINTER_CAST( UDPPacket_IPv6_t *, pxNetworkBuffer->pucEthernetBuffer );
 	if( pxUDPPacket->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
 	{
 		xIsIPV6 = pdTRUE;
+		pxIPHeader_IPv6 = &( pxUDPPacket_IPv6->xIPHeader );
+		if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )
+		{
+			FreeRTOS_printf( ( "" ) );
+		}
 	}
+	else
 	#endif
+	{
+		pxUDPPacket->xEthernetHeader.usFrameType = ipIPv4_FRAME_TYPE;
 
-	/* Create short cuts to the data within the packet. */
-	pxIPHeader = &( pxUDPPacket->xIPHeader );
+		memset( pxIPHeader, '\0', sizeof *pxIPHeader );
+		pxIPHeader->ucVersionHeaderLength = ipIP_VERSION_AND_HEADER_LENGTH_BYTE;
+		pxIPHeader->ucTimeToLive = ipconfigUDP_TIME_TO_LIVE;
+		pxIPHeader->ulSourceIPAddress;
+		pxIPHeader->ulDestinationIPAddress;
+	}
 
 	/* Determine the ARP cache status for the requested IP address.  This may
 	change the ulIPAddress to the router address.
 	Beside the MAC-address, a reference to the network Interface will
     be return. */
-	if( xIsIPV6 && ( ( FreeRTOS_ntohl( ulIPAddress ) & 0xff ) == 0xff ) && ( pxEndPoint != NULL ) )
+	#if( ipconfigUSE_IPv6 != 0 )
+	if( xIsIPV6 )
+	{
+		eReturned = eNDGetCacheEntry( &( pxNetworkBuffer->xIPv6_Address ), &( pxUDPPacket->xEthernetHeader.xDestinationAddress ) );
+	}
+	else
+	#endif
+	if( ( ( FreeRTOS_ntohl( ulIPAddress ) & 0xff ) == 0xff ) && ( pxEndPoint != NULL ) )
     {
         memset( pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes, 0xff, ipMAC_ADDRESS_LENGTH_BYTES );
         eReturned = eARPCacheHit;
@@ -127,7 +154,21 @@ BaseType_t xIsIPV6 = pdFALSE;
 			{
 			UDPHeader_t *pxUDPHeader;
 
-				pxUDPHeader = &( pxUDPPacket->xUDPHeader );
+				#if( ipconfigUSE_IPv6 != 0 )
+				if( xIsIPV6 )
+				{
+					pxUDPHeader = &( pxUDPPacket_IPv6->xUDPHeader );
+
+					pxUDPPacket_IPv6->xIPHeader.ucVersionTrafficClass = 0x60;
+					pxUDPPacket_IPv6->xIPHeader.ucTrafficClassFlow = 0;
+					pxUDPPacket_IPv6->xIPHeader.usFlowLabel = 0;
+					pxUDPPacket_IPv6->xIPHeader.ucHopLimit = 255;
+				}
+				else
+				#endif
+				{
+					pxUDPHeader = &( pxUDPPacket->xUDPHeader );
+				}
 
 				pxUDPHeader->usDestinationPort = pxNetworkBuffer->usPort;
 				pxUDPHeader->usSourcePort = pxNetworkBuffer->usBoundPort;
@@ -159,24 +200,38 @@ BaseType_t xIsIPV6 = pdFALSE;
 			#endif
 
 			/* lint Warning -- Apparent data overrun for function 'memcpy()', argument 3 (size=24) exceeds argument 1 (size=6)  [MISRA 2012 Rule 1.3, required] */
-			memcpy( &( pxUDPPacket->xEthernetHeader.xSourceAddress ), xDefaultPartUDPPacketHeader.ucBytes, sizeof( xDefaultPartUDPPacketHeader ) );	/*lint !e419 */
 
 		#if ipconfigSUPPORT_OUTGOING_PINGS == 1
 			if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )
 			{
-				pxIPHeader->ucProtocol = ipPROTOCOL_ICMP;
-				pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) );
+				#if( ipconfigUSE_IPv6 != 0 )
+				if( xIsIPV6 != pdFALSE )
+				{
+					pxIPHeader_IPv6->ucNextHeader = ipPROTOCOL_ICMP_IPv6;
+				}
+				else
+				#endif	/* ( ipconfigUSE_IPv6 != 0 ) */
+				{
+					pxIPHeader->ucProtocol = ipPROTOCOL_ICMP;
+					pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) );
+				}
 			}
 			else
 		#endif /* ipconfigSUPPORT_OUTGOING_PINGS */
+			#if( ipconfigUSE_IPv6 != 0 )
+			if( xIsIPV6 != pdFALSE )
 			{
-				pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) + sizeof( UDPHeader_t ) );
 			}
-
-			/* The total transmit size adds on the Ethernet header. */
-			pxNetworkBuffer->xDataLength = pxIPHeader->usLength + sizeof( EthernetHeader_t );
-			pxIPHeader->usLength = FreeRTOS_htons( pxIPHeader->usLength );
-			pxIPHeader->ulDestinationIPAddress = pxNetworkBuffer->ulIPAddress;
+			#endif
+			else
+			{
+				pxIPHeader->ucProtocol = ipPROTOCOL_UDP;
+				pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) + sizeof( UDPHeader_t ) );
+				/* The total transmit size adds on the Ethernet header. */
+				pxNetworkBuffer->xDataLength = pxIPHeader->usLength + sizeof( EthernetHeader_t );
+				pxIPHeader->usLength = FreeRTOS_htons( pxIPHeader->usLength );
+				pxIPHeader->ulDestinationIPAddress = pxNetworkBuffer->ulIPAddress;
+			}
 
 			if( pxNetworkBuffer->pxEndPoint != NULL )
 			{
@@ -219,9 +274,17 @@ BaseType_t xIsIPV6 = pdFALSE;
 			#endif
 			if( pxNetworkBuffer->pxEndPoint != NULL )
 			{
-				pxIPHeader->ulSourceIPAddress = pxNetworkBuffer->pxEndPoint->ulIPAddress;
+				#if( ipconfigUSE_IPv6 != 0 )
+				if( xIsIPV6 != pdFALSE )
+				{
+					memcpy( pxIPHeader_IPv6->xSourceIPv6Address.ucBytes, pxNetworkBuffer->pxEndPoint->ulIPAddress_IPv6.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+				}
+				else
+				#endif
+				{
+					pxIPHeader->ulSourceIPAddress = pxNetworkBuffer->pxEndPoint->ulIPAddress;
+				}
 			}
-
 			#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
 			{
 				#if( ipconfigUSE_IPv6 != 0 )
@@ -246,19 +309,32 @@ BaseType_t xIsIPV6 = pdFALSE;
 		}
 		else if( eReturned == eARPCacheMiss )
 		{
-			/* Add an entry to the ARP table with a null hardware address.
-			This allows the ARP timer to know that an ARP reply is
-			outstanding, and perform retransmissions if necessary. */
-			vARPRefreshCacheEntry( NULL, ulIPAddress, NULL );
+			#if( ipconfigUSE_IPv6 != 0 )
+			if( xIsIPV6 )
+			{
+				pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &( pxNetworkBuffer->xIPv6_Address ) );
+				if( pxNetworkBuffer->pxEndPoint )
+				{
+					vNDGenerateRequestPacket( pxNetworkBuffer, &( pxNetworkBuffer->xIPv6_Address ) );
+				}
+			}
+			else
+			#endif
+			{
+				/* Add an entry to the ARP table with a null hardware address.
+				This allows the ARP timer to know that an ARP reply is
+				outstanding, and perform retransmissions if necessary. */
+				vARPRefreshCacheEntry( NULL, ulIPAddress, NULL );
 
-			/* Generate an ARP for the required IP address. */
-			iptracePACKET_DROPPED_TO_GENERATE_ARP( pxNetworkBuffer->ulIPAddress );
-			pxNetworkBuffer->ulIPAddress = ulIPAddress;
+				/* Generate an ARP for the required IP address. */
+				iptracePACKET_DROPPED_TO_GENERATE_ARP( pxNetworkBuffer->ulIPAddress );
+				pxNetworkBuffer->ulIPAddress = ulIPAddress;
 
-			/* 'ulIPAddress' might have become the address of the Gateway.
-			Find the route again. */
-			pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 11 );	/* ARP request */
-			vARPGenerateRequestPacket( pxNetworkBuffer );
+				/* 'ulIPAddress' might have become the address of the Gateway.
+				Find the route again. */
+				pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 11 );	/* ARP request */
+				vARPGenerateRequestPacket( pxNetworkBuffer );
+			}
 		}
 		else
 		{
@@ -268,30 +344,60 @@ BaseType_t xIsIPV6 = pdFALSE;
 		}
 	}
 
-	if( ( eReturned != eCantSendPacket ) && ( pxNetworkBuffer->pxEndPoint != NULL ) )
+	if( eReturned != eCantSendPacket )
 	{
-	/* The network driver is responsible for freeing the network buffer
-	after the packet has been sent. */
-	NetworkInterface_t *pxInterface = pxNetworkBuffer->pxEndPoint->pxNetworkInterface;
-
-		memcpy( &( pxUDPPacket->xEthernetHeader.xSourceAddress), pxNetworkBuffer->pxEndPoint->xMACAddress.ucBytes, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
-		#if defined( ipconfigETHERNET_MINIMUM_PACKET_BYTES )
+		/* The network driver is responsible for freeing the network buffer
+		after the packet has been sent. */
+		if( pxNetworkBuffer->pxEndPoint != NULL )
 		{
-			if( pxNetworkBuffer->xDataLength < ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES )
+		NetworkInterface_t *pxInterface = pxNetworkBuffer->pxEndPoint->pxNetworkInterface;
+
+			memcpy( &( pxUDPPacket->xEthernetHeader.xSourceAddress), pxNetworkBuffer->pxEndPoint->xMACAddress.ucBytes, ( size_t ) ipMAC_ADDRESS_LENGTH_BYTES );
+			#if defined( ipconfigETHERNET_MINIMUM_PACKET_BYTES )
 			{
-			BaseType_t xIndex;
-
-				FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: length %u\n", pxNetworkBuffer->xDataLength ) );
-				for( xIndex = ( BaseType_t ) pxNetworkBuffer->xDataLength; xIndex < ( BaseType_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES; xIndex++ )
+				if( pxNetworkBuffer->xDataLength < ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES )
 				{
-					pxNetworkBuffer->pucEthernetBuffer[ xIndex ] = 0u;
+				BaseType_t xIndex;
+	
+					FreeRTOS_printf( ( "vProcessGeneratedUDPPacket: length %u\n", pxNetworkBuffer->xDataLength ) );
+					for( xIndex = ( BaseType_t ) pxNetworkBuffer->xDataLength; xIndex < ( BaseType_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES; xIndex++ )
+					{
+						pxNetworkBuffer->pucEthernetBuffer[ xIndex ] = 0u;
+					}
+					pxNetworkBuffer->xDataLength = ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES;
 				}
-				pxNetworkBuffer->xDataLength = ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES;
 			}
-		}
-		#endif
+			#endif
 
-		( void ) pxInterface->pfOutput( pxInterface, pxNetworkBuffer, pdTRUE );
+			#if( ipconfigUSE_IPv6 != 0 )
+			if( ( xIsIPV6 != pdFALSE ) && ( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA ) )
+			{
+				FreeRTOS_printf( ( "From %02d:%02d:%02d:%02d:%02d:%02d %pip\n",
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 0 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 1 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 2 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 3 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 4 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 5 ],
+					pxIPHeader_IPv6->xSourceIPv6Address.ucBytes ) );
+				FreeRTOS_printf( ( "To   %02d:%02d:%02d:%02d:%02d:%02d %pip\n",
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 0 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 1 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 2 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 3 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 4 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 5 ],
+					pxIPHeader_IPv6->xDestinationIPv6Address.ucBytes ) );
+			}
+			#endif
+
+			( void ) pxInterface->pfOutput( pxInterface, pxNetworkBuffer, pdTRUE );
+		}
+		else
+		{
+			/* The packet can't be sent (no route found).  Drop the packet. */
+			vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
+		}
 	}
 	else
 	{

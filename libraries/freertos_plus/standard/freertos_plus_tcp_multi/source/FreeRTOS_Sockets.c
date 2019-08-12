@@ -865,10 +865,16 @@ FreeRTOS_Socket_t *pxSocket;
 
 			if( pxNetworkBuffer != NULL )
 			{
+			UDPPacket_t *pxUDPPacket;
+
 				pxNetworkBuffer->xDataLength = xTotalDataLength;
 				pxNetworkBuffer->usPort = pxDestinationAddress->sin_port;
 				pxNetworkBuffer->usBoundPort = ( uint16_t ) socketGET_SOCKET_PORT( pxSocket );
 				pxNetworkBuffer->ulIPAddress = pxDestinationAddress->sin_addr;
+
+				/* Map the UDP packet onto the start of the frame. */
+				pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+				pxUDPPacket->xEthernetHeader.usFrameType = ipIPv4_FRAME_TYPE;
 
 				/* The socket options are passed to the IP layer in the
 				space that will eventually get used by the Ethernet header. */

@@ -294,7 +294,8 @@ typedef struct xICMP_PACKET ICMPPacket_t;
 	{
 		EthernetHeader_t xEthernetHeader;
 		IPHeader_IPv6_t xIPHeader;
-		ICMPHeader_t xICMPHeader;
+//		ICMPHeader_t xICMPHeader;
+		ICMPHeader_IPv6_t xICMPHeader_IPv6;
 	}
 	#include "pack_struct_end.h"
 	typedef struct xICMP_PACKET_IPv6 ICMPPacket_IPv6_t;
@@ -349,7 +350,7 @@ typedef union xPROT_PACKET
 	ARPPacket_t xARPPacket;
 	TCPPacket_t xTCPPacket;
 	UDPPacket_t xUDPPacket;
-	ICMPPacket_t xICMPPacket;
+	ICMPPacket_t xICMPPacket_IPv6;
 } ProtocolPacket_t;
 
 typedef union xPROT_HEADERS
@@ -357,6 +358,9 @@ typedef union xPROT_HEADERS
 	ICMPHeader_t xICMPHeader;
 	UDPHeader_t xUDPHeader;
 	TCPHeader_t xTCPHeader;
+#if( ipconfigUSE_IPv6 != 0 )
+	ICMPHeader_IPv6_t xICMPHeader_IPv6;
+#endif
 } ProtocolHeaders_t;
 
 

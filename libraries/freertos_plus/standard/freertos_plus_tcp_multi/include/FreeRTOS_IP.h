@@ -81,7 +81,7 @@ extern "C" {
 #define ipSIZE_OF_IPv6_HEADER			40u
 #define ipSIZE_OF_IGMP_HEADER			8u
 #define ipSIZE_OF_ICMPv4_HEADER			8u
-#define ipSIZE_OF_ICMPv6_HEADER			32u
+#define ipSIZE_OF_ICMPv6_HEADER			24u
 #define ipSIZE_OF_UDP_HEADER			8u
 #define ipSIZE_OF_TCP_HEADER			20u
 

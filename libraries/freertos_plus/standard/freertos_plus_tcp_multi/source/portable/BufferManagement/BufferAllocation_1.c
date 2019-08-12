@@ -66,6 +66,8 @@
 #include "NetworkInterface.h"
 #include "NetworkBufferManagement.h"
 
+#include "eventLogging.h"
+
 /* For an Ethernet interrupt to be able to obtain a network buffer there must
 be at least this number of buffers available. */
 #define baINTERRUPT_BUFFER_GET_THRESHOLD	( 3 )
@@ -149,6 +151,7 @@ section macros. */
 		{
 			cIsLow = !cIsLow;
 			FreeRTOS_debug_printf( ( "*** Warning *** %s %lu buffers left\n", cIsLow ? "only" : "now", uxCount ) );
+			eventLogAdd("%lu left", uxCount);
 		}
 	}
 	/*-----------------------------------------------------------*/
@@ -268,10 +271,15 @@ UBaseType_t uxCount;
 				So the printf()is OK here. */
 				FreeRTOS_debug_printf( ( "pxGetNetworkBufferWithDescriptor: INVALID BUFFER: %p (valid %lu)\n",
 					pxReturn, bIsValidNetworkDescriptor( pxReturn ) ) );
+				eventLogAdd("Invalid: %p", pxReturn);
 				pxReturn = NULL;
 			}
 			else
 			{
+				if( memcmp( eventLogLast(), "Crea ", 5) == 0) {
+					eventLogAdd("Stop");
+				}
+				eventLogAdd("Crea %p", pxReturn);
 				/* Reading UBaseType_t, no critical section needed. */
 				uxCount = listCURRENT_LIST_LENGTH( &xFreeBuffersList );
 
@@ -375,6 +383,7 @@ BaseType_t xListItemAlreadyInFreeList;
 	if( bIsValidNetworkDescriptor( pxNetworkBuffer ) == pdFALSE_UNSIGNED )
 	{
 		FreeRTOS_debug_printf( ( "vReleaseNetworkBufferAndDescriptor: Invalid buffer %p\n", pxNetworkBuffer ) );
+		eventLogAdd("Invalid2: %p", pxNetworkBuffer);
 	}
 	else
 	{
@@ -397,10 +406,12 @@ BaseType_t xListItemAlreadyInFreeList;
 		{
 			FreeRTOS_debug_printf( ( "vReleaseNetworkBufferAndDescriptor: %p ALREADY RELEASED (now %lu)\n",
 				pxNetworkBuffer, uxGetNumberOfFreeNetworkBuffers( ) ) );
+			eventLogAdd("Alry %p %lu", pxNetworkBuffer, uxGetNumberOfFreeNetworkBuffers( ) );
 		}
-		if( xListItemAlreadyInFreeList == pdFALSE )
+		else
 		{
 			( void ) xSemaphoreGive( xNetworkBufferSemaphore );
+			eventLogAdd("Rele %p %lu", pxNetworkBuffer, uxGetNumberOfFreeNetworkBuffers( ) );
 			#if( ipconfigTCP_IP_SANITY != 0 )
 			{
 				prvShowWarnings();
