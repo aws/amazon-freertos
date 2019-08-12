@@ -88,7 +88,7 @@ ALIASES += constants_page{1}="@page \1_constants Constants"
 ALIASES += constants_brief{1}="@brief Defined constants of the \1.<br><br>Libraries may @c #`define` constants in their headers with special meanings. This page describes the meanings and uses of any constants defined by the \1. Related constants are shown in a single section on this page.<br>"
 
 # Alias for starting a functions page.
-ALIASES += functions_page{2}="@page \1_functions Functions"
+ALIASES += functions_page{1}="@page \1_functions Functions"
 ALIASES += functions_brief{1}="@brief Functions of the \1 library.<br><br>The \1 library consists of the following functions."
 
 # Alias for listing a single function on a functions page.

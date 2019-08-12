@@ -7,7 +7,7 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 
 # Setup Doxygen
 
-[Doxygen Manual](http://www.stack.nl/~dimitri/doxygen/manual/index.html)
+[Doxygen Manual](http://www.doxygen.nl/manual/index.html)
 
 - download and install Doxygen
 - install graphviz
