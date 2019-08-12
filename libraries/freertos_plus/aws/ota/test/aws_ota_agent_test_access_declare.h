@@ -34,7 +34,7 @@
 #define _AWS_OTA_AGENT_TEST_ACCESS_DECLARE_H_
 
 #include "aws_ota_types.h"
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 #include "aws_ota_agent_internal.h"
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,

@@ -633,9 +633,6 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h">
-      <Filter>libraries\freertos_plus\aws\ota\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h">
       <Filter>libraries\freertos_plus\aws\ota\include</Filter>
     </ClInclude>

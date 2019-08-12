@@ -32,7 +32,7 @@
 #define _AWS_OTA_AGENT_CONFIG_H_
 
 /**
- * @brief Special OTA Agent printing definition (moved from lib/include/aws_ota_agent.h).
+ * @brief Special OTA Agent printing definition (moved from lib/include/aws_iot_ota_agent.h).
  */
 #define OTA_DEBUG_LOG_LEVEL                     1
 

@@ -39,7 +39,7 @@
 #include "unity.h"
 #include "jsmn.h"
 #include "aws_ota_agent_test_access_declare.h"
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 #include "aws_clientcredential.h"
 #include "aws_ota_agent_internal.h"
 
