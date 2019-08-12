@@ -45,6 +45,7 @@
 
 /* Test framework includes. */
 #include "unity_fixture.h"
+#include "aws_test_utils.h"
 
 /*-----------------------------------------------------------*/
 
@@ -110,6 +111,20 @@
  */
 #ifndef IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS
     #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+#endif
+
+/**
+ * @brief The initial delay in milliseconds that is doubled each retry of server connection.
+ */
+#ifndef IOT_TEST_HTTPS_INITIAL_CONNECTION_RETRY_DELAY
+    #define IOT_TEST_HTTPS_INITIAL_CONNECTION_RETRY_DELAY    ( ( uint32_t ) 300 )
+#endif
+
+/**
+ * @brief The amount of times to retry the server connection if it fails.
+ */
+#ifndef IOT_TEST_HTTPS_CONNECTION_NUM_RETRIES
+    #define IOT_TEST_HTTPS_CONNECTION_NUM_RETRIES    ( ( int32_t ) 3 )
 #endif
 
 /**
@@ -286,8 +301,11 @@ static void _testRequestSynchronous( bool isNonPersistent,
     returnCode = IotHttpsClient_InitializeRequest( &reqHandle, &reqInfo );
     TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
 
-    /* Create the HTTPS connection.  */
-    returnCode = IotHttpsClient_Connect( &connHandle, &_connInfo );
+    /* Create the HTTPS connection. */
+    RETRY_EXPONENTIAL( returnCode = IotHttpsClient_Connect( &connHandle, &_connInfo ),
+                       IOT_HTTPS_OK,
+                       IOT_TEST_HTTPS_INITIAL_CONNECTION_RETRY_DELAY,
+                       IOT_TEST_HTTPS_CONNECTION_NUM_RETRIES );
     TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
 
     /* Send the HTTPS request. */
@@ -371,7 +389,10 @@ static void _testRequestAsynchronous( bool isNonPersistent,
     TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
 
     /* Create the HTTPS connection.  */
-    returnCode = IotHttpsClient_Connect( &connHandle, &_connInfo );
+    RETRY_EXPONENTIAL( returnCode = IotHttpsClient_Connect( &connHandle, &_connInfo ),
+                       IOT_HTTPS_OK,
+                       IOT_TEST_HTTPS_INITIAL_CONNECTION_RETRY_DELAY,
+                       IOT_TEST_HTTPS_CONNECTION_NUM_RETRIES );
     TEST_ASSERT_EQUAL( IOT_HTTPS_OK, returnCode );
 
     TEST_ASSERT_TRUE( IotSemaphore_Create( &( verifParams.finishedSem ), 0, 1 ) );

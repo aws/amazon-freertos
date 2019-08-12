@@ -937,6 +937,7 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
         /* If there is still more body that has not been passed back to the user, then this callback is invoked again. */
         do
         {
+            IotLogDebug( "Invoking the readReadyCallback." );
             pHttpsResponse->pCallbacks->readReadyCallback( pHttpsResponse->pUserPrivData,
                                                            pHttpsResponse,
                                                            pHttpsResponse->bodyRxStatus,
@@ -1948,6 +1949,9 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t * pHttpsConnec
                                                _httpsResponse_t * pHttpsResponse )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
+
+    IotLogDebug( "Now attempting to receive the HTTP response body into a buffer with length %d.",
+                 pHttpsResponse->pBodyEnd - pHttpsResponse->pBodyCur );
 
     pHttpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_BODY_BUFFER;
 
