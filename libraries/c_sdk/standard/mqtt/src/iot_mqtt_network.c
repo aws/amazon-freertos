@@ -139,7 +139,7 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
                                           _mqttPacket_t * pIncomingPacket )
 {
     IOT_FUNCTION_ENTRY( IotMqttError_t, IOT_MQTT_SUCCESS );
-    size_t dataBytesRead = 0;
+    size_t totalBytesRead = 0, bytesRead = 0;
 
     /* Default functions for retrieving packet type and length. */
     uint8_t ( * getPacketType )( void *,
@@ -232,11 +232,23 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
             EMPTY_ELSE_MARKER;
         }
 
-        dataBytesRead = pMqttConnection->pNetworkInterface->receive( pNetworkConnection,
-                                                                     pIncomingPacket->pRemainingData,
-                                                                     pIncomingPacket->remainingLength );
+        while( totalBytesRead < pIncomingPacket->remainingLength )
+        {
+            bytesRead = pMqttConnection->pNetworkInterface->receive( pNetworkConnection,
+                                                                     pIncomingPacket->pRemainingData + totalBytesRead,
+                                                                     pIncomingPacket->remainingLength - totalBytesRead );
 
-        if( dataBytesRead != pIncomingPacket->remainingLength )
+            if( bytesRead == 0 )
+            {
+                break;
+            }
+            else
+            {
+                totalBytesRead += bytesRead;
+            }
+        }
+
+        if( totalBytesRead != pIncomingPacket->remainingLength )
         {
             IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_BAD_RESPONSE );
         }
