@@ -534,6 +534,7 @@ uint32_t ulIPSourceAddress = 0uL;
 	default:
 		{
 			/* Frame type not supported. */
+			FreeRTOS_printf( ( "Frametpye %04x not supported.\n", FreeRTOS_ntohs( pxPacket->xUDPPacket.xEthernetHeader.usFrameType ) ) );
 		}
 		break;
 	}	/* switch usFrameType */

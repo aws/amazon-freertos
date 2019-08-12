@@ -110,10 +110,6 @@ needs to call eConsiderFrameForProcessing. */
 	#define ipCONSIDER_FRAME_FOR_PROCESSING( pucEthernetBuffer ) eProcessBuffer
 #endif
 
-/* The character used to fill ICMP echo requests, and therefore also the
-character expected to fill ICMP echo replies. */
-#define ipECHO_DATA_FILL_BYTE						'x'
-
 #if( ipconfigETHERNET_DRIVER_FILTERS_PACKETS == 0 )
 	#if( ipconfigBYTE_ORDER == pdFREERTOS_LITTLE_ENDIAN )
 		/* The bits in the two byte IP header field that make up the fragment offset value. */
@@ -980,8 +976,11 @@ NetworkBufferDescriptor_t * pxNewBuffer;
 		pxNewBuffer->ulIPAddress = pxNetworkBuffer->ulIPAddress;
 		pxNewBuffer->usPort = pxNetworkBuffer->usPort;
 		pxNewBuffer->usBoundPort = pxNetworkBuffer->usBoundPort;
+		pxNewBuffer->pxInterface = pxNetworkBuffer->pxInterface;
 		pxNewBuffer->pxEndPoint = pxNetworkBuffer->pxEndPoint;
+		pxNewBuffer->xDataLength = uxNewLength;
 		memcpy( pxNewBuffer->pucEthernetBuffer, pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength );
+		memcpy( pxNewBuffer->xIPv6_Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 	}
 
 	return pxNewBuffer;
@@ -1292,12 +1291,15 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 	{
 	NetworkBufferDescriptor_t *pxNetworkBuffer;
 	ICMPHeader_t *pxICMPHeader;
+	EthernetHeader_t *pxEthernetHeader;
 	BaseType_t xReturn = pdFAIL;
 	static uint16_t usSequenceNumber = 0;
 	uint8_t *pucChar;
+	size_t xTotalLength;
 	IPStackEvent_t xStackTxEvent = { eStackTxEvent, NULL };
 
-		pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( xNumberOfBytesToSend + sizeof( ICMPPacket_t ), xBlockTimeTicks );
+		xTotalLength = xNumberOfBytesToSend + sizeof( ICMPPacket_t );
+		pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( xTotalLength, xBlockTimeTicks );
 
 		if( pxNetworkBuffer != NULL )
 		{
@@ -1306,6 +1308,10 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 			xEnoughSpace = xNumberOfBytesToSend < ( ( ipconfigNETWORK_MTU - sizeof( IPHeader_t ) ) - sizeof( ICMPHeader_t ) );
 			if( ( uxGetNumberOfFreeNetworkBuffers() >= 3 ) && ( xNumberOfBytesToSend >= 1 ) && ( xEnoughSpace != pdFALSE ) )
 			{
+				pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipIP_PAYLOAD_OFFSET ] ) );
+				pxEthernetHeader->usFrameType = ipIPv4_FRAME_TYPE;
+				
+
 				pxICMPHeader = ipPOINTER_CAST( ICMPHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipIP_PAYLOAD_OFFSET ] ) );
 				usSequenceNumber++;
 
@@ -1327,7 +1333,7 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 				pxNetworkBuffer->pucEthernetBuffer[ ipSOCKET_OPTIONS_OFFSET ] = FREERTOS_SO_UDPCKSUM_OUT;
 				pxNetworkBuffer->ulIPAddress = ulIPAddress;
 				pxNetworkBuffer->usPort = ipPACKET_CONTAINS_ICMP_DATA;
-				pxNetworkBuffer->xDataLength = xNumberOfBytesToSend + sizeof( ICMPHeader_t );
+				pxNetworkBuffer->xDataLength = xTotalLength;
 
 				/* Send to the stack. */
 				xStackTxEvent.pvData = pxNetworkBuffer;

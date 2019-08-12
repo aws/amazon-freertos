@@ -95,7 +95,7 @@ void vNDRefreshCacheEntry( const MACAddress_t * pxMACAddress, const IPv6_Address
  * (maybe DHCP is still in process, or the addressing needs a gateway but there
  * isn't a gateway defined) then return eCantSendPacket.
  */
-eARPLookupResult_t eNDGetCacheEntry( IPv6_Address_t *pxIPAddress, MACAddress_t * const pxMACAddress );
+eARPLookupResult_t eNDGetCacheEntry( IPv6_Address_t *pxIPAddress, MACAddress_t * const pxMACAddress, struct xNetworkEndPoint **ppxEndPoint );
 
 #if( ipconfigUSE_ARP_REVERSED_LOOKUP != 0 )
 
@@ -127,6 +127,7 @@ void FreeRTOS_PrintNDCache( void );
 #if( ipconfigUSE_IPv6 != 0 )
 	void FreeRTOS_OutputAdvertiseIPv6( NetworkEndPoint_t *pxEndPoint );
 	BaseType_t FreeRTOS_SendPingRequestIPv6( IPv6_Address_t *pxIPAddress, size_t xNumberOfBytesToSend, TickType_t xBlockTimeTicks );
+	BaseType_t FreeRTOS_CreateIPv6Address( IPv6_Address_t *pxIPAddress, const IPv6_Address_t *pxPrefix, BaseType_t xPrefixLength );
 #endif
 
 #endif /* ipconfigUSE_IPv6 != 0 */

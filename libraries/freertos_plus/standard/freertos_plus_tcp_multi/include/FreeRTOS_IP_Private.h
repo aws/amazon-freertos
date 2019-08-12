@@ -281,9 +281,9 @@ typedef struct xIP_PACKET IPPacket_t;
 #include "pack_struct_start.h"
 struct xICMP_PACKET
 {
-	EthernetHeader_t xEthernetHeader;
-	IPHeader_t xIPHeader;
-	ICMPHeader_t xICMPHeader;
+	EthernetHeader_t xEthernetHeader;	/*  0 + 14 = 14 */
+	IPHeader_t xIPHeader;				/* 14 + 20 = 34 */
+	ICMPHeader_t xICMPHeader;			/* 34 +  8 = 42 */
 }
 #include "pack_struct_end.h"
 typedef struct xICMP_PACKET ICMPPacket_t;

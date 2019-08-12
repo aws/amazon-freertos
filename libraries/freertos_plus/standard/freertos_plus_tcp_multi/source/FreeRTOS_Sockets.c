@@ -629,7 +629,7 @@ BaseType_t lPacketCount;
 NetworkBufferDescriptor_t *pxNetworkBuffer;
 FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
 TickType_t xRemainingTime = ( TickType_t ) 0; /* Obsolete assignment, but some compilers output a warning if its not done. */
-BaseType_t xTimed = pdFALSE;
+BaseType_t xTimed = pdFALSE, xIsIPV6 = pdFALSE;
 TimeOut_t xTimeOut;
 int32_t lReturn;
 EventBits_t xEventBits = ( EventBits_t ) 0;
@@ -731,6 +731,16 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 		}
 		taskEXIT_CRITICAL();
 
+		#if( ipconfigUSE_IPv6 != 0 )
+		{
+			UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+			if( pxUDPPacket->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
+			{
+				xIsIPV6 = pdTRUE;
+			}
+		}
+		#endif
+
 		/* The returned value is the data length, which may have been capped to
 		the receive buffer size. */
 		lReturn = ( int32_t ) pxNetworkBuffer->xDataLength;
@@ -743,6 +753,7 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 		if( ( xFlags & FREERTOS_ZERO_COPY ) == 0 )
 		{
+		size_t uxPayloadOffset;
 			/* The zero copy flag is not set.  Truncate the length if it won't
 			fit in the provided buffer. */
 			if( lReturn > ( int32_t ) xBufferLength )
@@ -753,7 +764,18 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 			/* Copy the received data into the provided buffer, then release the
 			network buffer. */
-			memcpy( pvBuffer, &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] ), ( size_t )lReturn );
+			#if( ipconfigUSE_IPv6 != 0 )
+			if( xIsIPV6 )
+			{
+				uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv6;
+			}
+			else
+			#endif
+			{
+				uxPayloadOffset = ipUDP_PAYLOAD_OFFSET_IPv4;
+			}
+
+			memcpy( pvBuffer, &( pxNetworkBuffer->pucEthernetBuffer[ uxPayloadOffset ] ), ( size_t )lReturn );
 
 			if( ( xFlags & FREERTOS_MSG_PEEK ) == 0 )
 			{
@@ -787,6 +809,181 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 	return lReturn;
 }
+/*-----------------------------------------------------------*/
+
+int32_t FreeRTOS_sendto6( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
+{
+NetworkBufferDescriptor_t *pxNetworkBuffer;
+IPStackEvent_t xStackTxEvent = { eStackTxEvent, NULL };
+TimeOut_t xTimeOut;
+TickType_t xTicksToWait;
+int32_t lReturn = 0;
+FreeRTOS_Socket_t *pxSocket;
+/* The defaults for IPv4. */
+BaseType_t xIsIPV6 = pdFALSE;
+size_t xMaxPayloadLength = ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER );
+size_t xPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER;
+
+#if( ipconfigUSE_IPv6 != 0 )
+	struct freertos_sockaddr6 *pxDestinationAddress_IPv6;
+#endif
+
+	pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
+
+	#if( ipconfigUSE_IPv6 != 0 )
+	if( pxDestinationAddress->sin_family == FREERTOS_AF_INET6 )
+	{
+		xIsIPV6 = pdTRUE;
+		xMaxPayloadLength = ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv6_HEADER + ipSIZE_OF_UDP_HEADER );
+		xPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + ipSIZE_OF_UDP_HEADER;
+		pxDestinationAddress_IPv6 = ipPOINTER_CAST( struct freertos_sockaddr6 *, pxDestinationAddress );
+	}
+	#endif
+	/* The function prototype is designed to maintain the expected Berkeley
+	sockets standard, but this implementation does not use all the
+	parameters. */
+	( void ) xDestinationAddressLength;
+	configASSERT( pvBuffer );
+
+	if( xTotalDataLength <= ( size_t ) xMaxPayloadLength )
+	{
+		/* If the socket is not already bound to an address, bind it now.
+		Passing NULL as the address parameter tells FreeRTOS_bind() to select
+		the address to bind to. */
+		if( ( socketSOCKET_IS_BOUND( pxSocket ) ) ||
+			( FreeRTOS_bind( xSocket, NULL, 0u ) == 0 ) )	/*lint !e9007 side effects on right hand of logical operator, ''||'' [MISRA 2012 Rule 13.5, required]. */
+		{
+			xTicksToWait = pxSocket->xSendBlockTime;
+
+			#if( ipconfigUSE_CALLBACKS != 0 )
+			{
+				if( xIsCallingFromIPTask() != pdFALSE )
+				{
+					/* If this send function is called from within a call-back
+					handler it may not block, otherwise chances would be big to
+					get a deadlock: the IP-task waiting for itself. */
+					xTicksToWait = ( TickType_t )0;
+				}
+			}
+			#endif /* ipconfigUSE_CALLBACKS */
+
+			if( ( xFlags & FREERTOS_MSG_DONTWAIT ) != 0 )
+			{
+				xTicksToWait = ( TickType_t ) 0;
+			}
+
+			if( ( xFlags & FREERTOS_ZERO_COPY ) == 0 )
+			{
+				/* Zero copy is not set, so obtain a network buffer into
+				which the payload will be copied. */
+				vTaskSetTimeOutState( &xTimeOut );
+
+				/* Block until a buffer becomes available, or until a
+				timeout has been reached */
+				pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( xPayloadOffset + xTotalDataLength, xTicksToWait );
+
+				if( pxNetworkBuffer != NULL )
+				{
+					memcpy( &( pxNetworkBuffer->pucEthernetBuffer[ xPayloadOffset ] ), pvBuffer, xTotalDataLength );
+					pxNetworkBuffer->pxEndPoint = NULL; /* pxSocket->pxEndPoint; */
+
+					if( xTaskCheckForTimeOut( &xTimeOut, &xTicksToWait ) == pdTRUE )
+					{
+						/* The entire block time has been used up. */
+						xTicksToWait = ( TickType_t ) 0;
+					}
+				}
+			}
+			else
+			{
+				/* When zero copy is used, pvBuffer is a pointer to the
+				payload of a buffer that has already been obtained from the
+				stack.  Obtain the network buffer pointer from the buffer. */
+				pxNetworkBuffer = pxUDPPayloadBuffer_to_NetworkBuffer( ( void * ) pvBuffer );	/*lint !e9005 attempt to cast away const from a pointer or reference [MISRA 2012 Rule 11.8, required]. */
+			}
+
+			if( pxNetworkBuffer != NULL )
+			{
+			UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+			#if( ipconfigUSE_IPv6 != 0 )
+			UDPPacket_IPv6_t *pxUDPPacket_IPv6 = ipPOINTER_CAST( UDPPacket_IPv6_t *, pxNetworkBuffer->pucEthernetBuffer );
+			#endif
+
+				pxNetworkBuffer->xDataLength = xTotalDataLength;
+				pxNetworkBuffer->usPort = pxDestinationAddress->sin_port;
+				pxNetworkBuffer->usBoundPort = ( uint16_t ) socketGET_SOCKET_PORT( pxSocket );
+
+				#if( ipconfigUSE_IPv6 != 0 )
+				if( xIsIPV6 )
+				{
+					pxNetworkBuffer->ulIPAddress = 0uL;
+					memcpy( pxUDPPacket_IPv6->xIPHeader.xDestinationIPv6Address.ucBytes, pxDestinationAddress_IPv6->sin_addrv6.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					memcpy( pxNetworkBuffer->xIPv6_Address.ucBytes, pxDestinationAddress_IPv6->sin_addrv6.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					pxUDPPacket->xEthernetHeader.usFrameType = ipIPv6_FRAME_TYPE;
+				}
+				else
+				#endif
+				{
+					pxNetworkBuffer->ulIPAddress = pxDestinationAddress->sin_addr;
+					/* Map the UDP packet onto the start of the frame. */
+					pxUDPPacket->xEthernetHeader.usFrameType = ipIPv4_FRAME_TYPE;
+				}
+
+				/* The socket options are passed to the IP layer in the
+				space that will eventually get used by the Ethernet header. */
+				pxNetworkBuffer->pucEthernetBuffer[ ipSOCKET_OPTIONS_OFFSET ] = pxSocket->ucSocketOptions;
+
+				/* Tell the networking task that the packet needs sending. */
+				xStackTxEvent.pvData = pxNetworkBuffer;
+
+				/* Ask the IP-task to send this packet */
+				if( xSendEventStructToIPTask( &xStackTxEvent, xTicksToWait ) == pdPASS )
+				{
+					/* The packet was successfully sent to the IP task. */
+					lReturn = ( int32_t ) xTotalDataLength;
+					#if( ipconfigUSE_CALLBACKS == 1 )
+					{
+						if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xUDP.pxHandleSent ) )
+						{
+							pxSocket->u.xUDP.pxHandleSent( (Socket_t ) pxSocket, xTotalDataLength );
+						}
+					}
+					#endif /* ipconfigUSE_CALLBACKS */
+				}
+				else
+				{
+					/* If the buffer was allocated in this function, release
+					it. */
+					if( ( xFlags & FREERTOS_ZERO_COPY ) == 0 )
+					{
+						vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
+					}
+					iptraceSTACK_TX_EVENT_LOST( ipSTACK_TX_EVENT );
+				}
+			}
+			else
+			{
+				/* If errno was available, errno would be set to
+				FREERTOS_ENOPKTS.  As it is, the function must return the
+				number of transmitted bytes, so the calling function knows
+				how	much data was actually sent. */
+				iptraceNO_BUFFER_FOR_SENDTO();
+			}
+		}
+		else
+		{
+			/* No comment. */
+			iptraceSENDTO_SOCKET_NOT_BOUND();
+		}
+	}
+	else
+	{
+		/* The data is longer than the available buffer space. */
+		iptraceSENDTO_DATA_TOO_LONG();
+	}
+
+	return lReturn;
+} /* Tested */
 /*-----------------------------------------------------------*/
 
 int32_t FreeRTOS_sendto( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
@@ -2096,19 +2293,19 @@ size_t FreeRTOS_GetLocalAddress( Socket_t xSocket, struct freertos_sockaddr *pxA
 {
 FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
 #if( ipconfigUSE_IPv6 != 0 )
-	struct freertos_sockaddr6 *pxAddressIPv6 = ( struct freertos_sockaddr6 * )pxAddress;
+	struct freertos_sockaddr6 *pxAddress_IPv6 = ( struct freertos_sockaddr6 * )pxAddress;
 #endif /* ipconfigUSE_IPv6 */
 
 	#if( ipconfigUSE_IPv6 != 0 )
 	if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
 	{
-		configASSERT( pxAddressIPv6->sin_len == sizeof( *pxAddressIPv6 ) );
+		configASSERT( pxAddress_IPv6->sin_len == sizeof( *pxAddress_IPv6 ) );
 
-		pxAddressIPv6->sin_family = FREERTOS_AF_INET6;
+		pxAddress_IPv6->sin_family = FREERTOS_AF_INET6;
 		/* IP address of local machine. */
-		memcpy( pxAddressIPv6->sin_addrv6.ucBytes, pxSocket->xLocalAddress_IPv6.ucBytes, sizeof( pxAddressIPv6->sin_addrv6.ucBytes ) );
+		memcpy( pxAddress_IPv6->sin_addrv6.ucBytes, pxSocket->xLocalAddress_IPv6.ucBytes, sizeof( pxAddress_IPv6->sin_addrv6.ucBytes ) );
 		/* Local port on this machine. */
-		pxAddressIPv6->sin_port = FreeRTOS_htons( pxSocket->usLocalPort );
+		pxAddress_IPv6->sin_port = FreeRTOS_htons( pxSocket->usLocalPort );
 	}
 	else
 	#endif
@@ -3439,7 +3636,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
 	BaseType_t xResult;
 	#if( ipconfigUSE_IPv6 != 0 )
-		struct freertos_sockaddr6 *pxAddressIPv6 = ( struct freertos_sockaddr6 * )pxAddress;
+		struct freertos_sockaddr6 *pxAddress_IPv6 = ( struct freertos_sockaddr6 * )pxAddress;
 	#endif /* ipconfigUSE_IPv6 */
 
 		if( pxSocket->ucProtocol != ( uint8_t ) FREERTOS_IPPROTO_TCP )
@@ -3454,15 +3651,15 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 			#if( ipconfigUSE_IPv6 != 0 )
 			if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
 			{
-				configASSERT( pxAddressIPv6->sin_len == sizeof( *pxAddressIPv6 ) );
+				configASSERT( pxAddress_IPv6->sin_len == sizeof( *pxAddress_IPv6 ) );
 
-				pxAddressIPv6->sin_family = FREERTOS_AF_INET6;
+				pxAddress_IPv6->sin_family = FREERTOS_AF_INET6;
 
 				/* IP address of remote machine. */
-				memcpy( pxAddressIPv6->sin_addrv6.ucBytes, pxSocket->u.xTCP.xRemoteIP_IPv6.ucBytes, sizeof( pxAddressIPv6->sin_addrv6.ucBytes ) );
+				memcpy( pxAddress_IPv6->sin_addrv6.ucBytes, pxSocket->u.xTCP.xRemoteIP_IPv6.ucBytes, sizeof( pxAddress_IPv6->sin_addrv6.ucBytes ) );
 
 				/* Port of remote machine. */
-				pxAddressIPv6->sin_port = FreeRTOS_htons ( pxSocket->u.xTCP.usRemotePort );
+				pxAddress_IPv6->sin_port = FreeRTOS_htons ( pxSocket->u.xTCP.usRemotePort );
 			}
 			else
 			#endif /* ipconfigUSE_IPv6 */
