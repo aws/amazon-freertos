@@ -502,7 +502,6 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 			xMACEntry += 8;
 		}
 		#endif
-
 		#if( ( ipconfigUSE_LLMNR == 1 ) && ( ipconfigUSE_IPv6 != 0 ) )
 		{
 			prvMACAddressConfig( &xETH, xMACEntry, ( uint8_t *)xLLMNR_MacAdressIPv6.ucBytes );
@@ -512,7 +511,7 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 
 		{
 			/* The EMAC address of the first end-point has been registered in HAL_ETH_Init(). */
-			for( pxEndPoint = FreeRTOS_NextEndPoint( pxMyInterface, pxEndPoint );
+			for( ;
 				 pxEndPoint != NULL;
 				 pxEndPoint = FreeRTOS_NextEndPoint( pxMyInterface, pxEndPoint ) )
 			{
@@ -530,8 +529,11 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 				else
 #else
 				{
-					prvMACAddressConfig( &xETH, xMACEntry, pxEndPoint->xMACAddress.ucBytes );
-					xMACEntry += 8;
+					if( xETH.Init.MACAddr != ( uint8_t * ) pxEndPoint->xMACAddress.ucBytes )
+					{
+						prvMACAddressConfig( &xETH, xMACEntry, pxEndPoint->xMACAddress.ucBytes );
+						xMACEntry += 8;
+					}
 				}
 #endif
 				if( xMACEntry > ETH_MAC_ADDRESS3 )
@@ -539,7 +541,6 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 					/* No more locations available. */
 					break;
 				}
-				xMACEntry += 8;
 			}
 		}
 
@@ -837,6 +838,16 @@ const TickType_t xBlockTimeTicks = pdMS_TO_TICKS( 50u );
 static BaseType_t xMayAcceptPacket( NetworkBufferDescriptor_t *pxDescriptor )
 {
 const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pxDescriptor->pucEthernetBuffer;
+
+	#warning _HT_ This is temporarily for debugging
+	if( pxProtPacket->xTCPPacket.xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
+	{
+		/* FreeRTOS_printf( ( "ipIPv6 packet received\n") ); */
+		/* Check it here. */
+		pxDescriptor->pxInterface = pxMyInterface;
+		pxDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxDescriptor->pucEthernetBuffer );
+		return pdTRUE;
+	}
 
 	switch( pxProtPacket->xTCPPacket.xEthernetHeader.usFrameType )
 	{

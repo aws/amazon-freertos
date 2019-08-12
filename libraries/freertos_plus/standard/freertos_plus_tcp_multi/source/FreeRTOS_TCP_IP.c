@@ -1002,7 +1002,7 @@ FreeRTOS_printf( ( "prvTCPReturnPacket: No pxEndPoint yet?\n" ) );
 				pxIPHeader_IPv4->usHeaderChecksum = ~FreeRTOS_htons( pxIPHeader_IPv4->usHeaderChecksum );
 
 				/* calculate the TCP checksum for an outgoing packet. */
-				usGenerateProtocolChecksum( ( uint8_t * )pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength, pdTRUE );
+				( void ) usGenerateProtocolChecksum( ( uint8_t * )pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength, pdTRUE );
 
 				/* A calculated checksum of 0 must be inverted as 0 means the checksum
 				is disabled. */

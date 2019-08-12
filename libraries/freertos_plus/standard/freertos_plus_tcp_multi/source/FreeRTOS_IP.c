@@ -1639,18 +1639,12 @@ volatile eFrameProcessingResult_t eReturned; /* Volatile to prevent complier war
 	eReturned = ipCONSIDER_FRAME_FOR_PROCESSING( pxNetworkBuffer->pucEthernetBuffer );
 	pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
 
-	if( pxNetworkBuffer->pxEndPoint == NULL )
-	{
-		pxNetworkBuffer->pxEndPoint = FreeRTOS_MatchingEndpoint( pxNetworkBuffer->pxInterface, pxNetworkBuffer->pucEthernetBuffer );
-	}
-
 	if( eReturned == eProcessBuffer )
 	{
 		/* Interpret the received Ethernet packet. */
 		switch( pxEthernetHeader->usFrameType )
 		{
 			case ipARP_FRAME_TYPE :
-FreeRTOS_printf( ( "Recv ipARP_FRAME_TYPE\n" ) );
 				/* The Ethernet frame contains an ARP packet. */
 				eReturned = eARPProcessPacket( pxNetworkBuffer );
 				break;
@@ -1896,24 +1890,28 @@ FreeRTOS_printf( ( "prvAllowIPPacketIPv4: drop %lxip => %lxip\n", FreeRTOS_ntohl
 	{
 		/* Some drivers of NIC's with checksum-offloading will enable the above
 		define, so that the checksum won't be checked again here */
-		if (eReturn == eProcessBuffer )
+		if (eReturn == eProcessBuffer )	/*lint !e774 Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]. */
 		{
-			NetworkEndPoint_t *pxEndPoint = FreeRTOS_FindEndPointOnMAC( &( pxIPPacket->xEthernetHeader.xSourceAddress ), ( NetworkInterface_t * )NULL );
+			NetworkEndPoint_t *pxEndPoint = FreeRTOS_FindEndPointOnMAC( &( pxIPPacket->xEthernetHeader.xSourceAddress ), NULL );
 			/* Do not check the checksum of loop-back messages. */
 			if( pxEndPoint == NULL )
 			{
 				/* Is the IP header checksum correct? */
 				if( ( pxIPHeader->ucProtocol != ( uint8_t ) ipPROTOCOL_ICMP ) &&
-					( usGenerateChecksum( 0uL, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ( size_t ) uxHeaderLength ) != ipCORRECT_CRC ) )
+					( usGenerateChecksum( 0uL, ipPOINTER_CAST( uint8_t *, &( pxIPHeader->ucVersionHeaderLength ) ), ( size_t ) uxHeaderLength ) != ipCORRECT_CRC ) )	/*lint !e9007 side effects on right hand of logical operator, ''&&'' [MISRA 2012 Rule 13.5, required]. */
 				{
 					/* Check sum in IP-header not correct. */
 					eReturn = eReleaseBuffer;
 				}
 				/* Is the upper-layer checksum (TCP/UDP/ICMP) correct? */
-			else if( usGenerateProtocolChecksum( ( uint8_t * )( pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer->xDataLength, pdFALSE ) != ipCORRECT_CRC )
+				else if( usGenerateProtocolChecksum( ( uint8_t * )( pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer->xDataLength, pdFALSE ) != ipCORRECT_CRC )
 				{
 					/* Protocol checksum not accepted. */
 					eReturn = eReleaseBuffer;
+				}
+				else
+				{
+					/* The checksum of the received packet is OK. */
 				}
 			}
 		}
@@ -2230,7 +2228,7 @@ uint8_t ucProtocol;
 
 uint16_t usGenerateProtocolChecksum_new( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength, BaseType_t xOutgoingPacket );
 
-#include "checksum.ipv6.c"
+#include "checksum.ipv6.c"	/*lint !e9019 declaration of '_xUnion32' before #include [MISRA 2012 Rule 20.1, advisory]. */
 
 uint16_t usGenerateProtocolChecksum( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength, BaseType_t xOutgoingPacket )
 {
@@ -2238,7 +2236,7 @@ uint32_t ulLength;
 uint16_t usChecksum, *pusChecksum, usPayloadLength;
 const IPPacket_t * pxIPPacket;
 BaseType_t xIPHeaderLength;
-ProtocolHeaders_t *pxProtocolHeaders;
+ProtocolHeaders_t *pxProtocolHeaders;	/*lint !e9018 declaration of symbol with union based type [MISRA 2012 Rule 19.2, advisory]. */
 uint8_t ucProtocol;
 #if( ipconfigUSE_IPv6 != 0 )
 	BaseType_t xIsIPv6;
@@ -2251,10 +2249,10 @@ uint8_t ucProtocol;
 #endif
 	if( !xOutgoingPacket )
 	{
-		usGenerateProtocolChecksum_new( pucEthernetBuffer, uxBufferLength, xOutgoingPacket );
+		( void ) usGenerateProtocolChecksum_new( pucEthernetBuffer, uxBufferLength, xOutgoingPacket );
 	}
 
-	pxIPPacket = ( const IPPacket_t * ) pucEthernetBuffer;
+	pxIPPacket = ipPOINTER_CAST( const IPPacket_t *, pucEthernetBuffer );
 
 #if( ipconfigUSE_IPv6 != 0 )
 	pxIPPacket_IPv6 = ( const IPHeader_IPv6_t * )( pucEthernetBuffer + ipSIZE_OF_ETH_HEADER );
@@ -2279,7 +2277,7 @@ uint8_t ucProtocol;
 	{
 		xIPHeaderLength = 4 * ( pxIPPacket->xIPHeader.ucVersionHeaderLength & 0x0F ); /*_RB_ Why 4? */
 		ucProtocol = pxIPPacket->xIPHeader.ucProtocol;
-		pxProtocolHeaders = ( ProtocolHeaders_t * ) ( pucEthernetBuffer + ipSIZE_OF_ETH_HEADER + xIPHeaderLength );
+		pxProtocolHeaders = ipPOINTER_CAST( ProtocolHeaders_t *, &( pucEthernetBuffer[ ipSIZE_OF_ETH_HEADER + ( size_t ) xIPHeaderLength ] ) );
 		usPayloadLength = FreeRTOS_ntohs( pxIPPacket->xIPHeader.usLength );
 	}
 
@@ -2333,7 +2331,7 @@ uint8_t ucProtocol;
 	else
 	{
 		/* Unhandled protocol, other than ICMP, IGMP, UDP, or TCP. */
-		return ipUNHANDLED_PROTOCOL;
+		return ipUNHANDLED_PROTOCOL;	/*lint !e904 Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
 	}
 
 	if( xOutgoingPacket != pdFALSE )
@@ -2345,7 +2343,11 @@ uint8_t ucProtocol;
 	else if( ( *pusChecksum == 0u ) && ( ucProtocol == ( uint8_t ) ipPROTOCOL_UDP ) )
 	{
 		/* Sender hasn't set the checksum, no use to calculate it. */
-		return ipCORRECT_CRC;
+		return ipCORRECT_CRC;	/*lint !e904 Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
+	}
+	else
+	{
+		/* This is an incoming packet, not being an UDP packet without a checksum. */
 	}
 
 	#if( ipconfigUSE_IPv6 != 0 )
@@ -2389,7 +2391,7 @@ uint8_t ucProtocol;
 		error.  For incoming packets, 0x1234 will cause dropping of the packet.
 		For outgoing packets, there is a serious problem with the
 		format/length */
-		return ipINVALID_LENGTH;
+		return ipINVALID_LENGTH;	/*lint !e904 Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
 	}
 	if( ucProtocol <= ( uint8_t ) ipPROTOCOL_IGMP )
 	{
@@ -2425,8 +2427,8 @@ uint8_t ucProtocol;
 
 			/* And then continue at the IPv4 source and destination addresses. */
 			usChecksum = ( uint16_t )
-				( ~usGenerateChecksum( ( uint32_t ) usChecksum, ( uint8_t * )&( pxIPPacket->xIPHeader.ulSourceIPAddress ),
-					( size_t )( 2u * sizeof( pxIPPacket->xIPHeader.ulSourceIPAddress ) + ulLength ) ) );
+				( ~usGenerateChecksum( ( uint32_t ) usChecksum, ipPOINTER_CAST( uint8_t *, &( pxIPPacket->xIPHeader.ulSourceIPAddress ) ),
+					( size_t )( ( 2u * sizeof( pxIPPacket->xIPHeader.ulSourceIPAddress ) ) + ulLength ) ) );
 		}
 		/* Sum TCP header and data. */
 	}
@@ -2643,7 +2645,8 @@ IPPacket_t *pxIPPacket;
 		/* Send! */
 		if( pxNetworkBuffer->pxEndPoint == NULL )
 		{
-			FreeRTOS_printf( ( "vReturnEthernetFrame: No pxEndPoint yet?\n" ) );
+			/* _HT_ I wonder if this ad-hoc search of an end-point it necessary. */
+			FreeRTOS_printf( ( "vReturnEthernetFrame: No pxEndPoint yet for %lxip?\n", FreeRTOS_ntohl( pxIPPacket->xIPHeader.ulDestinationIPAddress ) ) );
 			#if( ipconfigUSE_IPv6 != 0 )
 			if( ( ( EthernetHeader_t * ) ( pxNetworkBuffer->pucEthernetBuffer ) )->usFrameType == ipIPv6_FRAME_TYPE )
 			{
