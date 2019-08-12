@@ -108,6 +108,8 @@ BaseType_t xRandom32( uint32_t *pulValue );
 /* Some IPv6 ICMP requests. */
 #define ipICMP_PING_REQUEST_IPv6			( ( uint8_t ) 128 )
 #define ipICMP_PING_REPLY_IPv6				( ( uint8_t ) 129 )
+#define ipICMP_ROUTER_SOLICITATION_IPv6		( ( uint8_t ) 133 )
+#define ipICMP_ROUTER_ADVERTISEMENT_IPv6	( ( uint8_t ) 134 )
 #define ipICMP_NEIGHBOR_SOLICITATION_IPv6	( ( uint8_t ) 135 )
 #define ipICMP_NEIGHBOR_ADVERTISEMENT_IPv6	( ( uint8_t ) 136 )
 

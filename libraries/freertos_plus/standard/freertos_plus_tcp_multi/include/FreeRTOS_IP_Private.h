@@ -202,6 +202,23 @@ typedef struct xICMP_HEADER ICMPHeader_t;
 	typedef struct xICMPEcho_IPv6 ICMPEcho_IPv6_t;
 #endif /* ipconfigUSE_IPv6 */
 
+#if( ipconfigUSE_IPv6 != 0 )
+	#include "pack_struct_start.h"
+	struct xICMPRouterAdvertisement_IPv6
+	{
+		uint8_t ucTypeOfMessage;       /*  0 +  1 =  1 */
+		uint8_t ucTypeOfService;       /*  1 +  1 =  2 */
+		uint16_t usChecksum;           /*  2 +  2 =  4 */
+		uint8_t ucHopLimit;            /*  4 +  1 =  5 */
+		uint8_t ucFlags;               /*  5 +  1 =  6 */
+		uint16_t usLifetime;           /*  6 +  2 =  8 */
+		uint16_t usReachableTime[2];   /*  8 +  4 = 12 */
+		uint16_t usRetransTime[2];     /* 12 +  4 = 16 */
+	}
+	#include "pack_struct_end.h"
+	typedef struct xICMPRouterAdvertisement_IPv6 ICMPRouterAdvertisement_IPv6_t;
+#endif /* ipconfigUSE_IPv6 */
+
 #include "pack_struct_start.h"
 struct xUDP_HEADER
 {

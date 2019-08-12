@@ -317,6 +317,7 @@ BaseType_t xIsIPV6 = pdFALSE;
 			if( xIsIPV6 )
 			{
 				pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &( pxNetworkBuffer->xIPv6_Address ) );
+FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", pxNetworkBuffer->xIPv6_Address.ucBytes, ( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
 				if( pxNetworkBuffer->pxEndPoint )
 				{
 					vNDGenerateRequestPacket( pxNetworkBuffer, &( pxNetworkBuffer->xIPv6_Address ) );
@@ -325,6 +326,7 @@ BaseType_t xIsIPV6 = pdFALSE;
 			else
 			#endif
 			{
+FreeRTOS_printf( ( "Looking up %lxip with%s end-point\n", FreeRTOS_ntohl( pxNetworkBuffer->ulIPAddress ), ( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
 				/* Add an entry to the ARP table with a null hardware address.
 				This allows the ARP timer to know that an ARP reply is
 				outstanding, and perform retransmissions if necessary. */
@@ -370,6 +372,29 @@ BaseType_t xIsIPV6 = pdFALSE;
 					}
 					pxNetworkBuffer->xDataLength = ( size_t ) ipconfigETHERNET_MINIMUM_PACKET_BYTES;
 				}
+			}
+			#endif
+
+			#if( ipconfigUSE_IPv6 != 0 )
+//			if( ( xIsIPV6 != pdFALSE ) && ( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA ) )
+			if( xIsIPV6 != pdFALSE )
+			{
+				FreeRTOS_printf( ( "From %02x:%02x:%02x:%02x:%02x:%02x %pip\n",
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 0 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 1 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 2 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 3 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 4 ],
+					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 5 ],
+					pxIPHeader_IPv6->xSourceIPv6Address.ucBytes ) );
+				FreeRTOS_printf( ( "To   %02x:%02x:%02x:%02x:%02x:%02x %pip\n",
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 0 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 1 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 2 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 3 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 4 ],
+					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 5 ],
+					pxIPHeader_IPv6->xDestinationIPv6Address.ucBytes ) );
 			}
 			#endif
 

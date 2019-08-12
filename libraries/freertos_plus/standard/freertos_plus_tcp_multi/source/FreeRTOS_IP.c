@@ -1772,6 +1772,14 @@ volatile eFrameProcessingResult_t eReturned; /* Volatile to prevent complier war
 			xResult = memcmp( pxLeft->ucBytes + 13, pxRight->ucBytes + 13, 3 );
 		}
 		else
+		if( ( pxRight->ucBytes[  0 ] == 0xff ) &&
+			( pxRight->ucBytes[  1 ] == 0x02 ) &&
+			( pxRight->ucBytes[ 15 ] == 0x01 ) )
+		{
+			/* FF02::1 is all node address to reach out all nodes in the same link. */
+			xResult = 0;
+		}
+		else
 		if( ( pxRight->ucBytes[ 0 ] == 0xfe ) &&
 			( pxRight->ucBytes[ 1 ] == 0x80 ) &&
 			( pxLeft ->ucBytes[ 0 ] == 0xfe ) &&
