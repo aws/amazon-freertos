@@ -18,7 +18,9 @@ void harness() {
   initialize_IotResponseHandle(respHandle);
   if (respHandle) {
     __CPROVER_assume(is_valid_IotResponseHandle(respHandle));
-    // ???: replace assumption above with initialization
+    // Until a CBMC issue is addressed
+    // https://github.com/diffblue/cbmc/issues/5004
+    // copy an assumption from is_valid above as a simple assignment below.
     respHandle->httpParserInfo.readHeaderParser.data = respHandle;
   }
   __CPROVER_assume(0 < valueLen && valueLen < UINT32_MAX);

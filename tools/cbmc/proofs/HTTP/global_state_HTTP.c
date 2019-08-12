@@ -29,8 +29,9 @@ void *safeMalloc(size_t xWantedSize) {
  * responseHandle, requestHandle and connectionHandle similarly.
  */
 
-// TODO: Replace this with a model allowing unconstrained sizes,
-// or at least allowing a small set of differing sizes.
+// TODO: Replace this model of buffers with a model allowing
+// unconstrained sizes for the user data member, or at least
+// allowing a small set of differing sizes.
 
 typedef struct _responseHandle
 {
@@ -69,17 +70,16 @@ size_t http_parser_execute (http_parser *parser,
   _httpsResponse->parserState = PARSER_STATE_BODY_COMPLETE;
 
   // Generate the header value found
+  size_t valueLength;
   if (_httpsResponse->foundHeaderField) {
-    size_t valueLen;
-    __CPROVER_assume(valueLen <= len);
-    _httpsResponse->pReadHeaderValue = malloc(valueLen+1);
-    _httpsResponse->pReadHeaderValue[valueLen] = 0;
-    _httpsResponse->readHeaderValueLength = valueLen;
+    __CPROVER_assume(valueLength <= len);
+    _httpsResponse->pReadHeaderValue = malloc(valueLength+1);
+    _httpsResponse->pReadHeaderValue[valueLength] = 0;
+    _httpsResponse->readHeaderValueLength = valueLength;
   }
 
-  // ???: Should this be valueLen?
-  // ???: Does it suggest a problem that returning any length works?
-  return nondet_size_t();
+  // Return the number of characters in ReadHeaderValue
+  return _httpsResponse->foundHeaderField ? valueLength : 0;
 }
 
 /****************************************************************
