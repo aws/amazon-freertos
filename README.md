@@ -48,7 +48,7 @@ The following MCU boards are supported for Amazon FreeRTOS:
 14. **Nordic nRF52840 DK** - [nRF52840 DK Development kit](https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK/)
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_nordic.html)  
 15. **Nuvoton** - [NuMaker-IoT-M487](https://direct.nuvoton.com/en/numaker-iot-m487)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/)
+    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting-started-nuvoton-m487.html)
 16. **Windows Simulator** - To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
     * Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
     * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
