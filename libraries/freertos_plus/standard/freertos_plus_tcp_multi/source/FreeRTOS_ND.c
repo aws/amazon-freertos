@@ -88,6 +88,21 @@
 character expected to fill ICMP echo replies. */
 #define ndECHO_DATA_FILL_BYTE						'x'
 
+#include "pack_struct_start.h"
+struct xICMPPrefixOption_IPv6
+{
+	uint8_t ucType;					/*  0 +  1 =  1 */
+	uint8_t ucLength;				/*  1 +  1 =  2 */
+	uint8_t ucPrefixLength;			/*  2 +  1 =  3 */
+	uint8_t ucFlags;				/*  3 +  1 =  4 */
+	uint32_t ulValidLifeTime;		/*  4 +  4 =  8 */
+	uint32_t ulPreferredLifeTime;	/*  8 +  4 = 12 */
+	uint32_t ulReserved;			/* 12 +  4 = 16 */
+	uint8_t ucPrefix[16];			/* 16 + 16 = 32 */
+}
+#include "pack_struct_end.h"
+typedef struct xICMPPrefixOption_IPv6 ICMPPrefixOption_IPv6_t;
+
 // All nodes on the local network segment
 static const uint8_t pcLOCAL_NETWORK_MULTICAST_IP[ 16 ] = { 0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
 static const uint8_t pcLOCAL_NETWORK_MULTICAST_MAC[ ipMAC_ADDRESS_LENGTH_BYTES ] = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x00 };
@@ -151,12 +166,12 @@ BaseType_t xFreeEntry = -1, xEntryFound = -1;
 		xNDCache[ xEntryFound ].ucAge = ( uint8_t ) ipconfigMAX_ARP_AGE;
 		xNDCache[ xEntryFound ].ucValid = ( uint8_t ) pdTRUE;
 		/* The format %pip will print a IPv6 address ( if printf-stdarg.c is included ). */
-		FreeRTOS_printf( ( "vNDRefreshCacheEntry[ %d ] %pip with %02x:%02x:%02x\n",
-			( int ) xEntryFound,
-			pxIPAddress->ucBytes,
-			pxMACAddress->ucBytes[ 3 ],
-			pxMACAddress->ucBytes[ 4 ],
-			pxMACAddress->ucBytes[ 5 ] ) );
+//		FreeRTOS_printf( ( "vNDRefreshCacheEntry[ %d ] %pip with %02x:%02x:%02x\n",
+//			( int ) xEntryFound,
+//			pxIPAddress->ucBytes,
+//			pxMACAddress->ucBytes[ 3 ],
+//			pxMACAddress->ucBytes[ 4 ],
+//			pxMACAddress->ucBytes[ 5 ] ) );
 	}
 	else
 	{
@@ -580,6 +595,109 @@ size_t uxNeededSize;
 					vNDRefreshCacheEntry( ( MACAddress_t * ) xICMPHeader_IPv6->ucOptionBytes,
 										  ( IPv6_Address_t * ) xICMPHeader_IPv6->xIPv6_Address.ucBytes,
 										  pxEndPoint );
+				}
+				break;
+			case ipICMP_ROUTER_SOLICITATION_IPv6:
+				{
+				}
+				break;
+			case ipICMP_ROUTER_ADVERTISEMENT_IPv6:
+				{
+				ICMPRouterAdvertisement_IPv6_t *pxAdvertisement = ipPOINTER_CAST( ICMPRouterAdvertisement_IPv6_t *, &( pxICMPPacket->xICMPHeader_IPv6 ) );
+				size_t uxIndex;
+				size_t uxLast;
+				size_t uxICMPSize;
+				uint8_t *pucBytes;
+	/*
+		uint8_t ucTypeOfMessage;       //  0 +  1 =  1
+		uint8_t ucTypeOfService;       //  1 +  1 =  2
+		uint16_t usChecksum;           //  2 +  2 =  4
+		uint8_t ucHopLimit;            //  4 +  1 =  5
+		uint8_t ucFlags;               //  5 +  1 =  6
+		uint16_t usLifetime;           //  6 +  2 =  8
+		uint16_t usReachableTime[2];   //  8 +  4 = 12
+		uint16_t usRetransTime[2];     // 12 +  4 = 16
+		ICMPRouterAdvertisement_IPv6_t
+	*/
+					uxICMPSize = sizeof( ICMPRouterAdvertisement_IPv6_t );
+					uxNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + uxICMPSize );
+					if( uxNeededSize > pxNetworkBuffer->xDataLength )
+					{
+						FreeRTOS_printf( ("Too small\n" ) );
+						break;
+					}
+//	14 + 40 + 16 = 70
+//	Total length 118
+//	118 - 70 = 48
+					FreeRTOS_printf( ( "RA: Type %02x Srv %02x Checksum %04x Hops %d Flags %02x Life %d\n",
+						pxAdvertisement->ucTypeOfMessage,
+						pxAdvertisement->ucTypeOfService,
+						FreeRTOS_ntohs( pxAdvertisement->usChecksum ),
+						pxAdvertisement->ucHopLimit,
+						pxAdvertisement->ucFlags,
+						FreeRTOS_ntohs( pxAdvertisement->usLifetime ) ) );
+					uxIndex = 0;
+					/* uxLast points to the first byte after the buffer. */
+					uxLast = pxNetworkBuffer->xDataLength - uxNeededSize;
+					pucBytes = pxNetworkBuffer->pucEthernetBuffer + uxNeededSize;
+					while( ( uxIndex + 1 ) < uxLast )
+					{
+						uint8_t ucType = pucBytes[ uxIndex ];
+						size_t uxLength = ( size_t ) pucBytes[ uxIndex + 1 ] * 8uL;
+						if( uxIndex + uxLength > uxLast )
+						{
+							FreeRTOS_printf( ( "RA: Not enough bytes ( %lu > %lu )\n", uxIndex + uxLength, uxLast ) );
+							break;
+						}
+						switch( ucType )
+						{ 
+							case ndICMP_SOURCE_LINK_LAYER_ADDRESS:	// 1
+								{
+									FreeRTOS_printf( ( "RA: Source = %02x-%02x-%02x-%02x-%02x-%02x\n",
+										pucBytes[ uxIndex + 2 ],
+										pucBytes[ uxIndex + 3 ],
+										pucBytes[ uxIndex + 4 ],
+										pucBytes[ uxIndex + 5 ],
+										pucBytes[ uxIndex + 6 ],
+										pucBytes[ uxIndex + 7 ] ) );
+								}
+								break;
+							case ndICMP_TARGET_LINK_LAYER_ADDRESS:	// 2
+								{
+								}
+								break;
+							case ndICMP_PREFIX_INFORMATION:			// 3
+								{
+								ICMPPrefixOption_IPv6_t *pxPrefixOption = ipPOINTER_CAST( ICMPPrefixOption_IPv6_t *, &( pucBytes[ uxIndex ] ) );
+
+									FreeRTOS_printf( ( "RA: Prefix len %d Life %lu, %lu (%pip)\n",
+										pxPrefixOption->ucPrefixLength,
+										FreeRTOS_ntohl( pxPrefixOption->ulValidLifeTime ),
+										FreeRTOS_ntohl( pxPrefixOption->ulPreferredLifeTime ),
+										pxPrefixOption->ucPrefix ) );
+ 								}
+								break;
+							case ndICMP_REDIRECTED_HEADER:			// 4
+								{
+								}
+								break;
+							case ndICMP_MTU_OPTION:					// 5
+								{
+								uint32_t ulMTU;
+
+									/* ulChar2u32 returns host-endian numbers. */
+									ulMTU = ulChar2u32 ( &( pucBytes[ uxIndex + 4 ] ) );
+									FreeRTOS_printf( ( "RA: MTU = %lu\n",  ulMTU ) );
+								}
+								break;
+							default:
+								{
+									FreeRTOS_printf( ( "RA: Type %02x not implemented\n", ucType ) );
+								}
+								break;
+						}
+						uxIndex = uxIndex + uxLength;
+					}
 				}
 				break;
 		}	/* switch( xICMPHeader_IPv6->ucTypeOfMessage ) */

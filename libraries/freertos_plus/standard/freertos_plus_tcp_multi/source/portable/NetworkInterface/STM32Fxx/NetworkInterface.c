@@ -545,6 +545,18 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 				}
 			}
 		}
+		#if( ipconfigUSE_IPv6 != 0 )
+		{
+			if( xMACEntry <= ETH_MAC_ADDRESS3 )
+			{
+				/* 33:33:00:00:00:01 */
+				uint8_t ucMACAddress[ 6 ] = { 0x33, 0x33, 0, 0, 0, 0x01 };
+
+					prvMACAddressConfig( &xETH, xMACEntry, ucMACAddress );
+					xMACEntry += 8;
+			}
+		}
+		#endif /* ( ipconfigUSE_IPv6 != 0 ) */
 
 		/* Force a negotiation with the Switch or Router and wait for LS. */
 		prvEthernetUpdateConfig( pdTRUE );

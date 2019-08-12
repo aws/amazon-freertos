@@ -507,11 +507,14 @@ uint32_t ulIPSourceAddress = 0uL;
 				}
 				pxEndPoint = pxEndPoint->pxNext;
 			}
-
-			if( ( pxEndPoint == NULL ) && ( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+			#if( ipconfigUSE_LLMNR != 0 )
 			{
-				pxEndPoint = FreeRTOS_FirstEndPoint_IPv6( pxNetworkInterface );
+				if( ( pxEndPoint == NULL ) && ( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+				{
+					pxEndPoint = FreeRTOS_FirstEndPoint_IPv6( pxNetworkInterface );
+				}
 			}
+			#endif
 		}
 		break;
 #endif /* ipconfigUSE_IPv6 */
