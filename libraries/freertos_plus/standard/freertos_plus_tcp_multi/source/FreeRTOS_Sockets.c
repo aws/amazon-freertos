@@ -813,6 +813,11 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 int32_t FreeRTOS_sendto6( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
 {
+	return FreeRTOS_sendto( xSocket, pvBuffer, xTotalDataLength, xFlags, pxDestinationAddress, xDestinationAddressLength );
+}
+
+int32_t FreeRTOS_sendto( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
+{
 NetworkBufferDescriptor_t *pxNetworkBuffer;
 IPStackEvent_t xStackTxEvent = { eStackTxEvent, NULL };
 TimeOut_t xTimeOut;
@@ -986,7 +991,8 @@ size_t xPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF
 } /* Tested */
 /*-----------------------------------------------------------*/
 
-int32_t FreeRTOS_sendto( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
+
+int32_t FreeRTOS_sendto4( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
 {
 NetworkBufferDescriptor_t *pxNetworkBuffer;
 IPStackEvent_t xStackTxEvent = { eStackTxEvent, NULL };
@@ -1313,13 +1319,13 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;	/* To void e9044 function 
 			{
 				if( pxAddress->sin_addr != FREERTOS_INADDR_ANY )
 				{
-					pxSocket->pxEndPoint = FreeRTOS_FindEndPointOnIP( pxAddress->sin_addr, 7 );
+					pxSocket->pxEndPoint = FreeRTOS_FindEndPointOnIP_IPv4( pxAddress->sin_addr, 7 );
 				}
 			}
 
 			if( pxSocket->pxEndPoint != NULL )
 			{
-				pxSocket->ulLocalAddress = FreeRTOS_ntohl( pxSocket->pxEndPoint->ulIPAddress );
+				pxSocket->ulLocalAddress = FreeRTOS_ntohl( pxSocket->pxEndPoint->ipv4.ulIPAddress );
 			}
 			else
 			{
@@ -3351,7 +3357,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 					{
 						if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED)
 						{
-							if( ( pxAddress_IPv6 != NULL ) && ( xCompareIPv6_Address( &( pxSocket->u.xTCP.xRemoteIP_IPv6 ), pxAddress_IPv6 ) == 0 ) )
+							if( ( pxAddress_IPv6 != NULL ) && ( memcmp( pxSocket->u.xTCP.xRemoteIP_IPv6.ucBytes , pxAddress_IPv6->ucBytes, ipSIZE_OF_IPv6_ADDRESS ) == 0 ) )
 							{
 								/* For sockets not in listening mode, find a match with
 								uxLocalPort, ulRemoteIP AND uxRemotePort. */

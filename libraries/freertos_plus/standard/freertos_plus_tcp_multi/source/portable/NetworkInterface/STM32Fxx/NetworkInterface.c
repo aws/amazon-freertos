@@ -522,9 +522,9 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 				{
 				uint8_t ucMACAddress[ 6 ] = { 0x33, 0x33, 0xff, 0, 0, 0 };
 
-					ucMACAddress[ 3 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 13 ];
-					ucMACAddress[ 4 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 14 ];
-					ucMACAddress[ 5 ] = pxEndPoint->ulIPAddress_IPv6.ucBytes[ 15 ];
+					ucMACAddress[ 3 ] = pxEndPoint->ipv6.xIPAddress.ucBytes[ 13 ];
+					ucMACAddress[ 4 ] = pxEndPoint->ipv6.xIPAddress.ucBytes[ 14 ];
+					ucMACAddress[ 5 ] = pxEndPoint->ipv6.xIPAddress.ucBytes[ 15 ];
 					prvMACAddressConfig( &xETH, xMACEntry, ucMACAddress );
 					xMACEntry += 8;
 				}
@@ -900,7 +900,7 @@ const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pxDescriptor-
 			return pdFALSE;
 		}
 
-//		ulDestinationIPAddress = pxIPHeader->ulDestinationIPAddress;
+		ulDestinationIPAddress = pxIPHeader->ulDestinationIPAddress;
 //		/* Is the packet for this node? */
 //		if( ( ulDestinationIPAddress != *ipLOCAL_IP_ADDRESS_POINTER ) &&
 //			/* Is it a broadcast address x.x.x.255 ? */

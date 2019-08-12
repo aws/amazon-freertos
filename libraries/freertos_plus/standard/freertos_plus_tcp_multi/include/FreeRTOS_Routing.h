@@ -103,15 +103,25 @@ typedef struct xNetworkInterface
 
 typedef struct xNetworkEndPoint
 {
-	uint32_t ulDefaultIPAddress;	/* Use this address in case DHCP has failed. */
+	union {
+		struct {
+			uint32_t ulDefaultIPAddress;	/* Use this address in case DHCP has failed. */
+			uint32_t ulIPAddress;			/* The actual IPv4 address. Will be 0 as long as end-point is still down. */
+			uint32_t ulNetMask;
+			uint32_t ulGatewayAddress;
+			uint32_t ulDNSServerAddresses[ ipconfigENDPOINT_DNS_ADDRESS_COUNT ];
+			uint32_t ulBroadcastAddress;
+		} ipv4;
 #if( ipconfigUSE_IPv6 != 0 )
-	IPv6_Address_t ulIPAddress_IPv6;
+		struct {
+			IPv6_Address_t xIPAddress;			/* The actual IPv4 address. Will be 0 as long as end-point is still down. */
+			size_t uxPrefixLength;
+			IPv6_Address_t xDefaultIPAddress;
+			IPv6_Address_t xGatewayAddress;
+			IPv6_Address_t xDNSServerAddresses[ 2 ];	/* Not yet in use. */
+		} ipv6;
 #endif
-	uint32_t ulIPAddress;			/* The actual IPv4 address. Will be 0 as long as end-point is still down. */
-	uint32_t ulNetMask;
-	uint32_t ulGatewayAddress;
-	uint32_t ulDNSServerAddresses[ ipconfigENDPOINT_DNS_ADDRESS_COUNT ];
-	uint32_t ulBroadcastAddress;
+	};
 	MACAddress_t xMACAddress;
 	struct
 	{
@@ -134,17 +144,50 @@ typedef struct xNetworkEndPoint
 	struct xNetworkEndPoint *pxNext;
 } NetworkEndPoint_t;
 
+#if( ipconfigUSE_IPv6 != 0 )
+	static __inline BaseType_t ENDPOINT_IS_IPv4( const NetworkEndPoint_t * pxEndPoint )
+	{
+		return pxEndPoint->bits.bIPv6 == pdFALSE_UNSIGNED;
+	}
+	static __inline BaseType_t ENDPOINT_IS_IPv6( const NetworkEndPoint_t * pxEndPoint )
+	{
+		return pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED;
+	}
+	static __inline void CONFIRM_EP_v4( const NetworkEndPoint_t * pxEndPoint )
+	{
+		configASSERT( pxEndPoint != NULL );
+		configASSERT( pxEndPoint->bits.bIPv6 == pdFALSE_UNSIGNED );
+	}
+	static __inline void CONFIRM_EP_v6( const NetworkEndPoint_t * pxEndPoint )
+	{
+		configASSERT( pxEndPoint != NULL );
+		configASSERT( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED );
+	}
+#else
+	static __inline BaseType_t ENDPOINT_IS_IPv4( const NetworkEndPoint_t * pxEndPoint )
+	{
+		return pdTRUE;
+	}
+	static __inline BaseType_t ENDPOINT_IS_IPv6( const NetworkEndPoint_t * pxEndPoint )
+	{
+		return pdFALSE;
+	}
+	static __inline void CONFIRM_EP_v4( const NetworkEndPoint_t * pxEndPoint )
+	{
+		configASSERT( pxEndPoint != NULL );
+	}
+	static __inline void CONFIRM_EP_v6( const NetworkEndPoint_t * pxEndPoint )
+	{
+		configASSERT( 0 == 1 );
+	}
+#endif
+
 /*
  * Add a new physical Network Interface.  The object pointed to by 'pxInterface'
  * must continue to exist.
+ * Only the Network Interface function xx_FillInterfaceDescriptor() shall call this function.
  */
 NetworkInterface_t *FreeRTOS_AddNetworkInterface( NetworkInterface_t *pxInterface );
-
-/*
- * Add a new IP-address to a Network Interface.  The object pointed to by
- * 'pxEndPoint' must continue to exist.
- */
-NetworkEndPoint_t *FreeRTOS_AddEndPoint( NetworkInterface_t *pxInterface, NetworkEndPoint_t *pxEndPoint );
 
 /*
  * Get the first Network Interface.
@@ -171,7 +214,7 @@ NetworkEndPoint_t *FreeRTOS_NextEndPoint( NetworkInterface_t *pxInterface, Netwo
 /*
  * Find the end-point with given IP-address.
  */
-NetworkEndPoint_t *FreeRTOS_FindEndPointOnIP( uint32_t ulIPAddress, uint32_t ulWhere );
+NetworkEndPoint_t *FreeRTOS_FindEndPointOnIP_IPv4( uint32_t ulIPAddress, uint32_t ulWhere );
 
 #if( ipconfigUSE_IPv6 != 0 )
 	/* Find the end-point with given IP-address. */
@@ -180,21 +223,27 @@ NetworkEndPoint_t *FreeRTOS_FindEndPointOnIP( uint32_t ulIPAddress, uint32_t ulW
 
 /*
  * Find the end-point with given MAC-address.
+ * The search can be limited by supplying a particular interface.
  */
 NetworkEndPoint_t *FreeRTOS_FindEndPointOnMAC( const MACAddress_t *pxMACAddress, NetworkInterface_t *pxInterface );
 
 /*
- * Returns the addresses stored in an end point structure.
+ * Returns the addresses stored in an end-point structure.
+ * This function already existed in the release with the single-interface.
+ * Only the first parameters is new: an end-point
  */
 void FreeRTOS_GetAddressConfiguration( NetworkEndPoint_t *pxEndPoint, uint32_t *pulIPAddress, uint32_t *pulNetMask, uint32_t *pulGatewayAddress, uint32_t *pulDNSServerAddress );
 
 /*
  * Find the best fitting end-point to reach a given IP-address.
+ * Find an end-point whose IP-address is in the same network as the IP-address provided.
+ * 'ulWhere' is temporary and or debugging only.
  */
 NetworkEndPoint_t *FreeRTOS_FindEndPointOnNetMask( uint32_t ulIPAddress, uint32_t ulWhere );
 
 /*
  * Find the best fitting end-point to reach a given IP-address on a given interface
+ * 'ulWhere' is temporary and or debugging only.
  */
 NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxInterface, uint32_t ulIPAddress, uint32_t ulWhere );
 
@@ -212,16 +261,33 @@ NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxIn
 Find the best matching end-point. */
 NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxNetworkInterface, uint8_t *pucEthernetBuffer );
 
-/* Return the default end-point. */
-NetworkEndPoint_t *FreeRTOS_FindDefaultEndPoint( void );
+/* Find an end-point that has a defined gateway.. */
+NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxNetworkInterface, uint8_t *pucEthernetBuffer );
+
+/* Return the default end-point.
+xIPType should equal ipTYPE_IPv4 or ipTYPE_IPv6. */
+NetworkEndPoint_t *FreeRTOS_FindGateWay( BaseType_t xIPType );
 
 /* Fill-in the end-point structure. */
-void FreeRTOS_FillEndPoint(	NetworkEndPoint_t *pxNetworkEndPoint,
-	const uint8_t ucIPAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucNetMask[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucGatewayAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucDNSServerAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
-	const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] );
+void FreeRTOS_FillEndPoint(	NetworkInterface_t *pxNetworkInterface,
+							NetworkEndPoint_t *pxEndPoint,
+							const uint8_t ucIPAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucNetMask[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucGatewayAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucDNSServerAddress[ ipIP_ADDRESS_LENGTH_BYTES ],
+							const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] );
+
+#if( ipconfigUSE_IPv6 != 0 )
+	/* Fill-in the end-point structure. */
+	void FreeRTOS_FillEndPoint_IPv6( NetworkInterface_t *pxNetworkInterface,
+									 NetworkEndPoint_t *pxEndPoint,
+									 IPv6_Address_t *pxIPAddress,
+									 IPv6_Address_t *pxNetPrefix,
+									 size_t uxPrefixLength,
+									 IPv6_Address_t *pxGatewayAddress,
+									 IPv6_Address_t *pxDNSServerAddress,	/* Not used yet. */
+									 const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] );
+#endif
 
 /* Return pdTRUE if all end-points are up.
 When pxInterface is null, all end-points can be iterated. */
