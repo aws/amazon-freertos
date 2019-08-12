@@ -45,9 +45,9 @@
 /**
  * @brief HTTP standard header value for requesting a range of bytes from 0 to 0.
  *
- * This is used to get the size of the file from S3. A HEAD request is forbidden with a presigned URL. Performing a 
- * HEAD request with S3 requires generating a Sigv4 signature in an Authorization header field. We work around this by 
- * performing a GET on Range: bytes=0-0. Then extracting the size of the file from the Content-Range header field in 
+ * This is used to get the size of the file from S3. A HEAD request is forbidden with a presigned URL. Performing a
+ * HEAD request with S3 requires generating a Sigv4 signature in an Authorization header field. We work around this by
+ * performing a GET on Range: bytes=0-0. Then extracting the size of the file from the Content-Range header field in
  * the response. */
 #define RANGE_0_TO_0_HEADER_VALUE            "bytes=0-0"
 #define RANGE_0_TO_0_HEADER_VALUE_LENGTH     ( 9 )
@@ -102,7 +102,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
     /* The location of the file size in the contentRangeValStr. */
     char * pFileSizeStr = NULL;
     /* Size in bytes of a single character. */
-    uint8_t sizeOfOneChar = sizeof(char);
+    uint8_t sizeOfOneChar = sizeof( char );
 
     /* We are retrieving the file size synchronously because we cannot run this demo without the file size anyways
      * so it's OK to block. */
@@ -119,7 +119,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
     fileSizeReqConfig.hostLen = addressLen;
     fileSizeReqConfig.method = IOT_HTTPS_METHOD_GET; /* Performing a HEAD request with S3 requires generating a Sigv4 signature
                                                       * in an Authorization header field. We work around this by performing a GET
-                                                      * on Range: bytes=0-0. The size of the file is extracted from the Content-Range 
+                                                      * on Range: bytes=0-0. The size of the file is extracted from the Content-Range
                                                       * header field in the response. */
     fileSizeReqConfig.userBuffer.pBuffer = pReqUserBuffer;
     fileSizeReqConfig.userBuffer.bufferLen = reqUserBufferLen;
@@ -205,16 +205,19 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
     }
 
     pFileSizeStr = strstr( contentRangeValStr, "/" );
-    if(pFileSizeStr == NULL)
+
+    if( pFileSizeStr == NULL )
     {
-        IotLogError("'/' not present in Content-Range header value: %s.", contentRangeValStr);
+        IotLogError( "'/' not present in Content-Range header value: %s.", contentRangeValStr );
         return EXIT_FAILURE;
     }
+
     pFileSizeStr += sizeOfOneChar;
     *pFileSize = ( uint32_t ) strtoul( pFileSizeStr, NULL, 10 );
-    if((*pFileSize == 0) || (*pFileSize == ULONG_MAX))
+
+    if( ( *pFileSize == 0 ) || ( *pFileSize == UINT32_MAX ) )
     {
-        IotLogError("Error using strtoul to get the file size from %s. Error returned: %d", pFileSizeStr, *pFileSize);
+        IotLogError( "Error using strtoul to get the file size from %s. Error returned: %d", pFileSizeStr, *pFileSize );
         return EXIT_FAILURE;
     }
 

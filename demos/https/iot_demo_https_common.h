@@ -46,13 +46,13 @@
  * of this string is strlen(N) + strlen(M) + strlen("bytes=-") + NULL terminator. Given the maximum number of digits is
  * 10 we get the maximum length of this header value as: 10 * 2 + 7 + 1.
  */
-#define RANGE_VALUE_MAX_LENGTH               ( 28 )
+#define RANGE_VALUE_MAX_LENGTH       ( 28 )
 
 /**
  * @brief HTTP standard header field "Range".
  */
-#define RANGE_HEADER_FIELD                   "Range"
-#define RANGE_HEADER_FIELD_LENGTH            ( 5 )
+#define RANGE_HEADER_FIELD           "Range"
+#define RANGE_HEADER_FIELD_LENGTH    ( 5 )
 
 /**
  * @brief Retrieve the size of the S3 object that is specified in pPath.

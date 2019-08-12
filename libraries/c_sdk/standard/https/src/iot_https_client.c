@@ -432,6 +432,7 @@ static IotHttpsReturnCode_t _parseHttpsMessage( _httpParserInfo_t * pHttpParserI
  * @param[in] pParser - Pointer to the instance of the http-parser.
  * @param[in] pCurrentParserState - The current state of what has been parsed in the HTTP response.
  * @param[in] finalParserState - The final state of the parser expected after this function finishes.
+ * @param[in] currentBufferProcessingState - The current buffer that is the HTTPS message is being received into.
  * @param[in] pBufCur - Pointer to the next location to write data into the buffer pBuf. This is a double pointer to update the response context buffer pointers.
  * @param[in] pBufEnd - Pointer to the end of the buffer to receive the HTTP response into.
  *
@@ -443,6 +444,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t * pHttpsCon
                                                   _httpParserInfo_t * pParser,
                                                   IotHttpsResponseParserState_t * pCurrentParserState,
                                                   IotHttpsResponseParserState_t finalParserState,
+                                                  IotHttpsResponseBufferState_t currentBufferProcessingState,
                                                   uint8_t ** pBufCur,
                                                   uint8_t ** pBufEnd );
 
@@ -1077,7 +1079,6 @@ static void _networkReceiveCallback( void * pNetworkConnection,
     /* Reset the http-parser state to an initial state. This is done so that a new response can be parsed from the
      * beginning. */
     pCurrentHttpsResponse->parserState = PARSER_STATE_NONE;
-    pCurrentHttpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_HEADER_BUFFER;
 
     /* Receive the response from the network. */
     /* Receive the headers first. */
@@ -1858,6 +1859,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t * pHttpsCon
                                                   _httpParserInfo_t * pHttpParserInfo,
                                                   IotHttpsResponseParserState_t * pCurrentParserState,
                                                   IotHttpsResponseParserState_t finalParserState,
+                                                  IotHttpsResponseBufferState_t currentBufferProcessingState,
                                                   uint8_t ** pBufCur,
                                                   uint8_t ** pBufEnd )
 {
@@ -1887,7 +1889,13 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t * pHttpsCon
             break;
         }
 
-        _incrementNextLocationToWriteBeyondParsed( pBufCur, pBufEnd );
+        /* If the current buffer being filled is the header buffer, then \r\n header line separators should not get
+         * overwritten on the next network read. See _incrementNextLocationToWriteBeyondParsed() for more
+         * information. */
+        if( currentBufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER )
+        {
+            _incrementNextLocationToWriteBeyondParsed( pBufCur, pBufEnd );
+        }
 
         /* The _httResponse->pHeadersCur pointer is updated in the http_parser callbacks. */
         IotLogDebug( "There is %d of space left in the buffer.", *pBufEnd - *pBufCur );
@@ -1912,10 +1920,16 @@ static IotHttpsReturnCode_t _receiveHttpsHeaders( _httpsConnection_t * pHttpsCon
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
+    pHttpsResponse->bufferProcessingState = PROCESSING_STATE_FILLING_HEADER_BUFFER;
+
+    IotLogDebug( "Now attempting to receive the HTTP response headers into a buffer with length %d.",
+                 pHttpsResponse->pHeadersEnd - pHttpsResponse->pHeadersCur );
+
     status = _receiveHttpsMessage( pHttpsConnection,
                                    &( pHttpsResponse->httpParserInfo ),
                                    &( pHttpsResponse->parserState ),
                                    PARSER_STATE_HEADERS_COMPLETE,
+                                   PROCESSING_STATE_FILLING_HEADER_BUFFER,
                                    &( pHttpsResponse->pHeadersCur ),
                                    &( pHttpsResponse->pHeadersEnd ) );
 
@@ -1942,6 +1956,7 @@ static IotHttpsReturnCode_t _receiveHttpsBody( _httpsConnection_t * pHttpsConnec
                                    &( pHttpsResponse->httpParserInfo ),
                                    &( pHttpsResponse->parserState ),
                                    PARSER_STATE_BODY_COMPLETE,
+                                   PROCESSING_STATE_FILLING_BODY_BUFFER,
                                    &( pHttpsResponse->pBodyCur ),
                                    &( pHttpsResponse->pBodyEnd ) );
 
