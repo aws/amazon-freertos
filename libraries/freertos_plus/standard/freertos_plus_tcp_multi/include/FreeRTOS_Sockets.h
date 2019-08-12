@@ -75,7 +75,7 @@ extern "C" {
 
 /* Assigned to an Socket_t variable when the socket is not valid, probably
 because it could not be created. */
-#define FREERTOS_INVALID_SOCKET	( ( void * ) ~0U )
+#define FREERTOS_INVALID_SOCKET	( ( Socket_t ) ~0U )
 
 /* API function error values.  As errno is supported, the FreeRTOS sockets
 functions return error codes rather than just a pass or fail indication. */
@@ -251,11 +251,6 @@ typedef struct xSOCKET_SET *SocketSet_t;
 Socket_t FreeRTOS_socket( BaseType_t xDomain, BaseType_t xType, BaseType_t xProtocol );
 int32_t FreeRTOS_recvfrom( Socket_t xSocket, void *pvBuffer, size_t xBufferLength, BaseType_t xFlags, struct freertos_sockaddr *pxSourceAddress, socklen_t *pxSourceAddressLength );
 int32_t FreeRTOS_sendto( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength );
-
-/* FreeRTOS_sendto6 is only temporary untill it has been well tested. */
-/* FreeRTOS_sendto will check the field 'sin_family' to determine the frame type. */
-int32_t FreeRTOS_sendto6( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength );
-
 BaseType_t FreeRTOS_bind( Socket_t xSocket, struct freertos_sockaddr *pxAddress, socklen_t xAddressLength );
 
 /* function to get the local address and IP port */
