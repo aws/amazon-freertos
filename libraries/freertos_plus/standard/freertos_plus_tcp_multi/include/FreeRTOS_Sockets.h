@@ -160,7 +160,7 @@ FreeRTOS_setsockopt(). */
 #define FREERTOS_MSG_DONTROUTE			( 8 )		/* send without using routing tables */
 #define FREERTOS_MSG_DONTWAIT			( 16 )		/* Can be used with recvfrom(), sendto(), recv(), and send(). */
 
-#define FREERTOS_INADDR_ANY				( 0ul )		/* The 0.0.0.0 IPv4 address. */
+#define FREERTOS_INADDR_ANY				( 0uL )		/* The 0.0.0.0 IPv4 address. */
 
 typedef struct xWIN_PROPS {
 	/* Properties of the Tx buffer and Tx window */
@@ -233,11 +233,13 @@ struct freertos_sockaddr
 #endif /* ipconfigBYTE_ORDER */
 
 /* The socket type itself. */
-typedef void *Socket_t;
+struct xSOCKET;
+typedef struct xSOCKET *Socket_t;
 
 /* The SocketSet_t type is the equivalent to the fd_set type used by the
 Berkeley API. */
-typedef void *SocketSet_t;
+struct xSOCKET_SET;
+typedef struct xSOCKET_SET *SocketSet_t;
 
 /**
  * FULL, UP-TO-DATE AND MAINTAINED REFERENCE DOCUMENTATION FOR ALL THESE

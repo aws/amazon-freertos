@@ -68,7 +68,6 @@ heap_4 can be used. */
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_UDP_IP.h"
 #include "FreeRTOS_IP_Private.h"
-#include "NetworkInterface.h"
 #include "NetworkBufferManagement.h"
 
 /* The obtained network buffer must be large enough to hold a packet that might
@@ -80,12 +79,16 @@ replace the packet that was requested to be sent. */
 #endif /* ipconfigUSE_TCP == 1 */
 
 #if defined( ipconfigETHERNET_MINIMUM_PACKET_BYTES )
-	#define ASSERT_CONCAT_(a, b) a##b
-	#define ASSERT_CONCAT(a, b) ASSERT_CONCAT_(a, b)
-	#define STATIC_ASSERT(e) \
-		;enum { ASSERT_CONCAT(assert_line_, __LINE__) = 1/(!!(e)) }
+/* Crteating a static assert that can be used with sizeof()
+expressions, but lint doesn't like it. */
+	#ifndef _lint
+		#define ASSERT_CONCAT_(a, b) a##b
+		#define ASSERT_CONCAT(a, b) ASSERT_CONCAT_(a, b)
+		#define STATIC_ASSERT(e) \
+			;enum { ASSERT_CONCAT(assert_line_, __LINE__) = 1/(!!(e)) }
 
-	STATIC_ASSERT( ipconfigETHERNET_MINIMUM_PACKET_BYTES <= baMINIMAL_BUFFER_SIZE );
+		STATIC_ASSERT( ipconfigETHERNET_MINIMUM_PACKET_BYTES <= baMINIMAL_BUFFER_SIZE );
+	#endif
 #endif
 
 /* A list of free (available) NetworkBufferDescriptor_t structures. */
@@ -115,39 +118,40 @@ BaseType_t xNetworkBuffersInitialise( void )
 BaseType_t xReturn, x;
 
 	/* Only initialise the buffers and their associated kernel objects if they
-	have not been initialised before. */
+	 * have not been initialised before. */
 	if( xNetworkBufferSemaphore == NULL )
 	{
 		xNetworkBufferSemaphore = xSemaphoreCreateCounting( ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS, ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS );
 		configASSERT( xNetworkBufferSemaphore );
-		#if ( configQUEUE_REGISTRY_SIZE > 0 )
-		{
-			vQueueAddToRegistry( xNetworkBufferSemaphore, "NetBufSem" );
-		}
-		#endif /* configQUEUE_REGISTRY_SIZE */
-
-		/* If the trace recorder code is included name the semaphore for viewing
-		in FreeRTOS+Trace.  */
-		#if( ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 )
-		{
-			extern QueueHandle_t xNetworkEventQueue;
-			vTraceSetQueueName( xNetworkEventQueue, "IPStackEvent" );
-			vTraceSetQueueName( xNetworkBufferSemaphore, "NetworkBufferCount" );
-		}
-		#endif /*  ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 */
 
 		if( xNetworkBufferSemaphore != NULL )
 		{
+			#if ( configQUEUE_REGISTRY_SIZE > 0 )
+			{
+				vQueueAddToRegistry( xNetworkBufferSemaphore, "NetBufSem" );
+			}
+			#endif /* configQUEUE_REGISTRY_SIZE */
+
+			/* If the trace recorder code is included name the semaphore for viewing
+			 * in FreeRTOS+Trace.  */
+			#if( ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 )
+			{
+				extern QueueHandle_t xNetworkEventQueue;
+				vTraceSetQueueName( xNetworkEventQueue, "IPStackEvent" );
+				vTraceSetQueueName( xNetworkBufferSemaphore, "NetworkBufferCount" );
+			}
+			#endif /*  ipconfigINCLUDE_EXAMPLE_FREERTOS_PLUS_TRACE_CALLS == 1 */
+
 			vListInitialise( &xFreeBuffersList );
 
 			/* Initialise all the network buffers.  No storage is allocated to
-			the buffers yet. */
+			 * the buffers yet. */
 			for( x = 0; x < ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS; x++ )
 			{
 				/* Initialise and set the owner of the buffer list items. */
 				xNetworkBufferDescriptors[ x ].pucEthernetBuffer = NULL;
 				vListInitialiseItem( &( xNetworkBufferDescriptors[ x ].xBufferListItem ) );
-				listSET_LIST_ITEM_OWNER( &( xNetworkBufferDescriptors[ x ].xBufferListItem ), &xNetworkBufferDescriptors[ x ] );
+				listSET_LIST_ITEM_OWNER( &( xNetworkBufferDescriptors[ x ].xBufferListItem ), ipPOINTER_CAST( void *, &( xNetworkBufferDescriptors[ x ] ) ) );
 
 				/* Currently, all buffers are available for use. */
 				vListInsert( &xFreeBuffersList, &( xNetworkBufferDescriptors[ x ].xBufferListItem ) );
@@ -178,30 +182,32 @@ size_t xSize = *pxRequestedSizeBytes;
 	if( xSize < baMINIMAL_BUFFER_SIZE )
 	{
 		/* Buffers must be at least large enough to hold a TCP-packet with
-		headers, or an ARP packet, in case TCP is not included. */
+		 * headers, or an ARP packet, in case TCP is not included. */
 		xSize = baMINIMAL_BUFFER_SIZE;
 	}
 
 	/* Round up xSize to the nearest multiple of N bytes,
-	where N equals 'sizeof( size_t )'. */
+	 * where N equals 'sizeof( size_t )'. */
 	if( ( xSize & ( sizeof( size_t ) - 1u ) ) != 0u )
 	{
 		xSize = ( xSize | ( sizeof( size_t ) - 1u ) ) + 1u;
 	}
+
 	*pxRequestedSizeBytes = xSize;
 
 	/* Allocate a buffer large enough to store the requested Ethernet frame size
-	and a pointer to a network buffer structure (hence the addition of
-	ipBUFFER_PADDING bytes). */
-	pucEthernetBuffer = ( uint8_t * ) pvPortMalloc( xSize + ipBUFFER_PADDING );
+	 * and a pointer to a network buffer structure (hence the addition of
+	 * ipBUFFER_PADDING bytes). */
+	pucEthernetBuffer = ipPOINTER_CAST( uint8_t *, pvPortMalloc( xSize + ipBUFFER_PADDING ) );
 	configASSERT( pucEthernetBuffer );
 
-	if( pucEthernetBuffer != NULL )
+	if( pucEthernetBuffer != NULL )	/*lint !e774 Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]. */
+	
 	{
 		/* Enough space is left at the start of the buffer to place a pointer to
-		the network buffer structure that references this Ethernet buffer.
-		Return a pointer to the start of the Ethernet buffer itself. */
-		pucEthernetBuffer += ipBUFFER_PADDING;
+		 * the network buffer structure that references this Ethernet buffer.
+		 * Return a pointer to the start of the Ethernet buffer itself. */
+		pucEthernetBuffer = &( pucEthernetBuffer[ ipBUFFER_PADDING ] );
 	}
 
 	return pucEthernetBuffer;
@@ -211,100 +217,104 @@ size_t xSize = *pxRequestedSizeBytes;
 void vReleaseNetworkBuffer( uint8_t *pucEthernetBuffer )
 {
 	/* There is space before the Ethernet buffer in which a pointer to the
-	network buffer that references this Ethernet buffer is stored.  Remove the
-	space before freeing the buffer. */
+	 * network buffer that references this Ethernet buffer is stored.  Remove the
+	 * space before freeing the buffer. */
 	if( pucEthernetBuffer != NULL )
 	{
 		pucEthernetBuffer -= ipBUFFER_PADDING;
-		vPortFree( ( void * ) pucEthernetBuffer );
+		vPortFree( pucEthernetBuffer );
 	}
 }
 /*-----------------------------------------------------------*/
 
-NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xRequestedSizeBytes, TickType_t xBlockTimeTicks )
+NetworkBufferDescriptor_t *pxGetNetworkBufferWithDescriptor( size_t xByteCount, TickType_t xBlockTimeTicks )
 {
 NetworkBufferDescriptor_t *pxReturn = NULL;
 size_t uxCount;
+size_t xRequestedSizeBytes = xByteCount;	/* To avoid lint complain: function parameter modified [MISRA 2012 Rule 17.8, advisory]. */
 
-	if( ( xRequestedSizeBytes != 0u ) && ( xRequestedSizeBytes < ( size_t ) baMINIMAL_BUFFER_SIZE ) )
+	if( xNetworkBufferSemaphore != NULL )
 	{
-		/* ARP packets can replace application packets, so the storage must be
-		at least large enough to hold an ARP. */
-		xRequestedSizeBytes = baMINIMAL_BUFFER_SIZE;
-	}
-
-	/* Add 2 bytes to xRequestedSizeBytes and round up xRequestedSizeBytes
-	to the nearest multiple of N bytes, where N equals 'sizeof( size_t )'. */
-	xRequestedSizeBytes += 2u;
-	if( ( xRequestedSizeBytes & ( sizeof( size_t ) - 1u ) ) != 0u )
-	{
-		xRequestedSizeBytes = ( xRequestedSizeBytes | ( sizeof( size_t ) - 1u ) ) + 1u;
-	}
-
-	/* If there is a semaphore available, there is a network buffer available. */
-	if( xSemaphoreTake( xNetworkBufferSemaphore, xBlockTimeTicks ) == pdPASS )
-	{
-		/* Protect the structure as it is accessed from tasks and interrupts. */
-		taskENTER_CRITICAL();
+		if( ( xRequestedSizeBytes != 0u ) && ( xRequestedSizeBytes < ( size_t ) baMINIMAL_BUFFER_SIZE ) )
 		{
-			pxReturn = ( NetworkBufferDescriptor_t * ) listGET_OWNER_OF_HEAD_ENTRY( &xFreeBuffersList );
-			uxListRemove( &( pxReturn->xBufferListItem ) );
-		}
-		taskEXIT_CRITICAL();
-
-		/* Reading UBaseType_t, no critical section needed. */
-		uxCount = listCURRENT_LIST_LENGTH( &xFreeBuffersList );
-
-		if( uxMinimumFreeNetworkBuffers > uxCount )
-		{
-			uxMinimumFreeNetworkBuffers = uxCount;
+			/* ARP packets can replace application packets, so the storage must be
+			 * at least large enough to hold an ARP. */
+			xRequestedSizeBytes = baMINIMAL_BUFFER_SIZE;
 		}
 
-		/* Allocate storage of exactly the requested size to the buffer. */
-		configASSERT( pxReturn->pucEthernetBuffer == NULL );
-		if( xRequestedSizeBytes > 0 )
+		/* Add 2 bytes to xRequestedSizeBytes and round up xRequestedSizeBytes
+		to the nearest multiple of N bytes, where N equals 'sizeof( size_t )'. */
+		xRequestedSizeBytes += 2u;
+		if( ( xRequestedSizeBytes & ( sizeof( size_t ) - 1u ) ) != 0u )
 		{
-			/* Extra space is obtained so a pointer to the network buffer can
-			be stored at the beginning of the buffer. */
-			pxReturn->pucEthernetBuffer = ( uint8_t * ) pvPortMalloc( xRequestedSizeBytes + ipBUFFER_PADDING );
+			xRequestedSizeBytes = ( xRequestedSizeBytes | ( sizeof( size_t ) - 1u ) ) + 1u;
+		}
 
-			if( pxReturn->pucEthernetBuffer == NULL )
+		/* If there is a semaphore available, there is a network buffer available. */
+		if( xSemaphoreTake( xNetworkBufferSemaphore, xBlockTimeTicks ) == pdPASS )
+		{
+			/* Protect the structure as it is accessed from tasks and interrupts. */
+			taskENTER_CRITICAL();
 			{
-				/* The attempt to allocate storage for the buffer payload failed,
-				so the network buffer structure cannot be used and must be
-				released. */
-				vReleaseNetworkBufferAndDescriptor( pxReturn );
-				pxReturn = NULL;
+				pxReturn = ipPOINTER_CAST( NetworkBufferDescriptor_t *, listGET_OWNER_OF_HEAD_ENTRY( &( xFreeBuffersList ) ) );
+				( void ) uxListRemove( &( pxReturn->xBufferListItem ) );
+			}
+			taskEXIT_CRITICAL();
+
+			/* Reading UBaseType_t, no critical section needed. */
+			uxCount = listCURRENT_LIST_LENGTH( &xFreeBuffersList );
+
+			if( uxMinimumFreeNetworkBuffers > uxCount )
+			{
+				uxMinimumFreeNetworkBuffers = uxCount;
+			}
+
+			/* Allocate storage of exactly the requested size to the buffer. */
+			configASSERT( pxReturn->pucEthernetBuffer == NULL );
+			if( xRequestedSizeBytes > 0 )
+			{
+				/* Extra space is obtained so a pointer to the network buffer can
+				 * be stored at the beginning of the buffer. */
+				pxReturn->pucEthernetBuffer = ipPOINTER_CAST( uint8_t *, pvPortMalloc( xRequestedSizeBytes + ipBUFFER_PADDING ) );
+
+				if( pxReturn->pucEthernetBuffer == NULL )
+				{
+					/* The attempt to allocate storage for the buffer payload failed,
+					 * so the network buffer structure cannot be used and must be
+					 * released. */
+					vReleaseNetworkBufferAndDescriptor( pxReturn );
+					pxReturn = NULL;
+				}
+				else
+				{
+					/* Store a pointer to the network buffer structure in the
+					 * buffer storage area, then move the buffer pointer on past the
+					 * stored pointer so the pointer value is not overwritten by the
+					 * application when the buffer is used. */
+					*( ipPOINTER_CAST( NetworkBufferDescriptor_t **, pxReturn->pucEthernetBuffer ) ) = pxReturn;
+					pxReturn->pucEthernetBuffer = &( pxReturn->pucEthernetBuffer[ ipBUFFER_PADDING ] );
+
+					/* Store the actual size of the allocated buffer, which may be
+					 * greater than the original requested size. */
+					pxReturn->xDataLength = xRequestedSizeBytes;
+
+					/* Don't know which interface this is using yet. */
+					pxReturn->pxEndPoint = NULL;
+					pxReturn->pxInterface = NULL;
+
+					#if( ipconfigUSE_LINKED_RX_MESSAGES != 0 )
+					{
+						/* make sure the buffer is not linked */
+						pxReturn->pxNextBuffer = NULL;
+					}
+					#endif /* ipconfigUSE_LINKED_RX_MESSAGES */
+				}
 			}
 			else
 			{
-				/* Store a pointer to the network buffer structure in the
-				buffer storage area, then move the buffer pointer on past the
-				stored pointer so the pointer value is not overwritten by the
-				application when the buffer is used. */
-				*( ( NetworkBufferDescriptor_t ** ) ( pxReturn->pucEthernetBuffer ) ) = pxReturn;
-				pxReturn->pucEthernetBuffer += ipBUFFER_PADDING;
-
-				/* Store the actual size of the allocated buffer, which may be
-				greater than the original requested size. */
-				pxReturn->xDataLength = xRequestedSizeBytes;
-
-				/* Don't know which interface this is using yet. */
-				pxReturn->pxEndPoint = NULL;
-				pxReturn->pxInterface = NULL;
-
-				#if( ipconfigUSE_LINKED_RX_MESSAGES != 0 )
-				{
-					/* make sure the buffer is not linked */
-					pxReturn->pxNextBuffer = NULL;
-				}
-				#endif /* ipconfigUSE_LINKED_RX_MESSAGES */
+				/* A descriptor is being returned without an associated buffer being
+				 * allocated. */
 			}
-		}
-		else
-		{
-			/* A descriptor is being returned without an associated buffer being
-			allocated. */
 		}
 	}
 
@@ -314,6 +324,7 @@ size_t uxCount;
 	}
 	else
 	{
+		/* No action. */
 		iptraceNETWORK_BUFFER_OBTAINED( pxReturn );
 	}
 
@@ -344,12 +355,22 @@ BaseType_t xListItemAlreadyInFreeList;
 	}
 	taskEXIT_CRITICAL();
 
+	/*
+	 * Update the network state machine, unless the program fails to release its 'xNetworkBufferSemaphore'.
+	 * The program should only try to release its semaphore if 'xListItemAlreadyInFreeList' is false.
+	 */
 	if( xListItemAlreadyInFreeList == pdFALSE )
 	{
-		xSemaphoreGive( xNetworkBufferSemaphore );
+		if ( xSemaphoreGive( xNetworkBufferSemaphore ) == pdTRUE )
+		{
+			iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+		}
 	}
-
-	iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+	else
+	{
+		/* No action. */
+		iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
+	}
 }
 /*-----------------------------------------------------------*/
 
@@ -368,10 +389,12 @@ UBaseType_t uxGetMinimumFreeNetworkBuffers( void )
 }
 /*-----------------------------------------------------------*/
 
-NetworkBufferDescriptor_t *pxResizeNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * pxNetworkBuffer, size_t xNewSizeBytes )
+NetworkBufferDescriptor_t *pxResizeNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * pxDescriptor, size_t xByteCount )
 {
 size_t xOriginalLength;
 uint8_t *pucBuffer;
+size_t xNewSizeBytes = xByteCount;	/* To avoid lint complain: function parameter modified [MISRA 2012 Rule 17.8, advisory]. */
+NetworkBufferDescriptor_t * pxNetworkBuffer = pxDescriptor;	/* Same reason. */
 
 	xOriginalLength = pxNetworkBuffer->xDataLength + ipBUFFER_PADDING;
 	xNewSizeBytes = xNewSizeBytes + ipBUFFER_PADDING;

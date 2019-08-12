@@ -1,26 +1,6 @@
 /*
- * FreeRTOS+TCP Multi Interface Labs Build 180222
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- * Authors include Hein Tibosch and Richard Barry
- *
- *******************************************************************************
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- ***                                                                         ***
- ***                                                                         ***
- ***   This is a version of FreeRTOS+TCP that supports multiple network      ***
- ***   interfaces, and includes basic IPv6 functionality.  Unlike the base   ***
- ***   version of FreeRTOS+TCP, THE MULTIPLE INTERFACE VERSION IS STILL IN   ***
- ***   THE LAB.  While it is functional and has been used in commercial      ***
- ***   products we are still refining its design, the source code does not   ***
- ***   yet quite conform to the strict coding and style standards, and the   ***
- ***   documentation and testing is not complete.                            ***
- ***                                                                         ***
- ***   PLEASE REPORT EXPERIENCES USING THE SUPPORT RESOURCES FOUND ON THE    ***
- ***   URL: http://www.FreeRTOS.org/contact                                  ***
- ***                                                                         ***
- ***                                                                         ***
- ***** NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ******* NOTE ***
- *******************************************************************************
+ * FreeRTOS+TCP V2.0.10
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -50,9 +30,7 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
-#include "semphr.h"
-
+	
 /* FreeRTOS+TCP includes. */
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
@@ -60,24 +38,25 @@
 #include "FreeRTOS_ARP.h"
 #include "FreeRTOS_UDP_IP.h"
 #include "FreeRTOS_DHCP.h"
+/*lint -e766 -e595 */
+#include "NetworkBufferManagement.h"
 #if( ipconfigUSE_LLMNR == 1 )
 	#include "FreeRTOS_DNS.h"
 #endif /* ipconfigUSE_LLMNR */
-#include "NetworkInterface.h"
-#include "NetworkBufferManagement.h"
 #include "FreeRTOS_Routing.h"
 
-#define ICMPv6_FLAG_SOLICITED				0x40000000ul
-#define ICMPv6_FLAG_UPDATE					0x20000000ul
-
-#define	ipICMP_SOURCE_LINK_LAYER_ADDRESS	1
-#define	ipICMP_TARGET_LINK_LAYER_ADDRESS	2
+#if( ipconfigUSE_IPv6 != 0 )
+	#define ICMPv6_FLAG_SOLICITED				0x40000000uL
+	#define ICMPv6_FLAG_UPDATE					0x20000000uL
+	#define	ipICMP_SOURCE_LINK_LAYER_ADDRESS	1
+	#define	ipICMP_TARGET_LINK_LAYER_ADDRESS	2
+#endif
 
 /* A list of all network end-points: */
-NetworkEndPoint_t *pxNetworkEndPoints = NULL;
+struct xNetworkEndPoint *pxNetworkEndPoints = NULL;
 
 /* A list of all network interfaces: */
-NetworkInterface_t *pxNetworkInterfaces = NULL;
+struct xNetworkInterface *pxNetworkInterfaces = NULL;
 
 RoutingStats_t xRoutingStats;
 
@@ -130,11 +109,17 @@ NetworkInterface_t *FreeRTOS_FirstNetworkInterface( void )
 /* Get the next Network Interface. */
 NetworkInterface_t *FreeRTOS_NextNetworkInterface( NetworkInterface_t *pxInterface )
 {
+NetworkInterface_t *pxReturn;
+
 	if( pxInterface != NULL )
 	{
-		pxInterface = pxInterface->pxNext;
+		pxReturn = pxInterface->pxNext;
 	}
-	return pxInterface;
+	else
+	{
+		pxReturn = NULL;
+	}
+	return pxReturn;
 }
 /*-----------------------------------------------------------*/
 
@@ -208,23 +193,25 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 NetworkEndPoint_t *FreeRTOS_NextEndPoint( NetworkInterface_t *pxInterface, NetworkEndPoint_t *pxEndPoint )
 {
-	if( pxEndPoint != NULL )
+NetworkEndPoint_t *pxResult = pxEndPoint;
+
+	if( pxResult != NULL )
 	{
-		pxEndPoint = pxEndPoint->pxNext;
+		pxResult = pxResult->pxNext;
 		if( pxInterface != NULL )
 		{
-			while( pxEndPoint != NULL )
+			while( pxResult != NULL )
 			{
-				if( pxEndPoint->pxNetworkInterface == pxInterface )
+				if( pxResult->pxNetworkInterface == pxInterface )
 				{
 					break;
 				}
-				pxEndPoint = pxEndPoint->pxNext;
+				pxResult = pxResult->pxNext;
 			}
 		}
 	}
 
-	return pxEndPoint;
+	return pxResult;
 }
 /*-----------------------------------------------------------*/
 
@@ -256,7 +243,10 @@ void FreeRTOS_GetAddressConfiguration( NetworkEndPoint_t *pxEndPoint, uint32_t *
 {
 	configASSERT( pxEndPoint );
 
+#ifndef _lint
+	/* Lint would complain about this test. It is there in case configASSERT it not defined. */
 	if( pxEndPoint != NULL )
+#endif
 	{
 		if( pulIPAddress != NULL )
 		{
@@ -314,12 +304,13 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 	/* Find the end-point with given MAC-address. */
 	while( pxEndPoint != NULL )
 	{
-		if( ( ( pxInterface == NULL ) || ( pxInterface == pxEndPoint->pxNetworkInterface ) ) &&
-			( memcmp( pxEndPoint->xMACAddress.ucBytes, pxMACAddress->ucBytes, ipMAC_ADDRESS_LENGTH_BYTES ) == 0 ) )
+		if( ( pxInterface == NULL ) || ( pxInterface == pxEndPoint->pxNetworkInterface ) )
 		{
-			break;
+			if( memcmp( pxEndPoint->xMACAddress.ucBytes, pxMACAddress->ucBytes, ipMAC_ADDRESS_LENGTH_BYTES ) == 0 )
+			{
+				break;
+			}
 		}
-
 		pxEndPoint = pxEndPoint->pxNext;
 	}
 
@@ -330,7 +321,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 NetworkEndPoint_t *FreeRTOS_FindEndPointOnNetMask( uint32_t ulIPAddress, uint32_t ulWhere )
 {
 	/* The 'ulWhere' parameter is only for debugging puposes. */
-	return FreeRTOS_InterfaceEndPointOnNetMask( ( NetworkInterface_t * )NULL, ulIPAddress, ulWhere );
+	return FreeRTOS_InterfaceEndPointOnNetMask( NULL, ulIPAddress, ulWhere );
 }
 
 NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxInterface, uint32_t ulIPAddress, uint32_t ulWhere )
@@ -345,6 +336,12 @@ NetworkEndPoint_t *pxDefault = NULL;
 	}
 	/* Find the best fitting end-point to reach a given IP-address. */
 	/*_RB_ Presumably then a broadcast reply could go out on a different end point to that on which the broadcast was received - although that should not be an issue if the nodes are on the same LAN it could be an issue if the nodes are on separate LANs. */
+
+	if( ulWhere == 1 )
+	{
+	#warning debugging
+	//    configPRINTF( ( "ulWhere = 1\n" ) );
+	}
 
 	while( pxEndPoint != NULL )
 	{
@@ -365,17 +362,18 @@ NetworkEndPoint_t *pxDefault = NULL;
 		pxEndPoint = pxEndPoint->pxNext;
 	}
 
-	if( pxEndPoint == NULL )
+	if( ( pxEndPoint == NULL ) && ( ulWhere != 1 ) && ( ulWhere != 2 ) )
 	{
-		if( pxDefault != NULL )
+//		if( pxDefault != NULL )
+//		{
+//			pxEndPoint = pxDefault;
+//			FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask[%ld]: No match for %lxip using %lxip\n",
+//				ulWhere, FreeRTOS_ntohl( ulIPAddress ), FreeRTOS_ntohl( pxDefault->ulIPAddress ) ) );
+//		}
+//		else
 		{
-			pxEndPoint = pxDefault;
-			FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask: No match for %lxip using %lxip\n",
-				FreeRTOS_ntohl( ulIPAddress ), FreeRTOS_ntohl( pxDefault->ulIPAddress ) ) );
-		}
-		else
-		{
-			FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask: No match for %lxip\n", FreeRTOS_ntohl( ulIPAddress ) ) );
+			FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask[%ld]: No match for %lxip\n",
+                ulWhere, FreeRTOS_ntohl( ulIPAddress ) ) );
 		}
 	}
 
@@ -478,54 +476,145 @@ void FreeRTOS_FillEndPoint(	NetworkEndPoint_t *pxNetworkEndPoint,
 
 NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxNetworkInterface, uint8_t *pucEthernetBuffer )
 {
-NetworkEndPoint_t *pxEndPoint;
-ProtocolPacket_t *pxPacket;
+NetworkEndPoint_t *pxEndPoint = NULL;
+ProtocolPacket_t *pxPacket = ipPOINTER_CAST( ProtocolPacket_t *, pucEthernetBuffer );	/*lint !e9018 declaration of symbol with union based type [MISRA 2012 Rule 19.2, advisory]. */
 
+uint32_t ulIPTargetAddress = 0uL;
+uint32_t ulIPSourceAddress = 0uL;
+
+BaseType_t xDoLog = pdTRUE;
+	/* An Ethernet packet has been received. Inspect the contents to see which
+	 * defined end-point has the best mathc.
+	 */
+
+	/* Some stats while developing. */
 	xRoutingStats.ulMatching++;
-	/* Remove compiler warning when ipconfigUSE_IPv6 is not set. */
-	( void ) pxNetworkInterface;
 
-	pxPacket = ( ProtocolPacket_t * ) pucEthernetBuffer;
+	#warning For logging only, take this away
+	const char *name = "";
 
-	pxEndPoint = FreeRTOS_FindEndPointOnMAC( &( pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress ), NULL );
-
-	if( pxEndPoint != NULL )
+	/* Probably an ARP packet or a broadcast. */
+	switch( pxPacket->xUDPPacket.xEthernetHeader.usFrameType )
 	{
-		/* This is the most precise determination, of match of the destination
-		MAC address. */
-	}
-	else if( pxPacket->xUDPPacket.xEthernetHeader.usFrameType == ipARP_FRAME_TYPE )
-	{
-		pxEndPoint = FreeRTOS_FindEndPointOnIP( pxPacket->xARPPacket.xARPHeader.ulTargetProtocolAddress, 5 );
-	}
 #if( ipconfigUSE_IPv6 != 0 )
-	else if( pxPacket->xUDPPacket.xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
-	{
-		IPPacket_IPv6_t *pxIPPacket_IPv6 = ( IPPacket_IPv6_t * )pucEthernetBuffer;
-
-		pxEndPoint = pxNetworkEndPoints;
-		while( pxEndPoint != NULL )
+	case ipIPv6_FRAME_TYPE:
 		{
-			if( ( pxEndPoint->pxNetworkInterface == pxNetworkInterface ) &&
-				( xCompareIPv6_Address( &( pxEndPoint->ulIPAddress_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+			IPPacket_IPv6_t *pxIPPacket_IPv6 = ( IPPacket_IPv6_t * )pucEthernetBuffer;
+
+			pxEndPoint = pxNetworkEndPoints;
+			while( pxEndPoint != NULL )
+			{
+				if( ( pxEndPoint->pxNetworkInterface == pxNetworkInterface ) &&
+					( xCompareIPv6_Address( &( pxEndPoint->ulIPAddress_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+				{
+					break;
+				}
+				pxEndPoint = pxEndPoint->pxNext;
+			}
+
+			if( ( pxEndPoint == NULL ) && ( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+			{
+				pxEndPoint = FreeRTOS_FirstEndPoint_IPv6( pxNetworkInterface );
+			}
+		}
+		break;
+#endif /* ipconfigUSE_IPv6 */
+	case ipARP_FRAME_TYPE:
+		{
+			memcpy( &ulIPSourceAddress, pxPacket->xARPPacket.xARPHeader.ucSenderProtocolAddress, sizeof( ulIPSourceAddress ) );
+			ulIPTargetAddress = pxPacket->xARPPacket.xARPHeader.ulTargetProtocolAddress;
+			name = "ARP";
+		}
+		break;
+
+	case ipIPv4_FRAME_TYPE:
+		{
+			/* An IPv4 UDP or TCP packet. */
+			ulIPSourceAddress = pxPacket->xUDPPacket.xIPHeader.ulSourceIPAddress;
+			ulIPTargetAddress = pxPacket->xUDPPacket.xIPHeader.ulDestinationIPAddress;
+			name = ( pxPacket->xUDPPacket.xIPHeader.ucProtocol == ipPROTOCOL_UDP ) ? "UDP" : "TCP";
+		}
+		break;
+	default:
+		{
+			/* Frame type not supported. */
+		}
+		break;
+	}	/* switch usFrameType */
+
+	if( ulIPTargetAddress != 0uL )
+	{
+	static const uint8_t ucAllOnes[ ipMAC_ADDRESS_LENGTH_BYTES ] = { 255, 255, 255, 255, 255, 255 };
+	BaseType_t xMACBroadcast;
+	BaseType_t xIPBroadcast;
+	BaseType_t xDone = pdFALSE;
+
+		xMACBroadcast = memcmp( ucAllOnes,
+								pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes,
+								ipMAC_ADDRESS_LENGTH_BYTES ) == 0;
+		xIPBroadcast = ( ( FreeRTOS_ntohl( ulIPTargetAddress ) & 0xff ) == 0xff );
+
+		for( pxEndPoint = FreeRTOS_FirstEndPoint( pxNetworkInterface );
+			 pxEndPoint != NULL;
+			 pxEndPoint = FreeRTOS_NextEndPoint( pxNetworkInterface, pxEndPoint ) )
+		{
+		//BaseType_t xMacSame = memcmp( pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes, pxEndPoint->xMACAddress.ucBytes, ipMAC_ADDRESS_LENGTH_BYTES ) == 0;
+		
+			//if( !xMacSame )
+/*
+			{
+				configPRINTF( ( "Compare[%s] %d,%d mine %-16lxip (%02x-%02x) from %-16lxip to %-16lxip (%02x-%02x)\n",
+					name,
+					( unsigned ) xMACBroadcast,
+					( unsigned ) xIPBroadcast,
+					FreeRTOS_ntohl( pxEndPoint->ulIPAddress ),
+					pxEndPoint->xMACAddress.ucBytes[0],
+					pxEndPoint->xMACAddress.ucBytes[1],
+					FreeRTOS_ntohl( ulIPSourceAddress ),
+					FreeRTOS_ntohl( ulIPTargetAddress ),
+					pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes[0],
+					pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes[1] ) );
+			}
+*/
+			if( pxEndPoint->ulIPAddress == ulIPTargetAddress  )
+			{
+				xDoLog = pdFALSE;
+				xDone = pdTRUE;
+			}
+			else
+			if( ( xIPBroadcast != pdFALSE ) && ( ( pxEndPoint->ulIPAddress & pxEndPoint->ulNetMask ) == ( ulIPTargetAddress & pxEndPoint->ulNetMask ) ) )
+			{
+				xDone = pdTRUE;
+			}
+			else
+			if( ( xIPBroadcast != pdFALSE ) && ( pxPacket->xUDPPacket.xEthernetHeader.usFrameType == ipARP_FRAME_TYPE ) )
+			{
+				/* Test for a matching source address like 192.168.1.255 */
+				if( ( pxEndPoint->ulIPAddress & pxEndPoint->ulNetMask ) == ( ulIPSourceAddress & pxEndPoint->ulNetMask ) )
+				{
+					xDone = pdTRUE;
+				}
+			}
+			else
+			{
+				/* This end-point doesn't match with the packet. */
+			}
+			if( xDone != pdFALSE )
 			{
 				break;
 			}
-			pxEndPoint = pxEndPoint->pxNext;
 		}
-
-		if( ( pxEndPoint == NULL ) && ( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ) ) == 0 ) )
+		if( ( xIPBroadcast ) && ( pxEndPoint == NULL ) )
 		{
-			pxEndPoint = FreeRTOS_FirstEndPoint_IPv6( pxNetworkInterface );
+			pxEndPoint = FreeRTOS_FirstEndPoint( pxNetworkInterface );
 		}
 	}
-#endif /* ipconfigUSE_IPv6 */
-	else
+/*
+	if( ( xDoLog != pdFALSE ) && ( pxEndPoint != NULL ) )
 	{
-		/* An IPv4 UDP or TCP packet. */
-		pxEndPoint = FreeRTOS_FindEndPointOnIP( pxPacket->xUDPPacket.xIPHeader.ulDestinationIPAddress, 6 );
+		configPRINTF( ( "Compare[%s] returning %lxip\n", name, ( pxEndPoint != NULL ) ? FreeRTOS_ntohl( pxEndPoint->ulIPAddress ) : 0uL ) );
 	}
-
+*/
 	return pxEndPoint;
 }
 /*-----------------------------------------------------------*/
@@ -566,7 +655,7 @@ ProtocolPacket_t *pxPacket;
 		pxICMPPacket->xIPHeader.usPayloadLength = FreeRTOS_htons( xICMPSize );
 
 		/* Important: tell NIC driver how many bytes must be sent */
-		pxNetworkBuffer->xDataLength = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IP_HEADER_IPv6 + xICMPSize );
+		pxNetworkBuffer->xDataLength = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + xICMPSize );
 
 		ICMPHeader_IPv6->usChecksum = 0;
 		/* calculate the UDP checksum for outgoing package */
@@ -614,7 +703,7 @@ ProtocolPacket_t *pxPacket;
 					{
 					size_t xICMPSize = FreeRTOS_ntohs( pxICMPPacket->xIPHeader.usPayloadLength );
 
-						xNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IP_HEADER_IPv6 + xICMPSize );
+						xNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + xICMPSize );
 						if( xNeededSize > pxNetworkBuffer->xDataLength )
 						{
 							FreeRTOS_printf( ("Too small\n" ) );
@@ -638,7 +727,7 @@ ProtocolPacket_t *pxPacket;
 			uint8_t ucOptions[8];          // 24 +  8 = 32
 		*/
 						xICMPSize = sizeof( ICMPHeader_IPv6_t );
-						xNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IP_HEADER_IPv6 + xICMPSize );
+						xNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + xICMPSize );
 						if( xNeededSize > pxNetworkBuffer->xDataLength )
 						{
 							FreeRTOS_printf( ("Too small\n" ) );
@@ -670,11 +759,12 @@ ProtocolPacket_t *pxPacket;
 #endif /* ipconfigUSE_IPv6 */
 /*-----------------------------------------------------------*/
 
-// All nodes on the local network segment
-static const uint8_t pcLOCAL_NETWORK_MULTICAST_IP[ 16 ] = { 0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
-static const uint8_t pcLOCAL_NETWORK_MULTICAST_MAC[ ipMAC_ADDRESS_LENGTH_BYTES ] = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x00 };
 #if( ipconfigUSE_IPv6 != 0 )
 	#define ADVERTISE_PACKET_SIZE	64
+
+	// All nodes on the local network segment
+	static const uint8_t pcLOCAL_NETWORK_MULTICAST_IP[ 16 ] = { 0xff, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01 };
+	static const uint8_t pcLOCAL_NETWORK_MULTICAST_MAC[ ipMAC_ADDRESS_LENGTH_BYTES ] = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x00 };
 
 	void FreeRTOS_OutputAdvertiseIPv6( NetworkEndPoint_t *pxEndPoint )
 	{
@@ -685,7 +775,7 @@ static const uint8_t pcLOCAL_NETWORK_MULTICAST_MAC[ ipMAC_ADDRESS_LENGTH_BYTES ]
 	size_t xICMPSize;
 	size_t xPacketSize;
 
-		xPacketSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IP_HEADER_IPv6 + sizeof( ICMPHeader_IPv6_t ) );
+		xPacketSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + sizeof( ICMPHeader_IPv6_t ) );
 
 		/* This is called from the context of the IP event task, so a block time
 		must not be used. */
@@ -729,7 +819,7 @@ static const uint8_t pcLOCAL_NETWORK_MULTICAST_MAC[ ipMAC_ADDRESS_LENGTH_BYTES ]
 			memcpy( ICMPHeader_IPv6->xIPv6_Address.ucBytes, pxEndPoint->ulIPAddress_IPv6.ucBytes, sizeof( ICMPHeader_IPv6->xIPv6_Address.ucBytes ) );
 
 			/* Important: tell NIC driver how many bytes must be sent */
-			pxNetworkBuffer->xDataLength = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IP_HEADER_IPv6 + xICMPSize );
+			pxNetworkBuffer->xDataLength = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + xICMPSize );
 
 			ICMPHeader_IPv6->usChecksum = 0;
 			/* calculate the UDP checksum for outgoing package */

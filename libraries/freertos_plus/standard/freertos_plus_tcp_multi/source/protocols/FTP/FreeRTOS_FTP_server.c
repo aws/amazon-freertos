@@ -586,13 +586,14 @@ BaseType_t xResult = 0;
 			uint16_t ulPort;
 			#if( ipconfigUSE_IPv6 != 0 )
 				struct freertos_sockaddr6 xLocalAddress, xRemoteAddress;
+				FreeRTOS_Socket_t *pxTransferSocket = ( FreeRTOS_Socket_t * )pxClient->xTransferSocket;
 			#else
 				struct freertos_sockaddr xLocalAddress, xRemoteAddress;
 			#endif
 			struct freertos_sockaddr *pxLocalAddressIPv4 = ( struct freertos_sockaddr * ) &xLocalAddress;
 			struct freertos_sockaddr *pxRemoteAddressIPv4 = ( struct freertos_sockaddr * ) &xRemoteAddress;
-FreeRTOS_Socket_t *pxTransferSocket = ( FreeRTOS_Socket_t * )pxClient->xTransferSocket;
 
+				#if( ipconfigUSE_IPv6 != 0 )
 				if( pxFTPCommand->ucCommandType == ECMD_PASV )
 				{
 					pxTransferSocket->bits.bIsIPv6 = pdFALSE_UNSIGNED;
@@ -601,6 +602,7 @@ FreeRTOS_Socket_t *pxTransferSocket = ( FreeRTOS_Socket_t * )pxClient->xTransfer
 				{
 					pxTransferSocket->bits.bIsIPv6 = pdTRUE_UNSIGNED;
 				}
+				#endif /* ipconfigUSE_IPv6 */
 				xLocalAddress.sin_len = sizeof( xLocalAddress );
 				FreeRTOS_GetLocalAddress( pxClient->xTransferSocket, pxLocalAddressIPv4 );
 
@@ -608,7 +610,11 @@ FreeRTOS_Socket_t *pxTransferSocket = ( FreeRTOS_Socket_t * )pxClient->xTransfer
 				FreeRTOS_GetRemoteAddress( pxClient->xSocket, pxRemoteAddressIPv4 );
 
 				ulIP = FreeRTOS_ntohl( pxLocalAddressIPv4->sin_addr );
-FreeRTOS_printf( ( "Local address %xip bIsIPv6 %d\n", (unsigned)ulIP, (int)pxTransferSocket->bits.bIsIPv6 ) );
+				#if( ipconfigUSE_IPv6 != 0 )
+				{
+					FreeRTOS_printf( ( "Local address %xip bIsIPv6 %d\n", (unsigned)ulIP, (int)pxTransferSocket->bits.bIsIPv6 ) );
+				}
+				#endif /* ipconfigUSE_IPv6 */
 				pxClient->ulClientIPv4 = FreeRTOS_ntohl( pxRemoteAddressIPv4->sin_addr );
 				ulPort = FreeRTOS_ntohs( xLocalAddress.sin_port );
 
@@ -1448,7 +1454,7 @@ UBaseType_t uxReturnPort = 0;
 				{
 					sscanf( pcPort, "%lu", &uxReturnPort );
 				}
-				FreeRTOS_printf( ( "prvParseEprtData: IPv4 rc %d %lxip port %lu\n", rc, FreeRTOS_htonl( *pulIPAddress ), uxReturnPort ) );
+				FreeRTOS_printf( ( "prvParseEprtData: IPv4 rc %d %lxip port %lu\n", ( unsigned ) rc, FreeRTOS_htonl( *pulIPAddress ), uxReturnPort ) );
 			}
 			else if( pcType[ 0 ] == '2' )
 			{
@@ -1459,7 +1465,7 @@ UBaseType_t uxReturnPort = 0;
 					{
 						sscanf( pcPort, "%lu", &uxReturnPort );
 					}
-					FreeRTOS_printf( ( "prvParseEprtData: IPv6 rc %d %pip port %lu\n", rc, ucIPAddress, uxReturnPort ) );
+					FreeRTOS_printf( ( "prvParseEprtData: IPv6 rc %d %pip port %lu\n", ( int ) rc, ucIPAddress, uxReturnPort ) );
 				}
 				#endif /* ipconfigUSE_IPv6 */
 			}

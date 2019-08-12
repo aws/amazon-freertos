@@ -61,6 +61,10 @@ extern "C" {
 	#include "FreeRTOS_TCP_IP.h"
 #endif
 
+#if( ipconfigSOCKET_HAS_USER_SEMAPHORE == 1 )
+	#include "semphr.h"
+#endif
+
 #include "event_groups.h"
 
 typedef struct xNetworkAddressingParameters
@@ -73,6 +77,12 @@ typedef struct xNetworkAddressingParameters
 } NetworkAddressingParameters_t;
 
 extern BaseType_t xTCPWindowLoggingLevel;
+extern QueueHandle_t xNetworkEventQueue;
+
+#if( ipconfigUSE_TCP == 1 )
+	extern uint32_t ulNextInitialSequenceNumber;
+#endif	/* ipconfigUSE_TCP */
+
 
 /*-----------------------------------------------------------*/
 /* Protocol headers.                                         */
@@ -336,9 +346,9 @@ typedef union xPROT_HEADERS
 
 /* The maximum UDP payload length. */
 #if( ipconfigUSE_IPv6 != 0 )
-	#define ipMAX_UDP_PAYLOAD_LENGTH ( ( ipconfigNETWORK_MTU - ipSIZE_OF_IP_HEADER_IPv6 ) - ipSIZE_OF_UDP_HEADER )
+	#define ipMAX_UDP_PAYLOAD_LENGTH ( ( ipconfigNETWORK_MTU - ipSIZE_OF_IPv6_HEADER ) - ipSIZE_OF_UDP_HEADER )
 #else
-	#define ipMAX_UDP_PAYLOAD_LENGTH ( ( ipconfigNETWORK_MTU - ipSIZE_OF_IP_HEADER_IPv4 ) - ipSIZE_OF_UDP_HEADER )
+	#define ipMAX_UDP_PAYLOAD_LENGTH ( ( ipconfigNETWORK_MTU - ipSIZE_OF_IPv4_HEADER ) - ipSIZE_OF_UDP_HEADER )
 #endif
 
 typedef enum
@@ -436,6 +446,11 @@ typedef struct xUDP_IP_FRAGMENT_PARAMETERS IPFragmentParameters_t;
 
 #endif /* ipconfigBYTE_ORDER == pdFREERTOS_LITTLE_ENDIAN */
 
+#if( ipconfigDNS_USE_CALLBACKS != 0 )
+	/* Two functions that are only called from within the library. */
+	extern void vDNSInitialise( void );
+	extern void vDNSCheckCallBack( void *pvSearchID );
+#endif	/* ipconfigDNS_USE_CALLBACKS */
 
 /* For convenience, a MAC address of all zeros and another of all 0xffs are
 defined const for quick reference. */
@@ -476,6 +491,24 @@ extern struct xNetworkEndPoint *pxNetworkEndPoints;
 
 /* A list of all network interfaces: */
 extern struct xNetworkInterface *pxNetworkInterfaces;
+
+/* In this library, there is often a cast from a character pointer
+ * to a pointer to a struct.
+ * In order to suppress MISRA warnings, do the cast within a macro,
+ * which can be exempt from warnings:
+ *
+ * 4 required by MISRA:
+ * -emacro( 740,ipPOINTER_CAST)	// Unusual pointer cast (incompatible indirect types) [MISRA 2012 Rule 1.3, required]
+ * -emacro( 923,ipPOINTER_CAST)	// Note -- cast from unsigned int to pointer [MISRA 2012 Rule 11.6, required]
+ * -emacro(9005,ipPOINTER_CAST)	// Note -- attempt to cast away const/volatile from a pointer or reference [MISRA 2012 Rule 11.8, required])
+ * -emacro(9087,ipPOINTER_CAST)	// 9087 cast performed between a pointer to object type and a pointer to a different object type [MISRA 2012 Rule 11.3, required]
+ *
+ * 2 advisory by MISRA:
+ * -emacro(9079,ipPOINTER_CAST)	// conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]
+ * -emacro(9016,ipPOINTER_CAST)	// Note -- pointer arithmetic other than array indexing used [MISRA 2012 Rule 18.4, advisory])
+*/
+
+#define ipPOINTER_CAST( TYPE, pointer  ) ( ( TYPE ) ( pointer ) )
 
 /* The local IP address is accessed from within xDefaultPartUDPPacketHeader,
 rather than duplicated in its own variable. */
@@ -665,7 +698,7 @@ BaseType_t xIPIsNetworkTaskReady( void );
 								 * This counter is separate from the xmitCount in the
 								 * TCP win segments */
 		uint8_t ucTCPState;		/* TCP state: see eTCP_STATE */
-		struct XSOCKET *pxPeerSocket;	/* for server socket: child, for child socket: parent */
+		struct xSOCKET *pxPeerSocket;	/* for server socket: child, for child socket: parent */
 		#if( ipconfigTCP_KEEP_ALIVE == 1 )
 			uint8_t ucKeepRepCount;
 			TickType_t xLastAliveTime;
@@ -733,7 +766,7 @@ typedef enum eSOCKET_EVENT {
 	eSOCKET_ALL		= 0x007F,
 } eSocketEvent_t;
 
-typedef struct XSOCKET
+typedef struct xSOCKET
 {
 	EventBits_t xEventBits;
 	EventGroupHandle_t xEventGroup;
@@ -830,7 +863,7 @@ void vReturnEthernetFrame( NetworkBufferDescriptor_t * pxNetworkBuffer, BaseType
  * The TCP driver needs to bind a socket at the moment a listening socket
  * creates a new connected socket
  */
-BaseType_t vSocketBind( FreeRTOS_Socket_t *pxSocket, struct freertos_sockaddr * pxAddress, size_t uxAddressLength, BaseType_t xInternal );
+BaseType_t vSocketBind( FreeRTOS_Socket_t *pxSocket, struct freertos_sockaddr * pxBindAddress, size_t uxAddressLength, BaseType_t xInternal );
 
 /*
  * Internal function to add streaming data to a TCP socket. If ulIn == true,
@@ -905,42 +938,42 @@ NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( void *pvBuffer )
 
 		if( ( ( EthernetHeader_t * ) ( pxNetworkBuffer->pucEthernetBuffer ) )->usFrameType == ipIPv6_FRAME_TYPE )
 		{
-			xResult = ipSIZE_OF_IP_HEADER_IPv6;
+			xResult = ipSIZE_OF_IPv6_HEADER;
 		}
 		else
 		{
-			xResult = ipSIZE_OF_IP_HEADER_IPv4;
+			xResult = ipSIZE_OF_IPv4_HEADER;
 		}
 
 		return xResult;
 	}
 #else
 	/* IPv6 is not used, return a fixed value of 20. */
-	#define xIPHeaderSize( pxNetworkBuffer )	( ipSIZE_OF_IP_HEADER_IPv4 )
+	#define xIPHeaderSize( pxNetworkBuffer )	( ipSIZE_OF_IPv4_HEADER )
 #endif
 /*-----------------------------------------------------------*/
 
 /* Get the size of the IP-header.
 The socket is checked for its type: IPv4 or IPv6. */
 #if( ipconfigUSE_IPv6 != 0 )
-	static portINLINE BaseType_t xIPHeaderSizeSocket( FreeRTOS_Socket_t *pxSocket )
+	static portINLINE size_t xIPHeaderSizeSocket( FreeRTOS_Socket_t *pxSocket )
 	{
 	BaseType_t xResult;
 
 		if( ( pxSocket != NULL ) && ( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED ) )
 		{
-			xResult = ipSIZE_OF_IP_HEADER_IPv6;
+			xResult = ipSIZE_OF_IPv6_HEADER;
 		}
 		else
 		{
-			xResult = ipSIZE_OF_IP_HEADER_IPv4;
+			xResult = ipSIZE_OF_IPv4_HEADER;
 		}
 
 		return xResult;
 	}
 #else
 	/* IPv6 is not used, return a fixed value of 20. */
-	#define xIPHeaderSizeSocket( pxSocket )	( ipSIZE_OF_IP_HEADER_IPv4 )
+	#define xIPHeaderSizeSocket( pxSocket )	( ( size_t ) ( ipSIZE_OF_IPv4_HEADER ) )
 #endif
 /*-----------------------------------------------------------*/
 
@@ -1011,7 +1044,7 @@ typedef struct xSOCKET_SET
 	FreeRTOS_Socket_t *pxSocket;
 } SocketSelect_t;
 
-extern void vSocketSelect( SocketSelect_t *pxSocketSelect );
+extern void vSocketSelect( SocketSelect_t *pxSocketSet );
 
 #endif /* ipconfigSUPPORT_SELECT_FUNCTION */
 

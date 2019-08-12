@@ -77,8 +77,8 @@ extern "C" {
 
 /* Some constants defining the sizes of several parts of a packet */
 #define ipSIZE_OF_ETH_HEADER			14u
-#define ipSIZE_OF_IP_HEADER_IPv4		20u
-#define ipSIZE_OF_IP_HEADER_IPv6		40u
+#define ipSIZE_OF_IPv4_HEADER			20u
+#define ipSIZE_OF_IPv6_HEADER			40u
 #define ipSIZE_OF_IGMP_HEADER			8u
 #define ipSIZE_OF_ICMP_HEADER			8u
 #define ipSIZE_OF_UDP_HEADER			8u
@@ -273,7 +273,7 @@ typedef struct xIP_TIMER
 #endif /* ipconfigHAS_INLINE_FUNCTIONS */
 
 /*_RB_ Macro prefix is incorrect. */
-#define pdMS_TO_MIN_TICKS( xTimeInMs ) ( pdMS_TO_TICKS( ( xTimeInMs ) ) < ( ( TickType_t ) 1 ) ? ( ( TickType_t ) 1 ) : pdMS_TO_TICKS( ( xTimeInMs ) ) )
+#define pdMS_TO_MIN_TICKS( xTimeInMs ) ( ( pdMS_TO_TICKS( ( xTimeInMs ) ) < ( ( TickType_t ) 1 ) ) ? ( ( TickType_t ) 1 ) : pdMS_TO_TICKS( ( xTimeInMs ) ) )
 
 #ifndef pdTRUE_SIGNED
 	/* Temporary solution: eventually the defines below will appear in 'Source\include\projdefs.h' */
@@ -372,7 +372,7 @@ structure name. */
 	#define xWinProperties_t 			WinProperties_t
 	#define xSocket_t 					Socket_t
 	#define xSocketSet_t 				SocketSet_t
-	#define ipSIZE_OF_IP_HEADER			ipSIZE_OF_IP_HEADER_IPv4
+	#define ipSIZE_OF_IP_HEADER			ipSIZE_OF_IPv4_HEADER
 
 	/* Since August 2016, the public types and fields below have changed name:
 	abbreviations TCP/UDP are now written in capitals, and type names now end with "_t". */

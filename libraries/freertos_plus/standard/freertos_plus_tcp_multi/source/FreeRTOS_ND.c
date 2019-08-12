@@ -52,8 +52,6 @@
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
-#include "semphr.h"
 
 /* FreeRTOS+TCP includes. */
 #include "FreeRTOS_IP.h"
@@ -62,13 +60,9 @@
 #include "FreeRTOS_ARP.h"
 #include "FreeRTOS_ND.h"
 #include "FreeRTOS_UDP_IP.h"
-#include "FreeRTOS_DHCP.h"
 #if( ipconfigUSE_LLMNR == 1 )
 	#include "FreeRTOS_DNS.h"
 #endif /* ipconfigUSE_LLMNR */
-#include "NetworkInterface.h"
-#include "NetworkBufferManagement.h"
-#include "FreeRTOS_Routing.h"
 
 #if( ipconfigUSE_IPv6 != 0 )
 
@@ -86,7 +80,7 @@ static NDCacheRow_t xNDCache[ ipconfigND_CACHE_ENTRIES ];
 eARPLookupResult_t eNDGetCacheEntry( IPv6_Address_t *pxIPAddress, MACAddress_t * const pxMACAddress )
 {
 eARPLookupResult_t eReturn;
-///* For testing now, fill in Hein's laptop: 9c 5c 8e 38 06 6c */
+/* For testing now, fill in Hein's laptop: 9c 5c 8e 38 06 6c */
 //static const unsigned char testMAC[] = { 0x9C, 0x5C, 0x8E, 0x38, 0x06, 0x6C };
 //
 //	memcpy( pxMACAddress->ucBytes, testMAC, sizeof testMAC );
@@ -127,7 +121,7 @@ eARPLookupResult_t eReturn;
 			xNDCache[ xEntryFound ].ucAge = ( uint8_t ) ipconfigMAX_ARP_AGE;
 			xNDCache[ xEntryFound ].ucValid = ( uint8_t ) pdTRUE;
 			FreeRTOS_printf( ( "vNDRefreshCacheEntry[ %d ] %pip with %02x:%02x:%02x\n",
-				xEntryFound,
+				( int ) xEntryFound,
 				pxIPAddress->ucBytes,
 				pxMACAddress->ucBytes[ 3 ],
 				pxMACAddress->ucBytes[ 4 ],
@@ -158,7 +152,7 @@ eARPLookupResult_t eReturn = eARPCacheMiss;
 			memcpy( pxMACAddress->ucBytes, xNDCache[ x ].xMACAddress.ucBytes, sizeof( MACAddress_t ) );
 			eReturn = eARPCacheHit;
 				FreeRTOS_printf( ( "prvCacheLookup[ %d ] %pip with %02x:%02x:%02x\n",
-					x,
+					( int ) x,
 					pxAddressToLookup->ucBytes,
 					pxMACAddress->ucBytes[ 3 ],
 					pxMACAddress->ucBytes[ 4 ],

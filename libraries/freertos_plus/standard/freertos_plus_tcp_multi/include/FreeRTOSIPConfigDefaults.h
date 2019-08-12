@@ -54,6 +54,9 @@ will be removed. */
 /* This file provides default values for configuration options that are missing
 from the FreeRTOSIPConfig.h configuration header file. */
 
+#ifndef configPRINTF
+	#define	configPRINTF( X )	do {} while( 0 )
+#endif
 
 /* Ensure defined configuration constants are using the most up to date naming. */
 #ifdef tcpconfigIP_TIME_TO_LIVE
@@ -191,6 +194,17 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define	ipconfigSOCK_DEFAULT_SEND_BLOCK_TIME	portMAX_DELAY
 #endif
 
+
+#ifndef	ipconfigDNS_RECEIVE_BLOCK_TIME
+	/* In earlier versions, a DNS look-up could become clocking in
+	ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME had its default value
+	of portMAX_DELAY. */
+	#define	ipconfigDNS_RECEIVE_BLOCK_TIME			pdMS_TO_TICKS( 1200u )
+#endif
+
+#ifndef	ipconfigDNS_SEND_BLOCK_TIME
+	#define	ipconfigDNS_SEND_BLOCK_TIME				pdMS_TO_TICKS( 200u )
+#endif
 /*
  * FreeRTOS debug logging routine (proposal)
  * The macro will be called in the printf() style. Users can define
@@ -381,7 +395,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #ifndef ipconfigTCP_MSS
 	/* _HT_ the default value of ipconfigTCP_MSS should somehow
 	depend on the IP version in use. */
-	#define ipconfigTCP_MSS		( ipconfigNETWORK_MTU - ipSIZE_OF_IP_HEADER_IPv6 - ipSIZE_OF_TCP_HEADER )
+	#define ipconfigTCP_MSS		( ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv6_HEADER + ipSIZE_OF_TCP_HEADER ) )
 #endif
 
 /* Each TCP socket has circular stream buffers for Rx and Tx, which
@@ -419,11 +433,13 @@ from the FreeRTOSIPConfig.h configuration header file. */
 
 #if( ipconfigUSE_DNS_CACHE != 0 )
 	#ifndef ipconfigDNS_CACHE_NAME_LENGTH
-		#define ipconfigDNS_CACHE_NAME_LENGTH		( 16 )
+		/* Per https://tools.ietf.org/html/rfc1035, 253 is the maximum string length
+		of a DNS name. The following default accounts for a null terminator. */
+		#define ipconfigDNS_CACHE_NAME_LENGTH   254
 	#endif
 
 	#ifndef ipconfigDNS_CACHE_ENTRIES
-		#define ipconfigDNS_CACHE_ENTRIES			0
+		#define ipconfigDNS_CACHE_ENTRIES			1
 	#endif
 #endif /* ipconfigUSE_DNS_CACHE != 0 */
 
@@ -555,8 +571,15 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define ipconfigUSE_NBNS 0
 #endif
 
+/* As an attack surface reduction for ports that listen for inbound 
+connections, hang protection can help reduce the impact of SYN floods. */
 #ifndef ipconfigTCP_HANG_PROTECTION
-	#define ipconfigTCP_HANG_PROTECTION  0
+	#define ipconfigTCP_HANG_PROTECTION  1
+#endif
+
+/* Non-activity timeout is expressed in seconds. */
+#ifndef ipconfigTCP_HANG_PROTECTION_TIME
+	#define ipconfigTCP_HANG_PROTECTION_TIME 30
 #endif
 
 #ifndef ipconfigTCP_IP_SANITY
@@ -590,6 +613,17 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define ipconfigENDPOINT_DNS_ADDRESS_COUNT   2
 #endif
 
+#ifndef ipconfigUSE_LOOPBACK
+	#define ipconfigUSE_LOOPBACK 0
+#endif
+
+#ifndef ipconfigFREERTOS_PLUS_NABTO
+	#define ipconfigFREERTOS_PLUS_NABTO 0
+#endif
+
+#ifndef ipconfigUSE_TCP_TIMESTAMPS
+	#define ipconfigUSE_TCP_TIMESTAMPS 0
+#endif
 
 #endif /* FREERTOS_DEFAULT_IP_CONFIG_H */
 

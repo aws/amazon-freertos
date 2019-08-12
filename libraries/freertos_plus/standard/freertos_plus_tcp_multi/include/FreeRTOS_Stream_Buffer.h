@@ -256,7 +256,7 @@ size_t uxSize = uxStreamBufferGetSize( pxBuffer );
  * pucData -	A pointer to the data to be added.
  * uxCount -	The number of bytes to add.
  */
-size_t uxStreamBufferAdd( StreamBuffer_t *pxBuffer, size_t uxOffset, const uint8_t *pucData, size_t uxCount );
+size_t uxStreamBufferAdd( StreamBuffer_t *pxBuffer, size_t uxOffset, const uint8_t *pucData, size_t uxByteCount );
 
 /*
  * Read bytes from a stream buffer.

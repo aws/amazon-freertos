@@ -198,8 +198,12 @@ int32_t lTCPWindowRxCheck( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uin
 /* When lTCPWindowRxCheck returned false, please call store for this unexpected data */
 BaseType_t xTCPWindowRxStore( TCPWindow_t *pxWindow, uint32_t ulSequenceNumber, uint32_t ulLength );
 
-/* This function will be called as soon as a FIN is received. It will return true
- * if there are no 'open' reception segments */
+/* When the peer has a close request (FIN flag), the driver will check if
+ * there are missing packets in the Rx-queue
+ * It will accept the closure of the connection if both conditions are true:
+ * - the Rx-queue is empty
+ * - we've ACK'd the highest Rx sequence number seen
+ */
 BaseType_t xTCPWindowRxEmpty( TCPWindow_t *pxWindow );
 
 /* _HT_ Temporary function for testing/debugging

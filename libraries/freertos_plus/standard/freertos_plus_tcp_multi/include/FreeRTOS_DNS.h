@@ -63,9 +63,9 @@ extern "C" {
  * The target IP address will be 224.0.0.252
  */
 #if( ipconfigBYTE_ORDER == pdFREERTOS_BIG_ENDIAN )
-	#define	ipLLMNR_IP_ADDR			0xE00000FC
+	#define	ipLLMNR_IP_ADDR			0xE00000FCuL
 #else
-	#define	ipLLMNR_IP_ADDR			0xFC0000E0
+	#define	ipLLMNR_IP_ADDR			0xFC0000E0uL
 #endif /* ipconfigBYTE_ORDER == pdFREERTOS_BIG_ENDIAN */
 
 #define	ipLLMNR_PORT	5355 /* Standard LLMNR port. */
@@ -116,6 +116,7 @@ uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
 #if( ipconfigUSE_DNS_CACHE != 0 )
 
 	uint32_t FreeRTOS_dnslookup( const char *pcHostName );
+    void FreeRTOS_dnsclear( void );
 
 #endif /* ipconfigUSE_DNS_CACHE != 0 */
 
