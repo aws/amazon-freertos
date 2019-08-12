@@ -195,15 +195,12 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #endif
 
 
-#ifndef	ipconfigDNS_RECEIVE_BLOCK_TIME
-	/* In earlier versions, a DNS look-up could become clocking in
-	ipconfigSOCK_DEFAULT_RECEIVE_BLOCK_TIME had its default value
-	of portMAX_DELAY. */
-	#define	ipconfigDNS_RECEIVE_BLOCK_TIME			pdMS_TO_TICKS( 1200u )
+#ifndef	ipconfigDNS_RECEIVE_BLOCK_TIME_TICKS
+	#define	ipconfigDNS_RECEIVE_BLOCK_TIME_TICKS	pdMS_TO_TICKS( 500u )
 #endif
 
-#ifndef	ipconfigDNS_SEND_BLOCK_TIME
-	#define	ipconfigDNS_SEND_BLOCK_TIME				pdMS_TO_TICKS( 200u )
+#ifndef	ipconfigDNS_SEND_BLOCK_TIME_TICKS
+	#define	ipconfigDNS_SEND_BLOCK_TIME_TICKS		pdMS_TO_TICKS( 500u )
 #endif
 /*
  * FreeRTOS debug logging routine (proposal)
@@ -419,6 +416,14 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#endif /* _WINDOWS_ */
 #endif /* ipconfigMAXIMUM_DISCOVER_TX_PERIOD */
 
+#if( ipconfigUSE_DNS == 0 )
+	/* The DNS module will not be included. */
+	#if( ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) )
+		/* LLMNR and NBNS depend on DNS because those protocols share a lot of code. */
+		#error When either LLMNR or NBNS is used, ipconfigUSE_DNS must be defined
+	#endif
+#endif
+
 #ifndef ipconfigUSE_DNS
 	#define ipconfigUSE_DNS						1
 #endif
@@ -450,13 +455,6 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #ifndef ipconfigUSE_LLMNR
 	/* Include support for LLMNR: Link-local Multicast Name Resolution (non-Microsoft) */
 	#define ipconfigUSE_LLMNR					( 0 )
-#endif
-
-#if( !defined( ipconfigUSE_DNS ) )
-	#if( ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) )
-		/* LLMNR and NBNS depend on DNS because those protocols share a lot of code. */
-		#error When either LLMNR or NBNS is used, ipconfigUSE_DNS must be defined
-	#endif
 #endif
 
 #ifndef ipconfigREPLY_TO_INCOMING_PINGS
