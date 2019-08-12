@@ -64,6 +64,7 @@ typedef struct xND_CACHE_TABLE_ROW
 {
 	IPv6_Address_t xIPAddress;	/* The IP address of an ND cache entry. */
 	MACAddress_t xMACAddress;	/* The MAC address of an ND cache entry. */
+	struct xNetworkEndPoint *pxEndPoint;
 	uint8_t ucAge;				/* A value that is periodically decremented but can also be refreshed by active communication.  The ND cache entry is removed if the value reaches zero. */
     uint8_t ucValid;			/* pdTRUE: xMACAddress is valid, pdFALSE: waiting for ND reply */
 } NDCacheRow_t;
@@ -74,7 +75,7 @@ typedef struct xND_CACHE_TABLE_ROW
  * cache table then add it - replacing the oldest current entry if there is not
  * a free space available.
  */
-void vNDRefreshCacheEntry( const MACAddress_t * pxMACAddress, const IPv6_Address_t *pxIPAddress );
+void vNDRefreshCacheEntry( const MACAddress_t * pxMACAddress, const IPv6_Address_t *pxIPAddress, NetworkEndPoint_t *pxEndPoint );
 
 #if( ipconfigUSE_ARP_REMOVE_ENTRY != 0 )
 
@@ -109,11 +110,11 @@ eARPLookupResult_t eNDGetCacheEntry( IPv6_Address_t *pxIPAddress, MACAddress_t *
 void vNDAgeCache( void );
 
 /*
- * Send out an ND request for the IP address contained in pxNetworkBuffer, and
+ * Send out an ND request for the IPv6 address contained in pxNetworkBuffer, and
  * add an entry into the ND table that indicates that an ND reply is
  * outstanding so re-transmissions can be generated.
  */
-void vNDGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer );
+void vNDGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer, IPv6_Address_t *pxIPAddress );
 
 /*
  * After DHCP is ready and when changing IP address, force a quick send of our new IP
@@ -122,6 +123,10 @@ void vNDGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer
 void vNDSendGratuitous( void );
 
 void FreeRTOS_PrintNDCache( void );
+
+#if( ipconfigUSE_IPv6 != 0 )
+	void FreeRTOS_OutputAdvertiseIPv6( NetworkEndPoint_t *pxEndPoint );
+#endif
 
 #endif /* ipconfigUSE_IPv6 != 0 */
 

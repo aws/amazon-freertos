@@ -208,10 +208,6 @@ NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxIn
 	NetworkEndPoint_t *FreeRTOS_FirstEndPoint_IPv6( NetworkInterface_t *pxInterface );
 #endif /* ipconfigUSE_IPv6 */
 
-#if( ipconfigUSE_IPv6 != 0 )
-	void FreeRTOS_OutputAdvertiseIPv6( NetworkEndPoint_t *pxEndPoint );
-#endif
-
 /* A ethernet packet has come in on a certain network interface.
 Find the best matching end-point. */
 NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxNetworkInterface, uint8_t *pucEthernetBuffer );

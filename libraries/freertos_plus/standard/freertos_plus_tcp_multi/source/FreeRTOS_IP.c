@@ -39,12 +39,12 @@
 #include "FreeRTOS_Sockets.h"
 #include "FreeRTOS_IP_Private.h"
 #include "FreeRTOS_ARP.h"
-#include "FreeRTOS_ND.h"
 #include "FreeRTOS_UDP_IP.h"
 #include "FreeRTOS_DHCP.h"
 #include "NetworkBufferManagement.h"
 #include "FreeRTOS_DNS.h"
 #include "FreeRTOS_Routing.h"
+#include "FreeRTOS_ND.h"
 
 #include "eventLogging.h"
 
@@ -323,6 +323,9 @@ static BaseType_t xIPTaskInitialised = pdFALSE;
 
 /*-----------------------------------------------------------*/
 
+void nd_test();
+BaseType_t call_nd_test;
+
 static void prvIPTask( void *pvParameters )
 {
 IPStackEvent_t xReceivedEvent;
@@ -395,6 +398,11 @@ eventLogAdd("prvIPTask start");
 		{
 			xReceivedEvent.eEventType = eNoEvent;
 		}
+
+if (call_nd_test) {
+	call_nd_test--;
+	nd_test();
+}
 
 		#if( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
 		{
@@ -1757,6 +1765,15 @@ volatile eFrameProcessingResult_t eReturned; /* Volatile to prevent complier war
 			xResult = memcmp( pxLeft->ucBytes + 13, pxRight->ucBytes + 13, 3 );
 		}
 		else
+		if( ( pxRight->ucBytes[ 0 ] == 0xfe ) &&
+			( pxRight->ucBytes[ 1 ] == 0x80 ) &&
+			( pxLeft ->ucBytes[ 0 ] == 0xfe ) &&
+			( pxLeft ->ucBytes[ 1 ] == 0x80 ) )
+		{
+			/* Both are local addresses. */
+			xResult = 0;
+		}
+		else
 		{
 			xResult = memcmp( pxLeft->ucBytes, pxRight->ucBytes, sizeof( pxLeft->ucBytes ) );
 		}
@@ -2014,7 +2031,7 @@ uint8_t ucProtocol;
 #if( ipconfigUSE_IPv6 != 0 )
 			if( pxIPPacket->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
 			{
-				vNDRefreshCacheEntry( &( pxIPPacket->xEthernetHeader.xSourceAddress ), &( pxIPHeader_IPv6->xSourceIPv6Address ) );
+				vNDRefreshCacheEntry( &( pxIPPacket->xEthernetHeader.xSourceAddress ), &( pxIPHeader_IPv6->xSourceIPv6Address ), pxNetworkBuffer->pxEndPoint );
 			}
 			else
 #endif /* ipconfigUSE_IPv6 */
