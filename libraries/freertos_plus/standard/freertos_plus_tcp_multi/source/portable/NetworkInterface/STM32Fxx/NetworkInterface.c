@@ -847,9 +847,6 @@ const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pxDescriptor-
 	if( pxProtPacket->xTCPPacket.xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
 	{
 		/* FreeRTOS_printf( ( "ipIPv6 packet received\n") ); */
-		/* Check it here. */
-		pxDescriptor->pxInterface = pxMyInterface;
-		pxDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxDescriptor->pucEthernetBuffer );
 		return pdTRUE;
 	}
 
@@ -903,9 +900,6 @@ const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pxDescriptor-
 //			FreeRTOS_printf( ( "Drop IP %lxip\n", FreeRTOS_ntohl( ulDestinationIPAddress ) ) );
 //			return pdFALSE;
 //		}
-		pxDescriptor->pxInterface = pxMyInterface;
-		pxDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxDescriptor->pucEthernetBuffer );
-
 		if( pxDescriptor->pxEndPoint == NULL )
 		{
 		#if( ipconfigUSE_LLMNR == 1 )
@@ -1026,6 +1020,11 @@ uint8_t *pucBuffer;
 		{
 			/* See if this packet must be handled. */
 			xAccepted = xMayAcceptPacket( pxCurDescriptor );
+			if( xAccepted != pdFALSE )
+			{
+				pxCurDescriptor->pxInterface = pxMyInterface;
+				pxCurDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxCurDescriptor->pucEthernetBuffer );
+			}
 
 			pxCurDescriptor->xDataLength = xReceivedLength;
 			xRxEvent.pvData = ( void * ) pxCurDescriptor;

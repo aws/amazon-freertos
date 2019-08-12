@@ -75,6 +75,9 @@ extern "C" {
 
 #endif /* ipconfigUSE_IPv6 */
 
+/* Using this function temporarily untill ipconfigRAND32() has been replaced. */
+BaseType_t xRandom32( uint32_t *pulValue );
+
 /* Some constants defining the sizes of several parts of a packet */
 #define ipSIZE_OF_ETH_HEADER			14u
 #define ipSIZE_OF_IPv4_HEADER			20u
@@ -106,6 +109,10 @@ extern "C" {
 #define ipICMP_PING_REPLY_IPv6				( ( uint8_t ) 129 )
 #define ipICMP_NEIGHBOR_SOLICITATION_IPv6	( ( uint8_t ) 135 )
 #define ipICMP_NEIGHBOR_ADVERTISEMENT_IPv6	( ( uint8_t ) 136 )
+
+/* The character used to fill ICMP echo requests, and therefore also the
+character expected to fill ICMP echo replies. */
+#define ipECHO_DATA_FILL_BYTE						'x'
 
 /* Dimensions the buffers that are filled by received Ethernet frames. */
 #define ipSIZE_OF_ETH_CRC_BYTES					( 4UL )

@@ -43,6 +43,9 @@
 #endif /* ipconfigUSE_LLMNR */
 #include "NetworkBufferManagement.h"
 #include "FreeRTOS_Routing.h"
+#if( ipconfigUSE_IPv6 != 0 )
+	#include "FreeRTOS_ND.h"
+#endif
 
 /* When the age of an entry in the ARP table reaches this value (it counts down
 to zero, so this is an old entry) an ARP request will be sent to see if the
@@ -119,7 +122,10 @@ NetworkEndPoint_t *pxTargetEndPoint = pxNetworkBuffer->pxEndPoint;
 			case ipARP_REQUEST	:
 				if( ulSenderProtocolAddress != ulTargetProtocolAddress )
 				{
-					FreeRTOS_printf( ( "ipARP_REQUEST from %lxip to %lxip\n", FreeRTOS_ntohl( ulSenderProtocolAddress ), FreeRTOS_ntohl( ulTargetProtocolAddress ) ) );
+					FreeRTOS_printf( ( "ipARP_REQUEST from %lxip to %lxip end-point %lxip\n",
+									   FreeRTOS_ntohl( ulSenderProtocolAddress ),
+									   FreeRTOS_ntohl( ulTargetProtocolAddress ),
+									   FreeRTOS_ntohl( pxTargetEndPoint ? pxTargetEndPoint->ulIPAddress : 0uL ) ) );
 				}
 				/* The packet contained an ARP request.  Was it for the IP
 				address of one of the end-points? */

@@ -1135,7 +1135,7 @@ ProtocolHeaders_t *pxProtocolHeaders;	/*lint !e9018 ddeclaration of symbol with 
 	if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
 	{
 		ulRemoteIP = 0uL;
-		eReturned = eNDGetCacheEntry( &( pxSocket->u.xTCP.xRemoteIP_IPv6 ), &( xEthAddress ) );
+		eReturned = eNDGetCacheEntry( &( pxSocket->u.xTCP.xRemoteIP_IPv6 ), &( xEthAddress ), &( pxEndPoint ) );
 	}
 	else
 	#endif
