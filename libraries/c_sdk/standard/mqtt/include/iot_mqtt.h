@@ -256,7 +256,7 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
  *
  * // Example network abstraction types.
  * IotNetworkServerInfo_t serverInfo = { ... };
- * cIotNetworkCredentials_t credentialInfo = { ... };
+ * IotNetworkCredentials_t credentialInfo = { ... };
  * IotNetworkInterface_t networkInterface = { ... };
  *
  * // Example using a generic network implementation.
