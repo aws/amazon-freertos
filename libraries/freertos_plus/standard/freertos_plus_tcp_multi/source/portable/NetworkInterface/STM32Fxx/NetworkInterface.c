@@ -86,6 +86,10 @@ expansion. */
 
 #define ipFRAGMENT_OFFSET_BIT_MASK		( ( uint16_t ) 0x0fff ) /* The bits in the two byte IP header field that make up the fragment offset value. */
 
+#if( ( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 ) || ( ipconfigDRIVER_INCLUDED_RX_IP_CHECKSUM == 0 ) )
+	#warning Consider enabling checksum offloading
+#endif
+
 /*
  * Most users will want a PHY that negotiates about
  * the connection properties: speed, dmix and duplex.
@@ -444,10 +448,18 @@ BaseType_t xMACEntry = ETH_MAC_ADDRESS1;	/* ETH_MAC_ADDRESS0 reserved for the pr
 		xETH.Init.MACAddr = ( uint8_t * ) pxEndPoint->xMACAddress.ucBytes;
 		xETH.Init.RxMode = ETH_RXINTERRUPT_MODE;
 
-		/* using the ETH_CHECKSUM_BY_HARDWARE option:
-		both the IP and the protocol checksums will be calculated
-		by the peripheral. */
-		xETH.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
+		#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM != 0 )
+		{
+			/* using the ETH_CHECKSUM_BY_HARDWARE option:
+			both the IP and the protocol checksums will be calculated
+			by the peripheral. */
+			xETH.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
+		}
+		#else
+		{
+			xETH.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
+		}
+		#endif
 
 		#if( ipconfigUSE_RMII != 0 )
 		{
@@ -585,6 +597,10 @@ BaseType_t xIndex;
 		{
 			/* Set the DMA Tx descriptors checksum insertion for TCP, UDP, and ICMP */
 			pxDMADescriptor->Status |= ETH_DMATXDESC_CHECKSUMTCPUDPICMPFULL;
+		}
+		else
+		{
+			pxDMADescriptor->Status &= ~( ( uint32_t ) ETH_DMATXDESC_CHECKSUMTCPUDPICMPFULL );
 		}
 
 		/* Initialize the next descriptor with the Next Descriptor Polling Enable */
@@ -763,7 +779,17 @@ const TickType_t xBlockTimeTicks = pdMS_TO_TICKS( 50u );
 
 				/* Ask to set the IPv4 checksum.
 				Also need an Interrupt on Completion so that 'vClearTXBuffers()' will be called.. */
-				pxDmaTxDesc->Status |= ETH_DMATXDESC_CIC_TCPUDPICMP_FULL | ETH_DMATXDESC_IC;
+				#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM != 0 )
+				{
+					pxDmaTxDesc->Status |= ETH_DMATXDESC_CIC_TCPUDPICMP_FULL | ETH_DMATXDESC_IC;
+				}
+				#else
+				{
+					pxDmaTxDesc->Status &= ~( ( uint32_t ) ETH_DMATXDESC_CIC );
+					pxDmaTxDesc->Status |= ETH_DMATXDESC_IC;
+				}
+				#endif
+
 
 				/* Prepare transmit descriptors to give to DMA. */
 

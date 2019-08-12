@@ -1812,12 +1812,13 @@ FreeRTOS_printf( ( "Recv ipARP_FRAME_TYPE\n" ) );
 			define, so that the checksum won't be checked again here */
 			if (eReturn == eProcessBuffer )
 			{
+			const IPPacket_t * pxIPPacket = ipPOINTER_CAST( const IPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 			NetworkEndPoint_t *pxEndPoint = FreeRTOS_FindEndPointOnMAC( &( pxIPPacket->xEthernetHeader.xSourceAddress ), ( NetworkInterface_t * )NULL );
 				/* IPv6 does not have a separate checmsum in the IP-header */
 				/* Is the upper-layer checksum (TCP/UDP/ICMP) correct? */
 				/* Do not check the checksum of loop-back messages. */
 				if( ( pxEndPoint == NULL ) &&
-					( usGenerateProtocolChecksum( ( uint8_t * )( pxNetworkBuffer->pucEthernetBuffer ), pdFALSE ) != ipCORRECT_CRC ) )
+					( usGenerateProtocolChecksum( ( uint8_t * )( pxNetworkBuffer->pucEthernetBuffer ), pxNetworkBuffer->xDataLength, pdFALSE ) != ipCORRECT_CRC ) )
 				{
 					/* Protocol checksum not accepted. */
 					eReturn = eReleaseBuffer;
@@ -2114,7 +2115,7 @@ uint8_t ucProtocol;
 
 		/* Remove the length of the ICMP header, to obtain the length of
 		data contained in the ping. */
-		usDataLength = ( uint16_t ) ( ( ( uint32_t ) usDataLength ) - ipSIZE_OF_ICMP_HEADER );
+		usDataLength = ( uint16_t ) ( ( ( uint32_t ) usDataLength ) - ipSIZE_OF_ICMPv4_HEADER );
 
 		/* Checksum has already been checked before in prvProcessIPPacket */
 
@@ -2227,6 +2228,10 @@ uint8_t ucProtocol;
 #endif /* ( ipconfigREPLY_TO_INCOMING_PINGS == 1 ) || ( ipconfigSUPPORT_OUTGOING_PINGS == 1 ) */
 /*-----------------------------------------------------------*/
 
+uint16_t usGenerateProtocolChecksum_new( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength, BaseType_t xOutgoingPacket );
+
+#include "checksum.ipv6.c"
+
 uint16_t usGenerateProtocolChecksum( const uint8_t * const pucEthernetBuffer, size_t uxBufferLength, BaseType_t xOutgoingPacket )
 {
 uint32_t ulLength;
@@ -2244,10 +2249,14 @@ uint8_t ucProtocol;
 #if( ipconfigHAS_DEBUG_PRINTF != 0 )
 	const char *pcType;
 #endif
+	if( !xOutgoingPacket )
+	{
+		usGenerateProtocolChecksum_new( pucEthernetBuffer, uxBufferLength, xOutgoingPacket );
+	}
 
 	pxIPPacket = ( const IPPacket_t * ) pucEthernetBuffer;
 
-	#if( ipconfigUSE_IPv6 != 0 )
+#if( ipconfigUSE_IPv6 != 0 )
 	pxIPPacket_IPv6 = ( const IPHeader_IPv6_t * )( pucEthernetBuffer + ipSIZE_OF_ETH_HEADER );
 	if( pxIPPacket->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
 	{
@@ -2260,13 +2269,13 @@ uint8_t ucProtocol;
 
 	if( xIsIPv6 != pdFALSE )
 	{
-		xIPHeaderLength = ipSIZE_OF_IP_HEADER_IPv6;
+		xIPHeaderLength = ipSIZE_OF_IPv6_HEADER;
 		ucProtocol = pxIPPacket_IPv6->ucNextHeader;
-		pxProtocolHeaders = ( ProtocolHeaders_t * ) ( pucEthernetBuffer + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IP_HEADER_IPv6 );
+		pxProtocolHeaders = ( ProtocolHeaders_t * ) ( pucEthernetBuffer + ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER );
 		usPayloadLength = FreeRTOS_ntohs( pxIPPacket_IPv6->usPayloadLength );
 	}
 	else
-	#endif
+#endif
 	{
 		xIPHeaderLength = 4 * ( pxIPPacket->xIPHeader.ucVersionHeaderLength & 0x0F ); /*_RB_ Why 4? */
 		ucProtocol = pxIPPacket->xIPHeader.ucProtocol;
@@ -2474,7 +2483,6 @@ uint8_t ucProtocol;
 	return usChecksum;
 }
 /*-----------------------------------------------------------*/
-
 
 uint16_t usGenerateChecksum( uint32_t ulSum, const uint8_t * pucNextData, size_t uxDataLengthBytes )
 {
