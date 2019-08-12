@@ -1,0 +1,21 @@
+Please follow steps mentioned below so as to port Marvell specific files into amazon-freertos repository,
+
+1. Download latest AFQP document from Amazon. Link - https://github.com/aws/amazon-freertos/blob/master/tests/Amazon%20FreeRTOS%20Qualification%20Developer%20Guide.pdf
+2. Find link for git repository for amazon-freertos. Link - https://github.com/aws/amazon-freertos
+3. Download the expected version with the help of tag.
+4. Extract appropriate Marvell release bundle.
+5. This Marvell release bundle is arranged in sync with amazon-freertos folder structure.
+6. Copy appropriate files and folders to respective locations in amazon-freertos,
+	For example- copy Marvell_Bundle/test/mw300_rd to AFR_HOME/test/ in amazon-freertos git(working dirctory for testing or demo)
+7. Same method can be followed for all files or folders present in Marvell release bundle. 
+8. Once everything is in place follow Getting Started Guide for MW320.pdf.
+
+Note : Cmake related files and folders are not present in master branch of amazon-freertos git. These changes are present in feature/cmake branch.
+So all cmake related files and folders(cmake folder in AFR_HOME, CMakeLists.txt files for all modules, PreLoad.cmake) 
+need to be copied from feature/cmake branch to working directory.
+
+Also we need to skip AFQP_SOCKETS_Socket_InvalidTooManySockets from tcp. It is discussed with amazon.
+So to skip, we use macro 'MW320'. We have defined it in FreeRTOSconfig.h.
+To skip the test case add '&& !defined( MW320 )' in 'prvSOCKETS_Socket_InvalidTooManySockets' function in aws_test_tcp.c file.
+For example,
+#if !defined( WIN32 ) && !defined( PIC32MZ ) && !defined( ESP32 ) && !defined( ZYNQ7000 ) && !defined( MW320 ) && !defined( __RX ) /* Socket can be created as much as there is memory */
