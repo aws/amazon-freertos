@@ -159,7 +159,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     TLSParams_t xTLSParams = { 0 };
     struct freertos_sockaddr xTempAddress = { 0 };
 
-    if( ( pxContext != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) )
+    if( ( pxContext != ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) )
     {
         /* A connection was attempted. If this function fails, then the socket is invalid and the user
          * must call SOCKETS_Close(), on this socket, and SOCKETS_Socket() to get a new socket. */
@@ -509,7 +509,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
         {
             /* Need to close socket. */
             ( void ) FreeRTOS_closesocket( xSocket );
-            pxContext = SOCKETS_INVALID_SOCKET;
+            pxContext = ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET;
         }
         else
         {
@@ -519,10 +519,10 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
     }
     else
     {
-        pxContext = SOCKETS_INVALID_SOCKET;
+        pxContext = ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET;
     }
 
-    return pxContext;
+    return ( Socket_t ) pxContext;
 }
 /*-----------------------------------------------------------*/
 

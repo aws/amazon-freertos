@@ -64,7 +64,8 @@
  *
  * Data contained by the Socket_t type is port specific.
  */
-typedef void * Socket_t;
+struct xSOCKET;
+typedef struct xSOCKET *Socket_t;
 
 /**
  * @brief The "size_t" of secure sockets.

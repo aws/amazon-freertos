@@ -385,7 +385,7 @@ Socket_t xReturn;
 			}
 		}
 
-		return ( SocketSet_t * ) pxSocketSet;
+		return ( SocketSet_t ) pxSocketSet;
 	}
 
 #endif /* ipconfigSUPPORT_SELECT_FUNCTION == 1 */
@@ -854,7 +854,7 @@ FreeRTOS_Socket_t *pxSocket;
 					{
 						if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xUDP.pxHandleSent ) )
 						{
-							pxSocket->u.xUDP.pxHandleSent( (Socket_t *)pxSocket, xTotalDataLength );
+							pxSocket->u.xUDP.pxHandleSent( ( Socket_t )pxSocket, xTotalDataLength );
 						}
 					}
 					#endif /* ipconfigUSE_CALLBACKS */
@@ -3081,7 +3081,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 							break;
 						}
 
-						pxSocket->u.xTCP.pxHandleReceive( (Socket_t *)pxSocket, ( void* )ucReadPtr, ( size_t ) ulCount );
+						pxSocket->u.xTCP.pxHandleReceive( ( Socket_t )pxSocket, ( void* )ucReadPtr, ( size_t ) ulCount );
 						uxStreamBufferGet( pxStream, 0ul, NULL, ( size_t ) ulCount, pdFALSE );
 					}
 				} else

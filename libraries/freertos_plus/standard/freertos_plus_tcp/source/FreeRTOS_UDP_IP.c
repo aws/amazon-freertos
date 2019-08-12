@@ -270,7 +270,7 @@ UDPPacket_t *pxUDPPacket = (UDPPacket_t *) pxNetworkBuffer->pucEthernetBuffer;
 				destinationAddress.sin_port = usPort;
 				destinationAddress.sin_addr = pxUDPPacket->xIPHeader.ulDestinationIPAddress;
 
-				if( xHandler( ( Socket_t * ) pxSocket, ( void* ) pcData, ( size_t ) pxNetworkBuffer->xDataLength,
+				if( xHandler( ( Socket_t ) pxSocket, ( void* ) pcData, ( size_t ) pxNetworkBuffer->xDataLength,
 					&xSourceAddress, &destinationAddress ) )
 				{
 					xReturn = pdFAIL; /* FAIL means that we did not consume or release the buffer */

@@ -456,8 +456,8 @@ BaseType_t vNetworkSocketsInit( void );
 BaseType_t xIPIsNetworkTaskReady( void );
 
 #if( ipconfigSOCKET_HAS_USER_WAKE_CALLBACK == 1 )
-	struct XSOCKET;
-	typedef void (*SocketWakeupCallback_t)( struct XSOCKET * pxSocket );
+	struct xSOCKET;
+	typedef void (*SocketWakeupCallback_t)( struct xSOCKET * pxSocket );
 #endif
 
 #if( ipconfigUSE_TCP == 1 )
@@ -544,7 +544,7 @@ BaseType_t xIPIsNetworkTaskReady( void );
 								 * This counter is separate from the xmitCount in the
 								 * TCP win segments */
 		uint8_t ucTCPState;		/* TCP state: see eTCP_STATE */
-		struct XSOCKET *pxPeerSocket;	/* for server socket: child, for child socket: parent */
+		struct xSOCKET *pxPeerSocket;	/* for server socket: child, for child socket: parent */
 		#if( ipconfigTCP_KEEP_ALIVE == 1 )
 			uint8_t ucKeepRepCount;
 			TickType_t xLastAliveTime;
@@ -611,7 +611,7 @@ typedef enum eSOCKET_EVENT {
 	eSOCKET_ALL		= 0x007F,
 } eSocketEvent_t;
 
-typedef struct XSOCKET
+typedef struct xSOCKET
 {
 	EventBits_t xEventBits;
 	EventGroupHandle_t xEventGroup;
