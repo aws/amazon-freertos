@@ -104,7 +104,7 @@
 /**
  * @brief The size of the connection user buffer to use among the tests.
  */
-#define HTTPS_TEST_CONN_USER_BUFFER_SIZE        ( 512 )
+#define HTTPS_TEST_CONN_USER_BUFFER_SIZE        ( sizeof( _httpsConnection_t ) )
 
 /**
  * @brief The size of the request user buffer to use among the tests.
@@ -112,14 +112,16 @@
 #define HTTPS_TEST_REQ_USER_BUFFER_SIZE         ( 512 )
 
 /**
- * @brief The size of the respons user buffer to use among the tests.
+ * @brief The size of the response user buffer to use among the tests.
+ *
+ * The header space comes after the response context, hence the addition to the response context.
  */
-#define HTTPS_TEST_RESP_USER_BUFFER_SIZE        ( 512 )
+#define HTTPS_TEST_RESP_USER_BUFFER_SIZE        ( sizeof( _httpsResponse_t ) + 128 )
 
 /**
  * @brief The size of the response body buffer to use among the tests.
  */
-#define HTTPS_TEST_RESP_BODY_BUFFER_SIZE        ( 512 )
+#define HTTPS_TEST_RESP_BODY_BUFFER_SIZE        ( 256 )
 
 /**
  * @brief The maximum length of the HTTP response message buffer shared among the test.
@@ -127,7 +129,7 @@
  * The buffer of this length is used to test a few scenarios where the headers or body are found in either the header
  * buffer or body buffer and need to be copied over appropriately.
  */
-#define HTTPS_TEST_RESPONSE_MESSAGE_LENGTH      ( 2048 )
+#define HTTPS_TEST_RESPONSE_MESSAGE_LENGTH      ( 1024 )
 
 /**
  * @brief The length of the response header buffer shared among the tests.
@@ -184,24 +186,6 @@
 extern uint8_t _pConnUserBuffer[ HTTPS_TEST_CONN_USER_BUFFER_SIZE ];
 
 /**
- * @brief HTTPS Request user buffer to share among the tests.
- *
- * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
- * The user buffers are always overwritten each utilizing test, so data left over affecting other tests is not a
- * concern.
- */
-extern uint8_t _pReqUserBuffer[ HTTPS_TEST_REQ_USER_BUFFER_SIZE ];
-
-/**
- * @brief HTTPS Response user buffer to share among the tests.
- *
- * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
- * The user buffers are always overwritten each utilizing test, so data left over affecting other tests is not a
- * concern.
- */
-extern uint8_t _pRespUserBuffer[ HTTPS_TEST_RESP_USER_BUFFER_SIZE ];
-
-/**
  * @brief HTTPS Response body buffer to share among the tests.
  *
  * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
@@ -218,6 +202,24 @@ extern uint8_t _pRespBodyBuffer[ HTTPS_TEST_RESP_BODY_BUFFER_SIZE ];
  * concern.
  */
 extern uint8_t _pRespMessageBuffer[ HTTPS_TEST_RESPONSE_MESSAGE_LENGTH ];
+
+/**
+ * @brief HTTPS Request user buffer to share among the tests.
+ *
+ * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
+ * The user buffers are always overwritten each utilizing test, so data left over affecting other tests is not a
+ * concern.
+ */
+extern uint8_t _pReqUserBuffer[ HTTPS_TEST_REQ_USER_BUFFER_SIZE ];
+
+/**
+ * @brief HTTPS Response user buffer to share among the tests.
+ *
+ * This variable is extern to save memory. This is acceptable as the HTTPS Client unit tests run sequentially.
+ * The user buffers are always overwritten each utilizing test, so data left over affecting other tests is not a
+ * concern.
+ */
+extern uint8_t _pRespUserBuffer[ HTTPS_TEST_RESP_USER_BUFFER_SIZE ];
 
 /**
  * @brief The current place in _pRespMessageBuffer to receive the next byte.

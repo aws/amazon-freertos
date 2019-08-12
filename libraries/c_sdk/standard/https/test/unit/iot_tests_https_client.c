@@ -55,34 +55,26 @@
 /**
  * @brief HTTP response header lines to share among the tests.
  */
-#define HTTPS_TEST_RESPONSE_HEADER_LINES                    \
-    "HTTP/1.1 200 OK\r\n"                                   \
-    "Content-Type: image/gif\r\n"                           \
-    "Content-Length: 43\r\n"                                \
-    "Connection: keep-alive\r\n"                            \
-    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"               \
-    "ETag: \"3356698344146796544-5233166835360424028\"\r\n" \
-    "Vary: *\r\n"                                           \
-    "P3P: CP=\"This is not a P3P policy\"\r\n"              \
-    "xserver: www1021\r\n"                                  \
-    "X-XSS-Protection: 1; mode=block\r\n"                   \
-    "X-Content-Type-Options: nosniff\r\n\r\n"
+#define HTTPS_TEST_RESPONSE_HEADER_LINES       \
+    "HTTP/1.1 200 OK\r\n"                      \
+    "Content-Length: 43\r\n"                   \
+    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"  \
+    "ETag: \"3356-5233\"\r\n"                  \
+    "Vary: *\r\n"                              \
+    "P3P: CP=\"This is not a P3P policy\"\r\n" \
+    "xserver: www1021\r\n"
 #define HTTPS_TEST_RESPONSE_HEADER_LINES_LENGTH    sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES ) - 1
 
 /**
  * @brief Header lines with no content-length for testing.
  */
-#define HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH  \
-    "HTTP/1.1 200 OK\r\n"                                   \
-    "Content-Type: image/gif\r\n"                           \
-    "Connection: keep-alive\r\n"                            \
-    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"               \
-    "ETag: \"3356698344146796544-5233166835360424028\"\r\n" \
-    "Vary: *\r\n"                                           \
-    "P3P: CP=\"This is not a P3P policy\"\r\n"              \
-    "xserver: www1021\r\n"                                  \
-    "X-XSS-Protection: 1; mode=block\r\n"                   \
-    "X-Content-Type-Options: nosniff\r\n\r\n"
+#define HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH \
+    "HTTP/1.1 200 OK\r\n"                                  \
+    "Date: Sun, 14 Jul 2019 06:07:52 GMT\r\n"              \
+    "ETag: \"3356-5233\"\r\n"                              \
+    "Vary: *\r\n"                                          \
+    "P3P: CP=\"This is not a P3P policy\"\r\n"             \
+    "xserver: www1021\r\n\r\n"
 #define HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH_LENGTH    sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH ) - 1
 
 /**
@@ -92,7 +84,7 @@
 #define HTTPS_ETAG_HEADER                                            "ETag"
 #define HTTPS_NONEXISTENT_HEADER                                     "Non-Existent-Header"
 #define HTTPS_DATE_HEADER_VALUE                                      "Sun, 14 Jul 2019 06:07:52 GMT"
-#define HTTPS_ETAG_HEADER_VALUE                                      "\"3356698344146796544-5233166835360424028\""
+#define HTTPS_ETAG_HEADER_VALUE                                      "\"3356-5233\""
 #define HTTPS_CONTENT_LENGTH_VALUE                                   ( 43 )
 
 /**
