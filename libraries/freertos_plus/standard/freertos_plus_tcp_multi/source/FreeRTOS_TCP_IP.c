@@ -50,8 +50,8 @@
 #include "FreeRTOS_DHCP.h"
 #include "NetworkBufferManagement.h"
 #include "FreeRTOS_ARP.h"
-#include "FreeRTOS_ND.h"
 #include "FreeRTOS_Routing.h"
+#include "FreeRTOS_ND.h"
 
 
 /* Just make sure the contents doesn't get compiled if TCP is not enabled. */

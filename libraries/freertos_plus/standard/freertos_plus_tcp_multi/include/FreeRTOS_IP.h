@@ -162,6 +162,9 @@ typedef struct xNETWORK_BUFFER
 	#if( ipconfigUSE_LINKED_RX_MESSAGES != 0 )
 		struct xNETWORK_BUFFER *pxNextBuffer; /* Possible optimisation for expert users - requires network driver support. */
 	#endif
+	#if( ipconfigUSE_IPv6 != 0 )
+		IPv6_Address_t xIPv6_Address;
+	#endif
 } NetworkBufferDescriptor_t;
 
 #include "pack_struct_start.h"

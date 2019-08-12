@@ -180,10 +180,26 @@ typedef struct xICMP_HEADER ICMPHeader_t;
 		uint16_t usChecksum;           /*  2 +  2 = 4 */
 		uint32_t ulReserved;           /*  4 +  4 = 8 */
 		IPv6_Address_t xIPv6_Address;  /*  8 + 16 = 24 */
-		uint8_t ucOptions[8];          /* 24 +  8 = 32 */
+		uint8_t ucOptionType;          /* 24 +  1 = 25 */
+		uint8_t ucOptionLength;        /* 25 +  1 = 26 */
+		uint8_t ucOptionBytes[6];      /* 26 +  6 = 32 */
 	}
 	#include "pack_struct_end.h"
 	typedef struct xICMPHeader_IPv6 ICMPHeader_IPv6_t;
+#endif /* ipconfigUSE_IPv6 */
+
+#if( ipconfigUSE_IPv6 != 0 )
+	#include "pack_struct_start.h"
+	struct xICMPEcho_IPv6
+	{
+		uint8_t ucTypeOfMessage;       /*  0 +  1 = 1 */
+		uint8_t ucTypeOfService;       /*  1 +  1 = 2 */
+		uint16_t usChecksum;           /*  2 +  2 = 4 */
+		uint16_t usIdentifier;         /*  4 +  2 = 6 */
+		uint16_t usSequenceNumber;     /*  6 +  2 = 8 */
+	}
+	#include "pack_struct_end.h"
+	typedef struct xICMPEcho_IPv6 ICMPEcho_IPv6_t;
 #endif /* ipconfigUSE_IPv6 */
 
 #include "pack_struct_start.h"

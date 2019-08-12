@@ -81,9 +81,17 @@ IPHeader_t *pxIPHeader;
 eARPLookupResult_t eReturned;
 uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
 NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
+BaseType_t xIsIPV6 = pdFALSE;
 
 	/* Map the UDP packet onto the start of the frame. */
 	pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
+
+	#if( ipconfigUSE_IPv6 != 0 )
+	if( pxUDPPacket->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
+	{
+		xIsIPV6 = pdTRUE;
+	}
+	#endif
 
 	/* Create short cuts to the data within the packet. */
 	pxIPHeader = &( pxUDPPacket->xIPHeader );
@@ -92,7 +100,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 	change the ulIPAddress to the router address.
 	Beside the MAC-address, a reference to the network Interface will
     be return. */
-	if( ( ( FreeRTOS_ntohl( ulIPAddress ) & 0xff ) == 0xff ) && ( pxEndPoint != NULL ) )
+	if( xIsIPV6 && ( ( FreeRTOS_ntohl( ulIPAddress ) & 0xff ) == 0xff ) && ( pxEndPoint != NULL ) )
     {
         memset( pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes, 0xff, ipMAC_ADDRESS_LENGTH_BYTES );
         eReturned = eARPCacheHit;
@@ -217,7 +225,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 			#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
 			{
 				#if( ipconfigUSE_IPv6 != 0 )
-				if( pxUDPPacket->xEthernetHeader.usFrameType != ipIPv6_FRAME_TYPE )
+				if( xIsIPV6 == pdFALSE )
 				#endif
 				{
 					pxIPHeader->usHeaderChecksum = 0u;
