@@ -161,8 +161,18 @@ int location = 0;
 #if( ipconfigUSE_IPv6 != 0 )
 	else if( ucProtocol == ipPROTOCOL_ICMP_IPv6 )
 	{
-		if( ( usProtolBytes < ipSIZE_OF_ICMPv6_HEADER ) ||
-			( uxBufferLength < ( ipSIZE_OF_ETH_HEADER + uxIPHeaderLength + ipSIZE_OF_ICMPv6_HEADER ) ) )
+	size_t xNeeded;
+		switch( pxProtocolHeaders->xICMPHeader_IPv6.ucTypeOfMessage )
+		{
+			case ipICMP_PING_REQUEST_IPv6:
+			case ipICMP_PING_REPLY_IPv6:
+				xNeeded = sizeof( ICMPEcho_IPv6_t );
+				break;
+			default:
+				xNeeded = ipSIZE_OF_ICMPv6_HEADER;
+				break;
+		}
+		if( uxBufferLength < ( ipSIZE_OF_ETH_HEADER + uxIPHeaderLength + xNeeded ) )
 		{
 			usChecksum = ipINVALID_LENGTH;
 			location = 9;

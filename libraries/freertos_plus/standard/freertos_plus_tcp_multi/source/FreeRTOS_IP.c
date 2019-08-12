@@ -338,8 +338,6 @@ FreeRTOS_Socket_t *pxSocket;
 #endif
 NetworkInterface_t *pxInterface;
 
-eventLogAdd("prvIPTask");
-
 	/* Just to prevent compiler warnings about unused parameters. */
 	( void ) pvParameters;
 
@@ -378,7 +376,6 @@ eventLogAdd("prvIPTask");
 
 	FreeRTOS_debug_printf( ( "prvIPTask started\n" ) );
 
-eventLogAdd("prvIPTask start");
 	/* Loop, processing IP events. */
 	for( ;; )
 	{
@@ -1137,7 +1134,6 @@ BaseType_t xReturn = pdFALSE;
 NetworkInterface_t *pxFirstNetwork;
 NetworkEndPoint_t *pxFirstEndPoint, *pxEndPoint;
 
-eventLogAdd("IPStart");
 	/* There must be at least one interface and one end-point. */
 	pxFirstNetwork = FreeRTOS_FirstNetworkInterface();
 	configASSERT( pxFirstNetwork != NULL );

@@ -126,6 +126,7 @@ void FreeRTOS_PrintNDCache( void );
 
 #if( ipconfigUSE_IPv6 != 0 )
 	void FreeRTOS_OutputAdvertiseIPv6( NetworkEndPoint_t *pxEndPoint );
+	BaseType_t FreeRTOS_SendPingRequestIPv6( IPv6_Address_t *pxIPAddress, size_t xNumberOfBytesToSend, TickType_t xBlockTimeTicks );
 #endif
 
 #endif /* ipconfigUSE_IPv6 != 0 */
