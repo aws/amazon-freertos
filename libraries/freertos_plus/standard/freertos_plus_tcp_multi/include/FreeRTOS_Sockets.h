@@ -98,10 +98,12 @@ in case an operation would block */
 
 /* Values for the parameters to FreeRTOS_socket(), inline with the Berkeley
 standard.  See the documentation of FreeRTOS_socket() for more information. */
-#define FREERTOS_AF_INET		( 2 )
+#define FREERTOS_AF_INET4		( 2 )
 #define FREERTOS_AF_INET6		( 10 )
 #define FREERTOS_SOCK_DGRAM		( 2 )
 #define FREERTOS_IPPROTO_UDP	( 17 )
+
+#define FREERTOS_AF_INET		FREERTOS_AF_INET4
 
 #define FREERTOS_SOCK_STREAM	( 1 )
 #define FREERTOS_IPPROTO_TCP	( 6 )
@@ -385,7 +387,7 @@ typedef union xTCP_UDP_HANDLER
 
 BaseType_t FreeRTOS_setsockopt( Socket_t xSocket, int32_t lLevel, int32_t lOptionName, const void *pvOptionValue, size_t xOptionLength );
 BaseType_t FreeRTOS_closesocket( Socket_t xSocket );
-uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
+
 #if ipconfigINCLUDE_FULL_INET_ADDR == 1
 	uint32_t FreeRTOS_inet_addr( const char * pcIPAddress );
 	BaseType_t FreeRTOS_inet_pton4( const char *pcSource, uint8_t *pucDest );

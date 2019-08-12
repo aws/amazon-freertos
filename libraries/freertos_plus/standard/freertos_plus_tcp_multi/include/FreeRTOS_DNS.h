@@ -75,6 +75,9 @@ extern "C" {
 #define	ipNBNS_PORT		137	/* NetBIOS Name Service. */
 #define	ipNBDGM_PORT	138 /* Datagram Service, not included. */
 
+#define dnsTYPE_A_HOST						0x0001u
+#define dnsTYPE_AAAA_HOST					0x001Cu
+
 /*
  * The following function should be provided by the user and return true if it
  * matches the domain name.
@@ -116,6 +119,9 @@ uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
 #if( ipconfigUSE_DNS_CACHE != 0 )
 
 	uint32_t FreeRTOS_dnslookup( const char *pcHostName );
+	#if( ipconfigUSE_IPv6 != 0 )
+		uint32_t FreeRTOS_dnslookup6( const char *pcHostName, IPv6_Address_t *pxAddress_IPv6 );
+	#endif
     void FreeRTOS_dnsclear( void );
 
 #endif /* ipconfigUSE_DNS_CACHE != 0 */
@@ -132,7 +138,7 @@ uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
 	 * Asynchronous version of gethostbyname()
 	 * xTimeout is in units of ms.
 	 */
-	uint32_t FreeRTOS_gethostbyname_a( const char *pcHostName, FOnDNSEvent pCallback, void *pvSearchID, TickType_t xTimeout );
+	uint32_t FreeRTOS_gethostbyname_a( const char *pcHostName, FOnDNSEvent pCallback, void *pvSearchID, TickType_t xTimeout, UBaseType_t uxHostType );
 	void FreeRTOS_gethostbyname_cancel( void *pvSearchID );
 
 #endif
@@ -142,7 +148,7 @@ uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
  * FUNCTIONS IS AVAILABLE ON THE FOLLOWING URL:
  * _TBD_ Add URL
  */
-uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
+uint32_t FreeRTOS_gethostbyname( const char *pcHostName, UBaseType_t uxHostType );
 
 
 #ifdef __cplusplus

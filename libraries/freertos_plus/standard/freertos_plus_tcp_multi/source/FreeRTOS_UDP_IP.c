@@ -42,6 +42,7 @@
 #include "FreeRTOS_DHCP.h"
 #include "NetworkBufferManagement.h"
 #include "FreeRTOS_Routing.h"
+#include "FreeRTOS_ND.h"
 
 #if( ipconfigUSE_DNS == 1 ) || ( ipconfigUSE_NBNS == 1 )
 	#include "FreeRTOS_DNS.h"
@@ -221,8 +222,8 @@ BaseType_t xIsIPV6 = pdFALSE;
 					pxUDPPacket_IPv6->xIPHeader.usPayloadLength = FreeRTOS_htons( pxUDPPacket_IPv6->xIPHeader.usPayloadLength );
 					memcpy( pxUDPPacket_IPv6->xIPHeader.xDestinationIPv6Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 				}
-				#endif
 				else
+				#endif
 				{
 					pxIPHeader->ucProtocol = ipPROTOCOL_UDP;
 					pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) + sizeof( UDPHeader_t ) );
@@ -395,7 +396,9 @@ BaseType_t xReturn = pdPASS;
 FreeRTOS_Socket_t *pxSocket;
 ProtocolHeaders_t *pxProtocolHeaders;	/*lint !e9018 declaration of symbol  with union based type [MISRA 2012 Rule 19.2, advisory] */
 UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
-UDPPacket_IPv6_t *pxUDPPacket_IPv6;
+#if( ipconfigUSE_IPv6 != 0 )
+	UDPPacket_IPv6_t *pxUDPPacket_IPv6;
+#endif
 BaseType_t xIsIPV6 = pdFALSE;
 
 	pxSocket = pxUDPSocketLookup( usPort );

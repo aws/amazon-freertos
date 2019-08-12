@@ -392,11 +392,12 @@ NetworkInterface_t *pxInterface;
 			xReceivedEvent.eEventType = eNoEvent;
 		}
 
+#if( ipconfigUSE_IPv6 != 0 )
 if (call_nd_test) {
 	call_nd_test--;
 	nd_test();
 }
-
+#endif
 		#if( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
 		{
 			if( xReceivedEvent.eEventType != eNoEvent )
@@ -980,7 +981,11 @@ NetworkBufferDescriptor_t * pxNewBuffer;
 		pxNewBuffer->pxEndPoint = pxNetworkBuffer->pxEndPoint;
 		pxNewBuffer->xDataLength = uxNewLength;
 		memcpy( pxNewBuffer->pucEthernetBuffer, pxNetworkBuffer->pucEthernetBuffer, pxNetworkBuffer->xDataLength );
-		memcpy( pxNewBuffer->xIPv6_Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+		#if( ipconfigUSE_IPv6 != 0 )
+		{
+			memcpy( pxNewBuffer->xIPv6_Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+		}
+		#endif	/* ipconfigUSE_IPv6 != 0 */
 	}
 
 	return pxNewBuffer;

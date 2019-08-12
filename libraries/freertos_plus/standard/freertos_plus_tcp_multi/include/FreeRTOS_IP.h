@@ -55,6 +55,7 @@ extern "C" {
 #include "FreeRTOSIPConfigDefaults.h"
 #include "IPTraceMacroDefaults.h"
 
+#define ipSIZE_OF_IPv4_ADDRESS	4
 #define ipSIZE_OF_IPv6_ADDRESS	16
 
 #if( ipconfigUSE_IPv6 != 0 )
