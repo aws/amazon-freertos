@@ -165,6 +165,9 @@ in NetworkInterface.c as follows:
 */
 BaseType_t xCheckLoopback( NetworkBufferDescriptor_t * pxDescriptor, BaseType_t bReleaseAfterSend );
 
+/* Clear all entries in the ARp cache. */
+void FreeRTOS_ClearARP( void );
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -721,7 +721,7 @@ TickType_t xTimeoutTime = ( TickType_t ) 0;
 	else if( xDHCPSocket == NULL ) /* Create the socket, if it has not already been created. */
 	{
 		xDHCPSocket = FreeRTOS_socket( FREERTOS_AF_INET, FREERTOS_SOCK_DGRAM, FREERTOS_IPPROTO_UDP );
-		configASSERT( ( xDHCPSocket != ipPOINTER_CAST( Socket_t, FREERTOS_INVALID_SOCKET ) ) );
+		configASSERT( ( xDHCPSocket != FREERTOS_INVALID_SOCKET ) );
 
 		/* Ensure the Rx and Tx timeouts are zero as the DHCP executes in the
 		context of the IP task. */

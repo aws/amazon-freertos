@@ -685,14 +685,14 @@ NetworkEndPoint_t *FreeRTOS_FindGateWay( BaseType_t xIPType )
 	while( pxEndPoint != NULL )
 	{
 	#if( ipconfigUSE_IPv6 == 0 )
-		if( pxEndPoint->ulGatewayAddress != 0uL )
+		if( pxEndPoint->ipv4.ulGatewayAddress != 0uL )	/* access to ipv4 is checked. */
 		{
 			break;
 		}
 	#else
 		if( (xIPType == ipTYPE_IPv6 ) && ( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED ) )
 		{
-			if( pxEndPoint->ipv6.xGatewayAddress.ulWords[ 0 ] != 0uL )
+			if( pxEndPoint->ipv6.xGatewayAddress.ulWords[ 0 ] != 0uL )	/* access to ipv6 is checked. */
 			{
 				break;
 			}
@@ -700,7 +700,7 @@ NetworkEndPoint_t *FreeRTOS_FindGateWay( BaseType_t xIPType )
 		else
 		if( (xIPType == ipTYPE_IPv4 ) && ( pxEndPoint->bits.bIPv6 == pdFALSE_UNSIGNED ) )
 		{
-			if( pxEndPoint->ipv4.ulGatewayAddress != 0uL )
+			if( pxEndPoint->ipv4.ulGatewayAddress != 0uL )	/* access to ipv4 is checked. */
 			{
 				break;
 			}

@@ -78,6 +78,26 @@ extern "C" {
 #define dnsTYPE_A_HOST						0x0001u
 #define dnsTYPE_AAAA_HOST					0x001Cu
 
+struct freertos_addrinfo
+{
+   BaseType_t				ai_flags;
+   BaseType_t				ai_family;
+   BaseType_t				ai_socktype;
+   BaseType_t				ai_protocol;
+   socklen_t				ai_addrlen;
+   struct freertos_sockaddr *ai_addr;
+   char						*ai_canonname;
+   struct {
+		/* In order to avoid allocations, reserve space here for *ai_addr and *ai_canonname. */
+		#if( ipconfigUSE_IPv6 != 0 )
+			struct freertos_sockaddr6 sockaddr6;
+		#else
+			struct freertos_sockaddr sockaddr4;
+		#endif
+		char ucName[ ipconfigDNS_CACHE_NAME_LENGTH ];
+	} xPrivateStorage;
+};
+
 /*
  * The following function should be provided by the user and return true if it
  * matches the domain name.
@@ -138,17 +158,30 @@ uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
 	 * Asynchronous version of gethostbyname()
 	 * xTimeout is in units of ms.
 	 */
-	uint32_t FreeRTOS_gethostbyname_a( const char *pcHostName, FOnDNSEvent pCallback, void *pvSearchID, TickType_t xTimeout, UBaseType_t uxHostType );
+	uint32_t FreeRTOS_gethostbyname_a( const char *pcHostName, FOnDNSEvent pCallback, void *pvSearchID, TickType_t xTimeout );
 	void FreeRTOS_gethostbyname_cancel( void *pvSearchID );
+
+	BaseType_t FreeRTOS_getaddrinfo_a( const char *pcName,					/* The name of the node or device */
+								 const char *pcService,						/* Ignored for now. */
+								 const struct freertos_addrinfo *pxHints,	/* If not NULL: preferences. */
+								 struct freertos_addrinfo **ppxResult,		/* An allocated struct, containing the results. */
+								 FOnDNSEvent pCallback,
+								 void *pvSearchID,
+								 TickType_t xTimeout );
 
 #endif
 
 /*
- * FULL, UP-TO-DATE AND MAINTAINED REFERENCE DOCUMENTATION FOR ALL THESE
- * FUNCTIONS IS AVAILABLE ON THE FOLLOWING URL:
- * _TBD_ Add URL
+ * Lookup a IPv4 node in a blocking-way.
  */
-uint32_t FreeRTOS_gethostbyname( const char *pcHostName, UBaseType_t uxHostType );
+uint32_t FreeRTOS_gethostbyname( const char *pcHostName );
+
+BaseType_t FreeRTOS_getaddrinfo( const char *pcName,						/* The name of the node or device */
+								 const char *pcService,						/* Ignored for now. */
+								 const struct freertos_addrinfo *pxHints,	/* If not NULL: preferences. */
+								 struct freertos_addrinfo **ppxResult );	/* An allocated struct, containing the results. */
+
+void FreeRTOS_freeaddrinfo(struct freertos_addrinfo *pxResult);
 
 
 #ifdef __cplusplus

@@ -56,18 +56,16 @@ xBoundUDPSocketsList or xBoundTCPSocketsList */
 number then, depending on the FreeRTOSIPConfig.h settings, it might be that a
 port number is automatically generated for the socket.  Automatically generated
 port numbers will be between socketAUTO_PORT_ALLOCATION_START_NUMBER and
-0xffff. */
-/* _HT_ thinks that the default of 0xc000 is pretty high */
+0xffff.
+
+Per https://tools.ietf.org/html/rfc6056, "the dynamic ports consist of the range
+49152-65535. However, ephemeral port selection algorithms should use the whole
+range 1024-65535" excluding those already in use (inbound or outbound). */
 #if !defined( socketAUTO_PORT_ALLOCATION_START_NUMBER )
-	#define socketAUTO_PORT_ALLOCATION_START_NUMBER ( ( uint16_t ) 0xc000 )
+	#define socketAUTO_PORT_ALLOCATION_START_NUMBER ( ( uint16_t ) 0x0400 )
 #endif
 
-/* When the automatically generated port numbers overflow, the next value used
-is not set back to socketAUTO_PORT_ALLOCATION_START_NUMBER because it is likely
-that the first few automatically generated ports will still be in use.  Instead
-it is reset back to the value defined by this constant. */
-#define socketAUTO_PORT_ALLOCATION_RESET_NUMBER ( ( uint16_t ) 0xc100 )
-#define socketAUTO_PORT_ALLOCATION_MAX_NUMBER   ( ( uint16_t ) 0xff00 )
+#define socketAUTO_PORT_ALLOCATION_MAX_NUMBER   ( ( uint16_t ) 0xffff )
 
 /* The number of octets that make up an IP address. */
 #define socketMAX_IP_ADDRESS_OCTETS		4u
@@ -79,19 +77,10 @@ it is reset back to the value defined by this constant. */
 	#define ipTCP_TIMER_PERIOD_MS	( 1000 )
 #endif
 
-/* The next private port number to use when binding a client socket is stored in
-the usNextPortToUse[] array - which has either 1 or two indexes depending on
-whether TCP is being supported. */
-#if( ipconfigUSE_TCP == 1 )
-	#define socketPROTOCOL_COUNT		2
-#else
-	#define socketPROTOCOL_COUNT		1
-#endif
-
-/* Indexes into the usNextPortToUse[] array for UDP and TCP sockets
-respectively. */
-#define socketNEXT_UDP_PORT_NUMBER_INDEX	0
-#define socketNEXT_TCP_PORT_NUMBER_INDEX	1
+/* Some helper macro's for defining the 20/80 % limits of uxLittleSpace / uxEnoughSpace. */
+#define sock20_PERCENT						20
+#define sock80_PERCENT						80
+#define sock100_PERCENT						100
 
 
 /*-----------------------------------------------------------*/
@@ -167,22 +156,13 @@ static List_t xBoundUDPSocketsList;
 	List_t xBoundTCPSocketsList;
 #endif /* ipconfigUSE_TCP == 1 */
 
-/* Holds the next private port number to use when binding a client socket for
-UDP, and if ipconfigUSE_TCP is set to 1, also TCP.  UDP uses index
-socketNEXT_UDP_PORT_NUMBER_INDEX and TCP uses index
-socketNEXT_TCP_PORT_NUMBER_INDEX.  The initial value is set to be between
-socketAUTO_PORT_ALLOCATION_RESET_NUMBER and socketAUTO_PORT_ALLOCATION_MAX_NUMBER
-when the IP stack is initialised.  Note ipconfigRAND32() is used, which must be
-seeded prior to the IP task being started. */
-static uint16_t usNextPortToUse[ socketPROTOCOL_COUNT ] = { 0 };
-
 /*-----------------------------------------------------------*/
 
 static BaseType_t prvValidSocket( FreeRTOS_Socket_t *pxSocket, BaseType_t xProtocol, BaseType_t xIsBound )
 {
 BaseType_t xReturn;
 
-	if( ( pxSocket == NULL ) || ( pxSocket == ipPOINTER_CAST( FreeRTOS_Socket_t *, FREERTOS_INVALID_SOCKET ) ) )
+	if( ( pxSocket == NULL ) || ( pxSocket == FREERTOS_INVALID_SOCKET ) )
 	{
 		xReturn = pdFALSE;
 	}
@@ -207,30 +187,10 @@ BaseType_t xReturn;
 
 void vNetworkSocketsInit( void )
 {
-const uint32_t ulAutoPortRange = socketAUTO_PORT_ALLOCATION_MAX_NUMBER - socketAUTO_PORT_ALLOCATION_RESET_NUMBER;
-uint32_t ulRandomPort;
-
 	vListInitialise( &xBoundUDPSocketsList );
-
-	/* Determine the first anonymous UDP port number to get assigned.  Give it
-	a random value in order to avoid confusion about port numbers being used
-	earlier, before rebooting the device.  Start with the first auto port
-	number, then add a random offset up to a maximum of the range of numbers. */
-	ulRandomPort = socketAUTO_PORT_ALLOCATION_START_NUMBER;
-	ulRandomPort += ( ipconfigRAND32() % ulAutoPortRange );
-	usNextPortToUse[ socketNEXT_UDP_PORT_NUMBER_INDEX ] = ( uint16_t ) ulRandomPort;
 
 	#if( ipconfigUSE_TCP == 1 )
 	{
-		extern uint32_t ulNextInitialSequenceNumber;
-
-		ulNextInitialSequenceNumber = ipconfigRAND32();
-
-		/* Determine the first anonymous TCP port number to get assigned. */
-		ulRandomPort = socketAUTO_PORT_ALLOCATION_START_NUMBER;
-		ulRandomPort += ( ipconfigRAND32() % ulAutoPortRange );
-		usNextPortToUse[ socketNEXT_TCP_PORT_NUMBER_INDEX ] = ( uint16_t ) ulRandomPort;
-
 		vListInitialise( &xBoundTCPSocketsList );
 	}
 	#endif  /* ipconfigUSE_TCP == 1 */
@@ -267,6 +227,7 @@ FreeRTOS_Socket_t *pxSocket = NULL;
 			if( xType != FREERTOS_SOCK_DGRAM )
 			{
 				xReturn = pdFAIL;
+				configASSERT( xReturn );
 			}
 			/* In case a UDP socket is created, do not allocate space for TCP data. */
 			*pxSocketSize = ( sizeof( *pxSocket ) - sizeof( pxSocket->u ) ) + sizeof( pxSocket->u.xUDP );
@@ -277,6 +238,7 @@ FreeRTOS_Socket_t *pxSocket = NULL;
 			if( xType != FREERTOS_SOCK_STREAM )
 			{
 				xReturn = pdFAIL;
+				configASSERT( xReturn );
 			}
 
 			*pxSocketSize = ( sizeof( *pxSocket ) - sizeof( pxSocket->u ) ) + sizeof( pxSocket->u.xTCP );
@@ -285,11 +247,12 @@ FreeRTOS_Socket_t *pxSocket = NULL;
 		else
 		{
 			xReturn = pdFAIL;
+			configASSERT( xReturn );
 		}
 	}
 	/* In case configASSERT() is not used */
-	( void ) xDomain;
-	( void ) pxSocket;	/* Was only use fot sizeof. */
+	( void )xDomain;
+	( void )pxSocket;	/* Was only use fot sizeof. */
 	return xReturn;
 }
 /*-----------------------------------------------------------*/
@@ -304,7 +267,7 @@ Socket_t xReturn;
 
 	if( prvDetermineSocketSize( xDomain, xType, xProtocol, &uxSocketSize ) == pdFAIL )
 	{
-		xReturn = ipPOINTER_CAST( Socket_t, FREERTOS_INVALID_SOCKET );
+		xReturn = FREERTOS_INVALID_SOCKET;
 	}
 	else
 	{
@@ -316,13 +279,13 @@ Socket_t xReturn;
 
 		if( pxSocket == NULL )
 		{
-			pxSocket = ipPOINTER_CAST( Socket_t, FREERTOS_INVALID_SOCKET );
+			pxSocket = FREERTOS_INVALID_SOCKET;
 			iptraceFAILED_TO_CREATE_SOCKET();
 		}
 		else if( ( xEventGroup = xEventGroupCreate() ) == NULL )	/*lint !e9084 result of assignment operator used in larger expression [MISRA 2012 Rule 13.4, advisory]. */
 		{
 			vPortFreeSocket( pxSocket );
-			pxSocket = ipPOINTER_CAST( Socket_t, FREERTOS_INVALID_SOCKET );
+			pxSocket = FREERTOS_INVALID_SOCKET;
 			iptraceFAILED_TO_CREATE_EVENT_GROUP();
 		}
 		else
@@ -384,7 +347,7 @@ Socket_t xReturn;
 			#endif  /* ipconfigUSE_TCP == 1 */
 		}
 
-		xReturn = ( Socket_t ) pxSocket;
+		xReturn = pxSocket;
 	}
 
 	/* Remove compiler warnings in the case the configASSERT() is not defined. */
@@ -629,14 +592,14 @@ BaseType_t lPacketCount;
 NetworkBufferDescriptor_t *pxNetworkBuffer;
 FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
 TickType_t xRemainingTime = ( TickType_t ) 0; /* Obsolete assignment, but some compilers output a warning if its not done. */
-BaseType_t xTimed = pdFALSE, xIsIPV6 = pdFALSE;
+BaseType_t xTimed = pdFALSE;
 TimeOut_t xTimeOut;
 int32_t lReturn;
 EventBits_t xEventBits = ( EventBits_t ) 0;
 
 	if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_UDP, pdTRUE ) == pdFALSE )
 	{
-		return -pdFREERTOS_ERRNO_EINVAL;	/*lint !e904 Return statement before end of function [MISRA 2012 Rule 15.5, advisory]. */
+		return -pdFREERTOS_ERRNO_EINVAL;
 	}
 
 	lPacketCount = ( BaseType_t ) listCURRENT_LIST_LENGTH( &( pxSocket->u.xUDP.xWaitingPacketsList ) );
@@ -717,6 +680,10 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 	if( lPacketCount != 0 )
 	{
+	#if( ipconfigUSE_IPv6 != 0 )
+	BaseType_t xIsIPV6 = pdFALSE;
+	#endif /* ( ipconfigUSE_IPv6 != 0 ) */
+
 		taskENTER_CRITICAL();
 		{
 			/* The owner of the list item is the network buffer. */
@@ -811,11 +778,6 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 }
 /*-----------------------------------------------------------*/
 
-int32_t FreeRTOS_sendto6( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
-{
-	return FreeRTOS_sendto( xSocket, pvBuffer, xTotalDataLength, xFlags, pxDestinationAddress, xDestinationAddressLength );
-}
-
 int32_t FreeRTOS_sendto( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
 {
 NetworkBufferDescriptor_t *pxNetworkBuffer;
@@ -825,7 +787,9 @@ TickType_t xTicksToWait;
 int32_t lReturn = 0;
 FreeRTOS_Socket_t *pxSocket;
 /* The defaults for IPv4. */
+#if( ipconfigUSE_IPv6 != 0 )
 BaseType_t xIsIPV6 = pdFALSE;
+#endif
 size_t xMaxPayloadLength = ipconfigNETWORK_MTU - ( ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER );
 size_t xPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER;
 
@@ -950,7 +914,7 @@ size_t xPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF
 					{
 						if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xUDP.pxHandleSent ) )
 						{
-							pxSocket->u.xUDP.pxHandleSent( (Socket_t ) pxSocket, xTotalDataLength );
+							pxSocket->u.xUDP.pxHandleSent( pxSocket, xTotalDataLength );
 						}
 					}
 					#endif /* ipconfigUSE_CALLBACKS */
@@ -992,149 +956,6 @@ size_t xPayloadOffset = ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF
 /*-----------------------------------------------------------*/
 
 
-int32_t FreeRTOS_sendto4( Socket_t xSocket, const void *pvBuffer, size_t xTotalDataLength, BaseType_t xFlags, const struct freertos_sockaddr *pxDestinationAddress, socklen_t xDestinationAddressLength )
-{
-NetworkBufferDescriptor_t *pxNetworkBuffer;
-IPStackEvent_t xStackTxEvent = { eStackTxEvent, NULL };
-TimeOut_t xTimeOut;
-TickType_t xTicksToWait;
-int32_t lReturn = 0;
-FreeRTOS_Socket_t *pxSocket;
-
-	pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
-
-	/* The function prototype is designed to maintain the expected Berkeley
-	sockets standard, but this implementation does not use all the
-	parameters. */
-	( void ) xDestinationAddressLength;
-	configASSERT( pvBuffer );
-
-	if( xTotalDataLength <= ( size_t ) ipMAX_UDP_PAYLOAD_LENGTH )
-	{
-		/* If the socket is not already bound to an address, bind it now.
-		Passing NULL as the address parameter tells FreeRTOS_bind() to select
-		the address to bind to. */
-		if( ( socketSOCKET_IS_BOUND( pxSocket ) ) ||
-			( FreeRTOS_bind( xSocket, NULL, 0u ) == 0 ) )	/*lint !e9007 side effects on right hand of logical operator, ''||'' [MISRA 2012 Rule 13.5, required]. */
-		{
-			xTicksToWait = pxSocket->xSendBlockTime;
-
-			#if( ipconfigUSE_CALLBACKS != 0 )
-			{
-				if( xIsCallingFromIPTask() != pdFALSE )
-				{
-					/* If this send function is called from within a call-back
-					handler it may not block, otherwise chances would be big to
-					get a deadlock: the IP-task waiting for itself. */
-					xTicksToWait = ( TickType_t )0;
-				}
-			}
-			#endif /* ipconfigUSE_CALLBACKS */
-
-			if( ( xFlags & FREERTOS_MSG_DONTWAIT ) != 0 )
-			{
-				xTicksToWait = ( TickType_t ) 0;
-			}
-
-			if( ( xFlags & FREERTOS_ZERO_COPY ) == 0 )
-			{
-				/* Zero copy is not set, so obtain a network buffer into
-				which the payload will be copied. */
-				vTaskSetTimeOutState( &xTimeOut );
-
-				/* Block until a buffer becomes available, or until a
-				timeout has been reached */
-				pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( xTotalDataLength + sizeof( UDPPacket_t ), xTicksToWait );
-
-				if( pxNetworkBuffer != NULL )
-				{
-					memcpy( &( pxNetworkBuffer->pucEthernetBuffer[ ipUDP_PAYLOAD_OFFSET_IPv4 ] ), pvBuffer, xTotalDataLength );
-					pxNetworkBuffer->pxEndPoint = NULL; /* pxSocket->pxEndPoint; */
-
-					if( xTaskCheckForTimeOut( &xTimeOut, &xTicksToWait ) == pdTRUE )
-					{
-						/* The entire block time has been used up. */
-						xTicksToWait = ( TickType_t ) 0;
-					}
-				}
-			}
-			else
-			{
-				/* When zero copy is used, pvBuffer is a pointer to the
-				payload of a buffer that has already been obtained from the
-				stack.  Obtain the network buffer pointer from the buffer. */
-				pxNetworkBuffer = pxUDPPayloadBuffer_to_NetworkBuffer( ( void * ) pvBuffer );	/*lint !e9005 attempt to cast away const from a pointer or reference [MISRA 2012 Rule 11.8, required]. */
-			}
-
-			if( pxNetworkBuffer != NULL )
-			{
-			UDPPacket_t *pxUDPPacket;
-
-				pxNetworkBuffer->xDataLength = xTotalDataLength;
-				pxNetworkBuffer->usPort = pxDestinationAddress->sin_port;
-				pxNetworkBuffer->usBoundPort = ( uint16_t ) socketGET_SOCKET_PORT( pxSocket );
-				pxNetworkBuffer->ulIPAddress = pxDestinationAddress->sin_addr;
-
-				/* Map the UDP packet onto the start of the frame. */
-				pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
-				pxUDPPacket->xEthernetHeader.usFrameType = ipIPv4_FRAME_TYPE;
-
-				/* The socket options are passed to the IP layer in the
-				space that will eventually get used by the Ethernet header. */
-				pxNetworkBuffer->pucEthernetBuffer[ ipSOCKET_OPTIONS_OFFSET ] = pxSocket->ucSocketOptions;
-
-				/* Tell the networking task that the packet needs sending. */
-				xStackTxEvent.pvData = pxNetworkBuffer;
-
-				/* Ask the IP-task to send this packet */
-				if( xSendEventStructToIPTask( &xStackTxEvent, xTicksToWait ) == pdPASS )
-				{
-					/* The packet was successfully sent to the IP task. */
-					lReturn = ( int32_t ) xTotalDataLength;
-					#if( ipconfigUSE_CALLBACKS == 1 )
-					{
-						if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xUDP.pxHandleSent ) )
-						{
-							pxSocket->u.xUDP.pxHandleSent( (Socket_t ) pxSocket, xTotalDataLength );
-						}
-					}
-					#endif /* ipconfigUSE_CALLBACKS */
-				}
-				else
-				{
-					/* If the buffer was allocated in this function, release
-					it. */
-					if( ( xFlags & FREERTOS_ZERO_COPY ) == 0 )
-					{
-						vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
-					}
-					iptraceSTACK_TX_EVENT_LOST( ipSTACK_TX_EVENT );
-				}
-			}
-			else
-			{
-				/* If errno was available, errno would be set to
-				FREERTOS_ENOPKTS.  As it is, the function must return the
-				number of transmitted bytes, so the calling function knows
-				how	much data was actually sent. */
-				iptraceNO_BUFFER_FOR_SENDTO();
-			}
-		}
-		else
-		{
-			/* No comment. */
-			iptraceSENDTO_SOCKET_NOT_BOUND();
-		}
-	}
-	else
-	{
-		/* The data is longer than the available buffer space. */
-		iptraceSENDTO_DATA_TOO_LONG();
-	}
-
-	return lReturn;
-} /* Tested */
-/*-----------------------------------------------------------*/
 
 /*
  * FreeRTOS_bind() : binds a socket to a local port number.  If port 0 is
@@ -1153,7 +974,7 @@ BaseType_t xReturn = 0;
 
 	configASSERT( xIsCallingFromIPTask() == pdFALSE );
 
-	if( ( pxSocket == NULL ) || ( pxSocket == ipPOINTER_CAST( FreeRTOS_Socket_t *, FREERTOS_INVALID_SOCKET ) ) )
+	if( ( pxSocket == NULL ) || ( pxSocket == FREERTOS_INVALID_SOCKET ) )
 	{
 		xReturn = -pdFREERTOS_ERRNO_EINVAL;
 	}
@@ -1255,7 +1076,7 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;	/* To void e9044 function 
 	( void ) uxAddressLength;
 
 	configASSERT( pxSocket );
-	configASSERT( pxSocket != ipPOINTER_CAST( FreeRTOS_Socket_t *, FREERTOS_INVALID_SOCKET ) );
+	configASSERT( pxSocket != FREERTOS_INVALID_SOCKET );
 
 	#if( ipconfigALLOW_SOCKET_SEND_WITHOUT_BIND == 1 )
 	{
@@ -1385,7 +1206,7 @@ IPStackEvent_t xCloseEvent;
 xCloseEvent.eEventType = eSocketCloseEvent;
 xCloseEvent.pvData = xSocket;
 
-	if( ( xSocket == NULL ) || ( xSocket == ipPOINTER_CAST( FreeRTOS_Socket_t *, FREERTOS_INVALID_SOCKET ) ) )
+	if( ( xSocket == NULL ) || ( xSocket == FREERTOS_INVALID_SOCKET ) )
 	{
 		xResult = 0;
 	}
@@ -1941,54 +1762,77 @@ FreeRTOS_Socket_t *pxSocket;
 
 /*-----------------------------------------------------------*/
 
-/* Get a free private ('anonymous') port number */
+/* Find an available port number per https://tools.ietf.org/html/rfc6056. */
 static uint16_t prvGetPrivatePortNumber( BaseType_t xProtocol )
 {
-uint16_t usResult;
-BaseType_t xIndex;
+const uint16_t usEphemeralPortCount =
+	socketAUTO_PORT_ALLOCATION_MAX_NUMBER - ( socketAUTO_PORT_ALLOCATION_START_NUMBER - 1 );
+uint16_t usIterations = usEphemeralPortCount;
+uint32_t ulRandomSeed = 0;
+uint16_t usResult = 0;
+BaseType_t xGotZeroOnce = pdFALSE;
 const List_t *pxList;
 
 #if ipconfigUSE_TCP == 1
 	if( xProtocol == ( BaseType_t ) FREERTOS_IPPROTO_TCP )
 	{
-		xIndex = socketNEXT_TCP_PORT_NUMBER_INDEX;
 		pxList = &xBoundTCPSocketsList;
 	}
 	else
 #endif
 	{
-		xIndex = socketNEXT_UDP_PORT_NUMBER_INDEX;
 		pxList = &xBoundUDPSocketsList;
 	}
 
 	/* Avoid compiler warnings if ipconfigUSE_TCP is not defined. */
 	( void ) xProtocol;
 
-	/* Assign the next port in the range.  Has it overflowed? */
-	/*_RB_ This needs to be randomised rather than sequential. */
-	/* _HT_ Agreed, although many OS's use sequential port numbers, see
-	https://www.cymru.com/jtk/misc/ephemeralports.html  */
-	for ( ;; )
+	/* Find the next available port using the random seed as a starting
+	point. */
+	do
 	{
-		++( usNextPortToUse[ xIndex ] );
+		/* Generate a random seed. */
+		ulRandomSeed = ipconfigRAND32( );
 
-		if( usNextPortToUse[ xIndex ] >= socketAUTO_PORT_ALLOCATION_MAX_NUMBER )
+		/* Only proceed if the random number generator succeeded. */
+		if( 0 == ulRandomSeed )
 		{
-			/* Don't go right back to the start of the dynamic/private port
-			range numbers as any persistent sockets are likely to have been
-			create first so the early port numbers may still be in use. */
-			usNextPortToUse[ xIndex ] = socketAUTO_PORT_ALLOCATION_RESET_NUMBER;
+			if( pdFALSE == xGotZeroOnce )
+			{
+				xGotZeroOnce = pdTRUE;
+				continue;
+			}
+			else
+			{
+				break;
+			}
 		}
 
-		usResult = FreeRTOS_htons( usNextPortToUse[ xIndex ] );
+		/* Map the random to a candidate port. */
+		usResult =
+			socketAUTO_PORT_ALLOCATION_START_NUMBER +
+			( ( ( uint16_t )ulRandomSeed ) % usEphemeralPortCount );
 
-		if( pxListFindListItemWithValue( pxList, ( TickType_t ) usResult ) == NULL )
+		/* Check if there's already an open socket with the same protocol
+		and port. */
+		if( NULL == pxListFindListItemWithValue(
+			pxList,
+			( TickType_t )FreeRTOS_htons( usResult ) ) )
 		{
+			usResult = FreeRTOS_htons( usResult );
 			break;
 		}
+		else
+		{
+			usResult = 0;
+		}
+
+		usIterations--;
 	}
+	while( usIterations > 0 );
+
 	return usResult;
-} /* Tested */
+}
 /*-----------------------------------------------------------*/
 
 /* pxListFindListItemWithValue: find a list item in a bound socket list
@@ -2435,7 +2279,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		{
 			/* Bind the socket to the port that the client task will send from.
 			Non-standard, so the error returned is that returned by bind(). */
-			xResult = FreeRTOS_bind( ( Socket_t ) pxSocket, NULL, 0u );
+			xResult = FreeRTOS_bind( pxSocket, NULL, 0u );
 		}
 		else
 		{
@@ -2589,13 +2433,13 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_TCP, pdTRUE ) == pdFALSE )
 		{
 			/* Not a valid socket or wrong type */
-			pxClientSocket = ipPOINTER_CAST( FreeRTOS_Socket_t *, FREERTOS_INVALID_SOCKET );
+			pxClientSocket = FREERTOS_INVALID_SOCKET;
 		}
 		else if( ( pxSocket->u.xTCP.bits.bReuseSocket == pdFALSE_UNSIGNED ) &&
 				 ( pxSocket->u.xTCP.ucTCPState != ( uint8_t ) eTCP_LISTEN ) )
 		{
 			/* Parent socket is not in listening mode */
-			pxClientSocket = ipPOINTER_CAST( FreeRTOS_Socket_t *, FREERTOS_INVALID_SOCKET );
+			pxClientSocket = FREERTOS_INVALID_SOCKET;
 		}
 		else
 		{
@@ -2692,7 +2536,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 			}
 		}
 
-		return ( Socket_t ) pxClientSocket;
+		return pxClientSocket;
 	}
 #endif /* ipconfigUSE_TCP */
 /*-----------------------------------------------------------*/
@@ -3428,31 +3272,16 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		creation, it could still be changed with setsockopt(). */
 		if( xIsInputStream != pdFALSE )
 		{
-			/* Flow control for input streams works with a low- and a high-water mark.
-			1) If the RX-space becomes less than uxLittleSpace, the flag 'bLowWater' will
-			be set,  and a TCP window update message will be sent to the peer.
-			2) The data will be read from the socket by recv() and when RX-space becomes
-			larger than or equal to than 'uxEnoughSpace',  a new TCP window update
-			message will be sent to the peer,  and 'bLowWater' will get cleared again.
-			By default:
-			    uxLittleSpace == 1/5 x uxRxStreamSize
-			    uxEnoughSpace == 4/5 x uxRxStreamSize
-			How-ever it is very inefficient to make 'uxLittleSpace' smaller than the actual MSS.
-			*/
 			uxLength = pxSocket->u.xTCP.uxRxStreamSize;
 
 			if( pxSocket->u.xTCP.uxLittleSpace == 0uL )
 			{
-				pxSocket->u.xTCP.uxLittleSpace  = ( 1uL * pxSocket->u.xTCP.uxRxStreamSize ) / 5u; /*_RB_ Why divide by 5?  Can this be changed to a #define? */
-				if( (pxSocket->u.xTCP.uxLittleSpace < pxSocket->u.xTCP.usCurMSS ) && ( pxSocket->u.xTCP.uxRxStreamSize >= ( 2 * pxSocket->u.xTCP.usCurMSS ) ) )
-				{
-					pxSocket->u.xTCP.uxLittleSpace = pxSocket->u.xTCP.usCurMSS;
-				}
+				pxSocket->u.xTCP.uxLittleSpace  = ( sock20_PERCENT * pxSocket->u.xTCP.uxRxStreamSize ) / sock100_PERCENT;
 			}
 
 			if( pxSocket->u.xTCP.uxEnoughSpace == 0uL )
 			{
-				pxSocket->u.xTCP.uxEnoughSpace = ( 4uL * pxSocket->u.xTCP.uxRxStreamSize ) / 5uL; /*_RB_ Why multiply by 4?  Maybe sock80_PERCENT?*/
+				pxSocket->u.xTCP.uxEnoughSpace = ( sock80_PERCENT * pxSocket->u.xTCP.uxRxStreamSize ) / sock100_PERCENT;
 			}
 		}
 		else
@@ -3590,7 +3419,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 						break;
 					}
 
-					if( pxSocket->u.xTCP.pxHandleReceive( (Socket_t ) pxSocket, ucReadPtr, ( size_t ) ulCount ) != pdFALSE )
+					if( pxSocket->u.xTCP.pxHandleReceive( pxSocket, ucReadPtr, ( size_t ) ulCount ) != pdFALSE )
 					{
 						( void ) uxStreamBufferGet( pxStream, 0uL, NULL, ( size_t ) ulCount, pdFALSE );
 					}
