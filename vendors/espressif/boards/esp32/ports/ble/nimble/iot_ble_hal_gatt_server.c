@@ -74,6 +74,13 @@ void * pvPortCalloc( size_t xNum,
 
 BTGattServerCallbacks_t xGattServerCb;
 uint32_t ulGattServerIFhandle = 0;
+static uint16_t prvCountCharacteristics( BTService_t * pxService );
+static uint16_t prvCountDescriptor( BTService_t * pxService,
+                             uint16_t startHandle );
+static void prvCleanupService( BTService_t * pxService,
+                        struct ble_gatt_svc_def * pSvc );
+static bool prvSetNewHandle( const ble_uuid_t * uuid,
+                   uint16_t handle );
 static void prvCleanupService( BTService_t * pxService,
                                struct ble_gatt_svc_def * pSvc );
 static BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid );
@@ -403,7 +410,7 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     return rc;
 }
 
-bool setNewHandle( const ble_uuid_t * uuid,
+static bool prvSetNewHandle( const ble_uuid_t * uuid,
                    uint16_t handle )
 {
     bool foundUuid = false;
@@ -483,7 +490,7 @@ void prvGATTRegisterCb( struct ble_gatt_register_ctxt * ctxt,
             ESP_LOGD( TAG, "registered service %s with handle=%d\n",
                       ble_uuid_to_str( ctxt->svc.svc_def->uuid, buf ),
                       ctxt->svc.handle );
-            setNewHandle( ctxt->svc.svc_def->uuid, ctxt->svc.handle );
+            prvSetNewHandle( ctxt->svc.svc_def->uuid, ctxt->svc.handle );
             break;
 
         case BLE_GATT_REGISTER_OP_CHR:
@@ -492,14 +499,14 @@ void prvGATTRegisterCb( struct ble_gatt_register_ctxt * ctxt,
                       ble_uuid_to_str( ctxt->chr.chr_def->uuid, buf ),
                       ctxt->chr.def_handle,
                       ctxt->chr.val_handle );
-            setNewHandle( ctxt->chr.chr_def->uuid, ctxt->chr.val_handle );
+            prvSetNewHandle( ctxt->chr.chr_def->uuid, ctxt->chr.val_handle );
             break;
 
         case BLE_GATT_REGISTER_OP_DSC:
             ESP_LOGD( TAG, "registered descriptor %s with handle=%d\n",
                       ble_uuid_to_str( ctxt->dsc.dsc_def->uuid, buf ),
                       ctxt->dsc.handle );
-            setNewHandle( ctxt->dsc.dsc_def->uuid, ctxt->dsc.handle );
+            prvSetNewHandle( ctxt->dsc.dsc_def->uuid, ctxt->dsc.handle );
             break;
 
         default:
@@ -752,7 +759,7 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 }
 
 /*-----------------------------------------------------------*/
-uint16_t prvCountCharacteristics( BTService_t * pxService )
+static uint16_t prvCountCharacteristics( BTService_t * pxService )
 {
     uint16_t nbCharacteristics = 0;
     uint16_t index;
@@ -768,7 +775,7 @@ uint16_t prvCountCharacteristics( BTService_t * pxService )
     return nbCharacteristics;
 }
 
-uint16_t prvCountDescriptor( BTService_t * pxService,
+static uint16_t prvCountDescriptor( BTService_t * pxService,
                              uint16_t startHandle )
 {
     uint16_t nbDescriptor = 0;
@@ -793,7 +800,7 @@ uint16_t prvCountDescriptor( BTService_t * pxService,
  *
  * Since all memory is initialized to 0, that function can be called to clean even half created service.
  */
-void prvCleanupService( BTService_t * pxService,
+static void prvCleanupService( BTService_t * pxService,
                         struct ble_gatt_svc_def * pSvc )
 {
     uint16_t charCount;
@@ -895,7 +902,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
         {
             pSvc->type = BLE_GATT_SVC_TYPE_PRIMARY;
         }
-        else if( pxService->pxBLEAttributes[ 0 ].xAttributeType == eBTDbPrimaryService )
+        else if( pxService->pxBLEAttributes[ 0 ].xAttributeType == eBTDbSecondaryService )
         {
             pSvc->type = BLE_GATT_SVC_TYPE_SECONDARY;
         }
@@ -913,6 +920,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
         if( pSvc->uuid == NULL )
         {
             configPRINTF( ( "Could not allocate memory for service UUID \n" ) );
+            prvCleanupService( pxService, pSvc );
             xStatus = eBTStatusNoMem;
         }
         else
