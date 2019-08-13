@@ -1663,7 +1663,7 @@ static void prvOTAUpdateTask( void * pvUnused )
                                          * If there is a valid job id, then a job status update will be sent.
                                          */
                                         ( void ) prvSetImageStateWithReason( eOTA_ImageState_Aborted, kOTA_Err_JobParserError );
-                                    }
+                          
                                 }
                                 else
                                 {
