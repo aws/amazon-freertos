@@ -514,6 +514,9 @@ size_t IotNetworkAfr_Receive( void * pConnection,
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
 
+    /* Caller should never request zero bytes. */
+    configASSERT( bytesRequested > 0 );
+
     /* Write the buffered byte. THIS IS A TEMPORARY WORKAROUND AND ASSUMES THIS
      * FUNCTION IS ALWAYS CALLED FROM THE RECEIVE CALLBACK. */
     if( pNetworkConnection->bufferedByteValid == true )
@@ -538,7 +541,7 @@ size_t IotNetworkAfr_Receive( void * pConnection,
              * the socket timeout. Ignore it and try again. */
             continue;
         }
-        else if( socketStatus <= 0 )
+        else if( socketStatus < 0 )
         {
             IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
             break;
@@ -562,6 +565,49 @@ size_t IotNetworkAfr_Receive( void * pConnection,
     {
         IotLogDebug( "Successfully received %lu bytes.",
                      ( unsigned long ) bytesRequested );
+    }
+
+    return bytesReceived;
+}
+
+/*-----------------------------------------------------------*/
+
+size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
+                                  uint8_t * pBuffer,
+                                  size_t bufferSize )
+{
+    int32_t socketStatus = 0;
+    size_t bytesReceived = 0;
+
+    /* Cast network connection to the correct type. */
+    _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
+
+    /* Caller should never pass a zero-length buffer. */
+    configASSERT( bufferSize > 0 );
+
+    /* Write the buffered byte. THIS IS A TEMPORARY WORKAROUND AND ASSUMES THIS
+     * FUNCTION IS ALWAYS CALLED FROM THE RECEIVE CALLBACK. */
+    if( pNetworkConnection->bufferedByteValid == true )
+    {
+        *pBuffer = pNetworkConnection->bufferedByte;
+        bytesReceived = 1;
+        pNetworkConnection->bufferedByteValid = false;
+    }
+
+    /* Block and wait for incoming data. */
+    socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
+                                 pBuffer + bytesReceived,
+                                 bufferSize - bytesReceived,
+                                 0 );
+
+    if( socketStatus <= 0 )
+    {
+        IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
+    }
+    else
+    {
+        IotLogDebug( "Successfully received %lu bytes.",
+                     ( unsigned long ) bytesReceived );
     }
 
     return bytesReceived;
