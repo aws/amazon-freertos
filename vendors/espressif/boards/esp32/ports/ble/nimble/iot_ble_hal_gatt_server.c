@@ -446,19 +446,6 @@ static bool prvSetNewHandle( const ble_uuid_t * uuid,
 
             /* Complete handle for CCCD. Since no callback are generated for CCCD (because they are added automatically.
              * The handle of CCCDs is still 0. */
-            if( index + 1 < pxService->xNumberOfAttributes )
-            {
-                if( pxService->pxBLEAttributes[ index + 1 ].xAttributeType == eBTDbDescriptor )
-                {
-                    /* If the attribute is a CCCD then give it the handle of previous attribute + 1.*/
-                    if( ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.ucType == eBTuuidType16 ) &&
-                        ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.uu.uu16 == BLE_GATT_DSC_CLT_CFG_UUID16 ) )
-                    {
-                        pxService->pusHandlesBuffer[ index + 1 ] = pxService->pusHandlesBuffer[ index ] + 1;
-                    }
-                }
-            }
-
             if( ble_uuid_cmp( uuid, ( ble_uuid_t * ) &uuid128 ) == 0 )
             {
                 if( ( ( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbPrimaryService ) ||
@@ -470,6 +457,19 @@ static bool prvSetNewHandle( const ble_uuid_t * uuid,
 
                 pxService->pusHandlesBuffer[ index ] = handle - gattOffset;
                 break;
+            }
+
+            if( index + 1 < pxService->xNumberOfAttributes )
+            {
+                if( pxService->pxBLEAttributes[ index + 1 ].xAttributeType == eBTDbDescriptor )
+                {
+                    /* If the attribute is a CCCD then give it the handle of previous attribute + 1.*/
+                    if( ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.ucType == eBTuuidType16 ) &&
+                        ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.uu.uu16 == BLE_GATT_DSC_CLT_CFG_UUID16 ) )
+                    {
+                        pxService->pusHandlesBuffer[ index + 1 ] = pxService->pusHandlesBuffer[ index ] + 1;
+                    }
+                }
             }
         }
 
