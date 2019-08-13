@@ -1385,7 +1385,8 @@ static OTA_Err_t prvPublishGetStreamMessage( OTA_FileContext_t * C )
                     ( int32_t ) ( OTA_FILE_BLOCK_SIZE & 0x7fffffffUL ), /* Mask to keep lint happy. It's still a constant. */
                     0,
                     C->pucRxBlockBitmap,
-                    ulBitmapLen ) )
+                    ulBitmapLen,
+                    otaconfigMAX_NUM_BLOCKS_REQUEST ) )
             {
                 ulMsgSizeToPublish = ( uint32_t ) xMsgSizeFromStream;
 
@@ -1540,6 +1541,7 @@ static void prvOTAUpdateTask( void * pvUnused )
     OTA_FileContext_t * C = NULL;
     OTA_Err_t xErr;
     OTA_PubMsg_t * pxMsgMetaData;
+    uint32_t ulNumOfBlocksToReceive = otaconfigMAX_NUM_BLOCKS_REQUEST;
 
     ( void ) pvUnused;
 
@@ -1592,6 +1594,8 @@ static void prvOTAUpdateTask( void * pvUnused )
                 {
                     if( C->ulBlocksRemaining > 0U )
                     {
+                        ulNumOfBlocksToReceive = otaconfigMAX_NUM_BLOCKS_REQUEST;
+
                         xErr = prvPublishGetStreamMessage( C );
 
                         if( xErr != kOTA_Err_None )
@@ -1729,6 +1733,23 @@ static void prvOTAUpdateTask( void * pvUnused )
                                             /* First reset the momentum counter since we received a good block. */
                                             C->ulRequestMomentum = 0;
                                             prvUpdateJobStatus( C, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
+
+                                            /* Check if we have received expected number of blocks for the current request. */
+                                            if( ulNumOfBlocksToReceive > 1 )
+                                            {
+                                                ulNumOfBlocksToReceive--;
+                                            }
+                                            else
+                                            {
+                                                /* Received number of data blocks requested so restart the request timer.*/
+                                                prvStartRequestTimer( C );
+
+                                                /* Send the event to request next set of data blocks.*/
+                                                if( xOTA_Agent.xOTA_EventFlags != NULL )
+                                                {
+                                                    ( void ) xEventGroupSetBits( xOTA_Agent.xOTA_EventFlags, OTA_EVT_MASK_REQ_TIMEOUT );
+                                                }
+                                            }
                                         }
                                     }
                                 }
