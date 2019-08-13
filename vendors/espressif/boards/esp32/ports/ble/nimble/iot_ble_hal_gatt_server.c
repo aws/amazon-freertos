@@ -79,8 +79,6 @@ static uint16_t prvCountDescriptor( BTService_t * pxService,
                              uint16_t startHandle );
 static void prvCleanupService( BTService_t * pxService,
                         struct ble_gatt_svc_def * pSvc );
-static void prvCleanupService( BTService_t * pxService,
-                               struct ble_gatt_svc_def * pSvc );
 static BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid );
 static BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf );
 static BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks );
@@ -406,75 +404,6 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     }
 
     return rc;
-}
-
-static bool prvSetNewHandle( const ble_uuid_t * uuid,
-                   uint16_t handle )
-{
-    bool foundUuid = false;
-    ble_uuid128_t uuid128;
-    uint16_t index = 0;
-    uint16_t serviceIndex = 0;
-    BTService_t * pxService;
-
-    do
-    {
-        pxService = afrServices[ serviceIndex ];
-
-        for( index = 0; index < pxService->xNumberOfAttributes; index++ )
-        {
-            switch( pxService->pxBLEAttributes[ index ].xAttributeType )
-            {
-                case eBTDbPrimaryService:
-                case eBTDbSecondaryService:
-                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xServiceUUID, ( ble_uuid_t * ) &uuid128 );
-                    break;
-
-                case eBTDbCharacteristic:
-                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristic.xUuid, ( ble_uuid_t * ) &uuid128 );
-                    break;
-
-                case eBTDbDescriptor:
-                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xUuid, ( ble_uuid_t * ) &uuid128 );
-                    break;
-
-                default:
-                    break;
-            }
-
-            /* Complete handle for CCCD. Since no callback are generated for CCCD (because they are added automatically.
-             * The handle of CCCDs is still 0. */
-            if( ble_uuid_cmp( uuid, ( ble_uuid_t * ) &uuid128 ) == 0 )
-            {
-                if( ( ( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbPrimaryService ) ||
-                      ( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbSecondaryService ) ) &&
-                    ( serviceIndex == 0 ) )
-                {
-                    gattOffset = handle;
-                }
-
-                pxService->pusHandlesBuffer[ index ] = handle - gattOffset;
-                break;
-            }
-
-            if( index + 1 < pxService->xNumberOfAttributes )
-            {
-                if( pxService->pxBLEAttributes[ index + 1 ].xAttributeType == eBTDbDescriptor )
-                {
-                    /* If the attribute is a CCCD then give it the handle of previous attribute + 1.*/
-                    if( ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.ucType == eBTuuidType16 ) &&
-                        ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.uu.uu16 == BLE_GATT_DSC_CLT_CFG_UUID16 ) )
-                    {
-                        pxService->pusHandlesBuffer[ index + 1 ] = pxService->pusHandlesBuffer[ index ] + 1;
-                    }
-                }
-            }
-        }
-
-        serviceIndex++;
-    } while( espServices[ serviceIndex ].type != BLE_GATT_SVC_TYPE_END );
-
-    return foundUuid;
 }
 
 void prvGATTRegisterCb( struct ble_gatt_register_ctxt * ctxt,
