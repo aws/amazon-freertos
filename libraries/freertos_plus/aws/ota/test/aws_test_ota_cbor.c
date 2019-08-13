@@ -528,7 +528,9 @@ TEST( Full_OTA_CBOR, CborOtaApi )
         OTA_FILE_BLOCK_SIZE,
         0,
         ( uint8_t * ) &ulBitmap,
-        sizeof( ulBitmap ) );
+        sizeof( ulBitmap ),
+        otaconfigMAX_NUM_BLOCKS_REQUEST );
+
     TEST_ASSERT_TRUE( xResult );
 
     prvSaveCborTestFile( "tempGetStreamRequest.cbor", ucCborWork, xEncodedSize );
