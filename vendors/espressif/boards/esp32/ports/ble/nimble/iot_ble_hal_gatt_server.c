@@ -39,153 +39,21 @@
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_hal_internals.h"
 
-#define APP_ID               0
-#define GATT_MAX_ENTITIES    30
+#define APP_ID          0
+#define MAX_SERVICES    20
 
-typedef struct
-{
-    BTGattAttributeType_t type;
-    void * attr;
-    ble_uuid_t * uuid;
-    uint16_t flags;
-    uint16_t parent_handle;
-    uint16_t handle;
-    uint16_t device_handle;
-    uint8_t min_key_size;
-    uint8_t total_attr;
-} BTGattEntity_t;
 
 static struct ble_gatt_access_ctxt g_ctxt;
-
-static BTGattEntity_t xGattTable[ GATT_MAX_ENTITIES ];
-
-static uint8_t xGattTableSize, xAttrNum, xCurrentAttrNum;
-
-static uint16_t xLastSvcHandle;
-
+static struct ble_gatt_svc_def espServices[ MAX_SERVICES + 1 ];
+static BTService_t * afrServices[ MAX_SERVICES ];
+static uint16_t serviceCnt = 0;
 static SemaphoreHandle_t xSem;
-
-static void xGattTableCleanup()
-{
-    int i;
-
-    for( i = 0; i < xGattTableSize; i++ )
-    {
-        if( xGattTable[ i ].attr )
-        {
-            vPortFree( xGattTable[ i ].attr );
-        }
-
-        if( xGattTable[ i ].uuid )
-        {
-            vPortFree( xGattTable[ i ].uuid );
-        }
-
-        memset( &xGattTable[ i ], 0, sizeof( xGattTable ) );
-    }
-}
+uint16_t gattOffset = 0;
 
 
 void prvGattGetSemaphore()
 {
     xSemaphoreTake( xSem, portMAX_DELAY );
-}
-
-/**
- * @brief Returns the given inner GATT handle for a device handle
- * @param handle device handle
- * @return inner GATT handle
- */
-uint16_t prvGattFromDevHandle( uint16_t handle )
-{
-    for( uint16_t i = 0; i < xGattTableSize; ++i )
-    {
-        if( xGattTable[ i ].device_handle == handle )
-        {
-            return xGattTable[ i ].handle;
-        }
-    }
-
-    return 0;
-}
-
-/**
- * @brief Returns the device handle for a GATT handle
- * @param handle GATT handle
- * @return device handle
- */
-uint16_t prvDevFromGattHandle( uint16_t handle )
-{
-    for( uint16_t i = 0; i < xGattTableSize; ++i )
-    {
-        if( xGattTable[ i ].handle == handle )
-        {
-            return xGattTable[ i ].device_handle;
-        }
-    }
-
-    return 0;
-}
-
-static void prvSvcGattToDevHandle( struct ble_gatt_register_ctxt * ctxt )
-{
-    const ble_uuid_t * uuid = ctxt->svc.svc_def->uuid;
-    uint16_t handle = ctxt->svc.handle;
-
-    xCurrentAttrNum++;
-
-    for( uint16_t i = 0; i < xGattTableSize; i++ )
-    {
-        if( ble_uuid_cmp( uuid, xGattTable[ i ].uuid ) == 0 )
-        {
-            xGattTable[ i ].device_handle = handle;
-            break;
-        }
-    }
-}
-
-static void prvChrGattToDevHandle( struct ble_gatt_register_ctxt * ctxt )
-{
-    uint16_t i = 0;
-    uint16_t * handle = NULL, chr_handle = 0;
-
-    xCurrentAttrNum++;
-
-    if( ctxt->chr.chr_def->arg )
-    {
-        handle = ( uint16_t * ) ctxt->chr.chr_def->arg;
-        *handle = ctxt->chr.val_handle;
-    }
-    else
-    {
-        return;
-    }
-
-    if( handle && ( ( ctxt->chr.chr_def->flags & BLE_GATT_CHR_F_NOTIFY ) ||
-                    ( ctxt->chr.chr_def->flags & BLE_GATT_CHR_F_INDICATE ) ) )
-    {
-        for( i = 0; i < xGattTableSize; i++ )
-        {
-            if( xGattTable[ i ].device_handle == *handle )
-            {
-                chr_handle = xGattTable[ i ].handle;
-
-                while( i++ < xGattTableSize )
-                {
-                    if( ( xGattTable[ i ].type != GATT_DESCR ) || ( xGattTable[ i ].parent_handle != chr_handle ) )
-                    {
-                        continue;
-                    }
-
-                    if( ble_uuid_cmp( BLE_UUID16_DECLARE( BLE_GATT_DSC_CLT_CFG_UUID16 ), xGattTable[ i ].uuid ) == 0 )
-                    {
-                        xGattTable[ i ].device_handle = *handle + 1;
-                        break;
-                    }
-                }
-            }
-        }
-    }
 }
 
 void * pvPortCalloc( size_t xNum,
@@ -206,7 +74,15 @@ void * pvPortCalloc( size_t xNum,
 
 BTGattServerCallbacks_t xGattServerCb;
 uint32_t ulGattServerIFhandle = 0;
-
+static uint16_t prvCountCharacteristics( BTService_t * pxService );
+static uint16_t prvCountDescriptor( BTService_t * pxService,
+                             uint16_t startHandle );
+static void prvCleanupService( BTService_t * pxService,
+                        struct ble_gatt_svc_def * pSvc );
+static bool prvSetNewHandle( const ble_uuid_t * uuid,
+                   uint16_t handle );
+static void prvCleanupService( BTService_t * pxService,
+                               struct ble_gatt_svc_def * pSvc );
 static BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid );
 static BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf );
 static BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks );
@@ -381,7 +257,8 @@ static uint8_t prvAFRToESPDescPerm( BTCharPermissions_t xPermissions )
     return flags;
 }
 
-ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid )
+ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid,
+                               ble_uuid_t * pUuid )
 {
     ble_uuid_t * pxESPuuid;
     ble_uuid16_t * uuid16 = NULL;
@@ -391,11 +268,19 @@ ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid )
     switch( pxUuid->ucType )
     {
         case eBTuuidType16:
-            uuid16 = pvPortCalloc( 1, sizeof( ble_uuid16_t ) );
 
-            if( !uuid16 )
+            if( pUuid == NULL )
             {
-                return NULL;
+                uuid16 = pvPortCalloc( 1, sizeof( ble_uuid16_t ) );
+
+                if( !uuid16 )
+                {
+                    return NULL;
+                }
+            }
+            else
+            {
+                uuid16 = ( ble_uuid16_t * ) pUuid;
             }
 
             uuid16->u.type = BLE_UUID_TYPE_16;
@@ -404,11 +289,19 @@ ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid )
             break;
 
         case eBTuuidType32:
-            uuid32 = pvPortCalloc( 1, sizeof( ble_uuid32_t ) );
 
-            if( !uuid32 )
+            if( pUuid == NULL )
             {
-                return NULL;
+                uuid32 = pvPortCalloc( 1, sizeof( ble_uuid32_t ) );
+
+                if( !uuid32 )
+                {
+                    return NULL;
+                }
+            }
+            else
+            {
+                uuid32 = ( ble_uuid32_t * ) pUuid;
             }
 
             uuid32->u.type = BLE_UUID_TYPE_32;
@@ -417,18 +310,28 @@ ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid )
             break;
 
         case eBTuuidType128:
-        default:
-            uuid128 = pvPortCalloc( 1, sizeof( ble_uuid128_t ) );
 
-            if( !uuid128 )
+            if( pUuid == NULL )
             {
-                return NULL;
+                uuid128 = pvPortCalloc( 1, sizeof( ble_uuid128_t ) );
+
+                if( !uuid128 )
+                {
+                    return NULL;
+                }
+            }
+            else
+            {
+                uuid128 = ( ble_uuid128_t * ) pUuid;
             }
 
             uuid128->u.type = BLE_UUID_TYPE_128;
             memcpy( uuid128->value, pxUuid->uu.uu128, sizeof( pxUuid->uu.uu128 ) );
             pxESPuuid = ( ble_uuid_t * ) uuid128;
             break;
+
+        default:
+            pxESPuuid = NULL;
     }
 
     return pxESPuuid;
@@ -444,7 +347,7 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     struct ble_gap_conn_desc desc;
     int rc = 0;
     bool need_rsp = 1;
-    uint16_t handle = 0, out_len = 0;
+    uint16_t out_len = 0;
     uint8_t dst_buf[ 512 ] = { 0 }; /* fixme: Check allocation on stack */
 
     ble_gap_conn_find( conn_handle, &desc );
@@ -453,13 +356,12 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     {
         case BLE_GATT_ACCESS_OP_READ_CHR:
         case BLE_GATT_ACCESS_OP_READ_DSC:
-            ESP_LOGI( TAG, "In read for handle %d", attr_handle );
-            handle = prvGattFromDevHandle( attr_handle );
+            ESP_LOGD( TAG, "In read for handle %d", attr_handle );
             memcpy( &g_ctxt, ctxt, sizeof( g_ctxt ) );
 
-            if( handle && ( xGattServerCb.pxRequestReadCb != NULL ) )
+            if( xGattServerCb.pxRequestReadCb != NULL )
             {
-                xGattServerCb.pxRequestReadCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, handle, 0 );
+                xGattServerCb.pxRequestReadCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0 );
             }
 
             prvGattGetSemaphore();
@@ -474,10 +376,9 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
                 return BLE_ATT_ERR_UNLIKELY;
             }
 
-            ESP_LOGI( TAG, "In write for handle %d and len %d", attr_handle, out_len );
-            handle = prvGattFromDevHandle( attr_handle );
+            ESP_LOGD( TAG, "In write for handle %d and len %d", attr_handle, out_len );
 
-            if( handle && ( xGattServerCb.pxRequestWriteCb != NULL ) )
+            if( xGattServerCb.pxRequestWriteCb != NULL )
             {
                 memcpy( &g_ctxt, ctxt, sizeof( g_ctxt ) );
 
@@ -488,7 +389,7 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
 
                 if( xGattServerCb.pxRequestWriteCb != NULL )
                 {
-                    xGattServerCb.pxRequestWriteCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, handle, 0, out_len, need_rsp, 0, dst_buf );
+                    xGattServerCb.pxRequestWriteCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0, out_len, need_rsp, 0, dst_buf );
                 }
 
                 if( need_rsp )
@@ -509,62 +410,108 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     return rc;
 }
 
+static bool prvSetNewHandle( const ble_uuid_t * uuid,
+                   uint16_t handle )
+{
+    bool foundUuid = false;
+    ble_uuid128_t uuid128;
+    uint16_t index = 0;
+    uint16_t serviceIndex = 0;
+    BTService_t * pxService;
+
+    do
+    {
+        pxService = afrServices[ serviceIndex ];
+
+        for( index = 0; index < pxService->xNumberOfAttributes; index++ )
+        {
+            switch( pxService->pxBLEAttributes[ index ].xAttributeType )
+            {
+                case eBTDbPrimaryService:
+                case eBTDbSecondaryService:
+                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xServiceUUID, ( ble_uuid_t * ) &uuid128 );
+                    break;
+
+                case eBTDbCharacteristic:
+                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristic.xUuid, ( ble_uuid_t * ) &uuid128 );
+                    break;
+
+                case eBTDbDescriptor:
+                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xUuid, ( ble_uuid_t * ) &uuid128 );
+                    break;
+
+                default:
+                    break;
+            }
+
+            /* Complete handle for CCCD. Since no callback are generated for CCCD (because they are added automatically.
+             * The handle of CCCDs is still 0. */
+            if( ble_uuid_cmp( uuid, ( ble_uuid_t * ) &uuid128 ) == 0 )
+            {
+                if( ( ( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbPrimaryService ) ||
+                      ( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbSecondaryService ) ) &&
+                    ( serviceIndex == 0 ) )
+                {
+                    gattOffset = handle;
+                }
+
+                pxService->pusHandlesBuffer[ index ] = handle - gattOffset;
+                break;
+            }
+
+            if( index + 1 < pxService->xNumberOfAttributes )
+            {
+                if( pxService->pxBLEAttributes[ index + 1 ].xAttributeType == eBTDbDescriptor )
+                {
+                    /* If the attribute is a CCCD then give it the handle of previous attribute + 1.*/
+                    if( ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.ucType == eBTuuidType16 ) &&
+                        ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.uu.uu16 == BLE_GATT_DSC_CLT_CFG_UUID16 ) )
+                    {
+                        pxService->pusHandlesBuffer[ index + 1 ] = pxService->pusHandlesBuffer[ index ] + 1;
+                    }
+                }
+            }
+        }
+
+        serviceIndex++;
+    } while( espServices[ serviceIndex ].type != BLE_GATT_SVC_TYPE_END );
+
+    return foundUuid;
+}
+
 void prvGATTRegisterCb( struct ble_gatt_register_ctxt * ctxt,
                         void * arg )
 {
-    uint16_t * handle;
     char buf[ BLE_UUID_STR_LEN ];
 
     switch( ctxt->op )
     {
         case BLE_GATT_REGISTER_OP_SVC:
             ESP_LOGD( TAG, "registered service %s with handle=%d\n",
-                         ble_uuid_to_str( ctxt->svc.svc_def->uuid, buf ),
-                         ctxt->svc.handle );
-            prvSvcGattToDevHandle( ctxt );
+                      ble_uuid_to_str( ctxt->svc.svc_def->uuid, buf ),
+                      ctxt->svc.handle );
+            prvSetNewHandle( ctxt->svc.svc_def->uuid, ctxt->svc.handle );
             break;
 
         case BLE_GATT_REGISTER_OP_CHR:
             ESP_LOGD( TAG, "registered characteristic %s with "
-                                "def_handle=%d val_handle=%d\n",
-                         ble_uuid_to_str( ctxt->chr.chr_def->uuid, buf ),
-                         ctxt->chr.def_handle,
-                         ctxt->chr.val_handle );
-            prvChrGattToDevHandle( ctxt );
+                           "def_handle=%d val_handle=%d\n",
+                      ble_uuid_to_str( ctxt->chr.chr_def->uuid, buf ),
+                      ctxt->chr.def_handle,
+                      ctxt->chr.val_handle );
+            prvSetNewHandle( ctxt->chr.chr_def->uuid, ctxt->chr.val_handle );
             break;
 
         case BLE_GATT_REGISTER_OP_DSC:
             ESP_LOGD( TAG, "registered descriptor %s with handle=%d\n",
-                         ble_uuid_to_str( ctxt->dsc.dsc_def->uuid, buf ),
-                         ctxt->dsc.handle );
-
-            if( ctxt->dsc.dsc_def->arg )
-            {
-                handle = ( uint16_t * ) ctxt->dsc.dsc_def->arg;
-                *handle = ctxt->dsc.handle;
-            }
-
-            xCurrentAttrNum++;
+                      ble_uuid_to_str( ctxt->dsc.dsc_def->uuid, buf ),
+                      ctxt->dsc.handle );
+            prvSetNewHandle( ctxt->dsc.dsc_def->uuid, ctxt->dsc.handle );
             break;
 
         default:
             assert( 0 );
             break;
-    }
-
-    if( xCurrentAttrNum == ( xAttrNum + 3 /* GAP attributes */ + 2 /* GATT attributes */ ) )
-    {
-        for( int i = 0; i < xGattTableSize; i++ )
-        {
-            ESP_LOGD( TAG, "Type: %d Handle: %d Dev Handle: %d", xGattTable[ i ].type, xGattTable[ i ].handle, xGattTable[ i ].device_handle );
-        }
-
-        if( xGattServerCb.pxServiceStartedCb != NULL )
-        {
-            xGattServerCb.pxServiceStartedCb( eBTStatusSuccess, ulGattServerIFhandle, xLastSvcHandle );
-        }
-
-        xCurrentAttrNum = 0;
     }
 }
 
@@ -578,6 +525,7 @@ BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
     {
         xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
     }
+
     return xStatus;
 }
 
@@ -592,6 +540,7 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
     {
         xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
     }
+
     return xStatus;
 }
 
@@ -602,6 +551,8 @@ BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
     BTStatus_t xStatus = eBTStatusSuccess;
 
     ble_hs_cfg.gatts_register_cb = prvGATTRegisterCb;
+
+    memset( espServices, 0, sizeof( struct ble_gatt_svc_def ) * ( MAX_SERVICES + 1 ) );
 
     if( pxCallbacks != NULL )
     {
@@ -641,53 +592,7 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
                             BTGattSrvcId_t * pxSrvcId,
                             uint16_t usNumHandles )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    if( xGattTableSize == GATT_MAX_ENTITIES )
-    {
-        xGattTableCleanup();
-        return eBTStatusNoMem;
-    }
-
-    struct ble_gatt_svc_def * svc = pvPortCalloc( 1 + 1, sizeof( struct ble_gatt_svc_def ) );
-
-    if( !svc )
-    {
-        xGattTableCleanup();
-        return eBTStatusNoMem;
-    }
-
-    if( pxSrvcId->xServiceType == eBTServiceTypePrimary )
-    {
-        svc->type = BLE_GATT_SVC_TYPE_PRIMARY;
-    }
-    else if( pxSrvcId->xServiceType == eBTServiceTypeSecondary )
-    {
-        svc->type = BLE_GATT_SVC_TYPE_SECONDARY;
-    }
-
-    xGattTable[ xGattTableSize ].uuid = prvCopytoESPUUID( &pxSrvcId->xId.xUuid );
-
-    if( !xGattTable[ xGattTableSize ].uuid )
-    {
-        xGattTableCleanup();
-        return eBTStatusNoMem;
-    }
-
-    svc->uuid = xGattTable[ xGattTableSize ].uuid;
-
-    xGattTable[ xGattTableSize ].type = GATT_SERVICE;
-    xGattTable[ xGattTableSize ].attr = svc;
-    xGattTable[ xGattTableSize ].handle = xGattTableSize == 0 ? 1 : xGattTable[ xGattTableSize - 1 ].handle + 1;
-    ESP_LOGD( TAG, "Saving service data at index %d for handle %d", xGattTableSize, xGattTable[ xGattTableSize ].handle );
-    xGattTableSize += 1;
-
-    if( xGattServerCb.pxServiceAddedCb != NULL )
-    {
-        xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, pxSrvcId, xGattTable[ xGattTableSize - 1 ].handle );
-    }
-
-    return xStatus;
+    return eBTStatusUnsupported;
 }
 
 /*-----------------------------------------------------------*/
@@ -696,9 +601,7 @@ BTStatus_t prvBTAddIncludedService( uint8_t ucServerIf,
                                     uint16_t usServiceHandle,
                                     uint16_t usIncludedHandle )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    return xStatus;
+    return eBTStatusUnsupported;
 }
 
 /*-----------------------------------------------------------*/
@@ -709,58 +612,14 @@ BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
                                    BTCharProperties_t xProperties,
                                    BTCharPermissions_t xPermissions )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    xGattTable[ xGattTableSize ].uuid = prvCopytoESPUUID( pxUuid );
-
-    if( !xGattTable[ xGattTableSize ].uuid )
-    {
-        xGattTableCleanup();
-        return eBTStatusNoMem;
-    }
-
-    xGattTable[ xGattTableSize ].type = GATT_CHAR;
-    xGattTable[ xGattTableSize ].flags = prvAFRToESPCharPerm( xProperties, xPermissions );
-    xGattTable[ xGattTableSize ].handle = xGattTableSize == 0 ? 1 : xGattTable[ xGattTableSize - 1 ].handle + 2;
-    ESP_LOGD( TAG, "Saving characteristic data at index %d for handle %d", xGattTableSize, xGattTable[ xGattTableSize ].handle );
-    xGattTable[ xGattTableSize ].parent_handle = UINT16_MAX;
-
-    for( int i = 0; i < xGattTableSize; ++i )
-    {
-        if( ( xGattTable[ i ].type == GATT_SERVICE ) && ( xGattTable[ i ].handle == usServiceHandle ) )
-        {
-            xGattTable[ xGattTableSize ].parent_handle = xGattTable[ i ].handle;
-            /*Increment the total attr count of the service */
-            ESP_LOGD( TAG, "Parent service is at index %d and handle %d", i, xGattTable[ i ].handle );
-            xGattTable[ i ].total_attr += 1;
-            break;
-        }
-    }
-
-    if( xGattTable[ xGattTableSize ].parent_handle == UINT16_MAX )
-    {
-        xGattTableCleanup();
-        return eBTStatusParamInvalid;
-    }
-
-    xGattTableSize += 1;
-
-    if( xGattServerCb.pxCharacteristicAddedCb != NULL )
-    {
-        xGattServerCb.pxCharacteristicAddedCb( xStatus, ulGattServerIFhandle, pxUuid, xGattTable[ xGattTableSize - 1 ].parent_handle,
-                                               xGattTable[ xGattTableSize - 1 ].handle );
-    }
-
-    return xStatus;
+    return eBTStatusUnsupported;
 }
 
 /*-----------------------------------------------------------*/
 
 BTStatus_t prvBTSetVal( BTGattResponse_t * pxValue )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    return xStatus;
+    return eBTStatusUnsupported;
 }
 
 
@@ -771,152 +630,7 @@ BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
                                BTUuid_t * pxUuid,
                                BTCharPermissions_t xPermissions )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    xGattTable[ xGattTableSize ].uuid = prvCopytoESPUUID( pxUuid );
-
-    if( !xGattTable[ xGattTableSize ].uuid )
-    {
-        xGattTableCleanup();
-        return eBTStatusNoMem;
-    }
-
-    xGattTable[ xGattTableSize ].type = GATT_DESCR;
-    xGattTable[ xGattTableSize ].flags = prvAFRToESPDescPerm( xPermissions );
-    xGattTable[ xGattTableSize ].handle = xGattTableSize == 0 ? 1 : xGattTable[ xGattTableSize - 1 ].handle + 1;
-    ESP_LOGD( TAG, "Saving descriptor data at index %d for handle %d", xGattTableSize, xGattTable[ xGattTableSize ].handle );
-    xGattTable[ xGattTableSize ].parent_handle = UINT16_MAX;
-
-    for( int16_t i = ( int16_t ) xGattTableSize - 1; i >= 0; --i )
-    {
-        if( ( xGattTable[ i ].type == GATT_CHAR ) && ( xGattTable[ i ].parent_handle == usServiceHandle ) )
-        {
-            xGattTable[ xGattTableSize ].parent_handle = xGattTable[ i ].handle;
-
-            /*Increment the total attr count of the char */
-            if( ble_uuid_cmp( xGattTable[ xGattTableSize ].uuid, BLE_UUID16_DECLARE( BLE_GATT_DSC_CLT_CFG_UUID16 ) ) == 0 )
-            {
-            }
-            else
-            {
-                ESP_LOGD( TAG, "Parent characteristic is at index %d and handle %d", i, xGattTable[ i ].handle );
-                xGattTable[ i ].total_attr += 1;
-            }
-
-            break;
-        }
-    }
-
-    if( xGattTable[ xGattTableSize ].parent_handle == UINT16_MAX )
-    {
-        xGattTableCleanup();
-        return eBTStatusParamInvalid;
-    }
-
-    xGattTableSize += 1;
-
-    if( xGattServerCb.pxDescriptorAddedCb != NULL )
-    {
-        xGattServerCb.pxDescriptorAddedCb( xStatus, ulGattServerIFhandle, pxUuid, usServiceHandle, xGattTable[ xGattTableSize - 1 ].handle );
-    }
-
-    return xStatus;
-}
-
-/*-----------------------------------------------------------*/
-
-static BTStatus_t prvPopulateGattDatabase( uint16_t last_svc_index )
-{
-    struct ble_gatt_svc_def * svc = NULL;
-    struct ble_gatt_chr_def * chr = NULL;
-    struct ble_gatt_dsc_def * dsc = NULL;
-    int i = 0, j, k, cnt_chr = 0, cnt_dsc = 0;
-
-    for( i = 0; i <= last_svc_index; i++ )
-    {
-        if( ( xGattTable[ i ].type == GATT_SERVICE ) && ( xGattTable[ i ].flags == 0 ) )
-        {
-            xAttrNum += 1;
-            svc = xGattTable[ i ].attr;
-
-            /* Populate the characteristics and descriptors of the service */
-            cnt_chr = 0;
-            svc->characteristics = pvPortCalloc( xGattTable[ i ].total_attr + 1, sizeof( struct ble_gatt_chr_def ) );
-
-            if( !svc->characteristics )
-            {
-                xGattTableCleanup();
-                return eBTStatusNoMem;
-            }
-
-            /* Save the pointer, might be required for freeing */
-            xGattTable[ i + 1 ].attr = ( struct ble_gatt_chr_def * ) svc->characteristics;
-            chr = ( struct ble_gatt_chr_def * ) svc->characteristics;
-
-            for( j = i + 1; j < xGattTableSize; j++ )
-            {
-                if( ( xGattTable[ j ].type == GATT_CHAR ) && ( xGattTable[ j ].parent_handle == xGattTable[ i ].handle ) )
-                {
-                    chr->uuid = xGattTable[ j ].uuid;
-                    chr->arg = &xGattTable[ j ].device_handle;
-                    chr->access_cb = prvGATTCharAccessCb;
-                    chr->flags = xGattTable[ j ].flags;
-
-                    if( xGattTable[ j ].total_attr )
-                    {
-                        cnt_dsc = 0;
-                        chr->descriptors = pvPortCalloc( xGattTable[ j ].total_attr + 1, sizeof( struct ble_gatt_dsc_def ) );
-
-                        if( !chr->descriptors )
-                        {
-                            xGattTableCleanup();
-                            return eBTStatusNoMem;
-                        }
-
-                        xGattTable[ j + 1 ].attr = chr->descriptors;
-                        dsc = chr->descriptors;
-
-                        for( k = j + 1; k < xGattTableSize; k++ )
-                        {
-                            if( ( xGattTable[ k ].type == GATT_DESCR ) && ( xGattTable[ k ].parent_handle == xGattTable[ j ].handle ) )
-                            {
-                                if( ble_uuid_cmp( xGattTable[ k ].uuid, BLE_UUID16_DECLARE( BLE_GATT_DSC_CLT_CFG_UUID16 ) ) == 0 )
-                                {
-                                    continue;
-                                }
-
-                                dsc->uuid = xGattTable[ k ].uuid;
-                                dsc->arg = &xGattTable[ k ].device_handle;
-                                dsc->access_cb = prvGATTCharAccessCb;
-                                dsc->att_flags = xGattTable[ k ].flags;
-                                dsc++;
-                                cnt_dsc++;
-
-                                if( cnt_dsc == xGattTable[ j ].total_attr )
-                                {
-                                    xAttrNum += xGattTable[ j ].total_attr;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    chr++;
-                    cnt_chr++;
-
-                    if( cnt_chr == xGattTable[ i ].total_attr )
-                    {
-                        xAttrNum += xGattTable[ i ].total_attr;
-                        break;
-                    }
-                }
-            }
-
-            xGattTable[ i ].flags = 1;
-        }
-    }
-
-    return eBTStatusSuccess;
+    return eBTStatusUnsupported;
 }
 
 
@@ -924,56 +638,7 @@ BTStatus_t prvBTStartService( uint8_t ucServerIf,
                               uint16_t usServiceHandle,
                               BTTransport_t xTransport )
 {
-    int i = 0, last_svc_index = 0;
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    for( int i = xGattTableSize; i >= 0; i-- )
-    {
-        if( ( xGattTable[ i ].type == GATT_SERVICE ) && ( xGattTable[ i ].handle == usServiceHandle ) )
-        {
-            last_svc_index = i;
-            xLastSvcHandle = xGattTable[ i ].handle;
-            ESP_LOGD( TAG, "Starting service with handle %d and present at index %d", xGattTable[ i ].handle, i );
-            break;
-        }
-    }
-
-    if( ( last_svc_index == xGattTableSize ) || ( !xGattTable[ last_svc_index ].attr ) )
-    {
-        xGattTableCleanup();
-        return eBTStatusFail;
-    }
-
-    if( xGattTable[ last_svc_index ].flags )
-    {
-        if( xGattServerCb.pxServiceStartedCb != NULL )
-        {
-            xGattServerCb.pxServiceStartedCb( eBTStatusSuccess, ulGattServerIFhandle, xGattTable[ last_svc_index ].handle );
-        }
-
-        xCurrentAttrNum = 0;
-        return eBTStatusSuccess;
-    }
-
-    xStatus = prvPopulateGattDatabase( last_svc_index );
-
-    ble_gatts_reset();
-
-    ble_svc_gap_init();
-    ble_svc_gatt_init();
-
-    for( i = 0; i <= last_svc_index; i++ )
-    {
-        if( xGattTable[ i ].type == GATT_SERVICE )
-        {
-            ble_gatts_count_cfg( ( struct ble_gatt_svc_def * ) xGattTable[ i ].attr );
-            ble_gatts_add_svcs( ( struct ble_gatt_svc_def * ) xGattTable[ i ].attr );
-        }
-    }
-
-    ble_gatts_start();
-
-    return xStatus;
+    return eBTStatusUnsupported;
 }
 
 /*-----------------------------------------------------------*/
@@ -1000,6 +665,8 @@ BTStatus_t prvBTDeleteService( uint8_t ucServerIf,
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
+    /* @TODO: need to be implemented. However, stop is not supported.
+     */
     if( xGattServerCb.pxServiceDeletedCb != NULL )
     {
         xGattServerCb.pxServiceDeletedCb( eBTStatusSuccess, ucServerIf, usServiceHandle );
@@ -1007,6 +674,7 @@ BTStatus_t prvBTDeleteService( uint8_t ucServerIf,
 
     return xStatus;
 }
+
 
 /*-----------------------------------------------------------*/
 
@@ -1018,11 +686,9 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
                                 bool bConfirm )
 {
     int xESPstatus = 0;
-    uint16_t handle;
     BTStatus_t xStatus = eBTStatusSuccess;
-
-    handle = prvDevFromGattHandle( usAttributeHandle );
     struct os_mbuf * om;
+
     om = ble_hs_mbuf_from_flat( pucValue, xLen );
 
     if( !om )
@@ -1032,13 +698,23 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
 
     if( bConfirm )
     {
-        ESP_LOGI( TAG, "Send Indications" );
-        xESPstatus = ble_gattc_indicate_custom( usConnId, handle, om );
+        ESP_LOGD( TAG, "Send Indications" );
+        xESPstatus = ble_gattc_indicate_custom( usConnId, usAttributeHandle + gattOffset, om );
     }
     else
     {
-        ESP_LOGI( TAG, "Send Notifications" );
-        xESPstatus = ble_gattc_notify_custom( usConnId, handle, om );
+        ESP_LOGD( TAG, "Send Notifications" );
+        xESPstatus = ble_gattc_notify_custom( usConnId, usAttributeHandle + gattOffset, om );
+
+        if( xGattServerCb.pxIndicationSentCb != NULL )
+        {
+            if( xESPstatus != 0 )
+            {
+                xStatus = eBTStatusFail;
+            }
+
+            xGattServerCb.pxIndicationSentCb( usConnId, xStatus );
+        }
     }
 
     if( xESPstatus != 0 )
@@ -1083,11 +759,295 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
 }
 
 /*-----------------------------------------------------------*/
+static uint16_t prvCountCharacteristics( BTService_t * pxService )
+{
+    uint16_t nbCharacteristics = 0;
+    uint16_t index;
 
+    for( index = 0; index < pxService->xNumberOfAttributes; index++ )
+    {
+        if( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbCharacteristic )
+        {
+            nbCharacteristics++;
+        }
+    }
+
+    return nbCharacteristics;
+}
+
+static uint16_t prvCountDescriptor( BTService_t * pxService,
+                             uint16_t startHandle )
+{
+    uint16_t nbDescriptor = 0;
+    uint16_t index;
+
+    for( index = startHandle; index < pxService->xNumberOfAttributes; index++ )
+    {
+        if( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbDescriptor )
+        {
+            nbDescriptor++;
+        }
+        else if( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbCharacteristic )
+        {
+            break;
+        }
+    }
+
+    return nbDescriptor;
+}
+
+/* @brief cleanup memory allocated for a service.
+ *
+ * Since all memory is initialized to 0, that function can be called to clean even half created service.
+ */
+static void prvCleanupService( BTService_t * pxService,
+                        struct ble_gatt_svc_def * pSvc )
+{
+    uint16_t charCount;
+    uint16_t dscrCount;
+    struct ble_gatt_dsc_def * pDescriptors;
+    uint16_t index;
+
+    charCount = 0;
+    dscrCount = 0;
+
+    if( pSvc->uuid != NULL )
+    {
+        vPortFree( ( void * ) pSvc->uuid );
+    }
+
+    for( index = 0; index < pxService->xNumberOfAttributes; index++ )
+    {
+        switch( pxService->pxBLEAttributes[ index ].xAttributeType )
+        {
+            case eBTDbCharacteristic:
+
+                /* Allocate memory for UUID and copies it. */
+                if( pSvc->characteristics[ charCount ].uuid != NULL )
+                {
+                    vPortFree( ( void * ) pSvc->characteristics[ charCount ].uuid );
+                }
+
+                /* If last characteristic had a descriptor array, we can now remove it. */
+                if( dscrCount != 0 )
+                {
+                    if( pSvc->characteristics[ charCount - 1 ].descriptors != NULL )
+                    {
+                        vPortFree( ( void * ) pSvc->characteristics[ charCount - 1 ].descriptors );
+                    }
+                }
+
+                charCount++;
+                dscrCount = 0;
+                break;
+
+            case eBTDbDescriptor:
+                pDescriptors = &pSvc->characteristics[ charCount - 1 ].descriptors[ dscrCount ];
+
+                if( pDescriptors->uuid != NULL )
+                {
+                    vPortFree( ( void * ) pDescriptors->uuid );
+                }
+
+                dscrCount++;
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    if( pSvc->characteristics != NULL )
+    {
+        vPortFree( ( void * ) pSvc->characteristics );
+    }
+}
+
+
+/* @brief Simple function that creates a full service in one go.
+ * The function is big because of error checking but in reality it only does the following:
+ * 1. Populate service fields
+ * 2. Populate each attributes by looping into pxService.
+ * An array for service is available in static memory, however, UUIDs and attributes have to be dynamically allocated.
+ * This structure is a compromise between full dynamic allocation and static allocation.
+ */
 BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                               BTService_t * pxService )
 {
-    return eBTStatusUnsupported;
+    uint16_t index;
+    uint16_t charCount;
+    uint16_t dscrCount;
+    struct ble_gatt_chr_def * pCharacteristics = NULL;
+    struct ble_gatt_dsc_def * pDescriptors = NULL;
+    BTStatus_t xStatus = eBTStatusSuccess;
+    ble_uuid_t * uuid;
+    struct ble_gatt_svc_def * pSvc = NULL;
+
+    if( serviceCnt < MAX_SERVICES )
+    {
+        pSvc = &espServices[ serviceCnt ];
+        afrServices[ serviceCnt ] = pxService;
+    }
+    else
+    {
+        xStatus = eBTStatusNoMem;
+    }
+
+    /* Fill in service field. After that start creating characteristics and descriptors individually. */
+    if( xStatus == eBTStatusSuccess )
+    {
+        espServices[ serviceCnt + 1 ].type = BLE_GATT_SVC_TYPE_END;
+
+        if( pxService->pxBLEAttributes[ 0 ].xAttributeType == eBTDbPrimaryService )
+        {
+            pSvc->type = BLE_GATT_SVC_TYPE_PRIMARY;
+        }
+        else if( pxService->pxBLEAttributes[ 0 ].xAttributeType == eBTDbSecondaryService )
+        {
+            pSvc->type = BLE_GATT_SVC_TYPE_SECONDARY;
+        }
+        else
+        {
+            configPRINTF( ( "Invalid service type \n" ) );
+            xStatus = eBTStatusFail;
+        }
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+        pSvc->uuid = prvCopytoESPUUID( &pxService->pxBLEAttributes[ 0 ].xServiceUUID, NULL );
+
+        if( pSvc->uuid == NULL )
+        {
+            configPRINTF( ( "Could not allocate memory for service UUID \n" ) );
+            prvCleanupService( pxService, pSvc );
+            xStatus = eBTStatusNoMem;
+        }
+        else
+        {
+            pCharacteristics = pvPortCalloc( prvCountCharacteristics( pxService ) + 1, sizeof( struct ble_gatt_chr_def ) );
+
+            if( pCharacteristics == NULL )
+            {
+                configPRINTF( ( "Could not allocate memory for  characteristic array \n" ) );
+                prvCleanupService( pxService, pSvc );
+                xStatus = eBTStatusNoMem;
+            }
+
+            pSvc->characteristics = pCharacteristics;
+            pSvc->includes = NULL;
+            charCount = 0;
+            dscrCount = 0;
+        }
+    }
+
+    /* Create characteristics and descriptor individually .*/
+    if( xStatus == eBTStatusSuccess )
+    {
+        for( index = 0; index < pxService->xNumberOfAttributes; index++ )
+        {
+            switch( pxService->pxBLEAttributes[ index ].xAttributeType )
+            {
+                case eBTDbCharacteristic:
+                    /* Allocate memory for UUID and copies it. */
+                    pCharacteristics[ charCount ].uuid = prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristic.xUuid, NULL );
+                    pCharacteristics[ charCount ].arg = ( void * ) pxService;
+                    pCharacteristics[ charCount ].access_cb = prvGATTCharAccessCb;
+                    pCharacteristics[ charCount ].flags = prvAFRToESPCharPerm( pxService->pxBLEAttributes[ index ].xCharacteristic.xProperties, pxService->pxBLEAttributes[ index ].xCharacteristic.xPermissions );
+
+                    /* Allocate memory for descriptors. */
+                    pCharacteristics[ charCount ].descriptors = pvPortCalloc( prvCountDescriptor( pxService, index + 1 ) + 1, sizeof( struct ble_gatt_dsc_def ) );
+
+                    if( ( pCharacteristics[ charCount ].uuid == NULL ) || ( pCharacteristics[ charCount ].descriptors == NULL ) )
+                    {
+                        xStatus = eBTStatusNoMem;
+                    }
+
+                    charCount++;
+                    dscrCount = 0;
+                    break;
+
+                case eBTDbDescriptor:
+                    uuid = prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xUuid, NULL );
+
+                    if( uuid == NULL )
+                    {
+                        xStatus = eBTStatusNoMem;
+                        break;
+                    }
+
+                    /* Characteristic descriptors are automatically added, so no need to add them here, otherwise they will be declared twice. */
+                    if( ble_uuid_cmp( uuid, BLE_UUID16_DECLARE( BLE_GATT_DSC_CLT_CFG_UUID16 ) ) == 0 )
+                    {
+                        continue;
+                    }
+
+                    /* Allocate memory for UUID and copies it. */
+                    pDescriptors = &pSvc->characteristics[ charCount - 1 ].descriptors[ dscrCount ];
+                    /* Allocate memory for UUID and copies it. */
+                    pDescriptors->uuid = uuid;
+                    pDescriptors->arg = ( void * ) pxService;
+                    pDescriptors->access_cb = prvGATTCharAccessCb;
+                    pDescriptors->att_flags = prvAFRToESPDescPerm( pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xPermissions );
+
+                    dscrCount++;
+
+                    break;
+
+                default:
+                    break;
+            }
+
+            /* This loop contains many dynamic allocation. If one fails, clean up and exit. */
+            if( xStatus != eBTStatusSuccess )
+            {
+                configPRINTF( ( "Failed to allocate memory during Attribute creation\n" ) );
+                prvCleanupService( pxService, pSvc );
+                break;
+            }
+        }
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+        ble_hs_cfg.gatts_register_arg = ( void * ) pxService;
+        ble_gatts_reset();
+        ble_svc_gap_init();
+        ble_svc_gatt_init();
+
+        if( ble_gatts_count_cfg( espServices ) != 0 )
+        {
+            prvCleanupService( pxService, pSvc );
+            configPRINTF( ( "Failed to adjust host configuration\n" ) );
+            xStatus = eBTStatusFail;
+        }
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+        if( ble_gatts_add_svcs( espServices ) != 0 )
+        {
+            prvCleanupService( pxService, pSvc );
+            configPRINTF( ( "Failed to add service\n" ) );
+            xStatus = eBTStatusFail;
+        }
+    }
+
+    if( xStatus == eBTStatusSuccess )
+    {
+        if( ble_gatts_start() != 0 )
+        {
+            prvCleanupService( pxService, pSvc );
+            configPRINTF( ( "Failed to start service\n" ) );
+            xStatus = eBTStatusFail;
+        }
+        else
+        {
+            serviceCnt++;
+        }
+    }
+
+    return xStatus;
 }
 
 /*-----------------------------------------------------------*/

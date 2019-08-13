@@ -427,7 +427,7 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
     {
-    	xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
     }
 
     return xStatus;
@@ -439,9 +439,13 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    int xESPStatus;
+    int xESPStatus = 0;
 
-    xESPStatus = ble_gap_adv_stop();
+    /* Stop advertisement only if no advertisement is active. */
+    if( ble_gap_adv_active() != 0 )
+    {
+        xESPStatus = ble_gap_adv_stop();
+    }
 
     if( xESPStatus != 0 )
     {
@@ -450,7 +454,7 @@ BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 
     if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
     {
-    	xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
     }
 
     return xStatus;
@@ -605,7 +609,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
     if( usServiceDataLen && pcServiceData )
     {
-        fields.svc_data_uuid128 = (uint8_t *) pcServiceData;
+        fields.svc_data_uuid128 = ( uint8_t * ) pcServiceData;
         fields.svc_data_uuid128_len = usServiceDataLen;
     }
 

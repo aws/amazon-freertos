@@ -848,10 +848,7 @@ BTStatus_t IotBle_SendIndication( IotBleEventResponse_t * pxResp,
 
     if( pxResp != NULL )
     {
-        if( bConfirm == true )
-        {
-            _BTInterface.handlePendingIndicationResponse = pxResp->pAttrData->handle;
-        }
+        _BTInterface.handlePendingIndicationResponse = pxResp->pAttrData->handle;
 
         status = _BTInterface.pGattServerInterface->pxSendIndication( _BTInterface.serverIf,
                                                                       pxResp->pAttrData->handle,
