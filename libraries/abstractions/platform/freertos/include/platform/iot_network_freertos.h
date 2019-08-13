@@ -152,6 +152,14 @@ size_t IotNetworkAfr_Receive( void * pConnection,
                               size_t bytesRequested );
 
 /**
+ * @brief An implementation of #IotNetworkInterface_t::receiveUpto for Amazon FreeRTOS
+ * Secure Sockets.
+ */
+size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
+                                  uint8_t * pBuffer,
+                                  size_t bufferSize );
+
+/**
  * @brief An implementation of #IotNetworkInterface_t::close for Amazon FreeRTOS
  * Secure Sockets.
  */
