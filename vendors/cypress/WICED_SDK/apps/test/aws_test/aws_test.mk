@@ -189,6 +189,7 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_common.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_sync.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/test/unit/iot_tests_https_utils.c \
+                      $(AFR_C_SDK_STANDARD_PATH)https/test/system/iot_tests_https_system.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
                       $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
                       $(AFR_THIRDPARTY_PATH)http-parser/http_parser.c \
