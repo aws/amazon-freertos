@@ -57,7 +57,7 @@
 /**
  * @brief Make changes in the API with backward compatibility.
  */
-#define btPATCH_VERSION    0
+#define btPATCH_VERSION    1
 
 /**
  * @brief  Help functions to convert version to string.
