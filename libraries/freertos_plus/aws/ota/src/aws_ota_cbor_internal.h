@@ -46,5 +46,6 @@
 #define OTA_CBOR_FILESIZE_KEY             "z"
 #define OTA_CBOR_BLOCKID_KEY              "i"
 #define OTA_CBOR_BLOCKPAYLOAD_KEY         "p"
+#define OTA_CBOR_NUMBEROFBLOCKS_KEY       "n"
 
 #endif /* ifndef _AWS_OTA_CBOR_INTERNAL_H_ */
