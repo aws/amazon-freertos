@@ -807,6 +807,9 @@ static int _httpParserOnBodyCallback( http_parser * pHttpParser,
     _httpsResponse_t * pHttpsResponse = ( _httpsResponse_t * ) ( pHttpParser->data );
     pHttpsResponse->parserState = PARSER_STATE_IN_BODY;
 
+    /* If the header buffer is currently being processed, but HTTP response body was found, then for an asynchronous
+     * request this if-case saves where the body is located. In the asynchronous case, the body buffer is not available
+     * until the readReadyCallback is invoked, which happens after the headers are processed.  */
     if( ( pHttpsResponse->bufferProcessingState == PROCESSING_STATE_FILLING_HEADER_BUFFER ) && ( pHttpsResponse->isAsync ) )
     {
         /* For an asynchronous response, the buffer to store the body will be available after the headers
@@ -1688,7 +1691,7 @@ static IotHttpsReturnCode_t _sendHttpsHeaders( _httpsConnection_t * pHttpsConnec
                                ( unsigned int ) contentLength );
     }
 
-    if( numWritten < 0 )
+    if( ( numWritten < 0 ) || ( numWritten >= sizeof( contentLengthHeaderStr ) ) )
     {
         IotLogError( "Internal error in snprintf() in _sendHttpsHeaders(). Error code %d.", numWritten );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
@@ -3246,7 +3249,8 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader( IotHttpsResponseHandle_t respHan
      * the callback, pReadHeaderField is checked against the currently parsed header name. foundHeaderFiled is set to
      * true when the pReadHeaderField is found in a header field callback. The bufferProcessingState tells the callback
      * to skip the logic pertaining to when the response is being parsed for the first time. pReadHeaderValue will store
-     * the header value found. readHeaderValueLength will store the the header value found's length. */
+     * the header value found. readHeaderValueLength will store the the header value found's length from within the
+     * response headers. */
     respHandle->pReadHeaderField = pName;
     respHandle->readHeaderFieldLength = nameLen;
     respHandle->foundHeaderField = false;
@@ -3261,7 +3265,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader( IotHttpsResponseHandle_t respHan
     numParsed = respHandle->httpParserInfo.parseFunc( &( respHandle->httpParserInfo.readHeaderParser ), &_httpParserSettings, ( char * ) ( respHandle->pHeaders ), respHandle->pHeadersCur - respHandle->pHeaders );
     IotLogDebug( "Parsed %d characters in IotHttpsClient_ReadHeader().", numParsed );
 
-    /* There shouldn't be any errors parsing the parsing the response body given that the handle is from a validly
+    /* There shouldn't be any errors parsing the response body given that the handle is from a validly
      * received response, so this check is defensive. If there were errors parsing the original response headers, then
      * the response handle would have been invalidated and the connection closed. */
     if( ( respHandle->httpParserInfo.readHeaderParser.http_errno != 0 ) &&

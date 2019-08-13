@@ -108,6 +108,13 @@
  * for extra headers that the application may add. These sizes need to be accounted for by the application when
  * assigning a buffer.
  *
+ * A typical value for sizing the request user buffer for the request context is 512 bytes. See the example below.
+ * @code{c}
+ * uint8_t requestUserBuffer[512] = { 0 };
+ * IotHttpsRequestInfo_t requestInfo = IOT_HTTPS_REQUEST_INFO_INITIALIZER;
+ * requestInfo.userBuffer.pBuffer = requestUserBuffer;
+ * @endcode
+ *
  * By the application providing the memory for the internal context, no memory is needed to be allocated internally to
  * the library for the internal context. The application has control over the memory allocation related to the request,
  * response, and connection.
@@ -128,6 +135,13 @@ extern const uint32_t requestUserBufferMinimumSize;
  * call to @ref https_client_function_sendsync, calls to @ref https_client_function_readresponsestatus,
  * @ref https_client_function_readcontentlength, and @ref https_client_function_readheader will return a failure code.
  *
+ * A typical value for sizing the response user buffer for the response context is 512 bytes. See the example below.
+ * @code{c}
+ * uint8_t responseUserBuffer[512] = { 0 };
+ * IotHttpsResponseInfo_t responseInfo = IOT_HTTPS_RESPONSE_INFO_INITIALIZER;
+ * responseInfo.userBuffer.pBuffer = responseUserBuffer;
+ * @endcode
+ *
  * By the application providing the memory for the internal context, no memory is needed to be allocated internally to
  * the library for the internal context. The application has control over the memory allocation related to the request,
  * response, and connection.
@@ -141,6 +155,13 @@ extern const uint32_t responseUserBufferMinimumSize;
  *
  * The buffer size is calculated to fit the HTTP connection context only. The buffer assigned by the application must be
  * at least this size.
+ *
+ * A typical value for sizing the request user buffer for the connection context is 512 bytes. See the example below.
+ * @code{c}
+ * uint8_t connectionUserBuffer[512] = { 0 };
+ * IotHttpsConnectionInfo_t connectionInfo = IOT_HTTPS_CONNECTION_INFO_INITIALIZER;
+ * connectionInfo.userBuffer.pBuffer = connectionUserBuffer;
+ * @endcode
  *
  * By the application providing the memory for the internal context, no memory is needed to be allocated internally to
  * the library for the internal context. The application has control over the memory allocation related to the request,
@@ -185,7 +206,7 @@ extern const uint32_t connectionUserBufferMinimumSize;
 #define IOT_HTTPS_RESPONSE_INFO_INITIALIZER        { 0 }
 /* @[define_https_initializers] */
 
-/* Amazon FreeRTOS network include for the network types below. */
+/* Network include for the network types below. */
 #include "platform/iot_network.h"
 
 /**
@@ -649,8 +670,8 @@ typedef struct IotHttpsSyncRequestInfo
      * For a request this is the file or data we want to send.  The data is separated from the headers for the
      * flexibility to point to an already established file elsewhere in memory.
      *
-     * For a response this where to receive the response entity body.
-     * If the length of the buffer provided to store response body is smaller than the amount of body received,
+     * For a response this is where to receive the response entity body.
+     * If the length of the buffer provided to store the response body is smaller than the amount of body received,
      * then @ref https_client_function_sendsync will return a IOT_HTTPS_INSUFFICIENT_MEMORY error code. Although an error
      * was returned, the first #IotHttpsSyncInfo_t.bodyLen of the response received on the network will
      * still be available in the buffer.

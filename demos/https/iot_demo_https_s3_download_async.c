@@ -133,7 +133,7 @@
 
 /* Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines.
  * The size presented here accounts for the storage of the internal context, the first request line in the HTTP
- * formatted header and extra headers. The minimum can be found in requestUserBufferMinimumSize.
+ * formatted header and extra headers. The minimum can be found in responseUserBufferMinimumSize.
  * Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
  * will be discarded. The minimum size can be found in extern const uint32_t responseUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
@@ -568,6 +568,10 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
+    /* The path is everything that is not the address. It also includes the query. So we get the strlen( pPath ) to
+     * acquire everything following in IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
+    pathLen = strlen( pPath );
+
     /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlAddress( IOT_DEMO_HTTPS_PRESIGNED_GET_URL, ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ), &pAddress, &addressLen );
 
@@ -680,9 +684,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         /* Set the HTTP request configurations. */
         _pReqConfigs[ reqIndex ].pPath = pPath;
 
-        /* The path is everything that is not the address. It also includes the query. So we get the strlen( pPath ) to
-         * acquire everything following in IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
-        _pReqConfigs[ reqIndex ].pathLen = strlen( pPath );
+        _pReqConfigs[ reqIndex ].pathLen = pathLen;
         _pReqConfigs[ reqIndex ].pHost = pAddress;
         _pReqConfigs[ reqIndex ].hostLen = addressLen;
         _pReqConfigs[ reqIndex ].method = IOT_HTTPS_METHOD_GET;
@@ -703,7 +705,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
                                    ( unsigned int ) curByte,
                                    ( unsigned int ) ( curByte + numReqBytes - 1 ) );
 
-        if( numWritten < 0 )
+        if( ( numWritten < 0 ) || ( numWritten >= sizeof( _pDownloadDatas[ reqIndex ].rangeValueStr ) ) )
         {
             IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
                          curByte,

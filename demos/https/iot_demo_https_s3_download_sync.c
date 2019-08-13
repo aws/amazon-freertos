@@ -118,7 +118,7 @@
 
 /* Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines.
  * The size presented here accounts for the storeage of the internal context, the first request line in the HTTP
- * formatted header and extra headers. The minimum can be found in requestUserBufferMinimumSize.
+ * formatted header and extra headers. The minimum can be found in responseUserBufferMinimumSize.
  * Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
  * will be discarded. The minimum size can be found in extern const uint32_t responseUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
@@ -383,7 +383,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
                                    ( unsigned int ) curByte,
                                    ( unsigned int ) ( curByte + numReqBytes - 1 ) );
 
-        if( numWritten < 0 )
+        if( ( numWritten < 0 ) || ( numWritten >= RANGE_VALUE_MAX_LENGTH ) )
         {
             IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
                          curByte,
