@@ -526,7 +526,7 @@
           </logicalFolder>
           <logicalFolder name="ota" displayName="ota" projectFiles="true">
             <logicalFolder name="include" displayName="include" projectFiles="true">
-              <itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</itemPath>
+              <itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</itemPath>
               <itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_types.h</itemPath>
             </logicalFolder>
             <logicalFolder name="src" displayName="src" projectFiles="true">

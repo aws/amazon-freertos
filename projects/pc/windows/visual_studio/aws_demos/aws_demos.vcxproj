@@ -261,7 +261,6 @@
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include\aws_greengrass_discovery.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src\aws_helper_secure_connect.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h" />
-    <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h" />
     <ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h" />

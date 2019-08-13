@@ -57,7 +57,7 @@
 #include "aws_clientcredential.h"
 
 /* Amazon FreeRTOS OTA agent includes. */
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 
 #include "iot_network_manager_private.h"
 

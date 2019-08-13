@@ -27,7 +27,7 @@
 #define _AWS_OTA_PAL_H_
 
 #include "aws_ota_types.h"
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 
 /**
  * @brief Abort an OTA transfer.
@@ -43,7 +43,7 @@
  * @param[in] C OTA file context information.
  *
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
- * error codes information in aws_ota_agent.h.
+ * error codes information in aws_iot_ota_agent.h.
  *
  * The file pointer will be set to NULL after this function returns.
  * kOTA_Err_None is returned when aborting access to the open file was successful.
@@ -67,7 +67,7 @@ OTA_Err_t prvPAL_Abort( OTA_FileContext_t * const C );
  * @param[in] C OTA file context information.
  *
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
- * error codes information in aws_ota_agent.h.
+ * error codes information in aws_iot_ota_agent.h.
  *
  * kOTA_Err_None is returned when file creation is successful.
  * kOTA_Err_RxFileTooLarge is returned if the file to be created exceeds the device's non-volatile memory size contraints.
@@ -92,7 +92,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C );
  * @param[in] C OTA file context information.
  *
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
- * error codes information in aws_ota_agent.h.
+ * error codes information in aws_iot_ota_agent.h.
  *
  * kOTA_Err_None is returned on success.
  * kOTA_Err_SignatureCheckFailed is returned when cryptographic signature verification fails.
@@ -134,7 +134,7 @@ int16_t prvPAL_WriteBlock( OTA_FileContext_t * const C,
  * an automatic reset or an error occurred.
  *
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
- * error codes information in aws_ota_agent.h.
+ * error codes information in aws_iot_ota_agent.h.
  */
 OTA_Err_t prvPAL_ActivateNewImage( void );
 
@@ -147,7 +147,7 @@ OTA_Err_t prvPAL_ActivateNewImage( void );
  * an automatic reset or an error occurred.
  *
  * @return The OTA PAL layer error code combined with the MCU specific error code. See OTA Agent
- * error codes information in aws_ota_agent.h.
+ * error codes information in aws_iot_ota_agent.h.
  */
 
 OTA_Err_t prvPAL_ResetDevice( void );
@@ -160,7 +160,7 @@ OTA_Err_t prvPAL_ResetDevice( void );
  *
  * @param[in] eState The desired state of the OTA update image.
  *
- * @return The OTA_Err_t error code combined with the MCU specific error code. See aws_ota_agent.h for
+ * @return The OTA_Err_t error code combined with the MCU specific error code. See aws_iot_ota_agent.h for
  *         OTA major error codes and your specific PAL implementation for the sub error code.
  *
  * Major error codes returned are:

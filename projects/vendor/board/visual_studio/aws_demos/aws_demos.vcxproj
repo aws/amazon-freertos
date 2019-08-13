@@ -209,7 +209,7 @@
     <ClInclude Include="..\..\..\..\lib\include\aws_shadow.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_system_init.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_tls.h" />
-    <ClInclude Include="..\..\..\..\lib\include\aws_ota_agent.h" />
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_ota_agent.h" />
     <ClInclude Include="..\..\..\..\lib\include\iot_wifi.h" />
     <ClInclude Include="..\..\..\..\lib\include\event_groups.h" />
     <ClInclude Include="..\..\..\..\lib\include\FreeRTOS.h" />

@@ -331,7 +331,6 @@
             <file file_name="../../../../../libraries/freertos_plus/aws/ota/README.md" />
             <folder Name="include">
               <file file_name="../../../../../libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h" />
-              <file file_name="../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_agent.h" />
               <file file_name="../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_types.h" />
             </folder>
             <folder Name="src">
@@ -430,18 +429,19 @@
             <file file_name="../../../../../libraries/abstractions/ble_hal/include/bt_hal_manager_types.h" />
           </folder>
           <folder Name="test">
-            <folder
-              Name="src"
-              exclude=""
-              filter="*.*"
-              path="../../../../../libraries/abstractions/ble_hal/test/src"
-              recurse="No" />
-            <folder
-              Name="include"
-              exclude=""
-              filter="*.*"
-              path="../../../../../libraries/abstractions/ble_hal/test/include"
-              recurse="No" />
+            <folder Name="src">
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_afqp.c" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_integration.c" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_kpi.c" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_stress_test.c" />
+            </folder>
+            <folder Name="include">
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/include/iot_test_ble_hal_afqp.h" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/include/iot_test_ble_hal_common.h" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/include/iot_test_ble_hal_integration.h" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/include/iot_test_ble_hal_kpi.h" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/include/iot_test_ble_hal_stress_test.h" />
+            </folder>
           </folder>
         </folder>
         <folder Name="posix">
