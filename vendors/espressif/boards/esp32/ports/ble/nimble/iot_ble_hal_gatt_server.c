@@ -76,11 +76,7 @@ BTGattServerCallbacks_t xGattServerCb;
 uint32_t ulGattServerIFhandle = 0;
 static uint16_t prvCountCharacteristics( BTService_t * pxService );
 static uint16_t prvCountDescriptor( BTService_t * pxService,
-                             uint16_t startHandle );
-static void prvCleanupService( BTService_t * pxService,
-                        struct ble_gatt_svc_def * pSvc );
-static bool prvSetNewHandle( const ble_uuid_t * uuid,
-                   uint16_t handle );
+                                    uint16_t startHandle );
 static void prvCleanupService( BTService_t * pxService,
                                struct ble_gatt_svc_def * pSvc );
 static BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid );
@@ -410,108 +406,21 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     return rc;
 }
 
-static bool prvSetNewHandle( const ble_uuid_t * uuid,
-                   uint16_t handle )
-{
-    bool foundUuid = false;
-    ble_uuid128_t uuid128;
-    uint16_t index = 0;
-    uint16_t serviceIndex = 0;
-    BTService_t * pxService;
-
-    do
-    {
-        pxService = afrServices[ serviceIndex ];
-
-        for( index = 0; index < pxService->xNumberOfAttributes; index++ )
-        {
-            switch( pxService->pxBLEAttributes[ index ].xAttributeType )
-            {
-                case eBTDbPrimaryService:
-                case eBTDbSecondaryService:
-                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xServiceUUID, ( ble_uuid_t * ) &uuid128 );
-                    break;
-
-                case eBTDbCharacteristic:
-                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristic.xUuid, ( ble_uuid_t * ) &uuid128 );
-                    break;
-
-                case eBTDbDescriptor:
-                    ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xUuid, ( ble_uuid_t * ) &uuid128 );
-                    break;
-
-                default:
-                    break;
-            }
-
-            /* Complete handle for CCCD. Since no callback are generated for CCCD (because they are added automatically.
-             * The handle of CCCDs is still 0. */
-            if( ble_uuid_cmp( uuid, ( ble_uuid_t * ) &uuid128 ) == 0 )
-            {
-                if( ( ( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbPrimaryService ) ||
-                      ( pxService->pxBLEAttributes[ index ].xAttributeType == eBTDbSecondaryService ) ) &&
-                    ( serviceIndex == 0 ) )
-                {
-                    gattOffset = handle;
-                }
-
-                pxService->pusHandlesBuffer[ index ] = handle - gattOffset;
-                break;
-            }
-
-            if( index + 1 < pxService->xNumberOfAttributes )
-            {
-                if( pxService->pxBLEAttributes[ index + 1 ].xAttributeType == eBTDbDescriptor )
-                {
-                    /* If the attribute is a CCCD then give it the handle of previous attribute + 1.*/
-                    if( ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.ucType == eBTuuidType16 ) &&
-                        ( pxService->pxBLEAttributes[ index + 1 ].xCharacteristicDescr.xUuid.uu.uu16 == BLE_GATT_DSC_CLT_CFG_UUID16 ) )
-                    {
-                        pxService->pusHandlesBuffer[ index + 1 ] = pxService->pusHandlesBuffer[ index ] + 1;
-                    }
-                }
-            }
-        }
-
-        serviceIndex++;
-    } while( espServices[ serviceIndex ].type != BLE_GATT_SVC_TYPE_END );
-
-    return foundUuid;
-}
-
 void prvGATTRegisterCb( struct ble_gatt_register_ctxt * ctxt,
                         void * arg )
 {
-    char buf[ BLE_UUID_STR_LEN ];
+    ble_uuid128_t uuid128;
+    BTService_t * pxService;
 
-    switch( ctxt->op )
+    if( ctxt->op == BLE_GATT_REGISTER_OP_SVC )
     {
-        case BLE_GATT_REGISTER_OP_SVC:
-            ESP_LOGD( TAG, "registered service %s with handle=%d\n",
-                      ble_uuid_to_str( ctxt->svc.svc_def->uuid, buf ),
-                      ctxt->svc.handle );
-            prvSetNewHandle( ctxt->svc.svc_def->uuid, ctxt->svc.handle );
-            break;
+        pxService = afrServices[ 0 ];
+        ( void * ) prvCopytoESPUUID( &pxService->pxBLEAttributes[ 0 ].xServiceUUID, ( ble_uuid_t * ) &uuid128 );
 
-        case BLE_GATT_REGISTER_OP_CHR:
-            ESP_LOGD( TAG, "registered characteristic %s with "
-                           "def_handle=%d val_handle=%d\n",
-                      ble_uuid_to_str( ctxt->chr.chr_def->uuid, buf ),
-                      ctxt->chr.def_handle,
-                      ctxt->chr.val_handle );
-            prvSetNewHandle( ctxt->chr.chr_def->uuid, ctxt->chr.val_handle );
-            break;
-
-        case BLE_GATT_REGISTER_OP_DSC:
-            ESP_LOGD( TAG, "registered descriptor %s with handle=%d\n",
-                      ble_uuid_to_str( ctxt->dsc.dsc_def->uuid, buf ),
-                      ctxt->dsc.handle );
-            prvSetNewHandle( ctxt->dsc.dsc_def->uuid, ctxt->dsc.handle );
-            break;
-
-        default:
-            assert( 0 );
-            break;
+        if( ble_uuid_cmp( ctxt->svc.svc_def->uuid, ( ble_uuid_t * ) &uuid128 ) == 0 )
+        {
+            gattOffset = ctxt->svc.handle;
+        }
     }
 }
 
@@ -776,7 +685,7 @@ static uint16_t prvCountCharacteristics( BTService_t * pxService )
 }
 
 static uint16_t prvCountDescriptor( BTService_t * pxService,
-                             uint16_t startHandle )
+                                    uint16_t startHandle )
 {
     uint16_t nbDescriptor = 0;
     uint16_t index;
@@ -801,7 +710,7 @@ static uint16_t prvCountDescriptor( BTService_t * pxService,
  * Since all memory is initialized to 0, that function can be called to clean even half created service.
  */
 static void prvCleanupService( BTService_t * pxService,
-                        struct ble_gatt_svc_def * pSvc )
+                               struct ble_gatt_svc_def * pSvc )
 {
     uint16_t charCount;
     uint16_t dscrCount;
@@ -882,21 +791,46 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
     BTStatus_t xStatus = eBTStatusSuccess;
     ble_uuid_t * uuid;
     struct ble_gatt_svc_def * pSvc = NULL;
+    uint16_t handle = 0;
+    uint16_t attributeCount = 0;
 
-    if( serviceCnt < MAX_SERVICES )
+    if( ( pxService == 0 ) || ( pxService->xNumberOfAttributes == 0 ) )
     {
-        pSvc = &espServices[ serviceCnt ];
-        afrServices[ serviceCnt ] = pxService;
+        configPRINTF( ( "Invalid parameters\n" ) );
+        xStatus = eBTStatusFail;
     }
-    else
+
+    if( xStatus == eBTStatusSuccess )
     {
-        xStatus = eBTStatusNoMem;
+        if( serviceCnt < MAX_SERVICES )
+        {
+            pSvc = &espServices[ serviceCnt ];
+            afrServices[ serviceCnt ] = pxService;
+        }
+        else
+        {
+            xStatus = eBTStatusNoMem;
+        }
     }
 
     /* Fill in service field. After that start creating characteristics and descriptors individually. */
     if( xStatus == eBTStatusSuccess )
     {
         espServices[ serviceCnt + 1 ].type = BLE_GATT_SVC_TYPE_END;
+
+        /* Initialize starting handle. */
+        if( serviceCnt != 0 )
+        {
+            uint16_t tmpNbAttribute = afrServices[ serviceCnt - 1 ]->xNumberOfAttributes;
+            handle = afrServices[ serviceCnt - 1 ]->pusHandlesBuffer[ tmpNbAttribute - 1 ] + 1;
+        }
+        else
+        {
+            handle = 0;
+        }
+
+        /* Fill in field for ESP service. */
+        pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
 
         if( pxService->pxBLEAttributes[ 0 ].xAttributeType == eBTDbPrimaryService )
         {
@@ -963,12 +897,23 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                         xStatus = eBTStatusNoMem;
                     }
 
+                    /* Update handle for AFR. */
+                    handle += 2;
+                    pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
+
                     charCount++;
                     dscrCount = 0;
                     break;
 
+                case eBTDbIncludedService:
+                    handle += 1;
+                    pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
+                    break;
+
                 case eBTDbDescriptor:
                     uuid = prvCopytoESPUUID( &pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xUuid, NULL );
+                    handle += 1;
+                    pxService->pusHandlesBuffer[ attributeCount++ ] = handle;
 
                     if( uuid == NULL )
                     {
