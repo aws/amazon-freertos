@@ -106,6 +106,7 @@ const IotNetworkInterface_t IotNetworkAfr =
     .setReceiveCallback = IotNetworkAfr_SetReceiveCallback,
     .send               = IotNetworkAfr_Send,
     .receive            = IotNetworkAfr_Receive,
+    .receiveUpto        = IotNetworkAfr_ReceiveUpto,
     .close              = IotNetworkAfr_Close,
     .destroy            = IotNetworkAfr_Destroy
 };
