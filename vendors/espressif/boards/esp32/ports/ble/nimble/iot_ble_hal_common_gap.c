@@ -96,12 +96,13 @@ const void * prvGetLeAdapter();
 
 static const uint8_t ble_sm_sc_ioa[ 5 /*resp*/ ][ 5 /*init*/ ] =
 {
-      /* init */
-/*r*/ {BLE_SM_IOACT_NONE,    BLE_SM_IOACT_NONE,   BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_DISP},
-/*e*/ {BLE_SM_IOACT_NONE,    BLE_SM_IOACT_NUMCMP, BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NUMCMP},
-/*s*/ {BLE_SM_IOACT_INPUT,   BLE_SM_IOACT_INPUT,  BLE_SM_IOACT_INPUT, BLE_SM_IOACT_NONE, BLE_SM_IOACT_INPUT},
-/*p*/ {BLE_SM_IOACT_NONE,    BLE_SM_IOACT_NONE,   BLE_SM_IOACT_NONE,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NONE},
-      {BLE_SM_IOACT_INPUT,   BLE_SM_IOACT_NUMCMP, BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NUMCMP},
+    /* init */
+/*r*/
+    { BLE_SM_IOACT_NONE,  BLE_SM_IOACT_NONE,   BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_DISP   },
+/*e*/ { BLE_SM_IOACT_NONE,  BLE_SM_IOACT_NUMCMP, BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NUMCMP },
+/*s*/ { BLE_SM_IOACT_INPUT, BLE_SM_IOACT_INPUT,  BLE_SM_IOACT_INPUT, BLE_SM_IOACT_NONE, BLE_SM_IOACT_INPUT  },
+/*p*/ { BLE_SM_IOACT_NONE,  BLE_SM_IOACT_NONE,   BLE_SM_IOACT_NONE,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NONE   },
+    { BLE_SM_IOACT_INPUT, BLE_SM_IOACT_NUMCMP, BLE_SM_IOACT_DISP,  BLE_SM_IOACT_NONE, BLE_SM_IOACT_NUMCMP },
 };
 
 static BTInterface_t xBTinterface =
@@ -176,8 +177,8 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             usGattConnHandle = event->connect.conn_handle;
             /* A new connection was established or a connection attempt failed. */
             ESP_LOGD( TAG, "connection %s; status=%d ",
-                         event->connect.status == 0 ? "established" : "failed",
-                         event->connect.status );
+                      event->connect.status == 0 ? "established" : "failed",
+                      event->connect.status );
 
             if( event->connect.status == 0 )
             {
@@ -206,7 +207,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_CONN_UPDATE:
             ESP_LOGD( TAG, "connection updated; status=%d ",
-                         event->conn_update.status );
+                      event->conn_update.status );
 
             return 0;
 
@@ -228,11 +229,12 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_ADV_COMPLETE:
             ESP_LOGD( TAG, "advertise complete; reason=%d",
-                         event->adv_complete.reason );
+                      event->adv_complete.reason );
 
             return 0;
 
         case BLE_GAP_EVENT_PAIRING_REQUEST:
+
             if( xBTCallbacks.pxSspRequestCb != NULL )
             {
                 rc = ble_gap_conn_find( event->pairing_req.conn_handle, &desc );
@@ -251,20 +253,22 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                 if( xBTCallbacks.pxPairingStateChangedCb != NULL )
                 {
                     xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                            eBTbondStateNone,
-                            eBTSecLevelNoSecurity,
-                            eBTauthFailInsuffSecurity );
+                                                          eBTbondStateNone,
+                                                          eBTSecLevelNoSecurity,
+                                                          eBTauthFailInsuffSecurity );
                 }
+
                 return BLE_SM_ERR_AUTHREQ;
             }
             else
             {
                 return 0;
             }
+
         case BLE_GAP_EVENT_ENC_CHANGE:
             /* Encryption has been enabled or disabled for this connection. */
             ESP_LOGD( TAG, "encryption change event; status=%d ",
-                         event->enc_change.status );
+                      event->enc_change.status );
             rc = ble_gap_conn_find( event->enc_change.conn_handle, &desc );
             assert( rc == 0 );
 
@@ -304,10 +308,10 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_NOTIFY_RX:
             ESP_LOGD( TAG, "notification rx event; attr_handle=%d indication=%d "
-                               "len=%d",
-                         event->notify_rx.attr_handle,
-                         event->notify_rx.indication,
-                         OS_MBUF_PKTLEN( event->notify_rx.om ) );
+                           "len=%d",
+                      event->notify_rx.attr_handle,
+                      event->notify_rx.indication,
+                      OS_MBUF_PKTLEN( event->notify_rx.om ) );
 
             return 0;
 
@@ -315,10 +319,11 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
             if( ( event->notify_tx.status != 0 ) && ( xGattServerCb.pxIndicationSentCb != NULL ) )
             {
-            	if(event->notify_tx.status == BLE_HS_ETIMEOUT)
-            	{
-            		xStatus = eBTStatusFail;
-            	}
+                if( event->notify_tx.status == BLE_HS_ETIMEOUT )
+                {
+                    xStatus = eBTStatusFail;
+                }
+
                 xGattServerCb.pxIndicationSentCb( event->notify_tx.conn_handle, xStatus );
             }
 
@@ -327,14 +332,14 @@ int prvGAPeventHandler( struct ble_gap_event * event,
         case BLE_GAP_EVENT_SUBSCRIBE:
             rc = ble_gap_conn_find( event->subscribe.conn_handle, &desc );
             ESP_LOGD( TAG, "subscribe event; conn_handle=%d attr_handle=%d "
-                                "reason=%d prevn=%d curn=%d previ=%d curi=%d\n",
-                         event->subscribe.conn_handle,
-                         event->subscribe.attr_handle,
-                         event->subscribe.reason,
-                         event->subscribe.prev_notify,
-                         event->subscribe.cur_notify,
-                         event->subscribe.prev_indicate,
-                         event->subscribe.cur_indicate );
+                           "reason=%d prevn=%d curn=%d previ=%d curi=%d\n",
+                      event->subscribe.conn_handle,
+                      event->subscribe.attr_handle,
+                      event->subscribe.reason,
+                      event->subscribe.prev_notify,
+                      event->subscribe.cur_notify,
+                      event->subscribe.prev_indicate,
+                      event->subscribe.cur_indicate );
 
             if( event->subscribe.prev_notify != event->subscribe.cur_notify )
             {
@@ -374,9 +379,9 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_MTU:
             ESP_LOGD( TAG, "mtu update event; conn_handle=%d cid=%d mtu=%d\n",
-                         event->mtu.conn_handle,
-                         event->mtu.channel_id,
-                         event->mtu.value );
+                      event->mtu.conn_handle,
+                      event->mtu.channel_id,
+                      event->mtu.value );
 
             if( xGattServerCb.pxMtuChangedCb != NULL )
             {
@@ -586,10 +591,12 @@ BTStatus_t prvGetBondableDeviceList( void )
         xBondedDevices.xLen = 0;
         xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
         xBondedDevices.pvVal = NULL;
+
         if( xBTCallbacks.pxAdapterPropertiesCb != NULL )
         {
             xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xBondedDevices );
         }
+
         return eBTStatusSuccess;
     }
 
@@ -617,6 +624,7 @@ BTStatus_t prvGetBondableDeviceList( void )
 
     xBondedDevices.xLen = usNbDevices;
     xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
+
     if( xBTCallbacks.pxAdapterPropertiesCb != NULL )
     {
         xBTCallbacks.pxAdapterPropertiesCb( xStatus, 1, &xBondedDevices );

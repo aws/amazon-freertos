@@ -60,7 +60,8 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
 void prvGATTeventHandler( struct ble_gatt_register_ctxt * ctxt,
                           void * arg );
-ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid, ble_uuid_t * pUuid );
+ble_uuid_t * prvCopytoESPUUID( BTUuid_t * pxUuid,
+                               ble_uuid_t * pUuid );
 uint16_t prvGattFromDevHandle( uint16_t handle );
 
 BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO );
