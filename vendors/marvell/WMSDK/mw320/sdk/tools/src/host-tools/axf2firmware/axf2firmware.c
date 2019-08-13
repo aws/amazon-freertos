@@ -1,6 +1,6 @@
 /*
  * Firmware Image Builder
- * Copyright 2008-2015 Marvell Technology Group Ltd.
+ * Copyright 2008-2019 Marvell Technology Group Ltd.
  */
 
 #include <stdio.h>

@@ -56,7 +56,7 @@ const AppVersion32_t xAppFirmwareVersion = {
 };*/
 
 /* Logging Task Defines. */
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 15 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
 /* Startup defines. */
@@ -422,8 +422,8 @@ void prvWifiConnect( void )
         configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
     }
 }
-
 /*-----------------------------------------------------------*/
+
 
 /**
  * @brief User defined Idle task function.
@@ -446,7 +446,38 @@ void vApplicationIdleHook( void )
         xLastPrint = xTimeNow;
     }
 }
+/*-----------------------------------------------------------*/
 
+/**
+* @brief User defined application hook to process names returned by the DNS server.
+*/
+#if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
+    BaseType_t xApplicationDNSQueryHook( const char * pcName )
+    {
+        /* FIX ME. If necessary, update to applicable DNS name lookup actions. */
+
+        BaseType_t xReturn;
+
+        /* Determine if a name lookup is for this node.  Two names are given
+         * to this node: that returned by pcApplicationHostnameHook() and that set
+         * by mainDEVICE_NICK_NAME. */
+        if( strcmp( pcName, pcApplicationHostnameHook() ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else if( strcmp( pcName, mainDEVICE_NICK_NAME ) == 0 )
+        {
+            xReturn = pdPASS;
+        }
+        else
+        {
+            xReturn = pdFAIL;
+        }
+
+        return xReturn;
+    }
+	
+#endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
 
 /**

@@ -2,7 +2,7 @@
  *
  *  @brief This file provides  mdev driver for UART
  *
- *  (C) Copyright 2014-2018 Marvell International Ltd. All Rights Reserved.
+ *  (C) Copyright 2014-2019 Marvell International Ltd. All Rights Reserved.
  *
  *  MARVELL CONFIDENTIAL
  *  The source code contained or described herein and all documents related to
