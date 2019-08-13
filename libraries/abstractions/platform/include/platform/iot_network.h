@@ -218,19 +218,21 @@ typedef struct IotNetworkInterface
     /* @[declare_platform_network_receive] */
 
     /**
-     * @brief Read incoming data, up to a given buffer size.
+     * @brief Read incoming data available in the network buffers.
      *
-     * Reads any bytes available into `pBuffer`. Unlike
-     * @ref platform_network_function_receive, which waits for all
-     * requested bytes to arrive, this function returns as soon as a message
-     * arrives. Nevertheless, this function may still block for some time.
+     * Reads bytes available in the network buffers into `pBuffer`.
+     * - If there is less data available than requested, it will return
+     *   the available number of bytes.
+     * - If there is more data available than requested, it will fill the
+     *   whole `pBuffer`.
+     * - If there is no data available, it will return 0.
      *
-     * @param[in] pConnection The connection to wait on, defined by the network
-     * stack.
-     * @param[out] pBuffer Where to place the incoming network data.
+     * @param[in] pConnection The connection to receive data on, defined by
+     * the network stack.
+     * @param[out] pBuffer The buffer to place the incoming network data.
      * @param[in] bufferSize The size of `pBuffer`.
      *
-     * @return The number of bytes successfully received, zero on error.
+     * @return The number of bytes successfully received.
      */
     /* @[declare_platform_network_receiveupto] */
     size_t ( * receiveUpto )( void * pConnection,
