@@ -439,9 +439,13 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
-    int xESPStatus;
+    int xESPStatus = 0;
 
-    xESPStatus = ble_gap_adv_stop();
+    /* Stop advertisement only if no advertisement is active. */
+    if( ble_gap_adv_active() != 0 )
+    {
+    	xESPStatus = ble_gap_adv_stop();
+    }
 
     if( xESPStatus != 0 )
     {

@@ -163,7 +163,6 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                         void * arg )
 {
     uint16_t ccc_val = 0;
-    uint16_t handle;
     struct ble_gap_conn_desc desc;
     int rc;
     bool connected = false;
@@ -176,7 +175,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
         case BLE_GAP_EVENT_CONNECT:
             usGattConnHandle = event->connect.conn_handle;
             /* A new connection was established or a connection attempt failed. */
-            ESP_LOGI( TAG, "connection %s; status=%d ",
+            ESP_LOGD( TAG, "connection %s; status=%d ",
                          event->connect.status == 0 ? "established" : "failed",
                          event->connect.status );
 
@@ -196,7 +195,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_DISCONNECT:
             usGattConnHandle = 0xffff;
-            ESP_LOGI( TAG, "disconnect; reason=%d ", event->disconnect.reason );
+            ESP_LOGD( TAG, "disconnect; reason=%d ", event->disconnect.reason );
 
             if( xGattServerCb.pxConnectionCb != NULL )
             {
@@ -206,7 +205,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return 0;
 
         case BLE_GAP_EVENT_CONN_UPDATE:
-            ESP_LOGI( TAG, "connection updated; status=%d ",
+            ESP_LOGD( TAG, "connection updated; status=%d ",
                          event->conn_update.status );
 
             return 0;
@@ -228,7 +227,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return 0;
 
         case BLE_GAP_EVENT_ADV_COMPLETE:
-            ESP_LOGI( TAG, "advertise complete; reason=%d",
+            ESP_LOGD( TAG, "advertise complete; reason=%d",
                          event->adv_complete.reason );
 
             return 0;
@@ -264,7 +263,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             }
         case BLE_GAP_EVENT_ENC_CHANGE:
             /* Encryption has been enabled or disabled for this connection. */
-            ESP_LOGI( TAG, "encryption change event; status=%d ",
+            ESP_LOGD( TAG, "encryption change event; status=%d ",
                          event->enc_change.status );
             rc = ble_gap_conn_find( event->enc_change.conn_handle, &desc );
             assert( rc == 0 );
@@ -304,7 +303,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return 0;
 
         case BLE_GAP_EVENT_NOTIFY_RX:
-            ESP_LOGI( TAG, "notification rx event; attr_handle=%d indication=%d "
+            ESP_LOGD( TAG, "notification rx event; attr_handle=%d indication=%d "
                                "len=%d",
                          event->notify_rx.attr_handle,
                          event->notify_rx.indication,
@@ -314,8 +313,12 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_NOTIFY_TX:
 
-            if( ( event->notify_tx.status == BLE_HS_EDONE ) && ( xGattServerCb.pxIndicationSentCb != NULL ) )
+            if( ( event->notify_tx.status != 0 ) && ( xGattServerCb.pxIndicationSentCb != NULL ) )
             {
+            	if(event->notify_tx.status == BLE_HS_ETIMEOUT)
+            	{
+            		xStatus = eBTStatusFail;
+            	}
                 xGattServerCb.pxIndicationSentCb( event->notify_tx.conn_handle, xStatus );
             }
 
@@ -323,7 +326,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_SUBSCRIBE:
             rc = ble_gap_conn_find( event->subscribe.conn_handle, &desc );
-            ESP_LOGI( TAG, "subscribe event; conn_handle=%d attr_handle=%d "
+            ESP_LOGD( TAG, "subscribe event; conn_handle=%d attr_handle=%d "
                                 "reason=%d prevn=%d curn=%d previ=%d curi=%d\n",
                          event->subscribe.conn_handle,
                          event->subscribe.attr_handle,
@@ -339,11 +342,11 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
                 if( ccc_val )
                 {
-                    ESP_LOGI( TAG, "Notifications enabled" );
+                    ESP_LOGD( TAG, "Notifications enabled" );
                 }
                 else
                 {
-                    ESP_LOGI( TAG, "Notifications and indications disabled" );
+                    ESP_LOGD( TAG, "Notifications and indications disabled" );
                 }
             }
             else if( event->subscribe.prev_indicate != event->subscribe.cur_indicate )
@@ -351,20 +354,18 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                 if( event->subscribe.cur_indicate )
                 {
                     ccc_val = 2;
-                    ESP_LOGI( TAG, "Indications enabled" );
+                    ESP_LOGD( TAG, "Indications enabled" );
                 }
                 else
                 {
                     ccc_val = 0;
-                    ESP_LOGI( TAG, "Notifications and indications disabled" );
+                    ESP_LOGD( TAG, "Notifications and indications disabled" );
                 }
             }
 
-            handle = prvGattFromDevHandle( event->subscribe.attr_handle + 1 );
-
-            if( handle && ( xGattServerCb.pxRequestWriteCb != NULL ) )
+            if( xGattServerCb.pxRequestWriteCb != NULL )
             {
-                xGattServerCb.pxRequestWriteCb( event->subscribe.conn_handle, 0, ( BTBdaddr_t * ) desc.peer_id_addr.val, handle, 0, sizeof( ccc_val ), 1, 0, ( uint8_t * ) &ccc_val );
+                xGattServerCb.pxRequestWriteCb( event->subscribe.conn_handle, 0, ( BTBdaddr_t * ) desc.peer_id_addr.val, event->subscribe.attr_handle - gattOffset + 1, 0, sizeof( ccc_val ), 1, 0, ( uint8_t * ) &ccc_val );
             }
 
             return 0;
@@ -372,7 +373,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             break;
 
         case BLE_GAP_EVENT_MTU:
-            ESP_LOGI( TAG, "mtu update event; conn_handle=%d cid=%d mtu=%d\n",
+            ESP_LOGD( TAG, "mtu update event; conn_handle=%d cid=%d mtu=%d\n",
                          event->mtu.conn_handle,
                          event->mtu.channel_id,
                          event->mtu.value );
@@ -401,7 +402,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return BLE_GAP_REPEAT_PAIRING_RETRY;
 
         case BLE_GAP_EVENT_PASSKEY_ACTION:
-            ESP_LOGI( TAG, "PASSKEY_ACTION_EVENT started %d\n", event->passkey.params.action );
+            ESP_LOGD( TAG, "PASSKEY_ACTION_EVENT started %d\n", event->passkey.params.action );
             rc = ble_gap_conn_find( event->passkey.conn_handle, &desc );
 
             if( event->passkey.params.action == BLE_SM_IOACT_DISP )

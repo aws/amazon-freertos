@@ -1501,9 +1501,14 @@
 			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/include/bt_hal_manager_types.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/ble_hal/test/iot_test_ble_hal.c</name>
-			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/test/iot_test_ble_hal.c</locationURI>
+			<name>libraries/abstractions/ble_hal/test/include</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/test/include</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/ble_hal/test/src</name>
+			<type>2</type>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/abstractions/ble_hal/test/src</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/pkcs11/include/iot_pkcs11.h</name>
@@ -1693,7 +1698,7 @@
 		<link>
 			<name>libraries/c_sdk/standard/common/iot_device_metrics.c</name>
 			<type>1</type>
-			<location>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_device_metrics.c</location>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_device_metrics.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/iot_init.c</name>
