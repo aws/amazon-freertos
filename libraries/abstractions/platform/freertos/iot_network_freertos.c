@@ -607,6 +607,7 @@ size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
     }
     else
     {
+        bytesReceived += ( size_t ) socketStatus;
         IotLogDebug( "Successfully received %lu bytes.",
                      ( unsigned long ) bytesReceived );
     }
