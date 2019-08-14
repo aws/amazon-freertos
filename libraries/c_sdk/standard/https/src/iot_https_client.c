@@ -1649,10 +1649,10 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_NETWORK_ERROR );
 
         /* A network error is returned when zero is received because that would indicate that either there
-         * was a network error or there was a timeout reading data. If there was timeout reading data, then
-         * the server was too slow to respond. If the server is too slow to respond, then a network error must
-         * be returned to trigger a connection close. The connection must close after the network error so
-         * that the response from this request does not piggyback on the response from the next request. */
+        * was a network error or there was a timeout reading data. If there was timeout reading data, then
+        * the server was too slow to respond. If the server is too slow to respond, then a network error must
+        * be returned to trigger a connection close. The connection must close after the network error so
+        * that the response from this request does not piggyback on the response from the next request. */
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
