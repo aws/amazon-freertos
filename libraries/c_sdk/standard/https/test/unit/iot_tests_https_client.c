@@ -1313,7 +1313,7 @@ TEST( HTTPS_Client_Unit_API, ReadResponseBodyNetworkReceiveFailure )
     uint32_t bodyLength = sizeof( _pRespBodyBuffer );
 
     /* Set the network receive function to return a failure. */
-    _networkInterface.receive = _networkReceiveFail;
+    _networkInterface.receiveUpto = _networkReceiveFail;
 
     /* Get valid response an connection handles to perform this single operation. */
     reqHandle = _getReqHandle( &_reqInfo );
@@ -1346,7 +1346,7 @@ TEST( HTTPS_Client_Unit_API, ReadResponseBodyParsingFailure )
     uint32_t bodyLength = sizeof( _pRespBodyBuffer );
 
     /* Set the network receive function to return a succeed. */
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
 
     /* Get valid response and connection handles to perform this single operation. */
     reqHandle = _getReqHandle( &_reqInfo );
@@ -1384,7 +1384,7 @@ TEST( HTTPS_Client_Unit_API, ReadResponseBodySuccess )
     uint32_t bodyLength = sizeof( _pRespBodyBuffer );
 
     /* Set the network receive function to return a succeed. */
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
 
     /* Get valid response and connection handles to perform this single operation. */
     reqHandle = _getReqHandle( &_reqInfo );

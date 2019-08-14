@@ -900,7 +900,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncFailureReceivingHeaders )
 
     /* Test a failure to receive the headers. */
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveFailHeaders;
+    _networkInterface.receiveUpto = _networkReceiveFailHeaders;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -943,7 +943,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncFailureReceivingBody )
 
     /* Test a failure to receive the headers. */
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveFailBody;
+    _networkInterface.receiveUpto = _networkReceiveFailBody;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -991,7 +991,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncFailureParsingHeaders )
 
     /* Test a failure to parse the received headers. */
     _networkInterface.send = _networkSendSuccessWithSettingParseFailForHeaders;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1039,7 +1039,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncFailureParsingBody )
 
     /* Test a failure to parse the received body. */
     _networkInterface.send = _networkSendSuccessWithSettingParseFailForBody;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1088,7 +1088,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncSomeBodyInHeaderBuffer )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1142,7 +1142,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncSomeHeaderInBodyBuffer )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1191,7 +1191,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncEntireResponseInHeaderBuffer )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1240,7 +1240,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncBodyTooLarge )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1287,7 +1287,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncIgnoreResponseBody )
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1335,7 +1335,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelBeforeScheduled )
     TEST_ASSERT_GREATER_THAN( 1, HTTPS_TEST_MAX_ASYNC_REQUESTS );
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1401,7 +1401,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelDuringAppendHeaderCallback )
     _asyncInfoBase.callbacks.appendHeaderCallback = _appendHeaderCallbackThatCancels;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1450,7 +1450,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelDuringWriteCallback )
     _asyncInfoBase.callbacks.writeCallback = _writeCallbackThatCancels;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1499,7 +1499,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncCancelDuringReadReadyCallback )
     _asyncInfoBase.callbacks.readReadyCallback = _readReadyCallbackThatCancels;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1543,7 +1543,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsSuccess )
     int reqIndex = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1611,7 +1611,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsSecondHasNetworkSendFail
     TEST_ASSERT_GREATER_THAN( 2, HTTPS_TEST_MAX_ASYNC_REQUESTS );
 
     _networkInterface.send = _networkSendFailsOnSecondHeaderSend;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1683,7 +1683,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstHasNetworkReceiveFa
     TEST_ASSERT_GREATER_THAN( 1, HTTPS_TEST_MAX_ASYNC_REQUESTS );
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveFailHeaders;
+    _networkInterface.receiveUpto = _networkReceiveFailHeaders;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1754,7 +1754,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstHasParsingFailure )
     TEST_ASSERT_GREATER_THAN( 1, HTTPS_TEST_MAX_ASYNC_REQUESTS );
 
     _networkInterface.send = _networkSendSuccessWithSettingParseFailForHeaders;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1825,7 +1825,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstIsNonPersistent )
     TEST_ASSERT_GREATER_THAN( 1, HTTPS_TEST_MAX_ASYNC_REQUESTS );
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1903,7 +1903,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsFirstIgnoresPresentRespo
     _pAsyncReqInfos[ 0 ].u.pAsyncInfo = &testAsyncInfo;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1967,7 +1967,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncMultipleRequestsOneGetsCancelled )
     TEST_ASSERT_GREATER_THAN( 2, HTTPS_TEST_MAX_ASYNC_REQUESTS );
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -2038,7 +2038,7 @@ TEST( HTTPS_Client_Unit_Async, SendAsyncChunkedResponse )
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 

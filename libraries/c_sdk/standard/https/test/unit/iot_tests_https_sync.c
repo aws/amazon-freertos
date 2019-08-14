@@ -626,7 +626,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingHeaders )
 
     /* Test a failure to receive the headers. */
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveFailHeaders;
+    _networkInterface.receiveUpto = _networkReceiveFailHeaders;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
     /* Get a valid "connected" handled. */
@@ -664,7 +664,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureReceivingBody )
 
     /* Test a failure to receive the body. */
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveFailBody;
+    _networkInterface.receiveUpto = _networkReceiveFailBody;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
     /* Get a valid "connected" handled. */
@@ -704,7 +704,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingHeaders )
 
     /* Test a parsing failure in the headers buffer. */
     _networkInterface.send = _networkSendSuccessWithSettingParseFailForHeaders;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
     /* Get a valid "connected" handled. */
@@ -744,7 +744,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncFailureParsingBody )
 
     /* Test a parsing failure in the body buffer. */
     _networkInterface.send = _networkSendSuccessWithSettingParseFailForBody;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
     /* Get a valid "connected" handled. */
@@ -786,7 +786,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncSomeBodyInHeaderBuffer )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -833,7 +833,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncSomeHeaderInBodyBuffer )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -874,7 +874,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncEntireResponseInHeaderBuffer )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -915,7 +915,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncBodyTooLarge )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -957,7 +957,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncBodyBufferNull )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1003,7 +1003,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncPersistentRequest )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1049,7 +1049,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncNonPersistentRequest )
     int bodyLength = 0;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1104,7 +1104,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithCarriageReturnSeparator )
     char pValueBuffer[ sizeof( HTTPS_TEST_HEADER_VALUE1 ) ] = { 0 };
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1175,7 +1175,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithNewlineSeparator )
     char pValueBuffer[ sizeof( HTTPS_TEST_HEADER_VALUE1 ) ] = { 0 };
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1249,7 +1249,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithColonSeparator )
     char pValueBuffer[ sizeof( HTTPS_TEST_HEADER_VALUE1 ) ] = { 0 };
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1318,7 +1318,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithSpaceSeparator )
     char pValueBuffer[ sizeof( HTTPS_TEST_HEADER_VALUE1 ) ] = { 0 };
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1384,7 +1384,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncHeadersEndsWithSpaceAfterHeaderValue )
     char pValueBuffer[ sizeof( HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE ) ] = { 0 };
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
@@ -1439,7 +1439,7 @@ TEST( HTTPS_Client_Unit_Sync, SendSyncChunkedResponse )
     uint32_t timeout = HTTPS_TEST_SYNC_TIMEOUT_MS;
 
     _networkInterface.send = _networkSendSuccess;
-    _networkInterface.receive = _networkReceiveSuccess;
+    _networkInterface.receiveUpto = _networkReceiveSuccess;
     _networkInterface.close = _networkCloseSuccess;
     _networkInterface.destroy = _networkDestroySuccess;
 
