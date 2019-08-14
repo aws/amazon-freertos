@@ -585,8 +585,6 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     connConfig.pAddress = pAddress;
     connConfig.addressLen = addressLen;
     connConfig.port = IOT_DEMO_HTTPS_PORT;
-    /* We disable SNI here because the address specified includes the S3 bucket name. */
-    connConfig.flags |= IOT_HTTPS_DISABLE_SNI;
     connConfig.pCaCert = IOT_DEMO_HTTPS_TRUSTED_ROOT_CA;
     connConfig.caCertLen = sizeof( IOT_DEMO_HTTPS_TRUSTED_ROOT_CA );
     connConfig.userBuffer.pBuffer = _pConnUserBuffer;

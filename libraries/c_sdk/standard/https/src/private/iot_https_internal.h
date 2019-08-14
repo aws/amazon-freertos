@@ -383,18 +383,8 @@ typedef struct _httpsConnection
      * disconnect with a network error, or an explicit disconnect with a call to @ref https_client_function_disconnect.
      */
     bool isConnected;
-    bool isDestroyed; /**< @brief true if the connection is already destroyed and we should call anymore  */
-
-    /**
-     * @brief true if the a connection is in the process of disconnecting.
-     *
-     * Mutexes are large and expensive, so it is better to just check a variable then return.
-     * No threads are planned to wait if disconnecting is in process and busy. If this is set to true, the thread will
-     * return right away that the function is busy. If IotHttpsClient_Disconnect() is called by two threads at once,
-     * then this variable protects the pNetworkInterface operations from being called after the connection has been
-     * destroyed.
-     */
-    bool isDisconnecting;
+    bool isDestroyed;                           /**< @brief true if the connection is already destroyed and we should call anymore  */
+    IotMutex_t disconnectMutex;                 /**< @brief Mutex protecting the @ref https_client_function_disconnect operation. */
     IotMutex_t reqQMutex;                       /**< @brief Mutex protecting operations on the request queue. */
     IotMutex_t respQMutex;                      /**< @brief Mutex protecting operation son the response queue. */
     IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */

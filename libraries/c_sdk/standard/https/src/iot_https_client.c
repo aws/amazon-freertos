@@ -1317,6 +1317,7 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
     char pHostName[ IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1 ] = { 0 };
     bool reqQMutexCreated = false;
     bool respQMutexCreated = false;
+    bool disconnectMutexCreated = false;
     IotNetworkServerInfo_t networkServerInfo = { 0 };
     IotNetworkCredentials_t networkCredentials = { 0 };
     _httpsConnection_t * pHttpsConnection = NULL;
@@ -1353,8 +1354,7 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
     /* Start with the disconnected state. */
     pHttpsConnection->isConnected = false;
 
-    /* Initialize disconnection state keepers. */
-    pHttpsConnection->isDisconnecting = false;
+    /* Initialize disconnection state keeper. */
     pHttpsConnection->isDestroyed = false;
 
     /* Initialize the queue of responses and requests. */
@@ -1476,6 +1476,14 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
     respQMutexCreated = IotMutex_Create( &( pHttpsConnection->respQMutex ), false );
 
     if( !respQMutexCreated )
+    {
+        IotLogError( "Failed to create an internal mutex." );
+        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
+    }
+
+    disconnectMutexCreated = IotMutex_Create( &( pHttpsConnection->disconnectMutex ), false );
+
+    if( !disconnectMutexCreated )
     {
         IotLogError( "Failed to create an internal mutex." );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
@@ -2602,13 +2610,9 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
     /* If this routine is currently is progress by another thread, for instance the taskpool worker that received a
      * network error after sending, then return right away because connection resources are being used. */
-    if( connHandle->isDisconnecting )
+    if( IotMutex_TryLock( &( connHandle->disconnectMutex ) ) == false )
     {
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_BUSY );
-    }
-    else
-    {
-        connHandle->isDisconnecting = true;
     }
 
     /* Do not attempt to disconnect an already disconnected connection.
@@ -2686,11 +2690,11 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
     HTTPS_FUNCTION_CLEANUP_BEGIN();
 
-    /* This function is no longer in process, so disconnecting is no longer in process. This signals to the a retry
+    /* This function is no longer in process, so disconnecting is no longer in process. This signals to the retry
      * on this function that it can proceed with the disconnecting activities. */
-    if( connHandle )
+    if( connHandle != NULL )
     {
-        connHandle->isDisconnecting = false;
+        IotMutex_Unlock( &( connHandle->disconnectMutex ) );
     }
 
     HTTPS_FUNCTION_CLEANUP_END();
