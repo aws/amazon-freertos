@@ -86,7 +86,7 @@
  * @snippet this declare_https_client_connect
  * @copydoc IotHttpsClient_Connect
  * @page https_client_function_initializerequest IotHttpsClient_InitializeRequest
- * @snippet this IotHttpsClient_InitializeRequest
+ * @snippet this declare_https_client_initializerequest
  * @copydoc IotHttpsClient_InitializeRequest
  * @page https_client_function_addheader IotHttpsClient_AddHeader
  * @snippet this declare_https_client_addheader
