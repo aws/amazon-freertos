@@ -364,13 +364,15 @@ static IotHttpsReturnCode_t _networkSend( _httpsConnection_t * pHttpsConnection,
  * @param[in] pHttpsConnection - HTTP connection context.
  * @param[in] pBuf - The buffer to receive the data into.
  * @param[in] len - The length of the data to receive.
+ * @param[in] numBytesRecv - The number of bytes read from the network.
  *
  * @return #IOT_HTTPS_OK if the data was received successfully.
  *         #IOT_HTTPS_NETWORK_ERROR if we timedout trying to receive data from the network.
  */
 static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
                                           uint8_t * pBuf,
-                                          size_t bufLen );
+                                          size_t bufLen,
+                                          size_t * numBytesRecv );
 
 /**
  * @brief Send all of the HTTP request headers in the pHeadersBuf and the final Content-Length and Connection headers.
@@ -784,13 +786,12 @@ static int _httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
          * response, then the body buffer will be filled with the zeros from rest of the header buffer. http-parser
          * will invoke the on_body callback and consider the zeros following the headers as body. */
 
-        /* If it was configured in a synchronous response to ignore the HTTPS response body then also stop the body
-         * parsing. There could be body in the message, despite the body configured to be ignore, so the parser state
-         * stays as is so that the network socket can be flushed of the body if needed. */
-        if( ( pHttpsResponse->isAsync == false ) && ( pHttpsResponse->pBody == NULL ) )
-        {
-            retVal = STOP_PARSING;
-        }
+        /* If there is not body configured for a synchronous reponse, we do not stop the parser from continueing. */
+
+        /* Skipping the body will cause the parser to invoke the _httpParserOnMessageComplete() callback. This is
+         * not desired when there is actaully HTTP response body sent by the server because this will set the parser
+         * state to PARSER_STATE_BODY_COMPLETE. If this state is set then the rest of possible body will not be
+         * flushed out. The network flush looks for the state being PARSER_STATE_BODY_COMPLETE to finish flushing. */
     }
 
     return retVal;
@@ -1624,15 +1625,17 @@ static IotHttpsReturnCode_t _networkSend( _httpsConnection_t * pHttpsConnection,
 
 static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
                                           uint8_t * pBuf,
-                                          size_t bufLen )
+                                          size_t bufLen,
+                                          size_t * numBytesRecv )
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
-    size_t numBytesRecv = 0;
-
-    numBytesRecv = pHttpsConnection->pNetworkInterface->receive( pHttpsConnection->pNetworkConnection,
-                                                                 pBuf,
-                                                                 bufLen );
+    /* The HTTP server could send the header and the body in two separate TCP packets. If that is the case, then
+     * receiveUpTo will return return the full headers first. Then on a second call, the body will be returned.
+     * If the http parser receives just the headers despite the content length being greater than  */
+    *numBytesRecv = pHttpsConnection->pNetworkInterface->receiveUpto( pHttpsConnection->pNetworkConnection,
+                                                                      pBuf,
+                                                                      bufLen );
 
     IotLogDebug( "The network interface receive returned %d.", numBytesRecv );
 
@@ -1640,10 +1643,16 @@ static IotHttpsReturnCode_t _networkRecv( _httpsConnection_t * pHttpsConnection,
      * data than requested is okay because it is not known in advance how much data
      * we are going to receive and therefore we request for the available buffer
      * size. */
-    if( numBytesRecv == 0 )
+    if( *numBytesRecv == 0 )
     {
-        IotLogError( "Error in receiving the HTTPS response message. Socket Error code %d", numBytesRecv );
+        IotLogError( "Error in receiving the HTTPS response message. Socket Error code %d", *numBytesRecv );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_NETWORK_ERROR );
+
+        /* A network error is returned when zero is received because that would indicate that either there
+         * was a network error or there was a timeout reading data. If there was timeout reading data, then
+         * the server was too slow to respond. If the server is too slow to respond, then a network error must
+         * be returned to trigger a connection close. The connection must close after the network error so
+         * that the response from this request does not piggyback on the response from the next request. */
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -1868,13 +1877,16 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t * pHttpsCon
 {
     HTTPS_FUNCTION_ENTRY( IOT_HTTPS_OK );
 
+    size_t numBytesRecv = 0;
+
     /* The final parser state is either the end of the header lines or the end of the entity body. This state is set in
      * the http-parser callbacks. */
     while( ( *pCurrentParserState < finalParserState ) && ( *pBufEnd - *pBufCur > 0 ) )
     {
         status = _networkRecv( pHttpsConnection,
                                *pBufCur,
-                               *pBufEnd - *pBufCur );
+                               *pBufEnd - *pBufCur,
+                               &numBytesRecv );
 
         /* A network error in _networkRecv is returned only when we received zero bytes. In that case, there is
          * no point in parsing we return immediately with the network error. */
@@ -1884,7 +1896,7 @@ static IotHttpsReturnCode_t _receiveHttpsMessage( _httpsConnection_t * pHttpsCon
             break;
         }
 
-        status = _parseHttpsMessage( pHttpParserInfo, ( char * ) ( *pBufCur ), *pBufEnd - *pBufCur );
+        status = _parseHttpsMessage( pHttpParserInfo, ( char * ) ( *pBufCur ), numBytesRecv );
 
         if( HTTPS_FAILED( status ) )
         {
@@ -1988,16 +2000,17 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
     const char * pHttpParserErrorDescription = NULL;
     IotHttpsReturnCode_t parserStatus = IOT_HTTPS_OK;
     IotHttpsReturnCode_t networkStatus = IOT_HTTPS_OK;
+    size_t numBytesRecv = 0;
 
     /* Even if there is not body, the parser state will become body complete after the headers finish. */
     while( pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE )
     {
         IotLogDebug( "Now clearing the rest of the response data on the socket. " );
-        networkStatus = _networkRecv( pHttpsConnection, flushBuffer, IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE );
+        networkStatus = _networkRecv( pHttpsConnection, flushBuffer, IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE, &numBytesRecv );
 
         /* Run this through the parser so that we can get the end of the HTTP message, instead of simply timing out the socket to stop.
          * If we relied on the socket timeout to stop reading the network socket, then the server may close the connection. */
-        parserStatus = _parseHttpsMessage( &( pHttpsResponse->httpParserInfo ), ( char * ) flushBuffer, IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE );
+        parserStatus = _parseHttpsMessage( &( pHttpsResponse->httpParserInfo ), ( char * ) flushBuffer, numBytesRecv );
 
         if( HTTPS_FAILED( parserStatus ) )
         {
