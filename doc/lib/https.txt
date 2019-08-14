@@ -284,7 +284,7 @@ This is generated using the script demos/https/presigned_url_gen.py. demos/https
 @configpossible Presigned URL of the form: `https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D`. <br>
 @configdefault `"Please configure a presigned GET URL in iot_config.h."`
 
-@section IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
+@section IOT_DEMO_HTTPS_PORT
 @brief The port number for the TLS connection to AWS S3's HTTP server.
 
 @configpossible Any positive integer up to 2^16. <br>
@@ -373,7 +373,87 @@ The HTTPS Client tests reside in the `tests` directory. They are divided into th
 - `system`: HTTPS Client integration testing. These tests require a network connection.
 - `unit`: HTTPS Client unit tests. These tests do not require a network connection.
 
+See @subpage https_tests_config for configuration settings that change the behavior of the tests.
+
 The current HTTPS Client tests use the [Unity test framework](http://www.throwtheswitch.org/unity/). See @ref building_tests for a guide on running the tests.
+*/
+
+/**
+@config_page{https_tests,Test}
+@config_brief{https_tests,HTTPS Client tests,tests}
+
+@section IOT_TEST_HTTPS_SERVER_HOST_NAME
+@brief The HTTP server used for this test.
+
+This server needs to accept methods HEAD, GET, POST, and PUT. This server needs to send some data on a GET request. It can be a simple HTTP echo server. 
+
+@configpossible Any server host name string. This host name must not include "https://" or "http://" in the name. <br>
+@configdefault `"httpbin.org"`
+
+@section IOT_TEST_HTTPS_PORT
+@brief The socket port number of the server to connect to.
+
+@configpossible Any positive integer up to 2^16. <br>
+@configdefault `443`
+
+@section IOT_TEST_HTTPS_ALPN_PROTOCOLS
+@brief APLN protocol string if necessary to connect to a secure testing server configured in @ref IOT_TEST_HTTPS_SERVER_HOST_NAME.
+
+This is a comma separated list of protocol. Please see [Transport Layer Security (TLS) Application-Layer Protocol Negotiation Extension](https://tools.ietf.org/html/rfc7301) for more information.
+
+@configpossible A comma separated string of ALPN protocol names or NULL. An empty string is not allowed. <br>
+@configdefault `NULL`
+
+@section IOT_TEST_HTTPS_ROOT_CA
+@brief Root certificate authority to verify the server that the HTTPS_Client_System tests are connecting to.
+
+@configpossible A valid PEM encoded certificate string. <br>
+@configdefault `NULL`
+
+@section IOT_TEST_HTTPS_CLIENT_CERTIFICATE
+@brief The client certificate used in TLS negotiation with the test HTTP server configured in @ref IOT_TEST_HTTPS_SERVER_HOST_NAME.
+
+With PKCS #11 provisioning of the keys these parameters are deprecated.
+
+@configpossible A valid RSA-2048 or ECC-P256 PEM encoded certificate string. <br>
+@configdefault The system provisioned client certificate.
+
+@section IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY
+@brief The client private key used in TLS negotiation with the test HTTP server configured in @ref IOT_TEST_HTTPS_SERVER_HOST_NAME.
+
+With PKCS #11 provisioning of the keys these parameters are deprecated.
+
+@configpossible A valid RSA-2048 or ECC-P256 PEM encoded private key string. <br>
+@configdefault The system provisioned client private key.
+
+@section IOT_TEST_HTTPS_SYNC_TIMEOUT_MS
+@brief Timeout in milliseconds for tests that synchronously send HTTP requests.
+
+This timeout encompasses the waiting time for the both sending of the request and receiving the response.
+
+@configpossible Any positive integer. <br>
+@configdefault `60000`
+
+@section IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS
+@brief Timeout in milliseconds for tests asynchronously send HTTP requests.
+
+This timeout encompasses the waiting time for the both sending of the request and receiving the response.
+
+@configpossible Any positive integer. <br>
+@configdefault `60000`
+
+@section IOT_TEST_HTTPS_INITIAL_CONNECTION_RETRY_DELAY
+@brief The initial delay in milliseconds that is doubled each retry of server connection.
+
+@configpossible Any positive integer. <br>
+@configdefault `300`
+
+@section IOT_TEST_HTTPS_CONNECTION_NUM_RETRIES
+@brief The amount of times to retry the server connection if it fails.
+
+@configpossible Any positive integer. <br>
+@configdefault `3`
+
 */
 
 /**

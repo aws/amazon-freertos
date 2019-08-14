@@ -1,6 +1,10 @@
 # AFR HTTPS demo
 afr_demo_module(https)
 
+afr_set_demo_metadata(ID "HTTPS_DEMO")
+afr_set_demo_metadata(DESCRIPTION "Examples that demonstrate the HTTPS Client")
+afr_set_demo_metadata(DISPLAY_NAME "HTTPS Client S3 download")
+
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
