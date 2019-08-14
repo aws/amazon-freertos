@@ -65,26 +65,26 @@ const AppVersion32_t xAppFirmwareVersion =
 
 /* The SPI driver polls at a high priority. The logging task's priority must also
  * be high to be not be starved of CPU time. */
-#define mainLOGGING_TASK_PRIORITY                       ( configMAX_PRIORITIES - 1 )
-#define mainLOGGING_TASK_STACK_SIZE                     ( configMINIMAL_STACK_SIZE * 5 )
-#define mainLOGGING_MESSAGE_QUEUE_LENGTH                ( 15 )
+#define mainLOGGING_TASK_PRIORITY                         ( configMAX_PRIORITIES - 1 )
+#define mainLOGGING_TASK_STACK_SIZE                       ( configMINIMAL_STACK_SIZE * 5 )
+#define mainLOGGING_MESSAGE_QUEUE_LENGTH                  ( 15 )
 
 /* Minimum required WiFi firmware version. */
-#define mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION  ( 3 )
-#define mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION  ( 5 )
-#define mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION  ( 2 )
-#define mainREQUIRED_WIFI_FIRMWARE_INVENTEK_VERSION     ( 5 )
+#define mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION    ( 3 )
+#define mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION    ( 5 )
+#define mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION    ( 2 )
+#define mainREQUIRED_WIFI_FIRMWARE_INVENTEK_VERSION       ( 5 )
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void );
 
 /* Defined in es_wifi_io.c. */
-extern void SPI_WIFI_ISR(void);
+extern void SPI_WIFI_ISR( void );
 extern SPI_HandleTypeDef hspi;
 
 #ifdef USE_OFFLOAD_SSL
     /* Defined in iot_wifi.c. */
-    extern WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t *pucBuffer );
+    extern WIFIReturnCode_t WIFI_GetFirmwareVersion( uint8_t * pucBuffer );
 #endif /* USE_OFFLOAD_SSL */
 
 /**********************
@@ -119,12 +119,12 @@ static void prvInitializeHeap( void );
 
 #ifdef USE_OFFLOAD_SSL
 
-    /**
-     * @brief Checks whether the Inventek module's firmware version needs to be
-     * updated.
-     *
-     * Prints a message to inform the user to update the WiFi firmware.
-     */
+/**
+ * @brief Checks whether the Inventek module's firmware version needs to be
+ * updated.
+ *
+ * Prints a message to inform the user to update the WiFi firmware.
+ */
     static void prvCheckWiFiFirmwareVersion( void );
 
 #endif /* USE_OFFLOAD_SSL */
@@ -512,7 +512,10 @@ void Error_Handler( void )
 void vApplicationMallocFailedHook()
 {
     taskDISABLE_INTERRUPTS();
-    for( ;; );
+
+    for( ; ; )
+    {
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -533,7 +536,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     portDISABLE_INTERRUPTS();
 
     /* Loop forever */
-    for( ; ; );
+    for( ; ; )
+    {
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -649,13 +654,13 @@ int iMainRand32( void )
 static void prvInitializeHeap( void )
 {
     static uint8_t ucHeap1[ configTOTAL_HEAP_SIZE ];
-    static uint8_t ucHeap2[ 27 * 1024 ] __attribute__( ( section( ".freertos_heap2" ) ) );
+    static uint8_t ucHeap2[ 25 * 1024 ] __attribute__( ( section( ".freertos_heap2" ) ) );
 
     HeapRegion_t xHeapRegions[] =
     {
         { ( unsigned char * ) ucHeap2, sizeof( ucHeap2 ) },
         { ( unsigned char * ) ucHeap1, sizeof( ucHeap1 ) },
-        { NULL,                                        0 }
+        { NULL,                        0                 }
     };
 
     vPortDefineHeapRegions( xHeapRegions );
@@ -675,7 +680,7 @@ static void prvInitializeHeap( void )
             configPRINTF( ( "WiFi firmware version is: %s\r\n", ( char * ) ucFirmwareVersion ) );
 
             /* Parse the firmware revision number. */
-            lParsedFields = sscanf( ( char* ) ucFirmwareVersion,
+            lParsedFields = sscanf( ( char * ) ucFirmwareVersion,
                                     "C%ld.%ld.%ld.%ld.STM",
                                     &( lWicedMajorVersion ),
                                     &( lWicedMinorVersion ),
@@ -689,27 +694,27 @@ static void prvInitializeHeap( void )
                 {
                     xNeedsUpdate = pdTRUE;
                 }
-                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
-                          ( lWicedMinorVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) )
+                else if( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
+                         ( lWicedMinorVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) )
                 {
                     xNeedsUpdate = pdTRUE;
                 }
-                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
-                          ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
-                          ( lWicedPatchVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) )
+                else if( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
+                         ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
+                         ( lWicedPatchVersion < mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) )
                 {
                     xNeedsUpdate = pdTRUE;
                 }
-                else if ( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
-                          ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
-                          ( lWicedPatchVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) &&
-                          ( lInventekVersion < mainREQUIRED_WIFI_FIRMWARE_INVENTEK_VERSION ) )
+                else if( ( lWicedMajorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MAJOR_VERSION ) &&
+                         ( lWicedMinorVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_MINOR_VERSION ) &&
+                         ( lWicedPatchVersion == mainREQUIRED_WIFI_FIRMWARE_WICED_PATCH_VERSION ) &&
+                         ( lInventekVersion < mainREQUIRED_WIFI_FIRMWARE_INVENTEK_VERSION ) )
                 {
                     xNeedsUpdate = pdTRUE;
                 }
 
                 /* Print a warning for the user to inform that the WiFi Firmware
-                * needs to be updated. */
+                 * needs to be updated. */
                 if( xNeedsUpdate == pdTRUE )
                 {
                     configPRINTF( ( "[WARN] WiFi firmware needs to be updated.\r\n" ) );
@@ -744,16 +749,12 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
     {
         /* Pin number 1 is connected to Inventek Module Cmd-Data
          * ready pin. */
-        case( GPIO_PIN_1 ):
-        {
+        case ( GPIO_PIN_1 ):
             SPI_WIFI_ISR();
             break;
-        }
 
         default:
-        {
             break;
-        }
     }
 }
 /*-----------------------------------------------------------*/
@@ -779,7 +780,7 @@ void SPI3_IRQHandler( void )
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef * htim )
 {
     if( htim->Instance == TIM6 )
     {
