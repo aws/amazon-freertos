@@ -101,8 +101,6 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
     char contentRangeValStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
     /* The location of the file size in the contentRangeValStr. */
     char * pFileSizeStr = NULL;
-    /* Size in bytes of a single character. */
-    uint8_t sizeOfOneChar = sizeof( char );
 
     /* We are retrieving the file size synchronously because we cannot run this demo without the file size anyways
      * so it's OK to block. */
@@ -212,7 +210,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
         return EXIT_FAILURE;
     }
 
-    pFileSizeStr += sizeOfOneChar;
+    pFileSizeStr += sizeof( char );
     *pFileSize = ( uint32_t ) strtoul( pFileSizeStr, NULL, 10 );
 
     if( ( *pFileSize == 0 ) || ( *pFileSize == UINT32_MAX ) )

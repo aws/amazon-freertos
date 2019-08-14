@@ -384,9 +384,7 @@ typedef struct _httpsConnection
      */
     bool isConnected;
     bool isDestroyed;                           /**< @brief true if the connection is already destroyed and we should call anymore  */
-    IotMutex_t disconnectMutex;                 /**< @brief Mutex protecting the @ref https_client_function_disconnect operation. */
-    IotMutex_t reqQMutex;                       /**< @brief Mutex protecting operations on the request queue. */
-    IotMutex_t respQMutex;                      /**< @brief Mutex protecting operation son the response queue. */
+    IotMutex_t connectionMutex;                 /**< @brief Mutex protecting operations on this entire connection context. */
     IotDeQueue_t reqQ;                          /**< @brief The queue for the requests that are not finished yet. */
     IotDeQueue_t respQ;                         /**< @brief The queue for the responses that are waiting to be processed. */
     IotTaskPoolJobStorage_t taskPoolJobStorage; /**< @brief An asynchronous operation requires storage for the task pool job. */

@@ -1048,9 +1048,9 @@ static void _networkReceiveCallback( void * pNetworkConnection,
     ( void ) pNetworkConnection;
 
     /* Get the response from the response queue. */
-    IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
+    IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
     pQItem = IotDeQueue_PeekHead( &( pHttpsConnection->respQ ) );
-    IotMutex_Unlock( &( pHttpsConnection->respQMutex ) );
+    IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     /* If the receive callback is invoked and there is no response expected, then this a violation of the HTTP/1.1
      * protocol. */
@@ -1234,10 +1234,10 @@ static void _networkReceiveCallback( void * pNetworkConnection,
             IotLogDebug( "Network error when flushing the https network data: %d", flushStatus );
         }
 
-        IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
+        IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
         /* Get the next request to process. */
         pQItem = IotDeQueue_PeekHead( &( pHttpsConnection->reqQ ) );
-        IotMutex_Unlock( &( pHttpsConnection->reqQMutex ) );
+        IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
         /* If there is a next request to process, then create a taskpool job to send the request. */
         if( pQItem != NULL )
@@ -1273,7 +1273,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
     }
 
     /* Dequeue response from the response queue now that it is finished. */
-    IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
+    IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
 
     /* There could be a scenario where the request fails to send and the network server still responds,
      * In this case, the failed response will have been cancelled and removed from the queue. If the network
@@ -1284,7 +1284,7 @@ static void _networkReceiveCallback( void * pNetworkConnection,
         IotDeQueue_Remove( &( pCurrentHttpsResponse->link ) );
     }
 
-    IotMutex_Unlock( &( pHttpsConnection->respQMutex ) );
+    IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     /* Signal to a synchronous reponse that the response is complete. */
     if( pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->responseCompleteCallback )
@@ -1315,9 +1315,7 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
     /* The maximum string length of the Server host name is configured in IOT_HTTPS_MAX_HOST_NAME_LENGTH.
      * This +1 is for the NULL terminator needed by IotNetworkServerInfo_t.pHostName. */
     char pHostName[ IOT_HTTPS_MAX_HOST_NAME_LENGTH + 1 ] = { 0 };
-    bool reqQMutexCreated = false;
-    bool respQMutexCreated = false;
-    bool disconnectMutexCreated = false;
+    bool connectionMutexCreated = false;
     IotNetworkServerInfo_t networkServerInfo = { 0 };
     IotNetworkCredentials_t networkCredentials = { 0 };
     _httpsConnection_t * pHttpsConnection = NULL;
@@ -1464,26 +1462,9 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
 
     /* Connection was successful, so create synchronization primitives. */
 
-    /* Create the mutex protecting operations the queue of requests waiting to be serviced in this connection. */
-    reqQMutexCreated = IotMutex_Create( &( pHttpsConnection->reqQMutex ), false );
+    connectionMutexCreated = IotMutex_Create( &( pHttpsConnection->connectionMutex ), false );
 
-    if( !reqQMutexCreated )
-    {
-        IotLogError( "Failed to create an internal mutex." );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
-    }
-
-    respQMutexCreated = IotMutex_Create( &( pHttpsConnection->respQMutex ), false );
-
-    if( !respQMutexCreated )
-    {
-        IotLogError( "Failed to create an internal mutex." );
-        HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
-    }
-
-    disconnectMutexCreated = IotMutex_Create( &( pHttpsConnection->disconnectMutex ), false );
-
-    if( !disconnectMutexCreated )
+    if( !connectionMutexCreated )
     {
         IotLogError( "Failed to create an internal mutex." );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_INTERNAL_ERROR );
@@ -1504,14 +1485,9 @@ static IotHttpsReturnCode_t _createHttpsConnection( IotHttpsConnectionHandle_t *
             _networkDestroy( pHttpsConnection );
         }
 
-        if( reqQMutexCreated )
+        if( connectionMutexCreated )
         {
-            IotMutex_Destroy( &( pHttpsConnection->reqQMutex ) );
-        }
-
-        if( respQMutexCreated )
-        {
-            IotMutex_Destroy( &( pHttpsConnection->respQMutex ) );
+            IotMutex_Destroy( &( pHttpsConnection->connectionMutex ) );
         }
 
         /* Set the connection handle as NULL if everything failed. */
@@ -2119,9 +2095,9 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
     pHttpsResponse->reqFinishedSending = false;
 
     /* Queue the response to expect from the network. */
-    IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
+    IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
     IotDeQueue_EnqueueTail( &( pHttpsConnection->respQ ), &( pHttpsResponse->link ) );
-    IotMutex_Unlock( &( pHttpsConnection->respQMutex ) );
+    IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     /* Get the headers from the application. For a synchronous request the application should have appended extra
      * headers before this point. */
@@ -2187,14 +2163,14 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
         /* If the headers or body failed to send, then there should be no response expected from the server. */
         /* Cancel the response incase there is a response from the server. */
         _cancelResponse( pHttpsResponse );
-        IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
+        IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
 
         if( IotLink_IsLinked( &( pHttpsResponse->link ) ) )
         {
             IotDeQueue_Remove( &( pHttpsResponse->link ) );
         }
 
-        IotMutex_Unlock( &( pHttpsConnection->respQMutex ) );
+        IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
         /* Set the error status in the sync workflow. */
         pHttpsResponse->syncStatus = status;
@@ -2230,13 +2206,13 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
             /* Because this request failed, the network receive callback may never be invoked to schedule other possible
              * requests in the queue. In order to avoid requests never getting scheduled on an connected connection,
              * the first item in the queue is scheduled if it can be. */
-            IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
+            IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
             /* Get the next item in the queue by removing this current (which is the first) and peeking at the head again. */
             IotDeQueue_Remove( &( pHttpsRequest->link ) );
             pQItem = IotDeQueue_PeekHead( &( pHttpsConnection->reqQ ) );
             /* This current request is put back because it is removed again for all cases at the end of this routine. */
             IotDeQueue_EnqueueHead( &( pHttpsConnection->reqQ ), &( pHttpsRequest->link ) );
-            IotMutex_Unlock( &( pHttpsConnection->reqQMutex ) );
+            IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
             if( pQItem != NULL )
             {
@@ -2280,10 +2256,10 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
         }
     }
 
-    IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
+    IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
     /* Now that the current request is finished, we dequeue the current request from the queue. */
     IotDeQueue_DequeueHead( &( pHttpsConnection->reqQ ) );
-    IotMutex_Unlock( &( pHttpsConnection->reqQMutex ) );
+    IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     /* This routine returns a void so there is no HTTPS_FUNCTION_CLEANUP_END();. */
 }
@@ -2356,10 +2332,8 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
     /* This is a new request and has not been scheduled if this routine is called. */
     pHttpsRequest->scheduled = false;
 
-    /* Place the request into the queue. This is the ONLY place in the code that attempts to lock both
-     * the request and response queues at the same time. */
-    IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
-    IotMutex_Lock( &( pHttpsConnection->respQMutex ) );
+    /* Place the request into the queue. */
+    IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
 
     /* If there is an active response, scheduling the next request at the same time may corrupt the workflow. Part of
      * the next response for the next request may be present in the currently receiving response's buffers. To avoid
@@ -2375,8 +2349,7 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
 
     /* Place into the connection's request to have a taskpool worker schedule to serve it later. */
     IotDeQueue_EnqueueTail( &( pHttpsConnection->reqQ ), &( pHttpsRequest->link ) );
-    IotMutex_Unlock( &( pHttpsConnection->respQMutex ) );
-    IotMutex_Unlock( &( pHttpsConnection->reqQMutex ) );
+    IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
     if( scheduleRequest )
     {
@@ -2389,9 +2362,9 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
             IotLogError( "Failed to schedule the request in the queue for request %d. Error code: %d", pHttpsRequest, status );
 
             /* If we fail to schedule the only request in the queue we should remove it. */
-            IotMutex_Lock( &( pHttpsConnection->reqQMutex ) );
+            IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
             IotDeQueue_Remove( &( pHttpsRequest->link ) );
-            IotMutex_Unlock( &( pHttpsConnection->reqQMutex ) );
+            IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
             HTTPS_GOTO_CLEANUP();
         }
@@ -2610,7 +2583,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
     /* If this routine is currently is progress by another thread, for instance the taskpool worker that received a
      * network error after sending, then return right away because connection resources are being used. */
-    if( IotMutex_TryLock( &( connHandle->disconnectMutex ) ) == false )
+    if( IotMutex_TryLock( &( connHandle->connectionMutex ) ) == false )
     {
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_BUSY );
     }
@@ -2626,7 +2599,6 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
     /* If there is a response in the connection's response queue and the associated request has not finished sending,
      * then we cannot destroy the connection until it finishes. */
-    IotMutex_Lock( &( connHandle->respQMutex ) );
     pRespItem = IotDeQueue_DequeueHead( &( connHandle->respQ ) );
 
     if( pRespItem != NULL )
@@ -2640,7 +2612,6 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
             /* The request is busy, to as quickly as possible allow a successful retry call of this function we must
              * cancel the busy request which is the first in the queue. */
-            IotMutex_Lock( &( connHandle->reqQMutex ) );
             pReqItem = IotDeQueue_PeekHead( &( connHandle->reqQ ) );
 
             if( pReqItem != NULL )
@@ -2648,8 +2619,6 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
                 pHttpsRequest = IotLink_Container( _httpsRequest_t, pReqItem, link );
                 _cancelRequest( pHttpsRequest );
             }
-
-            IotMutex_Unlock( &( connHandle->reqQMutex ) );
 
             /* We set the status as busy, but we do not goto the cleanup right away because we still want to remove
              * all pending requests. */
@@ -2667,15 +2636,11 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
         }
     }
 
-    IotMutex_Unlock( &( connHandle->respQMutex ) );
-
     /* Remove all pending requests. If this routine is called from the application context and there is a
      * network receive callback in process, this routine will wait in _networkDestroy until that routine returns.
      * If this is routine is called from the network receive callback context, then the destroy happens after the
      * network receive callback context returns. */
-    IotMutex_Lock( &( connHandle->reqQMutex ) );
     IotDeQueue_RemoveAll( &( connHandle->reqQ ), NULL, 0 );
-    IotMutex_Unlock( &( connHandle->reqQMutex ) );
 
     /* Do not attempt to destroy an already destroyed connection. This can happen when the user calls this function and
      * IOT_HTTPS_BUSY is returned. */
@@ -2694,7 +2659,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
      * on this function that it can proceed with the disconnecting activities. */
     if( connHandle != NULL )
     {
-        IotMutex_Unlock( &( connHandle->disconnectMutex ) );
+        IotMutex_Unlock( &( connHandle->connectionMutex ) );
     }
 
     HTTPS_FUNCTION_CLEANUP_END();
