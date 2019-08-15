@@ -79,7 +79,7 @@ The HTTPS Client library will invoke a task pool worker to send a request. It wi
 
 These demos shows downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library. The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other web servers as well.
 
-See @subpage https_demo_config for configuration settings that change the behavior of the demo.
+See @subpage https_demo_usage for information on how to get the demo up and running.
 
 The main HTTPS Client demo files are [iot_demo_https_s3_download_async.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_async.c) and [iot_demo_https_s3_download_sync.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_sync.c), which contain platform-independent code. See @ref building_demo for instructions on building the HTTPS Client demo.
 
@@ -93,7 +93,9 @@ This demo will use @ref https_client_function_sendsync to download the file spec
 
 This demo will use @ref https_client_function_sendasync to download the file specified in S3.
 
-<h1> Demo usage instructions </h1>
+See @subpage https_demo_config for configuration settings that change the behavior of the demo.
+
+@page https_demo_usage Demo Usage Instructions
 
 <ol>
     <li>

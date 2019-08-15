@@ -1,10 +1,19 @@
 # Change Log for Amazon FreeRTOS
 
 ### New Features
+#### New Board:Nuvoton NuMaker-IoT-M487
+- Nuvoton NuMaker-IoT-M487 is now qualified for Amazon FreeRTOS.
+- Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
+
 #### FreeRTOS Kernel V10.2.1
 - Kernel version for Amazon FreeRTOS is updated to V10.2.1.
 - Add ARM Cortex-M23 (ARMv8-M) GCC/ARMclang and IAR ports.
 - Add support to automatically switch between 32-bit and 64-bit cores to RISC-V port.
+
+#### HTTPS Client Library V1.0.0
+- The HTTPS Client library for Amazon FreeRTOS supports the HTTP/1.1 protocol over TLS. 
+- The current request methods supported are GET and HEAD.
+- Examples demonstrate downloading a file from S3 using GET with a pre-signed URL.
 
 ### Updates
 #### PKCS #11
