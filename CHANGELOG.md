@@ -2,7 +2,7 @@
 
 ### New Features
 #### New Board:Nuvoton NuMaker-IoT-M487
-- Nuvoton NuMaker-IoT-M487 are now qualified for Amazon FreeRTOS.
+- Nuvoton NuMaker-IoT-M487 is now qualified for Amazon FreeRTOS.
 - Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
 
 #### FreeRTOS Kernel V10.2.1
