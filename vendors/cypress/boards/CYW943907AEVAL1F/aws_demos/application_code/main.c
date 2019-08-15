@@ -30,8 +30,6 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define CONFIG_MQTT_DEMO_ENABLED
-
 /* AWS library includes. */
 #include "iot_system_init.h"
 #include "iot_logging_task.h"
