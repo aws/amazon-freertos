@@ -234,10 +234,10 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
 /*-----------------------------------------------------------*/
 
 int RunHttpsDemo( bool awsIotMqttMode,
-                    const char * pIdentifier,
-                    void * pNetworkServerInfo,
-                    void * pNetworkCredentialInfo,
-                    const IotNetworkInterface_t * pNetworkInterface )
+                  const char * pIdentifier,
+                  void * pNetworkServerInfo,
+                  void * pNetworkCredentialInfo,
+                  const IotNetworkInterface_t * pNetworkInterface )
 {
     #if defined( IOT_DEMO_HTTPS_ASYNC )
         IotLogInfo( "Running the HTTPS Client S3 asynchronous download demo." );
