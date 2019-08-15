@@ -43,7 +43,7 @@
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
-#define CONFIG_HTTPS_DEMO_ENABLED /* Temporary commit to check the build in test/build system. */
+#define CONFIG_MQTT_DEMO_ENABLED
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
