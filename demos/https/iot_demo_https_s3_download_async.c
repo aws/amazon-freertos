@@ -557,7 +557,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     bool inUseRequestMutexCreated = false;
     bool fileFinishedSemCreated = false;
 
-    IotLogInfo( "S3 Download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL );
+    IotLogInfo( "HTTPS Client Asynchronous S3 download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL );
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_GET_URL, ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ), &pPath, &pathLen );
