@@ -9,7 +9,7 @@
 #### HTTPS Client Library V1.0.0
 - The HTTPS Client library for Amazon FreeRTOS supports the HTTP/1.1 protocol over TLS. 
 - The current request methods supported are GET and HEAD.
-- Examples demonstrates for downloading a file using GET with a pre-signed URL for an S3 object.
+- Examples demonstrate downloading a file using GET with a pre-signed URL for an S3 object.
 
 ### Updates
 #### PKCS #11
