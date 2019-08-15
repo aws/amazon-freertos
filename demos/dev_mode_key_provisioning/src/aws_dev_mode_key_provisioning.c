@@ -679,7 +679,7 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
+CK_RV xDestroyDefaultCryptoObjects( CK_SESSION_HANDLE xSession )
 {
     CK_RV xResult;
     CK_BYTE * pxPkcsLabels[] =
@@ -716,61 +716,69 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
-    #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-        if( xResult == CKR_OK )
-        {
-            xResult = xProvisionCertificate( xSession,
-                                             pxParams->pucClientCertificate,
-                                             pxParams->ulClientCertificateLength,
-                                             ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                             &xObject );
-
-            if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
-            {
-                configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
-            }
-        }
-
-        if( xResult == CKR_OK )
-        {
-            xResult = xProvisionPrivateKey( xSession,
-                                            pxParams->pucClientPrivateKey,
-                                            pxParams->ulClientPrivateKeyLength,
-                                            ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            &xObject );
-
-            if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
-            {
-                configPRINTF( ( "ERROR: Failed to provision device private key. %d \r\n", xResult ) );
-            }
-        }
-    #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
-
-    if( xResult == CKR_OK )
+#if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+    /* Attempt to clean-up old crypto objects, but only if private key import is
+    supported by this application, and only if the caller has provided new 
+    objects to use instead. */
+    if( NULL != pxParams->pucClientCertificate &&
+        NULL != pxParams->pucClientPrivateKey )
     {
-        if( pxParams->ulJITPCertifiateLength != 0 )
-        {
-            xResult = xProvisionCertificate( xSession,
-                                             pxParams->pucJITPCertificate,
-                                             pxParams->ulJITPCertifiateLength,
-                                             ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
-                                             &xObject );
+        xDestroyDefaultCryptoObjects( xSession );
+    }
+#endif
 
-            if( xResult == CKR_DEVICE_MEMORY )
-            {
-                xResult = CKR_OK;
-                configPRINTF( ( "Warning: Device does not have memory allocated for just in time provisioning (JITP) certificate.  Certificate from aws_clientcredential_keys.h will be used for JITP. \r\n" ) );
-            }
+    /* If a client certificate has been provided by the caller, attempt to
+    import it. */
+    if( xResult == CKR_OK && NULL != pxParams->pucClientCertificate )
+    {
+        xResult = xProvisionCertificate( xSession,
+                                         pxParams->pucClientCertificate,
+                                         pxParams->ulClientCertificateLength,
+                                         ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                         &xObject );
+
+        if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+        {
+            configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
         }
     }
 
-    if( xResult == CKR_OK )
+#if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+    /* If this application supports importing private keys, and if a private
+    key has been provided by the caller, attempt to import it. */
+    if( xResult == CKR_OK && NULL != pxParams->pucClientPrivateKey )
     {
-        configPRINTF( ( "Device credential provisioning succeeded.\r\n" ) );
+        xResult = xProvisionPrivateKey( xSession,
+                                        pxParams->pucClientPrivateKey,
+                                        pxParams->ulClientPrivateKeyLength,
+                                        ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                        &xObject );
+
+        if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+        {
+            configPRINTF( ( "ERROR: Failed to provision device private key with status %d.\r\n", xResult ) );
+        }
     }
-    else
+#endif
+
+    /* If a Just-in-Time Provisioning certificate has been provided by the 
+    caller, attempt to import it. It is a known issue that not all crypto tokens
+    and PKCS #11 module implementations provide storage for this particular 
+    object. In that case, the statically defined object, if any, will be used
+    instead during TLS session negotiation with AWS IoT. */
+    if( xResult == CKR_OK && NULL != pxParams->pucJITPCertificate )
     {
-        configPRINTF( ( "Device credential provisioning failed.\r\n" ) );
+        xResult = xProvisionCertificate( xSession,
+                                         pxParams->pucJITPCertificate,
+                                         pxParams->ulJITPCertificateLength,
+                                         ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
+                                         &xObject );
+
+        if( xResult == CKR_DEVICE_MEMORY )
+        {
+            xResult = CKR_OK;
+            configPRINTF( ( "Warning: no persistent storage is available for the JITP certificate. The certificate in aws_clientcredential_keys.h will be used instead.\r\n" ) );
+        }
     }
 
     return xResult;
@@ -847,7 +855,7 @@ CK_RV xInitializePkcs11Token()
 
 /*-----------------------------------------------------------*/
 
-void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
+CK_RV vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 {
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
@@ -868,51 +876,46 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 
     if( xResult == CKR_OK )
     {
-        #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-            xDestroyCredentials( xSession );
-        #endif
-
         xResult = xProvisionDevice( xSession, xParams );
 
         pxFunctionList->C_CloseSession( xSession );
     }
+
+    return xResult;
 }
 /*-----------------------------------------------------------*/
 
-void vDevModeKeyProvisioning( void )
+CK_RV vDevModeKeyProvisioning( void )
 {
-    ProvisioningParams_t xParams;
-
-    xParams.pucClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
-    xParams.pucClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
-    xParams.pucJITPCertificate = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
+    ProvisioningParams_t xParams = { 0 };
 
     /* If using a JITR flow, a JITR certificate must be supplied. If using credentials generated by
      * AWS, this certificate is not needed. */
-    if( ( NULL == xParams.pucJITPCertificate ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
+    if( ( NULL != xParams.pucJITPCertificate ) &&
+        ( 0 != strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
     {
-        xParams.ulJITPCertifiateLength = 0;
-    }
-    else
-    {
-        xParams.ulJITPCertifiateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
+        xParams.pucJITPCertificate = ( uint8_t * )keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
+        xParams.ulJITPCertificateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
     }
 
-    if( ( NULL == xParams.pucClientPrivateKey ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) ||
-        ( NULL == xParams.pucClientCertificate ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
+    /* The hard-coded client certificate and private key can be useful for 
+    first-time lab testing. They are optional after the first run, though, and 
+    not recommended at all for going into production. */
+    if( ( NULL != xParams.pucClientPrivateKey ) &&
+        ( 0 != strcmp( "", ( const char * )xParams.pucClientPrivateKey ) ) )
     {
-        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key and certificate.\r\n" ) );
-        configASSERT( pdFALSE );
-    }
-    else
-    {
+        xParams.pucClientPrivateKey = ( uint8_t * )keyCLIENT_PRIVATE_KEY_PEM;
         xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
-        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pucClientCertificate );
-        vAlternateKeyProvisioning( &xParams );
     }
+
+    if( ( NULL != xParams.pucClientCertificate ) ||
+        ( 0 != strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
+    {
+        xParams.pucClientCertificate = ( uint8_t * )keyCLIENT_CERTIFICATE_PEM;
+        xParams.ulClientCertificateLength = 1 + strlen( ( const char * )xParams.pucClientCertificate );
+    }
+
+    return vAlternateKeyProvisioning( &xParams );
 }
 
 /*-----------------------------------------------------------*/
