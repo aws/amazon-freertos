@@ -61,7 +61,7 @@
 /*-----------------------------------------------------------*/
 
 /* Declaration of demo function. */
-int RunHttpsS3Demo( bool awsIotMqttMode,
+int RunHttpsDemo( bool awsIotMqttMode,
                     const char * pIdentifier,
                     void * pNetworkServerInfo,
                     void * pNetworkCredentialInfo,
@@ -233,7 +233,7 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
 
 /*-----------------------------------------------------------*/
 
-int RunHttpsS3Demo( bool awsIotMqttMode,
+int RunHttpsDemo( bool awsIotMqttMode,
                     const char * pIdentifier,
                     void * pNetworkServerInfo,
                     void * pNetworkCredentialInfo,

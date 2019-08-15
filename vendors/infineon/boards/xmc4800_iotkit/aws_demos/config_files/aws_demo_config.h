@@ -35,7 +35,7 @@
  *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
  *          CONFIG_DEFENDER_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
- *          CONFIG_HTTPS_S3_DEMO_ENABLED
+ *          CONFIG_HTTPS_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
