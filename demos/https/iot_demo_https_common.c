@@ -62,10 +62,10 @@
 
 /* Declaration of demo function. */
 int RunHttpsDemo( bool awsIotMqttMode,
-                    const char * pIdentifier,
-                    void * pNetworkServerInfo,
-                    void * pNetworkCredentialInfo,
-                    const IotNetworkInterface_t * pNetworkInterface );
+                  const char * pIdentifier,
+                  void * pNetworkServerInfo,
+                  void * pNetworkCredentialInfo,
+                  const IotNetworkInterface_t * pNetworkInterface );
 
 /*-----------------------------------------------------------*/
 
