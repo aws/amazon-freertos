@@ -647,11 +647,12 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     }
 
     /* Connect to S3. */
-    for( connIndex = 0; connIndex < IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY; connIndex++ )
+    for( connIndex = 1; connIndex <= IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY; connIndex++ )
     {
         httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
 
-        if( httpsClientStatus == IOT_HTTPS_CONNECTION_ERROR )
+        if( ( httpsClientStatus == IOT_HTTPS_CONNECTION_ERROR ) &&
+            ( connIndex < IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY ) )
         {
             IotLogError( "Failed to connect to the S3 server, retrying after %d ms.",
                          IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS );
