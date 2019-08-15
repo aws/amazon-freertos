@@ -1,0 +1,57 @@
+menu "ESP32 Hotword Detection"
+
+choice SR_SOURCE
+	prompt "Speech recognition audio source"
+	default SR_SOURCE_WAV
+	help
+		Select the audio source for the speech recognition. Wav reads a wave file from a partition
+		and parses it as soon as possible. Mic needs a Lyra-T board and will use the live microphone
+		on that board.
+
+config SR_SOURCE_WAV
+	bool "Wav file from partition"
+
+config SR_SOURCE_MIC
+	bool "Live microphone on LyraT-board"
+
+endchoice
+
+
+choice SR_MODEL_SEL
+	prompt "Speech recognition model to use"
+	default SR_MODEL_WN1_FLOAT
+	help
+		Select the model to be used.
+
+config SR_MODEL_WN1_FLOAT
+	bool "WakeNet 1 (float)"
+
+config SR_MODEL_WN1_QUANT
+	bool "WakeNet 1 (quantized)"
+
+config SR_MODEL_WN2_FLOAT
+	bool "WakeNet 2 (float)"
+
+config SR_MODEL_WN3_QUANT
+	bool "WakeNet 3 (quantized)"
+
+endchoice
+
+#Indicates if the selected NN is float (y) or quantized (n). At the moment this is only used to show/hide
+#the NN_CHECK_QUANTIZED_SANITY option.
+config NN_NO_QUANTIZED
+	bool
+	default y if SR_MODEL_WN1_FLOAT
+	default n if SR_MODEL_WN1_QUANT
+	default y if SR_MODEL_WN2_FLOAT
+
+config NN_CHECK_QUANTIZED_SANITY
+	bool "Check sanity of quantized matrices"
+	depends on !NN_NO_QUANTIZED
+	default n
+	help
+		Checks if a lot of values in the quantized matrices are clipped, or if the bits in the mantissas
+		are under-used. Check is run while doing neural network operations and can slow down the process 
+		a fair amount.
+
+endmenu

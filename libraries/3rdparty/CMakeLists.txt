@@ -215,3 +215,59 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/unity")
     )
     target_compile_definitions(3rdparty::unity INTERFACE UNITY_INCLUDE_CONFIG_H)
 endif()
+
+# esp-who components for aiot
+if(EXISTS "${AFR_3RDPARTY_DIR}/espwho")
+    add_library(afr_3rdparty_espwho STATIC EXCLUDE_FROM_ALL)
+    add_library(3rdparty::espwho ALIAS afr_3rdparty_espwho)
+    target_sources(
+        afr_3rdparty_espwho PRIVATE
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/face_detection/fd_forward.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/face_recognition/fr_forward.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/face_recognition/fr_flash.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/image_util/image_util.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/driver/camera.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/driver/sccb.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/driver/sensor.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/driver/twi.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/driver/xclk.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/sensors/ov2640.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/sensors/ov3660.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/sensors/ov7725.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/conversions/yuv.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/conversions/to_jpg.cpp"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/conversions/to_bmp.c"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/conversions/jpge.cpp"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/conversions/esp_jpg_decode.c"
+        "${AFR_3RDPARTY_DIR}/espwho/recorder_engine/a.c"
+        "${AFR_3RDPARTY_DIR}/espwho/fb_gfx/fb_gfx.c"
+
+    )
+    target_include_directories(
+        afr_3rdparty_espwho
+        PUBLIC
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/face_detection/include"
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/face_recognition/include"
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/image_util/include"
+        "${AFR_3RDPARTY_DIR}/espwho/esp-face/lib/include"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/driver/include"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/conversions/include"
+        "${AFR_3RDPARTY_DIR}/espwho/recorder_engine/include"
+        "${AFR_3RDPARTY_DIR}/espwho/fb_gfx/include"
+
+        PRIVATE
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/driver/private_include"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/sensors/private_include"
+        "${AFR_3RDPARTY_DIR}/espwho/esp32-camera/conversions/private_include"
+    )
+    target_link_libraries(
+        afr_3rdparty_espwho
+        PRIVATE
+            AFR::kernel
+            "${AFR_3RDPARTY_DIR}/espwho/esp-face/lib/libdl_lib.a"
+            "${AFR_3RDPARTY_DIR}/espwho/esp-face/lib/libfd.a"
+            "${AFR_3RDPARTY_DIR}/espwho/esp-face/lib/libfr.a"
+            "${AFR_3RDPARTY_DIR}/espwho/recorder_engine/libesp_wakenet.a"
+            "${AFR_3RDPARTY_DIR}/espwho/recorder_engine/libnn_model.a"
+    )
+endif()

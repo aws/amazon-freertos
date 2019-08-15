@@ -1,0 +1,49 @@
+\hypertarget{face__detection__forward_8h}{}\section{/home/yehangyang/\+Documents/\+Gitlab/others/esp-\/face/face\+\_\+detection/mtmn/include/face\+\_\+detection\+\_\+forward.h File Reference}
+\label{face__detection__forward_8h}\index{/home/yehangyang/\+Documents/\+Gitlab/others/esp-\/face/face\+\_\+detection/mtmn/include/face\+\_\+detection\+\_\+forward.\+h@{/home/yehangyang/\+Documents/\+Gitlab/others/esp-\/face/face\+\_\+detection/mtmn/include/face\+\_\+detection\+\_\+forward.\+h}}
+{\ttfamily \#include \char`\"{}image\+\_\+util.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}dl\+\_\+lib.\+h\char`\"{}}\\*
+Include dependency graph for face\+\_\+detection\+\_\+forward.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=232pt]{face__detection__forward_8h__incl}
+\end{center}
+\end{figure}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{face__detection__forward_8h_a20978e37cee4ae0da7b405df9fd15b7d}{M\+A\+X\+\_\+\+D\+E\+T\+E\+C\+T\+I\+ON}~1
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+box\+\_\+array\+\_\+t $\ast$ \hyperlink{face__detection__forward_8h_a38284a9b843c9c6162f17c72f0d3fa5d}{face\+\_\+detect} (dl\+\_\+matrix3du\+\_\+t $\ast$image\+\_\+matrix)
+\begin{DoxyCompactList}\small\item\em Do M\+T\+MN face detection, return box and landmark infomation. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Macro Definition Documentation}
+\index{face\+\_\+detection\+\_\+forward.\+h@{face\+\_\+detection\+\_\+forward.\+h}!M\+A\+X\+\_\+\+D\+E\+T\+E\+C\+T\+I\+ON@{M\+A\+X\+\_\+\+D\+E\+T\+E\+C\+T\+I\+ON}}
+\index{M\+A\+X\+\_\+\+D\+E\+T\+E\+C\+T\+I\+ON@{M\+A\+X\+\_\+\+D\+E\+T\+E\+C\+T\+I\+ON}!face\+\_\+detection\+\_\+forward.\+h@{face\+\_\+detection\+\_\+forward.\+h}}
+\subsubsection[{\texorpdfstring{M\+A\+X\+\_\+\+D\+E\+T\+E\+C\+T\+I\+ON}{MAX_DETECTION}}]{\setlength{\rightskip}{0pt plus 5cm}\#define M\+A\+X\+\_\+\+D\+E\+T\+E\+C\+T\+I\+ON~1}\hypertarget{face__detection__forward_8h_a20978e37cee4ae0da7b405df9fd15b7d}{}\label{face__detection__forward_8h_a20978e37cee4ae0da7b405df9fd15b7d}
+
+
+\subsection{Function Documentation}
+\index{face\+\_\+detection\+\_\+forward.\+h@{face\+\_\+detection\+\_\+forward.\+h}!face\+\_\+detect@{face\+\_\+detect}}
+\index{face\+\_\+detect@{face\+\_\+detect}!face\+\_\+detection\+\_\+forward.\+h@{face\+\_\+detection\+\_\+forward.\+h}}
+\subsubsection[{\texorpdfstring{face\+\_\+detect(dl\+\_\+matrix3du\+\_\+t $\ast$image\+\_\+matrix)}{face_detect(dl_matrix3du_t *image_matrix)}}]{\setlength{\rightskip}{0pt plus 5cm}box\+\_\+array\+\_\+t$\ast$ face\+\_\+detect (
+\begin{DoxyParamCaption}
+\item[{dl\+\_\+matrix3du\+\_\+t $\ast$}]{image\+\_\+matrix}
+\end{DoxyParamCaption}
+)}\hypertarget{face__detection__forward_8h_a38284a9b843c9c6162f17c72f0d3fa5d}{}\label{face__detection__forward_8h_a38284a9b843c9c6162f17c72f0d3fa5d}
+
+
+Do M\+T\+MN face detection, return box and landmark infomation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em image\+\_\+matrix} & Image matrix, rgb888 format \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+box\+\_\+array\+\_\+t$\ast$ A list of boxes and score. 
+\end{DoxyReturn}

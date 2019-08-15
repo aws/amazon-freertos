@@ -1,0 +1,45 @@
+choice CONV_IMPL
+    bool "Convolution Implementation"
+    default XTENSA_IMPL
+      
+config C_IMPL
+	bool "ANSI Implementation for general platforms"
+
+config XTENSA_IMPL
+	bool "Xtensa Implementation for ESP"
+	
+endchoice
+
+
+
+menu "ESP-FACE Configuration"
+
+    choice DETECTION_MODEL
+        bool "Detection Model"
+        default MTMN_LITE_QUANT
+
+        config MTMN_LITE_QUANT
+            bool "MTMN lite in quantization"
+        
+        config MTMN_LITE_FLOAT
+            bool "MTMN lite in float"
+
+        config MTMN_HEAVY_QUANT
+            bool "MTMN heavy in quantization"
+    endchoice
+
+    choice RECOGNITION_MODEL
+        bool "Recognition Model"
+        default FRMN1_QUANT
+
+        config FRMN1_QUANT
+            bool "FRMN1"
+        config FRMN2_QUANT
+            bool "FRMN2"
+        config FRMN2P_QUANT
+            bool "FRMN2P"
+        config FRMN2C_QUANT
+            bool "FRMN2C"
+    endchoice
+    
+endmenu

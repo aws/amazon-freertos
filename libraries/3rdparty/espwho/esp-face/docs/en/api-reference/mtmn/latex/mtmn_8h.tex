@@ -1,0 +1,117 @@
+\hypertarget{mtmn_8h}{}\section{/home/yehangyang/\+Documents/\+Gitlab/others/esp-\/face/face\+\_\+detection/mtmn/include/mtmn.h File Reference}
+\label{mtmn_8h}\index{/home/yehangyang/\+Documents/\+Gitlab/others/esp-\/face/face\+\_\+detection/mtmn/include/mtmn.\+h@{/home/yehangyang/\+Documents/\+Gitlab/others/esp-\/face/face\+\_\+detection/mtmn/include/mtmn.\+h}}
+{\ttfamily \#include \char`\"{}dl\+\_\+lib.\+h\char`\"{}}\\*
+Include dependency graph for mtmn.\+h\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=261pt]{mtmn_8h__incl}
+\end{center}
+\end{figure}
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{structnet__config__t}{net\+\_\+config\+\_\+t}
+\item 
+struct \hyperlink{structmtmn__net__t}{mtmn\+\_\+net\+\_\+t}
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655e}{net\+\_\+type\+\_\+en} \{ \hyperlink{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655ea420967c595d18a6c724a0e23758e13a3}{P\+N\+ET} = 0, 
+\hyperlink{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655ea04f27ba307b14f27addd295c98ddf553}{R\+N\+ET} = 1, 
+\hyperlink{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655eae014747eb28337b8039bd469eb6a8922}{O\+N\+ET} = 2
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{structmtmn__net__t}{mtmn\+\_\+net\+\_\+t} $\ast$ \hyperlink{mtmn_8h_afac4461942a87d707bd4898dcedb29a0}{pnet} (dl\+\_\+matrix3du\+\_\+t $\ast$in)
+\begin{DoxyCompactList}\small\item\em Forward the pnet process, coarse detection. \end{DoxyCompactList}\item 
+\hyperlink{structmtmn__net__t}{mtmn\+\_\+net\+\_\+t} $\ast$ \hyperlink{mtmn_8h_aa313cde296f06b62ab29ec76fb415001}{rnet\+\_\+with\+\_\+score\+\_\+verify} (dl\+\_\+matrix3du\+\_\+t $\ast$in, float threshold)
+\begin{DoxyCompactList}\small\item\em Forward the rnet process, fine determine the boxes from pnet. \end{DoxyCompactList}\item 
+\hyperlink{structmtmn__net__t}{mtmn\+\_\+net\+\_\+t} $\ast$ \hyperlink{mtmn_8h_a34bd9533ca58ee5d4b6ff19b548c0a39}{onet\+\_\+with\+\_\+score\+\_\+verify} (dl\+\_\+matrix3du\+\_\+t $\ast$in, float threshold)
+\begin{DoxyCompactList}\small\item\em Forward the onet process, fine determine the boxes from rnet. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Enumeration Type Documentation}
+\index{mtmn.\+h@{mtmn.\+h}!net\+\_\+type\+\_\+en@{net\+\_\+type\+\_\+en}}
+\index{net\+\_\+type\+\_\+en@{net\+\_\+type\+\_\+en}!mtmn.\+h@{mtmn.\+h}}
+\subsubsection[{\texorpdfstring{net\+\_\+type\+\_\+en}{net_type_en}}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf net\+\_\+type\+\_\+en}}\hypertarget{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655e}{}\label{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655e}
+\begin{Desc}
+\item[Enumerator]\par
+\begin{description}
+\index{P\+N\+ET@{P\+N\+ET}!mtmn.\+h@{mtmn.\+h}}\index{mtmn.\+h@{mtmn.\+h}!P\+N\+ET@{P\+N\+ET}}\item[{\em 
+P\+N\+ET\hypertarget{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655ea420967c595d18a6c724a0e23758e13a3}{}\label{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655ea420967c595d18a6c724a0e23758e13a3}
+}]\index{R\+N\+ET@{R\+N\+ET}!mtmn.\+h@{mtmn.\+h}}\index{mtmn.\+h@{mtmn.\+h}!R\+N\+ET@{R\+N\+ET}}\item[{\em 
+R\+N\+ET\hypertarget{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655ea04f27ba307b14f27addd295c98ddf553}{}\label{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655ea04f27ba307b14f27addd295c98ddf553}
+}]\index{O\+N\+ET@{O\+N\+ET}!mtmn.\+h@{mtmn.\+h}}\index{mtmn.\+h@{mtmn.\+h}!O\+N\+ET@{O\+N\+ET}}\item[{\em 
+O\+N\+ET\hypertarget{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655eae014747eb28337b8039bd469eb6a8922}{}\label{mtmn_8h_a9eb3d74ee60112199ec78344b3a4655eae014747eb28337b8039bd469eb6a8922}
+}]\end{description}
+\end{Desc}
+
+
+\subsection{Function Documentation}
+\index{mtmn.\+h@{mtmn.\+h}!onet\+\_\+with\+\_\+score\+\_\+verify@{onet\+\_\+with\+\_\+score\+\_\+verify}}
+\index{onet\+\_\+with\+\_\+score\+\_\+verify@{onet\+\_\+with\+\_\+score\+\_\+verify}!mtmn.\+h@{mtmn.\+h}}
+\subsubsection[{\texorpdfstring{onet\+\_\+with\+\_\+score\+\_\+verify(dl\+\_\+matrix3du\+\_\+t $\ast$in, float threshold)}{onet_with_score_verify(dl_matrix3du_t *in, float threshold)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf mtmn\+\_\+net\+\_\+t}$\ast$ onet\+\_\+with\+\_\+score\+\_\+verify (
+\begin{DoxyParamCaption}
+\item[{dl\+\_\+matrix3du\+\_\+t $\ast$}]{in, }
+\item[{float}]{threshold}
+\end{DoxyParamCaption}
+)}\hypertarget{mtmn_8h_a34bd9533ca58ee5d4b6ff19b548c0a39}{}\label{mtmn_8h_a34bd9533ca58ee5d4b6ff19b548c0a39}
+
+
+Forward the onet process, fine determine the boxes from rnet. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em in} & Image matrix, rgb888 format \\
+\hline
+{\em threshold} & Score threshold to detect human face \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Scores for every box, box offset, and landmark with respect. 
+\end{DoxyReturn}
+\index{mtmn.\+h@{mtmn.\+h}!pnet@{pnet}}
+\index{pnet@{pnet}!mtmn.\+h@{mtmn.\+h}}
+\subsubsection[{\texorpdfstring{pnet(dl\+\_\+matrix3du\+\_\+t $\ast$in)}{pnet(dl_matrix3du_t *in)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf mtmn\+\_\+net\+\_\+t}$\ast$ pnet (
+\begin{DoxyParamCaption}
+\item[{dl\+\_\+matrix3du\+\_\+t $\ast$}]{in}
+\end{DoxyParamCaption}
+)}\hypertarget{mtmn_8h_afac4461942a87d707bd4898dcedb29a0}{}\label{mtmn_8h_afac4461942a87d707bd4898dcedb29a0}
+
+
+Forward the pnet process, coarse detection. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em in} & Image matrix, rgb888 format, size is 320x240 \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Scores for every pixel, and box offset with respect. 
+\end{DoxyReturn}
+\index{mtmn.\+h@{mtmn.\+h}!rnet\+\_\+with\+\_\+score\+\_\+verify@{rnet\+\_\+with\+\_\+score\+\_\+verify}}
+\index{rnet\+\_\+with\+\_\+score\+\_\+verify@{rnet\+\_\+with\+\_\+score\+\_\+verify}!mtmn.\+h@{mtmn.\+h}}
+\subsubsection[{\texorpdfstring{rnet\+\_\+with\+\_\+score\+\_\+verify(dl\+\_\+matrix3du\+\_\+t $\ast$in, float threshold)}{rnet_with_score_verify(dl_matrix3du_t *in, float threshold)}}]{\setlength{\rightskip}{0pt plus 5cm}{\bf mtmn\+\_\+net\+\_\+t}$\ast$ rnet\+\_\+with\+\_\+score\+\_\+verify (
+\begin{DoxyParamCaption}
+\item[{dl\+\_\+matrix3du\+\_\+t $\ast$}]{in, }
+\item[{float}]{threshold}
+\end{DoxyParamCaption}
+)}\hypertarget{mtmn_8h_aa313cde296f06b62ab29ec76fb415001}{}\label{mtmn_8h_aa313cde296f06b62ab29ec76fb415001}
+
+
+Forward the rnet process, fine determine the boxes from pnet. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em in} & Image matrix, rgb888 format \\
+\hline
+{\em threshold} & Score threshold to detect human face \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Scores for every box, and box offset with respect. 
+\end{DoxyReturn}
