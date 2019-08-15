@@ -2,6 +2,7 @@ build/
 debug/
 dist/
 private/
+disassembly/
 *.mk
 *.bash
 *.properties
