@@ -94,10 +94,8 @@
     #endif
 #elif defined( CONFIG_BLE_GATT_SERVER_DEMO_ENABLED )
     #define DEMO_entryFUNCTION             vGattDemoSvcInit
-#elif defined( CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunHttpsSyncDownloadDemo
-#elif defined( CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION             RunHttpsAsyncDownloadDemo
+#elif defined( CONFIG_HTTPS_S3_DEMO_ENABLED )
+    #define DEMO_entryFUNCTION             RunHttpsS3Demo
 #else /* if defined( CONFIG_MQTT_DEMO_ENABLED ) */
 /* if no demo was defined there will be no entry point defined and we will not be able to run the demo */
     #error "No demo to run. One demo should be enabled"

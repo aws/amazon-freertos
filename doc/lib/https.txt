@@ -141,7 +141,7 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         Paste your RSA-2048 or ECC-P256 keys into [aws_clientcredential_keys.h](https://github.com/aws/amazon-freertos/blob/master/demos/include/aws_clientcredential_keys.h). This is needed to for the TLS handshake with the AWS S3 HTTP Server.  
     </li>
     <li>
-        Enable the <b>Synchronous download demo</b> by defining @ref CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:
+        Enable the <b>Synchronous download demo</b> by defining @ref CONFIG_HTTPS_S3_DEMO_ENABLED in aws_demo_config.h:
         \code
         /* To run a particular demo you need to define one of these.
         * Only one demo can be configured at a time
@@ -153,12 +153,11 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         *          CONFIG_DEFENDER_DEMO_ENABLED
         *          CONFIG_POSIX_DEMO_ENABLED
         *          CONFIG_OTA_UPDATE_DEMO_ENABLED
-        *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
-        *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+        *          CONFIG_HTTPS_S3_DEMO_ENABLED
         *
         *  These defines are used in iot_demo_runner.h for demo selection */
 
-        #define CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+        #define CONFIG_HTTPS_S3_DEMO_ENABLED
         \endcode
     </li>
     <li>
@@ -199,7 +198,7 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         \endcode
     </li>
     <li>
-        Enable the <b>Asynchronous download demo</b> by defining either @ref CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:  
+        Enable the <b>Asynchronous download demo</b> by defining @ref CONFIG_HTTPS_S3_DEMO_ENABLED in aws_demo_config.h:  
         \code
         /* To run a particular demo you need to define one of these.
         * Only one demo can be configured at a time
@@ -211,13 +210,22 @@ This demo will use @ref https_client_function_sendasync to download the file spe
         *          CONFIG_DEFENDER_DEMO_ENABLED
         *          CONFIG_POSIX_DEMO_ENABLED
         *          CONFIG_OTA_UPDATE_DEMO_ENABLED
-        *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
-        *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+        *          CONFIG_HTTPS_S3_DEMO_ENABLED
         *
         *  These defines are used in iot_demo_runner.h for demo selection */
 
-        #define CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+        #define CONFIG_HTTPS_S3_DEMO_ENABLED
         \endcode
+
+        Then defining @ref IOT_DEMO_HTTPS_ASYNC in iot_config.h:
+        \code
+        /* This file contains configuration settings for the demos. */
+
+        #ifndef IOT_CONFIG_H_
+        #define IOT_CONFIG_H_
+
+        #define IOT_DEMO_HTTPS_ASYNC
+        \endcode 
     </li>
     <li>
         See @ref building_demo for instructions on building the demo.  
@@ -275,6 +283,12 @@ Note:
 /**
 @config_page{https_demo,Demo}
 @config_brief{https_demo,HTTP Client demo,demos}
+
+@section IOT_DEMO_HTTPS_ASYNC
+@brief Run the asynchronous version of the HTTPS Client S3 demo.
+
+@configpossible Any. <br>
+@configdefault This configuration is undefined by default.
 
 @section IOT_DEMO_HTTPS_PRESIGNED_GET_URL
 @brief Presigned URL for AWS S3 GET Object access.

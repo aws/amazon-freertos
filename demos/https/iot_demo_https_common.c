@@ -60,6 +60,15 @@
 
 /*-----------------------------------------------------------*/
 
+/* Declaration of demo function. */
+int RunHttpsS3Demo( bool awsIotMqttMode,
+                    const char * pIdentifier,
+                    void * pNetworkServerInfo,
+                    void * pNetworkCredentialInfo,
+                    const IotNetworkInterface_t * pNetworkInterface );
+
+/*-----------------------------------------------------------*/
+
 int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
                                        IotHttpsConnectionHandle_t connHandle,
                                        const char * pPath,
@@ -220,4 +229,39 @@ int _IotHttpsDemo_GetS3ObjectFileSize( uint32_t * pFileSize,
     }
 
     return EXIT_SUCCESS;
+}
+
+/*-----------------------------------------------------------*/
+
+int RunHttpsS3Demo( bool awsIotMqttMode,
+                    const char * pIdentifier,
+                    void * pNetworkServerInfo,
+                    void * pNetworkCredentialInfo,
+                    const IotNetworkInterface_t * pNetworkInterface )
+{
+    #if defined( IOT_DEMO_HTTPS_ASYNC )
+        IotLogInfo( "Running the HTTPS Client S3 asynchronous download demo." );
+        extern int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
+                                              const char * pIdentifier,
+                                              void * pNetworkServerInfo,
+                                              void * pNetworkCredentialInfo,
+                                              const IotNetworkInterface_t * pNetworkInterface );
+        return RunHttpsAsyncDownloadDemo( awsIotMqttMode,
+                                          pIdentifier,
+                                          pNetworkServerInfo,
+                                          pNetworkCredentialInfo,
+                                          pNetworkInterface );
+    #else /* if defined( IOT_DEMO_HTTPS_ASYNC ) */
+        IotLogInfo( "Running the HTTPS Client S3 synchronous download demo." );
+        extern int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
+                                             const char * pIdentifier,
+                                             void * pNetworkServerInfo,
+                                             void * pNetworkCredentialInfo,
+                                             const IotNetworkInterface_t * pNetworkInterface );
+        return RunHttpsSyncDownloadDemo( awsIotMqttMode,
+                                         pIdentifier,
+                                         pNetworkServerInfo,
+                                         pNetworkCredentialInfo,
+                                         pNetworkInterface );
+    #endif /* if defined( IOT_DEMO_HTTPS_ASYNC ) */
 }
