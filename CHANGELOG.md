@@ -6,6 +6,11 @@
 - Add ARM Cortex-M23 (ARMv8-M) GCC/ARMclang and IAR ports.
 - Add support to automatically switch between 32-bit and 64-bit cores to RISC-V port.
 
+#### HTTPS Client Library V1.0.0
+- The HTTPS Client library for Amazon FreeRTOS supports the HTTP/1.1 protocol over TLS. 
+- The current request methods supported are GET and HEAD.
+- Examples demonstrates for downloading a file using GET with a pre-signed URL for an S3 object.
+
 ### Updates
 #### PKCS #11
 - Update the Amazon FreeRTOS mbedTLS-based PKCS #11 implementation, tests, demos, and PKCS #11 consuming libraries for compliance with standard.
