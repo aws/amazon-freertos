@@ -47,6 +47,14 @@
 #include "lwip/sys.h"
 #include "lwip/mem.h"
 #include "lwip/stats.h"
+
+#if !INCLUDE_xTaskAbortDelay
+# error "lwIP FreeRTOS port requires INCLUDE_xTaskAbortDelay"
+#endif
+#if !INCLUDE_xTaskGetCurrentTaskHandle
+# error "lwIP FreeRTOS port requires INCLUDE_xTaskGetCurrentTaskHandle"
+#endif
+
 /* Very crude mechanism used to determine if the critical section handling
 functions are being called from an interrupt context or not.  This relies on
 the interrupt handler setting this variable manually. */
@@ -64,12 +72,15 @@ portBASE_TYPE xInsideISR = pdFALSE;
  *---------------------------------------------------------------------------*/
 err_t sys_mbox_new( sys_mbox_t *pxMailBox, int iSize )
 {
-err_t xReturn = ERR_MEM;
+    err_t xReturn = ERR_MEM;
+    sys_mbox_t pxTempMbox;
 
-    *pxMailBox = xQueueCreate( iSize, sizeof( void * ) );
+    pxTempMbox.xMbox = xQueueCreate( iSize, sizeof( void * ) );
 
-    if( *pxMailBox != NULL )
+    if( pxTempMbox.xMbox != NULL )
     {
+        pxTempMbox.xTask = NULL;
+        *pxMailBox = pxTempMbox;
         xReturn = ERR_OK;
         SYS_STATS_INC_USED( mbox );
     }
@@ -90,25 +101,43 @@ err_t xReturn = ERR_MEM;
  * Outputs:
  *      sys_mbox_t              -- Handle to new mailbox
  *---------------------------------------------------------------------------*/
-void sys_mbox_free( sys_mbox_t *pxMailBox )
+void sys_mbox_free( volatile sys_mbox_t *pxMailBox )
 {
-unsigned long ulMessagesWaiting;
+    unsigned long ulMessagesWaiting;
+    QueueHandle_t xMbox;
+    TaskHandle_t xTask;
 
-    ulMessagesWaiting = uxQueueMessagesWaiting( *pxMailBox );
-    configASSERT( ( ulMessagesWaiting == 0 ) );
-
-    #if SYS_STATS
+    if( pxMailBox != NULL )
     {
-        if( ulMessagesWaiting != 0UL )
+        ulMessagesWaiting = uxQueueMessagesWaiting( pxMailBox->xMbox );
+        configASSERT( ( ulMessagesWaiting == 0 ) );
+
+        #if SYS_STATS
         {
-            SYS_STATS_INC( mbox.err );
+            if( ulMessagesWaiting != 0UL )
+            {
+                SYS_STATS_INC( mbox.err );
+            }
+
+            SYS_STATS_DEC( mbox.used );
+        }
+        #endif /* SYS_STATS */
+
+        taskENTER_CRITICAL();
+        xMbox = pxMailBox->xMbox;
+        xTask = pxMailBox->xTask;
+        pxMailBox->xMbox = NULL;
+        taskEXIT_CRITICAL();
+
+        while( xTask != NULL )
+        {
+            xTaskAbortDelay( xTask );
+            taskYIELD();
+            xTask = pxMailBox->xTask;
         }
 
-        SYS_STATS_DEC( mbox.used );
+        vQueueDelete( xMbox );
     }
-    #endif /* SYS_STATS */
-
-    vQueueDelete( *pxMailBox );
 }
 
 /*---------------------------------------------------------------------------*
@@ -122,7 +151,7 @@ unsigned long ulMessagesWaiting;
  *---------------------------------------------------------------------------*/
 void sys_mbox_post( sys_mbox_t *pxMailBox, void *pxMessageToPost )
 {
-    while( xQueueSendToBack( *pxMailBox, &pxMessageToPost, portMAX_DELAY ) != pdTRUE );
+    while( xQueueSendToBack( pxMailBox->xMbox, &pxMessageToPost, portMAX_DELAY ) != pdTRUE );
 }
 
 /*---------------------------------------------------------------------------*
@@ -145,11 +174,11 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
     if( xInsideISR != pdFALSE )
     {
-        xReturn = xQueueSendFromISR( *pxMailBox, &pxMessageToPost, &xHigherPriorityTaskWoken );
+        xReturn = xQueueSendFromISR( pxMailBox->xMbox, &pxMessageToPost, &xHigherPriorityTaskWoken );
     }
     else
     {
-        xReturn = xQueueSend( *pxMailBox, &pxMessageToPost, ( TickType_t ) 0 );
+        xReturn = xQueueSend( pxMailBox->xMbox, &pxMessageToPost, ( TickType_t ) 0 );
     }
 
     if( xReturn == pdPASS )
@@ -162,6 +191,17 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
         xReturn = ERR_MEM;
         SYS_STATS_INC( mbox.err );
     }
+
+    return xReturn;
+}
+
+err_t sys_mbox_trypost_fromisr( sys_mbox_t *pxMailBox, void *pxMessageToPost )
+{
+    err_t xReturn;
+
+    xInsideISR = pdTRUE;
+    xReturn = sys_mbox_trypost( pxMailBox, pxMessageToPost );
+    xInsideISR = pdFALSE;
 
     return xReturn;
 }
@@ -188,15 +228,39 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
  *      void **msg              -- Pointer to pointer to msg received
  *      u32_t timeout           -- Number of milliseconds until timeout
  * Outputs:
- *      u32_t                   -- SYS_ARCH_TIMEOUT if timeout, else number
- *                                  of milliseconds until received.
+ *      u32_t                   -- SYS_ARCH_TIMEOUT if timeout, else 1
  *---------------------------------------------------------------------------*/
-u32_t sys_arch_mbox_fetch( sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTimeOut )
+u32_t sys_arch_mbox_fetch( volatile sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTimeOut )
 {
     void *pvDummy;
-    TickType_t xStartTime, xEndTime, xElapsed;
-    unsigned long ulReturn;
-    xStartTime = xTaskGetTickCount();
+    unsigned long ulReturn = SYS_ARCH_TIMEOUT;
+    QueueHandle_t xMbox;
+    TaskHandle_t xTask;
+    BaseType_t xResult;
+
+    if( pxMailBox == NULL )
+    {
+        goto exit;
+    }
+
+    taskENTER_CRITICAL();
+    xMbox = pxMailBox->xMbox;
+    xTask = xTaskGetCurrentTaskHandle();
+    if( ( xMbox != NULL ) && ( xTask != NULL ) && ( pxMailBox->xTask == NULL ) )
+    {
+        pxMailBox->xTask = xTask;
+    }
+    else
+    {
+        xMbox = NULL;
+    }
+    taskEXIT_CRITICAL();
+
+    if( xMbox == NULL )
+    {
+        goto exit;
+    }
+
     if( NULL == ppvBuffer )
     {
         ppvBuffer = &pvDummy;
@@ -206,39 +270,33 @@ u32_t sys_arch_mbox_fetch( sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTime
     {
         configASSERT( xInsideISR == ( portBASE_TYPE ) 0 );
 
-        if( pdTRUE == xQueueReceive( *pxMailBox, &( *ppvBuffer ), ulTimeOut/ portTICK_PERIOD_MS ) )
+        if( pdTRUE == xQueueReceive( xMbox, &( *ppvBuffer ), ulTimeOut/ portTICK_PERIOD_MS ) )
         {
-            xEndTime = xTaskGetTickCount();
-            xElapsed = ( xEndTime - xStartTime ) * portTICK_PERIOD_MS;
-
-            if( xElapsed == 0UL )
-            {
-                xElapsed = 1UL;
-            }
-
-            ulReturn = xElapsed;
+            ulReturn = 1UL;
         }
         else
         {
             /* Timed out. */
             *ppvBuffer = NULL;
-            ulReturn = SYS_ARCH_TIMEOUT;
         }
     }
     else
     {
-        while( pdTRUE != xQueueReceive( *pxMailBox, &( *ppvBuffer ), portMAX_DELAY ) );
-        xEndTime = xTaskGetTickCount();
-        xElapsed = ( xEndTime - xStartTime ) * portTICK_PERIOD_MS;
-
-        if( xElapsed == 0UL )
+        for( xResult = pdFALSE; ( xMbox != NULL ) && ( xResult != pdTRUE ); )
         {
-            xElapsed = 1UL;
+            xResult = xQueueReceive( xMbox, &( *ppvBuffer ), portMAX_DELAY );
+            xMbox = pxMailBox->xMbox;
         }
 
-        ulReturn = xElapsed;
+        if( xResult == pdTRUE )
+        {
+            ulReturn = 1UL;
+        }
     }
 
+    pxMailBox->xTask = NULL;
+
+exit:
     return ulReturn;
 }
 
@@ -270,11 +328,11 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
     if( xInsideISR != pdFALSE )
     {
-        lResult = xQueueReceiveFromISR( *pxMailBox, &( *ppvBuffer ), &xHigherPriorityTaskWoken );
+        lResult = xQueueReceiveFromISR( pxMailBox->xMbox, &( *ppvBuffer ), &xHigherPriorityTaskWoken );
     }
     else
     {
-        lResult = xQueueReceive( *pxMailBox, &( *ppvBuffer ), 0UL );
+        lResult = xQueueReceive( pxMailBox->xMbox, &( *ppvBuffer ), 0UL );
     }
 
     if( lResult == pdPASS )

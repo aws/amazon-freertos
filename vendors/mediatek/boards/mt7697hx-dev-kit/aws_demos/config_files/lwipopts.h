@@ -62,9 +62,21 @@
 #define LWIP_ND6_RETRANS_TIMER          200
 #endif
 
+/* MEM_ALIGNMENT: should be set to the alignment of the CPU for which
+   lwIP is compiled. 4 byte alignment -> define MEM_ALIGNMENT to 4, 2
+   byte alignment -> define MEM_ALIGNMENT to 2. */
+#define MEM_ALIGNMENT           4
+
+/* MEMP_MEM_MALLOC: 1 to use mem_malloc/mem_free instead of the lwip pool
+   allocator. Especially useful with MEM_LIBC_MALLOC but handle with care
+   regarding execution speed and usage from interrupts! */
+#define MEMP_MEM_MALLOC         1
 
 /* MEM_SIZE: the size of the heap memory. If the application will send
    a lot of data that needs to be copied, this should be set high. */
+#ifdef MEM_SIZE
+#undef MEM_SIZE
+#endif
 #if defined(MTK_WIFI_TGN_VERIFY_ENABLE) && !defined(MTK_HOMEKIT_ENABLE)
 #define MEM_SIZE                (100 * 1024)
 #else
@@ -83,11 +95,6 @@ extern char                     ram_heap[ MEM_SIZE ];
 #else
 #define PBUF_LINK_ENCAPSULATION_HLEN 0
 #endif
-
-/* PBUF_LINK_HLEN: the number of bytes that should be allocated for a
-   link level header. The default is 14, the standard value for
-   Ethernet. */
-#define PBUF_LINK_HLEN           (RESERVED_HLEN + 14 + ETH_PAD_SIZE)
 
 /*
    ---------------------------------
