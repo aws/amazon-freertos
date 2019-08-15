@@ -152,6 +152,20 @@
     #define IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 300000 )   /* 5 minute timeout for this demo. */
 #endif
 
+/* Time to wait in milliseconds before retrying the HTTPS Connection. A connection is only attempted again if
+* IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This indicates an error in the network
+* layer. To view logging for network errors update IOT_LOG_LEVEL_NETWORK to IOT_LOG_ERROR in iot_config.h. */
+#ifndef IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS
+    #define IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS    ( ( uint32_t ) 3000 )
+#endif
+
+/* Number of times to retry the HTTPS connection. A connection is only attempted again if
+ * IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This indicates an error in the network
+ * layer. To view logging for network errors update IOT_LOG_LEVEL_NETWORK to IOT_LOG_ERROR in iot_config.h. */
+#ifndef IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY
+    #define IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY    ( ( uint32_t ) 3 )
+#endif
+
 /** @endcond */
 
 /**
@@ -552,6 +566,8 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     uint32_t numReqBytes = 0;
     /* curByte indicates which starting byte we want to download next. */
     uint32_t curByte = 0;
+    /* The current index in the number of connection tries. */
+    uint32_t connIndex = 0;
 
     /* Signal if the global semaphores were created for cleanup. */
     bool inUseRequestMutexCreated = false;
@@ -631,7 +647,23 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     }
 
     /* Connect to S3. */
-    httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
+    for( connIndex = 1; connIndex <= IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY; connIndex++ )
+    {
+        httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
+
+        if( ( httpsClientStatus == IOT_HTTPS_CONNECTION_ERROR ) &&
+            ( connIndex < IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY ) )
+        {
+            IotLogError( "Failed to connect to the S3 server, retrying after %d ms.",
+                         IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS );
+            IotClock_SleepMs( IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS );
+            continue;
+        }
+        else
+        {
+            break;
+        }
+    }
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {

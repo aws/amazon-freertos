@@ -341,6 +341,25 @@ Size in bytes of the buffer used to store the response body (parts of it). This 
 @configpossible Any positive integer. <br>
 @configdefault `512`
 
+@section IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS
+@brief Time to wait in milliseconds before retrying the HTTPS Connection.
+
+A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This 
+indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR 
+in iot_config.h.
+
+@configpossible Any positive integer.
+@configdefault `3000`
+
+@section IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY
+@brief Number of times to retry the HTTPS connection.
+
+A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This 
+indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR 
+in iot_config.h.
+
+@configpossible Any positive integer.
+@configdefault `3`
 
 <h1> Asynchronous Download Demo specific configurations:  </h1> 
 These configurations apply only to [iot_demo_https_s3_download_async.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_async.c).
