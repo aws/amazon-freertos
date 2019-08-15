@@ -31,6 +31,10 @@
 /* The config header is always included first. */
 #include "iot_config.h"
 #include "aiot_esp_config.h"
+
+/* FreeRTOS includes */
+#include "freertos/queue.h"
+
 /* Standard includes. */
 #include <stdbool.h>
 #include <stdio.h>
@@ -47,10 +51,10 @@
 /* MQTT include. */
 #include "iot_mqtt.h"
 
+/* AIoT include */
 #include "sdkconfig.h"
 #include "app_camera.h"
 #include "app_facenet.h"
-#include "freertos/queue.h"
 #include "app_speech_srcif.h"
 
 
@@ -61,7 +65,7 @@
  * Provide default values for undefined configuration settings.
  */
 #ifndef IOT_DEMO_MQTT_TOPIC_PREFIX
-    #define IOT_DEMO_MQTT_TOPIC_PREFIX           "SmartLock"
+    #define IOT_DEMO_MQTT_TOPIC_PREFIX    "SmartLock"
 #endif
 /** @endcond */
 
@@ -143,7 +147,7 @@
 /**
  * @brief Format string of the PUBLISH messages in this demo.
  */
-#define PUBLISH_PAYLOAD_FORMAT                  "{\"message\": \"Subject %d on the door\", \"intruder\": %d, \"datetime\": \"test200\"}"
+#define PUBLISH_PAYLOAD_FORMAT                   "{\"message\": \"Subject %d on the door\", \"intruder\": %d, \"datetime\": \"test200\"}"
 
 /**
  * @brief Size of the buffer that holds the PUBLISH messages in this demo.
@@ -182,14 +186,7 @@
  */
 #define ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH    ( sizeof( ACKNOWLEDGEMENT_MESSAGE_FORMAT ) + 2 )
 
-//heap trace
-// #include "esp_heap_trace.h"
-
-// #define NUM_RECORDS 100
-// static heap_trace_record_t trace_record[NUM_RECORDS];
-
 /*-----------------------------------------------------------*/
-void task_process (int initialized);
 
 /* Declaration of demo function. */
 int RunAIoTDemo( bool awsIotMqttMode,
@@ -607,6 +604,7 @@ static int _modifySubscriptions( IotMqttConnection_t mqttConnection,
 }
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Transmit a message and wait for it to be received.
  *
@@ -619,10 +617,10 @@ static int _modifySubscriptions( IotMqttConnection_t mqttConnection,
  * @return `EXIT_SUCCESS` if all messages are published and received; `EXIT_FAILURE`
  * otherwise.
  */
-static int _publishResult(  IotMqttConnection_t mqttConnection,
-                            const char ** pTopicNames,
-                            IotSemaphore_t * pPublishReceivedCounter, 
-                            uint32_t pSubject  )
+static int _publishResult( IotMqttConnection_t mqttConnection,
+                           const char ** pTopicNames,
+                           IotSemaphore_t * pPublishReceivedCounter,
+                           uint32_t pSubject )
 {
     int status = EXIT_SUCCESS;
     intptr_t publishCount = 0;
@@ -650,28 +648,27 @@ static int _publishResult(  IotMqttConnection_t mqttConnection,
 
     /* Generate the payload for the PUBLISH. */
     if( pSubject == -1 )
-    {    
+    {
         status = snprintf( pPublishPayload,
-                            PUBLISH_PAYLOAD_BUFFER_LENGTH,
-                            PUBLISH_PAYLOAD_FORMAT,
-                            ( int ) pSubject,
-                            1 );
+                           PUBLISH_PAYLOAD_BUFFER_LENGTH,
+                           PUBLISH_PAYLOAD_FORMAT,
+                           ( int ) pSubject,
+                           ( int ) 1 );
     }
     else
     {
         status = snprintf( pPublishPayload,
-                    PUBLISH_PAYLOAD_BUFFER_LENGTH,
-                    PUBLISH_PAYLOAD_FORMAT,
-                    ( int ) pSubject,
-                    0 );
+                           PUBLISH_PAYLOAD_BUFFER_LENGTH,
+                           PUBLISH_PAYLOAD_FORMAT,
+                           ( int ) pSubject,
+                           ( int ) 0 );
     }
-    
 
     /* Check for errors from snprintf. */
     if( status < 0 )
     {
         IotLogError( "Failed to generate MQTT PUBLISH payload for PUBLISH %d.",
-                        ( int ) publishCount );
+                     ( int ) publishCount );
         status = EXIT_FAILURE;
     }
     else
@@ -683,19 +680,19 @@ static int _publishResult(  IotMqttConnection_t mqttConnection,
     /* PUBLISH a message. This is an asynchronous function that notifies of
      * completion through a callback. */
     publishStatus = IotMqtt_Publish( mqttConnection,
-                                        &publishInfo,
-                                        0,
-                                        &publishComplete,
-                                        NULL );
+                                     &publishInfo,
+                                     0,
+                                     &publishComplete,
+                                     NULL );
 
     if( publishStatus != IOT_MQTT_STATUS_PENDING )
     {
         IotLogError( "MQTT PUBLISH %d returned error %s.",
-                        ( int ) publishCount,
-                        IotMqtt_strerror( publishStatus ) );
+                     ( int ) publishCount,
+                     IotMqtt_strerror( publishStatus ) );
         status = EXIT_FAILURE;
     }
-    
+
     /* If a complete burst of messages has been published, wait for an equal
      * number of messages to be received. Note that messages may be received
      * out-of-order, especially if a message was lost and had to be retried. */
@@ -711,7 +708,7 @@ static int _publishResult(  IotMqttConnection_t mqttConnection,
         }
         else
         {
-                IotLogInfo( "Publish received.");
+            IotLogInfo( "Publish received." );
         }
     }
 
@@ -722,15 +719,17 @@ static int _publishResult(  IotMqttConnection_t mqttConnection,
 QueueHandle_t xQueue;
 en_fsm_state g_state = WAIT_FOR_WAKEUP;
 
-void showAvailableMemory(char message[])
+void showAvailableMemory( char message[] )
 {
-    int64_t memory = heap_caps_get_free_size(MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL);
-    IotLogInfo( "%s: %lld", message, memory);
+    int64_t memory = heap_caps_get_free_size( MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL );
+
+    IotLogInfo( "%s: %lld", message, memory );
 }
 
 mtmn_config_t init_config()
 {
-    mtmn_config_t mtmn_config = {0};
+    mtmn_config_t mtmn_config = { 0 };
+
     mtmn_config.type = FAST;
     mtmn_config.min_face = 80;
     mtmn_config.pyramid = 0.707;
@@ -748,46 +747,49 @@ mtmn_config_t init_config()
     return mtmn_config;
 }
 
-static face_id_list id_list = {0};
+static face_id_list id_list = { 0 };
 
-void task_process_2 (void *arg)
+void task_process_2( void * arg )
 {
     int ulVar = -1;
+
     IotLogInfo( "Value of the message: %d", ulVar );
-    if (xQueue != 0)
+
+    if( xQueue != 0 )
     {
         if( xQueueSendToBack( xQueue,
-                            ( void * ) &ulVar,
-                            ( TickType_t ) 10 ) != pdPASS )
+                              ( void * ) &ulVar,
+                              ( TickType_t ) 10 ) != pdPASS )
         {
             IotLogInfo( "Unable to push the message to the queue" );
         }
 
-        IotLogInfo( "Message sucessfully pushed to the queue" );    
+        IotLogInfo( "Message sucessfully pushed to the queue" );
     }
 
-    vTaskSuspend( NULL );    
+    vTaskSuspend( NULL );
 }
 
-void task_process(int initialized)
-{ 
+void task_process( int initialized )
+{
     IotLogInfo( "Starting the face recognition task" );
 
     size_t frame_num = 0;
-    dl_matrix3du_t *image_matrix = NULL;
-    camera_fb_t *fb = NULL;
+    dl_matrix3du_t * image_matrix = NULL;
+    camera_fb_t * fb = NULL;
 
     /* 1. Load configuration for detection */
     mtmn_config_t mtmn_config = init_config();
 
     /* 2. Preallocate matrix to store aligned face 56x56  */
-    dl_matrix3du_t *aligned_face = dl_matrix3du_alloc( 1,
-                                                       FACE_WIDTH,
-                                                       FACE_HEIGHT,
-                                                       3 );
-    int8_t count_down_second; //second
+    dl_matrix3du_t * aligned_face = dl_matrix3du_alloc( 1,
+                                                        FACE_WIDTH,
+                                                        FACE_HEIGHT,
+                                                        3 );
+    int8_t count_down_second; /*second */
     int8_t is_enrolling;
-    if(initialized)
+
+    if( initialized )
     {
         count_down_second = 0;
         is_enrolling = 0;
@@ -797,89 +799,93 @@ void task_process(int initialized)
         count_down_second = 3;
         is_enrolling = 1;
     }
-    
-    
+
     int32_t next_enroll_index = 0;
     int8_t left_sample_face;
     int8_t free_resources = 1;
     IotLogInfo( "Starting the processing" );
-    
+
     do
     {
         free_resources = 1;
         int64_t start_time = esp_timer_get_time();
         /* 3. Get one image with camera */
         fb = esp_camera_fb_get();
-        if (!fb)
+
+        if( !fb )
         {
-            IotLogError( "Camera capture failed");
+            IotLogError( "Camera capture failed" );
             continue;
         }
+
         int64_t fb_get_time = esp_timer_get_time();
-        //IotLogInfo( "Get one frame in %lld ms.", (fb_get_time - start_time) / 1000);
+        /*IotLogInfo( "Get one frame in %lld ms.", (fb_get_time - start_time) / 1000); */
 
         /* 4. Allocate image matrix to store RGB data */
-        image_matrix = dl_matrix3du_alloc(1, fb->width, fb->height, 3);
+        image_matrix = dl_matrix3du_alloc( 1, fb->width, fb->height, 3 );
 
         /* 5. Transform image to RGB */
-        uint32_t res = fmt2rgb888(fb->buf, fb->len, fb->format, image_matrix->item);
-        if (true != res)
+        uint32_t res = fmt2rgb888( fb->buf, fb->len, fb->format, image_matrix->item );
+
+        if( true != res )
         {
-            IotLogError( "fmt2rgb888 failed, fb: %d", fb->len);
-            dl_matrix3du_free(image_matrix);
+            IotLogError( "fmt2rgb888 failed, fb: %d", fb->len );
+            dl_matrix3du_free( image_matrix );
             continue;
         }
 
-        esp_camera_fb_return(fb);
+        esp_camera_fb_return( fb );
 
         /* 6. Do face detection */
-        box_array_t *net_boxes = face_detect(image_matrix, &mtmn_config);
-        //IotLogInfo( "Detection time consumption: %lldms", (esp_timer_get_time() - fb_get_time) / 1000);
+        box_array_t * net_boxes = face_detect( image_matrix, &mtmn_config );
+        /*IotLogInfo( "Detection time consumption: %lldms", (esp_timer_get_time() - fb_get_time) / 1000); */
 
-        if (net_boxes)
+        if( net_boxes )
         {
             frame_num++;
-            //IotLogInfo( "Face Detection Count: %d", frame_num);
+            /*IotLogInfo( "Face Detection Count: %d", frame_num); */
 
             /* 5. Do face alignment */
-            if (align_face(net_boxes, image_matrix, aligned_face) == ESP_OK)
+            if( align_face( net_boxes, image_matrix, aligned_face ) == ESP_OK )
             {
-                //count down
-                while (count_down_second > 0)
+                /*count down */
+                while( count_down_second > 0 )
                 {
-                    IotLogInfo( "Face ID Enrollment Starts in %ds.\n", count_down_second);
+                    IotLogInfo( "Face ID Enrollment Starts in %ds.\n", count_down_second );
 
-                    vTaskDelay(1000 / portTICK_PERIOD_MS);
+                    vTaskDelay( 1000 / portTICK_PERIOD_MS );
 
                     count_down_second--;
 
-                    if (count_down_second == 0)
-                        IotLogInfo( "\n>>> Face ID Enrollment Starts <<<\n");
+                    if( count_down_second == 0 )
+                    {
+                        IotLogInfo( "\n>>> Face ID Enrollment Starts <<<\n" );
+                    }
                 }
 
                 /* 6. Do face enrollment */
-                if (is_enrolling == 1)
+                if( is_enrolling == 1 )
                 {
-                    heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
-                    left_sample_face = enroll_face(&id_list, aligned_face);
+                    heap_caps_print_heap_info( MALLOC_CAP_SPIRAM );
+                    left_sample_face = enroll_face( &id_list, aligned_face );
                     IotLogInfo( "Face ID Enrollment: Taking sample: %d",
-                             ENROLL_CONFIRM_TIMES - left_sample_face );
+                                ENROLL_CONFIRM_TIMES - left_sample_face );
 
-                    if (left_sample_face == 0)
+                    if( left_sample_face == 0 )
                     {
                         next_enroll_index++;
-                        IotLogInfo( "\nEnrolled Face ID: %d", id_list.tail);
+                        IotLogInfo( "\nEnrolled Face ID: %d", id_list.tail );
 
-                        if (id_list.count == FACE_ID_SAVE_NUMBER)
+                        if( id_list.count == FACE_ID_SAVE_NUMBER )
                         {
                             is_enrolling = 0;
-                            IotLogInfo( "\n>>> Face Recognition Starts <<<\n");
-                            vTaskDelay(2000 / portTICK_PERIOD_MS);
+                            IotLogInfo( "\n>>> Face Recognition Starts <<<\n" );
+                            vTaskDelay( 2000 / portTICK_PERIOD_MS );
                         }
                         else
                         {
-                            IotLogInfo( "Please log in another one.");
-                            vTaskDelay(2500 / portTICK_PERIOD_MS);
+                            IotLogInfo( "Please log in another one." );
+                            vTaskDelay( 2500 / portTICK_PERIOD_MS );
                         }
                     }
                 }
@@ -888,70 +894,82 @@ void task_process(int initialized)
                 {
                     int64_t recog_match_time = esp_timer_get_time();
 
-                    int matched_id = recognize_face(&id_list, aligned_face);
-                    if (matched_id >= 0)
+                    int matched_id = recognize_face( &id_list, aligned_face );
+
+                    if( matched_id >= 0 )
                     {
-                        free(net_boxes->score);
-                        free(net_boxes->box);
-                        free(net_boxes->landmark);
-                        free(net_boxes);
-                        dl_matrix3du_free(image_matrix);
+                        free( net_boxes->score );
+                        free( net_boxes->box );
+                        free( net_boxes->landmark );
+                        free( net_boxes );
+                        dl_matrix3du_free( image_matrix );
                         free_resources = 0;
-                        IotLogInfo( "Matched Face ID: %d\n", matched_id);
-                        if (xQueue != 0)
+                        IotLogInfo( "Matched Face ID: %d\n", matched_id );
+
+                        if( xQueue != 0 )
                         {
                             if( xQueueSendToBack( xQueue,
-                                                ( void * ) &matched_id,
-                                                ( TickType_t ) 5 ) != pdPASS )
+                                                  ( void * ) &matched_id,
+                                                  ( TickType_t ) 5 ) != pdPASS )
                             {
                                 IotLogInfo( "Unable to push the message to the queue" );
                             }
-                            IotLogInfo( "Message pushed to queue: Familiar face" ); 
+
+                            IotLogInfo( "Message pushed to queue: Familiar face" );
                         }
                     }
                     else
                     {
                         matched_id = -1;
-                        IotLogInfo( "No Matched Face ID\n");
-                        if (xQueue != 0)
+                        IotLogInfo( "No Matched Face ID\n" );
+
+                        if( xQueue != 0 )
                         {
-                            free(net_boxes->score);
-                            free(net_boxes->box);
-                            free(net_boxes->landmark);
-                            free(net_boxes);
-                            dl_matrix3du_free(image_matrix);
+                            free( net_boxes->score );
+                            free( net_boxes->box );
+                            free( net_boxes->landmark );
+                            free( net_boxes );
+                            dl_matrix3du_free( image_matrix );
                             free_resources = 0;
+
                             if( xQueueSendToBack( xQueue,
-                                                ( void * ) &matched_id,
-                                                ( TickType_t ) 5 ) != pdPASS )
+                                                  ( void * ) &matched_id,
+                                                  ( TickType_t ) 5 ) != pdPASS )
                             {
                                 IotLogInfo( "Unable to push the message to the queue" );
                             }
-                            IotLogInfo( "Message pushed to queue: Intruder" ); 
+
+                            IotLogInfo( "Message pushed to queue: Intruder" );
                         }
                     }
+
                     IotLogInfo( "Recognition time consumption: %lldms",
-                             (esp_timer_get_time() - recog_match_time) / 1000);
+                                ( esp_timer_get_time() - recog_match_time ) / 1000 );
                 }
             }
             else
             {
-                IotLogInfo( "Detected face is not proper.");
+                IotLogInfo( "Detected face is not proper." );
             }
-            if(free_resources){
-                free(net_boxes->score);
-                free(net_boxes->box);
-                free(net_boxes->landmark);
-                free(net_boxes);
+
+            if( free_resources )
+            {
+                free( net_boxes->score );
+                free( net_boxes->box );
+                free( net_boxes->landmark );
+                free( net_boxes );
             }
         }
-        if(free_resources)
-            dl_matrix3du_free(image_matrix);
 
-    } while (1);
+        if( free_resources )
+        {
+            dl_matrix3du_free( image_matrix );
+        }
+    } while( 1 );
 }
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief The function that runs the MQTT demo, called by the demo runner.
  *
@@ -972,160 +990,162 @@ int RunAIoTDemo( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const IotNetworkInterface_t * pNetworkInterface )
 {
-    int msg = 0,c;
+    int msg = 0, c;
     TaskHandle_t xHandle = NULL;
+
     IotLogInfo( "Start the AIoT demo!" );
-    //ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) );
-    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
+    /*ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) ); */
+    heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
     showAvailableMemory( "At Startup:" );
-    //heap_caps_print_heap_info(MALLOC_CAP_SPIRAM);
-    IotLogInfo("\n Starting heap trace \n");
-    //ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) );
+    /*heap_caps_print_heap_info(MALLOC_CAP_SPIRAM); */
+    IotLogInfo( "\n Starting heap trace \n" );
+    /*ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) ); */
     app_speech_wakeup_init();
     g_state = WAIT_FOR_WAKEUP;
     showAvailableMemory( "After speech init" );
 
-    vTaskDelay(30 / portTICK_PERIOD_MS);
-    IotLogInfo( "Please say 'Alexa' to the board");
-    while (g_state != START_RECOGNITION)
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelay( 30 / portTICK_PERIOD_MS );
+    IotLogInfo( "Please say 'Alexa' to the board" );
 
+    while( g_state != START_RECOGNITION )
+    {
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
 
-    //ESP_ERROR_CHECK( heap_trace_stop() );
-    //heap_trace_dump();
+    /*ESP_ERROR_CHECK( heap_trace_stop() ); */
+    /*heap_trace_dump(); */
 
-    heap_caps_print_heap_info(MALLOC_CAP_INTERNAL);
-    
+    heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
+
 
     showAvailableMemory( "At camera init:" );
     xQueue = xQueueCreate( 10, sizeof( int ) );
     app_camera_init();
-    // /*Run the face detection demo*/
-    face_id_init(&id_list, FACE_ID_SAVE_NUMBER, ENROLL_CONFIRM_TIMES);
+    /* / *Run the face detection demo* / */
+    face_id_init( &id_list, FACE_ID_SAVE_NUMBER, ENROLL_CONFIRM_TIMES );
 
-    IotLogInfo( "Camera init done");
+    IotLogInfo( "Camera init done" );
     showAvailableMemory( "Before task creation" );
-    xTaskCreatePinnedToCore(task_process, "process", 6 * 1024, 0, 5, &xHandle, 0);
+    xTaskCreatePinnedToCore( task_process, "process", 6 * 1024, 0, 5, &xHandle, 0 );
 
-    while(1)
+    while( 1 )
     {
-        showAvailableMemory("Inside loop :");
-        if(xQueue != 0)
+        showAvailableMemory( "Inside loop :" );
+
+        if( xQueue != 0 )
         {
-            xQueueReceive( xQueue, 
-                        &msg,
-                        portMAX_DELAY );
-            
+            xQueueReceive( xQueue,
+                           &msg,
+                           portMAX_DELAY );
+
             IotLogInfo( "Got the message: %d", msg );
 
             if( xHandle != NULL )
             {
                 vTaskDelete( xHandle );
-            }        
+            }
         }
 
-        xTaskCreatePinnedToCore(task_process, "process", 6 * 1024, 1, 5, &xHandle, 0);
-
+        xTaskCreatePinnedToCore( task_process, "process", 6 * 1024, 1, 5, &xHandle, 0 );
     }
+
     app_camera_deinit();
-    vTaskSuspend(NULL);
+    vTaskSuspend( NULL );
     #if 0
-    /* Return value of this function and the exit status of this program. */
-    int status = EXIT_SUCCESS;
+        /* Return value of this function and the exit status of this program. */
+        int status = EXIT_SUCCESS;
 
-    /* Handle of the MQTT connection used in this demo. */
-    IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+        /* Handle of the MQTT connection used in this demo. */
+        IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
-    /* Counts the number of incoming PUBLISHES received (and allows the demo
-     * application to wait on incoming PUBLISH messages). */
-    IotSemaphore_t publishesReceived;
+        /* Counts the number of incoming PUBLISHES received (and allows the demo
+         * application to wait on incoming PUBLISH messages). */
+        IotSemaphore_t publishesReceived;
 
-    /* Topics used as both topic filters and topic names in this demo. */
-    const char * pTopics[ TOPIC_FILTER_COUNT ] =
-    {
-        IOT_DEMO_MQTT_TOPIC_PREFIX "/Logs",
-    };
-
-    /* Flags for tracking which cleanup functions must be called. */
-    bool librariesInitialized = false, connectionEstablished = false;
-
-    /* Initialize the libraries required for this demo. */
-    status = _initializeDemo();
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Mark the libraries as initialized. */
-        librariesInitialized = true;
-
-        /* Establish a new MQTT connection. */
-        status = _establishMqttConnection( awsIotMqttMode,
-                                           pIdentifier,
-                                           pNetworkServerInfo,
-                                           pNetworkCredentialInfo,
-                                           pNetworkInterface,
-                                           &mqttConnection );
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Mark the MQTT connection as established. */
-        connectionEstablished = true;
-
-        /* Add the topic filter subscriptions used in this demo. */
-        status = _modifySubscriptions( mqttConnection,
-                                       IOT_MQTT_SUBSCRIBE,
-                                       pTopics,
-                                       &publishesReceived );
-    }
-
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Create the semaphore to count incoming PUBLISH messages. */
-        if( IotSemaphore_Create( &publishesReceived,
-                                 0,
-                                 IOT_DEMO_MQTT_PUBLISH_BURST_SIZE ) == true )
+        /* Topics used as both topic filters and topic names in this demo. */
+        const char * pTopics[ TOPIC_FILTER_COUNT ] =
         {
-            /* PUBLISH (and wait) for all messages. */
-            status = _publishResult( mqttConnection,
-                                     pTopics,
-                                     &publishesReceived,
-                                     msg );
+            IOT_DEMO_MQTT_TOPIC_PREFIX "/Logs",
+        };
 
-            /* Destroy the incoming PUBLISH counter. */
-            IotSemaphore_Destroy( &publishesReceived );
-        }
-        else
+        /* Flags for tracking which cleanup functions must be called. */
+        bool librariesInitialized = false, connectionEstablished = false;
+
+        /* Initialize the libraries required for this demo. */
+        status = _initializeDemo();
+
+        if( status == EXIT_SUCCESS )
         {
-            /* Failed to create incoming PUBLISH counter. */
-            status = EXIT_FAILURE;
+            /* Mark the libraries as initialized. */
+            librariesInitialized = true;
+
+            /* Establish a new MQTT connection. */
+            status = _establishMqttConnection( awsIotMqttMode,
+                                               pIdentifier,
+                                               pNetworkServerInfo,
+                                               pNetworkCredentialInfo,
+                                               pNetworkInterface,
+                                               &mqttConnection );
         }
-    }
 
-    if( status == EXIT_SUCCESS )
-    {
-        /* Remove the topic subscription filters used in this demo. */
-        status = _modifySubscriptions( mqttConnection,
-                                       IOT_MQTT_UNSUBSCRIBE,
-                                       pTopics,
-                                       NULL );
-    }
+        if( status == EXIT_SUCCESS )
+        {
+            /* Mark the MQTT connection as established. */
+            connectionEstablished = true;
 
-    /* Disconnect the MQTT connection if it was established. */
-    if( connectionEstablished == true )
-    {
-        IotMqtt_Disconnect( mqttConnection, 0 );
-    }
+            /* Add the topic filter subscriptions used in this demo. */
+            status = _modifySubscriptions( mqttConnection,
+                                           IOT_MQTT_SUBSCRIBE,
+                                           pTopics,
+                                           &publishesReceived );
+        }
 
-    /* Clean up libraries if they were initialized. */
-    if( librariesInitialized == true )
-    {
-        _cleanupDemo();
-    }
+        if( status == EXIT_SUCCESS )
+        {
+            /* Create the semaphore to count incoming PUBLISH messages. */
+            if( IotSemaphore_Create( &publishesReceived,
+                                     0,
+                                     IOT_DEMO_MQTT_PUBLISH_BURST_SIZE ) == true )
+            {
+                /* PUBLISH (and wait) for all messages. */
+                status = _publishResult( mqttConnection,
+                                         pTopics,
+                                         &publishesReceived,
+                                         msg );
 
-    return status;
-    #endif
-    
+                /* Destroy the incoming PUBLISH counter. */
+                IotSemaphore_Destroy( &publishesReceived );
+            }
+            else
+            {
+                /* Failed to create incoming PUBLISH counter. */
+                status = EXIT_FAILURE;
+            }
+        }
+
+        if( status == EXIT_SUCCESS )
+        {
+            /* Remove the topic subscription filters used in this demo. */
+            status = _modifySubscriptions( mqttConnection,
+                                           IOT_MQTT_UNSUBSCRIBE,
+                                           pTopics,
+                                           NULL );
+        }
+
+        /* Disconnect the MQTT connection if it was established. */
+        if( connectionEstablished == true )
+        {
+            IotMqtt_Disconnect( mqttConnection, 0 );
+        }
+
+        /* Clean up libraries if they were initialized. */
+        if( librariesInitialized == true )
+        {
+            _cleanupDemo();
+        }
+        return status;
+    #endif /* if 0 */
+
     return 0;
 }
 
