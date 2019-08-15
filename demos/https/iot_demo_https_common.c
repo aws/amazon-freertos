@@ -60,20 +60,6 @@
 
 /*-----------------------------------------------------------*/
 
-extern int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
-                                      const char * pIdentifier,
-                                      void * pNetworkServerInfo,
-                                      void * pNetworkCredentialInfo,
-                                      const IotNetworkInterface_t * pNetworkInterface );
-
-extern int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
-                                     const char * pIdentifier,
-                                     void * pNetworkServerInfo,
-                                     void * pNetworkCredentialInfo,
-                                     const IotNetworkInterface_t * pNetworkInterface );
-
-/*-----------------------------------------------------------*/
-
 /* Declaration of demo function. */
 int RunHttpsDemo( bool awsIotMqttMode,
                   const char * pIdentifier,
@@ -253,24 +239,29 @@ int RunHttpsDemo( bool awsIotMqttMode,
                   void * pNetworkCredentialInfo,
                   const IotNetworkInterface_t * pNetworkInterface )
 {
-    int status = EXIT_SUCCESS;
-
-    IotLogInfo( "** Now running the HTTPS Client asynchronous download from S3 demo. **" );
-    status = RunHttpsAsyncDownloadDemo( awsIotMqttMode,
-                                        pIdentifier,
-                                        pNetworkServerInfo,
-                                        pNetworkCredentialInfo,
-                                        pNetworkInterface );
-
-    if( status == EXIT_SUCCESS )
-    {
-        IotLogInfo( "** Now running the HTTPS Client synchronous download from S3 demo. **" );
-        status = RunHttpsSyncDownloadDemo( awsIotMqttMode,
-                                           pIdentifier,
-                                           pNetworkServerInfo,
-                                           pNetworkCredentialInfo,
-                                           pNetworkInterface );
-    }
-
-    return status;
+    #if defined( IOT_DEMO_HTTPS_ASYNC )
+        IotLogInfo( "Running the HTTPS Client S3 asynchronous download demo." );
+        extern int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
+                                              const char * pIdentifier,
+                                              void * pNetworkServerInfo,
+                                              void * pNetworkCredentialInfo,
+                                              const IotNetworkInterface_t * pNetworkInterface );
+        return RunHttpsAsyncDownloadDemo( awsIotMqttMode,
+                                          pIdentifier,
+                                          pNetworkServerInfo,
+                                          pNetworkCredentialInfo,
+                                          pNetworkInterface );
+    #else /* if defined( IOT_DEMO_HTTPS_ASYNC ) */
+        IotLogInfo( "Running the HTTPS Client S3 synchronous download demo." );
+        extern int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
+                                             const char * pIdentifier,
+                                             void * pNetworkServerInfo,
+                                             void * pNetworkCredentialInfo,
+                                             const IotNetworkInterface_t * pNetworkInterface );
+        return RunHttpsSyncDownloadDemo( awsIotMqttMode,
+                                         pIdentifier,
+                                         pNetworkServerInfo,
+                                         pNetworkCredentialInfo,
+                                         pNetworkInterface );
+    #endif /* if defined( IOT_DEMO_HTTPS_ASYNC ) */
 }
