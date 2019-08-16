@@ -519,13 +519,11 @@ static void _errorCallback( void * pPrivData,
 /**
  * @brief The function that runs the HTTPS Asynchronous demo.
  *
- * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server.
- *     This demo ignores this parameters.
- * @param[in] pIdentifier NULL-terminated MQTT client identifier. This demo ignores this parameter.
- * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo.
- *     This demo ignores this parameter.
- * @param[in] pNetworkCredentialInfo Contains credential Info for a TLS connection.
- * @param[in] pNetworkInterface Contains the network interface interaction routines.
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server. This is ignored in this demo.
+ * @param[in] pIdentifier NULL-terminated MQTT client identifier. This is ignored in this demo.
+ * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo. This is ignored in this demo.
+ * @param[in] pNetworkCredentialInfo Contains credential info for a TLS connection.
+ * @param[in] pNetworkInterface Network interface to use for this demo.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
