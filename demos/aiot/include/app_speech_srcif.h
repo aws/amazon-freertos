@@ -27,6 +27,6 @@ typedef struct
     int item_size; /*in bytes */
 } src_cfg_t;
 
-void recsrcTask( void * arg );
-void app_speech_wakeup_init();
+void vRecordingTask( void * arg );
+void vSpeechWakeupInit();
 #endif /* ifndef SRC_IF_H */

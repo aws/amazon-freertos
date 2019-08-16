@@ -170,7 +170,7 @@
 
 #define XCLK_FREQ             20000000
 
-void app_camera_init();
-void app_camera_deinit();
+void vCameraInit();
+void vCameraDeInit();
 
 #endif /* ifndef _APP_CAMERA_H_ */

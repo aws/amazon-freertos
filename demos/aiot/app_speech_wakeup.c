@@ -19,37 +19,39 @@
 #define SR_MODEL    esp_sr_wakenet3_quantized
 
 static src_cfg_t srcif;
-static const esp_sr_iface_t * model = &SR_MODEL;
-static model_iface_data_t * model_data;
+static const esp_sr_iface_t * pxModel = &SR_MODEL;
+static model_iface_data_t * pxModelData;
 
-QueueHandle_t sndQueue;
+QueueHandle_t xWordBuffer;
 
 static void event_wakeup_detected( int r )
 {
     assert( g_state == WAIT_FOR_WAKEUP );
-    printf( "%s DETECTED.\n", model->get_word_name( model_data, r ) );
+    printf( "%s DETECTED.\n", pxModel->get_word_name( pxModelData, r ) );
     heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
     g_state = STOP_REC;
     printf( "\nState changed\n" );
 }
 
-void nnTask( void * arg )
+void vWakeWordNNTask( void * arg )
 {
     printf( "\nNN Task Starts\n" );
-    int audio_chunksize = model->get_samp_chunksize( model_data );
+    int audio_chunksize = pxModel->get_samp_chunksize( pxModelData );
     int16_t * buffer = malloc( audio_chunksize * sizeof( int16_t ) );
     assert( buffer );
-    showAvailableMemory( "After buffer alloc in NN task" );
+    vShowAvailableMemory( "After buffer alloc in NN task" );
 
     while( g_state == WAIT_FOR_WAKEUP )
     {
-        xQueueReceive( sndQueue, buffer, portMAX_DELAY );
-        int r = model->detect( model_data, buffer );
+        xQueueReceive( xWordBuffer, buffer, portMAX_DELAY );
+        int r = pxModel->detect( pxModelData, buffer );
 
         if( r )
         {
             event_wakeup_detected( r );
-            xQueueReceive( sndQueue, buffer, ( TickType_t ) 10 ); /*so that the rec task is not blocked on the queue */
+            xQueueReceive( xWordBuffer,
+                           buffer,
+                           ( TickType_t ) 10 ); /*so that the rec task is not blocked on the queue */
         }
     }
 
@@ -58,52 +60,46 @@ void nnTask( void * arg )
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    showAvailableMemory( "After NN" );
+    vShowAvailableMemory( "After NN" );
     /*free(buffer); */
     g_state = START_RECOGNITION;
     printf( "\nNN Task Ends\n" );
 
-    model->destroy( model_data );
-    vQueueDelete( sndQueue );
-    showAvailableMemory( "After NN cleanup" );
+    pxModel->destroy( pxModelData );
+    vQueueDelete( xWordBuffer );
+    vShowAvailableMemory( "After NN cleanup" );
     vTaskDelete( NULL );
 }
 
-void app_speech_wakeup_init()
+void vSpeechWakeupInit()
 {
-    showAvailableMemory( "Before model creation" );
-    /*Initialize NN model */
-    model_data = model->create( DET_MODE_95 );
+    vShowAvailableMemory( "Before pxModel creation" );
+    /*Initialize NN Model */
+    pxModelData = pxModel->create( DET_MODE_95 );
 
-    wake_word_info_t * word_list = malloc( sizeof( wake_word_info_t ) );
-    esp_err_t ret = model->get_word_list( model_data, word_list );
-    int i = 0;
-    size_t n = sizeof( word_list->wake_word_list ) / sizeof( word_list->wake_word_list[ 0 ] );
-
-    for( ; i < n; i++ )
-    {
-        printf( "word %d: %s \n", i, word_list->wake_word_list[ i ] );
-    }
-
-    if( ret == ESP_OK )
-    {
-        printf( "wake word number = %d, word1 name = %s\n",
-                word_list->wake_word_num, word_list->wake_word_list[ 0 ] );
-    }
-
-    free( word_list );
-
-    int audio_chunksize = model->get_samp_chunksize( model_data );
+    int audio_chunksize = pxModel->get_samp_chunksize( pxModelData );
 
     /*Initialize sound source */
-    sndQueue = xQueueCreate( 2, ( audio_chunksize * sizeof( int16_t ) ) );
-    srcif.queue = &sndQueue;
+    xWordBuffer = xQueueCreate( 2, ( audio_chunksize * sizeof( int16_t ) ) );
+    srcif.queue = &xWordBuffer;
     srcif.item_size = audio_chunksize * sizeof( int16_t );
     printf( "%d\n", srcif.item_size );
 
-    showAvailableMemory( "Before voice task creation" );
-    xTaskCreatePinnedToCore( &recsrcTask, "rec", 3 * 1024, ( void * ) &srcif, 5, NULL, 1 );
+    vShowAvailableMemory( "Before voice task creation" );
+    xTaskCreatePinnedToCore( &vRecordingTask,
+                             "rec",
+                             3 * 1024,
+                             ( void * ) &srcif,
+                             5,
+                             NULL,
+                             1 );
 
-    xTaskCreatePinnedToCore( &nnTask, "nn", 2 * 1024, NULL, 5, NULL, 1 );
-    showAvailableMemory( "After voice task creation" );
+    xTaskCreatePinnedToCore( &vWakeWordNNTask,
+                             "nn",
+                             2 * 1024,
+                             NULL,
+                             5,
+                             NULL,
+                             1 );
+    vShowAvailableMemory( "After voice task creation" );
 }

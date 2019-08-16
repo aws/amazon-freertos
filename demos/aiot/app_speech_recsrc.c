@@ -15,9 +15,6 @@
 #include "esp_spiffs.h"
 #include "app_facenet.h"
 
-/*heap trace */
-#include "esp_heap_trace.h"
-
 
 static void i2s_init( int i )
 {
@@ -52,14 +49,14 @@ static void i2s_init( int i )
     }
 }
 
-void recsrcTask( void * arg )
+void vRecordingTask( void * arg )
 {
     int i = 0;
 
     printf( "\nRec Task Starts\n" );
-    showAvailableMemory( "After Rec task starts" );
+    vShowAvailableMemory( "After Rec task starts" );
     i2s_init( 0 );
-    showAvailableMemory( "After i2s init:" );
+    vShowAvailableMemory( "After i2s init:" );
     src_cfg_t * cfg = ( src_cfg_t * ) arg;
     size_t samp_len = cfg->item_size * 2 * sizeof( int ) / sizeof( int16_t );
 
@@ -82,7 +79,7 @@ void recsrcTask( void * arg )
 
         if( i % 10 == 0 )
         {
-            showAvailableMemory( "Between rec" );
+            vShowAvailableMemory( "Between rec" );
         }
 
         i++;
@@ -94,11 +91,11 @@ void recsrcTask( void * arg )
     }
 
     free( samp );
-    showAvailableMemory( "Before i2s deinit:" );
+    vShowAvailableMemory( "Before i2s deinit:" );
     i2s_init( 1 );
-    showAvailableMemory( "After i2s deinit:" );
+    vShowAvailableMemory( "After i2s deinit:" );
     printf( "\nRec Task Ends\n" );
-    showAvailableMemory( "After Rec task end" );
+    vShowAvailableMemory( "After Rec task end" );
     g_state = STOP_NN;
     vTaskDelete( NULL );
 }

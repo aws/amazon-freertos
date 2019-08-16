@@ -37,7 +37,7 @@
     #define FACE_ID_SAVE_NUMBER     1
 
     void app_facenet_main();
-    void showAvailableMemory( char message[] );
+    void vShowAvailableMemory( char message[] );
 
     #if __cplusplus
 }

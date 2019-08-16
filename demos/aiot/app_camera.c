@@ -23,7 +23,7 @@
 #include "app_camera.h"
 static const char *TAG = "app_camera";
 
-void app_camera_init()
+void vCameraInit()
 {
     #if CONFIG_CAMERA_MODEL_ESP_EYE
 
@@ -76,7 +76,7 @@ void app_camera_init()
     }
 }
 
-void app_camera_deinit()
+void vCameraDeInit()
 {
     esp_err_t err = esp_camera_deinit();
 

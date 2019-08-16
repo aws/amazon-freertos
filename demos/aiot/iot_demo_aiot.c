@@ -197,6 +197,13 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
 /*-----------------------------------------------------------*/
 
+QueueHandle_t xResultQueue;
+
+en_fsm_state g_state = WAIT_FOR_WAKEUP;
+
+static face_id_list id_list = { 0 };
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Called by the MQTT library when an operation completes.
  *
@@ -716,15 +723,13 @@ static int _publishResult( IotMqttConnection_t mqttConnection,
 }
 /*-----------------------------------------------------------*/
 
-QueueHandle_t xQueue;
-en_fsm_state g_state = WAIT_FOR_WAKEUP;
-
-void showAvailableMemory( char message[] )
+void vShowAvailableMemory( char cMessage[] )
 {
-    int64_t memory = heap_caps_get_free_size( MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL );
+    int64_t ulMemory = heap_caps_get_free_size( MALLOC_CAP_8BIT | MALLOC_CAP_INTERNAL );
 
-    IotLogInfo( "%s: %lld", message, memory );
+    IotLogInfo( "%s: %lld", cMessage, ulMemory );
 }
+/*-----------------------------------------------------------*/
 
 mtmn_config_t init_config()
 {
@@ -746,18 +751,17 @@ mtmn_config_t init_config()
 
     return mtmn_config;
 }
+/*-----------------------------------------------------------*/
 
-static face_id_list id_list = { 0 };
-
-void task_process_2( void * arg )
+void vTestTask( void * arg )
 {
     int ulVar = -1;
 
     IotLogInfo( "Value of the message: %d", ulVar );
 
-    if( xQueue != 0 )
+    if( xResultQueue != 0 )
     {
-        if( xQueueSendToBack( xQueue,
+        if( xQueueSendToBack( xResultQueue,
                               ( void * ) &ulVar,
                               ( TickType_t ) 10 ) != pdPASS )
         {
@@ -769,8 +773,9 @@ void task_process_2( void * arg )
 
     vTaskSuspend( NULL );
 }
+/*-----------------------------------------------------------*/
 
-void task_process( int initialized )
+void vImageProcessingTask( int initialized )
 {
     IotLogInfo( "Starting the face recognition task" );
 
@@ -906,9 +911,9 @@ void task_process( int initialized )
                         free_resources = 0;
                         IotLogInfo( "Matched Face ID: %d\n", matched_id );
 
-                        if( xQueue != 0 )
+                        if( xResultQueue != 0 )
                         {
-                            if( xQueueSendToBack( xQueue,
+                            if( xQueueSendToBack( xResultQueue,
                                                   ( void * ) &matched_id,
                                                   ( TickType_t ) 5 ) != pdPASS )
                             {
@@ -923,7 +928,7 @@ void task_process( int initialized )
                         matched_id = -1;
                         IotLogInfo( "No Matched Face ID\n" );
 
-                        if( xQueue != 0 )
+                        if( xResultQueue != 0 )
                         {
                             free( net_boxes->score );
                             free( net_boxes->box );
@@ -932,7 +937,7 @@ void task_process( int initialized )
                             dl_matrix3du_free( image_matrix );
                             free_resources = 0;
 
-                            if( xQueueSendToBack( xQueue,
+                            if( xQueueSendToBack( xResultQueue,
                                                   ( void * ) &matched_id,
                                                   ( TickType_t ) 5 ) != pdPASS )
                             {
@@ -967,7 +972,6 @@ void task_process( int initialized )
         }
     } while( 1 );
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -990,19 +994,18 @@ int RunAIoTDemo( bool awsIotMqttMode,
                  void * pNetworkCredentialInfo,
                  const IotNetworkInterface_t * pNetworkInterface )
 {
-    int msg = 0, c;
-    TaskHandle_t xHandle = NULL;
+    uint16_t usMessage = 0;
+    TaskHandle_t xImageTaskHandle = NULL;
 
     IotLogInfo( "Start the AIoT demo!" );
-    /*ESP_ERROR_CHECK( heap_trace_init_standalone(trace_record, NUM_RECORDS) ); */
+
     heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
-    showAvailableMemory( "At Startup:" );
+    vShowAvailableMemory( "At Startup:" );
     /*heap_caps_print_heap_info(MALLOC_CAP_SPIRAM); */
     IotLogInfo( "\n Starting heap trace \n" );
-    /*ESP_ERROR_CHECK( heap_trace_start(HEAP_TRACE_LEAKS) ); */
-    app_speech_wakeup_init();
+    vSpeechWakeupInit();
     g_state = WAIT_FOR_WAKEUP;
-    showAvailableMemory( "After speech init" );
+    vShowAvailableMemory( "After speech init" );
 
     vTaskDelay( 30 / portTICK_PERIOD_MS );
     IotLogInfo( "Please say 'Alexa' to the board" );
@@ -1012,44 +1015,55 @@ int RunAIoTDemo( bool awsIotMqttMode,
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    /*ESP_ERROR_CHECK( heap_trace_stop() ); */
-    /*heap_trace_dump(); */
-
     heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
 
 
-    showAvailableMemory( "At camera init:" );
-    xQueue = xQueueCreate( 10, sizeof( int ) );
-    app_camera_init();
+    vShowAvailableMemory( "At camera init:" );
+    xResultQueue = xQueueCreate( 1, sizeof( int ) );
+    vCameraInit();
     /* / *Run the face detection demo* / */
-    face_id_init( &id_list, FACE_ID_SAVE_NUMBER, ENROLL_CONFIRM_TIMES );
+    face_id_init( &id_list,
+                  FACE_ID_SAVE_NUMBER,
+                  ENROLL_CONFIRM_TIMES );
 
     IotLogInfo( "Camera init done" );
-    showAvailableMemory( "Before task creation" );
-    xTaskCreatePinnedToCore( task_process, "process", 6 * 1024, 0, 5, &xHandle, 0 );
+    vShowAvailableMemory( "Before task creation" );
+    xTaskCreatePinnedToCore( &vImageProcessingTask,
+                             "ImageProcessing",
+                             6 * 1024,
+                             ( void * ) 0,
+                             5,
+                             xImageTaskHandle,
+                             0 );
 
     while( 1 )
     {
-        showAvailableMemory( "Inside loop :" );
+        vShowAvailableMemory( "Inside loop :" );
 
-        if( xQueue != 0 )
+        if( xResultQueue != 0 )
         {
-            xQueueReceive( xQueue,
-                           &msg,
+            xQueueReceive( xResultQueue,
+                           &usMessage,
                            portMAX_DELAY );
 
-            IotLogInfo( "Got the message: %d", msg );
+            IotLogInfo( "Got the message: %d", usMessage );
 
-            if( xHandle != NULL )
+            if( xImageTaskHandle != NULL )
             {
-                vTaskDelete( xHandle );
+                vTaskDelete( xImageTaskHandle );
             }
         }
 
-        xTaskCreatePinnedToCore( task_process, "process", 6 * 1024, 1, 5, &xHandle, 0 );
+        xTaskCreatePinnedToCore( &vImageProcessingTask,
+                                 "ImageProcessing",
+                                 6 * 1024,
+                                 ( void * ) 1,
+                                 5,
+                                 xImageTaskHandle,
+                                 0 );
     }
 
-    app_camera_deinit();
+    vCameraDeInit();
     vTaskSuspend( NULL );
     #if 0
         /* Return value of this function and the exit status of this program. */
@@ -1111,7 +1125,7 @@ int RunAIoTDemo( bool awsIotMqttMode,
                 status = _publishResult( mqttConnection,
                                          pTopics,
                                          &publishesReceived,
-                                         msg );
+                                         usMessage );
 
                 /* Destroy the incoming PUBLISH counter. */
                 IotSemaphore_Destroy( &publishesReceived );
@@ -1148,5 +1162,4 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
     return 0;
 }
-
 /*-----------------------------------------------------------*/
