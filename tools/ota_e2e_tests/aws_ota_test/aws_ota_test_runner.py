@@ -136,12 +136,15 @@ class OtaTestRunner:
         """Run all tests this Test Runner object holds.
         Returns the results of the tests.
         """
-        testResults = []
-        for otaTestCase in self._otaTestCases:
-            testResults.append(self.__runTest(otaTestCase))
+        try:
+            testResults = []
+            for otaTestCase in self._otaTestCases:
+                testResults.append(self.__runTest(otaTestCase))
+        finally:
+            # All tests are over so clean up.
+            print("cleanning up aws resources")
+            self.__cleanup()
 
-        # All tests are over so clean up.
-        self.__cleanup()
         return testResults
 
     def __cleanup(self):
