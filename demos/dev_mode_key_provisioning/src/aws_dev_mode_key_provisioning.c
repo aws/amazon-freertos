@@ -81,8 +81,8 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     CK_KEY_TYPE xPrivateKeyType = CKK_EC;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
 
-    ( void * )pucPrivateKey;
-    ( void * )xPrivateKeyLength;
+    ( void * ) pucPrivateKey;
+    ( void * ) xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -180,8 +180,8 @@ CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
     RsaParams_t * pxRsaParams = NULL;
     CK_BBOOL xTrue = CK_TRUE;
 
-    (void* )pucPrivateKey;
-    (void* )xPrivateKeyLength;
+    ( void * ) pucPrivateKey;
+    ( void * ) xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -383,11 +383,11 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
         mbedtls_ecdsa_context * pxEcdsaContext = ( mbedtls_ecdsa_context * ) xMbedPkContext.pk_ctx;
 
         /* DER encoded EC point. Leave 2 bytes for the tag and length. */
-        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp, 
+        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp,
                                                       &pxEcdsaContext->Q,
-                                                      MBEDTLS_ECP_PF_UNCOMPRESSED, 
+                                                      MBEDTLS_ECP_PF_UNCOMPRESSED,
                                                       &xLength,
-                                                      xEcPoint + 2, 
+                                                      xEcPoint + 2,
                                                       sizeof( xEcPoint ) - 2 );
         xEcPoint[ 0 ] = 0x04; /* Octet string. */
         xEcPoint[ 1 ] = ( CK_BYTE ) xLength;
@@ -729,20 +729,21 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
-#if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-    /* Attempt to clean-up old crypto objects, but only if private key import is
-    supported by this application, and only if the caller has provided new 
-    objects to use instead. */
-    if( NULL != pxParams->pucClientCertificate &&
-        NULL != pxParams->pucClientPrivateKey )
-    {
-        xDestroyDefaultCryptoObjects( xSession );
-    }
-#endif
+    #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+
+        /* Attempt to clean-up old crypto objects, but only if private key import is
+         * supported by this application, and only if the caller has provided new
+         * objects to use instead. */
+        if( ( NULL != pxParams->pucClientCertificate ) &&
+            ( NULL != pxParams->pucClientPrivateKey ) )
+        {
+            xDestroyDefaultCryptoObjects( xSession );
+        }
+    #endif
 
     /* If a client certificate has been provided by the caller, attempt to
-    import it. */
-    if( xResult == CKR_OK && NULL != pxParams->pucClientCertificate )
+     * import it. */
+    if( ( xResult == CKR_OK ) && ( NULL != pxParams->pucClientCertificate ) )
     {
         xResult = xProvisionCertificate( xSession,
                                          pxParams->pucClientCertificate,
@@ -756,30 +757,31 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
-#if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-    /* If this application supports importing private keys, and if a private
-    key has been provided by the caller, attempt to import it. */
-    if( xResult == CKR_OK && NULL != pxParams->pucClientPrivateKey )
-    {
-        xResult = xProvisionPrivateKey( xSession,
-                                        pxParams->pucClientPrivateKey,
-                                        pxParams->ulClientPrivateKeyLength,
-                                        ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                        &xObject );
+    #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
 
-        if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+        /* If this application supports importing private keys, and if a private
+         * key has been provided by the caller, attempt to import it. */
+        if( ( xResult == CKR_OK ) && ( NULL != pxParams->pucClientPrivateKey ) )
         {
-            configPRINTF( ( "ERROR: Failed to provision device private key with status %d.\r\n", xResult ) );
-        }
-    }
-#endif
+            xResult = xProvisionPrivateKey( xSession,
+                                            pxParams->pucClientPrivateKey,
+                                            pxParams->ulClientPrivateKeyLength,
+                                            ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                            &xObject );
 
-    /* If a Just-in-Time Provisioning certificate has been provided by the 
-    caller, attempt to import it. Not all crypto tokens
-    and PKCS #11 module implementations provide storage for this particular 
-    object. In that case, the statically defined object, if any, will be used
-    during TLS session negotiation with AWS IoT. */
-    if( xResult == CKR_OK && NULL != pxParams->pucJITPCertificate )
+            if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+            {
+                configPRINTF( ( "ERROR: Failed to provision device private key with status %d.\r\n", xResult ) );
+            }
+        }
+    #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
+
+    /* If a Just-in-Time Provisioning certificate has been provided by the
+     * caller, attempt to import it. Not all crypto tokens
+     * and PKCS #11 module implementations provide storage for this particular
+     * object. In that case, the statically defined object, if any, will be used
+     * during TLS session negotiation with AWS IoT. */
+    if( ( xResult == CKR_OK ) && ( NULL != pxParams->pucJITPCertificate ) )
     {
         xResult = xProvisionCertificate( xSession,
                                          pxParams->pucJITPCertificate,
@@ -795,13 +797,13 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     }
 
     /* Ensure that the above procedure has ended up with a client certificate and
-    private key available in storage. */
+     * private key available in storage. */
     if( xResult == CKR_OK )
     {
         for( ; ulObjectIndex < sizeof( pxPkcsLabels ) / sizeof( pxPkcsLabels[ 0 ] ); ulObjectIndex++ )
         {
             xResult = xFindObjectWithLabelAndClass( xSession,
-                                                    ( const char * )pxPkcsLabels[ ulObjectIndex ],
+                                                    ( const char * ) pxPkcsLabels[ ulObjectIndex ],
                                                     xClass[ ulObjectIndex ],
                                                     &xObject );
 
@@ -921,9 +923,9 @@ CK_RV vDevModeKeyProvisioning( void )
 {
     ProvisioningParams_t xParams;
 
-    xParams.pucJITPCertificate = (uint8_t* )keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
-    xParams.pucClientPrivateKey = (uint8_t* )keyCLIENT_PRIVATE_KEY_PEM;
-    xParams.pucClientCertificate = (uint8_t* )keyCLIENT_CERTIFICATE_PEM;
+    xParams.pucJITPCertificate = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
+    xParams.pucClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.pucClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
 
     /* If using a JITR flow, a JITR certificate must be supplied. If using credentials generated by
      * AWS, this certificate is not needed. */
@@ -937,11 +939,11 @@ CK_RV vDevModeKeyProvisioning( void )
         xParams.pucJITPCertificate = NULL;
     }
 
-    /* The hard-coded client certificate and private key can be useful for 
-    first-time lab testing. They are optional after the first run, though, and 
-    not recommended at all for going into production. */
+    /* The hard-coded client certificate and private key can be useful for
+     * first-time lab testing. They are optional after the first run, though, and
+     * not recommended at all for going into production. */
     if( ( NULL != xParams.pucClientPrivateKey ) &&
-        ( 0 != strcmp( "", ( const char * )xParams.pucClientPrivateKey ) ) )
+        ( 0 != strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) )
     {
         xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
     }
@@ -953,7 +955,7 @@ CK_RV vDevModeKeyProvisioning( void )
     if( ( NULL != xParams.pucClientCertificate ) ||
         ( 0 != strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
     {
-        xParams.ulClientCertificateLength = 1 + strlen( ( const char * )xParams.pucClientCertificate );
+        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pucClientCertificate );
     }
     else
     {
