@@ -80,8 +80,32 @@
  * @brief Root certificate authority to verify the server connecting to.
  */
 #ifndef IOT_TEST_HTTPS_ROOT_CA
-    #define IOT_TEST_HTTPS_ROOT_CA    NULL
-#endif
+    #define IOT_TEST_HTTPS_ROOT_CA                                       \
+    "-----BEGIN CERTIFICATE-----\n"                                      \
+    "MIIEDzCCAvegAwIBAgIBADANBgkqhkiG9w0BAQUFADBoMQswCQYDVQQGEwJVUzEl\n" \
+    "MCMGA1UEChMcU3RhcmZpZWxkIFRlY2hub2xvZ2llcywgSW5jLjEyMDAGA1UECxMp\n" \
+    "U3RhcmZpZWxkIENsYXNzIDIgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwHhcNMDQw\n" \
+    "NjI5MTczOTE2WhcNMzQwNjI5MTczOTE2WjBoMQswCQYDVQQGEwJVUzElMCMGA1UE\n" \
+    "ChMcU3RhcmZpZWxkIFRlY2hub2xvZ2llcywgSW5jLjEyMDAGA1UECxMpU3RhcmZp\n" \
+    "ZWxkIENsYXNzIDIgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwggEgMA0GCSqGSIb3\n" \
+    "DQEBAQUAA4IBDQAwggEIAoIBAQC3Msj+6XGmBIWtDBFk385N78gDGIc/oav7PKaf\n" \
+    "8MOh2tTYbitTkPskpD6E8J7oX+zlJ0T1KKY/e97gKvDIr1MvnsoFAZMej2YcOadN\n" \
+    "+lq2cwQlZut3f+dZxkqZJRRU6ybH838Z1TBwj6+wRir/resp7defqgSHo9T5iaU0\n" \
+    "X9tDkYI22WY8sbi5gv2cOj4QyDvvBmVmepsZGD3/cVE8MC5fvj13c7JdBmzDI1aa\n" \
+    "K4UmkhynArPkPw2vCHmCuDY96pzTNbO8acr1zJ3o/WSNF4Azbl5KXZnJHoe0nRrA\n" \
+    "1W4TNSNe35tfPe/W93bC6j67eA0cQmdrBNj41tpvi/JEoAGrAgEDo4HFMIHCMB0G\n" \
+    "A1UdDgQWBBS/X7fRzt0fhvRbVazc1xDCDqmI5zCBkgYDVR0jBIGKMIGHgBS/X7fR\n" \
+    "zt0fhvRbVazc1xDCDqmI56FspGowaDELMAkGA1UEBhMCVVMxJTAjBgNVBAoTHFN0\n" \
+    "YXJmaWVsZCBUZWNobm9sb2dpZXMsIEluYy4xMjAwBgNVBAsTKVN0YXJmaWVsZCBD\n" \
+    "bGFzcyAyIENlcnRpZmljYXRpb24gQXV0aG9yaXR5ggEAMAwGA1UdEwQFMAMBAf8w\n" \
+    "DQYJKoZIhvcNAQEFBQADggEBAAWdP4id0ckaVaGsafPzWdqbAYcaT1epoXkJKtv3\n" \
+    "L7IezMdeatiDh6GX70k1PncGQVhiv45YuApnP+yz3SFmH8lU+nLMPUxA2IGvd56D\n" \
+    "eruix/U0F47ZEUD0/CwqTRV/p2JdLiXTAAsgGh1o+Re49L2L7ShZ3U0WixeDyLJl\n" \
+    "xy16paq8U4Zt3VekyvggQQto8PT7dL5WXXp59fkdheMtlb71cZBDzI0fmgAKhynp\n" \
+    "VSJYACPq4xJDKVtHCN2MQWplBqjlIapBtJUhlbl90TSrE9atvNziPTnNvT51cKEY\n" \
+    "WQPJIrSPnNVeKtelttQKbfi3QBFGmh95DmK/D5fs4C8fF5Q=\n"                 \
+    "-----END CERTIFICATE-----"
+#endif /* ifndef IOT_TEST_HTTPS_ROOT_CA */
 
 /**
  * @brief Client certificate and private key configurations.
@@ -151,6 +175,25 @@
  * @brief The HTTP path for the get request.
  */
 #define HTTPS_TEST_GET_REQUEST_PATH         "/get"
+
+/**
+ * @brief The HTTP path for the put request.
+ */
+#define HTTPS_TEST_PUT_REQUEST_PATH         "/put"
+
+/**
+ * @brief The HTTP path for the post request.
+ */
+#define HTTPS_TEST_POST_REQUEST_PATH        "/post"
+
+/**
+ * @brief The HTTP post and put message body data.
+ */
+#define HTTPS_TEST_MESSAGE_BODY \
+"{\r\b"\
+"  \"data\":\"data\"\r\n"\
+"}"
+#define HTTPS_TEST_MESSAGE_BODY_LENGTH      ( sizeof( HTTPS_TEST_MESSAGE_BODY ) - 1 )
 
 /*-----------------------------------------------------------*/
 
@@ -272,8 +315,16 @@ static void _testRequestSynchronous( bool isNonPersistent,
     uint32_t contentLength = 0;
     uint16_t responseStatus = 0;
 
-    syncReqInfo.pBody = NULL;
-    syncReqInfo.bodyLen = 0;
+    if( ( method == IOT_HTTPS_METHOD_PUT ) || ( method == IOT_HTTPS_METHOD_POST ) )
+    {
+        syncReqInfo.pBody = ( uint8_t * ) HTTPS_TEST_MESSAGE_BODY;
+        syncReqInfo.bodyLen = HTTPS_TEST_MESSAGE_BODY_LENGTH;
+    }
+    else
+    {
+        syncReqInfo.pBody = NULL;
+        syncReqInfo.bodyLen = 0;
+    }
 
     if( method != IOT_HTTPS_METHOD_HEAD )
     {
@@ -282,8 +333,26 @@ static void _testRequestSynchronous( bool isNonPersistent,
         syncRespInfo.bodyLen = sizeof( _pRespBodyBuffer );
     }
 
-    reqInfo.pPath = HTTPS_TEST_GET_REQUEST_PATH;
-    reqInfo.pathLen = sizeof( HTTPS_TEST_GET_REQUEST_PATH ) - 1;
+    if( ( method == IOT_HTTPS_METHOD_GET ) || ( method == IOT_HTTPS_METHOD_HEAD ) )
+    {
+        reqInfo.pPath = HTTPS_TEST_GET_REQUEST_PATH;
+        reqInfo.pathLen = sizeof( HTTPS_TEST_GET_REQUEST_PATH ) - 1;
+    }
+    else if( method == IOT_HTTPS_METHOD_PUT )
+    {
+        reqInfo.pPath = HTTPS_TEST_PUT_REQUEST_PATH;
+        reqInfo.pathLen = sizeof( HTTPS_TEST_PUT_REQUEST_PATH ) - 1;
+    }
+    else if ( method == IOT_HTTPS_METHOD_POST )
+    {
+        reqInfo.pPath = HTTPS_TEST_POST_REQUEST_PATH;
+        reqInfo.pathLen = sizeof( HTTPS_TEST_POST_REQUEST_PATH ) - 1;
+    }
+    else
+    {
+        TEST_FAIL_MESSAGE("Unsupported method in the HTTPS Client library.");
+    }
+
     reqInfo.pHost = IOT_TEST_HTTPS_SERVER_HOST_NAME;
     reqInfo.hostLen = sizeof( IOT_TEST_HTTPS_SERVER_HOST_NAME ) - 1;
     reqInfo.method = method;
@@ -327,14 +396,14 @@ static void _testRequestSynchronous( bool isNonPersistent,
         TEST_ASSERT_GREATER_THAN( 0, contentLength );
     }
 
-    if( method == IOT_HTTPS_METHOD_GET )
+    if( method != IOT_HTTPS_METHOD_HEAD )
     {
         /* Verify the response body has some stuff in it. */
         TEST_ASSERT_GREATER_THAN( 0, strlen( ( char * ) ( respInfo.pSyncInfo->pBody ) ) );
     }
 
-    /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection context
-     * state is controlled by the application. */
+    /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection 
+     * context state is controlled by the application. */
     if( isNonPersistent )
     {
         TEST_ASSERT_FALSE( connHandle->isConnected );
@@ -369,8 +438,26 @@ static void _testRequestAsynchronous( bool isNonPersistent,
     asyncRespInfo.callbacks.errorCallback = NULL;
     asyncRespInfo.pPrivData = &verifParams;
 
-    reqInfo.pPath = HTTPS_TEST_GET_REQUEST_PATH;
-    reqInfo.pathLen = sizeof( HTTPS_TEST_GET_REQUEST_PATH ) - 1;
+    if( ( method == IOT_HTTPS_METHOD_GET ) || ( method == IOT_HTTPS_METHOD_HEAD ) )
+    {
+        reqInfo.pPath = HTTPS_TEST_GET_REQUEST_PATH;
+        reqInfo.pathLen = sizeof( HTTPS_TEST_GET_REQUEST_PATH ) - 1;
+    }
+    else if( method == IOT_HTTPS_METHOD_PUT )
+    {
+        reqInfo.pPath = HTTPS_TEST_PUT_REQUEST_PATH;
+        reqInfo.pathLen = sizeof( HTTPS_TEST_PUT_REQUEST_PATH ) - 1;
+    }
+    else if ( method == IOT_HTTPS_METHOD_POST )
+    {
+        reqInfo.pPath = HTTPS_TEST_POST_REQUEST_PATH;
+        reqInfo.pathLen = sizeof( HTTPS_TEST_POST_REQUEST_PATH ) - 1;
+    }
+    else
+    {
+        TEST_FAIL_MESSAGE("Unsupported method in the HTTPS Client library.");
+    }
+
     reqInfo.pHost = IOT_TEST_HTTPS_SERVER_HOST_NAME;
     reqInfo.hostLen = sizeof( IOT_TEST_HTTPS_SERVER_HOST_NAME ) - 1;
     reqInfo.method = method;
@@ -405,7 +492,7 @@ static void _testRequestAsynchronous( bool isNonPersistent,
 
         TEST_ASSERT_TRUE( IotSemaphore_TimedWait( &( verifParams.finishedSem ), IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS ) );
 
-        /* Verify all of the parameters set durign the callbacks. */
+        /* Verify all of the parameters set during the callbacks. */
         TEST_ASSERT_EQUAL( IOT_HTTPS_STATUS_OK, verifParams.responseStatus );
 
         if( verifParams.contentLengthReturnCode == IOT_HTTPS_OK )
@@ -413,14 +500,14 @@ static void _testRequestAsynchronous( bool isNonPersistent,
             TEST_ASSERT_GREATER_THAN( 0, verifParams.contentLength );
         }
 
-        if( method == IOT_HTTPS_METHOD_GET )
+        if( method != IOT_HTTPS_METHOD_HEAD )
         {
             TEST_ASSERT_GREATER_THAN( 0, verifParams.bodyReceivedLength );
             TEST_ASSERT_EQUAL( IOT_HTTPS_OK, verifParams.readResponseBodyReturnCode );
         }
 
-        /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection context
-         * state is controlled by the application. */
+        /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection
+           context state is controlled by the application. */
         if( isNonPersistent )
         {
             TEST_ASSERT_FALSE( connHandle->isConnected );
@@ -479,6 +566,14 @@ TEST_GROUP_RUNNER( HTTPS_Client_System )
     RUN_TEST_CASE( HTTPS_Client_System, HeadRequestSynchronousNonPersistent );
     RUN_TEST_CASE( HTTPS_Client_System, HeadRequestAsynchronousPersistent );
     RUN_TEST_CASE( HTTPS_Client_System, HeadRequestAsynchronousNonPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PutRequestSynchronousPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PutRequestSynchronousNonPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PutRequestAsynchronousPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PutRequestAsynchronousNonPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PostRequestSynchronousPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PostRequestSynchronousNonPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PostRequestAsynchronousPersistent );
+    RUN_TEST_CASE( HTTPS_Client_System, PostRequestAsynchronousNonPersistent );
 }
 
 /*-----------------------------------------------------------*/
@@ -524,7 +619,7 @@ TEST( HTTPS_Client_System, GetRequestAsynchronousNonPersistent )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Verify a persistent GET request to the test server sent synchronously.
+ * @brief Verify a persistent HEAD request to the test server sent synchronously.
  */
 TEST( HTTPS_Client_System, HeadRequestSynchronousPersistent )
 {
@@ -534,7 +629,7 @@ TEST( HTTPS_Client_System, HeadRequestSynchronousPersistent )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Verify a non-persistent GET request to the test server sent synchronously.
+ * @brief Verify a non-persistent HEAD request to the test server sent synchronously.
  */
 TEST( HTTPS_Client_System, HeadRequestSynchronousNonPersistent )
 {
@@ -544,7 +639,7 @@ TEST( HTTPS_Client_System, HeadRequestSynchronousNonPersistent )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Verify a GET request to the test server sent asynchronously.
+ * @brief Verify a HEAD request to the test server sent asynchronously.
  */
 TEST( HTTPS_Client_System, HeadRequestAsynchronousPersistent )
 {
@@ -554,9 +649,89 @@ TEST( HTTPS_Client_System, HeadRequestAsynchronousPersistent )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Verify a GET request to the test server sent asynchronously.
+ * @brief Verify a HEAD request to the test server sent asynchronously.
  */
 TEST( HTTPS_Client_System, HeadRequestAsynchronousNonPersistent )
 {
     _testRequestAsynchronous( true, IOT_HTTPS_METHOD_HEAD );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a persistent PUT request to the test server sent synchronously.
+ */
+TEST( HTTPS_Client_System, PutRequestSynchronousPersistent )
+{
+    _testRequestSynchronous( false, IOT_HTTPS_METHOD_PUT );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a non-persistent PUT request to the test server sent synchronously.
+ */
+TEST( HTTPS_Client_System, PutRequestSynchronousNonPersistent )
+{
+    _testRequestSynchronous( true, IOT_HTTPS_METHOD_PUT );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a PUT request to the test server sent asynchronously.
+ */
+TEST( HTTPS_Client_System, PutRequestAsynchronousPersistent )
+{
+    _testRequestAsynchronous( false, IOT_HTTPS_METHOD_PUT );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a PUT request to the test server sent asynchronously.
+ */
+TEST( HTTPS_Client_System, PutRequestAsynchronousNonPersistent )
+{
+    _testRequestAsynchronous( true, IOT_HTTPS_METHOD_PUT );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a persistent POST request to the test server sent synchronously.
+ */
+TEST( HTTPS_Client_System, PostRequestSynchronousPersistent )
+{
+    _testRequestSynchronous( false, IOT_HTTPS_METHOD_POST );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a non-persistent POST request to the test server sent synchronously.
+ */
+TEST( HTTPS_Client_System, PostRequestSynchronousNonPersistent )
+{
+    _testRequestSynchronous( true, IOT_HTTPS_METHOD_POST );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a POST request to the test server sent asynchronously.
+ */
+TEST( HTTPS_Client_System, PostRequestAsynchronousPersistent )
+{
+    _testRequestAsynchronous( false, IOT_HTTPS_METHOD_POST );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Verify a POST request to the test server sent asynchronously.
+ */
+TEST( HTTPS_Client_System, PostRequestAsynchronousNonPersistent )
+{
+    _testRequestAsynchronous( true, IOT_HTTPS_METHOD_POST );
 }

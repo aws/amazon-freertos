@@ -45,6 +45,7 @@
 #include "platform/iot_network.h"
 #include "private/iot_error.h"
 #include "iot_demo_https_common.h"
+#include "platform/iot_clock.h"
 
 /**
  * This demonstrates uploading a file to S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library.
