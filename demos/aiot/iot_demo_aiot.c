@@ -921,6 +921,7 @@ void vImageProcessingTask( int initialized )
                             }
 
                             IotLogInfo( "Message pushed to queue: Familiar face" );
+                            vTaskSuspend(NULL);
                         }
                     }
                     else
@@ -945,6 +946,7 @@ void vImageProcessingTask( int initialized )
                             }
 
                             IotLogInfo( "Message pushed to queue: Intruder" );
+                            vTaskSuspend(NULL);
                         }
                     }
 
@@ -996,6 +998,25 @@ int RunAIoTDemo( bool awsIotMqttMode,
 {
     uint16_t usMessage = 0;
     TaskHandle_t xImageTaskHandle = NULL;
+    /* Return value of this function and the exit status of this program. */
+    int status = EXIT_SUCCESS;
+
+    /* Handle of the MQTT connection used in this demo. */
+    IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+
+    /* Counts the number of incoming PUBLISHES received (and allows the demo
+     * application to wait on incoming PUBLISH messages). */
+    IotSemaphore_t publishesReceived;
+
+    /* Topics used as both topic filters and topic names in this demo. */
+    const char * pTopics[ TOPIC_FILTER_COUNT ] =
+    {
+        IOT_DEMO_MQTT_TOPIC_PREFIX "/Logs",
+    };
+
+    /* Flags for tracking which cleanup functions must be called. */
+    bool librariesInitialized = false, connectionEstablished = false;
+
 
     IotLogInfo( "Start the AIoT demo!" );
 
@@ -1030,11 +1051,11 @@ int RunAIoTDemo( bool awsIotMqttMode,
     vShowAvailableMemory( "Before task creation" );
     xTaskCreatePinnedToCore( &vImageProcessingTask,
                              "ImageProcessing",
-                             6 * 1024,
+                             8 * 1024,
                              ( void * ) 0,
                              5,
-                             xImageTaskHandle,
-                             0 );
+                             &xImageTaskHandle,
+                             1 );
 
     while( 1 )
     {
@@ -1050,7 +1071,83 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
             if( xImageTaskHandle != NULL )
             {
+                vCameraDeInit();
                 vTaskDelete( xImageTaskHandle );
+                vShowAvailableMemory( "At MQTT startup:" );
+                /* Initialize the libraries required for this demo. */
+                status = _initializeDemo();
+
+                if( status == EXIT_SUCCESS )
+                {
+                    /* Mark the libraries as initialized. */
+                    librariesInitialized = true;
+
+                    /* Establish a new MQTT connection. */
+                    status = _establishMqttConnection( awsIotMqttMode,
+                                                       pIdentifier,
+                                                       pNetworkServerInfo,
+                                                       pNetworkCredentialInfo,
+                                                       pNetworkInterface,
+                                                       &mqttConnection );
+                }
+
+                if( status == EXIT_SUCCESS )
+                {
+                    /* Mark the MQTT connection as established. */
+                    connectionEstablished = true;
+
+                    /* Add the topic filter subscriptions used in this demo. */
+                    status = _modifySubscriptions( mqttConnection,
+                                                   IOT_MQTT_SUBSCRIBE,
+                                                   pTopics,
+                                                   &publishesReceived );
+                }
+
+                if( status == EXIT_SUCCESS )
+                {
+                    /* Create the semaphore to count incoming PUBLISH messages. */
+                    if( IotSemaphore_Create( &publishesReceived,
+                                             0,
+                                             IOT_DEMO_MQTT_PUBLISH_BURST_SIZE ) == true )
+                    {
+                        /* PUBLISH (and wait) for all messages. */
+                        status = _publishResult( mqttConnection,
+                                                 pTopics,
+                                                 &publishesReceived,
+                                                 usMessage );
+
+                        /* Destroy the incoming PUBLISH counter. */
+                        IotSemaphore_Destroy( &publishesReceived );
+                    }
+                    else
+                    {
+                        /* Failed to create incoming PUBLISH counter. */
+                        status = EXIT_FAILURE;
+                    }
+                }
+
+                if( status == EXIT_SUCCESS )
+                {
+                    /* Remove the topic subscription filters used in this demo. */
+                    status = _modifySubscriptions( mqttConnection,
+                                                   IOT_MQTT_UNSUBSCRIBE,
+                                                   pTopics,
+                                                   NULL );
+                }
+
+                /* Disconnect the MQTT connection if it was established. */
+                if( connectionEstablished == true )
+                {
+                    IotMqtt_Disconnect( mqttConnection, 0 );
+                }
+
+                /* Clean up libraries if they were initialized. */
+                if( librariesInitialized == true )
+                {
+                    _cleanupDemo();
+                }
+
+                return status;
             }
         }
 
@@ -1065,100 +1162,8 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
     vCameraDeInit();
     vTaskSuspend( NULL );
-    #if 0
-        /* Return value of this function and the exit status of this program. */
-        int status = EXIT_SUCCESS;
 
-        /* Handle of the MQTT connection used in this demo. */
-        IotMqttConnection_t mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
-        /* Counts the number of incoming PUBLISHES received (and allows the demo
-         * application to wait on incoming PUBLISH messages). */
-        IotSemaphore_t publishesReceived;
-
-        /* Topics used as both topic filters and topic names in this demo. */
-        const char * pTopics[ TOPIC_FILTER_COUNT ] =
-        {
-            IOT_DEMO_MQTT_TOPIC_PREFIX "/Logs",
-        };
-
-        /* Flags for tracking which cleanup functions must be called. */
-        bool librariesInitialized = false, connectionEstablished = false;
-
-        /* Initialize the libraries required for this demo. */
-        status = _initializeDemo();
-
-        if( status == EXIT_SUCCESS )
-        {
-            /* Mark the libraries as initialized. */
-            librariesInitialized = true;
-
-            /* Establish a new MQTT connection. */
-            status = _establishMqttConnection( awsIotMqttMode,
-                                               pIdentifier,
-                                               pNetworkServerInfo,
-                                               pNetworkCredentialInfo,
-                                               pNetworkInterface,
-                                               &mqttConnection );
-        }
-
-        if( status == EXIT_SUCCESS )
-        {
-            /* Mark the MQTT connection as established. */
-            connectionEstablished = true;
-
-            /* Add the topic filter subscriptions used in this demo. */
-            status = _modifySubscriptions( mqttConnection,
-                                           IOT_MQTT_SUBSCRIBE,
-                                           pTopics,
-                                           &publishesReceived );
-        }
-
-        if( status == EXIT_SUCCESS )
-        {
-            /* Create the semaphore to count incoming PUBLISH messages. */
-            if( IotSemaphore_Create( &publishesReceived,
-                                     0,
-                                     IOT_DEMO_MQTT_PUBLISH_BURST_SIZE ) == true )
-            {
-                /* PUBLISH (and wait) for all messages. */
-                status = _publishResult( mqttConnection,
-                                         pTopics,
-                                         &publishesReceived,
-                                         usMessage );
-
-                /* Destroy the incoming PUBLISH counter. */
-                IotSemaphore_Destroy( &publishesReceived );
-            }
-            else
-            {
-                /* Failed to create incoming PUBLISH counter. */
-                status = EXIT_FAILURE;
-            }
-        }
-
-        if( status == EXIT_SUCCESS )
-        {
-            /* Remove the topic subscription filters used in this demo. */
-            status = _modifySubscriptions( mqttConnection,
-                                           IOT_MQTT_UNSUBSCRIBE,
-                                           pTopics,
-                                           NULL );
-        }
-
-        /* Disconnect the MQTT connection if it was established. */
-        if( connectionEstablished == true )
-        {
-            IotMqtt_Disconnect( mqttConnection, 0 );
-        }
-
-        /* Clean up libraries if they were initialized. */
-        if( librariesInitialized == true )
-        {
-            _cleanupDemo();
-        }
-        return status;
-    #endif /* if 0 */
 
     return 0;
 }

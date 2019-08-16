@@ -383,7 +383,7 @@ void start_cpu0_default(void)
 #endif
 
     portBASE_TYPE res = xTaskCreatePinnedToCore(&main_task, "main",
-                                                ESP_TASK_MAIN_STACK, NULL,
+                                                ESP_TASK_MAIN_STACK+4096, NULL,
                                                 ESP_TASK_MAIN_PRIO, NULL, 0);
     assert(res == pdTRUE);
     ESP_LOGI(TAG, "Starting scheduler on PRO CPU.");
