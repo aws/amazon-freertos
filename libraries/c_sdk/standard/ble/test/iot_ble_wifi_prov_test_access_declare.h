@@ -53,7 +53,7 @@ BaseType_t test_HandleDeleteNetworkRequest( uint8_t * pucData,
 
 WIFIReturnCode_t test_AppendNetwork( WIFINetworkProfile_t * pxProfile );
 
-WIFIReturnCode_t test_AddNewNetwork( WIFINetworkProfile_t * pxProfile );
+WIFIReturnCode_t test_AddNewNetwork( WIFINetworkProfile_t * pxProfile, bool connect );
 
 WIFIReturnCode_t test_PopNetwork( uint16_t usIndex,
                                   WIFINetworkProfile_t * pxProfile );

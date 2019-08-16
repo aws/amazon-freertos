@@ -129,7 +129,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_AddNetwork )
     if( TEST_PROTECT() )
     {
         prvGetRealWIFINetwork( &xNetwork );
-        xStatus = test_AddNewNetwork( &xNetwork );
+        xStatus = test_AddNewNetwork( &xNetwork, true );
 
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
         /* Verify that the network is connected */
@@ -185,7 +185,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_DeleteNetwork )
     if( TEST_PROTECT() )
     {
         /* Add the new network */
-        xStatus = test_AddNewNetwork( &xNetwork );
+        xStatus = test_AddNewNetwork( &xNetwork, true );
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
         /* Verify that network is added */
         TEST_ASSERT_EQUAL( eWiFiSuccess, WIFI_NetworkGet( &xNetwork, 0 ) );
@@ -287,7 +287,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_ChangeConnectedNetworkPriority )
 
         /* Add real network */
         prvGetRealWIFINetwork( &xNetwork );
-        xStatus = test_AddNewNetwork( &xNetwork );
+        xStatus = test_AddNewNetwork( &xNetwork, true );
 
 
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
@@ -326,7 +326,7 @@ TEST( Full_WiFi_Provisioning, WIFI_PROVISION_DeleteConnectedNetwork )
     {
         /* Add real network */
         prvGetRealWIFINetwork( &xNetwork );
-        xStatus = test_AddNewNetwork( &xNetwork );
+        xStatus = test_AddNewNetwork( &xNetwork, true );
         TEST_ASSERT_EQUAL( eWiFiSuccess, xStatus );
         TEST_ASSERT_EQUAL( pdTRUE, WIFI_IsConnected() );
 
