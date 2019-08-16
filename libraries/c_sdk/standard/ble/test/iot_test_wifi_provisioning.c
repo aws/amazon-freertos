@@ -36,6 +36,7 @@
 #include "FreeRTOS.h"
 #include "iot_ble_wifi_provisioning.h"
 #include "iot_ble_wifi_prov_test_access_declare.h"
+#include "iot_ble_data_transfer.h"
 #include "aws_clientcredential.h"
 /* Test framework includes. */
 #include "unity_fixture.h"
@@ -59,17 +60,43 @@ TEST_GROUP( Full_WiFi_Provisioning );
 
 /*-----------------------------------------------------------*/
 
+#include "bt_hal_manager_types.h"
+static bool bleInitialized = false;
+static bool iotBleInitialized = false;
+static bool iotBleWifiProvisioningInitialized = false;
+extern BTStatus_t bleStackInit( void );
+
+static bool bleInit() {
+    if (!bleInitialized) {
+        bleInitialized = ( eBTStatusSuccess == bleStackInit() );
+    }
+    if (bleInitialized && ! iotBleInitialized ) {
+        iotBleInitialized = ( eBTStatusSuccess == IotBle_Init() );
+    }
+    return iotBleInitialized;
+}
+
+/*-----------------------------------------------------------*/
+
 TEST_SETUP( Full_WiFi_Provisioning )
 {
-    IotBleWifiProv_Init();
+    if ( bleInit() ) { 
+        iotBleWifiProvisioningInitialized = IotBleWifiProv_Init();
+    }
+
+    TEST_ASSERT_EQUAL( bleInitialized, true);
+    TEST_ASSERT_EQUAL( iotBleInitialized, true);
+    TEST_ASSERT_EQUAL( iotBleWifiProvisioningInitialized, true);
 }
 
 /*-----------------------------------------------------------*/
 
 TEST_TEAR_DOWN( Full_WiFi_Provisioning )
 {
-    IotBleWifiProv_Deinit();
-    prvRemoveSavedNetworks();
+    if (iotBleWifiProvisioningInitialized) {
+        IotBleWifiProv_Deinit();
+        prvRemoveSavedNetworks();
+    }
 }
 
 
