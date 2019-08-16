@@ -59,7 +59,7 @@ typedef struct ProvisioningParams_t
                                          *   for help with formatting.
                                          *   - See https://aws.amazon.com/blogs/iot/setting-up-just-in-time-provisioning-with-aws-iot-core/
                                          *   for more information about getting started with JITP */
-    uint32_t ulJITPCertificateLength;    /**< Length of the Just-In-Time Provisioning (JITP) certificate in bytes.
+    uint32_t ulJITPCertificateLength;   /**< Length of the Just-In-Time Provisioning (JITP) certificate in bytes.
                                          *   If JITP is not being used, this value should be set to 0. */
 } ProvisioningParams_t;
 
