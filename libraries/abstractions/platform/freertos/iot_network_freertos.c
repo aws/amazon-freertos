@@ -595,22 +595,26 @@ size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
         pNetworkConnection->bufferedByteValid = false;
     }
 
-    /* Block and wait for incoming data. */
-    socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
-                                 pBuffer + bytesReceived,
-                                 bufferSize - bytesReceived,
-                                 0 );
+    if( bufferSize - bytesReceived > 0 )
+    {
+        /* Block and wait for incoming data. */
+        socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
+                                     pBuffer + bytesReceived,
+                                     bufferSize - bytesReceived,
+                                     0 );
 
-    if( socketStatus <= 0 )
-    {
-        IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
+        if( socketStatus <= 0 )
+        {
+            IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
+        }
+        else
+        {
+            bytesReceived += ( size_t ) socketStatus;
+        }
     }
-    else
-    {
-        bytesReceived += ( size_t ) socketStatus;
-        IotLogDebug( "Successfully received %lu bytes.",
-                     ( unsigned long ) bytesReceived );
-    }
+
+    IotLogDebug( "Received %lu bytes.",
+                 ( unsigned long ) bytesReceived );
 
     return bytesReceived;
 }
