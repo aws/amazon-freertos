@@ -77,6 +77,25 @@ static void prvInitializeStaticCond( pthread_cond_internal_t * pxCond )
         taskEXIT_CRITICAL();
     }
 }
+/* @brief Check "atomically" if iLocalWaitingThreads == pxCond->iWaitingThreads and decrement.  
+ */
+static void prvTestAndDecrement( pthread_cond_t * pxCond, unsigned iLocalWaitingThreads )
+{
+    /* Test local copy of threads waiting is larger than zero. */
+    while ( iLocalWaitingThreads > 0 )
+    {
+        /* Test-and-set. Atomically check whether the copy in memory has changed.
+        * And, if not decrease the copy of threads waiting in memory. */
+        if ( ATOMIC_COMPARE_AND_SWAP_SUCCESS == Atomic_CompareAndSwap_u32( ( uint32_t * )&pxCond->iWaitingThreads, ( uint32_t )iLocalWaitingThreads - 1, ( uint32_t )iLocalWaitingThreads ) )
+        {
+            /* Signal one succeeded. Break. */
+            break;
+        }
+
+        /* Local copy may be out dated. Reload, and retry. */
+        iLocalWaitingThreads = pxCond->iWaitingThreads;
+    }
+}
 
 /*-----------------------------------------------------------*/
 
@@ -194,13 +213,19 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
                             pthread_mutex_t * mutex,
                             const struct timespec * abstime )
 {
+    unsigned iLocalWaitingThreads;
     int iStatus = 0;
     pthread_cond_internal_t * pxCond = ( pthread_cond_internal_t * ) ( cond );
     TickType_t xDelay = portMAX_DELAY;
 
     /* If the cond is uninitialized, perform initialization. */
     prvInitializeStaticCond( pxCond );
-
+    if ( xSemaphoreTake( ( SemaphoreHandle_t )&pxCond->xCondWaitSemaphore,
+        xDelay ) == pdPASS )
+    {
+        /* When successful, relock mutex. */
+        iStatus = pthread_mutex_lock( mutex );
+    }
     /* Convert abstime to a delay in TickType_t if provided. */
     if( abstime != NULL )
     {
@@ -221,7 +246,7 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
      * unlock mutex. */
     if( iStatus == 0 )
     {
-        ( void ) Atomic_Increment_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
+        iLocalWaitingThreads = Atomic_Increment_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
 
         iStatus = pthread_mutex_unlock( mutex );
     }
@@ -240,14 +265,14 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
             /* Timeout. Relock mutex and decrement number of waiting threads. */
             iStatus = ETIMEDOUT;
             ( void ) pthread_mutex_lock( mutex );
-
-            ( void ) Atomic_Decrement_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
+            /* Check "atomically" if iLocalWaitingThreads == pxCond->iWaitingThreads and decrement.  */
+            prvTestAndDecrement( pxCond, iLocalWaitingThreads );
         }
     }
     else
     {
-        /* If previous mutex unlock failed, the thread is not waiting on the condition. */
-        ( void ) Atomic_Decrement_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
+        /* Check "atomically" if iLocalWaitingThreads == pxCond->iWaitingThreads and decrement.  */
+        prvTestAndDecrement( pxCond, iLocalWaitingThreads );
     }
 
     return iStatus;
