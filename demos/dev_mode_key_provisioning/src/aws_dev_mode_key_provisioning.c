@@ -79,8 +79,10 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     int lMbedResult = 0;
     CK_BBOOL xTrue = CK_TRUE;
     CK_KEY_TYPE xPrivateKeyType = CKK_EC;
-
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
+
+    ( void * )pucPrivateKey;
+    ( void * )xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -172,12 +174,14 @@ CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     int lMbedResult = 0;
-    CK_BBOOL xTokenStorage = CK_TRUE;
     CK_KEY_TYPE xPrivateKeyType = CKK_RSA;
     mbedtls_rsa_context * xRsaContext = pxMbedPkContext->pk_ctx;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
     RsaParams_t * pxRsaParams = NULL;
     CK_BBOOL xTrue = CK_TRUE;
+
+    (void* )pucPrivateKey;
+    (void* )xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -261,13 +265,9 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             CK_OBJECT_HANDLE_PTR pxObjectHandle )
 {
     CK_RV xResult = CKR_OK;
-    CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     mbedtls_pk_type_t xMbedKeyType = MBEDTLS_PK_NONE;
-    CK_KEY_TYPE xPrivateKeyType = ( CK_KEY_TYPE ) 0xFFFFFFFF; /* Invalid key type value. */
     int lMbedResult = 0;
     mbedtls_pk_context xMbedPkContext = { 0 };
-    CK_BBOOL xTokenStorage = CK_TRUE;
 
     mbedtls_pk_init( &xMbedPkContext );
     lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucPrivateKey, xPrivateKeyLength, NULL, 0 );
@@ -380,13 +380,15 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
         size_t xLength;
         CK_BYTE xEcPoint[ 256 ] = { 0 };
 
-        mbedtls_ecdsa_context * pxEcdsaContext;
-        pxEcdsaContext = ( mbedtls_ecdsa_context * ) xMbedPkContext.pk_ctx;
+        mbedtls_ecdsa_context * pxEcdsaContext = ( mbedtls_ecdsa_context * ) xMbedPkContext.pk_ctx;
 
         /* DER encoded EC point. Leave 2 bytes for the tag and length. */
-        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp, &pxEcdsaContext->Q,
-                                                      MBEDTLS_ECP_PF_UNCOMPRESSED, &xLength,
-                                                      xEcPoint + 2, sizeof( xEcPoint ) - 2 );
+        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp, 
+                                                      &pxEcdsaContext->Q,
+                                                      MBEDTLS_ECP_PF_UNCOMPRESSED, 
+                                                      &xLength,
+                                                      xEcPoint + 2, 
+                                                      sizeof( xEcPoint ) - 2 );
         xEcPoint[ 0 ] = 0x04; /* Octet string. */
         xEcPoint[ 1 ] = ( CK_BYTE ) xLength;
 
@@ -713,6 +715,17 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_HANDLE xObject = 0;
+    CK_BYTE * pxPkcsLabels[] =
+    {
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+        ( CK_BYTE * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+    };
+    CK_OBJECT_CLASS xClass[] =
+    {
+        CKO_CERTIFICATE,
+        CKO_PRIVATE_KEY,
+    };
+    uint32_t ulObjectIndex = 0;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -762,10 +775,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 #endif
 
     /* If a Just-in-Time Provisioning certificate has been provided by the 
-    caller, attempt to import it. It is a known issue that not all crypto tokens
+    caller, attempt to import it. Not all crypto tokens
     and PKCS #11 module implementations provide storage for this particular 
     object. In that case, the statically defined object, if any, will be used
-    instead during TLS session negotiation with AWS IoT. */
+    during TLS session negotiation with AWS IoT. */
     if( xResult == CKR_OK && NULL != pxParams->pucJITPCertificate )
     {
         xResult = xProvisionCertificate( xSession,
@@ -778,6 +791,25 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         {
             xResult = CKR_OK;
             configPRINTF( ( "Warning: no persistent storage is available for the JITP certificate. The certificate in aws_clientcredential_keys.h will be used instead.\r\n" ) );
+        }
+    }
+
+    /* Ensure that the above procedure has ended up with a client certificate and
+    private key available in storage. */
+    if( xResult == CKR_OK )
+    {
+        for( ; ulObjectIndex < sizeof( pxPkcsLabels ) / sizeof( pxPkcsLabels[ 0 ] ); ulObjectIndex++ )
+        {
+            xResult = xFindObjectWithLabelAndClass( xSession,
+                                                    ( const char * )pxPkcsLabels[ ulObjectIndex ],
+                                                    xClass[ ulObjectIndex ],
+                                                    &xObject );
+
+            if( xResult != CKR_OK )
+            {
+                configPRINTF( ( "Error: required crypto object %s is missing.\r\n", pxPkcsLabels[ ulObjectIndex ] ) );
+                break;
+            }
         }
     }
 
@@ -887,15 +919,22 @@ CK_RV vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 
 CK_RV vDevModeKeyProvisioning( void )
 {
-    ProvisioningParams_t xParams = { 0 };
+    ProvisioningParams_t xParams;
+
+    xParams.pucJITPCertificate = (uint8_t* )keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
+    xParams.pucClientPrivateKey = (uint8_t* )keyCLIENT_PRIVATE_KEY_PEM;
+    xParams.pucClientCertificate = (uint8_t* )keyCLIENT_CERTIFICATE_PEM;
 
     /* If using a JITR flow, a JITR certificate must be supplied. If using credentials generated by
      * AWS, this certificate is not needed. */
     if( ( NULL != xParams.pucJITPCertificate ) &&
         ( 0 != strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
     {
-        xParams.pucJITPCertificate = ( uint8_t * )keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
         xParams.ulJITPCertificateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
+    }
+    else
+    {
+        xParams.pucJITPCertificate = NULL;
     }
 
     /* The hard-coded client certificate and private key can be useful for 
@@ -904,15 +943,21 @@ CK_RV vDevModeKeyProvisioning( void )
     if( ( NULL != xParams.pucClientPrivateKey ) &&
         ( 0 != strcmp( "", ( const char * )xParams.pucClientPrivateKey ) ) )
     {
-        xParams.pucClientPrivateKey = ( uint8_t * )keyCLIENT_PRIVATE_KEY_PEM;
         xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
+    }
+    else
+    {
+        xParams.pucClientPrivateKey = NULL;
     }
 
     if( ( NULL != xParams.pucClientCertificate ) ||
         ( 0 != strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
     {
-        xParams.pucClientCertificate = ( uint8_t * )keyCLIENT_CERTIFICATE_PEM;
         xParams.ulClientCertificateLength = 1 + strlen( ( const char * )xParams.pucClientCertificate );
+    }
+    else
+    {
+        xParams.pucClientCertificate = NULL;
     }
 
     return vAlternateKeyProvisioning( &xParams );
