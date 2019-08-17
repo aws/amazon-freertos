@@ -731,6 +731,11 @@ void vShowAvailableMemory( char cMessage[] )
 }
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Initializes the MTMN config for face detection.
+ *
+ * @return mtmn_config that is the configuration object
+ */
 mtmn_config_t init_config()
 {
     mtmn_config_t mtmn_config = { 0 };
@@ -753,6 +758,9 @@ mtmn_config_t init_config()
 }
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Test task that sends a dummy message to the result queue.
+ */
 void vTestTask( void * arg )
 {
     int ulVar = -1;
@@ -775,25 +783,35 @@ void vTestTask( void * arg )
 }
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Facial recognition task to detect, enroll and recognize faces.
+ *
+ * @param[in] initialized To verify if a face is enrolled.
+ */
 void vImageProcessingTask( int initialized )
 {
     IotLogInfo( "Starting the face recognition task" );
 
-    size_t frame_num = 0;
     dl_matrix3du_t * image_matrix = NULL;
     camera_fb_t * fb = NULL;
 
-    /* 1. Load configuration for detection */
+    /* Load configuration for detection */
     mtmn_config_t mtmn_config = init_config();
 
-    /* 2. Preallocate matrix to store aligned face 56x56  */
+    /* Preallocate matrix to store aligned face 56x56  */
     dl_matrix3du_t * aligned_face = dl_matrix3du_alloc( 1,
                                                         FACE_WIDTH,
                                                         FACE_HEIGHT,
                                                         3 );
     int8_t count_down_second; /*second */
     int8_t is_enrolling;
+    int32_t next_enroll_index = 0;
+    int8_t left_sample_face;
 
+    /* Variable to indicate if the resources have been preempted */
+    int8_t free_resources = 1;
+
+    /* If face is already enrolled 'initialized' is set to 1 */
     if( initialized )
     {
         count_down_second = 0;
@@ -805,16 +823,17 @@ void vImageProcessingTask( int initialized )
         is_enrolling = 1;
     }
 
-    int32_t next_enroll_index = 0;
-    int8_t left_sample_face;
-    int8_t free_resources = 1;
     IotLogInfo( "Starting the processing" );
 
+    /* Until a face is detected, take snapshots from the image sensor and run the MTMN model.
+     * Once the face gets detected, align the face and run the FRMN model.
+     * Send the results of the recognition and suspend the task
+     */
     do
     {
         free_resources = 1;
-        int64_t start_time = esp_timer_get_time();
-        /* 3. Get one image with camera */
+
+        /* Get one image snapshot from the camera */
         fb = esp_camera_fb_get();
 
         if( !fb )
@@ -823,13 +842,10 @@ void vImageProcessingTask( int initialized )
             continue;
         }
 
-        int64_t fb_get_time = esp_timer_get_time();
-        /*IotLogInfo( "Get one frame in %lld ms.", (fb_get_time - start_time) / 1000); */
-
-        /* 4. Allocate image matrix to store RGB data */
+        /* Allocate image matrix to store RGB data */
         image_matrix = dl_matrix3du_alloc( 1, fb->width, fb->height, 3 );
 
-        /* 5. Transform image to RGB */
+        /* Transform image to RGB */
         uint32_t res = fmt2rgb888( fb->buf, fb->len, fb->format, image_matrix->item );
 
         if( true != res )
@@ -841,19 +857,17 @@ void vImageProcessingTask( int initialized )
 
         esp_camera_fb_return( fb );
 
-        /* 6. Do face detection */
+        /* Run face detection on the image If the face is detected,
+         * then the location of the face is stored in net boxes*/
         box_array_t * net_boxes = face_detect( image_matrix, &mtmn_config );
-        /*IotLogInfo( "Detection time consumption: %lldms", (esp_timer_get_time() - fb_get_time) / 1000); */
 
+        /* Once a face is detected align the face and run recognition */
         if( net_boxes )
         {
-            frame_num++;
-            /*IotLogInfo( "Face Detection Count: %d", frame_num); */
-
-            /* 5. Do face alignment */
+            /* Do face alignment */
             if( align_face( net_boxes, image_matrix, aligned_face ) == ESP_OK )
             {
-                /*count down */
+                /* Count down to let the user get ready*/
                 while( count_down_second > 0 )
                 {
                     IotLogInfo( "Face ID Enrollment Starts in %ds.\n", count_down_second );
@@ -868,7 +882,7 @@ void vImageProcessingTask( int initialized )
                     }
                 }
 
-                /* 6. Do face enrollment */
+                /* Do face enrollment for first time user */
                 if( is_enrolling == 1 )
                 {
                     heap_caps_print_heap_info( MALLOC_CAP_SPIRAM );
@@ -894,11 +908,13 @@ void vImageProcessingTask( int initialized )
                         }
                     }
                 }
-                /* 6. Do face recognition */
+                /* Do face recognition */
                 else
                 {
                     int64_t recog_match_time = esp_timer_get_time();
 
+                    /* Match the current face id with the enrolled face ids.
+                     * If the subject is verified then matched id = subject id else -1 */
                     int matched_id = recognize_face( &id_list, aligned_face );
 
                     if( matched_id >= 0 )
@@ -911,6 +927,7 @@ void vImageProcessingTask( int initialized )
                         free_resources = 0;
                         IotLogInfo( "Matched Face ID: %d\n", matched_id );
 
+                        /* Send a message that a recognised face is found */
                         if( xResultQueue != 0 )
                         {
                             if( xQueueSendToBack( xResultQueue,
@@ -921,7 +938,7 @@ void vImageProcessingTask( int initialized )
                             }
 
                             IotLogInfo( "Message pushed to queue: Familiar face" );
-                            vTaskSuspend(NULL);
+                            vTaskSuspend( NULL );
                         }
                     }
                     else
@@ -929,6 +946,7 @@ void vImageProcessingTask( int initialized )
                         matched_id = -1;
                         IotLogInfo( "No Matched Face ID\n" );
 
+                        /* Send an Intruder alert */
                         if( xResultQueue != 0 )
                         {
                             free( net_boxes->score );
@@ -946,7 +964,7 @@ void vImageProcessingTask( int initialized )
                             }
 
                             IotLogInfo( "Message pushed to queue: Intruder" );
-                            vTaskSuspend(NULL);
+                            vTaskSuspend( NULL );
                         }
                     }
 
@@ -959,6 +977,7 @@ void vImageProcessingTask( int initialized )
                 IotLogInfo( "Detected face is not proper." );
             }
 
+            /* Cleanup resources if not cleaned */
             if( free_resources )
             {
                 free( net_boxes->score );
@@ -968,6 +987,7 @@ void vImageProcessingTask( int initialized )
             }
         }
 
+        /* Deallocate the 3d matrix */
         if( free_resources )
         {
             dl_matrix3du_free( image_matrix );
@@ -977,7 +997,7 @@ void vImageProcessingTask( int initialized )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief The function that runs the MQTT demo, called by the demo runner.
+ * @brief The function that runs the AIoT demo, called by the demo runner.
  *
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
  * MQTT server. Set this to `false` if using another MQTT server.
@@ -1159,11 +1179,6 @@ int RunAIoTDemo( bool awsIotMqttMode,
                                  xImageTaskHandle,
                                  0 );
     }
-
-    vCameraDeInit();
-    vTaskSuspend( NULL );
-
-
 
     return 0;
 }
