@@ -10,7 +10,6 @@ afr_module_sources(
     INTERFACE
         "${CMAKE_CURRENT_LIST_DIR}/iot_demo_aiot.c"
         "${CMAKE_CURRENT_LIST_DIR}/app_camera.c" 
-        "${CMAKE_CURRENT_LIST_DIR}/app_speech_wakeup.c"
         "${CMAKE_CURRENT_LIST_DIR}/app_speech_recsrc.c"       
 )
 

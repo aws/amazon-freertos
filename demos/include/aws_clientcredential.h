@@ -56,12 +56,12 @@
 /*
  * Wi-Fi network to join.
  */
-#define clientcredentialWIFI_SSID       "Mobile"
+#define clientcredentialWIFI_SSID       "Mint Chocolate Chip"
 
 /*
  * Password needed to join Wi-Fi network.
  */
-#define clientcredentialWIFI_PASSWORD   "Fargate@4048"
+#define clientcredentialWIFI_PASSWORD   "mynametrong"
 
 /**
  * @brief Security type

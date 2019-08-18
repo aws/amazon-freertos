@@ -69,8 +69,10 @@
 #endif
 /** @endcond */
 
+#undef IOT_DEMO_MQTT_PUBLISH_BURST_SIZE
 #define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 1 )
 
+#undef IOT_DEMO_MQTT_PUBLISH_BURST_COUNT
 #define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 1 )
 
 /* Validate MQTT demo configuration settings. */
@@ -202,6 +204,12 @@ QueueHandle_t xResultQueue;
 en_fsm_state g_state = WAIT_FOR_WAKEUP;
 
 static face_id_list id_list = { 0 };
+
+bool face_enroll_done = false;
+
+uint16_t usMessage = 0;
+
+int matched_id;
 /*-----------------------------------------------------------*/
 
 /**
@@ -788,7 +796,7 @@ void vTestTask( void * arg )
  *
  * @param[in] initialized To verify if a face is enrolled.
  */
-void vImageProcessingTask( int initialized )
+void vImageProcessingTask( void * args )
 {
     IotLogInfo( "Starting the face recognition task" );
 
@@ -812,7 +820,7 @@ void vImageProcessingTask( int initialized )
     int8_t free_resources = 1;
 
     /* If face is already enrolled 'initialized' is set to 1 */
-    if( initialized )
+    if( face_enroll_done )
     {
         count_down_second = 0;
         is_enrolling = 0;
@@ -898,6 +906,7 @@ void vImageProcessingTask( int initialized )
                         if( id_list.count == FACE_ID_SAVE_NUMBER )
                         {
                             is_enrolling = 0;
+                            face_enroll_done = true;
                             IotLogInfo( "\n>>> Face Recognition Starts <<<\n" );
                             vTaskDelay( 2000 / portTICK_PERIOD_MS );
                         }
@@ -915,7 +924,7 @@ void vImageProcessingTask( int initialized )
 
                     /* Match the current face id with the enrolled face ids.
                      * If the subject is verified then matched id = subject id else -1 */
-                    int matched_id = recognize_face( &id_list, aligned_face );
+                    matched_id = recognize_face( &id_list, aligned_face );
 
                     if( matched_id >= 0 )
                     {
@@ -997,7 +1006,7 @@ void vImageProcessingTask( int initialized )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief The function that runs the AIoT demo, called by the demo runner.
+ * @brief Publishes a single message to AWS broker
  *
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
  * MQTT server. Set this to `false` if using another MQTT server.
@@ -1010,14 +1019,13 @@ void vImageProcessingTask( int initialized )
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
-int RunAIoTDemo( bool awsIotMqttMode,
+int SendMessage( int usMessage,
+                 bool awsIotMqttMode,
                  const char * pIdentifier,
                  void * pNetworkServerInfo,
                  void * pNetworkCredentialInfo,
                  const IotNetworkInterface_t * pNetworkInterface )
 {
-    uint16_t usMessage = 0;
-    TaskHandle_t xImageTaskHandle = NULL;
     /* Return value of this function and the exit status of this program. */
     int status = EXIT_SUCCESS;
 
@@ -1037,13 +1045,113 @@ int RunAIoTDemo( bool awsIotMqttMode,
     /* Flags for tracking which cleanup functions must be called. */
     bool librariesInitialized = false, connectionEstablished = false;
 
+    /* Initialize the libraries required for this demo. */
+    status = _initializeDemo();
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Mark the libraries as initialized. */
+        librariesInitialized = true;
+
+        /* Establish a new MQTT connection. */
+        status = _establishMqttConnection( awsIotMqttMode,
+                                           pIdentifier,
+                                           pNetworkServerInfo,
+                                           pNetworkCredentialInfo,
+                                           pNetworkInterface,
+                                           &mqttConnection );
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Mark the MQTT connection as established. */
+        connectionEstablished = true;
+
+        /* Add the topic filter subscriptions used in this demo. */
+        status = _modifySubscriptions( mqttConnection,
+                                       IOT_MQTT_SUBSCRIBE,
+                                       pTopics,
+                                       &publishesReceived );
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Create the semaphore to count incoming PUBLISH messages. */
+        if( IotSemaphore_Create( &publishesReceived,
+                                 0,
+                                 IOT_DEMO_MQTT_PUBLISH_BURST_SIZE ) == true )
+        {
+            /* PUBLISH (and wait) for all messages. */
+            status = _publishResult( mqttConnection,
+                                     pTopics,
+                                     &publishesReceived,
+                                     usMessage );
+
+            /* Destroy the incoming PUBLISH counter. */
+            IotSemaphore_Destroy( &publishesReceived );
+        }
+        else
+        {
+            /* Failed to create incoming PUBLISH counter. */
+            status = EXIT_FAILURE;
+        }
+    }
+
+    if( status == EXIT_SUCCESS )
+    {
+        /* Remove the topic subscription filters used in this demo. */
+        status = _modifySubscriptions( mqttConnection,
+                                       IOT_MQTT_UNSUBSCRIBE,
+                                       pTopics,
+                                       NULL );
+    }
+
+    /* Disconnect the MQTT connection if it was established. */
+    if( connectionEstablished == true )
+    {
+        IotMqtt_Disconnect( mqttConnection, 0 );
+    }
+
+    /* Clean up libraries if they were initialized. */
+    if( librariesInitialized == true )
+    {
+        _cleanupDemo();
+    }
+
+    return status;
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The function that runs the AIoT demo, called by the demo runner.
+ *
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
+ * MQTT server. Set this to `false` if using another MQTT server.
+ * @param[in] pIdentifier NULL-terminated MQTT client identifier.
+ * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkInterface The network interface to use for this demo.
+ *
+ * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
+ */
+int RunAIoTDemo( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    TaskHandle_t xImageTaskHandle = NULL;
+
+    /* Return value of this function and the exit status of this program. */
+    int status = EXIT_FAILURE, testCount = 5;
 
     IotLogInfo( "Start the AIoT demo!" );
 
     heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
     vShowAvailableMemory( "At Startup:" );
     /*heap_caps_print_heap_info(MALLOC_CAP_SPIRAM); */
-    IotLogInfo( "\n Starting heap trace \n" );
     vSpeechWakeupInit();
     g_state = WAIT_FOR_WAKEUP;
     vShowAvailableMemory( "After speech init" );
@@ -1055,14 +1163,15 @@ int RunAIoTDemo( bool awsIotMqttMode,
     {
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
+    vTaskDelay( 30 / portTICK_PERIOD_MS );
 
     heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
 
 
     vShowAvailableMemory( "At camera init:" );
+    /* Run the face detection demo */
     xResultQueue = xQueueCreate( 1, sizeof( int ) );
     vCameraInit();
-    /* / *Run the face detection demo* / */
     face_id_init( &id_list,
                   FACE_ID_SAVE_NUMBER,
                   ENROLL_CONFIRM_TIMES );
@@ -1071,8 +1180,8 @@ int RunAIoTDemo( bool awsIotMqttMode,
     vShowAvailableMemory( "Before task creation" );
     xTaskCreatePinnedToCore( &vImageProcessingTask,
                              "ImageProcessing",
-                             8 * 1024,
-                             ( void * ) 0,
+                             4 * 1024,
+                             NULL,
                              5,
                              &xImageTaskHandle,
                              1 );
@@ -1094,90 +1203,37 @@ int RunAIoTDemo( bool awsIotMqttMode,
                 vCameraDeInit();
                 vTaskDelete( xImageTaskHandle );
                 vShowAvailableMemory( "At MQTT startup:" );
-                /* Initialize the libraries required for this demo. */
-                status = _initializeDemo();
-
-                if( status == EXIT_SUCCESS )
-                {
-                    /* Mark the libraries as initialized. */
-                    librariesInitialized = true;
-
-                    /* Establish a new MQTT connection. */
-                    status = _establishMqttConnection( awsIotMqttMode,
-                                                       pIdentifier,
-                                                       pNetworkServerInfo,
-                                                       pNetworkCredentialInfo,
-                                                       pNetworkInterface,
-                                                       &mqttConnection );
-                }
-
-                if( status == EXIT_SUCCESS )
-                {
-                    /* Mark the MQTT connection as established. */
-                    connectionEstablished = true;
-
-                    /* Add the topic filter subscriptions used in this demo. */
-                    status = _modifySubscriptions( mqttConnection,
-                                                   IOT_MQTT_SUBSCRIBE,
-                                                   pTopics,
-                                                   &publishesReceived );
-                }
-
-                if( status == EXIT_SUCCESS )
-                {
-                    /* Create the semaphore to count incoming PUBLISH messages. */
-                    if( IotSemaphore_Create( &publishesReceived,
-                                             0,
-                                             IOT_DEMO_MQTT_PUBLISH_BURST_SIZE ) == true )
-                    {
-                        /* PUBLISH (and wait) for all messages. */
-                        status = _publishResult( mqttConnection,
-                                                 pTopics,
-                                                 &publishesReceived,
-                                                 usMessage );
-
-                        /* Destroy the incoming PUBLISH counter. */
-                        IotSemaphore_Destroy( &publishesReceived );
-                    }
-                    else
-                    {
-                        /* Failed to create incoming PUBLISH counter. */
-                        status = EXIT_FAILURE;
-                    }
-                }
-
-                if( status == EXIT_SUCCESS )
-                {
-                    /* Remove the topic subscription filters used in this demo. */
-                    status = _modifySubscriptions( mqttConnection,
-                                                   IOT_MQTT_UNSUBSCRIBE,
-                                                   pTopics,
-                                                   NULL );
-                }
-
-                /* Disconnect the MQTT connection if it was established. */
-                if( connectionEstablished == true )
-                {
-                    IotMqtt_Disconnect( mqttConnection, 0 );
-                }
-
-                /* Clean up libraries if they were initialized. */
-                if( librariesInitialized == true )
-                {
-                    _cleanupDemo();
-                }
-
-                return status;
             }
-        }
 
-        xTaskCreatePinnedToCore( &vImageProcessingTask,
-                                 "ImageProcessing",
-                                 6 * 1024,
-                                 ( void * ) 1,
-                                 5,
-                                 xImageTaskHandle,
-                                 0 );
+            while( status == EXIT_FAILURE )
+            {
+                status = SendMessage( usMessage,
+                                      awsIotMqttMode,
+                                      pIdentifier,
+                                      pNetworkServerInfo,
+                                      pNetworkCredentialInfo,
+                                      pNetworkInterface );
+                IotLogInfo( "status: %d, count:%d", status, testCount );
+
+                if( testCount == 1 )
+                {
+                    break;
+                }
+
+                testCount--;
+            }
+
+            vShowAvailableMemory( "After MQTT cleanup" );
+            return status;
+
+            /*xTaskCreatePinnedToCore( &vImageProcessingTask,
+             *                       "ImageProcessing",
+             *                       6 * 1024,
+             *                       NULL,
+             *                       5,
+             *                       xImageTaskHandle,
+             *                       0 ); */
+        }
     }
 
     return 0;
