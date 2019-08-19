@@ -296,7 +296,6 @@ void runDemoTask( void * pArgument )
     if( status == EXIT_SUCCESS )
     {
         IotLogInfo( "Successfully initialized the demo. Network type for the demo: %d", demoConnectedNetwork );
-
         pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
         pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
         pCredentials = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );

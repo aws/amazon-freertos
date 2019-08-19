@@ -55,9 +55,17 @@ void vWakeWordNNTask( void * arg )
     {
         /* Wait for incomming messages from the recording task */
         xQueueReceive( xWordBuffer, buffer, portMAX_DELAY );
-
+        vShowAvailableMemory( "bnd" );
+        heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
         /* Check if the word in the buffer matches "Alexa" and trigger the cleanup */
         int r = pxModel->detect( pxModelData, buffer );
+        /* realloc(0x3ffe4351, 0); */
+        vShowAvailableMemory( "and" );
+        heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
+        pxModel->destroy( pxModelData );
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        vShowAvailableMemory( "destroy" );
+        vTaskSuspend( NULL );
 
         if( r )
         {

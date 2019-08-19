@@ -108,7 +108,7 @@
  * TODO: Make sure there is some space left for the app and main cpu when running outside
  * of a thread. */
 #define configAPPLICATION_ALLOCATED_HEAP 1
-#define configTOTAL_HEAP_SIZE			(&_heap_end - &_heap_start)//( ( size_t ) (64 * 1024) )
+    #define configTOTAL_HEAP_SIZE			(&_heap_end - &_heap_start)//( ( size_t ) (64 * 1024) )
 
 #ifndef configIDLE_TASK_STACK_SIZE
     #define configIDLE_TASK_STACK_SIZE CONFIG_FREERTOS_IDLE_TASK_STACKSIZE

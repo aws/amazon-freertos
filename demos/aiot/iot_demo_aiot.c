@@ -206,10 +206,6 @@ en_fsm_state g_state = WAIT_FOR_WAKEUP;
 static face_id_list id_list = { 0 };
 
 bool face_enroll_done = false;
-
-uint16_t usMessage = 0;
-
-int matched_id;
 /*-----------------------------------------------------------*/
 
 /**
@@ -771,7 +767,7 @@ mtmn_config_t init_config()
  */
 void vTestTask( void * arg )
 {
-    int ulVar = -1;
+    int8_t ulVar = -1;
 
     IotLogInfo( "Value of the message: %d", ulVar );
 
@@ -802,7 +798,7 @@ void vImageProcessingTask( void * args )
 
     dl_matrix3du_t * image_matrix = NULL;
     camera_fb_t * fb = NULL;
-
+    int8_t matched_id;
     /* Load configuration for detection */
     mtmn_config_t mtmn_config = init_config();
 
@@ -868,10 +864,13 @@ void vImageProcessingTask( void * args )
         /* Run face detection on the image If the face is detected,
          * then the location of the face is stored in net boxes*/
         box_array_t * net_boxes = face_detect( image_matrix, &mtmn_config );
+        IotLogInfo( "fd" );
 
         /* Once a face is detected align the face and run recognition */
         if( net_boxes )
         {
+            IotLogInfo( "in nb" );
+
             /* Do face alignment */
             if( align_face( net_boxes, image_matrix, aligned_face ) == ESP_OK )
             {
@@ -921,6 +920,7 @@ void vImageProcessingTask( void * args )
                 else
                 {
                     int64_t recog_match_time = esp_timer_get_time();
+                    IotLogInfo( "in fr" );
 
                     /* Match the current face id with the enrolled face ids.
                      * If the subject is verified then matched id = subject id else -1 */
@@ -928,57 +928,41 @@ void vImageProcessingTask( void * args )
 
                     if( matched_id >= 0 )
                     {
-                        free( net_boxes->score );
-                        free( net_boxes->box );
-                        free( net_boxes->landmark );
-                        free( net_boxes );
-                        dl_matrix3du_free( image_matrix );
-                        free_resources = 0;
                         IotLogInfo( "Matched Face ID: %d\n", matched_id );
-
-                        /* Send a message that a recognised face is found */
-                        if( xResultQueue != 0 )
-                        {
-                            if( xQueueSendToBack( xResultQueue,
-                                                  ( void * ) &matched_id,
-                                                  ( TickType_t ) 5 ) != pdPASS )
-                            {
-                                IotLogInfo( "Unable to push the message to the queue" );
-                            }
-
-                            IotLogInfo( "Message pushed to queue: Familiar face" );
-                            vTaskSuspend( NULL );
-                        }
                     }
                     else
                     {
-                        matched_id = -1;
                         IotLogInfo( "No Matched Face ID\n" );
-
-                        /* Send an Intruder alert */
-                        if( xResultQueue != 0 )
-                        {
-                            free( net_boxes->score );
-                            free( net_boxes->box );
-                            free( net_boxes->landmark );
-                            free( net_boxes );
-                            dl_matrix3du_free( image_matrix );
-                            free_resources = 0;
-
-                            if( xQueueSendToBack( xResultQueue,
-                                                  ( void * ) &matched_id,
-                                                  ( TickType_t ) 5 ) != pdPASS )
-                            {
-                                IotLogInfo( "Unable to push the message to the queue" );
-                            }
-
-                            IotLogInfo( "Message pushed to queue: Intruder" );
-                            vTaskSuspend( NULL );
-                        }
                     }
 
                     IotLogInfo( "Recognition time consumption: %lldms",
                                 ( esp_timer_get_time() - recog_match_time ) / 1000 );
+
+                    /* Free the resources */
+                    free( net_boxes->score );
+                    free( net_boxes->box );
+                    free( net_boxes->landmark );
+                    free( net_boxes );
+                    dl_matrix3du_free( image_matrix );
+                    free_resources = 0;
+
+                    /* Send the results of the face recognition to the queue */
+                    if( xResultQueue != 0 )
+                    {
+                        
+                        if( xQueueSendToBack( xResultQueue,
+                                              ( void * ) &matched_id,
+                                              ( TickType_t ) 5 ) != pdPASS )
+                        {
+                            IotLogInfo( "Unable to push the message to the queue" );
+                        }
+                        else
+                        {
+                            IotLogInfo( "Message pushed to the back of the queue" );
+                            vTaskSuspend( NULL );
+                        }         
+                        
+                    }
                 }
             }
             else
@@ -1019,7 +1003,7 @@ void vImageProcessingTask( void * args )
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
-int SendMessage( int usMessage,
+int SendMessage( int8_t cMessage,
                  bool awsIotMqttMode,
                  const char * pIdentifier,
                  void * pNetworkServerInfo,
@@ -1085,7 +1069,7 @@ int SendMessage( int usMessage,
             status = _publishResult( mqttConnection,
                                      pTopics,
                                      &publishesReceived,
-                                     usMessage );
+                                     cMessage );
 
             /* Destroy the incoming PUBLISH counter. */
             IotSemaphore_Destroy( &publishesReceived );
@@ -1136,13 +1120,14 @@ int SendMessage( int usMessage,
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
-int RunAIoTDemo( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface )
+int RunAIoTDemo2( bool awsIotMqttMode,
+                  const char * pIdentifier,
+                  void * pNetworkServerInfo,
+                  void * pNetworkCredentialInfo,
+                  const IotNetworkInterface_t * pNetworkInterface )
 {
     TaskHandle_t xImageTaskHandle = NULL;
+    int8_t cMessage;
 
     /* Return value of this function and the exit status of this program. */
     int status = EXIT_FAILURE, testCount = 5;
@@ -1163,15 +1148,18 @@ int RunAIoTDemo( bool awsIotMqttMode,
     {
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
+
     vTaskDelay( 30 / portTICK_PERIOD_MS );
 
     heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
 
 
+
     vShowAvailableMemory( "At camera init:" );
     /* Run the face detection demo */
-    xResultQueue = xQueueCreate( 1, sizeof( int ) );
+    xResultQueue = xQueueCreate( 1, sizeof( int8_t ) );
     vCameraInit();
+
     face_id_init( &id_list,
                   FACE_ID_SAVE_NUMBER,
                   ENROLL_CONFIRM_TIMES );
@@ -1193,21 +1181,21 @@ int RunAIoTDemo( bool awsIotMqttMode,
         if( xResultQueue != 0 )
         {
             xQueueReceive( xResultQueue,
-                           &usMessage,
+                           &cMessage,
                            portMAX_DELAY );
 
-            IotLogInfo( "Got the message: %d", usMessage );
+            IotLogInfo( "Got the message: %d", cMessage );
 
             if( xImageTaskHandle != NULL )
             {
                 vCameraDeInit();
-                vTaskDelete( xImageTaskHandle );
+                /*vTaskDelete( xImageTaskHandle ); */
                 vShowAvailableMemory( "At MQTT startup:" );
             }
 
             while( status == EXIT_FAILURE )
             {
-                status = SendMessage( usMessage,
+                status = SendMessage( cMessage,
                                       awsIotMqttMode,
                                       pIdentifier,
                                       pNetworkServerInfo,
@@ -1239,3 +1227,97 @@ int RunAIoTDemo( bool awsIotMqttMode,
     return 0;
 }
 /*-----------------------------------------------------------*/
+
+/**
+ * @brief The function that runs the AIoT demo, called by the demo runner.
+ *
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
+ * MQTT server. Set this to `false` if using another MQTT server.
+ * @param[in] pIdentifier NULL-terminated MQTT client identifier.
+ * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkInterface The network interface to use for this demo.
+ *
+ * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
+ */
+int RunAIoTDemo( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    TaskHandle_t xImageTaskHandle = NULL;
+    int8_t cMessage;
+
+    /* Return value of this function and the exit status of this program. */
+    int status = EXIT_FAILURE, testCount = 5;
+
+    IotLogInfo( "Start the AIoT demo!" );
+
+    heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
+    vShowAvailableMemory( "At Startup:" );
+
+    /* Run the face detection demo */
+    xResultQueue = xQueueCreate( 1, sizeof( int8_t ) );
+    vCameraInit();
+
+    face_id_init( &id_list,
+                  FACE_ID_SAVE_NUMBER,
+                  ENROLL_CONFIRM_TIMES );
+
+    IotLogInfo( "Camera init done" );
+    vShowAvailableMemory( "Before task creation" );
+    xTaskCreatePinnedToCore( &vImageProcessingTask,
+                             "ImageProcessing",
+                             4 * 1024,
+                             NULL,
+                             5,
+                             &xImageTaskHandle,
+                             1 );
+
+    while( 1 )
+    {
+        vShowAvailableMemory( "Inside loop :" );
+        testCount = 5;
+        status = EXIT_FAILURE;
+        if( xResultQueue != 0 )
+        {
+            xQueueReceive( xResultQueue,
+                           &cMessage,
+                           portMAX_DELAY );
+
+            IotLogInfo( "Got the message: %d", cMessage );
+            vCameraDeInit();
+            vShowAvailableMemory( "Before MQTT :" );
+
+            while( status == EXIT_FAILURE )
+            {
+                status = SendMessage( cMessage,
+                                      awsIotMqttMode,
+                                      pIdentifier,
+                                      pNetworkServerInfo,
+                                      pNetworkCredentialInfo,
+                                      pNetworkInterface 
+                                      );
+                IotLogInfo( "status: %d, count:%d", status, testCount );
+
+                if( testCount == 1 )
+                {
+                    break;
+                }
+
+                testCount--;
+            }
+
+            vShowAvailableMemory( "After MQTT cleanup" );
+            vCameraInit();
+            vTaskResume(xImageTaskHandle);
+        }
+    }
+
+    return 0;
+}
+/*-----------------------------------------------------------*/
+
