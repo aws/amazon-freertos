@@ -1,9 +1,8 @@
 afr_module()
 
 afr_set_lib_metadata(ID "https")
-afr_set_lib_metadata(DESCRIPTION "This library implements the HTTP/1.1 protocol that enables \
-communication with AWS IoT.")
-afr_set_lib_metadata(DISPLAY_NAME "HTTPS")
+afr_set_lib_metadata(DESCRIPTION "This library implements the HTTPS client side protocol.")
+afr_set_lib_metadata(DISPLAY_NAME "HTTPS Client")
 afr_set_lib_metadata(CATEGORY "Connectivity")
 afr_set_lib_metadata(VERSION "1.0.0")
 afr_set_lib_metadata(IS_VISIBLE "true")
