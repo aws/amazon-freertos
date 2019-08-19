@@ -182,12 +182,12 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
 /**
  * @brief The function that runs the HTTPS Synchronous Download demo.
  *
- * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server. Set this to `false` if using
- *      another MQTT server. This parameter is not used for this demo.
- * @param[in] pIdentifier NULL-terminated MQTT client identifier. The demo starting parameters are built for core MQTT.
- *      but this demo ignores these parameters.
- * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo. This is ignored in this demo.
- * @param[in] pNetworkCredentialInfo Contains credential Info specific for the MQTT demo. This is ignored in this demo.
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server.
+ *     This demo ignores this parameters.
+ * @param[in] pIdentifier NULL-terminated MQTT client identifier. This demo ignores this parameter.
+ * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo.
+ *     This demo ignores this parameter.
+ * @param[in] pNetworkCredentialInfo Contains credential Info for a TLS connection.
  * @param[in] pNetworkInterface Contains the network interface interaction routines.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.

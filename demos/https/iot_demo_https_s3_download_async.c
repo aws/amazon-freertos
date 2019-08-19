@@ -25,7 +25,8 @@
 
 /**
  * @file iot_demo_https_async.c
- * @brief Demonstrates asynchronous usage of the HTTPS library by performing a partial content GET request on afile from S3.
+ * @brief Demonstrates asynchronous usage of the HTTPS library by performing a partial content GET request on a file
+ * from S3.
  */
 
 /* The config header is always included first. */
@@ -518,15 +519,13 @@ static void _errorCallback( void * pPrivData,
 /**
  * @brief The function that runs the HTTPS Asynchronous demo.
  *
- * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
- * MQTT server. Set this to `false` if using another MQTT server.
- * @param[in] pIdentifier NULL-terminated MQTT client identifier. The demo starting parameters are built for core MQTT.
- *  but this demo ignores these parameters.
- * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pNetworkInterface The network interface to use for this demo.
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server.
+ *     This demo ignores this parameters.
+ * @param[in] pIdentifier NULL-terminated MQTT client identifier. This demo ignores this parameter.
+ * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo.
+ *     This demo ignores this parameter.
+ * @param[in] pNetworkCredentialInfo Contains credential Info for a TLS connection.
+ * @param[in] pNetworkInterface Contains the network interface interaction routines.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
@@ -633,7 +632,6 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     if( fileFinishedSemCreated == false )
     {
         IotLogError( "Failed to create a semaphore to wait for the response to finish." );
-        IotMutex_Destroy( &( _inUseRequestsMutex ) );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
@@ -792,15 +790,24 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
+    /* The file was downloaded successfully when the bytes downloaded is equal to the file size. */
+    if( _bytesFileDownloadedSoFar != _fileSize )
+    {
+        IotLogError( "The file was not fully downloaded. Bytes downloaded: %d/%d.",
+                     _bytesFileDownloadedSoFar,
+                     _fileSize );
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+    }
+
     IOT_FUNCTION_CLEANUP_BEGIN();
 
     /* Clean up all resources created with this demo. */
-    if( inUseRequestMutexCreated == false )
+    if( inUseRequestMutexCreated )
     {
         IotMutex_Destroy( &( _inUseRequestsMutex ) );
     }
 
-    if( fileFinishedSemCreated == false )
+    if( fileFinishedSemCreated )
     {
         IotSemaphore_Destroy( &( _fileFinishedSem ) );
     }
