@@ -933,7 +933,7 @@ CK_RV vDevModeKeyProvisioning( void )
         ( 0 != strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
     {
         /* We want the NULL terminator to be written to storage, so include it
-        in the length calculation. */
+         * in the length calculation. */
         xParams.ulJITPCertificateLength = sizeof( char ) + strlen( ( const char * ) xParams.pucJITPCertificate );
     }
     else
@@ -948,7 +948,7 @@ CK_RV vDevModeKeyProvisioning( void )
         ( 0 != strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) )
     {
         /* We want the NULL terminator to be written to storage, so include it
-        in the length calculation. */
+         * in the length calculation. */
         xParams.ulClientPrivateKeyLength = sizeof( char ) + strlen( ( const char * ) xParams.pucClientPrivateKey );
     }
     else
@@ -960,7 +960,7 @@ CK_RV vDevModeKeyProvisioning( void )
         ( 0 != strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
     {
         /* We want the NULL terminator to be written to storage, so include it
-        in the length calculation. */
+         * in the length calculation. */
         xParams.ulClientCertificateLength = sizeof( char ) + strlen( ( const char * ) xParams.pucClientCertificate );
     }
     else
