@@ -562,12 +562,12 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     }
 
     /* Free certificate buffer since the parsing is complete */
-    if (NULL != pxCertificate)
+    if( NULL != pxCertificate )
     {
-        vPortFree(pxCertificate);
+        vPortFree( pxCertificate );
         pxCertificate = NULL;
     }
-    
+
     /*
      * Add a JITR device issuer certificate, if present.
      */
@@ -580,47 +580,47 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                                 &xCertObj );
     }
 
-    if (xCertObj != CK_INVALID_HANDLE)
+    if( xCertObj != CK_INVALID_HANDLE )
     {
-        if (0 == xResult)
+        if( 0 == xResult )
         {
             /* Query the JITR certificate size. */
-            xTemplate[0].type = CKA_VALUE;
-            xTemplate[0].ulValueLen = 0;
-            xTemplate[0].pValue = NULL;
-            xResult = (BaseType_t)pxCtx->pxP11FunctionList->C_GetAttributeValue(pxCtx->xP11Session,
-                xCertObj,
-                xTemplate,
-                1);
+            xTemplate[ 0 ].type = CKA_VALUE;
+            xTemplate[ 0 ].ulValueLen = 0;
+            xTemplate[ 0 ].pValue = NULL;
+            xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
+                                                                                    xCertObj,
+                                                                                    xTemplate,
+                                                                                    1 );
         }
 
-        if (0 == xResult)
+        if( 0 == xResult )
         {
             /* Create a buffer for the certificate. */
-            pxCertificate = (CK_BYTE_PTR)pvPortMalloc(xTemplate[0].ulValueLen); /*lint !e9079 Allow casting void* to other types. */
+            pxCertificate = ( CK_BYTE_PTR ) pvPortMalloc( xTemplate[ 0 ].ulValueLen ); /*lint !e9079 Allow casting void* to other types. */
 
-            if (NULL == pxCertificate)
+            if( NULL == pxCertificate )
             {
-                xResult = (BaseType_t)CKR_HOST_MEMORY;
+                xResult = ( BaseType_t ) CKR_HOST_MEMORY;
             }
         }
 
-        if (0 == xResult)
+        if( 0 == xResult )
         {
             /* Export the certificate. */
-            xTemplate[0].pValue = pxCertificate;
-            xResult = (BaseType_t)pxCtx->pxP11FunctionList->C_GetAttributeValue(pxCtx->xP11Session,
-                xCertObj,
-                xTemplate,
-                1);
+            xTemplate[ 0 ].pValue = pxCertificate;
+            xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_GetAttributeValue( pxCtx->xP11Session,
+                                                                                    xCertObj,
+                                                                                    xTemplate,
+                                                                                    1 );
         }
 
-        if (0 == xResult)
+        if( 0 == xResult )
         {
             /* Decode the JITR certificate. */
-            xResult = mbedtls_x509_crt_parse(&pxCtx->xMbedX509Cli,
-                (const unsigned char*)pxCertificate,
-                xTemplate[0].ulValueLen);
+            xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509Cli,
+                                              ( const unsigned char * ) pxCertificate,
+                                              xTemplate[ 0 ].ulValueLen );
         }
     }
 
