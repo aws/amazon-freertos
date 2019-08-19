@@ -54,6 +54,14 @@ class OtaTestRunner:
         testRunner.runTests()
     """
     def __init__(self, boardConfig, stageParams):
+        # Override AWS credentials if provided in config.
+        if boardConfig.get('aws_access_id'):
+            os.environ['AWS_ACCESS_KEY_ID'] = boardConfig['aws_access_id']
+        if boardConfig.get('aws_secret_key'):
+            os.environ['AWS_SECRET_ACCESS_KEY'] = boardConfig['aws_secret_key']
+        if boardConfig.get('aws_region_name'):
+            os.environ['AWS_DEFAULT_REGION'] = boardConfig['aws_region_name']
+
         self._boardConfig = boardConfig
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
