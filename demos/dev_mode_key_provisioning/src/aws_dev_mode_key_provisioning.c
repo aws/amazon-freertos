@@ -81,8 +81,8 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     CK_KEY_TYPE xPrivateKeyType = CKK_EC;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
 
-    ( void * ) pucPrivateKey;
-    ( void * ) xPrivateKeyLength;
+    ( void ) pucPrivateKey;
+    ( void ) xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -180,8 +180,8 @@ CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
     RsaParams_t * pxRsaParams = NULL;
     CK_BBOOL xTrue = CK_TRUE;
 
-    ( void * ) pucPrivateKey;
-    ( void * ) xPrivateKeyLength;
+    ( void ) pucPrivateKey;
+    ( void ) xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -932,7 +932,9 @@ CK_RV vDevModeKeyProvisioning( void )
     if( ( NULL != xParams.pucJITPCertificate ) &&
         ( 0 != strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
     {
-        xParams.ulJITPCertificateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
+        /* We want the NULL terminator to be written to storage, so include it
+        in the length calculation. */
+        xParams.ulJITPCertificateLength = sizeof( char ) + strlen( ( const char * ) xParams.pucJITPCertificate );
     }
     else
     {
@@ -945,7 +947,9 @@ CK_RV vDevModeKeyProvisioning( void )
     if( ( NULL != xParams.pucClientPrivateKey ) &&
         ( 0 != strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) )
     {
-        xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
+        /* We want the NULL terminator to be written to storage, so include it
+        in the length calculation. */
+        xParams.ulClientPrivateKeyLength = sizeof( char ) + strlen( ( const char * ) xParams.pucClientPrivateKey );
     }
     else
     {
@@ -955,7 +959,9 @@ CK_RV vDevModeKeyProvisioning( void )
     if( ( NULL != xParams.pucClientCertificate ) ||
         ( 0 != strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
     {
-        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pucClientCertificate );
+        /* We want the NULL terminator to be written to storage, so include it
+        in the length calculation. */
+        xParams.ulClientCertificateLength = sizeof( char ) + strlen( ( const char * ) xParams.pucClientCertificate );
     }
     else
     {
