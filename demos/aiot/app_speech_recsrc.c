@@ -26,11 +26,14 @@
 
 
 #define SR_MODEL    esp_sr_wakenet3_quantized
+
 /* structure for sharing the audio buffer */
 static src_cfg_t srcif;
+
 /*containers for storing model data */
 static const esp_sr_iface_t * pxModel = &SR_MODEL;
 static model_iface_data_t * pxModelData;
+
 /* queue that acts as an audio buffer */
 QueueHandle_t xWordBuffer;
 
@@ -42,43 +45,26 @@ QueueHandle_t xWordBuffer;
  */
 void vWakeWordNNTask( void * arg )
 {
-    printf( "\nNN Task Starts\n" );
-
     /* Initailize a buffer to store the sample from the datasize of the wake word */
     int audio_chunksize = pxModel->get_samp_chunksize( pxModelData );
     int16_t * buffer = malloc( audio_chunksize * sizeof( int16_t ) );
     assert( buffer );
-    vShowAvailableMemory( "After buffer alloc in NN task" );
 
     /* Read from the buffer until a match is found */
-    while( g_state == WAIT_FOR_WAKEUP )
+    while( 1 )
     {
         /* Wait for incomming messages from the recording task */
         xQueueReceive( xWordBuffer, buffer, portMAX_DELAY );
-        vShowAvailableMemory( "bnd" );
-        heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
+
         /* Check if the word in the buffer matches "Alexa" and trigger the cleanup */
         int r = pxModel->detect( pxModelData, buffer );
-        /* realloc(0x3ffe4351, 0); */
-        vShowAvailableMemory( "and" );
-        heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
-        pxModel->destroy( pxModelData );
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
-        vShowAvailableMemory( "destroy" );
-        vTaskSuspend( NULL );
 
         if( r )
         {
             assert( g_state == WAIT_FOR_WAKEUP );
             printf( "%s DETECTED.\n", pxModel->get_word_name( pxModelData, r ) );
-            heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
-            g_state = STOP_REC;
-            printf( "\nState changed\n" );
-
-            /* Check for messages on the queue so that the rec task is not blocked on the queue and can be cleaned*/
-            xQueueReceive( xWordBuffer,
-                           buffer,
-                           ( TickType_t ) 10 );
+            printf( "\nStarting Face Recognition\n" );
+            g_state = START_RECOGNITION;     
         }
     }
 
@@ -88,14 +74,10 @@ void vWakeWordNNTask( void * arg )
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
-    vShowAvailableMemory( "After NN" );
-
     /* Initiate clean up of resources used by the NN task and delete it */
     free( buffer );
     pxModel->destroy( pxModelData );
     vQueueDelete( xWordBuffer );
-    printf( "\nNN Task Ends\n" );
-    vShowAvailableMemory( "After NN cleanup" );
 
     /* Signal the start of facial recognition */
     g_state = START_RECOGNITION;
@@ -151,10 +133,7 @@ static void vI2sOperations( int operation )
  */
 void vRecordingTask( void * arg )
 {
-    printf( "\nRec Task Starts\n" );
-    vShowAvailableMemory( "After Rec task starts" );
     vI2sOperations( 0 );
-    vShowAvailableMemory( "After i2s init:" );
 
     /* Initialize the sample from the configuration */
     src_cfg_t * cfg = ( src_cfg_t * ) arg;
@@ -163,8 +142,13 @@ void vRecordingTask( void * arg )
     size_t read_len = 0;
 
     /* Keep sampling the audio and adding it to the queue until the state changes */
-    while( g_state == WAIT_FOR_WAKEUP )
+    while( 1 )
     {
+        while( g_state != WAIT_FOR_WAKEUP )
+        {
+            vTaskDelay( 1000 / portTICK_PERIOD_MS );
+        }
+
         i2s_read( 1, samp, samp_len, &read_len, portMAX_DELAY );
 
         /* Generate the sample */
@@ -186,11 +170,7 @@ void vRecordingTask( void * arg )
 
     /* Initialize cleanup of resources */
     free( samp );
-    vShowAvailableMemory( "Before i2s deinit:" );
     vI2sOperations( 1 );
-    vShowAvailableMemory( "After i2s deinit:" );
-    printf( "\nRec Task Ends\n" );
-    vShowAvailableMemory( "After Rec task end" );
 
     /* Trigger state change to stop the recognititon task */
     g_state = STOP_NN;
@@ -203,8 +183,6 @@ void vRecordingTask( void * arg )
  */
 void vSpeechWakeupInit()
 {
-    vShowAvailableMemory( "Before pxModel creation" );
-
     /*Initialize NN Model */
     pxModelData = pxModel->create( DET_MODE_95 );
     int audio_chunksize = pxModel->get_samp_chunksize( pxModelData );
@@ -213,8 +191,6 @@ void vSpeechWakeupInit()
     xWordBuffer = xQueueCreate( 2, ( audio_chunksize * sizeof( int16_t ) ) );
     srcif.queue = &xWordBuffer;
     srcif.item_size = audio_chunksize * sizeof( int16_t );
-
-    vShowAvailableMemory( "Before voice task creation" );
 
     /*Initialize the recording and recognition tasks */
     xTaskCreatePinnedToCore( &vRecordingTask,
@@ -232,7 +208,5 @@ void vSpeechWakeupInit()
                              5,
                              NULL,
                              1 );
-
-    vShowAvailableMemory( "After voice task creation" );
 }
 /*-----------------------------------------------------------*/

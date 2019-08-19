@@ -1126,7 +1126,7 @@ int RunAIoTFaceDemo( bool awsIotMqttMode,
     /* Stores the results of the Face recognition */
     int8_t cMessage;
 
-    /*handle for the image recognition task */
+    /* Handle for the image recognition task */
     TaskHandle_t xImageTaskHandle = NULL;
 
     IotLogInfo( "Starting the AIoT demo!" );
@@ -1142,7 +1142,7 @@ int RunAIoTFaceDemo( bool awsIotMqttMode,
 
     IotLogInfo( "Camera init done" );
 
-    /*Create the Facial recognition task with the handle */
+    /* Create the Facial recognition task with the handle */
     xTaskCreatePinnedToCore( &vImageProcessingTask,
                              "ImageProcessing",
                              4 * 1024,
@@ -1196,6 +1196,111 @@ int RunAIoTFaceDemo( bool awsIotMqttMode,
 
             /* Reinitialize the camera and resume the facial recognition task */
             vCameraInit();
+            vTaskResume( xImageTaskHandle );
+        }
+    }
+
+    return 0;
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The function that runs the AIoT demo, called by the demo runner.
+ *
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
+ * MQTT server. Set this to `false` if using another MQTT server.
+ * @param[in] pIdentifier NULL-terminated MQTT client identifier.
+ * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkInterface The network interface to use for this demo.
+ *
+ * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
+ */
+int RunAIoTDemo( bool awsIotMqttMode,
+                 const char * pIdentifier,
+                 void * pNetworkServerInfo,
+                 void * pNetworkCredentialInfo,
+                 const IotNetworkInterface_t * pNetworkInterface )
+{
+    /* Stores the results of the Face recognition */
+    int8_t cMessage;
+
+    /* Handle for the image recognition task */
+    TaskHandle_t xImageTaskHandle = NULL;
+
+    IotLogInfo( "Start the AIoT demo!" );
+
+    /*Initialize the voice wakeup which starts the recorder and NN task */
+    vSpeechWakeupInit();
+    g_state = WAIT_FOR_WAKEUP;
+
+    vTaskDelay( 30 / portTICK_PERIOD_MS );
+    IotLogInfo( "Please say 'Alexa' to the board" );
+
+    /* Wait for the wake word to be detected. Detection is signaled by state change. */
+    while( g_state != START_RECOGNITION )
+    {
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
+    /* Start the Facial Recognition functions */
+
+    /* Queue for inter task communication that is a buffer for storing the results */
+    xResultQueue = xQueueCreate( 1, sizeof( int8_t ) );
+
+    /* Initialize the image sensor and memory for storing the faces */
+    vCameraInit();
+    face_id_init( &id_list,
+                  FACE_ID_SAVE_NUMBER,
+                  ENROLL_CONFIRM_TIMES );
+
+    IotLogInfo( "Camera init done" );
+
+    /* Create the Facial recognition task with the handle */
+    xTaskCreatePinnedToCore( &vImageProcessingTask,
+                             "ImageProcessing",
+                             4 * 1024,
+                             NULL,
+                             5,
+                             &xImageTaskHandle,
+                             1 );
+
+    /* Run the face recognition loop:
+     * Wait for results of the IP task
+     * Display the message and restart the voice wakeup
+     * After "Alexa" is detected resume the IP task
+     */
+    while( 1 )
+    {
+        if( xResultQueue != 0 )
+        {
+            /*Wait for the the result of the recognition task to be pushed on the queue */
+            xQueueReceive( xResultQueue,
+                           &cMessage,
+                           portMAX_DELAY );
+
+            IotLogInfo( "Got the message: %d", cMessage );
+
+            if( cMessage >= 0 )
+            {
+                IotLogInfo( "Subject Identified: %d", cMessage );
+            }
+            else
+            {
+                IotLogInfo( "Intruder Alert" );
+            }
+
+            /* Resume the voice recognition task */
+            g_state = WAIT_FOR_WAKEUP;
+
+            while( g_state != START_RECOGNITION )
+            {
+                vTaskDelay( 1000 / portTICK_PERIOD_MS );
+            }
+
+            /* Resume the face recognition task */
             vTaskResume( xImageTaskHandle );
         }
     }
