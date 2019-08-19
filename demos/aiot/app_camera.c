@@ -21,7 +21,7 @@
  */
 #include "aiot_esp_config.h"
 #include "app_camera.h"
-static const char *TAG = "app_camera";
+static const char * TAG = "app_camera";
 
 void vCameraInit()
 {
@@ -39,7 +39,6 @@ void vCameraInit()
         gpio_config( &conf );
         conf.pin_bit_mask = 1LL << 14;
         gpio_config( &conf );
-        printf( "Y2 pin: %d , Y3 pin: %d", Y2_GPIO_NUM, Y3_GPIO_NUM );
     #endif /* if CONFIG_CAMERA_MODEL_ESP_EYE */
     camera_config_t config;
     config.ledc_channel = LEDC_CHANNEL_0;

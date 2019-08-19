@@ -864,13 +864,10 @@ void vImageProcessingTask( void * args )
         /* Run face detection on the image If the face is detected,
          * then the location of the face is stored in net boxes*/
         box_array_t * net_boxes = face_detect( image_matrix, &mtmn_config );
-        IotLogInfo( "fd" );
 
         /* Once a face is detected align the face and run recognition */
         if( net_boxes )
         {
-            IotLogInfo( "in nb" );
-
             /* Do face alignment */
             if( align_face( net_boxes, image_matrix, aligned_face ) == ESP_OK )
             {
@@ -920,7 +917,6 @@ void vImageProcessingTask( void * args )
                 else
                 {
                     int64_t recog_match_time = esp_timer_get_time();
-                    IotLogInfo( "in fr" );
 
                     /* Match the current face id with the enrolled face ids.
                      * If the subject is verified then matched id = subject id else -1 */
@@ -949,7 +945,6 @@ void vImageProcessingTask( void * args )
                     /* Send the results of the face recognition to the queue */
                     if( xResultQueue != 0 )
                     {
-                        
                         if( xQueueSendToBack( xResultQueue,
                                               ( void * ) &matched_id,
                                               ( TickType_t ) 5 ) != pdPASS )
@@ -960,8 +955,7 @@ void vImageProcessingTask( void * args )
                         {
                             IotLogInfo( "Message pushed to the back of the queue" );
                             vTaskSuspend( NULL );
-                        }         
-                        
+                        }
                     }
                 }
             }
@@ -1120,52 +1114,35 @@ int SendMessage( int8_t cMessage,
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
-int RunAIoTDemo2( bool awsIotMqttMode,
-                  const char * pIdentifier,
-                  void * pNetworkServerInfo,
-                  void * pNetworkCredentialInfo,
-                  const IotNetworkInterface_t * pNetworkInterface )
+int RunAIoTFaceDemo( bool awsIotMqttMode,
+                     const char * pIdentifier,
+                     void * pNetworkServerInfo,
+                     void * pNetworkCredentialInfo,
+                     const IotNetworkInterface_t * pNetworkInterface )
 {
-    TaskHandle_t xImageTaskHandle = NULL;
-    int8_t cMessage;
-
-    /* Return value of this function and the exit status of this program. */
+    /* Status of the mqtt function and the number of times to retry in case of failure*/
     int status = EXIT_FAILURE, testCount = 5;
 
-    IotLogInfo( "Start the AIoT demo!" );
+    /* Stores the results of the Face recognition */
+    int8_t cMessage;
 
-    heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
-    vShowAvailableMemory( "At Startup:" );
-    /*heap_caps_print_heap_info(MALLOC_CAP_SPIRAM); */
-    vSpeechWakeupInit();
-    g_state = WAIT_FOR_WAKEUP;
-    vShowAvailableMemory( "After speech init" );
+    /*handle for the image recognition task */
+    TaskHandle_t xImageTaskHandle = NULL;
 
-    vTaskDelay( 30 / portTICK_PERIOD_MS );
-    IotLogInfo( "Please say 'Alexa' to the board" );
+    IotLogInfo( "Starting the AIoT demo!" );
 
-    while( g_state != START_RECOGNITION )
-    {
-        vTaskDelay( 1000 / portTICK_PERIOD_MS );
-    }
-
-    vTaskDelay( 30 / portTICK_PERIOD_MS );
-
-    heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
-
-
-
-    vShowAvailableMemory( "At camera init:" );
-    /* Run the face detection demo */
+    /* Queue for inter task communication that is a buffer for storing the results */
     xResultQueue = xQueueCreate( 1, sizeof( int8_t ) );
-    vCameraInit();
 
+    /* Initialize the image sensor and memory for storing the faces */
+    vCameraInit();
     face_id_init( &id_list,
                   FACE_ID_SAVE_NUMBER,
                   ENROLL_CONFIRM_TIMES );
 
     IotLogInfo( "Camera init done" );
-    vShowAvailableMemory( "Before task creation" );
+
+    /*Create the Facial recognition task with the handle */
     xTaskCreatePinnedToCore( &vImageProcessingTask,
                              "ImageProcessing",
                              4 * 1024,
@@ -1174,124 +1151,28 @@ int RunAIoTDemo2( bool awsIotMqttMode,
                              &xImageTaskHandle,
                              1 );
 
+    /* Run the face recognition loop: Wait until there is a message on the queue.
+     * publish the message to cloud
+     * reinitialize the resources and unblock the IP task */
     while( 1 )
     {
-        vShowAvailableMemory( "Inside loop :" );
-
-        if( xResultQueue != 0 )
-        {
-            xQueueReceive( xResultQueue,
-                           &cMessage,
-                           portMAX_DELAY );
-
-            IotLogInfo( "Got the message: %d", cMessage );
-
-            if( xImageTaskHandle != NULL )
-            {
-                vCameraDeInit();
-                /*vTaskDelete( xImageTaskHandle ); */
-                vShowAvailableMemory( "At MQTT startup:" );
-            }
-
-            while( status == EXIT_FAILURE )
-            {
-                status = SendMessage( cMessage,
-                                      awsIotMqttMode,
-                                      pIdentifier,
-                                      pNetworkServerInfo,
-                                      pNetworkCredentialInfo,
-                                      pNetworkInterface );
-                IotLogInfo( "status: %d, count:%d", status, testCount );
-
-                if( testCount == 1 )
-                {
-                    break;
-                }
-
-                testCount--;
-            }
-
-            vShowAvailableMemory( "After MQTT cleanup" );
-            return status;
-
-            /*xTaskCreatePinnedToCore( &vImageProcessingTask,
-             *                       "ImageProcessing",
-             *                       6 * 1024,
-             *                       NULL,
-             *                       5,
-             *                       xImageTaskHandle,
-             *                       0 ); */
-        }
-    }
-
-    return 0;
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief The function that runs the AIoT demo, called by the demo runner.
- *
- * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
- * MQTT server. Set this to `false` if using another MQTT server.
- * @param[in] pIdentifier NULL-terminated MQTT client identifier.
- * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
- * establishing the MQTT connection.
- * @param[in] pNetworkInterface The network interface to use for this demo.
- *
- * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
- */
-int RunAIoTDemo( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface )
-{
-    TaskHandle_t xImageTaskHandle = NULL;
-    int8_t cMessage;
-
-    /* Return value of this function and the exit status of this program. */
-    int status = EXIT_FAILURE, testCount = 5;
-
-    IotLogInfo( "Start the AIoT demo!" );
-
-    heap_caps_print_heap_info( MALLOC_CAP_INTERNAL );
-    vShowAvailableMemory( "At Startup:" );
-
-    /* Run the face detection demo */
-    xResultQueue = xQueueCreate( 1, sizeof( int8_t ) );
-    vCameraInit();
-
-    face_id_init( &id_list,
-                  FACE_ID_SAVE_NUMBER,
-                  ENROLL_CONFIRM_TIMES );
-
-    IotLogInfo( "Camera init done" );
-    vShowAvailableMemory( "Before task creation" );
-    xTaskCreatePinnedToCore( &vImageProcessingTask,
-                             "ImageProcessing",
-                             4 * 1024,
-                             NULL,
-                             5,
-                             &xImageTaskHandle,
-                             1 );
-
-    while( 1 )
-    {
-        vShowAvailableMemory( "Inside loop :" );
         testCount = 5;
         status = EXIT_FAILURE;
+
         if( xResultQueue != 0 )
         {
+            /*Wait for the the result of the recognition task to be pushed on the queue */
             xQueueReceive( xResultQueue,
                            &cMessage,
                            portMAX_DELAY );
 
             IotLogInfo( "Got the message: %d", cMessage );
-            vCameraDeInit();
-            vShowAvailableMemory( "Before MQTT :" );
 
+            /*Deinitialize the image sensor to make memory for TLS */
+            vCameraDeInit();
+
+            /* Try to send the mqtt message, until the message is successfully sent
+             * or the retry count reaches 0. */
             while( status == EXIT_FAILURE )
             {
                 status = SendMessage( cMessage,
@@ -1299,9 +1180,9 @@ int RunAIoTDemo( bool awsIotMqttMode,
                                       pIdentifier,
                                       pNetworkServerInfo,
                                       pNetworkCredentialInfo,
-                                      pNetworkInterface 
+                                      pNetworkInterface
                                       );
-                IotLogInfo( "status: %d, count:%d", status, testCount );
+                IotLogInfo( "Status: %d, Retry Count:%d", status, testCount );
 
                 if( testCount == 1 )
                 {
@@ -1312,12 +1193,13 @@ int RunAIoTDemo( bool awsIotMqttMode,
             }
 
             vShowAvailableMemory( "After MQTT cleanup" );
+
+            /* Reinitialize the camera and resume the facial recognition task */
             vCameraInit();
-            vTaskResume(xImageTaskHandle);
+            vTaskResume( xImageTaskHandle );
         }
     }
 
     return 0;
 }
 /*-----------------------------------------------------------*/
-
