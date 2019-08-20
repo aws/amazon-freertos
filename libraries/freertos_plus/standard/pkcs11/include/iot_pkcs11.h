@@ -45,6 +45,8 @@
     #define NULL_PTR    0
 #endif
 
+/* CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
+ * instead when possible. */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
