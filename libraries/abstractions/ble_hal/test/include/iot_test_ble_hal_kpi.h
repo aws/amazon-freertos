@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_test_ble_hal_stress_test.h
+ * @file iot_test_ble_hal_kpi.h
  * @brief
  */
 
@@ -32,5 +32,7 @@
 #define _IOT_TEST_BLE_HAL_STRESS_TEST_H_
 
 #include "iot_test_ble_hal_common.h"
+
+#define TOTAL_NUMBER_RECONNECT    3
 
 #endif /* _IOT_TEST_BLE_HAL_STRESS_TEST_H_ */
