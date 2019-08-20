@@ -1089,10 +1089,10 @@ BaseType_t xRxSize;
 					struct freertos_sockaddr xRemoteAddress, xLocalAddress;
 				#endif
 					xRemoteAddress.sin_len = sizeof( xRemoteAddress );
-					FreeRTOS_GetRemoteAddress( pxClient->xTransferSocket, ( struct freertos_sockaddr * )&xRemoteAddress );
+					FreeRTOS_GetRemoteAddress( pxClient->xTransferSocket, &xRemoteAddress );
 
 					xLocalAddress.sin_len = sizeof( xLocalAddress );
-					FreeRTOS_GetLocalAddress( pxClient->xTransferSocket, ( struct freertos_sockaddr * )&xLocalAddress );
+					FreeRTOS_GetLocalAddress( pxClient->xTransferSocket, &xLocalAddress );
 
 					FreeRTOS_printf( ( "%s Connected from %u to %u\n",
 						pxClient->bits1.bIsListen != pdFALSE_UNSIGNED ? "PASV" : "PORT",

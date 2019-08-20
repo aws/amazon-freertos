@@ -122,10 +122,13 @@ NetworkEndPoint_t *pxTargetEndPoint = pxNetworkBuffer->pxEndPoint;
 			case ipARP_REQUEST	:
 				if( ulSenderProtocolAddress != ulTargetProtocolAddress )
 				{
-					FreeRTOS_printf( ( "ipARP_REQUEST from %lxip to %lxip end-point %lxip\n",
-									   FreeRTOS_ntohl( ulSenderProtocolAddress ),
-									   FreeRTOS_ntohl( ulTargetProtocolAddress ),
-									   FreeRTOS_ntohl( pxTargetEndPoint ? pxTargetEndPoint->ipv4.ulIPAddress : 0uL ) ) );
+					if( pxTargetEndPoint != NULL )
+					{
+						FreeRTOS_printf( ( "ipARP_REQUEST from %lxip to %lxip end-point %lxip\n",
+										   FreeRTOS_ntohl( ulSenderProtocolAddress ),
+										   FreeRTOS_ntohl( ulTargetProtocolAddress ),
+										   FreeRTOS_ntohl( pxTargetEndPoint ? pxTargetEndPoint->ipv4.ulIPAddress : 0uL ) ) );
+					}
 				}
 				/* The packet contained an ARP request.  Was it for the IP
 				address of one of the end-points? */

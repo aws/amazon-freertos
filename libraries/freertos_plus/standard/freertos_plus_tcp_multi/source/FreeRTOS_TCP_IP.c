@@ -1119,6 +1119,9 @@ static BaseType_t prvTCPPrepareConnect( FreeRTOS_Socket_t *pxSocket )
 TCPPacket_t *pxTCPPacket;
 eARPLookupResult_t eReturned;
 uint32_t ulRemoteIP;
+#if( ipconfigUSE_IPv6 != 0 )
+IPv6_Address_t xRemoteIP;
+#endif
 MACAddress_t xEthAddress;
 BaseType_t xReturn = pdTRUE;
 NetworkEndPoint_t *pxEndPoint = NULL;
@@ -1135,7 +1138,13 @@ ProtocolHeaders_t *pxProtocolHeaders;	/*lint !e9018 ddeclaration of symbol with 
 	if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
 	{
 		ulRemoteIP = 0uL;
-		eReturned = eNDGetCacheEntry( &( pxSocket->u.xTCP.xRemoteIP_IPv6 ), &( xEthAddress ), &( pxEndPoint ) );
+		memcpy( xRemoteIP.ucBytes, pxSocket->u.xTCP.xRemoteIP_IPv6.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+		eReturned = eNDGetCacheEntry( &( xRemoteIP ), &( xEthAddress ), &( pxEndPoint ) );
+		FreeRTOS_printf( ( "eNDGetCacheEntry: %d with end-point %p\n", eReturned, pxEndPoint ) ) ;
+		if( pxEndPoint != NULL )
+		{
+			pxSocket->pxEndPoint = pxEndPoint;
+		}
 	}
 	else
 	#endif
@@ -1168,20 +1177,42 @@ ProtocolHeaders_t *pxProtocolHeaders;	/*lint !e9018 ddeclaration of symbol with 
 			/* Count the number of times it couldn't find the ARP address. */
 			pxSocket->u.xTCP.ucRepCount++;
 
-			FreeRTOS_debug_printf( ( "ARP for %lxip (using %lxip): rc=%d %02X:%02X:%02X %02X:%02X:%02X\n",
-				pxSocket->u.xTCP.ulRemoteIP,
-				FreeRTOS_htonl( ulRemoteIP ),
-				eReturned,
-				xEthAddress.ucBytes[ 0 ],
-				xEthAddress.ucBytes[ 1 ],
-				xEthAddress.ucBytes[ 2 ],
-				xEthAddress.ucBytes[ 3 ],
-				xEthAddress.ucBytes[ 4 ],
-				xEthAddress.ucBytes[ 5 ] ) );
+			#if( ipconfigUSE_IPv6 != 0 )
+			if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
+			{
+//				pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &( xIPv6_Address ) );
+FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", xRemoteIP.ucBytes, ( pxEndPoint != NULL ) ? "" : "out" ) );
+				if( pxEndPoint )
+				{
+				size_t uxNeededSize;
+				NetworkBufferDescriptor_t *pxNetworkBuffer;
 
-			/* And issue a (new) ARP request */
-			FreeRTOS_OutputARPRequest( ulRemoteIP );
+					uxNeededSize = ( size_t ) ( ipSIZE_OF_ETH_HEADER + ipSIZE_OF_IPv6_HEADER + sizeof( ICMPHeader_IPv6_t ) );
+					pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( uxNeededSize, 0uL );
+					if( pxNetworkBuffer )
+					{
+						pxNetworkBuffer->pxEndPoint = pxEndPoint;
+						vNDGenerateRequestPacket( pxNetworkBuffer, &( xRemoteIP ) );
+					}
+				}
+			}
+			else
+			#endif
+			{
+				FreeRTOS_debug_printf( ( "ARP for %lxip (using %lxip): rc=%d %02X:%02X:%02X %02X:%02X:%02X\n",
+					pxSocket->u.xTCP.ulRemoteIP,
+					FreeRTOS_htonl( ulRemoteIP ),
+					eReturned,
+					xEthAddress.ucBytes[ 0 ],
+					xEthAddress.ucBytes[ 1 ],
+					xEthAddress.ucBytes[ 2 ],
+					xEthAddress.ucBytes[ 3 ],
+					xEthAddress.ucBytes[ 4 ],
+					xEthAddress.ucBytes[ 5 ] ) );
 
+				/* And issue a (new) ARP request */
+				FreeRTOS_OutputARPRequest( ulRemoteIP );
+			}
 			xReturn = pdFALSE;
 			break;
 	}
@@ -3452,10 +3483,25 @@ FreeRTOS_Socket_t *pxReturn;
 					pxNewSocket->pxEndPoint = pxNetworkBuffer->pxEndPoint;
 					pxNewSocket->ulLocalAddress = FreeRTOS_ntohl( pxNetworkBuffer->pxEndPoint->ipv4.ulIPAddress );
 				}
-				FreeRTOS_printf( ( "Client socket bound to %lxip:%u\n",
-					pxNewSocket->ulLocalAddress,
-					pxNewSocket->usLocalPort ) );
-
+				#if( ipconfigUSE_IPv6 != 0 )
+				if( pxNewSocket->pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
+				{
+					memcpy( pxNewSocket->xLocalAddress_IPv6.ucBytes, pxNewSocket->pxEndPoint->ipv6.xIPAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					FreeRTOS_printf( ( "Client socket bound to %pip:%u\n",
+						pxNewSocket->xLocalAddress_IPv6.ucBytes,
+						pxNewSocket->usLocalPort ) );
+					pxNewSocket->bits.bIsIPv6 = pdTRUE_UNSIGNED;
+				}
+				else
+				#endif
+				{
+					FreeRTOS_printf( ( "Client socket bound to %lxip:%u\n",
+						pxNewSocket->ulLocalAddress,
+						pxNewSocket->usLocalPort ) );
+					#if( ipconfigUSE_IPv6 != 0 )
+					pxNewSocket->bits.bIsIPv6 = pdFALSE_UNSIGNED;
+					#endif
+				}
 				/* The socket will be connected immediately, no time for the
 				owner to setsockopt's, therefore copy properties of the server
 				socket to the new socket.  Only the binding might fail (due to

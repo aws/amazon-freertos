@@ -1341,7 +1341,7 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 			xEnoughSpace = xNumberOfBytesToSend < ( ( ipconfigNETWORK_MTU - sizeof( IPHeader_t ) ) - sizeof( ICMPHeader_t ) );
 			if( ( uxGetNumberOfFreeNetworkBuffers() >= 3 ) && ( xNumberOfBytesToSend >= 1 ) && ( xEnoughSpace != pdFALSE ) )
 			{
-				pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, &( pxNetworkBuffer->pucEthernetBuffer[ ipIP_PAYLOAD_OFFSET ] ) );
+				pxEthernetHeader = ipPOINTER_CAST( EthernetHeader_t *, pxNetworkBuffer->pucEthernetBuffer );
 				pxEthernetHeader->usFrameType = ipIPv4_FRAME_TYPE;
 				
 
@@ -1371,7 +1371,7 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 				/* Send to the stack. */
 				xStackTxEvent.pvData = pxNetworkBuffer;
 
-				if( xSendEventStructToIPTask( &xStackTxEvent, xBlockTimeTicks) != pdPASS )
+				if( xSendEventStructToIPTask( &( xStackTxEvent ), xBlockTimeTicks) != pdPASS )
 				{
 					vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
 					iptraceSTACK_TX_EVENT_LOST( ipSTACK_TX_EVENT );
@@ -1604,7 +1604,7 @@ NetworkEndPoint_t *pxEndPoint;
 			 pxEndPoint = FreeRTOS_NextEndPoint( pxInterface, pxEndPoint ) )
 		{
 			#if ipconfigUSE_DHCP == 1
-			if( pxEndPoint->bits.bWantDHCP != pdFALSE_UNSIGNED )
+			if( ( pxEndPoint->bits.bWantDHCP != pdFALSE_UNSIGNED ) && ( ENDPOINT_IS_IPv6( pxEndPoint ) == pdFALSE ) )
 			{
 			IPStackEvent_t xEventMessage;
 			const TickType_t xDontBlock = 0;

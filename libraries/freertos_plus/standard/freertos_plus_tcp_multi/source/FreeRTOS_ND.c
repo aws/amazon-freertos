@@ -153,10 +153,15 @@ NetworkEndPoint_t *pxEndPoint;
 			pxEndPoint = FreeRTOS_FindGateWay( ipTYPE_IPv6 );
 			if( pxEndPoint != NULL )
 			{
-				*( ppxEndPoint ) = pxEndPoint;
+			NetworkEndPoint_t *pxKeep;
+				pxKeep = pxEndPoint;
 				memcpy( pxIPAddress->ucBytes, pxEndPoint->ipv6.xGatewayAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 				FreeRTOS_printf( ( "eNDGetCacheEntry: Using gw %pip", pxIPAddress->ucBytes ) );	/* access to 'ipv6' is checked. */
 				eReturn = prvCacheLookup( pxIPAddress, pxMACAddress, ppxEndPoint );
+				if( *( ppxEndPoint ) == NULL )
+				{
+					*( ppxEndPoint ) = pxKeep;
+				}
 			}
 		}
 	}
@@ -234,9 +239,12 @@ eARPLookupResult_t eReturn = eARPCacheMiss;
 			memcpy( pxMACAddress->ucBytes, xNDCache[ x ].xMACAddress.ucBytes, sizeof( MACAddress_t ) );
 			eReturn = eARPCacheHit;
 			*ppxEndPoint = xNDCache[ x ].pxEndPoint;
-			FreeRTOS_printf( ( "prvCacheLookup[ %d ] %pip with %02x:%02x:%02x\n",
+			FreeRTOS_printf( ( "prvCacheLookup6[ %d ] %pip with %02x:%02x:%02x:%02x:%02x:%02x\n",
 				( int ) x,
 				pxAddressToLookup->ucBytes,
+				pxMACAddress->ucBytes[ 0 ],
+				pxMACAddress->ucBytes[ 1 ],
+				pxMACAddress->ucBytes[ 2 ],
 				pxMACAddress->ucBytes[ 3 ],
 				pxMACAddress->ucBytes[ 4 ],
 				pxMACAddress->ucBytes[ 5 ] ) );
@@ -563,7 +571,7 @@ NetworkBufferDescriptor_t *pxDescriptor = pxNetworkBuffer;
 				FreeRTOS_printf( ( "SendPingRequestIPv6: No routing/gw found" ) );
 				return 0;
 			}
-			FreeRTOS_printf( ( "SendPingRequestIPv6: Using gw %pip", pxEndPoint->ipv6.xIPAddress.ucBytes ) );	/* access to 'ipv6' is checked. */
+			FreeRTOS_printf( ( "SendPingRequestIPv6: Using gw %pip", pxEndPoint->ipv6.xGatewayAddress.ucBytes ) );	/* access to 'ipv6' is checked. */
 		}
 		uxPacketLength = sizeof( EthernetHeader_t ) + sizeof( IPHeader_IPv6_t ) + sizeof( ICMPEcho_IPv6_t ) + xNumberOfBytesToSend;
 		pxNetworkBuffer = pxGetNetworkBufferWithDescriptor( uxPacketLength, xBlockTimeTicks );
@@ -646,6 +654,25 @@ memset( pxNetworkBuffer->pucEthernetBuffer, '\0', pxNetworkBuffer->xDataLength);
 #endif /* ipconfigSUPPORT_OUTGOING_PINGS == 1 */
 /*-----------------------------------------------------------*/
 
+static const char *pcMessageType( BaseType_t xType )
+{
+	const char *pcReturn = "unknown";
+	switch( xType )
+	{
+		case ipICMP_DEST_UNREACHABLE_IPv6:        pcReturn = "DEST_UNREACHABLE"; break;
+		case ipICMP_PACKET_TOO_BIG_IPv6:          pcReturn = "PACKET_TOO_BIG"; break;
+		case ipICMP_TIME_EXEEDED_IPv6:            pcReturn = "TIME_EXEEDED"; break;
+		case ipICMP_PARAMETER_PROBLEM_IPv6:       pcReturn = "PARAMETER_PROBLEM"; break;
+		case ipICMP_PING_REQUEST_IPv6:            pcReturn = "PING_REQUEST"; break;
+		case ipICMP_PING_REPLY_IPv6:              pcReturn = "PING_REPLY"; break;
+		case ipICMP_ROUTER_SOLICITATION_IPv6:     pcReturn = "ROUTER_SOL"; break;
+		case ipICMP_ROUTER_ADVERTISEMENT_IPv6:    pcReturn = "ROUTER_ADV"; break;
+		case ipICMP_NEIGHBOR_SOLICITATION_IPv6:   pcReturn = "NEIGHBOR_SOL"; break;
+		case ipICMP_NEIGHBOR_ADVERTISEMENT_IPv6:  pcReturn = "NEIGHBOR_ADV"; break;
+	}
+	return pcReturn;
+}
+
 eFrameProcessingResult_t prvProcessICMPMessage_IPv6( NetworkBufferDescriptor_t * const pxNetworkBuffer )
 {
 ICMPPacket_IPv6_t *pxICMPPacket = ( ICMPPacket_IPv6_t * )pxNetworkBuffer->pucEthernetBuffer;
@@ -653,16 +680,13 @@ ICMPHeader_IPv6_t *xICMPHeader_IPv6 = ( ICMPHeader_IPv6_t * )&( pxICMPPacket->xI
 NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 size_t uxNeededSize;
 
-	if( xICMPHeader_IPv6->ucTypeOfMessage != ipICMP_PING_REQUEST_IPv6 )
+	//if( xICMPHeader_IPv6->ucTypeOfMessage != ipICMP_PING_REQUEST_IPv6 )
 	{
-		FreeRTOS_printf( ( "ICMPv6 message %d from %02x:%02x:%02x:%02x:%02x:%02x\n",
+		FreeRTOS_printf( ( "ICMPv6 %d (%s) from %pip to %pip\n",
 			xICMPHeader_IPv6->ucTypeOfMessage,
-			xICMPHeader_IPv6->ucOptionType,
-			xICMPHeader_IPv6->ucOptionLength,
-			xICMPHeader_IPv6->ucOptionBytes[ 0 ],
-			xICMPHeader_IPv6->ucOptionBytes[ 1 ],
-			xICMPHeader_IPv6->ucOptionBytes[ 2 ],
-			xICMPHeader_IPv6->ucOptionBytes[ 3 ] ) );
+			pcMessageType( ( BaseType_t ) xICMPHeader_IPv6->ucTypeOfMessage ),
+			pxICMPPacket->xIPHeader.xSourceIPv6Address.ucBytes,
+			pxICMPPacket->xIPHeader.xDestinationIPv6Address.ucBytes ) );
 	}
 	if( ( pxEndPoint != NULL ) && ( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED ) )
 	{

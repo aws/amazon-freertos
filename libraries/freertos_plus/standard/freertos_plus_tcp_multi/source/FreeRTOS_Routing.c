@@ -632,7 +632,7 @@ uint32_t ulIPSourceAddress = 0uL;
 				continue;
 			}
 		#endif /* ( ipconfigUSE_IPv6 != 0 ) */
-			if( pxEndPoint->ipv4.ulIPAddress == ulIPTargetAddress  )
+			if( ( pxEndPoint->ipv4.ulIPAddress == ulIPTargetAddress  ) || ( ulIPTargetAddress == ~0uL ) )
 			{
 /*				xDoLog = pdFALSE; */
 				xDone = pdTRUE;
@@ -720,16 +720,13 @@ NetworkEndPoint_t *FreeRTOS_FindGateWay( BaseType_t xIPType )
 	{
 	NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
-		if( pxInterface != NULL )
+		while( pxEndPoint != NULL )
 		{
-			while( pxEndPoint != NULL )
+			if( ( ( pxInterface == NULL ) || ( pxEndPoint->pxNetworkInterface == pxInterface ) ) && ( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED ) )
 			{
-				if( ( pxEndPoint->pxNetworkInterface == pxInterface ) && ( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED ) )
-				{
-					break;
-				}
-				pxEndPoint = pxEndPoint->pxNext;
+				break;
 			}
+			pxEndPoint = pxEndPoint->pxNext;
 		}
 
 		return pxEndPoint;

@@ -148,6 +148,12 @@ FreeRTOS_setsockopt(). */
 	#define FREERTOS_SO_UDP_MAX_RX_PACKETS	( 16 )		/* This option helps to limit the maximum number of packets a UDP socket will buffer */
 #endif
 
+#if( ipconfigSOCKET_HAS_USER_WAKE_CALLBACK == 1 )
+	#define FREERTOS_SO_WAKEUP_CALLBACK	( 17 )
+#endif
+
+#define FREERTOS_SO_SET_LOW_HIGH_WATER	( 18 )
+
 #define FREERTOS_NOT_LAST_IN_FRAGMENTED_PACKET 	( 0x80 )  /* For internal use only, but also part of an 8-bit bitwise value. */
 #define FREERTOS_FRAGMENTED_PACKET				( 0x40 )  /* For internal use only, but also part of an 8-bit bitwise value. */
 
@@ -173,6 +179,12 @@ typedef struct xWIN_PROPS {
 	int32_t lRxBufSize;	/* Unit: bytes */
 	int32_t lRxWinSize;	/* Unit: MSS */
 } WinProperties_t;
+
+typedef struct xLOW_HIGH_WATER {
+	/* Structure to pass for the 'FREERTOS_SO_SET_LOW_HIGH_WATER' option */
+	size_t uxLittleSpace;	/* Send a STOP when buffer space drops below X bytes */
+	size_t uxEnoughSpace;	/* Send a GO when buffer space grows above X bytes */
+} LowHighWater_t;
 
 /* For compatibility with the expected Berkeley sockets naming. */
 #define socklen_t uint32_t
@@ -255,7 +267,11 @@ BaseType_t FreeRTOS_bind( Socket_t xSocket, struct freertos_sockaddr *pxAddress,
 
 /* function to get the local address and IP port */
 /* Note that when 'ipconfigUSE_IPv6 != 0', freertos_sockaddr can be intepreted as a freertos_sockaddr6. */
-size_t FreeRTOS_GetLocalAddress( Socket_t xSocket, struct freertos_sockaddr *pxAddress );
+#if( ipconfigUSE_IPv6 != 0 )
+	size_t FreeRTOS_GetLocalAddress( Socket_t xSocket, struct freertos_sockaddr6 *pxAddress6 );
+#else
+	size_t FreeRTOS_GetLocalAddress( Socket_t xSocket, struct freertos_sockaddr *pxAddress );
+#endif
 
 /* Made available when ipconfigETHERNET_DRIVER_FILTERS_PACKETS is set to 1. */
 BaseType_t xPortHasUDPSocket( uint16_t usPortNr );
@@ -281,7 +297,11 @@ BaseType_t FreeRTOS_shutdown (Socket_t xSocket, BaseType_t xHow);
 /* Return the remote address and IP port. */
 
 /* Note that when 'ipconfigUSE_IPv6 != 0', freertos_sockaddr can be intepreted as a freertos_sockaddr6. */
-BaseType_t FreeRTOS_GetRemoteAddress( Socket_t xSocket, struct freertos_sockaddr *pxAddress );
+#if( ipconfigUSE_IPv6 != 0 )
+	BaseType_t FreeRTOS_GetRemoteAddress( Socket_t xSocket, struct freertos_sockaddr6 *pxAddress6 );
+#else
+	BaseType_t FreeRTOS_GetRemoteAddress( Socket_t xSocket, struct freertos_sockaddr *pxAddress );
+#endif
 
 #if( ipconfigUSE_IPv6 != 0 )
 	/* Get the type of IP: either 'ipTYPE_IPv4' or 'ipTYPE_IPv6'. */

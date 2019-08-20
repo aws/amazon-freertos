@@ -855,6 +855,9 @@ static BaseType_t xMayAcceptPacket( NetworkBufferDescriptor_t *pxDescriptor )
 {
 const ProtocolPacket_t *pxProtPacket = ( const ProtocolPacket_t * )pxDescriptor->pucEthernetBuffer;
 
+	pxDescriptor->pxInterface = pxMyInterface;
+	pxDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxDescriptor->pucEthernetBuffer );
+
 	#warning _HT_ This is temporarily for debugging
 	if( pxProtPacket->xTCPPacket.xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
 	{
@@ -1032,11 +1035,6 @@ uint8_t *pucBuffer;
 		{
 			/* See if this packet must be handled. */
 			xAccepted = xMayAcceptPacket( pxCurDescriptor );
-			if( xAccepted != pdFALSE )
-			{
-				pxCurDescriptor->pxInterface = pxMyInterface;
-				pxCurDescriptor->pxEndPoint = FreeRTOS_MatchingEndpoint( pxMyInterface, pxCurDescriptor->pucEthernetBuffer );
-			}
 
 			pxCurDescriptor->xDataLength = xReceivedLength;
 			xRxEvent.pvData = ( void * ) pxCurDescriptor;

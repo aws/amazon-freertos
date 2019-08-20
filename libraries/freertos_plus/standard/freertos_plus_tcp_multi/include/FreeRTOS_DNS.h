@@ -152,7 +152,11 @@ uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer );
 	 * Users may define this type of function as a callback.
 	 * It will be called when a DNS reply is received or when a timeout has been reached.
 	 */
-	typedef void (* FOnDNSEvent ) ( const char * /* pcName */, void * /* pvSearchID */, uint32_t /* ulIPAddress */ );
+	#if( ipconfigUSE_IPv6 != 0 )
+		typedef void (* FOnDNSEvent ) ( const char * /* pcName */, void * /* pvSearchID */, struct freertos_sockaddr6 * /* pxAddress6 */ );
+	#else
+		typedef void (* FOnDNSEvent ) ( const char * /* pcName */, void * /* pvSearchID */, uint32_t /* ulIPAddress */ );
+	#endif
 
 	/*
 	 * Asynchronous version of gethostbyname()

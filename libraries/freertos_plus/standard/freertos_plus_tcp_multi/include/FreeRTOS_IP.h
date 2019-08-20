@@ -95,6 +95,7 @@ BaseType_t xRandom32( uint32_t *pulValue );
 #define ipIP_ADDRESS_LENGTH_BYTES ( 4 )
 
 /* IP protocol definitions. */
+#define ipPROTOCOL_EXT_HEADER	( 0 )	/* Exists in IPv6 */
 #define ipPROTOCOL_ICMP			( 1 )
 #define ipPROTOCOL_IGMP         ( 2 )
 #define ipPROTOCOL_TCP			( 6 )
