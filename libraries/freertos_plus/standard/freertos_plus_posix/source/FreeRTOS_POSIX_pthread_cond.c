@@ -224,13 +224,6 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
     /* If the cond is uninitialized, perform initialization. */
     prvInitializeStaticCond( pxCond );
 
-    if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore,
-                        xDelay ) == pdPASS )
-    {
-        /* When successful, relock mutex. */
-        iStatus = pthread_mutex_lock( mutex );
-    }
-
     /* Convert abstime to a delay in TickType_t if provided. */
     if( abstime != NULL )
     {
