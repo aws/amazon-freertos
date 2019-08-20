@@ -73,6 +73,7 @@
 #if !defined( posixconfigENABLE_TIMESPEC ) || ( posixconfigENABLE_TIMESPEC == 1 )
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief represents an elapsed time
  */
     struct timespec
@@ -85,6 +86,7 @@
 #if !defined( posixconfigENABLE_ITIMERSPEC ) || ( posixconfigENABLE_ITIMERSPEC == 1 )
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief timer
  */
     struct itimerspec
