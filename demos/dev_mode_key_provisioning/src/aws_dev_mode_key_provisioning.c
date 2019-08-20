@@ -66,8 +66,6 @@
 /*-----------------------------------------------------------*/
 
 CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
-                                uint8_t * pucPrivateKey,
-                                size_t xPrivateKeyLength,
                                 uint8_t * pucLabel,
                                 CK_OBJECT_HANDLE_PTR pxObjectHandle,
                                 mbedtls_pk_context * pxMbedPkContext )
@@ -80,9 +78,6 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTrue = CK_TRUE;
     CK_KEY_TYPE xPrivateKeyType = CKK_EC;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
-
-    ( void ) pucPrivateKey;
-    ( void ) xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -165,8 +160,6 @@ typedef struct RsaParams_t
 } RsaParams_t;
 
 CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
-                                 uint8_t * pucPrivateKey,
-                                 size_t xPrivateKeyLength,
                                  uint8_t * pucLabel,
                                  CK_OBJECT_HANDLE_PTR pxObjectHandle,
                                  mbedtls_pk_context * pxMbedPkContext )
@@ -179,9 +172,6 @@ CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
     RsaParams_t * pxRsaParams = NULL;
     CK_BBOOL xTrue = CK_TRUE;
-
-    ( void ) pucPrivateKey;
-    ( void ) xPrivateKeyLength;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -286,8 +276,6 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         if( xMbedKeyType == MBEDTLS_PK_RSA )
         {
             xResult = prvProvisionPrivateRSAKey( xSession,
-                                                 pucPrivateKey,
-                                                 xPrivateKeyLength,
                                                  pucLabel,
                                                  pxObjectHandle,
                                                  &xMbedPkContext );
@@ -295,8 +283,6 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         else if( ( xMbedKeyType == MBEDTLS_PK_ECDSA ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY_DH ) )
         {
             xResult = prvProvisionPrivateECKey( xSession,
-                                                pucPrivateKey,
-                                                xPrivateKeyLength,
                                                 pucLabel,
                                                 pxObjectHandle,
                                                 &xMbedPkContext );
@@ -734,10 +720,16 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         /* Attempt to clean-up old crypto objects, but only if private key import is
          * supported by this application, and only if the caller has provided new
          * objects to use instead. */
-        if( ( NULL != pxParams->pucClientCertificate ) &&
+        if( ( CKR_OK == xResult ) &&
+            ( NULL != pxParams->pucClientCertificate ) &&
             ( NULL != pxParams->pucClientPrivateKey ) )
         {
-            xDestroyDefaultCryptoObjects( xSession );
+            xResult = xDestroyDefaultCryptoObjects( xSession );
+
+            if( xResult != CKR_OK )
+            {
+                configPRINTF( ( "Warning: could not clean-up old crypto objects. %d \r\n", xResult ) );
+            }
         }
     #endif
 

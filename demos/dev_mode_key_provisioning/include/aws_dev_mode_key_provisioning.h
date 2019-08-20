@@ -68,7 +68,7 @@ typedef struct ProvisioningParams_t
  * Imports the certificate and private key located in
  * aws_clientcredential_keys.h to device NVM.
  *
- * \return CKR_OK upon successful key creation.
+ * \return CKR_OK upon successful credential setup.
  * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV vDevModeKeyProvisioning( void );
@@ -79,7 +79,7 @@ CK_RV vDevModeKeyProvisioning( void );
  * \param[in] pxParams       Pointer to an initialized provisioning
  *                           structure.
  *
- * \return CKR_OK upon successful key creation.
+ * \return CKR_OK upon successful credential setup.
  * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
@@ -90,11 +90,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
  * \param[in] xParams       Provisioning parameters for credentials
  *                          to be provisioned.
  *
- * \return CKR_OK upon successful key creation.
+ * \return CKR_OK upon successful credential setup.
  * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
-
 
 /** \brief Provisions a private key using PKCS #11 library.
  *
