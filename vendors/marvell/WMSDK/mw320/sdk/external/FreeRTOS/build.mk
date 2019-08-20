@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2018, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 
 tc-src-dir-$(tc-iar-env-y) := IAR
@@ -11,7 +11,7 @@ global-cflags-y += \
 #		-I$(d)/portable/$(tc-src-dir-y)/ARM_CM3
 
 global-cflags-$(tc-cortex-m4-y) += \
-		-I$(d)/../../../../../../../../FreeRTOS/portable/$(tc-src-dir-y)/ARM_CM4F
+		-I$(d)/../../../../../../../freertos_kernel/portable/$(tc-src-dir-y)/ARM_CM4F
 
 -include $(d)/build.freertos.mk
 

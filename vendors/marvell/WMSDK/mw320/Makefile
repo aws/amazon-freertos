@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2018, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 
 # Please refer to:
@@ -36,10 +36,10 @@ subdir-y += sdk/src/platform/os/freertos
 subdir-y += sdk/src/platform/net/freertos-plus-tcp
 
 ifneq ($(BUILD_TYPE),demo)
-subdir-y += $(call b-abspath,../../../../../../demos/marvell/mw300_rd/common/application_code/marvell_code)
-subdir-y += $(call b-abspath,../../../../../../tests/marvell/mw300_rd/common/application_code/marvell_code)
+subdir-y += $(call b-abspath,../../boards/mw300_rd/aws_demos/application_code/marvell_code)
+subdir-y += $(call b-abspath,../../boards/mw300_rd/aws_tests/application_code/marvell_code)
 else
-subdir-y += $(call b-abspath,../../../../../../demos/marvell/mw300_rd/common/application_code/marvell_code)
+subdir-y += $(call b-abspath,../../boards/mw300_rd/aws_demos/application_code/marvell_code)
 endif
 subdir-y += $(call b-abspath,sdk/external/FreeRTOS)
 subdir-y += $(call b-abspath,sdk/external/utils)
@@ -52,7 +52,7 @@ subdir-y += $(call b-abspath,sdk/external/crypto)
 subdir-y += $(call b-abspath,sdk/external/tls)
 subdir-y += $(call b-abspath,sdk/external/mqtt)
 subdir-y += $(call b-abspath,sdk/external/bufferpool)
-subdir-y += $(call b-abspath,sdk/external/ota)
+#subdir-y += $(call b-abspath,sdk/external/ota)
 subdir-y += $(call b-abspath,sdk/external/jsmn)
 subdir-y += $(call b-abspath,sdk/external/tinycbor)
 subdir-y += $(call b-abspath,sdk/external/wifi)
@@ -102,7 +102,7 @@ subdir-y += sdk/tools/src/platform-tools/flashprog
 
 ############################################
 # Documentation
-#subdir-y += doxy
+subdir-y += doxy
 
 ############################################
 

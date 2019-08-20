@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.2
+ * Amazon FreeRTOS V1.4.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -496,6 +496,13 @@ void prvWifiConnect( void )
         configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
     }
 }
+/*-----------------------------------------------------------*/
+
+/*-----------------------------------------------------------*/
+
+/*-----------------------------------------------------------*/
+
+/*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
 

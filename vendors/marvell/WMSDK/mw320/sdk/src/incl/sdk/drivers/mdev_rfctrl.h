@@ -2,7 +2,7 @@
 *
 *  @brief RF Control Configuration
 *
-*  (C) Copyright 2008-2018 Marvell International Ltd. All Rights Reserved
+*  (C) Copyright 2008-2019 Marvell International Ltd. All Rights Reserved
 *
 *  MARVELL CONFIDENTIAL
 *  The source code contained or described herein and all documents related to
