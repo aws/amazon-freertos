@@ -644,6 +644,11 @@ void vNetworkSocketsInit( void );
  */
 BaseType_t xIPIsNetworkTaskReady( void );
 
+#if( ipconfigSOCKET_HAS_USER_WAKE_CALLBACK == 1 )
+	struct xSOCKET;
+	typedef void (*SocketWakeupCallback_t)( struct xSOCKET * pxSocket );
+#endif
+
 #if( ipconfigUSE_TCP == 1 )
 
 	/*
@@ -831,6 +836,10 @@ typedef struct xSOCKET
 	#if( ipconfigSOCKET_HAS_USER_SEMAPHORE == 1 )
 		SemaphoreHandle_t pxUserSemaphore;
 	#endif /* ipconfigSOCKET_HAS_USER_SEMAPHORE */
+	#if( ipconfigSOCKET_HAS_USER_WAKE_CALLBACK == 1 )
+		SocketWakeupCallback_t pxUserWakeCallback;
+	#endif /* ipconfigSOCKET_HAS_USER_WAKE_CALLBACK */
+
 	#if( ipconfigSUPPORT_SELECT_FUNCTION == 1 )
 		struct xSOCKET_SET *pxSocketSet;
 		/* User may indicate which bits are interesting for this socket. */

@@ -159,7 +159,7 @@ int location = 0;
 		#endif	/* ipconfigHAS_DEBUG_PRINTF != 0 */
 	}
 #if( ipconfigUSE_IPv6 != 0 )
-	else if( ucProtocol == ipPROTOCOL_ICMP_IPv6 )
+	else if( ucProtocol == ( uint8_t ) ipPROTOCOL_ICMP_IPv6 )
 	{
 	size_t xNeeded;
 		switch( pxProtocolHeaders->xICMPHeader_IPv6.ucTypeOfMessage )
@@ -260,7 +260,7 @@ int location = 0;
 		location = 12;
 		goto eror_exit;
 	}
-	if( ucProtocol <= ( uint8_t ) ipPROTOCOL_IGMP )
+	if( ( ucProtocol == ( uint8_t ) ipPROTOCOL_ICMP ) || ( ucProtocol == ( uint8_t ) ipPROTOCOL_IGMP ) )
 	{
 		/* ICMP/IGMP do not have a pseudo header for CRC-calculation. */
 		usChecksum = ( uint16_t )
@@ -268,7 +268,7 @@ int location = 0;
 				( uint8_t * ) &( pxProtocolHeaders->xICMPHeader ), ( size_t ) ulLength ) );
 	}
 	#if( ipconfigUSE_IPv6 != 0 )
-	else if( ucProtocol == ipPROTOCOL_ICMP_IPv6 )
+	else if( ucProtocol == ( uint8_t ) ipPROTOCOL_ICMP_IPv6 )
 	{
 		usChecksum = ( uint16_t )
 			( ~usGenerateChecksum( usChecksum,
