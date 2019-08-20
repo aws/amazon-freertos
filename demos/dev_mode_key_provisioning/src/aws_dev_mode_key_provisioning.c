@@ -731,7 +731,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                 configPRINTF( ( "Warning: could not clean-up old crypto objects. %d \r\n", xResult ) );
             }
         }
-    #endif
+    #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
 
     /* If a client certificate has been provided by the caller, attempt to
      * import it. */
