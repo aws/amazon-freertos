@@ -12,44 +12,8 @@ IotHttpsRequestHandle_t allocate_IotRequestHandle();
  * without allocating memory.
  */
 void *safeMalloc(size_t xWantedSize) {
-  if(xWantedSize == 0) {
-    return NULL;
-  }
   return nondet_bool() ? malloc(xWantedSize) : NULL;
 }
-
-/****************************************************************/
-
-/* It is common for a buffer to contain a header struct followed by
- * user data.  We optimize CBMC performance by allocating space for
- * the buffer using a struct with two members: the first member is the
- * header struct and the second member is the user data. This is
- * faster than just allocating a sequence of bytes large enough to
- * hold the header struct and the user data.  We modeled
- * responseHandle, requestHandle and connectionHandle similarly.
- */
-
-// TODO: Replace this model of buffers with a model allowing
-// unconstrained sizes for the user data member, or at least
-// allowing a small set of differing sizes.
-
-typedef struct _responseHandle
-{
-  struct _httpsResponse RespHandle;
-  char data[USER_DATA_SIZE];
-} _resHandle_t;
-
-typedef struct _requestHandle
-{
-  struct _httpsRequest ReqHandle;
-  char data[USER_DATA_SIZE];
-} _reqHandle_t;
-
-typedef struct _connectionHandle
-{
-  struct _httpsConnection pConnHandle;
-  char data[USER_DATA_SIZE];
-} _connHandle_t;
 
 /****************************************************************
  * HTTP parser stubs
@@ -216,7 +180,7 @@ IotHttpsConnectionInfo_t * allocate_IotConnectionInfo() {
     pConnInfo->pCaCert = safeMalloc(sizeof(uint32_t));
     pConnInfo->pClientCert = safeMalloc(sizeof(uint32_t));
     pConnInfo->pPrivateKey = safeMalloc(sizeof(uint32_t));
-    pConnInfo->userBuffer.pBuffer = safeMalloc(sizeof(_connHandle_t));
+    pConnInfo->userBuffer.pBuffer = safeMalloc(sizeof(struct _httpsConnection));
   }
   return pConnInfo;
 }
@@ -238,7 +202,7 @@ int is_valid_IotConnectionInfo(IotHttpsConnectionInfo_t *pConnInfo) {
 /* Creates a Connection Handle and assigns memory accordingly. */
 IotHttpsConnectionHandle_t allocate_IotConnectionHandle () {
   IotHttpsConnectionHandle_t pConnectionHandle =
-    safeMalloc(sizeof(_connHandle_t));
+    safeMalloc(sizeof(struct _httpsConnection));
   if(pConnectionHandle) {
     // network connection just points to an allocated memory object
     pConnectionHandle->pNetworkConnection = safeMalloc(1);
@@ -282,10 +246,13 @@ int is_valid_IotConnectionHandle(IotHttpsConnectionHandle_t handle) {
 
 /* Creates a Response Handle and assigns memory accordingly. */
 IotHttpsResponseHandle_t allocate_IotResponseHandle() {
-  IotHttpsResponseHandle_t pResponseHandle = safeMalloc(sizeof(_resHandle_t));
+  IotHttpsResponseHandle_t pResponseHandle =
+    safeMalloc(sizeof(struct _httpsResponse));
   if(pResponseHandle) {
-    uint32_t len;
-    pResponseHandle->pBody = safeMalloc(len);
+    size_t headerLen;
+    size_t bodyLen;
+    pResponseHandle->pHeaders = safeMalloc(headerLen);
+    pResponseHandle->pBody = safeMalloc(bodyLen);
     pResponseHandle->pHttpsConnection = allocate_IotConnectionHandle();
     pResponseHandle->pReadHeaderField =
       safeMalloc(pResponseHandle->readHeaderFieldLength);
@@ -295,6 +262,7 @@ IotHttpsResponseHandle_t allocate_IotResponseHandle() {
   return pResponseHandle;
 }
 
+// ???: Should be is_stubbed
 IotHttpsResponseHandle_t
 initialize_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
   if(pResponseHandle) {
@@ -304,26 +272,45 @@ initialize_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
 }
 
 int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
-  int required =
+  int required1 =
     __CPROVER_same_object(pResponseHandle->pHeaders,
 			  pResponseHandle->pHeadersCur) &&
     __CPROVER_same_object(pResponseHandle->pHeaders,
 			  pResponseHandle->pHeadersEnd);
-  if (!required) return 0;
+  int required2 =
+    __CPROVER_same_object(pResponseHandle->pBody,
+			  pResponseHandle->pBodyCur) &&
+    __CPROVER_same_object(pResponseHandle->pBody,
+			  pResponseHandle->pBodyEnd);
+  if (!required1 || !required2) return 0;
 
   int valid_headers =
-    pResponseHandle->pHeaders == ((_resHandle_t*)pResponseHandle)->data;
-  int valid_order =
+    pResponseHandle->pHeaders != NULL;
+  int valid_header_order =
     pResponseHandle->pHeaders <= pResponseHandle->pHeadersCur &&
     pResponseHandle->pHeadersCur <=  pResponseHandle->pHeadersEnd;
+  int valid_body =
+    pResponseHandle->pBody != NULL;
+  int valid_body_order =
+    pResponseHandle->pBody <= pResponseHandle->pBodyCur &&
+    pResponseHandle->pBodyCur <=  pResponseHandle->pBodyEnd;
   int valid_parserdata =
     pResponseHandle->httpParserInfo.readHeaderParser.data == pResponseHandle;
   return
     valid_headers &&
-    valid_order &&
+    valid_header_order &&
+    valid_body &&
+    valid_body_order &&
     valid_parserdata &&
     // valid_order and short circuit evaluation prevents integer overflow
-    pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders <= USER_DATA_SIZE;
+    __CPROVER_r_ok(pResponseHandle->pHeaders,
+		   pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders) &&
+    __CPROVER_w_ok(pResponseHandle->pHeaders,
+		   pResponseHandle->pHeadersEnd - pResponseHandle->pHeaders) &&
+    __CPROVER_r_ok(pResponseHandle->pBody,
+		   pResponseHandle->pBodyEnd - pResponseHandle->pBody) &&
+    __CPROVER_w_ok(pResponseHandle->pBody,
+		   pResponseHandle->pBodyEnd - pResponseHandle->pBody);
 }
 
 /****************************************************************
@@ -332,12 +319,14 @@ int is_valid_IotResponseHandle(IotHttpsResponseHandle_t pResponseHandle) {
 
 /* Creates a Request Handle and assigns memory accordingly. */
 IotHttpsRequestHandle_t allocate_IotRequestHandle() {
-  IotHttpsRequestHandle_t pRequestHandle = safeMalloc(sizeof(_reqHandle_t));
+  IotHttpsRequestHandle_t pRequestHandle =
+    safeMalloc(sizeof(struct _httpsRequest));
   if (pRequestHandle) {
-    uint32_t len;
+    uint32_t headerLen;
     pRequestHandle->pHttpsResponse = allocate_IotResponseHandle();
     pRequestHandle->pHttpsConnection = allocate_IotConnectionHandle();
-    pRequestHandle->pBody = safeMalloc(len);
+    pRequestHandle->pHeaders = safeMalloc(headerLen);
+    pRequestHandle->pBody = safeMalloc(pRequestHandle->bodyLength);
     pRequestHandle->pConnInfo = allocate_IotConnectionInfo();
   }
   return pRequestHandle;
@@ -352,7 +341,7 @@ int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
   if (!required) return 0;
 
   int valid_headers =
-    pRequestHandle->pHeaders == ((_reqHandle_t*)pRequestHandle)->data;
+    pRequestHandle->pHeaders != NULL;
   int valid_order =
     pRequestHandle->pHeaders <= pRequestHandle->pHeadersCur &&
     pRequestHandle->pHeadersCur <=  pRequestHandle->pHeadersEnd;
@@ -363,7 +352,10 @@ int is_valid_IotRequestHandle(IotHttpsRequestHandle_t pRequestHandle) {
     valid_order &&
     valid_body &&
     // valid_order and short circuit evaluation prevents integer overflow
-    pRequestHandle->pHeadersEnd - pRequestHandle->pHeaders <= USER_DATA_SIZE;
+    __CPROVER_r_ok(pRequestHandle->pHeaders,
+		   pRequestHandle->pHeadersEnd - pRequestHandle->pHeaders) &&
+    __CPROVER_w_ok(pRequestHandle->pHeaders,
+		   pRequestHandle->pHeadersEnd - pRequestHandle->pHeaders);
 }
 
 /****************************************************************
