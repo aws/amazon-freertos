@@ -25,7 +25,8 @@
 
 /**
  * @file iot_demo_https_s3_download_sync.c
- * @brief Demonstrates synchronous usage of the HTTPS library by performing partial content GET requests on a file from S3.
+ * @brief Demonstrates synchronous usage of the HTTPS library by performing partial content GET requests on a file from
+ * S3.
  */
 
 /* The config header is always included first. */
@@ -331,6 +332,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
 
     /* Initialize the HTTPS library. */
     httpsClientStatus = IotHttpsClient_Init();
+
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
         IotLogError( "An error occurred initializing the HTTPS library. Error code: %d", httpsClientStatus );
@@ -444,6 +446,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         {
             /* Maybe the network error was because the server disconnected us. */
             httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
+
             if( httpsClientStatus != IOT_HTTPS_OK )
             {
                 IotLogError( "Failed to reconnect to the S3 server after a network error on IotHttpsClient_SendSync(). Error code %d.", httpsClientStatus );
@@ -451,6 +454,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
             }
 
             httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
+
             if( httpsClientStatus != IOT_HTTPS_OK )
             {
                 IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );

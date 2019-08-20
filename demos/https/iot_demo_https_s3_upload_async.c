@@ -24,8 +24,8 @@
  */
 
 /**
- * @file iot_demo_https_s3_upload_sync.c
- * @brief Demonstrates synchronous usage of the HTTPS library by performing a PUT requests on a file to S3.
+ * @file iot_demo_https_s3_upload_async.c
+ * @brief Demonstrates asynchronous usage of the HTTPS library by performing a PUT requests on a file to S3.
  */
 
 /* The config header is always included first. */
@@ -39,12 +39,12 @@
 #include "iot_demo_logging.h"
 
 /* Amazon FreeRTOS includes. */
-#include "iot_https_client.h"
+#include "iot_demo_https_common.h"
 #include "iot_https_utils.h"
 #include "aws_demo_config.h"
 #include "platform/iot_network.h"
+#include "platform/iot_threads.h"
 #include "private/iot_error.h"
-#include "iot_demo_https_common.h"
 #include "platform/iot_clock.h"
 
 /**
@@ -150,6 +150,12 @@
     #define IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY    ( ( uint32_t ) 3 )
 #endif
 
+/* Timeout in milliseconds to wait for the asynchronous request to finish. This timeout starts when the last
+ * IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS sent has been scheduled. */
+#ifndef IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS
+    #define IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 300000 )   /* 5 minute timeout for this demo. */
+#endif
+
 /** @endcond */
 
 /*-----------------------------------------------------------*/
@@ -172,30 +178,98 @@ static uint8_t _pRespUserBuffer[ IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE ] = { 0 };
 /*-----------------------------------------------------------*/
 
 /* Declaration of demo function. */
-int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
-                            const char * pIdentifier,
-                            void * pNetworkServerInfo,
-                            void * pNetworkCredentialInfo,
-                            const IotNetworkInterface_t * pNetworkInterface );
+int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
+                             const char * pIdentifier,
+                             void * pNetworkServerInfo,
+                             void * pNetworkCredentialInfo,
+                             const IotNetworkInterface_t * pNetworkInterface );
 
 /*-----------------------------------------------------------*/
 
 /**
- * @brief The function that runs the HTTPS Synchronous Upload demo.
+ * @brief Semaphore use to signal that the demo is finished.
+ *
+ * The upload is completely finished when the response is fully received with a 200 HTTP response status.
+ */
+static IotSemaphore_t _uploadFinishedSem = { 0 };
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Callback for an asynchronous request to write data to the network.
+ *
+ * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
+ * @param[in] reqHandle - Identifier for the current request in progress.
+ */
+static void _writeCallback( void * pPrivData,
+                            IotHttpsRequestHandle_t reqHandle )
+{
+    IotHttpsReturnCode_t writeStatus = IOT_HTTPS_OK;
+    bool * pUploadSuccess = ( bool * ) pPrivData;
+
+    /* Write the upload data to the network. isComplete the last parameter must always be set to 1. */
+    writeStatus = IotHttpsClient_WriteRequestBody( reqHandle,
+                                                   ( uint8_t * ) IOT_DEMO_HTTPS_UPLOAD_DATA,
+                                                   IOT_DEMO_HTTPS_UPLOAD_DATA_SIZE,
+                                                   1 );
+
+    if( writeStatus != IOT_HTTPS_OK )
+    {
+        IotLogError( "Error writing the request body to the network. Return code %d.", writeStatus );
+        *pUploadSuccess = false;
+        IotHttpsClient_CancelRequestAsync( reqHandle );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Callback for an asynchronous request to notify that the response is complete.
+ *
+ * @param[in] pPrivData - User private data configured with the HTTPS Client library request configuration.
+ * @param[in] respHandle - Identifier for the current response finished.
+ * @param[in] rc - Return code from the HTTPS Client Library signaling a possible error.
+ * @param[in] status - The HTTP response status.
+ */
+static void _responseCompleteCallback( void * pPrivData,
+                                       IotHttpsResponseHandle_t respHandle,
+                                       IotHttpsReturnCode_t rc,
+                                       uint16_t status )
+{
+    bool * pUploadSuccess = ( bool * ) pPrivData;
+
+    /* When the remote server response with 200 OK, the file was successfully uploaded. */
+    if( status == IOT_HTTPS_STATUS_OK )
+    {
+        *pUploadSuccess = true;
+    }
+    else
+    {
+        *pUploadSuccess = false;
+    }
+
+    /* Post to the semaphore that the upload is finished. */
+    IotSemaphore_Post( &( _uploadFinishedSem ) );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The function that runs the HTTPS Asynchronous Upload demo.
  *
  * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT MQTT server. This is ignored in this demo.
  * @param[in] pIdentifier NULL-terminated MQTT client identifier. This is ignored in this demo.
  * @param[in] pNetworkServerInfo Contains network information specific for the MQTT demo. This is ignored in this demo.
- * @param[in] pNetworkCredentialInfo Contains credential Info for a TLS connection.
+ * @param[in] pNetworkCredentialInfo Contains credential info for a TLS connection.
  * @param[in] pNetworkInterface Network interface to use for this demo.
  *
  * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
  */
-int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
-                            const char * pIdentifier,
-                            void * pNetworkServerInfo,
-                            void * pNetworkCredentialInfo,
-                            const IotNetworkInterface_t * pNetworkInterface )
+int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
+                             const char * pIdentifier,
+                             void * pNetworkServerInfo,
+                             void * pNetworkCredentialInfo,
+                             const IotNetworkInterface_t * pNetworkInterface )
 {
     IOT_FUNCTION_ENTRY( int, EXIT_SUCCESS );
 
@@ -219,14 +293,14 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     /* Handle identifying the HTTP request. This is valid after the request has been initialized with
      * IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
-
-    /* Handle identifying the HTTP response. This is valid after the reponse has been received with
-     * IotHttpsClient_SendSync(). */
+    /* Handle identifying the HTTP response. This handle is used only in the asynchronous callback. */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
-    /* Synchronous request specific configurations. */
-    IotHttpsSyncInfo_t reqSyncInfo = { 0 };
-    /* Synchronous response specific configurations. */
-    IotHttpsSyncInfo_t respSyncInfo = { 0 };
+
+    /* Asynchronous request specific configurations. */
+    IotHttpsAsyncInfo_t asyncInfo = { 0 };
+
+    /* Signal if the global upload finished semaphore was created for cleanup. */
+    bool uploadFinishedSemCreated = false;
 
     /* The location of the path within string IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     const char * pPath = NULL;
@@ -236,12 +310,12 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     const char * pAddress = NULL;
     /* The length of the address within string IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     size_t addressLen = 0;
-    /* The status of HTTP response. */
-    uint16_t respStatus = IOT_HTTPS_STATUS_OK;
     /* The current index in the number of connection tries. */
     uint32_t connIndex = 0;
+    /* Context into the asynchronous callback to denote a success or failure back to the application. */
+    bool uploadSuccess = true;
 
-    IotLogInfo( "HTTPS Client Synchronous S3 upload demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_PUT_URL );
+    IotLogInfo( "HTTPS Client Asynchronous S3 upload demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_PUT_URL );
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
@@ -285,17 +359,12 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     connConfig.privateKeyLen = ( ( IotNetworkCredentials_t * ) pNetworkCredentialInfo )->privateKeySize;
     connConfig.pNetworkInterface = pNetworkInterface;
 
-    /* Set the configurations needed for a synchronous request. */
-    reqSyncInfo.pBody = ( uint8_t * ) ( IOT_DEMO_HTTPS_UPLOAD_DATA ); /* Pointer to the file/buffer of data we want to upload. */
-    reqSyncInfo.bodyLen = IOT_DEMO_HTTPS_UPLOAD_DATA_SIZE;
-
-    /* Ignore the response body in the synchronous response. */
-    respSyncInfo.pBody = NULL;
-    respSyncInfo.bodyLen = 0;
+    asyncInfo.callbacks.writeCallback = _writeCallback;
+    asyncInfo.callbacks.responseCompleteCallback = _responseCompleteCallback;
+    asyncInfo.pPrivData = &uploadSuccess;
 
     /* The path is everything that is not the address. It also includes the query. So we get the strlen( pPath ) to
      * acquire everything following in IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
-    /* Set the request configurations. */
     reqConfig.pPath = pPath;
     reqConfig.pathLen = strlen( pPath );
     reqConfig.pHost = pAddress;
@@ -309,16 +378,21 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     reqConfig.isNonPersistent = false;
     reqConfig.userBuffer.pBuffer = _pReqUserBuffer;
     reqConfig.userBuffer.bufferLen = sizeof( _pReqUserBuffer );
-    reqConfig.isAsync = false;
-    reqConfig.u.pSyncInfo = &reqSyncInfo;
+    reqConfig.isAsync = true;
+    reqConfig.u.pAsyncInfo = &asyncInfo;
 
-    /* Set the response configurations. */
     respConfig.userBuffer.pBuffer = _pRespUserBuffer;
     respConfig.userBuffer.bufferLen = sizeof( _pRespUserBuffer );
+    respConfig.pSyncInfo = NULL;
 
-    /* Even though the body is being ignored, #IotHttpsResponseInfo_t.pSyncInfo should only be set to NULL if the
-     * response is being received asynchronously. */
-    respConfig.pSyncInfo = &respSyncInfo;
+    /* Create the semaphore for waiting for the whole upload response to finish. */
+    uploadFinishedSemCreated = IotSemaphore_Create( &( _uploadFinishedSem ), 0 /* Initial value. */, 1 /* Max value. */ );
+
+    if( uploadFinishedSemCreated == false )
+    {
+        IotLogError( "Failed to create a semaphore to wait for the response to finish." );
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+    }
 
     /* Initialize the HTTPS library. */
     httpsClientStatus = IotHttpsClient_Init();
@@ -364,45 +438,29 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    /* Send the upload request. */
-    httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
-
-    /* If there was network error try again one more time. */
-    if( httpsClientStatus == IOT_HTTPS_NETWORK_ERROR )
-    {
-        /* Maybe the network error was because the server disconnected us. */
-        httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
-
-        if( httpsClientStatus != IOT_HTTPS_OK )
-        {
-            IotLogError( "Failed to reconnect to the S3 server after a network error on IotHttpsClient_SendSync(). Error code %d.", httpsClientStatus );
-            IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
-        }
-
-        httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
-
-        if( httpsClientStatus != IOT_HTTPS_OK )
-        {
-            IotLogError( "Failed receiving the response on a second try after a network error. The error code is: %d", httpsClientStatus );
-            IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
-        }
-    }
-
-    httpsClientStatus = IotHttpsClient_ReadResponseStatus( respHandle, &respStatus );
+    /* Send the request and receive the response asynchronously. This will schedule the async request. We
+     * will return immediately after scheduling. */
+    httpsClientStatus = IotHttpsClient_SendAsync( connHandle, reqHandle, &respHandle, &respConfig );
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
-        IotLogError( "Error in retreiving the response status. Error code %d", httpsClientStatus );
-        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+        IotLogError( "Failed to send the request asynchronously with error code: %d", httpsClientStatus );
+        /* If we failed to schedule an async request then this is an error and we should exit the loop. */
     }
 
-    if( respStatus != IOT_HTTPS_STATUS_OK )
+    /* Timing out waiting for the response to finish will fail the demo. */
+    if( IotSemaphore_TimedWait( &( _uploadFinishedSem ), IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS ) == false )
     {
-        IotLogError( "Failed to upload the data to s3. Response status: %d", respStatus );
+        IotLogError( "Timed out waiting for the asynchronous request to complete." );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
-    IotLogInfo( "File was successfully uploaded." );
+    /* Check that the upload was successful. This variable is set during the _responseCompleteCallback(). */
+    if( uploadSuccess == false )
+    {
+        IotLogError( "Upload did not complete successfully." );
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+    }
 
     #if defined( IOT_DEMO_HTTPS_PRESIGNED_GET_URL )
         /* The size of uploaded file from a GET of the file size. */
@@ -466,13 +524,14 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
     IOT_FUNCTION_CLEANUP_BEGIN();
 
-    /* Disconnect from the server even if the server may have already disconnected us. */
-    if( connHandle != NULL )
+    if( uploadFinishedSemCreated )
     {
-        IotHttpsClient_Disconnect( connHandle );
+        IotSemaphore_Destroy( &( _uploadFinishedSem ) );
     }
 
-    /* Deinitialize the library because we are done using it. */
+    /* Disconnect from the server even if it is already disconnected. */
+    IotHttpsClient_Disconnect( connHandle );
+    /* De-initialize the library because we are done using it. */
     IotHttpsClient_Deinit();
 
     IOT_FUNCTION_CLEANUP_END();

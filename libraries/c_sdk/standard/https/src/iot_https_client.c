@@ -1287,16 +1287,24 @@ static void _networkReceiveCallback( void * pNetworkConnection,
 
     IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
+    /* For a synchronous request release the semaphore. This MUST come before the asynchronous
+     * responseCompleteCallback(). The response user buffer can only reused only after the responseCompleteCallback() is
+     * invoked on the response. Consider the following scenario: The application decides to create a synchronous request
+     * right after an asynchronous response. Right after the response complete callback returns the application thread
+     * has control and re-uses the response buffer for the following synchronous request. Inside of
+     * IotHttpsClient_SendSync() the respFinishedSem is created and waited upon. The program context switches back to
+     * the network thread controlling this receive callback, to the instruction right after where the asynchronous
+     * responseCompleteCallback() returned. If the if-case below was the next instruction, then the synchronous request
+     * would get posted to right away and return to the application. */
+    if( pCurrentHttpsResponse->isAsync == false )
+    {
+        IotSemaphore_Post( &( pCurrentHttpsResponse->respFinishedSem ) );
+    }
+
     /* Signal to a synchronous reponse that the response is complete. */
     if( pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->responseCompleteCallback )
     {
         pCurrentHttpsResponse->pCallbacks->responseCompleteCallback( pCurrentHttpsResponse->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
-    }
-
-    /* For a synchronous request release the semaphore. */
-    if( pCurrentHttpsResponse->isAsync == false )
-    {
-        IotSemaphore_Post( &( pCurrentHttpsResponse->respFinishedSem ) );
     }
 }
 

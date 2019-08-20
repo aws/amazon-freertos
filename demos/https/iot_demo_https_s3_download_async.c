@@ -443,10 +443,16 @@ static void _responseCompleteCallback( void * pPrivData,
     /* Free up this request from the request pool. */
     _pInUseRequests[ pDownloadData->reqNum ] = false;
 
-    /* If in this response the total amount read does not equal the number of bytes we requested, then something went
-     * wrong. */
-    if( pDownloadData->currDownloaded != pDownloadData->numReqBytes )
+    /* If there is an error in the response processing. */
+    if( rc != IOT_HTTPS_OK )
     {
+        IotLogError( "There was a problem with the current response %d. Error code: %d. ", respHandle, rc );
+        IotSemaphore_Post( &( _fileFinishedSem ) );
+    }
+    else if( pDownloadData->currDownloaded != pDownloadData->numReqBytes )
+    {
+        /* If in this response the total amount read does not equal the number of bytes we requested, then something went
+         * wrong. */
         IotLogError( "There was a problem downloading the file. We downloaded %d. but wanted %d.",
                      pDownloadData->currDownloaded,
                      pDownloadData->numReqBytes );
@@ -784,7 +790,16 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
      * file to finish downloading, then we failed the demo. */
     if( IotSemaphore_TimedWait( &( _fileFinishedSem ), IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS ) == false )
     {
-        IotLogError( "Timed out waiting for the asynchronous request to complete." );
+        IotLogError( "Timed out waiting for the asynchronous requests to complete." );
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+    }
+
+    /* The file was downloaded successfully when the bytes downloaded is equal to the file size. */
+    if( _bytesFileDownloadedSoFar != _fileSize )
+    {
+        IotLogError( "The file was not fully downloaded. Bytes downloaded: %d/%d.",
+                     _bytesFileDownloadedSoFar,
+                     _fileSize );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 

@@ -190,10 +190,10 @@
  * @brief The HTTP post and put message body data.
  */
 #define HTTPS_TEST_MESSAGE_BODY \
-"{\r\b"\
-"  \"data\":\"data\"\r\n"\
-"}"
-#define HTTPS_TEST_MESSAGE_BODY_LENGTH      ( sizeof( HTTPS_TEST_MESSAGE_BODY ) - 1 )
+    "{\r\b"                     \
+    "  \"data\":\"data\"\r\n"   \
+    "}"
+#define HTTPS_TEST_MESSAGE_BODY_LENGTH    ( sizeof( HTTPS_TEST_MESSAGE_BODY ) - 1 )
 
 /*-----------------------------------------------------------*/
 
@@ -343,14 +343,14 @@ static void _testRequestSynchronous( bool isNonPersistent,
         reqInfo.pPath = HTTPS_TEST_PUT_REQUEST_PATH;
         reqInfo.pathLen = sizeof( HTTPS_TEST_PUT_REQUEST_PATH ) - 1;
     }
-    else if ( method == IOT_HTTPS_METHOD_POST )
+    else if( method == IOT_HTTPS_METHOD_POST )
     {
         reqInfo.pPath = HTTPS_TEST_POST_REQUEST_PATH;
         reqInfo.pathLen = sizeof( HTTPS_TEST_POST_REQUEST_PATH ) - 1;
     }
     else
     {
-        TEST_FAIL_MESSAGE("Unsupported method in the HTTPS Client library.");
+        TEST_FAIL_MESSAGE( "Unsupported method in the HTTPS Client library." );
     }
 
     reqInfo.pHost = IOT_TEST_HTTPS_SERVER_HOST_NAME;
@@ -402,7 +402,7 @@ static void _testRequestSynchronous( bool isNonPersistent,
         TEST_ASSERT_GREATER_THAN( 0, strlen( ( char * ) ( respInfo.pSyncInfo->pBody ) ) );
     }
 
-    /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection 
+    /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection
      * context state is controlled by the application. */
     if( isNonPersistent )
     {
@@ -448,14 +448,14 @@ static void _testRequestAsynchronous( bool isNonPersistent,
         reqInfo.pPath = HTTPS_TEST_PUT_REQUEST_PATH;
         reqInfo.pathLen = sizeof( HTTPS_TEST_PUT_REQUEST_PATH ) - 1;
     }
-    else if ( method == IOT_HTTPS_METHOD_POST )
+    else if( method == IOT_HTTPS_METHOD_POST )
     {
         reqInfo.pPath = HTTPS_TEST_POST_REQUEST_PATH;
         reqInfo.pathLen = sizeof( HTTPS_TEST_POST_REQUEST_PATH ) - 1;
     }
     else
     {
-        TEST_FAIL_MESSAGE("Unsupported method in the HTTPS Client library.");
+        TEST_FAIL_MESSAGE( "Unsupported method in the HTTPS Client library." );
     }
 
     reqInfo.pHost = IOT_TEST_HTTPS_SERVER_HOST_NAME;
@@ -507,7 +507,7 @@ static void _testRequestAsynchronous( bool isNonPersistent,
         }
 
         /* Some servers do not allow requests to be persistent. Even if the server closed the connection, the connection
-           context state is controlled by the application. */
+         * context state is controlled by the application. */
         if( isNonPersistent )
         {
             TEST_ASSERT_FALSE( connHandle->isConnected );

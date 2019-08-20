@@ -11,6 +11,7 @@ afr_module_sources(
         "${CMAKE_CURRENT_LIST_DIR}/iot_demo_https_s3_download_sync.c"
         "${CMAKE_CURRENT_LIST_DIR}/iot_demo_https_s3_download_async.c"
         "${CMAKE_CURRENT_LIST_DIR}/iot_demo_https_s3_upload_sync.c"
+        "${CMAKE_CURRENT_LIST_DIR}/iot_demo_https_s3_upload_async.c"
         "${CMAKE_CURRENT_LIST_DIR}/iot_demo_https_common.c"
 )
 afr_module_dependencies(
