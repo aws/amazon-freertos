@@ -77,16 +77,19 @@ static void prvInitializeStaticCond( pthread_cond_internal_t * pxCond )
         taskEXIT_CRITICAL();
     }
 }
-/* @brief Check "atomically" if iLocalWaitingThreads == pxCond->iWaitingThreads and decrement.  
+
+/**
+ * @brief Check "atomically" if iLocalWaitingThreads == pxCond->iWaitingThreads and decrement.
  */
-static void prvTestAndDecrement( pthread_cond_t * pxCond, unsigned iLocalWaitingThreads )
+static void prvTestAndDecrement( pthread_cond_t * pxCond,
+                                 unsigned iLocalWaitingThreads )
 {
     /* Test local copy of threads waiting is larger than zero. */
-    while ( iLocalWaitingThreads > 0 )
+    while( iLocalWaitingThreads > 0 )
     {
         /* Test-and-set. Atomically check whether the copy in memory has changed.
-        * And, if not decrease the copy of threads waiting in memory. */
-        if ( ATOMIC_COMPARE_AND_SWAP_SUCCESS == Atomic_CompareAndSwap_u32( ( uint32_t * )&pxCond->iWaitingThreads, ( uint32_t )iLocalWaitingThreads - 1, ( uint32_t )iLocalWaitingThreads ) )
+         * And, if not decrease the copy of threads waiting in memory. */
+        if( ATOMIC_COMPARE_AND_SWAP_SUCCESS == Atomic_CompareAndSwap_u32( ( uint32_t * ) &pxCond->iWaitingThreads, ( uint32_t ) iLocalWaitingThreads - 1, ( uint32_t ) iLocalWaitingThreads ) )
         {
             /* Signal one succeeded. Break. */
             break;
@@ -220,12 +223,14 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
 
     /* If the cond is uninitialized, perform initialization. */
     prvInitializeStaticCond( pxCond );
-    if ( xSemaphoreTake( ( SemaphoreHandle_t )&pxCond->xCondWaitSemaphore,
-        xDelay ) == pdPASS )
+
+    if( xSemaphoreTake( ( SemaphoreHandle_t ) &pxCond->xCondWaitSemaphore,
+                        xDelay ) == pdPASS )
     {
         /* When successful, relock mutex. */
         iStatus = pthread_mutex_lock( mutex );
     }
+
     /* Convert abstime to a delay in TickType_t if provided. */
     if( abstime != NULL )
     {

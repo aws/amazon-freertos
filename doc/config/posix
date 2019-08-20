@@ -17,7 +17,6 @@ INPUT = doc \
         libraries/freertos_plus/standard/freertos_plus_posix/include \
         libraries/freertos_plus/standard/freertos_plus_posix/source \
 		libraries/abstractions/posix/include/FreeRTOS_POSIX/sys \
-		vendors/pc/boards/windows/ports/posix \
 		libraries/abstractions/posix/include/FreeRTOS_POSIX
 
 # Library file names.
