@@ -41,6 +41,7 @@
 /**@} */
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief Scheduling parameters required for implementation of each supported
  * scheduling policy.
  */

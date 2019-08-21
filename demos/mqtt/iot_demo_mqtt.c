@@ -431,7 +431,7 @@ static int _establishMqttConnection( bool awsIotMqttMode,
 
     /* Use the parameter client identifier if provided. Otherwise, generate a
      * unique client identifier. */
-    if( pIdentifier != NULL )
+    if( ( pIdentifier != NULL ) && ( pIdentifier[ 0 ] != '\0' ) )
     {
         connectInfo.pClientIdentifier = pIdentifier;
         connectInfo.clientIdentifierLength = ( uint16_t ) strlen( pIdentifier );

@@ -385,9 +385,10 @@ void prvAfterRunningTests_Object( void )
     if( ( 0 == strcmp( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) &&
         ( 0 == strcmp( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
     {
-        /* Blow away the old credentials and replace
+        /* Delete the old device private key and certificate, if that
+         * operation is supported by this port. Replace
          * them with known-good AWS IoT credentials. */
-        xDestroyCredentials( xGlobalSession );
+        xDestroyDefaultCryptoObjects( xGlobalSession );
 
         /* Re-provision the device with default certs
          * so that subsequent tests are not changed. */
