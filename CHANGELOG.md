@@ -1,6 +1,6 @@
 # Change Log for Amazon FreeRTOS
 
-## 201908.00 08/20/2019
+## 201908.00 08/22/2019
 
 ### New Features
 #### New Board:Nuvoton NuMaker-IoT-M487
