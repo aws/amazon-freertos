@@ -51,7 +51,7 @@ typedef CK_RV ( * PFN_GET_FUNCTION_LIST )( CK_FUNCTION_LIST_PTR_PTR ppFunctionLi
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
+CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = 0;
     HMODULE hModule = NULL;

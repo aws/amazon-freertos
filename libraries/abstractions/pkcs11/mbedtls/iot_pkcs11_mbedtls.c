@@ -655,7 +655,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
  * See <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-    CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
+    CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
     { /*lint !e9072 It's OK to have different parameter name. */
         ( void ) ( pvInitArgs );
 
@@ -677,7 +677,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 /**
  * @brief Un-initialize the Cryptoki module.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
+CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
 {
     /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
@@ -731,7 +731,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
+CK_DECLARE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunctionList )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
@@ -763,9 +763,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetFunctionList )( CK_FUNCTION_LIST_PTR_PTR ppxFunc
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
-                                            CK_SLOT_ID_PTR pxSlotList,
-                                            CK_ULONG_PTR pulCount )
+CK_DECLARE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
+                                             CK_SLOT_ID_PTR pxSlotList,
+                                             CK_ULONG_PTR pulCount )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
 
@@ -817,9 +817,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetSlotList )( CK_BBOOL xTokenPresent,
  *
  * @return CKR_OK.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_GetTokenInfo )(
-    CK_SLOT_ID slotID,
-    CK_TOKEN_INFO_PTR pInfo )
+CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
+                                              CK_TOKEN_INFO_PTR pInfo )
 {
     /* Avoid compiler warnings about unused variables. */
     ( void ) slotID;
@@ -838,11 +837,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetTokenInfo )(
  *
  * @return CKR_OK.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_InitToken )(
-    CK_SLOT_ID slotID,
-    CK_UTF8CHAR_PTR pPin,
-    CK_ULONG ulPinLen,
-    CK_UTF8CHAR_PTR pLabel )
+CK_DECLARE_FUNCTION( CK_RV, C_InitToken )( CK_SLOT_ID slotID,
+                                           CK_UTF8CHAR_PTR pPin,
+                                           CK_ULONG ulPinLen,
+                                           CK_UTF8CHAR_PTR pLabel )
 {
     /* Avoid compiler warnings about unused variables. */
     ( void ) slotID;
@@ -872,11 +870,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_InitToken )(
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
-                                            CK_FLAGS xFlags,
-                                            CK_VOID_PTR pvApplication,
-                                            CK_NOTIFY xNotify,
-                                            CK_SESSION_HANDLE_PTR pxSession )
+CK_DECLARE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
+                                             CK_FLAGS xFlags,
+                                             CK_VOID_PTR pvApplication,
+                                             CK_NOTIFY xNotify,
+                                             CK_SESSION_HANDLE_PTR pxSession )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = CKR_OK;
     P11SessionPtr_t pxSessionObj = NULL;
@@ -1009,7 +1007,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_OpenSession )( CK_SLOT_ID xSlotID,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
+CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
 {
     /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
@@ -1067,10 +1065,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
  *
  * @return CKR_OK.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
-                                      CK_USER_TYPE userType,
-                                      CK_UTF8CHAR_PTR pPin,
-                                      CK_ULONG ulPinLen )
+CK_DECLARE_FUNCTION( CK_RV, C_Login )( CK_SESSION_HANDLE hSession,
+                                       CK_USER_TYPE userType,
+                                       CK_UTF8CHAR_PTR pPin,
+                                       CK_ULONG ulPinLen )
 {
     /* Avoid warnings about unused parameters. */
     ( void ) hSession;
@@ -1970,10 +1968,10 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
-                                             CK_ATTRIBUTE_PTR pxTemplate,
-                                             CK_ULONG ulCount,
-                                             CK_OBJECT_HANDLE_PTR pxObject )
+CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
+                                              CK_ATTRIBUTE_PTR pxTemplate,
+                                              CK_ULONG ulCount,
+                                              CK_OBJECT_HANDLE_PTR pxObject )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
@@ -2030,8 +2028,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
-                                              CK_OBJECT_HANDLE xObject )
+CK_DECLARE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
+                                               CK_OBJECT_HANDLE xObject )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -2082,10 +2080,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
-                                                  CK_OBJECT_HANDLE xObject,
-                                                  CK_ATTRIBUTE_PTR pxTemplate,
-                                                  CK_ULONG ulCount )
+CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
+                                                   CK_OBJECT_HANDLE xObject,
+                                                   CK_ATTRIBUTE_PTR pxTemplate,
+                                                   CK_ULONG ulCount )
 {
     /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
@@ -2345,9 +2343,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
-                                                CK_ATTRIBUTE_PTR pxTemplate,
-                                                CK_ULONG ulCount )
+CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
+                                                 CK_ATTRIBUTE_PTR pxTemplate,
+                                                 CK_ULONG ulCount )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
@@ -2456,10 +2454,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
-                                            CK_OBJECT_HANDLE_PTR pxObject,
-                                            CK_ULONG ulMaxObjectCount,
-                                            CK_ULONG_PTR pulObjectCount )
+CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
+                                             CK_OBJECT_HANDLE_PTR pxObject,
+                                             CK_ULONG ulMaxObjectCount,
+                                             CK_ULONG_PTR pulObjectCount )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -2575,7 +2573,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
+CK_DECLARE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -2622,8 +2620,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjectsFinal )( CK_SESSION_HANDLE xSession )
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
-                                           CK_MECHANISM_PTR pMechanism )
+CK_DECLARE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
+                                            CK_MECHANISM_PTR pMechanism )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
@@ -2680,9 +2678,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
-                                             CK_BYTE_PTR pPart,
-                                             CK_ULONG ulPartLen )
+CK_DECLARE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
+                                              CK_BYTE_PTR pPart,
+                                              CK_ULONG ulPartLen )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
@@ -2741,9 +2739,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestUpdate )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
-                                            CK_BYTE_PTR pDigest,
-                                            CK_ULONG_PTR pulDigestLen )
+CK_DECLARE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
+                                             CK_BYTE_PTR pDigest,
+                                             CK_ULONG_PTR pulDigestLen )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -2816,9 +2814,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
-                                         CK_MECHANISM_PTR pxMechanism,
-                                         CK_OBJECT_HANDLE xKey )
+CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
+                                          CK_MECHANISM_PTR pxMechanism,
+                                          CK_OBJECT_HANDLE xKey )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BBOOL xIsPrivate = CK_TRUE;
@@ -2980,11 +2978,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
-                                     CK_BYTE_PTR pucData,
-                                     CK_ULONG ulDataLen,
-                                     CK_BYTE_PTR pucSignature,
-                                     CK_ULONG_PTR pulSignatureLen )
+CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
+                                      CK_BYTE_PTR pucData,
+                                      CK_ULONG ulDataLen,
+                                      CK_BYTE_PTR pucSignature,
+                                      CK_ULONG_PTR pulSignatureLen )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj = prvSessionPointerFromHandle( xSession );
@@ -3123,9 +3121,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
-                                           CK_MECHANISM_PTR pxMechanism,
-                                           CK_OBJECT_HANDLE xKey )
+CK_DECLARE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
+                                            CK_MECHANISM_PTR pxMechanism,
+                                            CK_OBJECT_HANDLE xKey )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BBOOL xIsPrivate = CK_TRUE;
@@ -3276,11 +3274,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
-                                       CK_BYTE_PTR pucData,
-                                       CK_ULONG ulDataLen,
-                                       CK_BYTE_PTR pucSignature,
-                                       CK_ULONG ulSignatureLen )
+CK_DECLARE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
+                                        CK_BYTE_PTR pucData,
+                                        CK_ULONG ulDataLen,
+                                        CK_BYTE_PTR pucSignature,
+                                        CK_ULONG ulSignatureLen )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     P11SessionPtr_t pxSessionObj;
@@ -3642,14 +3640,14 @@ CK_RV prvCheckGenerateKeyPairPublicTemplate( CK_ATTRIBUTE_PTR * ppxLabel,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
-                                                CK_MECHANISM_PTR pxMechanism,
-                                                CK_ATTRIBUTE_PTR pxPublicKeyTemplate,
-                                                CK_ULONG ulPublicKeyAttributeCount,
-                                                CK_ATTRIBUTE_PTR pxPrivateKeyTemplate,
-                                                CK_ULONG ulPrivateKeyAttributeCount,
-                                                CK_OBJECT_HANDLE_PTR pxPublicKey,
-                                                CK_OBJECT_HANDLE_PTR pxPrivateKey )
+CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
+                                                 CK_MECHANISM_PTR pxMechanism,
+                                                 CK_ATTRIBUTE_PTR pxPublicKeyTemplate,
+                                                 CK_ULONG ulPublicKeyAttributeCount,
+                                                 CK_ATTRIBUTE_PTR pxPrivateKeyTemplate,
+                                                 CK_ULONG ulPrivateKeyAttributeCount,
+                                                 CK_OBJECT_HANDLE_PTR pxPublicKey,
+                                                 CK_OBJECT_HANDLE_PTR pxPrivateKey )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     uint8_t * pucDerFile = pvPortMalloc( pkcs11KEY_GEN_MAX_DER_SIZE );
@@ -3785,9 +3783,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
  * Else, see <a href="https://tiny.amazon.com/wtscrttv">PKCS #11 specification</a>
  * for more information.
  */
-CK_DEFINE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
-                                               CK_BYTE_PTR pucRandomData,
-                                               CK_ULONG ulRandomLen )
+CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
+                                                CK_BYTE_PTR pucRandomData,
+                                                CK_ULONG ulRandomLen )
 {
     CK_RV xResult = CKR_OK;
     int lMbedResult = 0;
