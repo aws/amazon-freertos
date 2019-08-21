@@ -791,7 +791,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
 uint32_t SOCKETS_GetHostByName( const char * pcHostName )
 {
-    uint32_t addr;
+    uint32_t addr = 0;
 
     if( strlen( pcHostName ) <= ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {
