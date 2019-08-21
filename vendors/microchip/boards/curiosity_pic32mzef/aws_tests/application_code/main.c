@@ -49,7 +49,7 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 
-#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 8 )
+#define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 20 )
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
  * 1 but a DHCP server could not be contacted.  See the online documentation for
