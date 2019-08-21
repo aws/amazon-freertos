@@ -56,6 +56,7 @@ union sigval
 };
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief Signal event structure.
  */
 struct sigevent

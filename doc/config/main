@@ -25,6 +25,8 @@ AUTOLINK_SUPPORT = NO
 TAGFILES = doc/tag/logging.tag=../logging \
            doc/tag/platform.tag=../platform \
            doc/tag/mqtt.tag=../mqtt \
+		   doc/tag/posix.tag=../posix \
+           doc/tag/posix.tag=../atomic \
            doc/tag/shadow.tag=../shadow
 
 # Use the Main page layout file
