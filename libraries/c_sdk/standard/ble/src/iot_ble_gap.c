@@ -475,7 +475,7 @@ BTStatus_t IotBle_On( void )
     BTStatus_t status = eBTStatusSuccess;
     /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
 
-	status = _BTInterface.pBTInterface->pxEnable(0);
+	status = _BTInterface.pBTInterface->pxEnable( 0 );
 
 	if( status == eBTStatusSuccess )
 	{
