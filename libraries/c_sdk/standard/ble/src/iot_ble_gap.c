@@ -487,7 +487,7 @@ BTStatus_t IotBle_On( void )
         IotLogError( "Could not enable the stack." );
     }
 
-    return eBTStatusSuccess;
+    return status;
 }
 
 /*-----------------------------------------------------------*/
