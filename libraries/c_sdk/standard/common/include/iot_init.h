@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Common V1.0.0
+ * Amazon FreeRTOS Common V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file iot_init.h
- * @brief Provides function signatures for common intialization and cleanup of
+ * @brief Provides function signatures for common initialization and cleanup of
  * this SDK.
  */
 

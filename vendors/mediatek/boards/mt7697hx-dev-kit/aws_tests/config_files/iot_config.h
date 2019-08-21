@@ -30,4 +30,10 @@
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"
 
+/* Limit the number of Tx and Rx tasks to 1 for MQTT_Agent_MultiTaskTest.
+ * The default value is 2 which results in test failure because of malloc failure
+ * as we do not have enough RAM to do two simultaneous TLS handshakes. */
+#define mqttagenttestMULTI_TASK_TEST_NUM_RX_TASKS   1
+#define mqttagenttestMULTI_TASK_TEST_NUM_TX_TASKS   1
+
 #endif /* ifndef IOT_CONFIG_H_ */

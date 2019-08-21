@@ -11,13 +11,13 @@ element of lists a ListItem_t instead.
 
 This patch should be removed soon: It is for a CBMC issue being fixed now.
 ---
- lib/include/private/list.h | 2 +-
+ freertos_kernel/include/list.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/lib/include/private/list.h b/lib/include/private/list.h
+diff --git a/freertos_kernel/include/list.h b/freertos_kernel/include/list.h
 index 43e0ffffb..f6c6b6636 100644
---- a/lib/include/private/list.h
-+++ b/lib/include/private/list.h
+--- a/freertos_kernel/include/list.h
++++ b/freertos_kernel/include/list.h
 @@ -166,7 +166,7 @@ typedef struct xLIST
  	listFIRST_LIST_INTEGRITY_CHECK_VALUE				/*< Set to a known value if configUSE_LIST_DATA_INTEGRITY_CHECK_BYTES is set to 1. */
  	volatile UBaseType_t uxNumberOfItems;

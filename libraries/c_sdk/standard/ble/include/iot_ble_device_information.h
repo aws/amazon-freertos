@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -33,12 +33,18 @@
 #include <stdbool.h>
 
 /**
- * @functionspage{iotbledeviceinfo,GATT Service for Device Information,Device Information}
- * - @functionname{iotbledeviceinfo_function_init}
+ * @functions_page{iotbledeviceinfo, Device Information}
+ * @functions_brief{GATT Service for Device Information}
+ * - @function_name{iotbledeviceinfo_function_init}
+ * @function_brief{iotbledeviceinfo_function_init}
  */
+
 /**
- * @functionpage{IotBleDeviceInfo_Init,iotbledeviceinfo,init}
+ * @function_page{IotBleDeviceInfo_Init,iotbledeviceinfo,init}
+ * @function_snippet{iotbledeviceinfo,init,this}
+ * @copydoc IotBleDeviceInfo_Init
  */
+
 /**
  * @brief Creates and starts Amazon FreeRTOS device information service
  *

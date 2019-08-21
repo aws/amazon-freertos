@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,8 +34,7 @@
 
 /* The config header is always included first. */
 #include "iot_config.h"
- 
- 
+
 /* Includes for library initialization. */
 #include "iot_demo_runner.h"
 #include "platform/iot_threads.h"
@@ -60,7 +59,7 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
                                         void * pNetworkCredentialInfo,
                                         const IotNetworkInterface_t * pNetworkInterface );
 #else
-    #define DEMO_networkConnectedCallback  ( NULL )
+    #define DEMO_networkConnectedCallback    ( NULL )
 #endif
 
 
@@ -68,7 +67,7 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
 #ifdef DEMO_networkDisconnectedCallback
     void DEMO_networkDisconnectedCallback( const IotNetworkInterface_t * pNetworkInterface );
 #else
-    #define DEMO_networkDisconnectedCallback  ( NULL )
+    #define DEMO_networkDisconnectedCallback    ( NULL )
 #endif
 
 
@@ -82,15 +81,14 @@ void DEMO_RUNNER_RunDemos( void )
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
     static demoContext_t mqttDemoContext =
     {
-        .networkTypes                  = democonfigNETWORK_TYPES,
-        .demoFunction                  = DEMO_entryFUNCTION,
-        .networkConnectedCallback      = DEMO_networkConnectedCallback,
-        .networkDisconnectedCallback   = DEMO_networkDisconnectedCallback 
+        .networkTypes                = democonfigNETWORK_TYPES,
+        .demoFunction                = DEMO_entryFUNCTION,
+        .networkConnectedCallback    = DEMO_networkConnectedCallback,
+        .networkDisconnectedCallback = DEMO_networkDisconnectedCallback
     };
 
     Iot_CreateDetachedThread( runDemoTask,
-                              &mqttDemoContext, 
-                              democonfigDEMO_PRIORITY, 
+                              &mqttDemoContext,
+                              democonfigDEMO_PRIORITY,
                               democonfigDEMO_STACKSIZE );
-
 }

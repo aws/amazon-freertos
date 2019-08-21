@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -609,7 +609,7 @@ static bool _deserializeAddNetworkRequest( const uint8_t * pData,
         }
         else if( ret == IOT_SERIALIZER_NOT_FOUND )
         {
-            IotLogInfo( "Connect flag not set in requeust, using default value always connect = %d", IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT );
+            IotLogInfo( "Connect flag not set in request, using default value always connect = %d", IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT );
             pAddNetworkRequest->connect = IOT_BLE_WIFI_PROV_DEFAULT_ALWAYS_CONNECT;
         }
         else
@@ -1293,7 +1293,7 @@ WIFIReturnCode_t _insertNetwork( uint16_t index,
 
             if( ret != eWiFiSuccess )
             {
-                IotLogError( "Failed to mobe newtwork at index %d", index );
+                IotLogError( "Failed to insert network at index %d", index );
                 break;
             }
         }
@@ -1394,7 +1394,7 @@ static void _sendScanNetwork( int32_t responseType,
     }
     else
     {
-        IotLogError( "Failed to serialze scanned network network ( SSID:%s )", pScanNetwork->cSSID );
+        IotLogError( "Failed to serialize scanned network network ( SSID:%s )", pScanNetwork->cSSID );
     }
 
     if( message != NULL )

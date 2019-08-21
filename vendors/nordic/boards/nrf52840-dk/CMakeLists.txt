@@ -12,6 +12,15 @@ endif()
 set(AFR_MODULE_defender 0 CACHE INTERNAL "")
 
 # -------------------------------------------------------------------------------------------------
+# Amazon FreeRTOS disabled libraries
+# -------------------------------------------------------------------------------------------------
+
+# HTTPS is not supported for Nordic as this board does not have WiFi/Ethernet.
+afr_disable_public_modules(
+    https
+)
+
+# -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
@@ -100,13 +109,16 @@ afr_mcu_port(kernel)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/port.c"
-        "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F/portmacro.h"
+        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/port.c"
+        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/port_cmsis.c"
+        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/port_cmsis_systick.c"
+        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/portmacro.h"
+        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/portmacro_cmsis.h"
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
 )
 set(
     kernel_inc_dirs
-    "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
+    "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk"
     "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
@@ -209,14 +221,13 @@ afr_mcu_port(ble_hal)
 target_sources(
     AFR::ble_hal::mcu_port
     INTERFACE
-        "${afr_ports_dir}/ble/aws_ble_event_manager_config.h"
-        "${afr_ports_dir}/ble/aws_ble_gap_config.h"
-        "${afr_ports_dir}/ble/aws_ble_hal_common_gap.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_dis.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_dis.h"
-        "${afr_ports_dir}/ble/aws_ble_hal_gap.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_gatt_server.c"
-        "${afr_ports_dir}/ble/aws_ble_hal_internals.h"
+        "${afr_ports_dir}/ble/iot_ble_gap_config.h"
+        "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_dis.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_dis.h"
+        "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
+        "${afr_ports_dir}/ble/iot_ble_hal_internals.h"
 )
 target_include_directories(
     AFR::ble_hal::mcu_port

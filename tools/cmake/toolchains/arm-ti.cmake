@@ -40,5 +40,5 @@ link_libraries(-llibc.a)
 # Overwrite CMake archiver command for TI's compiler.
 set(CMAKE_C_ARCHIVE_APPEND "<CMAKE_AR> a <TARGET> <LINK_FLAGS> <OBJECTS>")
 
-# Overwrite response file flag for TI's compiler.
-set(CMAKE_C_RESPONSE_FILE_LINK_FLAG "-cmd_file=")
+# Default response file flag is "@".  TI's compiler doesn't require that.
+set(CMAKE_C_RESPONSE_FILE_LINK_FLAG "")

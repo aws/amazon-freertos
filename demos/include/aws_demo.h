@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -35,17 +35,17 @@
  * @brief All C SDK demo functions have this signature.
  */
 typedef int (* demoFunction_t)( bool awsIotMqttMode,
-                                 const char * pIdentifier,
-                                 void * pNetworkServerInfo,
-                                 void * pNetworkCredentialInfo,
-                                 const IotNetworkInterface_t * pNetworkInterface );
+                                const char * pIdentifier,
+                                void * pNetworkServerInfo,
+                                void * pNetworkCredentialInfo,
+                                const IotNetworkInterface_t * pNetworkInterface );
 
 
 typedef void (* networkConnectedCallback_t)( bool awsIotMqttMode,
-                                        const char * pIdentifier,
-                                        void * pNetworkServerInfo,
-                                        void * pNetworkCredentialInfo,
-                                        const IotNetworkInterface_t * pNetworkInterface );
+                                             const char * pIdentifier,
+                                             void * pNetworkServerInfo,
+                                             void * pNetworkCredentialInfo,
+                                             const IotNetworkInterface_t * pNetworkInterface );
 
 typedef void (* networkDisconnectedCallback_t)( const IotNetworkInterface_t * pNetworkInteface );
 
@@ -60,10 +60,10 @@ typedef struct demoContext
     /* Network types for the demo */
     uint32_t networkTypes;
     /* Function pointers to be set by the implementations for the demo */
-    demoFunction_t                demoFunction;
-    networkConnectedCallback_t    networkConnectedCallback;
+    demoFunction_t demoFunction;
+    networkConnectedCallback_t networkConnectedCallback;
     networkDisconnectedCallback_t networkDisconnectedCallback;
-}  demoContext_t;
+} demoContext_t;
 
 
 #endif /* _DEMO_SELECTION_H_ */

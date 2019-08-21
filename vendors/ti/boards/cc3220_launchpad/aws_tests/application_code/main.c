@@ -32,20 +32,20 @@
  * Wi-Fi SSID, password & security settings,
  * AWS endpoint, certificate, private key & thing name. */
 #include "aws_clientcredential.h"
-#include "aws_default_root_certificates.h"
-
+#include "iot_default_root_certificates.h"
+#include "iot_pkcs11_config.h"
 
 /* FreeRTOS header files. */
 #include "FreeRTOS.h"
 #include "task.h"
 
 /* AWS System files. */
-#include "aws_wifi.h"
-#include "aws_system_init.h"
+#include "iot_wifi.h"
+#include "iot_system_init.h"
 #include "aws_test_runner.h"
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 #include "aws_dev_mode_key_provisioning.h"
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 /* TI-Driver includes. */
 #include <ti/drivers/GPIO.h>
@@ -142,15 +142,15 @@ void vApplicationDaemonTaskStartupHook( void )
         }
     }
 
-    /* A simple example to demonstrate key and certificate provisioning in
-     * flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();
-    prvProvisionRootCA();
-
     /* Initialize the AWS Libraries system. */
     if( SYSTEM_Init() == pdPASS )
     {
+        /* A simple example to demonstrate key and certificate provisioning in
+         * flash using PKCS#11 interface. This should be replaced
+         * by production ready key provisioning mechanism. */
+        vDevModeKeyProvisioning();
+        prvProvisionRootCA();
+
         prvWifiConnect();
 
         /* Show the possible security alerts that will affect re-flashing the device. 
@@ -181,8 +181,6 @@ CK_RV prvProvisionRootCA( void )
     uint8_t * pucRootCA = NULL;
     uint32_t ulRootCALength = 0;
     CK_RV xResult = CKR_OK;
-    CK_FUNCTION_LIST_PTR xFunctionList;
-    CK_SLOT_ID xSlotId;
     CK_SESSION_HANDLE xSessionHandle;
     CK_OBJECT_HANDLE xCertificateHandle;
 
@@ -199,9 +197,7 @@ CK_RV prvProvisionRootCA( void )
         ulRootCALength = tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH;
     }
 
-    xResult = xInitializePkcsSession( &xFunctionList,
-                                      &xSlotId,
-                                      &xSessionHandle );
+    xResult = xInitializePkcs11Session( &xSessionHandle );
 
     if( xResult == CKR_OK )
     {

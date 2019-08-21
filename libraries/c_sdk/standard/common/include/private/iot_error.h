@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Common V1.0.0
+ * Amazon FreeRTOS Common V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,7 +53,7 @@
  * This macro should be placed at the end of a function and followed by
  * #IOT_FUNCTION_CLEANUP_END.
  */
-#define IOT_FUNCTION_CLEANUP_BEGIN()                      iotCleanup:
+#define IOT_FUNCTION_CLEANUP_BEGIN()                      iotCleanup :
 
 /**
  * @brief Declares the end of a cleanup section.

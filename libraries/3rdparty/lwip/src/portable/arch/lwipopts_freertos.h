@@ -86,40 +86,17 @@
    ------------------------------------
  */
 
-/* MEM_USE_EXTERNAL_MGMT: set to 1 when using FreeRTOS
- * memory management. The size of the memory should be set
- * in FreeRTOSConfig.h
- */
-#define MEM_USE_EXTERNAL_MGMT 1
-
-/* MEM_ALIGNMENT: should be set to the alignment of the CPU for which
-   lwIP is compiled. 4 byte alignment -> define MEM_ALIGNMENT to 4, 2
-   byte alignment -> define MEM_ALIGNMENT to 2. */
-#define MEM_ALIGNMENT           4
-
-/* MEMP_MEM_MALLOC: 1 to use mem_malloc/mem_free instead of the lwip pool
-   allocator. Especially useful with MEM_LIBC_MALLOC but handle with care
-   regarding execution speed and usage from interrupts! */
-#define MEMP_MEM_MALLOC         1
-
-
 /**
- * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
- * critical regions during buffer allocation, deallocation and memory
- * allocation and deallocation.
+ * MEM_SIZE: the size of the heap memory. If the application will send
+ * a lot of data that needs to be copied, this should be set high.
  */
-#define SYS_LIGHTWEIGHT_PROT    1
+#define MEM_SIZE                        (10 * 1024)
 
 /*
    ------------------------------------------------
    ---------- Internal Memory Pool Sizes ----------
    ------------------------------------------------
 */
-
-/* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
-   sends a lot of data out of ROM (or other static memory), this
-   should be set high. */
-#define MEMP_NUM_PBUF           8
 
 /* MEMP_NUM_UDP_PCB: the number of UDP protocol control blocks. One
    per active UDP "connection". */
@@ -156,23 +133,9 @@
  */
 
 
-/* PBUF_POOL_SIZE: the number of buffers in the pbuf pool. */
-#define PBUF_POOL_SIZE          10
-
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool.
    MT7687 packets have extra TXD header and packet offset. */
 #define PBUF_POOL_BUFSIZE       (1536 + 128)
-
-#define RESERVED_HLEN            0    //depend on CFG_CONNSYS_TXD_PAD_SIZE
-
-#define PBUF_LINK_ENCAPSULATION_HLEN 0
-
-
-/* PBUF_LINK_HLEN: the number of bytes that should be allocated for a
-   link level header. The default is 14, the standard value for
-   Ethernet. */
-#define PBUF_LINK_HLEN           (RESERVED_HLEN + 14 + ETH_PAD_SIZE)
-
 
 /*
    ---------------------------------
@@ -181,36 +144,14 @@
  */
 
 
-/* Controls if TCP should queue segments that arrive out of
-   order. Define to 0 if your device is low on memory. */
-#define TCP_QUEUE_OOSEQ         1
-
 /* TCP Maximum segment size. */
 #define TCP_MSS                 1476
 
 /* TCP sender buffer space (bytes). */
 #define TCP_SND_BUF             (24 * 1024) //(12 * 1024)
 
-/* TCP sender buffer space (pbufs). This must be at least =
-   2 * TCP_SND_BUF/TCP_MSS for things to work. */
-#define TCP_SND_QUEUELEN        ((4 * (TCP_SND_BUF) + (TCP_MSS - 1))/(TCP_MSS))
-
 /* TCP receive window. */
 #define TCP_WND                 (24 * 1024)
-
-/* Maximum number of retransmissions of data segments. */
-#define TCP_MAXRTX              12
-
-/* Maximum number of retransmissions of SYN segments. */
-#define TCP_SYNMAXRTX           4
-
-/**
- * LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS==1: randomize the local port for the first
- * local TCP/UDP pcb (default==0). This can prevent creating predictable port
- * numbers after booting a device.
- */
-#define LWIP_RANDOMIZE_INITIAL_LOCAL_PORTS 1
-
 
 /*
    ---------------------------------
@@ -231,29 +172,6 @@
 
 /*
    ---------------------------------
-   ----------- IP options ----------
-   ---------------------------------
- */
-
-
-/**
- * IP_REASSEMBLY==1: Reassemble incoming fragmented IP packets. Note that
- * this option does not affect outgoing packet sizes, which can be controlled
- * via IP_FRAG.
- */
-#define IP_REASSEMBLY           1
-
-/**
- * IP_REASS_MAX_PBUFS: Total maximum amount of pbufs waiting to be reassembled.
- * Since the received pbufs are enqueued, be sure to configure
- * PBUF_POOL_SIZE > IP_REASS_MAX_PBUFS so that the stack is still able to receive
- * packets even if the maximum amount of fragments is enqueued for reassembly!
- */
-
-#define IP_REASS_MAX_PBUFS      10
-
-/*
-   ---------------------------------
    ---------- DHCP options ---------
    ---------------------------------
  */
@@ -262,14 +180,6 @@
 /* Define LWIP_DHCP to 1 if you want DHCP configuration of
    interfaces. */
 #define LWIP_DHCP               1
-
-/**
- * LWIP_DHCP_CHECK_LINK_UP==1: dhcp_start() only really starts if the netif has
- * NETIF_FLAG_LINK_UP set in its flags. As this is only an optimization and
- * netif drivers might not set this flag, the default is off. If enabled,
- * netif_set_link_up() must be called to continue dhcp starting.
- */
-#define LWIP_DHCP_CHECK_LINK_UP 1
 
 /* 1 if you want to do an ARP check on the offered address
    (recommended). */
@@ -309,17 +219,6 @@
  * sending for each netif (0 = disabled)
  */
 #define LWIP_LOOPBACK_MAX_PBUFS 12
-
-
-/*
-   ------------------------------------
-   ---------- LOOPIF options ----------
-   ------------------------------------
- */
-
-
-/* LWIP_HAVE_LOOPIF==1: Support loop interface (127.0.0.1) and loopif.c */
-#define LWIP_HAVE_LOOPIF        1
 
 
 /*

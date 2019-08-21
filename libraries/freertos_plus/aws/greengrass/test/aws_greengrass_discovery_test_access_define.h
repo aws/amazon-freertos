@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass V1.0.4
+ * Amazon FreeRTOS Greengrass V1.0.5
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -25,7 +25,7 @@
 
 /**
  * @file aws_greengrass_test_access_define.h
- * @brief Functions warppers to access private methods in aws_greengrass_discovery.c.
+ * @brief Functions wrappers to access private methods in aws_greengrass_discovery.c.
  *
  * Needed for testing private functions.
  */

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,10 +42,10 @@
 
 typedef struct MqttConnectionContext
 {
-    void *pvNetworkConnection;
+    void * pvNetworkConnection;
     uint32_t ulNetworkType;
     IotMqttNetworkInfo_t xNetworkInfo;
-    IotNetworkError_t ( * xDisconnectCallback ) ( void *) ;
+    IotNetworkError_t ( * xDisconnectCallback )( void * );
     IotMqttConnection_t xMqttConnection;
 } MqttConnectionContext_t;
 
@@ -60,15 +60,14 @@ typedef struct MqttConnectionContext
  * @param ulPreferredNetworks OR separated flags indicating preferred network types.
  * @return pdTRUE if network is created successfully.
  */
-BaseType_t xMqttDemoCreateNetworkConnection(
-        MqttConnectionContext_t* pxNetworkContext,
-        uint32_t ulNetworkTypes );
+BaseType_t xMqttDemoCreateNetworkConnection( MqttConnectionContext_t * pxNetworkContext,
+                                             uint32_t ulNetworkTypes );
 
 /**
  * @brief Deletes a Network Connection.
  *
  * @param pxNetworkConnection pointer to the network connection context.
  */
-void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t* pxNetworkConnection );
+void vMqttDemoDeleteNetworkConnection( MqttConnectionContext_t * pxNetworkConnection );
 
 #endif /* AWS_IOT_DEMO_NETWORK_H_ */

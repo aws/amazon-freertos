@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -84,6 +84,7 @@ typedef struct
     IotListDouble_t subscrEventListHead[ eNbEvents ]; /**< Any task can subscribe to events in that array, several callback can subscribe to the same event */
     uint16_t handlePendingPrepareWrite;
     IotBle_StartAdvCallback_t pStartAdvCb;
+    IotBle_StopAdvCallback_t pStopAdvCb;
     BTInterface_t * pBTInterface;
     BTBleAdapter_t * pBTLeAdapterInterface;
     BTGattServerInterface_t * pGattServerInterface;
@@ -96,6 +97,7 @@ typedef struct
 extern _bleInterface_t _BTInterface;
 
 extern const BTGattServerCallbacks_t _BTGattServerCb;
+extern void _bleStartAdvCb( BTStatus_t status );
 
 
 #endif /* ifndef _AWS_BLE_INTERNALS_H_ */

@@ -353,9 +353,9 @@
 			<locationURI>BASE_DIR_ROOT/demos/network_manager/iot_network_manager_private.h</locationURI>
 		</link>
 		<link>
-			<name>demos/demo_runner/iot_demo_afr.c</name>
+			<name>demos/demo_runner/iot_demo_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/demo_runner/iot_demo_afr.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/demos/demo_runner/iot_demo_freertos.c</locationURI>
 		</link>
 		<link>
 			<name>demos/demo_runner/iot_demo_runner.c</name>
@@ -413,9 +413,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_init.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/aws_appversion32.h</name>
+			<name>libraries/c_sdk/standard/common/include/iot_appversion32.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/aws_appversion32.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_appversion32.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_init.h</name>
@@ -428,9 +428,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_linear_containers.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</name>
+			<name>libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/logging/aws_logging_task_dynamic_buffers.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/logging/iot_logging.c</name>
@@ -443,9 +443,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/private/iot_logging.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/common/include/aws_logging_task.h</name>
+			<name>libraries/c_sdk/standard/common/include/iot_logging_task.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/aws_logging_task.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/include/iot_logging_task.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/include/iot_logging_setup.h</name>
@@ -461,6 +461,11 @@
 			<name>libraries/c_sdk/standard/common/iot_static_memory_common.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_static_memory_common.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/common/iot_device_metrics.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/common/iot_device_metrics.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</name>
@@ -508,19 +513,19 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/include/types/iot_platform_types.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_clock_afr.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_clock_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_clock_afr.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_clock_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_threads_afr.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_threads_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_threads_afr.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_threads_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</name>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_afr.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/abstractions/platform/include/platform/iot_metrics.h</name>
@@ -533,34 +538,34 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_metrics.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/iot_network_afr.c</name>
+			<name>libraries/abstractions/platform/freertos/iot_network_freertos.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_network_afr.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/iot_network_freertos.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</name>
+			<name>libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_afr.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</name>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/aws_secure_sockets.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</name>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/aws_secure_sockets_config_defaults.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</name>
+			<name>libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/aws_secure_sockets_wrapper_metrics.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/aws_secure_sockets.c</name>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/iot_secure_sockets.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/aws_secure_sockets.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/secure_sockets/iot_secure_sockets.c</locationURI>
 		</link>
 		<link>
 			<name>demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</name>
@@ -568,44 +573,74 @@
 			<locationURI>BASE_DIR_ROOT/demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</locationURI>
 		</link>
 		<link>
-			<name>demos/dev_mode_key_provisioning/src/pem2der.c</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/demos/dev_mode_key_provisioning/src/pem2der.c</locationURI>
-		</link>
-		<link>
 			<name>demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/include/aws_pkcs11.h</name>
+			<name>libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/aws_pkcs11.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/aws_pkcs11_pal.c</name>
+			<name>libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/aws_pkcs11_pal.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/wifi/include/aws_wifi.h</name>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/wifi/include/aws_wifi.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/ti/boards/cc3220_launchpad/ports/wifi/aws_wifi.c</name>
+			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/wifi/aws_wifi.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/utils/src/aws_system_init.c</name>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/src/aws_system_init.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/standard/utils/include/aws_system_init.h</name>
+			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/aws_system_init.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/crypto/include/iot_crypto.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/include/iot_crypto.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/iot_system_init.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/iot_system_init.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/wifi/include/iot_wifi.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/wifi/include/iot_wifi.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/ports/wifi/iot_wifi.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</name>
@@ -673,9 +708,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</name>
+			<name>libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/aws_mqtt_agent.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</name>
@@ -688,14 +723,14 @@
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</name>
+			<name>libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_decoder.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</name>
+			<name>libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/json/aws_iot_serializer_json_encoder.c</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</name>
@@ -761,6 +796,16 @@
 			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/https/src/iot_https_client.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/https/src/iot_https_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/https/src/iot_https_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
@@ -846,6 +891,21 @@
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_download_sync.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/https/iot_demo_https_s3_download_sync.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_download_async.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/https/iot_demo_https_s3_download_async.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_common.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/demos/https/iot_demo_https_common.c</locationURI>
 		</link>
 		<link>
 			<name>demos/mqtt/iot_demo_mqtt.c</name>
@@ -938,11 +998,6 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_iot_network_config.h</locationURI>
 		</link>
 		<link>
-			<name>config_files/aws_mqtt_agent_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_mqtt_agent_config.h</locationURI>
-		</link>
-		<link>
 			<name>config_files/aws_mqtt_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_mqtt_config.h</locationURI>
@@ -951,11 +1006,6 @@
 			<name>config_files/aws_ota_agent_config.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_ota_agent_config.h</locationURI>
-		</link>
-		<link>
-			<name>config_files/aws_pkcs11_config.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/aws_pkcs11_config.h</locationURI>
 		</link>
 		<link>
 			<name>config_files/aws_secure_sockets_config.h</name>
@@ -978,6 +1028,16 @@
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_config.h</locationURI>
 		</link>
 		<link>
+			<name>config_files/iot_mqtt_agent_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_mqtt_agent_config.h</locationURI>
+		</link>
+		<link>
+			<name>config_files/iot_pkcs11_config.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/config_files/iot_pkcs11_config.h</locationURI>
+		</link>
+		<link>
 			<name>application_code/main.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/main.c</locationURI>
@@ -986,6 +1046,21 @@
 			<name>application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/vendors/ti/boards/cc3220_launchpad/aws_demos/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/library/aes.c</name>
@@ -1343,6 +1418,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/xtea.c</locationURI>
 		</link>
 		<link>
+			<name>libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/aes.h</locationURI>
@@ -1698,26 +1778,6 @@
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
-		</link>
-		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
-		</link>
-		<link>
 			<name>libraries/3rdparty/tinycbor/cborpretty.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborpretty.c</locationURI>
@@ -1746,6 +1806,16 @@
 			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/http-parser/http_parser.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/http-parser/http_parser.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/http-parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/http-parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

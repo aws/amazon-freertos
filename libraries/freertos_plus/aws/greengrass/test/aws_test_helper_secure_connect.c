@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Greengrass V1.0.4
+ * Amazon FreeRTOS Greengrass V1.0.5
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -84,7 +84,7 @@ TEST( Full_GGD_Helper, SecureConnect_Connect_Disconnect )
         TEST_FAIL();
     }
 
-    /** @brief Check Statility by passing in NULL pointers.
+    /** @brief Check Stability by passing in NULL pointers.
      *  @{
      */
     if( TEST_PROTECT() )
@@ -144,7 +144,7 @@ TEST( Full_GGD_Helper, SecureConnect_Send )
         TEST_FAIL();
     }
 
-    /** @brief Check Statility by passing in NULL pointers.
+    /** @brief Check Stability by passing in NULL pointers.
      *  @{
      */
     if( TEST_PROTECT() )

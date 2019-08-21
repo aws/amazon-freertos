@@ -4,7 +4,6 @@
 
 set(compiler_defined_symbols
     _DLIB_FILE_DESCRIPTOR
-    __little_endian__
 )
 
 set(assembler_defined_symbols

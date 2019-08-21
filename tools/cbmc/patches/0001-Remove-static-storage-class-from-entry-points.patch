@@ -7,15 +7,15 @@ Many of the entry points we wish to test are marked as being static.
 This commit removes the static keyword from all entry points that we
 test.
 ---
- lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c    |  6 +++---
- lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c     | 14 +++++++-------
- lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c |  2 +-
+ libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c    |  6 +++---
+ libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c     | 14 +++++++-------
+ libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c |  2 +-
  3 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c
+diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
 index 4ec3e5dc3..b692e78d2 100644
---- a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c
-+++ b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DHCP.c
+--- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
++++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c
 @@ -203,7 +203,7 @@ static void prvSendDHCPDiscover( void );
  /*
   * Interpret message received on the DHCP socket.
@@ -43,10 +43,10 @@ index 4ec3e5dc3..b692e78d2 100644
  {
  uint8_t *pucUDPPayload, *pucLastByte;
  struct freertos_sockaddr xClient;
-diff --git a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c
+diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c
 index bf55c584b..ca7c88280 100644
---- a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c
-+++ b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_DNS.c
+--- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c
++++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c
 @@ -114,12 +114,12 @@ static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer, const char *pcH
  /*
   * Simple routine that jumps over the NAME field of a resource record.
@@ -106,10 +106,10 @@ index bf55c584b..ca7c88280 100644
  {
  DNSMessage_t *pxDNSMessageHeader;
  DNSAnswerRecord_t *pxDNSAnswerRecord;
-diff --git a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
+diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c
 index 4bf22a9ef..4e38adc81 100644
---- a/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
-+++ b/lib/FreeRTOS-Plus-TCP/source/FreeRTOS_TCP_WIN.c
+--- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c
++++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c
 @@ -206,7 +206,7 @@ extern void vListInsertGeneric( List_t * const pxList, ListItem_t * const pxNewL
  
  /* List of free TCP segments. */

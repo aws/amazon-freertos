@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Common V1.0.0
+ * Amazon FreeRTOS Common V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -217,7 +217,7 @@ void IotLog_Generic( int libraryLogSetting,
     /* Estimate the amount of buffer needed for this log message. */
     if( ( pLogConfig == NULL ) || ( pLogConfig->hideLibraryName == false ) )
     {
-        /* Add size of library name if requested. Add 2 to accomodate "[]". */
+        /* Add size of library name if requested. Add 2 to accommodate "[]". */
         bufferSize += strlen( pLibraryName ) + 2;
     }
 

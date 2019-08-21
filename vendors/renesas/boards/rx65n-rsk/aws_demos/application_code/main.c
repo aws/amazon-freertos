@@ -31,10 +31,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "aws_application_version.h"
 
 /* System init includes. */
-#include "aws_system_init.h"
+#include "iot_system_init.h"
 
 /* Logging includes. */
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 
 /* Key provisioning includes. */
 #include "aws_dev_mode_key_provisioning.h"
