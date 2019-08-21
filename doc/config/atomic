@@ -9,7 +9,7 @@ PROJECT_NAME = "Atomics"
 HTML_OUTPUT = atomic
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/atomic.tag
+GENERATE_TAGFILE = doc/output/atomic.tag
 
 # Directories containing library source code.
 INPUT = doc \
@@ -23,7 +23,7 @@ FILE_PATTERNS = *atomic*.h *atomic*.c *atomic*.txt
 EXAMPLE_PATH = libraries/c_sdk/standard/common/include/iot_atomic.h
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
+TAGFILES = doc/output/main.tag=../main \
 
 # Excluded symbols
 EXCLUDE_SYMBOLS = ATOMIC_ENTER_CRITICAL ATOMIC_EXIT_CRITICAL portFORCE_INLINE
