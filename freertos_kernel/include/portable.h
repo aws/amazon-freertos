@@ -1,29 +1,71 @@
 /*
- * FreeRTOS Kernel V10.2.1
- * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
- * http://www.FreeRTOS.org
- * http://aws.amazon.com/freertos
- *
- * 1 tab == 4 spaces!
- */
+    FreeRTOS V8.2.0 - Copyright (C) 2015 Real Time Engineers Ltd.
+    All rights reserved
+
+    VISIT http://www.FreeRTOS.org TO ENSURE YOU ARE USING THE LATEST VERSION.
+
+    This file is part of the FreeRTOS distribution.
+
+    FreeRTOS is free software; you can redistribute it and/or modify it under
+    the terms of the GNU General Public License (version 2) as published by the
+    Free Software Foundation >>!AND MODIFIED BY!<< the FreeRTOS exception.
+
+	***************************************************************************
+    >>!   NOTE: The modification to the GPL is included to allow you to     !<<
+    >>!   distribute a combined work that includes FreeRTOS without being   !<<
+    >>!   obliged to provide the source code for proprietary components     !<<
+    >>!   outside of the FreeRTOS kernel.                                   !<<
+	***************************************************************************
+
+    FreeRTOS is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+    FOR A PARTICULAR PURPOSE.  Full license text is available on the following
+    link: http://www.freertos.org/a00114.html
+
+    ***************************************************************************
+     *                                                                       *
+     *    FreeRTOS provides completely free yet professionally developed,    *
+     *    robust, strictly quality controlled, supported, and cross          *
+     *    platform software that is more than just the market leader, it     *
+     *    is the industry's de facto standard.                               *
+     *                                                                       *
+     *    Help yourself get started quickly while simultaneously helping     *
+     *    to support the FreeRTOS project by purchasing a FreeRTOS           *
+     *    tutorial book, reference manual, or both:                          *
+     *    http://www.FreeRTOS.org/Documentation                              *
+     *                                                                       *
+    ***************************************************************************
+
+    http://www.FreeRTOS.org/FAQHelp.html - Having a problem?  Start by reading
+	the FAQ page "My application does not run, what could be wrong?".  Have you
+	defined configASSERT()?
+
+	http://www.FreeRTOS.org/support - In return for receiving this top quality
+	embedded software for free we request you assist our global community by
+	participating in the support forum.
+
+	http://www.FreeRTOS.org/training - Investing in training allows your team to
+	be as productive as possible as early as possible.  Now you can receive
+	FreeRTOS training directly from Richard Barry, CEO of Real Time Engineers
+	Ltd, and the world's leading authority on the world's leading RTOS.
+
+    http://www.FreeRTOS.org/plus - A selection of FreeRTOS ecosystem products,
+    including FreeRTOS+Trace - an indispensable productivity tool, a DOS
+    compatible FAT file system, and our tiny thread aware UDP/IP stack.
+
+    http://www.FreeRTOS.org/labs - Where new FreeRTOS products go to incubate.
+    Come and try FreeRTOS+TCP, our new open source TCP/IP stack for FreeRTOS.
+
+    http://www.OpenRTOS.com - Real Time Engineers ltd. license FreeRTOS to High
+    Integrity Systems ltd. to sell under the OpenRTOS brand.  Low cost OpenRTOS
+    licenses offer ticketed support, indemnification and commercial middleware.
+
+    http://www.SafeRTOS.com - High Integrity Systems also provide a safety
+    engineered and independently SIL3 certified version for use in safety and
+    mission critical applications that require provable dependability.
+
+    1 tab == 4 spaces!
+*/
 
 /*-----------------------------------------------------------
  * Portable layer API.  Each function must be defined for each port.
@@ -52,16 +94,8 @@ must be set in the compiler's include path. */
 	#include "portmacro.h"
 #endif
 
-#if portBYTE_ALIGNMENT == 32
-	#define portBYTE_ALIGNMENT_MASK ( 0x001f )
-#endif
-
-#if portBYTE_ALIGNMENT == 16
-	#define portBYTE_ALIGNMENT_MASK ( 0x000f )
-#endif
-
 #if portBYTE_ALIGNMENT == 8
-	#define portBYTE_ALIGNMENT_MASK ( 0x0007 )
+	#define portBYTE_ALIGNMENT_MASK ( 0x0007U )
 #endif
 
 #if portBYTE_ALIGNMENT == 4
@@ -84,19 +118,12 @@ must be set in the compiler's include path. */
 	#define portNUM_CONFIGURABLE_REGIONS 1
 #endif
 
-#ifndef portHAS_STACK_OVERFLOW_CHECKING
-	#define portHAS_STACK_OVERFLOW_CHECKING 0
-#endif
-
-#ifndef portARCH_NAME
-	#define portARCH_NAME NULL
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "mpu_wrappers.h"
+#include "esp_system.h"
 
 /*
  * Setup the stack of a new task so it is ready to be placed under the
@@ -105,48 +132,22 @@ extern "C" {
  *
  */
 #if( portUSING_MPU_WRAPPERS == 1 )
-	#if( portHAS_STACK_OVERFLOW_CHECKING == 1 )
-		StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, StackType_t *pxEndOfStack, TaskFunction_t pxCode, void *pvParameters, BaseType_t xRunPrivileged ) PRIVILEGED_FUNCTION;
-	#else
-		StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t pxCode, void *pvParameters, BaseType_t xRunPrivileged ) PRIVILEGED_FUNCTION;
-	#endif
+	StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t pxCode, void *pvParameters, BaseType_t xRunPrivileged ) PRIVILEGED_FUNCTION;
 #else
-	#if( portHAS_STACK_OVERFLOW_CHECKING == 1 )
-		StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, StackType_t *pxEndOfStack, TaskFunction_t pxCode, void *pvParameters ) PRIVILEGED_FUNCTION;
-	#else
-		StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t pxCode, void *pvParameters ) PRIVILEGED_FUNCTION;
-	#endif
+	StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t pxCode, void *pvParameters ) PRIVILEGED_FUNCTION;
 #endif
-
-/* Used by heap_5.c. */
-typedef struct HeapRegion
-{
-	uint8_t *pucStartAddress;
-	size_t xSizeInBytes;
-} HeapRegion_t;
-
-/*
- * Used to define multiple heap regions for use by heap_5.c.  This function
- * must be called before any calls to pvPortMalloc() - not creating a task,
- * queue, semaphore, mutex, software timer, event group, etc. will result in
- * pvPortMalloc being called.
- *
- * pxHeapRegions passes in an array of HeapRegion_t structures - each of which
- * defines a region of memory that can be used as the heap.  The array is
- * terminated by a HeapRegions_t structure that has a size of 0.  The region
- * with the lowest start address must appear first in the array.
- */
-void vPortDefineHeapRegions( const HeapRegion_t * const pxHeapRegions ) PRIVILEGED_FUNCTION;
-
 
 /*
  * Map to the memory management routines required for the port.
+ *
+ * Note that libc standard malloc/free are also available for
+ * non-FreeRTOS-specific code, and behave the same as
+ * pvPortMalloc()/vPortFree().
  */
-void *pvPortMalloc( size_t xSize ) PRIVILEGED_FUNCTION;
-void vPortFree( void *pv ) PRIVILEGED_FUNCTION;
-void vPortInitialiseBlocks( void ) PRIVILEGED_FUNCTION;
-size_t xPortGetFreeHeapSize( void ) PRIVILEGED_FUNCTION;
-size_t xPortGetMinimumEverFreeHeapSize( void ) PRIVILEGED_FUNCTION;
+#define pvPortMalloc malloc
+#define vPortFree free
+#define xPortGetFreeHeapSize esp_get_free_heap_size
+#define xPortGetMinimumEverFreeHeapSize esp_get_minimum_free_heap_size
 
 /*
  * Setup the hardware ready for the scheduler to take control.  This generally
@@ -161,6 +162,33 @@ BaseType_t xPortStartScheduler( void ) PRIVILEGED_FUNCTION;
  */
 void vPortEndScheduler( void ) PRIVILEGED_FUNCTION;
 
+
+/*
+ * Send an interrupt to another core in order to make the task running
+ * on it yield for a higher-priority task.
+ */
+
+void vPortYieldOtherCore( BaseType_t coreid) PRIVILEGED_FUNCTION;
+
+
+/*
+ Callback to set a watchpoint on the end of the stack. Called every context switch to change the stack
+ watchpoint around.
+ */
+void vPortSetStackWatchpoint( void* pxStackStart );
+
+/*
+ * Returns true if the current core is in ISR context; low prio ISR, med prio ISR or timer tick ISR. High prio ISRs
+ * aren't detected here, but they normally cannot call C code, so that should not be an issue anyway.
+ */
+BaseType_t xPortInIsrContext();
+
+/*
+ * This function will be called in High prio ISRs. Returns true if the current core was in ISR context
+ * before calling into high prio ISR context.
+ */
+BaseType_t xPortInterruptedFromISRContext();
+
 /*
  * The structures and methods of manipulating the MPU are contained within the
  * port layer.
@@ -170,12 +198,28 @@ void vPortEndScheduler( void ) PRIVILEGED_FUNCTION;
  */
 #if( portUSING_MPU_WRAPPERS == 1 )
 	struct xMEMORY_REGION;
-	void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, const struct xMEMORY_REGION * const xRegions, StackType_t *pxBottomOfStack, uint32_t ulStackDepth ) PRIVILEGED_FUNCTION;
+	void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, const struct xMEMORY_REGION * const xRegions, StackType_t *pxBottomOfStack, uint32_t usStackDepth ) PRIVILEGED_FUNCTION;
+	void vPortReleaseTaskMPUSettings( xMPU_SETTINGS *xMPUSettings );
 #endif
+
+/* Multi-core: get current core ID */
+static inline uint32_t IRAM_ATTR xPortGetCoreID() {
+    int id;
+    __asm__ (
+        "rsr.prid %0\n"
+        " extui %0,%0,13,1"
+        :"=r"(id));
+    return id;
+}
+
+/* Get tick rate per second */
+uint32_t xPortGetTickRateHz(void);
 
 #ifdef __cplusplus
 }
 #endif
+
+void uxPortCompareSetExtram(volatile uint32_t *addr, uint32_t compare, uint32_t *set);
 
 #endif /* PORTABLE_H */
 
