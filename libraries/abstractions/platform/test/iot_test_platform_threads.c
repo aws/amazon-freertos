@@ -119,23 +119,8 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 #if ( configUSE_TRACE_FACILITY == 1 )
     void threadPriorityTestFunction( void * param )
     {
-        TaskStatus_t xTaskDetails;
 
-        /* Use the handle to obtain further information about the task. */
-        vTaskGetInfo( /* The handle of the task being queried. */
-            NULL,
-
-            /* The TaskStatus_t structure to complete with information
-             * on xTask. */
-            &xTaskDetails,
-
-            /* Include the stack high water mark value in the
-             * TaskStatus_t structure. */
-            pdTRUE,
-            /* Include the task state in the TaskStatus_t structure. */
-            eInvalid );
-
-        *( int32_t * ) param = xTaskDetails.uxCurrentPriority;
+        *(int32_t*) param = uxTaskPriorityGet( NULL );
     }
 
     TEST( UTIL_Platform_Threads, IotThreads_ThreadPriority )
@@ -186,23 +171,8 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
  */
     void threadStackSizeTestFunction( void * param )
     {
-        TaskStatus_t xTaskDetails;
 
-        /* Use the handle to obtain further information about the task. */
-        vTaskGetInfo( /* The handle of the task being queried. */
-            NULL,
-
-            /* The TaskStatus_t structure to complete with information
-             * on xTask. */
-            &xTaskDetails,
-
-            /* Include the stack high water mark value in the
-             * TaskStatus_t structure. */
-            pdTRUE,
-            /* Include the task state in the TaskStatus_t structure. */
-            eInvalid );
-
-        *( int32_t * ) param = 300 + xTaskDetails.usStackHighWaterMark;
+        *( int32_t * ) param = 300 + uxTaskGetStackHighWaterMark( NULL );
     }
 #endif /* if ( configUSE_TRACE_FACILITY == 1 ) */
 
