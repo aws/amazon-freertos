@@ -143,12 +143,13 @@
 /**
  * @brief Format string of the PUBLISH messages in this demo.
  */
-#define PUBLISH_PAYLOAD_FORMAT                   "{\"message\": \"Subject %d on the door\", \"intruder\": %d, \"datetime\": \"test200\"}"
+#define PUBLISH_PAYLOAD_FORMAT_SUCCESS           "{\"message\": \"Subject %d on the door\", \"intruder\": %d, \"datetime\": \"test200\"}"
+#define PUBLISH_PAYLOAD_FORMAT_FAILURE           "{\"message\": \"INTRUDER ALERT\", \"intruder\": %d, \"datetime\": \"test200\"}"
 
 /**
  * @brief Size of the buffer that holds the PUBLISH messages in this demo.
  */
-#define PUBLISH_PAYLOAD_BUFFER_LENGTH            ( sizeof( PUBLISH_PAYLOAD_FORMAT ) + 2 )
+#define PUBLISH_PAYLOAD_BUFFER_LENGTH            ( sizeof( PUBLISH_PAYLOAD_FORMAT_SUCCESS ) + 2 )
 
 /**
  * @brief The maximum number of times each PUBLISH in this demo will be retried.
@@ -198,8 +199,6 @@ QueueHandle_t xResultQueue;
 en_fsm_state g_state = WAIT_FOR_WAKEUP;
 
 static face_id_list id_list = { 0 };
-
-bool face_enroll_done = false;
 /*-----------------------------------------------------------*/
 
 /**
@@ -656,15 +655,14 @@ static int _publishResult( IotMqttConnection_t mqttConnection,
     {
         status = snprintf( pPublishPayload,
                            PUBLISH_PAYLOAD_BUFFER_LENGTH,
-                           PUBLISH_PAYLOAD_FORMAT,
-                           ( int ) pSubject,
+                           PUBLISH_PAYLOAD_FORMAT_FAILURE,
                            ( int ) 1 );
     }
     else
     {
         status = snprintf( pPublishPayload,
                            PUBLISH_PAYLOAD_BUFFER_LENGTH,
-                           PUBLISH_PAYLOAD_FORMAT,
+                           PUBLISH_PAYLOAD_FORMAT_SUCCESS,
                            ( int ) pSubject,
                            ( int ) 0 );
     }
@@ -809,17 +807,10 @@ void vImageProcessingTask( void * args )
     /* Variable to indicate if the resources have been preempted */
     int8_t free_resources = 1;
 
-    /* If face is already enrolled 'initialized' is set to 1 */
-    if( face_enroll_done )
-    {
-        count_down_second = 0;
-        is_enrolling = 0;
-    }
-    else
-    {
-        count_down_second = 3;
-        is_enrolling = 1;
-    }
+    /* Initially start with face enroll and set is_enrolling to 1 */
+    count_down_second = 3;
+    is_enrolling = 1;
+
 
     IotLogInfo( "Starting the processing" );
 
@@ -895,7 +886,6 @@ void vImageProcessingTask( void * args )
                         if( id_list.count == FACE_ID_SAVE_NUMBER )
                         {
                             is_enrolling = 0;
-                            face_enroll_done = true;
                             IotLogInfo( "\n>>> Face Recognition Starts <<<\n" );
                             vTaskDelay( 2000 / portTICK_PERIOD_MS );
                         }
