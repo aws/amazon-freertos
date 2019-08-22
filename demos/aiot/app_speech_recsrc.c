@@ -1,3 +1,6 @@
+//Configurational header
+#include "aiot_esp_config.h"
+
 /* FreeRTOS includes */
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -15,11 +18,9 @@
 #include "esp_spi_flash.h"
 #include "xtensa/core-macros.h"
 #include "esp_partition.h"
-#include "app_speech_srcif.h"
 #include "driver/i2s.h"
 #include "esp_log.h"
 #include "esp_spiffs.h"
-#include "app_facenet.h"
 #include "sdkconfig.h"
 #include "esp_sr_iface.h"
 #include "esp_sr_models.h"

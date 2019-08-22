@@ -51,12 +51,6 @@
 /* MQTT include. */
 #include "iot_mqtt.h"
 
-/* AIoT include */
-#include "sdkconfig.h"
-#include "app_camera.h"
-#include "app_facenet.h"
-#include "app_speech_srcif.h"
-
 
 /**
  * @cond DOXYGEN_IGNORE
@@ -889,7 +883,6 @@ void vImageProcessingTask( void * args )
                 /* Do face enrollment for first time user */
                 if( is_enrolling == 1 )
                 {
-                    heap_caps_print_heap_info( MALLOC_CAP_SPIRAM );
                     left_sample_face = enroll_face( &id_list, aligned_face );
                     IotLogInfo( "Face ID Enrollment: Taking sample: %d",
                                 ENROLL_CONFIRM_TIMES - left_sample_face );
