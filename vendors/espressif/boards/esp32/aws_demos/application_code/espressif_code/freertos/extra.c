@@ -25,17 +25,6 @@ void esp_tasks_c_additions_init()
 {
 }
 
-int xTaskCreatePinnedToCore( void (*pxTaskCode)(void*),
-                            const char * const pcName,
-                            const uint32_t usStackDepth,
-                            void * const pvParameters,
-                            unsigned uxPriority,
-                            void * const pxCreatedTask,
-                            const int xCoreID )
-{
-	return xTaskCreate(pxTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask);
-}
-
 void vPortCleanUpTCB ( void *pxTCB )
 {
 	pthread_local_storage_cleanup(pxTCB);
