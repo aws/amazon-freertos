@@ -1287,23 +1287,19 @@ static void _networkReceiveCallback( void * pNetworkConnection,
 
     IotMutex_Unlock( &( pHttpsConnection->connectionMutex ) );
 
-    /* For a synchronous request release the semaphore. This MUST come before the asynchronous
-     * responseCompleteCallback(). The response user buffer can only reused only after the responseCompleteCallback() is
-     * invoked on the response. Consider the following scenario: The application decides to create a synchronous request
-     * right after an asynchronous response. Right after the response complete callback returns the application thread
-     * has control and re-uses the response buffer for the following synchronous request. Inside of
-     * IotHttpsClient_SendSync() the respFinishedSem is created and waited upon. The program context switches back to
-     * the network thread controlling this receive callback, to the instruction right after where the asynchronous
-     * responseCompleteCallback() returned. If the if-case below was the next instruction, then the synchronous request
-     * would get posted to right away and return to the application. */
+    /* The first if-case below notifies IotHttpsClient_SendSync() that the response is finished receiving. When
+     * IotHttpsClient_SendSync() returns the user is allowed to modify the user buffer used for the response context.
+     * In the asynchronous case, the responseCompleteCallback notifies the application that the user buffer used for the
+     * response context can be modified. Posting to the respFinishedSem or calling the responseCompleteCallback MUST be
+     * mutually exclusive by wrapping in an if/else. If these were separate if-cases, then there could be a context
+     * switch in between where the application modifies the buffer causing the next if-case to be executed. */
     if( pCurrentHttpsResponse->isAsync == false )
     {
         IotSemaphore_Post( &( pCurrentHttpsResponse->respFinishedSem ) );
     }
-
-    /* Signal to a synchronous reponse that the response is complete. */
-    if( pCurrentHttpsResponse->isAsync && pCurrentHttpsResponse->pCallbacks->responseCompleteCallback )
+    else if( pCurrentHttpsResponse->pCallbacks->responseCompleteCallback )
     {
+        /* Signal to a synchronous reponse that the response is complete. */
         pCurrentHttpsResponse->pCallbacks->responseCompleteCallback( pCurrentHttpsResponse->pUserPrivData, pCurrentHttpsResponse, status, pCurrentHttpsResponse->status );
     }
 }
@@ -2259,11 +2255,10 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
         {
             IotSemaphore_Post( &( pHttpsResponse->respFinishedSem ) );
         }
-
-        /* Call the response complete callback. We always call this even if we did not receive the response to
-         * let the application know that the request has completed. */
-        if( pHttpsRequest->isAsync && pHttpsRequest->pCallbacks->responseCompleteCallback )
+        else if( pHttpsRequest->pCallbacks->responseCompleteCallback )
         {
+            /* Call the response complete callback. We always call this even if we did not receive the response to
+             * let the application know that the request has completed. */
             pHttpsRequest->pCallbacks->responseCompleteCallback( pHttpsRequest->pUserPrivData, NULL, status, 0 );
         }
     }
