@@ -196,9 +196,9 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
 QueueHandle_t xResultQueue;
 
-en_fsm_state g_state = WAIT_FOR_WAKEUP;
+en_fsm_state eMachineState = WAIT_FOR_WAKEUP;
 
-static face_id_list id_list = { 0 };
+static face_id_list faceVectors = { 0 };
 /*-----------------------------------------------------------*/
 
 /**
@@ -788,28 +788,34 @@ void vImageProcessingTask( void * args )
 {
     IotLogInfo( "Starting the face recognition task" );
 
-    dl_matrix3du_t * image_matrix = NULL;
+    dl_matrix3du_t * imageMatrix = NULL;
     camera_fb_t * fb = NULL;
-    int8_t matched_id;
+    int8_t cMatchedId;
     /* Load configuration for detection */
     mtmn_config_t mtmn_config = init_config();
 
     /* Preallocate matrix to store aligned face 56x56  */
-    dl_matrix3du_t * aligned_face = dl_matrix3du_alloc( 1,
-                                                        FACE_WIDTH,
-                                                        FACE_HEIGHT,
-                                                        3 );
-    int8_t count_down_second; /*second */
-    int8_t is_enrolling;
-    int32_t next_enroll_index = 0;
-    int8_t left_sample_face;
+    dl_matrix3du_t * alignedFace = dl_matrix3du_alloc( 1,
+                                                       FACE_WIDTH,
+                                                       FACE_HEIGHT,
+                                                       3 );
+    
+    /* Countdown in second to start the face enrollment*/
+    int8_t cRemainingCountDown;
+    
+    /* To verify if a face has been enrolled */
+    int8_t cEnrollmentStatus;
+    
+    /* Records the remaiing number of samples to enroll a face */
+    int32_t lNextEnrollIndex = 0;
+    int8_t cRemainingSamples;
 
     /* Variable to indicate if the resources have been preempted */
-    int8_t free_resources = 1;
+    int8_t cFreeResources = 1;
 
-    /* Initially start with face enroll and set is_enrolling to 1 */
-    count_down_second = 3;
-    is_enrolling = 1;
+    /* Initially start with face enroll and set cEnrollmentStatus to 1 */
+    cRemainingCountDown = 3;
+    cEnrollmentStatus = 1;
 
 
     IotLogInfo( "Starting the processing" );
@@ -820,7 +826,7 @@ void vImageProcessingTask( void * args )
      */
     do
     {
-        free_resources = 1;
+        cFreeResources = 1;
 
         /* Get one image snapshot from the camera */
         fb = esp_camera_fb_get();
@@ -832,15 +838,15 @@ void vImageProcessingTask( void * args )
         }
 
         /* Allocate image matrix to store RGB data */
-        image_matrix = dl_matrix3du_alloc( 1, fb->width, fb->height, 3 );
+        imageMatrix = dl_matrix3du_alloc( 1, fb->width, fb->height, 3 );
 
         /* Transform image to RGB */
-        uint32_t res = fmt2rgb888( fb->buf, fb->len, fb->format, image_matrix->item );
+        uint32_t res = fmt2rgb888( fb->buf, fb->len, fb->format, imageMatrix->item );
 
         if( true != res )
         {
             IotLogError( "fmt2rgb888 failed, fb: %d", fb->len );
-            dl_matrix3du_free( image_matrix );
+            dl_matrix3du_free( imageMatrix );
             continue;
         }
 
@@ -848,44 +854,44 @@ void vImageProcessingTask( void * args )
 
         /* Run face detection on the image If the face is detected,
          * then the location of the face is stored in net boxes*/
-        box_array_t * net_boxes = face_detect( image_matrix, &mtmn_config );
+        box_array_t * net_boxes = face_detect( imageMatrix, &mtmn_config );
 
         /* Once a face is detected align the face and run recognition */
         if( net_boxes )
         {
             /* Do face alignment */
-            if( align_face( net_boxes, image_matrix, aligned_face ) == ESP_OK )
+            if( align_face( net_boxes, imageMatrix, alignedFace ) == ESP_OK )
             {
                 /* Count down to let the user get ready*/
-                while( count_down_second > 0 )
+                while( cRemainingCountDown > 0 )
                 {
-                    IotLogInfo( "Face ID Enrollment Starts in %ds.\n", count_down_second );
+                    IotLogInfo( "Face ID Enrollment Starts in %ds.\n", cRemainingCountDown );
 
                     vTaskDelay( 1000 / portTICK_PERIOD_MS );
 
-                    count_down_second--;
+                    cRemainingCountDown--;
 
-                    if( count_down_second == 0 )
+                    if( cRemainingCountDown == 0 )
                     {
                         IotLogInfo( "\n>>> Face ID Enrollment Starts <<<\n" );
                     }
                 }
 
                 /* Do face enrollment for first time user */
-                if( is_enrolling == 1 )
+                if( cEnrollmentStatus == 1 )
                 {
-                    left_sample_face = enroll_face( &id_list, aligned_face );
+                    cRemainingSamples = enroll_face( &faceVectors, alignedFace );
                     IotLogInfo( "Face ID Enrollment: Taking sample: %d",
-                                ENROLL_CONFIRM_TIMES - left_sample_face );
+                                ENROLL_CONFIRM_TIMES - cRemainingSamples );
 
-                    if( left_sample_face == 0 )
+                    if( cRemainingSamples == 0 )
                     {
-                        next_enroll_index++;
-                        IotLogInfo( "\nEnrolled Face ID: %d", id_list.tail );
+                        lNextEnrollIndex++;
+                        IotLogInfo( "\nEnrolled Face ID: %d", faceVectors.tail );
 
-                        if( id_list.count == FACE_ID_SAVE_NUMBER )
+                        if( faceVectors.count == FACE_ID_SAVE_NUMBER )
                         {
-                            is_enrolling = 0;
+                            cEnrollmentStatus = 0;
                             IotLogInfo( "\n>>> Face Recognition Starts <<<\n" );
                             vTaskDelay( 2000 / portTICK_PERIOD_MS );
                         }
@@ -899,15 +905,15 @@ void vImageProcessingTask( void * args )
                 /* Do face recognition */
                 else
                 {
-                    int64_t recog_match_time = esp_timer_get_time();
+                    int64_t lRecognitionMatchStart = esp_timer_get_time();
 
                     /* Match the current face id with the enrolled face ids.
                      * If the subject is verified then matched id = subject id else -1 */
-                    matched_id = recognize_face( &id_list, aligned_face );
+                    cMatchedId = recognize_face( &faceVectors, alignedFace );
 
-                    if( matched_id >= 0 )
+                    if( cMatchedId >= 0 )
                     {
-                        IotLogInfo( "Matched Face ID: %d\n", matched_id );
+                        IotLogInfo( "Matched Face ID: %d\n", cMatchedId );
                     }
                     else
                     {
@@ -915,21 +921,21 @@ void vImageProcessingTask( void * args )
                     }
 
                     IotLogInfo( "Recognition time consumption: %lldms",
-                                ( esp_timer_get_time() - recog_match_time ) / 1000 );
+                                ( esp_timer_get_time() - lRecognitionMatchStart ) / 1000 );
 
                     /* Free the resources */
                     free( net_boxes->score );
                     free( net_boxes->box );
                     free( net_boxes->landmark );
                     free( net_boxes );
-                    dl_matrix3du_free( image_matrix );
-                    free_resources = 0;
+                    dl_matrix3du_free( imageMatrix );
+                    cFreeResources = 0;
 
                     /* Send the results of the face recognition to the queue */
                     if( xResultQueue != 0 )
                     {
                         if( xQueueSendToBack( xResultQueue,
-                                              ( void * ) &matched_id,
+                                              ( void * ) &cMatchedId,
                                               ( TickType_t ) 5 ) != pdPASS )
                         {
                             IotLogInfo( "Unable to push the message to the queue" );
@@ -948,7 +954,7 @@ void vImageProcessingTask( void * args )
             }
 
             /* Cleanup resources if not cleaned */
-            if( free_resources )
+            if( cFreeResources )
             {
                 free( net_boxes->score );
                 free( net_boxes->box );
@@ -958,9 +964,9 @@ void vImageProcessingTask( void * args )
         }
 
         /* Deallocate the 3d matrix */
-        if( free_resources )
+        if( cFreeResources )
         {
-            dl_matrix3du_free( image_matrix );
+            dl_matrix3du_free( imageMatrix );
         }
     } while( 1 );
 }
@@ -1119,7 +1125,7 @@ int RunAIoTFaceDemo( bool awsIotMqttMode,
 
     /* Initialize the image sensor and memory for storing the faces */
     vCameraInit();
-    face_id_init( &id_list,
+    face_id_init( &faceVectors,
                   FACE_ID_SAVE_NUMBER,
                   ENROLL_CONFIRM_TIMES );
 
@@ -1217,13 +1223,13 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
     /*Initialize the voice wakeup which starts the recorder and NN task */
     vSpeechWakeupInit();
-    g_state = WAIT_FOR_WAKEUP;
+    eMachineState = WAIT_FOR_WAKEUP;
 
     vTaskDelay( 30 / portTICK_PERIOD_MS );
     IotLogInfo( "Please say 'Alexa' to the board" );
 
     /* Wait for the wake word to be detected. Detection is signaled by state change. */
-    while( g_state != START_RECOGNITION )
+    while( eMachineState != START_RECOGNITION )
     {
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -1235,7 +1241,7 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
     /* Initialize the image sensor and memory for storing the faces */
     vCameraInit();
-    face_id_init( &id_list,
+    face_id_init( &faceVectors,
                   FACE_ID_SAVE_NUMBER,
                   ENROLL_CONFIRM_TIMES );
 
@@ -1276,9 +1282,9 @@ int RunAIoTDemo( bool awsIotMqttMode,
             }
 
             /* Resume the voice recognition task */
-            g_state = WAIT_FOR_WAKEUP;
+            eMachineState = WAIT_FOR_WAKEUP;
 
-            while( g_state != START_RECOGNITION )
+            while( eMachineState != START_RECOGNITION )
             {
                 vTaskDelay( 1000 / portTICK_PERIOD_MS );
             }

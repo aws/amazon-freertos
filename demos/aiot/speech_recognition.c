@@ -1,4 +1,34 @@
-//Configurational header
+/*
+ * Amazon FreeRTOS V201906.00 Major
+ * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
+
+/**
+ * @file sppech_recognition.c
+ * @brief Demonstrates the voice wakeup functionality
+ */
+
+/*Configurational header */
 #include "aiot_esp_config.h"
 
 /* FreeRTOS includes */
@@ -48,40 +78,41 @@ void vWakeWordNNTask( void * arg )
 {
     /* Initailize a buffer to store the sample from the datasize of the wake word */
     int audio_chunksize = pxModel->get_samp_chunksize( pxModelData );
-    int16_t * buffer = malloc( audio_chunksize * sizeof( int16_t ) );
-    assert( buffer );
+    int16_t * sBuffer = malloc( audio_chunksize * sizeof( int16_t ) );
+
+    assert( sBuffer );
 
     /* Read from the buffer until a match is found */
     while( 1 )
     {
         /* Wait for incomming messages from the recording task */
-        xQueueReceive( xWordBuffer, buffer, portMAX_DELAY );
+        xQueueReceive( xWordBuffer, sBuffer, portMAX_DELAY );
 
         /* Check if the word in the buffer matches "Alexa" and trigger the cleanup */
-        int r = pxModel->detect( pxModelData, buffer );
+        int result = pxModel->detect( pxModelData, sBuffer );
 
-        if( r )
+        if( result )
         {
-            assert( g_state == WAIT_FOR_WAKEUP );
-            printf( "%s DETECTED.\n", pxModel->get_word_name( pxModelData, r ) );
+            assert( eMachineState == WAIT_FOR_WAKEUP );
+            printf( "%s DETECTED.\n", pxModel->get_word_name( pxModelData, result ) );
             printf( "\nStarting Face Recognition\n" );
-            g_state = START_RECOGNITION;     
+            eMachineState = START_RECOGNITION;
         }
     }
 
     /* Wait for the recorder task to be cleaned */
-    while( g_state != STOP_NN )
+    while( eMachineState != STOP_NN )
     {
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
 
     /* Initiate clean up of resources used by the NN task and delete it */
-    free( buffer );
+    free( sBuffer );
     pxModel->destroy( pxModelData );
     vQueueDelete( xWordBuffer );
 
     /* Signal the start of facial recognition */
-    g_state = START_RECOGNITION;
+    eMachineState = START_RECOGNITION;
     vTaskDelete( NULL );
 }
 /*-----------------------------------------------------------*/
@@ -138,19 +169,20 @@ void vRecordingTask( void * arg )
 
     /* Initialize the sample from the configuration */
     src_cfg_t * cfg = ( src_cfg_t * ) arg;
-    size_t samp_len = cfg->item_size * 2 * sizeof( int ) / sizeof( int16_t );
-    int * samp = malloc( samp_len );
-    size_t read_len = 0;
+    size_t xSampleLength = cfg->item_size * 2 * sizeof( int ) / sizeof( int16_t );
+    /* Allocate the space for the audio sample */
+    int * samp = malloc( xSampleLength );
+    size_t xReadLength = 0;
 
     /* Keep sampling the audio and adding it to the queue until the state changes */
     while( 1 )
     {
-        while( g_state != WAIT_FOR_WAKEUP )
+        while( eMachineState != WAIT_FOR_WAKEUP )
         {
             vTaskDelay( 1000 / portTICK_PERIOD_MS );
         }
 
-        i2s_read( 1, samp, samp_len, &read_len, portMAX_DELAY );
+        i2s_read( 1, samp, xSampleLength, &xReadLength, portMAX_DELAY );
 
         /* Generate the sample */
         for( int x = 0; x < cfg->item_size / 4; x++ )
@@ -164,7 +196,7 @@ void vRecordingTask( void * arg )
         xQueueSend( *cfg->queue, samp, portMAX_DELAY );
     }
 
-    while( g_state != STOP_REC )
+    while( eMachineState != STOP_REC )
     {
         vTaskDelay( 1000 / portTICK_PERIOD_MS );
     }
@@ -174,7 +206,7 @@ void vRecordingTask( void * arg )
     vI2sOperations( 1 );
 
     /* Trigger state change to stop the recognititon task */
-    g_state = STOP_NN;
+    eMachineState = STOP_NN;
     vTaskDelete( NULL );
 }
 /*-----------------------------------------------------------*/
