@@ -63,6 +63,8 @@ def main():
     bleAdapter.setDiscoveryFilter(scan_filter)
 
     #KPI test
+    # Evaluate KPI from scanning start to advertisement received.
+    # Evaluate KPI from scanning start to connection created.
     isTestSuccessFull = True
     startToReceivedSum = 0
     startToConnectedSum = 0

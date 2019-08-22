@@ -39,6 +39,7 @@ typedef struct
     uint8_t ucBuffer[ bletestsSTRINGYFIED_UUID_SIZE ];
 } response_t;
 
+void prvBLESetUp( void );
 static void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
                                       bool bNeedRsp,
                                       bool IsPrep,

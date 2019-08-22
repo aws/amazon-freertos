@@ -77,11 +77,15 @@ TEST_TEAR_DOWN( Full_BLE_Integration_Test )
 
 TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 {
+    RUN_TEST_CASE( Full_BLE, BLE_Setup );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_BT_Module );
 
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );
+
+    /*TODO: no need to test now. ACE MW change the sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
     /* RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data ); */
+
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset );
 
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
@@ -90,16 +94,18 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
 
-
+/* Advertisement should work without initializing optional properties (device's name) */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties )
 {
     prvBLEGAPInit();
     prvBLEGATTInit();
     prvSetAdvData();
     prvStartAdvertisement();
+    /* Connect for evaluate KPI for next test case. */
     prvWaitConnection( true );
 }
 
+/* The sequence of set advertisement data and start advertisement can change. */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
 {
     prvStartAdvertisement();
@@ -108,6 +114,8 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
+/* pxEnable/pxDisable can only return current. Make sure pxEnalbe/pxDisable works.
+ * Make sure stack state is enable (callback received) no later than 2.5 seconds after pxEnable returns*/
 TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_BT_Module )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -130,22 +138,24 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_BT_Module )
 }
 
 
-/* Crash if calling pxEnable twice (MTK)                                        */
-/* (1)init -> (2)enable -> (3)deinit -> (4)init -> (5)enable                    */
-/* There are 2 issues with this sequence:                                       */
-/* (4)init reset stack state to disabled even though it's still enabled         */
-/* (5)enable trigger pxEnable again while MTK stack is enabled -> mtk crashed   */
+/* Crash if calling pxEnable twice (MTK)
+ * (1)init -> (2)enable -> (3)deinit -> (4)init -> (5)enable
+ * There are 2 issues with this sequence:
+ * (4)init reset stack state to disabled even though it's still enabled
+ * (5)enable trigger pxEnable again while MTK stack is enabled -> mtk crashed   */
 TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
 {
-    prvBLESetUp();
-    /* init -> enable -> deinit -> init -> enable */
     prvGAPInitEnableTwice();
 }
 
+/*Advertisement interval measured OTA can be out the range set by app, after reset BT stack, adv interval can change to 1.28s.
+ * Make sure KPI is consistent after reset BT.*/
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset )
 {
+    /* First time connection disconnects. Got First KPI. */
     prvWaitConnection( false );
 
+    /* BT reset. */
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
 
@@ -164,20 +174,27 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     prvCreateAndStartServiceB();
     prvSetAdvProperty();
     prvSetAdvData();
+
+    /* Second time connection begins. Got second KPI. */
     prvStartAdvertisement();
 
     prvWaitConnection( true );
+
+    /* Result is on RPI. Write it back to device. */
     prvGetResult( bletestATTR_SRVCB_CHAR_D,
                   false,
                   0 );
 }
 
+/* If data size is > MTU - 3 then BT stack can truncate it to MTU - 3 and keep trying to send it over to other peer.
+ * Make sure calling pxSendIndication() with xLen > MTU - 3 and stack returns failure.*/
 TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
     BLETESTindicateCallback_t xIndicateEvent;
     uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
 
+    /* Create a data payload whose length = MTU + 1. */
     char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
 
     for( int i = 0; i < bletestsMTU_SIZE1 + 1; i++ )
@@ -190,16 +207,18 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
     memcpy( ucLargeBuffer, bletests_MTU_2_CHAR_VALUE, bletestsMTU_SIZE1 + 1 );
 
+    /* Expect to return failure here. */
     xStatus = g_pxGattServerInterface->pxSendIndication( g_ucBLEServerIf,
                                                          usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
                                                          g_usBLEConnId,
                                                          bletestsMTU_SIZE1 + 1,
                                                          ucLargeBuffer,
                                                          false );
+    TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
 
     if( xStatus != eBTStatusSuccess )
     {
-        /* Notify RPI failure here. Expect to receive failure message. */
+        /* Notify RPI failure here. Expect to receive "fail" message. */
         memcpy( ucLargeBuffer, bletestsFAIL_CHAR_VALUE, sizeof( bletestsFAIL_CHAR_VALUE ) - 1 );
         xfStatus = g_pxGattServerInterface->pxSendIndication( g_ucBLEServerIf,
                                                               usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
@@ -209,8 +228,6 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
                                                               false );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xfStatus );
     }
-
-    TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
@@ -257,8 +274,10 @@ void prvCreateAndStartServiceB()
         prvCreateServiceB();
         prvStartService( &g_xSrvcB );
     }
-
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    else
+    {
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
 }
 
 
@@ -279,12 +298,12 @@ void prvGAPInitEnableTwice()
         xStatus = g_pxBTInterface->pxBtManagerInit( &g_xBTManagerCb );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
+        /*Second time check if BT stack is enabled after deinit and init*/
         if( loop == 1 )
         {
             TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
         }
 
-        /* Enable RADIO and wait for callback. */
         xStatus = g_pxBTInterface->pxEnable( 0 );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 

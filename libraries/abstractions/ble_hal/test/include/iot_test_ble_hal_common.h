@@ -469,7 +469,6 @@ void prvBondedCb( BTStatus_t xStatus,
                   bool bIsBonded );
 void prvStartStopAdvCheck( bool start );
 BTStatus_t bleStackInit( void );
-void prvBLESetUp( void );
 void prvBLEManagerInit( void );
 void prvBLEEnable( bool bEnable );
 void prvStartService( BTService_t * xRefSrvc );
