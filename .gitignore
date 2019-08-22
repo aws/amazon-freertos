@@ -14,3 +14,4 @@ RemoteSystemsTempFiles/*
 # Ignore top-level build dir
 /build*/
 
+.DS_Store
