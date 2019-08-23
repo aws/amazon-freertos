@@ -171,7 +171,10 @@ TEST_SETUP( Full_OTA_AGENT )
 TEST_TEAR_DOWN( Full_OTA_AGENT )
 {
     /* Disconnect from the MQTT broker. */
-    IotMqtt_Disconnect( xMQTTClientHandle, 0 );
+    /* This must be protected against a Null xMQTTClientHandle if setup failed, for example due to an intermittent network connection */
+    if ( xMQTTClientHandle != NULL ) {
+        IotMqtt_Disconnect( xMQTTClientHandle, 0 );
+    }
 
     xMQTTClientHandle = NULL;
     IotMqtt_Cleanup();
