@@ -49,13 +49,13 @@
 /**
  * @brief Connection parameters.
  */
-    typedef struct
-    {
-        uint32_t minInterval; /**< Minimum connection interval. */
-        uint32_t maxInterval; /**< Maximum connection interval. */
-        uint32_t latency;     /**< Slave latency. */
-        uint32_t timeout;     /**< Connection timeout. */
-    } IotBleConnectionParam_t;
+typedef struct
+{
+    uint32_t minInterval; /**< Minimum connection interval. */
+    uint32_t maxInterval; /**< Maximum connection interval. */
+    uint32_t latency;     /**< Slave latency. */
+    uint32_t timeout;     /**< Connection timeout. */
+} IotBleConnectionParam_t;
 
 #define bletestsAPP_UUID                 { 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define bletestsSERVER_UUID              { 0x22, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
@@ -167,312 +167,312 @@
 #define BLE_TESTS_WAIT                        60000                 /* Wait 60s max */
 #define BLE_TESTS_SHORT_WAIT                  4000                  /* Wait 4s max */
 
-    typedef enum
-    {
-        eBLEHALEventServerRegisteredCb = 0,
-        eBLEHALEventEnableDisableCb = 1,
-        eBLEHALEventCharAddedCb = 2,
-        eBLEHALEventServiceAddedCb = 3,
-        eBLEHALEventServiceStartedCb = 4,
-        eBLEHALEventServiceStoppedCb = 5,
-        eBLEHALEventServiceDeletedCb = 6,
-        eBLEHALEventCharDescrAddedCb = 7,
-        eBLEHALEventIncludedServiceAdded = 8,
-        eBLEHALEventRegisterBleAdapterCb = 9,
-        eBLEHALEventAdapterPropertiesCb = 10,
-        eBLEHALEventRegisterUnregisterGattServerCb = 11,
-        eBLEHALEventPropertyCb = 12,
-        eBLEHALEventSetAdvCb = 13,
-        eBLEHALEventStartAdvCb = 14,
-        eBLEHALEventConnectionCb = 15,
-        eBLEHALEventConnectionUpdateCb = 16,
-        eBLEHALEventReadAttrCb = 17,
-        eBLEHALEventWriteAttrCb = 18,
-        eBLEHALEventIndicateCb = 19,
-        eBLEHALEventConfimCb = 20,
-        eBLEHALEventSSPrequestCb = 21,
-        eBLEHALEventSSPrequestConfirmationCb = 22,
-        eBLEHALEventPairingStateChangedCb = 23,
-        eBLEHALEventRequestExecWriteCb = 24,
-        eBLEHALEventBondedCb = 25,
-        eBLENbHALEvents,
-    } BLEHALEventsTypes_t;
+typedef enum
+{
+    eBLEHALEventServerRegisteredCb = 0,
+    eBLEHALEventEnableDisableCb = 1,
+    eBLEHALEventCharAddedCb = 2,
+    eBLEHALEventServiceAddedCb = 3,
+    eBLEHALEventServiceStartedCb = 4,
+    eBLEHALEventServiceStoppedCb = 5,
+    eBLEHALEventServiceDeletedCb = 6,
+    eBLEHALEventCharDescrAddedCb = 7,
+    eBLEHALEventIncludedServiceAdded = 8,
+    eBLEHALEventRegisterBleAdapterCb = 9,
+    eBLEHALEventAdapterPropertiesCb = 10,
+    eBLEHALEventRegisterUnregisterGattServerCb = 11,
+    eBLEHALEventPropertyCb = 12,
+    eBLEHALEventSetAdvCb = 13,
+    eBLEHALEventStartAdvCb = 14,
+    eBLEHALEventConnectionCb = 15,
+    eBLEHALEventConnectionUpdateCb = 16,
+    eBLEHALEventReadAttrCb = 17,
+    eBLEHALEventWriteAttrCb = 18,
+    eBLEHALEventIndicateCb = 19,
+    eBLEHALEventConfimCb = 20,
+    eBLEHALEventSSPrequestCb = 21,
+    eBLEHALEventSSPrequestConfirmationCb = 22,
+    eBLEHALEventPairingStateChangedCb = 23,
+    eBLEHALEventRequestExecWriteCb = 24,
+    eBLEHALEventBondedCb = 25,
+    eBLENbHALEvents,
+} BLEHALEventsTypes_t;
 
-    typedef struct
-    {
-        IotLink_t eventList;
-        BLEHALEventsTypes_t xEventTypes;
-        int32_t lHandle;
-    } BLEHALEventsInternals_t;
+typedef struct
+{
+    IotLink_t eventList;
+    BLEHALEventsTypes_t xEventTypes;
+    int32_t lHandle;
+} BLEHALEventsInternals_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        BTState_t xBLEState;
-    } BLETESTInitDeinitCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    BTState_t xBLEState;
+} BLETESTInitDeinitCallback_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        uint16_t usAttrHandle;
-        uint16_t usSrvHandle;
-        BTUuid_t xUUID;
-    } BLETESTAttrCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    uint16_t usAttrHandle;
+    uint16_t usSrvHandle;
+    BTUuid_t xUUID;
+} BLETESTAttrCallback_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        uint16_t usAttrHandle;
-        BTStatus_t xStatus;
-        BTGattSrvcId_t xSrvcId;
-    } BLETESTServiceCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    uint16_t usAttrHandle;
+    BTStatus_t xStatus;
+    BTGattSrvcId_t xSrvcId;
+} BLETESTServiceCallback_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        uint32_t ulNumProperties;
-        BTProperty_t xProperties;
-    } BLETESTSetGetPropertyCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    uint32_t ulNumProperties;
+    BTProperty_t xProperties;
+} BLETESTSetGetPropertyCallback_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        bool bStart;
-    } BLETESTAdvParamCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    bool bStart;
+} BLETESTAdvParamCallback_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        IotBleConnectionParam_t xConnParam;
-        BTBdaddr_t xBda;
-    } BLETESTUpdateConnectionParamReqCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    IotBleConnectionParam_t xConnParam;
+    BTBdaddr_t xBda;
+} BLETESTUpdateConnectionParamReqCallback_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        uint16_t usConnId;
-        uint32_t ulTransId;
-        BTBdaddr_t xBda;
-        uint16_t usAttrHandle;
-        uint16_t usOffset;
-    } BLETESTreadAttrCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    uint16_t usConnId;
+    uint32_t ulTransId;
+    BTBdaddr_t xBda;
+    uint16_t usAttrHandle;
+    uint16_t usOffset;
+} BLETESTreadAttrCallback_t;
 
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        uint16_t usConnId;
-        uint32_t ulTransId;
-        BTBdaddr_t xBda;
-        uint16_t usAttrHandle;
-        uint16_t usOffset;
-        size_t xLength;
-        bool bNeedRsp;
-        bool bIsPrep;
-        uint8_t ucValue[ bletestsSTRINGYFIED_UUID_SIZE ];
-    } BLETESTwriteAttrCallback_t;
-
-
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        uint16_t usConnId;
-        BTStatus_t xStatus;
-    } BLETESTindicateCallback_t;
-
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        uint16_t usAttrHandle;
-    } BLETESTconfirmCallback_t;
-
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTBdaddr_t xRemoteBdAddr;
-        BTBdname_t xRemoteBdName;
-        uint32_t ulCod;
-        BTSspVariant_t xPairingVariant;
-        uint32_t ulPassKey;
-    } BLETESTsspRequestCallback_t;
-
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        BTBdaddr_t xRemoteBdAddr;
-        BTSecurityLevel_t xSecurityLevel;
-        BTAuthFailureReason_t xReason;
-    } BLETESTPairingStateChangedCallback_t;
-
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        uint16_t usConnId;
-        uint32_t ulTransId;
-        BTBdaddr_t xBda;
-        bool bExecWrite;
-    } BLETESTRequestExecWriteCallback_t;
-
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        uint16_t usConnId;
-        uint8_t ucServerIf;
-        BTBdaddr_t pxBda;
-        bool bConnected;
-    } BLETESTConnectionCallback_t;
-
-    typedef struct
-    {
-        BLEHALEventsInternals_t xEvent;
-        BTStatus_t xStatus;
-        BTBdaddr_t xRemoteBdAddr;
-        bool bIsBonded;
-    } BLETESTBondedCallback_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    uint16_t usConnId;
+    uint32_t ulTransId;
+    BTBdaddr_t xBda;
+    uint16_t usAttrHandle;
+    uint16_t usOffset;
+    size_t xLength;
+    bool bNeedRsp;
+    bool bIsPrep;
+    uint8_t ucValue[ bletestsSTRINGYFIED_UUID_SIZE ];
+} BLETESTwriteAttrCallback_t;
 
 
-    typedef enum
-    {
-        bletestATTR_SRVCA_SERVICE,
-        bletestATTR_SRVCA_CHAR_A,
-        bletestATTR_SRVCA_NUMBER
-    } bletestAttSrvA_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    uint16_t usConnId;
+    BTStatus_t xStatus;
+} BLETESTindicateCallback_t;
 
-    typedef enum
-    {
-        bletestATTR_SRVCB_SERVICE,
-        bletestATTR_SRVCB_CHAR_A,
-        bletestATTR_SRVCB_CHAR_B,
-        bletestATTR_SRVCB_CHAR_C,
-        bletestATTR_SRVCB_CHAR_D,
-        bletestATTR_SRVCB_CHAR_E,
-        bletestATTR_SRVCB_CCCD_E,
-        bletestATTR_SRVCB_CHAR_F,
-        bletestATTR_SRVCB_CCCD_F,
-        bletestATTR_SRVCB_CHARF_DESCR_A,
-        bletestATTR_SRVCB_CHARF_DESCR_B,
-        bletestATTR_SRVCB_CHARF_DESCR_C,
-        bletestATTR_SRVCB_CHARF_DESCR_D,
-        bletestATTR_INCLUDED_SERVICE,
-        bletestATTR_SRVCB_NUMBER
-    } bletestAttSrvB_t;
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    uint16_t usAttrHandle;
+} BLETESTconfirmCallback_t;
 
-    void prvDeviceStateChangedCb( BTState_t xState );
-    void prvRegisterBleAdapterCb( BTStatus_t xStatus,
-                                  uint8_t ucAdapterIf,
-                                  BTUuid_t * pxAppUuid );
-    void prvBTRegisterServerCb( BTStatus_t xStatus,
-                                uint8_t ucServerIf,
-                                BTUuid_t * pxAppUuid );
-    void prvBTUnregisterServerCb( BTStatus_t xStatus,
-                                  uint8_t ucServerIf );
-    void prvServiceAddedCb( BTStatus_t xStatus,
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTBdaddr_t xRemoteBdAddr;
+    BTBdname_t xRemoteBdName;
+    uint32_t ulCod;
+    BTSspVariant_t xPairingVariant;
+    uint32_t ulPassKey;
+} BLETESTsspRequestCallback_t;
+
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    BTBdaddr_t xRemoteBdAddr;
+    BTSecurityLevel_t xSecurityLevel;
+    BTAuthFailureReason_t xReason;
+} BLETESTPairingStateChangedCallback_t;
+
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    uint16_t usConnId;
+    uint32_t ulTransId;
+    BTBdaddr_t xBda;
+    bool bExecWrite;
+} BLETESTRequestExecWriteCallback_t;
+
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    uint16_t usConnId;
+    uint8_t ucServerIf;
+    BTBdaddr_t pxBda;
+    bool bConnected;
+} BLETESTConnectionCallback_t;
+
+typedef struct
+{
+    BLEHALEventsInternals_t xEvent;
+    BTStatus_t xStatus;
+    BTBdaddr_t xRemoteBdAddr;
+    bool bIsBonded;
+} BLETESTBondedCallback_t;
+
+
+typedef enum
+{
+    bletestATTR_SRVCA_SERVICE,
+    bletestATTR_SRVCA_CHAR_A,
+    bletestATTR_SRVCA_NUMBER
+} bletestAttSrvA_t;
+
+typedef enum
+{
+    bletestATTR_SRVCB_SERVICE,
+    bletestATTR_SRVCB_CHAR_A,
+    bletestATTR_SRVCB_CHAR_B,
+    bletestATTR_SRVCB_CHAR_C,
+    bletestATTR_SRVCB_CHAR_D,
+    bletestATTR_SRVCB_CHAR_E,
+    bletestATTR_SRVCB_CCCD_E,
+    bletestATTR_SRVCB_CHAR_F,
+    bletestATTR_SRVCB_CCCD_F,
+    bletestATTR_SRVCB_CHARF_DESCR_A,
+    bletestATTR_SRVCB_CHARF_DESCR_B,
+    bletestATTR_SRVCB_CHARF_DESCR_C,
+    bletestATTR_SRVCB_CHARF_DESCR_D,
+    bletestATTR_INCLUDED_SERVICE,
+    bletestATTR_SRVCB_NUMBER
+} bletestAttSrvB_t;
+
+void prvDeviceStateChangedCb( BTState_t xState );
+void prvRegisterBleAdapterCb( BTStatus_t xStatus,
+                              uint8_t ucAdapterIf,
+                              BTUuid_t * pxAppUuid );
+void prvBTRegisterServerCb( BTStatus_t xStatus,
                             uint8_t ucServerIf,
-                            BTGattSrvcId_t * pxSrvcId,
-                            uint16_t usServiceHandle );
-    void prvIncludedServiceAddedCb( BTStatus_t xStatus,
-                                    uint8_t ucServerIf,
-                                    uint16_t usServiceHandle,
-                                    uint16_t usInclSrvcHandle );
-    void prvServiceStartedCb( BTStatus_t xStatus,
-                              uint8_t ucServerIf,
-                              uint16_t usServiceHandle );
-    void prvServiceStoppedCb( BTStatus_t xStatus,
-                              uint8_t ucServerIf,
-                              uint16_t usServiceHandle );
-    void prvServiceDeletedCb( BTStatus_t xStatus,
-                              uint8_t ucServerIf,
-                              uint16_t usServiceHandle );
-    void prvCharacteristicAddedCb( BTStatus_t xStatus,
-                                   uint8_t ucServerIf,
-                                   BTUuid_t * pxUuid,
-                                   uint16_t usServiceHandle,
-                                   uint16_t usCharHandle );
-    void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
-                                        uint8_t ucServerIf,
-                                        BTUuid_t * pxUuid,
-                                        uint16_t usServiceHandle,
-                                        uint16_t usCharHandle );
-    void prvAdapterPropertiesCb( BTStatus_t xStatus,
-                                 uint32_t ulNumProperties,
-                                 BTProperty_t * pxProperties );
-    void prvSetAdvDataCb( BTStatus_t xStatus );
-    void prvAdvStatusCb( BTStatus_t xStatus,
-                         uint32_t ulServerIf,
-                         bool bStart );
-    void prvConnectionCb( uint16_t usConnId,
+                            BTUuid_t * pxAppUuid );
+void prvBTUnregisterServerCb( BTStatus_t xStatus,
+                              uint8_t ucServerIf );
+void prvServiceAddedCb( BTStatus_t xStatus,
+                        uint8_t ucServerIf,
+                        BTGattSrvcId_t * pxSrvcId,
+                        uint16_t usServiceHandle );
+void prvIncludedServiceAddedCb( BTStatus_t xStatus,
+                                uint8_t ucServerIf,
+                                uint16_t usServiceHandle,
+                                uint16_t usInclSrvcHandle );
+void prvServiceStartedCb( BTStatus_t xStatus,
                           uint8_t ucServerIf,
-                          bool bConnected,
-                          BTBdaddr_t * pxBda );
-    void prvConnParameterUpdateCb( BTStatus_t xStatus,
-                                   const BTBdaddr_t * pxBdAddr,
-                                   uint32_t minInterval,
-                                   uint32_t maxInterval,
-                                   uint32_t latency,
-                                   uint32_t usConnInterval,
-                                   uint32_t timeout );
-    void prvRequestReadCb( uint16_t usConnId,
-                           uint32_t ulTransId,
-                           BTBdaddr_t * pxBda,
-                           uint16_t usAttrHandle,
-                           uint16_t usOffset );
-    void prvRequestWriteCb( uint16_t usConnId,
+                          uint16_t usServiceHandle );
+void prvServiceStoppedCb( BTStatus_t xStatus,
+                          uint8_t ucServerIf,
+                          uint16_t usServiceHandle );
+void prvServiceDeletedCb( BTStatus_t xStatus,
+                          uint8_t ucServerIf,
+                          uint16_t usServiceHandle );
+void prvCharacteristicAddedCb( BTStatus_t xStatus,
+                               uint8_t ucServerIf,
+                               BTUuid_t * pxUuid,
+                               uint16_t usServiceHandle,
+                               uint16_t usCharHandle );
+void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
+                                    uint8_t ucServerIf,
+                                    BTUuid_t * pxUuid,
+                                    uint16_t usServiceHandle,
+                                    uint16_t usCharHandle );
+void prvAdapterPropertiesCb( BTStatus_t xStatus,
+                             uint32_t ulNumProperties,
+                             BTProperty_t * pxProperties );
+void prvSetAdvDataCb( BTStatus_t xStatus );
+void prvAdvStatusCb( BTStatus_t xStatus,
+                     uint32_t ulServerIf,
+                     bool bStart );
+void prvConnectionCb( uint16_t usConnId,
+                      uint8_t ucServerIf,
+                      bool bConnected,
+                      BTBdaddr_t * pxBda );
+void prvConnParameterUpdateCb( BTStatus_t xStatus,
+                               const BTBdaddr_t * pxBdAddr,
+                               uint32_t minInterval,
+                               uint32_t maxInterval,
+                               uint32_t latency,
+                               uint32_t usConnInterval,
+                               uint32_t timeout );
+void prvRequestReadCb( uint16_t usConnId,
+                       uint32_t ulTransId,
+                       BTBdaddr_t * pxBda,
+                       uint16_t usAttrHandle,
+                       uint16_t usOffset );
+void prvRequestWriteCb( uint16_t usConnId,
+                        uint32_t ulTransId,
+                        BTBdaddr_t * pxBda,
+                        uint16_t usAttrHandle,
+                        uint16_t usOffset,
+                        size_t xLength,
+                        bool bNeedRsp,
+                        bool bIsPrep,
+                        uint8_t * pucValue );
+void prvIndicationSentCb( uint16_t usConnId,
+                          BTStatus_t xStatus );
+void prvResponseConfirmationCb( BTStatus_t xStatus,
+                                uint16_t usHandle );
+void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
+                      BTBdname_t * pxRemoteBdName,
+                      uint32_t ulCod,
+                      BTSspVariant_t xPairingVariant,
+                      uint32_t ulPassKey );
+void prvPairingStateChangedCb( BTStatus_t xStatus,
+                               BTBdaddr_t * pxRemoteBdAddr,
+                               BTBondState_t xState,
+                               BTSecurityLevel_t xSecurityLevel,
+                               BTAuthFailureReason_t xReason );
+void prvRequestExecWriteCb( uint16_t usConnId,
                             uint32_t ulTransId,
                             BTBdaddr_t * pxBda,
-                            uint16_t usAttrHandle,
-                            uint16_t usOffset,
-                            size_t xLength,
-                            bool bNeedRsp,
-                            bool bIsPrep,
-                            uint8_t * pucValue );
-    void prvIndicationSentCb( uint16_t usConnId,
-                              BTStatus_t xStatus );
-    void prvResponseConfirmationCb( BTStatus_t xStatus,
-                                    uint16_t usHandle );
-    void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
-                          BTBdname_t * pxRemoteBdName,
-                          uint32_t ulCod,
-                          BTSspVariant_t xPairingVariant,
-                          uint32_t ulPassKey );
-    void prvPairingStateChangedCb( BTStatus_t xStatus,
-                                   BTBdaddr_t * pxRemoteBdAddr,
-                                   BTBondState_t xState,
-                                   BTSecurityLevel_t xSecurityLevel,
-                                   BTAuthFailureReason_t xReason );
-    void prvRequestExecWriteCb( uint16_t usConnId,
-                                uint32_t ulTransId,
-                                BTBdaddr_t * pxBda,
-                                bool bExecWrite );
-    void prvBondedCb( BTStatus_t xStatus,
-                      BTBdaddr_t * pxRemoteBdAddr,
-                      bool bIsBonded );
-    void prvStartAdvertisement( void );
-    BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
-                                      int32_t lhandle,
-                                      void * pxMessage,
-                                      size_t xMessageLength,
-                                      uint32_t timeoutMs );
-    void prvBLEManagerInit( void );
-    void prvBLEEnable( bool bEnable );
-    void prvStartService( BTService_t * xRefSrvc );
-    void prvCreateServiceA( void );
-    void prvCreateServiceB( void );
-    void prvWaitConnection( bool bConnected );
-    void prvStopService( BTService_t * xRefSrvc );
-    void prvDeleteService( BTService_t * xRefSrvc );
-    void checkNotificationIndication( bletestAttSrvB_t xAttribute,
-                                      bool enable );
-    void prvBTUnregister( void );
-    void prvBLEGAPInit( void );
-    void prvBLEGATTInit( void );
-    void prvSetAdvProperty( void );
-    void prvSetAdvData( void );
+                            bool bExecWrite );
+void prvBondedCb( BTStatus_t xStatus,
+                  BTBdaddr_t * pxRemoteBdAddr,
+                  bool bIsBonded );
+void prvStartAdvertisement( void );
+BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
+                                  int32_t lhandle,
+                                  void * pxMessage,
+                                  size_t xMessageLength,
+                                  uint32_t timeoutMs );
+void prvBLEManagerInit( void );
+void prvBLEEnable( bool bEnable );
+void prvStartService( BTService_t * xRefSrvc );
+void prvCreateServiceA( void );
+void prvCreateServiceB( void );
+void prvWaitConnection( bool bConnected );
+void prvStopService( BTService_t * xRefSrvc );
+void prvDeleteService( BTService_t * xRefSrvc );
+void checkNotificationIndication( bletestAttSrvB_t xAttribute,
+                                  bool enable );
+void prvBTUnregister( void );
+void prvBLEGAPInit( void );
+void prvBLEGATTInit( void );
+void prvSetAdvProperty( void );
+void prvSetAdvData( void );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */
