@@ -1234,6 +1234,19 @@ TEST( Full_BLE, BLE_Initialize_BLE_GAP )
     prvBLEGAPInit();
 }
 
+void prvBLEManagerInit()
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    /* Get BT interface */
+    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
+
+    /* Initialize callbacks */
+    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
 void prvBLEGAPInit()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -1275,19 +1288,6 @@ void prvBLESetUp()
     }
 
     IotListDouble_Create( &eventQueueHead );
-}
-
-void prvBLEManagerInit()
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    /* Get BT interface */
-    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
-
-    /* Initialize callbacks */
-    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 void prvBLEEnable( bool bEnable )

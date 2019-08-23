@@ -364,20 +364,6 @@
         bletestATTR_SRVCB_NUMBER
     } bletestAttSrvB_t;
 
-    void pushToQueue( IotLink_t * pEventList );
-    void prvSetGetProperty( BTProperty_t * pxProperty,
-                            bool bIsSet );
-    void prvStartAdvertisement( void );
-    void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
-                              uint16_t usServiceDataLen,
-                              char * pcServiceData,
-                              BTUuid_t * pxServiceUuid,
-                              size_t xNbServices );
-    BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
-                                      int32_t lhandle,
-                                      void * pxMessage,
-                                      size_t xMessageLength,
-                                      uint32_t timeoutMs );
     void prvDeviceStateChangedCb( BTState_t xState );
     void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                                   uint8_t ucAdapterIf,
@@ -467,8 +453,12 @@
     void prvBondedCb( BTStatus_t xStatus,
                       BTBdaddr_t * pxRemoteBdAddr,
                       bool bIsBonded );
-    void prvStartStopAdvCheck( bool start );
-    BTStatus_t bleStackInit( void );
+    void prvStartAdvertisement( void );
+    BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
+                                      int32_t lhandle,
+                                      void * pxMessage,
+                                      size_t xMessageLength,
+                                      uint32_t timeoutMs );
     void prvBLEManagerInit( void );
     void prvBLEEnable( bool bEnable );
     void prvStartService( BTService_t * xRefSrvc );

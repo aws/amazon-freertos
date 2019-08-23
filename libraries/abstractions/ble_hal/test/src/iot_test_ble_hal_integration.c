@@ -185,10 +185,11 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     /* Create a data payload whose length = MTU + 1. */
     static char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
 
-    for( int i = 0; i < bletestsMTU_SIZE1 + 1; i++ )
-    {
-        bletests_MTU_2_CHAR_VALUE[ i ] = 'a';
-    }
+    /* for( int i = 0; i < bletestsMTU_SIZE1 + 1; i++ ) */
+    /* { */
+    /*     bletests_MTU_2_CHAR_VALUE[ i ] = 'a'; */
+    /* } */
+    memset( bletests_MTU_2_CHAR_VALUE, 'a', ( bletestsMTU_SIZE1 + 1 ) * sizeof( char ) );
 
     bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 1 ] = '\0';
 

@@ -45,5 +45,15 @@
                                    bool IsPrep,
                                    uint16_t usOffset );
     void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
+    void pushToQueue( IotLink_t * pEventList );
+    void prvSetGetProperty( BTProperty_t * pxProperty,
+                            bool bIsSet );
+    void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
+                              uint16_t usServiceDataLen,
+                              char * pcServiceData,
+                              BTUuid_t * pxServiceUuid,
+                              size_t xNbServices );
+    void prvStartStopAdvCheck( bool start );
+    BTStatus_t bleStackInit( void );
 
 #endif /* _IOT_TEST_BLE_HAL_AFQP_H_ */
