@@ -30,14 +30,9 @@
 
 #include "iot_test_ble_hal_stress_test.h"
 
-extern BTService_t g_xSrvcA;
-extern BTService_t g_xSrvcB;
-extern BTInterface_t * g_pxBTInterface;
-extern uint8_t g_ucBLEServerIf;
-extern BTCallbacks_t g_xBTManagerCb;
-extern BTGattServerInterface_t * g_pxGattServerInterface;
-extern BTBleAdapter_t * g_pxBTLeAdapterInterface;
-extern uint8_t g_ucBLEAdapterIf;
+extern BTService_t _xSrvcA;
+extern BTService_t _xSrvcB;
+extern BTInterface_t * _pxBTInterface;
 
 /*-----------------------------------------------------------*/
 
@@ -115,14 +110,14 @@ TEST( Full_BLE_Stress_Test, BLE_Stack_Deinit )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xStatus = g_pxBTInterface->pxBtManagerCleanup();
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Service_Delete )
 {
-    prvDeleteService( &g_xSrvcA );
-    prvDeleteService( &g_xSrvcB );
+    prvDeleteService( &_xSrvcA );
+    prvDeleteService( &_xSrvcB );
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Teardown )
@@ -138,8 +133,8 @@ TEST( Full_BLE_Stress_Test, BLE_Service_Create )
 
 TEST( Full_BLE_Stress_Test, BLE_Service_Restart )
 {
-    prvRestartService( &g_xSrvcA );
-    prvRestartService( &g_xSrvcB );
+    prvRestartService( &_xSrvcA );
+    prvRestartService( &_xSrvcB );
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Connection_ReConnect )

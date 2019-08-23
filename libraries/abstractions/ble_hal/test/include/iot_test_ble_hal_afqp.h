@@ -40,10 +40,10 @@
     } response_t;
 
     void prvBLESetUp( void );
-    static void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                                          bool bNeedRsp,
-                                          bool IsPrep,
-                                          uint16_t usOffset );
-    static void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
+    void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
+                                   bool bNeedRsp,
+                                   bool IsPrep,
+                                   uint16_t usOffset );
+    void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
 
 #endif /* _IOT_TEST_BLE_HAL_AFQP_H_ */

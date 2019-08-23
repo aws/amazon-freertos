@@ -472,16 +472,11 @@
     void prvBLEManagerInit( void );
     void prvBLEEnable( bool bEnable );
     void prvStartService( BTService_t * xRefSrvc );
-/* void prvCreateService( BTService_t * xRefSrvc ); */
     void prvCreateServiceA( void );
     void prvCreateServiceB( void );
     void prvWaitConnection( bool bConnected );
     void prvStopService( BTService_t * xRefSrvc );
     void prvDeleteService( BTService_t * xRefSrvc );
-/* void prvCreateCharacteristic( BTService_t * xSrvc, */
-/*                               int xAttribute ); */
-/* void prvCreateCharacteristicDescriptor( BTService_t * xSrvc, */
-/*                                         int xAttribute ); */
     void checkNotificationIndication( bletestAttSrvB_t xAttribute,
                                       bool enable );
     void prvBTUnregister( void );

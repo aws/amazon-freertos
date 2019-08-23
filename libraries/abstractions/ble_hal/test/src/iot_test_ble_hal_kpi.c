@@ -30,11 +30,7 @@
 
 #include "iot_test_ble_hal_kpi.h"
 
-extern BTGattServerInterface_t * g_pxGattServerInterface;
-extern BTBleAdapter_t * g_pxBTLeAdapterInterface;
-extern BTInterface_t * g_pxBTInterface;
-extern uint8_t g_ucBLEAdapterIf;
-extern uint8_t g_ucBLEServerIf;
+extern BTInterface_t * _pxBTInterface;
 
 /*-----------------------------------------------------------*/
 
@@ -90,6 +86,6 @@ TEST( Full_BLE_KPI_Test, BLE_KPI_Teardown )
     prvBTUnregister();
     prvBLEEnable( false );
 
-    xStatus = g_pxBTInterface->pxBtManagerCleanup();
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }

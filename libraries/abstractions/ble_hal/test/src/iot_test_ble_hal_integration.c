@@ -35,29 +35,17 @@
 
 #include "iot_test_ble_hal_integration.h"
 
-extern BTUuid_t g_xServerUUID;
-extern BTUuid_t g_xAppUUID;
+extern BTCallbacks_t _xBTManagerCb;
 
-extern BTGattAdvertismentParams_t g_xAdvertisementConfigA;
+extern BTGattServerInterface_t * _pxGattServerInterface;
+extern BTBleAdapter_t * _pxBTLeAdapterInterface;
+extern BTInterface_t * _pxBTInterface;
+extern uint8_t _ucBLEAdapterIf;
+extern uint8_t _ucBLEServerIf;
+extern uint16_t _usBLEConnId;
+extern BTBdaddr_t _xAddressConnectedDevice;
 
-extern BTGattAdvertismentParams_t g_xAdvertisementConfigB;
-
-extern BTCallbacks_t g_xBTManagerCb;
-
-extern BTBleAdapterCallbacks_t g_xBTBleAdapterCb;
-
-
-extern BTGattServerCallbacks_t g_xBTGattServerCb;
-
-extern BTGattServerInterface_t * g_pxGattServerInterface;
-extern BTBleAdapter_t * g_pxBTLeAdapterInterface;
-extern BTInterface_t * g_pxBTInterface;
-extern uint8_t g_ucBLEAdapterIf;
-extern uint8_t g_ucBLEServerIf;
-extern uint16_t g_usBLEConnId;
-extern BTBdaddr_t g_xAddressConnectedDevice;
-
-extern BTService_t g_xSrvcB;
+extern BTService_t _xSrvcB;
 extern uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
 
 
@@ -110,7 +98,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
 {
     prvStartAdvertisement();
     prvSetAdvData();
-    BTStatus_t xStatus = g_pxBTLeAdapterInterface->pxStopAdv( g_ucBLEAdapterIf );
+    BTStatus_t xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
@@ -126,7 +114,7 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_BT_Module )
     prvBLEEnable( false );
 
     /* enable */
-    xStatus = g_pxBTInterface->pxEnable( 0 );
+    xStatus = _pxBTInterface->pxEnable( 0 );
     returnTime = clock();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
@@ -162,10 +150,10 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     prvBTUnregister();
     prvBLEEnable( false );
 
-    xStatus = g_pxBTInterface->pxBtManagerCleanup();
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = g_pxBTInterface->pxBtManagerInit( &g_xBTManagerCb );
+    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     prvBLEEnable( true );
@@ -195,7 +183,7 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
 
     /* Create a data payload whose length = MTU + 1. */
-    char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
+    static char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
 
     for( int i = 0; i < bletestsMTU_SIZE1 + 1; i++ )
     {
@@ -208,24 +196,24 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     memcpy( ucLargeBuffer, bletests_MTU_2_CHAR_VALUE, bletestsMTU_SIZE1 + 1 );
 
     /* Expect to return failure here. */
-    xStatus = g_pxGattServerInterface->pxSendIndication( g_ucBLEServerIf,
-                                                         usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
-                                                         g_usBLEConnId,
-                                                         bletestsMTU_SIZE1 + 1,
-                                                         ucLargeBuffer,
-                                                         false );
+    xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
+                                                        usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
+                                                        _usBLEConnId,
+                                                        bletestsMTU_SIZE1 + 1,
+                                                        ucLargeBuffer,
+                                                        false );
     TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
 
     if( xStatus != eBTStatusSuccess )
     {
         /* Notify RPI failure here. Expect to receive "fail" message. */
         memcpy( ucLargeBuffer, bletestsFAIL_CHAR_VALUE, sizeof( bletestsFAIL_CHAR_VALUE ) - 1 );
-        xfStatus = g_pxGattServerInterface->pxSendIndication( g_ucBLEServerIf,
-                                                              usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
-                                                              g_usBLEConnId,
-                                                              sizeof( bletestsFAIL_CHAR_VALUE ) - 1,
-                                                              ucLargeBuffer,
-                                                              false );
+        xfStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
+                                                             usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
+                                                             _usBLEConnId,
+                                                             sizeof( bletestsFAIL_CHAR_VALUE ) - 1,
+                                                             ucLargeBuffer,
+                                                             false );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xfStatus );
     }
 }
@@ -235,12 +223,12 @@ TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
     BTStatus_t xStatus = eBTStatusSuccess;
 
     prvWaitConnection( false );
-    prvStopService( &g_xSrvcB );
-    prvDeleteService( &g_xSrvcB );
+    prvStopService( &_xSrvcB );
+    prvDeleteService( &_xSrvcB );
     prvBTUnregister();
     prvBLEEnable( false );
 
-    xStatus = g_pxBTInterface->pxBtManagerCleanup();
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
@@ -258,8 +246,8 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( IsPrep, xWriteEvent.bIsPrep );
     TEST_ASSERT_EQUAL( 49, xWriteEvent.ucValue[ 0 ] );
-    TEST_ASSERT_EQUAL( g_usBLEConnId, xWriteEvent.usConnId );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
 }
 
@@ -267,12 +255,12 @@ void prvCreateAndStartServiceB()
 {
     BTStatus_t xStatus;
 
-    xStatus = g_pxGattServerInterface->pxAddServiceBlob( g_ucBLEServerIf, &g_xSrvcB );
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
 
     if( xStatus == eBTStatusUnsupported )
     {
         prvCreateServiceB();
-        prvStartService( &g_xSrvcB );
+        prvStartService( &_xSrvcB );
     }
     else
     {
@@ -287,35 +275,31 @@ void prvGAPInitEnableTwice()
     BLETESTInitDeinitCallback_t xInitDeinitCb;
 
     /* Get BT interface */
-    g_pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, g_pxBTInterface );
+    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
 
-    uint32_t loop;
+    /* First time init */
+    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    for( loop = 0; loop < 2; loop++ )
-    {
-        /* Initialize callbacks */
-        xStatus = g_pxBTInterface->pxBtManagerInit( &g_xBTManagerCb );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    /* First time enable */
+    xStatus = _pxBTInterface->pxEnable( 0 );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-        /*Second time check if BT stack is enabled after deinit and init*/
-        if( loop == 1 )
-        {
-            TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-        }
+    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
 
-        xStatus = g_pxBTInterface->pxEnable( 0 );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    /*First time Deinit*/
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-        xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
+    /* Second time init */
+    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    /*Second time check if BT stack is enabled after deinit and init*/
+    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
 
-        /*First time Deinit*/
-        if( loop == 0 )
-        {
-            xStatus = g_pxBTInterface->pxBtManagerCleanup();
-            TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        }
-    }
+    /* Second time enable */
+    prvBLEEnable( true );
 }
