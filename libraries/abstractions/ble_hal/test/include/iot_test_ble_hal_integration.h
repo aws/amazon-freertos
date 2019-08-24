@@ -24,13 +24,26 @@
  */
 
 /**
- * @file iot_test_ble_hal_stress_test.h
+ *
+ * @file iot_test_ble_hal_integration.h
  * @brief
  */
 
-#ifndef _IOT_TEST_BLE_HAL_INTEGRATION_TEST_H_
-#define _IOT_TEST_BLE_HAL_INTEGRATION_TEST_H_
+
+
+#ifndef _IOT_TEST_BLE_HAL_INTEGRATION_H_
+#define _IOT_TEST_BLE_HAL_INTEGRATION_H_
 
 #include "iot_test_ble_hal_common.h"
 
-#endif /* _IOT_TEST_BLE_HAL_INTEGRATION_TEST_H_ */
+#define bletestsFAIL_CHAR_VALUE    "fail"
+
+void prvGAPInitEnableTwice( void );
+
+void prvGetResult( bletestAttSrvB_t xAttribute,
+                   bool IsPrep,
+                   uint16_t usOffset );
+void prvCreateAndStartServiceB( void );
+/* void prvCreateService( BTService_t * xRefSrvc ); */
+
+#endif /* ifndef _IOT_TEST_BLE_HAL_INTEGRATION_H_ */

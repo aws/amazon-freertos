@@ -30,23 +30,9 @@
 
 #include "iot_test_ble_hal_stress_test.h"
 
-#define TOTAL_NUMBER_STRESS_TEST    10
-
-static BTCallbacks_t xBTManagerCb =
-{
-    .pxDeviceStateChangedCb     = prvDeviceStateChangedCb,
-    .pxAdapterPropertiesCb      = NULL,
-    .pxRemoteDevicePropertiesCb = NULL,
-    .pxSspRequestCb             = NULL,
-    .pxPairingStateChangedCb    = NULL,
-    .pxBondedCb                 = NULL,
-    .pxDutModeRecvCb            = NULL,
-    .pxleTestModeCb             = NULL,
-    .pxEnergyInfoCb             = NULL,
-    .pxReadRssiCb               = NULL,
-    .pxTxPowerCb                = NULL,
-    .pxSlaveSecurityRequestCb   = NULL,
-};
+extern BTService_t _xSrvcA;
+extern BTService_t _xSrvcB;
+extern BTInterface_t * _pxBTInterface;
 
 /*-----------------------------------------------------------*/
 
@@ -68,90 +54,108 @@ TEST_TEAR_DOWN( Full_BLE_Stress_Test )
 
 TEST_GROUP_RUNNER( Full_BLE_Stress_Test )
 {
-    uint16_t loop;
-
     /* Initializations that need to be done once for all the tests. */
     RUN_TEST_CASE( Full_BLE, BLE_Setup );
 
-    RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Stack_Init_DeInit_Setup );
-
-    for( loop = 0; loop < TOTAL_NUMBER_STRESS_TEST; loop++ )
+    for( uint32_t init_loop = 0; init_loop < INIT_DEINIT_NUMBER_STRESS_TEST; init_loop++ )
     {
-        RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Stack_Init_DeInit );
+        RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Stack_Init );
+
+        for( uint32_t enable_loop = 0; enable_loop < ENABLE_DISABLE_NUMBER_STRESS_TEST; enable_loop++ )
+        {
+            /*TODO: add some randomness to catch timing issues */
+
+            RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Stack_Enable );
+
+            RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GAP );
+            RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GATT );
+
+            RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Service_Create );
+            RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Service_Restart );
+            RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Service_Delete );
+
+            RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetProperties );       /*@TOTO, incomplete */
+            RUN_TEST_CASE( Full_BLE, BLE_Connection_RemoveAllBonds );
+            RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetAvertisementData ); /*@TOTO, incomplete */
+
+            RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Connection_ReConnect );
+
+            RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Teardown );
+
+            RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Stack_Disable );
+        }
+
+        RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Stack_Deinit );
     }
 
-    RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Stack_Init_DeInit_Teardown );
-
-    /* RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Simple_Connect_Setup ); */
-    /* for ( loop = 0; loop < TOTAL_NUMBER_STRESS_TEST; loop++ ) */
-    /* { */
-    /*     RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Simple_Connect ); */
-    /* } */
-    /* RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Simple_Connect_Teardown ); */
+    RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
 
-TEST( Full_BLE_Stress_Test, BLE_Stack_Init_DeInit_Setup )
+TEST( Full_BLE_Stress_Test, BLE_Stack_Init )
+{
+    prvBLEManagerInit();
+}
+
+TEST( Full_BLE_Stress_Test, BLE_Stack_Enable )
+{
+    prvBLEEnable( true );
+}
+
+TEST( Full_BLE_Stress_Test, BLE_Stack_Disable )
+{
+    prvBLEEnable( false );
+}
+
+TEST( Full_BLE_Stress_Test, BLE_Stack_Deinit )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    /* Get BT interface */
-    g_pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, g_pxBTInterface );
-
-    /* Initialize callbacks */
-    xStatus = g_pxBTInterface->pxBtManagerInit( &xBTManagerCb );
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
-TEST( Full_BLE_Stress_Test, BLE_Stack_Init_DeInit )
+TEST( Full_BLE_Stress_Test, BLE_Service_Delete )
 {
-    BLETESTInitDeinitCallback_t xInitDeinitCb;
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    /* Enable RADIO and wait for callback. */
-    xStatus = g_pxBTInterface->pxEnable( 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-
-    /* Enable RADIO and wait for callback. */
-    xStatus = g_pxBTInterface->pxDisable( 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTstateOff, xInitDeinitCb.xBLEState );
+    prvDeleteService( &_xSrvcA );
+    prvDeleteService( &_xSrvcB );
 }
 
-TEST( Full_BLE_Stress_Test, BLE_Stack_Init_DeInit_Teardown )
+TEST( Full_BLE_Stress_Test, BLE_Teardown )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    /* Initialize callbacks */
-    xStatus = g_pxBTInterface->pxBtManagerCleanup();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    prvBTUnregister();
 }
 
-void prvDeviceStateChangedCb( BTState_t xState )
+TEST( Full_BLE_Stress_Test, BLE_Service_Create )
 {
-    BLETESTInitDeinitCallback_t * pxInitDeinitCb = IotTest_Malloc( sizeof( BLETESTInitDeinitCallback_t ) );
-
-    pxInitDeinitCb->xBLEState = xState;
-    pxInitDeinitCb->xEvent.lHandle = NO_HANDLE;
-    pxInitDeinitCb->xEvent.xEventTypes = eBLEHALEventEnableDisableCb;
-    pushToQueue( &pxInitDeinitCb->xEvent.eventList );
+    prvCreateServiceA();
+    prvCreateServiceB();
 }
 
-TEST( Full_BLE_Stress_Test, BLE_Simple_Connect_Setup )
+TEST( Full_BLE_Stress_Test, BLE_Service_Restart )
 {
+    prvRestartService( &_xSrvcA );
+    prvRestartService( &_xSrvcB );
 }
 
-TEST( Full_BLE_Stress_Test, BLE_Simple_Connect )
+TEST( Full_BLE_Stress_Test, BLE_Connection_ReConnect )
 {
+    uint32_t loop;
+
+    for( loop = 0; loop < RECONNECT_NUMBER_STRESS_TEST; loop++ )
+    {
+        prvStartAdvertisement();
+        prvWaitConnection( true );
+        prvWaitConnection( false );
+    }
 }
 
-TEST( Full_BLE_Stress_Test, BLE_Simple_Connect_Teardown )
+void prvRestartService( BTService_t * xRefSrvc )
 {
+    uint16_t loop;
+
+    for( loop = 0; loop < RESTART_NUMBER_STRESS_TEST; loop++ )
+    {
+        prvStartService( xRefSrvc );
+        prvStopService( xRefSrvc );
+    }
 }

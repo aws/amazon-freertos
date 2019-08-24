@@ -24,11 +24,13 @@
  */
 
 /**
- * @file aws_test_ble_stress_test.c
+ * @file aws_test_ble_kpi.c
  * @brief Tests for ble.
  */
 
 #include "iot_test_ble_hal_kpi.h"
+
+extern BTInterface_t * _pxBTInterface;
 
 /*-----------------------------------------------------------*/
 
@@ -50,4 +52,40 @@ TEST_TEAR_DOWN( Full_BLE_KPI_Test )
 
 TEST_GROUP_RUNNER( Full_BLE_KPI_Test )
 {
+    RUN_TEST_CASE( Full_BLE, BLE_Setup );
+    RUN_TEST_CASE( Full_BLE, BLE_Initialize_common_GAP );
+    RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GAP );
+    RUN_TEST_CASE( Full_BLE, BLE_Initialize_BLE_GATT );
+
+    RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetProperties ); /*@TOTO, incomplete */
+    RUN_TEST_CASE( Full_BLE, BLE_Connection_RemoveAllBonds );
+
+    RUN_TEST_CASE( Full_BLE, BLE_Advertising_SetAvertisementData ); /*@TOTO, incomplete */
+    RUN_TEST_CASE( Full_BLE_KPI_Test, BLE_KPI_ReConnect );
+
+    RUN_TEST_CASE( Full_BLE_KPI_Test, BLE_KPI_Teardown );
+    RUN_TEST_CASE( Full_BLE, BLE_Free );
+}
+
+TEST( Full_BLE_KPI_Test, BLE_KPI_ReConnect )
+{
+    uint32_t loop;
+
+    for( loop = 0; loop < TOTAL_NUMBER_RECONNECT; loop++ )
+    {
+        prvStartAdvertisement();
+        prvWaitConnection( true );
+        prvWaitConnection( false );
+    }
+}
+
+TEST( Full_BLE_KPI_Test, BLE_KPI_Teardown )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    prvBTUnregister();
+    prvBLEEnable( false );
+
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
