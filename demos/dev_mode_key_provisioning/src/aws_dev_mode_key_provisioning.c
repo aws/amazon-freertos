@@ -714,12 +714,13 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         CKO_PRIVATE_KEY,
     };
     uint32_t ulObjectIndex = 0;
-    CK_ATTRIBUTE xTemplate = {0};
+    CK_ATTRIBUTE xTemplate = { 0 };
     uint32_t ulIndex = 0;
     uint8_t ucByteValue = 0;
-#define BYTES_TO_DISPLAY_PER_ROW 16
-    char pcByteRow[ 1024 ];
-    char *pcNextChar = pcByteRow;
+
+#define BYTES_TO_DISPLAY_PER_ROW    16
+    char pcByteRow[ 1 + ( BYTES_TO_DISPLAY_PER_ROW * 2 ) + ( BYTES_TO_DISPLAY_PER_ROW / 2 ) ];
+    char * pcNextChar = pcByteRow;
     xResult = C_GetFunctionList( &pxFunctionList );
 
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
@@ -803,19 +804,19 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                                 CKO_PRIVATE_KEY,
                                                 &xObject );
 
-        if( CKR_OK != xResult || 0 == xObject )
+        if( ( CKR_OK != xResult ) || ( 0 == xObject ) )
         {
             /* Generate a new private key. */
-            xResult = xProvisionGenerateKeyPairEC(xSession,
-                                                  pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                  pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                                                  &xObject,
-                                                  &xPublicKeyHandle );
+            xResult = xProvisionGenerateKeyPairEC( xSession,
+                                                   pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                   pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                   &xObject,
+                                                   &xPublicKeyHandle );
         }
         else
         {
-            /* A private key is already present. Get the corresponding public 
-            key handle. */
+            /* A private key is already present. Get the corresponding public
+             * key handle. */
             xResult = xFindObjectWithLabelAndClass( xSession,
                                                     pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                                     CKO_PUBLIC_KEY,
@@ -835,7 +836,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
 
         /* Allocate a buffer to store the public key. */
-        xTemplate.pValue = pvPortMalloc(xTemplate.ulValueLen);
+        xTemplate.pValue = pvPortMalloc( xTemplate.ulValueLen );
 
         if( NULL == xTemplate.pValue )
         {
@@ -849,34 +850,26 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                                            xPublicKeyHandle,
                                                            &xTemplate,
                                                            1 );
-        }    
+        }
 
         /* Display the public key as hex so that it can be processed with
-        command-line tools if desired. 
-        
-        xxd -r -ps DevicePublicKeyAsciiHex.txt DevicePublicKeyDer.bin
-        openssl ec -inform der -in DevicePublicKeyDer.bin -pubout -outform pem -out DevicePublicKey.pem
-        
-        https://docs.aws.amazon.com/iot/latest/developerguide/device-certs-your-own.html
-
-        openssl genrsa -out securityOfficer.key 2048
-        openssl req -new -key securityOfficer.key -out deviceCert.csr
-        openssl x509 -req -in deviceCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out deviceCert.pem -days 500 -sha256 -force_pubkey DevicePublicKey.pem
-        */
+         * command-line tools if desired. For more information, please see the
+         * ReadMe.md file in the same directory as this source file. */
         if( CKR_OK == xResult )
         {
             configPRINTF( ( "Device public key, %d hex bytes:\r\n", xTemplate.ulValueLen ) );
+
             for( ; ulIndex < xTemplate.ulValueLen; ulIndex++ )
             {
                 /* Convert one byte to ASCII hex. */
-                ucByteValue = *( (char *)xTemplate.pValue + ulIndex );
+                ucByteValue = *( ( char * ) xTemplate.pValue + ulIndex );
                 snprintf( pcNextChar,
-                    sizeof( pcByteRow ) - ( 2 * ulIndex ),
-                    "%02x",
-                    ucByteValue );
+                          sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
+                          "%02x",
+                          ucByteValue );
                 pcNextChar += 2;
 
-                /* Check for the end of a word. */
+                /* Check for the end of a two-byte display word. */
                 if( 0 == ( ( ulIndex + 1 ) % sizeof( uint16_t ) ) )
                 {
                     *pcNextChar = ' ';
@@ -925,7 +918,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     /* Free the heap buffer, if allocated. */
     if( NULL != xTemplate.pValue )
     {
-        vPortFree(xTemplate.pValue);
+        vPortFree( xTemplate.pValue );
     }
 
     return xResult;
