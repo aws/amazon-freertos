@@ -841,9 +841,9 @@ void vImageProcessingTask( void * args )
         imageMatrix = dl_matrix3du_alloc( 1, fb->width, fb->height, 3 );
 
         /* Transform image to RGB */
-        uint32_t res = fmt2rgb888( fb->buf, fb->len, fb->format, imageMatrix->item );
+        uint32_t ulResult = fmt2rgb888( fb->buf, fb->len, fb->format, imageMatrix->item );
 
-        if( true != res )
+        if( true != ulResult )
         {
             IotLogError( "fmt2rgb888 failed, fb: %d", fb->len );
             dl_matrix3du_free( imageMatrix );
