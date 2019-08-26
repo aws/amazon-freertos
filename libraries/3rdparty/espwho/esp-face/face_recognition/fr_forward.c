@@ -8,6 +8,8 @@
 #include "rom/ets_sys.h"
 #include "esp_partition.h"
 
+#define CONFIG_FRMN1_QUANT    ( 1 )
+
 static const char * TAG = "face_recognition";
 
 void face_id_init( face_id_list * l,

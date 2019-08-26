@@ -144,7 +144,7 @@
  * @brief Format string of the PUBLISH messages in this demo.
  */
 #define PUBLISH_PAYLOAD_FORMAT_SUCCESS           "{\"message\": \"Subject %d on the door\", \"intruder\": %d, \"datetime\": \"test200\"}"
-#define PUBLISH_PAYLOAD_FORMAT_FAILURE           "{\"message\": \"INTRUDER ALERT\", \"intruder\": %d, \"datetime\": \"test200\"}"
+#define PUBLISH_PAYLOAD_FORMAT_FAILURE           "{\"message\": \"Unrecognized face at the door\", \"intruder\": %d, \"datetime\": \"test200\"}"
 
 /**
  * @brief Size of the buffer that holds the PUBLISH messages in this demo.
@@ -799,13 +799,13 @@ void vImageProcessingTask( void * args )
                                                        FACE_WIDTH,
                                                        FACE_HEIGHT,
                                                        3 );
-    
+
     /* Countdown in second to start the face enrollment*/
     int8_t cRemainingCountDown;
-    
+
     /* To verify if a face has been enrolled */
     int8_t cEnrollmentStatus;
-    
+
     /* Records the remaiing number of samples to enroll a face */
     int32_t lNextEnrollIndex = 0;
     int8_t cRemainingSamples;
