@@ -46,7 +46,25 @@
     #endif
     #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
+        #define democonfigDEMO_PRIORITY    democonfigMQTT_ECHO_TASK_PRIORITY
+    #endif
+#elif defined( CONFIG_AIOT_DEMO_ENABLED )
+    #if defined( CONFIG_FACE_SUBDEMO_ENABLED )
+        #define DEMO_entryFUNCTION    RunAIoTFaceDemo
+    #endif
+    #if defined( CONFIG_VOICE_SUBDEMO_ENABLED )
+        #define DEMO_entryFUNCTION    RunAIoTVoiceDemo
+    #endif
+    #if defined( CONFIG_VOICEFACE_SUBDEMO_ENABLED )
+        #define DEMO_entryFUNCTION    RunAIoTDemo
+    #endif
+    #if defined( democonfigSHADOW_DEMO_TASK_STACK_SIZE )
+        #undef democonfigDEMO_STACKSIZE
+        #define democonfigDEMO_STACKSIZE    democonfigSHADOW_DEMO_TASK_STACK_SIZE
+    #endif
+    #if defined( democonfigSHADOW_DEMO_TASK_PRIORITY )
+        #undef democonfigDEMO_PRIORITY
+        #define democonfigDEMO_PRIORITY     democonfigSHADOW_DEMO_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunShadowDemo

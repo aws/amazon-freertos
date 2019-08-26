@@ -23,54 +23,52 @@
  * http://www.FreeRTOS.org
  */
 
+
 #ifndef __AWS_CLIENTCREDENTIAL__H__
 #define __AWS_CLIENTCREDENTIAL__H__
 
 /*
- * @brief MQTT Broker endpoint.
- *
- * @todo Set this to the fully-qualified DNS name of your MQTT broker.
+ * Include for device certificate and private key
  */
-#define clientcredentialMQTT_BROKER_ENDPOINT         ""
+#include "aws_clientcredential_keys.h"
 
 /*
- * @brief Host name.
- *
- * @todo Set this to the unique name of your IoT Thing.
+ * MQTT Broker endpoint.
  */
-#define clientcredentialIOT_THING_NAME               ""
+#define clientcredentialMQTT_BROKER_ENDPOINT "a2o0bvhp66xdvx-ats.iot.us-west-2.amazonaws.com"
+
+
+/* Use of a "define" and not a "static const" here to be able to
+* use pre-compile concatenation on the string. */
+#define clientcredentialIOT_THING_NAME "TestDevice"
 
 /*
- * @brief Port number the MQTT broker is using.
+ * Port number the MQTT broker is using.
  */
-#define clientcredentialMQTT_BROKER_PORT             8883
+#define clientcredentialMQTT_BROKER_PORT 8883
 
 /*
- * @brief Port number the Green Grass Discovery use for JSON retrieval from cloud is using.
+ * Port number the Green Grass Discovery use for JSON retrieval from cloud is
+ * using.
  */
-#define clientcredentialGREENGRASS_DISCOVERY_PORT    8443
+#define clientcredentialGREENGRASS_DISCOVERY_PORT 8443
 
 /*
- * @brief Wi-Fi network to join.
- *
- * @todo If you are using Wi-Fi, set this to your network name.
+ * Wi-Fi network to join.
  */
-#define clientcredentialWIFI_SSID                    ""
+#define clientcredentialWIFI_SSID       "Mobile"
 
 /*
- * @brief Password needed to join Wi-Fi network.
- * @todo If you are using WPA, set this to your network password.
+ * Password needed to join Wi-Fi network.
  */
-#define clientcredentialWIFI_PASSWORD                ""
+#define clientcredentialWIFI_PASSWORD   "Fargate@4048"
 
-/*
- * @brief Wi-Fi network security type.
- *
- * @see WIFISecurity_t.
- *
- * @note Possible values are eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
- * eWiFiSecurityWPA2 (depending on the support of your device Wi-Fi radio).
+/**
+ * @brief Security type
+ * WPA2 Security, @see WIFISecurity_t
+ * Possible values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
+ * eWiFiSecurityWPA2
  */
-#define clientcredentialWIFI_SECURITY                eWiFiSecurityWPA2
+#define clientcredentialWIFI_SECURITY   eWiFiSecurityWPA2
 
-#endif /* ifndef __AWS_CLIENTCREDENTIAL__H__ */
+#endif

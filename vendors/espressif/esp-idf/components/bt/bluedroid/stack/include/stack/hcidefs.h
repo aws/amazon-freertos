@@ -830,7 +830,7 @@
 #define HCI_READ_CLOCK_OFFSET_COMP_EV(p)    (*((UINT32 *)(p)) & 0x08000000)
 #define HCI_CONN_PKT_TYPE_CHANGED_EV(p)     (*((UINT32 *)(p)) & 0x10000000)
 #define HCI_QOS_VIOLATION_EV(p)             (*((UINT32 *)(p)) & 0x20000000)
-#define HCI_PAGE_SCAN_MODE_CHANGED_EV(p)    (*((UINT32 *)(p)) & 0x40000000)
+#define HCI_PAGE_SCAN_MODE_CHANGED_EV(p)    (*((UINT32 *)(p)) & )
 #define HCI_PAGE_SCAN_REP_MODE_CHNG_EV(p)   (*((UINT32 *)(p)) & 0x80000000)
 
 /* the default event mask for 2.1+EDR (Lisbon) does not include Lisbon events */

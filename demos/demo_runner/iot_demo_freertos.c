@@ -41,7 +41,7 @@
 #include "iot_init.h"
 
 /* Remove dependency to MQTT */
-#define MQTT_DEMO_TYPE_ENABLED    ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
+#define MQTT_DEMO_TYPE_ENABLED    ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_AIOT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
 
 #if MQTT_DEMO_TYPE_ENABLED
     #include "iot_mqtt.h"
@@ -194,78 +194,79 @@ static int _initialize( demoContext_t * pContext )
         status = EXIT_FAILURE;
     }
 
-    if( status == EXIT_SUCCESS )
-    {
-        if( AwsIotNetworkManager_Init() != pdTRUE )
+    #if defined( CONFIG_VOICE_SUBDEMO_ENABLED ) || defined( CONFIG_FACE_SUBDEMO_ENABLED )
+        if( status == EXIT_SUCCESS )
         {
-            IotLogError( "Failed to initialize network manager library." );
-            status = EXIT_FAILURE;
-        }
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Create semaphore to signal that a network is available for the demo. */
-        if( IotSemaphore_Create( &demoNetworkSemaphore, 0, 1 ) != true )
-        {
-            IotLogError( "Failed to create semaphore to wait for a network connection." );
-            status = EXIT_FAILURE;
-        }
-        else
-        {
-            semaphoreCreated = true;
-        }
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Subscribe for network state change from Network Manager. */
-        if( AwsIotNetworkManager_SubscribeForStateChange( pContext->networkTypes,
-                                                          _onNetworkStateChangeCallback,
-                                                          pContext,
-                                                          &subscription ) != pdTRUE )
-        {
-            IotLogError( "Failed to subscribe network state change callback." );
-            status = EXIT_FAILURE;
-        }
-    }
-
-    /* Initialize all the  networks configured for the device. */
-    if( status == EXIT_SUCCESS )
-    {
-        if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) != configENABLED_NETWORKS )
-        {
-            IotLogError( "Failed to intialize all the networks configured for the device." );
-            status = EXIT_FAILURE;
-        }
-    }
-
-    if( status == EXIT_SUCCESS )
-    {
-        /* Wait for network configured for the demo to be initialized. */
-        demoConnectedNetwork = _getConnectedNetworkForDemo( pContext );
-
-        if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
-        {
-            /* Network not yet initialized. Block for a network to be intialized. */
-            IotLogInfo( "No networks connected for the demo. Waiting for a network connection. " );
-            demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
-        }
-    }
-
-    if( status == EXIT_FAILURE )
-    {
-        if( semaphoreCreated == true )
-        {
-            IotSemaphore_Destroy( &demoNetworkSemaphore );
+            if( AwsIotNetworkManager_Init() != pdTRUE )
+            {
+                IotLogError( "Failed to initialize network manager library." );
+                status = EXIT_FAILURE;
+            }
         }
 
-        if( commonLibrariesInitialized == true )
+        if( status == EXIT_SUCCESS )
         {
-            IotSdk_Cleanup();
+            /* Create semaphore to signal that a network is available for the demo. */
+            if( IotSemaphore_Create( &demoNetworkSemaphore, 0, 1 ) != true )
+            {
+                IotLogError( "Failed to create semaphore to wait for a network connection." );
+                status = EXIT_FAILURE;
+            }
+            else
+            {
+                semaphoreCreated = true;
+            }
         }
-    }
 
+        if( status == EXIT_SUCCESS )
+        {
+            /* Subscribe for network state change from Network Manager. */
+            if( AwsIotNetworkManager_SubscribeForStateChange( pContext->networkTypes,
+                                                              _onNetworkStateChangeCallback,
+                                                              pContext,
+                                                              &subscription ) != pdTRUE )
+            {
+                IotLogError( "Failed to subscribe network state change callback." );
+                status = EXIT_FAILURE;
+            }
+        }
+
+        /* Initialize all the  networks configured for the device. */
+        if( status == EXIT_SUCCESS )
+        {
+            if( AwsIotNetworkManager_EnableNetwork( configENABLED_NETWORKS ) != configENABLED_NETWORKS )
+            {
+                IotLogError( "Failed to intialize all the networks configured for the device." );
+                status = EXIT_FAILURE;
+            }
+        }
+
+        if( status == EXIT_SUCCESS )
+        {
+            /* Wait for network configured for the demo to be initialized. */
+            demoConnectedNetwork = _getConnectedNetworkForDemo( pContext );
+
+            if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
+            {
+                /* Network not yet initialized. Block for a network to be intialized. */
+                IotLogInfo( "No networks connected for the demo. Waiting for a network connection. " );
+                demoConnectedNetwork = _waitForDemoNetworkConnection( pContext );
+            }
+        }
+
+        if( status == EXIT_FAILURE )
+        {
+            if( semaphoreCreated == true )
+            {
+                IotSemaphore_Destroy( &demoNetworkSemaphore );
+            }
+
+            if( commonLibrariesInitialized == true )
+            {
+                IotSdk_Cleanup();
+            }
+        }
+    #endif /* if defined( CONFIG_VOICE_SUBDEMO_ENABLED || CONFIG_FACE_SUBDEMO_ENABLED ) */
     return status;
 }
 
@@ -296,10 +297,11 @@ void runDemoTask( void * pArgument )
     if( status == EXIT_SUCCESS )
     {
         IotLogInfo( "Successfully initialized the demo. Network type for the demo: %d", demoConnectedNetwork );
-
-        pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
-        pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
-        pCredentials = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
+        #if defined( CONFIG_VOICE_SUBDEMO_ENABLED ) || defined( CONFIG_FACE_SUBDEMO_ENABLED )
+            pNetworkInterface = AwsIotNetworkManager_GetNetworkInterface( demoConnectedNetwork );
+            pConnectionParams = AwsIotNetworkManager_GetConnectionParams( demoConnectedNetwork );
+            pCredentials = AwsIotNetworkManager_GetCredentials( demoConnectedNetwork );
+        #endif
 
         /* Run the demo. */
         status = pContext->demoFunction( true,
