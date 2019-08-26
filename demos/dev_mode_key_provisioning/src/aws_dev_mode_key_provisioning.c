@@ -701,6 +701,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_HANDLE xObject = 0;
+    CK_OBJECT_HANDLE xPublicKeyHandle = 0;
     CK_BYTE * pxPkcsLabels[] =
     {
         ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
@@ -712,6 +713,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         CKO_PRIVATE_KEY,
     };
     uint32_t ulObjectIndex = 0;
+    CK_ATTRIBUTE xTemplate = {0};
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -788,6 +790,65 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
+    /* Check whether a private key is now present. */
+    if( xResult == CKR_OK )
+    {
+        xResult = xFindObjectWithLabelAndClass( xSession,
+                                                pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                CKO_PRIVATE_KEY,
+                                                &xObject );
+
+        if( CKR_OK != xResult )
+        {
+            /* Generate a new private key. */
+            xResult = xProvisionGenerateKeyPairEC(xSession,
+                                                  pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                  pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                  &xObject,
+                                                  &xPublicKeyHandle );
+        }
+        else
+        {
+            /* A private key is already present. Get the corresponding public 
+            key handle. */
+            xResult = xFindObjectWithLabelAndClass( xSession,
+                                                    pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                    CKO_PUBLIC_KEY,
+                                                    &xPublicKeyHandle );
+        }
+
+        /* Query the size of the public key. */
+        if( CKR_OK == xResult )
+        {
+            xTemplate.type = CKA_VALUE;
+            xTemplate.pValue = NULL;
+            xTemplate.ulValueLen = 0;
+            xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                           xPublicKeyHandle,
+                                                           &xTemplate,
+                                                           1 );
+        }
+
+        /* Allocate a buffer to store the public key. */
+        xTemplate.pValue = pvPortMalloc(xTemplate.ulValueLen);
+
+        if( NULL == xTemplate.pValue )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+
+        /* Export the public key. */
+        if( CKR_OK == xResult )
+        {
+            xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                           xPublicKeyHandle,
+                                                           &xTemplate,
+                                                           1 );
+        }    
+
+        /* TODO: prvDerToPem */
+    }
+
     /* Ensure that the above procedure has ended up with a client certificate and
      * private key available in storage. */
     if( xResult == CKR_OK )
@@ -805,6 +866,12 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                 break;
             }
         }
+    }
+
+    /* Free the heap buffer, if allocated. */
+    if( NULL != xTemplate.pValue )
+    {
+        vPortFree(xTemplate.pValue);
     }
 
     return xResult;
