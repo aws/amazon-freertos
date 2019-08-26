@@ -14,4 +14,9 @@ RemoteSystemsTempFiles/*
 # Ignore top-level build dir
 /build*/
 
+# Ignore configuration files
+/Users/diveks/Desktop/new/amazon-freertos/demos/include/aws_clientcredential.h
+/Users/diveks/Desktop/new/amazon-freertos/demos/include/aws_clientcredential_keys.h
+/Users/diveks/Desktop/new/amazon-freertos/tools/aws_config_quick_start/*
+
 .DS_Store

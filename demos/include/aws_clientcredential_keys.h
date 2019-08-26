@@ -34,7 +34,7 @@
  * "...base64 data...\n"\
  * "-----END CERTIFICATE-----\n"
  */
-#define keyCLIENT_CERTIFICATE_PEM    ""
+#define keyCLIENT_CERTIFICATE_PEM    "testing"
 
 
 /*
