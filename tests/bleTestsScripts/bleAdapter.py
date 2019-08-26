@@ -140,8 +140,14 @@ class bleAdapter:
         obj = bus.get_object(testutils.SERVICE_NAME, path)
         if bleAdapter.notificationCb != None:
             uuid = bleAdapter.getPropertie(obj, "UUID", interface=testutils.CHARACTERISTIC_INTERFACE)
+            flag = bleAdapter.getPropertie(obj, "Flags", interface=testutils.CHARACTERISTIC_INTERFACE)[0]
             value = testutils.convert_dbus_array_to_string(bleAdapter.getPropertie(obj, "Value", interface=testutils.CHARACTERISTIC_INTERFACE))
-            bleAdapter.notificationCb.im_func(uuid, value)
+            
+            print uuid
+            print flag
+            print value
+
+            bleAdapter.notificationCb.im_func(uuid, value, flag)
 
     @staticmethod
     def interfaces_added(path, interfaces):

@@ -364,6 +364,12 @@ typedef enum
     bletestATTR_SRVCB_NUMBER
 } bletestAttSrvB_t;
 
+typedef struct
+{
+    size_t xLength;
+    uint8_t ucBuffer[ bletestsSTRINGYFIED_UUID_SIZE ];
+} response_t;
+
 void prvDeviceStateChangedCb( BTState_t xState );
 void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                               uint8_t ucAdapterIf,
@@ -474,5 +480,7 @@ void prvBLEGAPInit( void );
 void prvBLEGATTInit( void );
 void prvSetAdvProperty( void );
 void prvSetAdvData( void );
+
+void prvStartStopAdvCheck( bool start );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */

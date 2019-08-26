@@ -21,7 +21,6 @@ pairingEvent = threading.Event()
 def discoveryStartedCb(testDevice):
     mainloop.quit()
 
-
 def discoveryEventCb(testDevice):
     isTestSuccessFull = runTest.advertisement(testDevice)
 
@@ -30,13 +29,14 @@ def discoveryEventCb(testDevice):
         #discoveryEvent.set()
         mainloop.quit()
 
-def notificationCb(uuid, value):
-    isNotificationTestSuccessFull = runTest.notification(uuid, value)
+def notificationCb(uuid, value, flag):
+    isNotificationTestSuccessFull = runTest.notification(uuid, value, flag)
     if isNotificationTestSuccessFull == True:
         #notificationEvent.set()
         mainloop.quit()
 
-    isIndicationTestSuccessFull = runTest.indication(uuid, value)
+def indicationCb(uuid, value, flag):
+    isIndicationTestSuccessFull = runTest.indication(uuid, value, flag)
     if isIndicationTestSuccessFull == True:
         #indicationEvent.set()
         mainloop.quit()
@@ -97,11 +97,11 @@ def main():
     bleAdapter.setNotificationCallBack(notificationCb)
     bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
     bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
-
     isTestSuccessFull = True
     mainloop.run()
     runTest.submitTestResult(isTestSuccessFull, runTest.notification)
 
+    bleAdapter.setNotificationCallBack(indicationCb)
     isTestSuccessFull = True
     mainloop.run()
     runTest.submitTestResult(isTestSuccessFull, runTest.indication)

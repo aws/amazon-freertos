@@ -33,12 +33,6 @@
 
 #include "iot_test_ble_hal_common.h"
 
-typedef struct
-{
-    size_t xLength;
-    uint8_t ucBuffer[ bletestsSTRINGYFIED_UUID_SIZE ];
-} response_t;
-
 void prvBLESetUp( void );
 void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
                                bool bNeedRsp,
@@ -53,7 +47,6 @@ void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                           char * pcServiceData,
                           BTUuid_t * pxServiceUuid,
                           size_t xNbServices );
-void prvStartStopAdvCheck( bool start );
 BTStatus_t bleStackInit( void );
 
 #endif /* _IOT_TEST_BLE_HAL_AFQP_H_ */

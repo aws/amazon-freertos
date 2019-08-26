@@ -47,6 +47,7 @@ extern BTBdaddr_t _xAddressConnectedDevice;
 
 extern BTService_t _xSrvcB;
 extern uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
+extern response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
 
 
 TEST_GROUP( Full_BLE_Integration_Test );
@@ -77,6 +78,11 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset );
 
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
+
+    /*TODO: test prepare/execute write function here.*/
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Prepare_Execute_Write );    
+
+    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout );
 
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Teardown );
     RUN_TEST_CASE( Full_BLE, BLE_Free );
@@ -176,6 +182,8 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
 
 /* If data size is > MTU - 3 then BT stack can truncate it to MTU - 3 and keep trying to send it over to other peer.
  * Make sure calling pxSendIndication() with xLen > MTU - 3 and stack returns failure.*/
+// 2 chars has the same descriptor uuid which can cause read/write the descriptors of chars to return wrong values.
+
 TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
@@ -184,16 +192,13 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
 
     /* Create a data payload whose length = MTU + 1. */
     static char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
-
-    /* for( int i = 0; i < bletestsMTU_SIZE1 + 1; i++ ) */
-    /* { */
-    /*     bletests_MTU_2_CHAR_VALUE[ i ] = 'a'; */
-    /* } */
     memset( bletests_MTU_2_CHAR_VALUE, 'a', ( bletestsMTU_SIZE1 + 1 ) * sizeof( char ) );
-
     bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 1 ] = '\0';
 
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
+    // check the value of desc F is 0.
+    TEST_ASSERT_EQUAL( ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[0], 0);
+
     memcpy( ucLargeBuffer, bletests_MTU_2_CHAR_VALUE, bletestsMTU_SIZE1 + 1 );
 
     /* Expect to return failure here. */
@@ -219,11 +224,23 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     }
 }
 
+TEST( Full_BLE_Integration_Test, BLE_Integration_Prepare_Execute_Write )
+{
+}
+
+// trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout.
+TEST( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout )
+{
+    prvWaitConnection( false );
+    prvStartAdvertisement();
+    prvShortWaitConnection();
+}
+
 TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    prvWaitConnection( false );
+    // prvWaitConnection( false );
     prvStopService( &_xSrvcB );
     prvDeleteService( &_xSrvcB );
     prvBTUnregister();
@@ -232,7 +249,6 @@ TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
-
 
 void prvGetResult( bletestAttSrvB_t xAttribute,
                    bool IsPrep,
@@ -250,6 +266,18 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
     TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
+}
+
+// wait for connection establish for a short timeout.
+void prvShortWaitConnection()
+{
+    BLETESTConnectionCallback_t xConnectionEvent;
+    BTStatus_t xStatus;
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_SHORT_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusFail, xStatus );
+    TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xConnectionEvent.xStatus );
+    prvStartStopAdvCheck( false );
 }
 
 void prvCreateAndStartServiceB()
@@ -291,16 +319,14 @@ void prvGAPInitEnableTwice()
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
 
-    /*First time Deinit*/
+    /*First time deinit*/
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
     /* Second time init */
     xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     /*Second time check if BT stack is enabled after deinit and init*/
     TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-
     /* Second time enable */
     prvBLEEnable( true );
 }

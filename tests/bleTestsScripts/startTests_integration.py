@@ -32,27 +32,24 @@ def discoveryEventCb(testDevice):
         #discoveryEvent.set()
         mainloop.quit()
 
-def notificationCb(uuid, value):
-    isNotificationTestSuccessFull = runTest.notification(uuid, value)
-    if isNotificationTestSuccessFull == True:
-        #notificationEvent.set()
+def notificationOn2CharCb(uuid, value, flag):
+    isNotificationOnETestSuccessFull = runTest.notificationOnCharE(uuid, value, flag)
+    if isNotificationOnETestSuccessFull == True:
         mainloop.quit()
 
-    isIndicationTestSuccessFull = runTest.indication(uuid, value)
-    if isIndicationTestSuccessFull == True:
-        #indicationEvent.set()
+    isIndicationOnFTestSuccessFull = runTest.indicationOnCharF(uuid, value, flag)
+    if isIndicationOnFTestSuccessFull == True:
         mainloop.quit()
 
-def notificationMTUCb(uuid, value):
-    notification = runTest.notificationMTU2(uuid, value)
+
+def notificationMTUCb(uuid, value, flag):
+    notification = runTest.notificationMTU2(uuid, value, flag)
     if notification == runTest.DUT_FAIL_STRING:
         mainloop.quit()
         runTest.isNotificationDeclinedSuccessFull = True
     if notification == runTest.DUT_MTU_2_STRING:
         mainloop.quit()
         runTest.isNotificationDeclinedSuccessFull = False
-    
-            
 
 def teardown_test(agent):
     securityAgent.removeSecurityAgent()
@@ -117,6 +114,7 @@ def main():
 
 
     # Data size > MTU - 3 send notification test
+    # Subscribe notification on Char E by CCCD with the same UUID.
     bleAdapter.setNotificationCallBack(notificationMTUCb)
     bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
     isTestSuccessFull = True
@@ -124,14 +122,12 @@ def main():
     isTestSuccessFull = runTest.isNotificationDeclinedSuccessFull
     runTest.submitTestResult(isTestSuccessFull, runTest.notification)
 
-    # unsubscribe
     isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe
-    isTestSuccessFull = True
     runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
 
-
     isTestSuccessFull &= bleAdapter.disconnect()
-    time.sleep(2) #wait for connection parameters update
+    time.sleep(6) #wait for connection parameters update
+    runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)
     runTest.printTestsSummary()
     agent = teardown_test(agent)
 

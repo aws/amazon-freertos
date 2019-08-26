@@ -64,6 +64,9 @@ class runTest:
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
+    DUT_LONG_STRING = "A" * (MTU_SIZE - 3) + "B" * (MTU_SIZE - 3) + "C" * (MTU_SIZE - 3)
+    DUT_CHAR_E_STRING = "E"
+    DUT_CHAR_F_STRING = "F"
     isNotificationDeclinedSuccessFull = False
 
     @staticmethod
@@ -172,34 +175,41 @@ class runTest:
 
 
     @staticmethod
-    def indication(uuid, value):
+    def indication(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING):
+        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING) and (flag == "indicate"):
             isSuccessfull = True
 
         return isSuccessfull
 
     @staticmethod
-    def notification(uuid, value):
+    def notification(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING) and (flag == "notify"):
             isSuccessfull = True
 
         return isSuccessfull
 
     @staticmethod
-    def notificationMTU2(uuid, value):
-        if uuid == runTest.DUT_NOTIFY_CHAR_UUID:
+    def notificationMTU2(uuid, value, flag):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (flag == "notify"):
             return value;
 
     @staticmethod
-    def notifyFailure(uuid, value):
+    def notificationOnCharE(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_FAIL_STRING):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_CHAR_E_STRING) and (flag == "notify"):
             isSuccessfull = True
 
         return isSuccessfull
 
+    @staticmethod
+    def indicationOnCharF(uuid, value, flag):
+        isSuccessfull = False
+        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_CHAR_F_STRING) and (flag == "indicate"):
+            isSuccessfull = True
+
+        return isSuccessfull
 
     @staticmethod
     def writeWithoutResponse():
@@ -208,6 +218,10 @@ class runTest:
     @staticmethod
     def writeResultWithoutResponse(result):
         return bleAdapter.writeCharacteristic(runTest.DUT_WRITE_NO_RESP_CHAR_UUID, result, False)
+
+    @staticmethod
+    def prepareWrite():
+        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_LONG_STRING, prepareWrite=True)
 
     @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
@@ -357,6 +371,7 @@ class runTest:
             runTest.checkUUIDs: "_checkUUIDs",
             runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
             runTest.writeWithoutResponse: "_writeWithoutResponse",
+            runTest.prepareWrite: "_prepareWrite",
             runTest.notification:"_notification",
             runTest.indication:"_indication",
             runTest.removeNotification:"_removeNotification",
