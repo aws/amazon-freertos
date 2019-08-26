@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,36 +42,76 @@
 #include "types/iot_platform_types.h"
 
 /**
- * @functionspage{platform_threads,platform thread management,Thread Management}
- * - @functionname{platform_threads_function_createdetachedthread}
- * - @functionname{platform_threads_function_mutexcreate}
- * - @functionname{platform_threads_function_mutexdestroy}
- * - @functionname{platform_threads_function_mutexlock}
- * - @functionname{platform_threads_function_mutextrylock}
- * - @functionname{platform_threads_function_mutexunlock}
- * - @functionname{platform_threads_function_semaphorecreate}
- * - @functionname{platform_threads_function_semaphoredestroy}
- * - @functionname{platform_threads_function_semaphoregetcount}
- * - @functionname{platform_threads_function_semaphorewait}
- * - @functionname{platform_threads_function_semaphoretrywait}
- * - @functionname{platform_threads_function_semaphoretimedwait}
- * - @functionname{platform_threads_function_semaphorepost}
+ * @functions_page{platform_threads, Thread Management}
+ * @functions_brief{platform thread management}
+ * - @function_name{platform_threads_function_createdetachedthread}
+ * @function_brief{platform_threads_function_createdetachedthread}
+ * - @function_name{platform_threads_function_mutexcreate}
+ * @function_brief{platform_threads_function_mutexcreate}
+ * - @function_name{platform_threads_function_mutexdestroy}
+ * @function_brief{platform_threads_function_mutexdestroy}
+ * - @function_name{platform_threads_function_mutexlock}
+ * @function_brief{platform_threads_function_mutexlock}
+ * - @function_name{platform_threads_function_mutextrylock}
+ * @function_brief{platform_threads_function_mutextrylock}
+ * - @function_name{platform_threads_function_mutexunlock}
+ * @function_brief{platform_threads_function_mutexunlock}
+ * - @function_name{platform_threads_function_semaphorecreate}
+ * @function_brief{platform_threads_function_semaphorecreate}
+ * - @function_name{platform_threads_function_semaphoredestroy}
+ * @function_brief{platform_threads_function_semaphoredestroy}
+ * - @function_name{platform_threads_function_semaphoregetcount}
+ * @function_brief{platform_threads_function_semaphoregetcount}
+ * - @function_name{platform_threads_function_semaphorewait}
+ * @function_brief{platform_threads_function_semaphorewait}
+ * - @function_name{platform_threads_function_semaphoretrywait}
+ * @function_brief{platform_threads_function_semaphoretrywait}
+ * - @function_name{platform_threads_function_semaphoretimedwait}
+ * @function_brief{platform_threads_function_semaphoretimedwait}
+ * - @function_name{platform_threads_function_semaphorepost}
+ * @function_brief{platform_threads_function_semaphorepost}
  */
 
 /**
- * @functionpage{Iot_CreateDetachedThread,platform_threads,createdetachedthread}
- * @functionpage{IotMutex_Create,platform_threads,mutexcreate}
- * @functionpage{IotMutex_Destroy,platform_threads,mutexdestroy}
- * @functionpage{IotMutex_Lock,platform_threads,mutexlock}
- * @functionpage{IotMutex_TryLock,platform_threads,mutextrylock}
- * @functionpage{IotMutex_Unlock,platform_threads,mutexunlock}
- * @functionpage{IotSemaphore_Create,platform_threads,semaphorecreate}
- * @functionpage{IotSemaphore_Destroy,platform_threads,semaphoredestroy}
- * @functionpage{IotSemaphore_GetCount,platform_threads,semaphoregetcount}
- * @functionpage{IotSemaphore_Wait,platform_threads,semaphorewait}
- * @functionpage{IotSemaphore_TryWait,platform_threads,semaphoretrywait}
- * @functionpage{IotSemaphore_TimedWait,platform_threads,semaphoretimedwait}
- * @functionpage{IotSemaphore_Post,platform_threads,semaphorepost}
+ * @function_page{Iot_CreateDetachedThread,platform_threads,createdetachedthread}
+ * @function_snippet{platform_threads,createdetachedthread,this}
+ * @copydoc Iot_CreateDetachedThread
+ * @function_page{IotMutex_Create,platform_threads,mutexcreate}
+ * @function_snippet{platform_threads,mutexcreate,this}
+ * @copydoc IotMutex_Create
+ * @function_page{IotMutex_Destroy,platform_threads,mutexdestroy}
+ * @function_snippet{platform_threads,mutexdestroy,this}
+ * @copydoc IotMutex_Destroy
+ * @function_page{IotMutex_Lock,platform_threads,mutexlock}
+ * @function_snippet{platform_threads,mutexlock,this}
+ * @copydoc IotMutex_Lock
+ * @function_page{IotMutex_TryLock,platform_threads,mutextrylock}
+ * @function_snippet{platform_threads,mutextrylock,this}
+ * @copydoc IotMutex_TryLock
+ * @function_page{IotMutex_Unlock,platform_threads,mutexunlock}
+ * @function_snippet{platform_threads,mutexunlock,this}
+ * @copydoc IotMutex_Unlock
+ * @function_page{IotSemaphore_Create,platform_threads,semaphorecreate}
+ * @function_snippet{platform_threads,semaphorecreate,this}
+ * @copydoc IotSemaphore_Create
+ * @function_page{IotSemaphore_Destroy,platform_threads,semaphoredestroy}
+ * @function_snippet{platform_threads,semaphoredestroy,this}
+ * @copydoc IotSemaphore_Destroy
+ * @function_page{IotSemaphore_GetCount,platform_threads,semaphoregetcount}
+ * @function_snippet{platform_threads,semaphoregetcount,this}
+ * @copydoc IotSemaphore_GetCount
+ * @function_page{IotSemaphore_Wait,platform_threads,semaphorewait}
+ * @function_snippet{platform_threads,semaphorewait,this}
+ * @copydoc IotSemaphore_Wait
+ * @function_page{IotSemaphore_TryWait,platform_threads,semaphoretrywait}
+ * @function_snippet{platform_threads,semaphoretrywait,this}
+ * @copydoc IotSemaphore_TryWait
+ * @function_page{IotSemaphore_TimedWait,platform_threads,semaphoretimedwait}
+ * @function_snippet{platform_threads,semaphoretimedwait,this}
+ * @copydoc IotSemaphore_TimedWait
+ * @function_page{IotSemaphore_Post,platform_threads,semaphorepost}
+ * @function_snippet{platform_threads,semaphorepost,this}
+ * @copydoc IotSemaphore_Post
  */
 
 /**
@@ -147,7 +187,8 @@ bool Iot_CreateDetachedThread( IotThreadRoutine_t threadRoutine,
  * @endcode
  */
 /* @[declare_platform_threads_mutexcreate] */
-bool IotMutex_Create( IotMutex_t * pNewMutex, bool recursive );
+bool IotMutex_Create( IotMutex_t * pNewMutex,
+                      bool recursive );
 /* @[declare_platform_threads_mutexcreate] */
 
 /**

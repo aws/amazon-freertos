@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@
 #ifndef _AWS_APPLICATION_VERSION_H_
 #define _AWS_APPLICATION_VERSION_H_
 
-#include "aws_appversion32.h"
+#include "iot_appversion32.h"
 extern const AppVersion32_t xAppFirmwareVersion;
 
 #define APP_VERSION_MAJOR    0

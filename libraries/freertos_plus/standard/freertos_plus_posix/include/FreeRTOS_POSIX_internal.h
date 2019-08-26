@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,7 +32,7 @@
  */
 
 /* Amazon FreeRTOS includes. */
-#include "aws_doubly_linked_list.h"
+#include "iot_doubly_linked_list.h"
 
 /**
  * @brief Mutex attribute object.
@@ -81,21 +81,21 @@
     {
         BaseType_t xIsInitialized;            /**< Set to pdTRUE if this condition variable is initialized, pdFALSE otherwise. */
         StaticSemaphore_t xCondWaitSemaphore; /**< Threads block on this semaphore in pthread_cond_wait. */
-        unsigned iWaitingThreads;                  /**< The number of threads currently waiting on this condition variable. */
+        unsigned iWaitingThreads;             /**< The number of threads currently waiting on this condition variable. */
     } pthread_cond_internal_t;
 
 /**
  * @brief Compile-time initializer of pthread_cond_internal_t.
  */
 
-        #define FREERTOS_POSIX_COND_INITIALIZER \
-    ( ( ( pthread_cond_internal_t )             \
-    {                                           \
-        .xIsInitialized = pdFALSE,              \
-        .xCondWaitSemaphore = { { 0 } },        \
-        .iWaitingThreads = 0                    \
-    }                                           \
-        )                                       \
+    #define FREERTOS_POSIX_COND_INITIALIZER \
+    ( ( ( pthread_cond_internal_t )         \
+    {                                       \
+        .xIsInitialized = pdFALSE,          \
+        .xCondWaitSemaphore = { { 0 } },    \
+        .iWaitingThreads = 0                \
+    }                                       \
+        )                                   \
     )
 
 #endif /* if posixconfigENABLE_PTHREAD_COND_T == 1 */
@@ -107,8 +107,8 @@
  */
     typedef struct
     {
-        StaticSemaphore_t xSemaphore;   /**< FreeRTOS semaphore. */
-        int value;                      /**< POSIX semaphore count. */
+        StaticSemaphore_t xSemaphore; /**< FreeRTOS semaphore. */
+        int value;                    /**< POSIX semaphore count. */
     } sem_internal_t;
 #endif /* if posixconfigENABLE_SEM_T == 1 */
 

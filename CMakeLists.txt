@@ -6,12 +6,15 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 project(amazon-freertos)
-set(PROJECT_VERSION "201906.00 Major")
-set(PROJECT_VERSION_MAJOR "201906")
+set(PROJECT_VERSION "201908.00")
+set(PROJECT_VERSION_MAJOR "201908")
 set(PROJECT_VERSION_MINOR "00")
 
 # Import global configurations.
 include("tools/cmake/afr.cmake")
+
+# Add 3rdparty modules.
+add_subdirectory("libraries/3rdparty")
 
 # -------------------------------------------------------------------------------------------------
 # Configure target board

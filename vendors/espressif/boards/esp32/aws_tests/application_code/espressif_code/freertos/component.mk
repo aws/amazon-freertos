@@ -21,6 +21,7 @@ COMPONENT_ADD_INCLUDEDIRS := include \
                             $(AMAZON_FREERTOS_LIB_DIR)/c_sdk/aws/shadow/include \
                             $(AMAZON_FREERTOS_LIB_DIR)/freertos_plus/standard/utils/include \
                             $(AMAZON_FREERTOS_LIB_DIR)/freertos_plus/standard/tls/include \
+                            $(AMAZON_FREERTOS_LIB_DIR)/freertos_plus/standard/pkcs11/include \
                             $(AMAZON_FREERTOS_LIB_DIR)/abstractions/wifi/include \
                             $(AMAZON_FREERTOS_LIB_DIR)/c_sdk/standard/common/include/private \
                             ${AMAZON_FREERTOS_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include

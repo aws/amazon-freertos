@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,13 +39,13 @@
 #endif
 
 /**
- * callback registerd on accept topic.
+ * callback registered on accept topic.
  */
 void _acceptCallback( void * pArgument,
                       IotMqttCallbackParam_t * const pPublish );
 
 /**
- * callback registerd on reject topic.
+ * callback registered on reject topic.
  */
 void _rejectCallback( void * pArgument,
                       IotMqttCallbackParam_t * const pPublish );
@@ -143,7 +143,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
 
     IotTaskPoolError_t taskPoolError = IOT_TASKPOOL_SUCCESS;
 
-    /* Silence warnigns when asserts are disabled. */
+    /* Silence warnings when asserts are disabled. */
     ( void ) taskPoolError;
 
     /* Initialize flow control states to false. */
@@ -349,7 +349,7 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
                                     IotTaskPoolJob_t pJob,
                                     void * pUserContext )
 {
-    /* Unsed parameter; silence the compiler. */
+    /* Unused parameter; silence the compiler. */
     ( void ) pTaskPool;
     ( void ) pJob;
     ( void ) pUserContext;
@@ -401,13 +401,14 @@ static void _metricsPublishRoutine( IotTaskPool_t pTaskPool,
             }
         }
     }
+
     /* If no MQTT error and report has been created, it indicates everything is good. */
     if( ( mqttError == IOT_MQTT_SUCCESS ) && reportCreated )
     {
         IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _disconnectRoutine, NULL, &_disconnectJobStorage, &_disconnectJob );
 
-        /* Silence warnigns when asserts are disabled. */
-        ( void ) taskPoolError;		
+        /* Silence warnings when asserts are disabled. */
+        ( void ) taskPoolError;
         AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
         IotTaskPool_ScheduleDeferred( IOT_SYSTEM_TASKPOOL,
@@ -472,7 +473,7 @@ static void _disconnectRoutine( IotTaskPool_t pTaskPool,
                                 IotTaskPoolJob_t pJob,
                                 void * pUserContext )
 {
-    /* Unsed parameter; silence the compiler. */
+    /* Unused parameter; silence the compiler. */
     ( void ) pTaskPool;
     ( void ) pJob;
     ( void ) pUserContext;
@@ -483,10 +484,10 @@ static void _disconnectRoutine( IotTaskPool_t pTaskPool,
     AwsIotDefenderInternal_MqttDisconnect();
     /* Re-create metrics job. */
     IotTaskPoolError_t taskPoolError = IotTaskPool_CreateJob( _metricsPublishRoutine, NULL, &_metricsPublishJobStorage, &_metricsPublishJob );
-	
-    /* Silence warnigns when asserts are disabled. */
+
+    /* Silence warnings when asserts are disabled. */
     ( void ) taskPoolError;
-	
+
     AwsIotDefender_Assert( taskPoolError == IOT_TASKPOOL_SUCCESS );
 
     /* Re-schedule metrics job with period as deferred interval. */

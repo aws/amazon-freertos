@@ -19,8 +19,6 @@ set(compiler_defined_symbols
     IMG_BAUDRATE=96000000
     # tinycbor cbor.h references "FILE"
     _DLIB_FILE_DESCRIPTOR=1
-    # tinycbor compilersupport.h needs this
-    __little_endian__=1
 )
 
 # Get the directory of compiler out of the full path

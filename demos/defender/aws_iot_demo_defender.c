@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,12 +40,12 @@
 #include "task.h"
 
 /* Secure Socket includes. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 /* Platform includes for demo. */
 #include "platform/iot_clock.h"
 #include "platform/iot_network.h"
-#include "platform/iot_network_afr.h"
+#include "platform/iot_network_freertos.h"
 
 /* Defender includes. */
 #include "aws_iot_defender.h"

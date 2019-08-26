@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -74,7 +74,7 @@ void vPortSetupTimerInterrupt( void ) __attribute__(( weak ));
 /* Used to program the machine timer compare register. */
 uint64_t ullNextTime = 0ULL;
 const uint64_t *pullNextTime = &ullNextTime;
-const uint32_t ulTimerIncrementsForOneTick = ( uint32_t ) ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ); /* Assumes increment won't go over 32-bits. */
+const size_t uxTimerIncrementsForOneTick = ( size_t ) ( configCPU_CLOCK_HZ / configTICK_RATE_HZ ); /* Assumes increment won't go over 32-bits. */
 volatile uint64_t * const pullMachineTimerCompareRegister = ( volatile uint64_t * const ) ( configCLINT_BASE_ADDRESS + 0x4000 );
 
 /* Set configCHECK_FOR_STACK_OVERFLOW to 3 to add ISR stack checking to task
@@ -120,11 +120,11 @@ task stack, not the ISR stack). */
 		ullNextTime = ( uint64_t ) ulCurrentTimeHigh;
 		ullNextTime <<= 32ULL;
 		ullNextTime |= ( uint64_t ) ulCurrentTimeLow;
-		ullNextTime += ( uint64_t ) ulTimerIncrementsForOneTick;
+		ullNextTime += ( uint64_t ) uxTimerIncrementsForOneTick;
 		*pullMachineTimerCompareRegister = ullNextTime;
 
 		/* Prepare the time to use after the next tick interrupt. */
-		ullNextTime += ( uint64_t ) ulTimerIncrementsForOneTick;
+		ullNextTime += ( uint64_t ) uxTimerIncrementsForOneTick;
 	}
 
 #endif /* ( configCLINT_BASE_ADDRESS != 0 ) */

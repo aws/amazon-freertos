@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Common V1.0.0
+ * Amazon FreeRTOS Common V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -201,9 +201,9 @@
     #ifndef IotTaskPool_MallocTimerEvent
         #define IotTaskPool_MallocTimerEvent    malloc
     #endif
-    
+
     #ifndef IotTaskPool_FreeTimerEvent
-        #define IotTaskPool_FreeTimerEvent      free
+        #define IotTaskPool_FreeTimerEvent    free
     #endif
 
 #endif /* if IOT_STATIC_MEMORY_ONLY == 1 */
@@ -229,6 +229,7 @@
 typedef struct _taskPoolCache
 {
     IotListDouble_t freeList; /**< @brief A list ot hold cached jobs. */
+
     uint32_t freeCount;       /**< @brief A counter to track the number of jobs in the cache. */
 } _taskPoolCache_t;
 

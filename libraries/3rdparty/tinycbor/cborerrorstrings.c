@@ -62,7 +62,7 @@
  * \omitvalue CborErrorDuplicateObjectKeys
  * \value CborErrorInvalidUtf8TextString Illegal UTF-8 encoding found while parsing CBOR Text String
  * \value CborErrorTooManyItems         Too many items were added to CBOR map or array of pre-determined length
- * \value CborErrorTooFewItems          Too few items were added to CBOR map or array of pre-determeined length
+ * \value CborErrorTooFewItems          Too few items were added to CBOR map or array of pre-determined length
  * \value CborErrorDataTooLarge         Data item size exceeds TinyCBOR's implementation limits
  * \value CborErrorNestingTooDeep       Data item nesting exceeds TinyCBOR's implementation limits
  * \omitvalue CborErrorUnsupportedType
@@ -134,6 +134,26 @@ const char *cbor_error_string(CborError error)
     case CborErrorInvalidUtf8TextString:
         return _("invalid UTF-8 content in string");
 
+    case CborErrorExcludedType:
+        return _("excluded type found");
+
+    case CborErrorExcludedValue:
+        return _("excluded value found");
+
+    case CborErrorImproperValue:
+    case CborErrorOverlongEncoding:
+        return _("value encoded in non-canonical form");
+
+    case CborErrorMapKeyNotString:
+    case CborErrorJsonObjectKeyNotString:
+        return _("key in map is not a string");
+
+    case CborErrorMapNotSorted:
+        return _("map is not sorted");
+
+    case CborErrorMapKeysNotUnique:
+        return _("map keys are not unique");
+
     case CborErrorTooManyItems:
         return _("too many items added to encoder");
 
@@ -151,9 +171,6 @@ const char *cbor_error_string(CborError error)
 
     case CborErrorJsonObjectKeyIsAggregate:
         return _("conversion to JSON failed: key in object is an array or map");
-
-    case CborErrorJsonObjectKeyNotString:
-        return _("conversion to JSON failed: key in object is not a string");
 
     case CborErrorJsonNotImplemented:
         return _("conversion to JSON failed: open_memstream unavailable");

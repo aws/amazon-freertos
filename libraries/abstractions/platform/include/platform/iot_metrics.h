@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -44,16 +44,26 @@
 #include "iot_linear_containers.h"
 
 /**
- * @functionspage{platform_metrics,platform metrics component,Metrics}
- * - @functionname{platform_metrics_function_init}
- * - @functionname{platform_metrics_function_cleanup}
- * - @functionname{platform_metrics_function_gettcpconnections}
+ * @functions_page{platform_metrics, Metrics}
+ * @functions_brief{platform metrics component}
+ * - @function_name{platform_metrics_function_init}
+ * @function_brief{platform_metrics_function_init}
+ * - @function_name{platform_metrics_function_cleanup}
+ * @function_brief{platform_metrics_function_cleanup}
+ * - @function_name{platform_metrics_function_gettcpconnections}
+ * @function_brief{platform_metrics_function_gettcpconnections}
  */
 
 /**
- * @functionpage{IotMetrics_Init,platform_metrics,init}
- * @functionpage{IotMetrics_Cleanup,platform_metrics,cleanup}
- * @functionpage{IotMetrics_GetTcpConnections,platform_metrics,gettcpconnections}
+ * @function_page{IotMetrics_Init,platform_metrics,init}
+ * @function_snippet{platform_metrics,init,this}
+ * @copydoc IotMetrics_Init
+ * @function_page{IotMetrics_Cleanup,platform_metrics,cleanup}
+ * @function_snippet{platform_metrics,cleanup,this}
+ * @copydoc IotMetrics_Cleanup
+ * @function_page{IotMetrics_GetTcpConnections,platform_metrics,gettcpconnections}
+ * @function_snippet{platform_metrics,gettcpconnections,this}
+ * @copydoc IotMetrics_GetTcpConnections
  */
 
 /**

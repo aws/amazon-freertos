@@ -13,15 +13,15 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${inc_dir}/aws_secure_sockets.h"
-        "${inc_dir}/aws_secure_sockets_config_defaults.h"
-        "${inc_dir}/aws_secure_sockets_wrapper_metrics.h"
+        "${inc_dir}/iot_secure_sockets.h"
+        "${inc_dir}/iot_secure_sockets_config_defaults.h"
+        "${inc_dir}/iot_secure_sockets_wrapper_metrics.h"
 )
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
     PUBLIC "${inc_dir}"
-        # Requires standard/common/include/private/aws_lib_init.h
+        # Requires standard/common/include/private/iot_lib_init.h
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
 )
 
@@ -37,7 +37,7 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/freertos_plus_tcp")
 
 afr_module_sources(
     secure_sockets_freertos_plus_tcp INTERFACE
-    "${src_dir}/aws_secure_sockets.c"
+    "${src_dir}/iot_secure_sockets.c"
 )
 
 afr_module_dependencies(
@@ -57,7 +57,7 @@ set(src_dir "${CMAKE_CURRENT_LIST_DIR}/lwip")
 afr_module_sources(
     secure_sockets_lwip
     INTERFACE
-        "${src_dir}/aws_secure_sockets.c"
+        "${src_dir}/iot_secure_sockets.c"
 )
 
 afr_module_dependencies(
@@ -73,7 +73,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_tcp.c"
+        "${test_dir}/iot_test_tcp.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}

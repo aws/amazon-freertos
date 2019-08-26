@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,12 +39,12 @@
 #include "iot_ble_wifi_provisioning.h"
 
 
-#define wifiConnectTASK_NAME              "WiFiConnectTask"
+#define wifiConnectTASK_NAME        "WiFiConnectTask"
 
 /**
  * @brief Delay in milliseconds between connecting to the provisioned WiFi networks.
  */
-#define wifiConnectDELAY_SECONDS     ( 1 )
+#define wifiConnectDELAY_SECONDS    ( 1 )
 
 
 
@@ -59,7 +59,9 @@ static void prvWiFiConnectTask( void * pvParams );
  * The callback is used to trigger reconnection to the provisioned WiFi networks on a network disconnect.
  */
 
-static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext );
+static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
+                                               AwsIotNetworkState_t xNetworkState,
+                                               void * pvContext );
 
 /**
  * @brief Semaphore used to trigger reconnection to WiFi networks.
@@ -68,7 +70,9 @@ static SemaphoreHandle_t xWiFiConnectLock = NULL;
 static TaskHandle_t xWifiConnectionTask = NULL;
 static IotNetworkManagerSubscription_t xHandle = IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER;
 
-static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext )
+static void prvWiFiNetworkStateChangeCallback( uint32_t ulNetworkType,
+                                               AwsIotNetworkState_t xNetworkState,
+                                               void * pvContext )
 {
     if( xNetworkState == eNetworkStateDisabled )
     {
@@ -82,14 +86,16 @@ void prvWiFiConnectTask( void * pvParams )
     TickType_t xWifiConnectionDelay = pdMS_TO_TICKS( wifiConnectDELAY_SECONDS * 1000 );
     BaseType_t xWiFiConnected;
 
-    for(;;)
+    for( ; ; )
     {
         if( xSemaphoreTake( xWiFiConnectLock, portMAX_DELAY ) == pdTRUE )
         {
             xWiFiConnected = pdFALSE;
+
             while( xWiFiConnected == pdFALSE )
             {
                 ulNumNetworks = IotBleWifiProv_GetNumNetworks();
+
                 if( ulNumNetworks > 0 )
                 {
                     for( ulNetworkIndex = 0; ulNetworkIndex < ulNumNetworks; ulNetworkIndex++ )
@@ -107,6 +113,7 @@ void prvWiFiConnectTask( void * pvParams )
                         {
                             break;
                         }
+
                         vTaskDelay( xWifiConnectionDelay );
                     }
                 }
@@ -124,7 +131,9 @@ void prvWiFiConnectTask( void * pvParams )
 BaseType_t xWiFiConnectTaskInitialize( void )
 {
     BaseType_t xRet = pdTRUE;
+
     xWiFiConnectLock = xSemaphoreCreateBinary();
+
     if( xWiFiConnectLock != NULL )
     {
         xRet = xSemaphoreGive( xWiFiConnectLock );
@@ -136,24 +145,24 @@ BaseType_t xWiFiConnectTaskInitialize( void )
 
     if( xRet == pdTRUE )
     {
-
         xRet = AwsIotNetworkManager_SubscribeForStateChange(
-                AWSIOT_NETWORK_TYPE_WIFI,
-                prvWiFiNetworkStateChangeCallback,
-                NULL,
-                &xHandle );
+            AWSIOT_NETWORK_TYPE_WIFI,
+            prvWiFiNetworkStateChangeCallback,
+            NULL,
+            &xHandle );
     }
 
     if( xRet == pdTRUE )
     {
         xRet = xTaskCreate(
-                prvWiFiConnectTask,
-                wifiConnectTASK_NAME,
-                democonfigDEMO_STACKSIZE,
-                NULL,
-                democonfigDEMO_PRIORITY,
-                &xWifiConnectionTask );
+            prvWiFiConnectTask,
+            wifiConnectTASK_NAME,
+            democonfigDEMO_STACKSIZE,
+            NULL,
+            democonfigDEMO_PRIORITY,
+            &xWifiConnectionTask );
     }
+
     return xRet;
 }
 

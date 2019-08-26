@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT V2.0.0
+ * Amazon FreeRTOS MQTT V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -262,22 +262,22 @@ typedef struct _mqttConnection
         const IotMqttSerializer_t * pSerializer; /**< @brief MQTT packet serializer overrides. */
     #endif
 
-    bool disconnected;                              /**< @brief Tracks if this connection has been disconnected. */
-    IotMutex_t referencesMutex;                     /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
-    int32_t references;                             /**< @brief Counts callbacks and operations using this connection. */
-    IotListDouble_t pendingProcessing;              /**< @brief List of operations waiting to be processed by a task pool routine. */
-    IotListDouble_t pendingResponse;                /**< @brief List of processed operations awaiting a server response. */
+    bool disconnected;                           /**< @brief Tracks if this connection has been disconnected. */
+    IotMutex_t referencesMutex;                  /**< @brief Recursive mutex. Grants access to connection state and operation lists. */
+    int32_t references;                          /**< @brief Counts callbacks and operations using this connection. */
+    IotListDouble_t pendingProcessing;           /**< @brief List of operations waiting to be processed by a task pool routine. */
+    IotListDouble_t pendingResponse;             /**< @brief List of processed operations awaiting a server response. */
 
-    IotListDouble_t subscriptionList;               /**< @brief Holds subscriptions associated with this connection. */
-    IotMutex_t subscriptionMutex;                   /**< @brief Grants exclusive access to the subscription list. */
+    IotListDouble_t subscriptionList;            /**< @brief Holds subscriptions associated with this connection. */
+    IotMutex_t subscriptionMutex;                /**< @brief Grants exclusive access to the subscription list. */
 
-    bool keepAliveFailure;                          /**< @brief Failure flag for keep-alive operation. */
-    uint32_t keepAliveMs;                           /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
-    uint32_t nextKeepAliveMs;                       /**< @brief Relative delay for next keep-alive job. */
-    IotTaskPoolJobStorage_t keepAliveJobStorage;     /**< @brief Task pool job for processing this connection's keep-alive. */
-    IotTaskPoolJob_t keepAliveJob;                  /**< @brief Task pool job for processing this connection's keep-alive. */
-    uint8_t * pPingreqPacket;                       /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
-    size_t pingreqPacketSize;                       /**< @brief The size of an allocated PINGREQ packet. */
+    bool keepAliveFailure;                       /**< @brief Failure flag for keep-alive operation. */
+    uint32_t keepAliveMs;                        /**< @brief Keep-alive interval in milliseconds. Its max value (per spec) is 65,535,000. */
+    uint32_t nextKeepAliveMs;                    /**< @brief Relative delay for next keep-alive job. */
+    IotTaskPoolJobStorage_t keepAliveJobStorage; /**< @brief Task pool job for processing this connection's keep-alive. */
+    IotTaskPoolJob_t keepAliveJob;               /**< @brief Task pool job for processing this connection's keep-alive. */
+    uint8_t * pPingreqPacket;                    /**< @brief An MQTT PINGREQ packet, allocated if keep-alive is active. */
+    size_t pingreqPacketSize;                    /**< @brief The size of an allocated PINGREQ packet. */
 } _mqttConnection_t;
 
 /**

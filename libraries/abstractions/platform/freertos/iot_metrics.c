@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -28,7 +28,7 @@
  */
 
 /* Define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE to prevent secure sockets functions
- * from redefining in aws_secure_sockets_wrapper_metrics.h */
+ * from redefining in iot_secure_sockets_wrapper_metrics.h */
 #define _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
 /* The config header is always included first. */
@@ -45,7 +45,7 @@
 #include "platform/iot_threads.h"
 
 /* Secure sockets include. */
-#include "aws_secure_sockets.h"
+#include "iot_secure_sockets.h"
 
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
@@ -111,7 +111,7 @@
 /*-----------------------------------------------------------*/
 
     void IotMetrics_GetTcpConnections( void * pContext,
-                                       void ( *metricsCallback )( void *, const IotListDouble_t * ) )
+                                       void ( * metricsCallback )( void *, const IotListDouble_t * ) )
     {
         /* Provide the connection list. Ensure that it is not modified elsewhere by
          * locking the connection list mutex. */

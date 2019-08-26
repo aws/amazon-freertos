@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT V2.0.0
+ * Amazon FreeRTOS MQTT V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -88,6 +88,22 @@ static IotMqttError_t _deserializeIncomingPacket( _mqttConnection_t * pMqttConne
  */
 static void _sendPuback( _mqttConnection_t * pMqttConnection,
                          uint16_t packetIdentifier );
+
+/**
+ * @brief Flush a packet from the stream of incoming data.
+ *
+ * This function is called when memory for a packet cannot be allocated. The
+ * packet is flushed from the stream of incoming data so that the next packet
+ * may be read.
+ *
+ * @param[in] pNetworkConnection Network connection to use for receive, which
+ * may be different from the network connection associated with the MQTT connection.
+ * @param[in] pMqttConnection The associated MQTT connection.
+ * @param[in] length The length of the packet to flush.
+ */
+static void _flushPacket( void * pNetworkConnection,
+                          const _mqttConnection_t * pMqttConnection,
+                          size_t length );
 
 /*-----------------------------------------------------------*/
 
@@ -201,6 +217,14 @@ static IotMqttError_t _getIncomingPacket( void * pNetworkConnection,
 
         if( pIncomingPacket->pRemainingData == NULL )
         {
+            IotLogError( "(MQTT connection %p) Failed to allocate buffer of length "
+                         "%lu for incoming packet type %lu.",
+                         pMqttConnection,
+                         ( unsigned long ) pIncomingPacket->remainingLength,
+                         ( unsigned long ) pIncomingPacket->type );
+
+            _flushPacket( pNetworkConnection, pMqttConnection, pIncomingPacket->remainingLength );
+
             IOT_SET_AND_GOTO_CLEANUP( IOT_MQTT_NO_MEMORY );
         }
         else
@@ -720,6 +744,23 @@ static void _sendPuback( _mqttConnection_t * pMqttConnection,
         }
 
         freePacket( pPuback );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+static void _flushPacket( void * pNetworkConnection,
+                          const _mqttConnection_t * pMqttConnection,
+                          size_t length )
+{
+    size_t bytesFlushed = 0;
+    uint8_t receivedByte = 0;
+
+    for( bytesFlushed = 0; bytesFlushed < length; bytesFlushed++ )
+    {
+        ( void ) _IotMqtt_GetNextByte( pNetworkConnection,
+                                       pMqttConnection->pNetworkInterface,
+                                       &receivedByte );
     }
 }
 

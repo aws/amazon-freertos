@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V2.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -102,7 +102,7 @@ typedef enum
     eBTStatusNoMem,         /**< Failed to allocate memory. */
     eBTStatusBusy,          /**< Service/Driver/Peripheral busy. */
     eBTStatusDone,          /**< Request already completed. */
-    eBTStatusUnsupported,   /**< Unsuported request/call. */
+    eBTStatusUnsupported,   /**< Unsupported request/call. */
     eBTStatusParamInvalid,  /**< Invalid parameter. */
     eBTStatusUnHandled,     /**< . */
     eBTStatusAuthFailure,   /**< Authentication procedure failed. */

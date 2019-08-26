@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,72 +46,75 @@
 #include "iot_ble_config.h"
 #include <iot_ble_numericComparison.h>
 
-typedef struct{
-	uint32_t ulPassKey;
-	BTBdaddr_t xAdress;
+typedef struct
+{
+    uint32_t ulPassKey;
+    BTBdaddr_t xAddress;
 } BLEPassKeyConfirm_t;
 
 QueueHandle_t xNumericComparisonQueue = NULL;
 
 void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
-                                     BTBdaddr_t * pxRemoteBdAddr,
-                                     BTSecurityLevel_t xSecurityLevel,
-                                     BTAuthFailureReason_t xReason )
+                                  BTBdaddr_t * pxRemoteBdAddr,
+                                  BTSecurityLevel_t xSecurityLevel,
+                                  BTAuthFailureReason_t xReason )
 {
 }
 
-void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey)
+void BLENumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr,
+                             uint32_t ulPassKey )
 {
-	BLEPassKeyConfirm_t xPassKeyConfirm;
+    BLEPassKeyConfirm_t xPassKeyConfirm;
 
-	if(pxRemoteBdAddr != NULL)
-	{
-		xPassKeyConfirm.ulPassKey = ulPassKey;
-		memcpy(&xPassKeyConfirm.xAdress, pxRemoteBdAddr, sizeof(BTBdaddr_t));
+    if( pxRemoteBdAddr != NULL )
+    {
+        xPassKeyConfirm.ulPassKey = ulPassKey;
+        memcpy( &xPassKeyConfirm.xAddress, pxRemoteBdAddr, sizeof( BTBdaddr_t ) );
 
-		xQueueSend(xNumericComparisonQueue, (void * )&xPassKeyConfirm, (portTickType)portMAX_DELAY);
-	}
+        xQueueSend( xNumericComparisonQueue, ( void * ) &xPassKeyConfirm, ( portTickType ) portMAX_DELAY );
+    }
 }
 
-void userInputTask(void *pvParameters)
+void userInputTask( void * pvParameters )
 {
-	INPUTMessage_t xINPUTmessage;
+    INPUTMessage_t xINPUTmessage;
     BLEPassKeyConfirm_t xPassKeyConfirm;
     TickType_t xAuthTimeout = pdMS_TO_TICKS( IOT_BLE_NUMERIC_COMPARISON_TIMEOUT_SEC * 1000 );
 
-    for (;;) {
-    	if (xQueueReceive(xNumericComparisonQueue, (void * )&xPassKeyConfirm, portMAX_DELAY ))
-    	{
-              configPRINTF(("Numeric comparison:%ld\n", xPassKeyConfirm.ulPassKey ));
-              configPRINTF(("Press 'y' to confirm\n"));
-              /* Waiting for UART event. */
-              if ( getUserMessage( &xINPUTmessage, xAuthTimeout ) == pdTRUE ) {
-                    if((xINPUTmessage.pcData[0] == 'y')||(xINPUTmessage.pcData[0] == 'Y'))
-                    {
-                    	configPRINTF(("Key accepted\n"));
-                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, true);
-                    }else
-                    {
-                    	configPRINTF(("Key Rejected\n"));
-                        IotBle_ConfirmNumericComparisonKeys(&xPassKeyConfirm.xAdress, false);
+    for( ; ; )
+    {
+        if( xQueueReceive( xNumericComparisonQueue, ( void * ) &xPassKeyConfirm, portMAX_DELAY ) )
+        {
+            configPRINTF( ( "Numeric comparison:%ld\n", xPassKeyConfirm.ulPassKey ) );
+            configPRINTF( ( "Press 'y' to confirm\n" ) );
 
-                    }
+            /* Waiting for UART event. */
+            if( getUserMessage( &xINPUTmessage, xAuthTimeout ) == pdTRUE )
+            {
+                if( ( xINPUTmessage.pcData[ 0 ] == 'y' ) || ( xINPUTmessage.pcData[ 0 ] == 'Y' ) )
+                {
+                    configPRINTF( ( "Key accepted\n" ) );
+                    IotBle_ConfirmNumericComparisonKeys( &xPassKeyConfirm.xAddress, true );
+                }
+                else
+                {
+                    configPRINTF( ( "Key Rejected\n" ) );
+                    IotBle_ConfirmNumericComparisonKeys( &xPassKeyConfirm.xAddress, false );
+                }
 
-                    vPortFree(xINPUTmessage.pcData);
-              }
-    	}
+                vPortFree( xINPUTmessage.pcData );
+            }
+        }
     }
-    vTaskDelete(NULL);
+
+    vTaskDelete( NULL );
 }
 
-void NumericComparisonInit(void)
+void NumericComparisonInit( void )
 {
-
-
-	#if( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
-    /* Create a queue that will pass in the code to the UART task and wait validation from the user. */
-    xNumericComparisonQueue = xQueueCreate( 1, sizeof( BLEPassKeyConfirm_t ) );
-    xTaskCreate(userInputTask, "InputTask", 2048, NULL, tskIDLE_PRIORITY, NULL);
+    #if ( IOT_BLE_ENABLE_NUMERIC_COMPARISON == 1 )
+        /* Create a queue that will pass in the code to the UART task and wait validation from the user. */
+        xNumericComparisonQueue = xQueueCreate( 1, sizeof( BLEPassKeyConfirm_t ) );
+        xTaskCreate( userInputTask, "InputTask", 2048, NULL, tskIDLE_PRIORITY, NULL );
     #endif
-
 }

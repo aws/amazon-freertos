@@ -12,13 +12,13 @@ HTML_OUTPUT = wifi
 GENERATE_TAGFILE = doc/tag/wifi.tag
 
 # Directories containing library source code.
-INPUT = libraries/abstractions/wifi/include/aws_wifi.h \
+INPUT = libraries/abstractions/wifi/include/iot_wifi.h \
         doc/lib/wifi.txt
 
 # Library file names.
-FILE_PATTERNS = *.h *.c *.txt
+FILE_PATTERNS = *wifi*.h *wifi*.c *wifi*.txt
 
-EXAMPLE_PATH = libraries/abstractions/wifi/include/aws_wifi.h
+EXAMPLE_PATH = libraries/abstractions/wifi/include/iot_wifi.h
 
 # External tag files required by this library.
 TAGFILES = doc/tag/main.tag=../main \

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT V2.0.0
+ * Amazon FreeRTOS MQTT V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -49,7 +49,8 @@
 /*---------------------------- MQTT handle types ----------------------------*/
 
 /**
- * @handles{mqtt,MQTT library}
+ * @handles_group{mqtt}
+ * @handles_brief{MQTT library}
  */
 
 /**
@@ -94,7 +95,8 @@ typedef struct _mqttOperation    * IotMqttOperation_t;
 /*-------------------------- MQTT enumerated types --------------------------*/
 
 /**
- * @enums{mqtt,MQTT library}
+ * @enums_group{mqtt}
+ * @enums_brief{MQTT library}
  */
 
 /**
@@ -316,7 +318,8 @@ typedef enum IotMqttDisconnectReason
 /*------------------------- MQTT parameter structs --------------------------*/
 
 /**
- * @paramstructs{mqtt,MQTT}
+ * @paramstructs_group{mqtt}
+ * @paramstructs_brief{mqtt,MQTT}
  */
 
 /**
@@ -463,7 +466,7 @@ typedef struct IotMqttCallbackParam
 
         /* Valid when a connection is disconnected. */
         IotMqttDisconnectReason_t disconnectReason; /**< @brief Why the MQTT connection was disconnected. */
-    } u; /**< @brief Valid member depends on callback type. */
+    } u;                                            /**< @brief Valid member depends on callback type. */
 } IotMqttCallbackParam_t;
 
 /**
@@ -687,7 +690,7 @@ typedef struct IotMqttConnectInfo
  * @ingroup mqtt_datatypes_paramstructs
  * @brief Function pointers for MQTT packet serializer overrides.
  *
- * These funciton pointers allow the MQTT serialization and deserialization functions
+ * These function pointers allow the MQTT serialization and deserialization functions
  * to be overridden for an MQTT connection. The compile-time setting
  * @ref IOT_MQTT_ENABLE_SERIALIZER_OVERRIDES must be `1` to enable this functionality.
  * See the #IotMqttSerializer_t::serialize and #IotMqttSerializer_t::deserialize
@@ -775,9 +778,9 @@ typedef struct IotMqttConnectInfo
              *
              * <b>Default implementation:</b> #_IotMqtt_PublishSetDup
              */
-            void ( *publishSetDup )( uint8_t * /* pPublishPacket */,
-                                     uint8_t * /* pPacketIdentifierHigh */,
-                                     uint16_t * /* pNewPacketIdentifier */ );
+            void ( * publishSetDup )( uint8_t * /* pPublishPacket */,
+                                      uint8_t * /* pPacketIdentifierHigh */,
+                                      uint16_t * /* pNewPacketIdentifier */ );
 
             /**
              * @brief PUBACK packet serializer function.
@@ -997,7 +1000,8 @@ typedef struct IotMqttNetworkInfo
 /*------------------------- MQTT defined constants --------------------------*/
 
 /**
- * @constantspage{mqtt,MQTT library}
+ * @constants_page{mqtt}
+ * @constants_brief{MQTT library}
  *
  * @section mqtt_constants_initializers MQTT Initializers
  * @brief Provides default values for the data types of the MQTT library.

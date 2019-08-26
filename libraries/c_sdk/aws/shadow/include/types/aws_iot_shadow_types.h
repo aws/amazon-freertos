@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V2.0.0
+ * Amazon FreeRTOS Shadow V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,7 +40,8 @@
 /*--------------------------- Shadow handle types ---------------------------*/
 
 /**
- * @handles{shadow,Shadow library}
+ * @handles_group{shadow}
+ * @handles_brief{Shadow library}
  */
 
 /**
@@ -69,7 +70,8 @@ typedef struct _shadowOperation * AwsIotShadowOperation_t;
 /*------------------------- Shadow enumerated types -------------------------*/
 
 /**
- * @enums{shadow,Shadow library}
+ * @enums_group{shadow}
+ * @enums_brief{Shadow library}
  */
 
 /**
@@ -341,7 +343,8 @@ typedef enum AwsIotShadowCallbackType
 /*------------------------- Shadow parameter structs ------------------------*/
 
 /**
- * @paramstructs{shadow,Shadow}
+ * @paramstructs_group{shadow}
+ * @paramstructs_brief{shadow,Shadow}
  */
 
 /**
@@ -400,7 +403,7 @@ typedef struct AwsIotShadowCallbackParam
             const char * pDocument; /**< @brief Shadow delta or updated document. */
             size_t documentLength;  /**< @brief Length of Shadow delta or updated document. */
         } callback;                 /**< @brief Shadow document from an incoming delta or updated topic. */
-    } u; /**< @brief Valid member depends on callback type. */
+    } u;                            /**< @brief Valid member depends on callback type. */
 } AwsIotShadowCallbackParam_t;
 
 /**
@@ -477,13 +480,14 @@ typedef struct AwsIotShadowDocumentInfo
             const char * pUpdateDocument; /**< @brief The Shadow document to send in the update. */
             size_t updateDocumentLength;  /**< @brief Length of Shadow update document. */
         } update;                         /**< @brief Valid members for @ref shadow_function_update. */
-    } u; /**< @brief Valid member depends on operation type. */
+    } u;                                  /**< @brief Valid member depends on operation type. */
 } AwsIotShadowDocumentInfo_t;
 
 /*------------------------ Shadow defined constants -------------------------*/
 
 /**
- * @constantspage{shadow,Shadow library}
+ * @constants_page{shadow}
+ * @constants_brief{Shadow library}
  *
  * @section shadow_constants_initializers Shadow Initializers
  * @brief Provides default values for the data types of the Shadow library.
@@ -534,9 +538,9 @@ typedef struct AwsIotShadowDocumentInfo
  */
 
 /* @[define_shadow_initializers] */
-#define AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER           { 0 } /**< @brief Initializer for #AwsIotShadowCallbackInfo_t. */
-#define AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER           { 0 } /**< @brief Initializer for #AwsIotShadowDocumentInfo_t. */
-#define AWS_IOT_SHADOW_OPERATION_INITIALIZER               NULL  /**< @brief Initializer for #AwsIotShadowOperation_t. */
+#define AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER    { 0 }        /**< @brief Initializer for #AwsIotShadowCallbackInfo_t. */
+#define AWS_IOT_SHADOW_DOCUMENT_INFO_INITIALIZER    { 0 }        /**< @brief Initializer for #AwsIotShadowDocumentInfo_t. */
+#define AWS_IOT_SHADOW_OPERATION_INITIALIZER        NULL         /**< @brief Initializer for #AwsIotShadowOperation_t. */
 /* @[define_shadow_initializers] */
 
 /**

@@ -89,8 +89,15 @@ $(ENTRY)3.goto: $(ENTRY)2.goto
 $(ENTRY)4.goto: $(ENTRY)3.goto
 	$(GOTO_INSTRUMENT) $(INSTFLAGS) --slice-global-inits @RULE_INPUT@ @RULE_OUTPUT@ \
 		> $(ENTRY)4.txt 2>&1
+# ____________________________________________________________________
+# After running goto-instrument to remove function bodies the unused
+# functions need to be dropped again.
 
-$(ENTRY).goto: $(ENTRY)4.goto
+$(ENTRY)5.goto: $(ENTRY)4.goto
+	$(GOTO_INSTRUMENT) --drop-unused-functions @RULE_INPUT@ @RULE_OUTPUT@ \
+		> $(ENTRY)5.txt 2>&1
+
+$(ENTRY).goto: $(ENTRY)5.goto
 	@CP@ @RULE_INPUT@ @RULE_OUTPUT@
 
 # ____________________________________________________________________
@@ -124,7 +131,7 @@ report: cbmc.txt property.xml coverage.xml
 	--srcdir $(FREERTOS) \
 	--blddir $(FREERTOS) \
 	--htmldir html \
-	--srcexclude "(./verification|./tests|./tools|./lib/third_party)" \
+	--srcexclude "(./doc|./tests|./tools|./vendors)" \
 	--result cbmc.txt \
 	--property property.xml \
 	--block coverage.xml

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -258,7 +258,7 @@ int timer_settime( timer_t timerid,
                 {
                     xNextTimerExpiration = 0;
 
-                    if ( iStatus == ETIMEDOUT )
+                    if( iStatus == ETIMEDOUT )
                     {
                         /* Set Status to 0 as absolute time is past is treated as expiry but not an error */
                         iStatus = 0;

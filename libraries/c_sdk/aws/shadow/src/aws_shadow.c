@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V2.0.0
+ * Amazon FreeRTOS Shadow V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,7 +26,7 @@
 /**
  * @file aws_shadow.c
  * @brief Shadow API. Provide simple function to modify/create/delete Things shadows.
- * This file implements the Shadow v1 API over Shadow v4.
+ * This file implements the Shadow v1 API over Shadow v2.
  */
 
 /* The config header is always included first. */
@@ -45,11 +45,11 @@
 /* AWS includes. */
 #include "aws_shadow_config.h"
 #include "aws_shadow_config_defaults.h"
-#include "aws_mqtt_agent_config.h"
-#include "aws_mqtt_agent_config_defaults.h"
+#include "iot_mqtt_agent_config.h"
+#include "iot_mqtt_agent_config_defaults.h"
 #include "aws_shadow.h"
 
-/* Shadow v4 include. */
+/* Shadow v2 include. */
 #include "aws_iot_shadow.h"
 
 /* Configure logging for Shadow. */
@@ -80,34 +80,34 @@ typedef struct ShadowClient
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Converts a Shadow v4 return code to a Shadow v1 return code.
+ * @brief Converts a Shadow v2 return code to a Shadow v1 return code.
  *
- * @param[in] xShadowError The Shadow v4 return code.
+ * @param[in] xShadowError The Shadow v2 return code.
  *
  * @return An equivalent Shadow v1 return code.
  */
 static ShadowReturnCode_t prvConvertReturnCode( AwsIotShadowError_t xShadowError );
 
 /**
- * @brief Wrapper for Shadow v4 delta callbacks. Invokes the Shadow v1 callback.
+ * @brief Wrapper for Shadow v2 delta callbacks. Invokes the Shadow v1 callback.
  *
  * @param[in] pvArgument The associated #ShadowClient_t.
- * @param[in] pxUpdatedDocument Shadow v4 delta document info.
+ * @param[in] pxUpdatedDocument Shadow v2 delta document info.
  */
 static void prvDeltaCallbackWrapper( void * pvArgument,
                                      AwsIotShadowCallbackParam_t * const pxDeltaDocument );
 
 /**
- * @brief Wrapper for Shadow v4 updated callbacks. Invokes the Shadow v1 callback.
+ * @brief Wrapper for Shadow v2 updated callbacks. Invokes the Shadow v1 callback.
  *
  * @param[in] pvArgument The associated #ShadowClient_t.
- * @param[in] pxUpdatedDocument Shadow v4 updated document info.
+ * @param[in] pxUpdatedDocument Shadow v2 updated document info.
  */
 static void prvUpdatedCallbackWrapper( void * pvArgument,
                                        AwsIotShadowCallbackParam_t * const pxUpdatedDocument );
 
-/* Retrieves the MQTT v4 connection from the MQTT v1 connection handle. */
-extern IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHandle );
+/* Retrieves the MQTT v2 connection from the MQTT v1 connection handle. */
+extern IotMqttConnection_t MQTT_AGENT_Getv2Connection( MQTTAgentHandle_t xMQTTHandle );
 
 /*-----------------------------------------------------------*/
 
@@ -117,7 +117,7 @@ extern IotMqttConnection_t MQTT_AGENT_Getv4Connection( MQTTAgentHandle_t xMQTTHa
 BaseType_t xAvailableShadowClients = shadowconfigMAX_CLIENTS;
 
 /**
- * @brief Tracks whether the Shadow v4 library is initialized.
+ * @brief Tracks whether the Shadow v2 library is initialized.
  */
 BaseType_t xLibraryInitialized = pdFALSE;
 
@@ -344,7 +344,7 @@ ShadowReturnCode_t SHADOW_ClientCreate( ShadowClientHandle_t * pxShadowClientHan
         }
     }
 
-    /* Initialize Shadow v4 library if needed. */
+    /* Initialize Shadow v2 library if needed. */
     if( xLibraryInitialized == pdFALSE )
     {
         taskENTER_CRITICAL();
@@ -474,8 +474,8 @@ ShadowReturnCode_t SHADOW_Update( ShadowClientHandle_t xShadowClientHandle,
         xFlags = AWS_IOT_SHADOW_FLAG_KEEP_SUBSCRIPTIONS;
     }
 
-    /* Call the MQTT v4 blocking Shadow update function. */
-    xShadowError = AwsIotShadow_TimedUpdate( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+    /* Call the MQTT v2 blocking Shadow update function. */
+    xShadowError = AwsIotShadow_TimedUpdate( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                              &xUpdateDocument,
                                              xFlags,
                                              shadowTICKS_TO_MS( xTimeoutTicks ) );
@@ -507,8 +507,8 @@ ShadowReturnCode_t SHADOW_Get( ShadowClientHandle_t xShadowClientHandle,
         xFlags = AWS_IOT_SHADOW_FLAG_KEEP_SUBSCRIPTIONS;
     }
 
-    /* Call the MQTT v4 blocking Shadow get function. */
-    xShadowError = AwsIotShadow_TimedGet( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+    /* Call the MQTT v2 blocking Shadow get function. */
+    xShadowError = AwsIotShadow_TimedGet( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                           &xGetDocument,
                                           xFlags,
                                           shadowTICKS_TO_MS( xTimeoutTicks ),
@@ -547,8 +547,8 @@ ShadowReturnCode_t SHADOW_Delete( ShadowClientHandle_t xShadowClientHandle,
         xFlags = AWS_IOT_SHADOW_FLAG_KEEP_SUBSCRIPTIONS;
     }
 
-    /* Call the MQTT v4 blocking Shadow delete function. */
-    xShadowError = AwsIotShadow_TimedDelete( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+    /* Call the MQTT v2 blocking Shadow delete function. */
+    xShadowError = AwsIotShadow_TimedDelete( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                              pxDeleteParams->pcThingName,
                                              strlen( pxDeleteParams->pcThingName ),
                                              xFlags,
@@ -569,7 +569,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
     AwsIotShadowCallbackInfo_t callbackInfo = AWS_IOT_SHADOW_CALLBACK_INFO_INITIALIZER,
                                * pCallbackInfo = NULL;
 
-    /* Shadow v4 does not use a timeout for setting callbacks. */
+    /* Shadow v2 does not use a timeout for setting callbacks. */
     ( void ) xTimeoutTicks;
 
     /* Set the callback functions in the Shadow client. */
@@ -596,7 +596,7 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
             pCallbackInfo = NULL;
         }
 
-        xShadowError = AwsIotShadow_SetDeltaCallback( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+        xShadowError = AwsIotShadow_SetDeltaCallback( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                                       pxCallbackParams->pcThingName,
                                                       thingNameLength,
                                                       0,
@@ -616,11 +616,11 @@ ShadowReturnCode_t SHADOW_RegisterCallbacks( ShadowClientHandle_t xShadowClientH
             pCallbackInfo = NULL;
         }
 
-        xShadowError = AwsIotShadow_SetUpdatedCallback( MQTT_AGENT_Getv4Connection( pxShadowClient->xMqttConnection ),
+        xShadowError = AwsIotShadow_SetUpdatedCallback( MQTT_AGENT_Getv2Connection( pxShadowClient->xMqttConnection ),
                                                         pxCallbackParams->pcThingName,
                                                         thingNameLength,
                                                         0,
-                                                        &callbackInfo );
+                                                        pCallbackInfo );
     }
 
     /* Deleted callback is not supported. */

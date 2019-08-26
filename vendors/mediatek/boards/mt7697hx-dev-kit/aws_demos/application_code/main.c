@@ -32,9 +32,9 @@
 #include "aws_demo_config.h"
 
 /* AWS library includes. */
-#include "aws_system_init.h"
-#include "aws_logging_task.h"
-#include "aws_wifi.h"
+#include "iot_system_init.h"
+#include "iot_logging_task.h"
+#include "iot_wifi.h"
 #include "aws_clientcredential.h"
 
 #include "aws_dev_mode_key_provisioning.h"
@@ -52,6 +52,9 @@
 #endif
 
 #define WIFI_FW_DEBUG_LOG_PORT
+
+/* Set the following to 1 to enable debugging. */
+#define MTK_DEBUGGER  0
 
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
@@ -94,6 +97,10 @@ static void prvMiscInitialization( void );
  */
 int main( void )
 {
+    #if ( MTK_DEBUGGER != 0 )
+        { volatile int wait_ice = 1 ; while ( wait_ice ) ; }
+    #endif
+
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();

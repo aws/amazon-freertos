@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,7 +43,7 @@
  * @brief A value representing the system default for new thread priority.
  */
 #ifndef IOT_THREAD_DEFAULT_PRIORITY
-    #define IOT_THREAD_DEFAULT_PRIORITY      0
+    #define IOT_THREAD_DEFAULT_PRIORITY    0
 #endif
 
 /**

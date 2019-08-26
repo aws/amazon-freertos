@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Common V1.0.0
+ * Amazon FreeRTOS Common V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -73,7 +73,7 @@ typedef enum IotTaskPoolError
     IOT_TASKPOOL_SUCCESS = 0,
 
     /**
-     * @brief Task pool operation failed because at laest one parameter is invalid.
+     * @brief Task pool operation failed because at least one parameter is invalid.
      *
      * Functions that may return this value:
      * - @ref taskpool_function_createsystemtaskpool
@@ -148,7 +148,8 @@ typedef enum IotTaskPoolError
 } IotTaskPoolError_t;
 
 /**
- * @enums{taskpool,Task pool library}
+ * @enums_group{taskpool}
+ * @enums_brief{Task pool library}
  */
 
 /**
@@ -225,22 +226,22 @@ typedef struct _taskPool * IotTaskPool_t;
  */
 typedef struct IotTaskPoolJobStorage
 {
-    IotLink_t link;                 /**< @brief Placeholder. */
-    void * dummy2;                  /**< @brief Placeholder. */
-    void * dummy3;                  /**< @brief Placeholder. */
-    uint32_t dummy4;                /**< @brief Placeholder. */
-    IotTaskPoolJobStatus_t status;  /**< @brief Placeholder. */
+    IotLink_t link;                /**< @brief Placeholder. */
+    void * dummy2;                 /**< @brief Placeholder. */
+    void * dummy3;                 /**< @brief Placeholder. */
+    uint32_t dummy4;               /**< @brief Placeholder. */
+    IotTaskPoolJobStatus_t status; /**< @brief Placeholder. */
 } IotTaskPoolJobStorage_t;
 
 /**
  * @ingroup taskpool_datatypes_handles
  * @brief Opaque handle of a Task Pool Job.
- * 
+ *
  * This type identifies a Task Pool Job instance, which is valid after a successful call
  * to @ref taskpool_function_createjob or @ref taskpool_function_createrecyclablejob.
  *
- * A call to @ref taskpool_function_recyclejob or @ref taskpool_function_destroyrecyclablejob makes a 
- * task pool job handle invalid. Once @ref taskpool_function_recyclejob or 
+ * A call to @ref taskpool_function_recyclejob or @ref taskpool_function_destroyrecyclablejob makes a
+ * task pool job handle invalid. Once @ref taskpool_function_recyclejob or
  * @ref taskpool_function_destroyrecyclablejob returns, the task job handle should no longer be used.
  *
  * @initializer{IotTaskPoolJob_t,IOT_TASKPOOL_JOB_INITIALIZER}
@@ -293,7 +294,8 @@ typedef struct IotTaskPoolInfo
 /*------------------------- TASKPOOL defined constants --------------------------*/
 
 /**
- * @constantspage{taskpool,task pool library}
+ * @constants_page{taskpool}
+ * @constants_brief{task pool library}
  *
  * @section taskpool_constants_initializers Task pool Initializers
  * @brief Provides default values for initializing the data types of the task pool library.
@@ -325,21 +327,21 @@ typedef struct IotTaskPoolInfo
  */
 /* @[define_taskpool_initializers] */
 /** @brief Initializer for a small #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER_SMALL     { .minThreads = 1, .maxThreads = 1, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+#define IOT_TASKPOOL_INFO_INITIALIZER_SMALL     { .minThreads = 1, .maxThreads = 1, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY }
 /** @brief Initializer for a medium #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM    { .minThreads = 1, .maxThreads = 2, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+#define IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM    { .minThreads = 1, .maxThreads = 2, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY }
 /** @brief Initializer for a large #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER_LARGE     { .minThreads = 2, .maxThreads = 3, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+#define IOT_TASKPOOL_INFO_INITIALIZER_LARGE     { .minThreads = 2, .maxThreads = 3, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY }
 /** @brief Initializer for a very large #IotTaskPoolInfo_t. */
-#define IOT_TASKPOOL_INFO_INITIALIZER_XLARGE    { .minThreads = 2, .maxThreads = 4, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY } 
+#define IOT_TASKPOOL_INFO_INITIALIZER_XLARGE    { .minThreads = 2, .maxThreads = 4, .stackSize = IOT_THREAD_DEFAULT_STACK_SIZE, .priority = IOT_THREAD_DEFAULT_PRIORITY }
 /** @brief Initializer for a typical #IotTaskPoolInfo_t. */
 #define IOT_TASKPOOL_INFO_INITIALIZER           IOT_TASKPOOL_INFO_INITIALIZER_MEDIUM
 /** @brief Initializer for a #IotTaskPool_t. */
-#define IOT_TASKPOOL_INITIALIZER                NULL           
+#define IOT_TASKPOOL_INITIALIZER                NULL
 /** @brief Initializer for a #IotTaskPoolJobStorage_t. */
-#define IOT_TASKPOOL_JOB_STORAGE_INITIALIZER    { { NULL, NULL }, NULL, NULL, 0, IOT_TASKPOOL_STATUS_UNDEFINED }              
+#define IOT_TASKPOOL_JOB_STORAGE_INITIALIZER    { { NULL, NULL }, NULL, NULL, 0, IOT_TASKPOOL_STATUS_UNDEFINED }
 /** @brief Initializer for a #IotTaskPoolJob_t. */
-#define IOT_TASKPOOL_JOB_INITIALIZER            NULL                                                                                                                    
+#define IOT_TASKPOOL_JOB_INITIALIZER            NULL
 /* @[define_taskpool_initializers] */
 
 /**

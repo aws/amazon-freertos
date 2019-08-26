@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -84,7 +84,7 @@ IotBleDataTransferChannel_t * IotBleDataTransfer_Open( uint8_t channelIdentifier
  * @param[in] callback The callback.
  * @param[in] pContext Context associated with callback.
  *
- * @return True if callback is set succesfully, false if callback is already set or channel is not opened.
+ * @return True if callback is set successfully, false if callback is already set or channel is not opened.
  */
 bool IotBleDataTransfer_SetCallback( IotBleDataTransferChannel_t * pChannel,
                                      const IotBleDataTransferChannelCallback_t callback,

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V2.0.0
+ * Amazon FreeRTOS Shadow V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -71,7 +71,8 @@ BaseType_t prvTestUpdatedCallback( void * pvUserData,
                                    MQTTBufferHandle_t xBuffer );
 
 /* Called when delta is reported in shadow document*/
-BaseType_t prvTestDeltaCallback( const char * const pcThingName,
+BaseType_t prvTestDeltaCallback( void * pvUserData,
+                                 const char * const pcThingName,
                                  const char * const pcDeltaDocument,
                                  uint32_t ulDocumentLength,
                                  MQTTBufferHandle_t xBuffer );
@@ -145,11 +146,13 @@ BaseType_t prvTestUpdatedCallback( void * pvUserData,
 }
 
 /* Called when delta is reported in shadow document*/
-BaseType_t prvTestDeltaCallback( const char * const pcThingName,
+BaseType_t prvTestDeltaCallback( void * pvUserData,
+                                 const char * const pcThingName,
                                  const char * const pcDeltaDocument,
                                  uint32_t ulDocumentLength,
                                  MQTTBufferHandle_t xBuffer )
 {
+    ( void ) pvUserData;
     ( void ) pcThingName;
     ( void ) pcDeltaDocument;
     ( void ) ulDocumentLength;
@@ -477,6 +480,7 @@ TEST( Full_Shadow, UpdateCallback )
         /*Register update callback.*/
         xCallbackParams.pcThingName = shadowTHING_NAME;
         xCallbackParams.xShadowUpdatedCallback = prvTestUpdatedCallback;
+        xCallbackParams.xShadowDeltaCallback = prvTestDeltaCallback;
         xReturn = SHADOW_RegisterCallbacks( xShadowClientHandle,
                                             &xCallbackParams,
                                             shadowTIMEOUT );

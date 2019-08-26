@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -54,7 +54,7 @@ unsigned sleep( unsigned seconds );
  * This is a useful, non-POSIX function.
  * @param[in] usec The number of microseconds to suspend execution.
  *
- * @retval 0 - Upon successful cocmpletion.
+ * @retval 0 - Upon successful completion.
  */
 int usleep( useconds_t usec );
 

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.2
+ * Amazon FreeRTOS OTA V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -325,7 +325,12 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     JSON_DocModel_t xDocModel = { 0 };
     JSON_DocParam_t xDocParam = { 0 };
 
-
+    /* Initialize the OTA Agent for the following tests. */
+    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
+                               xMQTTClientHandle,
+                               ( const uint8_t * ) clientcredentialIOT_THING_NAME,
+                               vOTACompleteCallback,
+                               pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
 
     /* Ensure that NULL parameters are rejected. */
     TEST_ASSERT_EQUAL( eDocParseErr_NullModelPointer,
@@ -362,13 +367,6 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     /* Ensure that a JSON document containing a mismatched field is rejected. */
     TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_FIELD_MISMATCH,
                                                       sizeof( otatestLASER_JSON_WITH_FIELD_MISMATCH ) ) );
-
-    /* Initialize the OTA Agent for the following test. */
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
-                               xMQTTClientHandle,
-                               ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-                               vOTACompleteCallback,
-                               pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
 
     /* The OTA Agent must be shut down if these tests fail, so a TEST_PROTECT is necessary. */
     if( TEST_PROTECT() )

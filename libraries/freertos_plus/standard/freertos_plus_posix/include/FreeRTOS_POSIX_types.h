@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,43 +37,45 @@
  * posixconfigENABLE_PTHREAD_<TYPE>_T is not defined.
  */
 #if posixconfigENABLE_PTHREAD_MUTEX_T == 1
-    typedef pthread_mutex_internal_t PthreadMutexType_t;
+    typedef pthread_mutex_internal_t   PthreadMutexType_t;
 #else
-    typedef void    * PthreadMutexType_t;
+    typedef void                       * PthreadMutexType_t;
 #endif
 
 #if posixconfigENABLE_PTHREAD_COND_T == 1
-    typedef pthread_cond_internal_t PthreadCondType_t;
+    typedef pthread_cond_internal_t    PthreadCondType_t;
 #else
-    typedef void    * PthreadCondType_t;
+    typedef void                       * PthreadCondType_t;
 #endif
 
 #if posixconfigENABLE_SEM_T == 1
-    typedef sem_internal_t PosixSemType_t;
+    typedef sem_internal_t             PosixSemType_t;
 #else
-    typedef void    * PosixSemType_t;
+    typedef void                       * PosixSemType_t;
 #endif
 
 #if posixconfigENABLE_PTHREAD_MUTEXATTR_T == 1
-    typedef struct pthread_mutexattr {
-        uint32_t        ulpthreadMutexAttrStorage;
+    typedef struct pthread_mutexattr
+    {
+        uint32_t ulpthreadMutexAttrStorage;
     } PthreadMutexAttrType_t;
 #else
-    typedef void    * PthreadMutexAttrType_t;
+    typedef void * PthreadMutexAttrType_t;
 #endif
 
 #if posixconfigENABLE_PTHREAD_ATTR_T == 1
-    typedef struct pthread_attr {
+    typedef struct pthread_attr
+    {
         uint32_t ulpthreadAttrStorage;
     } PthreadAttrType_t;
 #else
-    typedef void    * PthreadAttrType_t;
+    typedef void                       * PthreadAttrType_t;
 #endif
 
 #if posixconfigENABLE_PTHREAD_BARRIER_T == 1
     typedef pthread_barrier_internal_t PthreadBarrierType_t;
 #else
-    typedef void    * PthreadBarrierType_t;
+    typedef void                       * PthreadBarrierType_t;
 #endif
 
 #endif /* _FREERTOS_POSIX_INTERNAL_TYPES_H_ */

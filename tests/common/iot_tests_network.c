@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -37,7 +37,7 @@
 static uint16_t _IotTestNetworkType = AWSIOT_NETWORK_TYPE_WIFI;
 
 #if ( BLE_SUPPORTED == 1 )
-static bool bleEnabled = false;
+    static bool bleEnabled = false;
 #endif
 
 /*-----------------------------------------------------------*/
@@ -45,7 +45,7 @@ static bool bleEnabled = false;
 
 
 #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
-    #include "platform/iot_network_afr.h"
+    #include "platform/iot_network_freertos.h"
     #include "private/iot_mqtt_internal.h"
     static const IotMqttSerializer_t _mqttSerializer =
     {
@@ -89,7 +89,7 @@ static bool bleEnabled = false;
     {
         if( connected == true )
         {
-            IotBle_StopAdv();
+            IotBle_StopAdv( NULL );
         }
         else
         {
@@ -97,6 +97,7 @@ static bool bleEnabled = false;
         }
     }
     /*-----------------------------------------------------------*/
+    extern BTStatus_t bleStackInit( void );
 
     static BaseType_t _BLEEnable( void )
     {
@@ -107,11 +108,17 @@ static bool bleEnabled = false;
 
         if( bInitBLE == false )
         {
-            xStatus = IotBle_Init();
+            /* Initialize low level drivers for BLE */
+            xStatus = bleStackInit();
 
             if( xStatus == eBTStatusSuccess )
             {
-                bInitBLE = true;
+                xStatus = IotBle_Init();
+
+                if( xStatus == eBTStatusSuccess )
+                {
+                    bInitBLE = true;
+                }
             }
         }
         else
@@ -154,7 +161,7 @@ static bool bleEnabled = false;
 
         if( ret == true )
         {
-            if( IotBle_StopAdv() != eBTStatusSuccess )
+            if( IotBle_StopAdv( NULL ) != eBTStatusSuccess )
             {
                 ret = false;
             }
@@ -177,7 +184,7 @@ static bool bleEnabled = false;
 
 const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 {
-	const IotNetworkInterface_t * pNetworkInterface = NULL;
+    const IotNetworkInterface_t * pNetworkInterface = NULL;
 
     switch( _IotTestNetworkType )
     {
@@ -206,11 +213,12 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
     {
         #if ( BLE_SUPPORTED == 1 )
             case AWSIOT_NETWORK_TYPE_BLE:
-            	if( bleEnabled == false)
-            	{
-            		bleEnabled = true;
-            		_BLEEnable();
-            	}
+
+                if( bleEnabled == false )
+                {
+                    bleEnabled = true;
+                    _BLEEnable();
+                }
                 break;
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
@@ -228,22 +236,23 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
 
 const IotMqttSerializer_t * IotTestNetwork_GetSerializer( void )
 {
-	const IotMqttSerializer_t * pSerializer = NULL;
+    const IotMqttSerializer_t * pSerializer = NULL;
 
     switch( _IotTestNetworkType )
     {
         #if ( BLE_SUPPORTED == 1 )
             case AWSIOT_NETWORK_TYPE_BLE:
-            	pSerializer = &IotBleMqttSerializer;
+                pSerializer = &IotBleMqttSerializer;
                 break;
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
             case AWSIOT_NETWORK_TYPE_WIFI:
-            	pSerializer = &_mqttSerializer;
+                pSerializer = &_mqttSerializer;
                 break;
         #endif
         default:
             break;
     }
+
     return ( IotMqttSerializer_t * ) pSerializer;
 }

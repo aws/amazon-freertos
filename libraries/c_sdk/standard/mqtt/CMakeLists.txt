@@ -40,7 +40,7 @@ if(TARGET AFR::secure_sockets::mcu_port)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     PRIVATE
-        "${src_dir}/aws_mqtt_agent.c"
+        "${src_dir}/iot_mqtt_agent.c"
 )
 endif()
 
@@ -66,7 +66,7 @@ afr_test_module()
 
 # Enable tests for BLE-over-MQTT serializers on supported boards.
 if(BLE_SUPPORTED)
-    set(extra_test_mqtt_sources "${test_dir}/unit/aws_iot_tests_mqtt_serialize_ble.c")
+    set(extra_test_mqtt_sources "${test_dir}/unit/iot_tests_mqtt_serialize_ble.c")
 endif()
 
 afr_module_sources(
@@ -77,6 +77,7 @@ afr_module_sources(
         "${test_dir}/unit/iot_tests_mqtt_receive.c"
         "${test_dir}/unit/iot_tests_mqtt_subscription.c"
         "${test_dir}/unit/iot_tests_mqtt_validate.c"
+        "${test_dir}/unit/iot_tests_mqtt_metrics.c"
         "${test_dir}/system/iot_tests_mqtt_system.c"
         ${extra_test_mqtt_sources}
 )
@@ -85,7 +86,7 @@ if(TARGET AFR::secure_sockets::mcu_port)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/aws_test_mqtt_agent.c"
+        "${test_dir}/iot_test_mqtt_agent.c"
 )
 endif()
 

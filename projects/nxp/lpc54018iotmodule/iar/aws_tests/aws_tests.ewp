@@ -224,7 +224,6 @@
 					<state>AMAZON_FREERTOS_ENABLE_UNIT_TESTS</state>
 					<state>UNITY_INCLUDE_CONFIG_H</state>
 					<state>_DLIB_FILE_DESCRIPTOR=1</state>
-					<state>__little_endian__=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -387,10 +386,12 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\include</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\defender\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\access</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
@@ -398,6 +399,9 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\src</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\access</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\src</state>
@@ -412,6 +416,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1767,13 +1772,13 @@
 						<group>
 							<name>secure_sockets</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\secure_sockets\aws_secure_sockets.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\secure_sockets\iot_secure_sockets.c</name>
 							</file>
 						</group>
 						<group>
 							<name>pkcs11</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\aws_pkcs11_pal.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\iot_pkcs11_pal.c</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\pkcs11\hw_poll.c</name>
@@ -1782,7 +1787,7 @@
 						<group>
 							<name>wifi</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\wifi\aws_wifi.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\wifi\iot_wifi.c</name>
 							</file>
 						</group>
 						<group>
@@ -1836,22 +1841,13 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_ggd_config.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_mqtt_agent_config.h</name>
-							</file>
-							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_mqtt_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_pkcs11_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_secure_sockets_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_shadow_config.h</name>
-							</file>
-							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_test_pkcs11_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_test_runner_config.h</name>
@@ -1867,6 +1863,15 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_mqtt_agent_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_pkcs11_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\iot_test_pkcs11_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\unity_config.h</name>
@@ -1891,7 +1896,7 @@
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\common\aws_test.c</name>
 			</file>
 			<file>
-				<name>$PROJ_DIR$\..\..\..\..\..\tests\common\iot_test_afr.c</name>
+				<name>$PROJ_DIR$\..\..\..\..\..\tests\common\iot_test_freertos.c</name>
 			</file>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\tests\common\iot_tests_network.c</name>
@@ -1942,7 +1947,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_appversion32.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_appversion32.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_init.h</name>
@@ -1960,7 +1965,7 @@
 							</file>
 						</group>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\aws_logging_task.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_task.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\iot_logging_setup.h</name>
@@ -1981,7 +1986,7 @@
 					<group>
 						<name>logging</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\aws_logging_task_dynamic_buffers.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging_task_dynamic_buffers.c</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\logging\iot_logging.c</name>
@@ -1989,6 +1994,9 @@
 					</group>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\iot_static_memory_common.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\iot_device_metrics.c</name>
 					</file>
 					<group>
 						<name>taskpool</name>
@@ -2002,7 +2010,7 @@
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\test\aws_memory_leak.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_memory_leak.c</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\test\iot_tests_taskpool.c</name>
@@ -2035,7 +2043,7 @@
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_validate.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\aws_mqtt_agent.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\src\iot_mqtt_agent.c</name>
 						</file>
 					</group>
 					<group>
@@ -2054,6 +2062,9 @@
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_validate.c</name>
 							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\unit\iot_tests_mqtt_metrics.c</name>
+							</file>
 						</group>
 						<group>
 							<name>system</name>
@@ -2062,7 +2073,7 @@
 							</file>
 						</group>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\aws_test_mqtt_agent.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\test\iot_test_mqtt_agent.c</name>
 						</file>
 					</group>
 				</group>
@@ -2082,10 +2093,10 @@
 						<group>
 							<name>json</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_decoder.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_decoder.c</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\aws_iot_serializer_json_encoder.c</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\src\json\iot_serializer_json_encoder.c</name>
 							</file>
 						</group>
 						<file>
@@ -2112,6 +2123,48 @@
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_serializer_json.c</name>
 						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\test\iot_tests_deserializer_json.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>https</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c</name>
+						</file>
+					</group>
+					<group>
+						<name>test</name>
+						<group>
+							<name>unit</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_client.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_utils.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_common.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_sync.c</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\unit\iot_tests_https_async.c</name>
+							</file>
+						</group>
+						<group>
+							<name>system</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\test\system\iot_tests_https_system.c</name>
+							</file>
+						</group>
 					</group>
 				</group>
 			</group>
@@ -2243,20 +2296,20 @@
 				<group>
 					<name>freertos</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_afr.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_clock_freertos.c</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_afr.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_threads_freertos.c</name>
 					</file>
 					<group>
 						<name>include</name>
 						<group>
 							<name>platform</name>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_afr.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_platform_types_freertos.h</name>
 							</file>
 							<file>
-								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_afr.h</name>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\include\platform\iot_network_freertos.h</name>
 							</file>
 						</group>
 					</group>
@@ -2264,7 +2317,7 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_metrics.c</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_afr.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\platform\freertos\iot_network_freertos.c</name>
 					</file>
 				</group>
 				<group>
@@ -2282,34 +2335,28 @@
 				<group>
 					<name>include</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets.h</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_config_defaults.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_config_defaults.h</name>
 					</file>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\aws_secure_sockets_wrapper_metrics.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\include\iot_secure_sockets_wrapper_metrics.h</name>
 					</file>
 				</group>
 				<group>
 					<name>test</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\test\aws_test_tcp.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\secure_sockets\test\iot_test_tcp.c</name>
 					</file>
 				</group>
 			</group>
 			<group>
 				<name>pkcs11</name>
 				<group>
-					<name>include</name>
-					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include\aws_pkcs11.h</name>
-					</file>
-				</group>
-				<group>
 					<name>mbedtls</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\aws_pkcs11_mbedtls.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\iot_pkcs11_mbedtls.c</name>
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h</name>
@@ -2318,7 +2365,7 @@
 				<group>
 					<name>test</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\test\aws_test_pkcs11.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11.c</name>
 					</file>
 				</group>
 			</group>
@@ -2327,13 +2374,13 @@
 				<group>
 					<name>include</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include\aws_wifi.h</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\include\iot_wifi.h</name>
 					</file>
 				</group>
 				<group>
 					<name>test</name>
 					<file>
-						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\test\aws_test_wifi.c</name>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\wifi\test\iot_test_wifi.c</name>
 					</file>
 				</group>
 			</group>
@@ -2392,19 +2439,19 @@
 					<group>
 						<name>src</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\src\aws_tls.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c</name>
 						</file>
 					</group>
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include\aws_tls.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include\iot_tls.h</name>
 						</file>
 					</group>
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\test\aws_test_tls.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\test\iot_test_tls.c</name>
 						</file>
 					</group>
 				</group>
@@ -2413,19 +2460,34 @@
 					<group>
 						<name>src</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\aws_crypto.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\src\iot_crypto.c</name>
 						</file>
 					</group>
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\aws_crypto.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h</name>
 						</file>
 					</group>
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\aws_test_crypto.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\test\iot_test_crypto.c</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>pkcs11</name>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h</name>
+						</file>
+					</group>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\src\iot_pkcs11.c</name>
 						</file>
 					</group>
 				</group>
@@ -2434,13 +2496,19 @@
 					<group>
 						<name>src</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\aws_system_init.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c</name>
 						</file>
 					</group>
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\aws_system_init.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h</name>
 						</file>
 					</group>
 				</group>
@@ -2500,28 +2568,28 @@
 					<group>
 						<name>test</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_clock.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_clock.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_mqueue.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_mqueue.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_pthread.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_pthread.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_semaphore.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_semaphore.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_stress.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_stress.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_timer.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_timer.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_unistd.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_unistd.c</name>
 						</file>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\aws_test_posix_utils.c</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\test\iot_test_posix_utils.c</name>
 						</file>
 					</group>
 				</group>
@@ -2784,6 +2852,12 @@
 					</file>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\library\xtea.c</name>
+					</file>
+				</group>
+				<group>
+					<name>utils</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\utils\mbedtls_utils.c</name>
 					</file>
 				</group>
 				<group>
@@ -3076,6 +3150,15 @@
 				</file>
 			</group>
 			<group>
+				<name>http-parser</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c</name>
+				</file>
+			</group>
+			<group>
 				<name>jsmn</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h</name>
@@ -3094,9 +3177,6 @@
 				<name>src</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\aws_dev_mode_key_provisioning.c</name>
-				</file>
-				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\demos\dev_mode_key_provisioning\src\pem2der.c</name>
 				</file>
 			</group>
 			<group>

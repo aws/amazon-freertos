@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Serializer V1.0.0
+ * Amazon FreeRTOS Serializer V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -86,7 +86,7 @@ static void _translateErrorCode( CborError cborError,
 {
     /* TODO: assert cborError == 0 || *pSerializerError == 0 */
 
-    /* Only translate if there is no error on serizlier currently. */
+    /* Only translate if there is no error on serializer currently. */
     if( *pSerializerError == IOT_SERIALIZER_SUCCESS )
     {
         switch( cborError )

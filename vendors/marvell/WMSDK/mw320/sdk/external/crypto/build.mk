@@ -6,7 +6,7 @@ libs-y += libawscrypto
 global-cflags-y += -I$(d)/../../../../../../../pkcs11
 
 libawscrypto-objs-y := \
-		../../../../../../../../crypto/aws_crypto.c  
+		../../../../../../../../crypto/iot_crypto.c  
 
 libawscrypto-supported-toolchain-y := arm_gcc iar
 

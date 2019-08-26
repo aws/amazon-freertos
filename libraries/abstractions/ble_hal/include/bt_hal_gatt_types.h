@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V2.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -48,6 +48,24 @@
  */
 #define btGATT_MAX_ATTR_LEN    600
 
+/**
+ * @brief GATT Status Codes
+ */
+typedef enum
+{
+    eBTGattStatusSuccess,                    /**< Success */
+    eBTGattStatusReadNotPermitted,           /**< Characteristic does not support read */
+    eBTGattStatusWriteNotPermitted,          /**< Characteristic does not support write */
+    eBTGattStatusInsufficientAuthentication, /**< Link is not properly Authenticated */
+    eBTGattStatusRequestNotSupported,        /**< Operation not supported */
+    eBTGattStatusInvalidOffset,              /**< Invalid offset (long writes/reads) */
+    eBTGattStatusErrorConnTimeout,           /**< Connection Timed out */
+    eBTGattStatusInvalidAttributeLength,     /**< Bad Attribute Length */
+    eBTGattStatusInsufficientEncryption,     /**< Link is not properly Encrypted */
+    eBTGattStatusError,                      /**< Generic GATT Error */
+    eBTGattStatusConnectionCongested,        /**< Congested connection */
+    eBTGattStatusErrorConnEstFail,           /**< Failed to establish gatt connection */
+} BTGattStatus_t;
 
 /**
  * @brief GATT Characteristic property.
@@ -212,19 +230,19 @@ typedef struct
 
 /**
  * @brief Structure describing a service.
- * Note, handles are allocated separatly so the attribute array can be allocated in ROM.
+ * Note, handles are allocated separately so the attribute array can be allocated in ROM.
  * pxHandlesBuffer has to dimensions: x and y [x][y] .
  * x : Number of copies of the service
  * y : needs to be equal to xNumberOfAttributes
  *
  * That structure has been constructed with the intent of putting most
  * of it in ROM. The whole structure can be put in ROM. If copies are needed then only pxBLEAttributes can be constant.
- * The fitst attribute is the UUID of the service.
+ * The first attribute is the UUID of the service.
  */
 struct BTService
 {
     uint8_t ucInstId;                /**< Service Instance ID. */
-    BTGattServiceTypes_t xType;      /**< Sercice type. */
+    BTGattServiceTypes_t xType;      /**< Service type. */
     size_t xNumberOfAttributes;      /**< Number of attributes. */
     uint16_t * pusHandlesBuffer;     /**< Array of handles, mapping to pxBLEAttributes. */
     BTAttribute_t * pxBLEAttributes; /**< Array of attribute, can be allocated in ROM. */
@@ -254,13 +272,13 @@ typedef struct
 
 /** GATT open callback invoked in response to open */
 typedef void ( * BTConnectCallback_t)( uint16_t usConnId,
-                                       BTStatus_t xStatus,
+                                       BTGattStatus_t xStatus,
                                        uint8_t ucClientIf,
                                        BTBdaddr_t * pxBda );
 
 /** Callback invoked in response to close */
 typedef void ( * BTDisconnectCallback_t)( uint16_t usConnId,
-                                          BTStatus_t xStatus,
+                                          BTGattStatus_t xStatus,
                                           uint8_t ucClientIf,
                                           BTBdaddr_t * pxBda );
 

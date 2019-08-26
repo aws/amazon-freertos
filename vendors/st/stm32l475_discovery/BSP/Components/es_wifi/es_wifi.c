@@ -844,21 +844,22 @@ static ES_WIFI_Status_t AT_RequestReceiveData(ES_WIFIObject_t *Obj, uint8_t* cmd
 ES_WIFI_Status_t  ES_WIFI_Init(ES_WIFIObject_t *Obj)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_ERROR;
-  
-  LOCK_WIFI();  
 
   Obj->Timeout = ES_WIFI_TIMEOUT;
 
   if (Obj->fops.IO_Init(ES_WIFI_INIT) == 0)
   {
+    LOCK_WIFI();
+
     ret = AT_ExecuteCommand(Obj,(uint8_t*)"I?\r\n", Obj->CmdData);
 
     if(ret == ES_WIFI_STATUS_OK)
     {
       AT_ParseInfo (Obj, Obj->CmdData);
     }
+
+    UNLOCK_WIFI();
   }
-  UNLOCK_WIFI();
   return ret;
 }
 

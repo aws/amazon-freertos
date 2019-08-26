@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.11
+ * FreeRTOS+TCP V2.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1824,7 +1824,7 @@ uint8_t ucProtocol;
 	{
 		return ipINVALID_LENGTH;
 	}
-	if( uxBufferLength < FreeRTOS_ntohs( pxIPPacket->xIPHeader.usLength ) )
+	if( uxBufferLength < ( size_t ) ( ipSIZE_OF_ETH_HEADER + FreeRTOS_ntohs( pxIPPacket->xIPHeader.usLength ) ) )
 	{
 		return ipINVALID_LENGTH;
 	}
@@ -2316,3 +2316,9 @@ BaseType_t FreeRTOS_IsNetworkUp( void )
 	}
 #endif
 /*-----------------------------------------------------------*/
+
+/* Provide access to private members for verification. */
+#ifdef FREERTOS_TCP_ENABLE_VERIFICATION
+	#include "aws_freertos_ip_verification_access_ip_define.h"
+#endif
+

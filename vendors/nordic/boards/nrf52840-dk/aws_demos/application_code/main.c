@@ -32,7 +32,7 @@
 #include "aws_demo.h"
 
 /* AWS library includes. */
-#include "aws_logging_task.h"
+#include "iot_logging_task.h"
 #include "aws_clientcredential.h"
 
 /* Nordic BSP includes */
@@ -56,9 +56,6 @@
 #include "bsp_btn_ble.h"
 #include "app_uart.h"
 #include "queue.h"
-
-/* MQTT v4 include. */
-#include "iot_mqtt.h"
 
 #include "iot_ble.h"
 #include "iot_ble_numericComparison.h"

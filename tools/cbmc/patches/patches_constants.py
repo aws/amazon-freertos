@@ -27,8 +27,10 @@ import os
 PATCHES_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-shared_prefix = ["..", "..", "..", "demos", "pc", "windows", "common",
-				 "config_files"]
+shared_prefix = [
+    "..", "..", "..", "vendors", "pc", "boards", "windows", "aws_demos",
+    "config_files"
+]
 absolute_prefix = os.path.abspath(os.path.join(PATCHES_DIR, *shared_prefix))
-HEADERS = [os.path.join(absolute_prefix, "FreeRTOSConfig.h"), 
+HEADERS = [os.path.join(absolute_prefix, "FreeRTOSConfig.h"),
            os.path.join(absolute_prefix, "FreeRTOSIPConfig.h")]
