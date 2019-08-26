@@ -1,7 +1,7 @@
 {
-    "afr_source_dir":"/Users/diveks/SmartLock/Try10/amazon-freertos/",
-    "thing_name":"TestDevice",
-    "wifi_ssid":"Mobile",
-    "wifi_password":"Fargate@4048",
-    "wifi_security":"eWiFiSecurityWPA2"
+    "afr_source_dir":"../..",
+    "thing_name":"",
+    "wifi_ssid":"",
+    "wifi_password":"",
+    "wifi_security":""
 }

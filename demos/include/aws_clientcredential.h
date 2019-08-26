@@ -35,33 +35,33 @@
 /*
  * MQTT Broker endpoint.
  */
-#define clientcredentialMQTT_BROKER_ENDPOINT "a2o0bvhp66xdvx-ats.iot.us-west-2.amazonaws.com"
+#define clientcredentialMQTT_BROKER_ENDPOINT    ""
 
 
 /* Use of a "define" and not a "static const" here to be able to
-* use pre-compile concatenation on the string. */
-#define clientcredentialIOT_THING_NAME "TestDevice"
+ * use pre-compile concatenation on the string. */
+#define clientcredentialIOT_THING_NAME               ""
 
 /*
  * Port number the MQTT broker is using.
  */
-#define clientcredentialMQTT_BROKER_PORT 8883
+#define clientcredentialMQTT_BROKER_PORT             8883
 
 /*
  * Port number the Green Grass Discovery use for JSON retrieval from cloud is
  * using.
  */
-#define clientcredentialGREENGRASS_DISCOVERY_PORT 8443
+#define clientcredentialGREENGRASS_DISCOVERY_PORT    8443
 
 /*
  * Wi-Fi network to join.
  */
-#define clientcredentialWIFI_SSID       "Mobile"
+#define clientcredentialWIFI_SSID                    ""
 
 /*
  * Password needed to join Wi-Fi network.
  */
-#define clientcredentialWIFI_PASSWORD   "Fargate@4048"
+#define clientcredentialWIFI_PASSWORD                ""
 
 /**
  * @brief Security type
@@ -69,6 +69,6 @@
  * Possible values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
  * eWiFiSecurityWPA2
  */
-#define clientcredentialWIFI_SECURITY   eWiFiSecurityWPA2
+#define clientcredentialWIFI_SECURITY
 
-#endif
+#endif /* ifndef __AWS_CLIENTCREDENTIAL__H__ */
