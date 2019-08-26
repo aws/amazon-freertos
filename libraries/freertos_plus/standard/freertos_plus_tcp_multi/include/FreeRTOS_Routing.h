@@ -101,25 +101,36 @@ typedef struct xNetworkInterface
 	};
 */
 
+typedef struct xIPV4Parameters {
+	uint32_t ulIPAddress;				/* The actual IPv4 address. Will be 0 as long as end-point is still down. */
+	uint32_t ulNetMask;
+	uint32_t ulGatewayAddress;
+	uint32_t ulDNSServerAddresses[ ipconfigENDPOINT_DNS_ADDRESS_COUNT ];
+	uint32_t ulBroadcastAddress;
+} IPV4Parameters_t;
+
+#if( ipconfigUSE_IPv6 != 0 )
+	typedef struct xIPV6Parameters {
+		IPv6_Address_t xIPAddress;		/* The actual IPv4 address. Will be 0 as long as end-point is still down. */
+		size_t uxPrefixLength;			/* Number of valid bytes in the network prefix. */
+		IPv6_Address_t xPrefix;			/* The network prefix, e.g. fe80::/10 */
+		IPv6_Address_t xGatewayAddress;	/* Gateway to the web. */
+		IPv6_Address_t xDNSServerAddresses[ 2 ];
+	} IPV6Parameters_t;
+#endif
+
 typedef struct xNetworkEndPoint
 {
 	union {
 		struct {
-			uint32_t ulDefaultIPAddress;	/* Use this address in case DHCP has failed. */
-			uint32_t ulIPAddress;			/* The actual IPv4 address. Will be 0 as long as end-point is still down. */
-			uint32_t ulNetMask;
-			uint32_t ulGatewayAddress;
-			uint32_t ulDNSServerAddresses[ ipconfigENDPOINT_DNS_ADDRESS_COUNT ];
-			uint32_t ulBroadcastAddress;
-		} ipv4;
+			IPV4Parameters_t ipv4_settings;
+			IPV4Parameters_t ipv4_defaults;		/* Use values form "ipv4_default" in case DHCP has failed. */
+		};
 #if( ipconfigUSE_IPv6 != 0 )
 		struct {
-			IPv6_Address_t xIPAddress;			/* The actual IPv4 address. Will be 0 as long as end-point is still down. */
-			size_t uxPrefixLength;
-			IPv6_Address_t xDefaultIPAddress;
-			IPv6_Address_t xGatewayAddress;
-			IPv6_Address_t xDNSServerAddresses[ 2 ];	/* Not yet in use. */
-		} ipv6;
+			IPV6Parameters_t ipv6_settings;
+			IPV6Parameters_t ipv6_defaults;		/* Use values form "ipv4_default" in case DHCP has failed. */
+		};
 #endif
 	};
 	MACAddress_t xMACAddress;
@@ -145,14 +156,9 @@ typedef struct xNetworkEndPoint
 } NetworkEndPoint_t;
 
 #if( ipconfigUSE_IPv6 != 0 )
-	static __inline BaseType_t ENDPOINT_IS_IPv4( const NetworkEndPoint_t * pxEndPoint )
-	{
-		return pxEndPoint->bits.bIPv6 == pdFALSE_UNSIGNED;
-	}
-	static __inline BaseType_t ENDPOINT_IS_IPv6( const NetworkEndPoint_t * pxEndPoint )
-	{
-		return pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED;
-	}
+	#define ENDPOINT_IS_IPv4( pxEndPoint ) ( ! ( pxEndPoint )->bits.bIPv6 )
+	#define ENDPOINT_IS_IPv6( pxEndPoint ) (   ( pxEndPoint )->bits.bIPv6 )
+
 	static __inline void CONFIRM_EP_v4( const NetworkEndPoint_t * pxEndPoint )
 	{
 		configASSERT( pxEndPoint != NULL );
@@ -164,14 +170,9 @@ typedef struct xNetworkEndPoint
 		configASSERT( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED );
 	}
 #else
-	static __inline BaseType_t ENDPOINT_IS_IPv4( const NetworkEndPoint_t * pxEndPoint )
-	{
-		return pdTRUE;
-	}
-	static __inline BaseType_t ENDPOINT_IS_IPv6( const NetworkEndPoint_t * pxEndPoint )
-	{
-		return pdFALSE;
-	}
+	#define ENDPOINT_IS_IPv4( pxEndPoint ) ( 1 )
+	#define ENDPOINT_IS_IPv6( pxEndPoint ) ( 0 )
+
 	static __inline void CONFIRM_EP_v4( const NetworkEndPoint_t * pxEndPoint )
 	{
 		configASSERT( pxEndPoint != NULL );

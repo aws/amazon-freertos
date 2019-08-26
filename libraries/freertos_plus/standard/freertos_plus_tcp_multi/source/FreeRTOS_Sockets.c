@@ -1116,7 +1116,7 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;	/* To void e9044 function 
 			( pxListFindListItemWithValue( pxSocketList, ( TickType_t ) pxAddress->sin_port ) != NULL ) )	/*lint !e9007 side effects on right hand of logical operator, ''&&'' [MISRA 2012 Rule 13.5, required] */
 		{
 			FreeRTOS_debug_printf( ( "vSocketBind: %sP port %d in use\n",
-				pxSocket->ucProtocol == ( uint8_t ) FREERTOS_IPPROTO_TCP ? "TC" : "UD",
+				( pxSocket->ucProtocol == ( uint8_t ) FREERTOS_IPPROTO_TCP ) ? "TC" : "UD",
 				FreeRTOS_ntohs( pxAddress->sin_port ) ) );
 			xReturn = -pdFREERTOS_ERRNO_EADDRINUSE;
 		}
@@ -1147,7 +1147,7 @@ struct freertos_sockaddr * pxAddress = pxBindAddress;	/* To void e9044 function 
 
 			if( pxSocket->pxEndPoint != NULL )
 			{
-				pxSocket->ulLocalAddress = FreeRTOS_ntohl( pxSocket->pxEndPoint->ipv4.ulIPAddress );
+				pxSocket->ulLocalAddress = FreeRTOS_ntohl( pxSocket->pxEndPoint->ipv4_settings.ulIPAddress );
 			}
 			else
 			{
@@ -1428,7 +1428,7 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 					pxOtherSocket->usLocalPort,
 					pxOtherSocket->u.xTCP.usChildCount,
 					pxOtherSocket->u.xTCP.usBacklog,
-					pxOtherSocket->u.xTCP.usChildCount == 1u ? "" : "ren" ) );
+					( pxOtherSocket->u.xTCP.usChildCount == 1u ) ? "" : "ren" ) );
 				break;
 			}
 		}
@@ -2494,9 +2494,6 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 	TimeOut_t xTimeOut;
 	IPStackEvent_t xAskEvent;
 
-		#if( ipconfigUSE_IPv6 != 0 )
-		configASSERT( pxAddress->sin_len >= sizeof( struct freertos_sockaddr6 ) );
-		#endif
 		if( prvValidSocket( pxSocket, FREERTOS_IPPROTO_TCP, pdTRUE ) == pdFALSE )
 		{
 			/* Not a valid socket or wrong type */
@@ -3262,7 +3259,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		#if( ipconfigUSE_IPv6 != 0 )
 			, IPv6_Address_t *pxAddress_IPv6
 		#endif /* ipconfigUSE_IPv6 */
-		)/*lint !e9018 declaration of symbol 'pxAddress_IPv6' with union based type [MISRA 2012 Rule 19.2, advisory]. */
+		)
 	{
 	ListItem_t *pxIterator;
 	FreeRTOS_Socket_t *pxResult = NULL, *pxListenSocket = NULL;
@@ -3409,7 +3406,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 
 			if( xTCPWindowLoggingLevel != 0 )
 			{
-				FreeRTOS_debug_printf( ( "prvTCPCreateStream: %cxStream created %lu bytes (total %lu)\n", xIsInputStream ? 'R' : 'T', uxLength, uxSize ) );
+				FreeRTOS_debug_printf( ( "prvTCPCreateStream: %cxStream created %u bytes (total %u)\n", ( xIsInputStream != 0 ) ? 'R' : 'T', uxLength, uxSize ) );
 			}
 
 			if( xIsInputStream != 0 )
@@ -3477,7 +3474,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 		{
 			if( xResult != ( int32_t ) ulByteCount )
 			{
-				FreeRTOS_debug_printf( ( "lTCPAddRxdata: at %ld: %ld/%lu bytes (tail %lu head %lu space %lu front %lu)\n",
+				FreeRTOS_debug_printf( ( "lTCPAddRxdata: at %u: %ld/%lu bytes (tail %u head %u space %u front %u)\n",
 					uxOffset, xResult, ulByteCount,
 					pxStream->uxTail,
 					pxStream->uxHead,
@@ -3586,8 +3583,6 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 			#if( ipconfigUSE_IPv6 != 0 )
 			if( pxSocket->bits.bIsIPv6 != pdFALSE_UNSIGNED )
 			{
-				configASSERT( pxAddress6->sin_len == sizeof( *pxAddress6 ) );
-
 				pxAddress6->sin_family = FREERTOS_AF_INET6;
 
 				/* IP address of remote machine. */
@@ -3609,7 +3604,7 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket )
 				pxAddress->sin_port = FreeRTOS_htons ( pxSocket->u.xTCP.usRemotePort );
 			}
 
-			xResult = ( BaseType_t ) pxAddress->sin_len;
+			xResult = ( BaseType_t ) sizeof( *pxAddress );
 		}
 
 		return xResult;

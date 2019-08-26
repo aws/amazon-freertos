@@ -603,10 +603,8 @@ BaseType_t xResult = 0;
 					pxTransferSocket->bits.bIsIPv6 = pdTRUE_UNSIGNED;
 				}
 				#endif /* ipconfigUSE_IPv6 */
-				xLocalAddress.sin_len = sizeof( xLocalAddress );
 				FreeRTOS_GetLocalAddress( pxClient->xTransferSocket, pxLocalAddressIPv4 );
 
-				xRemoteAddress.sin_len = sizeof( xRemoteAddress );
 				FreeRTOS_GetRemoteAddress( pxClient->xSocket, pxRemoteAddressIPv4 );
 
 				ulIP = FreeRTOS_ntohl( pxLocalAddressIPv4->sin_addr );
@@ -913,10 +911,8 @@ BaseType_t xResult;
 	WinProperties_t xWinProps;
 #endif
 
-		xRemote.sin_len = sizeof( xRemote );
 		FreeRTOS_GetRemoteAddress( pxClient->xSocket, pxRemote );
 
-		xBindAddress.sin_len = sizeof( xBindAddress );
 		xBindAddress.sin_family = sin_family;
 		pxEndPoint = pxGetSocketEndpoint( pxClient->xSocket );
 
@@ -945,8 +941,6 @@ BaseType_t xResult;
 		xBindAddress.sin_port = FreeRTOS_htons( 0 );	/* Bind to any available port number. */
 
 		FreeRTOS_bind( xSocket, pxBindAddress, sizeof( *pxBindAddress ) );
-
-		xLocal2.sin_len = sizeof( xLocal2 );
 
 		#if( ipconfigFTP_TX_BUFSIZE > 0 )
 		{
@@ -1019,11 +1013,9 @@ BaseType_t xResult;
 	#else
 		struct freertos_sockaddr xAddress;
 	#endif
-		xAddress.sin_len = sizeof( xAddress );
 		#if( ipconfigUSE_IPv6 != 0 )
 		if( pxClient->ulClientIPv4 == 0ul )
 		{
-			xAddress.sin_len = sizeof( xAddress );
 			xAddress.sin_family = FREERTOS_AF_INET6;
 			memcpy( xAddress.sin_addrv6.ucBytes, pxClient->ulClientIPv6.ucBytes, sizeof xAddress.sin_addrv6.ucBytes );
 		}
@@ -1031,13 +1023,13 @@ BaseType_t xResult;
 		#endif
 		{
 		struct freertos_sockaddr *pxAddress = ( struct freertos_sockaddr *)&xAddress;
-			pxAddress->sin_len = sizeof( xAddress );
+
 			pxAddress->sin_family = FREERTOS_AF_INET;
 			pxAddress->sin_addr = FreeRTOS_htonl( pxClient->ulClientIPv4 );
 		}
 		xAddress.sin_port = FreeRTOS_htons( pxClient->usClientPort );
 		/* Start an active connection for this data socket */
-		xResult = FreeRTOS_connect( pxClient->xTransferSocket, (struct freertos_sockaddr *)&xAddress, xAddress.sin_len );
+		xResult = FreeRTOS_connect( pxClient->xTransferSocket, (struct freertos_sockaddr *)&xAddress, sizeof( xAddress ) );
 	}
 
 	return xResult;
@@ -1088,10 +1080,8 @@ BaseType_t xRxSize;
 				#else
 					struct freertos_sockaddr xRemoteAddress, xLocalAddress;
 				#endif
-					xRemoteAddress.sin_len = sizeof( xRemoteAddress );
 					FreeRTOS_GetRemoteAddress( pxClient->xTransferSocket, &xRemoteAddress );
 
-					xLocalAddress.sin_len = sizeof( xLocalAddress );
 					FreeRTOS_GetLocalAddress( pxClient->xTransferSocket, &xLocalAddress );
 
 					FreeRTOS_printf( ( "%s Connected from %u to %u\n",
@@ -1118,7 +1108,6 @@ BaseType_t xRxSize;
 			struct freertos_sockaddr xRemoteAddress;
 		#endif
 
-			xRemoteAddress.sin_len = sizeof( xRemoteAddress );
 			FreeRTOS_GetRemoteAddress( pxClient->xTransferSocket, ( struct freertos_sockaddr * )&xRemoteAddress );
 			xRemotePort = FreeRTOS_ntohs( xRemoteAddress.sin_port );
 

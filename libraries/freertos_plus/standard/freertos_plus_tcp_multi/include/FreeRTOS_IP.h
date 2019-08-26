@@ -60,14 +60,15 @@ extern "C" {
 
 #if( ipconfigUSE_IPv6 != 0 )
 
-	union xIPv6_Address
+	struct xIPv6_Address
 	{
 		uint8_t ucBytes[ 16 ];
-		uint16_t usShorts[ 8 ];
-		uint32_t ulWords[ 4 ];
 	};
 
-	typedef union xIPv6_Address IPv6_Address_t;
+	typedef struct xIPv6_Address IPv6_Address_t;
+
+	extern const struct xIPv6_Address in6addr_any;
+	extern const struct xIPv6_Address in6addr_loopback;
 
 	/* Note that 'xCompareIPv6_Address' will also check if 'pxRight' is
 	the special unicast address: ff02::1:ffnn:nnnn, where nn:nnnn are
@@ -78,6 +79,15 @@ extern "C" {
 
 /* Using this function temporarily untill ipconfigRAND32() has been replaced. */
 BaseType_t xRandom32( uint32_t *pulValue );
+
+/*
+ * Generate a randomized TCP Initial Sequence Number per RFC.
+ * This function must be provided my the application builder.
+ */
+extern uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
+													uint16_t usSourcePort,
+													uint32_t ulDestinationAddress,
+													uint16_t usDestinationPort );
 
 /* Some constants defining the sizes of several parts of a packet */
 #define ipSIZE_OF_ETH_HEADER			14u
@@ -325,20 +335,30 @@ BaseType_t FreeRTOS_IPStart( void );
  */
 uint8_t *pcNetworkBuffer_to_UDPPayloadBuffer( NetworkBufferDescriptor_t *pxNetworkBuffer );
 
-void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint32_t *pulNetMask, const uint32_t *pulGatewayAddress, const uint32_t *pulDNSServerAddress );
+void FreeRTOS_SetAddressConfiguration( struct xNetworkEndPoint *pxEndPoint,
+									   const uint32_t *pulIPAddress,
+									   const uint32_t *pulNetMask,
+									   const uint32_t *pulGatewayAddress,
+									   const uint32_t *pulDNSServerAddress );
+
 BaseType_t FreeRTOS_SendPingRequest( uint32_t ulIPAddress, size_t xNumberOfBytesToSend, TickType_t xBlockTimeTicks );
 void FreeRTOS_ReleaseUDPPayloadBuffer( void *pvBuffer );
 /* _HT_ FreeRTOS_GetMACAddress() can not continue to exist with multiple interfaces.*/
-const uint8_t * FreeRTOS_GetMACAddress( void );
+//const uint8_t * FreeRTOS_GetMACAddress( void );
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent, struct xNetworkEndPoint *pxEndPoint );
 void vApplicationPingReplyHook( ePingReplyStatus_t eStatus, uint16_t usIdentifier );
 uint32_t FreeRTOS_GetIPAddress( void );
-void FreeRTOS_SetIPAddress( uint32_t ulIPAddress );
-void FreeRTOS_SetNetmask( uint32_t ulNetmask );
-void FreeRTOS_SetGatewayAddress( uint32_t ulGatewayAddress );
-uint32_t FreeRTOS_GetGatewayAddress( void );
-uint32_t FreeRTOS_GetDNSServerAddress( void );
-uint32_t FreeRTOS_GetNetmask( void );
+/*
+	_HT_ : these functions come from the IPv4-only library.
+	They should get an extra parameter, the end-point
+	void FreeRTOS_SetIPAddress( uint32_t ulIPAddress );
+	void FreeRTOS_SetNetmask( uint32_t ulNetmask );
+	void FreeRTOS_SetGatewayAddress( uint32_t ulGatewayAddress );
+	uint32_t FreeRTOS_GetGatewayAddress( void );
+	uint32_t FreeRTOS_GetDNSServerAddress( void );
+	uint32_t FreeRTOS_GetNetmask( void );
+*/
+
 void FreeRTOS_OutputARPRequest( uint32_t ulIPAddress );
 
 /* Return true if a given end-point is up and running.
@@ -364,8 +384,11 @@ void FreeRTOS_PrintARPCache( void );
 void FreeRTOS_ClearARP( void );
 #if( ipconfigUSE_IPv6 != 0 )
 	void FreeRTOS_ClearND( void );
-#endif
+#endif/* ( ipconfigUSE_IPv6 != 0 ) */
 
+#if( ipconfigUSE_IPv6 != 0 )
+	BaseType_t prvIsIPv6Multicast( const IPv6_Address_t *pxIPAddress );
+#endif/* ( ipconfigUSE_IPv6 != 0 ) */
 
 #if( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
 

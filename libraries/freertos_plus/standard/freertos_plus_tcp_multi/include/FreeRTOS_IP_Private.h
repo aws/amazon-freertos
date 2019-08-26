@@ -67,22 +67,8 @@ extern "C" {
 
 #include "event_groups.h"
 
-typedef struct xNetworkAddressingParameters
-{
-	uint32_t ulDefaultIPAddress;
-	uint32_t ulNetMask;
-	uint32_t ulGatewayAddress;
-	uint32_t ulDNSServerAddress;
-	uint32_t ulBroadcastAddress;
-} NetworkAddressingParameters_t;
-
 extern BaseType_t xTCPWindowLoggingLevel;
 extern QueueHandle_t xNetworkEventQueue;
-
-#if( ipconfigUSE_TCP == 1 )
-	extern uint32_t ulNextInitialSequenceNumber;
-#endif	/* ipconfigUSE_TCP */
-
 
 /*-----------------------------------------------------------*/
 /* Protocol headers.                                         */
@@ -494,22 +480,6 @@ defined const for quick reference. */
 extern const MACAddress_t xBroadcastMACAddress; /* all 0xff's */
 extern uint16_t usPacketIdentifier;
 
-/* Define a default UDP packet header (declared in FreeRTOS_UDP_IP.c) */
-typedef union xUDPPacketHeader
-{
-	uint8_t ucBytes[24];
-	uint32_t ulWords[6];
-} UDPPacketHeader_t;
-extern UDPPacketHeader_t xDefaultPartUDPPacketHeader;
-
-/* Structure that stores the netmask, gateway address and DNS server addresses. */
-extern NetworkAddressingParameters_t xNetworkAddressing;
-
-/* Structure that stores the defaults for netmask, gateway address and DNS.
-These values will be copied to 'xNetworkAddressing' in case DHCP is not used,
-and also in case DHCP does not lead to a confirmed request. */
-extern NetworkAddressingParameters_t xDefaultAddressing;
-
 /* True when BufferAllocation_1.c was included, false for BufferAllocation_2.c */
 extern const BaseType_t xBufferAllocFixedSize;
 
@@ -546,14 +516,6 @@ extern struct xNetworkInterface *pxNetworkInterfaces;
 */
 
 #define ipPOINTER_CAST( TYPE, pointer  ) ( ( TYPE ) ( pointer ) )
-
-/* The local IP address is accessed from within xDefaultPartUDPPacketHeader,
-rather than duplicated in its own variable. */
-#define ipLOCAL_IP_ADDRESS_POINTER ( ( uint32_t * ) &( xDefaultPartUDPPacketHeader.ulWords[ 20u / sizeof(uint32_t) ] ) )
-
-/* The local MAC address is accessed from within xDefaultPartUDPPacketHeader,
-rather than duplicated in its own variable. */
-#define ipLOCAL_MAC_ADDRESS ( &xDefaultPartUDPPacketHeader.ucBytes[ 0 ] )
 
 /* ICMP packets are sent using the same function as UDP packets.  The port
 number is used to distinguish between the two, as 0 is an invalid UDP port. */

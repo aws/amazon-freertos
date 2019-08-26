@@ -92,6 +92,9 @@ are located. */
 #define dhcpADDRESS_TYPE_ETHERNET				( 1 )
 #define dhcpETHERNET_ADDRESS_LENGTH				( 6 )
 
+/*lint -e750 local macro 'xxx' not referenced [MISRA 2012 Rule 2.5, advisory]. */
+/*lint -e751 local typedef 'xxx' not referenced [MISRA 2012 Rule 2.3, advisory])*/
+
 #if( ipconfigUSE_IPv6 != 0 )
 	#define dhcpIPv6_OPTION_CLIENTID				( 1 )	/* Client Identifier Option */
 	#define dhcpIPv6_OPTION_SERVERID				( 2 )	/* Server Identifier Option */
@@ -263,7 +266,7 @@ static void vDHCPProcessEndPoint( BaseType_t xReset, BaseType_t xDoCheck, Networ
  * a gratuitos ARP request and wait if another device responds to it.
  */
 #if( ipconfigDHCP_FALL_BACK_AUTO_IP != 0 )
-	static void prvPrepareLinkLayerIPLookUp( void );
+	static void prvPrepareLinkLayerIPLookUp( NetworkEndPoint_t *pxEndPoint );
 #endif
 
 /*-----------------------------------------------------------*/
@@ -288,18 +291,21 @@ BaseType_t xReturn;
 #if( ipconfigHAS_DEBUG_PRINTF != 0 )
 	static const char *pcDHCPStateName( eDHCPState_t eState )
 	{
+	const char *pcReturn;
+
 		switch( eState )
 		{
-			case eWaitingSendFirstDiscover:	return "eWaitingSendFirstDiscover";
-			case eWaitingOffer:				return "eWaitingOffer";
-			case eWaitingAcknowledge:		return "eWaitingAcknowledge";
+			case eWaitingSendFirstDiscover:	pcReturn = "eWaitingSendFirstDiscover"; break;
+			case eWaitingOffer:				pcReturn = "eWaitingOffer"; break;
+			case eWaitingAcknowledge:		pcReturn = "eWaitingAcknowledge"; break;
 		#if( ipconfigDHCP_FALL_BACK_AUTO_IP != 0 )
-			case eGetLinkLayerAddress:		return "eGetLinkLayerAddress";
+			case eGetLinkLayerAddress:		pcReturn = "eGetLinkLayerAddress"; break;
 		#endif
-			case eLeasedAddress:			return "eLeasedAddress";
-			case eNotUsingLeasedAddress:	return "eNotUsingLeasedAddress";			/* DHCP failed, and a default IP address is being used. */
+			case eLeasedAddress:			pcReturn = "eLeasedAddress"; break;
+			case eNotUsingLeasedAddress:	pcReturn = "eNotUsingLeasedAddress"; break;			/* DHCP failed, and a default IP address is being used. */
+			default:                        pcReturn =  "Unknown"; break; 
 		}
-		return "Unknown";
+		return pcReturn;
 	}
 #endif /* ipconfigHAS_DEBUG_PRINTF */
 /*-----------------------------------------------------------*/
@@ -354,7 +360,7 @@ BaseType_t xDoProcess = pdTRUE;
 			{
 				#if( ipconfigHAS_DEBUG_PRINTF != 0 )
 				{
-					FreeRTOS_debug_printf( ( "vDHCPProcess[%02x-%02x] ID %04X: state %s found xReset %d\n",
+					FreeRTOS_debug_printf( ( "vDHCPProcess[%02x-%02x] ID %04lX: state %s found\n",
 						pxIterator->xMACAddress.ucBytes[ 4 ],
 						pxIterator->xMACAddress.ucBytes[ 5 ],
 						pxIterator->xDHCPData.ulTransactionId,
@@ -409,7 +415,7 @@ BaseType_t xGivingUp = pdFALSE;
 		case eWaitingSendFirstDiscover :
 			/* Ask the user if a DHCP discovery is required. */
 		#if( ipconfigUSE_DHCP_HOOK != 0 )
-			eAnswer = xApplicationDHCPHook( eDHCPPhasePreDiscover, pxEndPoint->ipv4.ulDefaultIPAddress );
+			eAnswer = xApplicationDHCPHook( eDHCPPhasePreDiscover, pxEndPoint->ipv4_defaults.ulIPAddress );
 			if( eAnswer == eDHCPContinue )
 		#endif	/* ipconfigUSE_DHCP_HOOK */
 			{
@@ -417,7 +423,7 @@ BaseType_t xGivingUp = pdFALSE;
 				have not already been created. */
 				prvInitialiseDHCP( pxEndPoint );
 				/* Put 'ulIPAddress' to zero to indicate that the end-point is down. */
-				pxEndPoint->ipv4.ulIPAddress = 0UL;
+				pxEndPoint->ipv4_settings.ulIPAddress = 0UL;
 
 				/* Send the first discover request. */
 				if( xDHCPSocket != NULL )
@@ -432,7 +438,7 @@ BaseType_t xGivingUp = pdFALSE;
 			{
 				if( eAnswer == eDHCPUseDefaults )
 				{
-					memcpy( &xNetworkAddressing, &xDefaultAddressing, sizeof( xNetworkAddressing ) );
+					memcpy( &( pxEndPoint->ipv4_settings ), &( pxEndPoint->ipv4_defaults ), sizeof( pxEndPoint->ipv4_settings ) );
 				}
 
 				/* The user indicates that the DHCP process does not continue. */
@@ -467,8 +473,7 @@ BaseType_t xGivingUp = pdFALSE;
 				#if( ipconfigUSE_DHCP_HOOK != 0 )
 					if( eAnswer == eDHCPUseDefaults )
 					{
-						memcpy( &xNetworkAddressing, &xDefaultAddressing, sizeof( xNetworkAddressing ) );
-						pxEndPoint->ipv4.ulIPAddress = pxEndPoint->ipv4.ulDefaultIPAddress;	/* Use this address in case DHCP has failed. */
+						memcpy( &( pxEndPoint->ipv4_settings ), &( pxEndPoint->ipv4_defaults ), sizeof( pxEndPoint->ipv4_settings ) );
 					}
 					/* The user indicates that the DHCP process does not continue. */
 					xGivingUp = pdTRUE;
@@ -507,7 +512,7 @@ BaseType_t xGivingUp = pdFALSE;
 						and the link local addressing is used.  Start searching
 						a free LinkLayer IP-address.  Next state will be
 						'eGetLinkLayerAddress'. */
-						prvPrepareLinkLayerIPLookUp();
+						prvPrepareLinkLayerIPLookUp( pxEndPoint );
 
 						/* Setting an IP address manually so set to not using
 						leased address mode. */
@@ -559,11 +564,10 @@ BaseType_t xGivingUp = pdFALSE;
 
 				/* DHCP completed.  The IP address can now be used, and the
 				timer set to the lease timeout time. */
-				pxEndPoint->ipv4.ulIPAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress;
+				pxEndPoint->ipv4_settings.ulIPAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress;
 
 				/* Setting the 'local' broadcast address, something like 192.168.1.255' */
-				xNetworkAddressing.ulBroadcastAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress |  ~xNetworkAddressing.ulNetMask;
-				pxEndPoint->ipv4.ulBroadcastAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress | ~( pxEndPoint->ipv4.ulNetMask );
+				pxEndPoint->ipv4_settings.ulBroadcastAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress | ~( pxEndPoint->ipv4_settings.ulNetMask );
 
 				pxEndPoint->xDHCPData.eDHCPState = eLeasedAddress;
 
@@ -618,7 +622,7 @@ BaseType_t xGivingUp = pdFALSE;
 				else
 				{
 					/* ARP clashed - try another IP address. */
-					prvPrepareLinkLayerIPLookUp();
+					prvPrepareLinkLayerIPLookUp( pxEndPoint );
 
 					/* Setting an IP address manually so set to not using leased
 					address mode. */
@@ -662,9 +666,9 @@ BaseType_t xGivingUp = pdFALSE;
 		/* Revert to static IP address. */
 		taskENTER_CRITICAL();
 		{
-			pxEndPoint->ipv4.ulIPAddress = xNetworkAddressing.ulDefaultIPAddress;
+			pxEndPoint->ipv4_settings.ulIPAddress = pxEndPoint->ipv4_defaults.ulIPAddress;
 
-			iptraceDHCP_REQUESTS_FAILED_USING_DEFAULT_IP_ADDRESS( xNetworkAddressing.ulDefaultIPAddress );
+			iptraceDHCP_REQUESTS_FAILED_USING_DEFAULT_IP_ADDRESS( pxEndPoint->ipv4_defaults.ulIPAddress );
 		}
 		taskEXIT_CRITICAL();
 
@@ -921,8 +925,7 @@ const uint32_t ulMandatoryOptions = 2; /* DHCP server address, and the correct D
 
 							if( uxLength == sizeof( uint32_t ) )
 							{
-								xNetworkAddressing.ulNetMask = ulParameter;
-								pxEndPoint->ipv4.ulNetMask = ulParameter;
+								pxEndPoint->ipv4_settings.ulNetMask = ulParameter;
 							}
 							break;
 
@@ -932,8 +935,7 @@ const uint32_t ulMandatoryOptions = 2; /* DHCP server address, and the correct D
 							{
 								/* ulProcessed is not incremented in this case
 								because the gateway is not essential. */
-								xNetworkAddressing.ulGatewayAddress = ulParameter;
-								pxEndPoint->ipv4.ulGatewayAddress = ulParameter;
+								pxEndPoint->ipv4_settings.ulGatewayAddress = ulParameter;
 							}
 							break;
 
@@ -942,8 +944,7 @@ const uint32_t ulMandatoryOptions = 2; /* DHCP server address, and the correct D
 							/* ulProcessed is not incremented in this case
 							because the DNS server is not essential.  Only the
 							first DNS server address is taken. */
-							xNetworkAddressing.ulDNSServerAddress = ulParameter;
-							pxEndPoint->ipv4.ulDNSServerAddresses[ 0 ] = ulParameter;
+							pxEndPoint->ipv4_settings.ulDNSServerAddresses[ 0 ] = ulParameter;
 							break;
 
 						case dhcpIPv4_SERVER_IP_ADDRESS_OPTION_CODE :
@@ -1189,7 +1190,9 @@ size_t xOptionsLength = sizeof( ucDHCPDiscoverOptions );
 
 #if( ipconfigDHCP_FALL_BACK_AUTO_IP != 0 )
 
-	static void prvPrepareLinkLayerIPLookUp()
+#pragma warning The option 'DHCP_FALL_BACK_AUTO_IP' needs to be revised. */
+
+	static void prvPrepareLinkLayerIPLookUp( NetworkEndPoint_t *pxEndPoint )
 	{
 	uint8_t ucLinkLayerIPAddress[ 2 ];
 
@@ -1200,7 +1203,7 @@ size_t xOptionsLength = sizeof( ucDHCPDiscoverOptions );
 		ucLinkLayerIPAddress[ 0 ] = ( uint8_t )1 + ( uint8_t )( ipconfigRAND32() % 0xFDu );		/* get value 1..254 for IP-address 3rd byte of IP address to try. */
 		ucLinkLayerIPAddress[ 1 ] = ( uint8_t )1 + ( uint8_t )( ipconfigRAND32() % 0xFDu );		/* get value 1..254 for IP-address 4th byte of IP address to try. */
 
-		xNetworkAddressing.ulGatewayAddress = FreeRTOS_htonl( 0xA9FE0203uL );
+		pxEndPoint->ipv4_settings.ulGatewayAddress = FreeRTOS_htonl( 0xA9FE0203uL );
 
 		/* prepare xDHCPData with data to test. */
 		pxEndPoint->xDHCPData.ulOfferedIPAddress =
@@ -1208,15 +1211,15 @@ size_t xOptionsLength = sizeof( ucDHCPDiscoverOptions );
 
 		pxEndPoint->xDHCPData.ulLeaseTime = dhcpDEFAULT_LEASE_TIME;	 /*  don't care about lease time. just put anything. */
 
-		xNetworkAddressing.ulNetMask =
+		pxEndPoint->ipv4_settings.ulNetMask =
 			FreeRTOS_inet_addr_quick( LINK_LAYER_NETMASK_0, LINK_LAYER_NETMASK_1, LINK_LAYER_NETMASK_2, LINK_LAYER_NETMASK_3 );
 
 		/* DHCP completed.  The IP address can now be used, and the
 		timer set to the lease timeout time. */
-		*ipLOCAL_IP_ADDRESS_POINTER = pxEndPoint->xDHCPData.ulOfferedIPAddress;
+		pxEndPoint->ipv4_settings.ulIPAddress = pxEndPoint->xDHCPData.ulOfferedIPAddress;
 
 		/* Setting the 'local' broadcast address, something like 192.168.1.255' */
-		xNetworkAddressing.ulBroadcastAddress = ( pxEndPoint->xDHCPData.ulOfferedIPAddress & xNetworkAddressing.ulNetMask ) |  ~xNetworkAddressing.ulNetMask;
+		pxEndPoint->ipv4_settings.ulBroadcastAddress = ( pxEndPoint->xDHCPData.ulOfferedIPAddress & pxEndPoint->ipv4_settings.ulNetMask ) |  ~pxEndPoint->ipv4_settings.ulNetMask;
 
 		/* Close socket to ensure packets don't queue on it. not needed anymore as DHCP failed. but still need timer for ARP testing. */
 		prvCloseDHCPSocket( pxEndPoint );
