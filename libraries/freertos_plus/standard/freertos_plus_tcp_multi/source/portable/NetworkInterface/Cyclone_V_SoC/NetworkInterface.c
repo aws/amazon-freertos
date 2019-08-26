@@ -97,8 +97,6 @@ expansion. */
 
 #include "socal/alt_emac.h"
 
-#include "eventLogging.h"
-
 #define NETWORK_BUFFERS_CACHED	1
 #define NETWORK_BUFFER_HEADER_SIZE	( ipconfigPACKET_FILLER_SIZE + 8 )
 
@@ -265,7 +263,6 @@ size_t uxCount = ( ( UBaseType_t ) GMAC_TX_BUFFERS ) - uxSemaphoreGetCount( xTXD
 					vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer ) ;
 				}
 				DMATxDescToClear->buf1_address = ( uint32_t )0u;
-eventLogAdd("TX Clear %d", (int)(DMATxDescToClear - txDescriptors));			}
 		}
 		#endif /* ipconfigZERO_COPY_TX_DRIVER */
 
@@ -503,31 +500,30 @@ ulLastDMAStatus = ulDMAStatus;
 	}
 //	if( ( ( ulDMAStatus & RX_MASK ) == 0 ) && ( pxNextRxDesc != NULL ) && ( pxNextRxDesc->own == 0 ) )
 //	{
-//		eventLogAdd("RX_EVENT own=0" );
 //		ulDMAStatus |= DMA_STATUS_RI;
 //	}
 	if( ( ulDMAStatus & RX_MASK ) != 0 )
 	{
-		eventLogAdd("RX_EVENT%s%s %04lX %X %X %X",
-			( ulDMAStatus & DMA_STATUS_RI  ) ? " RI" : "",
-			( ulDMAStatus & DMA_STATUS_OVF ) ? " OVF" : "",
-			ulDMAStatus,
-			reg.rs_recv_state,			/* 17 */
-			reg.ts_xmit_state,			/* 20 */
-			reg.eb_bus_error);			/* 23 */
+//		eventLogAdd("RX_EVENT%s%s %04lX %X %X %X",
+//			( ulDMAStatus & DMA_STATUS_RI  ) ? " RI" : "",
+//			( ulDMAStatus & DMA_STATUS_OVF ) ? " OVF" : "",
+//			ulDMAStatus,
+//			reg.rs_recv_state,			/* 17 */
+//			reg.ts_xmit_state,			/* 20 */
+//			reg.eb_bus_error);			/* 23 */
 
 		ulISREvents[ iInterruptMacID ] |= EMAC_IF_RX_EVENT;
 	}
 	if( ( ulDMAStatus & TX_MASK ) != 0 )
 	{
-		eventLogAdd("TX_EVENT%s%s%s %04lX %X %X %X",
-			( ulDMAStatus & DMA_STATUS_TI  ) ? " TI" : "",
-			( ulDMAStatus & DMA_STATUS_TPS ) ? " TPS" : "",
-			( ulDMAStatus & DMA_INTR_ENA_ETE ) ? " ETE" : "",
-			ulDMAStatus,
-			reg.rs_recv_state,			/* 17 */
-			reg.ts_xmit_state,			/* 20 */
-			reg.eb_bus_error);			/* 23 */
+//		eventLogAdd("TX_EVENT%s%s%s %04lX %X %X %X",
+//			( ulDMAStatus & DMA_STATUS_TI  ) ? " TI" : "",
+//			( ulDMAStatus & DMA_STATUS_TPS ) ? " TPS" : "",
+//			( ulDMAStatus & DMA_INTR_ENA_ETE ) ? " ETE" : "",
+//			ulDMAStatus,
+//			reg.rs_recv_state,			/* 17 */
+//			reg.ts_xmit_state,			/* 20 */
+//			reg.eb_bus_error);			/* 23 */
 		ulISREvents[ iInterruptMacID ] |= EMAC_IF_TX_EVENT;
 	}
 
@@ -653,7 +649,7 @@ BaseType_t xEMACIndex = ( BaseType_t ) pxInterface->pvArgument;
 
 				/* Set Own bit of the Tx descriptor Status: gives the buffer back to ETHERNET DMA */
 				pxDmaTxDesc->own = 1;
-eventLogAdd("TX Send  %d (%lu)", (int)(pxDmaTxDesc - txDescriptors), ulTransmitSize);
+
 				/* Point to next descriptor */
 				pxNextTxDesc = ( gmac_tx_descriptor_t * ) ( pxNextTxDesc->next_descriptor );
 				/* Ensure completion of memory access */
@@ -1022,7 +1018,6 @@ NetworkBufferDescriptor_t *pxNewNetworkBuffer = NULL;
 		/* Chained Mode */    
 		/* Selects the next DMA Rx descriptor list for next buffer to read */ 
 		pxRxDescriptor = ( gmac_rx_descriptor_t* )frameInfo.FSRxDesc;
-eventLogAdd("RX Recv  %d (%lu)", (int)(pxRxDescriptor - rxDescriptors), xReceivedLength);
 
 		/* In order to make the code easier and faster, only packets in a single buffer
 		will be accepted.  This can be done by making the buffers large enough to

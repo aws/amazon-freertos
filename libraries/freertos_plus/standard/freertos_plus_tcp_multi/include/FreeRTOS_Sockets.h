@@ -193,23 +193,22 @@ typedef struct xLOW_HIGH_WATER {
 Berkeley style sockaddr structure. */
 struct freertos_sockaddr
 {
-	/* sin_len and sin_family not used in the IPv4-only release. */
-	/* Otherwise, for an IPv4 address:
-	 * Set sin_len to sizeof( freertos_sockaddr )
-	 * Set sin_family FREERTOS_AF_INET
-	 */
-	uint8_t sin_len;		/* length of this structure. */
-	uint8_t sin_family;		/* FREERTOS_AF_INET. */
+	uint8_t sin_len;		/* Ignored, still present for backward compatibility. */
+	uint8_t sin_family;		/* Set to FREERTOS_AF_INET. */
 	uint16_t sin_port;
 	uint32_t sin_addr;
+#if( ipconfigUSE_IPv6 != 0 )
+	/* Make sure that the IPv4 and IPv6 socket adresses have en equal size. */
+	uint8_t sin_filler[ ipSIZE_OF_IPv6_ADDRESS ];
+#endif	
 };
 
 #if( ipconfigUSE_IPv6 != 0 )
 	struct freertos_sockaddr6 {
-		uint8_t sin_len;		/* length of this structure. */
-		uint8_t sin_family;		/* Set to FREERTOS_AF_INET6. */
+		uint8_t sin_len;			/* Ignored, still present for backward compatibility. */
+		uint8_t sin_family;			/* Set to FREERTOS_AF_INET6. */
 		uint16_t sin_port;
-	    uint32_t  sin_flowinfo;	/* IPv6 flow information. */
+	    uint32_t  sin_flowinfo;		/* IPv6 flow information. */
 		IPv6_Address_t sin_addrv6;
 	};
 #endif
