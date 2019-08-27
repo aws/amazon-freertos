@@ -55,6 +55,8 @@
 #include "esp_sr_iface.h"
 #include "esp_sr_models.h"
 
+/* Set up logging for this demo. */
+#include "iot_demo_logging.h"
 
 #define SR_MODEL    esp_sr_wakenet3_quantized
 
@@ -94,8 +96,7 @@ void vWakeWordNNTask( void * arg )
         if( result )
         {
             assert( eMachineState == WAIT_FOR_WAKEUP );
-            printf( "%s DETECTED.\n", pxModel->get_word_name( pxModelData, result ) );
-            printf( "\nStarting Face Recognition\n" );
+            IotLogInfo( "%s DETECTED.\n", pxModel->get_word_name( pxModelData, result ) );
             eMachineState = START_RECOGNITION;
         }
     }

@@ -38,11 +38,6 @@
  *
  * @todo Set this to the unique name of your IoT Thing.
  */
-#define clientcredentialMQTT_BROKER_ENDPOINT    ""
-
-
-/* Use of a "define" and not a "static const" here to be able to
- * use pre-compile concatenation on the string. */
 #define clientcredentialIOT_THING_NAME               ""
 
 /*
@@ -76,6 +71,6 @@
  * @note Possible values are eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
  * eWiFiSecurityWPA2 (depending on the support of your device Wi-Fi radio).
  */
-#define clientcredentialWIFI_SECURITY
+#define clientcredentialWIFI_SECURITY                eWiFiSecurityWPA2
 
 #endif /* ifndef __AWS_CLIENTCREDENTIAL__H__ */
