@@ -51,7 +51,16 @@
  * MTMN lite in float
  * MTMN heavy in quantization
  */
-#define CONFIG_MTMN_LITE_FLOAT         ( 1 )
+#define CONFIG_MTMN_LITE_QUANT         ( 1 )
+
+/**
+ * @brief Face recognition model. Versions of FRMN are available :
+ * FRMN1 (set)
+ * FRMN2C
+ * FRMN2
+ * FRMN2P (default)
+ */
+#define CONFIG_FRMN1_QUANT             ( 1 )
 
 /**
  * @brief The image sensor used in the board
@@ -61,7 +70,7 @@
 /**
  * @brief Specifies the number of samples the user has to enroll
  */
-#define ENROLL_CONFIRM_TIMES           ( 1 )
+#define ENROLL_CONFIRM_TIMES           ( 3 )
 
 /**
  * @brief The number of faces the user wants to save

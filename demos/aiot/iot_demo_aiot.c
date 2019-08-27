@@ -143,13 +143,13 @@
 /**
  * @brief Format string of the PUBLISH messages in this demo.
  */
-#define PUBLISH_PAYLOAD_FORMAT_SUCCESS           "{\"message\": \"Subject %d on the door\", \"intruder\": %d, \"datetime\": \"test200\"}"
-#define PUBLISH_PAYLOAD_FORMAT_FAILURE           "{\"message\": \"INTRUDER ALERT\", \"intruder\": %d, \"datetime\": \"test200\"}"
+#define PUBLISH_PAYLOAD_FORMAT_SUCCESS           "{\"message\": \"Subject %d on the door\", \"intruder\": %d, \"datetime\": \"test%d\"}"
+#define PUBLISH_PAYLOAD_FORMAT_FAILURE           "{\"message\": \"Unrecognized face at the door\", \"intruder\": %d, \"datetime\": \"test%d\"}"
 
 /**
  * @brief Size of the buffer that holds the PUBLISH messages in this demo.
  */
-#define PUBLISH_PAYLOAD_BUFFER_LENGTH            ( sizeof( PUBLISH_PAYLOAD_FORMAT_SUCCESS ) + 2 )
+#define PUBLISH_PAYLOAD_BUFFER_LENGTH            ( sizeof( PUBLISH_PAYLOAD_FORMAT_SUCCESS ) + 4 )
 
 /**
  * @brief The maximum number of times each PUBLISH in this demo will be retried.
@@ -183,6 +183,13 @@
  */
 #define ACKNOWLEDGEMENT_MESSAGE_BUFFER_LENGTH    ( sizeof( ACKNOWLEDGEMENT_MESSAGE_FORMAT ) + 2 )
 
+/**
+ * @brief Input line for the GPIO button and LEDs
+ */
+#define GPIO_BUTTON                              15
+#define GPIO_LED_RED                             21
+#define GPIO_LED_WHITE                           22
+
 /*-----------------------------------------------------------*/
 
 /* Declaration of demo function. */
@@ -199,6 +206,22 @@ QueueHandle_t xResultQueue;
 en_fsm_state eMachineState = WAIT_FOR_WAKEUP;
 
 static face_id_list faceVectors = { 0 };
+
+uint32_t usDateTime = 0;
+/*-----------------------------------------------------------*/
+
+void vLEDInit()
+{
+    gpio_config_t gpio_conf;
+
+    gpio_conf.mode = GPIO_MODE_OUTPUT;
+    gpio_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+    gpio_conf.intr_type = GPIO_INTR_DISABLE;
+    gpio_conf.pin_bit_mask = 1LL << GPIO_LED_RED;
+    gpio_config( &gpio_conf );
+    gpio_conf.pin_bit_mask = 1LL << GPIO_LED_WHITE;
+    gpio_config( &gpio_conf );
+}
 /*-----------------------------------------------------------*/
 
 /**
@@ -656,7 +679,9 @@ static int _publishResult( IotMqttConnection_t mqttConnection,
         status = snprintf( pPublishPayload,
                            PUBLISH_PAYLOAD_BUFFER_LENGTH,
                            PUBLISH_PAYLOAD_FORMAT_FAILURE,
-                           ( int ) 1 );
+                           ( int ) 1,
+                           usDateTime );
+        usDateTime++;
     }
     else
     {
@@ -664,7 +689,9 @@ static int _publishResult( IotMqttConnection_t mqttConnection,
                            PUBLISH_PAYLOAD_BUFFER_LENGTH,
                            PUBLISH_PAYLOAD_FORMAT_SUCCESS,
                            ( int ) pSubject,
-                           ( int ) 0 );
+                           ( int ) 0,
+                           usDateTime );
+        usDateTime++;
     }
 
     /* Check for errors from snprintf. */
@@ -732,7 +759,7 @@ void vShowAvailableMemory( char cMessage[] )
  *
  * @return mtmn_config that is the configuration object
  */
-mtmn_config_t init_config()
+mtmn_config_t xInitMTMNConfig()
 {
     mtmn_config_t mtmn_config = { 0 };
 
@@ -755,27 +782,40 @@ mtmn_config_t init_config()
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test task that sends a dummy message to the result queue.
+ * @brief Blink task that sends a dummy message to the result queue.
+ * This task is to demonstrate how the wake word can be used to trigger
+ * an action using another task and synchronization between them.
  */
-void vTestTask( void * arg )
+void vBlinkTask( void * arg )
 {
-    int8_t ulVar = -1;
+    int8_t cVar = 1;
 
-    IotLogInfo( "Value of the message: %d", ulVar );
-
-    if( xResultQueue != 0 )
+    while( 1 )
     {
-        if( xQueueSendToBack( xResultQueue,
-                              ( void * ) &ulVar,
-                              ( TickType_t ) 10 ) != pdPASS )
+        for( cVar = 0; cVar < 5; cVar++ )
         {
-            IotLogInfo( "Unable to push the message to the queue" );
+            gpio_set_level( GPIO_LED_RED, 1 );
+            vTaskDelay( 500 / portTICK_PERIOD_MS );
+            gpio_set_level( GPIO_LED_WHITE, 1 );
+            gpio_set_level( GPIO_LED_RED, 0 );
+            vTaskDelay( 500 / portTICK_PERIOD_MS );
+            gpio_set_level( GPIO_LED_WHITE, 0 );
         }
 
-        IotLogInfo( "Message sucessfully pushed to the queue" );
-    }
+        if( xResultQueue != 0 )
+        {
+            if( xQueueSendToBack( xResultQueue,
+                                  ( void * ) &cVar,
+                                  ( TickType_t ) 10 ) != pdPASS )
+            {
+                IotLogInfo( "Unable to push the message to the queue" );
+            }
 
-    vTaskSuspend( NULL );
+            IotLogInfo( "Message sucessfully pushed to the queue" );
+        }
+
+        vTaskSuspend( NULL );
+    }
 }
 /*-----------------------------------------------------------*/
 
@@ -792,20 +832,20 @@ void vImageProcessingTask( void * args )
     camera_fb_t * fb = NULL;
     int8_t cMatchedId;
     /* Load configuration for detection */
-    mtmn_config_t mtmn_config = init_config();
+    mtmn_config_t mtmn_config = xInitMTMNConfig();
 
     /* Preallocate matrix to store aligned face 56x56  */
     dl_matrix3du_t * alignedFace = dl_matrix3du_alloc( 1,
                                                        FACE_WIDTH,
                                                        FACE_HEIGHT,
                                                        3 );
-    
+
     /* Countdown in second to start the face enrollment*/
     int8_t cRemainingCountDown;
-    
+
     /* To verify if a face has been enrolled */
     int8_t cEnrollmentStatus;
-    
+
     /* Records the remaiing number of samples to enroll a face */
     int32_t lNextEnrollIndex = 0;
     int8_t cRemainingSamples;
@@ -865,7 +905,7 @@ void vImageProcessingTask( void * args )
                 /* Count down to let the user get ready*/
                 while( cRemainingCountDown > 0 )
                 {
-                    IotLogInfo( "Face ID Enrollment Starts in %ds.\n", cRemainingCountDown );
+                    IotLogInfo( "Face Vector Enrollment Starts in %ds.", cRemainingCountDown );
 
                     vTaskDelay( 1000 / portTICK_PERIOD_MS );
 
@@ -873,7 +913,7 @@ void vImageProcessingTask( void * args )
 
                     if( cRemainingCountDown == 0 )
                     {
-                        IotLogInfo( "\n>>> Face ID Enrollment Starts <<<\n" );
+                        IotLogInfo( "--- Face Vector Enrollment Starts ---" );
                     }
                 }
 
@@ -881,18 +921,18 @@ void vImageProcessingTask( void * args )
                 if( cEnrollmentStatus == 1 )
                 {
                     cRemainingSamples = enroll_face( &faceVectors, alignedFace );
-                    IotLogInfo( "Face ID Enrollment: Taking sample: %d",
+                    IotLogInfo( "Face Vector Enrollment: Taking sample: %d",
                                 ENROLL_CONFIRM_TIMES - cRemainingSamples );
 
                     if( cRemainingSamples == 0 )
                     {
                         lNextEnrollIndex++;
-                        IotLogInfo( "\nEnrolled Face ID: %d", faceVectors.tail );
+                        IotLogInfo( "\nEnrolled Face Vector: %d", faceVectors.tail );
 
                         if( faceVectors.count == FACE_ID_SAVE_NUMBER )
                         {
                             cEnrollmentStatus = 0;
-                            IotLogInfo( "\n>>> Face Recognition Starts <<<\n" );
+                            IotLogInfo( "--- Face Recognition Starts ---" );
                             vTaskDelay( 2000 / portTICK_PERIOD_MS );
                         }
                         else
@@ -907,17 +947,17 @@ void vImageProcessingTask( void * args )
                 {
                     int64_t lRecognitionMatchStart = esp_timer_get_time();
 
-                    /* Match the current face id with the enrolled face ids.
+                    /* Match the current face Vector with the enrolled face ids.
                      * If the subject is verified then matched id = subject id else -1 */
                     cMatchedId = recognize_face( &faceVectors, alignedFace );
 
                     if( cMatchedId >= 0 )
                     {
-                        IotLogInfo( "Matched Face ID: %d\n", cMatchedId );
+                        IotLogInfo( "Matched Face Vector: %d\n", cMatchedId );
                     }
                     else
                     {
-                        IotLogInfo( "No Matched Face ID\n" );
+                        IotLogInfo( "No Matched Face Vector\n" );
                     }
 
                     IotLogInfo( "Recognition time consumption: %lldms",
@@ -1291,6 +1331,94 @@ int RunAIoTDemo( bool awsIotMqttMode,
 
             /* Resume the face recognition task */
             vTaskResume( xImageTaskHandle );
+        }
+    }
+
+    return 0;
+}
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief The function that runs the AIoT demo, called by the demo runner.
+ *
+ * @param[in] awsIotMqttMode Specify if this demo is running with the AWS IoT
+ * MQTT server. Set this to `false` if using another MQTT server.
+ * @param[in] pIdentifier NULL-terminated MQTT client identifier.
+ * @param[in] pNetworkServerInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkCredentialInfo Passed to the MQTT connect function when
+ * establishing the MQTT connection.
+ * @param[in] pNetworkInterface The network interface to use for this demo.
+ *
+ * @return `EXIT_SUCCESS` if the demo completes successfully; `EXIT_FAILURE` otherwise.
+ */
+int RunAIoTVoiceDemo( bool awsIotMqttMode,
+                      const char * pIdentifier,
+                      void * pNetworkServerInfo,
+                      void * pNetworkCredentialInfo,
+                      const IotNetworkInterface_t * pNetworkInterface )
+{
+    /* Stores the results of the Actuation */
+    int8_t cMessage;
+
+    /* Handle for the actuation test task */
+    TaskHandle_t xActuationTaskHandle = NULL;
+
+    IotLogInfo( "Start the AIoT demo!" );
+
+    /*Initialize the voice wakeup which starts the recorder and NN task */
+    vSpeechWakeupInit();
+    eMachineState = WAIT_FOR_WAKEUP;
+
+    vTaskDelay( 30 / portTICK_PERIOD_MS );
+    IotLogInfo( "Please say 'Alexa' to the board" );
+
+    /* Wait for the wake word to be detected. Detection is signaled by state change. */
+    while( eMachineState != START_RECOGNITION )
+    {
+        vTaskDelay( 1000 / portTICK_PERIOD_MS );
+    }
+
+    /* Queue for inter task communication that is a buffer for storing the results */
+    xResultQueue = xQueueCreate( 1, sizeof( int8_t ) );
+
+    /* Initialize the LEDs for blink task */
+    vLEDInit();
+
+    /* Create the test task with the handle */
+    xTaskCreatePinnedToCore( &vBlinkTask,
+                             "Blink Task",
+                             4 * 1024,
+                             NULL,
+                             5,
+                             &xActuationTaskHandle,
+                             1 );
+
+    /* Run the actuation loop:
+     * perform an actuation and block
+     * start voice task to get wake word
+     * restart task on word detection
+     */
+    while( 1 )
+    {
+        if( xResultQueue != 0 )
+        {
+            /*Wait for the the result of the recognition task to be pushed on the queue */
+            xQueueReceive( xResultQueue,
+                           &cMessage,
+                           portMAX_DELAY );
+
+            /* Resume the voice recognition task */
+            eMachineState = WAIT_FOR_WAKEUP;
+
+            while( eMachineState != START_RECOGNITION )
+            {
+                vTaskDelay( 1000 / portTICK_PERIOD_MS );
+            }
+
+            /* Resume the face recognition task */
+            IotLogInfo( "Please say 'Alexa' to the board" );
+            vTaskResume( xActuationTaskHandle );
         }
     }
 

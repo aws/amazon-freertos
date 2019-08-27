@@ -23,52 +23,54 @@
  * http://www.FreeRTOS.org
  */
 
-
 #ifndef __AWS_CLIENTCREDENTIAL__H__
 #define __AWS_CLIENTCREDENTIAL__H__
 
 /*
- * Include for device certificate and private key
+ * @brief MQTT Broker endpoint.
+ *
+ * @todo Set this to the fully-qualified DNS name of your MQTT broker.
  */
-#include "aws_clientcredential_keys.h"
+#define clientcredentialMQTT_BROKER_ENDPOINT         ""
 
 /*
- * MQTT Broker endpoint.
+ * @brief Host name.
+ *
+ * @todo Set this to the unique name of your IoT Thing.
  */
-#define clientcredentialMQTT_BROKER_ENDPOINT    ""
-
-
-/* Use of a "define" and not a "static const" here to be able to
- * use pre-compile concatenation on the string. */
 #define clientcredentialIOT_THING_NAME               ""
 
 /*
- * Port number the MQTT broker is using.
+ * @brief Port number the MQTT broker is using.
  */
 #define clientcredentialMQTT_BROKER_PORT             8883
 
 /*
- * Port number the Green Grass Discovery use for JSON retrieval from cloud is
- * using.
+ * @brief Port number the Green Grass Discovery use for JSON retrieval from cloud is using.
  */
 #define clientcredentialGREENGRASS_DISCOVERY_PORT    8443
 
 /*
- * Wi-Fi network to join.
+ * @brief Wi-Fi network to join.
+ *
+ * @todo If you are using Wi-Fi, set this to your network name.
  */
 #define clientcredentialWIFI_SSID                    ""
 
 /*
- * Password needed to join Wi-Fi network.
+ * @brief Password needed to join Wi-Fi network.
+ * @todo If you are using WPA, set this to your network password.
  */
 #define clientcredentialWIFI_PASSWORD                ""
 
-/**
- * @brief Security type
- * WPA2 Security, @see WIFISecurity_t
- * Possible values are - eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
- * eWiFiSecurityWPA2
+/*
+ * @brief Wi-Fi network security type.
+ *
+ * @see WIFISecurity_t.
+ *
+ * @note Possible values are eWiFiSecurityOpen, eWiFiSecurityWEP, eWiFiSecurityWPA,
+ * eWiFiSecurityWPA2 (depending on the support of your device Wi-Fi radio).
  */
-#define clientcredentialWIFI_SECURITY
+#define clientcredentialWIFI_SECURITY                eWiFiSecurityWPA2
 
 #endif /* ifndef __AWS_CLIENTCREDENTIAL__H__ */

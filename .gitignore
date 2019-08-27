@@ -14,4 +14,9 @@ RemoteSystemsTempFiles/*
 # Ignore top-level build dir
 /build*/
 
+# Ignore configuration files
+demos/include/aws_clientcredential.h
+demos/include/aws_clientcredential_keys.h
+tools/aws_config_quick_start/*
+
 .DS_Store
