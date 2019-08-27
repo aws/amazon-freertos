@@ -826,21 +826,31 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         /* Query the size of the public key. */
         if( CKR_OK == xResult )
         {
-            xTemplate.type = CKA_VALUE;
-            xTemplate.pValue = NULL;
-            xTemplate.ulValueLen = 0;
-            xResult = pxFunctionList->C_GetAttributeValue( xSession,
-                                                           xPublicKeyHandle,
-                                                           &xTemplate,
-                                                           1 );
+        	if( 0 != xPublicKeyHandle )
+        	{
+                xTemplate.type = CKA_VALUE;
+                xTemplate.pValue = NULL;
+                xTemplate.ulValueLen = 0;
+                xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                               xPublicKeyHandle,
+                                                               &xTemplate,
+                                                               1 );
+        	}
+        	else
+        	{
+        		xResult = CKR_OBJECT_HANDLE_INVALID;
+        	}
         }
 
         /* Allocate a buffer to store the public key. */
-        xTemplate.pValue = pvPortMalloc( xTemplate.ulValueLen );
-
-        if( NULL == xTemplate.pValue )
+        if( CKR_OK == xResult )
         {
-            xResult = CKR_HOST_MEMORY;
+            xTemplate.pValue = pvPortMalloc( xTemplate.ulValueLen );
+
+            if( NULL == xTemplate.pValue )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
         }
 
         /* Export the public key. */
@@ -946,17 +956,18 @@ CK_RV xInitializePkcs11Token()
         xResult = xGetSlotList( &pxSlotId, &xSlotCount );
     }
 
-    if( xResult == CKR_OK )
+    if( xResult == CKR_OK &&
+    	NULL != pxFunctionList->C_GetTokenInfo &&
+		NULL != pxFunctionList->C_InitToken)
     {
-        /* Check if token is initialized */
+        /* Check if the token requires further initialization. */
         pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
 
         if( pxTokenInfo != NULL )
         {
-            /* We will take the first slot available.
-             * If your application has multiple slots, insert logic
-             * for selecting an appropriate slot here.
-             * TODO: Consider a define here instead.
+            /* We will take the first slot available. If your application
+             * has multiple slots, insert logic for selecting an appropriate
+             * slot here.
              */
             xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
         }
@@ -964,20 +975,20 @@ CK_RV xInitializePkcs11Token()
         {
             xResult = CKR_HOST_MEMORY;
         }
-    }
 
-    if( CKR_OK == xResult )
-    {
-        xTokenFlags = pxTokenInfo->flags;
-    }
+        if( CKR_OK == xResult )
+        {
+            xTokenFlags = pxTokenInfo->flags;
+        }
 
-    if( ( CKR_OK == xResult ) && !( CKF_TOKEN_INITIALIZED & xTokenFlags ) )
-    {
-        /* Initialize the token if it is not already. */
-        xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
-                                               ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
-                                               sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1,
-                                               ( CK_UTF8CHAR_PTR ) "FreeRTOS" );
+        if( ( CKR_OK == xResult ) && !( CKF_TOKEN_INITIALIZED & xTokenFlags ) )
+        {
+            /* Initialize the token if it is not already. */
+            xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
+                                                   ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
+                                                   sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1,
+                                                   ( CK_UTF8CHAR_PTR ) "FreeRTOS" );
+        }
     }
 
     if( pxTokenInfo != NULL )
