@@ -151,7 +151,7 @@ enum eObjectHandles
 };
 
 
-optiga_comms_t optiga_comms = {(void*)&ifx_i2c_context_0,NULL,NULL, OPTIGA_COMMS_SUCCESS};
+extern optiga_comms_t optiga_comms;
 
 /*-----------------------------------------------------------*/
 
@@ -2885,11 +2885,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         	{
         		PKCS11_PRINT( ( "ERROR: Failed to generate a keypair \r\n" ) );
         		xResult = CKR_FUNCTION_FAILED;
-        	} else
-        	{
-            	// remove tags (e.g. 0x03, 0x42, 0x00) from the public key buffer
-            	pucPublicKeyDer += 3;
-            	pucPublicKeyDerLength -= 3;
         	}
     	}
         else
@@ -2901,7 +2896,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK)
     {
-    	xPalPublic = PKCS11_PAL_SaveObject( pxPublicLabel, (unsigned char *)pucPublicKeyDer, pucPublicKeyDerLength );
+    	/* Don't save the ASN.1 tag at the beginning of the public key. */
+    	xPalPublic = PKCS11_PAL_SaveObject( pxPublicLabel,
+                                            (unsigned char *)pucPublicKeyDer + 3,
+					    pucPublicKeyDerLength - 3 );
     }
     else
     {

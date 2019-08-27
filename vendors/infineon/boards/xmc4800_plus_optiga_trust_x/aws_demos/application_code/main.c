@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V1.4.7
+ * Amazon FreeRTOS V1.4.2
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,6 +26,8 @@
 #include <string.h>
 
 #include "console_io.h"
+#include "entropy_hardware.h"
+#include "optiga_trust_x.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -60,6 +62,11 @@
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
  */
 void vApplicationDaemonTaskStartupHook( void );
+
+/**
+ * @brief Connects to Wi-Fi.
+ */
+static void prvWifiConnect( void );
 
 /**
  * @brief Initializes the board.
@@ -98,20 +105,88 @@ int main( void )
 static void prvMiscInitialization( void )
 {
 	CONSOLE_IO_Init();
+
+	ENTROPY_HARDWARE_Init();
 }
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )
-{   
+{
+	OPTIGA_TRUST_X_Init();
+    
     /* Initialize the AWS Libraries system. */
     if ( SYSTEM_Init() == pdPASS )
     {
-        DEMO_RUNNER_RunDemos();
+        prvWifiConnect();
+
     }
 
 }
-
 /*-----------------------------------------------------------*/
+
+
+void prvWifiConnect( void )
+{
+    /* FIX ME: Delete surrounding compiler directives when the Wi-Fi library is ported. */
+        WIFINetworkParams_t xNetworkParams;
+        WIFIReturnCode_t xWifiStatus;
+        uint8_t ucTempIp[4] = { 0 };
+
+        xWifiStatus = WIFI_On();
+
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "Wi-Fi module initialized. Connecting to AP...\r\n" ) );
+        }
+        else
+        {
+            configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
+
+            /* Delay to allow the lower priority logging task to print the above status. 
+             * The while loop below will block the above printing. */
+            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
+
+            while( 1 )
+            {
+            }
+        }
+
+        /* Setup parameters. */
+        xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
+        xNetworkParams.ucSSIDLength = sizeof( clientcredentialWIFI_SSID );
+        xNetworkParams.pcPassword = clientcredentialWIFI_PASSWORD;
+        xNetworkParams.ucPasswordLength = sizeof( clientcredentialWIFI_PASSWORD );
+        xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
+        xNetworkParams.cChannel = 0;
+
+        xWifiStatus = WIFI_ConnectAP( &( xNetworkParams ) );
+
+        if( xWifiStatus == eWiFiSuccess )
+        {
+            configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
+            
+            xWifiStatus = WIFI_GetIP( ucTempIp );
+            if ( eWiFiSuccess == xWifiStatus ) 
+            {
+                configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
+                                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
+            }
+        }
+        else
+        {
+            configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
+
+            /* Delay to allow the lower priority logging task to print the above status. 
+             * The while loop below will block the above printing. */
+            vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
+
+            while( 1 )
+            {
+            }
+        }
+}
+/*-----------------------------------------------------------*/
+
 
 /**
  * @brief User defined Idle task function.
