@@ -2837,15 +2837,19 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     uint8_t * pucPublicKeyDer = pvPortMalloc( MAX_PUBLIC_KEY_SIZE );
-    uint16_t pucPublicKeyDerLength = MAX_PUBLIC_KEY_SIZE;
+    uint16_t ucPublicKeyDerLength = MAX_PUBLIC_KEY_SIZE;
     CK_ATTRIBUTE_PTR pxPrivateLabel = NULL;
     CK_ATTRIBUTE_PTR pxPublicLabel = NULL;
     CK_OBJECT_HANDLE xPalPublic = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPalPrivate = CK_INVALID_HANDLE;
     char* xEnd = NULL;
     long lOptigaOid = 0;
+    uint8_t pucEcP256AsnAndOid[] = {0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 
+                                    0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a, 
+                                    0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00};
+    uint8_t pucUnusedKeyTag[] = {0x03, 0x42, 0x00};
 
-    if( pucPublicKeyDer == NULL )
+    if (pucPublicKeyDer == NULL)
     {
         xResult = CKR_HOST_MEMORY;
     }
@@ -2871,17 +2875,20 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( ( xResult == CKR_OK ) )
     {
-
     	lOptigaOid = strtol((char*)pxPrivateLabel->pValue, &xEnd, 16);
 
         if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid))
     	{
-        	if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair(OPTIGA_ECC_NIST_P_256,
+            /* For the public key, the OPTIGA library will return the standard 65 
+            bytes of uncompressed curve points plus a 3-byte tag. The latter will 
+            be intentionally overwritten below. */
+            ucPublicKeyDerLength = MAX_PUBLIC_KEY_SIZE - sizeof(pucEcP256AsnAndOid) + sizeof(pucUnusedKeyTag);
+            if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair(OPTIGA_ECC_NIST_P_256,
         	                                                             (uint8_t)OPTIGA_KEY_USAGE_SIGN,
         	                                                             FALSE,
         															     &lOptigaOid,
-																		 pucPublicKeyDer,
-																		 &pucPublicKeyDerLength))
+																		 pucPublicKeyDer + sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag),
+																		 &ucPublicKeyDerLength))
         	{
         		PKCS11_PRINT( ( "ERROR: Failed to generate a keypair \r\n" ) );
         		xResult = CKR_FUNCTION_FAILED;
@@ -2891,15 +2898,16 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
         {
         	xResult = CKR_FUNCTION_FAILED;
         }
-
     }
 
     if( xResult == CKR_OK)
     {
-    	/* Don't save the ASN.1 tag at the beginning of the public key. */
-    	xPalPublic = PKCS11_PAL_SaveObject( pxPublicLabel,
-                                            (unsigned char *)pucPublicKeyDer + 3,
-					    pucPublicKeyDerLength - 3 );
+    	/* Complete the encoding of the public key. */
+        memcpy(pucPublicKeyDer, pucEcP256AsnAndOid, sizeof(pucEcP256AsnAndOid));
+        ucPublicKeyDerLength += sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag);
+        xPalPublic = PKCS11_PAL_SaveObject(pxPublicLabel,
+                                            (unsigned char *)pucPublicKeyDer,
+                                            ucPublicKeyDerLength);
     }
     else
     {

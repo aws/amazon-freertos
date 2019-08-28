@@ -3,6 +3,7 @@
 #include "task.h"
 #include "timers.h"
 #include "semphr.h"
+#include "aws_demo.h"
 
 #include "optiga/optiga_util.h"
 #include "optiga/pal/pal_os_event.h"
@@ -10,7 +11,7 @@
 #include "mbedtls/base64.h"
 
 /* PKCS#11 includes. */
-#include "aws_pkcs11.h"
+#include "iot_pkcs11.h"
 
 /* Key provisioning includes. */
 #include "aws_dev_mode_key_provisioning.h"
@@ -102,13 +103,7 @@ void vTrustXTaskCallbackHandler( void * pvParameters )
 
 		read_ifx_cert();
 
-	    ProvisioningParams_t xParams;
-
-	    xParams.ulClientPrivateKeyType = CKK_EC;
-	    xParams.pcClientPrivateKey = ( uint8_t * ) CLIENT_PRIVATE_KEY_PEM;
-	    xParams.ulClientPrivateKeyLength = CLIENT_PRIVATE_KEY_LENGTH;
-	    xParams.pcClientCertificate = ( uint8_t * ) CLIENT_CERTIFICATE_PEM;
-	    xParams.ulClientCertificateLength = CLIENT_CERTIFICATE_LENGTH;
+	    ProvisioningParams_t xParams = {0};
 
 	    vAlternateKeyProvisioning( &xParams );
 
