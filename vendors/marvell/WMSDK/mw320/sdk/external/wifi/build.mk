@@ -1,10 +1,10 @@
-# Copyright (C) 2008-2018, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 
 
 libs-y += libawswifi
 
-libawswifi-objs-y := ../../../../../../../../wifi/portable/marvell/mw300_rd/iot_wifi.c
+libawswifi-objs-y := ../../../../../../../vendors/marvell/boards/mw300_rd/ports/wifi/iot_wifi.c
 
 libdrv-supported-toolchain-y := arm_gcc
 

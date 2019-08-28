@@ -2,7 +2,7 @@
 *
 *  @brief This file contains declarations for SPI flash related functions
 *
-*  (C) Copyright 2008-2018 Marvell International Ltd. All Rights Reserved
+*  (C) Copyright 2008-2019 Marvell International Ltd. All Rights Reserved
 *
 *  MARVELL CONFIDENTIAL
 *  The source code contained or described herein and all documents related to
@@ -25,7 +25,7 @@
 */
 
 /*
- *  Copyright 2008-2017, Marvell International Ltd.
+ *  Copyright 2008-2019, Marvell International Ltd.
  *  All Rights Reserved.
  */
 
