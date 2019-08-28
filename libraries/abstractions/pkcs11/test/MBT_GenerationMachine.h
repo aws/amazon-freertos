@@ -23,7 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
 #include "iot_test_pkcs11_globals.h"
 
 /* The model based key and random generation machine test group is 

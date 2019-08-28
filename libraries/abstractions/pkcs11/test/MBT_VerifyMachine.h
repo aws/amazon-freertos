@@ -27,7 +27,7 @@
 
 /* The model based single-part verify machine test group is for tests
  * that have be automatically sythensized from the API test
- * generation utility for the signing fragment of the PKCS#11 API 
+ * generation utility for the verify fragment of the PKCS#11 API 
  * that utlizes single-part operations. */
 
 TEST_GROUP(Full_PKCS11_ModelBased_VerifyMachine);

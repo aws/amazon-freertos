@@ -28,7 +28,7 @@
 /* The model based object machine test group is for tests
  * that have be automatically sythensized from the API test
  * generation utility for the object lookup fragment of the 
- * PKCS#11 API that utlizes single-part operations. */
+ * PKCS#11 API. */
 
 TEST_GROUP(Full_PKCS11_ModelBased_ObjectMachine);
 TEST_SETUP(Full_PKCS11_ModelBased_ObjectMachine);

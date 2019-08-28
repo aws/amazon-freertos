@@ -27,7 +27,7 @@
 #include "unity.h"
 #include "iot_pkcs11.h"
 
- /* Test buffer size definitions. */
+/* Test buffer size definitions. */
 #define SHA256_DIGEST_SIZE      32
 #define ECDSA_SIGNATURE_SIZE    64
 #define RSA_SIGNATURE_SIZE      256

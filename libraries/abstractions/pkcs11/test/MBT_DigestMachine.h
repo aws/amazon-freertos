@@ -23,7 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
 #include "iot_test_pkcs11_globals.h"
 
 /* The model based digest machine test group is for test
