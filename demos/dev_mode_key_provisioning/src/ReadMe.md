@@ -1,5 +1,5 @@
 xxd -r -ps DevicePublicKeyAsciiHex.txt DevicePublicKeyDer.bin
-openssl ec -inform der -in DevicePublicKeyDer.bin -pubout -outform pem -out DevicePublicKey.pem
+openssl ec -inform der -in DevicePublicKeyDer.bin -pubin -pubout -outform pem -out DevicePublicKey.pem
 
 https://docs.aws.amazon.com/iot/latest/developerguide/device-certs-your-own.html
 

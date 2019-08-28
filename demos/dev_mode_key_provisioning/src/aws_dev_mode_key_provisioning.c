@@ -703,6 +703,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_OBJECT_HANDLE xObject = 0;
     CK_OBJECT_HANDLE xPublicKeyHandle = 0;
+    CK_OBJECT_HANDLE xPrivateKeyHandle = 0;
     CK_BYTE * pxPkcsLabels[] =
     {
         ( CK_BYTE * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
@@ -717,10 +718,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     CK_ATTRIBUTE xTemplate = { 0 };
     uint32_t ulIndex = 0;
     uint8_t ucByteValue = 0;
-
 #define BYTES_TO_DISPLAY_PER_ROW    16
     char pcByteRow[ 1 + ( BYTES_TO_DISPLAY_PER_ROW * 2 ) + ( BYTES_TO_DISPLAY_PER_ROW / 2 ) ];
     char * pcNextChar = pcByteRow;
+
     xResult = C_GetFunctionList( &pxFunctionList );
 
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
@@ -796,113 +797,124 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
-    /* Check whether a private key is now present. */
+    /* Check whether a keyset is now present. In order to support X.509 
+    certificate enrollment, the public and private key objects must both be
+    available. */
     if( xResult == CKR_OK )
     {
+        /* Check for a private key. */
         xResult = xFindObjectWithLabelAndClass( xSession,
                                                 pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                                 CKO_PRIVATE_KEY,
-                                                &xObject );
+                                                &xPrivateKeyHandle );
 
-        if( ( CKR_OK != xResult ) || ( 0 == xObject ) )
+        if( CKR_OK == xResult && 0 != xPrivateKeyHandle )
         {
-            /* Generate a new private key. */
-            xResult = xProvisionGenerateKeyPairEC( xSession,
-                                                   pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                   pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                                                   &xObject,
-                                                   &xPublicKeyHandle );
-        }
-        else
-        {
-            /* A private key is already present. Get the corresponding public
-             * key handle. */
+            /* Check also for the corresponding public. */
             xResult = xFindObjectWithLabelAndClass( xSession,
                                                     pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                                     CKO_PUBLIC_KEY,
                                                     &xPublicKeyHandle );
         }
 
-        /* Query the size of the public key. */
-        if( CKR_OK == xResult )
+        if( 0 == xPrivateKeyHandle || 0 == xPublicKeyHandle )
         {
-        	if( 0 != xPublicKeyHandle )
-        	{
-                xTemplate.type = CKA_VALUE;
-                xTemplate.pValue = NULL;
-                xTemplate.ulValueLen = 0;
-                xResult = pxFunctionList->C_GetAttributeValue( xSession,
-                                                               xPublicKeyHandle,
-                                                               &xTemplate,
-                                                               1 );
-        	}
-        	else
-        	{
-        		xResult = CKR_OBJECT_HANDLE_INVALID;
-        	}
+            /* Generate a new keyset if either of the above objects couldn't be 
+            found. */
+            xResult = xProvisionGenerateKeyPairEC( xSession,
+                                                   pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                   pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                   &xPrivateKeyHandle,
+                                                   &xPublicKeyHandle );
         }
 
-        /* Allocate a buffer to store the public key. */
-        if( CKR_OK == xResult )
+        /* Ensure that an error condition is set if either object is still 
+        missing. */
+        if( CKR_OK == xResult && ( 0 == xPrivateKeyHandle || 0 == xPublicKeyHandle ) )
         {
-            xTemplate.pValue = pvPortMalloc( xTemplate.ulValueLen );
-
-            if( NULL == xTemplate.pValue )
-            {
-                xResult = CKR_HOST_MEMORY;
-            }
+            xResult = CKR_KEY_HANDLE_INVALID;
         }
+    }
 
-        /* Export the public key. */
-        if( CKR_OK == xResult )
+    /* Query the size of the public key. */
+    if( CKR_OK == xResult )
+    {
+        if( 0 != xPublicKeyHandle )
         {
+            xTemplate.type = CKA_VALUE;
+            xTemplate.pValue = NULL;
+            xTemplate.ulValueLen = 0;
             xResult = pxFunctionList->C_GetAttributeValue( xSession,
-                                                           xPublicKeyHandle,
-                                                           &xTemplate,
-                                                           1 );
+                                                            xPublicKeyHandle,
+                                                            &xTemplate,
+                                                            1 );
         }
-
-        /* Display the public key as hex so that it can be processed with
-         * command-line tools if desired. For more information, please see the
-         * ReadMe.md file in the same directory as this source file. */
-        if( CKR_OK == xResult )
+        else
         {
-            configPRINTF( ( "Device public key, %d hex bytes:\r\n", xTemplate.ulValueLen ) );
+            xResult = CKR_OBJECT_HANDLE_INVALID;
+        }
+    }
 
-            for( ; ulIndex < xTemplate.ulValueLen; ulIndex++ )
+    /* Allocate a buffer to store the public key. */
+    if( CKR_OK == xResult )
+    {
+        xTemplate.pValue = pvPortMalloc( xTemplate.ulValueLen );
+
+        if( NULL == xTemplate.pValue )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+    }
+
+    /* Export the public key. */
+    if( CKR_OK == xResult )
+    {
+        xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                        xPublicKeyHandle,
+                                                        &xTemplate,
+                                                        1 );
+    }
+
+    /* Display the public key as hex so that it can be processed with
+        * command-line tools if desired. For more information, please see the
+        * ReadMe.md file in the same directory as this source file. */
+    if( CKR_OK == xResult )
+    {
+        configPRINTF( ( "Device public key, %d hex bytes:\r\n", xTemplate.ulValueLen ) );
+
+        for( ; ulIndex < xTemplate.ulValueLen; ulIndex++ )
+        {
+            /* Convert one byte to ASCII hex. */
+            ucByteValue = *( ( char * ) xTemplate.pValue + ulIndex );
+            snprintf( pcNextChar,
+                        sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
+                        "%02x",
+                        ucByteValue );
+            pcNextChar += 2;
+
+            /* Check for the end of a two-byte display word. */
+            if( 0 == ( ( ulIndex + 1 ) % sizeof( uint16_t ) ) )
             {
-                /* Convert one byte to ASCII hex. */
-                ucByteValue = *( ( char * ) xTemplate.pValue + ulIndex );
-                snprintf( pcNextChar,
-                          sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
-                          "%02x",
-                          ucByteValue );
-                pcNextChar += 2;
-
-                /* Check for the end of a two-byte display word. */
-                if( 0 == ( ( ulIndex + 1 ) % sizeof( uint16_t ) ) )
-                {
-                    *pcNextChar = ' ';
-                    pcNextChar++;
-                }
-
-                /* Check for the end of a row. */
-                if( 0 == ( ( ulIndex + 1 ) % BYTES_TO_DISPLAY_PER_ROW ) )
-                {
-                    *pcNextChar = '\0';
-                    vLoggingPrint( pcByteRow );
-                    vLoggingPrint( "\r\n" );
-                    pcNextChar = pcByteRow;
-                }
+                *pcNextChar = ' ';
+                pcNextChar++;
             }
 
-            /* Check for a partial line to print. */
-            if( pcNextChar > pcByteRow )
+            /* Check for the end of a row. */
+            if( 0 == ( ( ulIndex + 1 ) % BYTES_TO_DISPLAY_PER_ROW ) )
             {
                 *pcNextChar = '\0';
                 vLoggingPrint( pcByteRow );
                 vLoggingPrint( "\r\n" );
+                pcNextChar = pcByteRow;
             }
+        }
+
+        /* Check for a partial line to print. */
+        if( pcNextChar > pcByteRow )
+        {
+            *pcNextChar = '\0';
+            vLoggingPrint( pcByteRow );
+            vLoggingPrint( "\r\n" );
         }
     }
 
