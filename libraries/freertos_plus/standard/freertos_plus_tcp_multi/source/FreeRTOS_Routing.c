@@ -260,6 +260,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 	return pxEndPoint;
 }
 /*-----------------------------------------------------------*/
+
 /*_RB_ Is it best, from the end user's perspective, to pass in an end point here, or for data hiding purposes, is it best to pass in a interface number (0, 1, etc.)? */
 void FreeRTOS_GetAddressConfiguration( NetworkEndPoint_t *pxEndPoint, uint32_t *pulIPAddress, uint32_t *pulNetMask, uint32_t *pulGatewayAddress, uint32_t *pulDNSServerAddress )
 {
@@ -349,6 +350,7 @@ NetworkEndPoint_t *FreeRTOS_FindEndPointOnNetMask( uint32_t ulIPAddress, uint32_
 	/* The 'ulWhere' parameter is only for debugging puposes. */
 	return FreeRTOS_InterfaceEndPointOnNetMask( NULL, ulIPAddress, ulWhere );
 }
+/*-----------------------------------------------------------*/
 
 NetworkEndPoint_t *FreeRTOS_InterfaceEndPointOnNetMask( NetworkInterface_t *pxInterface, uint32_t ulIPAddress, uint32_t ulWhere )
 {
@@ -500,7 +502,7 @@ uint32_t ulIPAddress;
 		}
 
 		/* Copy the current values to the default values. */
-		memcpy( &( pxEndPoint->ipv6_defaults ), &( pxEndPoint->ipv6_settings ), sizeof( pxEndPoint->ipv4_defaults ) );
+		memcpy( &( pxEndPoint->ipv6_defaults ), &( pxEndPoint->ipv6_settings ), sizeof( pxEndPoint->ipv6_defaults ) );
 
 		memcpy( pxEndPoint->ipv6_defaults.xIPAddress.ucBytes, pxIPAddress->ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 
@@ -508,6 +510,7 @@ uint32_t ulIPAddress;
 		( void ) FreeRTOS_AddEndPoint( pxNetworkInterface, pxEndPoint );
 	}
 #endif
+/*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_IPv6 != 0 )
 	static NetworkEndPoint_t *prvFindFirstAddress_IPv6( void )

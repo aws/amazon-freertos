@@ -37,11 +37,12 @@
 #include "FreeRTOS_UDP_IP.h"
 #include "FreeRTOS_DHCP.h"
 #include "FreeRTOS_ARP.h"
-#include "FreeRTOS_Routing.h"
-#include "NetworkBufferManagement.h"
 
 /* Exclude the entire file if DHCP is not enabled. */
 #if( ipconfigUSE_DHCP != 0 )
+
+#include "FreeRTOS_Routing.h"
+#include "NetworkBufferManagement.h"
 
 #if ( ipconfigUSE_DHCP != 0 ) && ( ipconfigNETWORK_MTU < 586u )
 	/* DHCP must be able to receive an options field of 312 bytes, the fixed
@@ -323,6 +324,7 @@ BaseType_t xDoProcess = pdTRUE;
 		for( ;; )
 		{
 		NetworkEndPoint_t *pxIterator = NULL;
+
 			/* Peek the next UDP message. */
 			lBytes = FreeRTOS_recvfrom( xDHCPSocket, &( pucUDPPayload ), 0, FREERTOS_ZERO_COPY | FREERTOS_MSG_PEEK, NULL, NULL );
 			if( lBytes <= 0 )
@@ -596,7 +598,7 @@ BaseType_t xGivingUp = pdFALSE;
 
 				/* Check for clashes. */
 				vARPSendGratuitous();
-				vIPReloadDHCPTimer( pxEndPoint, pxEndPoint->xDHCPData.ulLeaseTime );
+				vIPReloadDHCP_RATimer( pxEndPoint, pxEndPoint->xDHCPData.ulLeaseTime );
 			}
 			else
 			{
@@ -644,13 +646,13 @@ BaseType_t xGivingUp = pdFALSE;
 				prvSendDHCPRequest( pxEndPoint );
 				pxEndPoint->xDHCPData.eDHCPState = eWaitingAcknowledge;
 				/* From now on, we should be called more often */
-				vIPReloadDHCPTimer( pxEndPoint, dhcpINITIAL_TIMER_PERIOD );
+				vIPReloadDHCP_RATimer( pxEndPoint, dhcpINITIAL_TIMER_PERIOD );
 			}
 			break;
 
 		case eNotUsingLeasedAddress:
 
-			vIPSetDHCPTimerEnableState( pxEndPoint, pdFALSE );
+			vIPSetDHCP_RATimerEnableState( pxEndPoint, pdFALSE );
 			break;
 		default:
 			/* Lint: all options are included. */
@@ -673,7 +675,7 @@ BaseType_t xGivingUp = pdFALSE;
 		taskEXIT_CRITICAL();
 
 		pxEndPoint->xDHCPData.eDHCPState = eNotUsingLeasedAddress;
-		vIPSetDHCPTimerEnableState( pxEndPoint, pdFALSE );
+		vIPSetDHCP_RATimerEnableState( pxEndPoint, pdFALSE );
 
 		/* DHCP failed, the default configured IP-address will be used
 		Now call vIPNetworkUpCalls() to send the network-up event, start Nabto
@@ -779,7 +781,7 @@ static void prvInitialiseDHCP( NetworkEndPoint_t *pxEndPoint )
 		pxEndPoint->xMACAddress.ucBytes[ 4 ],
 		pxEndPoint->xMACAddress.ucBytes[ 5 ],
 		dhcpINITIAL_TIMER_PERIOD ) );
-	vIPReloadDHCPTimer( pxEndPoint, dhcpINITIAL_TIMER_PERIOD );
+	vIPReloadDHCP_RATimer( pxEndPoint, dhcpINITIAL_TIMER_PERIOD );
 }
 /*-----------------------------------------------------------*/
 

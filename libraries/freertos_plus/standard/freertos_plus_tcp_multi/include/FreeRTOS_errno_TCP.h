@@ -104,6 +104,9 @@ already been made. */
 
 #endif /* pdFREERTOS_ERRNO_NONE */
 
+/* Translate a pdFREERTOS_ERRNO code to a human readable string. */
+const char *FreeRTOS_strerror_r( BaseType_t xErrnum, char *pcBuffer, size_t uxLength );
+
 #endif /* FREERTOS_ERRNO_TCP */
 
 

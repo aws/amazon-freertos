@@ -312,7 +312,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", pxNetworkBuffer->xIPv6_Address.ucBytes, ( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
 				if( pxNetworkBuffer->pxEndPoint )
 				{
-					vNDGenerateRequestPacket( pxNetworkBuffer, &( pxNetworkBuffer->xIPv6_Address ) );
+					vNDSendNeighbourSolicitation( pxNetworkBuffer, &( pxNetworkBuffer->xIPv6_Address ) );
 					/* When xIsIPV6 is true, pxIPHeader_IPv6 has been assigned a proper value. */
 					configASSERT( pxIPHeader_IPv6 != NULL );
 					memcpy( pxIPHeader_IPv6->xDestinationIPv6Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
@@ -587,13 +587,9 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 			{
 				if( xIsDHCPSocket( pxSocket ) )
 				{
-				IPStackEvent_t xEventMessage;
-				const TickType_t xDontBlock = 0;
-
-					xEventMessage.eEventType = eDHCPEvent;
-					xEventMessage.pvData = ( void* )NULL;
-
-					( void ) xSendEventStructToIPTask( &xEventMessage, xDontBlock );
+					/* This is the DHCP clients socket, bound to port 68. */
+					/* Can call this function directly, because this code is running from the IP-task. */
+					vDHCPProcess( pdFALSE, NULL );
 				}
 			}
 			#endif

@@ -188,6 +188,16 @@ typedef struct xICMP_HEADER ICMPHeader_t;
 	typedef struct xICMPEcho_IPv6 ICMPEcho_IPv6_t;
 #endif /* ipconfigUSE_IPv6 */
 
+#include "pack_struct_start.h"
+	struct xICMPRouterSolicitation_IPv6 {
+		uint8_t ucTypeOfMessage;       /*  0 +  1 =  1 */
+		uint8_t ucTypeOfService;       /*  1 +  1 =  2 */
+		uint16_t usChecksum;           /*  2 +  2 =  4 */
+		uint32_t ulReserved;           /*  4 +  4 =  8 */
+	}
+#include "pack_struct_end.h"
+typedef struct xICMPRouterSolicitation_IPv6 ICMPRouterSolicitation_IPv6_t;
+
 #if( ipconfigUSE_IPv6 != 0 )
 	#include "pack_struct_start.h"
 	struct xICMPRouterAdvertisement_IPv6
@@ -204,6 +214,24 @@ typedef struct xICMP_HEADER ICMPHeader_t;
 	#include "pack_struct_end.h"
 	typedef struct xICMPRouterAdvertisement_IPv6 ICMPRouterAdvertisement_IPv6_t;
 #endif /* ipconfigUSE_IPv6 */
+
+#if( ipconfigUSE_IPv6 != 0 )
+	/* This is an option with the Router Advertisement. */
+	#include "pack_struct_start.h"
+	struct xICMPPrefixOption_IPv6
+	{
+		uint8_t ucType;					/*  0 +  1 =  1 */
+		uint8_t ucLength;				/*  1 +  1 =  2 */
+		uint8_t ucPrefixLength;			/*  2 +  1 =  3 */
+		uint8_t ucFlags;				/*  3 +  1 =  4 */
+		uint32_t ulValidLifeTime;		/*  4 +  4 =  8 */
+		uint32_t ulPreferredLifeTime;	/*  8 +  4 = 12 */
+		uint32_t ulReserved;			/* 12 +  4 = 16 */
+		uint8_t ucPrefix[16];			/* 16 + 16 = 32 */
+	}
+	#include "pack_struct_end.h"
+	typedef struct xICMPPrefixOption_IPv6 ICMPPrefixOption_IPv6_t;
+#endif
 
 #include "pack_struct_start.h"
 struct xUDP_HEADER
@@ -389,7 +417,7 @@ typedef enum
 	eNetworkRxEvent,		/* 1: The network interface has queued a received Ethernet frame. */
 	eARPTimerEvent,			/* 2: The ARP timer expired. */
 	eStackTxEvent,			/* 3: The software stack has queued a packet to transmit. */
-	eDHCPEvent,				/* 4: Process the DHCP state machine. */
+	eDHCP_RA_Event,			/* 4: Process the DHCP or RA/SLAAC state machine. */
 	eTCPTimerEvent,			/* 5: See if any TCP socket needs attention. */
 	eTCPAcceptEvent,		/* 6: Client API FreeRTOS_accept() waiting for client connections. */
 	eTCPNetStat,			/* 7: IP-task is asked to produce a netstat listing. */
@@ -1057,8 +1085,14 @@ extern void vSocketSelect( SocketSelect_t *pxSocketSet );
 #endif /* ipconfigSUPPORT_SELECT_FUNCTION */
 
 
-void vIPSetDHCPTimerEnableState( struct xNetworkEndPoint *pxEndPoint, BaseType_t xEnableState );
-void vIPReloadDHCPTimer( struct xNetworkEndPoint *pxEndPoint, uint32_t ulLeaseTime );
+#if( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
+	void vIPSetDHCP_RATimerEnableState( struct xNetworkEndPoint *pxEndPoint, BaseType_t xEnableState );
+#endif	/* ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 ) */
+
+#if( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
+	void vIPReloadDHCP_RATimer( struct xNetworkEndPoint *pxEndPoint, TickType_t uxClockTicks );
+#endif	/* ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 ) */
+
 #if( ipconfigDNS_USE_CALLBACKS != 0 )
 	void vIPReloadDNSTimer( uint32_t ulCheckTime );
 	void vIPSetDnsTimerEnableState( BaseType_t xEnableState );

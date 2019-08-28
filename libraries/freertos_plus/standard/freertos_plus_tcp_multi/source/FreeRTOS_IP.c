@@ -306,12 +306,6 @@ static BaseType_t xIPTaskInitialised = pdFALSE;
 
 /*-----------------------------------------------------------*/
 
-#ifndef _lint
-	/* These declarations are temporary, just for testing. */
-	extern void nd_test( void );
-	BaseType_t call_nd_test = pdFALSE;
-#endif
-
 static void prvIPTask( void *pvParameters )
 {
 IPStackEvent_t xReceivedEvent;
@@ -382,12 +376,6 @@ NetworkInterface_t *pxInterface;
 			xReceivedEvent.eEventType = eNoEvent;
 		}
 
-#if( ipconfigUSE_IPv6 != 0 ) && !defined( _lint )
-		if (call_nd_test) {
-			call_nd_test--;
-			nd_test();
-		}
-#endif
 		#if( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
 		{
 			if( xReceivedEvent.eEventType != eNoEvent )
@@ -474,7 +462,7 @@ NetworkInterface_t *pxInterface;
 				vProcessGeneratedUDPPacket( ipPOINTER_CAST( NetworkBufferDescriptor_t *, xReceivedEvent.pvData ) );
 				break;
 
-			case eDHCPEvent:
+			case eDHCP_RA_Event:
 				/* The DHCP state machine needs processing. */
 				#if( ipconfigUSE_DHCP == 1 )
 				{
@@ -482,6 +470,12 @@ NetworkInterface_t *pxInterface;
 					vDHCPProcess( pdFALSE, ipPOINTER_CAST( NetworkEndPoint_t *, xReceivedEvent.pvData ) );
 				}
 				#endif /* ipconfigUSE_DHCP */
+				#if( ipconfigUSE_RA == 1 )
+				{
+					/* Process RA messages for a given end-point. */
+					vRAProcess( pdFALSE, ipPOINTER_CAST( NetworkEndPoint_t *, xReceivedEvent.pvData ) );
+				}
+				#endif /* ipconfigUSE_RA */
 				break;
 
 			case eSocketSelectEvent :
@@ -631,17 +625,17 @@ TickType_t xMaximumSleepTime;
 		}
 	}
 
-	#if( ipconfigUSE_DHCP == 1 )
+	#if( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
 	{
 	NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 		while( pxEndPoint != NULL )
 		{
-			if( pxEndPoint->xDHCPTimer.bActive != pdFALSE )
+			if( pxEndPoint->xDHCP_RATimer.bActive != pdFALSE )
 			{
-				if( pxEndPoint->xDHCPTimer.ulRemainingTime < xMaximumSleepTime )
+				if( pxEndPoint->xDHCP_RATimer.ulRemainingTime < xMaximumSleepTime )
 				{
-					xMaximumSleepTime = pxEndPoint->xDHCPTimer.ulRemainingTime;
+					xMaximumSleepTime = pxEndPoint->xDHCP_RATimer.ulRemainingTime;
 				}
 			}
 			pxEndPoint = pxEndPoint->pxNext;
@@ -684,28 +678,34 @@ NetworkInterface_t *pxInterface;
 		( void ) xSendEventToIPTask( eARPTimerEvent );
 	}
 
-	#if( ipconfigUSE_DHCP == 1 )
+	#if( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
 	{
 	/* Is it time for DHCP processing? */
 	NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 		while( pxEndPoint != NULL )
 		{
-			if( prvIPTimerCheck( &( pxEndPoint->xDHCPTimer ) ) != pdFALSE )
+			if( prvIPTimerCheck( &( pxEndPoint->xDHCP_RATimer ) ) != pdFALSE )
 			{
-			IPStackEvent_t xEventMessage;
-			const TickType_t xDontBlock = 0;
+				#if( ipconfigUSE_DHCP == 1 )
+				if( END_POINT_USES_DHCP( pxEndPoint ) )
+				{
+					vDHCPProcess( pdFALSE, pxEndPoint );
+				}
+				#endif /* ( ipconfigUSE_DHCP == 1 ) */
 
-				xEventMessage.eEventType = eDHCPEvent;
-				xEventMessage.pvData = pxEndPoint;
-
-				( void ) xSendEventStructToIPTask( &xEventMessage, xDontBlock );
+				#if( ipconfigUSE_RA != 0 )
+				if( END_POINT_USES_RA( pxEndPoint ) )
+				{
+					vRAProcess( pdFALSE, pxEndPoint );
+				}
+				#endif	/* ( ipconfigUSE_RA != 0 ) */
 			}
 
 			pxEndPoint = pxEndPoint->pxNext;
 		}
 	}
-	#endif /* ipconfigUSE_DHCP */
+	#endif /* ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA != 0 ) */
 
 	#if( ipconfigDNS_USE_CALLBACKS != 0 )
 	{
@@ -1525,33 +1525,36 @@ NetworkEndPoint_t *pxEndPoint;
 			 pxEndPoint != NULL;
 			 pxEndPoint = FreeRTOS_NextEndPoint( pxInterface, pxEndPoint ) )
 		{
-			#if ipconfigUSE_DHCP == 1
-			if( ( pxEndPoint->bits.bWantDHCP != pdFALSE_UNSIGNED ) && ( ENDPOINT_IS_IPv6( pxEndPoint ) == pdFALSE ) )
+			#if( ipconfigUSE_DHCP == 1 )
+			if( END_POINT_USES_DHCP( pxEndPoint ) )
 			{
-			IPStackEvent_t xEventMessage;
-			const TickType_t xDontBlock = 0;
-
 				/* Reset the DHCP process for this end-point. */
 				vDHCPProcess( pdTRUE, pxEndPoint );
+				/* And do the first run. */
+				vDHCPProcess( pdFALSE, pxEndPoint );
+ 			}
+			else
+			#endif /* ( ipconfigUSE_DHCP == 1 ) */
 
-				xEventMessage.eEventType = eDHCPEvent;
-				xEventMessage.pvData = pxEndPoint;
-
-				/* And start processing. */
-				( void ) xSendEventStructToIPTask( &xEventMessage, xDontBlock );
+			#if( ipconfigUSE_RA != 0 )
+			if( END_POINT_USES_RA( pxEndPoint ) )
+			{
+				/* Reset the RA/SLAAC process for this end-point. */
+				vRAProcess( pdTRUE, pxEndPoint );
 			}
 			else
-			#endif
+			#endif/* ( #if( ipconfigUSE_IPv6 != 0 ) */
+
 			{
-			#if( ipconfigUSE_IPv6 != 0 )
+				#if( ipconfigUSE_IPv6 != 0 )
 				if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
 				{
-					memcpy( &( pxEndPoint->ipv6_settings.xIPAddress ), &( pxEndPoint->ipv6_defaults.xIPAddress ), ipSIZE_OF_IPv6_ADDRESS );
+					memcpy( &( pxEndPoint->ipv6_settings ), &( pxEndPoint->ipv6_defaults ), sizeof( pxEndPoint->ipv6_settings ) );
 				}
 				else
 				#endif
 				{
-					pxEndPoint->ipv4_settings.ulIPAddress = pxEndPoint->ipv4_defaults.ulIPAddress;
+					memcpy( &( pxEndPoint->ipv4_settings ), &( pxEndPoint->ipv4_defaults ), sizeof( pxEndPoint->ipv4_settings ) );
 				}
 				/* DHCP or Router Advertisement are not enabled for this end-point.
 				Perform any necessary 'network up' processing. */
@@ -2264,7 +2267,7 @@ uint16_t usChecksum, *pusChecksum, usPayloadLength, usProtolBytes;
 const IPPacket_t * pxIPPacket;
 size_t uxIPHeaderLength;
 ProtocolHeaders_t *pxProtocolHeaders;
-uint8_t ucProtocol;
+uint8_t ucProtocol = 0u;
 BaseType_t xLocation = 0;
 #if( ipconfigUSE_IPv6 != 0 )
 	BaseType_t xIsIPv6;
@@ -2426,6 +2429,9 @@ BaseType_t xLocation = 0;
 			case ipICMP_PING_REQUEST_IPv6:
 			case ipICMP_PING_REPLY_IPv6:
 				xICMPLength = sizeof( ICMPEcho_IPv6_t );
+				break;
+			case ipICMP_ROUTER_SOLICITATION_IPv6:
+				xICMPLength = sizeof( ICMPRouterSolicitation_IPv6_t );
 				break;
 			default:
 				xICMPLength = ipSIZE_OF_ICMPv6_HEADER;
@@ -2617,7 +2623,15 @@ eror_exit:
 	if( ( usChecksum == ipUNHANDLED_PROTOCOL ) || 
 		( usChecksum == ipINVALID_LENGTH ) )
 	{
-		FreeRTOS_printf( ( "CRC error: %04x location %d\n", usChecksum, ( int ) xLocation ) );
+		if( ucProtocol == ( uint8_t ) ipPROTOCOL_EXT_HEADER )
+		{
+			/* Extended IPv6 headers are not supported, so don't produce
+			logging about them. */
+		}
+		else
+		{
+			FreeRTOS_printf( ( "CRC error: %04x location %d\n", usChecksum, ( int ) xLocation ) );
+		}
 	}
 
 	return usChecksum;
@@ -2882,20 +2896,28 @@ void FreeRTOS_SetGatewayAddress ( uint32_t ulGatewayAddress )
 }
 */
 
-#if( ipconfigUSE_DHCP == 1 )
-	void vIPSetDHCPTimerEnableState( struct xNetworkEndPoint *pxEndPoint, BaseType_t xEnableState )
+#if( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
+	void vIPSetDHCP_RATimerEnableState( struct xNetworkEndPoint *pxEndPoint, BaseType_t xEnableState )
 	{
-		pxEndPoint->xDHCPTimer.bActive = ( xEnableState != 0 );
+		/* 'xDHCP_RATimer' is shared between DHCP (IPv4) and RA/SLAAC (IPv6). */
+		if( xEnableState != 0 )
+		{
+			pxEndPoint->xDHCP_RATimer.bActive = pdTRUE_UNSIGNED;
+		}
+		else
+		{
+			pxEndPoint->xDHCP_RATimer.bActive = pdFALSE_UNSIGNED;
+		}
 	}
-#endif /* ipconfigUSE_DHCP */
+#endif /* ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 ) */
 /*-----------------------------------------------------------*/
 
-#if( ipconfigUSE_DHCP == 1 )
-	void vIPReloadDHCPTimer( struct xNetworkEndPoint *pxEndPoint, uint32_t ulLeaseTime )
+#if( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 )
+	void vIPReloadDHCP_RATimer( struct xNetworkEndPoint *pxEndPoint, TickType_t uxClockTicks )
 	{
-		prvIPTimerReload( &pxEndPoint->xDHCPTimer, ulLeaseTime );
+		prvIPTimerReload( &pxEndPoint->xDHCP_RATimer, uxClockTicks );
 	}
-#endif /* ipconfigUSE_DHCP */
+#endif /* ( ipconfigUSE_DHCP == 1 ) || ( ipconfigUSE_RA == 1 ) */
 /*-----------------------------------------------------------*/
 
 #if( ipconfigDNS_USE_CALLBACKS == 1 )
@@ -2952,3 +2974,48 @@ BaseType_t xReturn;
 	}
 #endif
 /*-----------------------------------------------------------*/
+
+const char *FreeRTOS_strerror_r( BaseType_t xErrnum, char *pcBuffer, size_t uxLength )
+{
+const char *pcName;
+
+	switch( xErrnum )
+	{
+		case pdFREERTOS_ERRNO_EADDRINUSE:     pcName = "EADDRINUSE"; break;
+		case pdFREERTOS_ERRNO_ENOMEM:         pcName = "ENOMEM"; break;
+		case pdFREERTOS_ERRNO_EADDRNOTAVAIL:  pcName = "EADDRNOTAVAIL"; break;
+		case pdFREERTOS_ERRNO_ENOPROTOOPT:    pcName = "ENOPROTOOPT"; break;
+		case pdFREERTOS_ERRNO_EBADF:          pcName = "EBADF"; break;
+		case pdFREERTOS_ERRNO_ENOSPC:         pcName = "ENOSPC"; break;
+		case pdFREERTOS_ERRNO_ECANCELED:      pcName = "ECANCELED"; break;
+		case pdFREERTOS_ERRNO_ENOTCONN:       pcName = "ENOTCONN"; break;
+		case pdFREERTOS_ERRNO_EINPROGRESS:    pcName = "EINPROGRESS"; break;
+		case pdFREERTOS_ERRNO_EOPNOTSUPP:     pcName = "EOPNOTSUPP"; break;
+		case pdFREERTOS_ERRNO_EINTR:          pcName = "EINTR"; break;
+		case pdFREERTOS_ERRNO_ETIMEDOUT:      pcName = "ETIMEDOUT"; break;
+		case pdFREERTOS_ERRNO_EINVAL:         pcName = "EINVAL"; break;
+		case pdFREERTOS_ERRNO_EWOULDBLOCK:    pcName = "EWOULDBLOCK"; break; /* same as EAGAIN */
+		case pdFREERTOS_ERRNO_EISCONN:        pcName = "EISCONN"; break;
+		default:
+			( void ) snprintf( pcBuffer, uxLength, "Errno %d", ( int ) xErrnum );	/*lint !e586 function 'snprintf' is deprecated. [MISRA 2012 Rule 21.6, required]. */
+			pcName = NULL;
+			break;
+	}
+	if( pcName != NULL )
+	{
+		( void ) snprintf( pcBuffer, uxLength, "%s", pcName );	/*lint !e586*/
+	}
+	if( uxLength > 0 )
+	{
+		pcBuffer[ uxLength - 1 ] = '\0';
+	}
+
+	return pcBuffer;
+}
+/*-----------------------------------------------------------*/
+
+/* Provide access to private members for verification. */
+#ifdef FREERTOS_TCP_ENABLE_VERIFICATION
+	#include "aws_freertos_ip_verification_access_ip_define.h"
+#endif
+

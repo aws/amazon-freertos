@@ -114,12 +114,21 @@ void vNDAgeCache( void );
  * add an entry into the ND table that indicates that an ND reply is
  * outstanding so re-transmissions can be generated.
  */
-void vNDGenerateRequestPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer, IPv6_Address_t *pxIPAddress );
+void vNDSendNeighbourSolicitation( NetworkBufferDescriptor_t * const pxNetworkBuffer, IPv6_Address_t *pxIPAddress );
 
-/*
- * Send out a ROuter Sollicitaion.
- */
-void vNDGenerateRASolicitationPacket( NetworkBufferDescriptor_t * const pxNetworkBuffer, IPv6_Address_t *pxIPAddress );
+#if( ipconfigUSE_RA != 0 )
+	/*
+	 * Send out a ROuter Sollicitaion.
+	 */
+	void vNDSendRouterSolicitation( NetworkBufferDescriptor_t * const pxNetworkBuffer, IPv6_Address_t *pxIPAddress );
+#endif	/* ( ipconfigUSE_RA != 0 ) */
+
+#if( ipconfigUSE_RA != 0 )
+	/*
+	 * Work on the RA/SLAAC processing.
+	 */
+	void vRAProcess( BaseType_t xDoReset, NetworkEndPoint_t *pxEndPoint );
+#endif	/* ( ipconfigUSE_RA != 0 ) */
 
 /*
  * After DHCP is ready and when changing IP address, force a quick send of our new IP
