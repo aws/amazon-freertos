@@ -119,6 +119,35 @@ typedef struct xIPV4Parameters {
 	} IPV6Parameters_t;
 #endif
 
+#if( ipconfigUSE_RA != 0 )
+/* Router Advertisement (RA). End-points can obtain their IP-address by asking for a RA. */
+typedef enum xRAState
+{
+	eRAStateApply,	/* Send a Router Solicitation. */
+	eRAStateWait,	/* Wait for a Router Advertisement. */
+	eRAStateIPTest,	/* Take a random IP address, test if another device is using it already. */
+	eRAStateIPWait,	/* Wait for a reply, if any */
+	eRAStateLease,	/* The device is up, repeat the RA-process when timer expires. */
+	eRAStateFailed,
+} eRAState_t;
+
+struct xRA_DATA
+{
+	struct
+	{
+		uint32_t
+			bRouterReplied : 1,
+			bIPAddressInUse : 1;
+	} bits;
+	TickType_t ulPreferredLifeTime;
+	UBaseType_t uxRetryCount;
+	/* Maintains the RA state machine state. */
+	eRAState_t eRAState;
+};
+
+typedef struct xRA_DATA RAData_t;
+#endif	/* ( ipconfigUSE_RA != 0 ) */
+
 typedef struct xNetworkEndPoint
 {
 	union {
@@ -139,6 +168,7 @@ typedef struct xNetworkEndPoint
 		uint32_t
 			bIsDefault : 1,
 			bWantDHCP : 1,
+			bWantRA : 1,
 			#if( ipconfigUSE_IPv6 != 0 )
 				bIPv6 : 1,
 			#endif /* ipconfigUSE_IPv6 */
@@ -147,15 +177,24 @@ typedef struct xNetworkEndPoint
 			#endif /* ipconfigUSE_NETWORK_EVENT_HOOK */
 			bEndPointUp : 1;
 	} bits;
+#if( ipconfigUSE_DHCP != 0 ) || ( ipconfigUSE_RA != 0 )
+	IPTimer_t xDHCP_RATimer;
+#endif	/* ( ipconfigUSE_DHCP != 0 ) || ( ipconfigUSE_RA != 0 ) */
 #if( ipconfigUSE_DHCP != 0 )
-	IPTimer_t xDHCPTimer;
 	DHCPData_t xDHCPData;
-#endif
+#endif	/* ( ipconfigUSE_DHCP != 0 ) */
+#if( ipconfigUSE_RA != 0 )
+	RAData_t xRAData;
+#endif	/* ( ipconfigUSE_RA != 0 ) */
 	NetworkInterface_t *pxNetworkInterface;
 	struct xNetworkEndPoint *pxNext;
 } NetworkEndPoint_t;
 
+
 #if( ipconfigUSE_IPv6 != 0 )
+	#define END_POINT_USES_DHCP( pxEndPoint )	( ( ( pxEndPoint )->bits.bIPv6 == pdFALSE_UNSIGNED ) && ( ( pxEndPoint )->bits.bWantDHCP != pdFALSE_UNSIGNED ) )
+	#define END_POINT_USES_RA( pxEndPoint )		( ( ( pxEndPoint )->bits.bIPv6 != pdFALSE_UNSIGNED ) && ( ( pxEndPoint )->bits.bWantRA != pdFALSE_UNSIGNED ) )
+
 	#define ENDPOINT_IS_IPv4( pxEndPoint ) ( ! ( pxEndPoint )->bits.bIPv6 )
 	#define ENDPOINT_IS_IPv6( pxEndPoint ) (   ( pxEndPoint )->bits.bIPv6 )
 
@@ -170,6 +209,9 @@ typedef struct xNetworkEndPoint
 		configASSERT( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED );
 	}
 #else
+	#define END_POINT_USES_DHCP( pxEndPoint )	( ( pxEndPoint )->bits.bWantDHCP != pdFALSE_UNSIGNED )
+	#define END_POINT_USES_RA( pxEndPoint )		( 0 )
+
 	#define ENDPOINT_IS_IPv4( pxEndPoint ) ( 1 )
 	#define ENDPOINT_IS_IPv6( pxEndPoint ) ( 0 )
 

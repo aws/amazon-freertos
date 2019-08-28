@@ -385,6 +385,29 @@ from the FreeRTOSIPConfig.h configuration header file. */
 	#define ipconfigARP_USE_CLASH_DETECTION		0
 #endif
 
+/* RA or Router Advertisement/SLAAC: see end-point flag 'bWantRA'.
+An Router Solicitation will be sent. It will wait for ipconfigRA_SEARCH_TIME_OUT_MSEC ms.
+When there is no reponse, it will be repeated ipconfigRA_SEARCH_COUNT times.
+Then it will be checked if the chosen IP-address already exists, repeating this
+ipconfigRA_IP_TEST_COUNT times, each time with a timeout of ipconfigRA_IP_TEST_TIME_OUT_MSEC ms.
+Finally the end-point will go in the UP state.
+*/
+#ifndef ipconfigRA_SEARCH_COUNT
+	#define ipconfigRA_SEARCH_COUNT				( 3 )
+#endif
+
+#ifndef ipconfigRA_SEARCH_TIME_OUT_MSEC
+	#define ipconfigRA_SEARCH_TIME_OUT_MSEC		( 10000u )
+#endif
+
+#ifndef ipconfigRA_IP_TEST_COUNT
+	#define ipconfigRA_IP_TEST_COUNT			( 3 )
+#endif
+
+#ifndef ipconfigRA_IP_TEST_TIME_OUT_MSEC
+	#define ipconfigRA_IP_TEST_TIME_OUT_MSEC	( 1500u )
+#endif
+
 #ifndef ipconfigNETWORK_MTU
 	#define ipconfigNETWORK_MTU		1500
 #endif
@@ -567,6 +590,13 @@ from the FreeRTOSIPConfig.h configuration header file. */
 
 #ifndef ipconfigUSE_IPv6
 	#define ipconfigUSE_IPv6 0
+#endif
+
+#if( ipconfigUSE_IPv6 == 0 ) && ( ipconfigUSE_RA == 1 )
+	/* ipconfigUSE_RA depends on ipconfigUSE_IPv6. When ipconfigUSE_IPv6 is disabled,
+	disable ipconfigUSE_RA as well. */
+	#undef ipconfigUSE_RA
+	#define ipconfigUSE_RA		0
 #endif
 
 #ifndef ipconfigUSE_NBNS

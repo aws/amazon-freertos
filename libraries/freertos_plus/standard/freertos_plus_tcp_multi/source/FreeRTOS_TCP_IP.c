@@ -1220,7 +1220,7 @@ FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", xRemoteIP.ucBytes, ( px
 					if( pxNetworkBuffer )
 					{
 						pxNetworkBuffer->pxEndPoint = pxEndPoint;
-						vNDGenerateRequestPacket( pxNetworkBuffer, &( xRemoteIP ) );
+						vNDSendNeighbourSolicitation( pxNetworkBuffer, &( xRemoteIP ) );
 					}
 				}
 			}
