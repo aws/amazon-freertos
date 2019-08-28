@@ -1086,19 +1086,22 @@
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\iot_test_pkcs11_globals.h">
       <Filter>libraries\abstractions\pkcs11\test</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_CloseSession.h">
-      <Filter>libraries\abstractions\pkcs11\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Finalize.h">
-      <Filter>libraries\abstractions\pkcs11\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Initialize.h">
-      <Filter>libraries\abstractions\pkcs11\test</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_OpenSession.h">
-      <Filter>libraries\abstractions\pkcs11\test</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.h">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.h">
       <Filter>libraries\abstractions\pkcs11\test</Filter>
     </ClInclude>
   </ItemGroup>
@@ -1137,9 +1140,6 @@
       <Filter>tests\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\tests\common\aws_test_framework.c">
-      <Filter>tests\common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\..\tests\common\aws_test_runner.c">
       <Filter>tests\common</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\tests\common\iot_test_freertos.c">
@@ -1749,6 +1749,63 @@
       <Filter>libraries\abstractions\pkcs11\test</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SessionMachine.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_SignInit.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\tests\common\aws_test_runner.c">
+      <Filter>tests\common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Sign.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_SignMachine.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_VerifyMachine.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_VerifyInit.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_Verify.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestInit.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestUpdate.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_DigestFinal.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateKeyPair.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_DigestMachine.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_ObjectMachine.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsInit.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjects.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_FindObjectsFinal.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_GenerationMachine.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GetAttributeValue.c">
+      <Filter>libraries\abstractions\pkcs11\test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\libraries\abstractions\pkcs11\test\MBT_C_GenerateRandom.c">
       <Filter>libraries\abstractions\pkcs11\test</Filter>
     </ClCompile>
   </ItemGroup>

@@ -32,7 +32,7 @@
 // 
 //-----------------------------------------------------------------------------
 
-#include "MBT_C_Finalize.h"
+#include "iot_test_pkcs11_globals.h"
 
 void C_Finalize_normal_behavior()
 {

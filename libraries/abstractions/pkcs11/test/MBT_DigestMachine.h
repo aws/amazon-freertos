@@ -25,17 +25,12 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-CK_SESSION_HANDLE xGlobalSession = 0;
-CK_FUNCTION_LIST_PTR pxGlobalFunctionList = NULL_PTR;
-CK_SLOT_ID xGlobalSlotId = 0;
-CK_MECHANISM_TYPE xMechanismType = 0;
-CK_OBJECT_HANDLE xPublicKey = 0;
-CK_OBJECT_HANDLE xPrivateKey = 0;
-CK_OBJECT_HANDLE xKey = 0; 
-CK_BBOOL xCkTrue = CK_TRUE;
-CK_BBOOL xCKFalse = CK_FALSE;
+/* The model based digest machine test group is for test
+ * that have be automatically sythensized from the API test
+ * generation utility for the session management fragment
+ * of the PKCS#11 API */
 
-CK_BYTE rsaSignature[RSA_SIGNATURE_SIZE] = { 0 };
-CK_BYTE rsaHashedMessage[SHA256_DIGEST_SIZE] = { 0 };
-CK_BYTE ecdsaHashedMessage[SHA256_DIGEST_SIZE] = { 0xab };
-CK_BYTE rsaHashPlusOid[pkcs11RSA_SIGNATURE_INPUT_LENGTH];
+TEST_GROUP(Full_PKCS11_ModelBased_DigestMachine);
+TEST_SETUP(Full_PKCS11_ModelBased_DigestMachine);
+TEST_TEAR_DOWN(Full_PKCS11_ModelBased_DigestMachine);
+TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_DigestMachine);

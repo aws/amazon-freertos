@@ -27,9 +27,26 @@
 #include "unity.h"
 #include "iot_pkcs11.h"
 
+ /* Test buffer size definitions. */
+#define SHA256_DIGEST_SIZE      32
+#define ECDSA_SIGNATURE_SIZE    64
+#define RSA_SIGNATURE_SIZE      256
+
 /* PKCS #11 Globals.
  * These are used to reduce setup and tear down calls, and to
  * prevent memory leaks in the case of TEST_PROTECT() actions being triggered. */
 CK_SESSION_HANDLE xGlobalSession;
 CK_FUNCTION_LIST_PTR pxGlobalFunctionList;
 CK_SLOT_ID xGlobalSlotId;
+CK_MECHANISM_TYPE xMechanismType;
+CK_OBJECT_HANDLE xPublicKey;
+CK_OBJECT_HANDLE xPrivateKey;
+CK_OBJECT_HANDLE xKey;
+CK_BBOOL xCkTrue;
+CK_BBOOL xCkFalse;
+
+/* PKCS #11 Global Data Containers. */
+CK_BYTE rsaSignature[RSA_SIGNATURE_SIZE];
+CK_BYTE rsaHashedMessage[SHA256_DIGEST_SIZE];
+CK_BYTE ecdsaHashedMessage[SHA256_DIGEST_SIZE];
+CK_BYTE rsaHashPlusOid[pkcs11RSA_SIGNATURE_INPUT_LENGTH];

@@ -33,7 +33,7 @@
 // 
 //-----------------------------------------------------------------------------
 
-#include "MBT_C_Initialize.h"
+#include "iot_test_pkcs11_globals.h"
 
 void C_Initialize_normal_behavior()
 {

@@ -36,17 +36,15 @@
 
 TEST_SETUP(Full_PKCS11_ModelBased_SessionMachine)
 {
-	// TODO
-	xGlobalSlotId = 1;
 }
 
 TEST_TEAR_DOWN(Full_PKCS11_ModelBased_SessionMachine)
 {
-	// TODO
+	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 }
 
-TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_SessionMachine)
-{
+void runAllSessionTestCases() {
+	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_0);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_1);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_2);
@@ -78,25 +76,43 @@ TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_SessionMachine)
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_28);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_29);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_30);
+	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_31);
+	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_33);
+	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_33);
+	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_34);
+	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_35);
+	RUN_TEST_CASE(Full_PKCS11_ModelBased_SessionMachine, path_36);
+}
+
+TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_SessionMachine)
+{
+	xGlobalSlotId = 1; // TODO
+
+	CK_RV rv = prvBeforeRunningTests();
+
+	if (rv == CKR_CRYPTOKI_NOT_INITIALIZED) {
+		rv = CKR_OK;
+	}
+
+	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
+
+	runAllSessionTestCases();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_0)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_Initialize_exceptional_behavior_0();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_1)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_Finalize_normal_behavior();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_2)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_Finalize_normal_behavior();
 	C_Finalize_exceptional_behavior_0();
@@ -104,14 +120,12 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_2)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_3)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_Finalize_exceptional_behavior_1();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_4)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
 	C_Initialize_exceptional_behavior_0();
@@ -119,7 +133,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_4)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_5)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
 	C_Finalize_normal_behavior();
@@ -128,7 +141,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_5)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_6)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
 	C_Finalize_exceptional_behavior_1();
@@ -136,7 +148,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_6)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_7)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
 	C_CloseSession_exceptional_behavior_0();
@@ -144,21 +155,18 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_7)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_8)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_exceptional_behavior_0();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_9)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_exceptional_behavior_1();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_10)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
 	C_CloseSession_normal_behavior();
@@ -167,7 +175,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_10)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_11)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_CloseSession_normal_behavior();
 	C_Finalize_normal_behavior();
@@ -176,7 +183,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_11)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_12)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_CloseSession_normal_behavior();
 	C_Finalize_exceptional_behavior_1();
@@ -184,7 +190,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_12)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_13)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_CloseSession_normal_behavior();
 	C_CloseSession_exceptional_behavior_0();
@@ -192,20 +197,17 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_13)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_14)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_CloseSession_exceptional_behavior_0();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_15)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_16)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_Initialize_exceptional_behavior_0();
@@ -213,7 +215,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_16)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_17)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_Finalize_normal_behavior();
@@ -221,7 +222,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_17)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_18)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_Finalize_exceptional_behavior_1();
@@ -229,7 +229,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_18)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_19)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
@@ -238,7 +237,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_19)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_20)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
@@ -247,7 +245,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_20)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_21)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
@@ -256,7 +253,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_21)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_22)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_OpenSession_exceptional_behavior_0();
@@ -264,7 +260,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_22)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_23)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_OpenSession_exceptional_behavior_1();
@@ -272,7 +267,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_23)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_24)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
@@ -283,7 +277,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_24)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_25)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
@@ -293,7 +286,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_25)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_26)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
@@ -303,7 +295,6 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_26)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_27)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Initialize_normal_behavior();
 	C_CloseSession_exceptional_behavior_0();
@@ -311,14 +302,12 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_27)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_28)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Finalize_exceptional_behavior_0();
 }
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_29)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Finalize_exceptional_behavior_0();
 	C_Finalize_exceptional_behavior_0();
 	C_Finalize_exceptional_behavior_0();
@@ -326,8 +315,46 @@ TEST(Full_PKCS11_ModelBased_SessionMachine, path_29)
 
 TEST(Full_PKCS11_ModelBased_SessionMachine, path_30)
 {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	C_Initialize_normal_behavior();
 	C_OpenSession_normal_behavior();
 	C_Finalize_normal_behavior();
+}
+
+TEST(Full_PKCS11_ModelBased_SessionMachine, path_31)
+{
+	C_SignInit_exceptional_behavior_9();
+	C_Sign_exceptional_behavior_4();
+}
+
+TEST(Full_PKCS11_ModelBased_SessionMachine, path_32)
+{
+	C_VerifyInit_exceptional_behavior_8();
+	C_Verify_exceptional_behavior_6();
+}
+
+TEST(Full_PKCS11_ModelBased_SessionMachine, path_33)
+{
+	C_DigestInit_exceptional_behavior_4();
+	C_DigestUpdate_exceptional_behavior_3();
+	C_DigestFinal_exceptional_behavior_4();
+}
+
+TEST(Full_PKCS11_ModelBased_SessionMachine, path_34)
+{
+	C_GenerateRandom_exceptional_behavior_0();
+	C_GenerateKeyPair_exceptional_behavior_5();
+}
+
+TEST(Full_PKCS11_ModelBased_SessionMachine, path_35) 
+{
+	C_FindObjectsInit_exceptional_behavior_3();
+	C_FindObjects_exceptional_behavior_3();
+	C_FindObjectsFinal_exceptional_behavior_2();
+	C_GetAttributeValue_exceptional_behavior_5();
+}
+
+TEST(Full_PKCS11_ModelBased_SessionMachine, path_36)
+{
+	C_FindObjectsFinal_exceptional_behavior_2();
+	C_GetAttributeValue_exceptional_behavior_5();
 }

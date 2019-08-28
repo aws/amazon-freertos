@@ -34,29 +34,49 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-void C_CloseSession_normal_behavior()
+void C_GenerateRandom_normal_behavior()
 {
     CK_SESSION_HANDLE hSession = xGlobalSession;
-    
-    CK_RV rv = pxGlobalFunctionList->C_CloseSession(hSession);
-    
+	CK_BYTE pRandomData_val[100] = { 0 };
+	CK_BYTE_PTR pRandomData = &pRandomData_val;
+	CK_ULONG ulRandomLen = 100;
+
+	CK_RV rv = pxGlobalFunctionList->C_GenerateRandom(hSession, pRandomData, ulRandomLen);
+
 	TEST_ASSERT_EQUAL(CKR_OK, rv);
 }
 
-void C_CloseSession_exceptional_behavior_0()
+void C_GenerateRandom_exceptional_behavior_0()
 {
-	CK_SESSION_HANDLE hSession = 0;
-    
-    CK_RV rv = pxGlobalFunctionList->C_CloseSession(hSession);
+	CK_SESSION_HANDLE hSession = xGlobalSession;
+	CK_BYTE pRandomData_val[100] = { 0 };
+	CK_BYTE_PTR pRandomData = &pRandomData_val;
+	CK_ULONG ulRandomLen = 100;
 
-    TEST_ASSERT_EQUAL(CKR_SESSION_HANDLE_INVALID, rv);
+	CK_RV rv = pxGlobalFunctionList->C_GenerateRandom(hSession, pRandomData, ulRandomLen);
+
+	TEST_ASSERT_EQUAL(CKR_CRYPTOKI_NOT_INITIALIZED, rv);
 }
 
-void C_CloseSession_exceptional_behavior_1()
+void C_GenerateRandom_exceptional_behavior_1()
 {
-    CK_SESSION_HANDLE hSession = xGlobalSession;
-    
-    CK_RV rv = pxGlobalFunctionList->C_CloseSession(hSession);
-    
-    TEST_ASSERT_EQUAL(CKR_CRYPTOKI_NOT_INITIALIZED, rv);
+	CK_SESSION_HANDLE hSession = CK_INVALID_HANDLE;
+	CK_BYTE pRandomData_val[100] = { 0 };
+	CK_BYTE_PTR pRandomData = &pRandomData_val;
+	CK_ULONG ulRandomLen = 100;
+
+	CK_RV rv = pxGlobalFunctionList->C_GenerateRandom(hSession, pRandomData, ulRandomLen);
+
+	TEST_ASSERT_EQUAL(CKR_SESSION_HANDLE_INVALID, rv);
+}
+
+void C_GenerateRandom_exceptional_behavior_2()
+{
+	CK_SESSION_HANDLE hSession = xGlobalSession;
+	CK_BYTE_PTR pRandomData = NULL_PTR;
+	CK_ULONG ulRandomLen = 100;
+
+	CK_RV rv = pxGlobalFunctionList->C_GenerateRandom(hSession, pRandomData, ulRandomLen);
+
+	TEST_ASSERT_EQUAL(CKR_ARGUMENTS_BAD, rv);
 }

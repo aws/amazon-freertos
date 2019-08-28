@@ -45,6 +45,12 @@
 
 /* Model-based testing includes. */
 #include "MBT_SessionMachine.h"
+#include "MBT_SignMachine.h"
+#include "MBT_VerifyMachine.h"
+#include "MBT_DigestMachine.h"
+#include "MBT_GenerationMachine.h"
+#include "MBT_ObjectMachine.h"
+
 
 #if ( pkcs11testRSA_KEY_SUPPORT == 0 ) && ( pkcs11testEC_KEY_SUPPORT == 0 )
     #error "RSA or Elliptic curve keys (or both) must be supported."
@@ -68,7 +74,6 @@
 #include "mbedtls/oid.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
-
 
 typedef enum
 {
@@ -107,12 +112,6 @@ TEST_GROUP( Full_PKCS11_NoObject );
 TEST_GROUP( Full_PKCS11_RSA );
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
-
-/* The model based session machine test group is for test
- * that have be automatically sythensized from the API test
- * generation utility for the session management fragment
- * of the PKCS#11 API */
-//TEST_GROUP(Full_PKCS11_ModelBased_SessionMachine);
 
 /* #define PKCS11_TEST_MEMORY_LEAK */
 #ifdef PKCS11_TEST_MEMORY_LEAK
@@ -972,6 +971,10 @@ static const char cValidRSACertificate[] =
     "JRLZrLL3sfgsN7L1xu//JUoTOkgxdKuYRmPuUdV2hw/VYDzcnKj7/DMXNDvgl3s7\n"
     "5GC4F+8LFLzRrZJWs18FMLaCE+zJChw/oeSt+RS0JZDFn+uX9Q==\n"
     "-----END CERTIFICATE-----\n";
+
+void resetCredentials() {
+	xCurrentCredentials = eNone;
+}
 
 void prvProvisionRsaTestCredentials( CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                      CK_OBJECT_HANDLE_PTR pxCertificateHandle )

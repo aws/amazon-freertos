@@ -25,11 +25,6 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-#include "MBT_C_Initialize.h"
-#include "MBT_C_Finalize.h"
-#include "MBT_C_OpenSession.h"
-#include "MBT_C_CloseSession.h"
-
 /* The model based session machine test group is for test
  * that have be automatically sythensized from the API test
  * generation utility for the session management fragment

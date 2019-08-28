@@ -34,55 +34,59 @@
 
 #include "iot_test_pkcs11_globals.h"
 
-void C_OpenSession_normal_behavior()
+static CK_BYTE digestInput[] = "abcdefghbcdefghicdefghijdefghijkefghijklfghijklmghijklmnhijklmnoijklmnopjklmnopqklmnopqrlmnopqrsmnopqrstnopqrstu";
+
+void C_DigestUpdate_normal_behavior()
 {
-	CK_FLAGS flags = 4; 
-   	CK_BYTE pApplication_val = 32;
-	CK_BYTE_PTR pApplication = &pApplication_val;
-    CK_NOTIFY Notify = NULL_PTR;
-    CK_SESSION_HANDLE_PTR phSession = &xGlobalSession;
+    CK_SESSION_HANDLE hSession = xGlobalSession;
+	CK_BYTE_PTR pPart = digestInput;
+	CK_ULONG ulPartLen = sizeof(digestInput) -1;
     
-    CK_RV rv = pxGlobalFunctionList->C_OpenSession(xGlobalSlotId, flags, pApplication, Notify, phSession);
-    
-    TEST_ASSERT_NOT_EQUAL(0, xGlobalSession);
-    TEST_ASSERT_EQUAL(CKR_OK, rv);
+	CK_RV rv = pxGlobalFunctionList->C_DigestUpdate(hSession, pPart, ulPartLen);
+	
+	TEST_ASSERT_EQUAL(CKR_OK, rv);
 }
 
-void C_OpenSession_exceptional_behavior_0()
+void C_DigestUpdate_exceptional_behavior_0()
 {
-    CK_FLAGS flags = 0;
-    CK_NOTIFY Notify = NULL_PTR;
-    CK_SESSION_HANDLE_PTR phSession = &xGlobalSession;
-    CK_BYTE pApplication_val = 0;
-	CK_BYTE_PTR pApplication = &pApplication_val;
-    
-    CK_RV rv = pxGlobalFunctionList->C_OpenSession(xGlobalSlotId, flags, pApplication, Notify, phSession);
-    
-	TEST_ASSERT_EQUAL(CKR_SESSION_PARALLEL_NOT_SUPPORTED, rv);
+	CK_SESSION_HANDLE hSession = xGlobalSession;
+	CK_BYTE_PTR pPart = digestInput;
+	CK_ULONG ulPartLen = sizeof(digestInput) - 1;
+
+	CK_RV rv = pxGlobalFunctionList->C_DigestUpdate(hSession, pPart, ulPartLen);
+
+	TEST_ASSERT_EQUAL(CKR_OPERATION_NOT_INITIALIZED, rv);
 }
 
-void C_OpenSession_exceptional_behavior_1()
+void C_DigestUpdate_exceptional_behavior_1()
 {
-    CK_FLAGS flags = 4;
-    CK_NOTIFY Notify = NULL;
-    CK_SESSION_HANDLE_PTR phSession = NULL_PTR;
-    CK_BYTE pApplication_val = 0;
-	CK_BYTE_PTR pApplication = &pApplication_val;
-    
-    CK_RV rv = pxGlobalFunctionList->C_OpenSession(xGlobalSlotId, flags, pApplication, Notify, phSession);
-    
-    TEST_ASSERT_EQUAL(CKR_ARGUMENTS_BAD, rv);
+	CK_SESSION_HANDLE hSession = CK_INVALID_HANDLE;
+	CK_BYTE_PTR pPart = digestInput;
+	CK_ULONG ulPartLen = sizeof(digestInput) - 1;
+
+	CK_RV rv = pxGlobalFunctionList->C_DigestUpdate(hSession, pPart, ulPartLen);
+
+	TEST_ASSERT_EQUAL(CKR_SESSION_HANDLE_INVALID, rv);
 }
 
-void C_OpenSession_exceptional_behavior_2()
+void C_DigestUpdate_exceptional_behavior_2()
 {
-    CK_FLAGS flags = 4;
-	CK_BYTE pApplication_val = 0;
-	CK_BYTE_PTR pApplication = &pApplication_val;
-    CK_NOTIFY Notify = NULL_PTR;
-    CK_SESSION_HANDLE_PTR phSession = &xGlobalSession;
-     
-    CK_RV rv = pxGlobalFunctionList->C_OpenSession(xGlobalSlotId, flags, pApplication, Notify, phSession);
-    
-    TEST_ASSERT_EQUAL(CKR_CRYPTOKI_NOT_INITIALIZED, rv);
+	CK_SESSION_HANDLE hSession = xGlobalSession;
+	CK_BYTE_PTR pPart = NULL_PTR;
+	CK_ULONG ulPartLen = 2;
+
+	CK_RV rv = pxGlobalFunctionList->C_DigestUpdate(hSession, pPart, ulPartLen);
+
+	TEST_ASSERT_EQUAL(CKR_ARGUMENTS_BAD, rv);
+}
+
+void C_DigestUpdate_exceptional_behavior_3()
+{
+	CK_SESSION_HANDLE hSession = xGlobalSession;
+	CK_BYTE_PTR pPart = digestInput;
+	CK_ULONG ulPartLen = sizeof(digestInput) - 1;
+
+	CK_RV rv = pxGlobalFunctionList->C_DigestUpdate(hSession, pPart, ulPartLen);
+
+	TEST_ASSERT_EQUAL(CKR_CRYPTOKI_NOT_INITIALIZED, rv);
 }
