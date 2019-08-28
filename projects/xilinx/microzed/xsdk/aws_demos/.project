@@ -823,6 +823,16 @@
 			<locationURI>AFR_ROOT/demos/https/iot_demo_https_s3_download_async.c</locationURI>
 		</link>
 		<link>
+			<name>demos/https/iot_demo_https_s3_upload_sync.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/https/iot_demo_https_s3_upload_sync.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_upload_async.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/https/iot_demo_https_s3_upload_async.c</locationURI>
+		</link>
+		<link>
 			<name>demos/https/iot_demo_https_common.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/demos/https/iot_demo_https_common.c</locationURI>

@@ -1967,6 +1967,12 @@
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c</name>
 			</file>
 			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c</name>
+			</file>
+			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_common.c</name>
 			</file>
 		</group>
