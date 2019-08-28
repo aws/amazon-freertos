@@ -71,6 +71,6 @@
  * "...base64 data...\n"\
  * "-----END RSA PRIVATE KEY-----\n"
  */
-#define keyCLIENT_PRIVATE_KEY_PEM                    ""
+#define keyCLIENT_PRIVATE_KEY_PEM                   ""
 
 #endif /* AWS_CLIENT_CREDENTIAL_KEYS_H */
