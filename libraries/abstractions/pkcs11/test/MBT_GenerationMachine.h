@@ -23,11 +23,12 @@
  * http://www.FreeRTOS.org
  */
 
+
 #include "iot_test_pkcs11_globals.h"
 
 /* The model based key and random generation machine test group is 
  * for tests that have be automatically sythensized from the API test
- * generation utility for the session management fragment
+ * generation utility for the generation fragment
  * of the PKCS#11 API */
 
 TEST_GROUP(Full_PKCS11_ModelBased_GenerationMachine);

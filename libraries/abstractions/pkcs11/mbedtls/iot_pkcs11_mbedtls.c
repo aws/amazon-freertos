@@ -2598,7 +2598,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
     CK_BBOOL xIsPrivate = CK_TRUE;
     CK_BBOOL xCleanupNeeded = CK_FALSE;
-    CK_OBJECT_HANDLE xPalHandle;
+    CK_OBJECT_HANDLE xPalHandle = 0;
     uint8_t * pxLabel = NULL;
     size_t xLabelLength = 0;
     mbedtls_pk_type_t xKeyType;

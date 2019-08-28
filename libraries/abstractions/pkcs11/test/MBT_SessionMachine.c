@@ -36,6 +36,7 @@
 
 TEST_SETUP(Full_PKCS11_ModelBased_SessionMachine)
 {
+	xGlobalSlotId = 1;
 }
 
 TEST_TEAR_DOWN(Full_PKCS11_ModelBased_SessionMachine)

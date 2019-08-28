@@ -23,11 +23,12 @@
  * http://www.FreeRTOS.org
  */
 
+
 #include "iot_test_pkcs11_globals.h"
 
 /* The model based digest machine test group is for test
  * that have be automatically sythensized from the API test
- * generation utility for the session management fragment
+ * generation utility for the digest fragment
  * of the PKCS#11 API */
 
 TEST_GROUP(Full_PKCS11_ModelBased_DigestMachine);
