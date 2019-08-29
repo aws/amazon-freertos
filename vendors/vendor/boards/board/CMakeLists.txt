@@ -214,24 +214,27 @@ afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
 # scripts and post build commands.
 
 # ==================== Example ====================
-# set(CMAKE_EXECUTABLE_SUFFIX ".out")
+# Do not add demos or tests if they're turned off.
+# if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+#     set(CMAKE_EXECUTABLE_SUFFIX ".out")
 
-# set(default_modules AFR::wifi AFR::utils)
+#     set(default_modules AFR::wifi AFR::utils)
 
-# if(AFR_IS_TESTING)
-#     set(exe_target aws_tests)
-# else()
-#     set(exe_target aws_demos)
+#     if(AFR_IS_TESTING)
+#         set(exe_target aws_tests)
+#     else()
+#         set(exe_target aws_demos)
+#     endif()
+
+#     add_executable(${exe_target} "${board_dir}/application_code/main.c")
+#     target_link_libraries(
+#         ${exe_target}
+#         PRIVATE
+#             ${default_modules}
+#             ${additional_linker_file_and_flags}
+#     )
+#     add_custom_command(
+#         TARGET ${exe_target} POST_BUILD
+#         COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
+#     )
 # endif()
-
-# add_executable(${exe_target} "${board_dir}/application_code/main.c")
-# target_link_libraries(
-#     ${exe_target}
-#     PRIVATE
-#         ${default_modules}
-#         ${additional_linker_file_and_flags}
-# )
-# add_custom_command(
-#     TARGET ${exe_target} POST_BUILD
-#     COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
-# )

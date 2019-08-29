@@ -253,43 +253,46 @@ afr_glob_src(board_src DIRECTORY "${xmc4800_aws_dir}/application_code/infineon_c
 afr_glob_src(newlib DIRECTORY "${xmclib_dir}/Newlib")
 afr_glob_src(config_src DIRECTORY "${xmc4800_aws_dir}/config_files")
 
-add_executable(
-    ${exe_target}
-    ${board_src}
-    ${config_src}
-    ${newlib}
-    ${esp_at_lib}
-    ${linker_script}
-    "${xmc4800_aws_dir}/application_code/main.c"
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        ${board_src}
+        ${config_src}
+        ${newlib}
+        ${esp_at_lib}
+        ${linker_script}
+        "${xmc4800_aws_dir}/application_code/main.c"
+    )
 
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-)
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+    )
 
-if(AFR_METADATA_MODE)
-    return()
+    if(AFR_METADATA_MODE)
+        return()
+    endif()
+
+    find_program(gcc_objectcopy arm-none-eabi-objcopy)
+    find_program(gcc_size arm-none-eabi-size)
+
+    if(NOT gcc_objectcopy )
+        message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+    endif()
+
+    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+        COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+    )
+
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+    )
 endif()
-
-find_program(gcc_objectcopy arm-none-eabi-objcopy)
-find_program(gcc_size arm-none-eabi-size)
-
-if(NOT gcc_objectcopy )
-    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-endif()
-
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
-)
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
-)

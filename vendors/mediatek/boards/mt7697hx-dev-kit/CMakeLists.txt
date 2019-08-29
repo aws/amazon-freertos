@@ -319,51 +319,51 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".axf")
 
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/mediatek_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
-add_executable(
-    ${exe_target}
-    ${board_code_src}
-    ${config_files}
-    $<IF:${AFR_IS_TESTING}, ,${network_manager_src}>
-    "${board_dir}/startup_mt7687.s"
-    "${board_dir}/application_code/main.c"
-    "${board_dir}/application_code/mediatek_code/source/sys_init.c"
-    "${board_dir}/application_code/mediatek_code/source/system_mt7687.c"
-    "${board_dir}/application_code/mediatek_code/source/ept_gpio_var.c"
-    "${board_dir}/application_code/mediatek_code/source/ept_eint_var.c"
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        ${board_code_src}
+        ${config_files}
+        "${board_dir}/startup_mt7687.s"
+        "${board_dir}/application_code/main.c"
+        "${board_dir}/application_code/mediatek_code/source/sys_init.c"
+        "${board_dir}/application_code/mediatek_code/source/system_mt7687.c"
+        "${board_dir}/application_code/mediatek_code/source/ept_gpio_var.c"
+        "${board_dir}/application_code/mediatek_code/source/ept_eint_var.c"
 
-    "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/exception_handler.c"
-    "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/toi.c"
-    "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/os_trace_callback.c"
-    "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/os_port_callback.c"
-    "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/memory_regions.c"
-)
+        "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/exception_handler.c"
+        "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/toi.c"
+        "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/os_trace_callback.c"
+        "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/os_port_callback.c"
+        "${AFR_VENDORS_DIR}/mediatek/sdk/kernel/service/src/memory_regions.c"
+    )
 
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::utils
-        "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libwifi_CM4_Keil.lib"
-        "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libhal_core_CM4_Keil.lib"
-        "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libhal_protected_CM4_Keil.lib"
-        "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libkservice_CM4_MT7687_Keil.lib"
-        "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminicli_CM4_Keil.lib"
-        "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminisupp_CM4_Keil.lib"
-        ${link_extra_flags}
-        AFR::wifi
-)
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::utils
+            "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libwifi_CM4_Keil.lib"
+            "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libhal_core_CM4_Keil.lib"
+            "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libhal_protected_CM4_Keil.lib"
+            "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libkservice_CM4_MT7687_Keil.lib"
+            "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminicli_CM4_Keil.lib"
+            "${AFR_VENDORS_DIR}/mediatek/sdk/prebuilt/keil/libminisupp_CM4_Keil.lib"
+            ${link_extra_flags}
+            AFR::wifi
+    )
 
-find_program(fromelf fromelf.exe PATHS "${AFR_COMPILER_DIR}")
-set(output_bin_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.bin")
-set(output_axf_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.axf")
+    find_program(fromelf fromelf.exe PATHS "${AFR_COMPILER_DIR}")
+    set(output_bin_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.bin")
+    set(output_axf_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.axf")
 
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
-    COMMAND "echo" "Creating .bin file"
-    COMMAND "${fromelf}" --bin -o ${output_bin_file} ${output_axf_file}
-)
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
+        COMMAND "echo" "Creating .bin file"
+        COMMAND "${fromelf}" --bin -o ${output_bin_file} ${output_axf_file}
+    )
+endif()

@@ -41,18 +41,18 @@ target_compile_definitions(
     AFR::compiler::mcu_port
     INTERFACE $<$<COMPILE_LANGUAGE:C>:${compiler_defined_symbols}>
     -D__MICROLIB
-    -D_REENT_SMALL 
-    -DPRODUCT_VERSION=m487 
-    -DCONFIG_REPEATER 
-    -DSUPPORT_MBEDTLS 
-    -DHAL_DFS_MODULE_ENABLED 
-    -DLWIP_NO_STDINT_H=1 
+    -D_REENT_SMALL
+    -DPRODUCT_VERSION=m487
+    -DCONFIG_REPEATER
+    -DSUPPORT_MBEDTLS
+    -DHAL_DFS_MODULE_ENABLED
+    -DLWIP_NO_STDINT_H=1
     -DLWIP_TIMEVAL_PRIVATE=1
     -D__little_endian__=1
     -DNDEBUG
-    -DUNITY_INCLUDE_CONFIG_H 
-    -DRVDS_ARMCM4_NUC4xx 
-    -D__LITTLE_ENDIAN__ 
+    -DUNITY_INCLUDE_CONFIG_H
+    -DRVDS_ARMCM4_NUC4xx
+    -D__LITTLE_ENDIAN__
     -DM487
 )
 target_compile_definitions(
@@ -98,7 +98,7 @@ afr_mcu_port(kernel)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-        # Nuvoton SDK sources (driver)		
+        # Nuvoton SDK sources (driver)
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/clk.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/crypto.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/src/fmc.c"
@@ -129,7 +129,7 @@ target_include_directories(
 afr_mcu_port(wifi)
 target_sources(
     AFR::wifi::mcu_port
-    INTERFACE 
+    INTERFACE
         "${afr_ports_dir}/wifi/iot_wifi.c"
         "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
 )
@@ -137,7 +137,7 @@ target_sources(
 target_include_directories(
     AFR::wifi::mcu_port
     INTERFACE
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"
 )
 
 # PKCS11
@@ -153,7 +153,7 @@ afr_mcu_port(secure_sockets)
 
 target_sources(
     AFR::secure_sockets::mcu_port
-    INTERFACE 
+    INTERFACE
         "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
 )
 
@@ -170,37 +170,34 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".axf")
 
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
-add_executable(
-    ${exe_target}
-    ${board_code_src}
-    ${config_files}
-    "${board_dir}/application_code/main.c"
-	"${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/startup_M480.s"
-    "${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/system_M480.c"
-    $<IF:${AFR_IS_TESTING}, ,${network_manager_src}>
-	
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        ${board_code_src}
+        ${config_files}
+        "${board_dir}/application_code/main.c"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/startup_M480.s"
+        "${AFR_VENDORS_DIR}/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/system_M480.c"
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+    )
 
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-)
+    if(NOT AFR_METADATA_MODE)
+        # Convert afx file to bin file
+        find_program(ARM_KEIL_FROMELF fromelf.exe PATHS "${AFR_COMPILER_DIR}")
+    endif()
 
-if(NOT AFR_METADATA_MODE)
-    # Convert afx file to bin file
-    afr_find_compiler(ARM_KEIL_FROMELF fromelf.exe)
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
+        COMMAND "${ARM_KEIL_FROMELF}" --bin "${exe_target}.axf" --output "${exe_target}.bin"
+        COMMAND "${ARM_KEIL_FROMELF}" --text -c "${exe_target}.axf" --output "${exe_target}.txt"
+    )
 endif()
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
-	COMMAND "${ARM_KEIL_FROMELF}" --bin "${exe_target}.axf" --output "${exe_target}.bin"
-	COMMAND "${ARM_KEIL_FROMELF}" --text -c "${exe_target}.axf" --output "${exe_target}.txt"
-)
-

@@ -148,7 +148,7 @@ target_sources(
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 target_link_libraries(
-    AFR::pkcs11_implementation::mcu_port    
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         AFR::pkcs11_mbedtls
         3rdparty::mbedtls
@@ -173,41 +173,41 @@ target_sources(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".out")
 
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/ti_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
-add_executable(
-    ${exe_target}
-    ${board_code_src}
-    ${config_files}
-    "${board_dir}/application_code/main.c"
-    $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
-    "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
-)
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-        AFR::posix::mcu_port
-        ${link_extra_flags}
-)
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
-)
-
-find_program(tiobj2bin tiobj2bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
-find_program(mkhex4bin mkhex4bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
-find_program(armofd armofd PATHS "${AFR_COMPILER_DIR}")
-find_program(armhex armhex PATHS "${AFR_COMPILER_DIR}")
-if(tiobj2bin)
-    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        ${board_code_src}
+        ${config_files}
+        "${board_dir}/application_code/main.c"
+        "${board_dir}/application_code/ti_code/CC3220SF_LAUNCHXL_FREERTOS.cmd"
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+            AFR::posix::mcu_port
+            ${link_extra_flags}
+    )
     add_custom_command(
         TARGET ${exe_target} POST_BUILD
-        COMMAND "${tiobj2bin}" "${CMAKE_BINARY_DIR}/${exe_target}.out" "${CMAKE_BINARY_DIR}/${exe_target}.bin"
-                "${armofd}" "${armhex}" "${mkhex4bin}"
+        COMMAND "${CMAKE_COMMAND}" -E copy "$<TARGET_FILE:${exe_target}>" "${CMAKE_BINARY_DIR}"
     )
+
+    find_program(tiobj2bin tiobj2bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
+    find_program(mkhex4bin mkhex4bin PATHS "${TI_CCS_PATH}/utils/tiobj2bin")
+    find_program(armofd armofd PATHS "${AFR_COMPILER_DIR}")
+    find_program(armhex armhex PATHS "${AFR_COMPILER_DIR}")
+    if(tiobj2bin)
+        set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+        add_custom_command(
+            TARGET ${exe_target} POST_BUILD
+            COMMAND "${tiobj2bin}" "${CMAKE_BINARY_DIR}/${exe_target}.out" "${CMAKE_BINARY_DIR}/${exe_target}.bin"
+                    "${armofd}" "${armhex}" "${mkhex4bin}"
+        )
+    endif()
 endif()

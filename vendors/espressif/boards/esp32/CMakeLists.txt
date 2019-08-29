@@ -103,7 +103,7 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
-        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
+        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
         ${bluedroid_src}
         ${nimble_src}
 )
@@ -192,15 +192,11 @@ afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/common/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
-    set(
-        extra_exe_sources
-        "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
-    )
 endif()
 
+# Do not add demos or tests if they're turned off.
 if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
     add_executable(
         ${exe_target}

@@ -246,22 +246,20 @@ set(CMAKE_EXECUTABLE_SUFFIX "abs")
 afr_glob_src(board_code_src DIRECTORY "${rx65nrsk_aws_dir}/application_code/renesas_code")
 afr_glob_src(config_files_src DIRECTORY "${rx65nrsk_aws_dir}/config_files")
 
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
-
-add_executable(${exe_target}
-    ${board_code_src}
-    ${config_files_src}
-    "${rx65nrsk_aws_dir}/application_code/main.c"
-    $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
-)
-
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::freertos_plus_tcp
-        AFR::utils
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(${exe_target}
+        ${board_code_src}
+        ${config_files_src}
+        "${rx65nrsk_aws_dir}/application_code/main.c"
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::freertos_plus_tcp
+            AFR::utils
+    )
+endif()
 
 if(NOT AFR_METADATA_MODE)
     message(FATAL_ERROR "CMake support for nxp is not complete yet.")

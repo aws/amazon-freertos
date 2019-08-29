@@ -280,24 +280,22 @@ endif()
 afr_glob_src(board_code_src DIRECTORY "${lpc54018_aws_dir}/application_code/nxp_code")
 afr_glob_src(config_files_src DIRECTORY "${lpc54018_aws_dir}/config_files")
 
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
-
-add_executable(${exe_target}
-    ${board_code_src}
-    ${config_files_src}
-    "${lpc54018_aws_dir}/application_code/main.c"
-    # TODO, It is unknown why hw_poll.c has to be included here
-    "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
-    $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
-)
-
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(${exe_target}
+        ${board_code_src}
+        ${config_files_src}
+        "${lpc54018_aws_dir}/application_code/main.c"
+        # TODO, It is unknown why hw_poll.c has to be included here
+        "${lpc54018_ports_dir}/pkcs11/hw_poll.c"
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+    )
+endif()
 
 if(NOT AFR_METADATA_MODE)
     message(FATAL_ERROR "CMake support for nxp is not complete yet.")

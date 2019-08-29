@@ -166,24 +166,8 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/xilinx_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
-
-add_executable(
-    ${exe_target}
-    ${board_code_src}
-    "${board_dir}/application_code/xilinx_code/FreeRTOS_tick_config.c"
-    ${config_files}
-    "${board_dir}/application_code/main.c"
-    $<$<NOT:${AFR_IS_TESTING}>:${network_manager_src}>
-)
-
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::utils
-)
 
 # The kernel is the root dependency, linking the library flags like this ensures it adds the flags last in the command line
 set(link_extra_flags -Wl,--start-group,-lxilffs,-lxil,-lgcc,-lc,-lrsa,--end-group)
@@ -194,21 +178,36 @@ target_link_libraries(
         ${link_extra_flags}
 )
 
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        ${board_code_src}
+        ${config_files}
+        "${board_dir}/application_code/xilinx_code/FreeRTOS_tick_config.c"
+        "${board_dir}/application_code/main.c"
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::utils
+    )
 
-set(bootgen  "${AFR_COMPILER_DIR}/../../../../../bin/bootgen.bat")
+    set(bootgen  "${AFR_COMPILER_DIR}/../../../../../bin/bootgen.bat")
 
-if(AFR_IS_TESTING)
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "echo" "Running Post-build step"
-    COMMAND "${bootgen}" -w -image "${board_dir}/aws_tests.bif" -arch zynq -o BOOT.bin
-)
-else()
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "echo" "Running Post-build step"
-    COMMAND "${bootgen}" -w -image "${board_dir}/aws_demos.bif" -arch zynq -o BOOT.bin
-)
+    if(AFR_IS_TESTING)
+        add_custom_command(
+            TARGET ${exe_target} POST_BUILD
+            COMMAND "echo" "Running Post-build step"
+            COMMAND "${bootgen}" -w -image "${board_dir}/aws_tests.bif" -arch zynq -o BOOT.bin
+        )
+    else()
+        add_custom_command(
+            TARGET ${exe_target} POST_BUILD
+            COMMAND "echo" "Running Post-build step"
+            COMMAND "${bootgen}" -w -image "${board_dir}/aws_demos.bif" -arch zynq -o BOOT.bin
+        )
+    endif()
 endif()
 
 if(NOT AFR_METADATA_MODE)

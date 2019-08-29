@@ -133,8 +133,6 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 # Build an OTA test that only builds on Windows.
@@ -148,27 +146,28 @@ if(AFR_IS_TESTING)
     set(exe_target aws_tests)
 else()
     set(exe_target aws_demos)
-    set(extra_src ${network_manager_src})
 endif()
 
-add_executable(
-    ${exe_target}
-    "${board_dir}/application_code/main.c"
-    "${board_demos_dir}/application_code/aws_demo_logging.c"
-    "${board_demos_dir}/application_code/aws_demo_logging.h"
-    "${board_demos_dir}/application_code/aws_entropy_hardware_poll.c"
-    "${board_demos_dir}/application_code/aws_run-time-stats-utils.c"
-    ${extra_src}
-)
-target_include_directories(
-    ${exe_target}
-    PRIVATE
-        "${board_demos_dir}/application_code"
-)
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::freertos_plus_tcp
-        AFR::utils
-        AFR::dev_mode_key_provisioning
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        "${board_dir}/application_code/main.c"
+        "${board_demos_dir}/application_code/aws_demo_logging.c"
+        "${board_demos_dir}/application_code/aws_demo_logging.h"
+        "${board_demos_dir}/application_code/aws_entropy_hardware_poll.c"
+        "${board_demos_dir}/application_code/aws_run-time-stats-utils.c"
+    )
+    target_include_directories(
+        ${exe_target}
+        PRIVATE
+            "${board_demos_dir}/application_code"
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::freertos_plus_tcp
+            AFR::utils
+            AFR::dev_mode_key_provisioning
+    )
+endif()
