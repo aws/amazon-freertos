@@ -57,9 +57,13 @@ if(NOT DEFINED CACHE{AFR_TOOLCHAIN})
     set(AFR_TOOLCHAIN ${__toolchain} CACHE INTERNAL "Toolchain to build Amazon FreeRTOS.")
 endif()
 
+# Provide an option to enable demos.
+option(AFR_ENABLE_DEMOS "Build demos for Amazon FreeRTOS." ON)
+
 # Provide an option to enable tests. Also set an helper variable to use in generator expression.
 option(AFR_ENABLE_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
 if(AFR_ENABLE_TESTS)
+    set(AFR_ENABLE_DEMOS 0 CACHE INTERNAL "")  # Turning off demo when tests are enabled.
     add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
     add_compile_definitions(IOT_BUILD_TESTS=1)
     set(AFR_IS_TESTING 1 CACHE INTERNAL "")

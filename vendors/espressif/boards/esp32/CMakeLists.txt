@@ -201,24 +201,26 @@ else()
     )
 endif()
 
-add_executable(
-    ${exe_target}
-    "${board_dir}/application_code/main.c"
-    ${extra_exe_sources}
-)
-target_include_directories(
-    ${exe_target}
-    PUBLIC
-        $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-        $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
-)
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-        AFR::ble
-)
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        "${board_dir}/application_code/main.c"
+        ${extra_exe_sources}
+    )
+    target_include_directories(
+        ${exe_target}
+        PUBLIC
+            $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+            AFR::ble
+    )
+endif()
 
 if(AFR_METADATA_MODE)
     return()
