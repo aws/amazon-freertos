@@ -1,11 +1,11 @@
-afr_module(INTERFACE)
+afr_module()
 
 set(inc_dir "${CMAKE_CURRENT_LIST_DIR}/include")
 set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
-    INTERFACE
+    PUBLIC
         "${inc_dir}/bt_hal_avsrc_profile.h"
         "${inc_dir}/bt_hal_gatt_client.h"
         "${inc_dir}/bt_hal_gatt_server.h"
@@ -18,12 +18,14 @@ afr_module_sources(
 
 afr_module_include_dirs(
     ${AFR_CURRENT_MODULE}
-    INTERFACE "${inc_dir}"
+    PUBLIC "${inc_dir}"
 )
 
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
-    INTERFACE AFR::ble_hal::mcu_port
+    PRIVATE
+        AFR::ble_hal::mcu_port
+        AFR::ble
 )
 
 # BLE hal test
