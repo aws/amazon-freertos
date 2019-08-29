@@ -841,7 +841,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     {
         if( 0 != xPublicKeyHandle )
         {
-            xTemplate.type = CKA_VALUE;
+            xTemplate.type = CKA_EC_POINT;
             xTemplate.pValue = NULL;
             xTemplate.ulValueLen = 0;
             xResult = pxFunctionList->C_GetAttributeValue( xSession,
@@ -1085,7 +1085,7 @@ CK_RV vDevModeKeyProvisioning( void )
         xParams.pucClientPrivateKey = NULL;
     }
 
-    if( ( NULL != xParams.pucClientCertificate ) ||
+    if( ( NULL != xParams.pucClientCertificate ) &&
         ( 0 != strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
     {
         /* We want the NULL terminator to be written to storage, so include it
