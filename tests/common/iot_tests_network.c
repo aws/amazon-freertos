@@ -207,8 +207,9 @@ const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 
 /*-----------------------------------------------------------*/
 
-void IotTestNetwork_SelectNetworkType( uint16_t networkType )
+bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
 {
+    bool bInitializeSucceeded = pdFALSE;
     switch( networkType )
     {
         #if ( BLE_SUPPORTED == 1 )
@@ -216,20 +217,21 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
 
                 if( bleEnabled == false )
                 {
-                    bleEnabled = true;
-                    _BLEEnable();
+                    bleEnabled = pdTRUE;
+                    bInitializeSucceeded = _BLEEnable();
                 }
                 break;
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
             case AWSIOT_NETWORK_TYPE_WIFI:
+                bInitializeSucceeded = pdTRUE;
                 break;
         #endif
         default:
             break;
     }
-
     _IotTestNetworkType = networkType;
+    return bInitializeSucceeded;
 }
 
 /*-----------------------------------------------------------*/
