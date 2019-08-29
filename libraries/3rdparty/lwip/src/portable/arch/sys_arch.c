@@ -82,7 +82,11 @@ err_t sys_mbox_new( sys_mbox_t *pxMailBox, int iSize )
         pxTempMbox.xTask = NULL;
         *pxMailBox = pxTempMbox;
         xReturn = ERR_OK;
-        SYS_STATS_INC_USED( mbox );
+        #if SYS_STATS
+        {
+            SYS_STATS_INC_USED( mbox );
+        }
+        #endif /* SYS_STATS */
     }
 
     return xReturn;
@@ -134,7 +138,10 @@ void sys_mbox_free( volatile sys_mbox_t *pxMailBox )
             xTaskAbortDelay( xTask );
         }
 
-        vQueueDelete( xMbox );
+        if( xMbox != NULL )
+        {
+            vQueueDelete( xMbox );
+        }
     }
 }
 
@@ -187,7 +194,11 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
     {
         /* The queue was already full. */
         xReturn = ERR_MEM;
-        SYS_STATS_INC( mbox.err );
+        #if SYS_STATS
+        {
+            SYS_STATS_INC( mbox.err );
+        }
+        #endif
     }
 
     return xReturn;
@@ -236,6 +247,8 @@ u32_t sys_arch_mbox_fetch( volatile sys_mbox_t *pxMailBox, void **ppvBuffer, u32
     TaskHandle_t xTask;
     BaseType_t xResult;
 
+    configASSERT( xInsideISR == ( portBASE_TYPE ) 0 );
+
     if( pxMailBox == NULL )
     {
         goto exit;
@@ -266,16 +279,9 @@ u32_t sys_arch_mbox_fetch( volatile sys_mbox_t *pxMailBox, void **ppvBuffer, u32
 
     if( ulTimeOut != 0UL )
     {
-        configASSERT( xInsideISR == ( portBASE_TYPE ) 0 );
-
         if( pdTRUE == xQueueReceive( xMbox, &( *ppvBuffer ), ulTimeOut/ portTICK_PERIOD_MS ) )
         {
             ulReturn = 1UL;
-        }
-        else
-        {
-            /* Timed out. */
-            *ppvBuffer = NULL;
         }
     }
     else

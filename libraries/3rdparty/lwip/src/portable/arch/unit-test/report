@@ -1,0 +1,11 @@
+#!/bin/bash
+
+for t in "$@"; do
+    [[ -x $t ]] || continue
+    fn=${t#test-}
+    result=`./$t | egrep 'PASS|FAIL'`
+    coverage=`gcov -f $t | sed -nr "/^Function '$fn'/{n;p;q;}"`
+    printf "%-30s%-15s%s\n" "$t" "$result" "$coverage"
+    egrep -B2 -A2 '#{5}' $fn.c.gcov
+done
+exit 0
