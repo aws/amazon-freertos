@@ -3,9 +3,6 @@ if(CMAKE_CROSSCOMPILING)
     enable_language(ASM)
 endif()
 
-# Do not prefix the output library file.
-set(CMAKE_STATIC_LIBRARY_PREFIX "")
-
 # Set some global path variables.
 get_filename_component(__root_dir "${CMAKE_CURRENT_LIST_DIR}/../.." ABSOLUTE)
 set(AFR_ROOT_DIR ${__root_dir} CACHE INTERNAL "Amazon FreeRTOS source root.")
