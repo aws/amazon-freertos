@@ -721,6 +721,12 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 #define BYTES_TO_DISPLAY_PER_ROW    16
     char pcByteRow[ 1 + ( BYTES_TO_DISPLAY_PER_ROW * 2 ) + ( BYTES_TO_DISPLAY_PER_ROW / 2 ) ];
     char * pcNextChar = pcByteRow;
+    uint8_t pucEcP256AsnAndOid[] = {0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 
+                                    0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a, 
+                                    0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 
+                                    0x42, 0x00};
+    uint8_t pucUnusedKeyTag[] = {0x04, 0x41};
+    uint8_t * pucDerPublicKey = NULL;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -822,8 +828,8 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             /* Generate a new keyset if either of the above objects couldn't be 
             found. */
             xResult = xProvisionGenerateKeyPairEC( xSession,
-                                                   pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                   pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                   ( uint8_t * )pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                   ( uint8_t * )pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                                    &xPrivateKeyHandle,
                                                    &xPublicKeyHandle );
         }
@@ -855,12 +861,17 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
-    /* Allocate a buffer to store the public key. */
+    /* Allocate a buffer large enough for the full, encoded public key. */
     if( CKR_OK == xResult )
     {
-        xTemplate.pValue = pvPortMalloc( xTemplate.ulValueLen );
+        /* Add space for the full DER header. */
+        xTemplate.ulValueLen += sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag);
 
-        if( NULL == xTemplate.pValue )
+        /* Get a heap buffer. */
+        pucDerPublicKey = pvPortMalloc( xTemplate.ulValueLen );
+
+        /* Check for resource exhaustion. */
+        if( NULL == pucDerPublicKey )
         {
             xResult = CKR_HOST_MEMORY;
         }
@@ -869,27 +880,38 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     /* Export the public key. */
     if( CKR_OK == xResult )
     {
+        xTemplate.pValue = pucDerPublicKey + sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag);
+        xTemplate.ulValueLen -= ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
         xResult = pxFunctionList->C_GetAttributeValue( xSession,
-                                                        xPublicKeyHandle,
-                                                        &xTemplate,
-                                                        1 );
+                                                       xPublicKeyHandle,
+                                                       &xTemplate,
+                                                       1 );
     }
 
     /* Display the public key as hex so that it can be processed with
-        * command-line tools if desired. For more information, please see the
-        * ReadMe.md file in the same directory as this source file. */
+     * command-line tools if desired. For more information, please see the
+     * ReadMe.md file in the same directory as this source file. */
     if( CKR_OK == xResult )
     {
-        configPRINTF( ( "Device public key, %d hex bytes:\r\n", xTemplate.ulValueLen ) );
+        /* Prepend the full DER header. */
+        memcpy(pucDerPublicKey, pucEcP256AsnAndOid, sizeof(pucEcP256AsnAndOid));
 
+        /* Fix-up the template buffer pointer and length. */
+        xTemplate.ulValueLen += ( sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag) );
+        xTemplate.pValue = pucDerPublicKey;
+
+        /* Write help text to the console. */
+        configPRINTF( ( "Device public key, %d bytes:\r\n", xTemplate.ulValueLen ) );
+
+        /* Iterate over the bytes of the encoded public key. */
         for( ; ulIndex < xTemplate.ulValueLen; ulIndex++ )
         {
             /* Convert one byte to ASCII hex. */
             ucByteValue = *( ( char * ) xTemplate.pValue + ulIndex );
             snprintf( pcNextChar,
-                        sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
-                        "%02x",
-                        ucByteValue );
+                      sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
+                      "%02x",
+                      ucByteValue );
             pcNextChar += 2;
 
             /* Check for the end of a two-byte display word. */
@@ -938,9 +960,9 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     }
 
     /* Free the heap buffer, if allocated. */
-    if( NULL != xTemplate.pValue )
+    if( NULL != pucDerPublicKey )
     {
-        vPortFree( xTemplate.pValue );
+        vPortFree( pucDerPublicKey );
     }
 
     return xResult;
