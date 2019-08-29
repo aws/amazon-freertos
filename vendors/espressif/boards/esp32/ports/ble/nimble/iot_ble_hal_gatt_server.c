@@ -888,6 +888,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     pCharacteristics[ charCount ].arg = ( void * ) pxService;
                     pCharacteristics[ charCount ].access_cb = prvGATTCharAccessCb;
                     pCharacteristics[ charCount ].flags = prvAFRToESPCharPerm( pxService->pxBLEAttributes[ index ].xCharacteristic.xProperties, pxService->pxBLEAttributes[ index ].xCharacteristic.xPermissions );
+                    pCharacteristics[ charCount ].min_key_size = btKEY_MAX_LEN;
 
                     /* Allocate memory for descriptors. */
                     pCharacteristics[ charCount ].descriptors = pvPortCalloc( prvCountDescriptor( pxService, index + 1 ) + 1, sizeof( struct ble_gatt_dsc_def ) );
@@ -933,6 +934,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     pDescriptors->uuid = uuid;
                     pDescriptors->arg = ( void * ) pxService;
                     pDescriptors->access_cb = prvGATTCharAccessCb;
+                    pDescriptors->min_key_size  = btKEY_MAX_LEN;
                     pDescriptors->att_flags = prvAFRToESPDescPerm( pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xPermissions );
 
                     dscrCount++;
