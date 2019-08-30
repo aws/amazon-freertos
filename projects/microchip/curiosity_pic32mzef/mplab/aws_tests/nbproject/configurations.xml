@@ -526,7 +526,7 @@
           </logicalFolder>
           <logicalFolder name="ota" displayName="ota" projectFiles="true">
             <logicalFolder name="include" displayName="include" projectFiles="true">
-              <itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</itemPath>
+              <itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</itemPath>
               <itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_types.h</itemPath>
             </logicalFolder>
             <logicalFolder name="src" displayName="src" projectFiles="true">
@@ -1012,20 +1012,20 @@
         <archiverTool>
         </archiverTool>
         <loading>
-          <makeArtifact PL="../bootloader_tests"
+          <makeArtifact PL="../bootloader"
                         CT="1"
                         CN="pic32mz_ef_curiosity"
                         AC="true"
                         BL="true"
-                        WD="../bootloader_tests"
+                        WD="../bootloader"
                         BC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity"
                         DBC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity TYPE_IMAGE=DEBUG_RUN"
                         CC="rm -rf &quot;build/pic32mz_ef_curiosity&quot; &quot;dist/pic32mz_ef_curiosity&quot;"
-                        OP="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
-                        DOP="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf"
-                        FL="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
-                        PD="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.elf"
-                        DD="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf">
+                        OP="dist/pic32mz_ef_curiosity/production/bootloader.production.hex"
+                        DOP="dist/pic32mz_ef_curiosity/debug/bootloader.debug.elf"
+                        FL="dist/pic32mz_ef_curiosity/production/bootloader.production.hex"
+                        PD="dist/pic32mz_ef_curiosity/production/bootloader.production.elf"
+                        DD="dist/pic32mz_ef_curiosity/debug/bootloader.debug.elf">
           </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
@@ -1096,6 +1096,9 @@
         <property key="preprocessor-macros" value=""/>
         <property key="warning-level" value=""/>
       </C32-AS>
+      <C32-CO>
+        <property key="coverage-enable" value=""/>
+      </C32-CO>
       <C32-LD>
         <property key="additional-options-use-response-files" value="false"/>
         <property key="additional-options-write-sla" value="false"/>

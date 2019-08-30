@@ -29,7 +29,7 @@
 
 /* Amazon FreeRTOS include. */
 #include "FreeRTOS.h"
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 #include "aws_ota_pal.h"
 #include "aws_ota_agent_internal.h"
 #include "aws_ota_pal_settings.h"

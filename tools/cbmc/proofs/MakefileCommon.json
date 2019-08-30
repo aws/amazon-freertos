@@ -40,6 +40,10 @@
 	"--32",
 	"--bounds-check",
 	"--pointer-check"
+    ],
+
+    "TYPE_HEADERS": [
+        "$(FREERTOS)/freertos_kernel/queue.c"
     ]
 }
 

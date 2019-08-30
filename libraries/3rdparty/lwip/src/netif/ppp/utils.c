@@ -58,8 +58,6 @@
 #endif
 #endif /* UNUSED */
 
-#include <ctype.h>  /* isdigit() */
-
 #include "netif/ppp/ppp_impl.h"
 
 #include "netif/ppp/fsm.h"
@@ -180,7 +178,7 @@ int ppp_vslprintf(char *buf, int buflen, const char *fmt, va_list args) {
 	    width = va_arg(args, int);
 	    c = *++fmt;
 	} else {
-	    while (isdigit(c)) {
+	    while (lwip_isdigit(c)) {
 		width = width * 10 + c - '0';
 		c = *++fmt;
 	    }
@@ -192,7 +190,7 @@ int ppp_vslprintf(char *buf, int buflen, const char *fmt, va_list args) {
 		c = *++fmt;
 	    } else {
 		prec = 0;
-		while (isdigit(c)) {
+		while (lwip_isdigit(c)) {
 		    prec = prec * 10 + c - '0';
 		    c = *++fmt;
 		}

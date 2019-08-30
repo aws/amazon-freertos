@@ -29,6 +29,10 @@
 
 #include <stdint.h>
 
+#ifdef _WIN32
+    #pragma pack(push, cryptoki, 1)
+#endif
+
 /**
  * @brief Amazon FreeRTOS PKCS#11 Interface.
  * The following definitions are required by the PKCS#11 standard public
@@ -41,6 +45,8 @@
     #define NULL_PTR    0
 #endif
 
+/* CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
+ * instead when possible. */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
@@ -232,5 +238,8 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
                                                 uint8_t * x51ByteHashOidBuffer );
 
+#ifdef _WIN32
+    #pragma pack(pop, cryptoki)
+#endif
 
 #endif /* ifndef _AWS_PKCS11_H_ */

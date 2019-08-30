@@ -42,6 +42,7 @@
 typedef void * mqd_t;
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief Message queue attributes.
  */
 struct mq_attr

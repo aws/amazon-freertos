@@ -256,13 +256,13 @@ void IotMqtt_ReceiveCallback( void * pNetworkConnection,
  *
  * // Example network abstraction types.
  * IotNetworkServerInfo_t serverInfo = { ... };
- * IotNetworkCredentialInfo_t credentialInfo = { ... };
+ * IotNetworkCredentials_t credentialInfo = { ... };
  * IotNetworkInterface_t networkInterface = { ... };
  *
  * // Example using a generic network implementation.
  * networkInfo.createNetworkConnection = true;
- * networkInfo.pNetworkServerInfo = &serverInfo;
- * networkInfo.pNetworkCredentialInfo = &credentialInfo;
+ * networkInfo.u.setup.pNetworkServerInfo = &serverInfo;
+ * networkInfo.u.setup.pNetworkCredentialInfo = &credentialInfo;
  * networkInfo.pNetworkInterface = &networkInterface;
  *
  * // Set the members of the connection info (password and username not used).

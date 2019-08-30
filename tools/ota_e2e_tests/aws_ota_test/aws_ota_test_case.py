@@ -70,6 +70,9 @@ class OtaTestCase( object ):
         """Setup the OTA test.
         All the necessary setup. Optional method, but do call super setup if implementation is provided in sub-class.
         """
+        transportation = self._otaConfig.get('transportation')
+        if transportation == 'ble':
+            self._otaProject.setBleConfig()
         self._otaProject.setApplicationVersion(0, 9, 0)
         buildReturnCode = self._otaProject.buildProject()
         flashReturnCode = self._flashComm.flashAndRead()

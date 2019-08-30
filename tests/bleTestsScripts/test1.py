@@ -30,10 +30,10 @@ def backGroundEvents():
 
 if __name__ == '__main__':
 
-  dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+    dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
-  testutils.removeBondedDevices()
+    testutils.removeBondedDevices()
 
-  #startBackGroundEvents = threading.Thread(target=backGroundEvents)
-  #startBackGroundEvents.start()
-  startTests.main()
+    #startBackGroundEvents = threading.Thread(target=backGroundEvents)
+    #startBackGroundEvents.start()
+    startTests.main()

@@ -9,7 +9,7 @@ PROJECT_NAME = "Secure Sockets"
 HTML_OUTPUT = secure_sockets
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/secure_sockets.tag
+GENERATE_TAGFILE = doc/output/secure_sockets.tag
 
 # Directories containing library source code.
 INPUT = libraries/abstractions/secure_sockets/include/iot_secure_sockets.h \
@@ -22,4 +22,4 @@ FILE_PATTERNS = *.h *.c *.txt
 EXAMPLE_PATH = libraries/abstractions/secure_sockets/include/iot_secure_sockets.h
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
+TAGFILES = doc/output/main.tag=../main \

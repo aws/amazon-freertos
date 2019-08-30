@@ -372,7 +372,7 @@
 							<itemPath>../../../../../libraries/freertos_plus/aws/ota/src/aws_ota_cbor_internal.h</itemPath>
 						</logicalFolder>
 						<logicalFolder name="include" displayName="include" projectFiles="true">
-							<itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</itemPath>
+							<itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</itemPath>
 							<itemPath>../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_types.h</itemPath>
 						</logicalFolder>
 					</logicalFolder>

@@ -37,7 +37,7 @@
  * @brief Message field definitions, per the server specification.
  */
 
-#define OTA_CBOR_GETSTREAMREQUEST_ITEM_COUNT    5
+#define OTA_CBOR_GETSTREAMREQUEST_ITEM_COUNT    6
 
 /**
  * @brief Internal context structure for decoding CBOR arrays.
@@ -204,7 +204,8 @@ BaseType_t OTA_CBOR_Encode_GetStreamRequestMessage( uint8_t * pucMessageBuffer,
                                                     int32_t lBlockSize,
                                                     int32_t lBlockOffset,
                                                     uint8_t * pucBlockBitmap,
-                                                    size_t xBlockBitmapSize )
+                                                    size_t xBlockBitmapSize,
+                                                    int32_t lNumOfBlocksRequested )
 {
     CborError xCborResult = CborNoError;
     CborEncoder xCborEncoder, xCborMapEncoder;
@@ -282,6 +283,19 @@ BaseType_t OTA_CBOR_Encode_GetStreamRequestMessage( uint8_t * pucMessageBuffer,
         xCborResult = cbor_encode_byte_string( &xCborMapEncoder,
                                                pucBlockBitmap,
                                                xBlockBitmapSize );
+    }
+
+    /* Encode the number of blocks requested key and value. */
+    if( CborNoError == xCborResult )
+    {
+        xCborResult = cbor_encode_text_stringz( &xCborMapEncoder,
+                                                OTA_CBOR_NUMBEROFBLOCKS_KEY );
+    }
+
+    if( CborNoError == xCborResult )
+    {
+        xCborResult = cbor_encode_int( &xCborMapEncoder,
+                                       lNumOfBlocksRequested );
     }
 
     /* Done with the encoder. */

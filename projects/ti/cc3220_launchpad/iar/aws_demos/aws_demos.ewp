@@ -1644,7 +1644,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h</name>

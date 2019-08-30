@@ -749,7 +749,7 @@
     <ClInclude Include="..\..\..\..\lib\include\iot_tls.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\lib\include\aws_ota_agent.h">
+    <ClInclude Include="..\..\..\..\lib\include\aws_iot_ota_agent.h">
       <Filter>lib\aws\include</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\lib\include\iot_wifi.h">
