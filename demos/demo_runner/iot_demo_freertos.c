@@ -291,6 +291,10 @@ void runDemoTask( void * pArgument )
     void * pConnectionParams = NULL, * pCredentials = NULL;
     int status;
 
+    /* DO NOT EDIT - This demo start marker is used in the test framework to
+     * determine the start of a demo. */
+    IotLogInfo( "---------STARTING DEMO---------\n" );
+
     status = _initialize( pContext );
 
     if( status == EXIT_SUCCESS )
@@ -311,6 +315,8 @@ void runDemoTask( void * pArgument )
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )
         {
+            /* DO NOT EDIT - This message is used in the test framework to
+             * determine whether or not the demo was successful. */
             IotLogInfo( "Demo completed successfully." );
         }
         else
@@ -324,6 +330,10 @@ void runDemoTask( void * pArgument )
     {
         IotLogError( "Failed to initialize the demo. exiting..." );
     }
+
+    /* DO NOT EDIT - This demo end marker is used in the test framework to
+     * determine the end of a demo. */
+    IotLogInfo( "-------DEMO FINISHED-------\n" );
 }
 
 /*-----------------------------------------------------------*/
