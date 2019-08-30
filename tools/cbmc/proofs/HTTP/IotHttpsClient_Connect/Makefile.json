@@ -1,0 +1,51 @@
+{
+  "ENTRY": "IotHttpsClient_Connect",
+
+  # This is the length of the user data after the header in a buffer.
+  # This can be set to any size.
+  "USER_DATA_SIZE": "1000",
+
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--unwindset strlen.0:5",
+
+    # uninitialized global variables have arbitrary values
+    "--nondet-static",
+
+    # interesting checks in addtion to memory safety
+    "--div-by-zero-check",
+    "--float-overflow-check",
+    "--nan-check",
+    "--pointer-overflow-check",
+    "--undefined-shift-check",
+    "--signed-overflow-check",
+    "--unsigned-overflow-check"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/c_sdk/standard/https/src/iot_https_client.goto"
+  ],
+  "INSTFLAGS":
+  [
+    "--remove-function-body _httpParserOnHeadersCompleteCallback",
+    "--remove-function-body _httpParserOnMessageBeginCallback",
+    "--remove-function-body _httpParserOnMessageCompleteCallback",
+    "--remove-function-body IotNetworkInterfaceDestroy"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/libraries/c_sdk/standard/https/include",
+    "$(FREERTOS)/libraries/c_sdk/standard/https/src/private",
+    "$(FREERTOS)/libraries/3rdparty/http-parser",
+    "$(FREERTOS)/libraries/c_sdk/standard/common/include/",
+    "$(FREERTOS)/libraries/abstractions/platform/include/",
+    "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",
+    "../../include"
+  ],
+  "DEF":
+  [
+    "USER_DATA_SIZE={USER_DATA_SIZE}"
+  ]
+}

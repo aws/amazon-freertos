@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,6 +43,7 @@
  */
 void vApplicationMallocFailedHook()
 {
+    configPRINTF( ( "ERROR: Malloc failed to allocate memory\r\n" ) );
     taskDISABLE_INTERRUPTS();
 
     /* Loop forever */
