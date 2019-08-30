@@ -317,7 +317,7 @@ static uint16_t prvAFRToESPCharPerm( BTCharProperties_t xProperties,
 
     if( xProperties & eBTPropExtendedProps )
     {
-        flags |= BLE_GATT_CHR_F_RELIABLE_WRITE; /*HD: Check if this is required - BLE_GATT_CHR_F_AUX_WRITE */
+        flags |= BLE_GATT_CHR_F_RELIABLE_WRITE; /*fixme: Check if this is required - BLE_GATT_CHR_F_AUX_WRITE */
     }
 
     if( xPermissions & eBTPermReadEncrypted )
@@ -377,7 +377,7 @@ static uint8_t prvAFRToESPDescPerm( BTCharPermissions_t xPermissions )
         flags |= ( BLE_ATT_F_WRITE | BLE_ATT_F_WRITE_ENC | BLE_ATT_F_WRITE_AUTHEN );
     }
 
-    /*HD: eBTPermWriteSigned eBTPermWriteSignedMitm to be handled */
+    /*fixme: eBTPermWriteSigned eBTPermWriteSignedMitm to be handled */
     return flags;
 }
 
@@ -445,7 +445,7 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
     int rc = 0;
     bool need_rsp = 1;
     uint16_t handle = 0, out_len = 0;
-    uint8_t dst_buf[ 512 ] = { 0 }; /* HD: Check allocation on stack */
+    uint8_t dst_buf[ 512 ] = { 0 }; /* fixme: Check allocation on stack */
 
     ble_gap_conn_find( conn_handle, &desc );
 
@@ -518,14 +518,14 @@ void prvGATTRegisterCb( struct ble_gatt_register_ctxt * ctxt,
     switch( ctxt->op )
     {
         case BLE_GATT_REGISTER_OP_SVC:
-            MODLOG_DFLT( DEBUG, "registered service %s with handle=%d\n",
+            ESP_LOGD( TAG, "registered service %s with handle=%d\n",
                          ble_uuid_to_str( ctxt->svc.svc_def->uuid, buf ),
                          ctxt->svc.handle );
             prvSvcGattToDevHandle( ctxt );
             break;
 
         case BLE_GATT_REGISTER_OP_CHR:
-            MODLOG_DFLT( DEBUG, "registered characteristic %s with "
+            ESP_LOGD( TAG, "registered characteristic %s with "
                                 "def_handle=%d val_handle=%d\n",
                          ble_uuid_to_str( ctxt->chr.chr_def->uuid, buf ),
                          ctxt->chr.def_handle,
@@ -534,7 +534,7 @@ void prvGATTRegisterCb( struct ble_gatt_register_ctxt * ctxt,
             break;
 
         case BLE_GATT_REGISTER_OP_DSC:
-            MODLOG_DFLT( DEBUG, "registered descriptor %s with handle=%d\n",
+            ESP_LOGD( TAG, "registered descriptor %s with handle=%d\n",
                          ble_uuid_to_str( ctxt->dsc.dsc_def->uuid, buf ),
                          ctxt->dsc.handle );
 
@@ -574,7 +574,10 @@ BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    if( xGattServerCb.pxRegisterServerCb != NULL )
+    {
+        xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    }
     return xStatus;
 }
 
@@ -585,7 +588,10 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
+    if( xGattServerCb.pxUnregisterServerCb != NULL )
+    {
+        xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
+    }
     return xStatus;
 }
 
@@ -676,7 +682,7 @@ BTStatus_t prvBTAddService( uint8_t ucServerIf,
     ESP_LOGD( TAG, "Saving service data at index %d for handle %d", xGattTableSize, xGattTable[ xGattTableSize ].handle );
     xGattTableSize += 1;
 
-    if( xGattServerCb.pxServiceAddedCb )
+    if( xGattServerCb.pxServiceAddedCb != NULL )
     {
         xGattServerCb.pxServiceAddedCb( xStatus, ulGattServerIFhandle, pxSrvcId, xGattTable[ xGattTableSize - 1 ].handle );
     }
@@ -739,7 +745,7 @@ BTStatus_t prvBTAddCharacteristic( uint8_t ucServerIf,
 
     xGattTableSize += 1;
 
-    if( xGattServerCb.pxCharacteristicAddedCb )
+    if( xGattServerCb.pxCharacteristicAddedCb != NULL )
     {
         xGattServerCb.pxCharacteristicAddedCb( xStatus, ulGattServerIFhandle, pxUuid, xGattTable[ xGattTableSize - 1 ].parent_handle,
                                                xGattTable[ xGattTableSize - 1 ].handle );
@@ -809,7 +815,7 @@ BTStatus_t prvBTAddDescriptor( uint8_t ucServerIf,
 
     xGattTableSize += 1;
 
-    if( xGattServerCb.pxDescriptorAddedCb )
+    if( xGattServerCb.pxDescriptorAddedCb != NULL )
     {
         xGattServerCb.pxDescriptorAddedCb( xStatus, ulGattServerIFhandle, pxUuid, usServiceHandle, xGattTable[ xGattTableSize - 1 ].handle );
     }
@@ -979,7 +985,7 @@ BTStatus_t prvBTStopService( uint8_t ucServerIf,
 
     /* It is not supported to stop a GATT service, so we just return success.
      */
-    if( xGattServerCb.pxServiceStoppedCb )
+    if( xGattServerCb.pxServiceStoppedCb != NULL )
     {
         xGattServerCb.pxServiceStoppedCb( eBTStatusSuccess, ucServerIf, usServiceHandle );
     }
@@ -994,7 +1000,7 @@ BTStatus_t prvBTDeleteService( uint8_t ucServerIf,
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    if( xGattServerCb.pxServiceDeletedCb )
+    if( xGattServerCb.pxServiceDeletedCb != NULL )
     {
         xGattServerCb.pxServiceDeletedCb( eBTStatusSuccess, ucServerIf, usServiceHandle );
     }

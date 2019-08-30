@@ -94,7 +94,9 @@ afr_mcu_port(ble_hal)
 afr_glob_src( bluedroid_src DIRECTORY ${afr_ports_dir}/ble/bluedroid  RECURSE )
 set_source_files_properties( ${bluedroid_src} PROPERTIES HEADER_FILE_ONLY TRUE )
 
-# TODO: Include Nimble HAL files as header files.
+# Include Nimble HAL files as header files.
+afr_glob_src( nimble_src DIRECTORY ${afr_ports_dir}/ble/nimble  RECURSE )
+set_source_files_properties( ${nimble_src} PROPERTIES HEADER_FILE_ONLY TRUE )
 
 target_sources(
     AFR::ble_hal::mcu_port
@@ -103,14 +105,35 @@ target_sources(
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
         ${bluedroid_src}
+        ${nimble_src}
 )
+
 target_include_directories(
     AFR::ble_hal::mcu_port
     INTERFACE
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
+        "${esp_idf_dir}/components/nimble/nimble/porting/nimble/include"
+        "${esp_idf_dir}/components/nimble/port/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/ans/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/bas/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/gap/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/gatt/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/ias/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/lls/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/tps/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/util/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/store/ram/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/store/config/include"
+        "${esp_idf_dir}/components/nimble/nimble/porting/npl/freertos/include"
+        "${esp_idf_dir}/components/nimble/nimble/ext/tinycrypt/include"
+        "${esp_idf_dir}/components/nimble/esp-hci/include"
+
         "${afr_ports_dir}/ble"
         "${afr_ports_dir}/ble/bluedroid"
+        "${afr_ports_dir}/ble/nimble"
 )
 
 # PKCS11
