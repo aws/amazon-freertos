@@ -718,14 +718,18 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     CK_ATTRIBUTE xTemplate = { 0 };
     uint32_t ulIndex = 0;
     uint8_t ucByteValue = 0;
+
 #define BYTES_TO_DISPLAY_PER_ROW    16
     char pcByteRow[ 1 + ( BYTES_TO_DISPLAY_PER_ROW * 2 ) + ( BYTES_TO_DISPLAY_PER_ROW / 2 ) ];
     char * pcNextChar = pcByteRow;
-    uint8_t pucEcP256AsnAndOid[] = {0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 
-                                    0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a, 
-                                    0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 
-                                    0x42, 0x00};
-    uint8_t pucUnusedKeyTag[] = {0x04, 0x41};
+    uint8_t pucEcP256AsnAndOid[] =
+    {
+        0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86,
+        0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a,
+        0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03,
+        0x42, 0x00
+    };
+    uint8_t pucUnusedKeyTag[] = { 0x04, 0x41 };
     uint8_t * pucDerPublicKey = NULL;
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -803,9 +807,9 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
-    /* Check whether a keyset is now present. In order to support X.509 
-    certificate enrollment, the public and private key objects must both be
-    available. */
+    /* Check whether a keyset is now present. In order to support X.509
+     * certificate enrollment, the public and private key objects must both be
+     * available. */
     if( xResult == CKR_OK )
     {
         /* Check for a private key. */
@@ -814,7 +818,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                                 CKO_PRIVATE_KEY,
                                                 &xPrivateKeyHandle );
 
-        if( CKR_OK == xResult && 0 != xPrivateKeyHandle )
+        if( ( CKR_OK == xResult ) && ( 0 != xPrivateKeyHandle ) )
         {
             /* Check also for the corresponding public. */
             xResult = xFindObjectWithLabelAndClass( xSession,
@@ -823,20 +827,20 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                                     &xPublicKeyHandle );
         }
 
-        if( 0 == xPrivateKeyHandle || 0 == xPublicKeyHandle )
+        if( ( 0 == xPrivateKeyHandle ) || ( 0 == xPublicKeyHandle ) )
         {
-            /* Generate a new keyset if either of the above objects couldn't be 
-            found. */
+            /* Generate a new keyset if either of the above objects couldn't be
+             * found. */
             xResult = xProvisionGenerateKeyPairEC( xSession,
-                                                   ( uint8_t * )pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                   ( uint8_t * )pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                                                    &xPrivateKeyHandle,
                                                    &xPublicKeyHandle );
         }
 
-        /* Ensure that an error condition is set if either object is still 
-        missing. */
-        if( CKR_OK == xResult && ( 0 == xPrivateKeyHandle || 0 == xPublicKeyHandle ) )
+        /* Ensure that an error condition is set if either object is still
+         * missing. */
+        if( ( CKR_OK == xResult ) && ( ( 0 == xPrivateKeyHandle ) || ( 0 == xPublicKeyHandle ) ) )
         {
             xResult = CKR_KEY_HANDLE_INVALID;
         }
@@ -851,9 +855,9 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             xTemplate.pValue = NULL;
             xTemplate.ulValueLen = 0;
             xResult = pxFunctionList->C_GetAttributeValue( xSession,
-                                                            xPublicKeyHandle,
-                                                            &xTemplate,
-                                                            1 );
+                                                           xPublicKeyHandle,
+                                                           &xTemplate,
+                                                           1 );
         }
         else
         {
@@ -865,7 +869,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     if( CKR_OK == xResult )
     {
         /* Add space for the full DER header. */
-        xTemplate.ulValueLen += sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag);
+        xTemplate.ulValueLen += sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
 
         /* Get a heap buffer. */
         pucDerPublicKey = pvPortMalloc( xTemplate.ulValueLen );
@@ -880,7 +884,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     /* Export the public key. */
     if( CKR_OK == xResult )
     {
-        xTemplate.pValue = pucDerPublicKey + sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag);
+        xTemplate.pValue = pucDerPublicKey + sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
         xTemplate.ulValueLen -= ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
         xResult = pxFunctionList->C_GetAttributeValue( xSession,
                                                        xPublicKeyHandle,
@@ -894,10 +898,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     if( CKR_OK == xResult )
     {
         /* Prepend the full DER header. */
-        memcpy(pucDerPublicKey, pucEcP256AsnAndOid, sizeof(pucEcP256AsnAndOid));
+        memcpy( pucDerPublicKey, pucEcP256AsnAndOid, sizeof( pucEcP256AsnAndOid ) );
 
         /* Fix-up the template buffer pointer and length. */
-        xTemplate.ulValueLen += ( sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag) );
+        xTemplate.ulValueLen += ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
         xTemplate.pValue = pucDerPublicKey;
 
         /* Write help text to the console. */
@@ -990,9 +994,9 @@ CK_RV xInitializePkcs11Token()
         xResult = xGetSlotList( &pxSlotId, &xSlotCount );
     }
 
-    if( xResult == CKR_OK &&
-    	NULL != pxFunctionList->C_GetTokenInfo &&
-		NULL != pxFunctionList->C_InitToken)
+    if( ( xResult == CKR_OK ) &&
+        ( NULL != pxFunctionList->C_GetTokenInfo ) &&
+        ( NULL != pxFunctionList->C_InitToken ) )
     {
         /* Check if the token requires further initialization. */
         pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
