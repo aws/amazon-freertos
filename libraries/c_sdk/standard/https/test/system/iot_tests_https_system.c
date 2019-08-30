@@ -108,15 +108,15 @@
 #endif /* ifndef IOT_TEST_HTTPS_ROOT_CA */
 
 /**
- * @brief Client certificate and private key configurations.
+ * Client certificate and private key configurations.
  *
- * With PKCS #11 provisioning of the keys these parameters are deprecated.
+ * With PKCS #11 provisioning of the internally stored keys these parameters are deprecated.
  */
 #ifndef IOT_TEST_HTTPS_CLIENT_CERTIFICATE
-    #define IOT_TEST_HTTPS_CLIENT_CERTIFICATE    keyCLIENT_CERTIFICATE_PEM
+    #define IOT_TEST_HTTPS_CLIENT_CERTIFICATE    keyCLIENT_CERTIFICATE_PEM  /**< @brief Client certificate configuration. */
 #endif
 #ifndef IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY
-    #define IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY    keyCLIENT_PRIVATE_KEY_PEM
+    #define IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY    keyCLIENT_PRIVATE_KEY_PEM  /**< @brief Client private key configuration. */
 #endif
 
 /**
@@ -193,7 +193,7 @@
     "{\r\b"                     \
     "  \"data\":\"data\"\r\n"   \
     "}"
-#define HTTPS_TEST_MESSAGE_BODY_LENGTH    ( sizeof( HTTPS_TEST_MESSAGE_BODY ) - 1 )
+#define HTTPS_TEST_MESSAGE_BODY_LENGTH    ( sizeof( HTTPS_TEST_MESSAGE_BODY ) - 1 ) /**< @brief The length of the HTTP test request message body. */
 
 /*-----------------------------------------------------------*/
 
@@ -202,12 +202,12 @@
  */
 typedef struct _asyncVerificationParams
 {
-    IotSemaphore_t finishedSem;
-    uint16_t responseStatus;
-    uint32_t contentLength;
-    IotHttpsReturnCode_t contentLengthReturnCode;
-    uint32_t bodyReceivedLength;
-    IotHttpsReturnCode_t readResponseBodyReturnCode;
+    IotSemaphore_t finishedSem;                      /**< @brief This semaphore is posted to when the asynchronous response is finished. */
+    uint16_t responseStatus;                         /**< @brief The HTTP response status code in the current asynchronous request. */
+    uint32_t contentLength;                          /**< @brief The HTTP response body Content-Length the current asynchronous request. */
+    IotHttpsReturnCode_t contentLengthReturnCode;    /**< The HTTPS Client library return code from trying to read the Content-Length value. */
+    uint32_t bodyReceivedLength;                     /**< @brief The amount of HTTP response body read from the network. */
+    IotHttpsReturnCode_t readResponseBodyReturnCode; /**< @brief The HTTP Client library return code from reading HTTP response body from the network. */
 } _asyncVerificationParams_t;
 
 /*-----------------------------------------------------------*/
@@ -556,6 +556,9 @@ TEST_TEAR_DOWN( HTTPS_Client_System )
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Test group runner for HTTPS Client System integration tests.
+ */
 TEST_GROUP_RUNNER( HTTPS_Client_System )
 {
     RUN_TEST_CASE( HTTPS_Client_System, GetRequestSynchronousPersistent );

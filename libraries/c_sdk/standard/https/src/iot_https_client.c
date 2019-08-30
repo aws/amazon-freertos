@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_https_client.h
+ * @file iot_https_client.c
  * @brief Implementation of the user-facing functions of the Amazon FreeRTOS HTTPS Client library.
  */
 
@@ -64,15 +64,15 @@
  */
 #define HTTPS_PARTIAL_HOST_HEADER_LINE                    HTTPS_HOST_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_END_OF_HEADER_LINES_INDICATOR
 
-/*
+/**
  * String constants for the Connection header and possible values.
  *
  * This is used for writing headers automatically during the sending of the HTTP request.
  * "Connection: keep-alive\r\n" is written automatically for a persistent connection.
  * "Connection: close\r\n" is written automatically for a non-presistent connection.
  */
-#define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE           HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR
-#define HTTPS_CONNECTION_CLOSE_HEADER_LINE                HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_CLOSE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR
+#define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE           HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_KEEP_ALIVE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR /**< @brief String literal for "Connection: keep-alive\r\n". */
+#define HTTPS_CONNECTION_CLOSE_HEADER_LINE                HTTPS_CONNECTION_HEADER HTTPS_HEADER_FIELD_SEPARATOR HTTPS_CONNECTION_CLOSE_HEADER_VALUE HTTPS_END_OF_HEADER_LINES_INDICATOR      /**< @brief String literal for "Connection: close\r\n". */
 
 /**
  * @brief The length of the "Connection: keep-alive\r\n" header.
@@ -85,13 +85,13 @@
 #define HTTPS_CONNECTION_KEEP_ALIVE_HEADER_LINE_LENGTH    ( 24 )
 
 /**
- * @brief Indicates for the http-parser parsing execution function to tell it to keep parsing or to stop parsing.
+ * Indicates for the http-parser parsing execution function to tell it to keep parsing or to stop parsing.
  *
  * A value of 0 means the parser should keep parsing if there is more unparsed length.
  * A value greater than 0 tells the parser to stop parsing.
  */
-#define KEEP_PARSING                                      ( ( int ) 0 )
-#define STOP_PARSING                                      ( ( int ) 1 )
+#define KEEP_PARSING                                      ( ( int ) 0 ) /**< @brief Indicator in the http-parser callback to keep parsing when the function returns. */
+#define STOP_PARSING                                      ( ( int ) 1 ) /**< @brief Indicator in the http-parser callback to stop parsing when the function returns. */
 
 /*-----------------------------------------------------------*/
 
@@ -363,7 +363,7 @@ static IotHttpsReturnCode_t _networkSend( _httpsConnection_t * pHttpsConnection,
  *
  * @param[in] pHttpsConnection - HTTP connection context.
  * @param[in] pBuf - The buffer to receive the data into.
- * @param[in] len - The length of the data to receive.
+ * @param[in] bufLen - The length of the data to receive.
  * @param[in] numBytesRecv - The number of bytes read from the network.
  *
  * @return #IOT_HTTPS_OK if the data was received successfully.
@@ -517,7 +517,7 @@ static IotHttpsReturnCode_t _flushHttpsNetworkData( _httpsConnection_t * pHttpsC
  *
  * @param[in] pTaskPool Pointer to the system task pool.
  * @param[in] pJob Pointer the to the HTTP request sending job.
- * @param[in] pContext Pointer to an HTTP request, passed as an opaque context.
+ * @param[in] pUserContext Pointer to an HTTP request, passed as an opaque context.
  */
 static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
                                IotTaskPoolJob_t pJob,
@@ -599,7 +599,7 @@ static void _cancelResponse( _httpsResponse_t * pHttpsResponse );
 /**
  * @brief Initialize the input pHttpsResponse with pRespInfo.
  *
- * @param[in] pHttpsResponse - Non-null HTTP response context.
+ * @param[in] pRespHandle - Non-null HTTP response context.
  * @param[in] pRespInfo - Response configuration information.
  * @param[in] pHttpsRequest - HTTP request to grab async information, persistence, and method from.
  */
