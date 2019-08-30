@@ -316,14 +316,30 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return 0;
 
         case BLE_GAP_EVENT_NOTIFY_TX:
-
-            if( ( event->notify_tx.status != 0 ) && ( xGattServerCb.pxIndicationSentCb != NULL ) )
+            xStatus = eBTStatusSuccess;
+            if( event->notify_tx.indication )
             {
-                if( event->notify_tx.status == BLE_HS_ETIMEOUT )
+                if( event->notify_tx.status == 0 )
+                {
+                    break;
+                }
+                if( event->notify_tx.status != BLE_HS_EDONE )
                 {
                     xStatus = eBTStatusFail;
                 }
+                ESP_LOGD(TAG, "Indication tx status received: %d", event->notify_tx.status);
+            }
+            else
+            {
+                if( event->notify_tx.status != 0 )
+                {
+                    xStatus = eBTStatusFail;
+                }
+                ESP_LOGD(TAG, "Notification tx status received: %d", event->notify_tx.status);
+            }
 
+            if( xGattServerCb.pxIndicationSentCb != NULL )
+            {
                 xGattServerCb.pxIndicationSentCb( event->notify_tx.conn_handle, xStatus );
             }
 
@@ -458,8 +474,8 @@ static void bleprph_on_reset( int reason )
 
 static void bleprph_on_sync( void )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
     int rc;
+    BTStatus_t xStatus = eBTStatusSuccess;
 
     rc = ble_hs_util_ensure_addr( 0 );
 
@@ -494,7 +510,6 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
     ble_hs_cfg.reset_cb = bleprph_on_reset;
     ble_hs_cfg.sync_cb = bleprph_on_sync;
     ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
-    nimble_port_freertos_init( ble_host_task );
     ble_store_config_init();
 
     if( pxCallbacks != NULL )
@@ -527,13 +542,7 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    /** If status is ok and callback is set, trigger the callback.
-     *  If status is fail, no need to trig a callback as original call failed.
-     **/
-    if( ( xStatus == eBTStatusSuccess ) && ( xBTCallbacks.pxDeviceStateChangedCb != NULL ) )
-    {
-        xBTCallbacks.pxDeviceStateChangedCb( eBTstateOn );
-    }
+    nimble_port_freertos_init( ble_host_task );
 
     return xStatus;
 }

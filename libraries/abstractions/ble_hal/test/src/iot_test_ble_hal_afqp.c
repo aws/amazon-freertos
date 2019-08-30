@@ -29,33 +29,19 @@
  */
 #include "iot_test_ble_hal_afqp.h"
 
-IotListDouble_t g_eventQueueHead;
-IotMutex_t g_threadSafetyMutex;
-IotSemaphore_t g_eventSemaphore;
-
-BTInterface_t * g_pxBTInterface;
-BTBleAdapter_t * g_pxBTLeAdapterInterface;
-BTUuid_t g_xServerUUID =
-{
-    .ucType   = eBTuuidType128,
-    .uu.uu128 = bletestsSERVER_UUID
-};
-BTUuid_t g_xAppUUID =
-{
-    .ucType   = eBTuuidType128,
-    .uu.uu128 = bletestsAPP_UUID
-};
-uint8_t g_ucBLEAdapterIf;
-uint8_t g_ucBLEServerIf;
-BTBdaddr_t g_xAddressConnectedDevice;
-BTGattServerInterface_t * g_pxGattServerInterface;
-uint16_t g_usBLEConnId;
+BTInterface_t * _pxBTInterface;
+BTBleAdapter_t * _pxBTLeAdapterInterface;
+uint8_t _ucBLEAdapterIf;
+uint8_t _ucBLEServerIf;
+BTBdaddr_t _xAddressConnectedDevice;
+BTGattServerInterface_t * _pxGattServerInterface;
+uint16_t _usBLEConnId;
 
 
-uint8_t ucCbPropertyBuffer[ bletestsMAX_PROPERTY_SIZE ];
-uint32_t usCbConnInterval;
+uint16_t usHandlesBufferA[ bletestATTR_SRVCA_NUMBER ];
+uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
 
-static uint16_t usHandlesBufferA[ bletestATTR_SRVCA_NUMBER ];
+/* service A */
 
 static const BTAttribute_t pxAttributeTableA[] =
 {
@@ -73,7 +59,7 @@ static const BTAttribute_t pxAttributeTableA[] =
     }
 };
 
-BTService_t xSrvcA =
+BTService_t _xSrvcA =
 {
     .ucInstId            = 0,
     .xType               = eBTServiceTypePrimary,
@@ -82,77 +68,7 @@ BTService_t xSrvcA =
     .pxBLEAttributes     = ( BTAttribute_t * ) pxAttributeTableA
 };
 
-static BTCallbacks_t xBTManagerCb =
-{
-    .pxDeviceStateChangedCb     = prvDeviceStateChangedCb,
-    .pxAdapterPropertiesCb      = prvAdapterPropertiesCb,
-    .pxRemoteDevicePropertiesCb = NULL,
-    .pxSspRequestCb             = prvSspRequestCb,
-    .pxPairingStateChangedCb    = prvPairingStateChangedCb,
-    .pxBondedCb                 = prvBondedCb,
-    .pxDutModeRecvCb            = NULL,
-    .pxleTestModeCb             = NULL,
-    .pxEnergyInfoCb             = NULL,
-    .pxReadRssiCb               = NULL,
-    .pxTxPowerCb                = NULL,
-    .pxSlaveSecurityRequestCb   = NULL,
-};
-
-static BTBleAdapterCallbacks_t xBTBleAdapterCb =
-{
-    .pxRegisterBleAdapterCb          = prvRegisterBleAdapterCb,
-    .pxScanResultCb                  = NULL,
-    .pxBleAdapterPropertiesCb        = NULL,
-    .pxBleRemoteDevicePropertiesCb   = NULL,
-    .pxOpenCb                        = NULL,
-    .pxCloseCb                       = NULL,
-    .pxReadRemoteRssiCb              = NULL,
-    .pxAdvStatusCb                   = prvAdvStatusCb,
-    .pxSetAdvDataCb                  = prvSetAdvDataCb,
-    .pxConnParameterUpdateCb         = prvConnParameterUpdateCb,
-    .pxScanFilterCfgCb               = NULL,
-    .pxScanFilterParamCb             = NULL,
-    .pxScanFilterStatusCb            = NULL,
-    .pxMultiAdvEnableCb              = NULL,
-    .pxMultiAdvUpdateCb              = NULL,
-    .pxMultiAdvDataCb                = NULL,
-    .pxMultiAdvDisableCb             = NULL,
-    .pxCongestionCb                  = NULL,
-    .pxBatchscanCfgStorageCb         = NULL,
-    .pxBatchscanEnbDisableCb         = NULL,
-    .pxBatchscanReportsCb            = NULL,
-    .pxBatchscanThresholdCb          = NULL,
-    .pxTrackAdvEventCb               = NULL,
-    .pxScanParameterSetupCompletedCb = NULL,
-    .pxPhyUpdatedCb                  = NULL,
-};
-
-static BTGattServerCallbacks_t xBTGattServerCb =
-{
-    .pxRegisterServerCb       = prvBTRegisterServerCb,
-    .pxUnregisterServerCb     = prvBTUnregisterServerCb,
-    .pxConnectionCb           = prvConnectionCb,
-    .pxServiceAddedCb         = prvServiceAddedCb,
-    .pxIncludedServiceAddedCb = prvIncludedServiceAddedCb,
-    .pxCharacteristicAddedCb  = prvCharacteristicAddedCb,
-    .pxSetValCallbackCb       = NULL,
-    .pxDescriptorAddedCb      = prvCharacteristicDescrAddedCb,
-    .pxServiceStartedCb       = prvServiceStartedCb,
-    .pxServiceStoppedCb       = prvServiceStoppedCb,
-    .pxServiceDeletedCb       = prvServiceDeletedCb,
-    .pxRequestReadCb          = prvRequestReadCb,
-    .pxRequestWriteCb         = prvRequestWriteCb,
-    .pxRequestExecWriteCb     = prvRequestExecWriteCb,
-    .pxResponseConfirmationCb = prvResponseConfirmationCb,
-    .pxIndicationSentCb       = prvIndicationSentCb,
-    .pxCongestionCb           = NULL,
-    .pxMtuChangedCb           = NULL
-};
-
-
-response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
-
-static uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
+/* Service B */
 
 static const BTAttribute_t pxAttributeTableB[] =
 {
@@ -266,12 +182,12 @@ static const BTAttribute_t pxAttributeTableB[] =
         .xIncludedService =
         {
             .xUuid          = bletestsFREERTOS_SVC_A_UUID,
-            .pxPtrToService = &xSrvcA
+            .pxPtrToService = &_xSrvcA
         }
     }
 };
 
-BTService_t xSrvcB =
+BTService_t _xSrvcB =
 {
     .ucInstId            = 0,
     .xType               = eBTServiceTypePrimary,
@@ -318,6 +234,98 @@ IotBleConnectionParam_t xConnectionParamA =
     .latency     = 4,
     .timeout     = 400
 };
+
+BTUuid_t xServerUUID =
+{
+    .ucType   = eBTuuidType128,
+    .uu.uu128 = bletestsSERVER_UUID
+};
+BTUuid_t xAppUUID =
+{
+    .ucType   = eBTuuidType128,
+    .uu.uu128 = bletestsAPP_UUID
+};
+
+IotListDouble_t eventQueueHead;
+IotMutex_t threadSafetyMutex;
+IotSemaphore_t eventSemaphore;
+
+uint8_t ucCbPropertyBuffer[ bletestsMAX_PROPERTY_SIZE ];
+uint32_t usCbConnInterval;
+
+response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
+
+
+const uint32_t bletestWAIT_MODE1_LEVEL2_QUERY = 10000; /* Wait 10s max */
+
+BTCallbacks_t _xBTManagerCb =
+{
+    .pxDeviceStateChangedCb     = prvDeviceStateChangedCb,
+    .pxAdapterPropertiesCb      = prvAdapterPropertiesCb,
+    .pxRemoteDevicePropertiesCb = NULL,
+    .pxSspRequestCb             = prvSspRequestCb,
+    .pxPairingStateChangedCb    = prvPairingStateChangedCb,
+    .pxBondedCb                 = prvBondedCb,
+    .pxDutModeRecvCb            = NULL,
+    .pxleTestModeCb             = NULL,
+    .pxEnergyInfoCb             = NULL,
+    .pxReadRssiCb               = NULL,
+    .pxTxPowerCb                = NULL,
+    .pxSlaveSecurityRequestCb   = NULL,
+};
+
+BTBleAdapterCallbacks_t xBTBleAdapterCb =
+{
+    .pxRegisterBleAdapterCb          = prvRegisterBleAdapterCb,
+    .pxScanResultCb                  = NULL,
+    .pxBleAdapterPropertiesCb        = NULL,
+    .pxBleRemoteDevicePropertiesCb   = NULL,
+    .pxOpenCb                        = NULL,
+    .pxCloseCb                       = NULL,
+    .pxReadRemoteRssiCb              = NULL,
+    .pxAdvStatusCb                   = prvAdvStatusCb,
+    .pxSetAdvDataCb                  = prvSetAdvDataCb,
+    .pxConnParameterUpdateCb         = prvConnParameterUpdateCb,
+    .pxScanFilterCfgCb               = NULL,
+    .pxScanFilterParamCb             = NULL,
+    .pxScanFilterStatusCb            = NULL,
+    .pxMultiAdvEnableCb              = NULL,
+    .pxMultiAdvUpdateCb              = NULL,
+    .pxMultiAdvDataCb                = NULL,
+    .pxMultiAdvDisableCb             = NULL,
+    .pxCongestionCb                  = NULL,
+    .pxBatchscanCfgStorageCb         = NULL,
+    .pxBatchscanEnbDisableCb         = NULL,
+    .pxBatchscanReportsCb            = NULL,
+    .pxBatchscanThresholdCb          = NULL,
+    .pxTrackAdvEventCb               = NULL,
+    .pxScanParameterSetupCompletedCb = NULL,
+    .pxPhyUpdatedCb                  = NULL,
+};
+
+
+BTGattServerCallbacks_t xBTGattServerCb =
+{
+    .pxRegisterServerCb       = prvBTRegisterServerCb,
+    .pxUnregisterServerCb     = prvBTUnregisterServerCb,
+    .pxConnectionCb           = prvConnectionCb,
+    .pxServiceAddedCb         = prvServiceAddedCb,
+    .pxIncludedServiceAddedCb = prvIncludedServiceAddedCb,
+    .pxCharacteristicAddedCb  = prvCharacteristicAddedCb,
+    .pxSetValCallbackCb       = NULL,
+    .pxDescriptorAddedCb      = prvCharacteristicDescrAddedCb,
+    .pxServiceStartedCb       = prvServiceStartedCb,
+    .pxServiceStoppedCb       = prvServiceStoppedCb,
+    .pxServiceDeletedCb       = prvServiceDeletedCb,
+    .pxRequestReadCb          = prvRequestReadCb,
+    .pxRequestWriteCb         = prvRequestWriteCb,
+    .pxRequestExecWriteCb     = prvRequestExecWriteCb,
+    .pxResponseConfirmationCb = prvResponseConfirmationCb,
+    .pxIndicationSentCb       = prvIndicationSentCb,
+    .pxCongestionCb           = NULL,
+    .pxMtuChangedCb           = NULL
+};
+
 /*-----------------------------------------------------------*/
 
 TEST_GROUP( Full_BLE );
@@ -387,7 +395,7 @@ void prvRemoveBond( BTBdaddr_t * pxDeviceAddress )
     BTStatus_t xStatus;
     BLETESTBondedCallback_t xBondedEvent;
 
-    xStatus = g_pxBTInterface->pxRemoveBond( pxDeviceAddress );
+    xStatus = _pxBTInterface->pxRemoveBond( pxDeviceAddress );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventBondedCb, NO_HANDLE, ( void * ) &xBondedEvent, sizeof( BLETESTBondedCallback_t ), BLE_TESTS_WAIT );
@@ -399,27 +407,7 @@ void prvRemoveBond( BTBdaddr_t * pxDeviceAddress )
 
 TEST( Full_BLE, BLE_Setup )
 {
-    BTStatus_t xStatus;
-
-    xStatus = bleStackInit();
-
-    if( xStatus != eBTStatusSuccess )
-    {
-        TEST_FAIL_MESSAGE( "Unable to initialize BLE stask.\n" );
-    }
-
-    /* Create a queue, semaphore and mutexes for callbacks. */
-    if( IotMutex_Create( &g_threadSafetyMutex, false ) != true )
-    {
-        TEST_FAIL_MESSAGE( "Could not create g_threadSafetyMutex.\n" );
-    }
-
-    if( IotSemaphore_Create( &g_eventSemaphore, 0, MAX_EVENT ) != true )
-    {
-        TEST_FAIL_MESSAGE( "Could not create g_eventSemaphore.\n" );
-    }
-
-    IotListDouble_Create( &g_eventQueueHead );
+    prvBLESetUp();
 }
 
 TEST( Full_BLE, BLE_Free )
@@ -427,19 +415,19 @@ TEST( Full_BLE, BLE_Free )
     BLEHALEventsInternals_t * pEventIndex;
     IotLink_t * pEventListIndex;
 
-    IotMutex_Lock( &g_threadSafetyMutex );
+    IotMutex_Lock( &threadSafetyMutex );
 
     /* Get the event associated to the callback */
-    IotContainers_ForEach( &g_eventQueueHead, pEventListIndex )
+    IotContainers_ForEach( &eventQueueHead, pEventListIndex )
     {
         pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventListIndex, eventList );
         IotTest_Free( pEventIndex );
     }
 
-    IotMutex_Unlock( &g_threadSafetyMutex );
+    IotMutex_Unlock( &threadSafetyMutex );
 
-    IotMutex_Destroy( &g_threadSafetyMutex );
-    IotSemaphore_Destroy( &g_eventSemaphore );
+    IotMutex_Destroy( &threadSafetyMutex );
+    IotSemaphore_Destroy( &eventSemaphore );
 }
 
 TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
@@ -495,11 +483,11 @@ void prvWaitConnection( bool bConnected )
     xStatus = prvWaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( bConnected, xConnectionEvent.bConnected );
-    TEST_ASSERT_EQUAL( g_ucBLEServerIf, xConnectionEvent.ucServerIf );
+    TEST_ASSERT_EQUAL( _ucBLEServerIf, xConnectionEvent.ucServerIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xConnectionEvent.xStatus );
 
     /* Stop advertisement. */
-    xStatus = g_pxBTLeAdapterInterface->pxStopAdv( g_ucBLEAdapterIf );
+    xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     prvStartStopAdvCheck( false );
 }
@@ -515,10 +503,10 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
 
-    xStatus = g_pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
+    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY );
@@ -532,9 +520,9 @@ TEST( Full_BLE, BLE_Connection_RemoveBonding )
 {
     bool bFoundRemoteDevice;
 
-    prvRemoveBond( &g_xAddressConnectedDevice );
+    prvRemoveBond( &_xAddressConnectedDevice );
 
-    bFoundRemoteDevice = prvGetCheckDeviceBonded( &g_xAddressConnectedDevice );
+    bFoundRemoteDevice = prvGetCheckDeviceBonded( &_xAddressConnectedDevice );
     TEST_ASSERT_EQUAL( false, bFoundRemoteDevice );
 }
 
@@ -543,7 +531,7 @@ TEST( Full_BLE, BLE_Connection_CheckBonding )
 {
     bool bFoundRemoteDevice;
 
-    bFoundRemoteDevice = prvGetCheckDeviceBonded( &g_xAddressConnectedDevice );
+    bFoundRemoteDevice = prvGetCheckDeviceBonded( &_xAddressConnectedDevice );
     TEST_ASSERT_EQUAL( true, bFoundRemoteDevice );
 }
 
@@ -561,14 +549,14 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
     xStatus = prvWaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventBondedCb, NO_HANDLE, ( void * ) &xBondedEvent, sizeof( BLETESTBondedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xBondedEvent.xStatus );
     TEST_ASSERT_EQUAL( true, xBondedEvent.bIsBonded );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xBondedEvent.xRemoteBdAddr, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xBondedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 
     prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
                               true,
@@ -608,31 +596,31 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
     /* Wait secure connection. Secure connection is triggered by writting to bletestsCHARB. */
     xStatus = prvWaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
 
-    xStatus = g_pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
+    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventSSPrequestConfirmationCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTsspVariantPasskeyConfirmation, xSSPrequestEvent.xPairingVariant );
 
-    xStatus = g_pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantPasskeyConfirmation, true, 0 );
+    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantPasskeyConfirmation, true, 0 );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventBondedCb, NO_HANDLE, ( void * ) &xBondedEvent, sizeof( BLETESTBondedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xBondedEvent.xStatus );
     TEST_ASSERT_EQUAL( true, xBondedEvent.bIsBonded );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xBondedEvent.xRemoteBdAddr, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xBondedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 
     prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
                               true,
@@ -657,8 +645,8 @@ void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
     TEST_ASSERT_EQUAL( IsPrep, xWriteEvent.bIsPrep );
     TEST_ASSERT_EQUAL( bNeedRsp, xWriteEvent.bNeedRsp );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
-    TEST_ASSERT_EQUAL( g_usBLEConnId, xWriteEvent.usConnId );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
     TEST_ASSERT_EQUAL( bletestsSTRINGYFIED_UUID_SIZE, xWriteEvent.xLength );
 
@@ -671,7 +659,7 @@ void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
         ucRespBuffer[ xAttribute ].xLength = xWriteEvent.xLength;
         memcpy( ucRespBuffer[ xAttribute ].ucBuffer, xWriteEvent.ucValue, xWriteEvent.xLength );
         xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer;
-        xStatus = g_pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+        xStatus = _pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
         xStatus = prvWaitEventFromQueue( eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
@@ -685,12 +673,12 @@ void prvSendNotification( bletestAttSrvB_t xAttribute,
 {
     BTStatus_t xStatus;
 
-    xStatus = g_pxGattServerInterface->pxSendIndication( g_ucBLEServerIf,
-                                                         usHandlesBufferB[ xAttribute ],
-                                                         g_usBLEConnId,
-                                                         ucRespBuffer[ xAttribute ].xLength,
-                                                         ucRespBuffer[ xAttribute ].ucBuffer,
-                                                         bConfirm );
+    xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
+                                                        usHandlesBufferB[ xAttribute ],
+                                                        _usBLEConnId,
+                                                        ucRespBuffer[ xAttribute ].xLength,
+                                                        ucRespBuffer[ xAttribute ].ucBuffer,
+                                                        bConfirm );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
@@ -705,8 +693,8 @@ void checkNotificationIndication( bletestAttSrvB_t xAttribute,
     xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
-    TEST_ASSERT_EQUAL( g_usBLEConnId, xWriteEvent.usConnId );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 
     /* for Indication or Notification a flag on the first byte is toggled .*/
     if( enable == true )
@@ -723,7 +711,7 @@ void checkNotificationIndication( bletestAttSrvB_t xAttribute,
     xGattResponse.xAttrValue.usOffset = 0;
     xGattResponse.xAttrValue.xLen = xWriteEvent.xLength;
     xGattResponse.xAttrValue.pucValue = xWriteEvent.ucValue;
-    g_pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+    _pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
@@ -755,7 +743,7 @@ TEST( Full_BLE, BLE_Property_Indication )
     prvSendNotification( bletestATTR_SRVCB_CHAR_F, true );
     xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( g_usBLEConnId, xIndicateEvent.usConnId );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xIndicateEvent.usConnId );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xIndicateEvent.xStatus );
 }
 
@@ -771,7 +759,7 @@ TEST( Full_BLE, BLE_Property_Notification )
     /* Wait a possible confirm for 2 max connections interval */
     xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( g_usBLEConnId, xIndicateEvent.usConnId );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xIndicateEvent.usConnId );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xIndicateEvent.xStatus );
 }
 
@@ -793,16 +781,16 @@ void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute )
     xStatus = prvWaitEventFromQueue( eBLEHALEventReadAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xReadEvent, sizeof( BLETESTreadAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xReadEvent.usAttrHandle );
-    TEST_ASSERT_EQUAL( g_usBLEConnId, xReadEvent.usConnId );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xReadEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, xReadEvent.usOffset );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xReadEvent.xBda, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xReadEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 
     xGattResponse.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usOffset = xReadEvent.usOffset;
     xGattResponse.xAttrValue.xLen = ucRespBuffer[ xAttribute ].xLength;
     xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer;
-    g_pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+    _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
@@ -844,18 +832,18 @@ TEST( Full_BLE, BLE_Connection_UpdateConnectionParamReq )
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTUpdateConnectionParamReqCallback_t xUpdateConnectionParamReq;
 
-    xStatus = g_pxBTLeAdapterInterface->pxConnParameterUpdateRequest( &g_xAddressConnectedDevice,
-                                                                      xConnectionParamA.minInterval,
-                                                                      xConnectionParamA.maxInterval,
-                                                                      xConnectionParamA.latency,
-                                                                      xConnectionParamA.timeout );
+    xStatus = _pxBTLeAdapterInterface->pxConnParameterUpdateRequest( &_xAddressConnectedDevice,
+                                                                     xConnectionParamA.minInterval,
+                                                                     xConnectionParamA.maxInterval,
+                                                                     xConnectionParamA.latency,
+                                                                     xConnectionParamA.timeout );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventConnectionUpdateCb, NO_HANDLE, ( void * ) &xUpdateConnectionParamReq, sizeof( BLETESTUpdateConnectionParamReqCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xUpdateConnectionParamReq.xStatus );
 
-    TEST_ASSERT_EQUAL( 0, memcmp( &xUpdateConnectionParamReq.xBda, &g_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xUpdateConnectionParamReq.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( xConnectionParamA.minInterval, xUpdateConnectionParamReq.xConnParam.minInterval );
     TEST_ASSERT_EQUAL( xConnectionParamA.maxInterval, xUpdateConnectionParamReq.xConnParam.maxInterval );
     TEST_ASSERT_EQUAL( xConnectionParamA.latency, xUpdateConnectionParamReq.xConnParam.latency );
@@ -877,14 +865,14 @@ void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTAdvParamCallback_t xAdvParamCallback;
 
-    xStatus = g_pxBTLeAdapterInterface->pxSetAdvData( g_ucBLEAdapterIf,
-                                                      pxParams,
-                                                      0,
-                                                      NULL,
-                                                      usServiceDataLen,
-                                                      pcServiceData,
-                                                      pxServiceUuid,
-                                                      xNbServices );
+    xStatus = _pxBTLeAdapterInterface->pxSetAdvData( _ucBLEAdapterIf,
+                                                     pxParams,
+                                                     0,
+                                                     NULL,
+                                                     usServiceDataLen,
+                                                     pcServiceData,
+                                                     pxServiceUuid,
+                                                     xNbServices );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventSetAdvCb, NO_HANDLE, ( void * ) &xAdvParamCallback, sizeof( BLETESTAdvParamCallback_t ), BLE_TESTS_WAIT );
@@ -907,7 +895,7 @@ void prvStartAdvertisement( void )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xStatus = g_pxBTLeAdapterInterface->pxStartAdv( g_ucBLEAdapterIf );
+    xStatus = _pxBTLeAdapterInterface->pxStartAdv( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     prvStartStopAdvCheck( true );
@@ -919,6 +907,12 @@ TEST( Full_BLE, BLE_Advertising_StartAdvertisement )
 }
 
 TEST( Full_BLE, BLE_Advertising_SetAvertisementData )
+{
+    prvSetAdvData();
+}
+
+
+void prvSetAdvData( void )
 {
     uint16_t usServiceDataLen;
     char * pcServiceData;
@@ -956,11 +950,11 @@ void prvSetGetProperty( BTProperty_t * pxProperty,
 
     if( bIsSet == true )
     {
-        xStatus = g_pxBTInterface->pxSetDeviceProperty( pxProperty );
+        xStatus = _pxBTInterface->pxSetDeviceProperty( pxProperty );
     }
     else
     {
-        xStatus = g_pxBTInterface->pxGetDeviceProperty( pxProperty->xType );
+        xStatus = _pxBTInterface->pxGetDeviceProperty( pxProperty->xType );
     }
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -984,6 +978,11 @@ void prvSetGetProperty( BTProperty_t * pxProperty,
 }
 
 TEST( Full_BLE, BLE_Advertising_SetProperties )
+{
+    prvSetAdvProperty();
+}
+
+void prvSetAdvProperty( void )
 {
     BTProperty_t pxProperty;
     uint16_t usMTUsize = bletestsMTU_SIZE1;
@@ -1014,7 +1013,7 @@ void prvStartService( BTService_t * xRefSrvc )
     BLETESTServiceCallback_t xStartServiceCb;
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xStatus = g_pxGattServerInterface->pxStartService( g_ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ], BTTransportLe );
+    xStatus = _pxGattServerInterface->pxStartService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ], BTTransportLe );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventServiceStartedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStartServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
@@ -1027,16 +1026,16 @@ TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
     BLETESTAttrCallback_t xBLETESTInclServiceCb;
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xStatus = g_pxGattServerInterface->pxAddIncludedService( g_ucBLEServerIf,
-                                                             xSrvcB.pusHandlesBuffer[ 0 ],
-                                                             xSrvcA.pusHandlesBuffer[ 0 ] );
+    xStatus = _pxGattServerInterface->pxAddIncludedService( _ucBLEServerIf,
+                                                            _xSrvcB.pusHandlesBuffer[ 0 ],
+                                                            _xSrvcA.pusHandlesBuffer[ 0 ] );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventIncludedServiceAdded, NO_HANDLE, ( void * ) &xBLETESTInclServiceCb, sizeof( BLETESTAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xBLETESTInclServiceCb.xStatus );
-    TEST_ASSERT_EQUAL( xSrvcB.pusHandlesBuffer[ 0 ], xBLETESTInclServiceCb.usSrvHandle );
-    xSrvcB.pusHandlesBuffer[ bletestATTR_INCLUDED_SERVICE ] = xBLETESTInclServiceCb.usAttrHandle;
+    TEST_ASSERT_EQUAL( _xSrvcB.pusHandlesBuffer[ 0 ], xBLETESTInclServiceCb.usSrvHandle );
+    _xSrvcB.pusHandlesBuffer[ bletestATTR_INCLUDED_SERVICE ] = xBLETESTInclServiceCb.usAttrHandle;
 }
 
 void prvCreateCharacteristicDescriptor( BTService_t * xSrvc,
@@ -1045,10 +1044,10 @@ void prvCreateCharacteristicDescriptor( BTService_t * xSrvc,
     BLETESTAttrCallback_t xBLETESTCharDescrCb;
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xStatus = g_pxGattServerInterface->pxAddDescriptor( g_ucBLEServerIf,
-                                                        xSrvc->pusHandlesBuffer[ 0 ],
-                                                        &xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristicDescr.xUuid,
-                                                        xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristicDescr.xPermissions );
+    xStatus = _pxGattServerInterface->pxAddDescriptor( _ucBLEServerIf,
+                                                       xSrvc->pusHandlesBuffer[ 0 ],
+                                                       &xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristicDescr.xUuid,
+                                                       xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristicDescr.xPermissions );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventCharDescrAddedCb, NO_HANDLE, ( void * ) &xBLETESTCharDescrCb, sizeof( BLETESTAttrCallback_t ), BLE_TESTS_WAIT );
@@ -1075,11 +1074,11 @@ void prvCreateCharacteristic( BTService_t * xSrvc,
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTAttrCallback_t xBLETESTCharCb;
 
-    xStatus = g_pxGattServerInterface->pxAddCharacteristic( g_ucBLEServerIf,
-                                                            xSrvc->pusHandlesBuffer[ 0 ],
-                                                            &xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xUuid,
-                                                            xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xProperties,
-                                                            xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xPermissions );
+    xStatus = _pxGattServerInterface->pxAddCharacteristic( _ucBLEServerIf,
+                                                           xSrvc->pusHandlesBuffer[ 0 ],
+                                                           &xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xUuid,
+                                                           xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xProperties,
+                                                           xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xPermissions );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventCharAddedCb, NO_HANDLE, ( void * ) &xBLETESTCharCb, sizeof( BLETESTAttrCallback_t ), BLE_TESTS_WAIT );
@@ -1133,7 +1132,7 @@ void prvCreateService( BTService_t * xRefSrvc )
     xSrvcId.xId.xUuid = xRefSrvc->pxBLEAttributes[ 0 ].xServiceUUID;
     xSrvcId.xServiceType = xRefSrvc->xType;
 
-    xStatus = g_pxGattServerInterface->pxAddService( g_ucBLEServerIf, &xSrvcId, usNumHandles );
+    xStatus = _pxGattServerInterface->pxAddService( _ucBLEServerIf, &xSrvcId, usNumHandles );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventServiceAddedCb, NO_HANDLE, ( void * ) &xCreateServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
@@ -1152,54 +1151,71 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 
     /* Try to create using blob service API first.
      * If blob is not supported then try legacy APIs. */
-    xStatus = g_pxGattServerInterface->pxAddServiceBlob( g_ucBLEServerIf, &xSrvcA );
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
 
     if( xStatus != eBTStatusUnsupported )
     {
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        xStatus = g_pxGattServerInterface->pxAddServiceBlob( g_ucBLEServerIf, &xSrvcB );
+        xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
     else
     {
         /* Create service A */
-        prvCreateService( &xSrvcA );
-        prvCreateCharacteristic( &xSrvcA, bletestATTR_SRVCA_CHAR_A );
+        prvCreateServiceA();
 
         /* Create service B */
-        prvCreateService( &xSrvcB );
-        prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_A );
-        prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_B );
-        prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_C );
-        prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_D );
-        prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_E );
-        prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CCCD_E );
-        prvCreateCharacteristic( &xSrvcB, bletestATTR_SRVCB_CHAR_F );
-        prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CCCD_F );
-        prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_A );
-        prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_B );
-        prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_C );
-        prvCreateCharacteristicDescriptor( &xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_D );
+        prvCreateServiceB();
 
         /* Start service A */
-        prvStartService( &xSrvcA );
+        prvStartService( &_xSrvcA );
         /* Start service B */
-        prvStartService( &xSrvcB );
+        prvStartService( &_xSrvcB );
     }
 }
 
+void prvCreateServiceA()
+{
+    prvCreateService( &_xSrvcA );
+    prvCreateCharacteristic( &_xSrvcA, bletestATTR_SRVCA_CHAR_A );
+}
+
+void prvCreateServiceB()
+{
+    prvCreateService( &_xSrvcB );
+    prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A );
+    prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_B );
+    prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_C );
+    prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_D );
+    prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_E );
+    prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CCCD_E );
+    prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_F );
+    prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CCCD_F );
+    prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_A );
+    prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_B );
+    prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_C );
+    prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_D );
+}
+
+
+
 TEST( Full_BLE, BLE_Initialize_BLE_GATT )
+{
+    prvBLEGATTInit();
+}
+
+void prvBLEGATTInit()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
 
-    g_pxGattServerInterface = ( BTGattServerInterface_t * ) g_pxBTLeAdapterInterface->ppvGetGattServerInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, g_pxGattServerInterface );
+    _pxGattServerInterface = ( BTGattServerInterface_t * ) _pxBTLeAdapterInterface->ppvGetGattServerInterface();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxGattServerInterface );
 
-    g_pxGattServerInterface->pxGattServerInit( &xBTGattServerCb );
+    _pxGattServerInterface->pxGattServerInit( &xBTGattServerCb );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = g_pxGattServerInterface->pxRegisterServer( &g_xServerUUID );
+    xStatus = _pxGattServerInterface->pxRegisterServer( &xServerUUID );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventRegisterUnregisterGattServerCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
@@ -1209,58 +1225,108 @@ TEST( Full_BLE, BLE_Initialize_BLE_GATT )
 
 TEST( Full_BLE, BLE_Initialize_common_GAP )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-    BLETESTInitDeinitCallback_t xInitDeinitCb;
-
-    /* Get BT interface */
-    g_pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, g_pxBTInterface );
-
-    /* Initialize callbacks */
-    xStatus = g_pxBTInterface->pxBtManagerInit( &xBTManagerCb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    /* Enable RADIO and wait for callback. */
-    xStatus = g_pxBTInterface->pxEnable( 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
+    prvBLEManagerInit();
+    prvBLEEnable( true );
 }
 
 TEST( Full_BLE, BLE_Initialize_BLE_GAP )
 {
+    prvBLEGAPInit();
+}
+
+void prvBLEManagerInit()
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    /* Get BT interface */
+    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
+
+    /* Initialize callbacks */
+    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvBLEGAPInit()
+{
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
 
-    g_pxBTLeAdapterInterface = ( BTBleAdapter_t * ) g_pxBTInterface->pxGetLeAdapter();
-    TEST_ASSERT_NOT_EQUAL( NULL, g_pxBTLeAdapterInterface );
+    _pxBTLeAdapterInterface = ( BTBleAdapter_t * ) _pxBTInterface->pxGetLeAdapter();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTLeAdapterInterface );
 
-    xStatus = g_pxBTLeAdapterInterface->pxBleAdapterInit( &xBTBleAdapterCb );
+    xStatus = _pxBTLeAdapterInterface->pxBleAdapterInit( &xBTBleAdapterCb );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = g_pxBTLeAdapterInterface->pxRegisterBleApp( &g_xAppUUID );
+    xStatus = _pxBTLeAdapterInterface->pxRegisterBleApp( &xAppUUID );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventRegisterBleAdapterCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xInitDeinitCb.xStatus );
 }
 
-void prvStopAndDeleteService( BTService_t * xRefSrvc )
+void prvBLESetUp()
+{
+    BTStatus_t xStatus;
+
+    xStatus = bleStackInit();
+
+    if( xStatus != eBTStatusSuccess )
+    {
+        TEST_FAIL_MESSAGE( "Unable to initialize BLE stack.\n" );
+    }
+
+    /* Create a queue, semaphore and mutexes for callbacks. */
+    if( IotMutex_Create( &threadSafetyMutex, false ) != true )
+    {
+        TEST_FAIL_MESSAGE( "Could not create threadSafetyMutex.\n" );
+    }
+
+    if( IotSemaphore_Create( &eventSemaphore, 0, MAX_EVENT ) != true )
+    {
+        TEST_FAIL_MESSAGE( "Could not create eventSemaphore.\n" );
+    }
+
+    IotListDouble_Create( &eventQueueHead );
+}
+
+void prvBLEEnable( bool bEnable )
+{
+    BLETESTInitDeinitCallback_t xInitDeinitCb;
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    /* Enable RADIO and wait for callback. */
+    if( bEnable )
+    {
+        xStatus = _pxBTInterface->pxEnable( 0 );
+    }
+    else
+    {
+        xStatus = _pxBTInterface->pxDisable( 0 );
+    }
+
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    if( bEnable )
+    {
+        TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
+    }
+    else
+    {
+        TEST_ASSERT_EQUAL( eBTstateOff, xInitDeinitCb.xBLEState );
+    }
+}
+
+
+void prvDeleteService( BTService_t * xRefSrvc )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTServiceCallback_t xStopDeleteServiceCb;
 
-
-    xStatus = g_pxGattServerInterface->pxStopService( g_ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = prvWaitEventFromQueue( eBLEHALEventServiceStoppedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStopDeleteServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStopDeleteServiceCb.xStatus );
-
-    xStatus = g_pxGattServerInterface->pxDeleteService( g_ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
+    xStatus = _pxGattServerInterface->pxDeleteService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventServiceDeletedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStopDeleteServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
@@ -1268,15 +1334,41 @@ void prvStopAndDeleteService( BTService_t * xRefSrvc )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStopDeleteServiceCb.xStatus );
 }
 
+void prvStopService( BTService_t * xRefSrvc )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+    BLETESTServiceCallback_t xStopDeleteServiceCb;
+
+    xStatus = _pxGattServerInterface->pxStopService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventServiceStoppedCb, xRefSrvc->pusHandlesBuffer[ 0 ], ( void * ) &xStopDeleteServiceCb, sizeof( BLETESTServiceCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStopDeleteServiceCb.xStatus );
+}
+
 TEST( Full_BLE, BLE_DeInitialize )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    prvStopService( &_xSrvcA );
+    prvStopService( &_xSrvcB );
+
+    prvDeleteService( &_xSrvcA );
+    prvDeleteService( &_xSrvcB );
+
+    prvBTUnregister();
+    prvBLEEnable( false );
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvBTUnregister( void )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
 
-    prvStopAndDeleteService( &xSrvcA );
-    prvStopAndDeleteService( &xSrvcB );
-
-    xStatus = g_pxGattServerInterface->pxUnregisterServer( g_ucBLEServerIf );
+    xStatus = _pxGattServerInterface->pxUnregisterServer( _ucBLEServerIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventRegisterUnregisterGattServerCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
@@ -1284,33 +1376,22 @@ TEST( Full_BLE, BLE_DeInitialize )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xInitDeinitCb.xStatus );
 
 
-    xStatus = g_pxBTLeAdapterInterface->pxUnregisterBleApp( g_ucBLEAdapterIf );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = g_pxBTInterface->pxDisable( 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTstateOff, xInitDeinitCb.xBLEState );
-
-
-    xStatus = g_pxBTInterface->pxBtManagerCleanup();
+    xStatus = _pxBTLeAdapterInterface->pxUnregisterBleApp( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                               uint8_t ucAdapter_if,
-                              BTUuid_t * pg_xAppUuid )
+                              BTUuid_t * pxAppUUID )
 {
     BLETESTInitDeinitCallback_t * pxInitDeinitCb = IotTest_Malloc( sizeof( BLETESTInitDeinitCallback_t ) );
 
     pxInitDeinitCb->xStatus = xStatus;
-    g_ucBLEAdapterIf = ucAdapter_if;
+    _ucBLEAdapterIf = ucAdapter_if;
 
     if( pxInitDeinitCb->xStatus == eBTStatusSuccess )
     {
-        if( pg_xAppUuid == NULL )
+        if( pxAppUUID == NULL )
         {
             pxInitDeinitCb->xStatus = eBTStatusFail;
         }
@@ -1318,7 +1399,7 @@ void prvRegisterBleAdapterCb( BTStatus_t xStatus,
 
     if( pxInitDeinitCb->xStatus == eBTStatusSuccess )
     {
-        if( pg_xAppUuid->ucType != g_xAppUUID.ucType )
+        if( pxAppUUID->ucType != xAppUUID.ucType )
         {
             pxInitDeinitCb->xStatus = eBTStatusFail;
         }
@@ -1326,7 +1407,7 @@ void prvRegisterBleAdapterCb( BTStatus_t xStatus,
 
     if( pxInitDeinitCb->xStatus == eBTStatusSuccess )
     {
-        if( memcmp( pg_xAppUuid->uu.uu128, g_xAppUUID.uu.uu128, bt128BIT_UUID_LEN ) )
+        if( memcmp( pxAppUUID->uu.uu128, xAppUUID.uu.uu128, bt128BIT_UUID_LEN ) )
         {
             pxInitDeinitCb->xStatus = eBTStatusFail;
         }
@@ -1349,16 +1430,16 @@ void prvDeviceStateChangedCb( BTState_t xState )
 
 void prvBTRegisterServerCb( BTStatus_t xStatus,
                             uint8_t ucServerIf,
-                            BTUuid_t * pg_xAppUuid )
+                            BTUuid_t * pxAppUUID )
 {
     BLETESTInitDeinitCallback_t * pxInitDeinitCb = IotTest_Malloc( sizeof( BLETESTInitDeinitCallback_t ) );
 
     pxInitDeinitCb->xStatus = xStatus;
-    g_ucBLEServerIf = ucServerIf;
+    _ucBLEServerIf = ucServerIf;
 
     if( pxInitDeinitCb->xStatus == eBTStatusSuccess )
     {
-        if( pg_xAppUuid == NULL )
+        if( pxAppUUID == NULL )
         {
             pxInitDeinitCb->xStatus = eBTStatusFail;
         }
@@ -1366,7 +1447,7 @@ void prvBTRegisterServerCb( BTStatus_t xStatus,
 
     if( pxInitDeinitCb->xStatus == eBTStatusSuccess )
     {
-        if( pg_xAppUuid->ucType != g_xServerUUID.ucType )
+        if( pxAppUUID->ucType != xServerUUID.ucType )
         {
             pxInitDeinitCb->xStatus = eBTStatusFail;
         }
@@ -1374,7 +1455,7 @@ void prvBTRegisterServerCb( BTStatus_t xStatus,
 
     if( pxInitDeinitCb->xStatus == eBTStatusSuccess )
     {
-        if( 0 != memcmp( pg_xAppUuid->uu.uu128, g_xServerUUID.uu.uu128, bt128BIT_UUID_LEN ) )
+        if( 0 != memcmp( pxAppUUID->uu.uu128, xServerUUID.uu.uu128, bt128BIT_UUID_LEN ) )
         {
             pxInitDeinitCb->xStatus = eBTStatusFail;
         }
@@ -1395,7 +1476,7 @@ void prvBTUnregisterServerCb( BTStatus_t xStatus,
 
     if( pxInitDeinitCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxInitDeinitCb->xStatus = eBTStatusFail;
         }
@@ -1428,7 +1509,7 @@ void prvServiceAddedCb( BTStatus_t xStatus,
 
     if( pxAddedServiceCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxAddedServiceCb->xStatus = eBTStatusFail;
         }
@@ -1451,7 +1532,7 @@ void prvServiceStartedCb( BTStatus_t xStatus,
 
     if( pxStartServiceCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxStartServiceCb->xStatus = eBTStatusFail;
         }
@@ -1473,7 +1554,7 @@ void prvServiceStoppedCb( BTStatus_t xStatus,
 
     if( pxStopServiceCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxStopServiceCb->xStatus = eBTStatusFail;
         }
@@ -1495,7 +1576,7 @@ void prvServiceDeletedCb( BTStatus_t xStatus,
 
     if( pxDeleteServiceCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxDeleteServiceCb->xStatus = eBTStatusFail;
         }
@@ -1531,7 +1612,7 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
 
     if( pxAttrCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxAttrCb->xStatus = eBTStatusFail;
         }
@@ -1567,7 +1648,7 @@ void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
 
     if( pxAttrCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxAttrCb->xStatus = eBTStatusFail;
         }
@@ -1593,7 +1674,7 @@ void prvIncludedServiceAddedCb( BTStatus_t xStatus,
 
     if( pxAttrCb->xStatus == eBTStatusSuccess )
     {
-        if( ucServerIf != g_ucBLEServerIf )
+        if( ucServerIf != _ucBLEServerIf )
         {
             pxAttrCb->xStatus = eBTStatusFail;
         }
@@ -1707,7 +1788,7 @@ void prvAdvStatusCb( BTStatus_t xStatus,
 
     if( xdvParamCallback->xStatus == eBTStatusSuccess )
     {
-        if( ulServerIf != g_ucBLEServerIf )
+        if( ulServerIf != _ucBLEServerIf )
         {
             xdvParamCallback->xStatus = eBTStatusFail;
         }
@@ -1732,20 +1813,20 @@ void prvConnectionCb( uint16_t usConnId,
         if( pxBda != NULL )
         {
             memcpy( &pxConnectionCallback->pxBda, pxBda, sizeof( BTBdaddr_t ) );
-            memcpy( &g_xAddressConnectedDevice, pxBda, sizeof( BTBdaddr_t ) );
+            memcpy( &_xAddressConnectedDevice, pxBda, sizeof( BTBdaddr_t ) );
         }
         else
         {
             pxConnectionCallback->xStatus = eBTStatusFail;
             memset( &pxConnectionCallback->pxBda, 0, sizeof( BTBdaddr_t ) );
-            memset( &g_xAddressConnectedDevice, 0, sizeof( BTBdaddr_t ) );
+            memset( &_xAddressConnectedDevice, 0, sizeof( BTBdaddr_t ) );
         }
 
         pxConnectionCallback->ucServerIf = ucServerIf;
         pxConnectionCallback->usConnId = usConnId;
         pxConnectionCallback->xEvent.xEventTypes = eBLEHALEventConnectionCb;
         pxConnectionCallback->xEvent.lHandle = NO_HANDLE;
-        g_usBLEConnId = usConnId;
+        _usBLEConnId = usConnId;
 
         pushToQueue( &pxConnectionCallback->xEvent.eventList );
     }
@@ -1884,10 +1965,10 @@ void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
     IotLink_t * pEventListIndex;
     void * pvPtr = NULL;
 
-    IotMutex_Lock( &g_threadSafetyMutex );
+    IotMutex_Lock( &threadSafetyMutex );
 
     /* Get the event associated to the callback */
-    IotContainers_ForEach( &g_eventQueueHead, pEventListIndex )
+    IotContainers_ForEach( &eventQueueHead, pEventListIndex )
     {
         pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventListIndex, eventList );
 
@@ -1900,7 +1981,7 @@ void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
         }
     }
 
-    IotMutex_Unlock( &g_threadSafetyMutex );
+    IotMutex_Unlock( &threadSafetyMutex );
 
     return pvPtr;
 }
@@ -1925,7 +2006,7 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
         do
         {
             /* TODO check event list here */
-            if( IotSemaphore_TimedWait( &g_eventSemaphore, timeoutMs ) == true )
+            if( IotSemaphore_TimedWait( &eventSemaphore, timeoutMs ) == true )
             {
                 pvPtr = checkQueueForEvent( xEventName, lhandle );
 
@@ -1938,7 +2019,8 @@ BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
             {
                 xStatus = eBTStatusFail;
             }
-        } while( xStatus == eBTStatusSuccess ); /* If there is an error exit */
+        }
+        while( xStatus == eBTStatusSuccess ); /* If there is an error exit */
     }
 
     if( xStatus == eBTStatusSuccess )
@@ -2114,11 +2196,11 @@ void prvBondedCb( BTStatus_t xStatus,
 
 void pushToQueue( IotLink_t * pEventList )
 {
-    IotMutex_Lock( &g_threadSafetyMutex );
+    IotMutex_Lock( &threadSafetyMutex );
 
-    IotListDouble_InsertHead( &g_eventQueueHead,
+    IotListDouble_InsertHead( &eventQueueHead,
                               pEventList );
-    IotSemaphore_Post( &g_eventSemaphore );
+    IotSemaphore_Post( &eventSemaphore );
 
-    IotMutex_Unlock( &g_threadSafetyMutex );
+    IotMutex_Unlock( &threadSafetyMutex );
 }

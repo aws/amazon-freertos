@@ -20,6 +20,7 @@ def discoveryStoppedCb(testDevice = None):
 
 class runTest:
     DUT_GENERIC_STRING = "hello"
+    DUT_FAIL_STRING = "fail"
     DUT_OPEN_CHAR_UUID = "8a7f1168-48af-4efb-83b5-e679f9320002"
     DUT_OPEN_DESCR_UUID = "8a7f1168-48af-4efb-83b5-e679f9320008"
     DUT_WRITE_NO_RESP_CHAR_UUID = "8a7f1168-48af-4efb-83b5-e679f9320005"
@@ -55,11 +56,15 @@ class runTest:
     SERVICE_DISCOVERY_TEST_TIMEOUT = 120
     PAIRING_TEST_TIMEOUT = 120
     GENERIC_TEST_TIMEOUT = 120
+    MTU_SIZE = 200
 
     numberOfTests = 0
     numberOfFailedTests = 0
 
     testDevice = []
+
+    DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
+    isNotificationDeclinedSuccessFull = False
 
     @staticmethod
     def stopAdvertisement(scan_filter):
@@ -183,8 +188,26 @@ class runTest:
         return isSuccessfull
 
     @staticmethod
+    def notificationMTU2(uuid, value):
+        if uuid == runTest.DUT_NOTIFY_CHAR_UUID:
+            return value;
+
+    @staticmethod
+    def notifyFailure(uuid, value):
+        isSuccessfull = False
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_FAIL_STRING):
+            isSuccessfull = True
+
+        return isSuccessfull
+
+
+    @staticmethod
     def writeWithoutResponse():
         return bleAdapter.writeCharacteristic(runTest.DUT_WRITE_NO_RESP_CHAR_UUID, runTest.DUT_WRITE_NO_RESP_CHAR_UUID, False)
+
+    @staticmethod
+    def writeResultWithoutResponse(result):
+        return bleAdapter.writeCharacteristic(runTest.DUT_WRITE_NO_RESP_CHAR_UUID, result, False)
 
     @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
@@ -262,6 +285,10 @@ class runTest:
         return isConnected
 
     @staticmethod
+    def reConnection(isConnected):
+        return isConnected
+
+    @staticmethod
     def removeIndication(isSuccessfull):
         return isSuccessfull
 
@@ -325,6 +352,7 @@ class runTest:
             runTest.advertisement: "_advertisement",
             runTest.discoverPrimaryServices: "_discoverPrimaryServices",
             runTest.simpleConnection: "_simpleConnection",
+            runTest.reConnection: "_reConnection",
             runTest.checkProperties: "_checkProperties",
             runTest.checkUUIDs: "_checkUUIDs",
             runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
