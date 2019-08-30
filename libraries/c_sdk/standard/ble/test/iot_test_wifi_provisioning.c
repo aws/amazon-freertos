@@ -66,13 +66,18 @@ static bool iotBleInitialized = false;
 static bool iotBleWifiProvisioningInitialized = false;
 extern BTStatus_t bleStackInit( void );
 
-static bool bleInit() {
-    if (!bleInitialized) {
+static bool bleInit()
+{
+    if( !bleInitialized )
+    {
         bleInitialized = ( eBTStatusSuccess == bleStackInit() );
     }
-    if (bleInitialized && ! iotBleInitialized ) {
+
+    if( bleInitialized && !iotBleInitialized )
+    {
         iotBleInitialized = ( eBTStatusSuccess == IotBle_Init() );
     }
+
     return iotBleInitialized;
 }
 
@@ -80,20 +85,22 @@ static bool bleInit() {
 
 TEST_SETUP( Full_WiFi_Provisioning )
 {
-    if ( bleInit() ) { 
+    if( bleInit() )
+    {
         iotBleWifiProvisioningInitialized = IotBleWifiProv_Init();
     }
 
-    TEST_ASSERT_EQUAL( bleInitialized, true);
-    TEST_ASSERT_EQUAL( iotBleInitialized, true);
-    TEST_ASSERT_EQUAL( iotBleWifiProvisioningInitialized, true);
+    TEST_ASSERT_EQUAL( bleInitialized, true );
+    TEST_ASSERT_EQUAL( iotBleInitialized, true );
+    TEST_ASSERT_EQUAL( iotBleWifiProvisioningInitialized, true );
 }
 
 /*-----------------------------------------------------------*/
 
 TEST_TEAR_DOWN( Full_WiFi_Provisioning )
 {
-    if (iotBleWifiProvisioningInitialized) {
+    if( iotBleWifiProvisioningInitialized )
+    {
         IotBleWifiProv_Deinit();
         prvRemoveSavedNetworks();
     }

@@ -49,17 +49,17 @@ static bool bBLEInitialized = pdFALSE;
 /**
  * @brief Declares and runs an MQTT system test.
  */
-#define RUN_MQTT_SYSTEM_TEST( name )                    \
-    extern void TEST_MQTT_System_ ## name ## _( void ); \
-    TEST_ASSERT_MESSAGE( bBLEInitialized, "BLE Not initialized" );\
+#define RUN_MQTT_SYSTEM_TEST( name )                               \
+    extern void TEST_MQTT_System_ ## name ## _( void );            \
+    TEST_ASSERT_MESSAGE( bBLEInitialized, "BLE Not initialized" ); \
     TEST_MQTT_System_ ## name ## _();
 
 /**
  * @brief Declares and runs shadow system test.
  */
-#define RUN_SHADOW_SYSTEM_TEST( name )                    \
-    extern void TEST_Shadow_System_ ## name ## _( void ); \
-    TEST_ASSERT_MESSAGE( bBLEInitialized, "BLE Not initialized" );\
+#define RUN_SHADOW_SYSTEM_TEST( name )                             \
+    extern void TEST_Shadow_System_ ## name ## _( void );          \
+    TEST_ASSERT_MESSAGE( bBLEInitialized, "BLE Not initialized" ); \
     TEST_Shadow_System_ ## name ## _();
 /*-----------------------------------------------------------*/
 

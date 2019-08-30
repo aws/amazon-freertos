@@ -119,8 +119,7 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 #if ( configUSE_TRACE_FACILITY == 1 )
     void threadPriorityTestFunction( void * param )
     {
-
-        *(int32_t*) param = uxTaskPriorityGet( NULL );
+        *( int32_t * ) param = uxTaskPriorityGet( NULL );
     }
 
     TEST( UTIL_Platform_Threads, IotThreads_ThreadPriority )
@@ -171,7 +170,6 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
  */
     void threadStackSizeTestFunction( void * param )
     {
-
         *( int32_t * ) param = 300 + uxTaskGetStackHighWaterMark( NULL );
     }
 #endif /* if ( configUSE_TRACE_FACILITY == 1 ) */

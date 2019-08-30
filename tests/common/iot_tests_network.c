@@ -210,6 +210,7 @@ const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
 {
     bool bInitializeSucceeded = pdFALSE;
+
     switch( networkType )
     {
         #if ( BLE_SUPPORTED == 1 )
@@ -230,6 +231,7 @@ bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
         default:
             break;
     }
+
     _IotTestNetworkType = networkType;
     return bInitializeSucceeded;
 }
