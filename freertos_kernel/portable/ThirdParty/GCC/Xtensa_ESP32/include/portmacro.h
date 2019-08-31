@@ -281,6 +281,23 @@ void vPortCPUReleaseMutex(portMUX_TYPE *mux);
 #define portEXIT_CRITICAL_ISR(mux)     vTaskExitCritical(resolve_portmux( mux ))
 #endif
 
+#define portENTER_CRITICAL_SAFE(mux)  do {                                             \
+                                         if (xPortInIsrContext()) {                    \
+                                             portENTER_CRITICAL_ISR(mux);              \
+                                         } else {                                      \
+                                             portENTER_CRITICAL(mux);                  \
+                                         }                                             \
+                                      } while(0)
+
+#define portEXIT_CRITICAL_SAFE(mux)  do {                                              \
+                                         if (xPortInIsrContext()) {                    \
+                                             portEXIT_CRITICAL_ISR(mux);               \
+                                         } else {                                      \
+                                             portEXIT_CRITICAL(mux);                   \
+                                         }                                             \
+                                      } while(0)
+
+
 // Critical section management. NW-TODO: replace XTOS_SET_INTLEVEL with more efficient version, if any?
 // These cannot be nested. They should be used with a lot of care and cannot be called from interrupt level.
 //
@@ -417,6 +434,18 @@ void _xt_coproc_release(volatile void * coproc_sa_base);
 bool vApplicationSleep( TickType_t xExpectedIdleTime );
 
 #define portSUPPRESS_TICKS_AND_SLEEP( idleTime ) vApplicationSleep( idleTime )
+
+/*
+ * Map to the memory management routines required for the port.
+ *
+ * Note that libc standard malloc/free are also available for
+ * non-FreeRTOS-specific code, and behave the same as
+ * pvPortMalloc()/vPortFree().
+ */
+#define pvPortMalloc heap_caps_malloc_default
+#define vPortFree heap_caps_free
+#define xPortGetFreeHeapSize esp_get_free_heap_size
+#define xPortGetMinimumEverFreeHeapSize esp_get_minimum_free_heap_size
 
 // porttrace
 #if configUSE_TRACE_FACILITY_2

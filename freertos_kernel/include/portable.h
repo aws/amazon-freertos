@@ -137,17 +137,16 @@ extern "C" {
 	StackType_t *pxPortInitialiseStack( StackType_t *pxTopOfStack, TaskFunction_t pxCode, void *pvParameters ) PRIVILEGED_FUNCTION;
 #endif
 
+
 /*
  * Map to the memory management routines required for the port.
- *
- * Note that libc standard malloc/free are also available for
- * non-FreeRTOS-specific code, and behave the same as
- * pvPortMalloc()/vPortFree().
  */
-#define pvPortMalloc malloc
-#define vPortFree free
-#define xPortGetFreeHeapSize esp_get_free_heap_size
-#define xPortGetMinimumEverFreeHeapSize esp_get_minimum_free_heap_size
+void *pvPortMalloc( size_t xSize ) PRIVILEGED_FUNCTION;
+void vPortFree( void *pv ) PRIVILEGED_FUNCTION;
+void vPortInitialiseBlocks( void ) PRIVILEGED_FUNCTION;
+size_t xPortGetFreeHeapSize( void ) PRIVILEGED_FUNCTION;
+size_t xPortGetMinimumEverFreeHeapSize( void ) PRIVILEGED_FUNCTION;
+
 
 /*
  * Setup the hardware ready for the scheduler to take control.  This generally
