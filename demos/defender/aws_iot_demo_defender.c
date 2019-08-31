@@ -67,7 +67,7 @@ static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIAL
 
 /**
  * @brief Runs the defender demo.
- * 
+ *
  * @return AWS_IOT_DEFENDER_SUCCESS on success, otherwise an error code indicating
  *         the cause of error.
  */
@@ -75,7 +75,7 @@ static AwsIotDefenderError_t _defenderDemo( void );
 
 /**
  * @brief Starts the defender agent.
- * 
+ *
  * @return AWS_IOT_DEFENDER_SUCCESS on success, otherwise an error code indicating
  *         the cause of error.
  */
