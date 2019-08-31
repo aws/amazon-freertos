@@ -206,7 +206,7 @@ static AwsIotDefenderError_t _defenderDemo( void )
         SOCKETS_Close( socket );
     #endif
 
-    IotLogInfo( "----Device Defender Demo End----.\r\n" );
+    IotLogInfo( "----Device Defender Demo End. Status: %d----.\r\n", defenderResult );
 
     return defenderResult;
 }
