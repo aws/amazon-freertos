@@ -407,5 +407,7 @@ IotHttpsResponseInfo_t * allocate_IotResponseInfo() {
 int is_valid_IotResponseInfo(IotHttpsResponseInfo_t * pRespInfo){
   return
     pRespInfo->pSyncInfo &&
-    pRespInfo->pSyncInfo->pBody;
+    pRespInfo->pSyncInfo->pBody &&
+    pRespInfo->pSyncInfo->bodyLen <= CBMC_MAX_OBJECT_SIZE &&
+    pRespInfo->userBuffer.bufferLen <= CBMC_MAX_OBJECT_SIZE;
 }
