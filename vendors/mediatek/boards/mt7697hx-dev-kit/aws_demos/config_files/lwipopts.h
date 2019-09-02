@@ -67,8 +67,16 @@
    byte alignment -> define MEM_ALIGNMENT to 2. */
 #define MEM_ALIGNMENT           4
 
+/* MEMP_MEM_MALLOC: 1 to use mem_malloc/mem_free instead of the lwip pool
+   allocator. Especially useful with MEM_LIBC_MALLOC but handle with care
+   regarding execution speed and usage from interrupts! */
+#define MEMP_MEM_MALLOC         1
+
 /* MEM_SIZE: the size of the heap memory. If the application will send
    a lot of data that needs to be copied, this should be set high. */
+#ifdef MEM_SIZE
+#undef MEM_SIZE
+#endif
 #if defined(MTK_WIFI_TGN_VERIFY_ENABLE) && !defined(MTK_HOMEKIT_ENABLE)
 #define MEM_SIZE                (100 * 1024)
 #else

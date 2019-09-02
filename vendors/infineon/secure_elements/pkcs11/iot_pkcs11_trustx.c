@@ -2837,23 +2837,17 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                 CK_OBJECT_HANDLE_PTR pxPrivateKey )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
-    uint8_t * pucPublicKeyDer = pvPortMalloc( MAX_PUBLIC_KEY_SIZE );
-    uint16_t ucPublicKeyDerLength = MAX_PUBLIC_KEY_SIZE;
+    uint8_t * pucPublicKeyDer = NULL;
+    uint16_t ucPublicKeyDerLength = 0;
     CK_ATTRIBUTE_PTR pxPrivateLabel = NULL;
     CK_ATTRIBUTE_PTR pxPublicLabel = NULL;
     CK_OBJECT_HANDLE xPalPublic = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPalPrivate = CK_INVALID_HANDLE;
     char* xEnd = NULL;
     long lOptigaOid = 0;
-    uint8_t pucEcP256AsnAndOid[] = {0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 
-                                    0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a, 
-                                    0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00};
+#define ECDSA_P256_UNCOMPRESSED_POINTS_LENGTH 65
+    uint8_t pucEcPointPrefix[] = {0x04, 0x41};
     uint8_t pucUnusedKeyTag[] = {0x03, 0x42, 0x00};
-
-    if (pucPublicKeyDer == NULL)
-    {
-        xResult = CKR_HOST_MEMORY;
-    }
 
     if( CKM_EC_KEY_PAIR_GEN != pxMechanism->mechanism )
     {
@@ -2874,6 +2868,17 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
                                                          ulPublicKeyAttributeCount );
     }
 
+    if( xResult == CKR_OK )
+    {
+        ucPublicKeyDerLength = ECDSA_P256_UNCOMPRESSED_POINTS_LENGTH + sizeof(pucUnusedKeyTag);
+        pucPublicKeyDer = pvPortMalloc(ucPublicKeyDerLength);
+
+        if (pucPublicKeyDer == NULL)
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
+    }
+
     if( ( xResult == CKR_OK ) )
     {
     	lOptigaOid = strtol((char*)pxPrivateLabel->pValue, &xEnd, 16);
@@ -2883,12 +2888,11 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
             /* For the public key, the OPTIGA library will return the standard 65 
             bytes of uncompressed curve points plus a 3-byte tag. The latter will 
             be intentionally overwritten below. */
-            ucPublicKeyDerLength = MAX_PUBLIC_KEY_SIZE - sizeof(pucEcP256AsnAndOid) + sizeof(pucUnusedKeyTag);
             if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecc_generate_keypair(OPTIGA_ECC_NIST_P_256,
         	                                                             (uint8_t)OPTIGA_KEY_USAGE_SIGN,
         	                                                             FALSE,
         															     &lOptigaOid,
-																		 pucPublicKeyDer + sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag),
+																		 pucPublicKeyDer,
 																		 &ucPublicKeyDerLength))
         	{
         		PKCS11_PRINT( ( "ERROR: Failed to generate a keypair \r\n" ) );
@@ -2904,11 +2908,10 @@ CK_DEFINE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     if( xResult == CKR_OK)
     {
     	/* Complete the encoding of the public key. */
-        memcpy(pucPublicKeyDer, pucEcP256AsnAndOid, sizeof(pucEcP256AsnAndOid));
-        ucPublicKeyDerLength += sizeof(pucEcP256AsnAndOid) - sizeof(pucUnusedKeyTag);
+        memcpy(pucPublicKeyDer + 1, pucEcPointPrefix, sizeof(pucEcPointPrefix));
         xPalPublic = PKCS11_PAL_SaveObject(pxPublicLabel,
-                                            (unsigned char *)pucPublicKeyDer,
-                                            ucPublicKeyDerLength);
+                                            (unsigned char *)pucPublicKeyDer + 1,
+                                            ucPublicKeyDerLength - 1);
     }
     else
     {

@@ -103,9 +103,7 @@ void vTrustXTaskCallbackHandler( void * pvParameters )
 
 		read_ifx_cert();
 
-	    ProvisioningParams_t xParams = {0};
-
-	    vAlternateKeyProvisioning( &xParams );
+		vDevModeKeyProvisioning();
 
         DEMO_RUNNER_RunDemos();
 	}

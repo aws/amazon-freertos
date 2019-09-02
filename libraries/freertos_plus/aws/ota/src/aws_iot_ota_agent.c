@@ -1621,7 +1621,7 @@ static void prvOTAUpdateTask( void * pvUnused )
                         while( xQueueReceive( xOTA_Agent.xOTA_MsgQ, &pxMsgMetaData, 0 ) != pdFALSE )
                         {
                             /* Check for OTA update job messages. */
-                            if( pxMsgMetaData->eMsgType == eOTA_PubMsgType_Job )
+                            if( ( pxMsgMetaData->eMsgType == eOTA_PubMsgType_Job ) && ( xOTA_Agent.eState == eOTA_AgentState_Ready ) )
                             {
                                 if( C != NULL )
                                 {
