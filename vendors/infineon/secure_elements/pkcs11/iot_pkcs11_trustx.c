@@ -151,11 +151,12 @@ enum eObjectHandles
 };
 
 
-extern optiga_comms_t optiga_comms;
+/* The communication context `ifx_i2c_context_0` is declared in the header file ifx_i2c_config.h */
+optiga_comms_t optiga_comms = {(void*)&ifx_i2c_context_0,NULL,NULL, OPTIGA_COMMS_SUCCESS};
 
 /*-----------------------------------------------------------*/
 
-static uint8_t __AppendOptigaCertTags (uint16_t xCertWithoutTagsLength, 
+static uint8_t prvAppendOptigaCertTags (uint16_t xCertWithoutTagsLength, 
 										uint8_t* pxCertTags, uint16_t xCertTagsLength)
 {
 		char t1[3], t2[3], t3[3];
@@ -281,7 +282,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         	{
         		// Certificates on OPTIGA Trust SE are stored with certitficate identifiers -> tags,
         		// which are 9 bytes long
-				if (__AppendOptigaCertTags(ulDataSize, pxCertTags, xTagsLength))
+				if (prvAppendOptigaCertTags(ulDataSize, pxCertTags, xTagsLength))
 				{
 					xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
 													 OPTIGA_UTIL_ERASE_AND_WRITE,

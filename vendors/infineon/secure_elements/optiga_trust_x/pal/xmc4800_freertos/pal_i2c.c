@@ -34,9 +34,9 @@
  * HEADER FILES
  *********************************************************************************************************************/
 #include "optiga/pal/pal_i2c.h"
-#include "i2c_master_dave/i2c_master.h"
-#include "i2c_master_dave/i2c_master_extern.h"
-#include "i2c_master_dave/i2c_master_conf.h"
+#include "I2C_MASTER/i2c_master.h"
+#include "I2C_MASTER/i2c_master_extern.h"
+#include "I2C_MASTER/i2c_master_conf.h"
 
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -179,6 +179,16 @@ void i2c_master_error_detected_callback(void)
      * Use queues instead to activate corresponding handler
      * */
 	xQueueSendFromISR( trustx_i2cresult_queue, ( void * ) &i2_result, &xHigherPriorityTaskWoken );
+}
+
+void i2c_master_nack_received_callback(void)
+{
+	i2c_master_error_detected_callback();
+}
+
+void i2c_master_arbitration_lost_callback(void)
+{
+	i2c_master_error_detected_callback();
 }
 
 void i2c_result_handler( void * pvParameters )

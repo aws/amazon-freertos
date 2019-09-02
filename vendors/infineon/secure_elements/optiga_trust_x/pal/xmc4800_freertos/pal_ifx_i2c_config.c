@@ -35,7 +35,7 @@
  *********************************************************************************************************************/
 #include "optiga/pal/pal_gpio.h"
 #include "optiga/pal/pal_i2c.h"
-#include "i2c_master_dave/i2c_master.h"
+#include "I2C_MASTER/i2c_master.h"
 #include "xmc_gpio.h"
 #include "xmc4_gpio.h"
 

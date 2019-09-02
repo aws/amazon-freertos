@@ -34,6 +34,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/drivers/inc"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/third_party/ESP_AT_Lib/src/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/CMSIS/Infineon/XMC4800_series/Include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_tests/application_code/infineon_code"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../tests/include"/>
@@ -64,7 +65,6 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/aws/greengrass/src"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/posix/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/posix"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/i2c_master_dave"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/optiga/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/examples/ecdsa_utils"/>
