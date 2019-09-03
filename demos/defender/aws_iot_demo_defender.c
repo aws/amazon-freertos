@@ -65,13 +65,27 @@ static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIAL
     static Socket_t _createSocketToEchoServer();
 #endif
 
-static void _defenderTask( void * param );
+/**
+ * @brief Runs the defender demo.
+ *
+ * @return AWS_IOT_DEFENDER_SUCCESS on success, otherwise an error code indicating
+ *         the cause of error.
+ */
+static AwsIotDefenderError_t _defenderDemo( void );
 
-/* Callback used to get notification of defender's events. */
+/**
+ * @brief Starts the defender agent.
+ *
+ * @return AWS_IOT_DEFENDER_SUCCESS on success, otherwise an error code indicating
+ *         the cause of error.
+ */
+static AwsIotDefenderError_t _startDefender( void );
+
+/**
+ * @brief Callback used to get notification of defender's events.
+ */
 static void _defenderCallback( void * param1,
                                AwsIotDefenderCallbackInfo_t * const pCallbackInfo );
-
-static void _startDefender();
 
 /*-----------------------------------------------------------*/
 
@@ -81,8 +95,9 @@ int vStartDefenderDemo( bool awsIotMqttMode,
                         void * pNetworkCredentialInfo,
                         const IotNetworkInterface_t * pNetworkInterface )
 {
-    int status = EXIT_SUCCESS;
+    int status = EXIT_FAILURE;
     IotMqttError_t mqttInitStatus;
+    AwsIotDefenderError_t defenderResult;
 
     /* Unused parameters */
     ( void ) awsIotMqttMode;
@@ -94,14 +109,15 @@ int vStartDefenderDemo( bool awsIotMqttMode,
     /* Initialize the MQTT library. */
     mqttInitStatus = IotMqtt_Init();
 
-    if( mqttInitStatus != IOT_MQTT_SUCCESS )
+    if( mqttInitStatus == IOT_MQTT_SUCCESS )
     {
-        status = EXIT_FAILURE;
-    }
+        /* If the MQTT initialization was successful, run the demo. */
+        defenderResult = _defenderDemo();
 
-    if( status == EXIT_SUCCESS )
-    {
-        _defenderTask( NULL );
+        if( defenderResult == AWS_IOT_DEFENDER_SUCCESS )
+        {
+            status = EXIT_SUCCESS;
+        }
     }
 
     return status;
@@ -138,13 +154,12 @@ void _defenderCallback( void * param1,
 
 /*-----------------------------------------------------------*/
 
-static void _defenderTask( void * param )
+static AwsIotDefenderError_t _defenderDemo( void )
 {
-    ( void ) param;
-
     /* Expected remote IP of AWS IoT endpoint in defender metrics report. */
     uint32_t expectedIp = 0;
     char expectedIpBuffer[ 16 ] = "";
+    AwsIotDefenderError_t defenderResult;
 
     IotLogInfo( "----Device Defender Demo Start----.\r\n" );
 
@@ -154,27 +169,36 @@ static void _defenderTask( void * param )
     #endif
 
     /* Specify all metrics in "tcp connections" group */
-    AwsIotDefender_SetMetrics( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS,
-                               AWS_IOT_DEFENDER_METRICS_ALL );
+    defenderResult = AwsIotDefender_SetMetrics( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS,
+                                                AWS_IOT_DEFENDER_METRICS_ALL );
 
-    /* Set metrics report period to 5 minutes(300 seconds) */
-    AwsIotDefender_SetPeriod( 300 );
+    if( defenderResult == AWS_IOT_DEFENDER_SUCCESS )
+    {
+        /* Set metrics report period to 5 minutes(300 seconds) */
+        defenderResult = AwsIotDefender_SetPeriod( 300 );
+    }
 
-    /* Start the defender agent. */
-    _startDefender();
+    if( defenderResult == AWS_IOT_DEFENDER_SUCCESS )
+    {
+        /* Start the defender agent. */
+        defenderResult = _startDefender();
 
-    /* Query DNS for the IP. */
-    expectedIp = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
+        if( defenderResult == AWS_IOT_DEFENDER_SUCCESS )
+        {
+            /* Query DNS for the IP. */
+            expectedIp = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
 
-    /* Convert to string. */
-    SOCKETS_inet_ntoa( expectedIp, expectedIpBuffer );
-    IotLogInfo( "expected ip: %s", expectedIpBuffer );
+            /* Convert to string. */
+            SOCKETS_inet_ntoa( expectedIp, expectedIpBuffer );
+            IotLogInfo( "expected ip: %s", expectedIpBuffer );
 
-    /* Let it run for 3 seconds */
-    IotClock_SleepMs( 3000 );
+            /* Let it run for 3 seconds */
+            IotClock_SleepMs( 3000 );
 
-    /* Stop the defender agent. */
-    AwsIotDefender_Stop();
+            /* Stop the defender agent. */
+            AwsIotDefender_Stop();
+        }
+    }
 
     #if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1
         /* Clean up the socket. */
@@ -182,16 +206,17 @@ static void _defenderTask( void * param )
         SOCKETS_Close( socket );
     #endif
 
-    IotLogInfo( "----Device Defender Demo End----.\r\n" );
+    IotLogInfo( "----Device Defender Demo End. Status: %d----.\r\n", defenderResult );
 
-    vTaskDelete( NULL ); /* Delete this task. */
+    return defenderResult;
 }
 
 /*-----------------------------------------------------------*/
 
-static void _startDefender()
+static AwsIotDefenderError_t _startDefender( void )
 {
     const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .param1 = NULL };
+    AwsIotDefenderError_t defenderResult;
 
     AwsIotDefenderStartInfo_t startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
 
@@ -219,7 +244,9 @@ static void _startDefender()
     startInfo.callback = callback;
 
     /* Invoke defender start API. */
-    AwsIotDefender_Start( &startInfo );
+    defenderResult = AwsIotDefender_Start( &startInfo );
+
+    return defenderResult;
 }
 
 /*-----------------------------------------------------------*/
@@ -260,3 +287,5 @@ static void _startDefender()
     }
 
 #endif /* if _DEMO_WITH_SOCKET_CONNECTED_TO_ECHO_SERVER == 1 */
+
+/*-----------------------------------------------------------*/

@@ -220,7 +220,6 @@ static void prvDiscoverGreenGrassCore( void * pvParameters )
     }
 
     configPRINTF( ( "----Demo finished----\r\n" ) );
-    vTaskDelete( NULL );
 }
 
 /*-----------------------------------------------------------*/
