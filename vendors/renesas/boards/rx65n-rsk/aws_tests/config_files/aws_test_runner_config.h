@@ -29,13 +29,13 @@
 /* Uncomment this line if you want to run AFQP tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED                      0
+#define testrunnerUNSUPPORTED               0
 
 /* Unsupported tests */
-#define testrunnerFULL_CBOR_ENABLED                testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_AGENT_ENABLED           testrunnerUNSUPPORTED
-#define testrunnerFULL_OTA_PAL_ENABLED             testrunnerUNSUPPORTED
-#define testrunnerFULL_WIFI_ENABLED                testrunnerUNSUPPORTED
+#define testrunnerFULL_CBOR_ENABLED         testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_AGENT_ENABLED    testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_PAL_ENABLED      testrunnerUNSUPPORTED
+#define testrunnerFULL_WIFI_ENABLED         testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */
 
@@ -51,5 +51,6 @@
 #define testrunnerFULL_MQTT_ENABLED                0
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_TLS_ENABLED                 0
+#define testrunnerFULL_HTTPS_CLIENT_ENABLED        0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */
