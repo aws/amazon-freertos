@@ -12,16 +12,17 @@ foreach(module IN LISTS AFR_MODULES)
 endforeach()
 
 # Global variables.
-set(AFR_MODULES               "" CACHE INTERNAL "List of Amazon FreeRTOS modules.")
-set(AFR_MODULES_PORT          "" CACHE INTERNAL "List of porting layer targets defined from vendors.")
-set(AFR_MODULES_PUBLIC        "" CACHE INTERNAL "List of public Amazon FreeRTOS modules.")
-set(AFR_MODULES_BUILD         "" CACHE INTERNAL "List of Amazon FreeRTOS modules to build.")
-set(AFR_MODULES_ENABLED       "" CACHE INTERNAL "List of enabled Amazon FreeRTOS modules.")
-set(AFR_MODULES_ENABLED_USER  "" CACHE INTERNAL "List of Amazon FreeRTOS modules enabled by user.")
-set(AFR_MODULES_ENABLED_DEPS  "" CACHE INTERNAL "List of Amazon FreeRTOS modules enabled due to dependencies.")
-set(AFR_DEMOS_ENABLED         "" CACHE INTERNAL "List of supported demos for Amazon FreeRTOS.")
-set(AFR_TESTS_ENABLED         "" CACHE INTERNAL "List of supported tests for Amazon FreeRTOS.")
-set(3RDPARTY_MODULES_ENABLED  "" CACHE INTERNAL "List of 3rdparty libraries enabled due to dependencies.")
+set(AFR_MODULES                 "" CACHE INTERNAL "List of Amazon FreeRTOS modules.")
+set(AFR_MODULES_PORT            "" CACHE INTERNAL "List of porting layer targets defined from vendors.")
+set(AFR_MODULES_PUBLIC          "" CACHE INTERNAL "List of public Amazon FreeRTOS modules.")
+set(AFR_MODULES_PUBLIC_DISABLED "" CACHE INTERNAL "List of public Amazon FreeRTOS modules explicitly disabled for a board.")
+set(AFR_MODULES_BUILD           "" CACHE INTERNAL "List of Amazon FreeRTOS modules to build.")
+set(AFR_MODULES_ENABLED         "" CACHE INTERNAL "List of enabled Amazon FreeRTOS modules.")
+set(AFR_MODULES_ENABLED_USER    "" CACHE INTERNAL "List of Amazon FreeRTOS modules enabled by user.")
+set(AFR_MODULES_ENABLED_DEPS    "" CACHE INTERNAL "List of Amazon FreeRTOS modules enabled due to dependencies.")
+set(AFR_DEMOS_ENABLED           "" CACHE INTERNAL "List of supported demos for Amazon FreeRTOS.")
+set(AFR_TESTS_ENABLED           "" CACHE INTERNAL "List of supported tests for Amazon FreeRTOS.")
+set(3RDPARTY_MODULES_ENABLED    "" CACHE INTERNAL "List of 3rdparty libraries enabled due to dependencies.")
 
 # Global setting for whether enable all modules by default or not.
 if(NOT AFR_ENABLE_ALL_MODULES)
@@ -57,7 +58,10 @@ function(afr_module)
     endif()
 
     if(NOT (ARG_INTERNAL OR ARG_INTERFACE))
-        afr_cache_append(AFR_MODULES_PUBLIC ${module_name})
+        # Do not append if the module is explicitly disabled for the board.
+        if(NOT ${module_name} IN_LIST AFR_MODULES_PUBLIC_DISABLED)
+            afr_cache_append(AFR_MODULES_PUBLIC ${module_name})
+        endif()
     endif()
 
     # All modules implicitly depends on kernel unless INTERFACE or KERNEL is provided.
@@ -133,6 +137,12 @@ endfunction()
 # Define a 3rdparty module.
 function(afr_3rdparty_module arg_name)
     add_library(3rdparty::${arg_name} INTERFACE IMPORTED GLOBAL)
+endfunction()
+
+# Disable a list of public modules. This can be used to disable public modules
+# for a specific board.
+function(afr_disable_public_modules)
+    afr_cache_append(AFR_MODULES_PUBLIC_DISABLED ${ARGN})
 endfunction()
 
 # Add properties to a module, will set these global variables accordingly:
