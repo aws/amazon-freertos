@@ -62,6 +62,6 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        INTERFACE AFR::https
+        AFR::https
         3rdparty::http-parser
 )

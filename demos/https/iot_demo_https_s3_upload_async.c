@@ -310,8 +310,8 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
     const char * pAddress = NULL;
     /* The length of the address within string IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     size_t addressLen = 0;
-    /* The current index in the number of connection tries. */
-    uint32_t connIndex = 0;
+    /* The current attempt in the number of connection tries. */
+    uint32_t connAttempt = 0;
     /* Context into the asynchronous callback to denote a success or failure back to the application. */
     bool uploadSuccess = true;
 
@@ -319,7 +319,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
-                                                   ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
+                                                   strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
                                                    &pPath,
                                                    &pathLen );
 
@@ -333,7 +333,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
     /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlAddress( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
-                                                      ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
+                                                      strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
                                                       &pAddress,
                                                       &addressLen );
 
@@ -414,12 +414,12 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
     }
 
     /* Connect to S3. */
-    for( connIndex = 1; connIndex <= IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY; connIndex++ )
+    for( connAttempt = 1; connAttempt <= IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY; connAttempt++ )
     {
         httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
 
         if( ( httpsClientStatus == IOT_HTTPS_CONNECTION_ERROR ) &&
-            ( connIndex < IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY ) )
+            ( connAttempt < IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY ) )
         {
             IotLogError( "Failed to connect to the S3 server, retrying after %d ms.",
                          IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS );
@@ -470,7 +470,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
         /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
         httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_GET_URL,
-                                                       ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
+                                                       strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
                                                        &pPath,
                                                        &pathLen );
 
@@ -484,7 +484,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
         /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
         httpsClientStatus = IotHttpsClient_GetUrlAddress( IOT_DEMO_HTTPS_PRESIGNED_GET_URL,
-                                                          ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
+                                                          strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
                                                           &pAddress,
                                                           &addressLen );
 

@@ -150,6 +150,13 @@
     #define IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY    ( ( uint32_t ) 3 )
 #endif
 
+/* The timeout in milliseconds to wait on IotHttpsClient_SendSync(). This timeout is how long the routine will block
+ * for waiting for an HTTP response. It is possible that the server could close the connection after receiving a
+ * request, so never sending the response. */
+#ifndef IOT_DEMO_HTTPS_SYNC_TIMEOUT_MS
+    #define IOT_DEMO_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+#endif
+
 /** @endcond */
 
 /*-----------------------------------------------------------*/
@@ -238,14 +245,14 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     size_t addressLen = 0;
     /* The status of HTTP response. */
     uint16_t respStatus = IOT_HTTPS_STATUS_OK;
-    /* The current index in the number of connection tries. */
-    uint32_t connIndex = 0;
+    /* The current attempt in the number of connection tries. */
+    uint32_t connAttempt = 0;
 
     IotLogInfo( "HTTPS Client Synchronous S3 upload demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_PUT_URL );
 
     /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
-                                                   ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
+                                                   strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
                                                    &pPath,
                                                    &pathLen );
 
@@ -259,7 +266,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
     /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_PUT_URL. */
     httpsClientStatus = IotHttpsClient_GetUrlAddress( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
-                                                      ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
+                                                      strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),
                                                       &pAddress,
                                                       &addressLen );
 
@@ -340,12 +347,12 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
     }
 
     /* Connect to S3. */
-    for( connIndex = 1; connIndex <= IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY; connIndex++ )
+    for( connAttempt = 1; connAttempt <= IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY; connAttempt++ )
     {
         httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
 
         if( ( httpsClientStatus == IOT_HTTPS_CONNECTION_ERROR ) &&
-            ( connIndex < IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY ) )
+            ( connAttempt < IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY ) )
         {
             IotLogError( "Failed to connect to the S3 server, retrying after %d ms.",
                          IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS );
@@ -379,7 +386,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
             IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
         }
 
-        httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, 0 );
+        httpsClientStatus = IotHttpsClient_SendSync( connHandle, reqHandle, &respHandle, &respConfig, IOT_DEMO_HTTPS_SYNC_TIMEOUT_MS );
 
         if( httpsClientStatus != IOT_HTTPS_OK )
         {
@@ -412,7 +419,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
         /* Retrieve the path location and length from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
         httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_GET_URL,
-                                                       ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
+                                                       strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
                                                        &pPath,
                                                        &pathLen );
 
@@ -426,7 +433,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
         /* Retrieve the address location and length from the IOT_DEMO_HTTPS_PRESIGNED_GET_URL. */
         httpsClientStatus = IotHttpsClient_GetUrlAddress( IOT_DEMO_HTTPS_PRESIGNED_GET_URL,
-                                                          ( size_t ) strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
+                                                          strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ),
                                                           &pAddress,
                                                           &addressLen );
 

@@ -277,9 +277,11 @@ See @subpage https_demo_config for configuration settings that change the behavi
     </li>
 </ol>
 
-Note:  
-    Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br>
-    "[NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the header buffer or body buffer.
+Notes:  
+    Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br><br>
+    "[NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the header buffer or body buffer.<br><br>
+    S3 will close the connection after 100 requests on the same connection. 
+
 
 @page https_upload_demo_usage Upload Demo Usage Instructions
 
@@ -399,7 +401,7 @@ Note:
     </li>
 </ol>
 
-Note:  
+Notes:  
     Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br>
 
 */
@@ -505,6 +507,16 @@ in iot_config.h.
 
 @configpossible Any positive integer.
 @configdefault `3`
+
+@section IOT_HTTPS_DEMO_SYNC_TIMEOUT_MS
+@brief Timeout in milliseconds to wait for a response to to a synchronous request.
+
+This timeout is applied to function @ref https_client_function_sendsync.
+
+This configuration applies to [iot_demo_https_s3_download_sync.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_sync.c) and [iot_demo_https_s3_upload_sync.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_upload_sync.c)
+
+@configpossible Any positive integer. <br>
+@configdefault `60000`
 
 @section IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS
 @brief The maximum number of inflight asynchronous requests. 
