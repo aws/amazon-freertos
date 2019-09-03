@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_https_utils.h
+ * @file iot_https_utils.c
  * @brief Implements functions for HTTPS Client library utilities.
  */
 

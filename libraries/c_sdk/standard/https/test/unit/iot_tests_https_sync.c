@@ -47,25 +47,25 @@
 #define HTTPS_TEST_NETWORK_RECEIVE_CALLBACK_WAIT_MS        ( ( uint32_t ) 300 )
 
 /**
- * @brief Definitions for part of the small HTTP test response.
+ * Definitions for part of the small HTTP test response.
  *
  * Theser are used to verify behavior when the header buffer ends with just a part of the HTTP response headers.
  */
-#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_CARRIAGE_RETURN    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r"
-#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_NEWLINE            "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n"
-#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_COLON              "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:"
-#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_SPACE              "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: "
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_CARRIAGE_RETURN    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r"   /**< @brief A test response from the network that goes up to a carriage return in the HTTP response headers. */
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_NEWLINE            "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n" /**< @brief A test response from the network that goes up to a newline in the HTTP response headers.  */
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_COLON              "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1:"            /**< @brief A test response from the network that goes up to a colon in the HTTP response headers. */
+#define HTTPS_TEST_SMALL_RESPONSE_UP_TO_SPACE              "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: "           /**< @brief A test response from the network that goes up to the space after a colon in the HTTP response headers. */
 #define HTTPS_TEST_SMALL_RESPONSE_UP_TO_SPACE_IN_BETWEEN_VALUE \
-    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\nheader2: value2 "
-#define HTTPS_TEST_HEADER1                                 "header1"
-#define HTTPS_TEST_HEADER1_PLUS_COLON                      "header1:"
-#define HTTPS_TEST_HEADER1_PLUS_SPACE                      "header1: "
-#define HTTPS_TEST_HEADER2                                 "header2"
-#define HTTPS_TEST_HEADER_VALUE1                           "value1"
-#define HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE                "value2 "
-#define HTTPS_TEST_HEADER_VALUE2_VALUE2A                   "value2 value2a"
-#define HTTPS_TEST_HEADER_VALUE1_PLUS_CARRIAGE_RETURN      "value1\r"
-#define HTTPS_TEST_HEADER_VALUE1_PLUS_NEWLINE              "value1\r\n"
+    "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\nheader2: value2 "                                        /**< @brief A test response from the network that goes up to the space that is after a header value in the HTTP response headers. */
+#define HTTPS_TEST_HEADER1                                 "header1"                                                   /**< @brief The string literal for a header field named "header1". This is for test result checking. */
+#define HTTPS_TEST_HEADER1_PLUS_COLON                      "header1:"                                                  /**< @brief The string literal for a header field named "header1" including the colon after. */
+#define HTTPS_TEST_HEADER1_PLUS_SPACE                      "header1: "                                                 /**< @brief The string literal for a header field named "header1" including the colon and space after. */
+#define HTTPS_TEST_HEADER2                                 "header2"                                                   /**< @brief The string literal for a header field named "header2". This is for test result checking. */
+#define HTTPS_TEST_HEADER_VALUE1                           "value1"                                                    /**< @brief The string literal for a header value named "value1". */
+#define HTTPS_TEST_HEADER_VALUE2_PLUS_SPACE                "value2 "                                                   /**< @brief The string literal for a header value named "value2." */
+#define HTTPS_TEST_HEADER_VALUE2_VALUE2A                   "value2 value2a"                                            /**< @brief The string literal a header value that contains two strings separated by a space. */
+#define HTTPS_TEST_HEADER_VALUE1_PLUS_CARRIAGE_RETURN      "value1\r"                                                  /**< @brief the string literal for a header value with the carriage return following it. */
+#define HTTPS_TEST_HEADER_VALUE1_PLUS_NEWLINE              "value1\r\n"                                                /**< @brief the string ltieral for a header value with the carriage return and newline following it. */
 
 /*-----------------------------------------------------------*/
 
@@ -104,7 +104,7 @@ static bool _alreadyCreatedReceiveCallbackThread = false;
 static IotHttpsRequestHandle_t _currentlySendingRequestHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
 
 /**
- * @brief A IotHttpsSyncInfo_t for requests and response to share among the tests.
+ * #IotHttpsSyncInfo_t for requests and response to share among the tests.
  *
  * Even though the method is a GET method for the test _reqInfo, we apply a request body for unit testing purposes. A
  * request body is allowed for a GET method according to the HTTP specification, although it is pointless in practice.
@@ -114,13 +114,14 @@ static IotHttpsSyncInfo_t _syncRequestInfo =
     .pBody   = ( uint8_t * ) ( HTTPS_TEST_REQUEST_BODY ),
     /* Constant C string in macros have a NULL terminating character that we want to omit. */
     .bodyLen = HTTPS_TEST_REQUEST_BODY_LENGTH
-};
+}; /**< @brief A #IotHttpsSyncInfo_t for requests to share among the tests. */
+
 static IotHttpsSyncInfo_t _syncResponseInfo =
 {
     .pBody   = _pRespBodyBuffer,
     /* Constant C string in macros have a NULL terminating character that we want to omit. */
     .bodyLen = sizeof( _pRespBodyBuffer )
-};
+}; /**< @brief A #IotHttpsSyncInfo_t for responses to share among the tests. */
 
 /**
  * @brief A IotHttpsRequestInfo_t to share among the tests.
@@ -452,7 +453,7 @@ TEST_TEAR_DOWN( HTTPS_Client_Unit_Sync )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test group runner for HTTPS Client API tests.
+ * @brief Test group runner for HTTPS Client @ref https_client_function_sendsync.
  */
 TEST_GROUP_RUNNER( HTTPS_Client_Unit_Sync )
 {

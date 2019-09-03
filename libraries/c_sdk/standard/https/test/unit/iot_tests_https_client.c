@@ -63,7 +63,7 @@
     "Vary: *\r\n"                              \
     "P3P: CP=\"This is not a P3P policy\"\r\n" \
     "xserver: www1021\r\n"
-#define HTTPS_TEST_RESPONSE_HEADER_LINES_LENGTH    sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES ) - 1
+#define HTTPS_TEST_RESPONSE_HEADER_LINES_LENGTH    sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES ) - 1 /**< @brief The length of the HTTP response test header lines. */
 
 /**
  * @brief Header lines with no content-length for testing.
@@ -75,23 +75,23 @@
     "Vary: *\r\n"                                          \
     "P3P: CP=\"This is not a P3P policy\"\r\n"             \
     "xserver: www1021\r\n\r\n"
-#define HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH_LENGTH    sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH ) - 1
+#define HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH_LENGTH    sizeof( HTTPS_TEST_RESPONSE_HEADER_LINES_NO_CONTENT_LENGTH ) - 1 /**< @brief Length of the HTTP test response headers where there is no Content-Length. */
 
 /**
- * @brief Header name and values to verify reading the header.
+ * Header name and values to verify reading the header.
  */
-#define HTTPS_DATE_HEADER                                            "Date"
-#define HTTPS_ETAG_HEADER                                            "ETag"
-#define HTTPS_NONEXISTENT_HEADER                                     "Non-Existent-Header"
-#define HTTPS_DATE_HEADER_VALUE                                      "Sun, 14 Jul 2019 06:07:52 GMT"
-#define HTTPS_ETAG_HEADER_VALUE                                      "\"3356-5233\""
-#define HTTPS_CONTENT_LENGTH_VALUE                                   ( 43 )
+#define HTTPS_DATE_HEADER                                            "Date"                          /**< @brief "Date" HTTP header field name. */
+#define HTTPS_ETAG_HEADER                                            "ETag"                          /**< @brief "ETag" HTTP header field name. */
+#define HTTPS_NONEXISTENT_HEADER                                     "Non-Existent-Header"           /**< @brief HTTP header field name of a non-existing header for testing. */
+#define HTTPS_DATE_HEADER_VALUE                                      "Sun, 14 Jul 2019 06:07:52 GMT" /**< @brief Test header value for the "Date" header field. */
+#define HTTPS_ETAG_HEADER_VALUE                                      "\"3356-5233\""                 /**< @brief Test header value for the "ETag" header field. */
+#define HTTPS_CONTENT_LENGTH_VALUE                                   ( ( uint32_t ) 43 )             /**< @brief Test header value as a unsigned integer for the "Content-Length" header field. */
 
 /**
- * @brief The array lengths of to store the header values.
+ * The array lengths of local value buffers in the test to store the header values.
  */
-#define HTTPS_TEST_VALUE_BUFFER_LENGTH_LARGE_ENOUGH                  ( 64 )
-#define HTTPS_TEST_VALUE_BUFFER_LENGTH_TOO_SMALL                     ( 8 )
+#define HTTPS_TEST_VALUE_BUFFER_LENGTH_LARGE_ENOUGH                  ( 64 ) /**< @brief A large enough test length of a local value buffer to store the returned header value. */
+#define HTTPS_TEST_VALUE_BUFFER_LENGTH_TOO_SMALL                     ( 8 )  /**< @brief A too small test length of a local value buffer to store the returned header value. */
 
 /*-----------------------------------------------------------*/
 

@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
 import boto3
+from botocore.client import Config
 import argparse
 
 def get_presigned_urls(bucket_name, key_name):
-    # Get the service client.
-    s3 = boto3.client('s3')
+    # Get the service client. 
+    # SigV2 is being deprecated. If the boto3 installation in the current Python environment has an older version of 
+    # the package, then this configuration forces the use of SigV4.
+    s3 = boto3.client('s3', config=Config(signature_version='s3v4'))
 
     client_method_dict = {
         'GET': 'get_object',
