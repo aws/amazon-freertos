@@ -111,14 +111,14 @@
  * has been finished. It is finished when the responseCompleteCallback() is invoked. We create a pool of memory so that
  * all available requests in the pool can be scheduled right away without over-writing each other. */
 #ifndef IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS
-    #define IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS    ( 3 )
+    #define IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS    ( ( int ) 3 )
 #endif
 
 /* Size in bytes of the User Buffer used to store the internal connection context. The size presented here accounts for
  * storage of the internal connection context. The minimum size can be found in extern const unint32_t
  * connectionUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_CONN_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE    ( 400 )
+    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE    ( ( int ) 400 )
 #endif
 
 /* Size in bytes of the user buffer used to store the internal request context and HTTP request header lines.
@@ -129,7 +129,7 @@
  * in S3, but also the query following. The query following has the AWSAccessKeyId, the expiration time, and the
  * AWS Signature Version 4 signature.*/
 #ifndef IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE    ( 512 )
+    #define IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE    ( ( int ) 512 )
 #endif
 
 /* Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines.
@@ -138,13 +138,13 @@
  * Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
  * will be discarded. The minimum size can be found in extern const uint32_t responseUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( 1024 )
+    #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( ( int ) 1024 )
 #endif
 
 /* Size in bytes of the buffer used to store the response body (parts of it). This should be greater than or equal to
  * the size of the file we want to download.*/
 #ifndef IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE    ( 512 )
+    #define IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE    ( ( int ) 512 )
 #endif
 
 /* Timeout in milliseconds to wait for all asynchronous requests to finish. This timeout starts when the last
@@ -172,7 +172,7 @@
 /**
  * @brief The time for the application task to wait to try again finding a free request from the pool of requests.
  */
-#define GET_FREE_REQUEST_RETRY_WAIT_TIME_MS    ( 1000 )
+#define GET_FREE_REQUEST_RETRY_WAIT_TIME_MS    ( ( uint32_t ) 1000 )
 
 /*-----------------------------------------------------------*/
 

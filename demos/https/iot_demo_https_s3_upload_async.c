@@ -103,7 +103,7 @@
  * storage of the internal connection context. The minimum size can be found in extern const unint32_t
  * connectionUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_CONN_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE    ( 512 )
+    #define IOT_DEMO_HTTPS_CONN_BUFFER_SIZE    ( ( int ) 512 )
 #endif
 
 /* Size in bytes of the user buffer used to store the internal request context and HTTP request header lines.
@@ -114,7 +114,7 @@
  * in S3, but also the query following. The query following has the AWSAccessKeyId, the expiration time, and the
  * AWS Signature Version 4 signature.*/
 #ifndef IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE    ( 512 )
+    #define IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE    ( ( int ) 512 )
 #endif
 
 /* Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines.
@@ -123,7 +123,7 @@
  * Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
  * will be discarded. The minimum size can be found in extern const uint32_t responseUserBufferMinimumSize. */
 #ifndef IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
-    #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( 1024 )
+    #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( ( int ) 1024 )
 #endif
 
 /* Pointer to the data to upload.*/
@@ -446,6 +446,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
     {
         IotLogError( "Failed to send the request asynchronously with error code: %d", httpsClientStatus );
         /* If we failed to schedule an async request then this is an error and we should exit the loop. */
+        IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
     /* Timing out waiting for the response to finish will fail the demo. */
