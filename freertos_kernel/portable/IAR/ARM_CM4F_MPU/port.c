@@ -421,7 +421,7 @@ void vPortEnterCritical( void )
 	functions that end in "FromISR" can be used in an interrupt.  Only assert if
 	the critical nesting count is 1 to protect against recursive calls if the
 	assert function also uses a critical section. */
-	if( uxCriticalNesting == 1 )
+	if( uxCriticalNesting == 1 && xRunningPrivileged == pdTRUE )
 	{
 		configASSERT( ( portNVIC_INT_CTRL_REG & portVECTACTIVE_MASK ) == 0 );
 	}
@@ -482,38 +482,85 @@ __weak void vPortSetupTimerInterrupt( void )
 
 static void prvSetupMPU( void )
 {
+	uint32_t ulRegionIndex = 0;
+
 	/* Check the expected MPU is present. */
 	if( portMPU_TYPE_REG == portEXPECTED_MPU_TYPE_VALUE )
 	{
-		/* Set the data segment to be read/write, no-execute. */
-		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configDATA_SEGMENT_START ) |
-                                                  ( portMPU_REGION_VALID ) |
-                                                  ( 0 );
+		/* Setup DMA interrupt control. */
+		portMPU_REGION_BASE_ADDRESS_REG = ((uint32_t)0xE000E100) |
+										  (portMPU_REGION_VALID) |
+										  (ulRegionIndex);
 
-		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
-                                               ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-					       ( prvGetMPURegionSizeSetting( ( uint32_t ) configDATA_SEGMENT_END - ( uint32_t ) configDATA_SEGMENT_START ) ) |
-					       ( portMPU_REGION_ENABLE );
+		portMPU_REGION_ATTRIBUTE_REG = (portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER) |
+									   (portMPU_REGION_CACHEABLE_BUFFERABLE) |
+									   (prvGetMPURegionSizeSetting((uint32_t)0xE000E4EC -
+																   (uint32_t)0xE000E100)) |
+									   (portMPU_REGION_ENABLE);
+
+		ulRegionIndex++;
+
+		/* Allow read/write access to the general peripherals. */
+		portMPU_REGION_BASE_ADDRESS_REG =	( portPERIPHERALS_START_ADDRESS ) |
+											( portMPU_REGION_VALID ) |
+											( ulRegionIndex );
+
+		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
+										( prvGetMPURegionSizeSetting( portPERIPHERALS_END_ADDRESS - 
+																	  portPERIPHERALS_START_ADDRESS ) ) |
+										( portMPU_REGION_ENABLE );
+
+		ulRegionIndex++;
+
+		/* Allow read/write access to the general peripherals. */
+		portMPU_REGION_BASE_ADDRESS_REG =	( portPERIPHERALS_START_ADDRESS ) |
+											( portMPU_REGION_VALID ) |
+											( ulRegionIndex );
+
+		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
+										( prvGetMPURegionSizeSetting( portPERIPHERALS_END_ADDRESS - 
+																	  portPERIPHERALS_START_ADDRESS ) ) |
+										( portMPU_REGION_ENABLE );
+
+		ulRegionIndex++;
+
+		/* Set the data segment to be read/write, no-execute. */
+		/* TODO - figure out where to stick the SPI flash driver so it's not R/W. */
+		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configDATA_SEGMENT_START ) |
+                                          ( portMPU_REGION_VALID ) |
+                                          ( ulRegionIndex );
+
+		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_WRITE /*| portMPU_REGION_EXECUTE_NEVER */) |
+                                       ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+					       			   ( prvGetMPURegionSizeSetting( ( uint32_t ) configDATA_SEGMENT_END - 
+										  							 ( uint32_t ) configDATA_SEGMENT_START ) ) |
+					       		       ( portMPU_REGION_ENABLE );
+
+		ulRegionIndex++;
 
 		/* Set the text segment to be read-only. */
 		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configTEXT_SEGMENT_START ) |
-                                                  ( portMPU_REGION_VALID ) |
-                                                  ( 1 );
+                                          ( portMPU_REGION_VALID ) |
+                                          ( ulRegionIndex );
 
 		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_ONLY ) |
-                                               ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-					       ( prvGetMPURegionSizeSetting( ( uint32_t ) configTEXT_SEGMENT_END - ( uint32_t ) configTEXT_SEGMENT_START ) ) |
-					       ( portMPU_REGION_ENABLE );
+                                       ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+					       			   ( prvGetMPURegionSizeSetting( ( uint32_t ) configTEXT_SEGMENT_END - 
+										  							 ( uint32_t ) configTEXT_SEGMENT_START ) ) |
+					       			   ( portMPU_REGION_ENABLE );
 
-                /* Set the interrupts segment to be read-only. */
+		ulRegionIndex++;
+
+		/* Set the interrupts segment to be read-only. */
 		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configINTERRUPTS_SEGMENT_START ) |
-                                                  ( portMPU_REGION_VALID ) |
-                                                  ( 2 );
+                                          ( portMPU_REGION_VALID ) |
+                                          ( ulRegionIndex );
 
 		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_ONLY ) |
-                                               ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-					       ( prvGetMPURegionSizeSetting( ( uint32_t ) configINTERRUPTS_SEGMENT_END - ( uint32_t ) configINTERRUPTS_SEGMENT_START ) ) |
-					       ( portMPU_REGION_ENABLE );
+                                       ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+					       		       ( prvGetMPURegionSizeSetting( ( uint32_t ) configINTERRUPTS_SEGMENT_END - 
+										  							 ( uint32_t ) configINTERRUPTS_SEGMENT_START ) ) |
+					       			   ( portMPU_REGION_ENABLE );
 
 		/* Enable the memory fault exception. */
 		portNVIC_SYS_CTRL_STATE_REG |= portNVIC_MEM_FAULT_ENABLE;
