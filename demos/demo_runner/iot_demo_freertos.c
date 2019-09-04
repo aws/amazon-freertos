@@ -77,6 +77,7 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
         return ret;
     }
 #endif /* if MQTT_DEMO_TYPE_ENABLED */
+
 /*-----------------------------------------------------------*/
 
 static uint32_t _getConnectedNetworkForDemo( demoContext_t * pDemoContext )
@@ -111,7 +112,6 @@ static uint32_t _waitForDemoNetworkConnection( demoContext_t * pDemoContext )
 
     return _getConnectedNetworkForDemo( pDemoContext );
 }
-
 
 /*-----------------------------------------------------------*/
 
@@ -170,6 +170,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
     }
 }
 
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Initialize the common libraries, Mqtt library and network manager.
@@ -269,6 +270,8 @@ static int _initialize( demoContext_t * pContext )
     return status;
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Clean up the common libraries and the MQTT library.
  */
@@ -281,6 +284,7 @@ static void _cleanup( void )
 }
 
 /*-----------------------------------------------------------*/
+
 void runDemoTask( void * pArgument )
 {
     /* On Amazon FreeRTOS, credentials and server info are defined in a header
@@ -290,6 +294,15 @@ void runDemoTask( void * pArgument )
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     void * pConnectionParams = NULL, * pCredentials = NULL;
     int status;
+
+    #ifdef INSERT_DELAY_BEFORE_DEMO
+        {
+            /* DO NOT EDIT - The test framework relies on this delay to ensure that
+             * the "STARTING DEMO" tag below is not missed while the framework opens
+             * the serial port for reading output.*/
+            vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
+        }
+    #endif /* INSERT_DELAY_BEFORE_DEMO */
 
     /* DO NOT EDIT - This demo start marker is used in the test framework to
      * determine the start of a demo. */
@@ -364,6 +377,7 @@ void runDemoTask( void * pArgument )
     }
 
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -386,6 +400,7 @@ void vApplicationMallocFailedHook()
     {
     }
 }
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -413,3 +428,5 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     {
     }
 }
+
+/*-----------------------------------------------------------*/
