@@ -118,6 +118,9 @@ void vApplicationDaemonTaskStartupHook( void )
             /* Connect to the Wi-Fi before running the tests. */
             prvWifiConnect();
 
+            /* Setup client authentication credentials for TLS. */
+            vDevModeKeyProvisioning();
+
             /* Create the task to run unit tests. */
             xTaskCreate( TEST_RUNNER_RunTests_task,
                          "RunTests_task",
