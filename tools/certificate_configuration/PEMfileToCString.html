@@ -24,11 +24,11 @@
             // Replace any CR/LF pairs with a newline character.
             credentialText = credentialText.replace(/\r\n/g, "\n");
 
-            // Add line endings & html line break for C-language variable declaration.
-            credentialText = credentialText.replace(/\n/g, "\\n\"<br>\n\"");
+            // Add line endings, string quote, and line continuation, as well as html line breaks. (\n"\ <break>)
+            credentialText = credentialText.replace(/\n/g, "\\n\"\\<br>\n\"");
 
-            // Format the end of the last line with " and semicolon.
-            credentialText = credentialText + "\";\n";
+            // Format the end of the last line with " (but no line continuation).
+            credentialText = credentialText + "\"\n";
 
             return credentialText;
         }
