@@ -77,7 +77,9 @@ SemaphoreHandle_t xIicSemaphoreHandle;
 //lint --e{715} suppress the unused p_i2c_context variable lint error , since this is kept for future enhancements
 static pal_status_t pal_i2c_acquire(const void* p_i2c_context)
 {
-	if ( xSemaphoreTake(xIicSemaphoreHandle, portMAX_DELAY) == pdTRUE )
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	if ( xSemaphoreTakeFromISR(xIicSemaphoreHandle, &xHigherPriorityTaskWoken) == pdTRUE )
 		return PAL_STATUS_SUCCESS;
 }
 
@@ -85,7 +87,9 @@ static pal_status_t pal_i2c_acquire(const void* p_i2c_context)
 //lint --e{715} suppress the unused p_i2c_context variable lint, since this is kept for future enhancements
 static void pal_i2c_release(const void* p_i2c_context)
 {
-	xSemaphoreGive(xIicSemaphoreHandle);
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	xSemaphoreGiveFromISR(xIicSemaphoreHandle, &xHigherPriorityTaskWoken);
 }
 /// @endcond
 

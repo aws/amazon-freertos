@@ -70,7 +70,7 @@ const INTERRUPT_t tick_timer_intr =
  .irqctrl = (XMC_SCU_IRQCTRL_t)0U,
 #endif
   .node = (IRQn_Type)49,
-  .priority = 63,
+  .priority = 62,
 #if(UC_FAMILY == XMC4)  
   .subpriority = 0,
 #endif  
@@ -84,7 +84,7 @@ const INTERRUPT_t scheduler_timer_intr =
  .irqctrl = (XMC_SCU_IRQCTRL_t)0U,
 #endif
   .node = (IRQn_Type)57,
-  .priority = 61,  
+  .priority = 62,
 #if(UC_FAMILY == XMC4)  
   .subpriority = 0,
 #endif  

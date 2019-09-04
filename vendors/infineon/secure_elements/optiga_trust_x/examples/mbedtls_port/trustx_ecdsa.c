@@ -38,7 +38,9 @@
 
 #include "optiga/optiga_crypt.h"
 #include "optiga/optiga_util.h"
-#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS_SECOND "0xE0E1" 
+
+// this is a workaround to take the correct label for the private key handle in Amazon FreeRTOS
+#include "iot_pkcs11_config.h"
 
 #if defined(MBEDTLS_ECDSA_SIGN_ALT)
 
@@ -55,7 +57,7 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
 	long lOptigaOid = 0;
 	char* xEnd = NULL;
 			
-	lOptigaOid = strtol(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS_SECOND, &xEnd, 16);
+	lOptigaOid = strtol(pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, &xEnd, 16);
 
 	//printf("-> ecdsa_sign \n");
 	
@@ -158,7 +160,7 @@ int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
     size_t public_key_len = sizeof( public_key );
     optiga_ecc_curve_t curve_id;
 	mbedtls_ecp_group *grp = &ctx->grp;
-	uint16_t privkey_oid = OPTIGA_KEY_STORE_ID_E0F2;
+	uint16_t privkey_oid = OPTIGA_KEY_STORE_ID_E0F3;
  
 	mbedtls_ecp_group_load( &ctx->grp, gid );
  

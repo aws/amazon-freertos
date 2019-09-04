@@ -9,9 +9,9 @@
 /**
  * @cond
  ***********************************************************************************************************************
- * I2C_MASTER v4.1.28 Configures USIC channel to transmit & receive data using I2C protocol.
+ * I2C_MASTER v4.1.24 Configures USIC channel to transmit & receive data using I2C protocol.
  *
- * Copyright (c) 2015-2018, Infineon Technologies AG
+ * Copyright (c) 2015-2017, Infineon Technologies AG
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,are permitted provided that the
@@ -80,6 +80,7 @@
 #endif
 #endif
 
+//#include <DAVE_Common.h>
 
 
 typedef void(*i2c_master_fptr_cbhandler)(void);
@@ -245,7 +246,32 @@ extern "C" {
 /***********************************************************************************************************************
  * API PROTOTYPES
  **********************************************************************************************************************/
-
+///**
+// * @brief Get I2C_MASTER APP version.
+// * @return \a DAVE_APP_VERSION_t APP version information (major, minor and patch number)
+// *
+// * \par<b>Description: </b><br>
+// * The function can be used to check application software compatibility with a
+// * specific version of the APP.
+// *
+// * @code
+// *  #include <DAVE.h>
+// *
+// *  int main(void)
+// *  {
+// *    DAVE_APP_VERSION_t version;
+// *    DAVE_Init();
+// *    version = I2C_MASTER_GetAppVersion();
+// *    if(version.major != 4U)
+// *    {
+// *    }
+// *    while(1)
+// *    {}
+// *    return 0;
+// *  }
+// * @endcode<BR> </p>
+// */
+//DAVE_APP_VERSION_t I2C_MASTER_GetAppVersion(void);
 /**
  * @brief This function initializes the I2C_MASTER APP based on user provided configuration.
  *
@@ -576,7 +602,7 @@ I2C_MASTER_STATUS_t I2C_MASTER_AbortTransmit(const I2C_MASTER_t *const handle);
 I2C_MASTER_STATUS_t I2C_MASTER_AbortReceive(const I2C_MASTER_t *const handle);
 
 
-#if (I2C_MASTER_DMA_TX_ENABLED == 1U) || defined(DOXYGEN)
+#if (I2C_MASTER_DMA_TX_ENABLED == 1U)
 /**
  * @brief Registers a request for transmitting data over I2C channel using DMA.
  *
@@ -658,7 +684,7 @@ I2C_MASTER_STATUS_t I2C_MASTER_AbortReceive(const I2C_MASTER_t *const handle);
 I2C_MASTER_STATUS_t I2C_MASTER_StartTransmitDMA(const I2C_MASTER_t *const handle, uint32_t block_size, uint8_t *addr);
 #endif
 
-#if (I2C_MASTER_DMA_RX_ENABLED == 1U) || defined(DOXYGEN)
+#if (I2C_MASTER_DMA_RX_ENABLED == 1U)
 /**
  * @brief Registers a request for receiving data over I2C_MASTER channel using DMA.
  *

@@ -33,7 +33,7 @@
 /**********************************************************************************************************************
  * HEADER FILES
  *********************************************************************************************************************/
-#if 1
+#if 0
 #include "FreeRTOS.h"
 #include "timers.h"
 #include "queue.h"
@@ -268,11 +268,12 @@ void pal_os_event_delayms(uint32_t time_ms)
 /**********************************************************************************************************************
  * HEADER FILES
  *********************************************************************************************************************/
-
-#include "global_ccu4/global_ccu4.h"
-#include "timer/timer.h"
-#include "interrupt/interrupt.h"
 #include "optiga/pal/pal_os_event.h"
+
+#include "CLOCK_XMC4/clock_xmc4.h"
+#include "GLOBAL_CCU4/global_ccu4.h"
+#include "TIMER/timer.h"
+#include "INTERRUPT/interrupt.h"
 
 /**********************************************************************************************************************
  * MACROS
@@ -286,6 +287,7 @@ void pal_os_event_delayms(uint32_t time_ms)
 static volatile register_callback callback_registered = NULL;
 /// Pointer to store upper layer callback context (For example: Ifx i2c context)
 static void * callback_ctx;
+static volatile int periph_init_state = 0;
 
 /**
 *  Timer callback handler.
@@ -297,7 +299,7 @@ static void * callback_ctx;
 *\param[in] args Callback argument
 *
 */
-void scheduler_timer_isr(void)
+void pal_os_event_trigger_registered_callback(void)
 {
     register_callback callback;
 
@@ -314,6 +316,51 @@ void scheduler_timer_isr(void)
     }
 }
 /// @endcond
+
+pal_status_t pal_os_event_init(void)
+{
+	int init_status = 1;
+
+	if (periph_init_state == 0)
+	{
+		/** @Initialization of APPs Init Functions */
+		init_status = CLOCK_XMC4_Init(&CLOCK_XMC4_0);
+
+		if (init_status == 0)
+		{
+			/**  Initialization of TIMER APP scheduler_timer */
+			init_status = TIMER_Init(&scheduler_timer);
+		}
+
+		if (init_status == 0)
+		{
+			/**  Initialization of INTERRUPT APP instance scheduler_timer_intr */
+			init_status = INTERRUPT_Init(&scheduler_timer_intr);
+		}
+
+//	    if (init_status == 0)
+//	    {
+//	        /**  Initialization of TIMER APP instance tick_timer */
+//	        init_status = TIMER_Init(&tick_timer);
+//	    }
+//	    if (init_status == 0)
+//	    {
+//	        /**  Initialization of INTERRUPT APP instance tick_timer_intr */
+//	        init_status = INTERRUPT_Init(&tick_timer_intr);
+//	    }
+
+		if (init_status != 0)
+			init_status = PAL_STATUS_FAILURE;
+		else
+		{
+			init_status = PAL_STATUS_SUCCESS;
+			periph_init_state = 1;
+		}
+	}
+
+
+    return (pal_status_t)init_status;
+}
 
 /**
 * Platform specific event call back registration function to trigger once when timer expires.
