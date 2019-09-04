@@ -43,14 +43,14 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject(
     uint8_t * pLabel,
     uint8_t usLength );
  
-BaseType_t PKCS11_PAL_GetObjectValue(
+CK_RV PKCS11_PAL_GetObjectValue(
      CK_OBJECT_HANDLE xHandle,
     uint8_t ** ppucData,
     uint32_t * pulDataSize,
-    CK_BBOOL * xIsPrivate );
+    CK_BBOOL * pIsPrivate );
  
 void PKCS11_PAL_GetObjectValueCleanup( 
-    uint8_t * pucBuffer,
-    uint32_t ulBufferSize );
+    uint8_t * pucData,
+    uint32_t ulDataSize );
 ```
 A stub of the PAL interface can be found at https://github.com/aws/amazon-freertos/blob/master/vendors/vendor/boards/board/ports/pkcs11/iot_pkcs11_pal.c.
