@@ -152,16 +152,6 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/e_eeprom_xmc4.h</locationURI>
 		</link>
 		<link>
-			<name>application_code/infineon_code/entropy_hardware.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/entropy_hardware.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/infineon_code/entropy_hardware.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/entropy_hardware.h</locationURI>
-		</link>
-		<link>
 			<name>application_code/infineon_code/esp_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/esp_config.h</locationURI>
@@ -170,16 +160,6 @@
 			<name>application_code/infineon_code/memcpy.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/memcpy.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/infineon_code/optiga_trust_x.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/optiga_trust_x.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/infineon_code/optiga_trust_x.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/optiga_trust_x.h</locationURI>
 		</link>
 		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>

@@ -26,7 +26,6 @@
 #include <string.h>
 
 #include "console_io.h"
-#include "entropy_hardware.h"
 #include "optiga_trust_x.h"
 
 /* FreeRTOS includes. */
@@ -105,14 +104,11 @@ int main( void )
 static void prvMiscInitialization( void )
 {
 	CONSOLE_IO_Init();
-
-	ENTROPY_HARDWARE_Init();
 }
 /*-----------------------------------------------------------*/
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-	OPTIGA_TRUST_X_Init();
     
     /* Initialize the AWS Libraries system. */
     if ( SYSTEM_Init() == pdPASS )
