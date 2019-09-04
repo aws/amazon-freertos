@@ -34,9 +34,9 @@
  * HEADER FILES
  *********************************************************************************************************************/
 #include "optiga/pal/pal_i2c.h"
-#include "i2c_master_dave/i2c_master.h"
-#include "i2c_master_dave/i2c_master_extern.h"
-#include "i2c_master_dave/i2c_master_conf.h"
+#include "I2C_MASTER/i2c_master.h"
+#include "I2C_MASTER/i2c_master_extern.h"
+#include "I2C_MASTER/i2c_master_conf.h"
 
 #include "FreeRTOS.h"
 #include "queue.h"
@@ -77,7 +77,9 @@ SemaphoreHandle_t xIicSemaphoreHandle;
 //lint --e{715} suppress the unused p_i2c_context variable lint error , since this is kept for future enhancements
 static pal_status_t pal_i2c_acquire(const void* p_i2c_context)
 {
-	if ( xSemaphoreTake(xIicSemaphoreHandle, portMAX_DELAY) == pdTRUE )
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	if ( xSemaphoreTakeFromISR(xIicSemaphoreHandle, &xHigherPriorityTaskWoken) == pdTRUE )
 		return PAL_STATUS_SUCCESS;
 }
 
@@ -85,7 +87,9 @@ static pal_status_t pal_i2c_acquire(const void* p_i2c_context)
 //lint --e{715} suppress the unused p_i2c_context variable lint, since this is kept for future enhancements
 static void pal_i2c_release(const void* p_i2c_context)
 {
-	xSemaphoreGive(xIicSemaphoreHandle);
+	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+
+	xSemaphoreGiveFromISR(xIicSemaphoreHandle, &xHigherPriorityTaskWoken);
 }
 /// @endcond
 
@@ -179,6 +183,16 @@ void i2c_master_error_detected_callback(void)
      * Use queues instead to activate corresponding handler
      * */
 	xQueueSendFromISR( trustx_i2cresult_queue, ( void * ) &i2_result, &xHigherPriorityTaskWoken );
+}
+
+void i2c_master_nack_received_callback(void)
+{
+	i2c_master_error_detected_callback();
+}
+
+void i2c_master_arbitration_lost_callback(void)
+{
+	i2c_master_error_detected_callback();
 }
 
 void i2c_result_handler( void * pvParameters )

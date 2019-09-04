@@ -152,16 +152,6 @@
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/e_eeprom_xmc4.h</locationURI>
 		</link>
 		<link>
-			<name>application_code/infineon_code/entropy_hardware.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/entropy_hardware.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/infineon_code/entropy_hardware.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/entropy_hardware.h</locationURI>
-		</link>
-		<link>
 			<name>application_code/infineon_code/esp_config.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/esp_config.h</locationURI>
@@ -170,16 +160,6 @@
 			<name>application_code/infineon_code/memcpy.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/memcpy.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/infineon_code/optiga_trust_x.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/optiga_trust_x.c</locationURI>
-		</link>
-		<link>
-			<name>application_code/infineon_code/optiga_trust_x.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code/optiga_trust_x.h</locationURI>
 		</link>
 		<link>
 			<name>demos/defender/aws_iot_demo_defender.c</name>
@@ -1931,6 +1911,131 @@
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/drivers/src/xmc_wdt.c</locationURI>
 		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.c</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_extern.h</locationURI>
+		</link>	
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.c</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_extern.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.c</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_extern.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.c</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_extern.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.c</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.h</locationURI>
+		</link>		
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_extern.h</locationURI>
+		</link>	
 		<link>
 			<name>vendors/infineon/boards/xmc4800_plus_optiga_trust_x/ports/posix/FreeRTOS_POSIX_portable.h</name>
 			<type>1</type>

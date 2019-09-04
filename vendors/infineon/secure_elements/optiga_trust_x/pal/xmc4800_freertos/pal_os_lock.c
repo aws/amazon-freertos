@@ -1,7 +1,7 @@
 /**
 * MIT License
 *
-* Copyright (c) 2018 Infineon Technologies AG
+* Copyright (c) 2019 Infineon Technologies AG
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
@@ -47,11 +47,13 @@ void _lock_init(void)
 
 pal_status_t pal_os_lock_acquire(void)
 {
+	vPortEnterCritical();
 	if (first_call_flag)
 	{
 		_lock_init();
 		first_call_flag = 0;
 	}
+	vPortExitCritical();
 
 	if ( xSemaphoreTake(xLockSemaphoreHandle, portMAX_DELAY) == pdTRUE )
 		return PAL_STATUS_SUCCESS;
