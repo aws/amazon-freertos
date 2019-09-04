@@ -172,8 +172,9 @@ def create_patch(defines, header_file):
     header_path_part = header_file.replace(os.sep, "_")
     path_name = "auto_patch_" + header_path_part + ".patch"
     path_name = os.path.join(PATCHES_DIR, path_name)
-    with open(path_name, "w") as patch_file:
-        patch_file.write(patch.stdout)
+    if patch.stdout:
+        with open(path_name, "w") as patch_file:
+            patch_file.write(patch.stdout)
 
 
 def create_patches(headers):
