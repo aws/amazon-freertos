@@ -24,10 +24,10 @@
             // Replace any CR/LF pairs with a newline character.
             credentialText = credentialText.replace(/\r\n/g, "\n");
 
-            // Add line endings (\n), string quote ("), and line continuation (\), as well as html line breaks.
+            // Add line endings, string quote, and line continuation, as well as html line breaks. (\n"\ <break>)
             credentialText = credentialText.replace(/\n/g, "\\n\"\\<br>\n\"");
 
-            // Format the end of the last line with " (but no .
+            // Format the end of the last line with " (but no line continuation).
             credentialText = credentialText + "\"\n";
 
             return credentialText;
