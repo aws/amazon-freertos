@@ -26,7 +26,6 @@
 #include <string.h>
 
 #include "console_io.h"
-#include "optiga_trust_x.h"
 
 /* FreeRTOS includes. */
 #include "FreeRTOS.h"
@@ -109,7 +108,7 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    
+
     /* Initialize the AWS Libraries system. */
     if ( SYSTEM_Init() == pdPASS )
     {
@@ -138,7 +137,7 @@ void prvWifiConnect( void )
         {
             configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
 
-            /* Delay to allow the lower priority logging task to print the above status. 
+            /* Delay to allow the lower priority logging task to print the above status.
              * The while loop below will block the above printing. */
             vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
@@ -160,9 +159,9 @@ void prvWifiConnect( void )
         if( xWifiStatus == eWiFiSuccess )
         {
             configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
-            
+
             xWifiStatus = WIFI_GetIP( ucTempIp );
-            if ( eWiFiSuccess == xWifiStatus ) 
+            if ( eWiFiSuccess == xWifiStatus )
             {
                 configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                                 ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
@@ -172,7 +171,7 @@ void prvWifiConnect( void )
         {
             configPRINTF( ( "Wi-Fi failed to connect to AP.\r\n" ) );
 
-            /* Delay to allow the lower priority logging task to print the above status. 
+            /* Delay to allow the lower priority logging task to print the above status.
              * The while loop below will block the above printing. */
             vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
