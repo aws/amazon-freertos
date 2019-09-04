@@ -697,7 +697,6 @@ void checkNotificationIndication( bletestAttSrvB_t xAttribute,
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
 
     /* for Indication or Notification a flag on the first byte is toggled .*/
-    printf("%d\n", xWriteEvent.ucValue[ 0 ]);
     if( enable == true )
     {
         TEST_ASSERT_NOT_EQUAL( 0, xWriteEvent.ucValue[ 0 ] );

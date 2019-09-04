@@ -146,7 +146,12 @@ TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
  * Make sure KPI is consistent after reset BT.*/
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset )
 {
-    /* First time connection disconnects. Got First KPI. */
+    /* First time connection disconnects. */
+    prvWaitConnection( false );
+
+    /* Second time reconnection. Got Second KPI. */
+    prvStartAdvertisement();
+    prvWaitConnection( true );
     prvWaitConnection( false );
 
     /* BT reset. */
@@ -169,7 +174,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     prvSetAdvProperty();
     prvSetAdvData();
 
-    /* Second time connection begins. Got second KPI. */
+    /* Third time connection begins. Got third KPI. */
     prvStartAdvertisement();
 
     prvWaitConnection( true );

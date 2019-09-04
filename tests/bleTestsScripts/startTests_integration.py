@@ -32,16 +32,6 @@ def discoveryEventCb(testDevice):
         #discoveryEvent.set()
         mainloop.quit()
 
-def notificationOn2CharCb(uuid, value, flag):
-    isNotificationOnETestSuccessFull = runTest.notificationOnCharE(uuid, value, flag)
-    if isNotificationOnETestSuccessFull == True:
-        mainloop.quit()
-
-    isIndicationOnFTestSuccessFull = runTest.indicationOnCharF(uuid, value, flag)
-    if isIndicationOnFTestSuccessFull == True:
-        mainloop.quit()
-
-
 def notificationMTUCb(uuid, value, flag):
     notification = runTest.notificationMTU2(uuid, value, flag)
     if notification == runTest.DUT_FAIL_STRING:
@@ -79,9 +69,9 @@ def main():
     # First time connection
     isTestSuccessFull = True
     bleAdapter.startDiscovery(discoveryEventCb)
-    firstStartScan = time.time()
+    # firstStartScan = time.time()
     mainloop.run()
-    firstKPI = time.time() - firstStartScan
+    # firstKPI = time.time() - firstStartScan
     runTest.submitTestResult(isTestSuccessFull, runTest.advertisement)
     bleAdapter.stopDiscovery()
 
@@ -101,14 +91,24 @@ def main():
     isConnectSuccessFull = bleAdapter.connect(testDevice)
     isTestSuccessFull &= isConnectSuccessFull
     runTest.submitTestResult(isTestSuccessFull, runTest.reConnection)
+    time.sleep(2) #wait for connection parameters update
+    # Second time disconnect
+    isTestSuccessFull &= bleAdapter.disconnect()
 
-    bleAdapter.gatt.updateLocalAttributeTable()
-    print firstKPI
-    print secondKPI
-    if secondKPI > firstKPI * 10:
+    #Third time connection
+    bleAdapter.startDiscovery(discoveryStartedCb)#wait for DUT to start advertising
+    thirdStartScan = time.time()
+    mainloop.run()
+    thirdKPI = time.time() - thirdStartScan
+    bleAdapter.stopDiscovery()
+    isConnectSuccessFull = bleAdapter.connect(testDevice)
+    isTestSuccessFull &= isConnectSuccessFull
+    runTest.submitTestResult(isTestSuccessFull, runTest.reConnection)
+
+    if thirdKPI > secondKPI * 10:
         isTestSuccessFull &= false
-
     # write result back to peripheral
+    bleAdapter.gatt.updateLocalAttributeTable()
     isTestSuccessFull &= runTest.writeResultWithoutResponse(chr(isTestSuccessFull + 48))
     runTest.submitTestResult(isTestSuccessFull, runTest.writeWithoutResponse)
 

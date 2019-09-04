@@ -142,11 +142,6 @@ class bleAdapter:
             uuid = bleAdapter.getPropertie(obj, "UUID", interface=testutils.CHARACTERISTIC_INTERFACE)
             flag = bleAdapter.getPropertie(obj, "Flags", interface=testutils.CHARACTERISTIC_INTERFACE)[0]
             value = testutils.convert_dbus_array_to_string(bleAdapter.getPropertie(obj, "Value", interface=testutils.CHARACTERISTIC_INTERFACE))
-            
-            print uuid
-            print flag
-            print value
-
             bleAdapter.notificationCb.im_func(uuid, value, flag)
 
     @staticmethod
