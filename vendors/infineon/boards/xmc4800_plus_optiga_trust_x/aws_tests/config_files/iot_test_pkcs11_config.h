@@ -87,7 +87,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       "0xE0F2"
 
 /**
  * @brief The PKCS #11 label for device public key.
@@ -96,7 +96,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "0xF1D2"
 
 /**
  * @brief The PKCS #11 label for the device certificate.
@@ -105,7 +105,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS
+#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       "0xE0E2"
 
 /**
  * @brief The PKCS #11 label for the object to be used for code verification.

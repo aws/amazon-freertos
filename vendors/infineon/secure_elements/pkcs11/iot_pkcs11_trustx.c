@@ -36,6 +36,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "iot_pkcs11_config.h"
+#include "iot_test_pkcs11_config.h"
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_pal.h"
@@ -147,8 +148,11 @@ enum eObjectHandles
 {
     eInvalidHandle = 0, /* According to PKCS #11 spec, 0 is never a valid object handle. */
     eAwsDevicePrivateKey = 1,
+	eAwsTestPrivateKey,
     eAwsDevicePublicKey,
+	eAwsTestPublicKey,
     eAwsDeviceCertificate,
+	eAwsTestCertificate,
     eAwsCodeSigningKey
 };
 
@@ -236,6 +240,77 @@ static uint8_t prvAppendOptigaCertTags (uint16_t xCertWithoutTagsLength,
         return ret;
 }
 
+static int32_t prvUploadCertificate(char * pucLabel, uint8_t * pucData, uint32_t ulDataSize)
+{
+    long     lOptigaOid = 0;
+    const 	 uint8_t xTagsLength = 9;
+    uint8_t  pxCertTags[xTagsLength];
+    optiga_lib_status_t xReturn;
+    char*    xEnd = NULL;
+
+	/**
+	 * Write a certificate to a given cert object (e.g. E0E8)
+	 * using optiga_util_write_data.
+	 *
+	 * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
+	 * to clear the remaining data in the object
+	 */
+
+	lOptigaOid = strtol(pucLabel, &xEnd, 16);
+
+	if ( (0 != lOptigaOid) && (USHRT_MAX > lOptigaOid) && (USHRT_MAX > ulDataSize))
+	{
+		// Certificates on OPTIGA Trust SE are stored with certitficate identifiers -> tags,
+		// which are 9 bytes long
+		if (prvAppendOptigaCertTags(ulDataSize, pxCertTags, xTagsLength))
+		{
+			xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
+											 OPTIGA_UTIL_ERASE_AND_WRITE,
+											 0,
+											 pxCertTags,
+											 9);
+
+			if (OPTIGA_LIB_SUCCESS == xReturn)
+			{
+				xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
+												 OPTIGA_UTIL_WRITE_ONLY,
+												 xTagsLength,
+												 pucData,
+												 ulDataSize);
+			}
+		}
+	}
+
+	return xReturn;
+}
+
+static int32_t prvUploadPublicKey(char * pucLabel, uint8_t * pucData, uint32_t ulDataSize)
+{
+    long     lOptigaOid = 0;
+    optiga_lib_status_t xReturn;
+    char*    xEnd = NULL;
+
+    /**
+     * Write a public key to an arbitrary data object
+     * Note: You might need to lock the data object here. see optiga_util_write_metadata()
+     *
+     * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
+     * to clear the remaining data in the object
+     */
+    lOptigaOid = strtol(pucLabel, &xEnd, 16);
+
+    if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid) && (USHRT_MAX >= ulDataSize))
+    {
+        xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
+                                         OPTIGA_UTIL_ERASE_AND_WRITE,
+                                         0,
+                                         pucData,
+                                         ulDataSize);
+    }
+
+	return xReturn;
+}
+
 /**
  * @brief Saves an object in non-volatile storage.
  *
@@ -257,8 +332,6 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     long     lOptigaOid = 0;
     uint8_t  bOffset = 0;
     char*    xEnd = NULL;
-    const uint8_t xTagsLength = 9;
-    uint8_t  pxCertTags[xTagsLength];
 
     optiga_lib_status_t xReturn;
 
@@ -270,44 +343,23 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                          &pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
                          sizeof( pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
         {
-            /**
-             * Write a certificate to a given cert object (e.g. E0E8)
-             * using optiga_util_write_data.
-             *
-             * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
-             * to clear the remaining data in the object
-             */
-
-            lOptigaOid = strtol(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
-
-            if ( (0 != lOptigaOid) && (USHRT_MAX > lOptigaOid) && (USHRT_MAX > ulDataSize))
-            {
-                // Certificates on OPTIGA Trust SE are stored with certitficate identifiers -> tags,
-                // which are 9 bytes long
-                if (prvAppendOptigaCertTags(ulDataSize, pxCertTags, xTagsLength))
-                {
-                    xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
-                                                     OPTIGA_UTIL_ERASE_AND_WRITE,
-                                                     0,
-                                                     pxCertTags,
-                                                     9);
-
-                    if (OPTIGA_LIB_SUCCESS == xReturn)
-                    {
-                        xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
-                                                         OPTIGA_UTIL_WRITE_ONLY,
-                                                         xTagsLength,
-                                                         pucData,
-                                                         ulDataSize);
-                        if (OPTIGA_LIB_SUCCESS == xReturn)
-                            xHandle = eAwsDeviceCertificate;
-                    }
-                }
-            }
+        	if ( prvUploadCertificate(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
+        	{
+        		xHandle = eAwsDeviceCertificate;
+        	}
         }
         else if( 0 == memcmp( pxLabel->pValue,
-                              &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                              sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+                              &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                              sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+		{
+        	if ( prvUploadCertificate(pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
+        	{
+        		xHandle = eAwsTestCertificate;
+        	}
+		}
+        else if( 0 == memcmp( pxLabel->pValue,
+                               &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                               sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
         {
             /* This operation isn't supported for the OPTIGA(TM) Trust X due to a security considerations
              * You can only generate a keypair and export a private component if you like */
@@ -315,27 +367,27 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
             xHandle = eAwsDevicePrivateKey;
         }
         else if( 0 == memcmp( pxLabel->pValue,
+                		               &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                		               sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+		{
+        	xHandle = eAwsTestPrivateKey;
+		}
+        else if( 0 == memcmp( pxLabel->pValue,
                               &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                               sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
         {
-            /**
-             * Write a public key to an arbitrary data object
-             * Note: You might need to lock the data object here. see optiga_util_write_metadata()
-             *
-             * Use Erase and Write (OPTIGA_UTIL_ERASE_AND_WRITE) option,
-             * to clear the remaining data in the object
-             */
-            lOptigaOid = strtol(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16);
-
-            if ( (0 != lOptigaOid) && (USHRT_MAX >= lOptigaOid) && (USHRT_MAX >= ulDataSize))
-            {
-                xReturn = optiga_util_write_data((uint16_t)lOptigaOid,
-                                                 OPTIGA_UTIL_ERASE_AND_WRITE,
-                                                 bOffset,
-                                                 pucData,
-                                                 ulDataSize);
-                if (OPTIGA_LIB_SUCCESS == xReturn)
+        	if ( prvUploadPublicKey(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
+        	{
                     xHandle = eAwsDevicePublicKey;
+            }
+        }
+        else if( 0 == memcmp( pxLabel->pValue,
+                              &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                              sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+        {
+        	if ( prvUploadPublicKey(pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, pucData, ulDataSize) ==  OPTIGA_LIB_SUCCESS)
+        	{
+                    xHandle = eAwsTestPublicKey;
             }
         }
         else if( 0 == memcmp( pxLabel->pValue,
@@ -398,6 +450,12 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
         xHandle = eAwsDeviceCertificate;
     }
     else if( 0 == memcmp( pLabel,
+                          &pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                          sizeof( pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS ) ) )
+    {
+        xHandle = eAwsTestCertificate;
+    }
+    else if( 0 == memcmp( pLabel,
                           &pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
     {
@@ -407,10 +465,22 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
         xHandle = eAwsDevicePrivateKey;
     }
     else if( 0 == memcmp( pLabel,
+                          &pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                          sizeof( pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ) ) )
+    {
+        xHandle = eAwsTestPrivateKey;
+    }
+    else if( 0 == memcmp( pLabel,
                           &pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
                           sizeof( pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
     {
         xHandle = eAwsDevicePublicKey;
+    }
+    else if( 0 == memcmp( pLabel,
+                          &pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                          sizeof( pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ) ) )
+    {
+        xHandle = eAwsTestPublicKey;
     }
     else if( 0 == memcmp( pLabel,
                           &pkcs11configLABEL_CODE_VERIFICATION_KEY,
@@ -465,13 +535,21 @@ BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
         lOptigaOid = strtol(pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
         xOffset = 9;
         break;
+    case eAwsTestCertificate:
+        lOptigaOid = strtol(pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, &xEnd, 16);
+        xOffset = 9;
+        break;
     case eAwsDevicePublicKey:
         lOptigaOid = strtol(pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16);
+        break;
+    case eAwsTestPublicKey:
+        lOptigaOid = strtol(pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, &xEnd, 16);
         break;
     case eAwsCodeSigningKey:
         lOptigaOid = strtol(pkcs11configLABEL_CODE_VERIFICATION_KEY, &xEnd, 16);
         break;
     case eAwsDevicePrivateKey:
+    case eAwsTestPrivateKey:
         /*
          * This operation isn't supported for the OPTIGA(TM) Trust X due to a security considerations
          * You can only generate a keypair and export a private component if you like
@@ -921,16 +999,17 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
         if( pcLabel != NULL )
         {
-            if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
+            if( (0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength )) ||
+                (0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength )) )
             {
-                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+                prvFindObjectInListByLabel( ( uint8_t * ) pcLabel, strlen( ( char * ) pcLabel ), &xPalHandle, &xAppHandle2 );
 
                 if( xPalHandle != CK_INVALID_HANDLE )
                 {
                     xResult = prvDeleteObjectFromList( xAppHandle2 );
                 }
 
-                lOptigaOid = strtol(pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, &xEnd, 16);
+                lOptigaOid = strtol(pcLabel, &xEnd, 16);
 
                 CK_BYTE pucDumbData[68];
                 uint16_t ucDumbDataLength = 68;
@@ -952,10 +1031,18 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                 {
                     pcTempLabel = pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
                 }
+                else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
+                {
+                    pcTempLabel = pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS;
+                }
                 else if( 0 == memcmp( pcLabel, pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
                 {
                     pcTempLabel = pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS;
                 }
+                else if( 0 == memcmp( pcLabel, pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS, xLabelLength ) )
+				{
+					pcTempLabel = pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS;
+				}
                 else if( 0 == memcmp( pcLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, xLabelLength ) )
                 {
                     pcTempLabel = pkcs11configLABEL_CODE_VERIFICATION_KEY;
@@ -1769,7 +1856,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
         prvFindObjectInListByHandle( xObject, &xPalHandle, &pcLabel, &xSize ); /*pcLabel and xSize are ignored. */
 
-        if( xPalHandle != CK_INVALID_HANDLE && xPalHandle != eAwsDevicePrivateKey)
+        if( xPalHandle != CK_INVALID_HANDLE && xPalHandle != eAwsDevicePrivateKey && xPalHandle != eAwsTestPrivateKey)
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObjectValue, &ulLength, &xIsPrivate );
         }
@@ -1786,12 +1873,15 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
     else {
         switch (xPalHandle) {
         case eAwsDevicePrivateKey:
+        case eAwsTestPrivateKey:
             xClass = CKO_PRIVATE_KEY;
             break;
         case eAwsDevicePublicKey:
+        case eAwsTestPublicKey:
             xClass = CKO_PUBLIC_KEY;
             break;
         case eAwsDeviceCertificate:
+        case eAwsTestCertificate:
             xClass = CKO_CERTIFICATE;
             break;
         default:
@@ -2081,7 +2171,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
             xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, ( uint8_t ) strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
         }
 
-        if( xPalHandle != CK_INVALID_HANDLE && xPalHandle != eAwsDevicePrivateKey)
+        if( xPalHandle != CK_INVALID_HANDLE && xPalHandle != eAwsDevicePrivateKey && xPalHandle != eAwsTestPrivateKey)
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pcObjectValue, &xObjectLength, &xIsPrivate );
 
@@ -2105,9 +2195,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                 PKCS11_PAL_GetObjectValueCleanup( pcObjectValue, xObjectLength );
             }
         }
-        else if (xPalHandle == eAwsDevicePrivateKey)
+        else if (xPalHandle == eAwsDevicePrivateKey || xPalHandle == eAwsTestPrivateKey)
         {
-               *pulObjectCount = 1;
+            *pulObjectCount = 1;
             xResult = CKR_OK;
         }
         else
