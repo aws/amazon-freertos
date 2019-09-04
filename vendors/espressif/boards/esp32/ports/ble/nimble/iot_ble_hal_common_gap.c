@@ -31,6 +31,7 @@
 #include <string.h>
 #include "FreeRTOS.h"
 #include "esp_bt.h"
+#include "esp_nimble_hci.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 #include "host/util/util.h"
@@ -497,6 +498,7 @@ static void bleprph_on_sync( void )
 void ble_host_task( void * param )
 {
     nimble_port_run();
+    nimble_port_freertos_deinit();
 }
 
 void ble_store_config_init( void );
@@ -531,7 +533,6 @@ BTStatus_t prvBtManagerCleanup()
     BTStatus_t xStatus = eBTStatusSuccess;
 
     esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-    esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
 
     return xStatus;
 }
@@ -551,13 +552,21 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 
 BTStatus_t prvBTDisable()
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
+    BTStatus_t xStatus = eBTStatusFail;
+    int rc;
 
-    if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
+    rc = nimble_port_stop();
+    if( rc == 0 )
     {
-        if( esp_bt_controller_disable() != ESP_OK )
+        nimble_port_deinit();
+        rc = esp_nimble_hci_and_controller_deinit();
+        if( rc != ESP_OK )
         {
-            xStatus = eBTStatusFail;
+            ESP_LOGE( TAG, "esp_nimble_hci_and_controller_deinit() failed with error %d", rc );
+        }
+        else
+        {
+            xStatus = eBTStatusSuccess;
         }
     }
 
