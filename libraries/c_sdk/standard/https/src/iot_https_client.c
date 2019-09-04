@@ -1548,7 +1548,7 @@ static IotHttpsReturnCode_t _addHeader( _httpsRequest_t * pHttpsRequest,
      * (name:value\r\n). We need to add a "\r\n" at the end of headers. The use of
      * possibleLastHeaderAdditionalLength is to make sure that there is always
      * space for the last "\r\n". */
-    if( ( additionalLength + possibleLastHeaderAdditionalLength + pHttpsRequest->pHeadersCur ) > ( pHttpsRequest->pHeadersEnd ) )
+    if( ( additionalLength + possibleLastHeaderAdditionalLength ) > ( pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur ) )
     {
         IotLogError( "There is %d space left in the header buffer, but we want to add %d more of header.",
                      pHttpsRequest->pHeadersEnd - pHttpsRequest->pHeadersCur,
