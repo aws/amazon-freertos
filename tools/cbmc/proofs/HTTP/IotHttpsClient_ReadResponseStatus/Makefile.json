@@ -1,9 +1,14 @@
 {
   "ENTRY": "IotHttpsClient_ReadResponseStatus",
-  
+
   # This is the length of the user data after the header in a buffer.
   # This can be set to any size.
   "USER_DATA_SIZE": "1000",
+
+  # A CBMC pointer is an object id followed by an offest into the object.
+  # The size of the offset is limited by the size of the object id.
+  "CBMC_OBJECTID_BITS": "7",
+  "CBMC_MAX_OBJECT_SIZE": "\"(UINT32_MAX>>CBMC_OBJECTID_BITS)\"",
 
   "CBMCFLAGS":
   [
@@ -38,6 +43,8 @@
   ],
   "DEF":
   [
-    "USER_DATA_SIZE={USER_DATA_SIZE}"
+    "USER_DATA_SIZE={USER_DATA_SIZE}",
+    "CBMC_OBJECTID_BITS={CBMC_OBJECTID_BITS}",
+    "CBMC_MAX_OBJECT_SIZE={CBMC_MAX_OBJECT_SIZE}"
   ]
 }
