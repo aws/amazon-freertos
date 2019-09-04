@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include "FreeRTOS.h"
+#include "iot_ble_config.h"
 #include "host/ble_hs.h"
 #include "host/ble_gap.h"
 #include "services/gap/ble_svc_gap.h"
@@ -38,7 +39,7 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_hal_internals.h"
-#include "iot_ble_config.h"
+
 
 #define APP_ID          0
 #define MAX_SERVICES    20
