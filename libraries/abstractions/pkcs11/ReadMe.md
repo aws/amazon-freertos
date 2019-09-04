@@ -19,7 +19,7 @@ The PKCS #11 API functions required by Amazon FreeRTOS are described in the foll
 
 Amazon FreeRTOS Library | Required PKCS #11 API Family
 ----------------------- | ----------------------------
-Any | Initialize, Finalize, Open/Close Session, GetSlotList, Login, 
+Any | Initialize, Finalize, Open/Close Session, GetSlotList, Login
 Provisioning Demo | GenerateKeyPair, CreateObject, DestroyObject, InitToken, GetTokenInfo
 TLS | Random, Sign, FindObject, GetAttributeValue
 FreeRTOS+TCP | Random, Digest
