@@ -1,0 +1,538 @@
+/**
+@mainpage
+@anchor https
+@brief HTTPS Client v1.0.0 library.
+
+- HTTPS Client Main page text.
+
+> The Hypertext Transfer Protocol (HTTP) is a stateless application-level protocol for distributed, collaborative, hypertext information systems.
+
+<span style="float:right;margin-right:4em"> &mdash; <i>Official description of HTTP from [RFC 7231](https://tools.ietf.org/html/rfc7231)</i></span><br>
+
+This HTTP library implements a subset of the HTTP/1.1 standard for compatibility with the [AWS IoT HTTP Server](https://docs.aws.amazon.com/iot/latest/developerguide/http.html) and the [AWS S3 HTTP Server](https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectOps.html). It is also compatible with other HTTP servers. Feature of this library include: 
+- Both fully asynchronous and synchronous (blocking) API functions.
+- Application managed memory for internal context and HTTP formatted headers.
+- Thread-aware and parallelized connections.
+
+@dependencies_section{https}
+@dependencies_brief{HTTPS Client library}
+
+@dot "HTTPS Client direct dependencies"
+digraph https_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph
+    {
+        https[label="HTTPS", fillcolor="#cc00ccff"];
+    }
+    subgraph
+    {
+        node[fillcolor="#aed8a9ff"];
+        rank = same;
+        linear_containers[label="List/Queue", URL="@ref linear_containers"];
+        logging[label="Logging", URL="@ref logging"];
+    }
+    subgraph
+    {
+        rank = same;
+        platform_threads[label="Thread management", fillcolor="#e89025ff", URL="@ref platform_threads"];
+        platform_clock[label="Clock", fillcolor="#e89025ff", URL="@ref platform_clock"];
+        platform_network[label="Network", fillcolor="#e89025ff", URL="@ref platform_network"];
+    }
+    https -> linear_containers;
+    https -> logging [label=" if logging enabled", style="dashed"];
+    https -> platform_threads;
+    https -> platform_clock;
+    https -> platform_network;
+    logging -> platform_clock;
+}
+@enddot
+
+Currently, the HTTPS Client library has the following dependencies:
+- The queue library for maintaining of list of pending requests and responses on the connection.
+- The logging library may be used if @ref IOT_LOG_LEVEL_HTTPS is not @ref IOT_LOG_NONE.
+- The platform layer provides an interface to the operating system for thread management, clock functions, networking, etc.
+
+In addition to the components above, the HTTPS Client library also depends on C standard library headers.
+*/
+
+/**
+@page https_design Design
+@brief Architecture behind the HTTPS library.
+
+The HTTPS Client library will invoke a task pool worker to send a request. It will then receive the response during the network receive callback context. If there are more requests in the connection's request queue, it will schedule another task pool worker to send that request.
+
+@section Synchronous_Design Synchronous Design
+@image html https_client_sync_workflow.png width=100%
+
+@section Asynchronous_Design Asynchronous Design
+@image html https_client_async_workflow.png width=100%
+
+@section Asynchronous_Callback_Order Asynchronous Callbacks Ordering
+@image html https_client_async_callback_order.png width=100%
+*/
+
+/**
+@page https_demo Demos
+@brief The HTTPS Client demos demonstrates usage of the HTTPS Client library.
+
+These demos shows downloading a file from S3 using a pre-signed URL using the Amazon FreeRTOS HTTP Client library. The HTTPS Client library is a generic HTTP/1.1 client library that be used to download files from other web servers as well.
+
+See @subpage https_demo_usage for information on how to get the demo up and running.
+
+The main HTTPS Client demo files are [iot_demo_https_s3_download_async.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_async.c) and [iot_demo_https_s3_download_sync.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_sync.c), which contain platform-independent code. See @ref building_demo for instructions on building the HTTPS Client demo.
+
+<h2>iot_demo_https_s3_download_sync.c</h2>
+@brief Synchronously download a file from S3 using a pre-signed URL.
+
+This demo will use @ref https_client_function_sendsync to download the file specified in S3.
+
+<h2>iot_demo_https_s3_download_async.c</h2>
+@brief Asynchronously download a file from S3 using a pre-signed URL.
+
+This demo will use @ref https_client_function_sendasync to download the file specified in S3.
+
+See @subpage https_demo_config for configuration settings that change the behavior of the demo.
+
+@page https_demo_usage Demo Usage Instructions
+
+<ol>
+    <li>
+        Ensure that you have permissions in your AWS account to access S3.  
+        For information on AWS S3 please see: https://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html  
+    </li>
+    <li>
+        In an existing bucket or creating a new bucket upload the following file:  
+        <a href='gettysburg.txt'>gettysburg.txt</a>  
+    </li>
+    <li>
+        Install and configured the AWS CLI.  
+        For AWS CLI installation information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html  
+        For AWS CLI configuration information please see: https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html  
+    </li>
+    <li>
+        Run [demos/https/presigned_url_gen.py](https://github.com/aws/amazon-freertos/tree/master/demos/https/presigned_urls_gen.py) with your s3 **bucket-name** and s3 object key **object-key**.
+        \code
+        python presigned_url_gen.py --bucket my-bucket --key object-key
+        \endcode  
+
+        Please see [demos/https/README.md](https://github.com/aws/amazon-freertos/tree/master/demos/https/README.md) for information on the required Python version and Python package dependencies.
+          
+        Example output:  
+        \code
+        #define IOT_DEMO_HTTPS_PRESIGNED_GET_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+        #define IOT_DEMO_HTTPS_PRESIGNED_PUT_URL    https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=ABABABABABABABABABAB&Expires=1560555644&Signature=SomeHash12345UrlLMnmOPqrStUvW
+        \endcode
+
+        Paste this output to iot_config.h.
+        <br>
+        <br>
+        Note:  
+        If your bucket is less than 24 hours old, then you will need to append the region the bucket was created in to the pre-signed URL:  
+        \code
+        https://my-bucket.s3-<region>.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
+        \endcode
+        Example: 
+        \code
+        https://my-bucket.s3-us-west-2.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D  
+        \endcode
+        Please see https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/ for more information.  
+    </li>
+    <li>
+        Paste your RSA-2048 or ECC-P256 keys into [aws_clientcredential_keys.h](https://github.com/aws/amazon-freertos/blob/master/demos/include/aws_clientcredential_keys.h). This is needed to for the TLS handshake with the AWS S3 HTTP Server.  
+    </li>
+    <li>
+        Enable the <b>Synchronous download demo</b> by defining @ref CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:
+        \code
+        /* To run a particular demo you need to define one of these.
+        * Only one demo can be configured at a time
+        *
+        *          CONFIG_MQTT_DEMO_ENABLED
+        *          CONFIG_SHADOW_DEMO_ENABLED
+        *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
+        *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
+        *          CONFIG_DEFENDER_DEMO_ENABLED
+        *          CONFIG_POSIX_DEMO_ENABLED
+        *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+        *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+        *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+        *
+        *  These defines are used in iot_demo_runner.h for demo selection */
+
+        #define CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+        \endcode
+    </li>
+    <li>
+        See @ref building_demo for instructions on building the demo.  
+        A successful output looks like this:
+        \code
+        11 558 [iot_thread] [INFO ][INIT][557] SDK successfully initialized.
+        12 558 [iot_thread] [INFO ][DEMO][558] Successfully initialized the demo. Network type for the demo: 4
+        13 558 [iot_thread] [INFO ][DEMO][558] S3 Download demo using pre-signed URL: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+        14 2880 [NetRecv] [ERROR][NET][2880] Error 0 while receiving data.
+        15 2880 [NetRecv] [WARN ][NET][2880] Receive requested 760 bytes, but 400 bytes received instead.
+        16 2880 [iot_thread] [INFO ][DEMO][2880] Now requesting Range: bytes=0-511.
+        17 2920 [iot_thread] [INFO ][DEMO][2920] Response return code: 206
+        18 2920 [iot_thread] [INFO ][DEMO][2920] Response Body:
+        Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.
+
+        Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altoge
+        19 2920 [iot_thread] [INFO ][DEMO][2920] Downloaded 512/1517
+        20 2920 [iot_thread] [INFO ][DEMO][2920] Now requesting Range: bytes=512-1023.
+        21 2979 [iot_thread] [INFO ][DEMO][2979] Response return code: 206
+        22 2979 [iot_thread] [INFO ][DEMO][2979] Response Body:
+        ther fitting and proper that we should do this.
+
+        But, in a larger sense, we can not dedicate -- we can not consecrate -- we can not hallow -- this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly adv
+        23 2979 [iot_thread] [INFO ][DEMO][2979] Downloaded 1024/1517
+        24 2979 [iot_thread] [INFO ][DEMO][2979] Now requesting Range: bytes=1024-1516.
+        25 5019 [NetRecv] [ERROR][NET][5019] Error 0 while receiving data.
+        26 5019 [NetRecv] [WARN ][NET][5019] Receive requested 159 bytes, but 140 bytes received instead.
+        27 5019 [iot_thread] [INFO ][DEMO][5019] Response return code: 206
+        28 5019 [iot_thread] [INFO ][DEMO][5019] Response Body:
+        anced. It is rather for us to be here dedicated to the great task remaining before us -- that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion -- that we here highly resolve that these dead shall not have died in vain -- that this nation, under God, shall have a new birth of freedom -- and that government of the people, by the people, for the people, shall not perish from the earth.
+
+        Abraham Lincoln
+        November 19, 1863
+        29 5019 [iot_thread] [INFO ][DEMO][5019] Downloaded 1517/1517
+        30 5058 [iot_thread] [INFO ][DEMO][5058] Demo completed successfully.
+        31 5060 [iot_thread] [INFO ][INIT][5060] SDK cleanup done.
+        \endcode
+    </li>
+    <li>
+        Enable the <b>Asynchronous download demo</b> by defining either @ref CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED in aws_demo_config.h:  
+        \code
+        /* To run a particular demo you need to define one of these.
+        * Only one demo can be configured at a time
+        *
+        *          CONFIG_MQTT_DEMO_ENABLED
+        *          CONFIG_SHADOW_DEMO_ENABLED
+        *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
+        *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
+        *          CONFIG_DEFENDER_DEMO_ENABLED
+        *          CONFIG_POSIX_DEMO_ENABLED
+        *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+        *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+        *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+        *
+        *  These defines are used in iot_demo_runner.h for demo selection */
+
+        #define CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+        \endcode
+    </li>
+    <li>
+        See @ref building_demo for instructions on building the demo.  
+        A successful output looks like this:
+
+        \code
+        11 682 [iot_thread] [INFO ][INIT][682] SDK successfully initialized.
+        12 682 [iot_thread] [INFO ][DEMO][682] Successfully initialized the demo. Network type for the demo: 4
+        13 682 [iot_thread] [INFO ][DEMO][682] S3 Download demo using pre-signed URL: https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D
+        14 2977 [NetRecv] [ERROR][NET][2977] Error 0 while receiving data.
+        15 2977 [NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead.
+        16 2977 [iot_thread] [INFO ][DEMO][2977] Inside of the append header callback for part bytes=0-511
+        17 3018 [NetRecv] [INFO ][DEMO][3018] Inside of the read ready callback for part bytes=0-511 with network return code: 0
+        18 3018 [NetRecv] [INFO ][DEMO][3018] Response return code: 206 for bytes=0-511
+        19 3018 [NetRecv] [INFO ][DEMO][3018] Response Body for bytes=0-511:
+        Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.
+
+        Now we are engaged in a great civil war, testing whether that nation, or any nation so conceived and so dedicated, can long endure. We are met on a great battle-field of that war. We have come to dedicate a portion of that field, as a final resting place for those who here gave their lives that that nation might live. It is altoge
+        20 3018 [iot_thread] [INFO ][DEMO][3018] Inside of the append header callback for part bytes=512-1023
+        21 3018 [NetRecv] [INFO ][DEMO][3018] Part bytes=0-511 has been fully processed.
+        22 3018 [NetRecv] [INFO ][DEMO][3018] Downloaded: 512/1517
+        23 3078 [NetRecv] [INFO ][DEMO][3078] Inside of the read ready callback for part bytes=512-1023 with network return code: 0
+        24 3078 [NetRecv] [INFO ][DEMO][3078] Response return code: 206 for bytes=512-1023
+        25 3078 [NetRecv] [INFO ][DEMO][3078] Response Body for bytes=512-1023:
+        their fitting and proper that we should do this.
+
+        But, in a larger sense, we can not dedicate -- we can not consecrate -- we can not hallow -- this ground. The brave men, living and dead, who struggled here, have consecrated it, far above our poor power to add or detract. The world will little note, nor long remember what we say here, but it can never forget what they did here. It is for us the living, rather, to be dedicated here to the unfinished work which they who fought here have thus far so nobly adv
+        26 3078 [iot_thread] [INFO ][DEMO][3078] Inside of the append header callback for part bytes=1024-1516
+        27 3079 [NetRecv] [INFO ][DEMO][3079] Part bytes=512-1023 has been fully processed.
+        28 3079 [NetRecv] [INFO ][DEMO][3079] Downloaded: 1024/1517
+        29 3118 [NetRecv] [INFO ][DEMO][3118] Inside of the read ready callback for part bytes=1024-1516 with network return code: 0
+        30 5118 [NetRecv] [ERROR][NET][5118] Error 0 while receiving data.
+        31 5118 [NetRecv] [WARN ][NET][5118] Receive requested 151 bytes, but 132 bytes received instead.
+        32 5118 [NetRecv] [INFO ][DEMO][5118] Response return code: 206 for bytes=1024-1516
+        33 5118 [NetRecv] [INFO ][DEMO][5118] Response Body for bytes=1024-1516:
+        anced. It is rather for us to be here dedicated to the great task remaining before us -- that from these honored dead we take increased devotion to that cause for which they gave the last full measure of devotion -- that we here highly resolve that these dead shall not have died in vain -- that this nation, under God, shall have a new birth of freedom -- and that government of the people, by the people, for the people, shall not perish from the earth.
+
+        Abraham Lincoln
+        November 19, 1863
+        34 5118 [NetRecv] [INFO ][DEMO][5118] Part bytes=1024-1516 has been fully processed.
+        35 5118 [NetRecv] [INFO ][DEMO][5118] Downloaded: 1517/1517
+        36 5177 [iot_thread] [INFO ][DEMO][5177] Demo completed successfully.
+        37 5179 [iot_thread] [INFO ][INIT][5179] SDK cleanup done.
+        \endcode
+          
+    </li>
+</ol>
+
+Note:  
+    Please note that the buffer for printing may be smaller than 512 characters and the printed received response body may be truncated.<br>
+    "[NetRecv] [WARN ][NET][2977] Receive requested 768 bytes, but 400 bytes received instead." is OK because the library requests from the network interface the full size of the header buffer or body buffer.
+
+*/
+
+/**
+@config_page{https_demo,Demo}
+@config_brief{https_demo,HTTP Client demo,demos}
+
+@section IOT_DEMO_HTTPS_PRESIGNED_GET_URL
+@brief Presigned URL for AWS S3 GET Object access.
+
+This is generated using the script demos/https/presigned_url_gen.py. demos/https/README.md explains how to use the script.
+
+@configpossible Presigned URL of the form: `https://my-bucket.s3.amazonaws.com/object-key.txt?AWSAccessKeyId=AAAAAAAAAAAAAAAAAAAA&Expires=1560555644&Signature=SomeHash12345UrlABcdEFgfIjK%3D`. <br>
+@configdefault `"Please configure a presigned GET URL in iot_config.h."`
+
+@section IOT_DEMO_HTTPS_PORT
+@brief The port number for the TLS connection to AWS S3's HTTP server.
+
+@configpossible Any positive integer up to 2^16. <br>
+@configdefault `443`
+
+@section IOT_DEMO_HTTPS_TRUSTED_ROOT_CA
+@brief The trusted root CA needed to connected to AWS S3's HTTP server.
+
+@configpossible A valid PEM encoded certificate string. <br>
+@configdefault The Baltimore Cybertrust root CA.
+
+@section IOT_DEMO_HTTPS_CONN_BUFFER_SIZE
+@brief The size of the static user buffer to store the HTTP Client connection context. 
+
+Size in bytes of the User Buffer used to store the internal connection context. The size presented here accounts for
+   storage of the internal connection context. The minimum size can be found in @ref connectionUserBufferMinimumSize.
+
+@configpossible Any positive integer. <br>
+@configdefault `400`
+
+@section IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE
+@brief The size of the static user buffer to store the HTTP Client request context and HTTP formatted request headers.
+
+Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
+   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
+   formatted header and extra headers. The minimum size can be found in @ref requestUserBufferMinimumSize. Keep in mind that this @ref requestUserBufferMinimumSize does not include the size of the 
+   path in the request line. The path could be well over 100 characters long as it includes not only the object key name
+   in S3, but also the query following. The query following has the AWSAccessKeyId, the expiration time, and the 
+   AWS Signature Version 4 signature.
+
+@configpossible Any positive integer. <br>
+@configdefault `512`
+
+@section IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE
+@brief The size of the static user buffer to store the HTTP Client response context and HTTP formatted response headers.
+
+Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines. 
+   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
+   formatted header and extra headers. The minimum can be found in @ref requestUserBufferMinimumSize.
+   Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
+   will be discarded. The minimum size can be found in @ref responseUserBufferMinimumSize.
+
+@configpossible Any positive integer. <br>
+@configdefault `1024`
+
+@section IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE
+@brief The size of the static buffer to store an increment of the response body.
+
+Size in bytes of the buffer used to store the response body (parts of it). This should be greater than or equal to
+   the size of the file we want to download
+
+@configpossible Any positive integer. <br>
+@configdefault `512`
+
+@section IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS
+@brief Time to wait in milliseconds before retrying the HTTPS Connection.
+
+A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This 
+indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR 
+in iot_config.h.
+
+@configpossible Any positive integer.
+@configdefault `3000`
+
+@section IOT_DEMO_HTTPS_CONNECTION_NUM_RETRY
+@brief Number of times to retry the HTTPS connection.
+
+A connection is only attempted again if @ref IOT_HTTPS_CONNECTION_ERROR is returned from IotHttpsClient_Connect(). This 
+indicates an error in the network layer. To view network errors update @ref IOT_LOG_LEVEL_NETWORK to @ref IOT_LOG_ERROR 
+in iot_config.h.
+
+@configpossible Any positive integer.
+@configdefault `3`
+
+<h1> Asynchronous Download Demo specific configurations:  </h1> 
+These configurations apply only to [iot_demo_https_s3_download_async.c](https://github.com/aws/amazon-freertos/tree/master/demos/https/iot_demo_https_s3_download_async.c).
+
+@section IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS
+@brief The maximum number of inflight asynchronous requests. 
+
+This configures the total number of requests in the pool of HTTPS Client library configurations and handles. In order to send 
+   a request asynchronously the memory for both the request buffers and the response buffers must not be shared between 
+   other asynchronous requests on the same connection. You can reuse the buffer only after the request/response process
+   has been finished. It is finished when the responseCompleteCallback() is invoked. We create a pool of memory so that 
+   all available requests in the pool can be scheduled right away without over-writing each other.
+
+@configpossible Any positive integer. <br>
+@configdefault `3`
+
+@section IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS
+@brief Timeout in milliseconds to wait for all asynchronous requests to finish.
+
+This timeout starts when the last @ref IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS sent have been scheduled.
+
+@configpossible Any positive integer. <br>
+@configdefault `300000`
+*/
+
+/**
+@page https_tests Tests
+@brief Tests written for the HTTPS Client library.
+
+The HTTPS Client tests reside in the `tests` directory. They are divided into the following subdirectories:
+- `access`: Helper files that allow access to internal variables and functions of the HTTPS Client library.
+- `system`: HTTPS Client integration testing. These tests require a network connection.
+- `unit`: HTTPS Client unit tests. These tests do not require a network connection.
+
+See @subpage https_tests_config for configuration settings that change the behavior of the tests.
+
+The current HTTPS Client tests use the [Unity test framework](http://www.throwtheswitch.org/unity/). See @ref building_tests for a guide on running the tests.
+*/
+
+/**
+@config_page{https_tests,Test}
+@config_brief{https_tests,HTTPS Client tests,tests}
+
+@section IOT_TEST_HTTPS_SERVER_HOST_NAME
+@brief The HTTP server used for this test.
+
+This server needs to accept methods HEAD, GET, POST, and PUT. This server needs to send some data on a GET request. It can be a simple HTTP echo server. 
+
+@configpossible Any server host name string. This host name must not include "https://" or "http://" in the name. <br>
+@configdefault `"httpbin.org"`
+
+@section IOT_TEST_HTTPS_PORT
+@brief The socket port number of the server to connect to.
+
+@configpossible Any positive integer up to 2^16. <br>
+@configdefault `443`
+
+@section IOT_TEST_HTTPS_ALPN_PROTOCOLS
+@brief APLN protocol string if necessary to connect to a secure testing server configured in @ref IOT_TEST_HTTPS_SERVER_HOST_NAME.
+
+This is a comma separated list of protocol. Please see [Transport Layer Security (TLS) Application-Layer Protocol Negotiation Extension](https://tools.ietf.org/html/rfc7301) for more information.
+
+@configpossible A comma separated string of ALPN protocol names or NULL. An empty string is not allowed. <br>
+@configdefault `NULL`
+
+@section IOT_TEST_HTTPS_ROOT_CA
+@brief Root certificate authority to verify the server that the HTTPS_Client_System tests are connecting to.
+
+@configpossible A valid PEM encoded certificate string. <br>
+@configdefault `NULL`
+
+@section IOT_TEST_HTTPS_CLIENT_CERTIFICATE
+@brief The client certificate used in TLS negotiation with the test HTTP server configured in @ref IOT_TEST_HTTPS_SERVER_HOST_NAME.
+
+With PKCS #11 provisioning of the keys these parameters are deprecated.
+
+@configpossible A valid RSA-2048 or ECC-P256 PEM encoded certificate string. <br>
+@configdefault The system provisioned client certificate.
+
+@section IOT_TEST_HTTPS_CLIENT_PRIVATE_KEY
+@brief The client private key used in TLS negotiation with the test HTTP server configured in @ref IOT_TEST_HTTPS_SERVER_HOST_NAME.
+
+With PKCS #11 provisioning of the keys these parameters are deprecated.
+
+@configpossible A valid RSA-2048 or ECC-P256 PEM encoded private key string. <br>
+@configdefault The system provisioned client private key.
+
+@section IOT_TEST_HTTPS_SYNC_TIMEOUT_MS
+@brief Timeout in milliseconds for tests that synchronously send HTTP requests.
+
+This timeout encompasses the waiting time for the both sending of the request and receiving the response.
+
+@configpossible Any positive integer. <br>
+@configdefault `60000`
+
+@section IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS
+@brief Timeout in milliseconds for tests asynchronously send HTTP requests.
+
+This timeout encompasses the waiting time for the both sending of the request and receiving the response.
+
+@configpossible Any positive integer. <br>
+@configdefault `60000`
+
+@section IOT_TEST_HTTPS_INITIAL_CONNECTION_RETRY_DELAY
+@brief The initial delay in milliseconds that is doubled each retry of server connection.
+
+@configpossible Any positive integer. <br>
+@configdefault `300`
+
+@section IOT_TEST_HTTPS_CONNECTION_NUM_RETRIES
+@brief The amount of times to retry the server connection if it fails.
+
+@configpossible Any positive integer. <br>
+@configdefault `3`
+
+*/
+
+/**
+@config_page{https}
+@config_brief{HTTPS Client library}
+
+@section AWS_IOT_HTTPS_ENABLE_METRICS
+@brief Set this to `1` to enable anonymous metrics reporting to AWS IoT.
+
+Metrics allow AWS IoT to prioritize engineering resources based on SDK usage. SDK name and version are reported; no personal or identifying information is reported.
+
+@configpossible `0` (metrics reporting disabled) or `1` (metrics reporting enabled)<br>
+@configrecommended `1`<br>
+@configdefault `1`
+
+@section IOT_HTTPS_USER_AGENT
+@brief The name of the application type, operating system, software vendor, or software version of the requesting software agent.
+
+This configuration will dictate the header value written to required header field "User-Agent". This value is written when the request is initialized with @ref https_client_function_initializerequest.
+
+@configpossible Any string. <br>
+@configdefault `"amazon-freertos"`
+
+@section IOT_LOG_LEVEL_HTTPS
+@brief Set the log level of the HTTPS Client library.
+
+Log messages from the HTTPS Client library at or below this setting will be printed.
+
+@configpossible One of the @ref logging_constants_levels.<br>
+@configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then @ref IOT_LOG_NONE.
+
+@section IOT_HTTPS_MAX_FLUSH_BUFFER_SIZE
+@brief The size of a buffer instantiated in stack to flush the socket of the rest of possible unread response.
+
+@configpossible Any positive integer.<br>
+@configdefault `1024`
+
+@section IOT_HTTPS_RESPONSE_WAIT_MS
+@brief The time in milliseconds to wait for a response from the network before timing out.
+
+@configpossible Any positive integer.<br>
+@configdefault `1000`
+
+@section IOT_HTTPS_MAX_HOST_NAME_LENGTH
+@brief The maximum length of the DNS resolvable host name string allowed to be configured in #IotHttpsConnectionInfo_t.pAddress.
+
+An array of this length is allocated on stack during @ref https_client_function_connect. 
+
+@configpossible Any positive integer. <br>
+@configrecommended It is recommended that this be less or equal to 255. 255 is the maximum host length according to FQDN. <br>
+@configdefault `255`
+
+@section IOT_HTTPS_MAX_ALPN_PROTOCOLS_LENGTH
+@brief The maximum length of the ALPN protocols names string allowed to be configured in #IotHttpsConnectionInfo_t.pAlpnProtocols.
+
+An array of this length is allocated on stack during @ref https_client_function_connect. 
+
+@configpossible Any positive integer. <br>
+@configdefault `255`
+
+*/
