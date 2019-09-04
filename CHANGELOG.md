@@ -5,7 +5,7 @@
 
 ### Updates
 #### PKCS #11
-- Update the PKCS #11 3rd party headers to use latest (version 2.40 Plus Errata 01)
+- Update the PKCS #11 third-party headers to be the latest from OASIS (version 2.40 Plus Errata 01).
 
 ## 201908.00 08/26/2019
 
