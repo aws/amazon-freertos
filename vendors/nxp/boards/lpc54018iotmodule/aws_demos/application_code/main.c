@@ -91,7 +91,7 @@
 /* The lpc54018 usb logging driver calls a blocking write function. Since this
  * task is the lowest priority, all of the demo's priorities must be higher than
  * this to run. */
-#define mainLOGGING_TASK_PRIORITY        ( tskIDLE_PRIORITY )
+#define mainLOGGING_TASK_PRIORITY        ( portPRIVILEGE_BIT | tskIDLE_PRIORITY )
 #define mainLOGGING_TASK_STACK_SIZE      ( configMINIMAL_STACK_SIZE * 4 )
 #define mainLOGGING_QUEUE_LENGTH         ( 16 )
 

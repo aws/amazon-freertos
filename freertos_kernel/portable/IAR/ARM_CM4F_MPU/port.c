@@ -487,31 +487,6 @@ static void prvSetupMPU( void )
 	/* Check the expected MPU is present. */
 	if( portMPU_TYPE_REG == portEXPECTED_MPU_TYPE_VALUE )
 	{
-		/* Setup DMA interrupt control. */
-		portMPU_REGION_BASE_ADDRESS_REG = ((uint32_t)0xE000E100) |
-										  (portMPU_REGION_VALID) |
-										  (ulRegionIndex);
-
-		portMPU_REGION_ATTRIBUTE_REG = (portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER) |
-									   (portMPU_REGION_CACHEABLE_BUFFERABLE) |
-									   (prvGetMPURegionSizeSetting((uint32_t)0xE000E4EC -
-																   (uint32_t)0xE000E100)) |
-									   (portMPU_REGION_ENABLE);
-
-		ulRegionIndex++;
-
-		/* Allow read/write access to the general peripherals. */
-		portMPU_REGION_BASE_ADDRESS_REG =	( portPERIPHERALS_START_ADDRESS ) |
-											( portMPU_REGION_VALID ) |
-											( ulRegionIndex );
-
-		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
-										( prvGetMPURegionSizeSetting( portPERIPHERALS_END_ADDRESS - 
-																	  portPERIPHERALS_START_ADDRESS ) ) |
-										( portMPU_REGION_ENABLE );
-
-		ulRegionIndex++;
-
 		/* Allow read/write access to the general peripherals. */
 		portMPU_REGION_BASE_ADDRESS_REG =	( portPERIPHERALS_START_ADDRESS ) |
 											( portMPU_REGION_VALID ) |

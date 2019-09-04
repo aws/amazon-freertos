@@ -850,7 +850,7 @@ void Atheros_Driver_Task(void *pCxt)
 // The WLAN driver task priority is set to the next highest priority (0 is highest priority)
 // because blockForResponse() needs to temporarily boost caller task's priority
 // over that of the driver task
-#define ATHEROS_TASK_PRIORITY ((configMAX_PRIORITIES)-2)
+#define ATHEROS_TASK_PRIORITY (portPRIVILEGE_BIT | ((configMAX_PRIORITIES)-2))
 #define ATHEROS_TASK_STACKSIZE 1000
 
 /* NOTE: the whole file will be included as part of freertos env */

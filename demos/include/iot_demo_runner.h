@@ -46,7 +46,7 @@
     #endif
     #if defined( democonfigMQTT_ECHO_TASK_PRIORITY )
         #undef democonfigDEMO_PRIORITY
-        #define democonfigDEMO_PRIORITY     democonfigMQTT_ECHO_TASK_PRIORITY
+        #define democonfigDEMO_PRIORITY     ( portPRIVILEGE_BIT | democonfigMQTT_ECHO_TASK_PRIORITY )
     #endif
 #elif defined( CONFIG_SHADOW_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              RunShadowDemo
