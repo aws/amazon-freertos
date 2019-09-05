@@ -15,15 +15,16 @@ First, perform the steps in [Configuring the Amazon FreeRTOS Demos](https://docs
 Continue by running the Hello World MQTT demo as described in [Getting Started with the Windows Device Simulator](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html). Since the device has not yet been provisioned with a private key and client certificate, the demo will fail to authenticate to AWS IoT. However, the Hello World MQTT demo starts by running developer-mode key provisioning, resulting in the creation of a private key if one was not already present. You should see something like the following near the beginning of the serial console output:
 
 ```
-4 580 [IP-task] Device public key, 67 hex bytes:
-0441 04a1 6efd 1d51 df58 5735 eb9e 3da3
-4b0f abd2 a470 4d86 255f 90de 51c6 859c
-7c0f d585 cc3a 0bf9 962f 5552 cf84 14aa
-7e46 ea01 a7c3 8f01 a3b2 07f1 aaff 03af
-6627 3f
+7 910 [IP-task] Device public key, 91 bytes:
+3059 3013 0607 2a86 48ce 3d02 0106 082a
+8648 ce3d 0301 0703 4200 04cd 6569 ceb8
+1bb9 1e72 339f e8cf 60ef 0f9f b473 33ac
+6f19 1813 6999 3fa0 c293 5fae 08f1 1ad0
+41b7 345c e746 1046 228e 5a5f d787 d571
+dcb2 4e8d 75b3 2586 e2cc 0c
 ```
 
-Copy the five lines of key bytes into a file called DevicePublicKeyAsciiHex.txt. Then use the command-line tool xxd to parse the hex bytes into binary:
+Copy the six lines of key bytes into a file called DevicePublicKeyAsciiHex.txt. Then use the command-line tool xxd to parse the hex bytes into binary:
 
 ```
 xxd -r -ps DevicePublicKeyAsciiHex.txt DevicePublicKeyDer.bin
