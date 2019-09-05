@@ -136,7 +136,7 @@ target_link_libraries(
 	"${mw320_dir}/bin/libs/librfget.a"
 	"${mw320_dir}/bin/libs/libpsm.a"
 	"${mw320_dir}/bin/libs/libpart.a"
-	"${AFR_ROOT_DIR}/build/afr_kernel.a"
+	"${CMAKE_BINARY_DIR}/afr_kernel.a"
 )
 endif()
 
