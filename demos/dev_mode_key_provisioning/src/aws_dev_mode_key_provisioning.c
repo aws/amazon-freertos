@@ -770,6 +770,7 @@ CK_RV xWritePublicKeyToConsole( CK_SESSION_HANDLE xSession,
                                 CK_OBJECT_HANDLE xPublicKeyHandle )
 {
     CK_RV xResult;
+    CK_KEY_TYPE xKeyType;
     CK_ATTRIBUTE xTemplate = { 0 };
 
 #define BYTES_TO_DISPLAY_PER_ROW    16
@@ -787,91 +788,105 @@ CK_RV xWritePublicKeyToConsole( CK_SESSION_HANDLE xSession,
     uint32_t ulIndex = 0;
     uint8_t ucByteValue = 0;
 
-    /* Query the size of the public key. */
-    xTemplate.type = CKA_EC_POINT;
-    xTemplate.pValue = NULL;
-    xTemplate.ulValueLen = 0;
+    /* Query the key type. */
+    xTemplate.type = CKA_KEY_TYPE;
+    xTemplate.pValue = &xKeyType;
+    xTemplate.ulValueLen = sizeof( xKeyType );
     xResult = pxFunctionList->C_GetAttributeValue( xSession,
                                                    xPublicKeyHandle,
                                                    &xTemplate,
                                                    1 );
 
-    /* Allocate a buffer large enough for the full, encoded public key. */
-    if( CKR_OK == xResult )
+    /* Scope to ECDSA keys only, since there's currently no use case for
+     * onboard keygen and certificate enrollment for RSA. */
+    if( ( CKR_OK == xResult ) && ( CKK_ECDSA == xKeyType ) )
     {
-        /* Add space for the full DER header. */
-        xTemplate.ulValueLen += sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
-
-        /* Get a heap buffer. */
-        pucDerPublicKey = pvPortMalloc( xTemplate.ulValueLen );
-
-        /* Check for resource exhaustion. */
-        if( NULL == pucDerPublicKey )
-        {
-            xResult = CKR_HOST_MEMORY;
-        }
-    }
-
-    /* Export the public key. */
-    if( CKR_OK == xResult )
-    {
-        xTemplate.pValue = pucDerPublicKey + sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
-        xTemplate.ulValueLen -= ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
+        /* Query the size of the public key. */
+        xTemplate.type = CKA_EC_POINT;
+        xTemplate.pValue = NULL;
+        xTemplate.ulValueLen = 0;
         xResult = pxFunctionList->C_GetAttributeValue( xSession,
                                                        xPublicKeyHandle,
                                                        &xTemplate,
                                                        1 );
-    }
 
-    /* Display the public key as hex so that it can be processed with
-     * command-line tools if desired. For more information, please see the
-     * ReadMe.md file in the same directory as this source file. */
-    if( CKR_OK == xResult )
-    {
-        /* Prepend the full DER header. */
-        memcpy( pucDerPublicKey, pucEcP256AsnAndOid, sizeof( pucEcP256AsnAndOid ) );
-
-        /* Fix-up the template buffer pointer and length. */
-        xTemplate.ulValueLen += ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
-        xTemplate.pValue = pucDerPublicKey;
-
-        /* Write help text to the console. */
-        configPRINTF( ( "Device public key, %d bytes:\r\n", xTemplate.ulValueLen ) );
-
-        /* Iterate over the bytes of the encoded public key. */
-        for( ; ulIndex < xTemplate.ulValueLen; ulIndex++ )
+        /* Allocate a buffer large enough for the full, encoded public key. */
+        if( CKR_OK == xResult )
         {
-            /* Convert one byte to ASCII hex. */
-            ucByteValue = *( ( char * ) xTemplate.pValue + ulIndex );
-            snprintf( pcNextChar,
-                      sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
-                      "%02x",
-                      ucByteValue );
-            pcNextChar += 2;
+            /* Add space for the full DER header. */
+            xTemplate.ulValueLen += sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
 
-            /* Check for the end of a two-byte display word. */
-            if( 0 == ( ( ulIndex + 1 ) % sizeof( uint16_t ) ) )
+            /* Get a heap buffer. */
+            pucDerPublicKey = pvPortMalloc( xTemplate.ulValueLen );
+
+            /* Check for resource exhaustion. */
+            if( NULL == pucDerPublicKey )
             {
-                *pcNextChar = ' ';
-                pcNextChar++;
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+
+        /* Export the public key. */
+        if( CKR_OK == xResult )
+        {
+            xTemplate.pValue = pucDerPublicKey + sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
+            xTemplate.ulValueLen -= ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
+            xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                           xPublicKeyHandle,
+                                                           &xTemplate,
+                                                           1 );
+        }
+
+        /* Display the public key as hex so that it can be processed with
+         * command-line tools if desired. For more information, please see the
+         * ReadMe.md file in the same directory as this source file. */
+        if( CKR_OK == xResult )
+        {
+            /* Prepend the full DER header. */
+            memcpy( pucDerPublicKey, pucEcP256AsnAndOid, sizeof( pucEcP256AsnAndOid ) );
+
+            /* Fix-up the template buffer pointer and length. */
+            xTemplate.ulValueLen += ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
+            xTemplate.pValue = pucDerPublicKey;
+
+            /* Write help text to the console. */
+            configPRINTF( ( "Device public key, %d bytes:\r\n", xTemplate.ulValueLen ) );
+
+            /* Iterate over the bytes of the encoded public key. */
+            for( ; ulIndex < xTemplate.ulValueLen; ulIndex++ )
+            {
+                /* Convert one byte to ASCII hex. */
+                ucByteValue = *( ( char * ) xTemplate.pValue + ulIndex );
+                snprintf( pcNextChar,
+                          sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
+                          "%02x",
+                          ucByteValue );
+                pcNextChar += 2;
+
+                /* Check for the end of a two-byte display word. */
+                if( 0 == ( ( ulIndex + 1 ) % sizeof( uint16_t ) ) )
+                {
+                    *pcNextChar = ' ';
+                    pcNextChar++;
+                }
+
+                /* Check for the end of a row. */
+                if( 0 == ( ( ulIndex + 1 ) % BYTES_TO_DISPLAY_PER_ROW ) )
+                {
+                    *pcNextChar = '\0';
+                    vLoggingPrint( pcByteRow );
+                    vLoggingPrint( "\r\n" );
+                    pcNextChar = pcByteRow;
+                }
             }
 
-            /* Check for the end of a row. */
-            if( 0 == ( ( ulIndex + 1 ) % BYTES_TO_DISPLAY_PER_ROW ) )
+            /* Check for a partial line to print. */
+            if( pcNextChar > pcByteRow )
             {
                 *pcNextChar = '\0';
                 vLoggingPrint( pcByteRow );
                 vLoggingPrint( "\r\n" );
-                pcNextChar = pcByteRow;
             }
-        }
-
-        /* Check for a partial line to print. */
-        if( pcNextChar > pcByteRow )
-        {
-            *pcNextChar = '\0';
-            vLoggingPrint( pcByteRow );
-            vLoggingPrint( "\r\n" );
         }
     }
 
@@ -1002,8 +1017,9 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
-    /* Log the device public key. */
-    if( CKR_OK == xResult )
+    /* Log the device public key for developer enrollment purposes, but only if
+     * there's not already a certificate. */
+    if( ( CKR_OK == xResult ) && ( 0 == xProvisionedState.xClientCertificate ) )
     {
         xResult = xWritePublicKeyToConsole( xSession,
                                             pxFunctionList,
