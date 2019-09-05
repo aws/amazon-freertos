@@ -51,7 +51,7 @@
 #define shadowDemoUPDATE_TASK_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 5 )
 
 #define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 2)
+#define democonfigMQTT_ECHO_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4)
 #define democonfigMQTT_ECHO_TASK_PRIORITY           ( tskIDLE_PRIORITY )
 
 /* Number of sub pub tasks that connect to a broker that is not using TLS. */
