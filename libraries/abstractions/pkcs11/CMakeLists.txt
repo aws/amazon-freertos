@@ -33,7 +33,7 @@ afr_module_sources(
     INTERFACE
         "${src_dir}/iot_pkcs11_mbedtls.c"
         "${src_dir}/threading_alt.h"
-	"${inc_dir}/iot_pkcs11_pal.h"
+        "${inc_dir}/iot_pkcs11_pal.h"
 )
 
 afr_module_dependencies(
