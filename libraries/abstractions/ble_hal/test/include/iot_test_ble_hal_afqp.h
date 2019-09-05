@@ -38,7 +38,6 @@ void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
                                bool bNeedRsp,
                                bool IsPrep,
                                uint16_t usOffset );
-void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
 void pushToQueue( IotLink_t * pEventList );
 void prvSetGetProperty( BTProperty_t * pxProperty,
                         bool bIsSet );

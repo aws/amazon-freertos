@@ -65,7 +65,7 @@ def main():
 
 
     # Advertisement interval consistent after reset test
-    # TODO: the first time uses different callback to get/check test device information. we can choose to use the second time and third time KPI to compare.
+    # The first time uses different callback to get/check test device information. Use the second time and third time KPI to compare.
     # First time connection
     isTestSuccessFull = True
     bleAdapter.startDiscovery(discoveryEventCb)
@@ -107,8 +107,10 @@ def main():
 
     if thirdKPI > secondKPI * 10:
         isTestSuccessFull &= false
-    # write result back to peripheral
+    # write result back to server
+    isTestSuccessFull = runTest.discoverPrimaryServices()
     bleAdapter.gatt.updateLocalAttributeTable()
+
     isTestSuccessFull &= runTest.writeResultWithoutResponse(chr(isTestSuccessFull + 48))
     runTest.submitTestResult(isTestSuccessFull, runTest.writeWithoutResponse)
 
@@ -124,6 +126,9 @@ def main():
 
     isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe
     runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
+
+    isTestSuccessFull = runTest.prepareWrite()
+    runTest.submitTestResult(isTestSuccessFull, runTest.prepareWrite)
 
     isTestSuccessFull &= bleAdapter.disconnect()
     time.sleep(6) #wait for connection parameters update

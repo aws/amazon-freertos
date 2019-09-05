@@ -64,7 +64,7 @@ class runTest:
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
-    DUT_LONG_STRING = "A" * (MTU_SIZE - 3) + "B" * (MTU_SIZE - 3) + "C" * (MTU_SIZE - 3)
+    DUT_LONG_STRING = ["A" * (MTU_SIZE - 3), "B" * (MTU_SIZE - 3), "C" * (MTU_SIZE - 3)]
     DUT_CHAR_E_STRING = "E"
     DUT_CHAR_F_STRING = "F"
     isNotificationDeclinedSuccessFull = False
@@ -221,7 +221,18 @@ class runTest:
 
     @staticmethod
     def prepareWrite():
-        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_LONG_STRING, prepareWrite=True)
+        isTestSuccessfull = True
+        for i in range(3):
+            isTestSuccessfull &= bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_LONG_STRING[i], offset=i * (runTest.MTU_SIZE - 3), prepareWrite=True)
+            print isTestSuccessfull
+        return isTestSuccessfull
+
+    @staticmethod
+    def reliableWrite():
+        long_string = ""
+        for sub in runTest.DUT_LONG_STRING:
+            long_string += sub
+        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_string, reliableWrite=True)
 
     @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
@@ -312,7 +323,6 @@ class runTest:
 
     @staticmethod
     def advertisement(testDevice):
-
         if (bleAdapter.getPropertie(testDevice, "Address") == None):
             print("Advertisement test: Waiting for Address")
             sys.stdout.flush()

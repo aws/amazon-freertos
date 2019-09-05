@@ -200,6 +200,47 @@ class bleAdapter:
         return isSuccessfull
 
     @staticmethod
+    def _prepareWriteAttribute(objInterface, uuid, value, offset = 0, response = True):
+        isSuccessfull = True
+        try:
+            if response == True:
+                objInterface.WriteValue(value, {"offset" : offset, "prepare-authorize": True}, reply_handler=attributeWrite, error_handler=attributeAccessError,
+                                timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
+                mainloop.run()
+                isSuccessfull = attributeAccessEvent.get()
+            else:
+                fd, dummy = objInterface.AcquireWrite()
+                realfd = fd.take()
+                os.write(realfd, value)
+                os.close(realfd)
+        except Exception as e:
+            print("BLE ADAPTER: Can't prepare write attribute: "+uuid+" error: "+str(e))
+            sys.stdout.flush()
+            isSuccessfull = False
+        return isSuccessfull
+
+
+    @staticmethod
+    def _reliableWriteAttribute(objInterface, uuid, value, response = True):
+        isSuccessfull = True
+        try:
+            if response == True:
+                objInterface.WriteValue(value, {"type" : "reliable"}, reply_handler=attributeWrite, error_handler=attributeAccessError,
+                                timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
+                mainloop.run()
+                isSuccessfull = attributeAccessEvent.get()
+            else:
+                fd, dummy = objInterface.AcquireWrite()
+                realfd = fd.take()
+                os.write(realfd, value)
+                os.close(realfd)
+        except Exception as e:
+            print("BLE ADAPTER: Can't prepare write attribute: "+uuid+" error: "+str(e))
+            sys.stdout.flush()
+            isSuccessfull = False
+        return isSuccessfull
+
+    @staticmethod
     def _readAttribute(objInterface, uuid):
         isSuccessfull = True
         value = ""
@@ -217,9 +258,16 @@ class bleAdapter:
         return (isSuccessfull, value)
 
     @staticmethod
-    def writeCharacteristic(uuid, value, response = True, prepareWrite=False):
+    def writeCharacteristic(uuid, value, response = True, offset = 0, prepareWrite=False, reliableWrite = False):
         objInterface  =  dbus.Interface(bleAdapter.gatt.characteristics[uuid]["obj"], dbus_interface=testutils.CHARACTERISTIC_INTERFACE)
-        return bleAdapter._writeAttribute(objInterface, uuid, value, prepareWrite = prepareWrite)
+        if prepareWrite:
+            print "prepareWrite"
+            return bleAdapter._prepareWriteAttribute(objInterface, uuid, value, offset = offset)
+        if reliableWrite:
+            print "reliableWrite"
+            return bleAdapter._reliableWriteAttribute(objInterface, uuid, value)
+        else:
+            return bleAdapter._writeAttribute(objInterface, uuid, value, prepareWrite = prepareWrite)
 
     @staticmethod
     def readCharacteristic(uuid):

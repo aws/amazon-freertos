@@ -45,6 +45,8 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
                    uint16_t usOffset );
 void prvCreateAndStartServiceB( void );
 void prvShortWaitConnection( void );
+void prvPrepareWrite(bletestAttSrvB_t xAttribute,
+                            uint16_t usOffset);
 /* void prvCreateService( BTService_t * xRefSrvc ); */
 
 #endif /* ifndef _IOT_TEST_BLE_HAL_INTEGRATION_H_ */

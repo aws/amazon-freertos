@@ -80,7 +80,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
 
     /*TODO: test prepare/execute write function here.*/
-    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Prepare_Execute_Write );    
+    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Prepare_Execute_Write );
 
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout );
 
@@ -186,9 +186,8 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
 }
 
 /* If data size is > MTU - 3 then BT stack can truncate it to MTU - 3 and keep trying to send it over to other peer.
- * Make sure calling pxSendIndication() with xLen > MTU - 3 and stack returns failure.*/
+ * Make sure calling pxSendIndication() with xLen > MTU - 3 and HAL returns failure.*/
 // 2 chars has the same descriptor uuid which can cause read/write the descriptors of chars to return wrong values.
-
 TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
@@ -200,9 +199,10 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     memset( bletests_MTU_2_CHAR_VALUE, 'a', ( bletestsMTU_SIZE1 + 1 ) * sizeof( char ) );
     bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 1 ] = '\0';
 
+    uint8_t cccdFValue = ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[0];
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
-    // check the value of desc F is 0.
-    TEST_ASSERT_EQUAL( ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[0], 0);
+    // TODO: check the value of desc F does not change
+    TEST_ASSERT_EQUAL( ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[0], cccdFValue);
 
     memcpy( ucLargeBuffer, bletests_MTU_2_CHAR_VALUE, bletestsMTU_SIZE1 + 1 );
 
@@ -231,6 +231,11 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
 
 TEST( Full_BLE_Integration_Test, BLE_Integration_Prepare_Execute_Write )
 {
+    checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, false );
+    printf("unsubsribe.\n");
+    for (int i = 0; i < 3; i++) 
+        prvPrepareWrite( bletestATTR_SRVCB_CHAR_A,
+                                (bletestsMTU_SIZE1 - 3) * i);
 }
 
 // trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout.
@@ -245,7 +250,6 @@ TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    // prvWaitConnection( false );
     prvStopService( &_xSrvcB );
     prvDeleteService( &_xSrvcB );
     prvBTUnregister();
@@ -302,6 +306,42 @@ void prvCreateAndStartServiceB()
     }
 }
 
+void prvPrepareWrite(bletestAttSrvB_t xAttribute,
+                            uint16_t usOffset)
+{
+    BLETESTwriteAttrCallback_t xWriteEvent;
+    BLETESTconfirmCallback_t xConfirmEvent;
+    BTGattResponse_t xGattResponse;
+    BTStatus_t xStatus;
+
+    /* Wait write event on char A*/
+    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    printf("%d\n", xWriteEvent.xLength);
+    printf("%d\n", xWriteEvent.usOffset);
+    // printf("%s\n", xWriteEvent.ucValue);
+    // TEST_ASSERT_EQUAL( true, xWriteEvent.bIsPrep );
+    TEST_ASSERT_EQUAL( true, xWriteEvent.bNeedRsp );
+    TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
+    // TEST_ASSERT_EQUAL( bletestsSTRINGYFIED_UUID_SIZE, xWriteEvent.xLength );
+
+    xGattResponse.usHandle = xWriteEvent.usAttrHandle;
+    xGattResponse.xAttrValue.usHandle = xWriteEvent.usAttrHandle;
+    xGattResponse.xAttrValue.usOffset = xWriteEvent.usOffset;
+    xGattResponse.xAttrValue.xLen = xWriteEvent.xLength;
+    ucRespBuffer[ xAttribute ].xLength = xWriteEvent.xLength;
+    memcpy( ucRespBuffer[ xAttribute ].ucBuffer, xWriteEvent.ucValue, xWriteEvent.xLength );
+    xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer;
+    xStatus = _pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = prvWaitEventFromQueue( eBLEHALEventConfimCb, xWriteEvent.usAttrHandle, ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
+    TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xConfirmEvent.usAttrHandle );
+}
 
 void prvGAPInitEnableTwice()
 {

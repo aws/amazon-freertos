@@ -482,5 +482,6 @@ void prvSetAdvProperty( void );
 void prvSetAdvData( void );
 
 void prvStartStopAdvCheck( bool start );
+void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */
