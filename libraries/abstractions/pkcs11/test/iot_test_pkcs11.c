@@ -95,12 +95,17 @@ void prvAfterRunningTests_Object( void );
  * These tests do not require provisioning. */
 TEST_GROUP( Full_PKCS11_StartFinish );
 
+/* Tests for determing the capabilities of the PKCS #11 module. */
+TEST_GROUP( Full_PKCS11_Capabilities );
+
 /* The NoKey test group is for test of cryptographic functionality
  * that do not require keys.  Covers digesting and randomness.
  * These tests do not require provisioning. */
 TEST_GROUP( Full_PKCS11_NoObject );
+
 /* The RSA test group is for tests that require RSA keys. */
 TEST_GROUP( Full_PKCS11_RSA );
+
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
 
@@ -136,6 +141,35 @@ TEST_GROUP_RUNNER( Full_PKCS11_StartFinish )
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_InitializeFinalize );
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_GetSlotList );
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession );
+
+    prvAfterRunningTests_NoObject();
+}
+
+TEST_SETUP( Full_PKCS11_Capabilities )
+{
+    CK_RV xResult;
+
+    xResult = xInitializePKCS11();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
+    xResult = xInitializePkcs11Session( &xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
+}
+
+TEST_TEAR_DOWN( Full_PKCS11_Capabilities )
+{
+    CK_RV xResult;
+
+    xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to close session." );
+    xResult = pxGlobalFunctionList->C_Finalize( NULL );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize session." );
+}
+
+TEST_GROUP_RUNNER( Full_PKCS11_Capabilities )
+{
+    prvBeforeRunningTests();
+
+    RUN_TEST_CASE( Full_PKCS11_Capabilities, AFQP_Capabilities );
 
     prvAfterRunningTests_NoObject();
 }
@@ -700,7 +734,34 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_CRYPTOKI_NOT_INITIALIZED, xResult, "Negative Test: Opened a session before initializing module." );
 }
 
+/*--------------------------------------------------------*/
+/*-------------- Capabilities Tests --------------------- */
+/*--------------------------------------------------------*/
 
+TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
+{
+    CK_RV xResult = 0;
+    CK_ULONG xSlotCount = 0;
+    CK_SLOT_ID_PTR pxSlotId = NULL;
+    CK_MECHANISM_INFO MechanismInfo = { 0 };
+
+    /* Determine the number of slots. */
+    xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
+
+    /* Allocate memory to receive the list of slots, plus one extra. */
+    pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * xSlotCount );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxSlotId, "Failed malloc memory for slot list" );
+
+    /* Call C_GetSlotList again to receive all slots with tokens present. */
+    xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, pxSlotId, &xSlotCount );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
+
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[0], CKM_ECDSA, &MechanismInfo );
+    TEST_ASSERT_EQUAL( CKR_OK, xResult );
+
+    /* TODO */
+}
 
 /*--------------------------------------------------------*/
 /*-------------- No Object Tests ------------------------ */
