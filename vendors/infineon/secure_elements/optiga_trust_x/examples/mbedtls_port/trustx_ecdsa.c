@@ -142,7 +142,7 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
 										 OPTIGA_CRYPT_HOST_DATA, (void *)&public_key );
     if ( status != OPTIGA_LIB_SUCCESS )
     {
-       return ( MBEDTLS_ERR_PK_BAD_INPUT_DATA );
+    	status = MBEDTLS_ERR_PK_BAD_INPUT_DATA;
     }
 	
 	//printf("<- ecdsa_verify \n");
