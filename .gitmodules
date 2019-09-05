@@ -1,0 +1,3 @@
+[submodule "pkcs11"]
+	path = libraries/3rdparty/pkcs11
+	url = https://github.com/oasis-tcs/pkcs11.git
