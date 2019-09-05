@@ -9,7 +9,7 @@ For lab testing purposes, if your device allows the import of private keys, you 
 If your device does not allow the import of private keys, or if your solution calls for the use of [Just-in-Time Provisioning](https://docs.aws.amazon.com/iot/latest/developerguide/jit-provisioning.html) (JITP), you can follow the instructions below.
 
 ### Initial Configuration ###
-First, perform the steps in [Configuring the Amazon FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html), but skip the last step, To format your AWS IoT credentials. The net result should be that the demos/include/aws_clientcredential.h file has been updated with your settings, but the demos/include/aws_clientcredential_keys.h file has not. 
+First, perform the steps in [Configuring the Amazon FreeRTOS Demos](https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html), but skip the last step (that is, don't do *To format your AWS IoT credentials*). The net result should be that the *demos/include/aws_clientcredential.h* file has been updated with your settings, but the *demos/include/aws_clientcredential_keys.h* file has not. 
 
 ### Public Key Extraction ###
 Continue by running the Hello World MQTT demo as described in [Getting Started with the Windows Device Simulator](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html). Since the device has not yet been provisioned with a private key and client certificate, the demo will fail to authenticate to AWS IoT. However, the Hello World MQTT demo starts by running developer-mode key provisioning, resulting in the creation of a private key if one was not already present. You should see something like the following near the beginning of the serial console output:
@@ -24,7 +24,7 @@ Continue by running the Hello World MQTT demo as described in [Getting Started w
 dcb2 4e8d 75b3 2586 e2cc 0c
 ```
 
-Copy the six lines of key bytes into a file called DevicePublicKeyAsciiHex.txt. Then use the command-line tool xxd to parse the hex bytes into binary:
+Copy the six lines of key bytes into a file called *DevicePublicKeyAsciiHex.txt*. Then use the command-line tool xxd to parse the hex bytes into binary:
 
 ```
 xxd -r -ps DevicePublicKeyAsciiHex.txt DevicePublicKeyDer.bin
@@ -51,11 +51,11 @@ openssl x509 -req -in deviceCert.csr -CA rootCA.pem -CAkey rootCA.key -CAcreates
 ```
 
 ### Certificate Import ###
-With the certificate issued, the next step is to import it into your device. You will also need to import your Certificate Authority (CA) certificate, since it is required in order for first-time authentication to AWS IoT to succeed when using JITP. In the aws_clientcredential_keys.h file in your project, set the keyCLIENT_CERTIFICATE_PEM macro to be the contents of deviceCert.pem and set the keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM macro to be the contents of rootCA.pem. 
+With the certificate issued, the next step is to import it into your device. You will also need to import your Certificate Authority (CA) certificate, since it is required in order for first-time authentication to AWS IoT to succeed when using JITP. In the *aws_clientcredential_keys.h* file in your project, set the `keyCLIENT_CERTIFICATE_PEM` macro to be the contents of *deviceCert.pem* and set the `keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM` macro to be the contents of *rootCA.pem*. 
 
 Recompile your project after the header change described above. Then re-run the MQTT Hello World demo in order to connect to AWS IoT with your new certificate and private key. Please note that the authentication attempt will again fail - see the next section.
 
 ### Device Authorization ###
-The Enable Automatic Registration section of Use Your Own Certificate describes how to create a Lambda that will automatically mark your new device certificate as ACTIVE in the AWS IoT registry. If you are not using a Lambda, you must create a new Thing, attach the PENDING certificate and a policy to your Thing, and then mark the certificate as ACTIVE. All of those steps can be performed manually in the AWS IoT console. 
+The *Enable Automatic Registration* section of [Use Your Own Certificate](https://docs.aws.amazon.com/iot/latest/developerguide/device-certs-your-own.html) describes how to create a Lambda that will automatically mark your new device certificate as ACTIVE in the AWS IoT registry. If you are not using a Lambda, you must create a new Thing, attach the PENDING certificate and a policy to your Thing, and then mark the certificate as ACTIVE. All of those steps can be performed manually in the AWS IoT console. 
 
 Once the new client certificate is ACTIVE and associated with a Thing and policy, run the MQTT Hello World demo again. This time, the connection to the AWS IoT MQTT broker will succeed.
