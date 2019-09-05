@@ -108,14 +108,18 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-
     /* Initialize the AWS Libraries system. */
     if ( SYSTEM_Init() == pdPASS )
     {
+    	/* Connect to the configured Wi-Fi access point. */
         prvWifiConnect();
 
-    }
+        /* Setup client authentication credentials for TLS. */
+        vDevModeKeyProvisioning();
 
+        /* Start the requested demonstration application. */
+        DEMO_RUNNER_RunDemos();
+    }
 }
 /*-----------------------------------------------------------*/
 
