@@ -4,6 +4,9 @@
   <project>
     <path>$WS_DIR$\aws_demos.ewp</path>
   </project>
+  <project>
+      <path>$WS_DIR$\..\bootloader\spifi_bootloader.ewp</path>
+  </project>
   <batchBuild>
     <batchDefinition>
       <name>all</name>
