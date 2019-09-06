@@ -455,6 +455,20 @@
             <itemPath>../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c</itemPath>
             <itemPath>../../../../../libraries/c_sdk/standard/common/iot_device_metrics.c</itemPath>
           </logicalFolder>
+          <logicalFolder name="https" displayName="https" projectFiles="true">
+            <logicalFolder name="include" displayName="include" projectFiles="true">
+              <logicalFolder name="types" displayName="types" projectFiles="true">
+                <itemPath>../../../../../libraries/c_sdk/standard/https/include/types/iot_https_types.h</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="src" displayName="src" projectFiles="true">
+              <logicalFolder name="private" displayName="private" projectFiles="true">
+                <itemPath>../../../../../libraries/c_sdk/standard/https/src/private/iot_https_internal.h</itemPath>
+              </logicalFolder>
+              <itemPath>../../../../../libraries/c_sdk/standard/https/src/iot_https_client.c</itemPath>
+              <itemPath>../../../../../libraries/c_sdk/standard/https/src/iot_https_utils.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
           <logicalFolder name="mqtt" displayName="mqtt" projectFiles="true">
             <logicalFolder name="src" displayName="src" projectFiles="true">
               <itemPath>../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</itemPath>
@@ -1107,6 +1121,7 @@
     <Elem>../../../../../vendors/microchip/harmony/v2.05/framework/peripheral/i2c</Elem>
     <Elem>../../../../../libraries/abstractions/pkcs11/mbedtls</Elem>
     <Elem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code</Elem>
+    <Elem>../../../../../libraries/c_sdk/standard/https</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -1133,21 +1148,6 @@
         <archiverTool>
         </archiverTool>
         <loading>
-          <makeArtifact PL="../bootloader_tests"
-                        CT="1"
-                        CN="pic32mz_ef_curiosity"
-                        AC="true"
-                        BL="true"
-                        WD="../bootloader_tests"
-                        BC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity"
-                        DBC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity TYPE_IMAGE=DEBUG_RUN"
-                        CC="rm -rf &quot;build/pic32mz_ef_curiosity&quot; &quot;dist/pic32mz_ef_curiosity&quot;"
-                        OP="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
-                        DOP="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf"
-                        FL="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
-                        PD="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.elf"
-                        DD="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf">
-          </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
@@ -1668,7 +1668,7 @@
         <targetDevice>PIC32MZ2048EFM100</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>pk4hybrid</platformTool>
+        <platformTool>ICD4Tool</platformTool>
         <languageToolchain>XC32</languageToolchain>
         <languageToolchainVersion>2.20</languageToolchainVersion>
         <platform>3</platform>
@@ -1685,20 +1685,20 @@
         <archiverTool>
         </archiverTool>
         <loading>
-          <makeArtifact PL="../bootloader_tests"
+          <makeArtifact PL="../bootloader"
                         CT="1"
                         CN="pic32mz_ef_curiosity"
                         AC="true"
                         BL="true"
-                        WD="../bootloader_tests"
+                        WD="../bootloader"
                         BC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity"
                         DBC="${MAKE}  -f Makefile CONF=pic32mz_ef_curiosity TYPE_IMAGE=DEBUG_RUN"
                         CC="rm -rf &quot;build/pic32mz_ef_curiosity&quot; &quot;dist/pic32mz_ef_curiosity&quot;"
-                        OP="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
-                        DOP="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf"
-                        FL="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.hex"
-                        PD="dist/pic32mz_ef_curiosity/production/bootloader_tests.production.elf"
-                        DD="dist/pic32mz_ef_curiosity/debug/bootloader_tests.debug.elf">
+                        OP="dist/pic32mz_ef_curiosity/production/bootloader.production.hex"
+                        DOP="dist/pic32mz_ef_curiosity/debug/bootloader.debug.elf"
+                        FL="dist/pic32mz_ef_curiosity/production/bootloader.production.hex"
+                        PD="dist/pic32mz_ef_curiosity/production/bootloader.production.elf"
+                        DD="dist/pic32mz_ef_curiosity/debug/bootloader.debug.elf">
           </makeArtifact>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
           <parseOnProdLoad>false</parseOnProdLoad>
