@@ -908,19 +908,35 @@ TEST( Full_BLE, BLE_Advertising_StartAdvertisement )
 
 TEST( Full_BLE, BLE_Advertising_SetAvertisementData )
 {
-    prvSetAdvData();
+    prvSetAdvData( eBTuuidType128 );
 }
 
 
-void prvSetAdvData( void )
+void prvSetAdvData( BTuuidType_t Type )
 {
     uint16_t usServiceDataLen;
     char * pcServiceData;
+    uint8_t serviceUUID_128[ bt128BIT_UUID_LEN ] = bletestsFREERTOS_SVC_UUID_128;
+
     BTUuid_t xServiceUuid =
     {
-        .ucType   = eBTuuidType128,
-        .uu.uu128 = bletestsFREERTOS_SVC_UUID
+        .ucType = Type
     };
+
+    switch( Type )
+    {
+        case eBTuuidType16:
+            xServiceUuid.uu.uu16 = bletestsFREERTOS_SVC_UUID_16;
+            break;
+
+        case eBTuuidType32:
+            xServiceUuid.uu.uu32 = bletestsFREERTOS_SVC_UUID_32;
+            break;
+
+        case eBTuuidType128:
+            memcpy( xServiceUuid.uu.uu128, serviceUUID_128, sizeof( serviceUUID_128 ) );
+            break;
+    }
 
     size_t xNbServices;
 
@@ -928,14 +944,20 @@ void prvSetAdvData( void )
     pcServiceData = NULL;
     xNbServices = 1;
 
-    prvSetAdvertisement( &xAdvertisementConfigA,
+    /* Make sure stack creates their own pointers */
+    BTGattAdvertismentParams_t l_xAdvertisementConfigA;
+    l_xAdvertisementConfigA = xAdvertisementConfigA;
+
+    prvSetAdvertisement( &l_xAdvertisementConfigA,
                          usServiceDataLen,
                          pcServiceData,
                          &xServiceUuid,
                          xNbServices );
 
+    BTGattAdvertismentParams_t l_xAdvertisementConfigB;
+    l_xAdvertisementConfigB = xAdvertisementConfigB;
 
-    prvSetAdvertisement( &xAdvertisementConfigB,
+    prvSetAdvertisement( &l_xAdvertisementConfigB,
                          usServiceDataLen,
                          pcServiceData,
                          NULL,

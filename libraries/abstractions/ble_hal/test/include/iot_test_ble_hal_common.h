@@ -51,15 +51,17 @@
  */
 typedef struct
 {
-    uint32_t minInterval; /**< Minimum connection interval. */
-    uint32_t maxInterval; /**< Maximum connection interval. */
-    uint32_t latency;     /**< Slave latency. */
-    uint32_t timeout;     /**< Connection timeout. */
+    uint32_t minInterval;     /**< Minimum connection interval. */
+    uint32_t maxInterval;     /**< Maximum connection interval. */
+    uint32_t latency;         /**< Slave latency. */
+    uint32_t timeout;         /**< Connection timeout. */
 } IotBleConnectionParam_t;
 
 #define bletestsAPP_UUID                 { 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define bletestsSERVER_UUID              { 0x22, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
-#define bletestsFREERTOS_SVC_UUID        { 0x5A, 0xDB, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
+#define bletestsFREERTOS_SVC_UUID_128    { 0x5A, 0xDB, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
+#define bletestsFREERTOS_SVC_UUID_32     0x8A7F1168
+#define bletestsFREERTOS_SVC_UUID_16     0xabcd
 
 #define NO_HANDLE                        -1
 
@@ -473,6 +475,13 @@ void prvBTUnregister( void );
 void prvBLEGAPInit( void );
 void prvBLEGATTInit( void );
 void prvSetAdvProperty( void );
-void prvSetAdvData( void );
+void prvSetAdvData( BTuuidType_t Type );
+
+void GAP_common_teardown();
+void GAP_common_setup();
+void GATT_teardown();
+void GATT_setup();
+void Advertisement_teardown();
+void Advertisement_setup();
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */
