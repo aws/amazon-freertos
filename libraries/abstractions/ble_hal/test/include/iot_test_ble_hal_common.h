@@ -366,6 +366,12 @@ typedef enum
     bletestATTR_SRVCB_NUMBER
 } bletestAttSrvB_t;
 
+typedef struct
+{
+    size_t xLength;
+    uint8_t ucBuffer[ bletestsSTRINGYFIED_UUID_SIZE ];
+} response_t;
+
 void prvDeviceStateChangedCb( BTState_t xState );
 void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                               uint8_t ucAdapterIf,
@@ -483,5 +489,15 @@ void GATT_teardown();
 void GATT_setup();
 void Advertisement_teardown();
 void Advertisement_setup();
+void prvSendNotification( bletestAttSrvB_t xAttribute, bool bConfirm );
+void prvCheckNotification( bool IsConnected );
+void prvCheckIndication( bool IsConnected );
+BLETESTreadAttrCallback_t prvReadReceive( bletestAttSrvB_t xAttribute );
+void prvReadResponse( bletestAttSrvB_t xAttribute, BLETESTreadAttrCallback_t xReadEvent, bool IsConnected );
+BLETESTwriteAttrCallback_t prvWriteReceive( bletestAttSrvB_t xAttribute,
+                                            bool bNeedRsp,
+                                            bool IsPrep,
+                                            uint16_t usOffset );
+void prvWriteResponse( bletestAttSrvB_t xAttribute, BLETESTwriteAttrCallback_t xWriteEvent, bool IsConnected );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */

@@ -42,16 +42,115 @@ def main():
     # default DUT_name: nimble(without set_property)
     # TODO: check DUT with MAC address instead of name.
 
+    # isTestSuccessFull = runTest.Advertise_With_16bit_ServiceUUID(scan_filter=scan_filter, bleAdapter=bleAdapter)
+    # runTest.submitTestResult(isTestSuccessFull, runTest.Advertise_With_16bit_ServiceUUID)
+
+    scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
+     # default DUT_name: nimble(without set_property)
+    # TODO: check DUT with MAC address instead of name.
+    bleAdapter.setDiscoveryFilter(scan_filter)
+
+    # Advertisement interval consistent after reset test
+    # TODO: the first time uses different callback to get/check test device information. we can choose to use the second time and third time KPI to compare.
+    # First time connection
+    isTestSuccessFull = True
+    bleAdapter.startDiscovery(runTest.discoveryEventCb)
+    firstStartScan = time.time()
+    runTest.mainloop.run()
+    firstKPI = time.time() - firstStartScan
+    runTest.submitTestResult(isTestSuccessFull, runTest.advertisement)
+    bleAdapter.stopDiscovery()
+
+    testDevice = runTest.getTestDevice()
+    isTestSuccessFull = bleAdapter.connect(testDevice)
+    runTest.submitTestResult(isTestSuccessFull, runTest.simpleConnection)
+
+    isTestSuccessFull = runTest.discoverPrimaryServices()
+    runTest.submitTestResult(isTestSuccessFull, runTest.discoverPrimaryServices)
+
+    bleAdapter.gatt.updateLocalAttributeTable()
+
+    # time.sleep(2) #wait for connection parameters update
+    #Check device not present. After discovery of services, advertisement should have stopped.
+    runTest.stopAdvertisement(scan_filter)
+
+    #Check write
+    bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_OPEN_DESCR_UUID)
+    bleAdapter.readCharacteristic(runTest.DUT_OPEN_CHAR_UUID)
+
+    #Enable and receive notification and indication then disable.
+    bleAdapter.setNotificationCallBack(runTest.notificationCb)
+    bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID)
+    bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
+
+    time.sleep(2) #wait for connection parameters update
+
+    isTestSuccessFull = True
+    runTest.mainloop.run()
+    runTest.submitTestResult(isTestSuccessFull, runTest.notification)
+
+    isTestSuccessFull = True
+    runTest.mainloop.run()
+    runTest.submitTestResult(isTestSuccessFull, runTest.indication)
+
+    isTestSuccessFull &= bleAdapter.disconnect()
+
+    # Third time connection
+    bleAdapter.startDiscovery(runTest.discoveryStartedCb)#wait for DUT to start advertising
+    runTest.mainloop.run()
+    bleAdapter.stopDiscovery()
+    isConnectSuccessFull = bleAdapter.connect(testDevice)
+    isTestSuccessFull &= isConnectSuccessFull
+    runTest.submitTestResult(isTestSuccessFull, runTest.reConnection)
+
+    bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID)
+    bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
+
+    #Check write
+    bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_OPEN_DESCR_UUID)
+    bleAdapter.readCharacteristic(runTest.DUT_OPEN_CHAR_UUID)
+
+    isTestSuccessFull = True
+    runTest.mainloop.run()
+    runTest.submitTestResult(isTestSuccessFull, runTest.notification)
+
+    isTestSuccessFull = True
+    runTest.mainloop.run()
+    runTest.submitTestResult(isTestSuccessFull, runTest.indication)
+
+    isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe
+    isTestSuccessFull = True
+    runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
+
+    isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID, subscribe = False) #unsubscribe
+    isTestSuccessFull = True
+    runTest.submitTestResult(isTestSuccessFull, runTest.removeIndication)
+
+    isTestSuccessFull &= bleAdapter.disconnect()
+    testutils.removeBondedDevices()
+
+    ### ============================== ###
+    ### ============================== ###
+    ### ============================== ###
+    ### ============================== ###
+    ### ============================== ###
+    ### ============================== ###
+
     isTestSuccessFull = runTest.Advertise_With_16bit_ServiceUUID(scan_filter=scan_filter, bleAdapter=bleAdapter)
     runTest.submitTestResult(isTestSuccessFull, runTest.Advertise_With_16bit_ServiceUUID)
 
-    # isTestSuccessFull = runTest.Advertise_Without_Properties(scan_filter=scan_filter, bleAdapter=bleAdapter)
-    # runTest.submitTestResult(isTestSuccessFull, runTest.Advertise_Without_Properties)
-
+    ### ============================== ### 
+    ### ============================== ### 
+    ### ============================== ### 
+    ### ============================== ### 
+    ### ============================== ### 
+    ### ============================== ### 
+ 
     scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
 
     # default DUT_name: nimble(without set_property)
     # TODO: check DUT with MAC address instead of name.
+    DUT_ORIGINAL_NAME = runTest.DUT_NAME
     runTest.DUT_NAME = "nimb"
     bleAdapter.setDiscoveryFilter(scan_filter)
 
@@ -107,5 +206,8 @@ def main():
     runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
 
     isTestSuccessFull &= bleAdapter.disconnect()
+
+    runTest.DUT_NAME = DUT_ORIGINAL_NAME
+
     time.sleep(2) #wait for connection parameters update
     runTest.printTestsSummary()

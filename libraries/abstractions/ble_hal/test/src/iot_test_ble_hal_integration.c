@@ -30,11 +30,10 @@
 
 
 #include <time.h>
-/* #include <unistd.h> */
+//#include <unistd.h> 
 
 
 #include "iot_test_ble_hal_integration.h"
-
 extern BTCallbacks_t _xBTManagerCb;
 
 extern BTGattServerInterface_t * _pxGattServerInterface;
@@ -45,8 +44,10 @@ extern uint8_t _ucBLEServerIf;
 extern uint16_t _usBLEConnId;
 extern BTBdaddr_t _xAddressConnectedDevice;
 
+extern BTService_t _xSrvcA;
 extern BTService_t _xSrvcB;
 extern uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
+extern response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
 
 TEST_GROUP( Full_BLE_Integration_Test );
 
@@ -60,37 +61,65 @@ TEST_TEAR_DOWN( Full_BLE_Integration_Test )
 
 /*-----------------------------------------------------------*/
 
-TEST_GROUP( Full_BLE_Integration_Test_common_GAP );
+TEST_GROUP( Full_BLE_Integration_Test_common_GATT );
 
-TEST_SETUP( Full_BLE_Integration_Test_common_GAP )
+TEST_SETUP( Full_BLE_Integration_Test_common_GATT )
 {
     GAP_common_setup();
 }
 
-TEST_TEAR_DOWN( Full_BLE_Integration_Test_common_GAP )
+TEST_TEAR_DOWN( Full_BLE_Integration_Test_common_GATT )
 {
     GAP_common_teardown();
 }
 
-TEST_GROUP_RUNNER( Full_BLE_Integration_Test_common_GAP )
+TEST_GROUP_RUNNER( Full_BLE_Integration_Test_common_GATT )
 {
 }
 
 /*-----------------------------------------------------------*/
 
-TEST_GROUP( Full_BLE_Integration_Test_GATT );
+TEST_GROUP( Full_BLE_Integration_Test_Advertisement );
 
-TEST_SETUP( Full_BLE_Integration_Test_GATT )
+TEST_SETUP( Full_BLE_Integration_Test_Advertisement )
 {
     GATT_setup();
 }
 
-TEST_TEAR_DOWN( Full_BLE_Integration_Test_GATT )
+TEST_TEAR_DOWN( Full_BLE_Integration_Test_Advertisement )
 {
     GATT_teardown();
 }
 
-TEST_GROUP_RUNNER( Full_BLE_Integration_Test_GATT )
+TEST_GROUP_RUNNER( Full_BLE_Integration_Test_Advertisement )
+{
+}
+
+/*-----------------------------------------------------------*/
+
+TEST_GROUP( Full_BLE_Integration_Test_Connection );
+
+TEST_SETUP( Full_BLE_Integration_Test_Connection )
+{
+    /* Initialize */
+    GATT_setup();
+    prvCreateAndStartServiceB();
+
+    /* Advertise and Connect */
+    prvSetAdvProperty();
+    prvSetAdvData( eBTuuidType128 );
+    prvStartAdvertisement();
+    prvWaitConnection( true );
+}
+
+TEST_TEAR_DOWN( Full_BLE_Integration_Test_Connection )
+{
+    /* Disconnect */
+    prvWaitConnection( false );
+    GATT_teardown();
+}
+
+TEST_GROUP_RUNNER( Full_BLE_Integration_Test_Connection )
 {
 }
 
@@ -100,7 +129,8 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 {
     RUN_TEST_CASE( Full_BLE, BLE_Setup );
 
-    RUN_TEST_CASE( Full_BLE_Integration_Test_GATT, BLE_Advertise_With_16bit_ServiceUUID );
+    RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
+    RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
 
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_BT_Module );
@@ -130,7 +160,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties )
 }
 
 /* Advertisement should work with 16bit Service UUID as well */
-TEST( Full_BLE_Integration_Test_GATT, BLE_Advertise_With_16bit_ServiceUUID )
+TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID )
 {
     prvSetAdvProperty();
     prvSetAdvData( eBTuuidType16 );
@@ -255,16 +285,62 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
 
     if( xStatus != eBTStatusSuccess )
     {
-        /* Notify RPI failure here. Expect to receive "fail" message. */
+        /* Notify RPI failure here. Expect to receive "fail" messaprvSetAdvertisementge. */
         memcpy( ucLargeBuffer, bletestsFAIL_CHAR_VALUE, sizeof( bletestsFAIL_CHAR_VALUE ) - 1 );
         xfStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
-                                                             usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
-                                                             _usBLEConnId,
-                                                             sizeof( bletestsFAIL_CHAR_VALUE ) - 1,
-                                                             ucLargeBuffer,
-                                                             false );
+                                                              usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
+                                                              _usBLEConnId,
+                                                              sizeof( bletestsFAIL_CHAR_VALUE ) - 1,
+                                                              ucLargeBuffer,
+                                                              false );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xfStatus );
     }
+}
+
+TEST ( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
+{
+    BTStatus_t xStatus;
+    BLETESTindicateCallback_t xIndicateEvent;
+    BLETESTInitDeinitCallback_t xInitDeinitCb;
+    BLETESTwriteAttrCallback_t xWriteEvent;
+    BLETESTreadAttrCallback_t xReadEvent;
+
+    /* Check communication */
+    xWriteEvent = prvWriteReceive( bletestATTR_SRVCB_CHAR_A, true, false, 0 );
+    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
+    xReadEvent = prvReadReceive( bletestATTR_SRVCB_CHAR_A );
+    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
+
+    checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
+    checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, true );
+    prvCheckNotification( true );
+    prvCheckIndication( true );
+
+    /* Disconnect from RPi and Check communication*/
+    prvWaitConnection( false );
+
+    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
+    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
+    prvCheckNotification( false );
+    prvCheckIndication( false );
+
+    /* Advertise and Reconnect */
+    prvSetAdvProperty();
+    prvSetAdvData( eBTuuidType128 );
+    prvStartAdvertisement();
+    prvWaitConnection( true );
+
+    /* Check communication */
+    checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
+    checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, true );    
+
+    xWriteEvent = prvWriteReceive( bletestATTR_SRVCB_CHAR_A, true, false, 0 );
+    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
+    xReadEvent = prvReadReceive( bletestATTR_SRVCB_CHAR_A );
+    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
+    prvCheckNotification( true );
+    prvCheckIndication( true );
+
 }
 
 TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
@@ -321,6 +397,7 @@ void prvGAPInitEnableTwice()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
+    clock_t returnTime, cbRecvTime;
 
     /* Get BT interface */
     _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
@@ -328,6 +405,7 @@ void prvGAPInitEnableTwice()
 
     /* First time init */
     xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
+    returnTime = clock();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     /* First time enable */
@@ -335,8 +413,10 @@ void prvGAPInitEnableTwice()
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
+    cbRecvTime = clock();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
+    TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
 
     /*First time Deinit*/
     xStatus = _pxBTInterface->pxBtManagerCleanup();

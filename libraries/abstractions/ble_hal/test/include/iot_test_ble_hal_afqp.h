@@ -33,12 +33,6 @@
 
 #include "iot_test_ble_hal_common.h"
 
-typedef struct
-{
-    size_t xLength;
-    uint8_t ucBuffer[ bletestsSTRINGYFIED_UUID_SIZE ];
-} response_t;
-
 void prvBLESetUp( void );
 void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
                                bool bNeedRsp,
