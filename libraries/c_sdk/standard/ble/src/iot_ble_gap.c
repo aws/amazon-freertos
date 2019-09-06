@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -219,6 +219,7 @@ static const BTBleAdapterCallbacks_t _BTBleAdapterCb =
 
 void _deviceStateChangedCb( BTState_t state )
 {
+    IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -471,10 +472,22 @@ BTStatus_t IotBle_ConnParameterUpdateRequest( const BTBdaddr_t * pBdAddr,
 
 BTStatus_t IotBle_On( void )
 {
+    BTStatus_t status = eBTStatusSuccess;
+
     /* Currently Disabled due to a bug with ESP32 : https://github.com/espressif/esp-idf/issues/2070 */
 
-    /* _BTInterface.p_BTInterface->pxEnable(0); */
-    return eBTStatusSuccess;
+    status = _BTInterface.pBTInterface->pxEnable( 0 );
+
+    if( status == eBTStatusSuccess )
+    {
+        IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
+    }
+    else
+    {
+        IotLogError( "Could not enable the stack." );
+    }
+
+    return status;
 }
 
 /*-----------------------------------------------------------*/
@@ -580,7 +593,12 @@ BTStatus_t IotBle_Init( void )
 
     if( ( _BTInterface.pBTLeAdapterInterface != NULL ) && ( status == eBTStatusSuccess ) )
     {
-        status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
+        status = IotBle_On();
+
+        if( status == eBTStatusSuccess )
+        {
+            status = _BTInterface.pBTLeAdapterInterface->pxBleAdapterInit( &_BTBleAdapterCb );
+        }
     }
     else
     {

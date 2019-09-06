@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS PKCS #11 V1.0.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
 #ifndef _AWS_PKCS11_H_
 #define _AWS_PKCS11_H_
 
@@ -45,6 +44,8 @@
     #define NULL_PTR    0
 #endif
 
+/* CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
+ * instead when possible. */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )

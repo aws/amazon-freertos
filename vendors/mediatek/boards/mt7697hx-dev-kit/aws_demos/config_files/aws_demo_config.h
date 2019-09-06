@@ -36,6 +36,10 @@
  *          CONFIG_DEFENDER_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
  *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
@@ -56,7 +60,7 @@
 #define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Greengrass discovery example task parameters. */
-#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 8 )
 #define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY )
 
 

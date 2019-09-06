@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -244,6 +244,8 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
      * unlock mutex. */
     if( iStatus == 0 )
     {
+        /* Atomically increments thread waiting by 1, and
+         * stores number of threads waiting before increment. */
         iLocalWaitingThreads = Atomic_Increment_u32( ( uint32_t * ) &pxCond->iWaitingThreads );
 
         iStatus = pthread_mutex_unlock( mutex );
@@ -263,14 +265,21 @@ int pthread_cond_timedwait( pthread_cond_t * cond,
             /* Timeout. Relock mutex and decrement number of waiting threads. */
             iStatus = ETIMEDOUT;
             ( void ) pthread_mutex_lock( mutex );
-            /* Check "atomically" if iLocalWaitingThreads == pxCond->iWaitingThreads and decrement.  */
-            prvTestAndDecrement( pxCond, iLocalWaitingThreads );
+
+            /* Atomically decrements thread waiting by 1.
+             * If iLocalWaitingThreads is updated by other thread(s) in between,
+             * this implementation guarantees to decrement by 1 based on the
+             * value currently in pxCond->iWaitingThreads. */
+            prvTestAndDecrement( pxCond, iLocalWaitingThreads + 1 );
         }
     }
     else
     {
-        /* Check "atomically" if iLocalWaitingThreads == pxCond->iWaitingThreads and decrement.  */
-        prvTestAndDecrement( pxCond, iLocalWaitingThreads );
+        /* Atomically decrements thread waiting by 1.
+         * If iLocalWaitingThreads is updated by other thread(s) in between,
+         * this implementation guarantees to decrement by 1 based on the
+         * value currently in pxCond->iWaitingThreads. */
+        prvTestAndDecrement( pxCond, iLocalWaitingThreads + 1 );
     }
 
     return iStatus;

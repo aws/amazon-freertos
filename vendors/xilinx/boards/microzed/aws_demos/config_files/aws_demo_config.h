@@ -36,6 +36,10 @@
  *          CONFIG_DEFENDER_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
  *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
@@ -47,7 +51,7 @@
 #define democonfigNETWORK_TYPES                           ( AWSIOT_NETWORK_TYPE_ETH )
 
 #define democonfigSHADOW_DEMO_NUM_TASKS                   ( 2 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( 1024 )
 #define democonfigSHADOW_DEMO_TASK_PRIORITY               ( tskIDLE_PRIORITY )
 #define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 5 )
 

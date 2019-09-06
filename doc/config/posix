@@ -9,7 +9,7 @@ PROJECT_NAME = "POSIX"
 HTML_OUTPUT = POSIX
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/POSIX.tag
+GENERATE_TAGFILE = doc/output/POSIX.tag
 
 # Directories containing library source code.
 INPUT = doc \
@@ -23,8 +23,8 @@ INPUT = doc \
 FILE_PATTERNS = *POSIX*.h *POSIX*.c posix.txt
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
-		   doc/tag/atomic.tag=../atomic
+TAGFILES = doc/output/main.tag=../main \
+		   doc/output/atomic.tag=../atomic
 		   
 		   
 

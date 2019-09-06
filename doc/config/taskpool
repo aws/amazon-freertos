@@ -10,7 +10,7 @@ PROJECT_BRIEF = "Task pool library"
 HTML_OUTPUT = taskpool
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/taskpool.tag
+GENERATE_TAGFILE = doc/output/taskpool.tag
 
 # Directories containing library source code.
 INPUT = doc/lib \
@@ -24,8 +24,8 @@ INPUT = doc/lib \
 FILE_PATTERNS = *taskpool*.c *taskpool*.h *taskpool*.txt
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
-           doc/tag/linear_containers.tag=../linear_containers \
-           doc/tag/logging.tag=../logging \
-           doc/tag/platform.tag=../platform \
-           doc/tag/static_memory.tag=../static_memory \
+TAGFILES = doc/output/main.tag=../main \
+           doc/output/linear_containers.tag=../linear_containers \
+           doc/output/logging.tag=../logging \
+           doc/output/platform.tag=../platform \
+           doc/output/static_memory.tag=../static_memory \

@@ -9,7 +9,13 @@ else()
 endif()
 
 
+# -------------------------------------------------------------------------------------------------
+# Amazon FreeRTOS disabled libraries
+# -------------------------------------------------------------------------------------------------
 set(AFR_MODULE_defender 0 CACHE INTERNAL "")
+# HTTPS is not supported for Nordic as this board does not have WiFi/Ethernet.
+set(AFR_MODULE_https 0 CACHE INTERNAL "")
+
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata

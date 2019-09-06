@@ -31,6 +31,7 @@
 #include <string.h>
 #include "FreeRTOS.h"
 #include "esp_bt.h"
+#include "esp_nimble_hci.h"
 #include "nimble/nimble_port.h"
 #include "nimble/nimble_port_freertos.h"
 #include "host/util/util.h"
@@ -316,14 +317,30 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             return 0;
 
         case BLE_GAP_EVENT_NOTIFY_TX:
-
-            if( ( event->notify_tx.status != 0 ) && ( xGattServerCb.pxIndicationSentCb != NULL ) )
+            xStatus = eBTStatusSuccess;
+            if( event->notify_tx.indication )
             {
-                if( event->notify_tx.status == BLE_HS_ETIMEOUT )
+                if( event->notify_tx.status == 0 )
+                {
+                    break;
+                }
+                if( event->notify_tx.status != BLE_HS_EDONE )
                 {
                     xStatus = eBTStatusFail;
                 }
+                ESP_LOGD(TAG, "Indication tx status received: %d", event->notify_tx.status);
+            }
+            else
+            {
+                if( event->notify_tx.status != 0 )
+                {
+                    xStatus = eBTStatusFail;
+                }
+                ESP_LOGD(TAG, "Notification tx status received: %d", event->notify_tx.status);
+            }
 
+            if( xGattServerCb.pxIndicationSentCb != NULL )
+            {
                 xGattServerCb.pxIndicationSentCb( event->notify_tx.conn_handle, xStatus );
             }
 
@@ -458,8 +475,8 @@ static void bleprph_on_reset( int reason )
 
 static void bleprph_on_sync( void )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
     int rc;
+    BTStatus_t xStatus = eBTStatusSuccess;
 
     rc = ble_hs_util_ensure_addr( 0 );
 
@@ -481,6 +498,7 @@ static void bleprph_on_sync( void )
 void ble_host_task( void * param )
 {
     nimble_port_run();
+    nimble_port_freertos_deinit();
 }
 
 void ble_store_config_init( void );
@@ -494,7 +512,6 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
     ble_hs_cfg.reset_cb = bleprph_on_reset;
     ble_hs_cfg.sync_cb = bleprph_on_sync;
     ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
-    nimble_port_freertos_init( ble_host_task );
     ble_store_config_init();
 
     if( pxCallbacks != NULL )
@@ -516,7 +533,6 @@ BTStatus_t prvBtManagerCleanup()
     BTStatus_t xStatus = eBTStatusSuccess;
 
     esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-    esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
 
     return xStatus;
 }
@@ -527,13 +543,7 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    /** If status is ok and callback is set, trigger the callback.
-     *  If status is fail, no need to trig a callback as original call failed.
-     **/
-    if( ( xStatus == eBTStatusSuccess ) && ( xBTCallbacks.pxDeviceStateChangedCb != NULL ) )
-    {
-        xBTCallbacks.pxDeviceStateChangedCb( eBTstateOn );
-    }
+    nimble_port_freertos_init( ble_host_task );
 
     return xStatus;
 }
@@ -542,13 +552,21 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 
 BTStatus_t prvBTDisable()
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
+    BTStatus_t xStatus = eBTStatusFail;
+    int rc;
 
-    if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
+    rc = nimble_port_stop();
+    if( rc == 0 )
     {
-        if( esp_bt_controller_disable() != ESP_OK )
+        nimble_port_deinit();
+        rc = esp_nimble_hci_and_controller_deinit();
+        if( rc != ESP_OK )
         {
-            xStatus = eBTStatusFail;
+            ESP_LOGE( TAG, "esp_nimble_hci_and_controller_deinit() failed with error %d", rc );
+        }
+        else
+        {
+            xStatus = eBTStatusSuccess;
         }
     }
 

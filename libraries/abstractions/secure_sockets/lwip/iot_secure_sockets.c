@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.5
+ * Amazon FreeRTOS Secure Sockets V1.1.6
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -791,7 +791,7 @@ int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
 
 uint32_t SOCKETS_GetHostByName( const char * pcHostName )
 {
-    uint32_t addr;
+    uint32_t addr = 0;
 
     if( strlen( pcHostName ) <= ( size_t ) securesocketsMAX_DNS_NAME_LENGTH )
     {

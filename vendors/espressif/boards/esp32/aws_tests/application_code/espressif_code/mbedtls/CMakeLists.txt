@@ -6,6 +6,7 @@ target_compile_options(
     ${IDF_COMPILE_OPTIONS}
     $<$<COMPILE_LANGUAGE:C>:${IDF_C_COMPILE_OPTIONS}>
     $<$<COMPILE_LANGUAGE:CXX>:${IDF_CXX_COMPILE_OPTIONS}>
+    "-Wno-maybe-uninitialized"
 )
 
 target_include_directories(

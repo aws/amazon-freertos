@@ -129,11 +129,9 @@ void sys_mbox_free( volatile sys_mbox_t *pxMailBox )
         pxMailBox->xMbox = NULL;
         taskEXIT_CRITICAL();
 
-        while( xTask != NULL )
+        if( xTask != NULL )
         {
             xTaskAbortDelay( xTask );
-            taskYIELD();
-            xTask = pxMailBox->xTask;
         }
 
         vQueueDelete( xMbox );

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.2
+ * Amazon FreeRTOS OTA V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1621,7 +1621,7 @@ static void prvOTAUpdateTask( void * pvUnused )
                         while( xQueueReceive( xOTA_Agent.xOTA_MsgQ, &pxMsgMetaData, 0 ) != pdFALSE )
                         {
                             /* Check for OTA update job messages. */
-                            if( pxMsgMetaData->eMsgType == eOTA_PubMsgType_Job )
+                            if( ( pxMsgMetaData->eMsgType == eOTA_PubMsgType_Job ) && ( xOTA_Agent.eState == eOTA_AgentState_Ready ) )
                             {
                                 if( C != NULL )
                                 {

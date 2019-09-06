@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -102,6 +102,12 @@
 #ifndef IOT_BLE_ADVERTISING_INTERVAL
     #define IOT_BLE_ADVERTISING_INTERVAL    300
 #endif
+
+/**< Min encryption key size. */
+#ifndef IOT_BLE_ENCRYPT_KEY_SIZE_MIN
+    #define IOT_BLE_ENCRYPT_KEY_SIZE_MIN    16
+#endif
+
 
 /**
  * @brief Appearance of the device when advertising.

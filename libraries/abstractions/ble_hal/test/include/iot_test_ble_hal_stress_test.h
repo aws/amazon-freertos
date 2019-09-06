@@ -33,6 +33,15 @@
 
 #include "iot_test_ble_hal_common.h"
 
-static void prvDeviceStateChangedCb( BTState_t xState );
+
+/*The stress test cases are related.
+ * e.g. If only one stress test case needs to be run,
+ * the parameters of outside cases should be set to 1 and inside and parallel ones should be set to 0.*/
+#define RESTART_NUMBER_STRESS_TEST           1
+#define RECONNECT_NUMBER_STRESS_TEST         1
+#define INIT_DEINIT_NUMBER_STRESS_TEST       1
+#define ENABLE_DISABLE_NUMBER_STRESS_TEST    1
+
+void prvRestartService( BTService_t * xRefSrvc );
 
 #endif /* _IOT_TEST_BLE_HAL_STRESS_TEST_H_ */

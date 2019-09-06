@@ -396,6 +396,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
@@ -405,6 +406,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1957,6 +1959,24 @@
 			</file>
 		</group>
 		<group>
+			<name>https</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_common.c</name>
+			</file>
+		</group>
+		<group>
 			<name>mqtt</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c</name>
@@ -2119,6 +2139,18 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>https</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c</name>
 						</file>
 					</group>
 				</group>
@@ -2964,6 +2996,15 @@
 				</file>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c</name>
+				</file>
+			</group>
+			<group>
+				<name>http-parser</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c</name>
 				</file>
 			</group>
 			<group>

@@ -14,13 +14,22 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 	- on mac, run "brew install graphviz"
 - goto the root directory of "amazon-freertos" (this will be referenced as $ROOT_AFR_DIR)
 	- cd $ROOT_AFR_DIR
-- create a "tag" folder in "ROOT/doc
-- run Doxygen command a first time to generate the tags.
-- run Doxygen command a second time to generate the documents.
-	- doxygen doc/config/main
+- run Doxygen commands to generate the documents. Note: These files have circular dependencies so make sure to run each command twice.
+	- doxygen doc/config/linear_containers
+	- doxygen doc/config/static_memory
+	- doxygen doc/config/logging
 	- doxygen doc/config/secure_sockets
-
-- the entry doc is $ROOT_AFR_DIR/doc/output/main/html, open it with browser and verify it looks good
+	- doxygen doc/config/wifi
+	- doxygen doc/config/atomic
+	- doxygen doc/config/taskpool
+	- doxygen doc/config/platform
+	- doxygen doc/config/posix
+	- doxygen doc/config/mqtt
+	- doxygen doc/config/shadow
+	- doxygen doc/config/defender
+	- doxygen doc/config/ble
+	- doxygen doc/config/main
+- the entry doc is $ROOT_AFR_DIR/doc/output/main/index.html, open it with browser and verify it looks good
 
 # Add documents for a new library
 
