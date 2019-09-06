@@ -220,21 +220,6 @@ class runTest:
         return bleAdapter.writeCharacteristic(runTest.DUT_WRITE_NO_RESP_CHAR_UUID, result, False)
 
     @staticmethod
-    def prepareWrite():
-        isTestSuccessfull = True
-        for i in range(3):
-            isTestSuccessfull &= bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_LONG_STRING[i], offset=i * (runTest.MTU_SIZE - 3), prepareWrite=True)
-            print isTestSuccessfull
-        return isTestSuccessfull
-
-    @staticmethod
-    def reliableWrite():
-        long_string = ""
-        for sub in runTest.DUT_LONG_STRING:
-            long_string += sub
-        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_string, reliableWrite=True)
-
-    @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
         bleAdapter.writeCharacteristic(charUUID, charUUID)
         bleAdapter.writeDescriptor(descrUUID, descrUUID)
@@ -381,7 +366,6 @@ class runTest:
             runTest.checkUUIDs: "_checkUUIDs",
             runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
             runTest.writeWithoutResponse: "_writeWithoutResponse",
-            runTest.prepareWrite: "_prepareWrite",
             runTest.notification:"_notification",
             runTest.indication:"_indication",
             runTest.removeNotification:"_removeNotification",

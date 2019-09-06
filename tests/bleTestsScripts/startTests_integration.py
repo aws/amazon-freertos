@@ -127,11 +127,8 @@ def main():
     isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe
     runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
 
-    isTestSuccessFull = runTest.prepareWrite()
-    runTest.submitTestResult(isTestSuccessFull, runTest.prepareWrite)
-
     isTestSuccessFull &= bleAdapter.disconnect()
-    time.sleep(6) #wait for connection parameters update
+    time.sleep(2) #wait for connection parameters update
     runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)
     runTest.printTestsSummary()
     agent = teardown_test(agent)
