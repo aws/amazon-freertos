@@ -110,10 +110,10 @@ extern int convert_pem_to_der( const unsigned char * pucInput,
 /*-----------------------------------------------------------*/
 
 /* Import the specified ECDSA private key into storage. */
-CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
-                                uint8_t * pucLabel,
-                                CK_OBJECT_HANDLE_PTR pxObjectHandle,
-                                mbedtls_pk_context * pxMbedPkContext )
+static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
+                                       uint8_t * pucLabel,
+                                       CK_OBJECT_HANDLE_PTR pxObjectHandle,
+                                       mbedtls_pk_context * pxMbedPkContext )
 {
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
@@ -181,10 +181,10 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
 /*-----------------------------------------------------------*/
 
 /* Import the specified RSA private key into storage. */
-CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
-                                 uint8_t * pucLabel,
-                                 CK_OBJECT_HANDLE_PTR pxObjectHandle,
-                                 mbedtls_pk_context * pxMbedPkContext )
+static CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
+                                        uint8_t * pucLabel,
+                                        CK_OBJECT_HANDLE_PTR pxObjectHandle,
+                                        mbedtls_pk_context * pxMbedPkContext )
 {
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
@@ -725,21 +725,24 @@ CK_RV xDestroyDefaultCryptoObjects( CK_SESSION_HANDLE xSession )
 
 /* Determine which required client crypto objects are already present in
  * storage. */
-CK_RV xGetProvisionedState( CK_SESSION_HANDLE xSession,
-                            CK_FUNCTION_LIST_PTR pxFunctionList,
-                            ProvisionedState_t * pxProvisionedState )
+static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
+                                     ProvisionedState_t * pxProvisionedState )
 {
     CK_RV xResult;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
 
-    ( void ) pxFunctionList;
+    xResult = C_GetFunctionList( &pxFunctionList );
 
     /* Check for a private key. */
-    xResult = xFindObjectWithLabelAndClass( xSession,
-                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            CKO_PRIVATE_KEY,
-                                            &pxProvisionedState->xPrivateKey );
+    if( CKR_OK == xResult )
+    {
+        xResult = xFindObjectWithLabelAndClass( xSession,
+                                                pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                CKO_PRIVATE_KEY,
+                                                &pxProvisionedState->xPrivateKey );
+    }
 
-    if( ( CKR_OK == xResult ) && ( 0 != pxProvisionedState->xPrivateKey ) )
+    if( ( CKR_OK == xResult ) && ( CK_INVALID_HANDLE != pxProvisionedState->xPrivateKey ) )
     {
         /* Check also for the corresponding public. */
         xResult = xFindObjectWithLabelAndClass( xSession,
@@ -763,14 +766,14 @@ CK_RV xGetProvisionedState( CK_SESSION_HANDLE xSession,
 /*-----------------------------------------------------------*/
 
 /* Write the ASN.1 encoded bytes of the device public key to the console.
- * This is for debugging purposes, as well as to faciliate developer-driven
+ * This is for debugging purposes as well as to faciliate developer-driven
  * certificate enrollment for onboard crypto hardware (i.e. if available). */
-CK_RV xWritePublicKeyToConsole( CK_SESSION_HANDLE xSession,
-                                CK_FUNCTION_LIST_PTR pxFunctionList,
-                                CK_OBJECT_HANDLE xPublicKeyHandle )
+static CK_RV prvWritePublicKeyToConsole( CK_SESSION_HANDLE xSession,
+                                         CK_OBJECT_HANDLE xPublicKeyHandle )
 {
     CK_RV xResult;
-    CK_KEY_TYPE xKeyType;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_KEY_TYPE xKeyType = 0;
     CK_ATTRIBUTE xTemplate = { 0 };
 
 #define BYTES_TO_DISPLAY_PER_ROW    16
@@ -788,14 +791,19 @@ CK_RV xWritePublicKeyToConsole( CK_SESSION_HANDLE xSession,
     uint32_t ulIndex = 0;
     uint8_t ucByteValue = 0;
 
+    xResult = C_GetFunctionList( &pxFunctionList );
+
     /* Query the key type. */
-    xTemplate.type = CKA_KEY_TYPE;
-    xTemplate.pValue = &xKeyType;
-    xTemplate.ulValueLen = sizeof( xKeyType );
-    xResult = pxFunctionList->C_GetAttributeValue( xSession,
-                                                   xPublicKeyHandle,
-                                                   &xTemplate,
-                                                   1 );
+    if( CKR_OK == xResult )
+    {
+        xTemplate.type = CKA_KEY_TYPE;
+        xTemplate.pValue = &xKeyType;
+        xTemplate.ulValueLen = sizeof( xKeyType );
+        xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                       xPublicKeyHandle,
+                                                       &xTemplate,
+                                                       1 );
+    }
 
     /* Scope to ECDSA keys only, since there's currently no use case for
      * onboard keygen and certificate enrollment for RSA. */
@@ -838,8 +846,8 @@ CK_RV xWritePublicKeyToConsole( CK_SESSION_HANDLE xSession,
         }
 
         /* Display the public key as hex so that it can be processed with
-         * command-line tools if desired. For more information, please see the
-         * ReadMe.md file in the same directory as this source file. */
+         * command-line tools (for example, xxd) if desired. For more information,
+         * please see the README.md file in the parent directory of this source file. */
         if( CKR_OK == xResult )
         {
             /* Prepend the full DER header. */
@@ -992,11 +1000,11 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
      * available. */
     if( xResult == CKR_OK )
     {
-        xResult = xGetProvisionedState( xSession,
-                                        pxFunctionList,
-                                        &xProvisionedState );
+        xResult = prvGetProvisionedState( xSession,
+                                          &xProvisionedState );
 
-        if( ( 0 == xProvisionedState.xPrivateKey ) || ( 0 == xProvisionedState.xPublicKey ) )
+        if( ( CK_INVALID_HANDLE == xProvisionedState.xPrivateKey ) ||
+            ( CK_INVALID_HANDLE == xProvisionedState.xPublicKey ) )
         {
             /* Generate a new keyset if either of the above objects couldn't be
              * found. */
@@ -1010,8 +1018,8 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         /* Ensure that an error condition is set if either object is still
          * missing. */
         if( ( CKR_OK == xResult ) &&
-            ( ( 0 == xProvisionedState.xPrivateKey ) ||
-              ( 0 == xProvisionedState.xPublicKey ) ) )
+            ( ( CK_INVALID_HANDLE == xProvisionedState.xPrivateKey ) ||
+              ( CK_INVALID_HANDLE == xProvisionedState.xPublicKey ) ) )
         {
             xResult = CKR_KEY_HANDLE_INVALID;
         }
@@ -1019,11 +1027,12 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
     /* Log the device public key for developer enrollment purposes, but only if
      * there's not already a certificate. */
-    if( ( CKR_OK == xResult ) && ( 0 == xProvisionedState.xClientCertificate ) )
+    if( ( CKR_OK == xResult ) &&
+        ( CK_INVALID_HANDLE == xProvisionedState.xClientCertificate ) )
     {
-        xResult = xWritePublicKeyToConsole( xSession,
-                                            pxFunctionList,
-                                            xProvisionedState.xPublicKey );
+        configPRINTF( ( "Warning: no client certificate is available. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
+        xResult = prvWritePublicKeyToConsole( xSession,
+                                              xProvisionedState.xPublicKey );
     }
 
     return xResult;
