@@ -53,7 +53,6 @@
 
 /* JSON job document parser includes. */
 #include "jsmn.h" /*lint !e537 All headers have multiple inclusion prevention. */
-#include "mbedtls/base64.h"
 
 /* Returns the byte offset of the element 'e' in the typedef structure 't'.
  * Setting an arbitrarily large base of 0x10000 and masking off that base allows
