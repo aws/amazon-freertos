@@ -827,6 +827,42 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
     return CKR_OK;
 }
 
+/**
+ * @brief This function obtains information about a particular
+ * mechanism possibly supported by a token.
+ * 
+ * @return CKR_OK if the mechanism is supported. Otherwise, CKR_MECHANISM_INVALID.
+ */
+CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo)( CK_SLOT_ID slotID,
+                                                 CK_MECHANISM_TYPE type,
+                                                 CK_MECHANISM_INFO_PTR pInfo )
+{
+    CK_RV xResult = CKR_MECHANISM_INVALID;
+    struct CryptoMechanisms
+    {
+        CK_MECHANISM_TYPE xType;
+        CK_MECHANISM_INFO xInfo;
+    } pxSupportedMechanisms[] =
+    {
+        {CKM_RSA_PKCS, {2048, 2048, 0}},
+        {CKM_ECDSA, {256, 256, 0}},
+        {CKM_EC_KEY_PAIR_GEN, {256, 256, 0}}
+    };
+    uint32_t ulMech = 0;
+
+    /* Look for the requested mechanism in the above table. */
+    for (; ulMech < sizeof(pxSupportedMechanisms) / sizeof(pxSupportedMechanisms[0]); ulMech++)
+    {
+        if( pxSupportedMechanisms[ulMech].xType == type)
+        {
+            memcpy(pInfo, &(pxSupportedMechanisms[ulMech]), sizeof(CK_MECHANISM_INFO));
+            xResult = CKR_OK;
+            break;
+        }
+    }
+
+    return xResult;
+}
 
 /**
  * @brief This function is not implemented for this port.
