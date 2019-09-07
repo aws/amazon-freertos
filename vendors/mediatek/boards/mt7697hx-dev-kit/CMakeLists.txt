@@ -219,7 +219,7 @@ target_include_directories(
         "${AFR_MODULES_C_SDK_DIR}/standard/mqtt/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include"
 
-        "${AFR_3RDPARTY_DIR}/pkcs11"
+        "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/secure_sockets/include"
         "${AFR_MODULES_C_SDK_DIR}/standard/common/include/private"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/utils/include"

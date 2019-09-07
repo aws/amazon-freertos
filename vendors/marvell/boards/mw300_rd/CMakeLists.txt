@@ -222,7 +222,7 @@ target_include_directories(
     AFR::secure_sockets::mcu_port
     INTERFACE
        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
-       "${AFR_3RDPARTY_DIR}/pkcs11"
+       "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1"
        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
 )
 
@@ -246,7 +246,7 @@ target_include_directories(
     ${exe_target}
     PUBLIC
        "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
-       "${AFR_3RDPARTY_DIR}/pkcs11"
+       "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1"
        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/crypto/include"
 )
 

@@ -109,7 +109,7 @@ target_include_directories(
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/tls/include"
-        "${AFR_3RDPARTY_DIR}/pkcs11"
+        "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
         "${AFR_MODULES_ABSTRACTIONS_DIR}/wifi/include"
         "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface"

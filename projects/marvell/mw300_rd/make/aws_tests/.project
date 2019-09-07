@@ -331,19 +331,19 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>
+			<name>libraries/3rdparty/pkcs11/published/2-40-errata-1/pkcs11.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/pkcs11/published/2-40-errata-1/pkcs11.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11f.h</name>
+			<name>libraries/3rdparty/pkcs11/published/2-40-errata-1/pkcs11f.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11f.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/pkcs11/published/2-40-errata-1/pkcs11f.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/pkcs11/pkcs11t.h</name>
+			<name>libraries/3rdparty/pkcs11/published/2-40-errata-1/pkcs11t.h</name>
 			<type>1</type>
-			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/pkcs11/pkcs11t.h</locationURI>
+			<locationURI>PARENT-1-BASE_DIR_ROOT/libraries/3rdparty/pkcs11/published/2-40-errata-1/pkcs11t.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/tinycbor/LICENSE</name>

@@ -119,17 +119,17 @@ if(EXISTS "${AFR_3RDPARTY_DIR}/mbedtls")
 endif()
 
 # pkcs11 standard header
-if(EXISTS "${AFR_3RDPARTY_DIR}/pkcs11")
+if(EXISTS "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1")
     afr_3rdparty_module(pkcs11)
     target_sources(
         3rdparty::pkcs11 INTERFACE
-        "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11.h"
-        "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11f.h"
-        "${AFR_3RDPARTY_DIR}/pkcs11/pkcs11t.h"
+        "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1/pkcs11.h"
+        "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1/pkcs11f.h"
+        "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1/pkcs11t.h"
     )
     target_include_directories(
         3rdparty::pkcs11 INTERFACE
-        "${AFR_3RDPARTY_DIR}/pkcs11"
+        "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1"
     )
 endif()
 

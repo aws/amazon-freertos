@@ -56,6 +56,7 @@
 		<Filter Include="vendors"/>
 		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
 		<Filter Include="libraries\abstractions\pkcs11"/>
+		<Filter Include="libraries\abstractions\pkcs11\include"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -110,6 +111,8 @@
 		<Filter Include="libraries\3rdparty\mbedtls\utils"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include"/>
+		<Filter Include="libraries\3rdparty\pkcs11\published\2-40-errata-1"/>
+		<Filter Include="libraries\3rdparty\pkcs11\published"/>
 		<Filter Include="libraries\3rdparty\pkcs11"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
 		<Filter Include="libraries\3rdparty\http-parser"/>
@@ -313,6 +316,9 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
 			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
+			<Filter>libraries\abstractions\pkcs11\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
@@ -638,14 +644,14 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\xtea.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11.h">
-			<Filter>libraries\3rdparty\pkcs11</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\published\2-40-errata-1\pkcs11.h">
+			<Filter>libraries\3rdparty\pkcs11\published\2-40-errata-1</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11f.h">
-			<Filter>libraries\3rdparty\pkcs11</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\published\2-40-errata-1\pkcs11f.h">
+			<Filter>libraries\3rdparty\pkcs11\published\2-40-errata-1</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h">
-			<Filter>libraries\3rdparty\pkcs11</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\published\2-40-errata-1\pkcs11t.h">
+			<Filter>libraries\3rdparty\pkcs11\published\2-40-errata-1</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h">
 			<Filter>libraries\3rdparty\http-parser</Filter>

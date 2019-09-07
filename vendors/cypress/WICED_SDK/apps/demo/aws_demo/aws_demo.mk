@@ -54,7 +54,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_FREERTOS_PLUS_STANDARD_PATH)utils/include       \
                     $(AFR_ABSTRACTIONS_PATH)wifi/include  \
                     $(AFR_THIRDPARTY_PATH)jsmn \
-                    $(AFR_THIRDPARTY_PATH)pkcs11 \
+                    $(AFR_THIRDPARTY_PATH)pkcs11/published/2-40-errata-1 \
                     $(AFR_THIRDPARTY_PATH)lwip/src/include/lwip \
                     $(AFR_THIRDPARTY_PATH)mbedtls/include \
                     $(AMAZON_FREERTOS_PATH)freertos_kernel/include \

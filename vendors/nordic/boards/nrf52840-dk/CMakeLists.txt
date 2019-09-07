@@ -118,7 +118,7 @@ set(
     "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk"
     "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
     "${AFR_3RDPARTY_DIR}/jsmn"
-    "${AFR_3RDPARTY_DIR}/pkcs11"
+    "${AFR_3RDPARTY_DIR}/pkcs11/published/2-40-errata-1"
     "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
     "${nrf5_sdk}/components/libraries/util"
     "${nrf5_sdk}/components/libraries/svc"

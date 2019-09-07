@@ -55,7 +55,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http-parser \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
-        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
+        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11/published/2-40-errata-1 \
         $(AMAZON_FREERTOS_ARF_PORTS)/ble \
         $(AMAZON_FREERTOS_ARF_PORTS)/ota \
         $(AMAZON_FREERTOS_ARF_PORTS)/pkcs11 \
@@ -72,7 +72,7 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/include \
-                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11/published/2-40-errata-1 \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/include \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/include \
                              $(AMAZON_FREERTOS_DEMOS_DIR)/dev_mode_key_provisioning/include \
