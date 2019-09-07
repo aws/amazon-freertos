@@ -396,6 +396,12 @@ struct freertos_sockaddr xAddress;
 				prvHandleEthernetPacket( ( NetworkBufferDescriptor_t * ) ( xReceivedEvent.pvData ) );
 				break;
 
+			case eNetworkTxEvent:
+				/* Send a network packet. The ownership will  be transferred to
+				the driver, which will release it after delivery. */
+				xNetworkInterfaceOutput( ( NetworkBufferDescriptor_t * ) ( xReceivedEvent.pvData ), pdTRUE );
+				break;
+
 			case eARPTimerEvent :
 				/* The ARP timer has expired, process the ARP cache. */
 				vARPAgeCache();
