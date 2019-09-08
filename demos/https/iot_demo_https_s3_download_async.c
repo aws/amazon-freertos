@@ -236,7 +236,7 @@ typedef struct _requestPool
     /**
      * @brief The pool of asynchronous request specific configurations.
      */
-    IotHttpsAsyncInfo_t pAsyncInfo[ IOT_HTTPS_DEMO_ASYNC_TIMEOUT_MS ];
+    IotHttpsAsyncInfo_t pAsyncInfos[ IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS ];
 
     /**
      * @brief The pool of HTTPS Client library response configurations.
@@ -1015,7 +1015,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     /* The current request index being processed. */
     int reqIndex = 0;
     /* The current range that is getting ready to schedule a request for. */
-    uint32_t currentRange = 0;
+    int32_t currentRange = 0;
     /* The length of file that is desired to download. */
     size_t fileSize = 0;
 
@@ -1082,13 +1082,13 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         _requestPool.pRespConfigs[ reqIndex ].pSyncInfo = NULL;
 
         /* Set the configurations needed for an asynchronous request. */
-        _requestPool.pAsyncInfo[ reqIndex ].callbacks.appendHeaderCallback = _appendHeaderCallback;
-        _requestPool.pAsyncInfo[ reqIndex ].callbacks.readReadyCallback = _readReadyCallback;
-        _requestPool.pAsyncInfo[ reqIndex ].callbacks.responseCompleteCallback = _responseCompleteCallback;
-        _requestPool.pAsyncInfo[ reqIndex ].callbacks.connectionClosedCallback = _connectionClosedCallback;
-        _requestPool.pAsyncInfo[ reqIndex ].callbacks.errorCallback = _errorCallback;
-        _requestPool.pAsyncInfo[ reqIndex ].pPrivData = ( void * ) ( &( _requestPool.pRequestDatas[ reqIndex ] ) );
-        _requestPool.pReqConfigs[ reqIndex ].u.pAsyncInfo = &( _requestPool.pAsyncInfo[ reqIndex ] );
+        _requestPool.pAsyncInfos[ reqIndex ].callbacks.appendHeaderCallback = _appendHeaderCallback;
+        _requestPool.pAsyncInfos[ reqIndex ].callbacks.readReadyCallback = _readReadyCallback;
+        _requestPool.pAsyncInfos[ reqIndex ].callbacks.responseCompleteCallback = _responseCompleteCallback;
+        _requestPool.pAsyncInfos[ reqIndex ].callbacks.connectionClosedCallback = _connectionClosedCallback;
+        _requestPool.pAsyncInfos[ reqIndex ].callbacks.errorCallback = _errorCallback;
+        _requestPool.pAsyncInfos[ reqIndex ].pPrivData = ( void * ) ( &( _requestPool.pRequestDatas[ reqIndex ] ) );
+        _requestPool.pReqConfigs[ reqIndex ].u.pAsyncInfo = &( _requestPool.pAsyncInfos[ reqIndex ] );
     }
 
     /* Create the mutex to protect the pool of requests. */
