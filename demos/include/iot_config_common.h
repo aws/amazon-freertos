@@ -97,6 +97,8 @@
 #define IotBle_Malloc        pvPortMalloc
 #define IotBle_Free          vPortFree
 /* #define IotLogging_StaticBufferSize */
+#define IotDemo_Malloc       pvPortMalloc
+#define IotDemo_Free         vPortFree
 
 /* Memory allocation function configuration for the MQTT and Defender library.
  * These libraries will be affected by IOT_STATIC_MEMORY_ONLY. */
