@@ -127,8 +127,8 @@
     #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( ( int ) 1024 )
 #endif
 
-/* Size in bytes of the buffer used to store the response body (parts of it). This should be greater than or equal to
- * the size of the file we want to download.*/
+/* Size in bytes of the buffer used to store the response body (parts of it). This should be less than or equal to
+ * the size of the file we want to download. */
 #ifndef IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE
     #define IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE    ( ( int ) 512 )
 #endif
@@ -261,6 +261,8 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     char rangeValueStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
     /* The current attempt in the number of connection tries. */
     uint32_t connAttempt = 0;
+    /* Buffer to read the Connection header value into.  The possible values are "close" and "keep-alive". */
+    char connectionValueStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
 
     IotLogInfo( "HTTPS Client Synchronous S3 download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL );
 
@@ -500,8 +502,8 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         /* The response has been fully received. */
         IotLogInfo( "Response return code: %d", respStatus );
 
-        /* The logging buffer may not fit all of the response body received and the output on the console will be truncated
-         * to the first configLOGGING_MAX_MESSAGE_LENGTH number of characters. */
+        /* The logging buffer may not fit all of the response body received and the output on the console will be
+         * truncated to the first configLOGGING_MAX_MESSAGE_LENGTH number of characters. */
         IotLogInfo( "Response Body: \r\n%.*s", contentLength, _pRespBodyBuffer );
 
         /* We increment by the contentLength because the server may not have sent us the range we request. */
@@ -520,6 +522,34 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         if( ( fileSize - curByte ) < numReqBytes )
         {
             numReqBytes = fileSize - curByte;
+        }
+
+        /* S3 will close the connection after 100 requests, so check the "Connection" header for a response with a
+         * "close" value. */
+        memset( connectionValueStr, 0, sizeof( connectionValueStr ) );
+        httpsClientStatus = IotHttpsClient_ReadHeader( respHandle,
+                                                       CONNECTION_HEADER_FIELD,
+                                                       CONNECTION_HEADER_FILED_LENGTH,
+                                                       connectionValueStr,
+                                                       sizeof( connectionValueStr ) );
+
+        /* If there is any other error besides not found, then that is a fatal error. */
+        if( ( httpsClientStatus != IOT_HTTPS_OK ) && ( httpsClientStatus != IOT_HTTPS_NOT_FOUND ) )
+        {
+            IotLogError( "Failed to read header %s. Error code: %d.", CONNECTION_HEADER_FIELD, httpsClientStatus );
+            IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+        }
+
+        if( strncmp( CONNECTION_CLOSE_HEADER_VALUE, connectionValueStr, CONNECTION_CLOSE_HEADER_VALUE_LENGTH ) == 0 )
+        {
+            /* Reconnect. */
+            httpsClientStatus = IotHttpsClient_Connect( &connHandle, &connConfig );
+
+            if( httpsClientStatus != IOT_HTTPS_OK )
+            {
+                IotLogError( "Failed to reconnect to the S3 server. Error code: %d.", httpsClientStatus );
+                IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
+            }
         }
     }
 

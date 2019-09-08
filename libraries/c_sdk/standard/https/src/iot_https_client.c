@@ -2212,10 +2212,12 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
         else
         {
             /* Because this request failed, the network receive callback may never be invoked to schedule other possible
-             * requests in the queue. In order to avoid requests never getting scheduled on an connected connection,
+             * requests in the queue. In order to avoid requests never getting scheduled on a connected connection,
              * the first item in the queue is scheduled if it can be. */
             IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
-            /* Get the next item in the queue by removing this current (which is the first) and peeking at the head again. */
+
+            /* Get the next item in the queue by removing this current (which is the first) and peeking at the head
+             * again. */
             IotDeQueue_Remove( &( pHttpsRequest->link ) );
             pQItem = IotDeQueue_PeekHead( &( pHttpsConnection->reqQ ) );
             /* This current request is put back because it is removed again for all cases at the end of this routine. */
@@ -2636,7 +2638,8 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
         /* Put the response that was dequeued back so that the application can call this function again to check later
          * that is exited and marked itself as finished sending.
-         * If during the last check and this check reqFinishedSending gets set to true, that is OK because then the next */
+         * If during the last check and this check reqFinishedSending gets set to true, that is OK because on the next
+         * call to this routine, the disconnect will succeed. */
         if( pHttpsResponse->reqFinishedSending == false )
         {
             IotDeQueue_EnqueueHead( &( connHandle->respQ ), pRespItem );

@@ -468,7 +468,7 @@ Size in bytes of the user buffer used to store the internal response context and
 @section IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE
 @brief The size of the static buffer to store an increment of the response body.
 
-Size in bytes of the buffer used to store the response body (parts of it). This should be greater than or equal to
+Size in bytes of the buffer used to store the response body (parts of it). This should be less than or equal to
    the size of the file we want to download
 
 @configpossible Any positive integer. <br>
