@@ -46,17 +46,17 @@
  * of this string is strlen(N) + strlen(M) + strlen("bytes=-") + NULL terminator. Given the maximum number of digits is
  * 10 we get the maximum length of this header value as: 10 * 2 + 7 + 1.
  */
-#define RANGE_VALUE_MAX_LENGTH      ( 28 )
+#define RANGE_VALUE_MAX_LENGTH                  ( 28 )
 
 /**
  * @brief HTTP standard header field "Range".
  */
-#define RANGE_HEADER_FIELD          "Range"
-#define RANGE_HEADER_FIELD_LENGTH   ( sizeof( RANGE_HEADER_FIELD ) - 1 )  /**< Length of the "Range" header field name. */
+#define RANGE_HEADER_FIELD                      "Range"
+#define RANGE_HEADER_FIELD_LENGTH               ( sizeof( RANGE_HEADER_FIELD ) - 1 ) /**< Length of the "Range" header field name. */
 
 /**
  * @brief A closed connection header field and value strings.
- * 
+ *
  * This value appears for the HTTP header "Connection". If this appears in the response, then the server will have
  * closed the connection after sending that response.
  */
