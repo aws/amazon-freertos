@@ -1,10 +1,10 @@
 #!/bin/sh
 
-scp * root@192.168.1.3: 
-ssh -t -t 192.168.1.3 -l root << 'ENDSSH'
-rm -rf "/var/lib/bluetooth/*"
-hciconfig hci0 reset
-python test1.py
+sshpass -p "raspberry" scp * pi@10.49.106.35: 
+sshpass -p "raspberry" ssh -t -t 10.49.106.35 -l pi << 'ENDSSH'
+sudo rm -rf "/var/lib/bluetooth/*"
+sudo hciconfig hci0 reset
+sudo python test1.py
 sleep 1
 ENDSSH
 

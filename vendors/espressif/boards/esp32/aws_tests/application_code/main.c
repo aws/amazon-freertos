@@ -151,21 +151,21 @@ int app_main( void )
                             tskIDLE_PRIORITY + 5,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    FreeRTOS_IPInit( ucIPAddress,
-                     ucNetMask,
-                     ucGatewayAddress,
-                     ucDNSServerAddress,
-                     ucMACAddress );
+    // FreeRTOS_IPInit( ucIPAddress,
+    //                  ucNetMask,
+    //                  ucGatewayAddress,
+    //                  ucDNSServerAddress,
+    //                  ucMACAddress );
 
     if( SYSTEM_Init() == pdPASS )
     {
         /* Connect to the wifi before running the tests. */
-        prvWifiConnect();
+        // prvWifiConnect();
 
         /* A simple example to demonstrate key and certificate provisioning in
          * microcontroller flash using PKCS#11 interface. This should be replaced
          * by production ready key provisioning mechanism. */
-        vDevModeKeyProvisioning();
+        // vDevModeKeyProvisioning();
 
         /* Create the task to run unit tests. */
         xTaskCreate( TEST_RUNNER_RunTests_task,
