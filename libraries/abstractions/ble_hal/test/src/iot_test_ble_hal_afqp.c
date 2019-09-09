@@ -636,6 +636,7 @@ void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
     BLETESTwriteAttrCallback_t xWriteEvent;
 
     xWriteEvent = prvWriteReceive( xAttribute, bNeedRsp, IsPrep, usOffset );
+
     if( bNeedRsp == true )
     {
         prvWriteResponse( xAttribute, xWriteEvent, true );
@@ -643,9 +644,9 @@ void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
 }
 
 BLETESTwriteAttrCallback_t prvWriteReceive( bletestAttSrvB_t xAttribute,
-                                  bool bNeedRsp,
-                                  bool IsPrep,
-                                  uint16_t usOffset )
+                                            bool bNeedRsp,
+                                            bool IsPrep,
+                                            uint16_t usOffset )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
     BTStatus_t xStatus;
@@ -664,7 +665,9 @@ BLETESTwriteAttrCallback_t prvWriteReceive( bletestAttSrvB_t xAttribute,
     return xWriteEvent;
 }
 
-void prvWriteResponse( bletestAttSrvB_t xAttribute, BLETESTwriteAttrCallback_t xWriteEvent, bool IsConnected )
+void prvWriteResponse( bletestAttSrvB_t xAttribute,
+                       BLETESTwriteAttrCallback_t xWriteEvent,
+                       bool IsConnected )
 {
     BLETESTconfirmCallback_t xConfirmEvent;
     BTGattResponse_t xGattResponse;
@@ -678,6 +681,7 @@ void prvWriteResponse( bletestAttSrvB_t xAttribute, BLETESTwriteAttrCallback_t x
     memcpy( ucRespBuffer[ xAttribute ].ucBuffer, xWriteEvent.ucValue, xWriteEvent.xLength );
     xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer;
     xStatus = _pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+
     if( IsConnected == true )
     {
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -783,15 +787,15 @@ void prvCheckIndication( bool IsConnected )
     else
     {
         xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
-                                                        usHandlesBufferB[ bletestATTR_SRVCB_CHAR_F ],
-                                                        _usBLEConnId,
-                                                        ucRespBuffer[ bletestATTR_SRVCB_CHAR_F ].xLength,
-                                                        ucRespBuffer[ bletestATTR_SRVCB_CHAR_F ].ucBuffer,
-                                                        true );
+                                                            usHandlesBufferB[ bletestATTR_SRVCB_CHAR_F ],
+                                                            _usBLEConnId,
+                                                            ucRespBuffer[ bletestATTR_SRVCB_CHAR_F ].xLength,
+                                                            ucRespBuffer[ bletestATTR_SRVCB_CHAR_F ].ucBuffer,
+                                                            true );
         TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
         xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
         TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
-    } 
+    }
 }
 
 TEST( Full_BLE, BLE_Property_Notification )
@@ -819,15 +823,15 @@ void prvCheckNotification( bool IsConnected )
     else
     {
         xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
-                                                        usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
-                                                        _usBLEConnId,
-                                                        ucRespBuffer[ bletestATTR_SRVCB_CHAR_E ].xLength,
-                                                        ucRespBuffer[ bletestATTR_SRVCB_CHAR_E ].ucBuffer,
-                                                        false );
+                                                            usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
+                                                            _usBLEConnId,
+                                                            ucRespBuffer[ bletestATTR_SRVCB_CHAR_E ].xLength,
+                                                            ucRespBuffer[ bletestATTR_SRVCB_CHAR_E ].ucBuffer,
+                                                            false );
         TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
         xStatus = prvWaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
         TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
-    }   
+    }
 }
 
 TEST( Full_BLE, BLE_Property_WriteNoResponse )
@@ -861,7 +865,9 @@ BLETESTreadAttrCallback_t prvReadReceive( bletestAttSrvB_t xAttribute )
     return xReadEvent;
 }
 
-void prvReadResponse( bletestAttSrvB_t xAttribute, BLETESTreadAttrCallback_t xReadEvent, bool IsConnected )
+void prvReadResponse( bletestAttSrvB_t xAttribute,
+                      BLETESTreadAttrCallback_t xReadEvent,
+                      bool IsConnected )
 {
     BTGattResponse_t xGattResponse;
     BLETESTconfirmCallback_t xConfirmEvent;
@@ -873,6 +879,7 @@ void prvReadResponse( bletestAttSrvB_t xAttribute, BLETESTreadAttrCallback_t xRe
     xGattResponse.xAttrValue.xLen = ucRespBuffer[ xAttribute ].xLength;
     xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer;
     _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
+
     if( IsConnected == true )
     {
         xStatus = prvWaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );

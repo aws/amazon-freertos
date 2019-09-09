@@ -30,10 +30,6 @@
 
 
 #include <time.h>
-<<<<<<< HEAD
-//#include <unistd.h> 
-=======
->>>>>>> temp_repo
 
 
 #include "iot_test_ble_hal_integration.h"
@@ -132,32 +128,20 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 {
     RUN_TEST_CASE( Full_BLE, BLE_Setup );
 
-<<<<<<< HEAD
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
-
-=======
->>>>>>> temp_repo
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit );
-
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );
 
     /*TODO: no need to test now. ACE MW change the sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
     /* RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data ); */
 
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset );
-
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
-
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout );
-
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Teardown );
 
     RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
-
     RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
-
     RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
 
@@ -272,7 +256,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
 
 /* If data size is > MTU - 3 then BT stack can truncate it to MTU - 3 and keep trying to send it over to other peer.
  * Make sure calling pxSendIndication() with xLen > MTU - 3 and HAL returns failure.*/
-// 2 chars has the same descriptor uuid which can cause read/write the descriptors of chars to return wrong values.
+/* 2 chars has the same descriptor uuid which can cause read/write the descriptors of chars to return wrong values. */
 TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
@@ -281,14 +265,15 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
 
     /* Create a data payload whose length = MTU + 1. */
     static char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
+
     memset( bletests_MTU_2_CHAR_VALUE, 'a', ( bletestsMTU_SIZE1 + 1 ) * sizeof( char ) );
     bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 1 ] = '\0';
 
-    uint8_t cccdFValue = ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[0];
-    // check the value of cccd E is changed from 0 to 1.
+    uint8_t cccdFValue = ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[ 0 ];
+    /* check the value of cccd E is changed from 0 to 1. */
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
-    // check the value of cccd F does not change
-    TEST_ASSERT_EQUAL( ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[0], cccdFValue);
+    /* check the value of cccd F does not change */
+    TEST_ASSERT_EQUAL( ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[ 0 ], cccdFValue );
 
     memcpy( ucLargeBuffer, bletests_MTU_2_CHAR_VALUE, bletestsMTU_SIZE1 + 1 );
 
@@ -306,16 +291,16 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
         /* Notify RPI failure here. Expect to receive "fail" messaprvSetAdvertisementge. */
         memcpy( ucLargeBuffer, bletestsFAIL_CHAR_VALUE, sizeof( bletestsFAIL_CHAR_VALUE ) - 1 );
         xfStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
-                                                              usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
-                                                              _usBLEConnId,
-                                                              sizeof( bletestsFAIL_CHAR_VALUE ) - 1,
-                                                              ucLargeBuffer,
-                                                              false );
+                                                             usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
+                                                             _usBLEConnId,
+                                                             sizeof( bletestsFAIL_CHAR_VALUE ) - 1,
+                                                             ucLargeBuffer,
+                                                             false );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xfStatus );
     }
 }
 
-TEST ( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
+TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
 {
     BTStatus_t xStatus;
     BLETESTindicateCallback_t xIndicateEvent;
@@ -350,11 +335,7 @@ TEST ( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
 
     /* Check communication */
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
-<<<<<<< HEAD
-    checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, true );    
-=======
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, true );
->>>>>>> temp_repo
 
     xWriteEvent = prvWriteReceive( bletestATTR_SRVCB_CHAR_A, true, false, 0 );
     prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
@@ -362,18 +343,14 @@ TEST ( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
     prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
     prvCheckNotification( true );
     prvCheckIndication( true );
-<<<<<<< HEAD
-
-=======
 }
 
-// trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout.
+/* trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout. */
 TEST( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout )
 {
     prvWaitConnection( false );
     prvStartAdvertisement();
     prvShortWaitConnection();
->>>>>>> temp_repo
 }
 
 TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
@@ -407,7 +384,7 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
     TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
 }
 
-// wait for connection establish for a short timeout.
+/* wait for connection establish for a short timeout. */
 void prvShortWaitConnection()
 {
     BLETESTConnectionCallback_t xConnectionEvent;
@@ -500,11 +477,7 @@ void GAP_common_setup()
     xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-<<<<<<< HEAD
-    /* Disable */
-=======
     /* Enable */
->>>>>>> temp_repo
     prvBLEEnable( true );
 }
 

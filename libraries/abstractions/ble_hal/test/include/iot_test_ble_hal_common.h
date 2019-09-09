@@ -51,10 +51,10 @@
  */
 typedef struct
 {
-    uint32_t minInterval;     /**< Minimum connection interval. */
-    uint32_t maxInterval;     /**< Maximum connection interval. */
-    uint32_t latency;         /**< Slave latency. */
-    uint32_t timeout;         /**< Connection timeout. */
+    uint32_t minInterval; /**< Minimum connection interval. */
+    uint32_t maxInterval; /**< Maximum connection interval. */
+    uint32_t latency;     /**< Slave latency. */
+    uint32_t timeout;     /**< Connection timeout. */
 } IotBleConnectionParam_t;
 
 #define bletestsAPP_UUID                 { 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
@@ -489,15 +489,23 @@ void GATT_teardown();
 void GATT_setup();
 void Advertisement_teardown();
 void Advertisement_setup();
-void prvSendNotification( bletestAttSrvB_t xAttribute, bool bConfirm );
+void prvSendNotification( bletestAttSrvB_t xAttribute,
+                          bool bConfirm );
 void prvCheckNotification( bool IsConnected );
 void prvCheckIndication( bool IsConnected );
 BLETESTreadAttrCallback_t prvReadReceive( bletestAttSrvB_t xAttribute );
-void prvReadResponse( bletestAttSrvB_t xAttribute, BLETESTreadAttrCallback_t xReadEvent, bool IsConnected );
+void prvReadResponse( bletestAttSrvB_t xAttribute,
+                      BLETESTreadAttrCallback_t xReadEvent,
+                      bool IsConnected );
 BLETESTwriteAttrCallback_t prvWriteReceive( bletestAttSrvB_t xAttribute,
                                             bool bNeedRsp,
                                             bool IsPrep,
                                             uint16_t usOffset );
-void prvWriteResponse( bletestAttSrvB_t xAttribute, BLETESTwriteAttrCallback_t xWriteEvent, bool IsConnected );
+void prvWriteResponse( bletestAttSrvB_t xAttribute,
+                       BLETESTwriteAttrCallback_t xWriteEvent,
+                       bool IsConnected );
+
+void prvStartStopAdvCheck( bool start );
+void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */

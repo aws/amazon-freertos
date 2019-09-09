@@ -37,7 +37,7 @@ try:
 except ImportError:
   import gobject as GObject
 import testutils
-import startTests_integration as startTests
+import startTests_afqp as startTests
 import threading
 import securityAgent
 
