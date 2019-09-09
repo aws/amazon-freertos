@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT V2.0.0
+ * Amazon FreeRTOS MQTT V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -81,21 +81,21 @@
 /*
  * Client identifier and length to use for the MQTT API tests.
  */
-#define CLIENT_IDENTIFIER           ( "test" )                                            /**< @brief Client identifier. */
+#define CLIENT_IDENTIFIER           ( "test" )                                           /**< @brief Client identifier. */
 #define CLIENT_IDENTIFIER_LENGTH    ( ( uint16_t ) ( sizeof( CLIENT_IDENTIFIER ) - 1 ) ) /**< @brief Length of client identifier. */
 
 /*
  * Will topic name and length to use for the MQTT API tests.
  */
-#define TEST_TOPIC_NAME             ( "/test/topic" )                                   /**< @brief An arbitrary topic name. */
+#define TEST_TOPIC_NAME             ( "/test/topic" )                                  /**< @brief An arbitrary topic name. */
 #define TEST_TOPIC_NAME_LENGTH      ( ( uint16_t ) ( sizeof( TEST_TOPIC_NAME ) - 1 ) ) /**< @brief Length of topic name. */
 
 /**
  * @brief A non-NULL function pointer to use for subscription callback. This
  * "function" should cause a crash if actually called.
  */
-#define SUBSCRIPTION_CALLBACK  \
-    ( ( void ( * )( void *,    \
+#define SUBSCRIPTION_CALLBACK \
+    ( ( void ( * )( void *,   \
                     IotMqttCallbackParam_t * ) ) 0x01 )
 
 /**
@@ -114,7 +114,7 @@
 #define DUP_CHECK_RETRY_MS         ( 100 )  /**< @brief When to start sending duplicate packets. */
 #define DUP_CHECK_RETRY_LIMIT      ( 3 )    /**< @brief How many duplicate packets to send. */
 #define DUP_CHECK_TIMEOUT          ( 3000 ) /**< @brief Total time allowed to send all duplicate packets.
-                                              * Duplicates are sent using an exponential backoff strategy. */
+                                             * Duplicates are sent using an exponential backoff strategy. */
 /** @brief The minimum amount of time the test can take. */
 #define DUP_CHECK_MINIMUM_WAIT \
     ( DUP_CHECK_RETRY_MS +     \

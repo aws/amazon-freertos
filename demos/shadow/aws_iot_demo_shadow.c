@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -97,14 +97,14 @@
  * token must be unique at any given time, but may be reused once the update is
  * completed. For this demo, a timestamp is used for a client token.
  */
-#define SHADOW_DESIRED_JSON      \
-    "{"                          \
-    "\"state\":{"                \
-    "\"desired\":{"              \
-    "\"powerOn\":%01d"           \
-    "}"                          \
-    "},"                         \
-    "\"clientToken\":\"%06lu\""  \
+#define SHADOW_DESIRED_JSON     \
+    "{"                         \
+    "\"state\":{"               \
+    "\"desired\":{"             \
+    "\"powerOn\":%01d"          \
+    "}"                         \
+    "},"                        \
+    "\"clientToken\":\"%06lu\"" \
     "}"
 
 /**
@@ -122,14 +122,14 @@
  * token must be unique at any given time, but may be reused once the update is
  * completed. For this demo, a timestamp is used for a client token.
  */
-#define SHADOW_REPORTED_JSON     \
-    "{"                          \
-    "\"state\":{"                \
-    "\"reported\":{"             \
-    "\"powerOn\":%01d"           \
-    "}"                          \
-    "},"                         \
-    "\"clientToken\":\"%06lu\""  \
+#define SHADOW_REPORTED_JSON    \
+    "{"                         \
+    "\"state\":{"               \
+    "\"reported\":{"            \
+    "\"powerOn\":%01d"          \
+    "}"                         \
+    "},"                        \
+    "\"clientToken\":\"%06lu\"" \
     "}"
 
 /**

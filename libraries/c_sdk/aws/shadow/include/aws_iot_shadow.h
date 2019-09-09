@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Shadow V2.0.0
+ * Amazon FreeRTOS Shadow V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -40,36 +40,76 @@
 /*------------------------ Shadow library functions -------------------------*/
 
 /**
- * @functionspage{shadow,Shadow library}
- * - @functionname{shadow_function_init}
- * - @functionname{shadow_function_cleanup}
- * - @functionname{shadow_function_delete}
- * - @functionname{shadow_function_timeddelete}
- * - @functionname{shadow_function_get}
- * - @functionname{shadow_function_timedget}
- * - @functionname{shadow_function_update}
- * - @functionname{shadow_function_timedupdate}
- * - @functionname{shadow_function_wait}
- * - @functionname{shadow_function_setdeltacallback}
- * - @functionname{shadow_function_setupdatedcallback}
- * - @functionname{shadow_function_removepersistentsubscriptions}
- * - @functionname{shadow_function_strerror}
+ * @functions_page{Shadow, Shadow}
+ * @functions_brief{Shadow}
+ * - @function_name{shadow_function_init}
+ * @function_brief{shadow_function_init}
+ * - @function_name{shadow_function_cleanup}
+ * @function_brief{shadow_function_cleanup}
+ * - @function_name{shadow_function_delete}
+ * @function_brief{shadow_function_delete}
+ * - @function_name{shadow_function_timeddelete}
+ * @function_brief{shadow_function_timeddelete}
+ * - @function_name{shadow_function_get}
+ * @function_brief{shadow_function_get}
+ * - @function_name{shadow_function_timedget}
+ * @function_brief{shadow_function_timedget}
+ * - @function_name{shadow_function_update}
+ * @function_brief{shadow_function_update}
+ * - @function_name{shadow_function_timedupdate}
+ * @function_brief{shadow_function_timedupdate}
+ * - @function_name{shadow_function_wait}
+ * @function_brief{shadow_function_wait}
+ * - @function_name{shadow_function_setdeltacallback}
+ * @function_brief{shadow_function_setdeltacallback}
+ * - @function_name{shadow_function_setupdatedcallback}
+ * @function_brief{shadow_function_setupdatedcallback}
+ * - @function_name{shadow_function_removepersistentsubscriptions}
+ * @function_brief{shadow_function_removepersistentsubscriptions}
+ * - @function_name{shadow_function_strerror}
+ * @function_brief{shadow_function_strerror}
  */
 
 /**
- * @functionpage{AwsIotShadow_Init,shadow,init}
- * @functionpage{AwsIotShadow_Cleanup,shadow,cleanup}
- * @functionpage{AwsIotShadow_Delete,shadow,delete}
- * @functionpage{AwsIotShadow_TimedDelete,shadow,timeddelete}
- * @functionpage{AwsIotShadow_Get,shadow,get}
- * @functionpage{AwsIotShadow_TimedGet,shadow,timedget}
- * @functionpage{AwsIotShadow_Update,shadow,update}
- * @functionpage{AwsIotShadow_TimedUpdate,shadow,timedupdate}
- * @functionpage{AwsIotShadow_Wait,shadow,wait}
- * @functionpage{AwsIotShadow_SetDeltaCallback,shadow,setdeltacallback}
- * @functionpage{AwsIotShadow_SetUpdatedCallback,shadow,setupdatedcallback}
- * @functionpage{AwsIotShadow_RemovePersistentSubscriptions,shadow,removepersistentsubscriptions}
- * @functionpage{AwsIotShadow_strerror,shadow,strerror}
+ * @function_page{AwsIotShadow_Init,shadow,init}
+ * @function_snippet{shadow,init,this}
+ * @copydoc AwsIotShadow_Init
+ * @function_page{AwsIotShadow_Cleanup,shadow,cleanup}
+ * @function_snippet{shadow,cleanup,this}
+ * @copydoc AwsIotShadow_Cleanup
+ * @function_page{AwsIotShadow_Delete,shadow,delete}
+ * @function_snippet{shadow,delete,this}
+ * @copydoc AwsIotShadow_Delete
+ * @function_page{AwsIotShadow_TimedDelete,shadow,timeddelete}
+ * @function_snippet{shadow,timeddelete,this}
+ * @copydoc AwsIotShadow_TimedDelete
+ * @function_page{AwsIotShadow_Get,shadow,get}
+ * @function_snippet{shadow,get,this}
+ * @copydoc AwsIotShadow_Get
+ * @function_page{AwsIotShadow_TimedGet,shadow,timedget}
+ * @function_snippet{shadow,timedget,this}
+ * @copydoc AwsIotShadow_TimedGet
+ * @function_page{AwsIotShadow_Update,shadow,update}
+ * @function_snippet{shadow,update,this}
+ * @copydoc AwsIotShadow_Update
+ * @function_page{AwsIotShadow_TimedUpdate,shadow,timedupdate}
+ * @function_snippet{shadow,timedupdate,this}
+ * @copydoc AwsIotShadow_TimedUpdate
+ * @function_page{AwsIotShadow_Wait,shadow,wait}
+ * @function_snippet{shadow,wait,this}
+ * @copydoc AwsIotShadow_Wait
+ * @function_page{AwsIotShadow_SetDeltaCallback,shadow,setdeltacallback}
+ * @function_snippet{shadow,setdeltacallback,this}
+ * @copydoc AwsIotShadow_SetDeltaCallback
+ * @function_page{AwsIotShadow_SetUpdatedCallback,shadow,setupdatedcallback}
+ * @function_snippet{shadow,setupdatedcallback,this}
+ * @copydoc AwsIotShadow_SetUpdatedCallback
+ * @function_page{AwsIotShadow_RemovePersistentSubscriptions,shadow,removepersistentsubscriptions}
+ * @function_snippet{shadow,removepersistentsubscriptions,this}
+ * @copydoc AwsIotShadow_RemovePersistentSubscriptions
+ * @function_page{AwsIotShadow_strerror,shadow,strerror}
+ * @function_snippet{shadow,strerror,this}
+ * @copydoc AwsIotShadow_strerror
  */
 
 /**

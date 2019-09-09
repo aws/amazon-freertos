@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Utils V1.0.0
+ * Amazon FreeRTOS Utils V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -39,7 +39,7 @@
 BaseType_t SYSTEM_Init( void )
 {
     BaseType_t xResult = pdPASS;
-    
+
     CRYPTO_Init();
 
     if( xResult == pdPASS )

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -106,6 +106,7 @@ const IotNetworkInterface_t IotNetworkAfr =
     .setReceiveCallback = IotNetworkAfr_SetReceiveCallback,
     .send               = IotNetworkAfr_Send,
     .receive            = IotNetworkAfr_Receive,
+    .receiveUpto        = IotNetworkAfr_ReceiveUpto,
     .close              = IotNetworkAfr_Close,
     .destroy            = IotNetworkAfr_Destroy
 };
@@ -186,9 +187,9 @@ static void _networkReceiveTask( void * pArgument )
         /* Check if the connection was destroyed by the receive callback. This
          * does not need to be thread-safe because the destroy connection function
          * may only be called once (per its API doc). */
-        connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t )&( pNetworkConnection->connectionFlags ) );
+        connectionFlags = xEventGroupGetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ) );
 
-        if( (connectionFlags & _FLAG_CONNECTION_DESTROYED ) == _FLAG_CONNECTION_DESTROYED )
+        if( ( connectionFlags & _FLAG_CONNECTION_DESTROYED ) == _FLAG_CONNECTION_DESTROYED )
         {
             destroyConnection = true;
             break;
@@ -514,6 +515,9 @@ size_t IotNetworkAfr_Receive( void * pConnection,
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
 
+    /* Caller should never request zero bytes. */
+    configASSERT( bytesRequested > 0 );
+
     /* Write the buffered byte. THIS IS A TEMPORARY WORKAROUND AND ASSUMES THIS
      * FUNCTION IS ALWAYS CALLED FROM THE RECEIVE CALLBACK. */
     if( pNetworkConnection->bufferedByteValid == true )
@@ -538,7 +542,7 @@ size_t IotNetworkAfr_Receive( void * pConnection,
              * the socket timeout. Ignore it and try again. */
             continue;
         }
-        else if( socketStatus <= 0 )
+        else if( socketStatus < 0 )
         {
             IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
             break;
@@ -563,6 +567,54 @@ size_t IotNetworkAfr_Receive( void * pConnection,
         IotLogDebug( "Successfully received %lu bytes.",
                      ( unsigned long ) bytesRequested );
     }
+
+    return bytesReceived;
+}
+
+/*-----------------------------------------------------------*/
+
+size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
+                                  uint8_t * pBuffer,
+                                  size_t bufferSize )
+{
+    int32_t socketStatus = 0;
+    size_t bytesReceived = 0;
+
+    /* Cast network connection to the correct type. */
+    _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
+
+    /* Caller should never pass a zero-length buffer. */
+    configASSERT( bufferSize > 0 );
+
+    /* Write the buffered byte. THIS IS A TEMPORARY WORKAROUND AND ASSUMES THIS
+     * FUNCTION IS ALWAYS CALLED FROM THE RECEIVE CALLBACK. */
+    if( pNetworkConnection->bufferedByteValid == true )
+    {
+        *pBuffer = pNetworkConnection->bufferedByte;
+        bytesReceived = 1;
+        pNetworkConnection->bufferedByteValid = false;
+    }
+
+    if( bufferSize - bytesReceived > 0 )
+    {
+        /* Block and wait for incoming data. */
+        socketStatus = SOCKETS_Recv( pNetworkConnection->socket,
+                                     pBuffer + bytesReceived,
+                                     bufferSize - bytesReceived,
+                                     0 );
+
+        if( socketStatus <= 0 )
+        {
+            IotLogError( "Error %ld while receiving data.", ( long int ) socketStatus );
+        }
+        else
+        {
+            bytesReceived += ( size_t ) socketStatus;
+        }
+    }
+
+    IotLogDebug( "Received %lu bytes.",
+                 ( unsigned long ) bytesReceived );
 
     return bytesReceived;
 }

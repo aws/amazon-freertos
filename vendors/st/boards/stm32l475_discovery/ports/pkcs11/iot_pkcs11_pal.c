@@ -222,7 +222,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
                 if( pemBodyBuffer == NULL )
                 {
-                    xReturn = CKR_DEVICE_MEMORY;
+                    xReturn = CKR_HOST_MEMORY;
                 }
             }
 
@@ -254,7 +254,7 @@ P11KeyConfig_t P11KeyConfig __attribute__( ( section( "UNINIT_FIXED_LOC" ) ) );
 
                 if( *ppcPemBuffer == NULL )
                 {
-                    xReturn = CKR_DEVICE_MEMORY;
+                    xReturn = CKR_HOST_MEMORY;
                 }
             }
 
@@ -321,7 +321,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     CK_RV xReturn = CKR_OK;
     uint32_t ulFlashMark = ( pkcs11OBJECT_PRESENT_MAGIC | ( ulDataSize ) );
     uint8_t * pemBuffer = NULL;
-    size_t pemLength;
+    size_t pemLength = 0;
     CK_BBOOL xIsDestroy = CK_TRUE;
     int temp;
 
@@ -382,6 +382,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                     else
                     {
                         memset( pemBuffer, 0x00, pkcs11CLIENT_CERT_MAX_LENGTH );
+                        pemLength = pkcs11CLIENT_CERT_MAX_LENGTH;
                     }
                 }
 
@@ -392,7 +393,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
                 if( xHandle == eAwsDeviceCertificate )
                 {
-                    if( (temp = WIFI_StoreCertificate( pemBuffer, ( uint16_t ) pemLength )) != eWiFiSuccess )
+                    if( ( temp = WIFI_StoreCertificate( pemBuffer, ( uint16_t ) pemLength ) ) != eWiFiSuccess )
                     {
                         xHandle = eInvalidHandle;
                     }
@@ -449,6 +450,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                     else
                     {
                         memset( pemBuffer, 0x00, pkcs11CLIENT_PRIV_KEY_MAX_LENGTH );
+                        pemLength = pkcs11CLIENT_PRIV_KEY_MAX_LENGTH;
                     }
                 }
 
@@ -459,7 +461,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
                 if( xHandle == eAwsDevicePrivateKey )
                 {
-                    if( (temp = WIFI_StoreKey( pemBuffer, ( uint16_t ) pemLength )) != eWiFiSuccess )
+                    if( ( temp = WIFI_StoreKey( pemBuffer, ( uint16_t ) pemLength ) ) != eWiFiSuccess )
                     {
                         xHandle = eInvalidHandle;
                     }

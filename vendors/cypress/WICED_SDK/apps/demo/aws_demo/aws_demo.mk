@@ -65,6 +65,7 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/include \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/include  \
                     $(AFR_ABSTRACTIONS_PATH)pkcs11/mbedtls  \
+                    $(AFR_FREERTOS_PLUS_STANDARD_PATH)pkcs11/include \
                     $(AFR_ABSTRACTIONS_PATH)secure_sockets/include  \
                     $(AMAZON_FREERTOS_PATH)demos/network_manager \
                     $(AFR_C_SDK_STANDARD_PATH)mqtt/include \
@@ -80,6 +81,9 @@ GLOBAL_INCLUDES +=  $(AMAZON_FREERTOS_PATH)demos/include \
                     $(AFR_C_SDK_AWS_PATH)defender/src/private \
                     $(AFR_C_SDK_STANDARD_PATH)serializer/include \
                     $(AFR_THIRDPARTY_PATH)tinycbor \
+                    $(AFR_C_SDK_STANDARD_PATH)https/include \
+                    $(AFR_C_SDK_STANDARD_PATH)https/include/types \
+                    $(AFR_THIRDPARTY_PATH)http-parser \
 
 #$(info $(AMAZON_FREERTOS_PATH))
 $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/aws_demos/application_code/main.c \
@@ -95,10 +99,14 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AMAZON_FREERTOS_PATH)demos/defender/aws_iot_demo_defender.c \
                       $(AMAZON_FREERTOS_PATH)demos/tcp/aws_tcp_echo_client_single_task.c \
                       $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c \
-                      $(AMAZON_FREERTOS_PATH)demos/dev_mode_key_provisioning/src/pem2der.c \
                       $(AMAZON_FREERTOS_PATH)demos/greengrass_connectivity/aws_greengrass_discovery_demo.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_demo_network.c \
                       $(AMAZON_FREERTOS_PATH)demos/network_manager/aws_iot_network_manager.c \
+                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_common.c \
+                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_download_async.c \
+                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_download_sync.c \
+                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_upload_async.c \
+                      $(AMAZON_FREERTOS_PATH)demos/https/iot_demo_https_s3_upload_sync.c \
                       $(AFR_C_SDK_STANDARD_PATH)common/taskpool/iot_taskpool.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_clock_freertos.c \
                       $(AFR_ABSTRACTIONS_PATH)platform/freertos/iot_network_freertos.c \
@@ -121,6 +129,9 @@ $(NAME)_SOURCES    := $(AMAZON_FREERTOS_PATH)vendors/cypress/boards/$(PLATFORM)/
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/cbor/iot_serializer_tinycbor_encoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_decoder.c \
                       $(AFR_C_SDK_STANDARD_PATH)serializer/src/json/iot_serializer_json_encoder.c \
+                      $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_client.c \
+                      $(AFR_C_SDK_STANDARD_PATH)https/src/iot_https_utils.c \
+                      $(AFR_THIRDPARTY_PATH)http-parser/http_parser.c \
 
 $(NAME)_COMPONENTS += utilities/wifi
 $(NAME)_COMPONENTS += aws

@@ -7,17 +7,29 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 
 # Setup Doxygen
 
-[Doxygen Manual](http://www.stack.nl/~dimitri/doxygen/manual/index.html)
+[Doxygen Manual](http://www.doxygen.nl/manual/index.html)
 
 - download and install Doxygen
 - install graphviz
 	- on mac, run "brew install graphviz"
 - goto the root directory of "amazon-freertos" (this will be referenced as $ROOT_AFR_DIR)
 	- cd $ROOT_AFR_DIR
-- run Doxygen command to generate the documents 
-	- doxygen doc/config/main
+- run Doxygen commands to generate the documents. Note: These files have circular dependencies so make sure to run each command twice.
+	- doxygen doc/config/linear_containers
+	- doxygen doc/config/static_memory
+	- doxygen doc/config/logging
 	- doxygen doc/config/secure_sockets
-- the entry doc is $ROOT_AFR_DIR/doc/output/main/html, open it with browser and verify it looks good
+	- doxygen doc/config/wifi
+	- doxygen doc/config/atomic
+	- doxygen doc/config/taskpool
+	- doxygen doc/config/platform
+	- doxygen doc/config/posix
+	- doxygen doc/config/mqtt
+	- doxygen doc/config/shadow
+	- doxygen doc/config/defender
+	- doxygen doc/config/ble
+	- doxygen doc/config/main
+- the entry doc is $ROOT_AFR_DIR/doc/output/main/index.html, open it with browser and verify it looks good
 
 # Add documents for a new library
 
@@ -33,7 +45,7 @@ Copy below as content:
 - [REQUIRED] update the library name accordingly (anywhere appear as "foo" below)
 - [REQUIRED] update "INPUT" configuration
 - [REQUIRED] update "EXAMPLE_PATH" configuraton
-- [OPTIONAL] update "FILE_PATTERNS" configuration if new fiile extension is introduced
+- [OPTIONAL] update "FILE_PATTERNS" configuration if new file extension is introduced
 
 
 
@@ -83,7 +95,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@configpage{Foo,library}
+@config_page{Foo}
+@config_brief{library}
 
 @section ......
 @brief ......
@@ -100,7 +113,8 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@constantspage{Foo,library}
+@constants_page{Foo}
+@constants_brief{library}
 
 @section foo_constants_single Single Value Constants
 - @ref ......
@@ -114,12 +128,16 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@functionspage{Foo,library}
-- @functionname{foo_function_socket}
+@functions_page{foo, Foo}
+@functions_brief{foo}
+- @function_name{foo_function_socket}
+- @function_brief{foo_function_socket}
 */
 
 /**
-@functionpage{FOO_func,foo,func,aws_foo.h}
+@page foo_function_func FOO_func
+@snippet aws_foo.h declare_foo_func
+@copydoc FOO_func"
 */
 ```
 
@@ -127,9 +145,11 @@ TODO: this section is copy-pasted currently. Need a better way.
 
 ```
 /**
-@handles{Foo,library}
+@handles_group{Foo}
+@handles_brief{library}
 
-@paramstructs{Foo}
+@paramstructs_group{Foo}
+@paramstructs_brief{Foo, Foo library}
 */
 ```
 

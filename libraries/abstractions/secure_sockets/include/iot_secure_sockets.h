@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.5
+ * Amazon FreeRTOS Secure Sockets V1.1.6
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -222,7 +222,7 @@ lib_initDECLARE_LIB_INIT( SOCKETS_Init );
  * @brief Creates a TCP socket.
  *
  * See the [FreeRTOS+TCP networking tutorial]
- * (https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial.html) 
+ * (https://freertos.org/FreeRTOS-Plus/FreeRTOS_Plus_TCP/TCP_Networking_Tutorial.html)
  * for more information on TCP sockets.
  *
  * See the [Berkeley Sockets API]
@@ -243,7 +243,7 @@ lib_initDECLARE_LIB_INIT( SOCKETS_Init );
  * * @ref SOCKETS_INVALID_SOCKET is returned if an error occurred.
  */
 
-/* 
+/*
  * This call allocates memory and claims a socket resource.
  */
 /* @[declare_secure_sockets_socket] */
@@ -344,8 +344,8 @@ int32_t SOCKETS_Send( Socket_t xSocket,
 
 /**
  * @brief Closes all or part of a full-duplex connection on the socket.
- * 
- * Disable reads and writes on a connected TCP socket. A connected TCP socket must be gracefully 
+ *
+ * Disable reads and writes on a connected TCP socket. A connected TCP socket must be gracefully
  * shut down before it can be closed.
  *
  * See the [Berkeley Sockets API]
@@ -371,7 +371,7 @@ int32_t SOCKETS_Shutdown( Socket_t xSocket,
 
 /**
  * @brief Closes the socket and frees the related resources.
- * 
+ *
  * A socket should be shutdown gracefully before it is closed, and cannot be used after it has been closed.
  *
  * See the [Berkeley Sockets API]
@@ -437,11 +437,11 @@ int32_t SOCKETS_Close( Socket_t xSocket );
  *        called after connect.
  *      - pvOptionValue is ignored for this option.
  *    - @ref SOCKETS_SO_WAKEUP_CALLBACK
- *      - Set the callback to be called whenever there is data available on 
+ *      - Set the callback to be called whenever there is data available on
  *      the socket for reading
- *      - This option provides an asynchronous way to handle received data 
+ *      - This option provides an asynchronous way to handle received data
  *      - pvOptionValue is a pointer to the callback function
-        - See PORT_SPECIFIC_LINK for device limitations.
+ *      - See PORT_SPECIFIC_LINK for device limitations.
  *  - Security Sockets Options
  *    - @ref SOCKETS_SO_REQUIRE_TLS
  *      - Use TLS for all connect, send, and receive on this socket.
@@ -562,13 +562,13 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName );
       ( ( ( uint32_t ) ( ucOctet1 ) ) << 8UL ) |                              \
       ( ( uint32_t ) ( ucOctet0 ) ) )
 
-   /**
-    * @brief Convert an IP address expressed as a 32-bit number in network byte order to a string in decimal dot notation.
-    * (for example "192.168.0.100")
-    * 
-    * @param[in] ulIPAddress An IP address expressed as a 32-bit value in network byte order.
-    * @param[in] pucBuffer A pointer to a buffer into which the IP address will be written in decimal dot notation.
-    */
+/**
+ * @brief Convert an IP address expressed as a 32-bit number in network byte order to a string in decimal dot notation.
+ * (for example "192.168.0.100")
+ *
+ * @param[in] ulIPAddress An IP address expressed as a 32-bit value in network byte order.
+ * @param[in] pucBuffer A pointer to a buffer into which the IP address will be written in decimal dot notation.
+ */
     #define SOCKETS_inet_ntoa( ulIPAddress, pucBuffer )               \
     sprintf( ( char * ) ( pucBuffer ), "%u.%u.%u.%u",                 \
              ( ( unsigned ) ( ( ulIPAddress ) & 0xffUL ) ),           \
@@ -584,13 +584,13 @@ uint32_t SOCKETS_GetHostByName( const char * pcHostName );
       ( ( ( uint32_t ) ( ucOctet2 ) ) << 8UL ) |                              \
       ( ( uint32_t ) ( ucOctet3 ) ) )
 
-   /**
-    * @brief Convert an IP address expressed as a 32-bit number in network byte order to a string in decimal dot notation.
-    * (for example "192.168.0.100")
-    * 
-    * @param[in] ulIPAddress An IP address expressed as a 32-bit value in network byte order.
-    * @param[in] pucBuffer A pointer to a buffer into which the IP address will be written in decimal dot notation.
-    */
+/**
+ * @brief Convert an IP address expressed as a 32-bit number in network byte order to a string in decimal dot notation.
+ * (for example "192.168.0.100")
+ *
+ * @param[in] ulIPAddress An IP address expressed as a 32-bit value in network byte order.
+ * @param[in] pucBuffer A pointer to a buffer into which the IP address will be written in decimal dot notation.
+ */
     #define SOCKETS_inet_ntoa( ulIPAddress, pucBuffer )               \
     sprintf( ( char * ) ( pucBuffer ), "%u.%u.%u.%u",                 \
              ( ( unsigned ) ( ( ulIPAddress ) >> 24 ) ),              \

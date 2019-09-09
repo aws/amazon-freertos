@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.11
+ * FreeRTOS+TCP V2.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -65,7 +65,9 @@ a constant. */
 
 
 /* Time delay between repeated attempts to initialise the network hardware. */
-#define ipINITIALISATION_RETRY_DELAY	( pdMS_TO_TICKS( 3000 ) )
+#ifndef ipINITIALISATION_RETRY_DELAY
+	#define ipINITIALISATION_RETRY_DELAY	( pdMS_TO_TICKS( 3000 ) )
+#endif
 
 /* Defines how often the ARP timer callback function is executed.  The time is
 shorted in the Windows simulator as simulated time is not real time. */
@@ -820,20 +822,20 @@ void *pvReturn;
 /*-----------------------------------------------------------*/
 
 NetworkBufferDescriptor_t *pxDuplicateNetworkBufferWithDescriptor( NetworkBufferDescriptor_t * const pxNetworkBuffer,
-	BaseType_t xNewLength )
+	size_t uxNewLength )
 {
 NetworkBufferDescriptor_t * pxNewBuffer;
 
 	/* This function is only used when 'ipconfigZERO_COPY_TX_DRIVER' is set to 1.
 	The transmit routine wants to have ownership of the network buffer
 	descriptor, because it will pass the buffer straight to DMA. */
-	pxNewBuffer = pxGetNetworkBufferWithDescriptor( ( size_t ) xNewLength, ( TickType_t ) 0 );
+	pxNewBuffer = pxGetNetworkBufferWithDescriptor( uxNewLength, ( TickType_t ) 0 );
 
 	if( pxNewBuffer != NULL )
 	{
 		/* Set the actual packet size in case a bigger buffer than requested
 		was returned. */
-		pxNewBuffer->xDataLength = xNewLength;
+		pxNewBuffer->xDataLength = uxNewLength;
 
 		/* Copy the original packet information. */
 		pxNewBuffer->ulIPAddress = pxNetworkBuffer->ulIPAddress;
@@ -986,7 +988,10 @@ BaseType_t xReturn = pdFALSE;
 
 				/* Added to prevent ARP flood to gateway.  Ensure the
 				gateway is on the same subnet as the IP	address. */
-				configASSERT( ( ( *ipLOCAL_IP_ADDRESS_POINTER ) & xNetworkAddressing.ulNetMask ) == ( xNetworkAddressing.ulGatewayAddress & xNetworkAddressing.ulNetMask ) );
+				if( xNetworkAddressing.ulGatewayAddress != 0ul )
+				{
+					configASSERT( ( ( *ipLOCAL_IP_ADDRESS_POINTER ) & xNetworkAddressing.ulNetMask ) == ( xNetworkAddressing.ulGatewayAddress & xNetworkAddressing.ulNetMask ) );
+				}
 			}
 			#endif /* ipconfigUSE_DHCP == 1 */
 
@@ -1824,7 +1829,7 @@ uint8_t ucProtocol;
 	{
 		return ipINVALID_LENGTH;
 	}
-	if( uxBufferLength < FreeRTOS_ntohs( pxIPPacket->xIPHeader.usLength ) )
+	if( uxBufferLength < ( size_t ) ( ipSIZE_OF_ETH_HEADER + FreeRTOS_ntohs( pxIPPacket->xIPHeader.usLength ) ) )
 	{
 		return ipINVALID_LENGTH;
 	}

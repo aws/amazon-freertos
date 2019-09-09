@@ -62,7 +62,7 @@
 /**
  * @brief 1 if using PKCS #11 to access the code sign certificate from NVM.
  */
-#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    1
+#define otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11    0
 
 /**
  * @brief Include of signature testing data applicable to this device.

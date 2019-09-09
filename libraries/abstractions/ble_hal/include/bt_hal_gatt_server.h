@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V2.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -342,7 +342,7 @@ typedef void (* BTResponseConfirmationCallback_t)( BTStatus_t xStatus,
 
 /**
  * @brief Callback  on confirmation device from the remote device to an indication.
- *
+ *  Or confirm a Notification as been sent.
  * @param[in] usConnId Connection Identifier, created and return on connection event,
  *  when BTConnectionCallback_t is invoked.
  *
@@ -361,6 +361,16 @@ typedef void (* BTIndicationSentCallback_t)( uint16_t usConnId,
  */
 typedef void (* BTMtuChangedCallback_t)( uint16_t usConnId,
                                          uint16_t usMtu );
+
+/**
+ * @brief  Callback for notifying modification in white list
+ *
+ * @param[in] pxBdAddr Address of the Remote device.
+ *
+ * @param[in] bIsAdded true if device added false if device not in white list
+ */
+typedef void (* BTWhiteListChangedCallback_t)( const BTBdaddr_t * pxBdAddr,
+                                               bool bIsAdded );
 
 /**
  * @brief Callback structure for GATT server.
@@ -385,6 +395,7 @@ typedef struct
     BTIndicationSentCallback_t pxIndicationSentCb;
     BTCongestionCallback_t pxCongestionCb;
     BTMtuChangedCallback_t pxMtuChangedCb;
+    BTWhiteListChangedCallback_t pxBTWhiteListChangedCb;
 } BTGattServerCallbacks_t;
 
 /** Represents the standard BT-GATT server interface. */
@@ -687,6 +698,72 @@ typedef struct
                                      uint32_t ulTransId,
                                      BTStatus_t xStatus,
                                      BTGattResponse_t * pxResponse );
+
+    /**
+     * @brief Start directed advertising to the device address passed this device should
+     * be already part of the white list
+     *
+     * On connection triggers BTConnectionCallback_t with bConnected = true.
+     *
+     * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
+     *  after successful pxRegisterServer call.
+     *
+     * @param[in] pxBdAddr Address of the Remote device.
+     *
+     *
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxReconnect )( uint8_t ucServerIf,
+                                  const BTBdaddr_t * pxBdAddr );
+
+    /**
+     * @brief Add devices to whitelist
+     *
+     * Triggers BTWhiteListChangedCallback_t with bIsAdded = true.
+     *
+     * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
+     *  after successful pxRegisterServer call.
+     *
+     * @param[in] pxBdAddr Array of addresses of Remote devices.
+     *
+     * @param[in] ucNumberOfDevices Number of bluetooth device address passes
+     *
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxAddDevicesToWhiteList )( uint8_t ucServerIf,
+                                              const BTBdaddr_t * pxBdAddr,
+                                              uint32_t ulNumberOfDevices );
+
+    /**
+     * @brief Remove device from whitelist and stops any ongoing directed advertisements
+     *
+     * Triggers BTWhiteListChangedCallback_t with bIsAdded = false.
+     *
+     * @param[in] ucServerIf Server interface, return on the callback BTRegisterServerCallback_t
+     *  after successful pxRegisterServer call.
+     *
+     * @param[in] pxBdAddr Array of addresses of Remote devices.
+     *
+     * @param[in] ucNumberOfDevices Number of bluetooth device address passes
+     *
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxRemoveDevicesFromWhiteList )( uint8_t ucServerIf,
+                                                   const BTBdaddr_t * pxBdAddr,
+                                                   uint32_t ulNumberOfDevices );
+
+    /**
+     * @brief Configure the MTU for gatt server
+     *
+     *
+     * @param[in] ucServerIf Server interface
+     *
+     * @param[in] usMtu mtu that needs to be used for the gatt connection
+     *
+     * @return Returns eBTStatusSuccess on successful call.
+     */
+    BTStatus_t ( * pxConfigureMtu )( uint8_t ucServerIf,
+                                     uint16_t usMtu );
 } BTGattServerInterface_t;
 
 #endif /* _BT_HAL_GATT_SERVER_H_ */

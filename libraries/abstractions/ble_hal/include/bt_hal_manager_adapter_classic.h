@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V2.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -119,6 +119,13 @@ typedef enum
     eBTPropertyBdaddr,
 
     /**
+     * Description - Device Type - BREDR, BLE or DUAL Mode
+     * Access mode - Only GET.
+     * Data type   - BTDeviceType_t.
+     */
+    eBTPropertyTypeOfDevice,
+
+    /**
      * Description - Bluetooth Service 128-bit UUIDs
      * Access mode - Only GET.
      * Data type   - Array of BTUuid_t (Array size inferred from property length).
@@ -131,13 +138,6 @@ typedef enum
      * Data type   - uint32_t.
      */
     eBTPropertyClassOfDevice,
-
-    /**
-     * Description - Device Type - BREDR, BLE or DUAL Mode
-     * Access mode - Only GET.
-     * Data type   - BTDeviceType_t.
-     */
-    eBTPropertyTypeOfDevice,
 
     /**
      * Description - Bluetooth Service Record

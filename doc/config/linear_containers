@@ -10,14 +10,14 @@ PROJECT_BRIEF = "Linked lists and Queues"
 HTML_OUTPUT = linear_containers
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/linear_containers.tag
+GENERATE_TAGFILE = doc/output/linear_containers.tag
 
 # Directories containing library source code.
 INPUT = doc/lib \
-        lib/include/
-
+        libraries/c_sdk/standard/common/include 
+        
 # Library file names.
 FILE_PATTERNS = *linear_containers*.h *linear_containers*.txt
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main
+TAGFILES = doc/output/main.tag=../main

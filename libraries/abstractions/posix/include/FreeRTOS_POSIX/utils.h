@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -64,8 +64,8 @@ size_t UTILS_strnlen( const char * const pcString,
  * or EINVAL for invalid parameters.
  */
 int UTILS_AbsoluteTimespecToDeltaTicks( const struct timespec * const pxAbsoluteTime,
-                                   const struct timespec * const pxCurrentTime,
-                                   TickType_t * const pxResult );
+                                        const struct timespec * const pxCurrentTime,
+                                        TickType_t * const pxResult );
 
 /**
  * @brief Converts a struct timespec to FreeRTOS ticks.
@@ -128,7 +128,7 @@ int UTILS_TimespecAddNanoseconds( const struct timespec * const x,
  */
 int UTILS_TimespecSubtract( const struct timespec * const x,
                             const struct timespec * const y,
-                            struct timespec * const pxResult);
+                            struct timespec * const pxResult );
 
 /**
  * @brief Compare  x == y.
@@ -139,17 +139,17 @@ int UTILS_TimespecSubtract( const struct timespec * const x,
  * @return 0 if x == y; 1 if x > y; -1 if x < y or any argument was NULL
  */
 int UTILS_TimespecCompare( const struct timespec * const x,
-                           const struct timespec * const y);
+                           const struct timespec * const y );
 
 /**
-* @brief Checks that a timespec conforms to POSIX.
-*
-* A valid timespec must have 0 <= tv_nsec < 1000000000.
-*
-* @param[in] pxTimespec The timespec to validate.
-*
-* @return true if the pxTimespec is valid, false otherwise.
-*/
-bool UTILS_ValidateTimespec(const struct timespec * const pxTimespec);
+ * @brief Checks that a timespec conforms to POSIX.
+ *
+ * A valid timespec must have 0 <= tv_nsec < 1000000000.
+ *
+ * @param[in] pxTimespec The timespec to validate.
+ *
+ * @return true if the pxTimespec is valid, false otherwise.
+ */
+bool UTILS_ValidateTimespec( const struct timespec * const pxTimespec );
 
 #endif /* ifndef _FREERTOS_POSIX_UTILS_ */

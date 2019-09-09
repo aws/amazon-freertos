@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -91,10 +91,10 @@ int sem_init( sem_t * sem,
     /* value is guaranteed to not exceed INT32_MAX, which is the default value of SEM_VALUE_MAX (0x7FFFU). */
     pxSem->value = ( int ) value;
 
-    /* Create the FreeRTOS semaphore. 
+    /* Create the FreeRTOS semaphore.
      * This is only used to queue threads when no semaphore is available.
      * Initializing with semaphore initial count zero.
-     * This call will not fail because the memory for the semaphore has already been allocated. 
+     * This call will not fail because the memory for the semaphore has already been allocated.
      */
     if( iStatus == 0 )
     {
@@ -112,7 +112,7 @@ int sem_post( sem_t * sem )
 
     int iPreviouValue = Atomic_Increment_u32( ( uint32_t * ) &pxSem->value );
 
-    /* If previous semaphore value is equal or larger than zero, there is no 
+    /* If previous semaphore value is equal or larger than zero, there is no
      * thread waiting for this semaphore. Otherwise (<0), call FreeRTOS interface
      * to wake up a thread. */
     if( iPreviouValue < 0 )

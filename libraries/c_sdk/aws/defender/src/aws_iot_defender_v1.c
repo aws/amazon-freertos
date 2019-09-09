@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -193,7 +193,7 @@ DefenderReportStatus_t DEFENDER_ReportStatusGet( void )
 
 int32_t GetLastReportId( void )
 {
-	/* This function is not supported anymore. */
+    /* This function is not supported anymore. */
     return 0;
 }
 

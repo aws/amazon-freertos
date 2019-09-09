@@ -53,6 +53,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdio.h>
 #include "os_port_callback.h"
 #include "os_trace_callback.h"
+#define LWIP_NO_UNISTD_H  1
 
 extern uint32_t SystemCoreClock;
 #endif

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -113,7 +113,7 @@ int pthread_mutex_init( pthread_mutex_t * mutex,
                         const pthread_mutexattr_t * attr )
 {
     int iStatus = 0;
-    pthread_mutex_internal_t * pxMutex = ( pthread_mutex_internal_t* ) mutex;
+    pthread_mutex_internal_t * pxMutex = ( pthread_mutex_internal_t * ) mutex;
 
     if( pxMutex == NULL )
     {

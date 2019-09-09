@@ -105,9 +105,9 @@ static BTStatus_t prvBTSetScanParameters( uint8_t ucAdapterIf,
                                           uint32_t ulScanInterval,
                                           uint32_t ulScanWindow );
 static BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t xAdvParams );
+                                       BTGattAdvertismentParams_t * xAdvParams );
 static BTStatus_t prvBTMultiAdvUpdate( uint8_t ucAdapterIf,
-                                       BTGattAdvertismentParams_t advParams );
+                                       BTGattAdvertismentParams_t * advParams );
 static BTStatus_t prvBTMultiAdvSetInstData( uint8_t ucAdapterIf,
                                             bool bSetScanRsp,
                                             bool bIncludeName,
@@ -293,7 +293,10 @@ BTStatus_t prvBTRegisterBleApp( BTUuid_t * pxAppUuid )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xBTBleAdapterCallbacks.pxRegisterBleAdapterCb( eBTStatusSuccess, 0, pxAppUuid );
+    if( xBTBleAdapterCallbacks.pxRegisterBleAdapterCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxRegisterBleAdapterCb( eBTStatusSuccess, 0, pxAppUuid );
+    }
 
     return xStatus;
 }
@@ -422,7 +425,11 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
         xStatus = eBTStatusFail;
     }
 
-    xBTBleAdapterCallbacks.pxAdvStartCb( xStatus, ulGattServerIFhandle );
+    if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, true );
+    }
+
     return xStatus;
 }
 
@@ -432,8 +439,23 @@ BTStatus_t prvBTStartAdv( uint8_t ucAdapterIf )
 BTStatus_t prvBTStopAdv( uint8_t ucAdapterIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    int xESPStatus = 0;
 
-    ble_gap_adv_stop();
+    /* Stop advertisement only if no advertisement is active. */
+    if( ble_gap_adv_active() != 0 )
+    {
+        xESPStatus = ble_gap_adv_stop();
+    }
+
+    if( xESPStatus != 0 )
+    {
+        xStatus = eBTStatusFail;
+    }
+
+    if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
+    }
 
     return xStatus;
 }
@@ -579,8 +601,17 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         }
     }
 
-    fields.mfg_data = ( uint8_t * ) pcManufacturerData;
-    fields.mfg_data_len = usManufacturerLen;
+    if( usManufacturerLen && pcManufacturerData )
+    {
+        fields.mfg_data = ( uint8_t * ) pcManufacturerData;
+        fields.mfg_data_len = usManufacturerLen;
+    }
+
+    if( usServiceDataLen && pcServiceData )
+    {
+        fields.svc_data_uuid128 = ( uint8_t * ) pcServiceData;
+        fields.svc_data_uuid128_len = usServiceDataLen;
+    }
 
     if( pxServiceUuid != NULL )
     {
@@ -622,7 +653,7 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
     if( pxParams->usAdvertisingEventProperties == BTAdvDirectInd )
     {
         xAdv_params.conn_mode = BLE_GAP_CONN_MODE_DIR;
-        /*HD: set adv_params->high_duty_cycle accordingly */
+        /* fixme: set adv_params->high_duty_cycle accordingly */
     }
 
     if( pxParams->usAdvertisingEventProperties == BTAdvNonconnInd )
@@ -650,7 +681,10 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
         xStatus = eBTStatusFail;
     }
 
-    xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    }
 
     return xStatus;
 }
@@ -715,7 +749,7 @@ BTStatus_t prvBTSetScanParameters( uint8_t ucAdapterIf,
 /*-----------------------------------------------------------*/
 
 BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
-                                BTGattAdvertismentParams_t xAdvParams )
+                                BTGattAdvertismentParams_t * xAdvParams )
 {
     BTStatus_t xStatus = eBTStatusUnsupported;
 
@@ -726,7 +760,7 @@ BTStatus_t prvBTMultiAdvEnable( uint8_t ucAdapterIf,
 /*-----------------------------------------------------------*/
 
 BTStatus_t prvBTMultiAdvUpdate( uint8_t ucAdapterIf,
-                                BTGattAdvertismentParams_t advParams )
+                                BTGattAdvertismentParams_t * advParams )
 {
     BTStatus_t xStatus = eBTStatusUnsupported;
 

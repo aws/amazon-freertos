@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,21 +32,24 @@
 
 #include "queue.h"
 
-typedef struct{
-	uint8_t * pcData;
+typedef struct
+{
+    uint8_t * pcData;
     size_t xDataSize;
-}INPUTMessage_t;
+} INPUTMessage_t;
 
 extern QueueHandle_t xNumericComparisonQueue;
 
-extern void BLENumericComparisonCb(BTBdaddr_t * pxRemoteBdAddr, uint32_t ulPassKey);
+extern void BLENumericComparisonCb( BTBdaddr_t * pxRemoteBdAddr,
+                                    uint32_t ulPassKey );
 
 extern void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
-        BTBdaddr_t * pxRemoteBdAddr,
-        BTSecurityLevel_t xSecurityLevel,
-        BTAuthFailureReason_t xReason );
-extern void NumericComparisonInit(void);
-extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage, TickType_t xAuthTimeout );
+                                         BTBdaddr_t * pxRemoteBdAddr,
+                                         BTSecurityLevel_t xSecurityLevel,
+                                         BTAuthFailureReason_t xReason );
+extern void NumericComparisonInit( void );
+extern BaseType_t getUserMessage( INPUTMessage_t * pxINPUTmessage,
+                                  TickType_t xAuthTimeout );
 
 
 #endif /* _AWS_IOT_NETWORK_MANAGER_H_ */

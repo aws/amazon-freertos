@@ -46,7 +46,10 @@
 #include "memory_attribute.h"
 
 #if (defined(__CC_ARM) || defined(__ICCARM__))
+#ifndef SSIZE_MAX
 typedef long int ssize_t;
+#define SSIZE_MAX INT_MAX
+#endif
 #else
 typedef unsigned int size_t;
 #endif

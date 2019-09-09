@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -154,31 +154,31 @@ static char cTxBuffers[ echoNUM_ECHO_CLIENTS ][ echoBUFFER_SIZES ],
 /*-----------------------------------------------------------*/
 
 int vStartTCPEchoClientTasks_SingleTasks( bool awsIotMqttMode,
-                 const char * pIdentifier,
-                 void * pNetworkServerInfo,
-                 void * pNetworkCredentialInfo,
-                 const IotNetworkInterface_t * pNetworkInterface )
+                                          const char * pIdentifier,
+                                          void * pNetworkServerInfo,
+                                          void * pNetworkCredentialInfo,
+                                          const IotNetworkInterface_t * pNetworkInterface )
 {
     BaseType_t xX;
     char cNameBuffer[ echoMAX_TASK_NAME_LENGTH ];
 
-	/* Unused parameters */
-	( void )awsIotMqttMode;
-	( void )pIdentifier;
-	( void )pNetworkServerInfo;
-	( void )pNetworkCredentialInfo;
-	( void )pNetworkInterface;
+    /* Unused parameters */
+    ( void ) awsIotMqttMode;
+    ( void ) pIdentifier;
+    ( void ) pNetworkServerInfo;
+    ( void ) pNetworkCredentialInfo;
+    ( void ) pNetworkInterface;
 
     /* Create the echo client tasks. */
     for( xX = 0; xX < echoNUM_ECHO_CLIENTS; xX++ )
     {
-        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", (long int)xX );
-        xTaskCreate( prvEchoClientTask,                               /* The function that implements the task. */
-                     cNameBuffer,                                     /* Just a text name for the task to aid debugging. */
+        snprintf( cNameBuffer, echoMAX_TASK_NAME_LENGTH, "Echo%ld", ( long int ) xX );
+        xTaskCreate( prvEchoClientTask,        /* The function that implements the task. */
+                     cNameBuffer,              /* Just a text name for the task to aid debugging. */
                      democonfigDEMO_STACKSIZE, /* The stack size is defined in FreeRTOSIPConfig.h. */
-                     ( void * ) xX,                                   /* The task parameter, not used in this case. */
-                     democonfigDEMO_PRIORITY,   /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
-                     NULL );                                          /* The task handle is not used. */
+                     ( void * ) xX,            /* The task parameter, not used in this case. */
+                     democonfigDEMO_PRIORITY,  /* The priority assigned to the task is defined in FreeRTOSConfig.h. */
+                     NULL );                   /* The task handle is not used. */
     }
 
     return 0;

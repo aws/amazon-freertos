@@ -1,8 +1,15 @@
 # Ignore uncrustify backups
 *.unc*
 doc/html/*
+doc/output/*
+doc/tag/*
 /.metadata/
 .vscode/*
+*.o
+*.d 
+*.elf
+*.hex
+*.bin
 
 RemoteSystemsTempFiles/*
 

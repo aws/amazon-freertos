@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -77,11 +77,11 @@
 /* Define a decoder based on chosen format. */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
 
-    #define _Decoder    _IotSerializerCborDecoder/**< Global defined in aws_iot_serializer.h . */
+    #define _Decoder    _IotSerializerCborDecoder /**< Global defined in aws_iot_serializer.h . */
 
 #elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
 
-    #define _Decoder    _IotSerializerJsonDecoder/**< Global defined in aws_iot_serializer.h . */
+    #define _Decoder    _IotSerializerJsonDecoder /**< Global defined in aws_iot_serializer.h . */
 
 #endif
 
@@ -136,7 +136,7 @@ static void _verifyMetricsCommon();
 
 /* Verify tcp connections in metrics report. */
 static void _verifyTcpConnections( int total,
-                                  ... );
+                                   ... );
 
 /* Indicate this test doesn't actually publish report. */
 static void _publishMetricsNotNeeded();
@@ -823,7 +823,7 @@ static void _verifyMetricsCommon()
 /*-----------------------------------------------------------*/
 
 static void _verifyTcpConnections( int total,
-                                  ... )
+                                   ... )
 {
     uint8_t i = 0;
 

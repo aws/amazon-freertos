@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS MQTT V2.0.0
+ * Amazon FreeRTOS MQTT V2.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,9 +41,9 @@
 
 #include "iot_doubly_linked_list.h"
 
- /**
-  * @brief Opaque handle to represent an MQTT buffer.
-  */
+/**
+ * @brief Opaque handle to represent an MQTT buffer.
+ */
 typedef void * MQTTBufferHandle_t;
 
 /**

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,41 +36,41 @@
 #include "platform/iot_network.h"
 
 #ifndef configSUPPORTED_NETWORKS
-#error "Flag 'configSUPPORTED_NETWORKS' is not defined. Please define the flag in aws_iot_network_config.h with the list of all networks supported by the board"
+    #error "Flag 'configSUPPORTED_NETWORKS' is not defined. Please define the flag in aws_iot_network_config.h with the list of all networks supported by the board"
 #endif
 
 #ifndef configENABLED_NETWORKS
-#error "Flag 'configENABLED_NETWORKS' not defined. Please define the flag in aws_iot_network_config.h with all the networks that needs to be enabled"
+    #error "Flag 'configENABLED_NETWORKS' not defined. Please define the flag in aws_iot_network_config.h with all the networks that needs to be enabled"
 #endif
 
 
 #if defined( configENABLED_NETWORKS ) && defined( configSUPPORTED_NETWORKS )
-#if ( ( configENABLED_NETWORKS | configSUPPORTED_NETWORKS ) != configSUPPORTED_NETWORKS )
-#error "Enabled networks should always be a subset of supported networks"
-#endif
+    #if ( ( configENABLED_NETWORKS | configSUPPORTED_NETWORKS ) != configSUPPORTED_NETWORKS )
+        #error "Enabled networks should always be a subset of supported networks"
+    #endif
 #endif
 
 /**
  * @brief Compile time flag which can be used to check if BLE is enabled.
  */
-#define BLE_ENABLED        ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
+#define BLE_ENABLED                                     ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_BLE ) == AWSIOT_NETWORK_TYPE_BLE )
 
 /**
  * @brief Compile time flag which can be used to check if WIFI is enabled.
  */
-#define WIFI_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
+#define WIFI_ENABLED                                    ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI ) == AWSIOT_NETWORK_TYPE_WIFI )
 
- /**
+/**
  * @brief Compile time flag which can be used to check if Ethernet is enabled.
  */
-#define ETH_ENABLED       ( ( configENABLED_NETWORKS &  AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
+#define ETH_ENABLED                                     ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH ) == AWSIOT_NETWORK_TYPE_ETH )
 
-#define TCPIP_NETWORK_ENABLED ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_TCP_IP ) != 0 )
+#define TCPIP_NETWORK_ENABLED                           ( ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_TCP_IP ) != 0 )
 
 /**
  * @brief Initializer for a subscription handle.
  */
-#define IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER   ( NULL )
+#define IOT_NETWORK_MANAGER_SUBSCRIPTION_INITIALIZER    ( NULL )
 
 
 /**
@@ -87,7 +87,9 @@ typedef void * IotNetworkManagerSubscription_t;
  * @param[in] ulNetworkType Network type to be passed within the callback
  * @param[in] pvContext The context passed in at the time of registering.
  */
-typedef void ( *AwsIotNetworkStateChangeCb_t ) ( uint32_t ulNetworkType, AwsIotNetworkState_t xNetworkState, void* pvContext );
+typedef void ( * AwsIotNetworkStateChangeCb_t ) ( uint32_t ulNetworkType,
+                                                  AwsIotNetworkState_t xNetworkState,
+                                                  void * pvContext );
 
 
 /**
@@ -102,7 +104,10 @@ typedef void ( *AwsIotNetworkStateChangeCb_t ) ( uint32_t ulNetworkType, AwsIotN
  * @param pxHandle Handle to the subscription
  * @return pdTRUE or pdFALSE
  */
-BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes, AwsIotNetworkStateChangeCb_t xCallback, void * pvContext, IotNetworkManagerSubscription_t* pxHandle );
+BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes,
+                                                         AwsIotNetworkStateChangeCb_t xCallback,
+                                                         void * pvContext,
+                                                         IotNetworkManagerSubscription_t * pxHandle );
 
 
 /**
@@ -110,7 +115,7 @@ BaseType_t AwsIotNetworkManager_SubscribeForStateChange( uint32_t ulNetworkTypes
  * @param xHandle Handle to the subscription
  * @return pdTRUE or pdFALSE
  */
-BaseType_t AwsIotNetworkManager_RemoveSubscription(  IotNetworkManagerSubscription_t xHandle );
+BaseType_t AwsIotNetworkManager_RemoveSubscription( IotNetworkManagerSubscription_t xHandle );
 
 
 /**
@@ -135,26 +140,26 @@ uint32_t AwsIotNetworkManager_GetEnabledNetworks( void );
 /**
  * @brief Get the network interface for a given network.
  * The network interface can be used to create/delete a network connection, send/receive data over the connection.
- * 
+ *
  * @param[in] networkType The type of the network
  * @return  NetworkInterface stucture for the network type.
- * 
+ *
  */
-const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType ); 
+const IotNetworkInterface_t * AwsIotNetworkManager_GetNetworkInterface( uint32_t networkType );
 
 /**
  * @brief Gets the credentials associated with the network.
  * Credentials can then be passed in to the network interface create API to create a secure connection over the network.
- * 
+ *
  * @param[in] networkType Type of the network
- * @return  Blob representing the credentials associated with a network. NULL if no credentials are provided. 
+ * @return  Blob representing the credentials associated with a network. NULL if no credentials are provided.
  */
 void * AwsIotNetworkManager_GetCredentials( uint32_t networkType );
 
 /**
  * @brief Gets the connection parameters associated with a network.
  * Connection parameters can the be passed in to the network interface create API to create a connection over the network.
- * 
+ *
  * @param[in] networkType Type of the network
  * @return Blob representing the parameters for connection over a network.
  */
@@ -169,7 +174,7 @@ uint32_t AwsIotNetworkManager_EnableNetwork( uint32_t ulNetworkTypes );
 
 /**
  * API to disable network manager for different networks
- * 
+ *
  * @param ulNetworkTypes Network types
  * @return FLag indicating the network types disabled
  */

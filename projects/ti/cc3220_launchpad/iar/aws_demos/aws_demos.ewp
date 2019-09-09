@@ -221,7 +221,6 @@
 				<option>
 					<name>CCDefines</name>
 					<state>_DLIB_FILE_DESCRIPTOR</state>
-					<state>__little_endian__</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -357,6 +356,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\config_files</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\aws_demos\application_code\ti_code</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\ti\boards\cc3220_launchpad\ports\posix</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
@@ -377,6 +377,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include</state>
@@ -385,6 +386,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1157,6 +1159,21 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c</name>
 				</file>
 			</group>
+			<group>
+				<name>IAR</name>
+				<group>
+					<name>ARM_CM3</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\port.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\portasm.s</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM3\portmacro.h</name>
+					</file>
+				</group>
+			</group>
 		</group>
 	</group>
 	<group>
@@ -1193,6 +1210,12 @@
 								</file>
 								<file>
 									<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\dpl\SystemP_freertos.c</name>
+								</file>
+							</group>
+							<group>
+								<name>startup</name>
+								<file>
+									<name>$PROJ_DIR$\..\..\..\..\..\vendors\ti\SimpleLink_CC32xx\v2_10_00_04\kernel\freertos\startup\startup_cc32xx_iar.c</name>
 								</file>
 							</group>
 						</group>
@@ -1623,7 +1646,7 @@
 					<group>
 						<name>include</name>
 						<file>
-							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h</name>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h</name>
@@ -1771,6 +1794,18 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>https</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c</name>
 						</file>
 					</group>
 				</group>
@@ -2328,6 +2363,15 @@
 				</file>
 			</group>
 			<group>
+				<name>http-parser</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c</name>
+				</file>
+			</group>
+			<group>
 				<name>jsmn</name>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h</name>
@@ -2422,6 +2466,24 @@
 			<name>greengrass_connectivity</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\greengrass_connectivity\aws_greengrass_discovery_demo.c</name>
+			</file>
+		</group>
+		<group>
+			<name>https</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_common.c</name>
 			</file>
 		</group>
 		<group>

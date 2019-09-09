@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,7 +36,6 @@
  * should not be used in production code.
  */
 
-
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #include "iot_pkcs11.h"
@@ -51,41 +50,50 @@ typedef struct ProvisioningParams_t
                                          *   See tools/certificate_configuration/PEMfileToCString.html
                                          *   for help with formatting.*/
     uint32_t ulClientCertificateLength; /**< Length of the device certificate in bytes. */
-    uint8_t * pucJITPCertificate;       /**< Pointer to the JITP certificate in PEM format.  If no
-                                         *   JITP certificate exists, this should be set to NULL.
-                                         *   See tools/certificate_configuration/PEMfileToCString.html
-                                         *   for help with formatting.*/
-    uint32_t ulJITPCertifiateLength;    /**< Length of the JITP certificate in bytes.
-                                         *   If no JITP certificate exists, this should be set to 0. */
+    uint8_t * pucJITPCertificate;       /**< Pointer to the Just-In-Time Provisioning (JITP) certificate in
+                                         *   PEM format.
+                                         *   - This is REQUIRED if JITP is being used.
+                                         *   - If you are not using JITP, this certificate
+                                         *   is not needed and should be set to NULL.
+                                         *   - See tools/certificate_configuration/PEMfileToCString.html
+                                         *   for help with formatting.
+                                         *   - See https://aws.amazon.com/blogs/iot/setting-up-just-in-time-provisioning-with-aws-iot-core/
+                                         *   for more information about getting started with JITP */
+    uint32_t ulJITPCertificateLength;   /**< Length of the Just-In-Time Provisioning (JITP) certificate in bytes.
+                                         *   If JITP is not being used, this value should be set to 0. */
 } ProvisioningParams_t;
-
 
 /** \brief Provisions device with default credentials.
  *
  * Imports the certificate and private key located in
  * aws_clientcredential_keys.h to device NVM.
+ *
+ * \return CKR_OK upon successful credential setup.
+ * Otherwise, a positive PKCS #11 error code.
  */
-void vDevModeKeyProvisioning( void );
+CK_RV vDevModeKeyProvisioning( void );
 
 /** \brief Provisiong a device given a valid PKCS #11 session.
-*
-* \param[in] xSession       A valid PKCS #11 session.
-* \param[in] pxParams       Pointer to an initialized provisioning
-*                           structure.
-*
-* \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
-* Note that PKCS #11 error codes are positive.
-*/
+ *
+ * \param[in] xSession       A valid PKCS #11 session.
+ * \param[in] pxParams       Pointer to an initialized provisioning
+ *                           structure.
+ *
+ * \return CKR_OK upon successful credential setup.
+ * Otherwise, a positive PKCS #11 error code.
+ */
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
-    ProvisioningParams_t * pxParams );
+                        ProvisioningParams_t * pxParams );
 
 /** \brief Provisions device with provided credentials.
  *
  * \param[in] xParams       Provisioning parameters for credentials
  *                          to be provisioned.
+ *
+ * \return CKR_OK upon successful credential setup.
+ * Otherwise, a positive PKCS #11 error code.
  */
-void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
-
+CK_RV vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
 
 /** \brief Provisions a private key using PKCS #11 library.
  *
@@ -95,10 +103,11 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
  * \param[in] xPrivateKeyLength    Length of the data at pucPrivateKey, in bytes.
  * \param[in] pucLabel             PKCS #11 CKA_LABEL attribute value to be used for key.
  *                                 This should be a string values. See iot_pkcs11_config.h
- * \param[out] pxObjectHandle      The object handle of PKCS #11 private key created.
+ * \param[out] pxObjectHandle      Points to the location that receives the PKCS #11
+ *                                 private key handle created.
  *
- * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
- * Note that PKCS #11 error codes are positive.
+ * \return CKR_OK upon successful key creation.
+ * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
@@ -115,10 +124,11 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
  * \param[in] xPublicKeyType         The type of key- either CKK_RSA or CKK_EC.
  * \param[in] pucPublicKeyLabel      PKCS #11 CKA_LABEL attribute value to be used for key.
  *                                   This should be a string values.  See iot_pkcs11_config.h.
- * \param[out] pxPublicKeyHandle     The object handle of PKCS #11 private key created.
+ * \param[out] pxPublicKeyHandle     Points to the location that receives the PKCS #11 public
+ *                                   key handle created.
  *
- * \return CKR_OK upon successful key creation.  PKCS #11 error code on failure.
- * Note that PKCS #11 error codes are positive.
+ * \return CKR_OK upon successful key creation.
+ * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
                            uint8_t * pucKey,
@@ -138,8 +148,8 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
  * \param[in] pucLabel              PKCS #11 label attribute value for certificate to be imported.
  *                                  This should be a string value. See iot_pkcs11.h.
  *                                  This should be a string value. See iot_pkcs11_config.h.
- * \param[out] pxObjectHandle       Updated to provide the PKCS #11 handle for the certificate
- *                                  that was imported.
+ * \param[out] pxObjectHandle       Points to the location that receives the PKCS #11
+ *                                  certificate handle created.
  *
  * \return CKR_OK if certificate import succeeded.
  * Otherwise, a positive PKCS #11 error code.
@@ -157,10 +167,10 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
  *                                  This should be a string value. See iot_pkcs11_config.h.
  * \param[in] pucPublicKeyLabel     PKCS #11 label attribute value for public key to be created.
  *                                  This should be a string value. See iot_pkcs11_config.h.
- * \param[in] pxPrivateKeyHandle    Updated to provide the PKCS #11 handle for the private key
- *                                  that was generated.
- * \param[out] pxPublicKeyHandle    Updated to provide the PKCS #11 handle for the public key
- *                                  that was generated.
+ * \param[out] pxPrivateKeyHandle   Points to the location that receives the PKCS #11 private
+ *                                  key handle created.
+ * \param[out] pxPublicKeyHandle    Points to the location that receives the PKCS #11 public
+ *                                  key handle created.
  *
  * \return CKR_OK if RSA key pair generation succeeded.
  * Otherwise, a positive PKCS #11 error code.
@@ -178,10 +188,10 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
  *                                  This should be a string value. See iot_pkcs11_config.h.
  * \param[in] pucPublicKeyLabel     PKCS #11 label attribute value for public key to be created.
  *                                  This should be a string value. See iot_pkcs11_config.h.
- * \param[in] pxPrivateKeyHandle    Updated to provide the PKCS #11 handle for the private key
- *                                  that was generated.
- * \param[out] pxPublicKeyHandle    Updated to provide the PKCS #11 handle for the public key
- *                                  that was generated.
+ * \param[out] pxPrivateKeyHandle   Points to the location that receives the PKCS #11 private
+ *                                  key handle created.
+ * \param[out] pxPublicKeyHandle    Points to the location that receives the PKCS #11 public
+ *                                  key handle created.
  *
  * \return CKR_OK if EC key pair generation succeeded.
  * Otherwise, a positive PKCS #11 error code.
@@ -192,23 +202,55 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
                                    CK_OBJECT_HANDLE_PTR pxPrivateKeyHandle,
                                    CK_OBJECT_HANDLE_PTR pxPublicKeyHandle );
 
-/** \brief Destroys AFR credentials stored in device PKCS #11 module.
-*
-* \note Not all ports support the deletion of all objects.  Successful
-* function return only indicates that all objest for which destroy is 
-* supported on the port were erased from non-volatile memory.
-*
-* Destroys objects with the following labels, if applicable:
-*     pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-*     pkcs11configLABEL_CODE_VERIFICATION_KEY,
-*     pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-*     pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
-*
-*   \param[in] xSession         A valid PKCS #11 session handle.
-*
-*   \return CKR_OK if all credentials were destroyed.
-*   Otherwise, a postiive PKCS #11 error code.
-*/
-CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession );
+/**
+ *\brief Destroys Amazon FreeRTOS credentials stored in device PKCS #11 module.
+ *
+ * \note Not all ports support the deletion of all objects.  Successful
+ * function return only indicates that all objects for which destroy is
+ * supported on the port were erased from non-volatile memory.
+ *
+ * Destroys objects with the following labels, if applicable:
+ *     pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+ *     pkcs11configLABEL_CODE_VERIFICATION_KEY,
+ *     pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+ *     pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+ *
+ *   \param[in] xSession         A valid PKCS #11 session handle.
+ *
+ *   \return CKR_OK if all credentials were destroyed.
+ *   Otherwise, a positive PKCS #11 error code.
+ */
+CK_RV xDestroyDefaultCryptoObjects( CK_SESSION_HANDLE xSession );
+
+/**
+ * \brief Destroys specified credentials in PKCS #11 module.
+ *
+ * \note Some ports only support lookup of objects by label (and
+ * not label + class).  For these ports, only the label field is used
+ * for determining what objects to destroy.
+ *
+ * \note Not all ports support the deletion of all objects.  Successful
+ * function return only indicates that all objects for which destroy is
+ * supported on the port were erased from non-volatile memory.
+ *
+ *   \param[in] xSession         A valid PKCS #11 session handle.
+ *   \param[in] ppxPkcsLabels    An array of pointers to object labels.
+ *                               Labels are assumed to be NULL terminated
+ *                               strings.
+ *   \param[in] pxClass          An array of object classes, corresponding
+ *                               to the array of ppxPkcsLabels.  For example
+ *                               the first label pointer and first class in
+ *                               ppxPkcsLabels are used in combination for
+ *                               lookup of the object to be deleted.
+ *   \param[in] ulCount          The number of label-class pairs passed in
+ *                               to be destroyed.
+ *
+ *   \return CKR_OK if all credentials were destroyed.
+ *   Otherwise, a positive PKCS #11 error code.
+ */
+CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
+                               CK_BYTE_PTR * ppxPkcsLabels,
+                               CK_OBJECT_CLASS * pxClass,
+                               CK_ULONG ulCount );
 
 #endif /* _AWS_DEV_MODE_KEY_PROVISIONING_H_ */

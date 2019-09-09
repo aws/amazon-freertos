@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.2
+ * Amazon FreeRTOS OTA V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -46,5 +46,6 @@
 #define OTA_CBOR_FILESIZE_KEY             "z"
 #define OTA_CBOR_BLOCKID_KEY              "i"
 #define OTA_CBOR_BLOCKPAYLOAD_KEY         "p"
+#define OTA_CBOR_NUMBEROFBLOCKS_KEY       "n"
 
 #endif /* ifndef _AWS_OTA_CBOR_INTERNAL_H_ */

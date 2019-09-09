@@ -27,7 +27,7 @@
 #define AWS_TEST_RUNNER_CONFIG_H
 
 /* Uncomment this line if you want to run AFQP tests only. */
-//#define testrunnerAFQP_ENABLED
+/*#define testrunnerAFQP_ENABLED */
 
 #define testrunnerUNSUPPORTED                      0
 
@@ -50,5 +50,6 @@
 #define testrunnerFULL_MQTT_ENABLED                0
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_TLS_ENABLED                 0
+#define testrunnerFULL_HTTPS_CLIENT_ENABLED        0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

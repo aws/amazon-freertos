@@ -33,6 +33,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/device_information \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/mqtt_ble \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/src/services/wifi_provisioning \
+        $(AMAZON_FREERTOS_SDK_DIR)/standard/https/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src/cbor \
         $(AMAZON_FREERTOS_SDK_DIR)/standard/serializer/src/json \
@@ -42,6 +43,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/tls/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/crypto/src \
+        $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/pkcs11/src \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/BufferManagement \
         $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/NetworkInterface/esp32 \
@@ -50,6 +52,7 @@ COMPONENT_SRCDIRS := $(AMAZON_FREERTOS_SDK_DIR)/standard/mqtt/src \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/mbedtls \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/secure_sockets/freertos_plus_tcp \
+        $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http-parser \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
         $(AMAZON_FREERTOS_3RD_PARTY_DIR)/pkcs11 \
@@ -63,6 +66,8 @@ COMPONENT_ADD_INCLUDEDIRS := $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_p
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/include \
                              $(AMAZON_FREERTOS_ARF_PLUS_DIR)/standard/freertos_plus_tcp/source/portable/Compiler/GCC \
                              $(AMAZON_FREERTOS_SDK_DIR)/standard/ble/include \
+                             $(AMAZON_FREERTOS_SDK_DIR)/standard/https/include \
+                             $(AMAZON_FREERTOS_3RD_PARTY_DIR)/http-parser \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/jsmn \
                              $(AMAZON_FREERTOS_3RD_PARTY_DIR)/tinycbor \
                              $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/freertos/include \
@@ -97,6 +102,8 @@ COMPONENT_SRCDIRS += ../.. \
         $(AMAZON_FREERTOS_ESP32)/common \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/common/test \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/ble/test \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/https/test/system \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/https/test/unit \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/system \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/unit \
@@ -106,6 +113,7 @@ COMPONENT_SRCDIRS += ../.. \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test/unit \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/test/system \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/test \
+        $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/ble_hal/test/src \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11/test \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/platform/test \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/secure_sockets/test \
@@ -129,6 +137,8 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/aws/ota/test \
         ${AMAZON_FREERTOS_ARF_PLUS_DIR}/standard/freertos_plus_tcp/test \
         $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/wifi/test \
+	${AMAZON_FREERTOS_ABSTRACTIONS_DIR}/ble_hal/test/include \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/https/src \
         ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/src \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/defender/src/private \
         ${AMAZON_FREERTOS_SDK_DIR}/aws/shadow/src \
@@ -136,7 +146,9 @@ COMPONENT_ADD_INCLUDEDIRS += $(AMAZON_FREERTOS_TESTS_DIR)/include \
 
 COMPONENT_OBJEXCLUDE += $(AMAZON_FREERTOS_ARF_PLUS_DIR)/aws/ota/test/aws_test_ota_cbor.o \
 
-COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_3RD_PARTY_DIR)/unity/extras/fixture/src ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/access
+COMPONENT_PRIV_INCLUDEDIRS += $(AMAZON_FREERTOS_3RD_PARTY_DIR)/unity/extras/fixture/src \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/mqtt/test/access \
+        ${AMAZON_FREERTOS_SDK_DIR}/standard/https/test/access
 
 # Define the board to pass the SOCKETS_Socket_InvalidTooManySockets test.
 CFLAGS += -DESP32
@@ -151,6 +163,7 @@ COMPONENT_SRCDIRS += ../.. \
     $(AMAZON_FREERTOS_DEMOS_DIR)/demo_runner \
     $(AMAZON_FREERTOS_DEMOS_DIR)/shadow \
     $(AMAZON_FREERTOS_DEMOS_DIR)/defender \
+    $(AMAZON_FREERTOS_DEMOS_DIR)/https \
     $(AMAZON_FREERTOS_DEMOS_DIR)/mqtt \
     $(AMAZON_FREERTOS_DEMOS_DIR)/mqtt_v4 \
     $(AMAZON_FREERTOS_DEMOS_DIR)/mqtt_v4/network/bluetooth \

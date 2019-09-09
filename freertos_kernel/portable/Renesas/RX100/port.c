@@ -1,5 +1,5 @@
 /*
- * FreeRTOS Kernel V10.2.0
+ * FreeRTOS Kernel V10.2.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -296,7 +296,7 @@ static void prvStartFirstTask( void )
 }
 /*-----------------------------------------------------------*/
 
-#pragma interrupt ( prvTickISR( vect = configTICK_VECTOR, enable ) )
+#pragma interrupt ( prvTickISR( vect = _VECT( configTICK_VECTOR ), enable ) )
 void prvTickISR( void )
 {
 	/* Increment the tick, and perform any processing the new tick value

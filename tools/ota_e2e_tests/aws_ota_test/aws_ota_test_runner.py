@@ -54,6 +54,14 @@ class OtaTestRunner:
         testRunner.runTests()
     """
     def __init__(self, boardConfig, stageParams):
+        # Override AWS credentials if provided in config.
+        if boardConfig.get('aws_access_id'):
+            os.environ['AWS_ACCESS_KEY_ID'] = boardConfig['aws_access_id']
+        if boardConfig.get('aws_secret_key'):
+            os.environ['AWS_SECRET_ACCESS_KEY'] = boardConfig['aws_secret_key']
+        if boardConfig.get('aws_region_name'):
+            os.environ['AWS_DEFAULT_REGION'] = boardConfig['aws_region_name']
+
         self._boardConfig = boardConfig
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
@@ -136,12 +144,15 @@ class OtaTestRunner:
         """Run all tests this Test Runner object holds.
         Returns the results of the tests.
         """
-        testResults = []
-        for otaTestCase in self._otaTestCases:
-            testResults.append(self.__runTest(otaTestCase))
+        try:
+            testResults = []
+            for otaTestCase in self._otaTestCases:
+                testResults.append(self.__runTest(otaTestCase))
+        finally:
+            # All tests are over so clean up.
+            print("cleanning up aws resources")
+            self.__cleanup()
 
-        # All tests are over so clean up.
-        self.__cleanup()
         return testResults
 
     def __cleanup(self):

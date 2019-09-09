@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS TLS V1.1.4
+ * Amazon FreeRTOS TLS V1.1.5
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -299,17 +299,16 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                          size_t xHashLen,
                                          unsigned char * pucSig,
                                          size_t * pxSigLen,
-                                         int ( *piRng )( void *,
-                                                         unsigned char *,
-                                                         size_t ), /*lint !e955 This parameter is unused. */
+                                         int ( * piRng )( void *,
+                                                          unsigned char *,
+                                                          size_t ), /*lint !e955 This parameter is unused. */
                                          void * pvRng )
 {
-    CK_RV xResult = 0;
+    CK_RV xResult = CKR_OK;
     int lFinalResult = 0;
     TLSContext_t * pxTLSContext = ( TLSContext_t * ) pvContext;
     CK_MECHANISM xMech = { 0 };
     CK_BYTE xToBeSigned[ 256 ];
-    uint8_t ucTemp[ 64 ] = { 0 }; /* A temporary buffer for the pre-formatted signature. */
     CK_ULONG xToBeSignedLen = sizeof( xToBeSigned );
 
     /* Unreferenced parameters. */
@@ -323,11 +322,16 @@ static int prvPrivateKeySigningCallback( void * pvContext,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    /* If applicable, format the hash data to be signed. */
+    /* Format the hash data to be signed. */
     if( CKK_RSA == pxTLSContext->xKeyType )
     {
         xMech.mechanism = CKM_RSA_PKCS;
-        vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
+
+        /* mbedTLS expects hashed data without padding, but PKCS #11 C_Sign function performs a hash
+         * & sign if hash algorithm is specified.  This helper function applies padding
+         * indicating data was hashed with SHA-256 while still allowing pre-hashed data to
+         * be provided. */
+        xResult = vAppendSHA256AlgorithmIdentifierSequence( ( uint8_t * ) pucHash, xToBeSigned );
         xToBeSignedLen = pkcs11RSA_SIGNATURE_INPUT_LENGTH;
     }
     else if( CKK_EC == pxTLSContext->xKeyType )
@@ -341,7 +345,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         /* Use the PKCS#11 module to sign. */
         xResult = pxTLSContext->pxP11FunctionList->C_SignInit( pxTLSContext->xP11Session,
@@ -349,7 +353,7 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                                                pxTLSContext->xP11PrivateKey );
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         *pxSigLen = sizeof( xToBeSigned );
         xResult = pxTLSContext->pxP11FunctionList->C_Sign( ( CK_SESSION_HANDLE ) pxTLSContext->xP11Session,
@@ -359,57 +363,22 @@ static int prvPrivateKeySigningCallback( void * pvContext,
                                                            ( CK_ULONG_PTR ) pxSigLen );
     }
 
-    if( CKK_EC == pxTLSContext->xKeyType )
+    if( ( xResult == CKR_OK ) && ( CKK_EC == pxTLSContext->xKeyType ) )
     {
-        uint8_t * pucSigPtr;
-
         /* PKCS #11 for P256 returns a 64-byte signature with 32 bytes for R and 32 bytes for S.
-         * This must be converted to an ASN1 encoded array. */
-        configASSERT( *pxSigLen == 64 );
-        memcpy( ucTemp, pucSig, *pxSigLen );
-
-        pucSig[ 0 ] = 0x30; /* Sequence. */
-        pucSig[ 1 ] = 0x44; /* The minimum length the signature could be. */
-        pucSig[ 2 ] = 0x02; /* Integer. */
-
-        if( ucTemp[ 0 ] & 0x80 )
+         * This must be converted to an ASN.1 encoded array. */
+        if( *pxSigLen != pkcs11ECDSA_P256_SIGNATURE_LENGTH )
         {
-            pucSig[ 1 ]++;
-            pucSig[ 3 ] = 0x21;
-            pucSig[ 4 ] = 0x0;
-            memcpy( &pucSig[ 5 ], ucTemp, 32 );
-            pucSigPtr = pucSig + 33 + 4;
-        }
-        else
-        {
-            pucSig[ 3 ] = 0x20;
-            memcpy( &pucSig[ 4 ], ucTemp, 32 );
-            pucSigPtr = pucSig + 32 + 4;
+            xResult = CKR_FUNCTION_FAILED;
         }
 
-        pucSigPtr[ 0 ] = 0x02; /* Integer. */
-        pucSigPtr++;
-
-        if( ucTemp[ 32 ] & 0x80 )
+        if( xResult == CKR_OK )
         {
-            pucSig[ 1 ]++;
-            pucSigPtr[ 0 ] = 0x21;
-            pucSigPtr[ 1 ] = 0x00;
-            pucSigPtr += 2;
-
-            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
+            PKI_pkcs11SignatureTombedTLSSignature( pucSig, pxSigLen );
         }
-        else
-        {
-            pucSigPtr[ 0 ] = 0x20;
-            pucSigPtr++;
-            memcpy( pucSigPtr, &ucTemp[ 32 ], 32 );
-        }
-
-        *pxSigLen = ( CK_ULONG ) pucSig[ 1 ] + 2;
     }
 
-    if( xResult != 0 )
+    if( xResult != CKR_OK )
     {
         TLS_PRINT( ( "ERROR: Failure in signing callback: %d \r\n", xResult ) );
         lFinalResult = TLS_ERROR_SIGN;
@@ -630,7 +599,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 
     if( CKR_OK != xResult )
     {
-        TLS_PRINT( ( "ERROR: Loading credentials from flash into TLS context failed with error %d.\r\n", xResult ) );
+        TLS_PRINT( ( "ERROR: Loading credentials into TLS context failed with error %d.\r\n", xResult ) );
     }
 
     return xResult;
@@ -772,7 +741,6 @@ BaseType_t TLS_Connect( void * pvContext )
                                                MBEDTLS_SSL_TRANSPORT_STREAM,
                                                MBEDTLS_SSL_PRESET_DEFAULT );
 
-
         if( 0 != xResult )
         {
             TLS_PRINT( ( "ERROR: Failed to set ssl config defaults %d \r\n", xResult ) );
@@ -884,40 +852,38 @@ BaseType_t TLS_Recv( void * pvContext,
 
     if( ( NULL != pxCtx ) && ( pdTRUE == pxCtx->xTLSHandshakeSuccessful ) )
     {
-        while( xRead < xReadLength )
+        /* This routine will return however many bytes are returned from from mbedtls_ssl_read
+         * immediately unless MBEDTLS_ERR_SSL_WANT_READ is returned, in which case we try again. */
+        do
         {
             xResult = mbedtls_ssl_read( &pxCtx->xMbedSslCtx,
                                         pucReadBuffer + xRead,
                                         xReadLength - xRead );
 
-            if( 0 < xResult )
+            if( xResult > 0 )
             {
                 /* Got data, so update the tally and keep looping. */
                 xRead += ( size_t ) xResult;
             }
-            else if( 0 == xResult )
-            {
-                /* No data received (and no error). The secure sockets
-                 * API supports non-blocking read, so stop the loop but don't
-                 * flag an error. */
-                break;
-            }
-            else if( MBEDTLS_ERR_SSL_WANT_READ != xResult )
-            {
-                /* Hard error: invalidate the context and stop. */
-                prvFreeContext( pxCtx );
-                break;
-            }
-        }
+
+            /* If xResult == 0, then no data was received (and there is no error).
+             * The secure sockets API supports non-blocking read, so stop the loop,
+             * but don't flag an error. */
+        } while( ( xResult == MBEDTLS_ERR_SSL_WANT_READ ) );
     }
     else
     {
         xResult = MBEDTLS_ERR_SSL_INTERNAL_ERROR;
     }
 
-    if( 0 <= xResult )
+    if( xResult >= 0 )
     {
         xResult = ( BaseType_t ) xRead;
+    }
+    else
+    {
+        /* xResult < 0 is a hard error, so invalidate the context and stop. */
+        prvFreeContext( pxCtx );
     }
 
     return xResult;

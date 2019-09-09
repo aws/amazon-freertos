@@ -224,7 +224,6 @@
 					<state>FSL_RTOS_FREE_RTOS</state>
 					<state>A_LITTLE_ENDIAN</state>
 					<state>_DLIB_FILE_DESCRIPTOR=1</state>
-					<state>__little_endian__=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -379,6 +378,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\config_files</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_demos\application_code\nxp_code</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\demos\network_manager</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include\private</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\common\include</state>
@@ -396,12 +396,17 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\mqtt\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\aws\shadow\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\pkcs11</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1163,6 +1168,21 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c</name>
 				</file>
 			</group>
+			<group>
+				<name>IAR</name>
+				<group>
+					<name>ARM_CM4F</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F\port.c</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F\portmacro.h</name>
+					</file>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\portable\IAR\ARM_CM4F\portasm.s</name>
+					</file>
+				</group>
+			</group>
 		</group>
 	</group>
 	<group>
@@ -1726,6 +1746,12 @@
 						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\utilities\virtual_com.c</name>
 					</file>
 				</group>
+				<group>
+					<name>iar</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\iar\startup_LPC54018.s</name>
+					</file>
+				</group>
 			</group>
 			<group>
 				<name>boards</name>
@@ -1752,6 +1778,12 @@
 							<name>wifi</name>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\wifi\iot_wifi.c</name>
+							</file>
+						</group>
+						<group>
+							<name>posix</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix\FreeRTOS_POSIX_portable.h</name>
 							</file>
 						</group>
 					</group>
@@ -1927,6 +1959,24 @@
 			</file>
 		</group>
 		<group>
+			<name>https</name>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_sync.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c</name>
+			</file>
+			<file>
+				<name>$PROJ_DIR$\..\..\..\..\..\demos\https\iot_demo_https_common.c</name>
+			</file>
+		</group>
+		<group>
 			<name>mqtt</name>
 			<file>
 				<name>$PROJ_DIR$\..\..\..\..\..\demos\mqtt\iot_demo_mqtt.c</name>
@@ -2089,6 +2139,18 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\serializer\include\iot_json_utils.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>https</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_client.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\c_sdk\standard\https\src\iot_https_utils.c</name>
 						</file>
 					</group>
 				</group>
@@ -2255,6 +2317,51 @@
 					</file>
 				</group>
 			</group>
+			<group>
+				<name>posix</name>
+				<group>
+					<name>include</name>
+					<group>
+						<name>FreeRTOS_POSIX</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\fcntl.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\mqueue.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\pthread.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sched.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\semaphore.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\signal.h</name>
+						</file>
+						<group>
+							<name>sys</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\sys\types.h</name>
+							</file>
+						</group>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\time.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\unistd.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\utils.h</name>
+						</file>
+					</group>
+				</group>
+			</group>
 		</group>
 		<group>
 			<name>freertos_plus</name>
@@ -2323,6 +2430,60 @@
 						</file>
 						<file>
 							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
+					<name>freertos_plus_posix</name>
+					<group>
+						<name>source</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_mqueue.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_barrier.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_cond.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_pthread_mutex.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_sched.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_semaphore.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_timer.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_unistd.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_utils.c</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_types.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include\FreeRTOS_POSIX_portable_default.h</name>
 						</file>
 					</group>
 				</group>
@@ -2835,6 +2996,15 @@
 				</file>
 				<file>
 					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c</name>
+				</file>
+			</group>
+			<group>
+				<name>http-parser</name>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h</name>
+				</file>
+				<file>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c</name>
 				</file>
 			</group>
 			<group>

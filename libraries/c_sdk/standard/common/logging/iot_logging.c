@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Common V1.0.0
+ * Amazon FreeRTOS Common V1.1.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -125,7 +125,7 @@
  * length of any timestring it may get. This value should be generous enough
  * to accommodate the vast majority of timestrings.
  *
- * @see @ref platform_clock_function_gettimestring
+ * @see IotClock_GetTimestring
  */
 #define MAX_TIMESTRING_LENGTH    ( 64 )
 

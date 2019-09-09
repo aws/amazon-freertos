@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -414,7 +414,7 @@ TEST( Full_POSIX_STRESS, mqueue )
 
     struct mq_attr xQueueAttributes =
     {
-        .mq_flags   =                                   0,
+        .mq_flags   = 0,
         .mq_maxmsg  = posixconfigMQ_MAX_MESSAGES,
         .mq_msgsize = posixtestMQUEUE_STRESS_MESSAGE_SIZE,
         .mq_curmsgs = 0

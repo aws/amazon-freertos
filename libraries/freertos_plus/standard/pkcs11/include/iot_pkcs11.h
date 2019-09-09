@@ -1,6 +1,6 @@
 /*
- * Amazon FreeRTOS
- * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Amazon FreeRTOS PKCS #11 V1.0.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,11 +23,14 @@
  * http://www.FreeRTOS.org
  */
 
-
 #ifndef _AWS_PKCS11_H_
 #define _AWS_PKCS11_H_
 
 #include <stdint.h>
+
+#ifdef _WIN32
+    #pragma pack(push, cryptoki, 1)
+#endif
 
 /**
  * @brief Amazon FreeRTOS PKCS#11 Interface.
@@ -41,6 +44,8 @@
     #define NULL_PTR    0
 #endif
 
+/* CK_DEFINE_FUNCTION is deprecated.  Implementations should use CK_DECLARE_FUNCTION
+ * instead when possible. */
 #define CK_DEFINE_FUNCTION( returnType, name )             returnType name
 #define CK_DECLARE_FUNCTION( returnType, name )            returnType name
 #define CK_DECLARE_FUNCTION_POINTER( returnType, name )    returnType( CK_PTR name )
@@ -53,18 +58,26 @@
 
 /**
  * @brief Length of a curve P-256 ECDSA signature, in bytes.
+ * PKCS #11 EC signatures are represented as a 32-bit R followed
+ * by a 32-bit S value, and not ASN.1 encoded.
  */
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
 
- /**
- * @brief Public exponent for RSA - 2048
+/**
+ * @brief Public exponent for RSA.
  */
-#define pkcs11RSA_2048_PUBLIC_EXPONENT       { 0x01, 0x00, 0x01 }
+#define pkcs11RSA_PUBLIC_EXPONENT            { 0x01, 0x00, 0x01 }
+
+/**
+ * @brief The number of bits in the RSA-2048 modulus.
+ *
+ */
+#define pkcs11RSA_2048_MODULUS_BITS          2048
 
 /**
  * @brief Length of PKCS #11 signature for RSA 2048 key, in bytes.
  */
-#define pkcs11RSA_2048_SIGNATURE_LENGTH      ( 2048 / 8 )
+#define pkcs11RSA_2048_SIGNATURE_LENGTH      ( pkcs11RSA_2048_MODULUS_BITS / 8 )
 
 /**
  * @brief Length of RSA signature data before padding.
@@ -100,7 +113,15 @@
     #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED    1
 #endif
 
-/*
+/**
+ * @brief RSA signature padding for interoperability between providing hashed messages
+ * and providing hashed messages encoded with the digest information.
+ *
+ * The TLS connection for mbedTLS expects a hashed, but unpadded input,
+ * and it appended message digest algorithm encoding.  However, the PKCS #11 sign
+ * function either wants unhashed data which it will both hash and pad OR
+ * as done in this workaround, we provide hashed data with padding appended.
+ *
  * DigestInfo :: = SEQUENCE{
  *      digestAlgorithm DigestAlgorithmIdentifier,
  *      digest Digest }
@@ -123,39 +144,6 @@
 
 #include "pkcs11.h"
 
-/* Elliptic Curve Private Key Template
- * The object class must be the first attribute in the array.
- * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__3__4__ELLIPTIC__CURVE__PRIVATE__KEY__OBJECTS.html */
-typedef struct PKCS11_PrivateEcKeyTemplate
-{
-    CK_ATTRIBUTE xObjectClass; /* CKA_CLASS, set to CKO_PRIVATE_KEY. */
-    CK_ATTRIBUTE xKeyType;     /* CKA_KEY_TYPE, set to CKK_EC. */
-    CK_ATTRIBUTE xLabel;       /* CKA_LABEL. */
-    CK_ATTRIBUTE xEcParams;    /* CKA_EC_PARAMS, the DER encoded OID for the curve. */
-    CK_ATTRIBUTE xValue;       /* CKA_VALUE, the value d, the private value. */
-    CK_ATTRIBUTE xTokenObject; /* CKA_TOKEN.  If true, the value should be persistent. */
-} PKCS11_PrivateEcKeyTemplate_t, * PKCS11_PrivateEcKeyTemplatePtr_t;
-
-/* RSA Private Key Template
- * The object class must be the first attribute in the array.
- * https://www.cryptsoft.com/pkcs11doc/v220/group__SEC__12__1__3__RSA__PRIVATE__KEY__OBJECTS.html */
-typedef struct PKCS11_PrivateRsaKeyTemplate
-{
-    CK_ATTRIBUTE xObjectClass;     /* CKA_CLASS, set to CKO_PRIVATE_KEY. */
-    CK_ATTRIBUTE xKeyType;         /* CKA_KEY_TYPE, set to CKK_RSA. */
-    CK_ATTRIBUTE xLabel;           /* CKA_LABEL. */
-    CK_ATTRIBUTE xCanSign;         /* CKA_SIGN. */
-    CK_ATTRIBUTE xModulus;         /* CKA_MODULUS, the modulus N */
-    CK_ATTRIBUTE xPrivateExponent; /* CKA_PRIVATE_EXPONENT, the private exponent D */
-    CK_ATTRIBUTE xPublicExponent;  /* CKA_PUBLIC_EXPONENT, the public exponent E */
-    CK_ATTRIBUTE xPrime1;          /* CKA_PRIME_1, P */
-    CK_ATTRIBUTE xPrime2;          /* CKA_PRIME_2, Q */
-    CK_ATTRIBUTE xExp1;            /* CKA_EXPONENT_1, DP */
-    CK_ATTRIBUTE xExp2;            /* CKA_EXPONENT_2, DQ */
-    CK_ATTRIBUTE xCoefficient;     /* CKA_COEFFICIENT, QP */
-    CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN, if true, the value should be persistent. */
-} PKCS11_PrivateRsaKeyTemplate_t, * PKCS11_PrivateRsaKeyTemplatePtr_t;
-
 /* Certificate Template */
 /* The object class must be the first attribute in the array. */
 typedef struct PKCS11_CertificateTemplate
@@ -168,7 +156,7 @@ typedef struct PKCS11_CertificateTemplate
     CK_ATTRIBUTE xTokenObject;     /* CKA_TOKEN. */
 } PKCS11_CertificateTemplate_t, * PKCS11_CertificateTemplatePtr_t;
 
-/*
+/**
  * @brief Initializes a PKCS #11 session.
  *
  * @return CKR_OK if successful.
@@ -176,6 +164,24 @@ typedef struct PKCS11_CertificateTemplate
  * for more information.
  */
 CK_RV xInitializePKCS11( void );
+
+
+/**
+ * @brief Get a list of available PKCS #11 slots.
+ *
+ * \note This function allocates memory for slots.
+ * Freeing this memory is the responsibility of the caller.
+ *
+ *	\param[out] ppxSlotId       Pointer to slot list.  This slot list is
+ *                              malloc'ed by the function and must be
+ *                              freed by the caller.
+ *  \param[out] pxSlotCount     Pointer to the number of slots found.
+ *
+ *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
+ *
+ */
+CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
+                    CK_ULONG * pxSlotCount );
 
 /**
  * \brief Initializes the PKCS #11 module and opens a session.
@@ -225,9 +231,14 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
  *                                      DigestInfo structure.  This memory
  *                                      must be allocated by the caller.
  *
+ * \return CKR_OK if successful, CKR_ARGUMENTS_BAD if NULL pointer passed in.
+ *
  */
-void vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
-                                               uint8_t * x51ByteHashOidBuffer );
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
+                                                uint8_t * x51ByteHashOidBuffer );
 
+#ifdef _WIN32
+    #pragma pack(pop, cryptoki)
+#endif
 
 #endif /* ifndef _AWS_PKCS11_H_ */

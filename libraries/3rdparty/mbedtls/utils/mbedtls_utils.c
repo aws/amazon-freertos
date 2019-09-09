@@ -30,6 +30,7 @@
 #include "mbedtls/rsa.h"
 #include "mbedtls/asn1.h"
 #include "mbedtls/platform_util.h"
+#include "mbedtls/oid.h"
 /*-----------------------------------------------------------*/
 
 /* @brief Converts PEM documents into DER formatted byte arrays.

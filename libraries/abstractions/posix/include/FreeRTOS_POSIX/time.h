@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -67,30 +67,32 @@
  * For functions taking timer objects, this refers to the clock associated with the timer.
  */
 /**@{ */
-#define TIMER_ABSTIME     0x01
+#define TIMER_ABSTIME    0x01
 /**@} */
 
 #if !defined( posixconfigENABLE_TIMESPEC ) || ( posixconfigENABLE_TIMESPEC == 1 )
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief represents an elapsed time
  */
     struct timespec
     {
-        time_t tv_sec;     /**< Seconds. */
-        long tv_nsec;      /**< Nanoseconds. */
+        time_t tv_sec; /**< Seconds. */
+        long tv_nsec;  /**< Nanoseconds. */
     };
 #endif
 
 #if !defined( posixconfigENABLE_ITIMERSPEC ) || ( posixconfigENABLE_ITIMERSPEC == 1 )
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief timer
  */
     struct itimerspec
     {
-        struct timespec it_interval;     /**< Timer period. */
-        struct timespec it_value;        /**< Timer expiration. */
+        struct timespec it_interval; /**< Timer period. */
+        struct timespec it_value;    /**< Timer expiration. */
     };
 #endif
 

@@ -1,5 +1,29 @@
+/*
+ * Amazon FreeRTOS PKCS #11 V1.0.0
+ * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
+ */
+
 #include "iot_pkcs11.h"
-#include "pkcs11.h"
 #include "iot_pkcs11_config.h"
 #include "FreeRTOS.h"
 
@@ -10,25 +34,12 @@
 
 /*-----------------------------------------------------------*/
 
-/* @brief Get a list of available PKCS #11 slots.
- *
- * \note This function allocates memory for slots.
- * Freeing this memory is the responsibility of the caller.
- *
- *	\param[out] ppxSlotId       Pointer to slot list.  This slot list is
- *                              malloc'ed by the function and must be
- *                              freed by the caller.
- *  \param[out] pxSlotCount     Pointer to the number of slots found.
- *
- *  \return CKR_OK or PKCS #11 error code. (PKCS #11 error codes are positive).
- *
- */
-CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
-                      CK_ULONG * pxSlotCount )
+CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
+                    CK_ULONG * pxSlotCount )
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_SLOT_ID * pxSlotId= NULL;
+    CK_SLOT_ID * pxSlotId = NULL;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -43,11 +54,14 @@ CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
     {
         /* Allocate memory for the slot list. */
         pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * ( *pxSlotCount ) );
-        *ppxSlotId = pxSlotId;
 
-        if( *ppxSlotId == NULL )
+        if( pxSlotId == NULL )
         {
             xResult = CKR_HOST_MEMORY;
+        }
+        else
+        {
+            *ppxSlotId = pxSlotId;
         }
     }
 
@@ -56,7 +70,7 @@ CK_RV prvGetSlotList( CK_SLOT_ID ** ppxSlotId,
         xResult = pxFunctionList->C_GetSlotList( CK_TRUE, pxSlotId, pxSlotCount );
     }
 
-    if( xResult != CKR_OK )
+    if( ( xResult != CKR_OK ) && ( pxSlotId != NULL ) )
     {
         vPortFree( pxSlotId );
     }
@@ -94,10 +108,12 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
 }
 
 /*-----------------------------------------------------------*/
+
 #ifdef CreateMutex
-    #undef CreateMutex
-    #define CreateMutex    CreateMutex /* This is a hack because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
+    #undef CreateMutex /* This is a workaround because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
 #endif
+
+/*-----------------------------------------------------------*/
 
 CK_RV xInitializePKCS11( void )
 {
@@ -123,6 +139,8 @@ CK_RV xInitializePKCS11( void )
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 {
     CK_RV xResult;
@@ -132,10 +150,16 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
+    if( pxSession == NULL )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     /* Initialize the module. */
     if( xResult == CKR_OK )
     {
         xResult = xInitializePKCS11();
+
         if( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED )
         {
             xResult = CKR_OK;
@@ -145,7 +169,7 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
     /* Get a list of slots available. */
     if( xResult == CKR_OK )
     {
-        xResult = prvGetSlotList( &pxSlotId, &xSlotCount );
+        xResult = xGetSlotList( &pxSlotId, &xSlotCount );
     }
 
     /* Open a PKCS #11 session. */
@@ -157,15 +181,15 @@ CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
          */
         xResult = prvOpenSession( pxSession, pxSlotId[ 0 ] );
 
-        /* Free the memory allocated by prvGetSlotList. */
+        /* Free the memory allocated by xGetSlotList. */
         vPortFree( pxSlotId );
     }
 
-    if( xResult == CKR_OK && pxFunctionList->C_Login != NULL )
+    if( ( xResult == CKR_OK ) && ( pxFunctionList->C_Login != NULL ) )
     {
         xResult = pxFunctionList->C_Login( *pxSession,
                                            CKU_USER,
-                                           ( CK_UTF8CHAR_PTR )configPKCS11_DEFAULT_USER_PIN,
+                                           ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
                                            sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
@@ -201,11 +225,16 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_ATTRIBUTE xTemplate[ 2 ] =
     {
-        { CKA_LABEL, ( char * ) pcLabelName, strlen( pcLabelName ) },
+        { CKA_LABEL, ( char * ) pcLabelName, strlen( pcLabelName )     },
         { CKA_CLASS, &xClass,                sizeof( CK_OBJECT_CLASS ) }
     };
 
     xResult = C_GetFunctionList( &pxFunctionList );
+
+    if( ( pcLabelName == NULL ) || ( pxHandle == NULL ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
 
     /* Get the certificate handle. */
     if( 0 == xResult )
@@ -235,13 +264,23 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-void vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
-                                               uint8_t * x51ByteHashOidBuffer )
+/*-----------------------------------------------------------*/
+
+CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
+                                                uint8_t * x51ByteHashOidBuffer )
 {
+    CK_RV xResult = CKR_OK;
     uint8_t xOidSequence[] = pkcs11STUFF_APPENDED_TO_RSA_SIG;
+
+    if( ( x32ByteHashedMessage == NULL ) || ( x51ByteHashOidBuffer == NULL ) )
+    {
+        xResult = CKR_ARGUMENTS_BAD;
+    }
+
     memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
     memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
-    return;
+
+    return xResult;
 }
 
 /*-----------------------------------------------------------*/

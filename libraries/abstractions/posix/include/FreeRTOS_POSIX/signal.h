@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -51,20 +51,21 @@
  */
 union sigval
 {
-    int sival_int;        /**< Integer signal value. */
-    void * sival_ptr;     /**< Pointer signal value. */
+    int sival_int;    /**< Integer signal value. */
+    void * sival_ptr; /**< Pointer signal value. */
 };
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief Signal event structure.
  */
 struct sigevent
 {
-    int sigev_notify;                                     /**< Notification type. A value of SIGEV_SIGNAL is not supported. */
-    int sigev_signo;                                      /**< Signal number. This member is ignored. */
-    union sigval sigev_value;                             /**< Signal value. Only the sival_ptr member is used. */
-    void ( * sigev_notify_function )( union sigval );     /**< Notification function. */
-    pthread_attr_t * sigev_notify_attributes;             /**< Notification attributes. */
+    int sigev_notify;                                 /**< Notification type. A value of SIGEV_SIGNAL is not supported. */
+    int sigev_signo;                                  /**< Signal number. This member is ignored. */
+    union sigval sigev_value;                         /**< Signal value. Only the sival_ptr member is used. */
+    void ( * sigev_notify_function )( union sigval ); /**< Notification function. */
+    pthread_attr_t * sigev_notify_attributes;         /**< Notification attributes. */
 };
 
 #endif /* ifndef _FREERTOS_POSIX_SIGNAL_H_ */

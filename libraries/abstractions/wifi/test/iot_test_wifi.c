@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS WiFi V1.0.3
+ * Amazon FreeRTOS WiFi V1.0.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -811,9 +811,10 @@ TEST( Full_WiFi, AFQP_WIFI_SetMode_InvalidMode )
         xWiFiStatus = WIFI_SetMode( eWiFiModeNotSupported );
         TEST_WIFI_ASSERT_OPTIONAL_API( xWiFiStatus != eWiFiSuccess, xWiFiStatus );
     }
-    /* Some ports will use an assert for invalid parameters instead of returning a failure code. 
-       Because of this there is no else { TEST_FAIL(); } appended to this if( TEST_PROTECT() ) block. 
-       This applies to all invalid parameter tests in this file. */
+
+    /* Some ports will use an assert for invalid parameters instead of returning a failure code.
+     * Because of this there is no else { TEST_FAIL(); } appended to this if( TEST_PROTECT() ) block.
+     * This applies to all invalid parameter tests in this file. */
 }
 
 /**

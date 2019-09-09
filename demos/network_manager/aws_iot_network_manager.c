@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -368,7 +368,7 @@ static IotNetworkManager_t networkManager =
 
         if( ret == true )
         {
-            if( IotBle_StopAdv() != eBTStatusSuccess )
+            if( IotBle_StopAdv( NULL ) != eBTStatusSuccess )
             {
                 ret = false;
             }
@@ -396,7 +396,7 @@ static IotNetworkManager_t networkManager =
         if( isConnected == true )
         {
             IotLogInfo( "BLE Connected to remote device, connId = %d\n", connectionID );
-            IotBle_StopAdv();
+            IotBle_StopAdv( NULL );
             newState = eNetworkStateEnabled;
         }
         else

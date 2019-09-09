@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -53,8 +53,8 @@ static BTStatus_t _createAttributes( BTService_t * pService );
 static size_t _computeNumberOfHandles( BTService_t * pService );
 static void _serviceClean( BLEServiceListElement_t * pServiceElem );
 static BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle );
-static BaseType_t _getCallbackFromHandle( uint16_t attrHandle,
-                                          IotBleAttributeEventCallback_t * pEventsCallbacks );
+static bool _getCallbackFromHandle( uint16_t attrHandle,
+                                    IotBleAttributeEventCallback_t * pEventsCallbacks );
 static BLEServiceListElement_t * _getLastAddedServiceElem( void );
 static void _attributeAdded( uint16_t handle,
                              BTStatus_t status );
@@ -191,11 +191,11 @@ BLEServiceListElement_t * _getServiceListElemFromHandle( uint16_t handle )
 
 /*-----------------------------------------------------------*/
 
-BaseType_t _getCallbackFromHandle( uint16_t attrHandle,
-                                   IotBleAttributeEventCallback_t * pEventsCallbacks )
+bool _getCallbackFromHandle( uint16_t attrHandle,
+                             IotBleAttributeEventCallback_t * pEventsCallbacks )
 {
     BLEServiceListElement_t * pServiceElem;
-    BaseType_t foundService = pdFAIL;
+    bool foundService = false;
     size_t attributeIndex;
 
     /* The service that was just added is the last in the list */
@@ -208,7 +208,7 @@ BaseType_t _getCallbackFromHandle( uint16_t attrHandle,
             if( pServiceElem->pService->pusHandlesBuffer[ attributeIndex ] == attrHandle )
             {
                 *pEventsCallbacks = pServiceElem->pEventsCallbacks[ attributeIndex ];
-                foundService = pdPASS;
+                foundService = true;
                 break;
             }
         }
@@ -468,7 +468,7 @@ void _requestReadCb( uint16_t connId,
     IotBleReadEventParams_t readParam;
     IotBleAttributeEvent_t eventParam;
 
-    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == true )
     {
         readParam.attrHandle = attrHandle;
         readParam.pRemoteBdAddr = pBda;
@@ -499,7 +499,7 @@ void _requestWriteCb( uint16_t connId,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( attrHandle, &eventsCallbacks ) == true )
     {
         if( isPrep == true )
         {
@@ -541,7 +541,7 @@ void _execWriteCb( uint16_t connId,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( _BTInterface.handlePendingPrepareWrite, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( _BTInterface.handlePendingPrepareWrite, &eventsCallbacks ) == true )
     {
         execWriteParam.pRemoteBdAddr = pBda;
         execWriteParam.transId = transId;
@@ -581,7 +581,7 @@ static void _responseConfirmationCb( BTStatus_t status,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( handle, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( handle, &eventsCallbacks ) == true )
     {
         respConfirmParam.handle = handle;
         respConfirmParam.status = status;
@@ -602,7 +602,7 @@ static void _indicationSentCb( uint16_t connId,
     IotBleAttributeEvent_t eventParam;
     IotBleAttributeEventCallback_t eventsCallbacks;
 
-    if( _getCallbackFromHandle( _BTInterface.handlePendingIndicationResponse, &eventsCallbacks ) == pdPASS )
+    if( _getCallbackFromHandle( _BTInterface.handlePendingIndicationResponse, &eventsCallbacks ) == true )
     {
         indicationSentParam.connId = connId;
         indicationSentParam.status = status;
@@ -744,7 +744,6 @@ BTStatus_t IotBle_CreateService( BTService_t * pService,
                                  IotBleAttributeEventCallback_t pEventsCallbacks[] )
 {
     BTStatus_t status = eBTStatusParamInvalid;
-    uint16_t index;
     BLEServiceListElement_t * pServiceElem;
 
     IotMutex_Lock( &_BTInterface.waitCbMutex );
@@ -849,10 +848,7 @@ BTStatus_t IotBle_SendIndication( IotBleEventResponse_t * pxResp,
 
     if( pxResp != NULL )
     {
-        if( bConfirm == true )
-        {
-            _BTInterface.handlePendingIndicationResponse = pxResp->pAttrData->handle;
-        }
+        _BTInterface.handlePendingIndicationResponse = pxResp->pAttrData->handle;
 
         status = _BTInterface.pGattServerInterface->pxSendIndication( _BTInterface.serverIf,
                                                                       pxResp->pAttrData->handle,

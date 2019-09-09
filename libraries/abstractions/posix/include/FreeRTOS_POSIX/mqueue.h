@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -42,14 +42,15 @@
 typedef void * mqd_t;
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief Message queue attributes.
  */
 struct mq_attr
 {
-    long mq_flags;       /**< Message queue flags. */
-    long mq_maxmsg;      /**< Maximum number of messages. */
-    long mq_msgsize;     /**< Maximum message size. */
-    long mq_curmsgs;     /**< Number of messages currently queued. */
+    long mq_flags;   /**< Message queue flags. */
+    long mq_maxmsg;  /**< Maximum number of messages. */
+    long mq_msgsize; /**< Maximum message size. */
+    long mq_curmsgs; /**< Number of messages currently queued. */
 };
 
 /**

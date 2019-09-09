@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.0
+ * Amazon FreeRTOS POSIX V1.1.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -69,11 +69,11 @@
  * @name File access modes for open(), openat(), and fcntl().
  */
 /**@{ */
-#define O_EXEC       0x1000 /**< Open for execute only (non-directory files). */
-#define O_RDONLY     0x2000 /**< Open for reading only. */
-#define O_RDWR       0xA000 /**< Open for reading and writing. */
-#define O_SEARCH     0x4000 /**< Open directory for search only. */
-#define O_WRONLY     0x8000 /**< Open for writing only. */
+#define O_EXEC      0x1000  /**< Open for execute only (non-directory files). */
+#define O_RDONLY    0x2000  /**< Open for reading only. */
+#define O_RDWR      0xA000  /**< Open for reading and writing. */
+#define O_SEARCH    0x4000  /**< Open directory for search only. */
+#define O_WRONLY    0x8000  /**< Open for writing only. */
 /**@} */
 
 #endif /* ifndef _FREERTOS_POSIX_FCNTL_H_ */
