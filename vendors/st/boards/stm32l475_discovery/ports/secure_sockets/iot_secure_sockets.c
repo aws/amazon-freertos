@@ -545,7 +545,8 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
     /* Ensure that only supported values are supplied. */
     configASSERT( lDomain == SOCKETS_AF_INET );
-    configASSERT( ( lType == SOCKETS_SOCK_STREAM && lProtocol == SOCKETS_IPPROTO_TCP ) );
+    configASSERT( ( lType == SOCKETS_SOCK_STREAM ) || ( lType == SOCKETS_SOCK_DGRAM ) );
+    configASSERT( ( lProtocol == SOCKETS_IPPROTO_TCP ) || ( lProtocol == SOCKETS_IPPROTO_UDP ) );
 
     /* Try to get a free socket. */
     ulSocketNumber = prvGetFreeSocket();
@@ -554,7 +555,14 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
     if( ulSocketNumber != ( uint32_t ) SOCKETS_INVALID_SOCKET )
     {
         /* Store the socket type. */
-        xSockets[ ulSocketNumber ].xSocketType = ES_WIFI_TCP_CONNECTION;
+        if( lProtocol == SOCKETS_IPPROTO_TCP )
+        {
+            xSockets[ ulSocketNumber ].xSocketType = ES_WIFI_TCP_CONNECTION;
+        }
+        else if( lProtocol == SOCKETS_IPPROTO_UDP )
+        {
+            xSockets[ ulSocketNumber ].xSocketType = ES_WIFI_UDP_CONNECTION;
+        }
 
         /* Initialize all the members to sane values. */
         xSockets[ ulSocketNumber ].ulFlags = 0;
@@ -861,6 +869,137 @@ int32_t SOCKETS_Send( Socket_t xSocket,
     return lSentBytes;
 }
 /*-----------------------------------------------------------*/
+
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+
+    int32_t SOCKETS_Bind( Socket_t xSocket,
+                          const SocketsSockaddr_t * pxAddress,
+                          Socklen_t xAddressLength )
+    {
+        int32_t lRetVal = SOCKETS_SOCKET_ERROR;
+        ES_WIFI_Conn_t xWiFiConnection;
+        uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) && ( pxAddress != NULL ) )
+        {
+            pxSocket = &( xSockets[ ulSocketNumber ] );
+
+            /* Check that the socket is not already connected. */
+            if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) != 0UL )
+            {
+                /* Connect attempted on an already connected socket. */
+                lRetVal = SOCKETS_SOCKET_ERROR;
+            }
+
+            /* Try to acquire the semaphore. */
+            if( ( lRetVal == SOCKETS_ERROR_NONE ) &&
+                ( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE ) )
+            {
+                /* Setup connection parameters. */
+                xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
+                xWiFiConnection.Type = pxSocket->xSocketType;
+                xWiFiConnection.RemotePort = SOCKETS_ntohs( pxAddress->usPort ); /* WiFi Module expects the port number in host byte order. */
+                memcpy( &( xWiFiConnection.RemoteIP ),
+                        &( pxAddress->ulAddress ),
+                        sizeof( xWiFiConnection.RemoteIP ) );
+                xWiFiConnection.LocalPort = 0;
+                xWiFiConnection.Name = NULL;
+
+                /* Start the client connection. */
+                if( ES_WIFI_StartClientConnection( &( xWiFiModule.xWifiObject ), &( xWiFiConnection ) ) == ES_WIFI_STATUS_OK )
+                {
+                    /* Successful connection is established. */
+                    lRetVal = SOCKETS_ERROR_NONE;
+
+                    /* Mark that the socket is connected. */
+                    pxSocket->ulFlags |= stsecuresocketsSOCKET_IS_CONNECTED_FLAG;
+                }
+                else
+                {
+                    /* Connection failed. */
+                    lRetVal = SOCKETS_SOCKET_ERROR;
+                }
+            }
+        }
+        return lRetVal;
+    }
+
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_SendTo( Socket_t xSocket,
+                            const void * pvBuffer,
+                            size_t xDataLength,
+                            uint32_t ulFlags,
+                            const SocketsSockaddr_t * pxAddress,
+                            Socklen_t xAddressLength )
+    {
+        int32_t lRetVal = SOCKETS_SOCKET_ERROR;
+
+        /* ss_ctx_t * ctx = ( ss_ctx_t * ) xSocket; */
+        /* struct sockaddr_in sa_addr = { 0 }; */
+
+        /* if( xSocket == SOCKETS_INVALID_SOCKET ) */
+        /* { */
+        /*     lStatus = SOCKETS_SOCKET_ERROR; */
+        /* } */
+        /* else if( ( pvBuffer == NULL ) || ( xDataLength == 0 ) || ( pxAddress == NULL ) ) */
+        /* { */
+        /*     lStatus = SOCKETS_EINVAL; */
+        /* } */
+        /* else if( ( ctx != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) ) */
+        /* { */
+        /*     sa_addr.sin_family = AF_INET; */
+        /*     sa_addr.sin_addr.s_addr = pxAddress->ulAddress; */
+        /*     sa_addr.sin_port = pxAddress->usPort; */
+        /*     ctx->send_flag = ulFlags; */
+        /*     lStatus = lwip_sendto( ctx->ip_socket, pvBuffer, xDataLength, ctx->send_flag, ( struct sockaddr * ) &sa_addr, sizeof( sa_addr ) ); */
+        /* } */
+
+        return lRetVal;
+    }
+
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_RecvFrom( Socket_t xSocket,
+                              void * pvBuffer,
+                              size_t xDataLength,
+                              uint32_t ulFlags,
+                              SocketsSockaddr_t * pxAddress,
+                              Socklen_t * xAddressLength )
+    {
+        int32_t lRetVal = SOCKETS_SOCKET_ERROR;
+
+        /* ss_ctx_t * ctx = ( ss_ctx_t * ) xSocket; */
+        /* struct sockaddr_in sa_addr = { 0 }; */
+        /* BaseType_t xFlags = 0; */
+        /* uint32_t ulAddressLength = sizeof( sa_addr ); */
+
+        /* if( ulFlags & SOCKETS_MSG_PEEK ) */
+        /* { */
+        /*     xFlags |= MSG_PEEK; */
+        /* } */
+
+        /* if( SOCKETS_INVALID_SOCKET == xSocket ) */
+        /* { */
+        /*     lStatus = SOCKETS_SOCKET_ERROR; */
+        /* } */
+        /* else if( ( ctx != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) ) */
+        /* { */
+        /*     ctx->send_flag = xFlags; */
+        /*     lStatus = lwip_recvfrom( ctx->ip_socket, pvBuffer, xDataLength, ctx->send_flag, ( struct sockaddr * ) &sa_addr, &ulAddressLength ); */
+
+        /*     pxAddress->ulAddress = sa_addr.sin_addr.s_addr; */
+        /*     pxAddress->ucSocketDomain = sa_addr.sin_family; */
+        /*     pxAddress->ucLength = ( uint8_t ) sizeof( *pxAddress ); */
+        /*     pxAddress->usPort = sa_addr.sin_port; */
+        /*     *xAddressLength = sizeof( SocketsSockaddr_t ); */
+        /* } */
+
+        return lRetVal;
+    }
+
+/*-----------------------------------------------------------*/
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
 
 int32_t SOCKETS_Shutdown( Socket_t xSocket,
                           uint32_t ulHow )
