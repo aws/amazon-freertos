@@ -60,6 +60,8 @@
  * bytes in a file with the header: "Range: bytes=N-M", where N is the starting range and M is the ending range. The
  * S3 HTTP server will response with a 206 Partial Content type of response and the file byte range requested. Please
  * note that not all HTTP servers support a Partial Content download with a byte range.
+ *
+ * This demo cannot download a file larger than 2^32 - 1 bytes.
  */
 
 /**
@@ -261,8 +263,10 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     char rangeValueStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
     /* The current attempt in the number of connection tries. */
     uint32_t connAttempt = 0;
-    /* Buffer to read the Connection header value into.  The possible values are "close" and "keep-alive". */
-    char connectionValueStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
+
+    /* Buffer to read the Connection header value into.  The possible values are "close" and "keep-alive". This is the
+     * length of the longest string, "keep-alive" plus a NULL terminator. */
+    char connectionValueStr[ CONNECTION_KEEP_ALIVE_HEADER_VALUE_LENGTH + 1 ] = { 0 };
 
     IotLogInfo( "HTTPS Client Synchronous S3 download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL );
 

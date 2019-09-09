@@ -60,6 +60,8 @@
  * bytes in a file with the header: "Range: bytes=N-M", where N is the starting range and M is the ending range. The
  * S3 HTTP server will response with a 206 Partial Content type of response and the file byte range requested. Please
  * note that not all HTTP servers support a Partial Content download with a byte range.
+ *
+ * This demo cannot download a file larger than 2^32 - 1 bytes.
  */
 
 /**
@@ -219,10 +221,10 @@ typedef struct _requestData
 typedef struct _fileDownloadInfo
 {
     uint32_t fileSize;          /**< @brief The total size of the file to be downloaded. */
-    int32_t totalRanges;        /**< @brief the total number of ranges in the file size. */
+    uint32_t totalRanges;       /**< @brief the total number of ranges in the file size. */
     uint8_t * downloadedBitmap; /**< @brief Bitmap to keep track of chunks downlaoded. */
     uint8_t * scheduledBitmap;  /**< @brief Bitmap of ranges scheduled, but not completed. */
-    int32_t rangesRemaining;    /**< @brief The total number of ranges remaining to download. */
+    uint32_t rangesRemaining;   /**< @brief The total number of ranges remaining to download. */
 } _fileDownloadInfo_t;
 
 /**
@@ -285,7 +287,7 @@ typedef struct _requestPool
 static uint8_t _pRespBodyBuffer[ IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE ] = { 0 };
 
 /**
- * @brief Semaphore use to signal that the demo is finished.
+ * @brief Semaphore used to signal that the demo is finished.
  * The task that downloads the final increment of the file posts to this semaphore.
  */
 static IotSemaphore_t _fileFinishedSem = { 0 };
@@ -313,7 +315,7 @@ static IotMutex_t _inUseRequestsMutex = { 0 };
 static IotMutex_t _requestSchedulingMutex = { 0 };
 
 /**
- * @brief Configurations for the HTTPS connection. '
+ * @brief Configurations for the HTTPS connection.
  */
 static IotHttpsConnectionInfo_t _connConfig = { 0 };
 
@@ -449,7 +451,7 @@ static int _initializeFileDownloadInformation( size_t fileSize )
 
     _fileDownloadInfo.fileSize = fileSize;
 
-    /* Cet the total number of ranges needed to download the file. */
+    /* Set the total number of ranges needed to download the file. */
     _fileDownloadInfo.totalRanges = ( _fileDownloadInfo.fileSize + IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE - 1 ) / IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE;
     _fileDownloadInfo.rangesRemaining = _fileDownloadInfo.totalRanges;
     /* Calculate the length of the rangeBitmap to keep track of already downloaded ranges. */
@@ -501,19 +503,20 @@ static void _cleanupFileDownloadInformation( void )
 /**
  * @brief Starting from a current range, get the next incomplete file byte range.
  *
- * A range is incomplete if is both not completely downloaded and it is unscheduled to an asynchronous request.
- * If the currentRange is incomplete, then that is returned, other wise the next incomplete one is returned.
+ * A range is incomplete if it is both not completely downloaded and it is unscheduled to an asynchronous request.
+ * If the currentRange is incomplete, then that is returned, otherwise the next incomplete one is returned.
  * If the next incomplete range is before the currentRange, this routine will circle back to the start of the bitmap to
  * get the incomplete range.
  *
- * @param[in] The currentRange to start checking for an incomplete range.
+ * @param[in out] The currentRange to start checking for an incomplete range. This will get replaced with the incomplete
+ *  range. The value here is valid only if the function returns true.
  *
- * @return  -1 if there are not incomplete ranges left.
- *          A positive index within the bitmap length of an incomplete range.
+ * @return  false if there are no incomplete ranges left.
+ *          True if an incomplete range was found.
  */
-static int32_t _getNextIncompleteRange( int32_t currentRange )
+static bool _getNextIncompleteRange( uint32_t * currentRange )
 {
-    int32_t returnRange = -1;
+    bool found = false;
     /* An intermediate bitMask calculation for checking if the currentRange is already downloaded or not. */
     uint32_t bitMask = 0;
     /* An intermediate byteOffset into the downlaodedBitmap to check if the currentRange is already downloaded or not. */
@@ -525,8 +528,8 @@ static int32_t _getNextIncompleteRange( int32_t currentRange )
 
     do
     {
-        bitMask = BITMASK( currentRange );
-        byteOffset = BYTE_OFFSET( currentRange );
+        bitMask = BITMASK( *currentRange );
+        byteOffset = BYTE_OFFSET( *currentRange );
 
         if( ( ( _fileDownloadInfo.downloadedBitmap[ byteOffset ] & bitMask ) == ( ( uint8_t ) 0 ) ) &&
             ( ( _fileDownloadInfo.scheduledBitmap[ byteOffset ] & bitMask ) == ( ( uint8_t ) 0 ) ) )
@@ -535,25 +538,25 @@ static int32_t _getNextIncompleteRange( int32_t currentRange )
         }
 
         rangeCheckCount++;
-        currentRange++;
+        ( *currentRange )++;
 
         /* This is less expensive than a modulus. */
-        if( currentRange == _fileDownloadInfo.totalRanges )
+        if( *currentRange == _fileDownloadInfo.totalRanges )
         {
-            currentRange = 0;
+            *currentRange = 0;
         }
     } while( rangeCheckCount < _fileDownloadInfo.totalRanges );
 
     if( rangeCheckCount == _fileDownloadInfo.totalRanges )
     {
-        returnRange = -1;
+        found = false;
     }
     else
     {
-        returnRange = currentRange;
+        found = true;
     }
 
-    return returnRange;
+    return found;
 }
 
 /*-----------------------------------------------------------*/
@@ -564,7 +567,7 @@ static int32_t _getNextIncompleteRange( int32_t currentRange )
 static void _clearAllScheduledRanges( void )
 {
     /* The current range to check if it is scheduled. */
-    int32_t rangeIndex = 0;
+    uint32_t rangeIndex = 0;
     /* Bit mask to check in the scheduled bit map if the range has been scheduled. */
     uint32_t bitMask = 0;
     /* Byte offset into the scheduled bit map where the range will be located. */
@@ -641,10 +644,9 @@ static void _readReadyCallback( void * pPrivData,
     /* The content length of this HTTP response. */
     uint32_t contentLength = 0;
 
-    /* Buffer to read the Connection header value into.  The possible values are "close" and "keep-alive". This buffer
-     * is sized the same as the "Range" header value because the Range header value max is greater than the
-     * Connection header values anyways. */
-    char connectionValueStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
+    /* Buffer to read the HTTP "Connection" header value into.  The possible values are "close" and "keep-alive". This
+     * is the length of the longest string, "keep-alive" plus a NULL terminator. */
+    char connectionValueStr[ CONNECTION_KEEP_ALIVE_HEADER_VALUE_LENGTH + 1 ] = { 0 };
 
     IotLogInfo( "Inside of the read ready callback for part %s with network return code: %d", pRequestData->rangeValueStr, rc );
 
@@ -717,20 +719,28 @@ static void _readReadyCallback( void * pPrivData,
 
     /* Only in the non-error case of the downloaded data equalling the number of requested bytes is the ranged marked
      * as downloaded. Also, it makes sense only in the non-error case to check if the server closed the connection.
-     * Error cases, such as the response body not having the number of requested bytes in the range, will stop the demo
-     * anyways. */
+     * Error cases, such as the response body not having the number of requested bytes in the range, will stop the
+     * demo. */
     if( pRequestData->currDownloaded == pRequestData->numReqBytes )
     {
+        /* Defensive check for overflow. */
+        if( _fileDownloadInfo.rangesRemaining == 0 )
+        {
+            IotLogError( "An extra range was downloaded; Range: %s.", pRequestData->rangeValueStr );
+            IotHttpsClient_CancelResponseAsync( respHandle );
+            return;
+        }
+
         _fileDownloadInfo.rangesRemaining--;
         _fileDownloadInfo.downloadedBitmap[ BYTE_OFFSET( pRequestData->currRange ) ] |= BITMASK( pRequestData->currRange );
 
         /* Check if the server closed the connection. This done in the readReadyCallback() because a possible pending
          * request could be sent right after this response's body is finished being read. This means the
          * responseCompleteCallback() is invoked at the same time as another request is sending on the same connetion.
-         * This is to increase parallelism in the library. Because the responseCompeteCallback() could be executing at
-         * the same time a request is being sent, if the server closed the connection, a reconnection needs to be made
-         * before the next request sends and gets a network error ending the demo. Please see the design flow for more
-         * information: https://docs.aws.amazon.com/freertos/latest/lib-ref/https/https_design.html#Asynchronous_Design */
+         * This is done to increase parallelism in the library. Because the responseCompeteCallback() could be executing
+         * at the same time a request is being sent, a reconnection needs to be made before the next request sends and
+         * gets a network error ending the demo. Please see the design flow for more information:
+         * https://docs.aws.amazon.com/freertos/latest/lib-ref/https/https_design.html#Asynchronous_Design */
         returnStatus = IotHttpsClient_ReadHeader( respHandle,
                                                   CONNECTION_HEADER_FIELD,
                                                   CONNECTION_HEADER_FILED_LENGTH,
@@ -823,7 +833,7 @@ static void _responseCompleteCallback( void * pPrivData,
          * is finished when the number of ranges downloaded equals the total number of ranges. */
         IotLogInfo( "Downloaded: %d/%d range blocks", _fileDownloadInfo.totalRanges - _fileDownloadInfo.rangesRemaining, _fileDownloadInfo.totalRanges );
 
-        if( _fileDownloadInfo.rangesRemaining <= 0 )
+        if( _fileDownloadInfo.rangesRemaining == 0 )
         {
             IotLogDebug( "File fully downloaded. Range blocks downloaded: %d", _fileDownloadInfo.totalRanges - _fileDownloadInfo.rangesRemaining );
             IotSemaphore_Post( &( _fileFinishedSem ) );
@@ -833,7 +843,7 @@ static void _responseCompleteCallback( void * pPrivData,
     /* Free up this request from the request pool. This is done last to ensure that the requestData is not
      * overwritten by a new request. */
     _freeRequestIndex( pRequestData->reqNum );
-    _fileDownloadInfo.scheduledBitmap[ BYTE_OFFSET( pRequestData->currRange ) ] |= BITMASK( pRequestData->currRange );
+    _fileDownloadInfo.scheduledBitmap[ BYTE_OFFSET( pRequestData->currRange ) ] &= ~( BITMASK( pRequestData->currRange ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -1139,7 +1149,6 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
             IotLogError( "Failed to connect to the S3 server, retrying after %d ms.",
                          IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS );
             IotClock_SleepMs( IOT_DEMO_HTTPS_CONNECTION_RETRY_WAIT_MS );
-            continue;
         }
         else
         {
@@ -1188,13 +1197,11 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
             continue;
         }
 
-        /* Checking for a scheduledBitmap and scheduling the request is locked in the entirety. This is just incase we
-         * we need to reconnect a closed connection during one of the asynchronous responses. */
+        /* Checking for a scheduledBitmap and scheduling the request is locked in the entirety. This is just in case the
+         * closed connection is reconnected during one of the asynchronous responses. */
         IotMutex_Lock( &( _requestSchedulingMutex ) );
 
-        currentRange = _getNextIncompleteRange( currentRange );
-
-        if( currentRange < 0 )
+        if( !( _getNextIncompleteRange( &currentRange ) ) )
         {
             IotLogWarn( "All ranges have been marked as downloaded or are already scheduled." );
         }
