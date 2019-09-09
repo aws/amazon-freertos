@@ -1025,7 +1025,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     /* The current request index being processed. */
     int reqIndex = 0;
     /* The current range that is getting ready to schedule a request for. */
-    int32_t currentRange = 0;
+    uint32_t currentRange = 0;
     /* The length of file that is desired to download. */
     size_t fileSize = 0;
 
