@@ -758,31 +758,31 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
 
     /* Check for RSA PKCS #1 signing support. */
-    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[0], CKM_RSA_PKCS, &MechanismInfo );
-    TEST_ASSERT_TRUE(CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult);
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_RSA_PKCS, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+
     if( CKR_OK == xResult )
     {
-        configPRINTF(("The PKCS #11 module supports RSA signing.\r\n"));
+        configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
     }
 
     /* Check for ECDSA support. */
-    xResult = pxGlobalFunctionList->C_GetMechanismInfo(pxSlotId[0], CKM_ECDSA, &MechanismInfo);
-    TEST_ASSERT_TRUE(CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult);
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_ECDSA, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+
     if( CKR_OK == xResult )
     {
-        configPRINTF(("The PKCS #11 module supports ECDSA.\r\n"));
+        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
     }
 
     /* Check for elliptic-curve key generation support. */
-    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[0], CKM_EC_KEY_PAIR_GEN, &MechanismInfo );
-    TEST_ASSERT_TRUE(CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult);
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_EC_KEY_PAIR_GEN, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+
     if( CKR_OK == xResult )
     {
-        configPRINTF(("The PKCS #11 module supports elliptic-curve key generation.\r\n"));
+        configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
     }
-
-    /* Check for key import support. */
-    /* TODO */
 }
 
 /*--------------------------------------------------------*/
