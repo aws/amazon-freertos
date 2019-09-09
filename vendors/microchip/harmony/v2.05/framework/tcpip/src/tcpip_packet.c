@@ -76,7 +76,19 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
     #define TCPIP_MAC_FRAME_OFFSET      2
 #endif
 #endif
-#define TCPIP_MAC_FRAME_OFFSET      10  // this should match FreeRTOSIP ipconfigBUFFER_PADDING!
+
+/* The space between the start of the network buffer and the actual start of the
+Ethernet header.
+The value should be the same as FreeRTOS+TCP's 'ipconfigBUFFER_PADDING'. */
+
+#ifdef PIC32_USE_ETHERNET
+    /* The Ethernet library wants to store a pointer to a 'TCPIP_MAC_PACKET'.
+    See also the projects' FreeRTOSIPConfig.h, in which ipconfigBUFFER_PADDING
+    must be defined with the same value. */
+    #define TCPIP_MAC_FRAME_OFFSET      14
+#else
+    #define TCPIP_MAC_FRAME_OFFSET      10
+#endif
 
 static TCPIP_STACK_HEAP_HANDLE    pktMemH = 0;
 static bool                 pktK0Heap = 0;
