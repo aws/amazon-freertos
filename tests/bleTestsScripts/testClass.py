@@ -83,6 +83,9 @@ class runTest:
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
+    DUT_LONG_STRING = ["A" * (MTU_SIZE - 3), "B" * (MTU_SIZE - 3), "C" * (MTU_SIZE - 3)]
+    DUT_CHAR_E_STRING = "E"
+    DUT_CHAR_F_STRING = "F"
     isNotificationDeclinedSuccessFull = False
 
     testResult = False
@@ -118,20 +121,22 @@ class runTest:
             runTest.mainloop.quit()
 
     @staticmethod
-    def notificationCb(uuid, value):
-        isNotificationTestSuccessFull = runTest.notification(uuid, value)
+    def notificationCb(uuid, value, flag):
+        isNotificationTestSuccessFull = runTest.notification(uuid, value, flag)
         if isNotificationTestSuccessFull == True:
             #notificationEvent.set()
             runTest.mainloop.quit()
 
-        isIndicationTestSuccessFull = runTest.indication(uuid, value)
+    @staticmethod
+    def indicationCb(uuid, value, flag):
+        isIndicationTestSuccessFull = runTest.indication(uuid, value, flag)
         if isIndicationTestSuccessFull == True:
             #indicationEvent.set()
             runTest.mainloop.quit()
 
     @staticmethod
-    def notificationMTUCb(uuid, value):
-        notification = runTest.notificationMTU2(uuid, value)
+    def notificationMTUCb(uuid, value, flag):
+        notification = runTest.notificationMTU2(uuid, value, flag)
         if notification == runTest.DUT_FAIL_STRING:
             runTest.mainloop.quit()
             runTest.isNotificationDeclinedSuccessFull = True
@@ -251,34 +256,41 @@ class runTest:
 
 
     @staticmethod
-    def indication(uuid, value):
+    def indication(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING):
+        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING) and (flag == "indicate"):
             isSuccessfull = True
 
         return isSuccessfull
 
     @staticmethod
-    def notification(uuid, value):
+    def notification(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING) and (flag == "notify"):
             isSuccessfull = True
 
         return isSuccessfull
 
     @staticmethod
-    def notificationMTU2(uuid, value):
-        if uuid == runTest.DUT_NOTIFY_CHAR_UUID:
+    def notificationMTU2(uuid, value, flag):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (flag == "notify"):
             return value;
 
     @staticmethod
-    def notifyFailure(uuid, value):
+    def notificationOnCharE(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_FAIL_STRING):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_CHAR_E_STRING) and (flag == "notify"):
             isSuccessfull = True
 
         return isSuccessfull
 
+    @staticmethod
+    def indicationOnCharF(uuid, value, flag):
+        isSuccessfull = False
+        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_CHAR_F_STRING) and (flag == "indicate"):
+            isSuccessfull = True
+
+        return isSuccessfull
 
     @staticmethod
     def writeWithoutResponse():
@@ -391,7 +403,7 @@ class runTest:
             return False
         else:
             if (DUT_UUID not in UUIDs):
-                print("Advertisement test: Waiting for device UUID {} {} ".format(DUT_UUID, UUIDs))
+                print("Advertisement test: Waiting for device UUID")
                 sys.stdout.flush()
                 return False
 

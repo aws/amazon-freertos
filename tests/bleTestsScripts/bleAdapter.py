@@ -165,8 +165,9 @@ class bleAdapter:
         obj = bus.get_object(testutils.SERVICE_NAME, path)
         if bleAdapter.notificationCb != None:
             uuid = bleAdapter.getPropertie(obj, "UUID", interface=testutils.CHARACTERISTIC_INTERFACE)
+            flag = bleAdapter.getPropertie(obj, "Flags", interface=testutils.CHARACTERISTIC_INTERFACE)[0]
             value = testutils.convert_dbus_array_to_string(bleAdapter.getPropertie(obj, "Value", interface=testutils.CHARACTERISTIC_INTERFACE))
-            bleAdapter.notificationCb.im_func(uuid, value)
+            bleAdapter.notificationCb.im_func(uuid, value, flag)
 
     @staticmethod
     def interfaces_added(path, interfaces):
@@ -241,7 +242,7 @@ class bleAdapter:
         return (isSuccessfull, value)
 
     @staticmethod
-    def writeCharacteristic(uuid, value, response = True, prepareWrite=False):
+    def writeCharacteristic(uuid, value, response = True, offset = 0, prepareWrite=False, reliableWrite = False):
         objInterface  =  dbus.Interface(bleAdapter.gatt.characteristics[uuid]["obj"], dbus_interface=testutils.CHARACTERISTIC_INTERFACE)
         return bleAdapter._writeAttribute(objInterface, uuid, value, prepareWrite = prepareWrite)
 

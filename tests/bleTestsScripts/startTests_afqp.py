@@ -87,11 +87,11 @@ def main():
     bleAdapter.setNotificationCallBack(runTest.notificationCb)
     bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
     bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
-
     isTestSuccessFull = True
     runTest.mainloop.run()
     runTest.submitTestResult(isTestSuccessFull, runTest.notification)
 
+    bleAdapter.setNotificationCallBack(runTest.indicationCb)
     isTestSuccessFull = True
     runTest.mainloop.run()
     runTest.submitTestResult(isTestSuccessFull, runTest.indication)
