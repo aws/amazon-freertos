@@ -322,8 +322,8 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
     /* Disconnect from RPi and Check communication*/
     prvWaitConnection( false );
 
-    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
-    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
+    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, false );
+    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, false );
     prvCheckNotification( false );
     prvCheckIndication( false );
 
