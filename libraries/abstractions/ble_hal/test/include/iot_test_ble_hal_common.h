@@ -500,4 +500,7 @@ BLETESTwriteAttrCallback_t prvWriteReceive( bletestAttSrvB_t xAttribute,
                                             uint16_t usOffset );
 void prvWriteResponse( bletestAttSrvB_t xAttribute, BLETESTwriteAttrCallback_t xWriteEvent, bool IsConnected );
 
+void prvStartStopAdvCheck( bool start );
+void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
+
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */
