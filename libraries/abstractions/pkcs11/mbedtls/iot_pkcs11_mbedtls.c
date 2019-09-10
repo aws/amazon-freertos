@@ -831,6 +831,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
  * @brief This function obtains information about a particular
  * mechanism possibly supported by a token.
  *
+ *  \param[in]  xSlotID         This parameter is unused in this port.
+ *  \param[in]  type            The cryptographic capability for which support
+ *                              information is being queried.
+ *  \param[out] pInfo           Algorithm sizes and flags for the requested
+ *                              mechanism, if supported.
+ *
  * @return CKR_OK if the mechanism is supported. Otherwise, CKR_MECHANISM_INVALID.
  */
 CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
@@ -845,9 +851,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
     }
     pxSupportedMechanisms[] =
     {
-        { CKM_RSA_PKCS,        { 2048, 2048, 0 } },
-        { CKM_ECDSA,           { 256,  256,  0 } },
-        { CKM_EC_KEY_PAIR_GEN, { 256,  256,  0 } }
+        { CKM_RSA_PKCS,        { 2048, 2048, CKF_SIGN              } },
+        { CKM_ECDSA,           { 256,  256,  CKF_SIGN              } },
+        { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
+        { CKM_SHA256,          { 0,    0,    CKF_DIGEST            } }
     };
     uint32_t ulMech = 0;
 
@@ -856,7 +863,9 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
     {
         if( pxSupportedMechanisms[ ulMech ].xType == type )
         {
-            memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ] ), sizeof( CK_MECHANISM_INFO ) );
+            /* The mechanism is supported. Copy out the details and break
+             * out of the loop. */
+            memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ].xInfo ), sizeof( CK_MECHANISM_INFO ) );
             xResult = CKR_OK;
             break;
         }
