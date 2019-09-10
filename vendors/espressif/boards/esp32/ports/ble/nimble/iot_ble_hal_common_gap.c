@@ -246,25 +246,39 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                                              0 );
             }
 
-            if( ble_hs_cfg.sm_sc && ( event->pairing_req.authreq & BLE_SM_PAIR_AUTHREQ_SC ) &&
-                ( ble_sm_sc_ioa[ ble_hs_cfg.sm_io_cap ][ event->pairing_req.io_cap ] == BLE_SM_IOACT_NONE ) )
+            if( ble_hs_cfg.sm_sc && ( event->pairing_req.authreq & BLE_SM_PAIR_AUTHREQ_SC ))
             {
-                ESP_LOGE( TAG, "Just works in Secure Connections only mode" );
-
-                if( xBTCallbacks.pxPairingStateChangedCb != NULL )
+                if ( ble_sm_sc_ioa[ ble_hs_cfg.sm_io_cap ][ event->pairing_req.io_cap ] == BLE_SM_IOACT_NONE )
                 {
-                    xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                                          eBTbondStateNone,
-                                                          eBTSecLevelNoSecurity,
-                                                          eBTauthFailInsuffSecurity );
-                }
+                    ESP_LOGE( TAG, "Just works in Secure Connections only mode" );
 
-                return BLE_SM_ERR_AUTHREQ;
+                    if( xBTCallbacks.pxPairingStateChangedCb != NULL )
+                    {
+                        xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
+                                                              eBTbondStateNone,
+                                                              eBTSecLevelNoSecurity,
+                                                              eBTauthFailInsuffSecurity );
+                    }
+
+                    return BLE_SM_ERR_AUTHREQ;
+
+                }
+                else if (event->pairing_req.max_enc_key_size < BLE_SM_PAIR_KEY_SZ_MAX)
+                {
+
+                    if( xBTCallbacks.pxPairingStateChangedCb != NULL )
+                    {
+                        xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
+                                                              eBTbondStateNone,
+                                                              eBTSecLevelNoSecurity,
+                                                              eBTauthFailInsuffSecurity );
+                    }
+
+                    return BLE_SM_ERR_ENC_KEY_SZ;
+                }
             }
-            else
-            {
-                return 0;
-            }
+
+            return 0;
 
         case BLE_GAP_EVENT_ENC_CHANGE:
             /* Encryption has been enabled or disabled for this connection. */
