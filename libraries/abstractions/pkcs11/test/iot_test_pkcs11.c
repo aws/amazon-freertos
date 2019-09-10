@@ -744,6 +744,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     CK_ULONG xSlotCount = 0;
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_MECHANISM_INFO MechanismInfo = { 0 };
+    CK_BBOOL xSupportsKeyGen = CK_FALSE;
 
     /* Determine the number of slots. */
     xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
@@ -801,6 +802,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
     if( CKR_OK == xResult )
     {
+        xSupportsKeyGen = CK_TRUE;
         configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
 
         TEST_ASSERT_TRUE( 0 != ( CKF_GENERATE_KEY_PAIR & MechanismInfo.flags ) );
@@ -814,6 +816,26 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
     TEST_ASSERT_TRUE( CKR_OK == xResult );
     TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
+
+    /* Check for consistency between static configuration and runtime key
+     * generation settings. */
+    if( CK_TRUE == xSupportsKeyGen )
+    {
+        #ifndef pkcs11testGENERATE_KEYPAIR_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+    }
+    else
+    {
+        #ifdef pkcs11testGENERATE_KEYPAIR_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+    }
+
+    /* Report on static configuration for key import support. */
+    #ifdef pkcs11testIMPORT_PRIVATE_KEY_SUPPORT
+        configPRINTF( ( "The PKCS #11 module supports private key import.\r\n" ) );
+    #endif
 }
 
 /*--------------------------------------------------------*/
