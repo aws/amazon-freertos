@@ -833,14 +833,7 @@ UBaseType_t x;
 	#if( portUSING_MPU_WRAPPERS == 1 )
 		/* Should the task be created in privileged mode? */
 		BaseType_t xRunPrivileged;
-		if( ( uxPriority & portPRIVILEGE_BIT ) != 0U )
-		{
-			xRunPrivileged = pdTRUE;
-		}
-		else
-		{
-			xRunPrivileged = pdFALSE;
-		}
+                xRunPrivileged = pdTRUE;
 		uxPriority &= ~portPRIVILEGE_BIT;
 	#endif /* portUSING_MPU_WRAPPERS == 1 */
 

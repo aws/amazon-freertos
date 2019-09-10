@@ -487,6 +487,18 @@ static void prvSetupMPU( void )
 	/* Check the expected MPU is present. */
 	if( portMPU_TYPE_REG == portEXPECTED_MPU_TYPE_VALUE )
 	{
+		/* Set a background region to be no-execute. */
+		portMPU_REGION_BASE_ADDRESS_REG =	( 0 ) |
+											( portMPU_REGION_VALID ) |
+											( ulRegionIndex );
+
+		portMPU_REGION_ATTRIBUTE_REG =	( portMPU_REGION_READ_ONLY | portMPU_REGION_EXECUTE_NEVER ) |
+										( prvGetMPURegionSizeSetting( 0xF0000000 - 
+																	  0 ) ) |
+										( portMPU_REGION_ENABLE );
+
+		ulRegionIndex++;
+
 		/* Allow read/write access to the general peripherals. */
 		portMPU_REGION_BASE_ADDRESS_REG =	( portPERIPHERALS_START_ADDRESS ) |
 											( portMPU_REGION_VALID ) |
@@ -501,47 +513,51 @@ static void prvSetupMPU( void )
 
 		/* Set the data segment to be read/write, no-execute. */
 		/* TODO - figure out where to stick the SPI flash driver so it's not R/W. */
-		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configDATA_SEGMENT_START ) |
+		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) 0 ) |
                                           ( portMPU_REGION_VALID ) |
                                           ( ulRegionIndex );
 
 		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_WRITE /*| portMPU_REGION_EXECUTE_NEVER */) |
                                        ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
 					       			   ( prvGetMPURegionSizeSetting( ( uint32_t ) configDATA_SEGMENT_END - 
-										  							 ( uint32_t ) configDATA_SEGMENT_START ) ) |
+										  							 ( uint32_t ) 0 ) ) |
 					       		       ( portMPU_REGION_ENABLE );
 
 		ulRegionIndex++;
 
-		/* Set the text segment to be read-only. */
-		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configTEXT_SEGMENT_START ) |
+		/* Set the OTP API segment to be read-only. */
+#define ROM_API_BASE                             (0x03000000u)
+#define ROM_API_END								 (0x03010000u)
+		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) ROM_API_BASE ) |
                                           ( portMPU_REGION_VALID ) |
                                           ( ulRegionIndex );
 
 		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_ONLY ) |
                                        ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-					       			   ( prvGetMPURegionSizeSetting( ( uint32_t ) configTEXT_SEGMENT_END - 
-										  							 ( uint32_t ) configTEXT_SEGMENT_START ) ) |
+					       		       ( prvGetMPURegionSizeSetting( ( uint32_t ) ROM_API_END - 
+										  							 ( uint32_t ) ROM_API_BASE ) ) |
 					       			   ( portMPU_REGION_ENABLE );
 
 		ulRegionIndex++;
 
-		/* Set the interrupts segment to be read-only. */
+		/* Set the interrupts and text segments to be read-only. */
 		portMPU_REGION_BASE_ADDRESS_REG = ( ( uint32_t ) configINTERRUPTS_SEGMENT_START ) |
                                           ( portMPU_REGION_VALID ) |
                                           ( ulRegionIndex );
 
 		portMPU_REGION_ATTRIBUTE_REG = ( portMPU_REGION_READ_ONLY ) |
                                        ( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-					       		       ( prvGetMPURegionSizeSetting( ( uint32_t ) configINTERRUPTS_SEGMENT_END - 
+					       		       ( prvGetMPURegionSizeSetting( ( uint32_t ) configTEXT_SEGMENT_END - 
 										  							 ( uint32_t ) configINTERRUPTS_SEGMENT_START ) ) |
 					       			   ( portMPU_REGION_ENABLE );
+
+		ulRegionIndex++;
 
 		/* Enable the memory fault exception. */
 		portNVIC_SYS_CTRL_STATE_REG |= portNVIC_MEM_FAULT_ENABLE;
 
 		/* Enable the MPU with the background region configured. */
-		portMPU_CTRL_REG |= ( portMPU_ENABLE | portMPU_BACKGROUND_ENABLE );
+		portMPU_CTRL_REG |= ( portMPU_ENABLE /*| portMPU_BACKGROUND_ENABLE */);
 	}
 }
 /*-----------------------------------------------------------*/

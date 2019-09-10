@@ -173,10 +173,10 @@
 /* Definitions for MPU regions that apply to every task. */
 #define configDATA_SEGMENT_START        0x00000004
 #define configDATA_SEGMENT_END          0x0002FFFC
-#define configTEXT_SEGMENT_START        0x100001C4
-#define configTEXT_SEGMENT_END          0x107FFE3C
 #define configINTERRUPTS_SEGMENT_START  0x10000000
 #define configINTERRUPTS_SEGMENT_END    0x100001C4
+#define configTEXT_SEGMENT_START        0x100001C4
+#define configTEXT_SEGMENT_END          0x107FFE3C
 
 /* IMPORTANT: This define MUST be commented when used with STM32Cube firmware,
  *            to prevent overwriting SysTick_Handler defined within STM32Cube HAL. */
