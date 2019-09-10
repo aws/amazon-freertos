@@ -251,7 +251,7 @@ const atcacert_def_t g_cert_def_2_device = {
     .expire_date_format     = DATEFMT_RFC5280_GEN,
     .tbs_cert_loc           = {
         .offset = 4,
-        .count  = 339
+        .count  = 335
     },
     .expire_years           = 0,
     .public_key_dev_loc     = {
