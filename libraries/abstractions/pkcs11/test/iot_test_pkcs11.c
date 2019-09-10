@@ -769,6 +769,16 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
+
+        /* Check for RSA pre-padded signature verification support. This is required
+         * for testing RSA signing. */
+        xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_RSA_X_509, &MechanismInfo );
+        TEST_ASSERT_TRUE( CKR_OK == xResult );
+
+        TEST_ASSERT_TRUE( 0 != ( CKF_VERIFY & MechanismInfo.flags ) );
+
+        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
+                          MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
     }
 
     /* Check for ECDSA support. */
@@ -779,7 +789,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     {
         configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
 
-        TEST_ASSERT_TRUE( 0 != ( CKF_SIGN & MechanismInfo.flags ) );
+        TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );

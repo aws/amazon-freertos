@@ -852,7 +852,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
     pxSupportedMechanisms[] =
     {
         { CKM_RSA_PKCS,        { 2048, 2048, CKF_SIGN              } },
-        { CKM_ECDSA,           { 256,  256,  CKF_SIGN              } },
+        { CKM_RSA_X_509,       { 2048, 2048, CKF_VERIFY            } },
+        { CKM_ECDSA,           { 256,  256,  CKF_SIGN | CKF_VERIFY } },
         { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
         { CKM_SHA256,          { 0,    0,    CKF_DIGEST            } }
     };
