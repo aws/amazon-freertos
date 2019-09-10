@@ -41,10 +41,10 @@ config MBEDTLS_SSL_MAX_CONTENT_LEN
     depends on !MBEDTLS_ASYMMETRIC_CONTENT_LEN
     help
         Maximum TLS message length (in bytes) supported by mbedTLS.
-        
+
         16384 is the default and this value is required to comply
         fully with TLS standards.
-        
+
         However you can set a lower value in order to save RAM. This
         is safe if the other end of the connection supports Maximum
         Fragment Length Negotiation Extension (max_fragment_length,
@@ -91,6 +91,19 @@ config MBEDTLS_DEBUG
 	   "mbedtls/esp_debug.h" and call mbedtls_esp_enable_debug_log()
 	   at runtime in order to enable mbedTLS debug output via the ESP
 	   log mechanism.
+
+config MBEDTLS_ECP_RESTARTABLE
+    bool "Enable mbedTLS ecp restartable"
+    default n
+    help
+        Enable "non-blocking" ECC operations that can return early and be resumed.
+
+config MBEDTLS_CMAC_C
+    bool "Enable CMAC mode for block ciphers"
+    default n
+    help
+        Enable the CMAC (Cipher-based Message Authentication Code) mode for
+        block ciphers.
 
 config MBEDTLS_HARDWARE_AES
    bool "Enable hardware AES acceleration"
