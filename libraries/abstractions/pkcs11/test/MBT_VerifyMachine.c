@@ -36,8 +36,14 @@
 
 TEST_SETUP(Full_PKCS11_ModelBased_VerifyMachine)
 {
-	CK_RV rv = xInitializePKCS11();
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to initialize PKCS #11 module.");
+	CK_RV rv = prvBeforeRunningTests();
+
+	if (rv == CKR_CRYPTOKI_NOT_INITIALIZED) {
+		rv = CKR_OK;
+	}
+
+	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
+
 	rv = xInitializePkcs11Session(&xGlobalSession);
 	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to open PKCS #11 session.");
 
@@ -51,10 +57,10 @@ TEST_SETUP(Full_PKCS11_ModelBased_VerifyMachine)
 TEST_TEAR_DOWN(Full_PKCS11_ModelBased_VerifyMachine)
 {
 	pxGlobalFunctionList->C_Finalize(NULL_PTR);
+	prvAfterRunningTests_Object();
 }
 
 void runAllVerifyTestCases() {
-	pxGlobalFunctionList->C_Finalize(NULL_PTR);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_VerifyMachine, path_0);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_VerifyMachine, path_1);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_VerifyMachine, path_2);
@@ -80,14 +86,6 @@ void runAllVerifyTestCases() {
 TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_VerifyMachine)
 {
 	xGlobalSlotId = 1; // TODO
-
-	CK_RV rv = prvBeforeRunningTests();
-
-	if (rv == CKR_CRYPTOKI_NOT_INITIALIZED) {
-		rv = CKR_OK; 
-	}
-
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
 
 	xMechanismType = CKM_ECDSA;
 	runAllVerifyTestCases();

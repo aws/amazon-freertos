@@ -89,6 +89,7 @@ TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_DigestMachine)
 	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
 
 	runAllDigestTestCases();
+	prvAfterRunningTests_Object();
 }
 
 TEST(Full_PKCS11_ModelBased_DigestMachine, path_0)

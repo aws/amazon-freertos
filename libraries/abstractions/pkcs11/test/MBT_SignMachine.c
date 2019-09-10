@@ -51,7 +51,17 @@ TEST_TEAR_DOWN(Full_PKCS11_ModelBased_SignMachine)
 }
 
 void runAllSignTestCases() {
+
+	CK_RV rv = prvBeforeRunningTests();
+
+	if (rv == CKR_CRYPTOKI_NOT_INITIALIZED) {
+		rv = CKR_OK;
+	}
+
+	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
+
 	pxGlobalFunctionList->C_Finalize(NULL_PTR);
+
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_0);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_1);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_2);
@@ -129,24 +139,20 @@ void runAllSignTestCases() {
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_74);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_75);
 	RUN_TEST_CASE(Full_PKCS11_ModelBased_SignMachine, path_76);
+
+	prvAfterRunningTests_Object();
 }
 
 TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_SignMachine)
 {
 	xGlobalSlotId = 1; // TODO
 
-	CK_RV rv = prvBeforeRunningTests();
-
-	if (rv == CKR_CRYPTOKI_NOT_INITIALIZED) {
-		rv = CKR_OK; 
-	}
-
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
-
 	xMechanismType = CKM_RSA_PKCS;
 	runAllSignTestCases();
 
 	xMechanismType = CKM_ECDSA;
+	resetCredentials();
+	generateValidSingingKeyPair();
 	runAllSignTestCases();
 }
 

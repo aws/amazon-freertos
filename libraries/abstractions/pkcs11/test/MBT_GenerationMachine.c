@@ -77,6 +77,7 @@ TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_GenerationMachine)
 	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Setup for the PKCS #11 routine failed.  Test module will start in an unknown state.");
 
 	runAllGenerationTestCases();
+	prvAfterRunningTests_Object();
 }
 
 TEST(Full_PKCS11_ModelBased_GenerationMachine, path_0)

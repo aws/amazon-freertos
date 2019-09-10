@@ -89,6 +89,7 @@ TEST_GROUP_RUNNER(Full_PKCS11_ModelBased_ObjectMachine)
 
 	xMechanismType = CKM_RSA_PKCS;
 	runAllObjectTestCases();
+	prvAfterRunningTests_Object();
 }
 
 TEST(Full_PKCS11_ModelBased_ObjectMachine, path_0)

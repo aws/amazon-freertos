@@ -46,9 +46,6 @@ CK_MECHANISM generateValidSigningMechanism() {
 void generateRSAKeyPair(CK_OBJECT_HANDLE_PTR phPrivateKey, CK_BBOOL doesSign, 
 	CK_OBJECT_HANDLE_PTR phPublicKey, CK_BBOOL doesVerify) {
 
-    CK_RV rv = xDestroyCredentials(xGlobalSession);
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to destroy credentials in test setup.");
-
 	CK_OBJECT_HANDLE hCertificate;
 	prvProvisionRsaTestCredentials(phPrivateKey, &hCertificate);
 }
@@ -56,11 +53,8 @@ void generateRSAKeyPair(CK_OBJECT_HANDLE_PTR phPrivateKey, CK_BBOOL doesSign,
 void generateECDSAKeyPair(CK_OBJECT_HANDLE_PTR phPrivateKey, CK_BBOOL doesSign,
 	CK_OBJECT_HANDLE_PTR phPublicKey, CK_BBOOL doesVerify) {
 
-	CK_RV rv = xDestroyCredentials(xGlobalSession);
-	TEST_ASSERT_EQUAL_MESSAGE(CKR_OK, rv, "Failed to destroy credentials in test setup.");
-
 	CK_OBJECT_HANDLE hCertificate;
-	prvProvisionEcTestCredentials(phPrivateKey, hCertificate, phPublicKey);
+	prvProvisionCredentialsWithKeyImport(phPrivateKey, &hCertificate, phPublicKey);
 }
 
 void generateValidSingingKeyPair() {
