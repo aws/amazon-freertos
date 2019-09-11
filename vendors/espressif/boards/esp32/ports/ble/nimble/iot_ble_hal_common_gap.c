@@ -246,9 +246,9 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                                              0 );
             }
 
-            if( ble_hs_cfg.sm_sc && ( event->pairing_req.authreq & BLE_SM_PAIR_AUTHREQ_SC ))
+            if( ble_hs_cfg.sm_sc && ( event->pairing_req.authreq & BLE_SM_PAIR_AUTHREQ_SC ) )
             {
-                if ( ble_sm_sc_ioa[ ble_hs_cfg.sm_io_cap ][ event->pairing_req.io_cap ] == BLE_SM_IOACT_NONE )
+                if( ble_sm_sc_ioa[ ble_hs_cfg.sm_io_cap ][ event->pairing_req.io_cap ] == BLE_SM_IOACT_NONE )
                 {
                     ESP_LOGE( TAG, "Just works in Secure Connections only mode" );
 
@@ -263,7 +263,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                     return BLE_SM_ERR_AUTHREQ;
 
                 }
-                else if (event->pairing_req.max_enc_key_size < BLE_SM_PAIR_KEY_SZ_MAX)
+                else if( event->pairing_req.max_enc_key_size < BLE_SM_PAIR_KEY_SZ_MAX )
                 {
 
                     if( xBTCallbacks.pxPairingStateChangedCb != NULL )
