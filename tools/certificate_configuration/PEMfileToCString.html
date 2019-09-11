@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="js/generatorGeneric.js"></script>
+    <script src="js/generator.js"></script>
 </head>
 <body>
     <script>
@@ -14,41 +14,6 @@
             // Success! All the File APIs are supported.
         } else {
             alert('Please use a web browser that supports HTML5 file APIs.');
-        }
-
-
-        function formatCredentialText(credentialText) {
-            // Remove whitespace at end of PEM file (to eliminate differences between input files)
-            credentialText = credentialText.trim();
-
-            // Replace any CR/LF pairs with a newline character.
-            credentialText = credentialText.replace(/\r\n/g, "\n");
-
-            // Add line endings & html line break for C-language variable declaration.
-            credentialText = credentialText.replace(/\n/g, "\\n\"<br>\n\"");
-
-            // Format the end of the last line with " and semicolon.
-            credentialText = credentialText + "\";\n";
-
-            return credentialText;
-        }
-
-        function generatePemTextToDisplay() {
-            var readerPemFile = new FileReader()
-
-            // Define a handler to create appropriate private key file text.
-            readerPemFile.onload = (function (e) {
-                pemCredentialText = e.target.result;
-
-                // Add C-language variable declaration plus EOL formatting.
-                pemCredentialText = "\"" + formatCredentialText(pemCredentialText);
-
-                // Give the HTML a way to access the text to display.
-                document.getElementById("pemToDisplay").innerHTML = pemCredentialText;
-            });
-
-            //Start first async read - other calls are chained inline
-            readerPemFile.readAsText(pemInputFile.files[0]);
         }
     </script>
 

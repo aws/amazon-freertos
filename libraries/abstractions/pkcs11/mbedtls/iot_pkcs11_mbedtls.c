@@ -185,7 +185,7 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     NULL, /*C_GetSlotInfo*/
     C_GetTokenInfo,
     NULL, /*C_GetMechanismList*/
-    NULL, /*C_GetMechansimInfo */
+    C_GetMechanismInfo,
     C_InitToken,
     NULL, /*C_InitPIN*/
     NULL, /*C_SetPIN*/
@@ -827,6 +827,53 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
     return CKR_OK;
 }
 
+/**
+ * @brief This function obtains information about a particular
+ * mechanism possibly supported by a token.
+ *
+ *  \param[in]  xSlotID         This parameter is unused in this port.
+ *  \param[in]  type            The cryptographic capability for which support
+ *                              information is being queried.
+ *  \param[out] pInfo           Algorithm sizes and flags for the requested
+ *                              mechanism, if supported.
+ *
+ * @return CKR_OK if the mechanism is supported. Otherwise, CKR_MECHANISM_INVALID.
+ */
+CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
+                                                  CK_MECHANISM_TYPE type,
+                                                  CK_MECHANISM_INFO_PTR pInfo )
+{
+    CK_RV xResult = CKR_MECHANISM_INVALID;
+    struct CryptoMechanisms
+    {
+        CK_MECHANISM_TYPE xType;
+        CK_MECHANISM_INFO xInfo;
+    }
+    pxSupportedMechanisms[] =
+    {
+        { CKM_RSA_PKCS,        { 2048, 2048, CKF_SIGN              } },
+        { CKM_RSA_X_509,       { 2048, 2048, CKF_VERIFY            } },
+        { CKM_ECDSA,           { 256,  256,  CKF_SIGN | CKF_VERIFY } },
+        { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
+        { CKM_SHA256,          { 0,    0,    CKF_DIGEST            } }
+    };
+    uint32_t ulMech = 0;
+
+    /* Look for the requested mechanism in the above table. */
+    for( ; ulMech < sizeof( pxSupportedMechanisms ) / sizeof( pxSupportedMechanisms[ 0 ] ); ulMech++ )
+    {
+        if( pxSupportedMechanisms[ ulMech ].xType == type )
+        {
+            /* The mechanism is supported. Copy out the details and break
+             * out of the loop. */
+            memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ].xInfo ), sizeof( CK_MECHANISM_INFO ) );
+            xResult = CKR_OK;
+            break;
+        }
+    }
+
+    return xResult;
+}
 
 /**
  * @brief This function is not implemented for this port.

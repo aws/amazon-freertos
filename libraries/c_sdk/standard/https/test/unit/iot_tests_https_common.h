@@ -145,7 +145,7 @@
     " consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla paria" \
     "tur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est lab" \
     "orum."
-#define HTTPS_TEST_REQUEST_BODY_LENGTH    ( sizeof( HTTPS_TEST_REQUEST_BODY ) - 1 )
+#define HTTPS_TEST_REQUEST_BODY_LENGTH    ( sizeof( HTTPS_TEST_REQUEST_BODY ) - 1 ) /**< @brief The length of the test HTTP request body. */
 
 /**
  * @brief A small test HTTPS response to share among the tests.
@@ -153,7 +153,7 @@
 #define HTTPS_TEST_SMALL_RESPONSE                               \
     "HTTP/1.1 200 OK\r\nheader0: value0\r\nheader1: value1\r\n" \
     "header2: value2 value2a\r\nContent-Length: 26\r\n\r\nabcdefghijklmnopqrstuvwxyz"
-#define HTTPS_TEST_SMALL_RESPONSE_LENGTH    ( sizeof( HTTPS_TEST_SMALL_RESPONSE ) - 1 )
+#define HTTPS_TEST_SMALL_RESPONSE_LENGTH    ( sizeof( HTTPS_TEST_SMALL_RESPONSE ) - 1 ) /**< @brief The length of the small test HTTP response. */
 
 /**
  * @brief Test HTTP chunked response message to share among the tests.
@@ -172,7 +172,7 @@
     "xyz\r\n"                        \
     "0\r\n"                          \
     "\r\n"
-#define HTTPS_TEST_CHUNKED_RESPONSE_BODY_LENGTH    ( 0xB + 0xC + 3 )
+#define HTTPS_TEST_CHUNKED_RESPONSE_BODY_LENGTH    ( 0xB + 0xC + 3 ) /**< @brief The length of the test chunked HTTP response body. */
 
 /*-----------------------------------------------------------*/
 
@@ -393,7 +393,7 @@ static inline size_t _networkReceiveSuccess( void * pConnection,
  * This generates the test HTTP response message into _pRespMessageBuffer.
  * _pRespMessageBuffer must be zeroed out before calling this routine.
  * The length of _pRespMessageBuffer must not exceed headerLength + bodyLength.
- * The headerLength is the length of the raw HTTP headers includes delimiters like ": " and \r\n.
+ * The headerLength is the length of the raw HTTP headers includes delimiters like ": " and "\r\n".
  * The length of headerLength must be greater than:
  *      "HTTP/1.1 200 OK\r\nContent-Length: <bodyLengthStr>\r\nheader0: value0\r\n\r\n"
  * in order to generate meaningful header data.

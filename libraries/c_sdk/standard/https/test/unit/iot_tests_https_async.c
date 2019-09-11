@@ -63,10 +63,10 @@ typedef struct _asyncVerificationParams
     uint8_t numRequestsTotal;                                         /**< @brief The starting total of scheduled request. */
     int8_t numRequestsLeft;                                           /**< @brief The number of scheduled requests left that have not finished. */
     uint8_t appendHeaderCallbackCount;                                /**< @brief A count of the times #IotHttpsClientCallbacks_t.appendHeaderCallback has been called. */
-    uint8_t writeCallbackCount;                                       /**< @brief A count of the times #IotHttpsClientCallbacks_t.writeCallbackCount has been called. */
-    uint8_t readReadyCallbackCount;                                   /**< @brief A count of the times #IotHttpsClientCallbacks_t.readReadyCallbackCount has been called. */
-    uint8_t responseCompleteCallbackCount;                            /**< @brief A count of the times #IotHttpsClientCallbacks_t.responseCompleteCallbackCount has been called. */
-    uint8_t connectionClosedCallbackCount;                            /**< @brief A count of the times #IotHttpsClientCallbacks_t.connectionClosedCallbackCount has been called. */
+    uint8_t writeCallbackCount;                                       /**< @brief A count of the times #IotHttpsClientCallbacks_t.writeCallback has been called. */
+    uint8_t readReadyCallbackCount;                                   /**< @brief A count of the times #IotHttpsClientCallbacks_t.readReadyCallback has been called. */
+    uint8_t responseCompleteCallbackCount;                            /**< @brief A count of the times #IotHttpsClientCallbacks_t.responseCompleteCallback has been called. */
+    uint8_t connectionClosedCallbackCount;                            /**< @brief A count of the times #IotHttpsClientCallbacks_t.connectionClosedCallback has been called. */
     uint8_t errorCallbackCount;                                       /**< @brief A count of the times #IotHttpsClientCallbacks_t.errorCallback has been called. */
     IotHttpsReturnCode_t returnCode[ HTTPS_TEST_MAX_ASYNC_REQUESTS ]; /**< @brief The final return status of the async request. This is set during each decrement of numRequestsLeft. */
 
@@ -91,24 +91,24 @@ typedef struct _asyncVerificationParams
 static _asyncVerificationParams_t _verifParams = { 0 };
 
 /**
- * @brief HTTPS response and request user buffers for scheduling multiple requests.
+ * HTTPS response and request user buffers for scheduling multiple requests.
  */
-static uint8_t _pAsyncRespUserBuffers[ HTTPS_TEST_MAX_ASYNC_REQUESTS ][ HTTPS_TEST_RESP_USER_BUFFER_SIZE ] = { 0 };
-static uint8_t _pAsyncReqUserBuffers[ HTTPS_TEST_MAX_ASYNC_REQUESTS ][ HTTPS_TEST_REQ_USER_BUFFER_SIZE ] = { 0 };
+static uint8_t _pAsyncRespUserBuffers[ HTTPS_TEST_MAX_ASYNC_REQUESTS ][ HTTPS_TEST_RESP_USER_BUFFER_SIZE ] = { 0 }; /**< @brief HTTPS response user buffers for scheduling multiple requests. */
+static uint8_t _pAsyncReqUserBuffers[ HTTPS_TEST_MAX_ASYNC_REQUESTS ][ HTTPS_TEST_REQ_USER_BUFFER_SIZE ] = { 0 };   /**< @brief HTTPS request user buffers for scheduling multiple requests. */
 
 /**
- * @brief HTTPS request and response information configrations for scheduling multiple requests.
+ * HTTPS request and response information configrations for scheduling multiple requests.
  */
-static IotHttpsRequestInfo_t _pAsyncReqInfos[ HTTPS_TEST_MAX_ASYNC_REQUESTS ] = { 0 };
-static IotHttpsResponseInfo_t _pAsyncRespInfos[ HTTPS_TEST_MAX_ASYNC_REQUESTS ] = { 0 };
+static IotHttpsRequestInfo_t _pAsyncReqInfos[ HTTPS_TEST_MAX_ASYNC_REQUESTS ] = { 0 };   /**< @brief HTTPS request information configuration for scheduling multiple requests. */
+static IotHttpsResponseInfo_t _pAsyncRespInfos[ HTTPS_TEST_MAX_ASYNC_REQUESTS ] = { 0 }; /**< @brief HTTPS response information configuration for scheduling multiple requests. */
 
 /**
- * @brief HTTPS request and response handles for scheduling multiple requests.
+ * HTTPS request and response handles for scheduling multiple requests.
  *
  * Each of these handles corresponse to each of the user buffers _pAsyncRespUserBuffers and _pAsyncReqUserBuffers.
  */
-static IotHttpsRequestHandle_t _pAsyncRequestHandles[ HTTPS_TEST_MAX_ASYNC_REQUESTS ];
-static IotHttpsResponseHandle_t _pAsyncResponseHandles[ HTTPS_TEST_MAX_ASYNC_REQUESTS ];
+static IotHttpsRequestHandle_t _pAsyncRequestHandles[ HTTPS_TEST_MAX_ASYNC_REQUESTS ];   /**< @brief Request handles for scheduling multiple requests. */
+static IotHttpsResponseHandle_t _pAsyncResponseHandles[ HTTPS_TEST_MAX_ASYNC_REQUESTS ]; /**< @brief Response handles for scheduling multiple requests. */
 
 /**
  * @brief A base IotHttpsAsyncInfo_t to copy to each of the request information configurations for each request.
@@ -699,6 +699,9 @@ TEST_TEAR_DOWN( HTTPS_Client_Unit_Async )
 
 /*-----------------------------------------------------------*/
 
+/**
+ * @brief Test group runner for HTTPS Client function @ref https_client_function_sendasync
+ */
 TEST_GROUP_RUNNER( HTTPS_Client_Unit_Async )
 {
     RUN_TEST_CASE( HTTPS_Client_Unit_Async, SendAsyncInvalidParameters );

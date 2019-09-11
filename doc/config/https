@@ -20,8 +20,13 @@ INPUT = doc \
         doc/lib \
         libraries/c_sdk/standard/https/include \
         libraries/c_sdk/standard/https/include/types \
+        libraries/c_sdk/standard/https/src/private \
         libraries/c_sdk/standard/https/src \
-        libraries/c_sdk/standard/https/src/private
+        demos/ \
+        libraries/c_sdk/standard/https/test \
+        libraries/c_sdk/standard/https/test/unit \
+        libraries/c_sdk/standard/https/test/access \
+        libraries/c_sdk/standard/https/test/system 
 
 # Library file names.
 FILE_PATTERNS = *https*.c *https*.h *https*.txt

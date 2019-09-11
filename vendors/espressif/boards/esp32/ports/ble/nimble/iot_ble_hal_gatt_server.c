@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include "FreeRTOS.h"
+#include "iot_ble_config.h"
 #include "host/ble_hs.h"
 #include "host/ble_gap.h"
 #include "services/gap/ble_svc_gap.h"
@@ -38,6 +39,7 @@
 #include "bt_hal_manager.h"
 #include "bt_hal_gatt_server.h"
 #include "iot_ble_hal_internals.h"
+
 
 #define APP_ID          0
 #define MAX_SERVICES    20
@@ -888,6 +890,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     pCharacteristics[ charCount ].arg = ( void * ) pxService;
                     pCharacteristics[ charCount ].access_cb = prvGATTCharAccessCb;
                     pCharacteristics[ charCount ].flags = prvAFRToESPCharPerm( pxService->pxBLEAttributes[ index ].xCharacteristic.xProperties, pxService->pxBLEAttributes[ index ].xCharacteristic.xPermissions );
+                    pCharacteristics[ charCount ].min_key_size = IOT_BLE_ENCRYPT_KEY_SIZE_MIN;
 
                     /* Allocate memory for descriptors. */
                     pCharacteristics[ charCount ].descriptors = pvPortCalloc( prvCountDescriptor( pxService, index + 1 ) + 1, sizeof( struct ble_gatt_dsc_def ) );
@@ -933,6 +936,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     pDescriptors->uuid = uuid;
                     pDescriptors->arg = ( void * ) pxService;
                     pDescriptors->access_cb = prvGATTCharAccessCb;
+                    pDescriptors->min_key_size  = IOT_BLE_ENCRYPT_KEY_SIZE_MIN;
                     pDescriptors->att_flags = prvAFRToESPDescPerm( pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xPermissions );
 
                     dscrCount++;

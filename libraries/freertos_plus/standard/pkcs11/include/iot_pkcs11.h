@@ -64,6 +64,11 @@
 #define pkcs11ECDSA_P256_SIGNATURE_LENGTH    64
 
 /**
+ * @brief Key strength for elliptic-curve P-256.
+ */
+#define pkcs11ECDSA_P256_KEY_BITS            256
+
+/**
  * @brief Public exponent for RSA.
  */
 #define pkcs11RSA_PUBLIC_EXPONENT            { 0x01, 0x00, 0x01 }

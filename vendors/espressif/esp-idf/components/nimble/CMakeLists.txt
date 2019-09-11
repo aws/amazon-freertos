@@ -16,25 +16,9 @@ if(CONFIG_NIMBLE_ENABLED)
             nimble/nimble/host/store/ram/include
             nimble/nimble/host/store/config/include
             nimble/porting/npl/freertos/include
-            nimble/ext/tinycrypt/include
             esp-hci/include)
 
-    set(COMPONENT_SRCS "nimble/ext/tinycrypt/src/utils.c"
-            "nimble/ext/tinycrypt/src/sha256.c"
-            "nimble/ext/tinycrypt/src/ecc.c"
-            "nimble/ext/tinycrypt/src/ctr_prng.c"
-            "nimble/ext/tinycrypt/src/ctr_mode.c"
-            "nimble/ext/tinycrypt/src/aes_decrypt.c"
-            "nimble/ext/tinycrypt/src/aes_encrypt.c"
-            "nimble/ext/tinycrypt/src/ccm_mode.c"
-            "nimble/ext/tinycrypt/src/ecc_dsa.c"
-            "nimble/ext/tinycrypt/src/cmac_mode.c"
-            "nimble/ext/tinycrypt/src/ecc_dh.c"
-            "nimble/ext/tinycrypt/src/hmac_prng.c"
-            "nimble/ext/tinycrypt/src/ecc_platform_specific.c"
-            "nimble/ext/tinycrypt/src/hmac.c"
-            "nimble/ext/tinycrypt/src/cbc_mode.c"
-            "nimble/nimble/host/util/src/addr.c"
+    set(COMPONENT_SRCS "nimble/nimble/host/util/src/addr.c"
             "nimble/nimble/host/services/gatt/src/ble_svc_gatt.c"
             "nimble/nimble/host/services/tps/src/ble_svc_tps.c"
             "nimble/nimble/host/services/ias/src/ble_svc_ias.c"

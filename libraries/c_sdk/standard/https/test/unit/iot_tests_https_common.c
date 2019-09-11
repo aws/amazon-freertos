@@ -30,23 +30,23 @@
 #include "iot_tests_https_common.h"
 
 /**
- * @brief The generic response status line and header line information for generating a test HTTP response message header.
+ * The generic response status line and header line information for generating a test HTTP response message header.
  */
-#define HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE           "HTTP/1.1 200 OK\r\n"
-#define HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH    ( sizeof( HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE ) - 1 )
-#define HTTPS_TEST_GENERIC_HEADER                         "header"
-#define HTTPS_TEST_GENERIC_VALUE                          "value"
+#define HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE           "HTTP/1.1 200 OK\r\n"                                     /**< @brief A response status line for generating a test response message. */
+#define HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE_LENGTH    ( sizeof( HTTPS_TEST_GENERIC_RESPONSE_STATUS_LINE ) - 1 ) /**< @brief The length of the test response status line. */
+#define HTTPS_TEST_GENERIC_HEADER                         "header"                                                  /**< @brief A generic header name for generating a test response message. */
+#define HTTPS_TEST_GENERIC_VALUE                          "value"                                                   /**< @brief A generic header value for generating a test response message. */
 
 /**
- * @brief The maximum and minimum digits in a uint32_t.
+ * The maximum and minimum digits in a uint32_t.
  *
  * This is used to size an array holding some generic headers when generating a test HTTP response message.
  */
-#define MAX_UINT32_DIGITS                                 ( 10 ) /* 2^32 = 4294967296 which is 10 digits. */
-#define MIN_UINT32_DIGITS                                 ( 1 )
+#define MAX_UINT32_DIGITS                                 ( 10 ) /**< @brief The maximum digits in a uin32_t; 2^32 = 4294967296 which is 10 digits. */
+#define MIN_UINT32_DIGITS                                 ( 1 )  /**< @brief The minimum digits in a uin32_t. */
 
 /**
- * @brief the maximum and minimum line lengths of a generic HTTP response header of the form "headerN: valueN\r\n".
+ * The maximum and minimum line lengths of a generic HTTP response header of the form "headerN: valueN\r\n".
  *
  * These are needed for sizing arrays holding some intermediate string processing information when generating a test \
  * HTTP response message.
@@ -57,20 +57,20 @@
     + MAX_UINT32_DIGITS                      \
     + sizeof( HTTPS_TEST_GENERIC_VALUE ) - 1 \
     + MAX_UINT32_DIGITS                      \
-    + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH
+    + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH /**< @brief The maximum length of a header line used for generating a test HTTP response message. */
 #define MIN_GENERIC_HEADER_LINE_LENGTH       \
     sizeof( HTTPS_TEST_GENERIC_HEADER ) - 1  \
     + HTTPS_HEADER_FIELD_SEPARATOR_LENGTH    \
     + MIN_UINT32_DIGITS                      \
     + sizeof( HTTPS_TEST_GENERIC_VALUE ) - 1 \
     + MIN_UINT32_DIGITS                      \
-    + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH
+    + HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH /**< @brief The minimum length of a header line used for generating a test HTTP response message. */
 
 /**
- * @brief Starting character and maximum letters to increment to generate a test HTTP response message body.
+ * Starting character and maximum letters to increment to generate a test HTTP response message body.
  */
-#define HTTPS_TEST_GENERIC_BODY_STARTING_CHAR    'a'
-#define NUM_LETTERS_IN_ALPHABET                  ( ( int ) 26 )
+#define HTTPS_TEST_GENERIC_BODY_STARTING_CHAR    'a'            /**< @brief The starting character in the body for generating a test HTTP response. */
+#define NUM_LETTERS_IN_ALPHABET                  ( ( int ) 26 ) /**< @brief The number of letters in the alphabet is used to restart the HTTP response body generation at 'a' again after 'z'. */
 
 /*-----------------------------------------------------------*/
 
