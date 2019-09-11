@@ -299,15 +299,15 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
  *
  * The request line generated is of the following format:
  *
- * \code
+ * @code
  * method path version\r\n
- * \endcode
+ * @endcode
  *
  * Example:
  *
- * \code
+ * @code
  * GET /path/to/item.file?possible_query HTTP/1.1\r\n
- * \endcode
+ * @endcode
  *
  * The initial required headers are also added to the #IotHttpsRequestInfo_t.userBuffer. These headers are User-Agent
  * and Host. The User-Agent value is configured in iot_config.h using IOT_HTTPS_USER_AGENT. The Host value is the DNS
@@ -371,13 +371,13 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
  * that this function does not fail.
  *
  * Header lines are appended in the following format:
- * \code
+ * @code
  * header_field_name: header_value\r\n"
- * \endcode
+ * @endcode
  * Example:
- * \code
+ * @code
  * Range: bytes=1024-2047\r\n
- * \endcode
+ * @endcode
  * The last header line must be followed by a "\r\n" to separate the last header line from
  * the entity body. These 2 characters are accounted for in #requestUserBufferMinimumSize.
  *
