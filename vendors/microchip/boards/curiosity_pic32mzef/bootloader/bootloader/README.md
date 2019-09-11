@@ -23,7 +23,7 @@ is then linked in the bootloader.
 
 ## Building the OTA application image
 
-* Update the OTA sequence number in file `vendors\microchip\boards\curiosity_pic32mzef\bootloader\bootloader\utility\user-config\ota-descriptor.config`  
+* Update the OTA sequence number in file `\vendors\microchip\boards\curiosity_pic32mzef\bootloader\bootloader\utility\user-config\ota-descriptor.config`  
     The OTA sequence number should be incremented for every new OTA image generated as the bootloader will determine 
     the application to boot from this sequence number.
     
