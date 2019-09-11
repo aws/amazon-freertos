@@ -28,10 +28,10 @@ import sys
 import textwrap
 from subprocess import CalledProcessError
 
+import common_makefile
+import proof_specific_makefile
 
-from make_common_makefile import main as make_common_file
 from make_configuration_directories import main as process_configurations
-from make_proof_makefiles import main as make_proof_files
 from make_cbmc_batch_files import create_cbmc_yaml_files
 
 CWD = os.getcwd()
@@ -48,10 +48,18 @@ PROOFS_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGGER = logging.getLogger("PrepareLogger")
 
 
-def build():
+def build(args):
     process_configurations()
-    make_common_file()
-    make_proof_files()
+
+    for root, _, fyles in os.walk("."):
+        if "Makefile.json" in fyles:
+            makefile = ["# Proof-specific defines", ""]
+            makefile.extend(proof_specific_makefile.get_makefile(root, args.system))
+            makefile.extend(["", "# Common recipies", ""])
+            makefile.extend(common_makefile.get_makefile(args.system))
+            with open(os.path.join(root, "Makefile"), "w") as handle:
+                handle.write("\n".join(makefile))
+
     try:
         create_cbmc_yaml_files()
     except CalledProcessError as e:
@@ -72,6 +80,6 @@ def build():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format="{script}: %(levelname)s %(message)s".format(
-        script=os.path.basename(__file__)))
-    build()
+    _args = proof_specific_makefile.get_args()
+    proof_specific_makefile.set_up_logging(_args)
+    build(_args)

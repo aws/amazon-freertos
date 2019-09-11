@@ -30,7 +30,7 @@ import pathlib
 import shutil
 import textwrap
 
-from make_proof_makefiles import load_json_config_file
+from proof_specific_makefile import load_json_config_file
 
 LOGGER = logging.getLogger("ComputeConfigurations")
 

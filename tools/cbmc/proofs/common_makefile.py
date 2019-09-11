@@ -186,7 +186,7 @@ def get_common_defines(opsys, all_defines):
     return ret
 
 
-def get_makefile(opsys, template, defines):
+def makefile_from_template(opsys, template, defines):
     ret = []
     with open(template) as _template:
         for line in _template:
@@ -225,7 +225,7 @@ cbmc-batch.yaml:
         _makefile.write(target)
 
 
-def generate_makefiles(opsys):
+def get_makefile(opsys):
     common_defines = read_variable_definitions("MakefileCommon.json")
     opsys_defines = read_variable_definitions("MakefileWindows.json"
                                               if opsys == "windows"
@@ -238,14 +238,14 @@ def generate_makefiles(opsys):
     ret.extend(get_define("FREERTOS", defines))
     ret.extend(get_define("PROOFS", defines))
     ret.extend(get_common_defines(opsys, defines))
-    ret.extend(get_makefile(opsys, "Makefile.template", defines))
+    ret.extend(makefile_from_template(opsys, "Makefile.template", defines))
     return ret
 
 
 def main():
     args = get_arguments()
 
-    makefile = generate_makefiles(args.system)
+    makefile = get_makefile(args.system)
 
     with open("Makefile.common", "w") as handle:
         print("\n".join(makefile), file=handle)
