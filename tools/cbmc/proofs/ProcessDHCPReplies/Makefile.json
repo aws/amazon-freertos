@@ -30,7 +30,7 @@
   "OBJS":
   [
     "$(ENTRY)_harness.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.goto",
     "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.goto",
     "$(FREERTOS)/freertos_kernel/event_groups.goto",
     "$(FREERTOS)/freertos_kernel/list.goto"
