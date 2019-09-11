@@ -31,6 +31,7 @@ import logging
 import operator
 import os
 import os.path
+import pathlib
 import re
 import sys
 import textwrap
@@ -119,44 +120,59 @@ def prolog():
     """)
 
 
-def load_json_config_file(file):
-    with open(file) as handle:
-        lines = handle.read().splitlines()
-    no_comments = "\n".join([line for line in lines
-                             if line and not line.lstrip().startswith("#")])
-    try:
-        data = json.loads(no_comments,
-                          object_pairs_hook=collections.OrderedDict)
-    except json.decoder.JSONDecodeError:
-        traceback.print_exc()
-        logging.error("parsing file %s", file)
-        sys.exit(1)
-    return data
+_platform_choices = {
+    "linux": {
+        "platform": "linux",
+        "path-sep": "/",
+        "path-sep-re": "/",
+        "define": "-D",
+        "include": "-I",
+        "makefile-inc": "include",
+    },
+    "windows": {
+        "platform": "win32",
+        "path-sep": "\\",
+        "path-sep-re": re.escape("\\"),
+        "define": "/D",
+        "include": "/I",
+        "makefile-inc": "!INCLUDE",
+    },
+}
+# Assuming macos is the same as linux
+_mac_os = dict(_platform_choices["linux"])
+_mac_os["platform"] = "darwin"
+_platform_choices["macos"] = _mac_os
 
 
-def get_makefile(dyr, system):
-    data = load_json_config_file(os.path.join(dyr, "Makefile.json"))
-
-    makefile = collections.OrderedDict()
-    so_far = collections.OrderedDict()
-    for name, value in data.items():
-        if isinstance(value, list):
-            new_value = []
-            for item in value:
-                new_value.append(compute(item, so_far, system, name, dyr, True))
-            makefile[name] = " ".join(new_value)
-        else:
-            makefile[name] = compute(value, so_far, system, name, dyr)
-
-    if (("EXPECTED" not in makefile.keys()) or
-            str(makefile["EXPECTED"]).lower() == "true"):
-        makefile["EXPECTED"] = "SUCCESSFUL"
-    elif str(makefile["EXPECTED"]).lower() == "false":
-        makefile["EXPECTED"] = "FAILURE"
-    return ["H_%s = %s" % (k, v) for k, v in makefile.items()]
+def default_platform():
+    for arg_string, os_data in _platform_choices.items():
+        if sys.platform == os_data["platform"]:
+            return arg_string
+    return "linux"
 
 
-def compute(value, so_far, system, key, harness, appending=False):
+_args = [{
+    "flags": ["-s", "--system"],
+    "metavar": "OS",
+    "choices": _platform_choices,
+    "default": str(default_platform()),
+    "help": textwrap.dedent("""\
+                which operating system to generate makefiles for.
+                Defaults to the current platform (%(default)s);
+                choices are {choices}""").format(
+                    choices="[%s]" % ", ".join(_platform_choices)),
+}, {
+    "flags": ["-v", "--verbose"],
+    "help": "verbose output",
+    "action": "store_true",
+}, {
+    "flags": ["-w", "--very-verbose"],
+    "help": "very verbose output",
+    "action": "store_true",
+    }]
+
+
+def compute(value, so_far, system, key, harness, mutate=True):
     if not isinstance(value, (basestring, float, int)):
         logging.error(wrap("""\
                         in file %s, the key '%s' has value '%s',
@@ -180,35 +196,15 @@ def compute(value, so_far, system, key, harness, appending=False):
     if var_subbed[:len("__eval")] != "__eval":
         tmp = re.sub("//", "__DOUBLE_SLASH__", var_subbed)
         tmp = re.sub("/", _platform_choices[system]["path-sep-re"], tmp)
-        evaluated = re.sub("__DOUBLE_SLASH__", "/", tmp)
+        final_value = re.sub("__DOUBLE_SLASH__", "/", tmp)
     else:
         to_eval = var_subbed[len("__eval"):].strip()
         logging.debug("About to evaluate '%s'", to_eval)
-        evaluated = eval_expr(to_eval,
+        final_value = eval_expr(to_eval,
                               os.path.join(harness, "Makefile.json"),
                               key, value)
-
-    if key == "DEF":
-        final_value = "%s%s" % (_platform_choices[system]["define"],
-                                evaluated)
-    elif key == "INC":
-        final_value = "%s%s" % (_platform_choices[system]["include"],
-                                evaluated)
-    else:
-        final_value = evaluated
-
-    # Allow this value to be used for future variable substitution
-    if appending:
-        try:
-            so_far[key] = "%s %s" % (so_far[key], final_value)
-        except KeyError:
-            so_far[key] = final_value
-        logging.debug("Appending final value '%s' to key '%s'",
-                      final_value, key)
-    else:
+    if mutate:
         so_far[key] = final_value
-        logging.info("Key '%s' set to final value '%s'", key, final_value)
-
     return final_value
 
 
@@ -292,56 +288,113 @@ def eval_expr(expr_string, harness, key, value):
     return eval_single_node(tree)
 
 
-_platform_choices = {
-    "linux": {
-        "platform": "linux",
-        "path-sep": "/",
-        "path-sep-re": "/",
-        "define": "-D",
-        "include": "-I",
-        "makefile-inc": "include",
-    },
-    "windows": {
-        "platform": "win32",
-        "path-sep": "\\",
-        "path-sep-re": re.escape("\\"),
-        "define": "/D",
-        "include": "/I",
-        "makefile-inc": "!INCLUDE",
-    },
-}
-# Assuming macos is the same as linux
-_mac_os = dict(_platform_choices["linux"])
-_mac_os["platform"] = "darwin"
-_platform_choices["macos"] = _mac_os
+def load_json_config_file(file):
+    with open(file) as handle:
+        lines = handle.read().splitlines()
+    no_comments = "\n".join([line for line in lines
+                             if line and not line.lstrip().startswith("#")])
+    try:
+        data = json.loads(no_comments,
+                          object_pairs_hook=collections.OrderedDict)
+    except json.decoder.JSONDecodeError:
+        traceback.print_exc()
+        logging.error("parsing file %s", file)
+        sys.exit(1)
+    return data
 
 
-def default_platform():
-    for arg_string, os_data in _platform_choices.items():
-        if sys.platform == os_data["platform"]:
-            return arg_string
-    return "linux"
+def get_ancestor_settings_files(makefile_json_path):
+    """
+    Given a path to a Makefile.json, return every settings.json and
+    Makefile.json file higher up in the tree, from shallowest to
+    deepest. The path to the Makefile.json passed in as an argument will
+    always be the last returned path.
+    """
+    for ancestor in reversed(pathlib.Path(makefile_json_path).parents):
+        if os.path.exists(ancestor / "settings.json"):
+            yield ancestor / "settings.json"
+        if os.path.exists(ancestor / "Makefile.json"):
+            yield ancestor / "Makefile.json"
 
 
-_args = [{
-    "flags": ["-s", "--system"],
-    "metavar": "OS",
-    "choices": _platform_choices,
-    "default": str(default_platform()),
-    "help": textwrap.dedent("""\
-                which operating system to generate makefiles for.
-                Defaults to the current platform (%(default)s);
-                choices are {choices}""").format(
-                    choices="[%s]" % ", ".join(_platform_choices)),
-}, {
-    "flags": ["-v", "--verbose"],
-    "help": "verbose output",
-    "action": "store_true",
-}, {
-    "flags": ["-w", "--very-verbose"],
-    "help": "very verbose output",
-    "action": "store_true",
-    }]
+def build_settings_tree(makefile_json_path, system):
+    final_settings = {
+        "variables": collections.OrderedDict(),
+        "makefile-control": collections.OrderedDict(),
+        "lists": collections.OrderedDict(),
+    }
+    for settings_file in get_ancestor_settings_files(makefile_json_path):
+        logging.error(settings_file)
+        local_settings = load_json_config_file(settings_file)
+        for field in ["variables", "makefile-control"]:
+            if field in local_settings:
+                for k, v in local_settings[field]:
+                    if k in final_settings[field]:
+                        logging.debug("Overwriting variable %s->%s "
+                                      "with new value %s from file %s",
+                                      k, final_settings[field][k], v,
+                                      settings_file)
+                    else:
+                        logging.debug("Setting variable %s->%s "
+                                      "from file %s", k, v,
+                                      settings_file)
+                    final_settings[field][k] = v
+        if "lists" in local_settings:
+            for list_name, liist in local_settings["lists"].items():
+                if list_name in final_settings["lists"]:
+                    local_settings["lists"][list_name].extend(liist)
+                    logging.debug("Extending %s with [%s] from %s",
+                                  list_name, ", ".join(liist),
+                                  settings_file)
+                else:
+                    logging.debug("Setting %s to [%s] from file %s",
+                        list_name, ", ".join(liist), settings_file)
+                    local_settings["lists"][list_name] = [liist]
+
+    so_far = {}
+    new_variables = {}
+    for k, v in final_settings["variables"].items():
+        new_variables[k] = compute(v, so_far, system, k, makefile_json_path)
+    final_settings["variables"] = new_variables
+
+    new_lists = {}
+    for list_name, liist in final_settings["lists"].items():
+        new_list = []
+        for item in liist:
+            new_list.append(compute(item, so_far, system, list_name,
+                                    makefile_json_path, mutate=False))
+        new_lists[list_name] = new_list
+    final_settings["lists"] = new_lists
+
+    return final_settings
+
+
+def list_item_prefix(list_name, system):
+    if list_name == "INC":
+        return _platform_choices[system]["include"]
+    if list_name == "DEF":
+        return _platform_choices[system]["define"]
+    return ""
+
+
+def get_makefile(dyr, system):
+    makefile_json = os.path.join(dyr, "Makefile.json")
+    assert os.path.exists(makefile_json)
+    makefile_settings = build_settings_tree(makefile_json, system)
+
+    ret = []
+    for var, val in makefile_settings["variables"].items():
+        ret.append("%s = %s" % (var, val))
+    ret.append("")
+
+    for list_name, liist in makefile_settings["lists"].items():
+        prefix = list_item_prefix(list_name, system)
+        ret.append("%s = \\" % list_name)
+        for item in liist:
+            ret.append("  %s%s \\" % (prefix, item))
+    ret.append("")
+
+    return ret
 
 
 def get_args():
@@ -390,7 +443,6 @@ def main():
                     contents="\n".join(makefile_lines),
                     include=_platform_choices[args.system]["makefile-inc"],
                     common_dir_path=common_dir_path))
-
 
 
 if __name__ == "__main__":
