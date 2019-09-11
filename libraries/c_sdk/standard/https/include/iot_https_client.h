@@ -42,8 +42,8 @@
  * @functions_brief{https_client}
  * - @function_name{https_client_function_init}
  * @function_brief{https_client_function_init}
- * - @function_name{https_client_function_deinit}
- * @function_brief{https_client_function_deinit}
+ * - @function_name{https_client_function_cleanup}
+ * @function_brief{https_client_function_cleanup}
  * - @function_name{https_client_function_disconnect}
  * @function_brief{https_client_function_disconnect}
  * - @function_name{https_client_function_connect}
@@ -76,9 +76,9 @@
  * @page https_client_function_init IotHttpsClient_Init
  * @snippet this declare_https_client_init
  * @copydoc IotHttpsClient_Init
- * @page https_client_function_deinit IotHttpsClient_Deinit
- * @snippet this declare_https_client_deinit
- * @copydoc IotHttpsClient_Deinit
+ * @page https_client_function_cleanup IotHttpsClient_Cleanup
+ * @snippet this declare_https_client_cleanup
+ * @copydoc IotHttpsClient_Cleanup
  * @page https_client_function_disconnect IotHttpsClient_Disconnect
  * @snippet this declare_https_client_disconnect
  * @copydoc IotHttpsClient_Disconnect
@@ -131,14 +131,14 @@
  * @return One of the following:
  * - #IOT_HTTPS_OK if the HTTPS library is successfully initialized.
  *
- * @see @ref https_client_function_deinit
+ * @see @ref https_client_function_cleanup
  */
 /* @[declare_https_client_init] */
 IotHttpsReturnCode_t IotHttpsClient_Init( void );
 /* @[declare_https_client_init] */
 
 /**
- * @brief One time deinitialization of the IoT HTTPS Client library.
+ * @brief One time clean up of the IoT HTTPS Client library.
  *
  * This function frees resources taken in in @ref https_client_function_init. It should be called after
  * all HTTPS Connections have been close. HTTPS Connections are represented by #IotHttpsConnectionHandle_t and returned
@@ -147,9 +147,9 @@ IotHttpsReturnCode_t IotHttpsClient_Init( void );
  *
  * @warning No thread safety guarantees are provided for this function.
  */
-/* @[declare_https_client_deinit] */
-void IotHttpsClient_Deinit( void );
-/* @[declare_https_client_deinit] */
+/* @[declare_https_client_cleanup] */
+void IotHttpsClient_Cleanup( void );
+/* @[declare_https_client_cleanup] */
 
 /**
  * @brief Explicitly connect to the HTTPS server given the connection configuration pConnConfig.

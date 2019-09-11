@@ -565,8 +565,8 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         IotHttpsClient_Disconnect( connHandle );
     }
 
-    /* Deinitialize the library because we are done using it. */
-    IotHttpsClient_Deinit();
+    /* Clean up the library because we are done using it. */
+    IotHttpsClient_Cleanup();
 
     IOT_FUNCTION_CLEANUP_END();
 }

@@ -693,7 +693,7 @@ TEST_SETUP( HTTPS_Client_Unit_Async )
 TEST_TEAR_DOWN( HTTPS_Client_Unit_Async )
 {
     IotSemaphore_Destroy( &( _verifParams.completeSem ) );
-    IotHttpsClient_Deinit();
+    IotHttpsClient_Cleanup();
     IotSdk_Cleanup();
 }
 

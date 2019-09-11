@@ -533,7 +533,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
     /* Disconnect from the server even if it is already disconnected. */
     IotHttpsClient_Disconnect( connHandle );
     /* De-initialize the library because we are done using it. */
-    IotHttpsClient_Deinit();
+    IotHttpsClient_Cleanup();
 
     IOT_FUNCTION_CLEANUP_END();
 }

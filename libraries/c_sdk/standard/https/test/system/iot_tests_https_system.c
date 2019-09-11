@@ -550,7 +550,7 @@ TEST_SETUP( HTTPS_Client_System )
  */
 TEST_TEAR_DOWN( HTTPS_Client_System )
 {
-    IotHttpsClient_Deinit();
+    IotHttpsClient_Cleanup();
     IotSdk_Cleanup();
 }
 
