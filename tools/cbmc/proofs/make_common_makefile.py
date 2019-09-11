@@ -151,21 +151,27 @@ def construct_definition(opsys, key_prefix, value_prefix, key, definitions):
     if key in ["INC", "DEF"]:
         values = [patch_path_separator(opsys, value)
                   for value in values]
-    lines = ["\t{}{} \\".format(value_prefix, value) for value in values]
-    return "{}_{} = \\\n{}\n\t# empty\n".format(key_prefix,
-                                                key,
-                                                '\n'.join(lines))
 
-def write_define(opsys, define, defines, makefile):
+    lines = ["%s_%s = \\" % (key_prefix, key)]
+    lines.extend(["\t{}{} \\".format(value_prefix, value) for value in values])
+    lines.append("\t# empty")
+    lines.append("")
+    return lines
+
+
+def get_define(define, defines):
     value = find_definition(define, defines)
     if value:
         if define in ["FREERTOS", "PROOFS"]:
             value = os.path.abspath(value[0])
-        makefile.write("{} = {}\n".format(define, value))
+        return ["{} = {}".format(define, value)]
+    return []
 
-def write_common_defines(opsys, defines, makefile):
-    common_defines, opsys_defines, harness_defines = defines
 
+def get_common_defines(opsys, all_defines):
+    common_defines, opsys_defines, harness_defines = all_defines
+
+    ret = []
     for key_prefix, defines in zip(["C", "O", "H"],
                                    [common_defines,
                                     opsys_defines,
@@ -174,16 +180,17 @@ def write_common_defines(opsys, defines, makefile):
                                       platform_definitions[opsys]["define"],
                                       "", ""],
                                      ["INC", "DEF", "OPT", "CBMCFLAGS"]):
-            define = construct_definition(opsys,
-                                          key_prefix, value_prefix,
-                                          key, defines)
-            if define:
-                makefile.write(define + "\n")
+            ret.extend(construct_definition(opsys,
+                                            key_prefix, value_prefix,
+                                            key, defines))
+    return ret
 
 
-def write_makefile(opsys, template, defines, makefile):
+def get_makefile(opsys, template, defines):
+    ret = []
     with open(template) as _template:
         for line in _template:
+            line = line.rstrip()
             line = patch_path_separator(opsys, line)
             keys = re.findall(r'@(\w+)@', line)
             values = [find_definition(key, defines) for key in keys]
@@ -191,7 +198,9 @@ def write_makefile(opsys, template, defines, makefile):
                 if value is not None:
                     line = line.replace('@{}@'.format(key), " ".join(value))
                     line = patch_compile_output(opsys, line, key, value)
-            makefile.write(line)
+            ret.append(line)
+    return ret
+
 
 def write_cbmcbatchyaml_target(opsys, _makefile):
     target = """
@@ -215,30 +224,33 @@ cbmc-batch.yaml:
     if opsys != "windows":
         _makefile.write(target)
 
-def makefile_from_template(opsys, template, defines, makefile="Makefile"):
-    with open(makefile, "w") as _makefile:
-        write_define(opsys, "FREERTOS", defines, _makefile)
-        write_define(opsys, "PROOFS", defines, _makefile)
-        write_common_defines(opsys, defines, _makefile)
-        write_makefile(opsys, template, defines, _makefile)
-        write_cbmcbatchyaml_target(opsys, _makefile)
 
-################################################################
-# Main
+def generate_makefiles(opsys):
+    common_defines = read_variable_definitions("MakefileCommon.json")
+    opsys_defines = read_variable_definitions("MakefileWindows.json"
+                                              if opsys == "windows"
+                                              else "MakefileLinux.json")
+    harness_defines = {}
+
+    defines = (common_defines, opsys_defines, harness_defines)
+
+    ret = []
+    ret.extend(get_define("FREERTOS", defines))
+    ret.extend(get_define("PROOFS", defines))
+    ret.extend(get_common_defines(opsys, defines))
+    ret.extend(get_makefile(opsys, "Makefile.template", defines))
+    return ret
+
 
 def main():
     args = get_arguments()
 
-    common_defines = read_variable_definitions("MakefileCommon.json")
-    opsys_defines = read_variable_definitions("MakefileWindows.json"
-                                              if args.system == "windows"
-                                              else "MakefileLinux.json")
-    harness_defines = {}
+    makefile = generate_makefiles(args.system)
 
-    makefile_from_template(args.system,
-                           "Makefile.template",
-                           (common_defines, opsys_defines, harness_defines),
-                           "Makefile.common")
+    with open("Makefile.common", "w") as handle:
+        print("\n".join(makefile), file=handle)
+        write_cbmcbatchyaml_target(args.system, handle)
+
 
 if __name__ == "__main__":
     main()
