@@ -22,7 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pprint import pprint
 import json
 import sys
 import re
@@ -30,7 +29,7 @@ import os
 import argparse
 
 def cleanup_whitespace(string):
-    return re.sub('\s+', ' ', string.strip())
+    return re.sub(r'\s+', ' ', string.strip())
 
 ################################################################
 # Operating system specific values
@@ -77,16 +76,18 @@ def patch_path_separator(opsys, string):
     return from_separator.join([change_separator(escaped)
                                 for escaped in escape_separator(string)])
 
+
 def patch_compile_output(opsys, line, key, value):
     if opsys != "windows":
         return line
 
     if key in ["COMPILE_ONLY", "COMPILE_LINK"] and value is not None:
         if value[-1] == '/Fo':
-            return re.sub('/Fo\s+', '/Fo', line)
+            return re.sub(r'/Fo\s+', '/Fo', line)
         if value[-1] == '/Fe':
-            return re.sub('/Fe\s+', '/Fe', line)
+            return re.sub(r'/Fe\s+', '/Fe', line)
     return line
+
 
 ################################################################
 # Argument parsing
@@ -103,6 +104,7 @@ def get_arguments():
     )
     return parser.parse_args()
 
+
 ################################################################
 # Variable definitions
 #
@@ -118,6 +120,7 @@ def read_variable_definitions(filename):
                                                  for value in values]
     return variable
 
+
 def find_definition_once(key, defines, prefix=None):
 
     # Try looking up key with and without prefix
@@ -130,6 +133,7 @@ def find_definition_once(key, defines, prefix=None):
             return _value
 
     return None
+
 
 def find_definition(key, defines):
     common_defines, opsys_defines, harness_defines = defines
@@ -181,7 +185,7 @@ def write_makefile(opsys, template, defines, makefile):
     with open(template) as _template:
         for line in _template:
             line = patch_path_separator(opsys, line)
-            keys = re.findall('@(\w+)@', line)
+            keys = re.findall(r'@(\w+)@', line)
             values = [find_definition(key, defines) for key in keys]
             for key, value in zip(keys, values):
                 if value is not None:

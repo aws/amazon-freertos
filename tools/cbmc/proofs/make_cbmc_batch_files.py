@@ -43,8 +43,6 @@ def create_cbmc_yaml_files():
         harness = [file for file in files if file.endswith("_harness.c")]
         if harness and "Makefile" in files:
             subprocess.run(["make", "cbmc-batch.yaml"],
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE,
                            cwd=os.path.abspath(dyr),
                            check=True)
 
