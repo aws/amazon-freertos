@@ -134,7 +134,7 @@ def load_json_config_file(file):
     return data
 
 
-def dump_makefile(dyr, system):
+def get_makefile(dyr, system):
     data = load_json_config_file(os.path.join(dyr, "Makefile.json"))
 
     makefile = collections.OrderedDict()
@@ -153,20 +153,7 @@ def dump_makefile(dyr, system):
         makefile["EXPECTED"] = "SUCCESSFUL"
     elif str(makefile["EXPECTED"]).lower() == "false":
         makefile["EXPECTED"] = "FAILURE"
-    makefile = ["H_%s = %s" % (k, v) for k, v in makefile.items()]
-
-    # Deal with the case of a harness being nested several levels under
-    # the top-level proof directory, where the common Makefile lives
-    common_dir_path = "..%s" % _platform_choices[system]["path-sep"]
-    common_dir_path = common_dir_path * len(dyr.split(os.path.sep)[1:])
-
-    with open(os.path.join(dyr, "Makefile"), "w") as handle:
-        handle.write(("""{contents}
-
-{include} {common_dir_path}Makefile.common""").format(
-            contents="\n".join(makefile),
-            include=_platform_choices[system]["makefile-inc"],
-            common_dir_path=common_dir_path))
+    return ["H_%s = %s" % (k, v) for k, v in makefile.items()]
 
 
 def compute(value, so_far, system, key, harness, appending=False):
@@ -388,7 +375,22 @@ def main():
 
     for root, _, fyles in os.walk("."):
         if "Makefile.json" in fyles:
-            dump_makefile(root, args.system)
+            makefile_lines = get_makefile(root, args.system)
+
+            # Deal with the case of a harness being nested several levels under
+            # the top-level proof directory, where the common Makefile lives
+            common_dir_path = "..%s" % _platform_choices[args.system]["path-sep"]
+            common_dir_path = common_dir_path * len(root.split(os.path.sep)[1:])
+
+            with open(os.path.join(root, "Makefile"), "w") as handle:
+                handle.write("""\
+{contents}
+
+{include} {common_dir_path}Makefile.common""".format(
+                    contents="\n".join(makefile_lines),
+                    include=_platform_choices[args.system]["makefile-inc"],
+                    common_dir_path=common_dir_path))
+
 
 
 if __name__ == "__main__":
