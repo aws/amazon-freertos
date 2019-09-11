@@ -6,3 +6,6 @@ Makefile.common
 cbmc-batch.yaml
 **/*.txt
 **/*.goto
+
+# Generated configuration directories
+config_*
