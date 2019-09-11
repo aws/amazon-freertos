@@ -18,10 +18,10 @@ git submodule update --init --recursive
 ```
 
 ## Important branches to know
-master            --> Development is done continuously on this branch
-release           --> Fully tested released source code
-release-candidate --> Preview of upcoming release
-feat/*            --> alpha/beta of an upcoming feature
+master            --> Development is done continuously on this branch  
+release           --> Fully tested released source code  
+release-candidate --> Preview of upcoming release  
+feat/*            --> alpha/beta of an upcoming feature  
 
 ## Getting Started
 
