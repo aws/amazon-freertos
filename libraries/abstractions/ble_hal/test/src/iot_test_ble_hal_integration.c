@@ -260,6 +260,7 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
 {
     BTStatus_t xStatus, xfStatus;
     uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
+    uint8_t cccdFValue;
 
     /* Create a data payload whose length = MTU + 1. */
     static char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
@@ -267,7 +268,7 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     memset( bletests_MTU_2_CHAR_VALUE, 'a', ( bletestsMTU_SIZE1 + 1 ) * sizeof( char ) );
     bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 1 ] = '\0';
 
-    uint8_t cccdFValue = ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[ 0 ];
+    cccdFValue = ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[ 0 ];
     /* check the value of cccd E is changed from 0 to 1. */
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
     /* check the value of cccd F does not change */
