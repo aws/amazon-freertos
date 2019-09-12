@@ -152,6 +152,14 @@ void IotHttpsClient_Cleanup( void );
 /* @[declare_https_client_cleanup] */
 
 /**
+ * @cond DOXYGEN_IGNORE
+ * 
+ * Backward compatibility function for one time clean up of the IoT HTTPS Client library.
+ */
+#define IotHttpsClient_Deinit   IotHttpsClient_Cleanup
+/** @endcond */
+
+/**
  * @brief Explicitly connect to the HTTPS server given the connection configuration pConnConfig.
  *
  * This routine blocks until the connection is complete.
