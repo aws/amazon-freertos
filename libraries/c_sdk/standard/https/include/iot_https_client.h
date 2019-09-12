@@ -153,10 +153,10 @@ void IotHttpsClient_Cleanup( void );
 
 /**
  * @cond DOXYGEN_IGNORE
- * 
+ *
  * Backward compatibility function for one time clean up of the IoT HTTPS Client library.
  */
-#define IotHttpsClient_Deinit   IotHttpsClient_Cleanup
+#define IotHttpsClient_Deinit    IotHttpsClient_Cleanup
 /** @endcond */
 
 /**
