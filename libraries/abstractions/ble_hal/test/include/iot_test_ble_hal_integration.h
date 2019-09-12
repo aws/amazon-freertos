@@ -38,6 +38,12 @@
 
 #define bletestsFAIL_CHAR_VALUE    "fail"
 
+void GAP_common_teardown();
+void GAP_common_setup();
+void GATT_teardown();
+void GATT_setup();
+void Advertisement_teardown();
+void Advertisement_setup();
 void prvGAPInitEnableTwice( void );
 
 void prvGetResult( bletestAttSrvB_t xAttribute,

@@ -461,17 +461,22 @@ void prvRequestExecWriteCb( uint16_t usConnId,
 void prvBondedCb( BTStatus_t xStatus,
                   BTBdaddr_t * pxRemoteBdAddr,
                   bool bIsBonded );
-void prvStartAdvertisement( void );
-BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
+
+BTStatus_t bleStackInit( void );
+void prvBLESetUp( void );
+void prvBLEFree( void );
+
+void IotBleHalTest_StartAdvertisement( void );
+BTStatus_t IotBleHalTest_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                   int32_t lhandle,
                                   void * pxMessage,
                                   size_t xMessageLength,
                                   uint32_t timeoutMs );
-void prvBLEManagerInit( void );
-void prvBLEEnable( bool bEnable );
-void prvStartService( BTService_t * xRefSrvc );
-void prvCreateServiceA( void );
-void prvCreateServiceB( void );
+void IotBleHalTest_BLEManagerInit( void );
+void IotBleHalTest_BLEEnable( bool bEnable );
+void IotBleHalTest_StartService( BTService_t * xRefSrvc );
+void IotBleHalTest_CreateServiceA( void );
+void IotBleHalTest_CreateServiceB( void );
 void prvWaitConnection( bool bConnected );
 void prvStopService( BTService_t * xRefSrvc );
 void prvDeleteService( BTService_t * xRefSrvc );
@@ -483,12 +488,6 @@ void prvBLEGATTInit( void );
 void prvSetAdvProperty( void );
 void prvSetAdvData( BTuuidType_t Type );
 
-void GAP_common_teardown();
-void GAP_common_setup();
-void GATT_teardown();
-void GATT_setup();
-void Advertisement_teardown();
-void Advertisement_setup();
 void prvSendNotification( bletestAttSrvB_t xAttribute,
                           bool bConfirm );
 void prvCheckIndicationNotification( bool IsIndication, bool IsConnected );

@@ -93,17 +93,17 @@ TEST_GROUP_RUNNER( Full_BLE_Stress_Test )
 
 TEST( Full_BLE_Stress_Test, BLE_Stack_Init )
 {
-    prvBLEManagerInit();
+    IotBleHalTest_BLEManagerInit();
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Stack_Enable )
 {
-    prvBLEEnable( true );
+    IotBleHalTest_BLEEnable( true );
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Stack_Disable )
 {
-    prvBLEEnable( false );
+    IotBleHalTest_BLEEnable( false );
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Stack_Deinit )
@@ -127,8 +127,8 @@ TEST( Full_BLE_Stress_Test, BLE_Teardown )
 
 TEST( Full_BLE_Stress_Test, BLE_Service_Create )
 {
-    prvCreateServiceA();
-    prvCreateServiceB();
+    IotBleHalTest_CreateServiceA();
+    IotBleHalTest_CreateServiceB();
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Service_Restart )
@@ -143,7 +143,7 @@ TEST( Full_BLE_Stress_Test, BLE_Connection_ReConnect )
 
     for( loop = 0; loop < RECONNECT_NUMBER_STRESS_TEST; loop++ )
     {
-        prvStartAdvertisement();
+        IotBleHalTest_StartAdvertisement();
         prvWaitConnection( true );
         prvWaitConnection( false );
     }
@@ -155,7 +155,7 @@ void prvRestartService( BTService_t * xRefSrvc )
 
     for( loop = 0; loop < RESTART_NUMBER_STRESS_TEST; loop++ )
     {
-        prvStartService( xRefSrvc );
+        IotBleHalTest_StartService( xRefSrvc );
         prvStopService( xRefSrvc );
     }
 }

@@ -107,7 +107,7 @@ TEST_SETUP( Full_BLE_Integration_Test_Connection )
     /* Advertise and Connect */
     prvSetAdvProperty();
     prvSetAdvData( eBTuuidType128 );
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
     prvWaitConnection( true );
 }
 
@@ -151,7 +151,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties )
     prvBLEGAPInit();
     prvBLEGATTInit();
     prvSetAdvData( eBTuuidType128 );
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
     /* Connect for evaluate KPI for next test case. */
     prvWaitConnection( true );
 }
@@ -161,7 +161,7 @@ TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceU
 {
     prvSetAdvProperty();
     prvSetAdvData( eBTuuidType16 );
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
     /* Simple Connect */
     prvWaitConnection( true );
     /* Disconnect */
@@ -171,7 +171,7 @@ TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceU
 /* The sequence of set advertisement data and start advertisement can change. */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
 {
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
     prvSetAdvData( eBTuuidType128 );
     BTStatus_t xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -186,14 +186,14 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     clock_t returnTime, cbRecvTime;
 
     /* disable */
-    prvBLEEnable( false );
+    IotBleHalTest_BLEEnable( false );
 
     /* enable */
     xStatus = _pxBTInterface->pxEnable( 0 );
     returnTime = clock();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotBleHalTest_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
     cbRecvTime = clock();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
@@ -219,7 +219,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     prvWaitConnection( false );
 
     /* Second time reconnection. Got Second KPI. */
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
     prvWaitConnection( true );
     prvWaitConnection( false );
 
@@ -227,7 +227,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     BTStatus_t xStatus = eBTStatusSuccess;
 
     prvBTUnregister();
-    prvBLEEnable( false );
+    IotBleHalTest_BLEEnable( false );
 
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -235,7 +235,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    prvBLEEnable( true );
+    IotBleHalTest_BLEEnable( true );
     prvBLEGAPInit();
     prvBLEGATTInit();
     prvCreateAndStartServiceB();
@@ -243,7 +243,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     prvSetAdvData( eBTuuidType128 );
 
     /* Third time connection begins. Got third KPI. */
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
 
     prvWaitConnection( true );
 
@@ -325,7 +325,7 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
     /* Advertise and Reconnect */
     prvSetAdvProperty();
     prvSetAdvData( eBTuuidType128 );
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
     prvWaitConnection( true );
 
     /* Check communication */
@@ -344,7 +344,7 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
 TEST( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout )
 {
     prvWaitConnection( false );
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
     prvShortWaitConnection();
 }
 
@@ -355,7 +355,7 @@ TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
     prvStopService( &_xSrvcB );
     prvDeleteService( &_xSrvcB );
     prvBTUnregister();
-    prvBLEEnable( false );
+    IotBleHalTest_BLEEnable( false );
 
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -368,7 +368,7 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
     BLETESTwriteAttrCallback_t xWriteEvent;
     BTStatus_t xStatus;
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotBleHalTest_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( IsPrep, xWriteEvent.bIsPrep );
     TEST_ASSERT_EQUAL( 49, xWriteEvent.ucValue[ 0 ] );
@@ -383,7 +383,7 @@ void prvShortWaitConnection()
     BLETESTConnectionCallback_t xConnectionEvent;
     BTStatus_t xStatus;
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_SHORT_WAIT );
+    xStatus = IotBleHalTest_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_SHORT_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusFail, xStatus );
     TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xConnectionEvent.xStatus );
     prvStartStopAdvCheck( false );
@@ -397,8 +397,8 @@ void prvCreateAndStartServiceB()
 
     if( xStatus == eBTStatusUnsupported )
     {
-        prvCreateServiceB();
-        prvStartService( &_xSrvcB );
+        IotBleHalTest_CreateServiceB();
+        IotBleHalTest_StartService( &_xSrvcB );
     }
     else
     {
@@ -425,7 +425,7 @@ void prvGAPInitEnableTwice()
     xStatus = _pxBTInterface->pxEnable( 0 );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = prvWaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotBleHalTest_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
     cbRecvTime = clock();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
@@ -442,7 +442,7 @@ void prvGAPInitEnableTwice()
     TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
 
     /* Second time enable */
-    prvBLEEnable( true );
+    IotBleHalTest_BLEEnable( true );
 }
 
 void GAP_common_teardown()
@@ -450,7 +450,7 @@ void GAP_common_teardown()
     BTStatus_t xStatus = eBTStatusSuccess;
 
     /* Disable */
-    prvBLEEnable( false );
+    IotBleHalTest_BLEEnable( false );
 
     /* Deinit */
     xStatus = _pxBTInterface->pxBtManagerCleanup();
@@ -471,7 +471,7 @@ void GAP_common_setup()
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     /* Enable */
-    prvBLEEnable( true );
+    IotBleHalTest_BLEEnable( true );
 }
 
 void GATT_teardown()
@@ -502,5 +502,5 @@ void Advertisement_setup()
     prvSetAdvData( eBTuuidType128 );
 
     /* Second time connection begins. Got second KPI. */
-    prvStartAdvertisement();
+    IotBleHalTest_StartAdvertisement();
 }
