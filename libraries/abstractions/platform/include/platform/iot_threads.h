@@ -393,4 +393,16 @@ bool IotSemaphore_TimedWait( IotSemaphore_t * pSemaphore,
 void IotSemaphore_Post( IotSemaphore_t * pSemaphore );
 /* @[declare_platform_threads_semaphorepost] */
 
+/**
+ * @brief Post to (unlock) a semaphore from ISR. This function should only return
+ * when the semaphore post succeeds; it is not expected to fail.
+ *
+ * This function increments the count of a semaphore.
+ *
+ * @param[in] pSemaphore The semaphore to unlock.
+ */
+/* @[declare_platform_threads_semaphorepostfromisr] */
+void IotSemaphore_PostFromISR( IotSemaphore_t * pSemaphore );
+/* @[declare_platform_threads_semaphorepostfromisr] */
+
 #endif /* ifndef IOT_THREADS_H_ */
