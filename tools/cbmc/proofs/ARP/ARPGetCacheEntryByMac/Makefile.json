@@ -1,10 +1,10 @@
 {
   "variables": {
-    "ENTRY": "ARPGetCacheEntryByMac"
+    "ENTRY": "ARPGetCacheEntryByMac",
+    "UNWIND_LIMIT": 7
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 7",
       "--nondet-static"
     ],
     "OBJS": [

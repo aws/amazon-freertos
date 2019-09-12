@@ -10,7 +10,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset prvProcessDNSCache.0:5,strcmp.0:{HOSTNAME_UNWIND}",
       "--nondet-static"
     ],

@@ -1,13 +1,10 @@
 {
   "variables": {
     "ENTRY": "IotHttpsClient_Connect",
-    "USER_DATA_SIZE": "1000",
-    "CBMC_OBJECTID_BITS": "7",
-    "CBMC_MAX_OBJECT_SIZE": "\"(UINT32_MAX>>CBMC_OBJECTID_BITS)\""
+    "USER_DATA_SIZE": "1000"
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset strlen.0:5",
       "--nondet-static",
       "--div-by-zero-check",
@@ -38,9 +35,7 @@
       "../../include"
     ],
     "DEF": [
-      "USER_DATA_SIZE={USER_DATA_SIZE}",
-      "CBMC_OBJECTID_BITS={CBMC_OBJECTID_BITS}",
-      "CBMC_MAX_OBJECT_SIZE={CBMC_MAX_OBJECT_SIZE}"
+      "USER_DATA_SIZE={USER_DATA_SIZE}"
     ]
   },
   "makefile-control": {}

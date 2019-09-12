@@ -4,7 +4,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset prvTCPSendRepeated.0:13",
       "--nondet-static"
     ],

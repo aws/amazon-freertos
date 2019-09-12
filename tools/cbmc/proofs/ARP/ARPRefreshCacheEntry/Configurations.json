@@ -4,7 +4,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-        "--unwind 1",
         "--unwindset vARPRefreshCacheEntry.0:7,memcmp.0:17",
         "--nondet-static"
     ],

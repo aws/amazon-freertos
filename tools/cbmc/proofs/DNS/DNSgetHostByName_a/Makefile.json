@@ -12,7 +12,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset prvCreateDNSMessage.0:{HOSTNAME_UNWIND},prvCreateDNSMessage.1:{HOSTNAME_UNWIND},prvGetHostByName.0:{HOSTNAME_UNWIND},prvProcessDNSCache.0:5,strlen.0:{HOSTNAME_UNWIND},__builtin___strcpy_chk.0:{HOSTNAME_UNWIND},strcmp.0:{HOSTNAME_UNWIND},xTaskResumeAll.0:{HOSTNAME_UNWIND},xTaskResumeAll.1:{HOSTNAME_UNWIND},strcpy.0:{HOSTNAME_UNWIND}",
       "--nondet-static"
     ],

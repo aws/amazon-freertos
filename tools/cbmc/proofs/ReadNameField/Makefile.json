@@ -25,7 +25,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset {READLOOP0}:{READLOOP0_UNWIND},{READLOOP1}:{READLOOP1_UNWIND}"
     ],
     "OBJS": [

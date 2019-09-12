@@ -1,10 +1,10 @@
 {
   "variables": {
-    "ENTRY": "FreeRTOS_PrintARPCache"
+    "ENTRY": "FreeRTOS_PrintARPCache",
+    "UNWIND_LIMIT": 7
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 7",
       "--nondet-static"
     ],
     "OBJS": [

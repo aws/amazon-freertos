@@ -4,7 +4,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--nondet-static"
     ],
     "OBJS": [

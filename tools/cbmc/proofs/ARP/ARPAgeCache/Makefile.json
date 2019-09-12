@@ -4,7 +4,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset vARPAgeCache.0:7",
       "--nondet-static"
     ],

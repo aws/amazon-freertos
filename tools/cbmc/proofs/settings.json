@@ -1,0 +1,24 @@
+# These settings get propagated down to all proofs, though some proofs override
+# these defaults.
+{
+  "variables": {
+    "UNWIND_LIMIT": 1,
+    "FREERTOS": "../../..",
+    "PROOFS": ".",
+    "CBMC_MAX_OBJECT_SIZE": "\"(UINT32_MAX>>CBMC_OBJECTID_BITS)\"",
+    "CBMC_OBJECTID_BITS": 7,
+    "EXPECTED": "SUCCESSFUL"
+  },
+  "lists": {
+    "CBMCFLAGS": [
+      "--unwind {UNWIND_LIMIT}",
+      "--object-bits {CBMC_OBJECT_BITS}"
+    ],
+    "DEF": [
+      "CBMC_OBJECT_BITS={CBMC_OBJECT_BITS}",
+      "CBMC_OBJECT_MAX_SIZE=\"(UINT32_MAX>>(CBMC_OBJECT_BITS + 1))\""
+    ]
+  },
+  "makefile-control": {
+  }
+}

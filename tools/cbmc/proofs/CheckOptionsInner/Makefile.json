@@ -5,7 +5,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset prvTCPWindowTxCheckAck.1:2,prvTCPWindowFastRetransmit.2:2"
     ],
     "OBJS": [

@@ -5,7 +5,6 @@
   "lists": {
     "CBMCFLAGS":
     [
-        "--unwind 1",
         "--unwindset prvCacheLookup.0:7",
         "--nondet-static"
     ],

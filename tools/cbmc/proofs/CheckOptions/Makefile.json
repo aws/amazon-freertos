@@ -7,7 +7,7 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1 --unwindset prvCheckOptions.0:41"
+      "--unwindset prvCheckOptions.0:41"
     ],
     "OBJS": [
       "$(ENTRY)_harness.goto",

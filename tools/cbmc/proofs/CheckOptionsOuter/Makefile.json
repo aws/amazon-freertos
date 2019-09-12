@@ -5,7 +5,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset prvSingleStepTCPHeaderOptions.2:32"
     ],
     "OBJS": [

@@ -13,7 +13,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwind 1",
       "--unwindset {SKIPLOOP0}:{SKIPLOOP0_UNWIND}"
     ],
     "OBJS": [
