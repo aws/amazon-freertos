@@ -114,7 +114,7 @@ ATCA_STATUS hal_i2c_init(void *hal, ATCAIfaceCfg *cfg)
         // if this is the first time this bus and interface has been created, do the physical work of enabling it
         if (i2c_hal_data[bus] == NULL)
         {
-            i2c_hal_data[bus] = malloc(sizeof(ATCAI2CMaster_t) );
+            i2c_hal_data[bus] = hal_malloc(sizeof(ATCAI2CMaster_t) );
             i2c_hal_data[bus]->ref_ct = 1;  // buses are shared, this is the first instance
 
             tempI2cObj = (DRV_I2C_Object*)(cfg->cfg_data);
@@ -380,7 +380,7 @@ ATCA_STATUS hal_i2c_release(void *hal_data)
     if (hal && --(hal->ref_ct) <= 0 && i2c_hal_data[hal->bus_index] != NULL)
     {
         DRV_I2C_Close(drvI2CMasterHandle);
-        free(i2c_hal_data[hal->bus_index]);
+        hal_free(i2c_hal_data[hal->bus_index]);
         i2c_hal_data[hal->bus_index] = NULL;
     }
 
