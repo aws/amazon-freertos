@@ -48,7 +48,7 @@
 #define testrunnerFULL_GGD_ENABLED                 0
 #define testrunnerFULL_GGD_HELPER_ENABLED          0
 #define testrunnerFULL_SHADOW_ENABLED              0
-#define testrunnerFULL_MQTT_ENABLED                0
+#define testrunnerFULL_MQTTv4_ENABLED              0
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_TLS_ENABLED                 0
 #define testrunnerFULL_HTTPS_CLIENT_ENABLED        0
