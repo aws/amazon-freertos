@@ -362,3 +362,29 @@ void IotSemaphore_Post( IotSemaphore_t * pSemaphore )
 }
 
 /*-----------------------------------------------------------*/
+
+void IotSemaphore_PostFromISR( IotSemaphore_t * pSemaphore )
+{
+    _IotSystemSemaphore_t * internalSemaphore = ( _IotSystemSemaphore_t * ) pSemaphore;
+    BaseType_t higherPriorityTaskWoken = pdFALSE;
+
+    configASSERT( internalSemaphore != NULL );
+
+    IotLogDebug( "Posting to semaphore %p.", internalSemaphore );
+
+    /* Give the semaphore using the FreeRTOS API. */
+    BaseType_t result = xSemaphoreGiveFromISR( ( SemaphoreHandle_t ) &internalSemaphore->xSemaphore, &( higherPriorityTaskWoken ) );
+
+    if( result != pdFALSE )
+    {
+    	/* Request a context switch if a higher priority task was woken as a result of
+    	 * giving semaphore. */
+    	portYIELD_FROM_ISR( higherPriorityTaskWoken );
+    }
+    else
+    {
+    	IotLogDebug( "Unable to give semaphore over maximum", internalSemaphore );
+    }
+}
+
+/*-----------------------------------------------------------*/
