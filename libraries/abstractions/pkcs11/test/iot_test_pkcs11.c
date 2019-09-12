@@ -764,15 +764,13 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
     if( CKR_OK == xResult )
     {
-        configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
-
         TEST_ASSERT_TRUE( 0 != ( CKF_SIGN & MechanismInfo.flags ) );
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
 
-        /* Check for RSA pre-padded signature verification support. This is required
-         * for testing RSA signing. */
+        /* Check for pre-padded signature verification support. This is required
+         * for round-trip testing. */
         xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_RSA_X_509, &MechanismInfo );
         TEST_ASSERT_TRUE( CKR_OK == xResult );
 
@@ -780,6 +778,13 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
+
+        /* Check consistency with static configuration. */
+        #ifndef pkcs11testRSA_KEY_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+
+        configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
     }
 
     /* Check for ECDSA support. */
@@ -788,12 +793,17 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
     if( CKR_OK == xResult )
     {
-        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
-
         TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+
+        /* Check consistency with static configuration. */
+        #ifndef pkcs11testEC_KEY_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+
+        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
     }
 
     /* Check for elliptic-curve key generation support. */
@@ -802,13 +812,13 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
     if( CKR_OK == xResult )
     {
-        xSupportsKeyGen = CK_TRUE;
-        configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
-
         TEST_ASSERT_TRUE( 0 != ( CKF_GENERATE_KEY_PAIR & MechanismInfo.flags ) );
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+
+        xSupportsKeyGen = CK_TRUE;
+        configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
     }
 
     /* SHA-256 support is required, but we don't need to write it to the console,
