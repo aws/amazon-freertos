@@ -919,6 +919,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     ProvisionedState_t xProvisionedState = { 0 };
     CK_OBJECT_HANDLE xObject = 0;
+    CK_BBOOL xImportedPrivateKey = CK_FALSE;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -972,6 +973,10 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             {
                 configPRINTF( ( "ERROR: Failed to provision device private key with status %d.\r\n", xResult ) );
             }
+            else
+            {
+                xImportedPrivateKey = CK_TRUE;
+            }
         }
     #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
 
@@ -998,7 +1003,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     /* Check whether a keyset is now present. In order to support X.509
      * certificate enrollment, the public and private key objects must both be
      * available. */
-    if( xResult == CKR_OK )
+    if( ( xResult == CKR_OK ) && ( CK_FALSE == xImportedPrivateKey ) )
     {
         xResult = prvGetProvisionedState( xSession,
                                           &xProvisionedState );
@@ -1028,7 +1033,8 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     /* Log the device public key for developer enrollment purposes, but only if
      * there's not already a certificate. */
     if( ( CKR_OK == xResult ) &&
-        ( CK_INVALID_HANDLE == xProvisionedState.xClientCertificate ) )
+        ( CK_INVALID_HANDLE == xProvisionedState.xClientCertificate ) &&
+        ( CK_FALSE == xImportedPrivateKey ) )
     {
         configPRINTF( ( "Warning: no client certificate is available. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
         xResult = prvWritePublicKeyToConsole( xSession,
