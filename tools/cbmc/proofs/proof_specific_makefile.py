@@ -324,11 +324,10 @@ def build_settings_tree(makefile_json_path, system):
         "lists": collections.OrderedDict(),
     }
     for settings_file in get_ancestor_settings_files(makefile_json_path):
-        logging.error(settings_file)
         local_settings = load_json_config_file(settings_file)
         for field in ["variables", "makefile-control"]:
             if field in local_settings:
-                for k, v in local_settings[field]:
+                for k, v in local_settings[field].items():
                     if k in final_settings[field]:
                         logging.debug("Overwriting variable %s->%s "
                                       "with new value %s from file %s",
@@ -342,14 +341,14 @@ def build_settings_tree(makefile_json_path, system):
         if "lists" in local_settings:
             for list_name, liist in local_settings["lists"].items():
                 if list_name in final_settings["lists"]:
-                    local_settings["lists"][list_name].extend(liist)
+                    final_settings["lists"][list_name].extend(liist)
                     logging.debug("Extending %s with [%s] from %s",
                                   list_name, ", ".join(liist),
                                   settings_file)
                 else:
                     logging.debug("Setting %s to [%s] from file %s",
                         list_name, ", ".join(liist), settings_file)
-                    local_settings["lists"][list_name] = [liist]
+                    final_settings["lists"][list_name] = liist
 
     so_far = {}
     new_variables = {}
@@ -384,15 +383,16 @@ def get_makefile(dyr, system):
 
     ret = []
     for var, val in makefile_settings["variables"].items():
-        ret.append("%s = %s" % (var, val))
+        ret.append("H_%s = %s" % (var, val))
     ret.append("")
 
     for list_name, liist in makefile_settings["lists"].items():
         prefix = list_item_prefix(list_name, system)
-        ret.append("%s = \\" % list_name)
+        ret.append("H_%s = \\" % list_name)
         for item in liist:
             ret.append("  %s%s \\" % (prefix, item))
-    ret.append("")
+        ret.append("  # empty")
+        ret.append("")
 
     return ret
 

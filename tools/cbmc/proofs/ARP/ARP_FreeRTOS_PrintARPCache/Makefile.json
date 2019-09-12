@@ -1,17 +1,19 @@
 {
-  "ENTRY": "FreeRTOS_PrintARPCache",
-  "CBMCFLAGS":
-  [
+  "variables": {
+    "ENTRY": "FreeRTOS_PrintARPCache"
+  },
+  "lists": {
+    "CBMCFLAGS": [
       "--unwind 7",
       "--nondet-static"
-  ],
-  "OBJS":
-  [
-    "$(ENTRY)_harness.goto",
-    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.goto"
-  ],
-  "DEF":
-  [
-    "ipconfigARP_CACHE_ENTRIES=6"
-  ]
+    ],
+    "OBJS": [
+      "$(ENTRY)_harness.goto",
+      "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.goto"
+    ],
+    "DEF": [
+      "ipconfigARP_CACHE_ENTRIES=6"
+    ]
+  },
+  "makefile-control": {}
 }

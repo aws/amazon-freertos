@@ -101,7 +101,7 @@ def process(folder, files):
     json_content = load_json_config_file(os.path.join(folder,
                                                       "Configurations.json"))
     try:
-        def_list = json_content["DEF"]
+        def_list = json_content["lists"]["DEF"]
     except KeyError:
         LOGGER.error("Expected DEF as key in a Configurations.json files.")
         return
@@ -141,11 +141,7 @@ def process(folder, files):
         # The order of keys must be maintained as otherwise the
         # make_proof_makefiles script might fail.
         current_config = collections.OrderedDict(json_content)
-        current_config["DEF"] = configbody
-        if "EXPECTED" in config.keys():
-            current_config["EXPECTED"] = config["EXPECTED"]
-        else:
-            current_config["EXPECTED"] = True
+        current_config["lists"]["DEF"] = configbody
         with open(os.path.join(new_config_folder, "Makefile.json"),
                   "w") as output_file:
             json.dump(current_config, output_file, indent=2)
