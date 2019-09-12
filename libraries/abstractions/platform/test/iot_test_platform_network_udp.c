@@ -116,7 +116,7 @@ TEST_GROUP_RUNNER( UTIL_Platform_Network_UDP )
     RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_CreateConnectionInvalidParams );
     RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_CreateConnectionValidParams );
     RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_SyncSendReceive );
-    RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_AsyncReceiveDestroy);
+    RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_AsyncReceiveDestroy );
     RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_AsyncSendDestroy );
     RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_AsyncReceiveCloseAndDestroy );
     RUN_TEST_CASE( UTIL_Platform_Network_UDP, IotUpdAbstraction_AsyncSendCloseAndDestroy );
@@ -540,17 +540,16 @@ TEST( UTIL_Platform_Network_UDP, IotUpdAbstraction_AsyncSendCloseAndDestroy )
         result = pNetworkInterface->send( pUdpConnection, echoString, _ECHO_STRING_SIZE );
         TEST_ASSERT_EQUAL_MESSAGE( _ECHO_STRING_SIZE, result, "UDP abstraction send failed" );
 
+        /* Wait on semaphore for receive thread to finish */
+        TEST_ASSERT_EQUAL_MESSAGE( true, testSemCreated, " Test semaphore was not created" );
+        IotSemaphore_Wait( &testUdpAbstractionSem );
+
         /* close the connection, close should prompt  receive thread exit */
         networkError = pNetworkInterface->close( pUdpConnection );
         TEST_ASSERT_EQUAL_MESSAGE( IOT_NETWORK_SUCCESS, networkError, "UDP abstraction close  failed" );
 
-        /* Destroy connection */
         networkError = pNetworkInterface->destroy( pUdpConnection );
         TEST_ASSERT_EQUAL_MESSAGE( IOT_NETWORK_SUCCESS, networkError, "UDP abstraction destroy failed" );
-
-        /* Wait on semaphore for receive thread to finish */
-        TEST_ASSERT_EQUAL_MESSAGE( true, testSemCreated, " Test semaphore was not created" );
-        IotSemaphore_Wait( &testUdpAbstractionSem );
 
         /* destroy semaphore */
         IotSemaphore_Destroy( &testUdpAbstractionSem );

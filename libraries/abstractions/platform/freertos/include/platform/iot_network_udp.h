@@ -123,7 +123,7 @@ IotNetworkError_t IotNetworkUdp_SetReceiveCallback( void * pConnection,
  * @brief An implementation of #IotNetworkInterface_t::send for Amazon FreeRTOS
  * UDP Sockets.
  */
-size_t IotNetworkUdp_Send( void * pConnection,
+size_t IotNetworkUdp_SendTo( void * pConnection,
                            const uint8_t * pMessage,
                            size_t messageLength );
 
@@ -131,7 +131,7 @@ size_t IotNetworkUdp_Send( void * pConnection,
  * @brief An implementation of #IotNetworkInterface_t::receive for Amazon FreeRTOS
  * UDP Sockets.
  */
-size_t IotNetworkUdp_Receive( void * pConnection,
+size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested );
 

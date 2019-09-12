@@ -101,8 +101,8 @@ const IotNetworkInterface_t IotNetworkUdp =
 {
     .create             = IotNetworkUdp_Create,
     .setReceiveCallback = IotNetworkUdp_SetReceiveCallback,
-    .send               = IotNetworkUdp_Send,
-    .receive            = IotNetworkUdp_Receive,
+    .send               = IotNetworkUdp_SendTo,
+    .receive            = IotNetworkUdp_ReceiveFrom,
     .close              = IotNetworkUdp_Close,
     .destroy            = IotNetworkUdp_Destroy
 };
@@ -208,10 +208,13 @@ static void _networkReceiveTask( void * pArgument )
     }
     else
     {
+        IotLogDebug( "destroyConnection False: set _FLAG_RECEIVE_TASK_EXITED" );
         /* Set the flag to indicate that the receive task has exited. */
         ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
                                      _FLAG_RECEIVE_TASK_EXITED );
     }
+
+    IotLogDebug( "Network receive task: before vTaskDelete" );
 
     vTaskDelete( NULL );
 }
@@ -226,8 +229,6 @@ IotNetworkError_t IotNetworkUdp_Create( void * pConnectionInfo,
     int32_t udpServerAddr = 0;
     int32_t socketStatus = SOCKETS_ERROR_NONE;
     EventGroupHandle_t pConnectionFlags = NULL;
-
-    /* Cast function parameters to correct types. */
     const IotNetworkServerInfoUdp_t * pServerInfo = NULL;
     _networkConnection_t ** pNetworkConnection = NULL;
     TickType_t socketTimeout = 0;
@@ -245,7 +246,7 @@ IotNetworkError_t IotNetworkUdp_Create( void * pConnectionInfo,
         IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_BAD_PARAMETER );
     }
 
-    pServerInfo = pConnectionInfo;
+    pServerInfo = ( IotNetworkServerInfoUdp_t * ) pConnectionInfo;
 
     if( pServerInfo->pHostName == NULL )
     {
@@ -359,14 +360,14 @@ IotNetworkError_t IotNetworkUdp_SetReceiveCallback( void * pConnection,
                                                     IotNetworkReceiveCallback_t receiveCallback,
                                                     void * pContext )
 {
-    IotNetworkError_t status = IOT_NETWORK_SUCCESS;
+    IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
 
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
 
     if( pConnection == NULL )
     {
-        IotLogError( "Invalid connection parameter" );
+        IotLogWarn( "Invalid connection parameter" );
         IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_BAD_PARAMETER );
     }
 
@@ -382,7 +383,7 @@ IotNetworkError_t IotNetworkUdp_SetReceiveCallback( void * pConnection,
                      "NetUdpRecv",
                      IOT_NETWORK_RECEIVE_TASK_STACK_SIZE,
                      pNetworkConnection,
-                     IOT_NETWORK_RECEIVE_TASK_PRIORITY + 5,
+                     IOT_NETWORK_RECEIVE_TASK_PRIORITY,
                      &( pNetworkConnection->receiveTask ) ) != pdPASS )
     {
         configASSERT( pNetworkConnection->receiveTask );
@@ -395,7 +396,7 @@ IotNetworkError_t IotNetworkUdp_SetReceiveCallback( void * pConnection,
 }
 /*-----------------------------------------------------------*/
 
-size_t IotNetworkUdp_Send( void * pConnection,
+size_t IotNetworkUdp_SendTo( void * pConnection,
                            const uint8_t * pMessage,
                            size_t messageLength )
 {
@@ -420,11 +421,11 @@ size_t IotNetworkUdp_Send( void * pConnection,
 }
 /*-----------------------------------------------------------*/
 
-size_t IotNetworkUdp_Receive( void * pConnection,
+size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested )
 {
-    size_t bytesReceived = 0, bytesRemaining = bytesRequested;
+    size_t bytesReceived = 0;
     int32_t socketStatus = 0;
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
     SocketsSockaddr_t serverAddress = { 0 };
@@ -441,26 +442,21 @@ size_t IotNetworkUdp_Receive( void * pConnection,
     }
     else
     {
-        while( bytesRemaining > 0 )
+        socketStatus = SOCKETS_RecvFrom( pNetworkConnection->socket,
+                                         pBuffer + bytesReceived,
+                                         bytesRequested,
+                                         0,
+                                         &serverAddress,
+                                         &addrLength );
+
+        if( socketStatus <= 0 )
         {
-            socketStatus = SOCKETS_RecvFrom( pNetworkConnection->socket,
-                                             pBuffer + bytesReceived,
-                                             bytesRemaining,
-                                             0,
-                                             &serverAddress,
-                                             &addrLength );
-
-            if( socketStatus <= 0 )
-            {
-                IotLogError( "Failed to receive requested bytes: %d, received: %d socketStatus: %d", bytesRequested, bytesReceived,
-                             socketStatus );
-                break;
-            }
-
-            bytesRemaining -= socketStatus;
-            bytesReceived += socketStatus;
-            configASSERT( bytesReceived + bytesRemaining == bytesRequested );
+            IotLogError( "Failed to receive requested bytes: %d, received: %d socketStatus: %d", bytesRequested, bytesReceived,
+                         socketStatus );
         }
+
+        bytesReceived += socketStatus;
+        configASSERT( bytesReceived == bytesRequested );
     }
 
     if( ( bytesReceived > 0 ) && ( pNetworkConnection->strictServerAddrCheck ) )
@@ -485,7 +481,7 @@ size_t IotNetworkUdp_Receive( void * pConnection,
 
 IotNetworkError_t IotNetworkUdp_Close( void * pConnection )
 {
-    int32_t socketStatus = SOCKETS_ERROR_NONE;
+    IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
 
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
@@ -494,22 +490,12 @@ IotNetworkError_t IotNetworkUdp_Close( void * pConnection )
     {
         IotLogWarn( "Invalid connection parameter" );
     }
-    else if( pNetworkConnection->socket != SOCKETS_INVALID_SOCKET )
+    else if( pNetworkConnection->socket == SOCKETS_INVALID_SOCKET )
     {
         IotLogWarn( " Close failed: Invalid Socket " );
-        socketStatus = SOCKETS_SOCKET_ERROR;
     }
     else
     {
-        /* Call Secure Sockets shutdown function to close connection. */
-        socketStatus = SOCKETS_Shutdown( pNetworkConnection->socket,
-                                         SOCKETS_SHUT_RDWR );
-
-        if( socketStatus != SOCKETS_ERROR_NONE )
-        {
-            IotLogWarn( "Failed to close connection." );
-        }
-
         /* If receive task was started , indicate SHUT_DOWN */
         if( pNetworkConnection->receiveCallback != NULL )
         {
@@ -519,12 +505,14 @@ IotNetworkError_t IotNetworkUdp_Close( void * pConnection )
         }
     }
 
-    return IOT_NETWORK_SUCCESS;
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 /*-----------------------------------------------------------*/
 
 IotNetworkError_t IotNetworkUdp_Destroy( void * pConnection )
 {
+    IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
+
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
 
@@ -551,6 +539,6 @@ IotNetworkError_t IotNetworkUdp_Destroy( void * pConnection )
         _destroyConnection( pNetworkConnection );
     }
 
-    return IOT_NETWORK_SUCCESS;
+    IOT_FUNCTION_EXIT_NO_CLEANUP();
 }
 /*-----------------------------------------------------------*/
