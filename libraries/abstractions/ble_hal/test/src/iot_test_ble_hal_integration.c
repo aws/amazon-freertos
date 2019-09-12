@@ -225,7 +225,6 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
 
     /* BT reset. */
     BTStatus_t xStatus = eBTStatusSuccess;
-    BLETESTInitDeinitCallback_t xInitDeinitCb;
 
     prvBTUnregister();
     prvBLEEnable( false );
@@ -260,7 +259,6 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
 TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
-    BLETESTindicateCallback_t xIndicateEvent;
     uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
 
     /* Create a data payload whose length = MTU + 1. */
@@ -302,9 +300,6 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
 
 TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
 {
-    BTStatus_t xStatus;
-    BLETESTindicateCallback_t xIndicateEvent;
-    BLETESTInitDeinitCallback_t xInitDeinitCb;
     BLETESTwriteAttrCallback_t xWriteEvent;
     BLETESTreadAttrCallback_t xReadEvent;
 
@@ -316,16 +311,16 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
 
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, true );
-    prvCheckNotification( true );
-    prvCheckIndication( true );
+    prvCheckIndicationNotification( false, true );
+    prvCheckIndicationNotification( true, true );
 
     /* Disconnect from RPi and Check communication*/
     prvWaitConnection( false );
 
     prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, false );
     prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, false );
-    prvCheckNotification( false );
-    prvCheckIndication( false );
+    prvCheckIndicationNotification( false, false );
+    prvCheckIndicationNotification( true, false );
 
     /* Advertise and Reconnect */
     prvSetAdvProperty();
@@ -341,8 +336,8 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
     prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
     xReadEvent = prvReadReceive( bletestATTR_SRVCB_CHAR_A );
     prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
-    prvCheckNotification( true );
-    prvCheckIndication( true );
+    prvCheckIndicationNotification( false, true );
+    prvCheckIndicationNotification( true, true );
 }
 
 /* trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout. */
@@ -371,8 +366,6 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
                    uint16_t usOffset )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
-    BLETESTconfirmCallback_t xConfirmEvent;
-    BTGattResponse_t xGattResponse;
     BTStatus_t xStatus;
 
     xStatus = prvWaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );

@@ -491,8 +491,7 @@ void Advertisement_teardown();
 void Advertisement_setup();
 void prvSendNotification( bletestAttSrvB_t xAttribute,
                           bool bConfirm );
-void prvCheckNotification( bool IsConnected );
-void prvCheckIndication( bool IsConnected );
+void prvCheckIndicationNotification( bool IsIndication, bool IsConnected );
 BLETESTreadAttrCallback_t prvReadReceive( bletestAttSrvB_t xAttribute );
 void prvReadResponse( bletestAttSrvB_t xAttribute,
                       BLETESTreadAttrCallback_t xReadEvent,
