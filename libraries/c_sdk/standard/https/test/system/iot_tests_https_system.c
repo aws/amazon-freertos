@@ -125,16 +125,16 @@
  * This timeout encompasses the waiting time for the both sending of the request and receiving the response.
  */
 #ifndef IOT_TEST_HTTPS_SYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 10000 )
 #endif
 
 /**
- * @brief Timeout in milliseconds for tests asynchronously send HTTP requests.
+ * @brief Timeout in milliseconds for tests asynchronously sending HTTP requests.
  *
  * This timeout is use to wait for the asynchronous test to finish.
  */
 #ifndef IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 10000 )
 #endif
 
 /**

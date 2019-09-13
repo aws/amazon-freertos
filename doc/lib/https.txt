@@ -444,9 +444,9 @@ Size in bytes of the User Buffer used to store the internal connection context. 
 @brief The size of the static user buffer to store the HTTP Client request context and HTTP formatted request headers.
 
 Size in bytes of the user buffer used to store the internal request context and HTTP request header lines. 
-   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
+   The size presented here accounts for the storage of the internal context, the first Request-Line in the HTTP
    formatted header and extra headers. The minimum size can be found in @ref requestUserBufferMinimumSize. Keep in mind that this @ref requestUserBufferMinimumSize does not include the size of the 
-   path in the request line. The path could be well over 100 characters long as it includes not only the object key name
+   path in the Request-Line. The path could be well over 100 characters long as it includes not only the object key name
    in S3, but also the query following. The query following has the AWSAccessKeyId, the expiration time, and the 
    AWS Signature Version 4 signature.
 
@@ -457,7 +457,7 @@ Size in bytes of the user buffer used to store the internal request context and 
 @brief The size of the static user buffer to store the HTTP Client response context and HTTP formatted response headers.
 
 Size in bytes of the user buffer used to store the internal response context and the HTTP response header lines. 
-   The size presented here accounts for the storage of the internal context, the first request line in the HTTP
+   The size presented here accounts for the storage of the internal context, the first Request-Line in the HTTP
    formatted header and extra headers. The minimum can be found in @ref requestUserBufferMinimumSize.
    Keep in mind that if the headers from the response do not all fit into this buffer, then the rest of the headers
    will be discarded. The minimum size can be found in @ref responseUserBufferMinimumSize.
