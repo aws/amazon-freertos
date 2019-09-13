@@ -21,7 +21,7 @@ git submodule update --init --recursive
 master            --> Development is done continuously on this branch  
 release           --> Fully tested released source code  
 release-candidate --> Preview of upcoming release  
-feat/*            --> alpha/beta of an upcoming feature  
+feature/*         --> alpha/beta of an upcoming feature  
 
 ## Getting Started
 
