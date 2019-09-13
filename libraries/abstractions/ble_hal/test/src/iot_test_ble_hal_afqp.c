@@ -357,9 +357,9 @@ void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
 }
 
 BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribute,
-                                            bool bNeedRsp,
-                                            bool IsPrep,
-                                            uint16_t usOffset )
+                                                       bool bNeedRsp,
+                                                       bool IsPrep,
+                                                       uint16_t usOffset )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
     BTStatus_t xStatus;
@@ -379,8 +379,8 @@ BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribu
 }
 
 void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
-                       BLETESTwriteAttrCallback_t xWriteEvent,
-                       bool IsConnected )
+                                  BLETESTwriteAttrCallback_t xWriteEvent,
+                                  bool IsConnected )
 {
     BLETESTconfirmCallback_t xConfirmEvent;
     BTGattResponse_t xGattResponse;
@@ -411,7 +411,7 @@ void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
 }
 
 void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
-                                  bool enable )
+                                                bool enable )
 {
     BTGattResponse_t xGattResponse;
     BTStatus_t xStatus;
@@ -502,8 +502,8 @@ BLETESTreadAttrCallback_t IotTestBleHal_ReadReceive( bletestAttSrvB_t xAttribute
 }
 
 void IotTestBleHal_ReadResponse( bletestAttSrvB_t xAttribute,
-                      BLETESTreadAttrCallback_t xReadEvent,
-                      bool IsConnected )
+                                 BLETESTreadAttrCallback_t xReadEvent,
+                                 bool IsConnected )
 {
     BTGattResponse_t xGattResponse;
     BLETESTconfirmCallback_t xConfirmEvent;
@@ -682,4 +682,3 @@ TEST( Full_BLE, BLE_DeInitialize )
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
-

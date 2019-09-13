@@ -468,10 +468,10 @@ void IotTestBleHal_BLEFree( void );
 
 void IotTestBleHal_StartAdvertisement( void );
 BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
-                                  int32_t lhandle,
-                                  void * pxMessage,
-                                  size_t xMessageLength,
-                                  uint32_t timeoutMs );
+                                             int32_t lhandle,
+                                             void * pxMessage,
+                                             size_t xMessageLength,
+                                             uint32_t timeoutMs );
 void IotTestBleHal_BLEManagerInit( void );
 void IotTestBleHal_BLEEnable( bool bEnable );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
@@ -481,7 +481,7 @@ void IotTestBleHal_WaitConnection( bool bConnected );
 void IotTestBleHal_StopService( BTService_t * xRefSrvc );
 void IotTestBleHal_DeleteService( BTService_t * xRefSrvc );
 void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
-                                  bool enable );
+                                                bool enable );
 void IotTestBleHal_BTUnregister( void );
 void IotTestBleHal_BLEGAPInit( void );
 void IotTestBleHal_BLEGATTInit( void );
@@ -490,18 +490,19 @@ void IotTestBleHal_SetAdvData( BTuuidType_t Type );
 
 void prvSendNotification( bletestAttSrvB_t xAttribute,
                           bool bConfirm );
-void IotTestBleHal_CheckIndicationNotification( bool IsIndication, bool IsConnected );
+void IotTestBleHal_CheckIndicationNotification( bool IsIndication,
+                                                bool IsConnected );
 BLETESTreadAttrCallback_t IotTestBleHal_ReadReceive( bletestAttSrvB_t xAttribute );
 void IotTestBleHal_ReadResponse( bletestAttSrvB_t xAttribute,
-                      BLETESTreadAttrCallback_t xReadEvent,
-                      bool IsConnected );
+                                 BLETESTreadAttrCallback_t xReadEvent,
+                                 bool IsConnected );
 BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribute,
-                                            bool bNeedRsp,
-                                            bool IsPrep,
-                                            uint16_t usOffset );
+                                                       bool bNeedRsp,
+                                                       bool IsPrep,
+                                                       uint16_t usOffset );
 void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
-                       BLETESTwriteAttrCallback_t xWriteEvent,
-                       bool IsConnected );
+                                  BLETESTwriteAttrCallback_t xWriteEvent,
+                                  bool IsConnected );
 
 void IotTestBleHal_StartStopAdvCheck( bool start );
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );

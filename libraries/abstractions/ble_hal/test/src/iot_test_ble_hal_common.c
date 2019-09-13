@@ -515,7 +515,7 @@ static void prvCreateService( BTService_t * xRefSrvc )
 }
 
 static void prvCreateCharacteristicDescriptor( BTService_t * xSrvc,
-                                        int xAttribute )
+                                               int xAttribute )
 {
     BLETESTAttrCallback_t xBLETESTCharDescrCb;
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -545,7 +545,7 @@ static void prvCreateCharacteristicDescriptor( BTService_t * xSrvc,
 }
 
 static void prvCreateCharacteristic( BTService_t * xSrvc,
-                              int xAttribute )
+                                     int xAttribute )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTAttrCallback_t xBLETESTCharCb;
@@ -599,10 +599,10 @@ void IotTestBleHal_CreateServiceB()
 }
 
 static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
-                          uint16_t usServiceDataLen,
-                          char * pcServiceData,
-                          BTUuid_t * pxServiceUuid,
-                          size_t xNbServices )
+                                 uint16_t usServiceDataLen,
+                                 char * pcServiceData,
+                                 BTUuid_t * pxServiceUuid,
+                                 size_t xNbServices )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTAdvParamCallback_t xAdvParamCallback;
@@ -675,7 +675,7 @@ void IotTestBleHal_SetAdvData( BTuuidType_t type )
 }
 
 void IotTestBleHal_CheckIndicationNotification( bool IsIndication,
-                                     bool IsConnected )
+                                                bool IsConnected )
 {
     BTStatus_t xStatus;
     BLETESTindicateCallback_t xIndicateEvent;
@@ -1462,10 +1462,10 @@ void * checkQueueForEvent( BLEHALEventsTypes_t xEventName,
  * When an event is received on the queue, if it is not the expected event, it goes on the waiting list.
  */
 BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
-                                  int32_t lhandle,
-                                  void * pxMessage,
-                                  size_t xMessageLength,
-                                  uint32_t timeoutMs )
+                                             int32_t lhandle,
+                                             void * pxMessage,
+                                             size_t xMessageLength,
+                                             uint32_t timeoutMs )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     void * pvPtr = NULL;
