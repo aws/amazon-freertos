@@ -68,7 +68,7 @@ uint8_t *prvReadNameField(uint8_t *pucByte,
   char bit;
   size_t offset;
   uint8_t *rc = bit ? pucByte + offset : 0;
-  __CPROVER_assum(offset <= NETWORK_BUFFER_SIZE);
+  __CPROVER_assume(offset <= NETWORK_BUFFER_SIZE);
 
   // Postconditions
   __CPROVER_assume((rc == 0) ||
@@ -107,7 +107,7 @@ uint8_t *prvSkipNameField( uint8_t *pucByte, size_t xSourceLen ){
   char bit;
   size_t offset;
   uint8_t *rc = bit ? pucByte + offset : 0;
-  __CPROVER_assum(offset <= NETWORK_BUFFER_SIZE);
+  __CPROVER_assume(offset <= NETWORK_BUFFER_SIZE);
 
   // Postconditions
   __CPROVER_assume((rc == 0) ||

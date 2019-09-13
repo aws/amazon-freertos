@@ -1,19 +1,35 @@
-From ecd55a96b3442ac47a86cb3397018fb5e2da5487 Mon Sep 17 00:00:00 2001
-From: Kareem Khazem <karkhaz@amazon.com>
-Date: Mon, 21 Jan 2019 13:05:12 -0800
-Subject: [PATCH 4/4] Refactor prvCheckOptions: make functions of inner and
- outer loops.
-
-This patch should be removed soon: It will be submitted its own PR.
----
- .../source/FreeRTOS_TCP_IP.c                  | 289 ++++++++++--------
- 1 file changed, 162 insertions(+), 127 deletions(-)
-
 diff --git a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
-index bf2ffc609..23c34cc7b 100644
+index 5fccdf327..c3535ffb6 100644
 --- a/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
 +++ b/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c
-@@ -225,7 +225,20 @@ static BaseType_t prvTCPPrepareConnect( FreeRTOS_Socket_t *pxSocket );
+@@ -198,61 +198,74 @@ static int32_t prvTCPSendPacket( FreeRTOS_Socket_t *pxSocket );
+  */
+ static int32_t prvTCPSendRepeated( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer );
+
+ /*
+  * Return or send a packet to the other party.
+  */
+ static void prvTCPReturnPacket( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t *pxNetworkBuffer,
+ 	uint32_t ulLen, BaseType_t xReleaseAfterSend );
+
+ /*
+  * Initialise the data structures which keep track of the TCP windowing system.
+  */
+ static void prvTCPCreateWindow( FreeRTOS_Socket_t *pxSocket );
+
+ /*
+  * Let ARP look-up the MAC-address of the peer and initialise the first SYN
+  * packet.
+  */
+ static BaseType_t prvTCPPrepareConnect( FreeRTOS_Socket_t *pxSocket );
+
+ #if( ipconfigHAS_DEBUG_PRINTF != 0 )
+ 	/*
+ 	 * For logging and debugging: make a string showing the TCP flags.
+ 	 */
+ 	static const char *prvTCPFlagMeaning( UBaseType_t xFlags);
+ #endif /* ipconfigHAS_DEBUG_PRINTF != 0 */
+
  /*
   * Parse the TCP option(s) received, if present.
   */
@@ -32,10 +48,64 @@ index bf2ffc609..23c34cc7b 100644
 + * more options left.
 + */
 +void prvSkipPastRemainingOptions( const unsigned char ** const ppucPtr, FreeRTOS_Socket_t ** const ppxSocket, unsigned char * const ppucLen );
- 
+
  /*
   * Set the initial properties in the options fields, like the preferred
-@@ -1133,14 +1146,14 @@ uint32_t ulInitialSequenceNumber = 0;
+  * value of MSS and whether SACK allowed.  Will be transmitted in the state
+  * 'eCONNECT_SYN'.
+  */
+ static UBaseType_t prvSetSynAckOptions( FreeRTOS_Socket_t *pxSocket, TCPPacket_t * pxTCPPacket );
+
+ /*
+  * For anti-hang protection and TCP keep-alive messages.  Called in two places:
+  * after receiving a packet and after a state change.  The socket's alive timer
+  * may be reset.
+  */
+ static void prvTCPTouchSocket( FreeRTOS_Socket_t *pxSocket );
+
+ /*
+  * Prepare an outgoing message, if anything has to be sent.
+  */
+ static int32_t prvTCPPrepareSend( FreeRTOS_Socket_t *pxSocket, NetworkBufferDescriptor_t **ppxNetworkBuffer, UBaseType_t uxOptionsLength );
+
+ /*
+  * Calculate when this socket needs to be checked to do (re-)transmissions.
+  */
+ static TickType_t prvTCPNextTimeout( FreeRTOS_Socket_t *pxSocket );
+
+ /*
+  * The API FreeRTOS_send() adds data to the TX stream.  Add
+  * this data to the windowing system to it can be transmitted.
+  */
+ static void prvTCPAddTxData( FreeRTOS_Socket_t *pxSocket );
+@@ -1117,241 +1130,263 @@ uint32_t ulInitialSequenceNumber = 0;
+ /*-----------------------------------------------------------*/
+
+ /* For logging and debugging: make a string showing the TCP flags
+ */
+ #if( ipconfigHAS_DEBUG_PRINTF != 0 )
+
+ 	static const char *prvTCPFlagMeaning( UBaseType_t xFlags)
+ 	{
+ 		static char retString[10];
+ 		snprintf(retString, sizeof( retString ), "%c%c%c%c%c%c%c%c%c",
+ 			( xFlags & ipTCP_FLAG_FIN )  ? 'F' : '.',	/* 0x0001: No more data from sender */
+ 			( xFlags & ipTCP_FLAG_SYN )  ? 'S' : '.',	/* 0x0002: Synchronize sequence numbers */
+ 			( xFlags & ipTCP_FLAG_RST )  ? 'R' : '.',	/* 0x0004: Reset the connection */
+ 			( xFlags & ipTCP_FLAG_PSH )  ? 'P' : '.',	/* 0x0008: Push function: please push buffered data to the recv application */
+ 			( xFlags & ipTCP_FLAG_ACK )  ? 'A' : '.',	/* 0x0010: Acknowledgment field is significant */
+ 			( xFlags & ipTCP_FLAG_URG )  ? 'U' : '.',	/* 0x0020: Urgent pointer field is significant */
+ 			( xFlags & ipTCP_FLAG_ECN )  ? 'E' : '.',	/* 0x0040: ECN-Echo */
+ 			( xFlags & ipTCP_FLAG_CWR )  ? 'C' : '.',	/* 0x0080: Congestion Window Reduced */
+ 			( xFlags & ipTCP_FLAG_NS )   ? 'N' : '.');	/* 0x0100: ECN-nonce concealment protection */
+ 		return retString;
+ 	}
+ 	/*-----------------------------------------------------------*/
+
+ #endif /* ipconfigHAS_DEBUG_PRINTF */
+
+ /*
+  * Parse the TCP option(s) received, if present.  It has already been verified
   * that: ((pxTCPHeader->ucTCPOffset & 0xf0) > 0x50), meaning that the TP header
   * is longer than the usual 20 (5 x 4) bytes.
   */
@@ -49,11 +119,21 @@ index bf2ffc609..23c34cc7b 100644
  TCPWindow_t *pxTCPWindow;
 -UBaseType_t uxNewMSS;
 +BaseType_t xShouldContinueLoop;
- 
+
  	pxTCPPacket = ( TCPPacket_t * ) ( pxNetworkBuffer->pucEthernetBuffer );
  	pxTCPHeader = &pxTCPPacket->xTCPHeader;
-@@ -1158,162 +1171,184 @@ UBaseType_t uxNewMSS;
- 
+
+ 	/* A character pointer to iterate through the option data */
+ 	pucPtr = pxTCPHeader->ucOptdata;
+ 	pucLast = pucPtr + (((pxTCPHeader->ucTCPOffset >> 4) - 5) << 2);
+ 	pxTCPWindow = &pxSocket->u.xTCP.xTCPWindow;
+
+ 	/* Validate options size calculation. */
+ 	if( pucLast > ( pxNetworkBuffer->pucEthernetBuffer + pxNetworkBuffer->xDataLength ) )
+ 	{
+ 		return;
+ 	}
+
  	/* The comparison with pucLast is only necessary in case the option data are
  	corrupted, we don't like to run into invalid memory and crash. */
 -	while( pucPtr < pucLast )
@@ -64,7 +144,7 @@ index bf2ffc609..23c34cc7b 100644
 +		xShouldContinueLoop = prvSingleStepTCPHeaderOptions( &pucPtr, &pucLast, &pxSocket, &pxTCPWindow );
 +	}
 +}
- 
+
 -		if( pucPtr[ 0 ] == TCP_OPT_END )
 -		{
 -			/* End of options. */
@@ -108,7 +188,7 @@ index bf2ffc609..23c34cc7b 100644
 -			continue;
 +			return pdFALSE;
  		}
- 
+
 -		/* Any other well-formed option must be at least two bytes: the option
 -		type byte followed by a length byte. */
 -		if( xRemainingOptionsBytes < 2 )
@@ -143,7 +223,7 @@ index bf2ffc609..23c34cc7b 100644
 -				break;
 +				return pdFALSE;
  			}
- 
+
 -			pxSocket->u.xTCP.ucPeerWinScaleFactor = pucPtr[ 2 ];
 -			pxSocket->u.xTCP.bits.bWinScaling = pdTRUE_UNSIGNED;
 -			pucPtr += TCP_OPT_WSOPT_LEN;
@@ -172,7 +252,7 @@ index bf2ffc609..23c34cc7b 100644
 +			( *ppxSocket )->u.xTCP.usInitMSS = ( uint16_t ) uxNewMSS;
 +			( *ppxSocket )->u.xTCP.usCurMSS = ( uint16_t ) uxNewMSS;
 +		}
- 
+
 -			/* An MSS option with the correct option length.  FreeRTOS_htons()
 -			is not needed here because usChar2u16() already returns a host
 -			endian number. */
@@ -197,7 +277,7 @@ index bf2ffc609..23c34cc7b 100644
 +			 */
 +			return pdFALSE;
 +		}
- 
+
 -			if( pxSocket->u.xTCP.usInitMSS != uxNewMSS )
 +		#if( ipconfigUSE_TCP_WIN == 1 )
 +		{
@@ -214,7 +294,7 @@ index bf2ffc609..23c34cc7b 100644
 -				}
 +				ucLen -= 2;
 +				( *ppucPtr ) += 2;
- 
+
 -				FreeRTOS_debug_printf( ( "MSS change %u -> %lu\n", pxSocket->u.xTCP.usInitMSS, uxNewMSS ) );
 -			}
 -
@@ -289,7 +369,7 @@ index bf2ffc609..23c34cc7b 100644
  			}
 +		}
 +		#endif
- 
+
 -			#if( ipconfigUSE_TCP_WIN == 1 )
 +		/* In case the socket owner has installed an OnSent handler, call it now.
 +		 */
@@ -336,7 +416,7 @@ index bf2ffc609..23c34cc7b 100644
 -							{
 -								if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xTCP.pxHandleSent ) )
 -								{
--									pxSocket->u.xTCP.pxHandleSent( (Socket_t *)pxSocket, ulCount );
+-									pxSocket->u.xTCP.pxHandleSent( ( Socket_t )pxSocket, ulCount );
 -								}
 -							}
 -							#endif /* ipconfigUSE_CALLBACKS == 1  */
@@ -346,7 +426,7 @@ index bf2ffc609..23c34cc7b 100644
 -					}
 -					/* len should be 0 by now. */
 -				}
-+				( *ppxSocket )->u.xTCP.pxHandleSent( (Socket_t *)( *pxSocket ), ulCount );
++				( *ppxSocket )->u.xTCP.pxHandleSent( (Socket_t )( *ppxSocket ), ulCount );
  			}
 -			#endif	/* ipconfigUSE_TCP_WIN == 1 */
 -
@@ -359,8 +439,32 @@ index bf2ffc609..23c34cc7b 100644
  }
 +
  /*-----------------------------------------------------------*/
- 
+
  #if( ipconfigUSE_TCP_WIN != 0 )
--- 
-2.21.0
+
+ 	static uint8_t prvWinScaleFactor( FreeRTOS_Socket_t *pxSocket )
+ 	{
+ 	size_t uxWinSize;
+ 	uint8_t ucFactor;
+
+ 		/* 'xTCP.uxRxWinSize' is the size of the reception window in units of MSS. */
+ 		uxWinSize = pxSocket->u.xTCP.uxRxWinSize * ( size_t ) pxSocket->u.xTCP.usInitMSS;
+ 		ucFactor = 0u;
+ 		while( uxWinSize > 0xfffful )
+ 		{
+ 			/* Divide by two and increase the binary factor by 1. */
+ 			uxWinSize >>= 1;
+ 			ucFactor++;
+ 		}
+
+ 		FreeRTOS_debug_printf( ( "prvWinScaleFactor: uxRxWinSize %lu MSS %lu Factor %u\n",
+ 			pxSocket->u.xTCP.uxRxWinSize,
+ 			pxSocket->u.xTCP.usInitMSS,
+ 			ucFactor ) );
+
+ 		return ucFactor;
+ 	}
+
+ #endif
+ /*-----------------------------------------------------------*/
 
