@@ -2532,9 +2532,9 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t * pRes
 
 /*-----------------------------------------------------------*/
 
-void IotHttpsClient_Deinit( void )
+void IotHttpsClient_Cleanup( void )
 {
-    /* There is nothing to de-initialize here as of now. */
+    /* There is nothing to clean up here as of now. */
 }
 
 /* --------------------------------------------------------- */
