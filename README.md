@@ -7,7 +7,7 @@ To clone using HTTPS:
 ```
 git clone https://github.com/aws/amazon-freertos.git --recurse-submodules
 ```
-using SSH:
+Using SSH:
 ```
 git clone git@github.com:aws/amazon-freertos.git --recurse-submodules
 ```
@@ -21,7 +21,7 @@ git submodule update --init --recursive
 master            --> Development is done continuously on this branch  
 release           --> Fully tested released source code  
 release-candidate --> Preview of upcoming release  
-feature/*         --> alpha/beta of an upcoming feature  
+feature/*         --> Alpha/beta of an upcoming feature  
 
 ## Getting Started
 
