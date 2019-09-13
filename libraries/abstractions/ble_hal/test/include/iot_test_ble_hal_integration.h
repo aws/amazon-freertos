@@ -38,12 +38,18 @@
 
 #define bletestsFAIL_CHAR_VALUE    "fail"
 
+void GAP_common_teardown();
+void GAP_common_setup();
+void GATT_teardown();
+void GATT_setup();
+void Advertisement_teardown();
+void Advertisement_setup();
 void prvGAPInitEnableTwice( void );
 
 void prvGetResult( bletestAttSrvB_t xAttribute,
                    bool IsPrep,
                    uint16_t usOffset );
 void prvCreateAndStartServiceB( void );
-/* void prvCreateService( BTService_t * xRefSrvc ); */
+void prvShortWaitConnection( void );
 
 #endif /* ifndef _IOT_TEST_BLE_HAL_INTEGRATION_H_ */
