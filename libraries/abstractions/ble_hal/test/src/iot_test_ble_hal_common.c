@@ -378,7 +378,7 @@ void IotBleHalTest_BLEManagerInit()
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
-void prvBLEGAPInit()
+void IotBleHalTest_BLEGAPInit()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
@@ -396,7 +396,7 @@ void prvBLEGAPInit()
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xInitDeinitCb.xStatus );
 }
 
-void prvBLEGATTInit()
+void IotBleHalTest_BLEGATTInit()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
@@ -422,7 +422,7 @@ void IotBleHalTest_StartAdvertisement( void )
     xStatus = _pxBTLeAdapterInterface->pxStartAdv( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    prvStartStopAdvCheck( true );
+    IotBleHalTest_StartStopAdvCheck( true );
 }
 
 void IotBleHalTest_BLEEnable( bool bEnable )
@@ -623,7 +623,7 @@ static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
 }
 
 
-void prvSetAdvData( BTuuidType_t type )
+void IotBleHalTest_SetAdvData( BTuuidType_t type )
 {
     uint16_t usServiceDataLen;
     char * pcServiceData;
@@ -674,6 +674,69 @@ void prvSetAdvData( BTuuidType_t type )
                          0 );
 }
 
+void IotBleHalTest_CheckIndicationNotification( bool IsIndication,
+                                     bool IsConnected )
+{
+    BTStatus_t xStatus;
+    BLETESTindicateCallback_t xIndicateEvent;
+    bletestAttSrvB_t xAttribute;
+
+    if( IsIndication )
+    {
+        xAttribute = bletestATTR_SRVCB_CHAR_F;
+    }
+    else
+    {
+        xAttribute = bletestATTR_SRVCB_CHAR_E;
+    }
+
+    memcpy( ucRespBuffer[ xAttribute ].ucBuffer, bletestsDEFAULT_CHAR_VALUE, sizeof( bletestsDEFAULT_CHAR_VALUE ) - 1 );
+    ucRespBuffer[ xAttribute ].xLength = sizeof( bletestsDEFAULT_CHAR_VALUE ) - 1;
+
+    if( IsConnected == true )
+    {
+        if( IsIndication )
+        {
+            prvSendNotification( xAttribute, true );
+        }
+        else
+        {
+            prvSendNotification( xAttribute, false );
+        }
+
+        xStatus = IotBleHalTest_WaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( _usBLEConnId, xIndicateEvent.usConnId );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xIndicateEvent.xStatus );
+    }
+    else
+    {
+        xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
+                                                            usHandlesBufferB[ xAttribute ],
+                                                            _usBLEConnId,
+                                                            ucRespBuffer[ xAttribute ].xLength,
+                                                            ucRespBuffer[ xAttribute ].ucBuffer,
+                                                            true );
+        TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
+        xStatus = IotBleHalTest_WaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+}
+
+void prvSendNotification( bletestAttSrvB_t xAttribute,
+                          bool bConfirm )
+{
+    BTStatus_t xStatus;
+
+    xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
+                                                        usHandlesBufferB[ xAttribute ],
+                                                        _usBLEConnId,
+                                                        ucRespBuffer[ xAttribute ].xLength,
+                                                        ucRespBuffer[ xAttribute ].ucBuffer,
+                                                        bConfirm );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
 void prvSetGetProperty( BTProperty_t * pxProperty,
                         bool bIsSet )
 {
@@ -709,7 +772,7 @@ void prvSetGetProperty( BTProperty_t * pxProperty,
     }
 }
 
-void prvStartStopAdvCheck( bool start )
+void IotBleHalTest_StartStopAdvCheck( bool start )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTAdvParamCallback_t xAdvParamCallback;
@@ -720,7 +783,7 @@ void prvStartStopAdvCheck( bool start )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xAdvParamCallback.xStatus );
 }
 
-void prvSetAdvProperty( void )
+void IotBleHalTest_SetAdvProperty( void )
 {
     BTProperty_t pxProperty;
     uint16_t usMTUsize = bletestsMTU_SIZE1;
@@ -746,7 +809,7 @@ void prvSetAdvProperty( void )
     /*@TODOprvSetGetProperty(&pxProperty, false); */
 }
 
-void prvDeleteService( BTService_t * xRefSrvc )
+void IotBleHalTest_DeleteService( BTService_t * xRefSrvc )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTServiceCallback_t xStopDeleteServiceCb;
@@ -759,7 +822,7 @@ void prvDeleteService( BTService_t * xRefSrvc )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStopDeleteServiceCb.xStatus );
 }
 
-void prvStopService( BTService_t * xRefSrvc )
+void IotBleHalTest_StopService( BTService_t * xRefSrvc )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTServiceCallback_t xStopDeleteServiceCb;
@@ -772,7 +835,7 @@ void prvStopService( BTService_t * xRefSrvc )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStopDeleteServiceCb.xStatus );
 }
 
-void prvBTUnregister( void )
+void IotBleHalTest_BTUnregister( void )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;

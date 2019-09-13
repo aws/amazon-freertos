@@ -477,33 +477,33 @@ void IotBleHalTest_BLEEnable( bool bEnable );
 void IotBleHalTest_StartService( BTService_t * xRefSrvc );
 void IotBleHalTest_CreateServiceA( void );
 void IotBleHalTest_CreateServiceB( void );
-void prvWaitConnection( bool bConnected );
-void prvStopService( BTService_t * xRefSrvc );
-void prvDeleteService( BTService_t * xRefSrvc );
+void IotBleHalTest_WaitConnection( bool bConnected );
+void IotBleHalTest_StopService( BTService_t * xRefSrvc );
+void IotBleHalTest_DeleteService( BTService_t * xRefSrvc );
 void checkNotificationIndication( bletestAttSrvB_t xAttribute,
                                   bool enable );
-void prvBTUnregister( void );
-void prvBLEGAPInit( void );
-void prvBLEGATTInit( void );
-void prvSetAdvProperty( void );
-void prvSetAdvData( BTuuidType_t Type );
+void IotBleHalTest_BTUnregister( void );
+void IotBleHalTest_BLEGAPInit( void );
+void IotBleHalTest_BLEGATTInit( void );
+void IotBleHalTest_SetAdvProperty( void );
+void IotBleHalTest_SetAdvData( BTuuidType_t Type );
 
 void prvSendNotification( bletestAttSrvB_t xAttribute,
                           bool bConfirm );
-void prvCheckIndicationNotification( bool IsIndication, bool IsConnected );
-BLETESTreadAttrCallback_t prvReadReceive( bletestAttSrvB_t xAttribute );
-void prvReadResponse( bletestAttSrvB_t xAttribute,
+void IotBleHalTest_CheckIndicationNotification( bool IsIndication, bool IsConnected );
+BLETESTreadAttrCallback_t IotBleHalTest_ReadReceive( bletestAttSrvB_t xAttribute );
+void IotBleHalTest_ReadResponse( bletestAttSrvB_t xAttribute,
                       BLETESTreadAttrCallback_t xReadEvent,
                       bool IsConnected );
-BLETESTwriteAttrCallback_t prvWriteReceive( bletestAttSrvB_t xAttribute,
+BLETESTwriteAttrCallback_t IotBleHalTest_WriteReceive( bletestAttSrvB_t xAttribute,
                                             bool bNeedRsp,
                                             bool IsPrep,
                                             uint16_t usOffset );
-void prvWriteResponse( bletestAttSrvB_t xAttribute,
+void IotBleHalTest_WriteResponse( bletestAttSrvB_t xAttribute,
                        BLETESTwriteAttrCallback_t xWriteEvent,
                        bool IsConnected );
 
-void prvStartStopAdvCheck( bool start );
+void IotBleHalTest_StartStopAdvCheck( bool start );
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */

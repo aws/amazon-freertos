@@ -105,16 +105,16 @@ TEST_SETUP( Full_BLE_Integration_Test_Connection )
     prvCreateAndStartServiceB();
 
     /* Advertise and Connect */
-    prvSetAdvProperty();
-    prvSetAdvData( eBTuuidType128 );
+    IotBleHalTest_SetAdvProperty();
+    IotBleHalTest_SetAdvData( eBTuuidType128 );
     IotBleHalTest_StartAdvertisement();
-    prvWaitConnection( true );
+    IotBleHalTest_WaitConnection( true );
 }
 
 TEST_TEAR_DOWN( Full_BLE_Integration_Test_Connection )
 {
     /* Disconnect */
-    prvWaitConnection( false );
+    IotBleHalTest_WaitConnection( false );
     GATT_teardown();
 }
 
@@ -148,31 +148,31 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 /* Advertisement should work without initializing optional properties (device's name) */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties )
 {
-    prvBLEGAPInit();
-    prvBLEGATTInit();
-    prvSetAdvData( eBTuuidType128 );
+    IotBleHalTest_BLEGAPInit();
+    IotBleHalTest_BLEGATTInit();
+    IotBleHalTest_SetAdvData( eBTuuidType128 );
     IotBleHalTest_StartAdvertisement();
     /* Connect for evaluate KPI for next test case. */
-    prvWaitConnection( true );
+    IotBleHalTest_WaitConnection( true );
 }
 
 /* Advertisement should work with 16bit Service UUID as well */
 TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID )
 {
-    prvSetAdvProperty();
-    prvSetAdvData( eBTuuidType16 );
+    IotBleHalTest_SetAdvProperty();
+    IotBleHalTest_SetAdvData( eBTuuidType16 );
     IotBleHalTest_StartAdvertisement();
     /* Simple Connect */
-    prvWaitConnection( true );
+    IotBleHalTest_WaitConnection( true );
     /* Disconnect */
-    prvWaitConnection( false );
+    IotBleHalTest_WaitConnection( false );
 }
 
 /* The sequence of set advertisement data and start advertisement can change. */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
 {
     IotBleHalTest_StartAdvertisement();
-    prvSetAdvData( eBTuuidType128 );
+    IotBleHalTest_SetAdvData( eBTuuidType128 );
     BTStatus_t xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
@@ -216,17 +216,17 @@ TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset )
 {
     /* First time connection disconnects. */
-    prvWaitConnection( false );
+    IotBleHalTest_WaitConnection( false );
 
     /* Second time reconnection. Got Second KPI. */
     IotBleHalTest_StartAdvertisement();
-    prvWaitConnection( true );
-    prvWaitConnection( false );
+    IotBleHalTest_WaitConnection( true );
+    IotBleHalTest_WaitConnection( false );
 
     /* BT reset. */
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    prvBTUnregister();
+    IotBleHalTest_BTUnregister();
     IotBleHalTest_BLEEnable( false );
 
     xStatus = _pxBTInterface->pxBtManagerCleanup();
@@ -236,16 +236,16 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     IotBleHalTest_BLEEnable( true );
-    prvBLEGAPInit();
-    prvBLEGATTInit();
+    IotBleHalTest_BLEGAPInit();
+    IotBleHalTest_BLEGATTInit();
     prvCreateAndStartServiceB();
-    prvSetAdvProperty();
-    prvSetAdvData( eBTuuidType128 );
+    IotBleHalTest_SetAdvProperty();
+    IotBleHalTest_SetAdvData( eBTuuidType128 );
 
     /* Third time connection begins. Got third KPI. */
     IotBleHalTest_StartAdvertisement();
 
-    prvWaitConnection( true );
+    IotBleHalTest_WaitConnection( true );
 
     /* Result is on RPI. Write it back to device. */
     prvGetResult( bletestATTR_SRVCB_CHAR_D,
@@ -304,46 +304,46 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
     BLETESTreadAttrCallback_t xReadEvent;
 
     /* Check communication */
-    xWriteEvent = prvWriteReceive( bletestATTR_SRVCB_CHAR_A, true, false, 0 );
-    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
-    xReadEvent = prvReadReceive( bletestATTR_SRVCB_CHAR_A );
-    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
+    xWriteEvent = IotBleHalTest_WriteReceive( bletestATTR_SRVCB_CHAR_A, true, false, 0 );
+    IotBleHalTest_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
+    xReadEvent = IotBleHalTest_ReadReceive( bletestATTR_SRVCB_CHAR_A );
+    IotBleHalTest_ReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
 
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, true );
-    prvCheckIndicationNotification( false, true );
-    prvCheckIndicationNotification( true, true );
+    IotBleHalTest_CheckIndicationNotification( false, true );
+    IotBleHalTest_CheckIndicationNotification( true, true );
 
     /* Disconnect from RPi and Check communication*/
-    prvWaitConnection( false );
+    IotBleHalTest_WaitConnection( false );
 
-    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, false );
-    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, false );
-    prvCheckIndicationNotification( false, false );
-    prvCheckIndicationNotification( true, false );
+    IotBleHalTest_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, false );
+    IotBleHalTest_ReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, false );
+    IotBleHalTest_CheckIndicationNotification( false, false );
+    IotBleHalTest_CheckIndicationNotification( true, false );
 
     /* Advertise and Reconnect */
-    prvSetAdvProperty();
-    prvSetAdvData( eBTuuidType128 );
+    IotBleHalTest_SetAdvProperty();
+    IotBleHalTest_SetAdvData( eBTuuidType128 );
     IotBleHalTest_StartAdvertisement();
-    prvWaitConnection( true );
+    IotBleHalTest_WaitConnection( true );
 
     /* Check communication */
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
     checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, true );
 
-    xWriteEvent = prvWriteReceive( bletestATTR_SRVCB_CHAR_A, true, false, 0 );
-    prvWriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
-    xReadEvent = prvReadReceive( bletestATTR_SRVCB_CHAR_A );
-    prvReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
-    prvCheckIndicationNotification( false, true );
-    prvCheckIndicationNotification( true, true );
+    xWriteEvent = IotBleHalTest_WriteReceive( bletestATTR_SRVCB_CHAR_A, true, false, 0 );
+    IotBleHalTest_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
+    xReadEvent = IotBleHalTest_ReadReceive( bletestATTR_SRVCB_CHAR_A );
+    IotBleHalTest_ReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
+    IotBleHalTest_CheckIndicationNotification( false, true );
+    IotBleHalTest_CheckIndicationNotification( true, true );
 }
 
 /* trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout. */
 TEST( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout )
 {
-    prvWaitConnection( false );
+    IotBleHalTest_WaitConnection( false );
     IotBleHalTest_StartAdvertisement();
     prvShortWaitConnection();
 }
@@ -352,9 +352,9 @@ TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    prvStopService( &_xSrvcB );
-    prvDeleteService( &_xSrvcB );
-    prvBTUnregister();
+    IotBleHalTest_StopService( &_xSrvcB );
+    IotBleHalTest_DeleteService( &_xSrvcB );
+    IotBleHalTest_BTUnregister();
     IotBleHalTest_BLEEnable( false );
 
     xStatus = _pxBTInterface->pxBtManagerCleanup();
@@ -386,7 +386,7 @@ void prvShortWaitConnection()
     xStatus = IotBleHalTest_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_SHORT_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusFail, xStatus );
     TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xConnectionEvent.xStatus );
-    prvStartStopAdvCheck( false );
+    IotBleHalTest_StartStopAdvCheck( false );
 }
 
 void prvCreateAndStartServiceB()
@@ -476,7 +476,7 @@ void GAP_common_setup()
 
 void GATT_teardown()
 {
-    prvBTUnregister();
+    IotBleHalTest_BTUnregister();
     GAP_common_teardown();
 }
 /*-----------------------------------------------------------*/
@@ -484,8 +484,8 @@ void GATT_teardown()
 void GATT_setup()
 {
     GAP_common_setup();
-    prvBLEGAPInit();
-    prvBLEGATTInit();
+    IotBleHalTest_BLEGAPInit();
+    IotBleHalTest_BLEGATTInit();
 }
 
 void Advertisement_teardown()
@@ -498,8 +498,8 @@ void Advertisement_setup()
 {
     GATT_setup();
     prvCreateAndStartServiceB();
-    prvSetAdvProperty();
-    prvSetAdvData( eBTuuidType128 );
+    IotBleHalTest_SetAdvProperty();
+    IotBleHalTest_SetAdvData( eBTuuidType128 );
 
     /* Second time connection begins. Got second KPI. */
     IotBleHalTest_StartAdvertisement();
