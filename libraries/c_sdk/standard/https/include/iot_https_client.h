@@ -288,16 +288,16 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 /* @[declare_https_client_disconnect] */
 
 /**
- * @brief Initializes the request by adding a formatted Request Line to the start of HTTPS request header buffer.
+ * @brief Initializes the request by adding a formatted Request-Line to the start of HTTPS request header buffer.
  *
  * This function will initialize the HTTP request context by setting where to write the next headers to the start
  * of the configured header buffer in #IotHttpsRequestInfo_t.userBuffer.
  *
- * The request line will be added to the start of the headers space in #IotHttpsRequestInfo_t.userBuffer.
+ * The Request-Line will be added to the start of the headers space in #IotHttpsRequestInfo_t.userBuffer.
  * The header space follows the request context in the user buffer. See @ref requestUserBufferMinimumSize for more
  * information on sizing the #IotHttpsRequestInfo_t.userBuffer so that this function does not fail.
  *
- * The request line generated is of the following format:
+ * The Request-Line generated is of the following format:
  *
  * @code
  * method path version\r\n
@@ -317,8 +317,8 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
  * @param[in] pReqInfo - HTTPS request information.
  *
  * @return One of the following:
- * - #IOT_HTTPS_OK if the request line was successfully added to the header space in #IotHttpsRequestInfo_t.userBuffer.
- * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the request line generated exceeds #IotHttpsUserBuffer_t.bufferLen in #IotHttpsRequestInfo_t.userBuffer.
+ * - #IOT_HTTPS_OK if the Request-Line was successfully added to the header space in #IotHttpsRequestInfo_t.userBuffer.
+ * - #IOT_HTTPS_INSUFFICIENT_MEMORY if the Request-Line generated exceeds #IotHttpsUserBuffer_t.bufferLen in #IotHttpsRequestInfo_t.userBuffer.
  * - #IOT_HTTPS_INVALID_PARAMETER for NULL parameters.
  * - #IOT_HTTPS_INTERNAL_ERROR for library internal errors.
  *
@@ -688,9 +688,9 @@ IotHttpsReturnCode_t IotHttpsClient_CancelResponseAsync( IotHttpsResponseHandle_
 /**
  * @brief Retrieve the HTTPS response status.
  *
- * The HTTP response status code is contained in the status line of the response header buffer configured in
+ * The HTTP response status code is contained in the Status-Line of the response header buffer configured in
  * #IotHttpsResponseInfo_t.userBuffer. It is the first line of a standard HTTP response message. If the response
- * status line could not fit into #IotHttpsResponseInfo_t.userBuffer, then this function will return an error code.
+ * Status-Line could not fit into #IotHttpsResponseInfo_t.userBuffer, then this function will return an error code.
  * Please see #responseUserBufferMinimumSize for information about sizing the #IotHttpsResponseInfo_t.userBuffer.
  *
  * This routine can be used for both a synchronous and asynchronous response.
