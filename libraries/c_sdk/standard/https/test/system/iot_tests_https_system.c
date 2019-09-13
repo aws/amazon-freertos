@@ -125,16 +125,16 @@
  * This timeout encompasses the waiting time for the both sending of the request and receiving the response.
  */
 #ifndef IOT_TEST_HTTPS_SYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+    #define IOT_TEST_HTTPS_SYNC_TIMEOUT_MS    ( ( uint32_t ) 10000 )
 #endif
 
 /**
- * @brief Timeout in milliseconds for tests asynchronously send HTTP requests.
+ * @brief Timeout in milliseconds for tests asynchronously sending HTTP requests.
  *
  * This timeout is use to wait for the asynchronous test to finish.
  */
 #ifndef IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS
-    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 60000 )
+    #define IOT_TEST_HTTPS_ASYNC_TIMEOUT_MS    ( ( uint32_t ) 10000 )
 #endif
 
 /**
@@ -561,22 +561,22 @@ TEST_TEAR_DOWN( HTTPS_Client_System )
  */
 TEST_GROUP_RUNNER( HTTPS_Client_System )
 {
-    RUN_TEST_CASE( HTTPS_Client_System, GetRequestSynchronousPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, GetRequestSynchronousNonPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, GetRequestAsynchronousPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, GetRequestAsynchronousNonPersistent );
+    /* RUN_TEST_CASE( HTTPS_Client_System, GetRequestSynchronousPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, GetRequestSynchronousNonPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, GetRequestAsynchronousPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, GetRequestAsynchronousNonPersistent ); */
     RUN_TEST_CASE( HTTPS_Client_System, HeadRequestSynchronousPersistent );
     RUN_TEST_CASE( HTTPS_Client_System, HeadRequestSynchronousNonPersistent );
     RUN_TEST_CASE( HTTPS_Client_System, HeadRequestAsynchronousPersistent );
     RUN_TEST_CASE( HTTPS_Client_System, HeadRequestAsynchronousNonPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PutRequestSynchronousPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PutRequestSynchronousNonPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PutRequestAsynchronousPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PutRequestAsynchronousNonPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PostRequestSynchronousPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PostRequestSynchronousNonPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PostRequestAsynchronousPersistent );
-    RUN_TEST_CASE( HTTPS_Client_System, PostRequestAsynchronousNonPersistent );
+    /* RUN_TEST_CASE( HTTPS_Client_System, PutRequestSynchronousPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, PutRequestSynchronousNonPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, PutRequestAsynchronousPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, PutRequestAsynchronousNonPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, PostRequestSynchronousPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, PostRequestSynchronousNonPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, PostRequestAsynchronousPersistent ); */
+    /* RUN_TEST_CASE( HTTPS_Client_System, PostRequestAsynchronousNonPersistent ); */
 }
 
 /*-----------------------------------------------------------*/

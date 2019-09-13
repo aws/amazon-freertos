@@ -770,7 +770,13 @@ static int _httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
         pHttpsResponse->pHeadersCur += ( 2 * HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
     }
 
-    if( pHttpsResponse->bufferProcessingState < PROCESSING_STATE_FINISHED )
+    /* This if-case is not incrementing any pHeaderCur pointers, so this case is safe to call when flushing the
+     * network buffer. Flushing the network buffer needs the logic below to reach PARSER_STATE_BODY_COMPLETE if the
+     * response is for a HEAD request. Before flushing the network buffer the bufferProcessingState is set to
+     * PROCESSING_STATE_FINISHED so that other callback fuctions don't update header or body current pointers in the
+     * response context. We don't want those pointers incremented because flushing the network uses a different buffer
+     * to receive the rest of the response. */
+    if( pHttpsResponse->bufferProcessingState <= PROCESSING_STATE_FINISHED )
     {
         /* For a HEAD method, there is no body expected in the response, so we return 1 to skip body parsing. */
         if( ( pHttpsResponse->method == IOT_HTTPS_METHOD_HEAD ) )
@@ -789,7 +795,7 @@ static int _httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
         /* If there is not body configured for a synchronous reponse, we do not stop the parser from continueing. */
 
         /* Skipping the body will cause the parser to invoke the _httpParserOnMessageComplete() callback. This is
-         * not desired when there is actaully HTTP response body sent by the server because this will set the parser
+         * not desired when there is actually HTTP response body sent by the server because this will set the parser
          * state to PARSER_STATE_BODY_COMPLETE. If this state is set then the rest of possible body will not be
          * flushed out. The network flush looks for the state being PARSER_STATE_BODY_COMPLETE to finish flushing. */
     }
