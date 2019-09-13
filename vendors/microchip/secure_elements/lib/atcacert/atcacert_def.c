@@ -295,9 +295,19 @@ int atcacert_cert_build_start(atcacert_build_state_t* build_state,
 //        return ATCACERT_E_BUFFER_TOO_SMALL; // cert buffer is too small to contain the template
 //    }
 
-    // Initialize the cert buffer with the cert template
-    *build_state->cert_size = build_state->cert_def->cert_template_size;
-    memcpy(build_state->cert, build_state->cert_def->cert_template, build_state->cert_def->cert_template_size);
+    // Initialize the cert buffer with the cert template - template contains an 
+    // arbitrary signature that will be replaced during the certificate build.
+    // if the certificate size was established by using the api functions then
+    // the difference has already been accounted for.
+    if (*cert_size > build_state->cert_def->cert_template_size)
+    {
+        *build_state->cert_size = build_state->cert_def->cert_template_size;
+    }
+    else
+    {
+        *build_state->cert_size = *cert_size;
+    }
+    memcpy(build_state->cert, build_state->cert_def->cert_template, *build_state->cert_size);
 
     if (ca_public_key != NULL)
     {
