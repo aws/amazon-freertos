@@ -1,4 +1,4 @@
-CFLAGS = $(DEF) $(OPT)
+CFLAGS = $(DEF) $(OPT) {export_static}
 
 
 default: cbmc
