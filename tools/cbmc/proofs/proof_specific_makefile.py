@@ -68,10 +68,10 @@ def prolog():
 
         then the resulting Makefile will look like
 
-                H_FOO = BAR
-                H_BAZ = BAR
-                H_QUUX = 30
-                H_XYZZY = 30
+                FOO = BAR
+                BAZ = BAR
+                QUUX = 30
+                XYZZY = 30
 
         The language used for evaluation is highly restricted; arbitrary
         python is not allowed.  JSON values that are lists will be
@@ -81,7 +81,7 @@ def prolog():
 
                 ->
 
-                H_FOO = BAR BAZ QUX
+                FOO = BAR BAZ QUX
 
         As a special case, if a key is equal to "DEF", "INC" (and maybe more,
         read the code) the list of values is treated as a list of defines or
@@ -93,7 +93,7 @@ def prolog():
 
                 on Linux ->
 
-                H_DEF = -DDEBUG -DFOO=BAR
+                DEF = -DDEBUG -DFOO=BAR
 
         Pathnames are written with a forward slash in the JSON file. In
         each value, all slashes are replaced with backslashes if
@@ -108,8 +108,8 @@ def prolog():
 
                 On Windows ->
 
-                H_INC = /Imy\cool\directory
-                H_DEF = /DHALF=/2
+                INC = /Imy\cool\directory
+                DEF = /DHALF=/2
 
         When invoked, this script walks the directory tree looking for files
         called "Makefile.json". It reads that file and dumps a Makefile in that
@@ -303,16 +303,21 @@ def load_json_config_file(file):
     return data
 
 
-def get_ancestor_settings_files(makefile_json_path):
+def get_ancestor_settings_files(makefile_json_path, system):
     """
     Given a path to a Makefile.json, return every settings.json and
     Makefile.json file higher up in the tree, from shallowest to
     deepest. The path to the Makefile.json passed in as an argument will
     always be the last returned path.
     """
+    if system == "macos":
+        system = "linux"
+    opsys_settings = "%s-settings.json" % system
     for ancestor in reversed(pathlib.Path(makefile_json_path).parents):
         if os.path.exists(ancestor / "settings.json"):
             yield ancestor / "settings.json"
+        if os.path.exists(ancestor / opsys_settings):
+            yield ancestor / opsys_settings
         if os.path.exists(ancestor / "Makefile.json"):
             yield ancestor / "Makefile.json"
 
@@ -323,7 +328,8 @@ def build_settings_tree(makefile_json_path, system):
         "makefile-control": collections.OrderedDict(),
         "lists": collections.OrderedDict(),
     }
-    for settings_file in get_ancestor_settings_files(makefile_json_path):
+    for settings_file in get_ancestor_settings_files(makefile_json_path,
+                                                     system):
         local_settings = load_json_config_file(settings_file)
         for field in ["variables", "makefile-control"]:
             if field in local_settings:
@@ -383,18 +389,20 @@ def get_makefile(dyr, system):
 
     ret = []
     for var, val in makefile_settings["variables"].items():
-        ret.append("H_%s = %s" % (var, val))
+        if var in ["FREERTOS", "PROOFS"]:
+            val = os.path.abspath(val)
+        ret.append("%s = %s" % (var, val))
     ret.append("")
 
     for list_name, liist in makefile_settings["lists"].items():
         prefix = list_item_prefix(list_name, system)
-        ret.append("H_%s = \\" % list_name)
+        ret.append("%s = \\" % list_name)
         for item in liist:
             ret.append("  %s%s \\" % (prefix, item))
         ret.append("  # empty")
         ret.append("")
 
-    return ret
+    return ret, makefile_settings["makefile-control"]
 
 
 def get_args():

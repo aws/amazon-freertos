@@ -52,13 +52,20 @@ def build(args):
     process_configurations()
 
     for root, _, fyles in os.walk("."):
-        if "Makefile.json" in fyles:
-            makefile = ["# Proof-specific defines", ""]
-            makefile.extend(proof_specific_makefile.get_makefile(root, args.system))
-            makefile.extend(["", "# Common recipies", ""])
-            makefile.extend(common_makefile.get_makefile(args.system))
-            with open(os.path.join(root, "Makefile"), "w") as handle:
-                handle.write("\n".join(makefile))
+        if "Makefile.json" not in fyles:
+            continue
+
+        makefile = ["# Proof-specific defines", ""]
+        proof_specific, makefile_control = proof_specific_makefile.get_makefile(
+            root, args.system)
+        makefile.extend(proof_specific)
+
+        makefile.extend(["", "# Common recipies", ""])
+        makefile.extend(common_makefile.get_makefile(args.system,
+                                                     makefile_control))
+
+        with open(os.path.join(root, "Makefile"), "w") as handle:
+            handle.write("\n".join(makefile))
 
     try:
         create_cbmc_yaml_files()

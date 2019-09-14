@@ -1,3 +1,6 @@
+CFLAGS = $(DEF) $(OPT)
+
+
 default: cbmc
 
 # ____________________________________________________________________
@@ -8,44 +11,6 @@ GOTO_CC = @GOTO_CC@
 GOTO_INSTRUMENT = goto-instrument
 GOTO_ANALYZER = goto-analyzer
 VIEWER = cbmc-viewer
-
-# ____________________________________________________________________
-# Variables
-#
-# Naming scheme:
-# ``````````````
-# FOO is the concatenation of the following:
-# FOO2: Set of command line
-# C_FOO: Value of $FOO common to all harnesses, set in this file
-# O_FOO: Value of $FOO specific to the OS we're running on, set in the
-#        makefile for the operating system
-# H_FOO: Value of $FOO specific to a particular harness, set in the
-#        makefile for that harness
-
-ENTRY = $(H_ENTRY)
-OBJS = $(H_OBJS)
-
-INC = \
-  $(INC2) \
-  $(C_INC) $(O_INC) $(H_INC) \
-  # empty
-
-CFLAGS = \
-  $(CFLAGS2) \
-  $(C_DEF) $(O_DEF) $(H_DEF) $(DEF) \
-  $(C_OPT) $(O_OPT) $(H_OPT) $(OPT) \
-  -m32 \
-  # empty
-
-CBMCFLAGS = \
-  $(CBMCFLAGS2) \
-  $(C_CBMCFLAGS) $(O_CBMCFLAGS) $(H_CBMCFLAGS) \
-  # empty
-
-INSTFLAGS = \
-  $(INSTFLAGS2) \
-  $(C_INSTFLAGS) $(O_INSTFLAGS) $(H_INSTFLAGS) \
-  # empty
 
 # ____________________________________________________________________
 # Rules
@@ -76,7 +41,7 @@ unpatch:
 queue_datastructure.h: $(filter-out $(ENTRY)_harness.goto, $(OBJS))
 	python3 @TYPE_HEADER_SCRIPT@ $(FREERTOS)/freertos_kernel/queue.goto $(FREERTOS)/freertos_kernel/queue.c
 
-$(ENTRY)_harness.goto: $(ENTRY)_harness.c $(filter-out $(ENTRY)_harness.goto, $(OBJS)) $(H_GENERATE_HEADER)
+$(ENTRY)_harness.goto: $(ENTRY)_harness.c $(filter-out $(ENTRY)_harness.goto, $(OBJS)) $(GENERATE_HEADER)
 	$(GOTO_CC) @COMPILE_ONLY@ @RULE_OUTPUT@ $(INC) $(CFLAGS) @RULE_INPUT@
 
 $(ENTRY)1.goto: $(OBJS)
