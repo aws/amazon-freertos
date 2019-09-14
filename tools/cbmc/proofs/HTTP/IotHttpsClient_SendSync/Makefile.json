@@ -8,16 +8,7 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwindset strlen.0:25,_flushHttpsNetworkData.0:5,_receiveHttpsMessage.0:2",
-
-      # Interesting checks in addition to memory safety
-      "--div-by-zero-check",
-      "--float-overflow-check",
-      "--nan-check",
-      "--pointer-overflow-check",
-      "--undefined-shift-check",
-      "--signed-overflow-check",
-      "--unsigned-overflow-check"
+      "--unwindset strlen.0:25,_flushHttpsNetworkData.0:5,_receiveHttpsMessage.0:2"
     ],
     "OBJS": [
       "$(ENTRY)_harness.goto",

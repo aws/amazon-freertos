@@ -8,14 +8,7 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwindset strlen.0:5,strncmp.0:20",
-      "--div-by-zero-check",
-      "--float-overflow-check",
-      "--nan-check",
-      "--pointer-overflow-check",
-      "--undefined-shift-check",
-      "--signed-overflow-check",
-      "--unsigned-overflow-check"
+      "--unwindset strlen.0:5,strncmp.0:20"
     ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
