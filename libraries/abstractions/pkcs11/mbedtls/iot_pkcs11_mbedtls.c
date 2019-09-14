@@ -92,10 +92,47 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
 #define EC_PARAMS_IN_TEMPLATE         ( 1U << 3 )
 #define VERIFY_IN_TEMPLATE            ( 1U << 4 )
 
+
+typedef struct P11StorageFunctions_t
+{
+    CK_OBJECT_HANDLE ( * SaveObject )( CK_ATTRIBUTE_PTR,
+                                       uint8_t *,
+                                       uint32_t );
+    CK_RV ( * DestroyObject )( CK_OBJECT_HANDLE );
+    CK_OBJECT_HANDLE ( * FindObject )( uint8_t *,
+                                       uint8_t );
+    CK_RV ( * GetObjectValue )( CK_OBJECT_HANDLE,
+                                uint8_t **,
+                                uint32_t *,
+                                CK_BBOOL * );
+    void ( * GetObjectValueCleanup )( uint8_t *,
+                                      uint32_t );
+} P11StorageFunctions_t;
+
+P11StorageFunctions_t xPalStorageFxns =
+{
+    &PKCS11_PAL_SaveObject,
+    &PKCS11_PAL_DestroyObject,
+    &PKCS11_PAL_FindObject,
+    &PKCS11_PAL_GetObjectValue,
+    &PKCS11_PAL_GetObjectValueCleanup
+};
+
+/*P11StorageFunctions_t xCodeStorageFxns = */
+/*{ */
+/*    &PKCS11_Code_SaveObject, */
+/*    &PKCS11_Code_DestroyObject, */
+/*    &PKCS11_Code_FindObject, */
+/*    &PKCS11_Code_GetObjectValue, */
+/*    &PKCS11_Code_GetObjectValueCleanup */
+/*}; */
+
 typedef struct P11Object_t
 {
-    CK_OBJECT_HANDLE xHandle;                           /* The "PAL Handle". */
+    CK_OBJECT_HANDLE xPalHandle;                        /* The "PAL Handle". */
+    CK_OBJECT_HANDLE xAppHandle;                        /* The "Application Handle".*/
     CK_BYTE xLabel[ pkcs11configMAX_LABEL_LENGTH + 1 ]; /* Plus 1 for the null terminator. */
+    P11StorageFunctions_t * pFunctions;
 } P11Object_t;
 
 /* This structure helps the aws_pkcs11_mbedtls.c maintain a mapping of all objects in one place.
@@ -327,20 +364,17 @@ CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
  */
 void prvFindObjectInListByLabel( uint8_t * pcLabel,
                                  size_t xLabelLength,
-                                 CK_OBJECT_HANDLE_PTR pxPalHandle,
-                                 CK_OBJECT_HANDLE_PTR pxAppHandle )
+                                 P11Object_t ** ppObject )
 {
     uint8_t ucIndex;
 
-    *pxPalHandle = CK_INVALID_HANDLE;
-    *pxAppHandle = CK_INVALID_HANDLE;
+    *ppObject = ( P11Object_t * ) NULL;
 
     for( ucIndex = 0; ucIndex < pkcs11configMAX_NUM_OBJECTS; ucIndex++ )
     {
         if( 0 == memcmp( pcLabel, xP11Context.xObjectList.xObjects[ ucIndex ].xLabel, xLabelLength ) )
         {
-            *pxPalHandle = xP11Context.xObjectList.xObjects[ ucIndex ].xHandle;
-            *pxAppHandle = ucIndex + 1; /* Zero is not a valid handle, so let's offset by 1. */
+            *ppObject = &xP11Context.xObjectList.xObjects[ ucIndex ];
             break;
         }
     }
@@ -368,11 +402,11 @@ void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
 
     if( lIndex < pkcs11configMAX_NUM_OBJECTS ) /* Check that handle is in bounds. */
     {
-        if( xP11Context.xObjectList.xObjects[ lIndex ].xHandle != CK_INVALID_HANDLE )
+        if( xP11Context.xObjectList.xObjects[ lIndex ].xPalHandle != CK_INVALID_HANDLE )
         {
             *ppcLabel = xP11Context.xObjectList.xObjects[ lIndex ].xLabel;
             *pxLabelLength = strlen( ( const char * ) xP11Context.xObjectList.xObjects[ lIndex ].xLabel ) + 1;
-            *pxPalHandle = xP11Context.xObjectList.xObjects[ lIndex ].xHandle;
+            *pxPalHandle = xP11Context.xObjectList.xObjects[ lIndex ].xPalHandle;
         }
     }
 }
@@ -403,7 +437,7 @@ CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 
     if( ( xGotSemaphore == pdTRUE ) && ( xResult == CKR_OK ) )
     {
-        if( xP11Context.xObjectList.xObjects[ lIndex ].xHandle != CK_INVALID_HANDLE )
+        if( xP11Context.xObjectList.xObjects[ lIndex ].xPalHandle != CK_INVALID_HANDLE )
         {
             memset( &xP11Context.xObjectList.xObjects[ lIndex ], 0, sizeof( P11Object_t ) );
         }
@@ -435,7 +469,8 @@ CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                           CK_OBJECT_HANDLE_PTR pxAppHandle,
                           uint8_t * pcLabel,
-                          size_t xLabelLength )
+                          size_t xLabelLength,
+                          P11StorageFunctions_t * pStorageFunctions )
 {
     CK_RV xResult = CKR_OK;
     BaseType_t xGotSemaphore;
@@ -450,13 +485,13 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     {
         for( lSearchIndex = pkcs11configMAX_NUM_OBJECTS - 1; lSearchIndex >= 0; lSearchIndex-- )
         {
-            if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xHandle == xPalHandle )
+            if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xPalHandle == xPalHandle )
             {
                 /* Object already exists in list. */
                 xObjectFound = CK_TRUE;
                 break;
             }
-            else if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xHandle == CK_INVALID_HANDLE )
+            else if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xPalHandle == CK_INVALID_HANDLE )
             {
                 lInsertIndex = lSearchIndex;
             }
@@ -468,9 +503,11 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
             {
                 if( xLabelLength < pkcs11configMAX_LABEL_LENGTH )
                 {
-                    xP11Context.xObjectList.xObjects[ lInsertIndex ].xHandle = xPalHandle;
+                    xP11Context.xObjectList.xObjects[ lInsertIndex ].xPalHandle = xPalHandle;
                     memcpy( xP11Context.xObjectList.xObjects[ lInsertIndex ].xLabel, pcLabel, xLabelLength );
                     *pxAppHandle = lInsertIndex + 1;
+                    xP11Context.xObjectList.xObjects[ lInsertIndex ].xAppHandle = lInsertIndex + 1;
+                    xP11Context.xObjectList.xObjects[ lInsertIndex ].pFunctions = pStorageFunctions;
                 }
                 else
                 {
@@ -505,6 +542,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         CK_OBJECT_HANDLE xPalHandle2;
         CK_OBJECT_HANDLE xAppHandle2;
         CK_BYTE_PTR pxZeroedData = NULL;
+        P11Object_t * pObject;
 
         prvFindObjectInListByHandle( xAppHandle, &xPalHandle, &pcLabel, &xLabelLength );
 
@@ -547,16 +585,16 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         {
             if( 0 == memcmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, xLabelLength ) )
             {
-                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS ), &pObject );
 
-                if( xPalHandle != CK_INVALID_HANDLE )
+                if( pObject != NULL )
                 {
                     xResult = prvDeleteObjectFromList( xAppHandle2 );
                 }
             }
             else if( 0 == memcmp( xLabel.pValue, pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS, xLabelLength ) )
             {
-                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &xPalHandle, &xAppHandle2 );
+                prvFindObjectInListByLabel( ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS, strlen( ( char * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS ), &pObject );
 
                 if( xPalHandle != CK_INVALID_HANDLE )
                 {
@@ -1210,7 +1248,7 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
 
     if( xResult == CKR_OK )
     {
-        xPalHandle = PKCS11_PAL_SaveObject( pxLabel, pxCertificateValue, xCertificateLength );
+        xPalHandle = xPalStorageFxns.SaveObject( pxLabel, pxCertificateValue, xCertificateLength );
 
         if( xPalHandle == 0 ) /*Invalid handle. */
         {
@@ -1220,7 +1258,7 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
 
     if( xResult == CKR_OK )
     {
-        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen );
+        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen, &xPalStorageFxns );
         /* TODO: If this fails, should the object be wiped back out of flash?  But what if that fails?!?!? */
     }
 
@@ -1720,9 +1758,9 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     /* Save the object to device NVM. */
     if( xResult == CKR_OK )
     {
-        xPalHandle = PKCS11_PAL_SaveObject( pxLabel,
-                                            pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
-                                            lActualKeyLength );
+        xPalHandle = xPalStorageFxns.SaveObject( pxLabel,
+                                                 pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
+                                                 lActualKeyLength );
 
         if( xPalHandle == 0 )
         {
@@ -1733,7 +1771,7 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
     /* Store the PAL handle/label/application handle in lookup. */
     if( xResult == CKR_OK )
     {
-        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen );
+        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen, &xPalStorageFxns );
     }
 
     if( pxDerKey != NULL )
@@ -1939,9 +1977,9 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 
     if( xResult == CKR_OK )
     {
-        xPalHandle = PKCS11_PAL_SaveObject( pxLabel,
-                                            pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
-                                            lDerKeyLength );
+        xPalHandle = xPalStorageFxns.SaveObject( pxLabel,
+                                                 pxDerKey + ( MAX_LENGTH_KEY - lDerKeyLength ),
+                                                 lDerKeyLength );
 
         if( xPalHandle == CK_INVALID_HANDLE )
         {
@@ -1951,7 +1989,7 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 
     if( xResult == CKR_OK )
     {
-        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen );
+        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen, &xPalStorageFxns );
     }
 
     if( pxDerKey != NULL )
@@ -2517,6 +2555,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     CK_BYTE xByte = 0;
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint32_t ulIndex;
+    P11Object_t * pxInternalObject;
 
     /*
      * Check parameters.
@@ -2559,44 +2598,54 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     if( ( pdFALSE == xDone ) )
     {
         /* Try to find the object in module's list first. */
-        prvFindObjectInListByLabel( pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ), &xPalHandle, pxObject );
+        prvFindObjectInListByLabel( pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ), &pxInternalObject );
 
-        /* Check with the PAL if the object was previously stored. */
-        if( *pxObject == CK_INVALID_HANDLE )
+        if( pxInternalObject != NULL )
         {
-            xPalHandle = PKCS11_PAL_FindObject( pxSession->pxFindObjectLabel, ( uint8_t ) strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
+            xPalHandle = pxInternalObject->xPalHandle;
+            *pxObject = pxInternalObject->xAppHandle;
+            *pulObjectCount = 1;
         }
 
-        if( xPalHandle != CK_INVALID_HANDLE )
+        /* If object not previously cached, check with the PAL if the object was previously stored in NVM.
+         * Then cache the object if it is found and valid. */
+        if( pxInternalObject == NULL )
         {
-            xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pcObjectValue, &xObjectLength, &xIsPrivate );
+            /* Search PAL for object. */
+            xPalHandle = xPalStorageFxns.FindObject( pxSession->pxFindObjectLabel, ( uint8_t ) strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
 
-            if( xResult == CKR_OK )
+            if( xPalHandle != CK_INVALID_HANDLE )
             {
-                for( ulIndex = 0; ulIndex < xObjectLength; ulIndex++ )
-                {
-                    xByte |= pcObjectValue[ ulIndex ];
-                }
+                /* Retrieve the object value, and check that it is not a "destroyed" object, which is zeroed out. */
+                xResult = xPalStorageFxns.GetObjectValue( xPalHandle, &pcObjectValue, &xObjectLength, &xIsPrivate );
 
-                if( xByte == 0 ) /* Deleted objects are overwritten completely w/ zero. */
+                if( xResult == CKR_OK )
                 {
-                    *pxObject = CK_INVALID_HANDLE;
-                }
-                else
-                {
-                    xResult = prvAddObjectToList( xPalHandle, pxObject, pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
-                    *pulObjectCount = 1;
-                }
+                    for( ulIndex = 0; ulIndex < xObjectLength; ulIndex++ )
+                    {
+                        xByte |= pcObjectValue[ ulIndex ];
+                    }
 
-                PKCS11_PAL_GetObjectValueCleanup( pcObjectValue, xObjectLength );
+                    if( xByte == 0 ) /* Deleted objects are overwritten completely w/ zero. */
+                    {
+                        *pxObject = CK_INVALID_HANDLE;
+                    }
+                    else /* Add the valid object to the cache. */
+                    {
+                        xResult = prvAddObjectToList( xPalHandle, pxObject, pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ), &xPalStorageFxns );
+                        *pulObjectCount = 1;
+                    }
+
+                    xPalStorageFxns.GetObjectValueCleanup( pcObjectValue, xObjectLength );
+                }
             }
-        }
-        else
-        {
-            /* Note: Objects living in header files are not destroyed. */
-            /* According to the PKCS #11 standard, not finding an object results in a CKR_OK return value with an object count of 0. */
-            *pulObjectCount = 0;
-            PKCS11_WARNING_PRINT( ( "WARN: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
+            else
+            {
+                /* Note: Objects living in header files are not destroyed. */
+                /* According to the PKCS #11 standard, not finding an object results in a CKR_OK return value with an object count of 0. */
+                *pulObjectCount = 0;
+                PKCS11_WARNING_PRINT( ( "WARN: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
+            }
         }
     }
 
@@ -3793,11 +3842,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
 
     if( ( xPalPublic != CK_INVALID_HANDLE ) && ( xPalPrivate != CK_INVALID_HANDLE ) )
     {
-        xResult = prvAddObjectToList( xPalPrivate, pxPrivateKey, pxPrivateLabel->pValue, pxPrivateLabel->ulValueLen );
+        xResult = prvAddObjectToList( xPalPrivate, pxPrivateKey, pxPrivateLabel->pValue, pxPrivateLabel->ulValueLen, &xPalStorageFxns );
 
         if( xResult == CKR_OK )
         {
-            xResult = prvAddObjectToList( xPalPublic, pxPublicKey, pxPublicLabel->pValue, pxPublicLabel->ulValueLen );
+            xResult = prvAddObjectToList( xPalPublic, pxPublicKey, pxPublicLabel->pValue, pxPublicLabel->ulValueLen, &xPalStorageFxns );
 
             if( xResult != CKR_OK )
             {
