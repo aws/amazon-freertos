@@ -10,8 +10,7 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwindset prvProcessDNSCache.0:5,strcmp.0:{HOSTNAME_UNWIND}",
-      "--nondet-static"
+      "--unwindset prvProcessDNSCache.0:5,strcmp.0:{HOSTNAME_UNWIND}"
     ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
@@ -23,5 +22,7 @@
       "MAX_HOSTNAME_LEN={MAX_HOSTNAME_LEN}"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

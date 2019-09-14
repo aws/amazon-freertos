@@ -11,8 +11,7 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwindset prvProcessDNSCache.0:5,strlen.0:{HOSTNAME_UNWIND},__builtin___strcpy_chk.0:{HOSTNAME_UNWIND},vDNSCheckCallBack.0:2,strcpy.0:{HOSTNAME_UNWIND}",
-      "--nondet-static"
+      "--unwindset prvProcessDNSCache.0:5,strlen.0:{HOSTNAME_UNWIND},__builtin___strcpy_chk.0:{HOSTNAME_UNWIND},vDNSCheckCallBack.0:2,strcpy.0:{HOSTNAME_UNWIND}"
     ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
@@ -25,5 +24,7 @@
       "MAX_HOSTNAME_LEN={MAX_HOSTNAME_LEN}"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

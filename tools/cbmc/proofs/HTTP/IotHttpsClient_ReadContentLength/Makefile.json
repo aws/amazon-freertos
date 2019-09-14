@@ -8,7 +8,6 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--nondet-static",
       "--div-by-zero-check",
       "--float-overflow-check",
       "--nan-check",
@@ -34,5 +33,7 @@
       "USER_DATA_SIZE={USER_DATA_SIZE}"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

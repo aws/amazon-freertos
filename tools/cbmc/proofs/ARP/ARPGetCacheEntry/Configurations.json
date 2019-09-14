@@ -5,8 +5,7 @@
   "lists": {
     "CBMCFLAGS":
     [
-        "--unwindset prvCacheLookup.0:7",
-        "--nondet-static"
+        "--unwindset prvCacheLookup.0:7"
     ],
     "OBJS":
     [
@@ -41,5 +40,7 @@
       }
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

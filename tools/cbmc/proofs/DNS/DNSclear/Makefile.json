@@ -4,9 +4,6 @@
     "USE_CACHE": 1
   },
   "lists": {
-    "CBMCFLAGS": [
-      "--nondet-static"
-    ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto"
@@ -15,5 +12,7 @@
       "ipconfigUSE_DNS_CACHE={USE_CACHE}"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

@@ -4,8 +4,7 @@
   },
   "lists": {
     "CBMCFLAGS": [
-      "--unwindset vARPAgeCache.0:7",
-      "--nondet-static"
+      "--unwindset vARPAgeCache.0:7"
     ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
@@ -14,5 +13,7 @@
     ],
     "DEF": []
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

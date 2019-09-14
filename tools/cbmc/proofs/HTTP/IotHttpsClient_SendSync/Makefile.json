@@ -9,7 +9,6 @@
   "lists": {
     "CBMCFLAGS": [
       "--unwindset strlen.0:25,_flushHttpsNetworkData.0:5,_receiveHttpsMessage.0:2",
-      "--nondet-static",
 
       # Interesting checks in addition to memory safety
       "--div-by-zero-check",
@@ -42,5 +41,7 @@
       "USER_DATA_SIZE={USER_DATA_SIZE}"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

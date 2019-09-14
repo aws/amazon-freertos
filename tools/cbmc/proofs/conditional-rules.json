@@ -1,0 +1,8 @@
+{
+  "switches": {
+    "nondet_static": {
+      "yes": "$(GOTO_INSTRUMENT) --nondet-static @RULE_INPUT@ @RULE_OUTPUT@",
+      "no": "@CP@ @RULE_INPUT@ @RULE_OUTPUT@"
+    }
+  }
+}

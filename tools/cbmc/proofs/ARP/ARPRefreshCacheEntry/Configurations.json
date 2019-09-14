@@ -4,8 +4,7 @@
   },
   "lists": {
     "CBMCFLAGS": [
-        "--unwindset vARPRefreshCacheEntry.0:7,memcmp.0:17",
-        "--nondet-static"
+        "--unwindset vARPRefreshCacheEntry.0:7,memcmp.0:17"
     ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
@@ -16,5 +15,7 @@
       {"STORE_REMOTE":["ipconfigARP_STORES_REMOTE_ADDRESSES=1"]}
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

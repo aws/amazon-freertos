@@ -109,18 +109,17 @@ def get_define(define, defines):
 
 def makefile_from_template(opsys, template, makefile_control):
     ret = []
-    with open(template) as _template:
-        for line in _template:
-            line = line.rstrip()
-            line = patch_path_separator(opsys, line)
-            keys = re.findall(r'@(\w+)@', line)
-            values = [get_define(key, makefile_control["substitutions"])
-                      for key in keys]
-            for key, value in zip(keys, values):
-                if value is not None:
-                    line = line.replace('@{}@'.format(key), value)
-                    line = patch_compile_output(opsys, line, key, value)
-            ret.append(line)
+    for line in template.splitlines():
+        line = line.rstrip()
+        line = patch_path_separator(opsys, line)
+        keys = re.findall(r'@(\w+)@', line)
+        values = [get_define(key, makefile_control["substitutions"])
+                  for key in keys]
+        for key, value in zip(keys, values):
+            if value is not None:
+                line = line.replace('@{}@'.format(key), value)
+                line = patch_compile_output(opsys, line, key, value)
+        ret.append(line)
     return ret
 
 
@@ -145,9 +144,28 @@ cbmc-batch.yaml:
 """.splitlines()
 
 
+def get_makefile_choices(makefile_control, rules):
+    ret = {}
+    for k, v in rules["switches"].items():
+        if k in makefile_control and makefile_control[k]:
+            ret[k] = rules["switches"][k]["yes"]
+        else:
+            ret[k] = rules["switches"][k]["no"]
+    return ret
+
+
 def get_makefile(opsys, makefile_control):
     ret = []
-    ret.extend(makefile_from_template(opsys, "Makefile.template", makefile_control))
+
+    with open("conditional-rules.json") as handle:
+        rules = json.load(handle)
+    choices = get_makefile_choices(makefile_control, rules)
+
+    with open("Makefile.template") as handle:
+        template = handle.read()
+    template = template.format(**choices)
+
+    ret.extend(makefile_from_template(opsys, template, makefile_control))
     if opsys != "windows":
         ret.extend(cbmc_batch_yaml_target())
 

@@ -4,9 +4,6 @@
     "UNWIND_LIMIT": 7
   },
   "lists": {
-    "CBMCFLAGS": [
-      "--nondet-static"
-    ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.goto"
@@ -15,5 +12,7 @@
       "ipconfigARP_CACHE_ENTRIES=6"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

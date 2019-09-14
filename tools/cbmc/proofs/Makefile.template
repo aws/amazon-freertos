@@ -58,15 +58,20 @@ $(ENTRY)3.goto: $(ENTRY)2.goto
 $(ENTRY)4.goto: $(ENTRY)3.goto
 	$(GOTO_INSTRUMENT) $(INSTFLAGS) --slice-global-inits @RULE_INPUT@ @RULE_OUTPUT@ \
 		> $(ENTRY)4.txt 2>&1
+
+$(ENTRY)5.goto: $(ENTRY)4.goto
+	{nondet_static} \
+	  > $(ENTRY)5.txt 2>&1
+
 # ____________________________________________________________________
 # After running goto-instrument to remove function bodies the unused
 # functions need to be dropped again.
 
-$(ENTRY)5.goto: $(ENTRY)4.goto
+$(ENTRY)6.goto: $(ENTRY)5.goto
 	$(GOTO_INSTRUMENT) --drop-unused-functions @RULE_INPUT@ @RULE_OUTPUT@ \
-		> $(ENTRY)5.txt 2>&1
+		> $(ENTRY)6.txt 2>&1
 
-$(ENTRY).goto: $(ENTRY)5.goto
+$(ENTRY).goto: $(ENTRY)6.goto
 	@CP@ @RULE_INPUT@ @RULE_OUTPUT@
 
 # ____________________________________________________________________

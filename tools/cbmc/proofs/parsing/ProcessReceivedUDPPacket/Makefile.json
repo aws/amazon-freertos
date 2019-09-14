@@ -6,9 +6,6 @@
     "USE_NBNS": 1
   },
   "lists": {
-    "CBMCFLAGS": [
-      "--nondet-static"
-    ],
     "OBJS": [
       "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.goto",
@@ -20,5 +17,7 @@
       "ipconfigUSE_NBNS={USE_NBNS}"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }

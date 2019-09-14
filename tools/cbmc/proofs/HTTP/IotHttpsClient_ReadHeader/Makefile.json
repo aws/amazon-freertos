@@ -12,7 +12,6 @@
   "lists": {
     "CBMCFLAGS": [
       "--unwindset __builtin___strncpy_chk.0:{STRNCPY_UNWIND},strncpy.0:{STRNCPY_UNWIND}",
-      "--nondet-static",
 
       # Interesting checks in addition to memory safety
       "--div-by-zero-check",
@@ -41,5 +40,7 @@
       "MAX_ACCEPTED_SIZE={MAX_ACCEPTED_SIZE}"
     ]
   },
-  "makefile-control": {}
+  "makefile-control": {
+    "nondet_static": true
+  }
 }
