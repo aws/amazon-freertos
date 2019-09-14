@@ -1581,13 +1581,6 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys )
     CK_OBJECT_HANDLE xPrivateKeyHandle;
     CK_OBJECT_HANDLE xPublicKeyHandle;
 
-    #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
-        CK_OBJECT_HANDLE xRootCertificateHandle;
-        CK_OBJECT_HANDLE xCodeSignPublicKeyHandle;
-        CK_OBJECT_HANDLE xJITPCertificateHandle;
-    #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
-
-
     xResult = prvDestroyTestCredentials();
     xCurrentCredentials = eNone;
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy credentials in test setup." );
@@ -1614,6 +1607,12 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
 {
     CK_RV xResult;
     CK_OBJECT_HANDLE xClientCertificateHandle;
+
+    #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
+        CK_OBJECT_HANDLE xRootCertificateHandle;
+        CK_OBJECT_HANDLE xCodeSignPublicKeyHandle;
+        CK_OBJECT_HANDLE xJITPCertificateHandle;
+    #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
     xResult = xProvisionCertificate( xGlobalSession,
                                      ( uint8_t * ) cValidECDSACertificate,

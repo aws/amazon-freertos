@@ -53,7 +53,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
  *   @note  Buffers may be allocated by this call, and should be
  *          freed up by calling PKCS11_PAL_GetObjectValueCleanup().
  */
-BaseType_t PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
+CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
                                       uint8_t ** ppucData,
                                       uint32_t * pulDataSize,
                                       CK_BBOOL * xIsPrivate );
