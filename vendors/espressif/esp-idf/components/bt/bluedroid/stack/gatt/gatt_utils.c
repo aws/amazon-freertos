@@ -94,7 +94,7 @@ void gatt_free_pending_ind(tGATT_TCB *p_tcb)
     if (p_tcb->pending_ind_q == NULL) {
         return;
     }
-	
+
     /* release all queued indications */
     while (!fixed_queue_is_empty(p_tcb->pending_ind_q)) {
         osi_free(fixed_queue_try_dequeue(p_tcb->pending_ind_q));
@@ -118,7 +118,7 @@ void gatt_free_pending_enc_queue(tGATT_TCB *p_tcb)
     if (p_tcb->pending_enc_clcb == NULL) {
         return;
     }
-	
+
     /* release all queued indications */
     while (!fixed_queue_is_empty(p_tcb->pending_enc_clcb)) {
         osi_free(fixed_queue_try_dequeue(p_tcb->pending_enc_clcb));
@@ -387,7 +387,7 @@ tGATT_HDL_LIST_ELEM *gatt_find_hdl_buffer_by_attr_handle(UINT16 attr_handle)
     p_list = p_list_info->p_first;
 
     while (p_list != NULL) {
-        if (p_list->in_use && (p_list->asgn_range.s_handle <= attr_handle) 
+        if (p_list->in_use && (p_list->asgn_range.s_handle <= attr_handle)
 			&& (p_list->asgn_range.e_handle >= attr_handle)) {
             return (p_list);
         }
@@ -2140,7 +2140,9 @@ void gatt_end_operation(tGATT_CLCB *p_clcb, tGATT_STATUS status, void *p_data)
     UINT8               op = p_clcb->operation, disc_type = GATT_DISC_MAX;
     tGATT_DISC_CMPL_CB  *p_disc_cmpl_cb = (p_clcb->p_reg) ? p_clcb->p_reg->app_cb.p_disc_cmpl_cb : NULL;
     UINT16              conn_id;
+#if (!CONFIG_BT_STACK_NO_LOG)
     UINT8               operation;
+#endif
 
     GATT_TRACE_DEBUG ("gatt_end_operation status=%d op=%d subtype=%d",
                       status, p_clcb->operation, p_clcb->op_subtype);
@@ -2182,7 +2184,10 @@ void gatt_end_operation(tGATT_CLCB *p_clcb, tGATT_STATUS status, void *p_data)
         osi_free(p_clcb->p_attr_buf);
     }
 
+#if !CONFIG_BT_STACK_NO_LOG
     operation =  p_clcb->operation;
+#endif
+
     conn_id = p_clcb->conn_id;
     btu_stop_timer(&p_clcb->rsp_timer_ent);
 
@@ -2192,9 +2197,10 @@ void gatt_end_operation(tGATT_CLCB *p_clcb, tGATT_STATUS status, void *p_data)
         (*p_disc_cmpl_cb)(conn_id, disc_type, status);
     } else if (p_cmpl_cb && op) {
         (*p_cmpl_cb)(conn_id, op, status, &cb_data);
-    } else
+    } else {
         GATT_TRACE_WARNING ("gatt_end_operation not sent out op=%d p_disc_cmpl_cb:%p p_cmpl_cb:%p",
                             operation, p_disc_cmpl_cb, p_cmpl_cb);
+    }
 }
 
 /*******************************************************************************

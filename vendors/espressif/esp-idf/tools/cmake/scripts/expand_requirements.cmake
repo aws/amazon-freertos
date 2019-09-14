@@ -79,6 +79,7 @@ function(require_idf_targets)
     endif()
 endfunction()
 
+
 # expand_component_requirements: Recursively expand a component's requirements,
 # setting global properties BUILD_COMPONENTS & BUILD_COMPONENT_PATHS and
 # also invoking the components to call register_component() above,

@@ -495,10 +495,11 @@ static UINT64 time_now_us()
 static void log_tstamps_us(char *comment)
 {
     static UINT64 prev_us = 0;
-    const UINT64 now_us = time_now_us();
+    UINT64 now_us = time_now_us();
     APPL_TRACE_DEBUG("[%s] ts %08llu, diff : %08llu, queue sz %d", comment, now_us, now_us - prev_us,
                      fixed_queue_length(btc_aa_src_cb.TxAaQ));
     prev_us = now_us;
+    UNUSED(prev_us);
 }
 
 /* when true media task discards any tx frames */
@@ -1155,10 +1156,16 @@ static UINT8 btc_get_num_aa_frame(void)
 
         /* calculate nbr of frames pending for this media tick */
         result = btc_aa_src_cb.media_feeding_state.pcm.counter / pcm_bytes_per_frame;
-        if (result > MAX_PCM_FRAME_NUM_PER_TICK) {
-            APPL_TRACE_WARNING("%s() - Limiting frames to be sent from %d to %d"
-                               , __FUNCTION__, result, MAX_PCM_FRAME_NUM_PER_TICK);
-            result = MAX_PCM_FRAME_NUM_PER_TICK;
+
+        /* limit the frames to be sent */
+        UINT32 frm_nb_threshold = MAX_OUTPUT_A2DP_SRC_FRAME_QUEUE_SZ - fixed_queue_length(btc_aa_src_cb.TxAaQ);
+        if (frm_nb_threshold > MAX_PCM_FRAME_NUM_PER_TICK) {
+            frm_nb_threshold = MAX_PCM_FRAME_NUM_PER_TICK;
+        }
+
+        if (result > frm_nb_threshold) {
+            APPL_TRACE_EVENT("Limit frms to send from %d to %d", result, frm_nb_threshold);
+            result = frm_nb_threshold;
         }
         btc_aa_src_cb.media_feeding_state.pcm.counter -= result * pcm_bytes_per_frame;
 

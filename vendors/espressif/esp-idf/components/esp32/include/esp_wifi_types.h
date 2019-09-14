@@ -18,9 +18,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "rom/queue.h"
 #include "esp_err.h"
-#include "esp_interface.h"
+#include "esp_private/esp_wifi_types_private.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +48,7 @@ typedef struct {
     char                  cc[3];   /**< country code string */
     uint8_t               schan;   /**< start channel */
     uint8_t               nchan;   /**< total channel number */
-    int8_t                max_tx_power;   /**< maximum tx power */
+    int8_t                max_tx_power;   /**< This field is used for getting WiFi maximum transmitting power, call esp_wifi_set_max_tx_power to set the maximum transmitting power. */
     wifi_country_policy_t policy;  /**< country policy */
 } wifi_country_t;
 
@@ -93,6 +92,7 @@ typedef enum {
     WIFI_REASON_AUTH_FAIL                = 202,
     WIFI_REASON_ASSOC_FAIL               = 203,
     WIFI_REASON_HANDSHAKE_TIMEOUT        = 204,
+    WIFI_REASON_CONNECTION_FAIL          = 205,
 } wifi_err_reason_t;
 
 typedef enum {
@@ -449,6 +449,34 @@ typedef struct {
     uint8_t         enabled_ant0: 4,      /**< Index (in antenna GPIO configuration) of enabled WIFI_ANT_MODE_ANT0 */
                     enabled_ant1: 4;      /**< Index (in antenna GPIO configuration) of enabled WIFI_ANT_MODE_ANT1 */
 } wifi_ant_config_t;
+
+/** 
+  * @brief WiFi ioctl command type
+  *
+  */
+typedef enum {
+    WIFI_IOCTL_SET_STA_HT2040_COEX = 1, /**< Set the configuration of STA's HT2040 coexist management */
+    WIFI_IOCTL_GET_STA_HT2040_COEX,     /**< Get the configuration of STA's HT2040 coexist management */
+    WIFI_IOCTL_MAX,
+} wifi_ioctl_cmd_t;
+
+/** 
+ * @brief Configuration for STA's HT2040 coexist management
+ *
+ */
+typedef struct {
+    int enable;                         /**< Indicate whether STA's HT2040 coexist management is enabled or not */
+} wifi_ht2040_coex_t;
+
+/** 
+  * @brief Configuration for WiFi ioctl
+  *
+  */
+typedef struct {
+    union {
+        wifi_ht2040_coex_t ht2040_coex; /**< Configuration of STA's HT2040 coexist management */
+    } data;                             /**< Configuration of ioctl command */
+} wifi_ioctl_config_t;
 
 #ifdef __cplusplus
 }
