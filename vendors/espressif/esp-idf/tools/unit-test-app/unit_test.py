@@ -237,7 +237,7 @@ def run_unit_test_cases(env, extra_data):
 
     for ut_config in case_config:
         Utility.console_log("Running unit test for config: " + ut_config, "O")
-        dut = env.get_dut("unit-test-app", app_path=ut_config)
+        dut = env.get_dut("unit-test-app", app_path=ut_config, allow_dut_exception=True)
         dut.start_app()
         Utility.console_log("Download finished, start running test cases", "O")
 
@@ -246,9 +246,10 @@ def run_unit_test_cases(env, extra_data):
             junit_test_case = TinyFW.JunitReport.create_test_case("[{}] {}".format(ut_config, one_case["name"]))
             try:
                 run_one_normal_case(dut, one_case, junit_test_case, failed_cases)
-                TinyFW.JunitReport.test_case_finish(junit_test_case)
             except Exception as e:
-                junit_test_case.add_error_info("Unexpected exception: " + str(e))
+                junit_test_case.add_failure_info("Unexpected exception: " + str(e))
+                failed_cases.append(one_case["name"])
+            finally:
                 TinyFW.JunitReport.test_case_finish(junit_test_case)
 
     # raise exception if any case fails
@@ -359,13 +360,13 @@ def get_dut(duts, env, name, ut_config):
     if name in duts:
         dut = duts[name]
     else:
-        dut = env.get_dut(name, app_path=ut_config)
+        dut = env.get_dut(name, app_path=ut_config, allow_dut_exception=True)
         duts[name] = dut
         dut.start_app()
     return dut
 
 
-def run_one_multiple_devices_case(duts, ut_config, env, one_case, failed_cases, junit_test_case):
+def run_one_multiple_devices_case(duts, ut_config, env, one_case, junit_test_case):
     lock = threading.RLock()
     threads = []
     send_signal_list = []
@@ -387,12 +388,9 @@ def run_one_multiple_devices_case(duts, ut_config, env, one_case, failed_cases, 
         if not thread.result:
             [thd.stop() for thd in threads]
 
-    if result:
-        Utility.console_log("Success: " + one_case["name"], color="green")
-    else:
-        failed_cases.append(one_case["name"])
+    if not result:
         junit_test_case.add_failure_info(output)
-        Utility.console_log("Failed: " + one_case["name"], color="red")
+    return result
 
 
 @IDF.idf_unit_test(env_tag="UT_T2_1", junit_report_by_case=True)
@@ -423,12 +421,18 @@ def run_multiple_devices_cases(env, extra_data):
     for ut_config in case_config:
         Utility.console_log("Running unit test for config: " + ut_config, "O")
         for one_case in case_config[ut_config]:
+            result = False
             junit_test_case = TinyFW.JunitReport.create_test_case("[{}] {}".format(ut_config, one_case["name"]))
             try:
-                run_one_multiple_devices_case(duts, ut_config, env, one_case, failed_cases, junit_test_case)
-                TinyFW.JunitReport.test_case_finish(junit_test_case)
+                result = run_one_multiple_devices_case(duts, ut_config, env, one_case, junit_test_case)
             except Exception as e:
-                junit_test_case.add_error_info("Unexpected exception: " + str(e))
+                junit_test_case.add_failure_info("Unexpected exception: " + str(e))
+            finally:
+                if result:
+                    Utility.console_log("Success: " + one_case["name"], color="green")
+                else:
+                    failed_cases.append(one_case["name"])
+                    Utility.console_log("Failed: " + one_case["name"], color="red")
                 TinyFW.JunitReport.test_case_finish(junit_test_case)
 
     if failed_cases:
@@ -561,16 +565,17 @@ def run_multiple_stage_cases(env, extra_data):
 
     for ut_config in case_config:
         Utility.console_log("Running unit test for config: " + ut_config, "O")
-        dut = env.get_dut("unit-test-app", app_path=ut_config)
+        dut = env.get_dut("unit-test-app", app_path=ut_config, allow_dut_exception=True)
         dut.start_app()
 
         for one_case in case_config[ut_config]:
             junit_test_case = TinyFW.JunitReport.create_test_case("[{}] {}".format(ut_config, one_case["name"]))
             try:
                 run_one_multiple_stage_case(dut, one_case, failed_cases, junit_test_case)
-                TinyFW.JunitReport.test_case_finish(junit_test_case)
             except Exception as e:
-                junit_test_case.add_error_info("Unexpected exception: " + str(e))
+                junit_test_case.add_failure_info("Unexpected exception: " + str(e))
+                failed_cases.append(one_case["name"])
+            finally:
                 TinyFW.JunitReport.test_case_finish(junit_test_case)
 
     # raise exception if any case fails

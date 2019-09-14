@@ -284,6 +284,47 @@ TEST_CASE("Page handles invalid CRC of variable length items", "[nvs][cur]")
     }
 }
 
+class HashListTestHelper : public HashList
+{
+    public:
+        size_t getBlockCount()
+        {
+            return mBlockList.size();
+        }
+};
+
+TEST_CASE("HashList is cleaned up as soon as items are erased", "[nvs]")
+{
+    HashListTestHelper hashlist;
+    // Add items
+    const size_t count = 128;
+    for (size_t i = 0; i < count; ++i) {
+        char key[16];
+        snprintf(key, sizeof(key), "i%ld", (long int)i);
+        Item item(1, ItemType::U32, 1, key);
+        hashlist.insert(item, i);
+    }
+    INFO("Added " << count << " items, " << hashlist.getBlockCount() << " blocks");
+    // Remove them in reverse order
+    for (size_t i = count; i > 0; --i) {
+        hashlist.erase(i - 1, true);
+    }
+    CHECK(hashlist.getBlockCount() == 0);
+    // Add again
+    for (size_t i = 0; i < count; ++i) {
+        char key[16];
+        snprintf(key, sizeof(key), "i%ld", (long int)i);
+        Item item(1, ItemType::U32, 1, key);
+        hashlist.insert(item, i);
+    }
+    INFO("Added " << count << " items, " << hashlist.getBlockCount() << " blocks");
+    // Remove them in the same order
+    for (size_t i = 0; i < count; ++i) {
+        hashlist.erase(i, true);
+    }
+    CHECK(hashlist.getBlockCount() == 0);
+}
+
 TEST_CASE("can init PageManager in empty flash", "[nvs]")
 {
     SpiFlashEmulator emu(4);
@@ -1782,6 +1823,28 @@ TEST_CASE("Check that orphaned blobs are erased during init", "[nvs]")
     TEST_ESP_OK(storage.writeItem(1, ItemType::BLOB, "key3", blob, sizeof(blob)));
 }
 
+TEST_CASE("nvs blob fragmentation test", "[nvs]")
+{
+    SpiFlashEmulator emu(4);
+    TEST_ESP_OK(nvs_flash_init_custom(NVS_DEFAULT_PART_NAME, 0, 4) );
+    const size_t BLOB_SIZE = 3500;
+    uint8_t *blob = (uint8_t*) malloc(BLOB_SIZE);
+    CHECK(blob != NULL);
+    memset(blob, 0xEE, BLOB_SIZE);
+    const uint32_t magic = 0xff33eaeb;
+    nvs_handle h;
+    TEST_ESP_OK( nvs_open("blob_tests", NVS_READWRITE, &h) );
+    for (int i = 0; i < 128; i++) {
+        INFO("Iteration " << i << "...\n");
+        TEST_ESP_OK( nvs_set_u32(h, "magic", magic) );
+        TEST_ESP_OK( nvs_set_blob(h, "blob", blob, BLOB_SIZE) );
+        char seq_buf[16];
+        sprintf(seq_buf, "seq%d", i);
+        TEST_ESP_OK( nvs_set_u32(h, seq_buf, i) );
+    }
+    free(blob);
+}
+
 TEST_CASE("nvs code handles errors properly when partition is near to full", "[nvs]")
 {
     const size_t blob_size = Page::CHUNK_MAX_SIZE * 0.3 ;
@@ -2084,8 +2147,10 @@ TEST_CASE("read data from partition generated via partition generation utility w
 {
     SpiFlashEmulator emu("../nvs_partition_generator/partition_single_page.bin");
     nvs_handle handle;
-    TEST_ESP_OK( nvs_flash_init_custom("test", 0, 2) );
+    TEST_ESP_OK( nvs_flash_init_custom("test", 0, 3) );
+    
     TEST_ESP_OK( nvs_open_from_partition("test", "dummyNamespace", NVS_READONLY, &handle));
+    
     uint8_t u8v;
     TEST_ESP_OK( nvs_get_u8(handle, "dummyU8Key", &u8v));
     CHECK(u8v == 127);
@@ -2127,16 +2192,30 @@ TEST_CASE("read data from partition generated via partition generation utility w
     TEST_ESP_OK( nvs_get_str(handle, "stringFileKey", buf, &buflen));
     CHECK(memcmp(buf, strfiledata, buflen) == 0);
 
-    char bin_data[5200];
+    char bin_data[1984];
     size_t bin_len = sizeof(bin_data);
-    char binfiledata[5200];
+    char binfiledata[1984];
     ifstream file;
-    file.open("../nvs_partition_generator/testdata/sample_singlepage_blob.bin");
-    file.read(binfiledata,5200);
-    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", bin_data, &bin_len));
+    file.open("../nvs_partition_generator/testdata/sample_blob.bin");
+    file.read(binfiledata,1984);
+    TEST_ESP_OK( nvs_get_blob(handle, "blobFileAKey", bin_data, &bin_len));
     CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
 
-    file.close();
+    bin_len = sizeof(bin_data);
+    file.open("../nvs_partition_generator/testdata/sample_blob.bin");
+    file.read(binfiledata,1984);
+    TEST_ESP_OK( nvs_get_blob(handle, "blobFileBKey", bin_data, &bin_len));
+    CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
+
+    char blob_data[5200];
+    size_t blob_len = sizeof(blob_data);
+    char blobfiledata[5200];
+    ifstream file1;
+    file1.open("../nvs_partition_generator/testdata/sample_singlepage_blob.bin");
+    file1.read(blobfiledata,5200);
+    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", blob_data, &blob_len));
+    CHECK(memcmp(blob_data, blobfiledata, blob_len) == 0);
+    file1.close();
     nvs_close(handle);
 }
 
@@ -2163,7 +2242,7 @@ TEST_CASE("read data from partition generated via partition generation utility w
 {
     SpiFlashEmulator emu("../nvs_partition_generator/partition_multipage_blob.bin");
     nvs_handle handle;
-    TEST_ESP_OK( nvs_flash_init_custom("test", 0, 3) );
+    TEST_ESP_OK( nvs_flash_init_custom("test", 0, 4) );
     TEST_ESP_OK( nvs_open_from_partition("test", "dummyNamespace", NVS_READONLY, &handle));
     uint8_t u8v;
     TEST_ESP_OK( nvs_get_u8(handle, "dummyU8Key", &u8v));
@@ -2206,16 +2285,31 @@ TEST_CASE("read data from partition generated via partition generation utility w
     TEST_ESP_OK( nvs_get_str(handle, "stringFileKey", buf, &buflen));
     CHECK(memcmp(buf, strfiledata, buflen) == 0);
 
-    char bin_data[5200];
+    char bin_data[1984];
     size_t bin_len = sizeof(bin_data);
-    char binfiledata[5200];
+    char binfiledata[1984];
     ifstream file;
-    file.open("../nvs_partition_generator/testdata/sample_multipage_blob.bin");
-    file.read(binfiledata,5200);
-    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", bin_data, &bin_len));
+    file.open("../nvs_partition_generator/testdata/sample_blob.bin");
+    file.read(binfiledata,1984);
+    TEST_ESP_OK( nvs_get_blob(handle, "blobFileAKey", bin_data, &bin_len));
     CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
 
-    file.close();
+    bin_len = sizeof(bin_data);
+    file.open("../nvs_partition_generator/testdata/sample_blob.bin");
+    file.read(binfiledata,1984);
+    TEST_ESP_OK( nvs_get_blob(handle, "blobFileBKey", bin_data, &bin_len));
+    CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
+
+    char blob_data[5200];
+    size_t blob_len = sizeof(blob_data);
+    char blobfiledata[5200];
+    ifstream file1;
+    file1.open("../nvs_partition_generator/testdata/sample_multipage_blob.bin");
+    file1.read(blobfiledata,5200);
+    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", blob_data, &blob_len));
+    CHECK(memcmp(blob_data, blobfiledata, blob_len) == 0);
+
+    file1.close();
 
 }
 #endif
@@ -2371,7 +2465,9 @@ TEST_CASE("test nvs apis for nvs partition generator utility with encryption ena
                 "--encrypt",
                 "True",
                 "--keyfile",
-                "../nvs_partition_generator/testdata/encryption_keys.txt",NULL));
+                "../nvs_partition_generator/testdata/encryption_keys.txt",
+                "--version",
+                "v2",NULL));
     } else {
         CHECK(childpid > 0);
         int status;
@@ -2389,7 +2485,7 @@ TEST_CASE("test nvs apis for nvs partition generator utility with encryption ena
         xts_cfg.tky[count] = 0x22;
     }
 
-    TEST_ESP_OK(nvs_flash_secure_init_custom(NVS_DEFAULT_PART_NAME, 0, 3, &xts_cfg));
+    TEST_ESP_OK(nvs_flash_secure_init_custom(NVS_DEFAULT_PART_NAME, 0, 4, &xts_cfg));
 
     TEST_ESP_OK(nvs_open_from_partition(NVS_DEFAULT_PART_NAME, "dummyNamespace", NVS_READONLY, &handle));
 
@@ -2439,15 +2535,30 @@ TEST_CASE("test nvs apis for nvs partition generator utility with encryption ena
     TEST_ESP_OK( nvs_get_str(handle, "stringFileKey", buf, &buflen));
     CHECK(memcmp(buf, strfiledata, buflen) == 0);
 
-    char bin_data[5120];
+    char bin_data[1984];
     size_t bin_len = sizeof(bin_data);
-    char binfiledata[5200];
+    char binfiledata[1984];
     ifstream file;
-    file.open("../nvs_partition_generator/testdata/sample_multipage_blob.bin");
-    file.read(binfiledata,5120);
-    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", bin_data, &bin_len));
+    file.open("../nvs_partition_generator/testdata/sample_blob.bin");
+    file.read(binfiledata,1984);
+    TEST_ESP_OK( nvs_get_blob(handle, "blobFileAKey", bin_data, &bin_len));
     CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
 
+    bin_len = sizeof(bin_data);
+    file.open("../nvs_partition_generator/testdata/sample_blob.bin");
+    file.read(binfiledata,1984);
+    TEST_ESP_OK( nvs_get_blob(handle, "blobFileBKey", bin_data, &bin_len));
+    CHECK(memcmp(bin_data, binfiledata, bin_len) == 0);
+
+    char blob_data[5120];
+    size_t blob_len = sizeof(blob_data);
+    char blobfiledata[5200];
+    ifstream file1;
+    file1.open("../nvs_partition_generator/testdata/sample_multipage_blob.bin");
+    file1.read(blobfiledata,5120);
+    TEST_ESP_OK( nvs_get_blob(handle, "binFileKey", blob_data, &blob_len));
+    CHECK(memcmp(blob_data, blobfiledata, blob_len) == 0);
+    file1.close();
     nvs_close(handle);
     TEST_ESP_OK(nvs_flash_deinit());
 
