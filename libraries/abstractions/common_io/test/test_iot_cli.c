@@ -58,7 +58,9 @@ const aceCli_moduleCmd_t iot_tests_cli_sub[] = {
                             "16: spi <num> \n\t\t0: All Independent tests\n\t\t1: Read Sync Master\n\t\t"
                             "2: Write Sync Master\n\t\t3: Transfer Sync Master\n\t\t4: Read ASync Master\n\t\t"
                             "5: Write ASync Master\n\t\t6: Transfer ASync Master\n\t\t"
-                            "10: Read Sync Slave\n\t\t11: Write Sync Slave\n\t\t12: Transfer Sync Slave",
+                            "10: Read Sync Slave\n\t\t11: Write Sync Slave\n\t\t12: Transfer Sync Slave"
+                            "\n\t17: UsbDevice <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotUsbDeviceHidAttach\n\t\t2: AFQP_IotUsbDeviceHidDetach\n\t\t3: AFQP_IotUsbDeviceEndpointStall\n\t\t4: AFQP_IotUsbDeviceGetSpeed\n\t\t5: AFQP_IotUsbDeviceWriteAsync\n\t\t6: AFQP_IotUsbDeviceReadAsync\n\t\t7: AFQP_IotUsbDeviceWriteSync\n\t\t8: AFQP_IotUsbDeviceReadSync\n\t\t9: AFQP_IotUsbDeviceEndpointCancelTransfer\n\t\t10: AFQP_IotUsbDeviceIoctl\n\t"
+                            "18: UsbHost <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotUsbHostHidGeneric\n\t\t2: AFQP_IotUsbHostWriteAsync\n\t\t3: AFQP_IotUsbHostReadAsync\n\t",
                             ACE_CLI_SET_LEAF, .command.func=&runIotTests},
                             ACE_CLI_NULL_MODULE
                             };
