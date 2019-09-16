@@ -43,6 +43,8 @@ void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                           uint16_t usServiceDataLen,
                           char * pcServiceData,
                           BTUuid_t * pxServiceUuid,
-                          size_t xNbServices );
+                          size_t xNbServices,
+                          uint16_t usManufacturerLen,
+                          char * pcManufacturerData );
 
 #endif /* _IOT_TEST_BLE_HAL_AFQP_H_ */

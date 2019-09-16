@@ -119,6 +119,9 @@ def main():
     isTestSuccessFull = runTest.Advertise_With_16bit_ServiceUUID(scan_filter=scan_filter, bleAdapter=bleAdapter)
     runTest.submitTestResult(isTestSuccessFull, runTest.Advertise_With_16bit_ServiceUUID)
 
+    isTestSuccessFull = runTest.Advertise_With_Manufacture_Data(scan_filter=scan_filter, bleAdapter=bleAdapter)
+    runTest.submitTestResult(isTestSuccessFull, runTest.Advertise_With_Manufacture_Data)
+
     scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
     # default DUT_name: nimble(without set_property)
     bleAdapter.setDiscoveryFilter(scan_filter)

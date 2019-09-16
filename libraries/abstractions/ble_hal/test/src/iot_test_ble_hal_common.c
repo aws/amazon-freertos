@@ -602,15 +602,17 @@ static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                                  uint16_t usServiceDataLen,
                                  char * pcServiceData,
                                  BTUuid_t * pxServiceUuid,
-                                 size_t xNbServices )
+                                 size_t xNbServices,
+                                 uint16_t usManufacturerLen,
+                                 char * pcManufacturerData )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTAdvParamCallback_t xAdvParamCallback;
 
     xStatus = _pxBTLeAdapterInterface->pxSetAdvData( _ucBLEAdapterIf,
                                                      pxParams,
-                                                     0,
-                                                     NULL,
+                                                     usManufacturerLen,
+                                                     pcManufacturerData,
                                                      usServiceDataLen,
                                                      pcServiceData,
                                                      pxServiceUuid,
@@ -623,7 +625,9 @@ static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
 }
 
 
-void IotTestBleHal_SetAdvData( BTuuidType_t type )
+void IotTestBleHal_SetAdvData( BTuuidType_t type,
+                               uint16_t usManufacturerLen,
+                               char * pcManufacturerData )
 {
     uint16_t usServiceDataLen;
     char * pcServiceData;
@@ -665,13 +669,17 @@ void IotTestBleHal_SetAdvData( BTuuidType_t type )
                          usServiceDataLen,
                          pcServiceData,
                          &xServiceUuid,
-                         xNbServices );
+                         xNbServices,
+                         usManufacturerLen,
+                         pcManufacturerData );
 
     prvSetAdvertisement( &l_xAdvertisementConfigB,
                          usServiceDataLen,
                          pcServiceData,
                          NULL,
-                         0 );
+                         0,
+                         usManufacturerLen,
+                         pcManufacturerData );
 }
 
 void IotTestBleHal_CheckIndicationNotification( bool IsIndication,

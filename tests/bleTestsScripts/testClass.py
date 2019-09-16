@@ -274,7 +274,7 @@ class runTest:
     @staticmethod
     def notificationMTU2(uuid, value, flag):
         if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (flag == "notify"):
-            return value;
+            return value
 
     @staticmethod
     def notificationOnCharE(uuid, value, flag):
@@ -388,6 +388,15 @@ class runTest:
         return isSuccessfull
 
     @staticmethod
+    def check_m(testDevice, DUT_UUID=None):
+        if (DUT_UUID == None): DUT_UUID = runTest.DUT_UUID_128
+
+        if (bleAdapter.getPropertie(testDevice, "Address") == None):
+            print("Advertisement test: Waiting for Address")
+            sys.stdout.flush()
+            return False
+
+    @staticmethod
     def advertisement(testDevice, DUT_UUID=None):
         if (DUT_UUID == None): DUT_UUID = runTest.DUT_UUID_128
 
@@ -439,6 +448,22 @@ class runTest:
         return True
 
     @staticmethod
+    def check_manufacture_data(testDevice, times, DUT_UUID=None):
+        manufacture_data = bleAdapter.getPropertie(testDevice, "ManufacturerData")
+        if( manufacture_data == None ):
+            print("No Manufacture Data")
+            sys.stdout.flush()
+            if times == 2 :
+                return False
+        else:
+            print( manufacture_data.items() )
+            sys.stdout.flush()
+            if times < 2 :
+                return False
+
+        return True
+
+    @staticmethod
     def _advertisement_start(scan_filter, UUID, discoveryEvent_Cb, bleAdapter):
         scan_filter.update({ "UUIDs": [UUID]})
         bleAdapter.setDiscoveryFilter(scan_filter)
@@ -481,6 +506,22 @@ class runTest:
                                                 UUID=runTest.DUT_UUID_128,
                                                 discoveryEvent_Cb=runTest.discoveryEventCb)
         runTest.DUT_NAME = DUT_NAME_ORIGINAL
+        return True
+
+    @staticmethod
+    def Advertise_With_Manufacture_Data(scan_filter,
+            bleAdapter):
+        for times in range(3):
+            runTest._advertisement_start(scan_filter=scan_filter, 
+                                        UUID=runTest.DUT_UUID_128,
+                                        discoveryEvent_Cb=runTest.discoveryEventCb,
+                                        bleAdapter=bleAdapter)
+            runTest.check_manufacture_data(runTest.testDevice, times)
+            runTest._simple_connect()
+            runTest.stopAdvertisement(scan_filter)
+            bleAdapter.disconnect()
+            testutils.removeBondedDevices()
+
         return True
 
     @staticmethod
@@ -557,6 +598,7 @@ class runTest:
             runTest.stopAdvertisement: "_stopAdvertisement",
             runTest.Advertise_Without_Properties: "_Advertise_Without_Properties",
             runTest.Advertise_With_16bit_ServiceUUID: "_Advertise_With_16bit_ServiceUUID",
+            runTest.Advertise_With_Manufacture_Data: "_Advertise_With_Manufacture_Data",
             # runTest.Advertise_Interval_Consistent_After_BT_Reset: "_Advertise_Interval_Consistent_After_BT_Reset",
             runTest.Write_Notification_Size_Greater_Than_MTU_3: "_Write_Notification_Size_Greater_Than_MTU_3"
         }
