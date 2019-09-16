@@ -260,7 +260,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
     /* curByte indicates which starting byte we want to download next. */
     uint32_t curByte = 0;
     /* Buffer to write the Range: header value string. */
-    char rangeValueStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
+    char pRangeValueStr[ RANGE_VALUE_MAX_LENGTH ] = { 0 };
     /* The current attempt in the number of connection tries. */
     uint32_t connAttempt = 0;
 
@@ -422,7 +422,7 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         }
 
         /* Get the Range header value string. */
-        int numWritten = snprintf( rangeValueStr,
+        int numWritten = snprintf( pRangeValueStr,
                                    RANGE_VALUE_MAX_LENGTH,
                                    "bytes=%u-%u",
                                    ( unsigned int ) curByte,
@@ -438,16 +438,16 @@ int RunHttpsSyncDownloadDemo( bool awsIotMqttMode,
         }
 
         /* Set the header for a range request. */
-        httpsClientStatus = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, RANGE_HEADER_FIELD_LENGTH, rangeValueStr, numWritten );
+        httpsClientStatus = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, RANGE_HEADER_FIELD_LENGTH, pRangeValueStr, numWritten );
 
         if( httpsClientStatus != IOT_HTTPS_OK )
         {
-            IotLogError( "Failed to write the header Range: %.*s into the request. With error code: %d", numWritten, rangeValueStr, httpsClientStatus );
+            IotLogError( "Failed to write the header Range: %.*s into the request. With error code: %d", numWritten, pRangeValueStr, httpsClientStatus );
             IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
         }
 
         /* Send the request and receive the response synchronously. */
-        IotLogInfo( "Now requesting Range: %s.", rangeValueStr );
+        IotLogInfo( "Now requesting Range: %s.", pRangeValueStr );
 
         /* A new response handle is returned from IotHttpsClient_SendSync(). We reuse the respHandle variable because
          * the last response was already processed fully.  */

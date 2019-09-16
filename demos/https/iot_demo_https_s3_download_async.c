@@ -202,14 +202,14 @@
  */
 typedef struct _requestData
 {
-    char rangeValueStr[ RANGE_VALUE_MAX_LENGTH ]; /**< @brief This string is generated outside of the callback context and used to set the request Range header within the callback context. */
-    int reqNum;                                   /**< @brief This is the current request number in the static pool of request memory. */
-    uint32_t currRange;                           /**< @brief This is the current range block that is being downloaded. */
-    uint32_t currDownloaded;                      /**< @brief The current number of bytes downloaded in this request. */
-    uint32_t numReqBytes;                         /**< @brief The number of bytes we want to downloaded in this request. */
-    IotHttpsConnectionHandle_t * pConnHandle;     /**< @brief The connection handle for the request/response. */
-    IotHttpsConnectionInfo_t * pConnConfig;       /**< @brief Pointer to the connection handle for the request/response. */
-    bool scheduled;                               /**< @brief This is set to true when the request has been scheduled */
+    char pRangeValueStr[ RANGE_VALUE_MAX_LENGTH ]; /**< @brief This string is generated outside of the callback context and used to set the request Range header within the callback context. */
+    int reqNum;                                    /**< @brief This is the current request number in the static pool of request memory. */
+    uint32_t currRange;                            /**< @brief This is the current range block that is being downloaded. */
+    uint32_t currDownloaded;                       /**< @brief The current number of bytes downloaded in this request. */
+    uint32_t numReqBytes;                          /**< @brief The number of bytes we want to downloaded in this request. */
+    IotHttpsConnectionHandle_t * pConnHandle;      /**< @brief The connection handle for the request/response. */
+    IotHttpsConnectionInfo_t * pConnConfig;        /**< @brief Pointer to the connection handle for the request/response. */
+    bool scheduled;                                /**< @brief This is set to true when the request has been scheduled */
 } _requestData_t;
 
 /**
@@ -598,17 +598,17 @@ static void _appendHeaderCallback( void * pPrivData,
 {
     /* The range value string, of the increment of file to download, from the user private data will be referenced with
      * this variable. */
-    char * rangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->rangeValueStr;
+    char * pRangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->pRangeValueStr;
 
-    IotLogInfo( "Inside of the append header callback for part %s", rangeValueStr );
+    IotLogInfo( "Inside of the append header callback for part %s", pRangeValueStr );
     /* The length of the range value string. */
-    uint32_t rangeValueLen = strlen( rangeValueStr );
+    uint32_t rangeValueLen = strlen( pRangeValueStr );
     /* Set the header for a range request and check the HTTPS Client library return code. */
-    IotHttpsReturnCode_t status = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, RANGE_HEADER_FIELD_LENGTH, rangeValueStr, rangeValueLen );
+    IotHttpsReturnCode_t status = IotHttpsClient_AddHeader( reqHandle, RANGE_HEADER_FIELD, RANGE_HEADER_FIELD_LENGTH, pRangeValueStr, rangeValueLen );
 
     if( status != IOT_HTTPS_OK )
     {
-        IotLogError( "Failed to write the header Range: %.*s into the request. With error code: %d", rangeValueLen, rangeValueStr, status );
+        IotLogError( "Failed to write the header Range: %.*s into the request. With error code: %d", rangeValueLen, pRangeValueStr, status );
         /* In this demo cancelling the request is an error condition that ends the demo with a failure. */
         IotHttpsClient_CancelRequestAsync( reqHandle );
     }
@@ -636,7 +636,7 @@ static void _readReadyCallback( void * pPrivData,
 
     /* The range value string, of the increment of file to download, from the user private data will be referenced with
      * this variable. */
-    char * rangeValueStr;
+    char * pRangeValueStr;
     /* The HTTP Client Library return code. */
     IotHttpsReturnCode_t returnStatus;
     /* The user private data dereferenced. */
@@ -648,7 +648,7 @@ static void _readReadyCallback( void * pPrivData,
      * is the length of the longest string, "keep-alive" plus a NULL terminator. */
     char connectionValueStr[ CONNECTION_KEEP_ALIVE_HEADER_VALUE_LENGTH + 1 ] = { 0 };
 
-    IotLogInfo( "Inside of the read ready callback for part %s with network return code: %d", pRequestData->rangeValueStr, rc );
+    IotLogInfo( "Inside of the read ready callback for part %s with network return code: %d", pRequestData->pRangeValueStr, rc );
 
     /* If this function is invoked multiple times, we may only want to read the Content-Length header and check the
      * HTTP response status once. */
@@ -700,9 +700,9 @@ static void _readReadyCallback( void * pPrivData,
     }
 
     /* Process the response body here. */
-    rangeValueStr = pRequestData->rangeValueStr;
-    IotLogInfo( "Response return code: %d for %s", status, rangeValueStr );
-    IotLogInfo( "Response Body for %s:\r\n%.*s", rangeValueStr, readLen, _pRespBodyBuffer );
+    pRangeValueStr = pRequestData->pRangeValueStr;
+    IotLogInfo( "Response return code: %d for %s", status, pRangeValueStr );
+    IotLogInfo( "Response Body for %s:\r\n%.*s", pRangeValueStr, readLen, _pRespBodyBuffer );
 
     /* This callback could be invoked again if there is still more data on the network to be read for this response, so
      * the current amount downloaded is incremented. */
@@ -726,7 +726,7 @@ static void _readReadyCallback( void * pPrivData,
         /* Defensive check for overflow. */
         if( _fileDownloadInfo.rangesRemaining == 0 )
         {
-            IotLogError( "An extra range was downloaded; Range: %s.", pRequestData->rangeValueStr );
+            IotLogError( "An extra range was downloaded; Range: %s.", pRequestData->pRangeValueStr );
             IotHttpsClient_CancelResponseAsync( respHandle );
             return;
         }
@@ -809,7 +809,7 @@ static void _responseCompleteCallback( void * pPrivData,
     ( void ) respHandle;
     ( void ) status;
 
-    IotLogInfo( "Part %s has been fully processed.", pRequestData->rangeValueStr );
+    IotLogInfo( "Part %s has been fully processed.", pRequestData->pRangeValueStr );
 
     /* If there is was an error anywhere in the request response processing, including a cancellation, then that will
      * end the demo. */
@@ -888,8 +888,8 @@ static void _errorCallback( void * pPrivData,
                             IotHttpsReturnCode_t rc )
 {
     ( void ) reqHandle;
-    char * rangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->rangeValueStr;
-    IotLogError( "An error occurred during asynchronous operation with code: %d", rangeValueStr, rc );
+    char * pRangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->pRangeValueStr;
+    IotLogError( "An error occurred during asynchronous operation with code: %d", pRangeValueStr, rc );
 }
 
 /*-----------------------------------------------------------*/
@@ -928,13 +928,13 @@ static int _scheduleAsyncRequest( int reqIndex,
     }
 
     /* Generate the "Range" header's value string of the form "bytes=N-M". */
-    int numWritten = snprintf( _requestPool.pRequestDatas[ reqIndex ].rangeValueStr,
-                               sizeof( _requestPool.pRequestDatas[ reqIndex ].rangeValueStr ),
+    int numWritten = snprintf( _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr,
+                               sizeof( _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr ),
                                "bytes=%u-%u",
                                ( unsigned int ) curByte,
                                ( unsigned int ) ( curByte + numReqBytes - 1 ) );
 
-    if( ( numWritten < 0 ) || ( numWritten >= sizeof( _requestPool.pRequestDatas[ reqIndex ].rangeValueStr ) ) )
+    if( ( numWritten < 0 ) || ( numWritten >= sizeof( _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr ) ) )
     {
         IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
                      curByte,
