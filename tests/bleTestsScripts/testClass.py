@@ -80,6 +80,8 @@ class runTest:
     numberOfTests = 0
     numberOfFailedTests = 0
 
+    MANUFACTURE_CHECK_CASES_NUMBER = 3
+
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
@@ -453,12 +455,12 @@ class runTest:
         if( manufacture_data == None ):
             print("No Manufacture Data")
             sys.stdout.flush()
-            if times == 2 :
+            if times == (MANUFACTURE_CHECK_CASES_NUMBER-1) :
                 return False
         else:
             print( manufacture_data.items() )
             sys.stdout.flush()
-            if times < 2 :
+            if times < (MANUFACTURE_CHECK_CASES_NUMBER-1) :
                 return False
 
         return True
@@ -511,7 +513,7 @@ class runTest:
     @staticmethod
     def Advertise_With_Manufacture_Data(scan_filter,
             bleAdapter):
-        for times in range(3):
+        for times in range( MANUFACTURE_CHECK_CASES_NUMBER ):
             runTest._advertisement_start(scan_filter=scan_filter, 
                                         UUID=runTest.DUT_UUID_128,
                                         discoveryEvent_Cb=runTest.discoveryEventCb,
