@@ -11,7 +11,6 @@
       "--unwindset strlen.0:5,IotListDouble_RemoveAll.0:2"
     ],
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/c_sdk/standard/https/src/iot_https_client.goto"
     ],
     "INSTFLAGS": [

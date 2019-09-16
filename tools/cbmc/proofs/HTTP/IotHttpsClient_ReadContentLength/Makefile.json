@@ -8,7 +8,6 @@
   },
   "lists": {
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/c_sdk/standard/https/src/iot_https_client.goto"
     ],
     "DEF": [

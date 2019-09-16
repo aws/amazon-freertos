@@ -15,7 +15,6 @@
       "--unwindset prvCreateDNSMessage.0:{HOSTNAME_UNWIND},prvCreateDNSMessage.1:{HOSTNAME_UNWIND},prvGetHostByName.0:{HOSTNAME_UNWIND},prvProcessDNSCache.0:5,strlen.0:{HOSTNAME_UNWIND},__builtin___strcpy_chk.0:{HOSTNAME_UNWIND},strcmp.0:{HOSTNAME_UNWIND},xTaskResumeAll.0:{HOSTNAME_UNWIND},xTaskResumeAll.1:{HOSTNAME_UNWIND},strcpy.0:{HOSTNAME_UNWIND}"
     ],
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto",
       "$(FREERTOS)/freertos_kernel/tasks.goto"
     ],

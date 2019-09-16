@@ -7,7 +7,6 @@
   },
   "lists": {
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.goto"
     ],

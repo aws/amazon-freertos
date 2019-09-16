@@ -33,7 +33,6 @@
       "--unwindset {PARSELOOP0}:{PARSELOOP0_UNWIND},{PARSELOOP1}:{PARSELOOP1_UNWIND},prvProcessDNSCache.0:5"
     ],
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto",
       "$(FREERTOS)/freertos_kernel/tasks.goto"
     ],

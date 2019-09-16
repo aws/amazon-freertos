@@ -28,7 +28,6 @@
       "--unwindset {READLOOP0}:{READLOOP0_UNWIND},{READLOOP1}:{READLOOP1_UNWIND}"
     ],
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto"
     ],
     "DEF": [

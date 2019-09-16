@@ -15,7 +15,6 @@
       "--unwindset memcmp.0:7,prvProcessDHCPReplies.0:{BUFFER_PAYLOAD}"
     ],
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_2.goto",
       "$(FREERTOS)/freertos_kernel/event_groups.goto",

@@ -8,6 +8,9 @@
     "EXPECTED": "SUCCESSFUL"
   },
   "lists": {
+    "OBJS": [
+      "$(ENTRY)_harness.goto"
+    ],
     "DEF": [
       "_DEBUG",
       "__free_rtos__",

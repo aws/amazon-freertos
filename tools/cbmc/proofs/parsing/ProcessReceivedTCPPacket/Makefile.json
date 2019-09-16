@@ -7,7 +7,6 @@
       "--unwindset prvTCPSendRepeated.0:13"
     ],
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.goto"
     ],
     "INSTFLAGS": [

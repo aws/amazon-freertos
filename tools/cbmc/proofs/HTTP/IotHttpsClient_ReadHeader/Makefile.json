@@ -14,7 +14,6 @@
       "--unwindset __builtin___strncpy_chk.0:{STRNCPY_UNWIND},strncpy.0:{STRNCPY_UNWIND}"
     ],
     "OBJS": [
-      "$(ENTRY)_harness.goto",
       "$(FREERTOS)/libraries/c_sdk/standard/https/src/iot_https_client.goto"
     ],
     "DEF": [
