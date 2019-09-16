@@ -560,7 +560,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                     xLabel.pValue = pObject->xLabel;
                     xLabel.ulValueLen = strlen( pObject->xLabel );
                     /* Overwrite the object in NVM with zeros. */
-                    xPalHandle2 = PKCS11_PAL_SaveObject( &xLabel, pxZeroedData, ulObjectLength );
+                    xPalHandle2 = pObject->pFunctions->SaveObject( &xLabel, pxZeroedData, ulObjectLength );
 
                     if( xPalHandle2 != pObject->xPalHandle )
                     {
@@ -2112,10 +2112,20 @@ CK_DECLARE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
                                                CK_OBJECT_HANDLE xObject )
 {
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
+    P11Object_t * pObject;
 
     if( xResult == CKR_OK )
     {
-        xResult = PKCS11_PAL_DestroyObject( xObject );
+        prvFindObjectInListByHandle( xObject, &pObject );
+
+        if( pObject != NULL )
+        {
+            xResult = pObject->pFunctions->DestroyObject( xObject );
+        }
+        else
+        {
+            xResult = CKR_OBJECT_HANDLE_INVALID;
+        }
     }
 
     return xResult;
