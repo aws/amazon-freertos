@@ -450,7 +450,7 @@ typedef enum IotHttpsMethod
     IOT_HTTPS_METHOD_GET = 0, /* Client-to-server method GET */
     IOT_HTTPS_METHOD_HEAD,    /* Client-to-server method HEAD */
     IOT_HTTPS_METHOD_PUT,     /* Client-to-server method PUT */
-    IOT_HTTPS_METHOD_POST     /* Clietn-to-server method POST. */
+    IOT_HTTPS_METHOD_POST     /* Client-to-server method POST. */
 } IotHttpsMethod_t;
 
 /**
