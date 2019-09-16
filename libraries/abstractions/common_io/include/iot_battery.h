@@ -184,15 +184,15 @@ typedef struct IotBatteryDescriptor_t * IotBatteryHandle_t;
  *          periodically probing the battery using read APIs, and for sophisticated battery management service
  *          modules, these can be managed in the HW hence asyncrhonous notifications can be sent (using registered callback)
  *
+ * @param[in] xStatus       battery status from IotBatteryStatus_t
  * @param[in] pvUserContext User Context passed when setting the callback.
  *                          This is not used by the driver, but just passed back to the user
  *                          in the callback.
  */
-typedef void ( * IotBatteryCallback_t)( void * pvUserContext );
+typedef void ( * IotBatteryCallback_t)( IotBatteryStatus_t xStatus, void * pvUserContext );
 
 /**
  * @brief   iot_battery_open is used to initialize the Battery and Charging driver.
- *          this API can return error if battery is not present or some other error.
  *
  * @param[in]   lBatteryInstance   The instance of the battery interface to initialize.
  *                                  Usually, there is only one battery interface.
