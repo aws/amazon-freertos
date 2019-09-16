@@ -23,6 +23,7 @@
                 <sourceRootElem>../../../../../libraries/abstractions/pkcs11/mbedtls</sourceRootElem>
                 <sourceRootElem>../../../../../vendors/microchip/boards/curiosity_pic32mzef/aws_tests/application_code/microchip_code</sourceRootElem>
                 <sourceRootElem>../../../../../libraries/c_sdk/standard/https</sourceRootElem>
+                <sourceRootElem>../../../../../libraries/3rdparty</sourceRootElem>
             </sourceRootList>
             <confList>
                 <confElem>
