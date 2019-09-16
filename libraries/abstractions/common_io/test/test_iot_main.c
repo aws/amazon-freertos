@@ -328,6 +328,109 @@ static void RUN_IOT_TEST_SPI(int testCaseIndex)
     TEST_ASSERT_EQUAL( rc, 0 );
 }
 
+/* Currently this test only run on Starlite by enable uart console and run cmd from CLI.
+ * DONT run such test when usb console is enabled, otherwise usb console may break */
+static void RUN_IOT_TEST_USB_DEVICE(testCaseIndex)
+{
+    int i;
+    for(i = 0; i < USB_DEVICE_TEST_SET; i++)
+    {
+        SET_TEST_IOT_USB_DEVICE_CONFIG(i);
+        switch (testCaseIndex)
+        {
+            /* Assisted test require one device running usb
+             * host test software, the other one running
+             * usb device test software.
+             * case 0 is for all independent test
+             */
+            case 0:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceOpenClose );
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceOpenOpenClose );
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceOpenCloseClose );
+                break;
+            /* case 1 is to test usb host detect and attach usb device,
+             * We need it for usb host testing purpose */
+            case 1:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceHidAttach);
+                break;
+            /* case 2 is to de-init the usb device stack, usb device will be detached
+             * It is testing usb device deinit related APIs directly.
+             * We need it for usb host testing purpose */
+            case 2:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceHidDetach);
+                break;
+            /* case 3 is to test usb device endpoint stall and unstall*/
+            case 3:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceEndpointStallUnstall);
+                break;
+            /* case 4 is to test get device speed */
+            case 4:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceGetSpeed);
+                break;
+            /* case 5 is to test usb device write async
+             * usb device will send a string to host */
+            case 5:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteAsync);
+                break;
+            /* case 6 is to test usb device read async
+             * usb device will start the read async call with this CLI, tester need to
+             * issue a CLI cmd (iot test 18 2) in host side to send string to device,
+             * device will receive the string and compare */
+            case 6:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadAsync);
+                break;
+            /* case 7 is to test write sync, usb device will send a string to host */
+            case 7:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteSync);
+                break;
+            /* case 8 is to test read sync,
+             * usb device will start the read sync call with this CLI, tester need to
+             * issue a CLI cmd (iot test 18 2) in host side to send string to device,
+             * device will receive the string and compare */
+            case 8:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadSync);
+                break;
+            /* case 9 is to test endpoint transfer cancel */
+            case 9:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceEndpointCancelTransfer);
+                break;
+            /* case 10 is to test ioctl request which are not tested in other cases */
+            case 10:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceIoctl);
+                break;
+            default:
+                printf("Invalid usb device test case\n");
+                return;
+        }
+    }
+}
+
+#ifdef BOARD_STARLITE
+static void RUN_IOT_TEST_USB_HOST(testCaseIndex)
+{
+    switch (testCaseIndex)
+    {
+        case 0:
+            break;
+        /* case 1 is to test host initialization (cmd: iot test 18 1) */
+        case 1:
+            RUN_TEST_CASE( TEST_IOT_USB_HOST, AFQP_IotUsbHostHidGeneric);
+            break;
+        /* case 2 is to test host write (cmd: iot test 18 2) */
+        case 2:
+            RUN_TEST_CASE( TEST_IOT_USB_HOST, AFQP_IotUsbHostWriteAsync);
+            break;
+        /* case 3 is to test host read (cmd: iot test 18 3) */
+        case 3:
+            RUN_TEST_CASE( TEST_IOT_USB_HOST, AFQP_IotUsbHostReadAsync);
+            break;
+        default:
+            printf("Invalid usb host test case\n");
+            return;
+    }
+}
+#endif
+
 static void RUN_TEST_IOT_ALL_GROUP(void){
     /* FWPLATFORM-730 to re-enable uart test
       RUN_TEST_IOT_UART();
@@ -418,18 +521,23 @@ void RunIotTests(int testIndex, int testCaseIndex)
         case 13:
             RUN_IOT_TEST_POWER(testCaseIndex);
             break;
-
         case 14:
             RUN_IOT_TEST_BATTERY();
             break;
-
         case 15:
             RUN_IOT_TEST_EFUSE();
             break;
-
         case 16:
             RUN_IOT_TEST_SPI(testCaseIndex);
             break;
+        case 17:
+            RUN_IOT_TEST_USB_DEVICE(testCaseIndex);
+            break;
+#ifdef BOARD_STARLITE
+        case 18:
+            RUN_IOT_TEST_USB_HOST(testCaseIndex);
+            break;
+#endif
         default:
             printf("Test index is wrong\r\n");
             return;
