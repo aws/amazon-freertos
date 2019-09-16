@@ -60,5 +60,6 @@
 #define testrunnerUTIL_PLATFORM_THREADS_ENABLED       0
 #define testrunnerFULL_SERIALIZER_ENABLED             0
 #define testrunnerFULL_HTTPS_CLIENT_ENABLED           0
+#define testrunnerFULL_ESP_SMP_ENABLED                0 
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

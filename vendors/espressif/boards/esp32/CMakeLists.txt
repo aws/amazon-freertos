@@ -182,7 +182,10 @@ afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/common/iot_tests_network.c")
+    set(extra_exe_sources 
+	    "${AFR_TESTS_DIR}/common/iot_tests_network.c"
+	    "${board_dir}/application_code/esp_smp_tests.c"
+    )
 else()
     set(exe_target aws_demos)
     set(
