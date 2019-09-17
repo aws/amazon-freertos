@@ -81,6 +81,8 @@ class runTest:
     numberOfFailedTests = 0
 
     MANUFACTURE_CHECK_CASES_NUMBER = 3
+    COMPANY_ID = 741
+    MANU_DATA = 5
 
     testDevice = []
 
@@ -455,13 +457,18 @@ class runTest:
         if( manufacture_data == None ):
             print("No Manufacture Data")
             sys.stdout.flush()
-            if times == (MANUFACTURE_CHECK_CASES_NUMBER-1) :
+            if times == (runTest.MANUFACTURE_CHECK_CASES_NUMBER-1) :
                 return False
         else:
             print( manufacture_data.items() )
             sys.stdout.flush()
-            if times < (MANUFACTURE_CHECK_CASES_NUMBER-1) :
+            if times < (runTest.MANUFACTURE_CHECK_CASES_NUMBER-1) :
                 return False
+                
+            manu_data = manufacture_data[runTest.COMPANY_ID]
+            for data in manu_data:
+                if data != runTest.MANU_DATA:
+                    return False
 
         return True
 
@@ -513,18 +520,19 @@ class runTest:
     @staticmethod
     def Advertise_With_Manufacture_Data(scan_filter,
             bleAdapter):
-        for times in range( MANUFACTURE_CHECK_CASES_NUMBER ):
+        isTestSuccessFull = True
+        for times in range( runTest.MANUFACTURE_CHECK_CASES_NUMBER ):
             runTest._advertisement_start(scan_filter=scan_filter, 
                                         UUID=runTest.DUT_UUID_128,
                                         discoveryEvent_Cb=runTest.discoveryEventCb,
                                         bleAdapter=bleAdapter)
-            runTest.check_manufacture_data(runTest.testDevice, times)
+            isTestSuccessFull &= runTest.check_manufacture_data(runTest.testDevice, times)
             runTest._simple_connect()
             runTest.stopAdvertisement(scan_filter)
-            bleAdapter.disconnect()
+            isTestSuccessFull &= bleAdapter.disconnect()
             testutils.removeBondedDevices()
 
-        return True
+        return isTestSuccessFull
 
     @staticmethod
     def Advertise_With_16bit_ServiceUUID(scan_filter,
