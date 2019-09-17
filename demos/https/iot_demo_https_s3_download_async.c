@@ -481,7 +481,7 @@ static int _initializeFileDownloadInformation( size_t fileSize )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Cleanup the file download information.
+ * @brief Clean up the file download information.
  *
  * Deallocates resources taken by the file download information context.
  */
@@ -1240,8 +1240,8 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
 
     /* Disconnect from the server even if it is already disconnected. */
     IotHttpsClient_Disconnect( _connHandle );
-    /* De-initialize the library because we are done using it. */
-    IotHttpsClient_Deinit();
+    /* Clean up the library because we are done using it. */
+    IotHttpsClient_Cleanup();
 
     IOT_FUNCTION_CLEANUP_END();
 }

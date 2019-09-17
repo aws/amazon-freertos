@@ -434,6 +434,7 @@
               <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_integration.c" />
               <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_kpi.c" />
               <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_stress_test.c" />
+              <file file_name="../../../../../libraries/abstractions/ble_hal/test/src/iot_test_ble_hal_common.c" />
             </folder>
             <folder Name="include">
               <file file_name="../../../../../libraries/abstractions/ble_hal/test/include/iot_test_ble_hal_afqp.h" />

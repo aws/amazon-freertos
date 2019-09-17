@@ -744,6 +744,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     CK_ULONG xSlotCount = 0;
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_MECHANISM_INFO MechanismInfo = { 0 };
+    CK_BBOOL xSupportsKeyGen = CK_FALSE;
 
     /* Determine the number of slots. */
     xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
@@ -763,15 +764,13 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
     if( CKR_OK == xResult )
     {
-        configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
-
         TEST_ASSERT_TRUE( 0 != ( CKF_SIGN & MechanismInfo.flags ) );
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
 
-        /* Check for RSA pre-padded signature verification support. This is required
-         * for testing RSA signing. */
+        /* Check for pre-padded signature verification support. This is required
+         * for round-trip testing. */
         xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_RSA_X_509, &MechanismInfo );
         TEST_ASSERT_TRUE( CKR_OK == xResult );
 
@@ -779,6 +778,13 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
+
+        /* Check consistency with static configuration. */
+        #ifndef pkcs11testRSA_KEY_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+
+        configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
     }
 
     /* Check for ECDSA support. */
@@ -787,12 +793,17 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
     if( CKR_OK == xResult )
     {
-        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
-
         TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+
+        /* Check consistency with static configuration. */
+        #ifndef pkcs11testEC_KEY_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+
+        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
     }
 
     /* Check for elliptic-curve key generation support. */
@@ -801,12 +812,13 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
 
     if( CKR_OK == xResult )
     {
-        configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
-
         TEST_ASSERT_TRUE( 0 != ( CKF_GENERATE_KEY_PAIR & MechanismInfo.flags ) );
 
         TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
                           MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+
+        xSupportsKeyGen = CK_TRUE;
+        configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
     }
 
     /* SHA-256 support is required, but we don't need to write it to the console,
@@ -814,6 +826,26 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
     TEST_ASSERT_TRUE( CKR_OK == xResult );
     TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
+
+    /* Check for consistency between static configuration and runtime key
+     * generation settings. */
+    if( CK_TRUE == xSupportsKeyGen )
+    {
+        #ifndef pkcs11testGENERATE_KEYPAIR_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+    }
+    else
+    {
+        #ifdef pkcs11testGENERATE_KEYPAIR_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+    }
+
+    /* Report on static configuration for key import support. */
+    #ifdef pkcs11testIMPORT_PRIVATE_KEY_SUPPORT
+        configPRINTF( ( "The PKCS #11 module supports private key import.\r\n" ) );
+    #endif
 }
 
 /*--------------------------------------------------------*/
