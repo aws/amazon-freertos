@@ -127,8 +127,8 @@ typedef struct xIP_HEADER IPHeader_t;
 		uint16_t usPayloadLength;               /*  4 +  2 =  6 */
 		uint8_t ucNextHeader;                   /*  6 +  1 =  7 */
 		uint8_t ucHopLimit;                     /*  7 +  1 =  8 */
-		IPv6_Address_t xSourceIPv6Address;      /*  8 + 16 = 24 */
-		IPv6_Address_t xDestinationIPv6Address; /* 24 + 16 = 40 */
+		IPv6_Address_t xSourceAddress;          /*  8 + 16 = 24 */
+		IPv6_Address_t xDestinationAddress;     /* 24 + 16 = 40 */
 	}
 	#include "pack_struct_end.h"
 	typedef struct xIP_HEADER_IPv6 IPHeader_IPv6_t;
@@ -303,7 +303,7 @@ typedef struct xIP_PACKET IPPacket_t;
 	struct xIP_PACKET_IPv6
 	{
 		EthernetHeader_t xEthernetHeader;
-		IPHeader_IPv6_t xIPHeader_IPv6;
+		IPHeader_IPv6_t xIPHeader;
 	}
 	#include "pack_struct_end.h"
 	typedef struct xIP_PACKET_IPv6 IPPacket_IPv6_t;
@@ -415,16 +415,17 @@ typedef enum
 	eNoEvent = -1,
 	eNetworkDownEvent,		/* 0: The network interface has been lost and/or needs [re]connecting. */
 	eNetworkRxEvent,		/* 1: The network interface has queued a received Ethernet frame. */
-	eARPTimerEvent,			/* 2: The ARP timer expired. */
-	eStackTxEvent,			/* 3: The software stack has queued a packet to transmit. */
-	eDHCP_RA_Event,			/* 4: Process the DHCP or RA/SLAAC state machine. */
-	eTCPTimerEvent,			/* 5: See if any TCP socket needs attention. */
-	eTCPAcceptEvent,		/* 6: Client API FreeRTOS_accept() waiting for client connections. */
-	eTCPNetStat,			/* 7: IP-task is asked to produce a netstat listing. */
-	eSocketBindEvent,		/* 8: Send a message to the IP-task to bind a socket to a port. */
-	eSocketCloseEvent,		/* 9: Send a message to the IP-task to close a socket. */
-	eSocketSelectEvent,		/*10: Send a message to the IP-task for select(). */
-	eSocketSignalEvent,		/*11: A socket must be signalled. */
+	eNetworkTxEvent,		/* 2: Let the IP-task send a network packet. */
+	eARPTimerEvent,			/* 3: The ARP timer expired. */
+	eStackTxEvent,			/* 4: The software stack has queued a packet to transmit. */
+	eDHCP_RA_Event,			/* 5: Process the DHCP or RA/SLAAC state machine. */
+	eTCPTimerEvent,			/* 6: See if any TCP socket needs attention. */
+	eTCPAcceptEvent,		/* 7: Client API FreeRTOS_accept() waiting for client connections. */
+	eTCPNetStat,			/* 8: IP-task is asked to produce a netstat listing. */
+	eSocketBindEvent,		/* 9: Send a message to the IP-task to bind a socket to a port. */
+	eSocketCloseEvent,		/*10: Send a message to the IP-task to close a socket. */
+	eSocketSelectEvent,		/*11: Send a message to the IP-task for select(). */
+	eSocketSignalEvent,		/*12: A socket must be signalled. */
 } eIPEvent_t;
 
 typedef struct IP_TASK_COMMANDS
@@ -532,18 +533,30 @@ extern struct xNetworkInterface *pxNetworkInterfaces;
  * In order to suppress MISRA warnings, do the cast within a macro,
  * which can be exempt from warnings:
  *
- * 4 required by MISRA:
- * -emacro( 740,ipPOINTER_CAST)	// Unusual pointer cast (incompatible indirect types) [MISRA 2012 Rule 1.3, required]
- * -emacro( 923,ipPOINTER_CAST)	// Note -- cast from unsigned int to pointer [MISRA 2012 Rule 11.6, required]
- * -emacro(9005,ipPOINTER_CAST)	// Note -- attempt to cast away const/volatile from a pointer or reference [MISRA 2012 Rule 11.8, required])
- * -emacro(9087,ipPOINTER_CAST)	// 9087 cast performed between a pointer to object type and a pointer to a different object type [MISRA 2012 Rule 11.3, required]
+ * 3 required by MISRA:
+ * -emacro(740,ipPOINTER_CAST)    // 750:  Unusual pointer cast (incompatible indirect types) [MISRA 2012 Rule 1.3, required])
+ * -emacro(9005,ipPOINTER_CAST)   // 9005: attempt to cast away const/volatile from a pointer or reference [MISRA 2012 Rule 11.8, required]
+ * -emacro(9087,ipPOINTER_CAST)   // 9087: cast performed between a pointer to object type and a pointer to a different object type [MISRA 2012 Rule 11.3, required]
  *
  * 2 advisory by MISRA:
- * -emacro(9079,ipPOINTER_CAST)	// conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory]
- * -emacro(9016,ipPOINTER_CAST)	// Note -- pointer arithmetic other than array indexing used [MISRA 2012 Rule 18.4, advisory])
+ * -emacro(9079,ipPOINTER_CAST)   // 9079: conversion from pointer to void to pointer to other type [MISRA 2012 Rule 11.5, advisory])
+ * --emacro((826),ipPOINTER_CAST) // 826:  Suspicious pointer-to-pointer conversion (area too small)
 */
 
 #define ipPOINTER_CAST( TYPE, pointer  ) ( ( TYPE ) ( pointer ) )
+
+/* Sequence and ACK numbers are essentially unsigned (uint32_t). But when
+ * a distance is calculated, it is useful to use signed numbers:
+ * int32_t lDistance = ( int32_t ) ( ulSeq1 - ulSeq2 );
+ *
+ * 1 required by MISRA:
+ * -emacro(9033,ipNUMERIC_CAST) // 9033: Impermissible cast of composite expression (different essential type categories) [MISRA 2012 Rule 10.8, required])
+ *
+ * 1 advisory by MISRA:
+ * -emacro(9030,ipNUMERIC_CAST) // 9030: Impermissible cast; cannot cast from 'essentially Boolean' to 'essentially signed' [MISRA 2012 Rule 10.5, advisory])
+ */
+
+#define ipNUMERIC_CAST( TYPE, expression  ) ( ( TYPE ) ( expression ) )
 
 /* ICMP packets are sent using the same function as UDP packets.  The port
 number is used to distinguish between the two, as 0 is an invalid UDP port. */
@@ -622,7 +635,7 @@ eFrameProcessingResult_t eConsiderFrameForProcessing( const uint8_t * const pucE
 /*
  * Return the checksum generated over xDataLengthBytes from pucNextData.
  */
-uint16_t usGenerateChecksum( uint32_t ulSum, const uint8_t * pucNextData, size_t uxDataLengthBytes );
+uint16_t usGenerateChecksum( uint16_t usSum, const uint8_t * pucNextData, size_t uxDataLengthBytes );
 
 /* Socket related private functions. */
 BaseType_t xProcessReceivedUDPPacket( NetworkBufferDescriptor_t *pxNetworkBuffer, uint16_t usPort );
@@ -757,7 +770,7 @@ BaseType_t xIPIsNetworkTaskReady( void );
 		#if( ipconfigUSE_CALLBACKS == 1 )
 			FOnTCPReceive_t pxHandleReceive;	/*
 										 		 * In case of a TCP socket:
-										 		 * typedef void (* FOnTCPReceive_t) (Socket_t xSocket, void *pData, size_t xLength );
+										 		 * typedef void (* FOnTCPReceive_t) (Socket_t xSocket, void *pData, size_t uxLength );
 										 		 */
 			FOnTCPSent_t pxHandleSent;
 			FOnConnected_t pxHandleConnected;	/* Actually type: typedef void (* FOnConnected_t) (Socket_t xSocket, BaseType_t ulConnected ); */
@@ -781,7 +794,7 @@ typedef struct UDPSOCKET
 	#if( ipconfigUSE_CALLBACKS == 1 )
 		FOnUDPReceive_t pxHandleReceive;	/*
 											 * In case of a UDP socket:
-											 * typedef void (* FOnUDPReceive_t) (Socket_t xSocket, void *pData, size_t xLength, struct freertos_sockaddr *pxAddr );
+											 * typedef void (* FOnUDPReceive_t) (Socket_t xSocket, void *pData, size_t uxLength, struct freertos_sockaddr *pxAddr );
 											 */
 		FOnUDPSent_t pxHandleSent;
 	#endif /* ipconfigUSE_CALLBACKS */
@@ -918,21 +931,21 @@ void vSocketWakeUpUser( FreeRTOS_Socket_t *pxSocket );
 /*
  * Some helping function, their meaning should be clear
  */
-static portINLINE uint32_t ulChar2u32 (const uint8_t *apChr);
-static portINLINE uint32_t ulChar2u32 (const uint8_t *apChr)
+static portINLINE uint32_t ulChar2u32 (const uint8_t *pucPtr);
+static portINLINE uint32_t ulChar2u32 (const uint8_t *pucPtr)
 {
-	return  ( ( ( uint32_t )apChr[0] ) << 24) |
-			( ( ( uint32_t )apChr[1] ) << 16) |
-			( ( ( uint32_t )apChr[2] ) << 8) |
-			( ( ( uint32_t )apChr[3] ) );
+	return  ( ( ( uint32_t )pucPtr[ 0 ] ) << 24) |
+			( ( ( uint32_t )pucPtr[ 1 ] ) << 16) |
+			( ( ( uint32_t )pucPtr[ 2 ] ) << 8) |
+			( ( ( uint32_t )pucPtr[ 3 ] ) );
 }
 
-static portINLINE uint16_t usChar2u16 (const uint8_t *apChr);
-static portINLINE uint16_t usChar2u16 (const uint8_t *apChr)
+static portINLINE uint16_t usChar2u16 (const uint8_t *pucPtr);
+static portINLINE uint16_t usChar2u16 (const uint8_t *pucPtr)
 {
 	return ( uint16_t )
-			( ( ( ( uint32_t )apChr[0] ) << 8) |
-			  ( ( ( uint32_t )apChr[1] ) ) );
+			( ( ( ( uint32_t )pucPtr[0] ) << 8) |
+			  ( ( ( uint32_t )pucPtr[1] ) ) );
 }
 
 /* Check a single socket for retransmissions and timeouts */
@@ -992,7 +1005,7 @@ NetworkBufferDescriptor_t *pxUDPPayloadBuffer_to_NetworkBuffer( void *pvBuffer )
 /* Get the size of the IP-header.
 The socket is checked for its type: IPv4 or IPv6. */
 #if( ipconfigUSE_IPv6 != 0 )
-	static portINLINE size_t xIPHeaderSizeSocket( FreeRTOS_Socket_t *pxSocket )
+	static portINLINE size_t uxIPHeaderSizeSocket( FreeRTOS_Socket_t *pxSocket )
 	{
 	BaseType_t xResult;
 
@@ -1009,7 +1022,7 @@ The socket is checked for its type: IPv4 or IPv6. */
 	}
 #else
 	/* IPv6 is not used, return a fixed value of 20. */
-	#define xIPHeaderSizeSocket( pxSocket )	( ( size_t ) ( ipSIZE_OF_IPv4_HEADER ) )
+	#define uxIPHeaderSizeSocket( pxSocket )	( ( size_t ) ( ipSIZE_OF_IPv4_HEADER ) )
 #endif
 /*-----------------------------------------------------------*/
 

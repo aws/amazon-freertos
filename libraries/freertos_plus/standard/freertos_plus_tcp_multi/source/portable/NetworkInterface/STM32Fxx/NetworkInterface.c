@@ -933,7 +933,8 @@ for( index = 0; index < ARRAY_SIZE(addresses); index++) {
 			{
 			BaseType_t xDoLog = pdTRUE;
 				uint32_t exceptions[] = {
-					FreeRTOS_inet_addr_quick( 239, 255, 255, 250 )
+					FreeRTOS_inet_addr_quick( 239, 255, 255, 250 ),
+					FreeRTOS_inet_addr_quick( 239, 192, 152, 143 ),
 				};
 				for( index = 0; index < ARRAY_SIZE(exceptions); index++) {
 					if( exceptions[index] == ulDestinationIPAddress ) {
@@ -941,7 +942,7 @@ for( index = 0; index < ARRAY_SIZE(addresses); index++) {
 						break;
 					}
 				}
-				if( xDoLog )
+				if( ( xDoLog ) && ( prvIsIPv4Multicast( ulDestinationIPAddress ) == pdFALSE ) )
 				{
 					FreeRTOS_printf( ( "Drop IP %lxip\n", FreeRTOS_ntohl( ulDestinationIPAddress ) ) );
 				}

@@ -86,7 +86,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 	{
 		pxUDPPacket->xEthernetHeader.usFrameType = ipIPv4_FRAME_TYPE;
 
-		memset( pxIPHeader, '\0', sizeof *pxIPHeader );
+		memset( pxIPHeader, 0, sizeof *pxIPHeader );
 		pxIPHeader->ucVersionHeaderLength = ipIP_VERSION_AND_HEADER_LENGTH_BYTE;
 		pxIPHeader->ucTimeToLive = ipconfigUDP_TIME_TO_LIVE;
 	}
@@ -96,7 +96,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 	Beside the MAC-address, a reference to the network Interface will
     be return. */
 	#if( ipconfigUSE_IPv6 != 0 )
-	if( xIsIPV6 )
+	if( xIsIPV6 != 0 )
 	{
 		eReturned = eNDGetCacheEntry( &( pxNetworkBuffer->xIPv6_Address ), &( pxUDPPacket->xEthernetHeader.xDestinationAddress ), &( pxEndPoint ) );
 		if( pxNetworkBuffer->pxEndPoint == NULL )
@@ -106,7 +106,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 	}
 	else
 	#endif
-	if( ( ( FreeRTOS_ntohl( ulIPAddress ) & 0xff ) == 0xff ) && ( pxEndPoint != NULL ) )
+	if( ( ( FreeRTOS_ntohl( ulIPAddress ) & 0xffu ) == 0xffu ) && ( pxEndPoint != NULL ) )
     {
         memset( pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes, 0xff, ipMAC_ADDRESS_LENGTH_BYTES );
         eReturned = eARPCacheHit;
@@ -131,12 +131,12 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 
 			/* Is it possible that the packet is not actually a UDP packet
 			after all, but an ICMP packet. */
-			if( pxNetworkBuffer->usPort != ipPACKET_CONTAINS_ICMP_DATA )
+			if( pxNetworkBuffer->usPort != ( uint16_t ) ipPACKET_CONTAINS_ICMP_DATA )
 			{
 			UDPHeader_t *pxUDPHeader;
 
 				#if( ipconfigUSE_IPv6 != 0 )
-				if( xIsIPV6 )
+				if( xIsIPV6 != 0 )
 				{
 					pxUDPHeader = &( pxUDPPacket_IPv6->xUDPHeader );
 
@@ -182,7 +182,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 
 			/* lint Warning -- Apparent data overrun for function 'memcpy()', argument 3 (size=24) exceeds argument 1 (size=6)  [MISRA 2012 Rule 1.3, required] */
 
-			if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )
+			if( pxNetworkBuffer->usPort == ( uint16_t ) ipPACKET_CONTAINS_ICMP_DATA )
 			{
 				#if( ipconfigUSE_IPv6 != 0 )
 				if( xIsIPV6 != pdFALSE )
@@ -210,7 +210,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 					/* The total transmit size adds on the Ethernet header. */
 					pxNetworkBuffer->xDataLength = sizeof( EthernetHeader_t ) + sizeof( IPHeader_IPv6_t ) + pxUDPPacket_IPv6->xIPHeader.usPayloadLength;
 					pxUDPPacket_IPv6->xIPHeader.usPayloadLength = FreeRTOS_htons( pxUDPPacket_IPv6->xIPHeader.usPayloadLength );
-					memcpy( pxUDPPacket_IPv6->xIPHeader.xDestinationIPv6Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					memcpy( pxUDPPacket_IPv6->xIPHeader.xDestinationAddress.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 				}
 				else
 				#endif
@@ -273,7 +273,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 				{
 					/* When xIsIPV6 is true, pxIPHeader_IPv6 has been assigned a proper value. */
 					configASSERT( pxIPHeader_IPv6 != NULL );
-					memcpy( pxIPHeader_IPv6->xSourceIPv6Address.ucBytes, pxNetworkBuffer->pxEndPoint->ipv6_settings.xIPAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					memcpy( pxIPHeader_IPv6->xSourceAddress.ucBytes, pxNetworkBuffer->pxEndPoint->ipv6_settings.xIPAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 				}
 				else
 				#endif
@@ -288,7 +288,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 				#endif
 				{
 					pxIPHeader->usHeaderChecksum = 0u;
-					pxIPHeader->usHeaderChecksum = usGenerateChecksum( 0UL, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ipSIZE_OF_IPv4_HEADER );
+					pxIPHeader->usHeaderChecksum = usGenerateChecksum( 0u, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ipSIZE_OF_IPv4_HEADER );
 					pxIPHeader->usHeaderChecksum = ~FreeRTOS_htons( pxIPHeader->usHeaderChecksum );
 				}
 
@@ -306,16 +306,17 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkBuffer->pxEndPoint;
 		else if( eReturned == eARPCacheMiss )
 		{
 			#if( ipconfigUSE_IPv6 != 0 )
-			if( xIsIPV6 )
+			if( xIsIPV6 != 0 )
 			{
 //				pxNetworkBuffer->pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &( pxNetworkBuffer->xIPv6_Address ) );
-FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", pxNetworkBuffer->xIPv6_Address.ucBytes, ( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
-				if( pxNetworkBuffer->pxEndPoint )
+				FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", pxNetworkBuffer->xIPv6_Address.ucBytes, ( pxNetworkBuffer->pxEndPoint != NULL ) ? "" : "out" ) );
+
+				if( pxNetworkBuffer->pxEndPoint != NULL )
 				{
 					vNDSendNeighbourSolicitation( pxNetworkBuffer, &( pxNetworkBuffer->xIPv6_Address ) );
 					/* When xIsIPV6 is true, pxIPHeader_IPv6 has been assigned a proper value. */
 					configASSERT( pxIPHeader_IPv6 != NULL );
-					memcpy( pxIPHeader_IPv6->xDestinationIPv6Address.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					memcpy( pxIPHeader_IPv6->xDestinationAddress.ucBytes, pxNetworkBuffer->xIPv6_Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 				}
 			}
 			else
@@ -387,7 +388,7 @@ FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", pxNetworkBuffer->xIPv6_
 					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 3 ],
 					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 4 ],
 					pxUDPPacket->xEthernetHeader.xSourceAddress.ucBytes[ 5 ],
-					pxIPHeader_IPv6->xSourceIPv6Address.ucBytes ) );
+					pxIPHeader_IPv6->xSourceAddress.ucBytes ) );
 				FreeRTOS_printf( ( "To   %02x:%02x:%02x:%02x:%02x:%02x %pip\n",
 					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 0 ],
 					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 1 ],
@@ -395,7 +396,7 @@ FreeRTOS_printf( ( "Looking up %pip with%s end-point\n", pxNetworkBuffer->xIPv6_
 					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 3 ],
 					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 4 ],
 					pxUDPPacket->xEthernetHeader.xDestinationAddress.ucBytes[ 5 ],
-					pxIPHeader_IPv6->xDestinationIPv6Address.ucBytes ) );
+					pxIPHeader_IPv6->xDestinationAddress.ucBytes ) );
 			}
 			#endif
 
@@ -452,9 +453,9 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 	{
 
 		#if( ipconfigUSE_IPv6 != 0 )
-		if( xIsIPV6 )
+		if( xIsIPV6 != 0 )
 		{
-			vNDRefreshCacheEntry( &( pxUDPPacket_IPv6->xEthernetHeader.xSourceAddress ), &( pxUDPPacket_IPv6->xIPHeader.xSourceIPv6Address ), pxNetworkBuffer->pxEndPoint );
+			vNDRefreshCacheEntry( &( pxUDPPacket_IPv6->xEthernetHeader.xSourceAddress ), &( pxUDPPacket_IPv6->xIPHeader.xSourceAddress ), pxNetworkBuffer->pxEndPoint );
 		}
 		else
 		#endif
@@ -482,15 +483,15 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 				destinationAddress.sin_port = usPort;
 				
 				#if( ipconfigUSE_IPv6 != 0 )
-				if( xIsIPV6 )
+				if( xIsIPV6 != 0 )
 				{
 
-					memcpy( xSourceAddress.sin_addrv6.ucBytes,     pxUDPPacket_IPv6->xIPHeader.xSourceIPv6Address.ucBytes,      ipSIZE_OF_IPv6_ADDRESS );
-					memcpy( destinationAddress.sin_addrv6.ucBytes, pxUDPPacket_IPv6->xIPHeader.xDestinationIPv6Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
-					xSourceAddress.sin_family     = FREERTOS_AF_INET6;
-					destinationAddress.sin_family = FREERTOS_AF_INET6;
-					xSourceAddress.sin_len        = sizeof( xSourceAddress );
-					destinationAddress.sin_len    = sizeof( destinationAddress );
+					memcpy( xSourceAddress.sin_addrv6.ucBytes,     pxUDPPacket_IPv6->xIPHeader.xSourceAddress.ucBytes,      ipSIZE_OF_IPv6_ADDRESS );
+					memcpy( destinationAddress.sin_addrv6.ucBytes, pxUDPPacket_IPv6->xIPHeader.xDestinationAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+					xSourceAddress.sin_family     = ( uint8_t ) FREERTOS_AF_INET6;
+					destinationAddress.sin_family = ( uint8_t ) FREERTOS_AF_INET6;
+					xSourceAddress.sin_len        = ( uint8_t ) sizeof( xSourceAddress );
+					destinationAddress.sin_len    = ( uint8_t ) sizeof( destinationAddress );
 				}
 				else
 				{
@@ -500,8 +501,8 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 					destinationAddress4->sin_addr   = pxUDPPacket->xIPHeader.ulDestinationIPAddress;
 					xSourceAddress4->sin_family     = FREERTOS_AF_INET;
 					destinationAddress4->sin_family = FREERTOS_AF_INET;
-					xSourceAddress4->sin_len        = sizeof( xSourceAddress );
-					destinationAddress4->sin_len    = sizeof( destinationAddress );
+					xSourceAddress4->sin_len        = ( uint8_t ) sizeof( xSourceAddress );
+					destinationAddress4->sin_len    = ( uint8_t ) sizeof( destinationAddress );
 				}
 				#else
 				{
@@ -525,7 +526,7 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 		}
 		#endif /* ipconfigUSE_CALLBACKS */
 
-		#if( ipconfigUDP_MAX_RX_PACKETS > 0 )
+		#if( ipconfigUDP_MAX_RX_PACKETS > 0u )
 		{
 			if( xReturn == pdPASS )
 			{
@@ -567,7 +568,7 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 
 			#if( ipconfigSUPPORT_SELECT_FUNCTION == 1 )
 			{
-				if( ( pxSocket->pxSocketSet != NULL ) && ( ( pxSocket->xSelectBits & ( ( EventBits_t ) eSELECT_READ ) ) != 0 ) )
+				if( ( pxSocket->pxSocketSet != NULL ) && ( ( pxSocket->xSelectBits & ( ( EventBits_t ) eSELECT_READ ) ) != 0u ) )
 				{
 					( void ) xEventGroupSetBits( pxSocket->pxSocketSet->xSelectGroup, ( EventBits_t ) eSELECT_READ );
 				}
@@ -585,7 +586,7 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 
 			#if( ipconfigUSE_DHCP == 1 )
 			{
-				if( xIsDHCPSocket( pxSocket ) )
+				if( xIsDHCPSocket( pxSocket ) != 0 )
 				{
 					/* This is the DHCP clients socket, bound to port 68. */
 					/* Can call this function directly, because this code is running from the IP-task. */
@@ -605,7 +606,7 @@ UDPPacket_t *pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEt
 			does open a UDP socket to send a messages, this socket will be
 			closed after a short timeout.  Messages that come late (after the
 			socket is closed) will be treated here. */
-			if( FreeRTOS_ntohs( pxProtocolHeaders->xUDPHeader.usSourcePort ) == ipDNS_PORT )
+			if( FreeRTOS_ntohs( pxProtocolHeaders->xUDPHeader.usSourcePort ) == ( uint16_t ) ipDNS_PORT )
 			{
 				#if( ipconfigUSE_IPv6 != 0 )
 				if( pxUDPPacket->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )

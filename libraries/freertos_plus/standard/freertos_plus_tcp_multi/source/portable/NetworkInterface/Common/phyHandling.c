@@ -203,7 +203,7 @@ BaseType_t xResult;
 /* Initialise the struct and assign a PHY-read and -write function. */
 void vPhyInitialise( EthernetPhy_t *pxPhyObject, xApplicationPhyReadHook_t fnPhyRead, xApplicationPhyWriteHook_t fnPhyWrite )
 {
-	memset( ( void * )pxPhyObject, '\0', sizeof( *pxPhyObject ) );
+	memset( ( void * )pxPhyObject, 0, sizeof( *pxPhyObject ) );
 
 	pxPhyObject->fnPhyRead = fnPhyRead;
 	pxPhyObject->fnPhyWrite = fnPhyWrite;

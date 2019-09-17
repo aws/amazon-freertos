@@ -195,8 +195,8 @@ typedef struct xNetworkEndPoint
 	#define END_POINT_USES_DHCP( pxEndPoint )	( ( ( pxEndPoint )->bits.bIPv6 == pdFALSE_UNSIGNED ) && ( ( pxEndPoint )->bits.bWantDHCP != pdFALSE_UNSIGNED ) )
 	#define END_POINT_USES_RA( pxEndPoint )		( ( ( pxEndPoint )->bits.bIPv6 != pdFALSE_UNSIGNED ) && ( ( pxEndPoint )->bits.bWantRA != pdFALSE_UNSIGNED ) )
 
-	#define ENDPOINT_IS_IPv4( pxEndPoint ) ( ! ( pxEndPoint )->bits.bIPv6 )
-	#define ENDPOINT_IS_IPv6( pxEndPoint ) (   ( pxEndPoint )->bits.bIPv6 )
+	#define ENDPOINT_IS_IPv4( pxEndPoint ) ( ( pxEndPoint )->bits.bIPv6 == 0u )
+	#define ENDPOINT_IS_IPv6( pxEndPoint ) ( ( pxEndPoint )->bits.bIPv6 != 0u )
 
 	static __inline void CONFIRM_EP_v4( const NetworkEndPoint_t * pxEndPoint )
 	{
@@ -331,10 +331,6 @@ void FreeRTOS_FillEndPoint(	NetworkInterface_t *pxNetworkInterface,
 									 IPv6_Address_t *pxDNSServerAddress,	/* Not used yet. */
 									 const uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ] );
 #endif
-
-/* Return pdTRUE if all end-points are up.
-When pxInterface is null, all end-points can be iterated. */
-BaseType_t FreeRTOS_AllEndPointsUp( NetworkInterface_t *pxInterface );
 
 typedef struct xRoutingStats
 {

@@ -96,7 +96,7 @@ NetworkInterface_t *pxIterator = NULL;
 			if( pxIterator->pxNext == NULL )
 			{
 				pxIterator->pxNext = pxInterface;
-				break;
+				break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 			}
 			pxIterator = pxIterator->pxNext;
 		}
@@ -169,7 +169,7 @@ NetworkEndPoint_t *pxIterator = NULL;
 			if( pxIterator->pxNext == NULL )
 			{
 				pxIterator->pxNext = pxEndPoint;
-				break;
+				break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 			}
 			pxIterator = pxIterator->pxNext;
 		}
@@ -249,7 +249,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 	}
 	while( pxEndPoint != NULL )
 	{
-		if( ENDPOINT_IS_IPv4( pxEndPoint ) &&( pxEndPoint->ipv4_settings.ulIPAddress == ulIPAddress ) )/*lint !e506 !e774 */
+		if( ( ENDPOINT_IS_IPv4( pxEndPoint ) ) && ( pxEndPoint->ipv4_settings.ulIPAddress == ulIPAddress ) )/*lint !e506 !e774 */
 		{
 			break;
 		}
@@ -364,7 +364,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 	/* Find the best fitting end-point to reach a given IP-address. */
 	/*_RB_ Presumably then a broadcast reply could go out on a different end point to that on which the broadcast was received - although that should not be an issue if the nodes are on the same LAN it could be an issue if the nodes are on separate LANs. */
 
-	if( ulWhere == 1 )
+	if( ulWhere == 1uL )
 	{
 	//#warning debugging
 	//    configPRINTF( ( "ulWhere = 1\n" ) );
@@ -375,7 +375,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 		if( ( pxInterface == NULL ) || ( pxEndPoint->pxNetworkInterface == pxInterface ) )
 		{
 #if( ipconfigUSE_IPv6 != 0 )
-			if( pxEndPoint->bits.bIPv6 == pdFALSE )
+			if( pxEndPoint->bits.bIPv6 == pdFALSE_UNSIGNED )
 #endif
 			{
 				if( ( ulIPAddress & pxEndPoint->ipv4_settings.ulNetMask ) == ( pxEndPoint->ipv4_settings.ulIPAddress & pxEndPoint->ipv4_settings.ulNetMask ) )
@@ -389,7 +389,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 		pxEndPoint = pxEndPoint->pxNext;
 	}
 
-	if( ( pxEndPoint == NULL ) && ( ulWhere != 1 ) && ( ulWhere != 2 ) )
+	if( ( pxEndPoint == NULL ) && ( ulWhere != 1uL ) && ( ulWhere != 2uL ) )
 	{
 		FreeRTOS_printf( ( "FreeRTOS_FindEndPointOnNetMask[%ld]: No match for %lxip\n",
 			ulWhere, FreeRTOS_ntohl( ulIPAddress ) ) );
@@ -401,7 +401,7 @@ NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
 
 /* Return pdTRUE if all end-points are up.
 When pxInterface is null, all end-points can be iterated. */
-BaseType_t FreeRTOS_AllEndPointsUp( NetworkInterface_t *pxInterface )
+BaseType_t FreeRTOS_AllEndPointsUp( struct xNetworkInterface *pxInterface )
 {
 BaseType_t xResult = pdTRUE;
 NetworkEndPoint_t *pxEndPoint = pxNetworkEndPoints;
@@ -440,7 +440,7 @@ uint32_t ulIPAddress;
 	/* Fill in and add an end-point to a network interface.
 	The user must make sure that the object pointed to by 'pxEndPoint'
 	will remain to exist. */
-	memset( pxEndPoint, '\0', sizeof( *pxEndPoint ) );
+	memset( pxEndPoint, 0, sizeof( *pxEndPoint ) );
 
 	/* All is cleared, also the IPv6 flag. */
 	/* pxEndPoint->bits.bIPv6 = pdFALSE; */
@@ -479,7 +479,7 @@ uint32_t ulIPAddress;
 		/* Fill in and add an end-point to a network interface.
 		Make sure that the object pointed to by 'pxEndPoint'
 		will remain to exist. */
-		memset( pxEndPoint, '\0', sizeof( *pxEndPoint ) );
+		memset( pxEndPoint, 0, sizeof( *pxEndPoint ) );
 
 		configASSERT( pxIPAddress != NULL );
 		configASSERT( ucMACAddress != NULL );
@@ -539,17 +539,14 @@ uint32_t ulIPAddress;
 #endif /* ipconfigUSE_IPv6 */
 /*-----------------------------------------------------------*/
 
+/*lint -e9003*/
+uint32_t xDoLog = 0uL;/*lint !e9075 (Note -- external symbol 'xDoLog' defined without a prior declaration [MISRA 2012 Rule 8.4, required]. */
+
 NetworkEndPoint_t *FreeRTOS_MatchingEndpoint( NetworkInterface_t *pxNetworkInterface, uint8_t *pucEthernetBuffer )
 {
 NetworkEndPoint_t *pxEndPoint = NULL;
 ProtocolPacket_t *pxPacket = ipPOINTER_CAST( ProtocolPacket_t *, pucEthernetBuffer );	/*lint !e9018 declaration of symbol with union based type [MISRA 2012 Rule 19.2, advisory]. */
 
-uint32_t ulIPTargetAddress = 0uL;
-uint32_t ulIPSourceAddress = 0uL;
-
-/*
-	BaseType_t xDoLog = pdTRUE;
-*/
 	#warning For logging only, take this away
 	const char *name = "";
 	
@@ -577,7 +574,7 @@ uint32_t ulIPSourceAddress = 0uL;
 				{
 					/* This is a IPv6 end-point on the same interface,
 					and with a matching IP-address. */
-					if( xCompareIPv6_Address( &( pxEndPoint->ipv6_settings.xIPAddress ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ), pxEndPoint->ipv6_settings.uxPrefixLength ) == 0 )
+					if( xCompareIPv6_Address( &( pxEndPoint->ipv6_settings.xIPAddress ), &( pxIPPacket_IPv6->xIPHeader.xDestinationAddress ), pxEndPoint->ipv6_settings.uxPrefixLength ) == 0 )
 					{
 						break;
 					}
@@ -588,7 +585,7 @@ uint32_t ulIPSourceAddress = 0uL;
 			{
 				if( pxEndPoint == NULL )
 				{
-					if( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader_IPv6.xDestinationIPv6Address ), ipSIZE_OF_IPv6_ADDRESS ) == 0 )
+					if( xCompareIPv6_Address( &( ipLLMNR_IP_ADDR_IPv6 ), &( pxIPPacket_IPv6->xIPHeader.xDestinationAddress ), ( size_t ) 8u * ipSIZE_OF_IPv6_ADDRESS ) == 0 )/*lint !e9029: (Note -- Mismatched essential type categories for binary operator [MISRA 2012 Rule 10.4, required] */
 					{
 						pxEndPoint = FreeRTOS_FirstEndPoint_IPv6( pxNetworkInterface );
 					}
@@ -600,18 +597,100 @@ uint32_t ulIPSourceAddress = 0uL;
 #endif /* ipconfigUSE_IPv6 */
 	case ipARP_FRAME_TYPE:
 		{
-			memcpy( &ulIPSourceAddress, pxPacket->xARPPacket.xARPHeader.ucSenderProtocolAddress, sizeof( ulIPSourceAddress ) );
-			ulIPTargetAddress = pxPacket->xARPPacket.xARPHeader.ulTargetProtocolAddress;
+			pxEndPoint = FreeRTOS_FindEndPointOnIP_IPv4( pxPacket->xARPPacket.xARPHeader.ulTargetProtocolAddress, 3uL );
 			name = "ARP";
 		}
 		break;
 
 	case ipIPv4_FRAME_TYPE:
 		{
-			/* An IPv4 UDP or TCP packet. */
-			ulIPSourceAddress = pxPacket->xUDPPacket.xIPHeader.ulSourceIPAddress;
-			ulIPTargetAddress = pxPacket->xUDPPacket.xIPHeader.ulDestinationIPAddress;
-			name = ( pxPacket->xUDPPacket.xIPHeader.ucProtocol == ipPROTOCOL_UDP ) ? "UDP" : "TCP";
+		/* An IPv4 UDP or TCP packet. */
+		uint32_t ulIPSourceAddress = pxPacket->xUDPPacket.xIPHeader.ulSourceIPAddress;
+		uint32_t ulIPTargetAddress = pxPacket->xUDPPacket.xIPHeader.ulDestinationIPAddress;
+		uint32_t ulMatchAddress;
+		BaseType_t xIPBroadcast;
+		BaseType_t xDone = pdFALSE;
+
+			if( ( FreeRTOS_ntohl( ulIPTargetAddress ) & 0xffuL ) == 0xffuL )
+			{
+				xIPBroadcast = pdTRUE;
+			}
+			else
+			{
+				xIPBroadcast = pdFALSE;
+			}
+			if( pxPacket->xUDPPacket.xIPHeader.ucProtocol == ( uint8_t ) ipPROTOCOL_UDP )
+			{
+				name = "UDP";
+			}
+			else
+			{
+				name = "TCP";
+			}
+			if( ulIPTargetAddress == ~0uL )
+			{
+				ulMatchAddress = ulIPSourceAddress;
+			}
+			else
+			{
+				ulMatchAddress = ulIPTargetAddress;
+			}
+			for( pxEndPoint = FreeRTOS_FirstEndPoint( pxNetworkInterface );
+				 pxEndPoint != NULL;
+				 pxEndPoint = FreeRTOS_NextEndPoint( pxNetworkInterface, pxEndPoint ) )
+			{
+				( void ) name;
+			#if( ipconfigUSE_IPv6 != 0 )
+				if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
+				{
+					continue;
+				}
+			#endif /* ( ipconfigUSE_IPv6 != 0 ) */
+				if( pxEndPoint->ipv4_settings.ulIPAddress == ulIPTargetAddress  )
+				{
+					/* The perfect match. */
+					xDone = pdTRUE;
+				}
+				else
+				if( ( xIPBroadcast != pdFALSE ) &&
+					( ( ( pxEndPoint->ipv4_settings.ulIPAddress ^ ulMatchAddress ) & pxEndPoint->ipv4_settings.ulNetMask ) == 0uL ) )
+				{
+					xDone = pdTRUE;
+				}
+				else
+				if( prvIsIPv4Multicast( ulIPTargetAddress ) != pdFALSE )
+				{
+					/* Target is a multicast address. */
+					xDone = pdTRUE;
+				}
+				else
+				{
+					/* This end-point doesn't match with the packet. */
+				}
+				if( xDone != pdFALSE )
+				{
+					break;
+				}
+			}
+			if( ( xIPBroadcast != 0 ) && ( pxEndPoint == NULL ) )
+			{
+				pxEndPoint = FreeRTOS_FirstEndPoint( pxNetworkInterface );
+			}
+			if( ( prvIsIPv4Multicast( ulIPTargetAddress ) == pdFALSE ) && ( xDoLog != 0uL ) )
+			{
+				xDoLog--;
+				FreeRTOS_printf( ( "Compare[%s] %d mine %-16lxip (%02x-%02x) from %-16lxip to %-16lxip (%02x-%02x)\n",
+					name,
+				//	( unsigned ) xMACBroadcast,
+					( unsigned ) xIPBroadcast,
+					( pxEndPoint != NULL ) ? FreeRTOS_ntohl( pxEndPoint->ipv4_settings.ulIPAddress ) : 0uL,
+					( pxEndPoint != NULL ) ? pxEndPoint->xMACAddress.ucBytes[0] : 0u,
+					( pxEndPoint != NULL ) ? pxEndPoint->xMACAddress.ucBytes[1] : 0u,
+					FreeRTOS_ntohl( ulIPSourceAddress ),
+					FreeRTOS_ntohl( ulIPTargetAddress ),
+					pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes[0],
+					pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes[1] ) );
+			}
 		}
 		break;
 	default:
@@ -622,87 +701,15 @@ uint32_t ulIPSourceAddress = 0uL;
 		break;
 	}	/* switch usFrameType */
 
-	if( ulIPTargetAddress != 0uL )
-	{
-	static const uint8_t ucAllOnes[ ipMAC_ADDRESS_LENGTH_BYTES ] = { 255, 255, 255, 255, 255, 255 };
-	BaseType_t xMACBroadcast;
-	BaseType_t xIPBroadcast;
-	BaseType_t xDone = pdFALSE;
+	( void ) name;
 
-		xMACBroadcast = memcmp( ucAllOnes,
-								pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes,
-								ipMAC_ADDRESS_LENGTH_BYTES ) == 0;
-		xIPBroadcast = ( ( FreeRTOS_ntohl( ulIPTargetAddress ) & 0xff ) == 0xff );
-
-		for( pxEndPoint = FreeRTOS_FirstEndPoint( pxNetworkInterface );
-			 pxEndPoint != NULL;
-			 pxEndPoint = FreeRTOS_NextEndPoint( pxNetworkInterface, pxEndPoint ) )
-		{
-		//BaseType_t xMacSame = memcmp( pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes, pxEndPoint->xMACAddress.ucBytes, ipMAC_ADDRESS_LENGTH_BYTES ) == 0;
-		
-			//if( !xMacSame )
-/*
-			{
-				configPRINTF( ( "Compare[%s] %d,%d mine %-16lxip (%02x-%02x) from %-16lxip to %-16lxip (%02x-%02x)\n",
-					name,
-					( unsigned ) xMACBroadcast,
-					( unsigned ) xIPBroadcast,
-					FreeRTOS_ntohl( pxEndPoint->ulIPAddress ),
-					pxEndPoint->xMACAddress.ucBytes[0],
-					pxEndPoint->xMACAddress.ucBytes[1],
-					FreeRTOS_ntohl( ulIPSourceAddress ),
-					FreeRTOS_ntohl( ulIPTargetAddress ),
-					pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes[0],
-					pxPacket->xUDPPacket.xEthernetHeader.xDestinationAddress.ucBytes[1] ) );
-			}
-*/
-			( void ) xMACBroadcast;
-			( void ) name;
-		#if( ipconfigUSE_IPv6 != 0 )
-			if( pxEndPoint->bits.bIPv6 != pdFALSE_UNSIGNED )
-			{
-				continue;
-			}
-		#endif /* ( ipconfigUSE_IPv6 != 0 ) */
-			if( ( pxEndPoint->ipv4_settings.ulIPAddress == ulIPTargetAddress  ) || ( ulIPTargetAddress == ~0uL ) )
-			{
-/*				xDoLog = pdFALSE; */
-				xDone = pdTRUE;
-			}
-			else
-			if( ( xIPBroadcast != pdFALSE ) && ( ( pxEndPoint->ipv4_settings.ulIPAddress & pxEndPoint->ipv4_settings.ulNetMask ) == ( ulIPTargetAddress & pxEndPoint->ipv4_settings.ulNetMask ) ) )
-			{
-				xDone = pdTRUE;
-			}
-			else
-			if( ( xIPBroadcast != pdFALSE ) && ( pxPacket->xUDPPacket.xEthernetHeader.usFrameType == ipARP_FRAME_TYPE ) )
-			{
-				/* Test for a matching source address like 192.168.1.255 */
-				if( ( pxEndPoint->ipv4_settings.ulIPAddress & pxEndPoint->ipv4_settings.ulNetMask ) == ( ulIPSourceAddress & pxEndPoint->ipv4_settings.ulNetMask ) )
-				{
-					xDone = pdTRUE;
-				}
-			}
-			else
-			{
-				/* This end-point doesn't match with the packet. */
-			}
-			if( xDone != pdFALSE )
-			{
-				break;
-			}
-		}
-		if( ( xIPBroadcast ) && ( pxEndPoint == NULL ) )
-		{
-			pxEndPoint = FreeRTOS_FirstEndPoint( pxNetworkInterface );
-		}
-	}
 /*
 	if( ( xDoLog != pdFALSE ) && ( pxEndPoint != NULL ) )
 	{
 		configPRINTF( ( "Compare[%s] returning %lxip\n", name, ( pxEndPoint != NULL ) ? FreeRTOS_ntohl( pxEndPoint->ulIPAddress ) : 0uL ) );
 	}
 */
+
 	return pxEndPoint;
 }
 /*-----------------------------------------------------------*/
@@ -736,7 +743,7 @@ NetworkEndPoint_t *FreeRTOS_FindGateWay( BaseType_t xIPType )
 		{
 			if( pxEndPoint->ipv4_settings.ulGatewayAddress != 0uL )	/* access to ipv4_settings is checked. */
 			{
-				break;
+				break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory] */
 			}
 		}
 		else
@@ -777,7 +784,7 @@ NetworkEndPoint_t *pxGetSocketEndpoint( Socket_t xSocket )
 FreeRTOS_Socket_t *pxSocket = ( FreeRTOS_Socket_t * ) xSocket;
 NetworkEndPoint_t *pxResult;
 
-	if( pxSocket )
+	if( pxSocket != NULL )
 	{
 		pxResult = pxSocket->pxEndPoint;
 	}

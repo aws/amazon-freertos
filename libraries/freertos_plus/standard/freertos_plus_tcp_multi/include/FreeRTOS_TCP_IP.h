@@ -70,8 +70,8 @@ typedef enum eTCP_STATE {
 						 or an acknowledgement of the connection termination request previously sent. */
 	eFIN_WAIT_2,	/* 7 (server + client) waiting for a connection termination request from the remote TCP. */
 	eCLOSE_WAIT,	/* 8 (server + client) waiting for a connection termination request from the local user. */
-	eCLOSING,		/*   (server + client) waiting for a connection termination request acknowledgement from the remote TCP. */
-	eLAST_ACK,		/* 9 (server + client) waiting for an acknowledgement of the connection termination request
+	eCLOSING,		/* 9 (server + client) waiting for a connection termination request acknowledgement from the remote TCP. */
+	eLAST_ACK,		/*10 (server + client) waiting for an acknowledgement of the connection termination request
 						 previously sent to the remote TCP
 						 (which includes an acknowledgement of its connection termination request). */
 	eTIME_WAIT,		/* 10 (either server or client) waiting for enough time to pass to be sure the remote TCP received the

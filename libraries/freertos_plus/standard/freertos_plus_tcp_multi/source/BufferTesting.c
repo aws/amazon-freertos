@@ -106,7 +106,7 @@ BaseType_t xReturn = pdPASS;
 		else
 		{
 			/* Clear the markers of the stream */
-			memset( pxBuffers[ xIndex ], '\0', sizeof( *pxBuffers[ xIndex ] ) - sizeof( pxBuffers[ xIndex ]->ucArray ) );
+			memset( pxBuffers[ xIndex ], 0, sizeof( *pxBuffers[ xIndex ] ) - sizeof( pxBuffers[ xIndex ]->ucArray ) );
 			pxBuffers[ xIndex ]->LENGTH = uxLength;
 			FreeRTOS_printf( ( "xBufferTestingPrepare: malloc %u OK\n", ( unsigned )uxSize ) );
 		}

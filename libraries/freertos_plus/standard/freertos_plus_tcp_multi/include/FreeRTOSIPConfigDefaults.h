@@ -299,7 +299,7 @@ from the FreeRTOSIPConfig.h configuration header file. */
 #endif
 
 #ifndef ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS
-	#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS ( pdMS_TO_TICKS( 20 ) )
+	#define ipconfigUDP_MAX_SEND_BLOCK_TIME_TICKS ( pdMS_TO_TICKS( 20u ) )
 #endif
 
 #ifndef ipconfigARP_CACHE_ENTRIES
@@ -393,7 +393,7 @@ ipconfigRA_IP_TEST_COUNT times, each time with a timeout of ipconfigRA_IP_TEST_T
 Finally the end-point will go in the UP state.
 */
 #ifndef ipconfigRA_SEARCH_COUNT
-	#define ipconfigRA_SEARCH_COUNT				( 3 )
+	#define ipconfigRA_SEARCH_COUNT				( 3u )
 #endif
 
 #ifndef ipconfigRA_SEARCH_TIME_OUT_MSEC
@@ -409,7 +409,7 @@ Finally the end-point will go in the UP state.
 #endif
 
 #ifndef ipconfigNETWORK_MTU
-	#define ipconfigNETWORK_MTU		1500
+	#define ipconfigNETWORK_MTU		1500u
 #endif
 
 #ifndef ipconfigTCP_MSS
@@ -634,7 +634,7 @@ connections, hang protection can help reduce the impact of SYN floods. */
 #endif
 
 #ifndef ipconfigPACKET_FILLER_SIZE
-	#define ipconfigPACKET_FILLER_SIZE 2
+	#define ipconfigPACKET_FILLER_SIZE 2u
 #endif
 
 #ifndef ipconfigMULTI_INTERFACE

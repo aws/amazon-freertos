@@ -123,7 +123,7 @@ static size_t prvCreateDNSMessage( uint8_t *pucUDPPayloadBuffer,
  * It returns the number of bytes read.
  */
 static size_t prvSkipNameField( uint8_t *pucByte,
-								size_t xSourceLen );
+								size_t uxSourceLen );
 
 /*
  * Process a response packet from a DNS server.
@@ -131,7 +131,7 @@ static size_t prvSkipNameField( uint8_t *pucByte,
  * was expected, and thus if the DNS cache may be updated with the reply.
  */
 static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer,
-								  size_t xBufferLength,
+								  size_t uxBufferLength,
 								  struct freertos_sockaddr *pxAddress,
 								  BaseType_t xExpected );
 
@@ -174,16 +174,16 @@ static uint32_t prvGetHostByName( const char *pcHostName,
 
 #if( ipconfigUSE_NBNS == 1 )
 	static portINLINE void prvTreatNBNS( uint8_t *pucUDPPayloadBuffer,
-										 size_t xBufferLength,
+										 size_t uxBufferLength,
 										 uint32_t ulIPAddress );
 #endif /* ipconfigUSE_NBNS */
 
 
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 	static size_t prvReadNameField( uint8_t *pucByte,
-									size_t xSourceLen,
+									size_t uxSourceLen,
 									char *pcName,
-									size_t xDestLen );
+									size_t uxDestLen );
 #endif	/* ipconfigUSE_DNS_CACHE || ipconfigDNS_USE_CALLBACKS */
 
 #if( ipconfigUSE_DNS_CACHE == 1 )
@@ -346,7 +346,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 	{
 	IPv46_Address_t xIPv46_Address;
 
-		memset( &xIPv46_Address, '\0', sizeof xIPv46_Address );
+		memset( &xIPv46_Address, 0, sizeof xIPv46_Address );
 		/* Also the fields 'ucIs_IPv6' and 'ulIPAddress' have been cleared. */
 		( void ) prvProcessDNSCache( pcHostName, &xIPv46_Address, 0, pdTRUE );
 
@@ -362,7 +362,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 	BaseType_t xResult;
 	uint32_t ulReturn;
 
-		memset( &xIPv46_Address, '\0', sizeof xIPv46_Address );
+		memset( &xIPv46_Address, 0, sizeof xIPv46_Address );
 		/* Let prvProcessDNSCache only return IPv6 addresses. */
 		xIPv46_Address.ucIs_IPv6 = ( uint8_t ) 1u;
 		xResult = prvProcessDNSCache( pcHostName, &xIPv46_Address, 0, pdTRUE );
@@ -448,8 +448,8 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 					#if( ipconfigUSE_IPv6 != 0 )
 					{
 						struct freertos_sockaddr6 xAddress6;
-						memset( &( xAddress6 ), '\0', sizeof xAddress6 );
-						xAddress6.sin_len = sizeof( xAddress6 );
+						memset( &( xAddress6 ), 0, sizeof xAddress6 );
+						xAddress6.sin_len = ( uint8_t ) sizeof( xAddress6 );
 						if( pxCallback->xIsIPv6 != pdFALSE )
 						{
 							xAddress6.sin_family = FREERTOS_AF_INET6;
@@ -476,7 +476,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 		}
 		( void ) xTaskResumeAll();
 
-		if( listLIST_IS_EMPTY( &xCallbackList ) )
+		if( listLIST_IS_EMPTY( &xCallbackList ) != pdFALSE )
 		{
 			vIPSetDnsTimerEnableState( pdFALSE );
 		}
@@ -505,7 +505,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 		xTimeout /= portTICK_PERIOD_MS;
 		if( pxCallback != NULL )
 		{
-			if( listLIST_IS_EMPTY( &xCallbackList ) )
+			if( listLIST_IS_EMPTY( &xCallbackList ) != pdFALSE )
 			{
 				/* This is the first one, start the DNS timer to check for timeouts */
 				vIPReloadDNSTimer( FreeRTOS_min_uint32( 1000U, xTimeout ) );
@@ -563,7 +563,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 					#endif
 					( void ) uxListRemove( &pxCallback->xListItem );
 					vPortFree( pxCallback );
-					if( listLIST_IS_EMPTY( &xCallbackList ) )
+					if( listLIST_IS_EMPTY( &xCallbackList ) != pdFALSE )
 					{
 						vIPSetDnsTimerEnableState( pdFALSE );
 					}
@@ -620,7 +620,7 @@ struct freertos_sockaddr xAddress;
 	( void ) pxHints;
 
 	*( ppxResult ) = NULL;
-	memset( &( xAddress ), '\0', sizeof( xAddress ) );
+	memset( &( xAddress ), 0, sizeof( xAddress ) );
 	#if( ipconfigUSE_IPv6 != 0 )
 	if( ( pxHints != NULL ) && ( pxHints->ai_family == FREERTOS_AF_INET6 ) )
 	{
@@ -646,7 +646,7 @@ struct freertos_sockaddr xAddress;
 		pxAddrInfo = ipPOINTER_CAST( struct freertos_addrinfo *, pvPortMalloc( sizeof( *pxAddrInfo ) ) );
 		if( pxAddrInfo != NULL )
 		{
-			memset( pxAddrInfo, '\0', sizeof( *pxAddrInfo ) );
+			memset( pxAddrInfo, 0, sizeof( *pxAddrInfo ) );
 			pxAddrInfo->ai_canonname = pxAddrInfo->xPrivateStorage.ucName;
 			strncpy( pxAddrInfo->xPrivateStorage.ucName, pcName, sizeof( pxAddrInfo->xPrivateStorage.ucName ) );
 
@@ -661,7 +661,7 @@ struct freertos_sockaddr xAddress;
 			#endif
 
 			#if( ipconfigUSE_IPv6 != 0 )
-			if( xAddress.sin_family == FREERTOS_AF_INET6 )
+			if( xAddress.sin_family == ( uint8_t ) FREERTOS_AF_INET6 )
 			{
 				pxAddrInfo->ai_family =  FREERTOS_AF_INET6;
 				pxAddrInfo->ai_addrlen = ipSIZE_OF_IPv6_ADDRESS;
@@ -733,7 +733,7 @@ TickType_t uxIdentifier = 0;
 #endif
 
 #if( ipconfigUSE_IPv6 != 0 )
-	if( ( pxAddress != NULL ) && ( pxAddress->sin_family == FREERTOS_AF_INET6 ) )
+	if( ( pxAddress != NULL ) && ( pxAddress->sin_family == ( uint8_t ) FREERTOS_AF_INET6 ) )
 	{
 		xIsIPv6 = pdTRUE;
 	}
@@ -900,7 +900,7 @@ UBaseType_t uxHostType;
 	{
 		const char *pucPtr;
 
-		for( pucPtr = pcHostName; *pucPtr; pucPtr++ )
+		for( pucPtr = pcHostName; *pucPtr != ( char ) 0; pucPtr++ )
 		{
 			if( *pucPtr == '.' )
 			{
@@ -912,7 +912,7 @@ UBaseType_t uxHostType;
 	#endif /* ipconfigUSE_LLMNR == 1 */
 
 	#if( ipconfigUSE_IPv6 != 0 )
-	if( ( pxAddress != NULL ) && ( pxAddress->sin_family == FREERTOS_AF_INET6 ) )
+	if( ( pxAddress != NULL ) && ( pxAddress->sin_family == ( uint8_t ) FREERTOS_AF_INET6 ) )
 	{
 		uxHostType = dnsTYPE_AAAA_HOST;
 	}
@@ -973,7 +973,8 @@ UBaseType_t uxHostType;
 					/* Use LLMNR addressing. */
 					( ipPOINTER_CAST( DNSMessage_t *, pucUDPPayloadBuffer ) ) -> usFlags = 0;
 					xAddress.sin_addr = ipLLMNR_IP_ADDR;	/* Is in network byte order. */
-					xAddress.sin_port = FreeRTOS_ntohs( ipLLMNR_PORT );
+					xAddress.sin_port = ipLLMNR_PORT;
+					xAddress.sin_port = FreeRTOS_ntohs( xAddress.sin_port );
 				}
 				else
 #endif
@@ -988,17 +989,17 @@ UBaseType_t uxHostType;
 					{
 						/* lint e506 e774 : the macro 'ENDPOINT_IS_IPv4' may return a const
 						has a const value when IPv6 is not enabled. */
-						if( ENDPOINT_IS_IPv4( pxEndPoint ) )/*lint !e506 !e774 */
+						if( ENDPOINT_IS_IPv4( pxEndPoint ) )
 						{
 							FreeRTOS_GetAddressConfiguration( pxEndPoint, NULL, NULL, NULL, &ulIPAddress );
 							if( ( ulIPAddress != ( uint32_t )0u ) && ( ulIPAddress != ~( uint32_t )0u ) )
 							{
-								break;
+								break;	/*lint !e9011: (Note -- more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 							}
 						}
 					}
 					/* Use DNS server. */
-					xAddress.sin_len = sizeof( xAddress );
+					xAddress.sin_len = ( uint8_t ) sizeof( xAddress );
 					xAddress.sin_family = FREERTOS_AF_INET;
 					xAddress.sin_addr = ulIPAddress;
 					xAddress.sin_port = dnsDNS_PORT;
@@ -1063,7 +1064,7 @@ UBaseType_t uxHostType;
 			{
 				/* This DNS lookup is asynchronous, using a call-back:
 				send the request only once. */
-				break;
+				break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory] */
 			}
 		}
 
@@ -1123,7 +1124,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 	{
 		pucByte++;
 
-		while( ( *pucByte != 0x00 ) && ( *pucByte != '.' ) )
+		while( ( *pucByte != ( uint8_t ) 0u ) && ( *pucByte != ( uint8_t ) '.' ) )
 		{
 			pucByte++;
 		}
@@ -1134,7 +1135,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 		( *pucStart )--;
 
 		pucStart = pucByte;
-	} while( *pucByte != 0x00 );
+	} while( *pucByte != ( uint8_t ) 0u );
 
 	/* Finish off the record. */
 
@@ -1150,22 +1151,22 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 	/* Return the total size of the generated message, which is the space from
 	the last written byte to the beginning of the buffer. */
-	return ( ( uint32_t ) pucByte - ( uint32_t ) pucUDPPayloadBuffer + 1 ) + sizeof( DNSTail_t );/*lint !e9078 !e923 !e834 !e946 !e947 !e438 !e830 */
+	return ( ( uint32_t ) pucByte - ( uint32_t ) pucUDPPayloadBuffer + 1u ) + sizeof( DNSTail_t );/*lint !e9078 !e923 !e834 !e946 !e947 !e438 !e830 */
 }
 /*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
 
 	static size_t prvReadNameField( uint8_t *pucByte,
-									size_t xSourceLen,
+									size_t uxSourceLen,
 									char *pcName,
-									size_t xDestLen )
+									size_t uxDestLen )
 	{
 	size_t uxNameLen = 0;
 	size_t uxCount;
 	size_t uxIndex = 0;
 
-		if( xSourceLen == 0 )
+		if( uxSourceLen == ( size_t ) 0u )
 		{
 			/* Return 0 value in case of error. */
 			uxIndex = 0;
@@ -1175,7 +1176,7 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 		else if( ( pucByte[ uxIndex ] & dnsNAME_IS_OFFSET ) == dnsNAME_IS_OFFSET )
 		{
 			/* Jump over the two byte offset. */
-			if( xSourceLen > sizeof( uint16_t ) )
+			if( uxSourceLen > sizeof( uint16_t ) )
 			{
 				uxIndex += sizeof( uint16_t );
 			}
@@ -1187,11 +1188,11 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 		else
 		{
 			/* 'uxIndex' points to the full name. Walk over the string. */
-			while( ( uxIndex < ( xSourceLen - 1 ) ) && ( pucByte[ uxIndex ] != ( uint8_t )0x00u ) )
+			while( ( uxIndex < ( uxSourceLen - 1u ) ) && ( pucByte[ uxIndex ] != ( uint8_t )0x00u ) )
 			{
 				/* If this is not the first time through the loop, then add a
 				separator in the output. */
-				if( ( uxNameLen > 0 ) && ( uxNameLen < ( xDestLen - 1 ) ) )
+				if( ( uxNameLen > 0u ) && ( uxNameLen < ( uxDestLen - 1u ) ) )
 				{
 					pcName[ uxNameLen ] = '.';
 					uxNameLen++;
@@ -1199,11 +1200,11 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 
 				/* Process the first/next sub-string. */
 				uxCount = ( size_t ) pucByte[ uxIndex ];
-				xSourceLen--;
+				uxSourceLen--;
 				uxIndex++;
-				while( uxCount-- && ( xSourceLen > 1 ) )
+				while( ( uxCount-- != 0u ) && ( uxSourceLen > 1u ) )
 				{
-					if( uxNameLen < ( xDestLen - 1 ) )
+					if( uxNameLen < ( uxDestLen - 1u ) )
 					{
 						pcName[ uxNameLen ] = ( char ) pucByte[ uxIndex ];
 						uxNameLen++;
@@ -1215,14 +1216,14 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 						break;
 					}
 					uxIndex++;
-					xSourceLen--;
+					uxSourceLen--;
 				}
 			}
 
 			/* Confirm that a fully formed name was found. */
-			if( uxIndex > 0 )
+			if( uxIndex > 0u )
 			{
-				if( 0x00 == pucByte[ uxIndex ] )
+				if( pucByte[ uxIndex ] == 0u )
 				{
 					uxIndex++;
 					pcName[ uxNameLen ] = '\0';
@@ -1240,63 +1241,63 @@ static const DNSMessage_t xDefaultPartDNSHeader =
 /*-----------------------------------------------------------*/
 
 static size_t prvSkipNameField( uint8_t *pucByte,
-								size_t xSourceLen )
+								size_t uxSourceLen )
 {
-	size_t xChunkLength;
-	size_t xIndex = 0;
+	size_t uxChunkLength;
+	size_t uxIndex = 0;
 
-	if( 0 == xSourceLen )
+	if( uxSourceLen == 0u )
 	{
-		xIndex = 0;
+		uxIndex = 0;
 	}
 	/* Determine if the name is the fully coded name, or an offset to the name
 	elsewhere in the message. */
-	else if( ( pucByte[ xIndex ] & dnsNAME_IS_OFFSET ) == dnsNAME_IS_OFFSET )
+	else if( ( pucByte[ uxIndex ] & dnsNAME_IS_OFFSET ) == dnsNAME_IS_OFFSET )
 	{
 		/* Jump over the two byte offset. */
-		if( xSourceLen > sizeof( uint16_t ) )
+		if( uxSourceLen > sizeof( uint16_t ) )
 		{
-			xIndex += sizeof( uint16_t );
+			uxIndex += sizeof( uint16_t );
 		}
 		else
 		{
-			xIndex = 0;
+			uxIndex = 0;
 		}
 	}
 	else
 	{
 		/* pucByte points to the full name. Walk over the string. */
-		while( ( pucByte[ xIndex ] != 0x00 ) && ( xSourceLen > 1 ) )
+		while( ( pucByte[ uxIndex ] != 0u ) && ( uxSourceLen > 1u ) )
 		{
-			xChunkLength = pucByte[ xIndex ] + 1;
+			uxChunkLength = ( size_t ) pucByte[ uxIndex ] + 1u;
 
-			if( xSourceLen > xChunkLength )
+			if( uxSourceLen > uxChunkLength )
 			{
-				xSourceLen -= xChunkLength;
-				xIndex += xChunkLength;
+				uxSourceLen -= uxChunkLength;
+				uxIndex += uxChunkLength;
 			}
 			else
 			{
-				xIndex = 0;
+				uxIndex = 0;
 				break;
 			}
 		}
 
 		/* Confirm that a fully formed name was found. */
-		if( xIndex > 0 )
+		if( uxIndex > 0u )
 		{
-			if( 0x00 == pucByte[ xIndex ] )
+			if( 0u == pucByte[ uxIndex ] )
 			{
-				xIndex++;
+				uxIndex++;
 			}
 			else
 			{
-				xIndex = 0;
+				uxIndex = 0;
 			}
 		}
 	}
 
-	return xIndex;
+	return uxIndex;
 }
 /*-----------------------------------------------------------*/
 
@@ -1314,7 +1315,7 @@ static size_t prvSkipNameField( uint8_t *pucByte,
 		#endif
 
 			configPRINTF( ( "ulDNSHandlePacket: received reply\n" ) );
-			memset( &xAddress, '\0', sizeof xAddress );
+			memset( &xAddress, 0, sizeof xAddress );
 			pxDNSMessageHeader =
 				ipPOINTER_CAST( DNSMessage_t *, &( pxNetworkBuffer->pucEthernetBuffer [ sizeof( UDPPacket_t ) ] ) );
 
@@ -1357,7 +1358,7 @@ NetworkEndPoint_t *pxEndPoint;
 
 	if( xIPPacket_IPv6->xEthernetHeader.usFrameType == ipIPv6_FRAME_TYPE )
 	{
-		pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &xIPPacket_IPv6->xIPHeader_IPv6.xSourceIPv6Address );
+		pxEndPoint = FreeRTOS_FindEndPointOnNetMask_IPv6( &xIPPacket_IPv6->xIPHeader.xSourceAddress );
 	}
 	else					
 #endif
@@ -1376,7 +1377,7 @@ NetworkEndPoint_t *pxEndPoint;
 }
 /*-----------------------------------------------------------*/
 
-static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t xBufferLength, struct freertos_sockaddr *pxAddress, BaseType_t xExpected )
+static uint32_t prvParseDNSReply( uint8_t *pucUDPPayloadBuffer, size_t uxBufferLength, struct freertos_sockaddr *pxAddress, BaseType_t xExpected )
 {
 DNSMessage_t *pxDNSMessageHeader;
 DNSAnswerRecord_t *pxDNSAnswerRecord;
@@ -1386,7 +1387,7 @@ uint32_t ulIPAddress = 0UL;
 	char *pcRequestedName = NULL;
 #endif
 uint8_t *pucByte;
-size_t xSourceBytesRemaining;
+size_t uxSourceBytesRemaining;
 uint16_t x, usDataLength, usQuestions;
 BaseType_t xDoStore = xExpected;
 uint16_t usType = 0, usClass = 0;
@@ -1396,11 +1397,11 @@ uint16_t usType = 0, usClass = 0;
 IPv46_Address_t xIP_Address;
 
 	/* Ensure that the buffer is of at least minimal DNS message length. */
-	if( xBufferLength < sizeof( DNSMessage_t ) )
+	if( uxBufferLength < sizeof( DNSMessage_t ) )
 	{
 		return dnsPARSE_ERROR;	/*lint !e904 Return statement before end of function */
 	}
-	xSourceBytesRemaining = xBufferLength;
+	uxSourceBytesRemaining = uxBufferLength;
 
 	/* Parse the DNS message header. */
 	pxDNSMessageHeader = ipPOINTER_CAST( DNSMessage_t *, pucUDPPayloadBuffer );
@@ -1408,11 +1409,11 @@ IPv46_Address_t xIP_Address;
 	/* Introduce a do {} while (0) to allow the use of breaks. */
 	do
 	{
-	size_t xBytesRead = 0;
-	size_t xResult;
+	size_t uxBytesRead = 0;
+	size_t uxResult;
 		/* Start at the first byte after the header. */
 		pucByte = &( pucUDPPayloadBuffer [ sizeof( DNSMessage_t ) ] );
-		xSourceBytesRemaining -= sizeof( DNSMessage_t );
+		uxSourceBytesRemaining -= sizeof( DNSMessage_t );
 
 		/* Skip any question records. */
 		usQuestions = FreeRTOS_ntohs( pxDNSMessageHeader->usQuestions );
@@ -1420,7 +1421,7 @@ IPv46_Address_t xIP_Address;
 		{
 			#if( ipconfigUSE_LLMNR == 1 )
 			{
-				if( x == 0 )
+				if( x == 0u )
 				{
 					pcRequestedName = ( char * ) pucByte;
 				}
@@ -1428,41 +1429,41 @@ IPv46_Address_t xIP_Address;
 			#endif
 
 #if( ipconfigUSE_DNS_CACHE == 1 ) || ( ipconfigDNS_USE_CALLBACKS == 1 )
-			if( x == 0 )
+			if( x == 0u )
 			{
-				xResult = prvReadNameField( pucByte,
-											   xSourceBytesRemaining,
-											   pcName,
-											   sizeof( pcName ) );
+				uxResult = prvReadNameField( pucByte,
+											uxSourceBytesRemaining,
+											pcName,
+											sizeof( pcName ) );
 
 				/* Check for a malformed response. */
-				if( xResult == 0 )
+				if( uxResult == 0u )
 				{
 					return dnsPARSE_ERROR;/*lint !e904 Return statement before end of function */
 				}
-				xBytesRead += xResult;
-				pucByte = &( pucByte[ xResult ] );
-				xSourceBytesRemaining -= xResult;
+				uxBytesRead += uxResult;
+				pucByte = &( pucByte[ uxResult ] );
+				uxSourceBytesRemaining -= uxResult;
 			}
 			else
 #endif /* ipconfigUSE_DNS_CACHE || ipconfigDNS_USE_CALLBACKS */
 			{
 				/* Skip the variable length pcName field. */
-				xResult = prvSkipNameField( pucByte,
-											xSourceBytesRemaining );
+				uxResult = prvSkipNameField( pucByte,
+											uxSourceBytesRemaining );
 
 				/* Check for a malformed response. */
-				if( xResult == 0 )
+				if( uxResult == 0u )
 				{
 					return dnsPARSE_ERROR;/*lint !e904 Return statement before end of function */
 				}
-				xBytesRead += xResult;
-				pucByte = &( pucByte[ xResult ] );
-				xSourceBytesRemaining -= xResult;
+				uxBytesRead += uxResult;
+				pucByte = &( pucByte[ uxResult ] );
+				uxSourceBytesRemaining -= uxResult;
 			}
 
 			/* Check the remaining buffer size. */
-			if( xSourceBytesRemaining >= sizeof( uint32_t ) )
+			if( uxSourceBytesRemaining >= sizeof( uint32_t ) )
 			{
 				/* usChar2u16 returns value in host endianness. */
 				usType = usChar2u16( pucByte );
@@ -1470,7 +1471,7 @@ IPv46_Address_t xIP_Address;
 
 				/* Skip the type and class fields. */
 				pucByte = &( pucByte[ sizeof( uint32_t ) ] );
-				xSourceBytesRemaining -= sizeof( uint32_t );
+				uxSourceBytesRemaining -= sizeof( uint32_t );
 			}
 			else
 			{
@@ -1489,17 +1490,17 @@ IPv46_Address_t xIP_Address;
 			BaseType_t xDoAccept;
 			size_t uxAddressLength;
 
-				xResult = prvSkipNameField( pucByte,
-											xSourceBytesRemaining );
+				uxResult = prvSkipNameField( pucByte,
+											uxSourceBytesRemaining );
 
 				/* Check for a malformed response. */
-				if( xResult == 0 )
+				if( uxResult == 0u )
 				{
 					return dnsPARSE_ERROR;/*lint !e904 */
 				}
-				xBytesRead += xResult;
-				pucByte = &( pucByte[ xResult ] );
-				xSourceBytesRemaining -= xResult;
+				uxBytesRead += uxResult;
+				pucByte = &( pucByte[ uxResult ] );
+				uxSourceBytesRemaining -= uxResult;
 
 
 				/* Is there enough data for an IPv4 A record answer and, if so,
@@ -1510,14 +1511,28 @@ IPv46_Address_t xIP_Address;
 				if( usType == ( uint16_t ) dnsTYPE_AAAA_HOST )
 				{
 					uxAddressLength = ipSIZE_OF_IPv6_ADDRESS;
-					xDoAccept = ( xSourceBytesRemaining >= ( sizeof( DNSAnswerRecord_t ) + uxAddressLength ) );
+					if( uxSourceBytesRemaining >= ( sizeof( DNSAnswerRecord_t ) + uxAddressLength ) )
+					{
+						xDoAccept = pdTRUE;
+					}
+					else
+					{
+						xDoAccept = pdFALSE;
+					}
 				}
 				else
 				#endif	/* #if( ipconfigUSE_IPv6 != 0 ) */
 				if( usType == ( uint16_t ) dnsTYPE_A_HOST )
 				{
 					uxAddressLength = ipSIZE_OF_IPv4_ADDRESS;
-					xDoAccept = ( xSourceBytesRemaining >= ( sizeof( DNSAnswerRecord_t ) + uxAddressLength ) );
+					if( uxSourceBytesRemaining >= ( sizeof( DNSAnswerRecord_t ) + uxAddressLength ) )
+					{
+						xDoAccept = pdTRUE;
+					}
+					else
+					{
+						xDoAccept = pdFALSE;
+					}
 				}
 				else
 				{
@@ -1530,7 +1545,7 @@ IPv46_Address_t xIP_Address;
 
 					/* Sanity check the data length of an IPv4 answer. */
 					/* lint: uxAddressLength is defined because xDoAccept = true. */
-					if( FreeRTOS_ntohs( pxDNSAnswerRecord->usDataLength ) == uxAddressLength )/*lint !e644 Variable 'uxAddressLength' (line 1380) may not have been initialized [MISRA 2012 Rule 9.1, mandatory]). */
+					if( FreeRTOS_ntohs( pxDNSAnswerRecord->usDataLength ) == ( uint16_t ) uxAddressLength )/*lint !e644 Variable 'uxAddressLength' (line 1380) may not have been initialized [MISRA 2012 Rule 9.1, mandatory]). */
 					{
 						/* Copy the IP address out of the record. */
 						#if( ipconfigUSE_IPv6 != 0 )
@@ -1621,25 +1636,25 @@ IPv46_Address_t xIP_Address;
 					}
 
 					pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) + uxAddressLength ] );
-					xSourceBytesRemaining -= ( sizeof( DNSAnswerRecord_t ) + uxAddressLength );
+					uxSourceBytesRemaining -= ( sizeof( DNSAnswerRecord_t ) + uxAddressLength );
 					break;
 				}
-				else if( xSourceBytesRemaining >= sizeof( DNSAnswerRecord_t ) )
+				else if( uxSourceBytesRemaining >= sizeof( DNSAnswerRecord_t ) )
 				{
 					/* It's not an A or an AAAA record, so skip it. Get the header location
 					and then jump over the header. */
 					pxDNSAnswerRecord = ipPOINTER_CAST( DNSAnswerRecord_t *, pucByte );
 					pucByte = &( pucByte[ sizeof( DNSAnswerRecord_t ) ] );
-					xSourceBytesRemaining -= sizeof( DNSAnswerRecord_t );
+					uxSourceBytesRemaining -= sizeof( DNSAnswerRecord_t );
 
 					/* Determine the length of the answer data from the header. */
 					usDataLength = FreeRTOS_ntohs( pxDNSAnswerRecord->usDataLength );
 
 					/* Jump over the answer. */
-					if( xSourceBytesRemaining >= usDataLength )
+					if( uxSourceBytesRemaining >= usDataLength )
 					{
 						pucByte = &( pucByte[ usDataLength ] );
-						xSourceBytesRemaining -= usDataLength;
+						uxSourceBytesRemaining -= usDataLength;
 					}
 					else
 					{
@@ -1661,8 +1676,8 @@ IPv46_Address_t xIP_Address;
 		NetworkEndPoint_t *pxEndPoint, xEndPoint;
 		int16_t usLength;
 		LLMNRAnswer_t *pxAnswer;
-		size_t xDataLength;
-		size_t xExtraLength;
+		size_t uxDataLength;
+		size_t uxExtraLength;
 		size_t uxOffsets[ 3 ];
 
 			#if( ipconfigUSE_IPv6 == 0 )
@@ -1677,7 +1692,7 @@ IPv46_Address_t xIP_Address;
 			/* This test could be replaced with a assert(). */
 			if( pxNetworkBuffer == NULL )
 			{
-				break;
+				break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 			}
 			if( pxNetworkBuffer->pxEndPoint == NULL )
 			{
@@ -1692,7 +1707,7 @@ IPv46_Address_t xIP_Address;
 
 				if( pxNetworkBuffer->pxEndPoint == NULL )
 				{
-					break;
+					break;	/*lint !e9011 more than one 'break' terminates loop [MISRA 2012 Rule 15.4, advisory]. */
 				}
 			}
 			pxEndPoint = pxNetworkBuffer->pxEndPoint;//prvFindEndPointOnNetMask( pxNetworkBuffer );
@@ -1719,38 +1734,38 @@ IPv46_Address_t xIP_Address;
 				if( xApplicationDNSQueryHook ( &xEndPoint, &( pcRequestedName [ 1 ] ) ) == pdFALSE )
 				{
 					/* This LLMNR request needs no reply from this unit. */
-					break;
+					break;	/*lint !e9011 */
 				}
 			}
 
 			/* Using 'ipSIZE_OF_IPv4_HEADER' because all LLMNR/DNS packets are transmitted in IPv4 for now. */
-			xDataLength = sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER + sizeof( UDPHeader_t ) + pxNetworkBuffer->xDataLength;
+			uxDataLength = sizeof( EthernetHeader_t ) + ipSIZE_OF_IPv4_HEADER + sizeof( UDPHeader_t ) + pxNetworkBuffer->xDataLength;
 
 			#if( ipconfigUSE_IPv6 != 0 )
 			if( usType == dnsTYPE_AAAA_HOST )
 			{
-				xExtraLength = sizeof( LLMNRAnswer_t ) + ipSIZE_OF_IPv6_ADDRESS - sizeof( pxAnswer->ulIPAddress );
+				uxExtraLength = sizeof( LLMNRAnswer_t ) + ipSIZE_OF_IPv6_ADDRESS - sizeof( pxAnswer->ulIPAddress );
 			}
 			else
 			#endif
 			{
-				xExtraLength = sizeof( LLMNRAnswer_t );
+				uxExtraLength = sizeof( LLMNRAnswer_t );
 			}
 
 			/* The field xDataLength was set to the length of the UDP
 			payload.  The answer (reply) will be longer than the
 			request, so the packet must be resized. */
-			uxOffsets[ 0 ] = ( size_t ) ( pucUDPPayloadBuffer - pxNetworkBuffer->pucEthernetBuffer );/*lint !e946 !e947 !e613 !e831 */
-			uxOffsets[ 1 ] = ( size_t ) ( pcRequestedName - ( ( char * ) pxNetworkBuffer->pucEthernetBuffer ) );/*lint !e946 !e947 !e613 !e831 */
-			uxOffsets[ 2 ] = ( size_t ) ( pucByte - pxNetworkBuffer->pucEthernetBuffer );/*lint !e946 !e947 !e613 !e831 */
+			uxOffsets[ 0 ] = ( size_t ) ( pucUDPPayloadBuffer - pxNetworkBuffer->pucEthernetBuffer );/*lint !e9033 !e946 !e947 !e613 !e831 */
+			uxOffsets[ 1 ] = ( size_t ) ( pcRequestedName - ( ( char * ) pxNetworkBuffer->pucEthernetBuffer ) );/*lint !e9033 !e946 !e947 !e613 !e831 */
+			uxOffsets[ 2 ] = ( size_t ) ( pucByte - pxNetworkBuffer->pucEthernetBuffer );/*lint !e9033 !e946 !e947 !e613 !e831 */
 
 			/* Restore the 'xDataLength' field. */
-			pxNetworkBuffer->xDataLength = xDataLength;
-			pxNetworkBuffer = pxResizeNetworkBufferWithDescriptor( pxNetworkBuffer, xDataLength + xExtraLength );
+			pxNetworkBuffer->xDataLength = uxDataLength;
+			pxNetworkBuffer = pxResizeNetworkBufferWithDescriptor( pxNetworkBuffer, uxDataLength + uxExtraLength );
 
 			if( pxNetworkBuffer == NULL )
 			{
-				break;
+				break;	/*lint !e9011 */
 			}
 			pucNewBuffer = &( pxNetworkBuffer->pucEthernetBuffer [ ( BaseType_t ) uxOffsets[ 0 ] ] );
 			pcRequestedName = ( char * ) &( pxNetworkBuffer->pucEthernetBuffer [ uxOffsets[ 1 ] ] );
@@ -1769,7 +1784,7 @@ IPv46_Address_t xIP_Address;
 			#endif /* lint */
 			
 			pxAnswer->ucNameCode = dnsNAME_IS_OFFSET;
-			pxAnswer->ucNameOffset = ( uint8_t )( pcRequestedName - ( char * ) pucNewBuffer );	/*lint !e946 !e947 */
+			pxAnswer->ucNameOffset = ( uint8_t )( pcRequestedName - ( char * ) pucNewBuffer );	/*lint !e9033 !e946 !e947 */
 
 			#ifndef _lint
 			vSetField16( pxAnswer, LLMNRAnswer_t, usType, usType );	/* Type A: host */
@@ -1784,15 +1799,15 @@ IPv46_Address_t xIP_Address;
 			NetworkEndPoint_t *pxReplyEndpoint = FreeRTOS_FirstEndPoint_IPv6( NULL );
 				if( pxReplyEndpoint == NULL )
 				{
-					break;
+					break;	/*lint !e9011 */
 				}
 				#ifndef _lint
 				vSetField16( pxAnswer, LLMNRAnswer_t, usDataLength, ipSIZE_OF_IPv6_ADDRESS );
 				#endif /* lint */
 				memcpy( &( pxAnswer->ulIPAddress ), pxReplyEndpoint->ipv6_settings.xIPAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );/*lint !e419 Warning -- Apparent data overrun for function , argument 3 (size=16) exceeds argument 1 (size=4) [MISRA 2012 Rule 1.3, required]). */
 				FreeRTOS_printf( ( "LLMNR return IPv6 %pip\n", pxReplyEndpoint->ipv6_settings.xIPAddress.ucBytes ) );
-				uxDistance = ( size_t ) ( pucByte - pucNewBuffer );/*lint !e946, !e947 */
-				usLength = ( int16_t ) ( sizeof( *pxAnswer ) + uxDistance + ipSIZE_OF_IPv6_ADDRESS - sizeof( pxAnswer->ulIPAddress ) );
+				uxDistance = ( size_t ) ( pucByte - pucNewBuffer );/*lint !e9033 !e946, !e947 */
+				usLength = ipNUMERIC_CAST( int16_t, sizeof( *pxAnswer ) + uxDistance + ipSIZE_OF_IPv6_ADDRESS - sizeof( pxAnswer->ulIPAddress ) );
 			}
 			else
 			#endif
@@ -1804,7 +1819,7 @@ IPv46_Address_t xIP_Address;
 				vSetField32( pxAnswer, LLMNRAnswer_t, ulIPAddress, FreeRTOS_ntohl( xEndPoint.ipv4_settings.ulIPAddress ) );
 				#endif /* lint */
 				
-				usLength = ( int16_t ) ( sizeof( *pxAnswer ) + ( size_t ) ( pucByte - pucNewBuffer ) );	/*lint !e946 !e947 */
+				usLength = ( int16_t ) ( sizeof( *pxAnswer ) + ( size_t ) ( pucByte - pucNewBuffer ) );	/*lint !e9033 !e946 !e947 */
 			}
 			#if( ipconfigUSE_IPv6 == 0 )
 			if( usType == dnsTYPE_A_HOST )	/*lint !e774 */
@@ -1820,9 +1835,9 @@ IPv46_Address_t xIP_Address;
 			/* Not an expected reply. */
 		}
 		/* Did not read it yet. */
-		( void ) xBytesRead;
+		( void ) uxBytesRead;
 #endif /* ipconfigUSE_LLMNR == 1 */
-	} while( 0 );	/*lint !e717 (Info -- do ... while(0);) */
+	} while( 0 );	/*lint !e9036 !e717 (Info -- do ... while(0);) */
 
 	if( xExpected == pdFALSE )
 	{
@@ -1837,7 +1852,7 @@ IPv46_Address_t xIP_Address;
 #if( ipconfigUSE_NBNS == 1 ) /*_RB_ Not yet converted to multi interfaces. */
 
 	static void prvTreatNBNS( uint8_t *pucUDPPayloadBuffer,
-							  size_t xBufferLength,
+							  size_t uxBufferLength,
 							  uint32_t ulIPAddress )
 	{
 	uint16_t usFlags, usType, usClass;
@@ -1847,7 +1862,7 @@ IPv46_Address_t xIP_Address;
 	NetworkBufferDescriptor_t *pxNetworkBuffer;
 
 		/* Check for minimum buffer size. */
-		if( xBufferLength < sizeof( NBNSRequest_t ) )
+		if( uxBufferLength < sizeof( NBNSRequest_t ) )
 		{
 			return;
 		}
@@ -1939,14 +1954,14 @@ IPv46_Address_t xIP_Address;
 				if( ( xBufferAllocFixedSize == pdFALSE ) && ( pxNetworkBuffer != NULL ) )
 				{
 				NetworkBufferDescriptor_t *pxNewBuffer;
-				BaseType_t xDataLength = pxNetworkBuffer->xDataLength + sizeof( UDPHeader_t ) +
+				BaseType_t uxDataLength = pxNetworkBuffer->xDataLength + sizeof( UDPHeader_t ) +
 					sizeof( EthernetHeader_t ) + sizeof( IPHeader_t );
 
 					/* The field xDataLength was set to the length of the UDP payload.
 					The answer (reply) will be longer than the request, so the packet
 					must be duplicated into a bigger buffer */
-					pxNetworkBuffer->xDataLength = xDataLength;
-					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, xDataLength + 16 );
+					pxNetworkBuffer->xDataLength = uxDataLength;
+					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, uxDataLength + 16 );
 
 					if( pxNewBuffer != NULL )
 					{
@@ -2031,13 +2046,13 @@ BaseType_t xReturn;
 	IPHeader_t *pxIPHeader;
 	UDPHeader_t *pxUDPHeader;
 	NetworkEndPoint_t *pxEndPoint = prvFindEndPointOnNetMask( pxNetworkBuffer );
-	size_t xDataLength;
+	size_t uxDataLength;
 
 		pxUDPPacket = ipPOINTER_CAST( UDPPacket_t *, pxNetworkBuffer->pucEthernetBuffer );
 		pxIPHeader = &pxUDPPacket->xIPHeader;
 
 	#if( ipconfigUSE_IPv6 != 0 )
-		if( ( pxIPHeader->ucVersionHeaderLength & 0xf0 ) == 0x60 )
+		if( ( pxIPHeader->ucVersionHeaderLength & 0xf0u ) == 0x60u )
 		{
 		UDPPacket_IPv6_t *xUDPPacket_IPv6;
 		IPHeader_IPv6_t *pxIPHeader_IPv6;
@@ -2049,15 +2064,15 @@ BaseType_t xReturn;
 			pxIPHeader_IPv6->usPayloadLength = FreeRTOS_htons( ( uint16_t ) lNetLength + ipSIZE_OF_UDP_HEADER );
 
 			{
-				memcpy( pxIPHeader_IPv6->xDestinationIPv6Address.ucBytes, pxIPHeader_IPv6->xSourceIPv6Address.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
-				memcpy( pxIPHeader_IPv6->xSourceIPv6Address.ucBytes, pxEndPoint->ipv6_settings.xIPAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+				memcpy( pxIPHeader_IPv6->xDestinationAddress.ucBytes, pxIPHeader_IPv6->xSourceAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
+				memcpy( pxIPHeader_IPv6->xSourceAddress.ucBytes, pxEndPoint->ipv6_settings.xIPAddress.ucBytes, ipSIZE_OF_IPv6_ADDRESS );
 			}
 
 			FreeRTOS_printf( ( "DNSreturn to %pip\n", pxEndPoint->ipv6_settings.xIPAddress.ucBytes ) );
 
 			xUDPPacket_IPv6->xUDPHeader.usLength = FreeRTOS_htons( ( uint16_t ) lNetLength + ipSIZE_OF_UDP_HEADER );
 			vFlip_16( pxUDPHeader->usSourcePort, pxUDPHeader->usDestinationPort );
-			xDataLength = ( size_t ) lNetLength + ipSIZE_OF_IPv6_HEADER + ipSIZE_OF_UDP_HEADER + ipSIZE_OF_ETH_HEADER;
+			uxDataLength = ( size_t ) lNetLength + ipSIZE_OF_IPv6_HEADER + ipSIZE_OF_UDP_HEADER + ipSIZE_OF_ETH_HEADER;
 		}
 		else
 	#endif /* ipconfigUSE_IPv6 */
@@ -2072,30 +2087,30 @@ BaseType_t xReturn;
 			pxIPHeader->usIdentification		= FreeRTOS_htons( usPacketIdentifier );
 			usPacketIdentifier++;
 			pxUDPHeader->usLength				= FreeRTOS_htons( ( uint32_t ) lNetLength + ipSIZE_OF_UDP_HEADER );
-			vFlip_16( pxUDPHeader->usSourcePort, pxUDPHeader->usDestinationPort );	/*lint !e717  do ... while(0); */
-			xDataLength = ( size_t ) ( ( uint32_t ) lNetLength + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER + ipSIZE_OF_ETH_HEADER );
+			vFlip_16( pxUDPHeader->usSourcePort, pxUDPHeader->usDestinationPort );	/*lint !e717  !e9036  do ... while(0); */
+			uxDataLength = ( size_t ) ( ( uint32_t ) lNetLength + ipSIZE_OF_IPv4_HEADER + ipSIZE_OF_UDP_HEADER + ipSIZE_OF_ETH_HEADER );
 		}
 
 		#if( ipconfigDRIVER_INCLUDED_TX_IP_CHECKSUM == 0 )
 		{
 			#if( ipconfigUSE_IPv6 != 0 )
 			/* IPv6 IP-headers have no checmsum field. */
-			if( ( pxIPHeader->ucVersionHeaderLength & 0xf0 ) != 0x60 )
+			if( ( pxIPHeader->ucVersionHeaderLength & 0xf0u ) != 0x60u )
 			#endif
 			{
 				/* Calculate the IP header checksum. */
-				pxIPHeader->usHeaderChecksum	= 0x00;
-				pxIPHeader->usHeaderChecksum	= usGenerateChecksum( 0UL, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ipSIZE_OF_IPv4_HEADER );
+				pxIPHeader->usHeaderChecksum	= 0x00u;
+				pxIPHeader->usHeaderChecksum	= usGenerateChecksum( 0u, ( uint8_t * ) &( pxIPHeader->ucVersionHeaderLength ), ipSIZE_OF_IPv4_HEADER );
 				pxIPHeader->usHeaderChecksum	= ~FreeRTOS_htons( pxIPHeader->usHeaderChecksum );
 			}
 
 			/* calculate the UDP checksum for outgoing package */
-			( void ) usGenerateProtocolChecksum( ( uint8_t * ) pxUDPPacket, xDataLength, pdTRUE );
+			( void ) usGenerateProtocolChecksum( ( uint8_t * ) pxUDPPacket, uxDataLength, pdTRUE );
 		}
 		#endif
 
 		/* Important: tell NIC driver how many bytes must be sent */
-		pxNetworkBuffer->xDataLength = xDataLength;
+		pxNetworkBuffer->xDataLength = uxDataLength;
 
 		/* This function will fill in the eth addresses and send the packet */
 		vReturnEthernetFrame( pxNetworkBuffer, pdFALSE );
@@ -2118,7 +2133,7 @@ BaseType_t xReturn;
 		/* For each entry in the DNS cache table. */
 		for( x = 0; x < ipconfigDNS_CACHE_ENTRIES; x++ )
 		{
-			if( xDNSCache[ x ].pcName[ 0 ] == 0 )
+			if( xDNSCache[ x ].pcName[ 0 ] == ( char ) 0 )
 			{
 				continue;
 			}
@@ -2139,9 +2154,8 @@ BaseType_t xReturn;
 						}
 						else
 						{
-FreeRTOS_printf( ( "prvProcessDNSCache: Delete old '%s' at %d\n", xDNSCache[ x ].pcName, ( int ) x ) );
 							/* Age out the old cached record. */
-							xDNSCache[ x ].pcName[ 0 ] = 0;
+							xDNSCache[ x ].pcName[ 0 ] = ( char ) 0;
 						}
 					}
 					else
@@ -2158,11 +2172,11 @@ FreeRTOS_printf( ( "prvProcessDNSCache: Delete old '%s' at %d\n", xDNSCache[ x ]
 		}
 
 		#warning This logging should be taken away later
-		if( xLookUp )
+		if( xLookUp != 0 )
 		{
 			#if( ipconfigUSE_IPv6 != 0 )
 				FreeRTOS_printf( ( "prvProcessDNSCache: lookup-%d '%s': found = %d\n",
-								   ( pxIP->ucIs_IPv6 != 0 ) ? 6 : 4,
+								   ( pxIP->ucIs_IPv6 != 0u ) ? 6 : 4,
 								   pcName,
 								   ( int ) xFound ) );
 			#else
@@ -2174,7 +2188,7 @@ FreeRTOS_printf( ( "prvProcessDNSCache: Delete old '%s' at %d\n", xDNSCache[ x ]
 		else
 		{
 			#if( ipconfigUSE_IPv6 != 0 )
-			if( pxIP->ucIs_IPv6 )
+			if( pxIP->ucIs_IPv6 != 0u )
 			{
 				FreeRTOS_printf( ( "prvProcessDNSCache: add-6 '%s': %pip: found = %d\n",
 								   pcName,
@@ -2199,10 +2213,9 @@ FreeRTOS_printf( ( "prvProcessDNSCache: Delete old '%s' at %d\n", xDNSCache[ x ]
 			else
 			{
 				/* Add or update the item. */
-				if( strlen( pcName ) < ipconfigDNS_CACHE_NAME_LENGTH )
+				if( strlen( pcName ) < ( size_t ) ipconfigDNS_CACHE_NAME_LENGTH )
 				{
 					strcpy( xDNSCache[ xFreeEntry ].pcName, pcName );
-FreeRTOS_printf( ( "prvProcessDNSCache: adding %s at %d for %ld secs\n", xDNSCache[ xFreeEntry ].pcName, ( int ) xFreeEntry, FreeRTOS_ntohl( ulTTL ) ) );
 					memcpy( &( xDNSCache[ xFreeEntry ].xAddr ), pxIP, sizeof( *pxIP ) );
 					xDNSCache[ xFreeEntry ].ulTTL = ulTTL;
 					xDNSCache[ xFreeEntry ].ulTimeWhenAddedInSeconds = ulCurrentTimeSeconds;
@@ -2216,7 +2229,7 @@ FreeRTOS_printf( ( "prvProcessDNSCache: adding %s at %d for %ld secs\n", xDNSCac
 			}
 		}
 
-		if( ( xLookUp == 0 ) || ( pxIP->u.ulIPAddress != 0 ) )
+		if( ( xLookUp == 0 ) || ( pxIP->u.ulIPAddress != 0uL ) )
 		{
 			FreeRTOS_debug_printf( ( "prvProcessDNSCache: %s: '%s' @ %lxip\n", ( xLookUp != 0 ) ? "look-up" : "add", pcName, FreeRTOS_ntohl( pxIP->u.ulIPAddress ) ) );
 		}

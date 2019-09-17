@@ -111,21 +111,36 @@ NetworkEndPoint_t *pxTargetEndPoint = pxNetworkBuffer->pxEndPoint;
 
 	traceARP_PACKET_RECEIVED();
 
+	/* Some extra logging while still testing. */
+	if( pxARPHeader->usOperation == ( uint16_t ) ipARP_REQUEST )
+	{
+		//if( ulSenderProtocolAddress != ulTargetProtocolAddress )
+		{
+			if( pxTargetEndPoint != NULL )
+			{
+				FreeRTOS_printf( ( "ipARP_REQUEST from %lxip to %lxip end-point %lxip\n",
+								   FreeRTOS_ntohl( ulSenderProtocolAddress ),
+								   FreeRTOS_ntohl( ulTargetProtocolAddress ),
+								   FreeRTOS_ntohl( ( pxTargetEndPoint != NULL ) ? pxTargetEndPoint->ipv4_settings.ulIPAddress : 0uL ) ) );
+			}
+		}
+	}
+	else if( pxARPHeader->usOperation == ( uint16_t ) ipARP_REPLY )
+	{
+			FreeRTOS_printf( ( "ipARP_REPLY from %lxip to %lxip end-point %lxip\n",
+							   FreeRTOS_ntohl( ulSenderProtocolAddress ),
+							   FreeRTOS_ntohl( ulTargetProtocolAddress ),
+							   FreeRTOS_ntohl( ( pxTargetEndPoint != NULL ) ? pxTargetEndPoint->ipv4_settings.ulIPAddress : 0uL ) ) );
+	}
+	else
+	{
+		/* Unexpected ARP type. */
+	}
 	if( ( pxTargetEndPoint != NULL ) && ( pxTargetEndPoint->bits.bEndPointUp != pdFALSE_UNSIGNED ) )
 	{
 		switch( pxARPHeader->usOperation )
 		{
 			case ipARP_REQUEST	:
-				if( ulSenderProtocolAddress != ulTargetProtocolAddress )
-				{
-					if( pxTargetEndPoint != NULL )/*lint !e774 Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]. */
-					{
-						FreeRTOS_printf( ( "ipARP_REQUEST from %lxip to %lxip end-point %lxip\n",
-										   FreeRTOS_ntohl( ulSenderProtocolAddress ),
-										   FreeRTOS_ntohl( ulTargetProtocolAddress ),
-										   FreeRTOS_ntohl( ( pxTargetEndPoint != NULL ) ? pxTargetEndPoint->ipv4_settings.ulIPAddress : 0uL ) ) );
-					}
-				}
 				/* The packet contained an ARP request.  Was it for the IP
 				address of one of the end-points? */
 				if( pxTargetEndPoint != NULL )/*lint !e774 Boolean within 'if' always evaluates to True [Reference: FreeRTOS_ARP.c] [MISRA 2012 Rule 14.3, required]. */
@@ -145,7 +160,7 @@ NetworkEndPoint_t *pxTargetEndPoint = pxNetworkBuffer->pxEndPoint;
 						the value of the broadcast address, will be swapped 
 						later. *//*_RB_ What is this path? */
 						memcpy( pxARPFrame->xEthernetHeader.xSourceAddress.ucBytes, xBroadcastMACAddress.ucBytes, sizeof( xBroadcastMACAddress ) );
-						memset( pxARPHeader->xTargetHardwareAddress.ucBytes, '\0', sizeof( MACAddress_t ) );
+						memset( pxARPHeader->xTargetHardwareAddress.ucBytes, 0, sizeof( MACAddress_t ) );
 						pxARPHeader->ulTargetProtocolAddress = 0UL;
 					}
 					else
@@ -161,7 +176,6 @@ NetworkEndPoint_t *pxTargetEndPoint = pxNetworkBuffer->pxEndPoint;
 				break;
 
 			case ipARP_REPLY :
-				FreeRTOS_printf( ( "ipARP_REPLY from %lxip to %lxip\n", FreeRTOS_ntohl( ulSenderProtocolAddress ), FreeRTOS_ntohl( ulTargetProtocolAddress ) ) );
 				iptracePROCESSING_RECEIVED_ARP_REPLY( ulTargetProtocolAddress );
 				vARPRefreshCacheEntry( &( pxARPHeader->xSenderHardwareAddress ), ulSenderProtocolAddress, pxTargetEndPoint );
 				/* Process received ARP frame to see if there is a clash. */
@@ -200,7 +214,7 @@ NetworkEndPoint_t *pxTargetEndPoint = pxNetworkBuffer->pxEndPoint;
 			if( ( memcmp( xARPCache[ x ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) ) == 0 ) )
 			{
 				lResult = xARPCache[ x ].ulIPAddress;
-				memset( &xARPCache[ x ], '\0', sizeof( xARPCache[ x ] ) );
+				memset( &xARPCache[ x ], 0, sizeof( xARPCache[ x ] ) );
 				break;
 			}
 		}
@@ -226,7 +240,7 @@ uint8_t ucMinAgeFound = 0U;
 	/* Only process the IP address if it matches with one of the end-points,
 	or as long as not all end-points are up. */
 	if( ( FreeRTOS_FindEndPointOnNetMask( ulIPAddress, 1 ) != NULL ) ||	/* Refresh ARP cache. */
-		( FreeRTOS_AllEndPointsUp( NULL ) == pdFALSE ) )/* lint !e9007 side effects on right hand of logical operator, ''||'' [MISRA 2012 Rule 13.5, required]. */
+		( FreeRTOS_AllEndPointsUp( NULL ) == pdFALSE ) )/*lint !e9007 side effects on right hand of logical operator, ''||'' [MISRA 2012 Rule 13.5, required]. */
 #else
 	/* If ipconfigARP_STORES_REMOTE_ADDRESSES is non-zero, IP addresses with
 	a different netmask will also be stored.  After when replying to a UDP
@@ -252,7 +266,14 @@ uint8_t ucMinAgeFound = 0U;
 
 			if( pxMACAddress != NULL )
 			{
-				xMatchingMAC = memcmp( xARPCache[ x ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) ) == 0;
+				if( memcmp( xARPCache[ x ].xMACAddress.ucBytes, pxMACAddress->ucBytes, sizeof( pxMACAddress->ucBytes ) ) == 0 )
+				{
+					xMatchingMAC = pdTRUE;
+				}
+				else
+				{
+					xMatchingMAC = pdFALSE;
+				}
 			}
 			else
 			{
@@ -345,7 +366,7 @@ uint8_t ucMinAgeFound = 0U;
 				/* Both the MAC address as well as the IP address were found in
 				different locations: clear the entry which matches the
 				IP-address */
-				memset( &( xARPCache[ xIpEntry ] ), '\0', sizeof( ARPCacheRow_t ) );
+				memset( &( xARPCache[ xIpEntry ] ), 0, sizeof( ARPCacheRow_t ) );
 			}
 		}
 		else if( xIpEntry >= 0 )
@@ -439,7 +460,7 @@ NetworkEndPoint_t *pxEndPoint = NULL;
 		eReturn = eARPCacheHit;
 	}
 	else
-	if( ( FreeRTOS_ntohl( ulAddressToLookup ) & 0xff ) == 0xff )
+	if( ( FreeRTOS_ntohl( ulAddressToLookup ) & 0xffuL ) == 0xffuL )
 	{
 		/* This is a broadcast (x.x.x.255) so uses the broadcast MAC address. */
 		memcpy( pxMACAddress->ucBytes, xBroadcastMACAddress.ucBytes, sizeof( MACAddress_t ) );
@@ -452,6 +473,9 @@ NetworkEndPoint_t *pxEndPoint = NULL;
 	}
 	else
 	{
+		/* It is assumed that devices with the same netmask are on the same
+		LAN and don't need a gateway. */
+		pxEndPoint = FreeRTOS_FindEndPointOnNetMask( ulAddressToLookup, 4 );
 		eReturn = eARPCacheMiss;
 
 		if( pxEndPoint == NULL )	/*lint !e774 Boolean within 'if' always evaluates to True [MISRA 2012 Rule 14.3, required]. */
@@ -472,7 +496,7 @@ NetworkEndPoint_t *pxEndPoint = NULL;
 			{
 				/* The IP address is off the local network, so look up the
 				hardware address of the router, if any. */
-				*( ppxEndPoint ) = FreeRTOS_FindGateWay( ipTYPE_IPv4 );
+				*( ppxEndPoint ) = FreeRTOS_FindGateWay( ( BaseType_t ) ipTYPE_IPv4 );
 				if( *( ppxEndPoint ) != NULL )
 				{
 					/* 'ipv4_settings' can be accessed safely, because 'ipTYPE_IPv4' was provided. */
@@ -610,7 +634,7 @@ TickType_t xTimeNow;
 					FreeRTOS_OutputAdvertiseIPv6( pxEndPoint );
 				}
 			#endif
-				if( pxEndPoint->ipv4_settings.ulIPAddress != 0 )
+				if( pxEndPoint->ipv4_settings.ulIPAddress != 0uL )
 				{
 					FreeRTOS_OutputARPRequest( pxEndPoint->ipv4_settings.ulIPAddress );
 				}
@@ -684,7 +708,25 @@ NetworkInterface_t *pxInterface;
 					}
 				}
 				#endif
-				( void ) pxInterface->pfOutput( pxInterface, pxNetworkBuffer, pdTRUE );
+
+				if( xIsCallingFromIPTask() != 0 )
+				{
+					/* Only the IP-task is allowed to call this function directly. */
+					( void ) pxInterface->pfOutput( pxInterface, pxNetworkBuffer, pdTRUE );
+				}
+				else
+				{
+				IPStackEvent_t xSendEvent;
+
+					/* Send a message to the IP-task to send this ARP packet. */
+					xSendEvent.eEventType = eNetworkTxEvent;
+					xSendEvent.pvData = pxNetworkBuffer;
+					if( xSendEventStructToIPTask( &xSendEvent, ( TickType_t ) portMAX_DELAY ) == pdFAIL )
+					{
+						/* Failed to send the message, so release the network buffer. */
+						vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
+					}
+				}
 			}
 		}
 	}
@@ -742,7 +784,7 @@ ARPPacket_t *pxARPPacket;
 
 void FreeRTOS_ClearARP( void )
 {
-	memset( xARPCache, '\0', sizeof( xARPCache ) );
+	memset( xARPCache, 0, sizeof( xARPCache ) );
 }
 /*-----------------------------------------------------------*/
 
@@ -772,7 +814,7 @@ IPPacket_t *pxIPPacket = ipPOINTER_CAST( IPPacket_t *, pxDescriptor->pucEthernet
 					pxDuplicateNetworkBufferWithDescriptor( pxDescriptor, pxDescriptor->xDataLength );
 				*( ( NetworkBufferDescriptor_t ** ) &pxDescriptor ) = pxNewDescriptor;
 			}
-			if( pxDescriptor )
+			if( pxDescriptor != NULL )
 			{
 			IPStackEvent_t xRxEvent;
 
