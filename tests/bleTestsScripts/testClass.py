@@ -392,15 +392,6 @@ class runTest:
         return isSuccessfull
 
     @staticmethod
-    def check_m(testDevice, DUT_UUID=None):
-        if (DUT_UUID == None): DUT_UUID = runTest.DUT_UUID_128
-
-        if (bleAdapter.getPropertie(testDevice, "Address") == None):
-            print("Advertisement test: Waiting for Address")
-            sys.stdout.flush()
-            return False
-
-    @staticmethod
     def advertisement(testDevice, DUT_UUID=None):
         if (DUT_UUID == None): DUT_UUID = runTest.DUT_UUID_128
 
@@ -464,7 +455,7 @@ class runTest:
             sys.stdout.flush()
             if times < (runTest.MANUFACTURE_CHECK_CASES_NUMBER-1) :
                 return False
-                
+
             manu_data = manufacture_data[runTest.COMPANY_ID]
             for data in manu_data:
                 if data != runTest.MANU_DATA:
