@@ -313,8 +313,8 @@ TEST_SETUP( HTTPS_Client_Unit_API )
  */
 TEST_TEAR_DOWN( HTTPS_Client_Unit_API )
 {
-    /* Deinitialize the library after the tests. */
-    IotHttpsClient_Deinit();
+    /* Clean up the library after the tests. */
+    IotHttpsClient_Cleanup();
 }
 
 /*-----------------------------------------------------------*/

@@ -18,7 +18,6 @@ COMPONENT_ADD_INCLUDEDIRS := nimble/nimble/include                     \
                              nimble/nimble/host/store/ram/include      \
                              nimble/nimble/host/store/config/include   \
                              nimble/nimble/host/mesh/include           \
-                             nimble/ext/tinycrypt/include              \
                              esp-hci/include                           \
                              port/include                              \
 
@@ -26,7 +25,6 @@ COMPONENT_ADD_INCLUDEDIRS := nimble/nimble/include                     \
 COMPONENT_SRCDIRS := nimble/nimble/host/src                            \
                      nimble/porting/nimble/src                         \
                      nimble/porting/npl/freertos/src                   \
-                     nimble/ext/tinycrypt/src                          \
                      nimble/nimble/host/services/ans/src               \
                      nimble/nimble/host/services/bas/src               \
                      nimble/nimble/host/services/gap/src               \

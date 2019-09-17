@@ -31,6 +31,7 @@ afr_test_module()
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
+        "${test_dir}/src/iot_test_ble_hal_common.c"
         "${test_dir}/src/iot_test_ble_hal_afqp.c"
         "${test_dir}/src/iot_test_ble_hal_stress_test.c"
         "${test_dir}/src/iot_test_ble_hal_kpi.c"
