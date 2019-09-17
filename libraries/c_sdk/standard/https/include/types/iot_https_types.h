@@ -103,8 +103,8 @@
  *
  * This helps to calculate the size of the buffer needed for #IotHttpsRequestInfo_t.userBuffer.
  *
- * This buffer size is calculated to fit the HTTP request line and the default headers. It does not account for the
- * length of the path in the request line nor does it account for the length of the host name. It also does not account
+ * This buffer size is calculated to fit the HTTP Request-Line and the default headers. It does not account for the
+ * length of the path in the Request-Line nor does it account for the length of the host name. It also does not account
  * for extra headers that the application may add. These sizes need to be accounted for by the application when
  * assigning a buffer.
  *
@@ -128,10 +128,10 @@ extern const uint32_t requestUserBufferMinimumSize;
  *
  * The buffer size is calculated to fit the HTTP response context only. It does not account for the HTTP response status
  * line. It does not account for any HTTP response headers. If the buffer assigned to
- * #IotHttpsResponseInfo_t.userBuffer is of this minimum size, then the response status line and the response headers
+ * #IotHttpsResponseInfo_t.userBuffer is of this minimum size, then the response Status-Line and the response headers
  * will not be stored. These sizes need to be accounted for by the application when assigning a buffer.
  *
- * If the response status line and response headers cannot fit into #IotHttpsResponseInfo_t.userBuffer, then after a
+ * If the response Status-Line and response headers cannot fit into #IotHttpsResponseInfo_t.userBuffer, then after a
  * call to @ref https_client_function_sendsync, calls to @ref https_client_function_readresponsestatus,
  * @ref https_client_function_readcontentlength, and @ref https_client_function_readheader will return a failure code.
  *
@@ -794,11 +794,27 @@ typedef struct IotHttpsConnectionInfo
  */
 typedef struct IotHttpsRequestInfo
 {
-    /* The path and the method are used to generate the first request line in the HTTP request message. See
-     * @ref https_client_function_initializerequest for more information. */
-    const char * pPath;      /**< @brief URI path, e.g., "/v20160207/directives?query". If this is NULL, a "/" will be added to the request line automaticaly. */
+    /**
+     * @brief The absolute path to the HTTP request object.
+     * 
+     * The absolute path includes the path to the file AND the optional query.
+     * An example URI path: "/v20160207/directives?query".
+     * 
+     * If this is NULL, a "/" will be added to the Request-Line automaticaly.
+     * 
+     * This is used to generate the Request-Line in the HTTP request message, see 
+     * @ref https_client_function_initializerequest for more information. 
+     */
+    const char * pPath;
     uint32_t pathLen;        /**< @brief URI path length */
-    IotHttpsMethod_t method; /**< @brief HTTP method. See #IotHttpsMethod_t for the list of available methods. */
+
+    /**
+     * @brief On of the HTTP method tokens defined in #IotHttpsMethod_t.
+     * 
+     * This is used to generate the Request-Line in the HTTP request message, see
+     * @ref https_client_function_initializerequest for more information. 
+     */
+    IotHttpsMethod_t method;
 
     /**
      * @brief Host address this request is intended for, e.g., "awsamazon.com".
@@ -828,7 +844,7 @@ typedef struct IotHttpsRequestInfo
     /**
      * @brief Application owned buffer for storing the request headers and internal request context.
      *
-     * For an asychronous request, if the application owns the memory for this buffer, then it must not be modified,
+     * For an asynchronous request, if the application owns the memory for this buffer, then it must not be modified,
      * freed, or reused until the the #IotHttpsClientCallbacks_t.responseCompleteCallback is invoked.
      *
      * Please see #IotHttpsUserBuffer_t for more information.
