@@ -425,7 +425,6 @@ size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested )
 {
-    size_t bytesReceived = 0;
     int32_t socketStatus = 0;
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
     SocketsSockaddr_t serverAddress = { 0 };
@@ -443,7 +442,7 @@ size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
     else
     {
         socketStatus = SOCKETS_RecvFrom( pNetworkConnection->socket,
-                                         pBuffer + bytesReceived,
+                                         pBuffer,
                                          bytesRequested,
                                          0,
                                          &serverAddress,
@@ -455,17 +454,16 @@ size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
                          socketStatus );
         }
 
-        bytesReceived += socketStatus;
-        configASSERT( bytesReceived == bytesRequested );
+        configASSERT( socketStatus == bytesRequested );
     }
 
-    if( ( bytesReceived > 0 ) && ( pNetworkConnection->strictServerAddrCheck ) )
+    if( ( socketStatus > 0 ) && ( pNetworkConnection->strictServerAddrCheck ) )
     {
         /* if strict server address check is enabled, only accept packets from the server that was used for Send */
         if( serverAddress.ulAddress != pNetworkConnection->serverAddr.ulAddress )
         {
             IotLogError( "Server address does not match and strict server address check enabled." );
-            bytesReceived = 0;
+            socketStatus = 0;
         }
     }
 
@@ -475,7 +473,7 @@ size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
         pNetworkConnection->bufferedByteValid = false;
     }
 
-    return bytesReceived;
+    return socketStatus;
 }
 /*-----------------------------------------------------------*/
 
