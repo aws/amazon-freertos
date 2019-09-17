@@ -82,7 +82,6 @@ TEST_GROUP_RUNNER( Full_TLS )
 {
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
