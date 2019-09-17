@@ -576,9 +576,9 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test Function for I2C async read twice fail
+ * @brief Test Function for I2C async read success
  */
-TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
+TEST( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadChainSuccess )
 {
     IotI2CHandle_t xI2CHandle;
     int32_t lRetVal;
@@ -642,7 +642,7 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Test Function for I2C read async fail. slave address and register not set.
+ * @brief Test Function for I2C async read twice fail
  */
 TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailSetAddr )
 {
