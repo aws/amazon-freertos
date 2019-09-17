@@ -168,7 +168,7 @@ typedef struct
 } tcptestEchoClientsTaskParams_t;
 
 /* Number of time the test goes through all the modes. */
-#define tcptestMAX_LOOPS_ECHO_TEST            ( 4 * tcptestMAX_ECHO_TEST_MODES )
+#define tcptestMAX_LOOPS_ECHO_TEST            tcptestMAX_ECHO_TEST_MODES
 
 #define tcptestECHO_TEST_LOW_PRIORITY         tskIDLE_PRIORITY
 #define tcptestECHO_TEST_HIGH_PRIORITY        ( configMAX_PRIORITIES - 1 )
