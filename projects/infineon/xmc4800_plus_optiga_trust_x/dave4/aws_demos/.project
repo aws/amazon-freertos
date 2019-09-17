@@ -192,6 +192,31 @@
 			<locationURI>AFR_HOME/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
 		</link>
 		<link>
+			<name>demos/https/iot_demo_https_s3_download_sync.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/https/iot_demo_https_s3_download_sync.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_download_async.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/https/iot_demo_https_s3_download_async.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_upload_sync.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/https/iot_demo_https_s3_upload_sync.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_upload_async.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/https/iot_demo_https_s3_upload_async.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_common.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/https/iot_demo_https_common.c</locationURI>
+		</link>
+		<link>
 			<name>demos/include/aws_application_version.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/demos/include/aws_application_version.h</locationURI>
@@ -375,6 +400,16 @@
 			<name>libraries/3rdparty/jsmn/jsmn.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/jsmn/jsmn.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/http-parser/http_parser.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/http-parser/http_parser.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/http-parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/3rdparty/http-parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>
@@ -1325,6 +1360,16 @@
 			<name>libraries/c_sdk/aws/shadow/include/aws_shadow.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/https/src/iot_https_client.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/src/iot_https_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/https/src/iot_https_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</name>

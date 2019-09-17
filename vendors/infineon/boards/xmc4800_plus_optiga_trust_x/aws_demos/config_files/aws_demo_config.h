@@ -26,17 +26,21 @@
 #ifndef _AWS_DEMO_CONFIG_H_
 #define _AWS_DEMO_CONFIG_H_
 
-/* To run a particular demo you need to define one of these. 
-   Only one demo can be configured at a time
-
-            CONFIG_MQTT_DEMO_ENABLED
-            CONFIG_SHADOW_DEMO_ENABLED
-            CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
-            CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
-            CONFIG_DEFENDER_DEMO_ENABLED
-            CONFIG_POSIX_DEMO_ENABLED
-            
-    These defines are used in iot_demo_runner.h for demo selection */
+/* To run a particular demo you need to define one of these.
+ * Only one demo can be configured at a time
+ *
+ *          CONFIG_MQTT_DEMO_ENABLED
+ *          CONFIG_SHADOW_DEMO_ENABLED
+ *          CONFIG_GREENGRASS_DISCOVERY_DEMO_ENABLED
+ *          CONFIG_TCP_ECHO_CLIENT_DEMO_ENABLED
+ *          CONFIG_DEFENDER_DEMO_ENABLED
+ *          CONFIG_POSIX_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
+ *
+ *  These defines are used in iot_demo_runner.h for demo selection */
 
 #define CONFIG_MQTT_DEMO_ENABLED
 
