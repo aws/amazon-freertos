@@ -81,13 +81,21 @@
  */
 #define stsecuresocketsSOCKET_IS_CONNECTED_FLAG    ( 1UL << 3 )
 
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+
+/**
+ * @brief A flag to indicate whether or not the socket is binded.
+ */
+    #define stsecuresocketsSOCKET_IS_BINDED_FLAG    ( 1UL << 4 )
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
+
 /**
  * @brief The maximum timeout accepted by the Inventek module.
  *
  * This value is dictated by the hardware and should not be
  * modified.
  */
-#define stsecuresocketsMAX_TIMEOUT                 ( 30000 )
+#define stsecuresocketsMAX_TIMEOUT               ( 30000 )
 
 /**
  * @brief Delay used between network read attempts when effecting a receive timeout.
@@ -98,7 +106,7 @@
  * the secure sockets layer, and this constant sets the sleep time
  * between each read attempt during the receive timeout period.
  */
-#define stsecuresocketsFIVE_MILLISECONDS           ( pdMS_TO_TICKS( 5 ) )
+#define stsecuresocketsFIVE_MILLISECONDS         ( pdMS_TO_TICKS( 5 ) )
 
 /**
  * @brief The timeout supplied to the Inventek module in receive operation.
@@ -107,7 +115,7 @@
  * do not want the Inventek module to block. Setting to zero means
  * no timeout, so one is the smallest value we can set it to.
  */
-#define stsecuresocketsONE_MILLISECOND             ( 1 )
+#define stsecuresocketsONE_MILLISECOND           ( 1 )
 
 /**
  * @brief The credential set to use for TLS on the Inventek module.
@@ -115,7 +123,7 @@
  * @note This is hard-coded to 3 because we are using re-writable
  * credential slot.
  */
-#define stsecuresocketsOFFLOAD_SSL_CREDS_SLOT      ( 3 )
+#define stsecuresocketsOFFLOAD_SSL_CREDS_SLOT    ( 3 )
 /*-----------------------------------------------------------*/
 
 /**
@@ -148,6 +156,9 @@ typedef struct STSecureSocket
     void * pvTLSContext;                /**< The TLS Context. */
     char * pcServerCertificate;         /**< Server certificate. Set using SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE option in SOCKETS_SetSockOpt function. */
     uint32_t ulServerCertificateLength; /**< Length of the server certificate. */
+    #if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+        uint16_t usLocalPort;
+    #endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
 } STSecureSocket_t;
 /*-----------------------------------------------------------*/
 
@@ -234,6 +245,34 @@ static BaseType_t prvNetworkSend( void * pvContext,
 static BaseType_t prvNetworkRecv( void * pvContext,
                                   unsigned char * pucReceiveBuffer,
                                   size_t xReceiveBufferLength );
+
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+
+/**
+ * @brief Setup UDP client connection.
+ *
+ * @param[in] xSocket The handle of the socket to be connected .
+ * @param[in] pxAddress A pointer to a SocketsSockaddr_t structure that contains the
+ * the address to connect the socket to .
+ * @param[in] xAddressLength Should be set to sizeof( @ref SocketsSockaddr_t ) .
+ *
+ * *@return @ref SOCKETS_ERROR_NONE if a connection is established.
+ * *If an error occurred, a @ref SocketsErrors is returned.
+ */
+    static int32_t prvUDPClient( Socket_t xSocket,
+                                 const SocketsSockaddr_t * pxAddress,
+                                 Socklen_t xAddressLength );
+
+/**
+ * @brief Check if port is available
+ *
+ * @param[in] usLocalPort Socket port to be checked
+ *
+ * @return pdTRUE if port is not used for other sockets, pdFALSE otherwise
+ */
+    static BaseType_t prvIsPortAvailable( uint16_t usLocalPort );
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
+
 /*-----------------------------------------------------------*/
 
 static uint32_t prvGetFreeSocket( void )
@@ -537,6 +576,99 @@ static BaseType_t prvNetworkRecv( void * pvContext,
 }
 /*-----------------------------------------------------------*/
 
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+
+    static BaseType_t prvIsPortAvailable( uint16_t usLocalPort )
+    {
+        BaseType_t lRetVal = pdTRUE;
+        uint32_t ulSocketNumber;
+        STSecureSocket_t * pxSocket;
+
+        /* Loop through socket array to check if port is valid */
+        for( ulSocketNumber = 0; ulSocketNumber < wificonfigMAX_SOCKETS; ulSocketNumber++ )
+        {
+            if( prvIsValidSocket( ulSocketNumber ) != pdFALSE )
+            {
+                pxSocket = &( xSockets[ ulSocketNumber ] );
+
+                if( pxSocket->usLocalPort == usLocalPort )
+                {
+                    lRetVal = pdFALSE;
+                    break;
+                }
+            }
+        }
+
+        return lRetVal;
+    }
+/*-----------------------------------------------------------*/
+
+    static int32_t prvUDPClient( Socket_t xSocket,
+                                 const SocketsSockaddr_t * pxAddress,
+                                 Socklen_t xAddressLength )
+    {
+        int32_t lRetVal = SOCKETS_ERROR_NONE;
+        ES_WIFI_Conn_t xWiFiConnection;
+        uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+        STSecureSocket_t * pxSocket;
+
+        if( ( ulSocketNumber == SOCKETS_INVALID_SOCKET ) || ( prvIsValidSocket( ulSocketNumber ) == pdFALSE ) || ( pxAddress == NULL ) )
+        {
+            lRetVal = SOCKETS_EINVAL;
+        }
+        else
+        {
+            pxSocket = &( xSockets[ ulSocketNumber ] );
+
+            /* Check that the socket is not already connected. */
+            if( ( pxSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) != 0UL )
+            {
+                /* Connect attempted on an already connected socket. */
+                lRetVal = SOCKETS_EISCONN;
+            }
+
+            /* Try to acquire the semaphore. */
+            if( ( lRetVal == SOCKETS_ERROR_NONE ) &&
+                ( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE ) )
+            {
+                /* Setup connection parameters. */
+                xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
+                xWiFiConnection.Type = pxSocket->xSocketType;
+                xWiFiConnection.RemotePort = SOCKETS_ntohs( pxAddress->usPort ); /* WiFi Module expects the port number in host byte order. */
+                memcpy( &( xWiFiConnection.RemoteIP ),
+                        &( pxAddress->ulAddress ),
+                        sizeof( xWiFiConnection.RemoteIP ) );
+                xWiFiConnection.LocalPort = pxSocket->usLocalPort;
+                xWiFiConnection.Name = NULL;
+
+                /* Start the client connection. */
+                if( ES_WIFI_StartClientConnection( &( xWiFiModule.xWifiObject ), &( xWiFiConnection ) ) == ES_WIFI_STATUS_OK )
+                {
+                    lRetVal = SOCKETS_ERROR_NONE;
+                    /* Mark that the socket is connected. */
+                    pxSocket->ulFlags |= stsecuresocketsSOCKET_IS_CONNECTED_FLAG;
+                }
+                else
+                {
+                    /* Connection failed. */
+                    lRetVal = SOCKETS_ENOTCONN;
+                }
+
+                /* Return the semaphore. */
+                ( void ) xSemaphoreGive( xWiFiModule.xSemaphoreHandle );
+            }
+            else
+            {
+                /* Could not acquire semaphore. */
+                lRetVal = SOCKETS_EWOULDBLOCK;
+            }
+        }
+
+        return lRetVal;
+    }
+/*-----------------------------------------------------------*/
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
+
 Socket_t SOCKETS_Socket( int32_t lDomain,
                          int32_t lType,
                          int32_t lProtocol )
@@ -572,6 +704,9 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
         xSockets[ ulSocketNumber ].pvTLSContext = NULL;
         xSockets[ ulSocketNumber ].pcServerCertificate = NULL;
         xSockets[ ulSocketNumber ].ulServerCertificateLength = 0;
+        #if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+            xSockets[ ulSocketNumber ].usLocalPort = -1;
+        #endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
     }
 
     /* If we fail to get a free socket, we return SOCKETS_INVALID_SOCKET. */
@@ -871,59 +1006,36 @@ int32_t SOCKETS_Send( Socket_t xSocket,
 /*-----------------------------------------------------------*/
 
 #if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
-
     int32_t SOCKETS_Bind( Socket_t xSocket,
                           const SocketsSockaddr_t * pxAddress,
                           Socklen_t xAddressLength )
     {
-        int32_t lRetVal = SOCKETS_SOCKET_ERROR;
-        ES_WIFI_Conn_t xWiFiConnection;
+        STSecureSocket_t * pxSocket;
         uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+        int32_t lRetVal = SOCKETS_ERROR_NONE;
 
-        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) && ( pxAddress != NULL ) )
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdFALSE ) || ( pxAddress == NULL ) )
+        {
+            lRetVal = SOCKETS_SOCKET_ERROR;
+        }
+        else
         {
             pxSocket = &( xSockets[ ulSocketNumber ] );
 
-            /* Check that the socket is not already connected. */
-            if( ( pxSecureSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) != 0UL )
+            if( ( prvIsPortAvailable( pxAddress->usPort ) == pdFALSE ) ||
+                ( ( pxSocket->ulFlags & stsecuresocketsSOCKET_IS_BINDED_FLAG ) != 0UL ) )
             {
-                /* Connect attempted on an already connected socket. */
                 lRetVal = SOCKETS_SOCKET_ERROR;
             }
-
-            /* Try to acquire the semaphore. */
-            if( ( lRetVal == SOCKETS_ERROR_NONE ) &&
-                ( xSemaphoreTake( xWiFiModule.xSemaphoreHandle, xSemaphoreWaitTicks ) == pdTRUE ) )
+            else
             {
-                /* Setup connection parameters. */
-                xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
-                xWiFiConnection.Type = pxSocket->xSocketType;
-                xWiFiConnection.RemotePort = SOCKETS_ntohs( pxAddress->usPort ); /* WiFi Module expects the port number in host byte order. */
-                memcpy( &( xWiFiConnection.RemoteIP ),
-                        &( pxAddress->ulAddress ),
-                        sizeof( xWiFiConnection.RemoteIP ) );
-                xWiFiConnection.LocalPort = 0;
-                xWiFiConnection.Name = NULL;
-
-                /* Start the client connection. */
-                if( ES_WIFI_StartClientConnection( &( xWiFiModule.xWifiObject ), &( xWiFiConnection ) ) == ES_WIFI_STATUS_OK )
-                {
-                    /* Successful connection is established. */
-                    lRetVal = SOCKETS_ERROR_NONE;
-
-                    /* Mark that the socket is connected. */
-                    pxSocket->ulFlags |= stsecuresocketsSOCKET_IS_CONNECTED_FLAG;
-                }
-                else
-                {
-                    /* Connection failed. */
-                    lRetVal = SOCKETS_SOCKET_ERROR;
-                }
+                pxSocket->usLocalPort = pxAddress->usPort;
+                pxSocket->ulFlags |= stsecuresocketsSOCKET_IS_BINDED_FLAG;
             }
         }
+
         return lRetVal;
     }
-
 /*-----------------------------------------------------------*/
 
     int32_t SOCKETS_SendTo( Socket_t xSocket,
@@ -933,31 +1045,70 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                             const SocketsSockaddr_t * pxAddress,
                             Socklen_t xAddressLength )
     {
-        int32_t lRetVal = SOCKETS_SOCKET_ERROR;
+        uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+        BaseType_t lSentBytes = SOCKETS_SOCKET_ERROR;
+        ES_WIFI_Conn_t xWiFiConnection;
+        uint16_t usSentBytes = 0;
+        STSecureSocket_t * pxSocket;
+        ES_WIFI_Status_t xWiFiResult;
 
-        /* ss_ctx_t * ctx = ( ss_ctx_t * ) xSocket; */
-        /* struct sockaddr_in sa_addr = { 0 }; */
+        /* Ensure that a valid socket was passed and the passed buffer */
+        /* and address is not NULL. */
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) &&
+            ( pxAddress != NULL ) &&
+            ( pvBuffer != NULL ) )
+        {
+            pxSocket = &( xSockets[ ulSocketNumber ] );
 
-        /* if( xSocket == SOCKETS_INVALID_SOCKET ) */
-        /* { */
-        /*     lStatus = SOCKETS_SOCKET_ERROR; */
-        /* } */
-        /* else if( ( pvBuffer == NULL ) || ( xDataLength == 0 ) || ( pxAddress == NULL ) ) */
-        /* { */
-        /*     lStatus = SOCKETS_EINVAL; */
-        /* } */
-        /* else if( ( ctx != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) ) */
-        /* { */
-        /*     sa_addr.sin_family = AF_INET; */
-        /*     sa_addr.sin_addr.s_addr = pxAddress->ulAddress; */
-        /*     sa_addr.sin_port = pxAddress->usPort; */
-        /*     ctx->send_flag = ulFlags; */
-        /*     lStatus = lwip_sendto( ctx->ip_socket, pvBuffer, xDataLength, ctx->send_flag, ( struct sockaddr * ) &sa_addr, sizeof( sa_addr ) ); */
-        /* } */
+            /* Bind if the socket is not yet binded. */
+            if( ( pxSocket->ulFlags & stsecuresocketsSOCKET_IS_BINDED_FLAG ) == 0UL )
+            {
+                SOCKETS_Bind( ulSocketNumber, pxAddress, xAddressLength );
+            }
 
-        return lRetVal;
+            /* Connect if the socket is not yet connected. */
+            if( ( pxSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) == 0UL )
+            {
+                prvUDPClient( ulSocketNumber, pxAddress, xAddressLength );
+            }
+
+            if( ( pxSocket->ulFlags & stsecuresocketsSOCKET_WRITE_CLOSED_FLAG ) == 0UL )
+            {
+                /* Destination parameters. */
+                xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
+                xWiFiConnection.Type = pxSocket->xSocketType;
+                xWiFiConnection.RemotePort = SOCKETS_ntohs( pxAddress->usPort ); /* WiFi Module expects the port number in host byte order. */
+                memcpy( &( xWiFiConnection.RemoteIP ),
+                        &( pxAddress->ulAddress ),
+                        sizeof( xWiFiConnection.RemoteIP ) );
+                xWiFiConnection.LocalPort = pxSocket->usLocalPort;
+                xWiFiConnection.Name = NULL;
+
+                xWiFiResult = ES_WIFI_SendDataTo( &( xWiFiModule.xWifiObject ),
+                                                  ( uint8_t ) ulSocketNumber,
+                                                  ( uint8_t * ) pvBuffer,
+                                                  ( uint16_t ) xDataLength,
+                                                  &( usSentBytes ),
+                                                  pxSocket->ulSendTimeout,
+                                                  ( uint8_t * ) xWiFiConnection.RemoteIP,
+                                                  ( uint16_t ) xWiFiConnection.RemotePort );
+
+                if( xWiFiResult == ES_WIFI_STATUS_OK )
+                {
+                    /* If the data was successfully sent, return the actual
+                     * number of bytes sent. Otherwise return SOCKETS_SOCKET_ERROR. */
+                    lSentBytes = ( BaseType_t ) usSentBytes;
+                }
+            }
+            else
+            {
+                /* The socket has been closed for write. */
+                lSentBytes = SOCKETS_ECLOSED;
+            }
+        }
+
+        return lSentBytes;
     }
-
 /*-----------------------------------------------------------*/
 
     int32_t SOCKETS_RecvFrom( Socket_t xSocket,
@@ -967,37 +1118,64 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                               SocketsSockaddr_t * pxAddress,
                               Socklen_t * xAddressLength )
     {
-        int32_t lRetVal = SOCKETS_SOCKET_ERROR;
+        uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+        BaseType_t xRetVal = SOCKETS_SOCKET_ERROR;
+        ES_WIFI_Conn_t xWiFiConnection;
+        uint16_t usReceivedBytes = 0;
+        STSecureSocket_t * pxSocket;
+        ES_WIFI_Status_t xWiFiResult;
 
-        /* ss_ctx_t * ctx = ( ss_ctx_t * ) xSocket; */
-        /* struct sockaddr_in sa_addr = { 0 }; */
-        /* BaseType_t xFlags = 0; */
-        /* uint32_t ulAddressLength = sizeof( sa_addr ); */
+        /* Ensure that a valid socket was passed and the passed buffer */
+        /* and address is not NULL. */
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) &&
+            ( pxAddress != NULL ) &&
+            ( pvBuffer != NULL ) )
+        {
+            pxSocket = &( xSockets[ ulSocketNumber ] );
 
-        /* if( ulFlags & SOCKETS_MSG_PEEK ) */
-        /* { */
-        /*     xFlags |= MSG_PEEK; */
-        /* } */
+            /* Connect if the socket is not yet connected. */
+            if( ( pxSocket->ulFlags & stsecuresocketsSOCKET_IS_CONNECTED_FLAG ) == 0UL )
+            {
+                prvUDPClient( ulSocketNumber, pxAddress, xAddressLength );
+            }
 
-        /* if( SOCKETS_INVALID_SOCKET == xSocket ) */
-        /* { */
-        /*     lStatus = SOCKETS_SOCKET_ERROR; */
-        /* } */
-        /* else if( ( ctx != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) ) */
-        /* { */
-        /*     ctx->send_flag = xFlags; */
-        /*     lStatus = lwip_recvfrom( ctx->ip_socket, pvBuffer, xDataLength, ctx->send_flag, ( struct sockaddr * ) &sa_addr, &ulAddressLength ); */
+            if( ( pxSocket->ulFlags & stsecuresocketsSOCKET_READ_CLOSED_FLAG ) == 0UL )
+            {
+                /* Destination parameters. */
+                xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
+                xWiFiConnection.Type = pxSocket->xSocketType;
+                xWiFiConnection.LocalPort = pxSocket->usLocalPort;
+                xWiFiConnection.Name = NULL;
 
-        /*     pxAddress->ulAddress = sa_addr.sin_addr.s_addr; */
-        /*     pxAddress->ucSocketDomain = sa_addr.sin_family; */
-        /*     pxAddress->ucLength = ( uint8_t ) sizeof( *pxAddress ); */
-        /*     pxAddress->usPort = sa_addr.sin_port; */
-        /*     *xAddressLength = sizeof( SocketsSockaddr_t ); */
-        /* } */
+                xWiFiResult = ES_WIFI_ReceiveDataFrom( &( xWiFiModule.xWifiObject ),
+                                                       ( uint8_t ) ulSocketNumber,
+                                                       ( uint8_t * ) pvBuffer,
+                                                       ( uint16_t ) xDataLength,
+                                                       &( usReceivedBytes ),
+                                                       pxSocket->ulReceiveTimeout,
+                                                       ( uint8_t * ) xWiFiConnection.RemoteIP,
+                                                       ( uint16_t ) xWiFiConnection.RemotePort );
 
-        return lRetVal;
+                pxAddress->usPort = SOCKETS_ntohs( xWiFiConnection.RemotePort ); /* WiFi Module expects the port number in host byte order. */
+                memcpy( &( pxAddress->ulAddress ),
+                        &( xWiFiConnection.RemoteIP ),
+                        4 );
+
+                if( ( xWiFiResult == ES_WIFI_STATUS_OK ) && ( usReceivedBytes != 0 ) )
+                {
+                    /* Success, return the number of bytes received. */
+                    xRetVal = ( BaseType_t ) usReceivedBytes;
+                }
+            }
+            else
+            {
+                /* The socket has been closed for read. */
+                lSentBytes = SOCKETS_ECLOSED;
+            }
+        }
+
+        return xRetVal;
     }
-
 /*-----------------------------------------------------------*/
 #endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
 
