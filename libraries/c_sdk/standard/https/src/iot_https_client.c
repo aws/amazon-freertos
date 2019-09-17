@@ -3294,7 +3294,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader( IotHttpsResponseHandle_t respHan
     }
     else
     {
-        IotLogError( "IotHttpsClient_ReadHeader(): The header field %s was not found.", pName );
+        IotLogWarn( "IotHttpsClient_ReadHeader(): The header field %s was not found.", pName );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_NOT_FOUND );
     }
 
