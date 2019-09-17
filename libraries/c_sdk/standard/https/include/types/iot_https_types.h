@@ -796,23 +796,23 @@ typedef struct IotHttpsRequestInfo
 {
     /**
      * @brief The absolute path to the HTTP request object.
-     * 
+     *
      * The absolute path includes the path to the file AND the optional query.
      * An example URI path: "/v20160207/directives?query".
-     * 
+     *
      * If this is NULL, a "/" will be added to the Request-Line automaticaly.
-     * 
-     * This is used to generate the Request-Line in the HTTP request message, see 
-     * @ref https_client_function_initializerequest for more information. 
+     *
+     * This is used to generate the Request-Line in the HTTP request message, see
+     * @ref https_client_function_initializerequest for more information.
      */
     const char * pPath;
-    uint32_t pathLen;        /**< @brief URI path length */
+    uint32_t pathLen; /**< @brief URI path length */
 
     /**
      * @brief On of the HTTP method tokens defined in #IotHttpsMethod_t.
-     * 
+     *
      * This is used to generate the Request-Line in the HTTP request message, see
-     * @ref https_client_function_initializerequest for more information. 
+     * @ref https_client_function_initializerequest for more information.
      */
     IotHttpsMethod_t method;
 
