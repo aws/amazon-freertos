@@ -635,6 +635,7 @@ void IotTestBleHal_SetAdvData( BTuuidType_t type,
     /* To make sure stack creates their own pointers, use local variables */
     BTGattAdvertismentParams_t l_xAdvertisementConfigA;
     BTGattAdvertismentParams_t l_xAdvertisementConfigB;
+    size_t xNbServices;
 
     BTUuid_t xServiceUuid =
     {
@@ -655,8 +656,6 @@ void IotTestBleHal_SetAdvData( BTuuidType_t type,
             memcpy( xServiceUuid.uu.uu128, serviceUUID_128, sizeof( serviceUUID_128 ) );
             break;
     }
-
-    size_t xNbServices;
 
     usServiceDataLen = 0;
     pcServiceData = NULL;

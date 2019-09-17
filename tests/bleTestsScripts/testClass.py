@@ -80,7 +80,7 @@ class runTest:
     numberOfTests = 0
     numberOfFailedTests = 0
 
-    # Munufacturer-sepcific Data
+    # Manufacturer-sepcific Data
     # First two bytes are company ID (randomly select Espressif(741) for test purpose)
     # Next bytes are defined by the company (randomly select unit8_t 5 for test purpose)
     COMPANY_ID = 741
@@ -456,7 +456,7 @@ class runTest:
 
         # If manufacture data exists, return manufacture data
         else:
-            print( manufacture_data_dict.items() )
+            print( "Manufacturer Specific Data: " + str(manufacture_data_dict.items()) )
             sys.stdout.flush()
             manufacture_data = manufacture_data_dict[runTest.COMPANY_ID]
             return manufacture_data
@@ -511,7 +511,7 @@ class runTest:
             bleAdapter):
         isTestSuccessFull = True
 
-        # Check when munufacture data length is 0, but pointer is valid
+        # Check when manufacture data length is 0, but pointer is valid
         runTest._advertisement_start(scan_filter=scan_filter, 
                                     UUID=runTest.DUT_UUID_128,
                                     discoveryEvent_Cb=runTest.discoveryEventCb,
@@ -524,7 +524,7 @@ class runTest:
         isTestSuccessFull &= bleAdapter.disconnect()
         testutils.removeBondedDevices()
 
-        # Check when munufacture data pointer is NULL, but length is not 0
+        # Check when manufacture data pointer is NULL, but length is not 0
         runTest._advertisement_start(scan_filter=scan_filter, 
                                     UUID=runTest.DUT_UUID_128,
                                     discoveryEvent_Cb=runTest.discoveryEventCb,
@@ -537,7 +537,7 @@ class runTest:
         isTestSuccessFull &= bleAdapter.disconnect()
         testutils.removeBondedDevices()
 
-        # Check when munufacture data length is not 0, and pointer is valid
+        # Check when manufacture data length is not 0, and pointer is valid
         runTest._advertisement_start(scan_filter=scan_filter, 
                                     UUID=runTest.DUT_UUID_128,
                                     discoveryEvent_Cb=runTest.discoveryEventCb,

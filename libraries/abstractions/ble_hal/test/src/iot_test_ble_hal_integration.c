@@ -172,28 +172,28 @@ TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceU
 
 TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData )
 {
-    uint16_t usManufacturerLen;
-    uint32_t ManufacturerData;
-
-    usManufacturerLen = 3;
-    ManufacturerData = 0x0502E5;
+    /* Manufacturer-sepcific Data
+     * First two bytes are company ID (randomly select Espressif(0x02E5) for test purpose)
+     * Next bytes are defined by the company (randomly select unit8_t 5 for test purpose)*/
+    uint16_t Manufacturer_Len = 3;
+    uint8_t Manufacturer_Data[] = { 0xE5, 0x02, 0x05 };
 
     IotTestBleHal_SetAdvProperty();
 
-    /* Check when munufacture data length is 0, but pointer is valid */
-    IotTestBleHal_SetAdvData( eBTuuidType128, 0, ( char * ) ( &ManufacturerData ) );
+    /* Check when manufacture data length is 0, but pointer is valid */
+    IotTestBleHal_SetAdvData( eBTuuidType128, 0, ( char * ) Manufacturer_Data );
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
     IotTestBleHal_WaitConnection( false );
 
-    /* Check when munufacture data pointer is NULL, but length is not 0 */
-    IotTestBleHal_SetAdvData( eBTuuidType128, usManufacturerLen, NULL );
+    /* Check when manufacture data pointer is NULL, but length is not 0 */
+    IotTestBleHal_SetAdvData( eBTuuidType128, Manufacturer_Len, NULL );
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
     IotTestBleHal_WaitConnection( false );
 
-    /* Check when munufacture data length is not 0, and pointer is valid */
-    IotTestBleHal_SetAdvData( eBTuuidType128, usManufacturerLen, ( char * ) ( &ManufacturerData ) );
+    /* Check when manufacture data length is not 0, and pointer is valid */
+    IotTestBleHal_SetAdvData( eBTuuidType128, Manufacturer_Len, ( char * ) Manufacturer_Data );
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
     IotTestBleHal_WaitConnection( false );
