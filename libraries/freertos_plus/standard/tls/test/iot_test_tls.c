@@ -81,7 +81,9 @@ TEST_TEAR_DOWN( Full_TLS )
 TEST_GROUP_RUNNER( Full_TLS )
 {
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
+    #if ( pkcs11testRSA_KEY_SUPPORT == 1 )
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
+    #endif
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
@@ -322,7 +324,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
 {
     ProvisioningParams_t xParams;
 
-    /* Provision the device with malformed client credential certificate. */
+    /* Provision the device with a malformed client credential certificate. */
     xParams.pucClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
     xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_MALFORMED;
@@ -338,7 +340,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
 {
     ProvisioningParams_t xParams;
 
-    /* Provision the device with malformed client credential certificate. */
+    /* Provision the device with an untrusted client credential certificate. */
     xParams.pucClientPrivateKey = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM;
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM_LENGTH;
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM;
