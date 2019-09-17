@@ -179,7 +179,7 @@ void iot_i2c_set_callback( IotI2CHandle_t const pxI2CPeripheral,
  * @param[in] xBytes The number of bytes to read.
  *
  * @return
- * - IOT_I2C_SUCCESS, on success
+ * - IOT_I2C_SUCCESS, on success (all the requested bytes have been read)
  * - IOT_I2C_INVALID_VALUE, if
  *     - pxI2CPeripheral is NULL
  *     - pxI2CPeripheral is not opened yet
@@ -217,7 +217,7 @@ int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
  * @param[in] xBytes The number of bytes to write.
  *
  * @return
- * - IOT_I2C_SUCCESS, on success
+ * - IOT_I2C_SUCCESS, on success (all the requested bytes have been written)
  * - IOT_I2C_INVALID_VALUE, if
  *     - pxI2CPeripheral is NULL
  *     - pxI2CPeripheral is not opened yet
