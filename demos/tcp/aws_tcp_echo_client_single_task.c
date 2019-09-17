@@ -198,15 +198,19 @@ static void prvEchoClientTask( void * pvParameters )
     char * pcReceivedString;
     TickType_t xTimeOnEntering;
 
-#if ( ipconfigUSE_TCP_WIN == 1 )
-    WinProperties_t xWinProps;
+    #if ( ipconfigUSE_TCP_WIN == 1 )
+        WinProperties_t xWinProps;
+    #endif
 
-    /* Fill in the buffer and window sizes that will be used by the socket. */
-    xWinProps.lTxBufSize = ipconfigTCP_TX_BUFFER_LENGTH;
-    xWinProps.lTxWinSize = configECHO_CLIENT_TX_WINDOW_SIZE;
-    xWinProps.lRxBufSize = ipconfigTCP_RX_BUFFER_LENGTH;
-    xWinProps.lRxWinSize = configECHO_CLIENT_RX_WINDOW_SIZE;
-#endif /* ipconfigUSE_TCP_WIN */
+    #if ( ipconfigUSE_TCP_WIN == 1 )
+        {
+            /* Fill in the buffer and window sizes that will be used by the socket. */
+            xWinProps.lTxBufSize = ipconfigTCP_TX_BUFFER_LENGTH;
+            xWinProps.lTxWinSize = configECHO_CLIENT_TX_WINDOW_SIZE;
+            xWinProps.lRxBufSize = ipconfigTCP_RX_BUFFER_LENGTH;
+            xWinProps.lRxWinSize = configECHO_CLIENT_RX_WINDOW_SIZE;
+        }
+    #endif /* ipconfigUSE_TCP_WIN */
 
     /* This task can be created a number of times.  Each instance is numbered
      * to enable each instance to use a different Rx and Tx buffer.  The number is
