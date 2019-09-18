@@ -166,13 +166,24 @@ static void RUN_TEST_IOT_TIMER(void)
     }
 }
 
-static void RUN_TEST_IOT_ADC(void)
+static void RUN_TEST_IOT_ADC(int testCaseIndex)
 {
     int i;
     for(i = 0; i < ADC_TEST_SET; i++)
     {
         SET_TEST_IOT_ADC_CONFIG(i);
-        RUN_TEST_GROUP( TEST_IOT_ADC );
+        switch (testCaseIndex)
+        {
+            case 0:
+                RUN_TEST_GROUP( TEST_IOT_ADC );
+                break;
+            case 1:
+                RUN_TEST_CASE( TEST_IOT_ADC, AFQP_IotAdcPrintReadSample );
+                break;
+            default:
+                printf("Invalid adc test case\n");
+                return;
+        }
     }
 }
 
@@ -501,7 +512,7 @@ void RunIotTests(int testIndex, int testCaseIndex)
             RUN_TEST_IOT_TIMER();
             break;
         case 7:
-            RUN_TEST_IOT_ADC();
+            RUN_TEST_IOT_ADC(testCaseIndex);
             break;
         case 8:
             RUN_TEST_IOT_RESET(testCaseIndex);

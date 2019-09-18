@@ -58,6 +58,8 @@ uint8_t uctestIotAdcInstance = 0;
 uint8_t uctestIotAdcChListLen = 1;
 /* ADC Channel list used for testing, the list is defined by board specific test code */
 uint8_t * puctestIotAdcChList = NULL;
+/* ADC module instance for assisted test, need to be configured to the channel with external access */
+uint8_t assistedTestIotAdcChannel = 0;
 
 /* ADC Channel Scan Wait time in ms */
 uint32_t ltestIotAdcTestChWaitTime = 1000;
@@ -261,6 +263,34 @@ TEST( TEST_IOT_ADC, AFQP_IotAdcReadSample )
 
     lRetVal = iot_adc_close( xAdcHandle );
     TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test Function to print ADC read sample for assisted test.
+ */
+TEST( TEST_IOT_ADC, AFQP_IotAdcPrintReadSample )
+{
+    IotAdcHandle_t xAdcHandle;
+    int32_t lRetVal;
+    uint16_t usSample;
+
+    /* make sure ADC channel list has been configured */
+    TEST_ASSERT_NOT_EQUAL( NULL, puctestIotAdcChList );
+
+    xAdcHandle = iot_adc_open( uctestIotAdcInstance );
+    TEST_ASSERT_NOT_EQUAL( NULL, xAdcHandle );
+
+    /* read sample from ADC channels */
+    lRetVal = iot_adc_read_sample( xAdcHandle, assistedTestIotAdcChannel, &usSample );
+    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
+
+    lRetVal = iot_adc_close( xAdcHandle );
+    TEST_ASSERT_EQUAL( IOT_ADC_SUCCESS, lRetVal );
+
+    /* print ADC sample with an assert failure */
+    TEST_ASSERT_EQUAL_INT( -1, usSample );
 }
 
 /*-----------------------------------------------------------*/
