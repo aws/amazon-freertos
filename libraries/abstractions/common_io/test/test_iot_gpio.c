@@ -438,11 +438,14 @@ TEST( TEST_IOT_GPIO, AFQP_IotGpioSpeed )
         {
             ulPerfCountFastDelta = 0xFFFFFFFF - ulPerfCount0 + ulPerfCount1 + 1;
         }
+
+        TEST_ASSERT_GREATER_THAN( ulPerfCountFastDelta, ulPerfCountSlowDelta );
+
     }
+
     lRetVal = iot_gpio_close( xtestIotGpioHandleA );
     TEST_ASSERT_EQUAL( IOT_GPIO_SUCCESS, lRetVal );
 
-    TEST_ASSERT_GREATER_THAN( ulPerfCountFastDelta, ulPerfCountSlowDelta );
 }
 /*-----------------------------------------------------------*/
 /**
