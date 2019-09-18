@@ -36,6 +36,7 @@
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_pal.h"
+#include "iot_pkcs11_code_objects.h"
 #include "iot_pki_utils.h"
 
 /* mbedTLS includes. */
@@ -51,11 +52,7 @@
 /* Credential includes. */
 #include "aws_clientcredential.h"
 #include "aws_clientcredential_keys.h"
-#include "iot_default_root_certificates.h"
 
-#if ( pkcs11configOTA_SUPPORTED == 1 )
-    #include "aws_ota_codesigner_certificate.h"
-#endif
 
 /* C runtime includes. */
 #include <stdio.h>
@@ -118,14 +115,14 @@ P11StorageFunctions_t xPalStorageFxns =
     &PKCS11_PAL_GetObjectValueCleanup
 };
 
-/*P11StorageFunctions_t xCodeStorageFxns = */
-/*{ */
-/*    &PKCS11_Code_SaveObject, */
-/*    &PKCS11_Code_DestroyObject, */
-/*    &PKCS11_Code_FindObject, */
-/*    &PKCS11_Code_GetObjectValue, */
-/*    &PKCS11_Code_GetObjectValueCleanup */
-/*}; */
+P11StorageFunctions_t xCodeStorageFxns = 
+{ 
+    &PKCS11_Code_SaveObject,
+    &PKCS11_Code_DestroyObject, 
+    &PKCS11_Code_FindObject, 
+    &PKCS11_Code_GetObjectValue, 
+    &PKCS11_Code_GetObjectValueCleanup 
+}; 
 
 typedef struct P11Object_t
 {
@@ -610,58 +607,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
 
 #endif /* if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 ) */
 
-#if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 )
 
-/* Returns True if the object is not stored in NVM & must be looked up in header file.
- * Returns false if object is an NVM supported object. */
-
-    BaseType_t xIsObjectWithNoNvmStorage( uint8_t * pucLabel,
-                                          size_t xLength,
-                                          uint8_t ** ppucCertData )
-    {
-        BaseType_t xResult = CK_TRUE;
-
-        if( 0 == memcmp( pucLabel, pkcs11configLABEL_JITP_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_JITP_CERTIFICATE ) ) )
-        {
-            if( NULL != keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM )
-            {
-                *ppucCertData = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
-            }
-            else
-            {
-                PKCS11_PRINT( ( "ERROR: JITP Certificate not specified.\r\n" ) );
-            }
-        }
-        else if( 0 == memcmp( pucLabel, pkcs11configLABEL_ROOT_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
-        {
-            /* Use either Verisign or Starfield root CA,
-             * depending on whether this is an ATS endpoint. */
-            if( strstr( clientcredentialMQTT_BROKER_ENDPOINT, "-ats.iot" ) == NULL )
-            {
-                *ppucCertData = ( uint8_t * ) tlsVERISIGN_ROOT_CERTIFICATE_PEM;
-            }
-            else
-            {
-                *ppucCertData = ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM;
-            }
-        }
-
-        #if ( pkcs11configOTA_SUPPORTED == 1 )
-            else if( 0 == memcmp( pucLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, strlen( ( char * ) pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
-            {
-                *ppucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM;
-            }
-        #endif
-        else
-        {
-            xResult = CK_FALSE;
-        }
-
-        return xResult;
-    }
-
-
-#endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED != 1 ) */
 
 
 /*-------------------------------------------------------------*/
@@ -1241,19 +1187,37 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
         xResult = CKR_TEMPLATE_INCOMPLETE;
     }
 
+    P11StorageFunctions_t * pStorageFxns = NULL;
+
     if( xResult == CKR_OK )
     {
+        /* Try to add the object to PAL NVM storage first. */
         xPalHandle = xPalStorageFxns.SaveObject( pxLabel, pxCertificateValue, xCertificateLength );
 
-        if( xPalHandle == 0 ) /*Invalid handle. */
+        if( xPalHandle != CK_INVALID_HANDLE ) /*Object was succesfully stored in PAL. */
         {
-            xResult = CKR_DEVICE_MEMORY;
+            pStorageFxns = &xPalStorageFxns;
         }
+    }
+
+    if ( xResult == CKR_OK && xPalHandle == CK_INVALID_HANDLE )
+    {
+        /* Next, try checking if the label is one used for an in-code storage mechanism. */
+        xPalHandle = xCodeStorageFxns.SaveObject( pxLabel, pxCertificateValue, xCertificateLength );
+        if ( xPalHandle != CK_INVALID_HANDLE )
+        {
+            pStorageFxns = &xCodeStorageFxns;
+        }
+    }
+
+    if ( xResult == CKR_OK && xPalHandle == CK_INVALID_HANDLE )
+    {
+        xResult = CKR_DEVICE_MEMORY;
     }
 
     if( xResult == CKR_OK )
     {
-        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen, &xPalStorageFxns );
+        xResult = prvAddObjectToList( xPalHandle, pxObject, pxLabel->pValue, pxLabel->ulValueLen, pStorageFxns );
         /* TODO: If this fails, should the object be wiped back out of flash?  But what if that fails?!?!? */
     }
 
@@ -2945,7 +2909,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
         prvFindObjectInListByHandle( xKey,
                                      &pObject );
 
-        if( pObject->xPalHandle != NULL )
+        if( pObject->xPalHandle != CK_INVALID_HANDLE )
         {
             xResult = pObject->pFunctions->GetObjectValue( pObject->xPalHandle, &keyData, &ulKeyDataLength, &xIsPrivate );
 
