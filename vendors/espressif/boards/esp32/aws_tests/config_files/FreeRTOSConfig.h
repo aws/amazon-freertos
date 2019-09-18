@@ -113,6 +113,13 @@ int xt_clock_freq(void) __attribute__((deprecated));
 /* Required for configuration-dependent settings */
 #include "xtensa_config.h"
 
+/** Compatibility with ESP-IDF FreeRTOS
+* ESP-IDF provides pcTaskGetTaskName, but AFR expects the new API pcTaskGetName.
+* Redefine the new symbol here so that the final symbol matches the ESP-IDF. The
+* ESP-IDF version is preserved in case any espressif libraries are provided as
+* prebuilt binaries.
+**/
+#define pcTaskGetName pcTaskGetTaskName
 
 /* configASSERT behaviour */
 #ifndef __ASSEMBLER__

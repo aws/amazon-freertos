@@ -95,6 +95,15 @@
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS
 #define configTHREAD_LOCAL_STORAGE_DELETE_CALLBACKS 1
 
+/** Compatibility with ESP-IDF FreeRTOS
+* ESP-IDF provides pcTaskGetTaskName, but AFR expects the new API pcTaskGetName.
+* Redefine the new symbol here so that the final symbol matches the ESP-IDF. The 
+* ESP-IDF version is preserved in case any espressif libraries are provided as
+* prebuilt binaries.
+**/
+#define pcTaskGetName pcTaskGetTaskName
+
+
 #ifndef __ASSEMBLER__
 
 /**
