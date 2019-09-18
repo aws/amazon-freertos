@@ -39,7 +39,7 @@
 
 /*-----------------------------------------------------------*/
 /* Test Defines */
-#define testIotUART_DEFAULT_SEMPAHORE_DELAY            ( 60 )                                                       /** Amount of time a function waits for every callback to finish. */
+#define testIotUART_DEFAULT_SEMPAHORE_DELAY            ( 5000 )                                                       /** Amount of time a function waits for every callback to finish. */
 #define testIotUART_TEST_BAUD_RATE                     ( 38400 )                                                    /** Alternative baud rate to test. */
 #define testIotUART_TEST_BAUD_RATE_DEFAULT             ( IOT_UART_BAUD_RATE_DEFAULT )                               /** Default baud rate. */
 #define testIotUART_BAUD_RATE_STRING                   ( "Baudrate: 38400\n" )                                      /** Signal external device to change to different baudrate. */
