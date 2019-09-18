@@ -1271,7 +1271,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
         pInfo->hardwareVersion.minor = 0;
 
         sprintf((char *)pInfo->manufacturerID, "Infineon Technologies AG");
-        sprintf((char *)pInfo->model, "OPTIGA(TM) Trust X");
+        sprintf((char *)pInfo->model, "OPTIGA Trust X");
         pInfo->ulMaxSessionCount = 4;
     }
 
