@@ -371,7 +371,7 @@ IotNetworkError_t IotNetworkUdp_SetReceiveCallback( void * pConnection,
         IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_BAD_PARAMETER );
     }
 
-    /* Set the receive callback and context. */
+    /* Set the receive callback and context. Each pConnection has its own receiveCallback and pReceiveContext. */
     pNetworkConnection->receiveCallback = receiveCallback;
     pNetworkConnection->pReceiveContext = pContext;
 
@@ -397,8 +397,8 @@ IotNetworkError_t IotNetworkUdp_SetReceiveCallback( void * pConnection,
 /*-----------------------------------------------------------*/
 
 size_t IotNetworkUdp_SendTo( void * pConnection,
-                           const uint8_t * pMessage,
-                           size_t messageLength )
+                             const uint8_t * pMessage,
+                             size_t messageLength )
 {
     size_t bytesSent = 0;
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
@@ -422,8 +422,8 @@ size_t IotNetworkUdp_SendTo( void * pConnection,
 /*-----------------------------------------------------------*/
 
 size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
-                              uint8_t * pBuffer,
-                              size_t bytesRequested )
+                                  uint8_t * pBuffer,
+                                  size_t bytesRequested )
 {
     int32_t socketStatus = 0;
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
@@ -497,7 +497,8 @@ IotNetworkError_t IotNetworkUdp_Close( void * pConnection )
         /* If receive task was started , indicate SHUT_DOWN */
         if( pNetworkConnection->receiveCallback != NULL )
         {
-            /* Set the shutdown flag. */
+            /* Set the shutdown flag. After calling IotNetworkUdp_Close() the receive task may not exit,
+             * to ensure receive task is exited call IotNetworkUdp_Destroy() to prevent further connection .*/
             ( void ) xEventGroupSetBits( ( EventGroupHandle_t ) &( pNetworkConnection->connectionFlags ),
                                          _FLAG_SHUTDOWN );
         }
