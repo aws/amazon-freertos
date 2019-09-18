@@ -39,7 +39,7 @@
 
 /*-----------------------------------------------------------*/
 /* Test Defines */
-#define testIotUART_DEFAULT_SEMPAHORE_DELAY            ( 60 )                                                       /** Amount of time a function waits for every callback to finish. */
+#define testIotUART_DEFAULT_SEMPAHORE_DELAY            ( 5000 )                                                       /** Amount of time a function waits for every callback to finish. */
 #define testIotUART_TEST_BAUD_RATE                     ( 38400 )                                                    /** Alternative baud rate to test. */
 #define testIotUART_TEST_BAUD_RATE_DEFAULT             ( IOT_UART_BAUD_RATE_DEFAULT )                               /** Default baud rate. */
 #define testIotUART_BAUD_RATE_STRING                   ( "Baudrate: 38400\n" )                                      /** Signal external device to change to different baudrate. */
@@ -68,7 +68,6 @@ uint32_t ultestIotUartStopBits = 0;    /** Default UART stop bits for testing */
 /*-----------------------------------------------------------*/
 static SemaphoreHandle_t xtestIotUARTSemaphore = NULL;
 static StaticSemaphore_t xtestIotUARTCompleted;
-static uint8_t sCancelled = 0; /* Flag to check if an operation was properly cancelled. */
 
 /**
  * @brief Application/POSIX defined callback for asynchronous read/write operation on
@@ -83,20 +82,6 @@ static void prvReadWriteCallback( IotUARTOperationStatus_t xOpStatus,
     TEST_ASSERT_EQUAL( ( xOpStatus ), eUartCompleted );
     TEST_ASSERT_EQUAL( pvParams, NULL );
     xSemaphoreGiveFromISR( xtestIotUARTSemaphore, &xHigherPriorityTaskWoken );
-    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
-}
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Application/POSIX defined callback for canceling an asynchronous operation.
- * This callback function should never be called.
- */
-static void prvCancelCallback( IotUARTOperationStatus_t xOpStatus,
-                               void * pvParams )
-{
-    BaseType_t xHigherPriorityTaskWoken;
-
-    sCancelled = 1;
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 /*-----------------------------------------------------------*/
@@ -136,11 +121,11 @@ TEST_GROUP_RUNNER( TEST_IOT_UART )
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUART_OpenCloseCancelFuzzing );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteReadSync );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTBaudChange );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlGetRxTxBytes );
-    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTCancel );
+    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy ) ;
+    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTBaudChange ) ;
+    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet ) ;
+    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlGetRxTxBytes ) ;
+    RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTCancel ) ;
 }
 /*-----------------------------------------------------------*/
 
@@ -229,7 +214,6 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy )
 {
     IotUARTHandle_t xOpen;
     int32_t lIoctl, lWrite, lClose;
-    BaseType_t xCallbackReturn;
     uint8_t cpBuffer[ testBufferSize ] = { 0 };
     uint8_t ucPort = ustestIotUartPort;
 
@@ -455,13 +439,14 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
     IotUARTHandle_t xOpen;
     int32_t lWrite, lCancel, lClose;
     uint8_t ucPort = ustestIotUartPort;
+    BaseType_t xCallbackReturn;
 
     xOpen = iot_uart_open( ucPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xOpen );
 
     if( TEST_PROTECT() )
     {
-        iot_uart_set_callback( xOpen, prvCancelCallback, NULL );
+        iot_uart_set_callback( xOpen, prvReadWriteCallback, NULL );
 
         lWrite = iot_uart_write_async( xOpen, cpBuffer, testIotUART_WRITE_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
@@ -470,9 +455,10 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lCancel );
 
         /* Wait to make sure operation was really canceled. */
-        vTaskDelay( pdMS_TO_TICKS( 1000 ) );
-        TEST_ASSERT_EQUAL( 0, sCancelled );
+        xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdFALSE, xCallbackReturn );
     }
+
     lClose = iot_uart_close( xOpen );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
@@ -480,7 +466,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
 
 /**
  * @brief Test Function to fuzz iot_uart_write_async
- * /*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUART_WriteAsyncFuzzing )
 {
     IotUARTHandle_t xOpen;
@@ -513,7 +499,7 @@ TEST( TEST_IOT_UART, AFQP_IotUART_WriteAsyncFuzzing )
 
 /**
  * @brief Test Function to fuzz iot_uart_write_sync
- * /*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUART_WriteSyncFuzzing )
 {
     IotUARTHandle_t xOpen;
@@ -545,7 +531,7 @@ TEST( TEST_IOT_UART, AFQP_IotUART_WriteSyncFuzzing )
 
 /**
  * @brief Test Function to fuzz iot_uart_read_async
- * /*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUART_ReadAsyncFuzzing )
 {
     IotUARTHandle_t xOpen;
@@ -576,7 +562,7 @@ TEST( TEST_IOT_UART, AFQP_IotUART_ReadAsyncFuzzing )
 
 /**
  * @brief Test Function to fuzz iot_uart_read_sync
- * /*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUART_ReadSyncFuzzing )
 {
     IotUARTHandle_t xOpen;
@@ -606,7 +592,7 @@ TEST( TEST_IOT_UART, AFQP_IotUART_ReadSyncFuzzing )
 
 /**
  * @brief Test Function to fuzz iot_uart_ioctl
- * /*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUART_IoctlFuzzing )
 {
     IotUARTHandle_t xOpen;
@@ -635,7 +621,7 @@ TEST( TEST_IOT_UART, AFQP_IotUART_IoctlFuzzing )
         lIoctl = iot_uart_ioctl( xOpen, eUartGetConfig, NULL );
         TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
 
-        /* Call iot_uart_ioctl with enum eGetTxNoOfbytes, and NULL buffer.Expect IOT_UART_INVALID_VALUE *                            /
+        /* Call iot_uart_ioctl with enum eGetTxNoOfbytes, and NULL buffer.Expect IOT_UART_INVALID_VALUE */
         lIoctl = iot_uart_ioctl( xOpen, eGetTxNoOfbytes, NULL );
         TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
 
@@ -652,7 +638,7 @@ TEST( TEST_IOT_UART, AFQP_IotUART_IoctlFuzzing )
 /**
  * @brief Test Function to fuzz iot_uart_open,
  * iot_uart_cancel and iot_uart_close
- * /*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUART_OpenCloseCancelFuzzing )
 {
     IotUARTHandle_t xOpen, xOpen2;
