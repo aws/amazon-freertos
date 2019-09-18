@@ -80,7 +80,7 @@ void TEST_NotifyTestStart()
 {
     /* Wait for test script to open serial port before starting tests on the
      * board.*/
-    vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
+    vTaskDelay( pdMS_TO_TICKS( 10000UL ) );
     TEST_SubmitResult( "---------STARTING TESTS---------\n" );
 }
 /*-----------------------------------------------------------*/
