@@ -28,6 +28,7 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 	- doxygen doc/config/shadow
 	- doxygen doc/config/defender
 	- doxygen doc/config/ble
+	- doxygen doc/config/https
 	- doxygen doc/config/main
 - the entry doc is $ROOT_AFR_DIR/doc/output/main/index.html, open it with browser and verify it looks good
 
@@ -61,7 +62,7 @@ PROJECT_NAME = "Foo"
 HTML_OUTPUT = foo
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/foo.tag
+GENERATE_TAGFILE = doc/output/foo.tag
 
 # Directories containing library source code.
 INPUT = [The source files path]
@@ -72,7 +73,7 @@ FILE_PATTERNS = *.h *.c *.txt
 EXAMPLE_PATH = [The source files path]
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
+TAGFILES = doc/output/main.tag=../main \
 ```
 
 ## 2. A separate file to structure the documents
