@@ -211,6 +211,16 @@ static void RunTests( void )
         RUN_TEST_GROUP( HTTPS_Client_Unit_Async );
         RUN_TEST_GROUP( HTTPS_Client_System );
     #endif
+
+    #if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+        #if ( testrunnerFULL_UDP_ENABLED == 1 )
+            RUN_TEST_GROUP( Full_UDP );
+        #endif
+    #endif
+
+    #if ( testrunnerUTIL_PLATFORM_NETWORK_UDP_ENABLED == 1 )
+        RUN_TEST_GROUP( UTIL_Platform_Network_UDP );
+    #endif
 }
 /*-----------------------------------------------------------*/
 
