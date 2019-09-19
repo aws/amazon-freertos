@@ -80,7 +80,7 @@ class runTest:
     numberOfTests = 0
     numberOfFailedTests = 0
 
-    # Manufacturer-sepcific Data
+    # Manufacturer-specific Data
     # First two bytes are company ID (randomly select Espressif(741) for test purpose)
     # Next bytes are defined by the company (randomly select unit8_t 5 for test purpose)
     COMPANY_ID = 741
