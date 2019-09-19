@@ -48,38 +48,38 @@
 extern "C" {
 #endif
 
-    /* Port specific definitions -- entering/exiting critical section.
-     * Refer template -- ./lib/FreeRTOS/portable/Compiler/Arch/portmacro.h
-     *
-     * Every call to ATOMIC_EXIT_CRITICAL() must be closely paired with
-     * ATOMIC_ENTER_CRITICAL().
-     */
-    #if defined( portSET_INTERRUPT_MASK_FROM_ISR )
+/* Port specific definitions -- entering/exiting critical section.
+ * Refer template -- ./lib/FreeRTOS/portable/Compiler/Arch/portmacro.h
+ *
+ * Every call to ATOMIC_EXIT_CRITICAL() must be closely paired with
+ * ATOMIC_ENTER_CRITICAL().
+ *  */
+#if defined( portSET_INTERRUPT_MASK_FROM_ISR )
 
-        /* Nested interrupt scheme is supported in this port. */
-        #define ATOMIC_ENTER_CRITICAL()     \
-            UBaseType_t uxCriticalSectionType = portSET_INTERRUPT_MASK_FROM_ISR()
+    /* Nested interrupt scheme is supported in this port. */
+    #define ATOMIC_ENTER_CRITICAL()     \
+        UBaseType_t uxCriticalSectionType = portSET_INTERRUPT_MASK_FROM_ISR()
 
-        #define ATOMIC_EXIT_CRITICAL()      \
-            portCLEAR_INTERRUPT_MASK_FROM_ISR( uxCriticalSectionType )
+    #define ATOMIC_EXIT_CRITICAL()      \
+        portCLEAR_INTERRUPT_MASK_FROM_ISR( uxCriticalSectionType )
 
-    #else
+#else
 
-        /* Nested interrupt scheme is NOT supported in this port. */
-        #define ATOMIC_ENTER_CRITICAL()     portENTER_CRITICAL()
-        #define ATOMIC_EXIT_CRITICAL()      portEXIT_CRITICAL()
+    /* Nested interrupt scheme is NOT supported in this port. */
+    #define ATOMIC_ENTER_CRITICAL()     portENTER_CRITICAL()
+    #define ATOMIC_EXIT_CRITICAL()      portEXIT_CRITICAL()
 
-    #endif /* portSET_INTERRUPT_MASK_FROM_ISR() */
+#endif /* portSET_INTERRUPT_MASK_FROM_ISR() */
 
-    /* Port specific definition -- "always inline". 
-     * Inline is compiler specific, and may not always get inlined depending on your optimization level. 
-     * Also, inline is considerred as performance optimization for atomic. 
-     * Thus, if portFORCE_INLINE is not provided by portmacro.h, instead of resulting error,
-     * simply define it. 
-     */
-    #ifndef portFORCE_INLINE
-        #define portFORCE_INLINE 
-    #endif
+/* Port specific definition -- "always inline". 
+ * Inline is compiler specific, and may not always get inlined depending on your optimization level. 
+ * Also, inline is considerred as performance optimization for atomic. 
+ * Thus, if portFORCE_INLINE is not provided by portmacro.h, instead of resulting error,
+ * simply define it. 
+ */
+#ifndef portFORCE_INLINE
+    #define portFORCE_INLINE 
+#endif
 
 #define ATOMIC_COMPARE_AND_SWAP_SUCCESS     0x1U        /**< Compare and swap succeeded, swapped. */
 #define ATOMIC_COMPARE_AND_SWAP_FAILURE     0x0U        /**< Compare and swap failed, did not swap. */
