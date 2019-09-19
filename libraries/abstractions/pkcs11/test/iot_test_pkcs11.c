@@ -316,7 +316,7 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
         #endif
 
-        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateFindGetAttributeValueCertificates );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
@@ -1603,16 +1603,18 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectKeys )
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xPrivateKeyHandle, "Invalid object handle returned for EC public key." );
 }
 
-TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
+TEST( Full_PKCS11_EC, AFQP_CreateFindGetAttributeValueCertificates )
 {
     CK_RV xResult;
     CK_OBJECT_HANDLE xClientCertificateHandle;
+    CK_ATTRIBUTE xTemplate;
+    CK_BYTE xCertificateValue[ 2000 ];
 
-    #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
-        CK_OBJECT_HANDLE xRootCertificateHandle;
-        CK_OBJECT_HANDLE xCodeSignPublicKeyHandle;
-        CK_OBJECT_HANDLE xJITPCertificateHandle;
-    #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
+
+    CK_OBJECT_HANDLE xRootCertificateHandle = CK_INVALID_HANDLE;
+    CK_OBJECT_HANDLE xJITPCertificateHandle = CK_INVALID_HANDLE;
+    mbedtls_x509_crt xCert;
+    int lMbedTlsReturn = 0;
 
     xResult = xProvisionCertificate( xGlobalSession,
                                      ( uint8_t * ) cValidECDSACertificate,
@@ -1624,39 +1626,81 @@ TEST( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates )
 
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
         xResult = xProvisionCertificate( xGlobalSession,
-                                         ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
-                                         tlsATS1_ROOT_CERTIFICATE_LENGTH,
+                                         ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
+                                         tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH,
                                          pkcs11configLABEL_ROOT_CERTIFICATE,
                                          &xRootCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create root EC certificate." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned for EC root certificate." );
 
         xResult = xProvisionCertificate( xGlobalSession,
-                                         ( uint8_t * ) tlsATS1_ROOT_CERTIFICATE_PEM,
-                                         tlsATS1_ROOT_CERTIFICATE_LENGTH,
+                                         ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM,
+                                         sizeof( keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM ),
                                          pkcs11configLABEL_JITP_CERTIFICATE,
                                          &xJITPCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create JITP EC certificate." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
+    #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
-        xResult = xProvisionPublicKey( xGlobalSession,
-                                       ( uint8_t * ) cValidECDSAPrivateKey,
-                                       sizeof( cValidECDSAPrivateKey ),
-                                       CKK_EC,
-                                       pkcs11configLABEL_CODE_VERIFICATION_KEY,
-                                       &xCodeSignPublicKeyHandle );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC code sign public key." );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCodeSignPublicKeyHandle, "Invalid object handle returned for EC code sign public key." );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession, ( uint8_t * ) pkcs11testLABEL_ROOT_CERTIFICATE, CKO_CERTIFICATE, &xRootCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find root certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned finding root certificate." );
 
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession, ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE, CKO_CERTIFICATE, &xJITPCertificateHandle );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find JITP certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned finding JITP certificate." );
+
+
+    /* Check retrieval of the root CA. */
+    xTemplate.type = CKA_VALUE;
+    xTemplate.pValue = NULL;
+    xTemplate.ulValueLen = 0;
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xRootCertificateHandle, &xTemplate, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for length of root certificate value failed." );
+    TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xTemplate.ulValueLen, "Incorrect certificate value length" );
+
+    xTemplate.pValue = xCertificateValue;
+    xTemplate.ulValueLen = sizeof( xCertificateValue );
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xRootCertificateHandle, &xTemplate, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for certificate value failed." );
+
+    mbedtls_x509_crt_init( &xCert );
+    lMbedTlsReturn = mbedtls_x509_crt_parse( &xCert, xTemplate.pValue, xTemplate.ulValueLen );
+
+    if( TEST_PROTECT() )
+    {
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTlsReturn, "Failed to parse root CA" );
+
+        mbedtls_x509_crt_free( &xCert );
+
+        /* Check retrieval of the JITR cert. */
+        xTemplate.type = CKA_VALUE;
+        xTemplate.pValue = NULL;
+        xTemplate.ulValueLen = 0;
+        xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xJITPCertificateHandle, &xTemplate, 1 );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for length of JITP certificate value failed." );
+        TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xTemplate.ulValueLen, "Incorrect certificate value length" );
+
+        xTemplate.pValue = xCertificateValue;
+        xTemplate.ulValueLen = sizeof( xCertificateValue );
+        xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xJITPCertificateHandle, &xTemplate, 1 );
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "GetAttributeValue for JITP certificate value failed." );
+
+        /* Check that the certificate parses. */
+        mbedtls_x509_crt_init( &xCert );
+        lMbedTlsReturn = mbedtls_x509_crt_parse( &xCert, xTemplate.pValue, xTemplate.ulValueLen );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, lMbedTlsReturn, "Failed to parse JITP" );
+    }
+
+    mbedtls_x509_crt_free( &xCert );
+
+    #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
         xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xRootCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy root certificate." );
 
         xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xJITPCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy JITP certificate." );
-
-        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xCodeSignPublicKeyHandle );
-        TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy EC code sign public key." );
-    #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
+    #endif
 }
 
 TEST( Full_PKCS11_EC, AFQP_Sign )

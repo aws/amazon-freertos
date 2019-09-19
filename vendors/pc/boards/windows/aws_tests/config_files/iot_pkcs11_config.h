@@ -78,7 +78,8 @@
  * @brief Set to 1 if PAL supports storage for JITP certificate,
  * code verify certificate, and trusted server root certificate.
  *
- * If set to 0, PAL does not support storage mechanism for these, and
+ * If set to 0, PAL does not support storage mechanism for these,
+ * C_CreateObject calls on these functions are not permitted, and
  * they are accessed via headers compiled into the code.
  */
 #define pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED    0
