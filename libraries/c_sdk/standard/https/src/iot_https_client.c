@@ -770,7 +770,13 @@ static int _httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
         pHttpsResponse->pHeadersCur += ( 2 * HTTPS_END_OF_HEADER_LINES_INDICATOR_LENGTH );
     }
 
-    if( pHttpsResponse->bufferProcessingState < PROCESSING_STATE_FINISHED )
+    /* This if-case is not incrementing any pHeaderCur pointers, so this case is safe to call when flushing the
+     * network buffer. Flushing the network buffer needs the logic below to reach PARSER_STATE_BODY_COMPLETE if the
+     * response is for a HEAD request. Before flushing the network buffer the bufferProcessingState is set to
+     * PROCESSING_STATE_FINISHED so that other callback fuctions don't update header or body current pointers in the
+     * response context. We don't want those pointers incremented because flushing the network uses a different buffer
+     * to receive the rest of the response. */
+    if( pHttpsResponse->bufferProcessingState <= PROCESSING_STATE_FINISHED )
     {
         /* For a HEAD method, there is no body expected in the response, so we return 1 to skip body parsing. */
         if( ( pHttpsResponse->method == IOT_HTTPS_METHOD_HEAD ) )
@@ -789,7 +795,7 @@ static int _httpParserOnHeadersCompleteCallback( http_parser * pHttpParser )
         /* If there is not body configured for a synchronous reponse, we do not stop the parser from continueing. */
 
         /* Skipping the body will cause the parser to invoke the _httpParserOnMessageComplete() callback. This is
-         * not desired when there is actaully HTTP response body sent by the server because this will set the parser
+         * not desired when there is actually HTTP response body sent by the server because this will set the parser
          * state to PARSER_STATE_BODY_COMPLETE. If this state is set then the rest of possible body will not be
          * flushed out. The network flush looks for the state being PARSER_STATE_BODY_COMPLETE to finish flushing. */
     }
@@ -2212,10 +2218,12 @@ static void _sendHttpsRequest( IotTaskPool_t pTaskPool,
         else
         {
             /* Because this request failed, the network receive callback may never be invoked to schedule other possible
-             * requests in the queue. In order to avoid requests never getting scheduled on an connected connection,
+             * requests in the queue. In order to avoid requests never getting scheduled on a connected connection,
              * the first item in the queue is scheduled if it can be. */
             IotMutex_Lock( &( pHttpsConnection->connectionMutex ) );
-            /* Get the next item in the queue by removing this current (which is the first) and peeking at the head again. */
+
+            /* Get the next item in the queue by removing this current (which is the first) and peeking at the head
+             * again. */
             IotDeQueue_Remove( &( pHttpsRequest->link ) );
             pQItem = IotDeQueue_PeekHead( &( pHttpsConnection->reqQ ) );
             /* This current request is put back because it is removed again for all cases at the end of this routine. */
@@ -2530,9 +2538,9 @@ static IotHttpsReturnCode_t _initializeResponse( IotHttpsResponseHandle_t * pRes
 
 /*-----------------------------------------------------------*/
 
-void IotHttpsClient_Deinit( void )
+void IotHttpsClient_Cleanup( void )
 {
-    /* There is nothing to de-initialize here as of now. */
+    /* There is nothing to clean up here as of now. */
 }
 
 /* --------------------------------------------------------- */
@@ -2636,7 +2644,8 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
 
         /* Put the response that was dequeued back so that the application can call this function again to check later
          * that is exited and marked itself as finished sending.
-         * If during the last check and this check reqFinishedSending gets set to true, that is OK because then the next */
+         * If during the last check and this check reqFinishedSending gets set to true, that is OK because on the next
+         * call to this routine, the disconnect will succeed. */
         if( pHttpsResponse->reqFinishedSending == false )
         {
             IotDeQueue_EnqueueHead( &( connHandle->respQ ), pRespItem );
@@ -3285,7 +3294,7 @@ IotHttpsReturnCode_t IotHttpsClient_ReadHeader( IotHttpsResponseHandle_t respHan
     }
     else
     {
-        IotLogError( "IotHttpsClient_ReadHeader(): The header field %s was not found.", pName );
+        IotLogWarn( "IotHttpsClient_ReadHeader(): The header field %s was not found.", pName );
         HTTPS_SET_AND_GOTO_CLEANUP( IOT_HTTPS_NOT_FOUND );
     }
 

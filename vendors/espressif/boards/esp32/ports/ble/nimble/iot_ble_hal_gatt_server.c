@@ -616,16 +616,6 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
     {
         ESP_LOGD( TAG, "Send Notifications" );
         xESPstatus = ble_gattc_notify_custom( usConnId, usAttributeHandle + gattOffset, om );
-
-        if( xGattServerCb.pxIndicationSentCb != NULL )
-        {
-            if( xESPstatus != 0 )
-            {
-                xStatus = eBTStatusFail;
-            }
-
-            xGattServerCb.pxIndicationSentCb( usConnId, xStatus );
-        }
     }
 
     if( xESPstatus != 0 )

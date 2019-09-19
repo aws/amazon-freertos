@@ -834,6 +834,7 @@ ble_sm_pairing_req(uint16_t conn_handle, struct ble_sm_pair_cmd *req)
     pair_req.io_cap = req->io_cap;
     pair_req.oob_data_flag = req->oob_data_flag;
     pair_req.authreq = req->authreq;
+    pair_req.max_enc_key_size = req->max_enc_key_size;
 
     return ble_gap_pairing_req_event(&pair_req);
 }

@@ -29,20 +29,23 @@
 /* Uncomment this line if you want to run AFQP tests only. */
 /* #define testrunnerAFQP_ENABLED */
 
-#define testrunnerUNSUPPORTED                      0
+#define testrunnerUNSUPPORTED                       0
 
 /* Unsupported tests */
-#define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_CBOR_ENABLED             testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */
-#define testrunnerFULL_OTA_PAL_ENABLED             0
-#define testrunnerFULL_SHADOWv4_ENABLED            0
-#define testrunnerFULL_MQTTv4_ENABLED              0
-#define testrunnerFULL_MEMORYLEAK_ENABLED          0
-#define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED 0
-#define testrunnerFULL_POSIX_ENABLED               0
-#define testrunnerFULL_BLE_ENABLED                 0
-#define testrunnerFULL_SERIALIZER_ENABLED          0
-#define testrunnerFULL_LINEAR_CONTAINERS_ENABLED   0
+#define testrunnerFULL_OTA_PAL_ENABLED              0
+#define testrunnerFULL_SHADOWv4_ENABLED             0
+#define testrunnerFULL_MQTTv4_ENABLED               0
+#define testrunnerFULL_MEMORYLEAK_ENABLED           0
+#define testrunnerFULL_BLE_END_TO_END_TEST_ENABLED  0
+#define testrunnerFULL_BLE_STRESS_TEST_ENABLED      0
+#define testrunnerFULL_BLE_KPI_TEST_ENABLED         0
+#define testrunnerFULL_BLE_INTEGRATION_TEST_ENABLED 0
+#define testrunnerFULL_POSIX_ENABLED                0
+#define testrunnerFULL_BLE_ENABLED                  0
+#define testrunnerFULL_SERIALIZER_ENABLED           0
+#define testrunnerFULL_LINEAR_CONTAINERS_ENABLED    0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */
