@@ -80,6 +80,12 @@ class runTest:
     numberOfTests = 0
     numberOfFailedTests = 0
 
+    # Manufacturer-specific Data
+    # First two bytes are company ID (randomly select Espressif(741) for test purpose)
+    # Next bytes are defined by the company (randomly select unit8_t 5 for test purpose)
+    COMPANY_ID = 741
+    MANU_DATA = 5
+
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
@@ -274,7 +280,7 @@ class runTest:
     @staticmethod
     def notificationMTU2(uuid, value, flag):
         if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (flag == "notify"):
-            return value;
+            return value
 
     @staticmethod
     def notificationOnCharE(uuid, value, flag):
@@ -439,6 +445,23 @@ class runTest:
         return True
 
     @staticmethod
+    def get_manufacture_data(testDevice, DUT_UUID=None):
+        manufacture_data_dict = bleAdapter.getPropertie(testDevice, "ManufacturerData")
+
+        # If manufacture data doesn't exist, return None
+        if( manufacture_data_dict == None ):
+            print("No Manufacture Data")
+            sys.stdout.flush()
+            return None
+
+        # If manufacture data exists, return manufacture data
+        else:
+            print( "Manufacturer Specific Data: " + str(manufacture_data_dict.items()) )
+            sys.stdout.flush()
+            manufacture_data = manufacture_data_dict[runTest.COMPANY_ID]
+            return manufacture_data
+
+    @staticmethod
     def _advertisement_start(scan_filter, UUID, discoveryEvent_Cb, bleAdapter):
         scan_filter.update({ "UUIDs": [UUID]})
         bleAdapter.setDiscoveryFilter(scan_filter)
@@ -482,6 +505,53 @@ class runTest:
                                                 discoveryEvent_Cb=runTest.discoveryEventCb)
         runTest.DUT_NAME = DUT_NAME_ORIGINAL
         return True
+
+    @staticmethod
+    def Advertise_With_Manufacture_Data(scan_filter,
+            bleAdapter):
+        isTestSuccessFull = True
+
+        # Check when manufacture data length is 0, but pointer is valid
+        runTest._advertisement_start(scan_filter=scan_filter, 
+                                    UUID=runTest.DUT_UUID_128,
+                                    discoveryEvent_Cb=runTest.discoveryEventCb,
+                                    bleAdapter=bleAdapter)
+        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
+        if manufacture_data != None:
+            isTestSuccessFull = False
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        # Check when manufacture data pointer is NULL, but length is not 0
+        runTest._advertisement_start(scan_filter=scan_filter, 
+                                    UUID=runTest.DUT_UUID_128,
+                                    discoveryEvent_Cb=runTest.discoveryEventCb,
+                                    bleAdapter=bleAdapter)
+        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
+        if manufacture_data != None:
+            isTestSuccessFull = False
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        # Check when manufacture data length is not 0, and pointer is valid
+        runTest._advertisement_start(scan_filter=scan_filter, 
+                                    UUID=runTest.DUT_UUID_128,
+                                    discoveryEvent_Cb=runTest.discoveryEventCb,
+                                    bleAdapter=bleAdapter)
+        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
+        for data in manufacture_data:
+            if data != runTest.MANU_DATA:
+                isTestSuccessFull = False
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
 
     @staticmethod
     def Advertise_With_16bit_ServiceUUID(scan_filter,
@@ -557,6 +627,7 @@ class runTest:
             runTest.stopAdvertisement: "_stopAdvertisement",
             runTest.Advertise_Without_Properties: "_Advertise_Without_Properties",
             runTest.Advertise_With_16bit_ServiceUUID: "_Advertise_With_16bit_ServiceUUID",
+            runTest.Advertise_With_Manufacture_Data: "_Advertise_With_Manufacture_Data",
             # runTest.Advertise_Interval_Consistent_After_BT_Reset: "_Advertise_Interval_Consistent_After_BT_Reset",
             runTest.Write_Notification_Size_Greater_Than_MTU_3: "_Write_Notification_Size_Greater_Than_MTU_3"
         }
