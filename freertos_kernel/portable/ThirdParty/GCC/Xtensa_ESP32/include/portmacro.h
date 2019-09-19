@@ -197,22 +197,68 @@ This all assumes that interrupts are either entirely disabled or enabled. Interr
 will break this scheme.
 
 Remark: For the ESP32, portENTER_CRITICAL and portENTER_CRITICAL_ISR both alias vTaskEnterCritical, meaning
-that either function can be called both from ISR as well as task context. This is not standard FreeRTOS 
+that either function can be called both from ISR as well as task context. This is not standard FreeRTOS
 behaviour; please keep this in mind if you need any compatibility with other FreeRTOS implementations.
 */
 void vPortCPUInitializeMutex(portMUX_TYPE *mux);
+
+
+/** There is a breaking change to the ESP-IDF SMP port of portENTER_CRITICAL and friends.
+ * Code for FreeRTOS expects to call FreeRTOS` portENTER_CRITICAL(). Code for the ESP-32 SMP
+ * port expects to pass a mutex parameter portENTER_CRITICAL( mux ). This includes macros in
+ * the Nimble port layer that are consumed by FreeRTOS libraries.
+ *
+ * This problem is solved by introducing a global mutex for FreeRTOS code and using the preprocessor to
+ * accept both types of call: If the symbol AFR_USE_GLOBAL_ESP_MUTEX is defined, then
+ *
+ *   portENTER_CRITICAL() resolves to portENTER_CRITICAL( global_portmux )
+ *   portENTER_CRITICAL( mux ) works as before.
+ *
+ * Note that unlike regular FreeRTOS, the Espressif SMP port will continue
+ * to run code on the other core unless the other core tries to acquire the
+ * same lock.
+ */
+#ifdef AFR_USE_GLOBAL_ESP_MUTEX
+  extern portMUX_TYPE *global_portmux;
+
+  /* When calling resolve_portmux with no arguments, substitute the global portmux */
+  #define resolve_portmux_0() global_portmux
+
+  /* With one argument, substitute the argument */
+  #define resolve_portmux_1(mux) mux
+
+  /* resolve_portmux uses VA_ARGS to construct the correct macro invocation as the parameter "target_macro" */
+  #define resolve_portmux_dispatch( dummy_parameter, mux, guard1, guard2, guard3, guard4, target_macro, ... ) target_macro
+
+  /*
+   * The correct macro invocation is pushed into parameter 7 by the variable
+   * number of arguments in __VA_ARGS__.  Calling the macro with up to 4 extra
+   * parameters will result in a compiler error.
+   **/
+  #define resolve_portmux(...) resolve_portmux_dispatch(\
+          ,##__VA_ARGS__,\
+          TOO_MANY_ARGUMENTS_TO_CRITICAL_MACRO,\
+          TOO_MANY_ARGUMENTS_TO_CRITICAL_MACRO,\
+          TOO_MANY_ARGUMENTS_TO_CRITICAL_MACRO,\
+          TOO_MANY_ARGUMENTS_TO_CRITICAL_MACRO,\
+          resolve_portmux_1(__VA_ARGS__),\
+          resolve_portmux_0()\
+          )
+#else
+  #define resolve_portmux(mux) mux
+#endif
+
 #ifdef CONFIG_FREERTOS_PORTMUX_DEBUG
 void vPortCPUAcquireMutex(portMUX_TYPE *mux, const char *function, int line);
 bool vPortCPUAcquireMutexTimeout(portMUX_TYPE *mux, int timeout_cycles, const char *function, int line);
 void vPortCPUReleaseMutex(portMUX_TYPE *mux, const char *function, int line);
 
-
 void vTaskEnterCritical( portMUX_TYPE *mux, const char *function, int line );
 void vTaskExitCritical( portMUX_TYPE *mux, const char *function, int line );
-#define portENTER_CRITICAL(mux)        vTaskEnterCritical(mux, __FUNCTION__, __LINE__)
-#define portEXIT_CRITICAL(mux)         vTaskExitCritical(mux, __FUNCTION__, __LINE__)
-#define portENTER_CRITICAL_ISR(mux)    vTaskEnterCritical(mux, __FUNCTION__, __LINE__)
-#define portEXIT_CRITICAL_ISR(mux)     vTaskExitCritical(mux, __FUNCTION__, __LINE__)
+#define portENTER_CRITICAL(mux)        vTaskEnterCritical( resolve_portmux(mux), __FUNCTION__, __LINE__)
+#define portEXIT_CRITICAL(mux)         vTaskExitCritical( resolve_portmux(mux), __FUNCTION__, __LINE__)
+#define portENTER_CRITICAL_ISR(mux)    vTaskEnterCritical(resolve_portmux(mux), __FUNCTION__, __LINE__)
+#define portEXIT_CRITICAL_ISR(mux)     vTaskExitCritical(resolve_portmux(mux), __FUNCTION__, __LINE__)
 #else
 void vTaskExitCritical( portMUX_TYPE *mux );
 void vTaskEnterCritical( portMUX_TYPE *mux );
@@ -229,10 +275,10 @@ void vPortCPUAcquireMutex(portMUX_TYPE *mux);
 bool vPortCPUAcquireMutexTimeout(portMUX_TYPE *mux, int timeout_cycles);
 void vPortCPUReleaseMutex(portMUX_TYPE *mux);
 
-#define portENTER_CRITICAL(mux)        vTaskEnterCritical(mux)
-#define portEXIT_CRITICAL(mux)         vTaskExitCritical(mux)
-#define portENTER_CRITICAL_ISR(mux)    vTaskEnterCritical(mux)
-#define portEXIT_CRITICAL_ISR(mux)     vTaskExitCritical(mux)
+#define portENTER_CRITICAL(mux)        vTaskEnterCritical(resolve_portmux( mux ))
+#define portEXIT_CRITICAL(mux)         vTaskExitCritical(resolve_portmux( mux ))
+#define portENTER_CRITICAL_ISR(mux)    vTaskEnterCritical(resolve_portmux( mux ))
+#define portEXIT_CRITICAL_ISR(mux)     vTaskExitCritical(resolve_portmux( mux ))
 #endif
 
 // Critical section management. NW-TODO: replace XTOS_SET_INTLEVEL with more efficient version, if any?
