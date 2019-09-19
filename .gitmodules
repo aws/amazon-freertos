@@ -2,3 +2,7 @@
 	path = libraries/3rdparty/http-parser
 	url = https://github.com/nodejs/http-parser.git
 	branch = v2.9.2
+[submodule "unity"]
+	path = libraries/3rdparty/unity
+	url = https://github.com/ThrowTheSwitch/Unity.git
+	branch = v2.4.3
