@@ -1624,22 +1624,32 @@ TEST( Full_PKCS11_EC, AFQP_CreateFindGetAttributeValueCertificates )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create EC certificate." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xClientCertificateHandle, "Invalid object handle returned for EC certificate." );
 
+
+    xResult = xProvisionCertificate( xGlobalSession,
+                                     ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
+                                     tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH,
+                                     pkcs11configLABEL_ROOT_CERTIFICATE,
+                                     &xRootCertificateHandle );
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
-        xResult = xProvisionCertificate( xGlobalSession,
-                                         ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
-                                         tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH,
-                                         pkcs11configLABEL_ROOT_CERTIFICATE,
-                                         &xRootCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create root EC certificate." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned for EC root certificate." );
+    #else
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_DEVICE_MEMORY, xResult, "Created a root CA when that functionality is not supported." );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Valid object handle returned when object not created." );
+    #endif
 
-        xResult = xProvisionCertificate( xGlobalSession,
-                                         ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM,
-                                         sizeof( keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM ),
-                                         pkcs11configLABEL_JITP_CERTIFICATE,
-                                         &xJITPCertificateHandle );
+
+    xResult = xProvisionCertificate( xGlobalSession,
+                                     ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
+                                     sizeof( tlsSTARFIELD_ROOT_CERTIFICATE_PEM ),
+                                     pkcs11configLABEL_JITP_CERTIFICATE,
+                                     &xJITPCertificateHandle );
+    #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create JITP EC certificate." );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned for EC JITP certificate." );
+    #else
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_DEVICE_MEMORY, xResult, "Created a JTIP when that functionality is not supported." );
+        TEST_ASSERT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Valid object handle returned when object not created." );
     #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
     xResult = xFindObjectWithLabelAndClass( xGlobalSession, ( uint8_t * ) pkcs11testLABEL_ROOT_CERTIFICATE, CKO_CERTIFICATE, &xRootCertificateHandle );
@@ -1694,12 +1704,17 @@ TEST( Full_PKCS11_EC, AFQP_CreateFindGetAttributeValueCertificates )
 
     mbedtls_x509_crt_free( &xCert );
 
+    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xRootCertificateHandle );
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
-        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xRootCertificateHandle );
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy root certificate." );
-
-        xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xJITPCertificateHandle );
+    #else
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_ACTION_PROHIBITED, xResult, "Destroy object on undestroyable object permitted." );
+    #endif
+    xResult = pxGlobalFunctionList->C_DestroyObject( xGlobalSession, xJITPCertificateHandle );
+    #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to destroy JITP certificate." );
+    #else
+        TEST_ASSERT_EQUAL_MESSAGE( CKR_ACTION_PROHIBITED, xResult, "Destroy object on undestroyable object permitted." );
     #endif
 }
 
