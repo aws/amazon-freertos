@@ -115,14 +115,14 @@ P11StorageFunctions_t xPalStorageFxns =
     &PKCS11_PAL_GetObjectValueCleanup
 };
 
-P11StorageFunctions_t xCodeStorageFxns = 
-{ 
+P11StorageFunctions_t xCodeStorageFxns =
+{
     &PKCS11_Code_SaveObject,
-    &PKCS11_Code_DestroyObject, 
-    &PKCS11_Code_FindObject, 
-    &PKCS11_Code_GetObjectValue, 
-    &PKCS11_Code_GetObjectValueCleanup 
-}; 
+    &PKCS11_Code_DestroyObject,
+    &PKCS11_Code_FindObject,
+    &PKCS11_Code_GetObjectValue,
+    &PKCS11_Code_GetObjectValueCleanup
+};
 
 typedef struct P11Object_t
 {
@@ -606,7 +606,6 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     }
 
 #endif /* if ( pkcs11configPAL_DESTROY_SUPPORTED != 1 ) */
-
 
 
 
@@ -1200,17 +1199,18 @@ CK_RV prvCreateCertificate( CK_ATTRIBUTE_PTR pxTemplate,
         }
     }
 
-    if ( xResult == CKR_OK && xPalHandle == CK_INVALID_HANDLE )
+    if( ( xResult == CKR_OK ) && ( xPalHandle == CK_INVALID_HANDLE ) )
     {
         /* Next, try checking if the label is one used for an in-code storage mechanism. */
         xPalHandle = xCodeStorageFxns.SaveObject( pxLabel, pxCertificateValue, xCertificateLength );
-        if ( xPalHandle != CK_INVALID_HANDLE )
+
+        if( xPalHandle != CK_INVALID_HANDLE )
         {
             pStorageFxns = &xCodeStorageFxns;
         }
     }
 
-    if ( xResult == CKR_OK && xPalHandle == CK_INVALID_HANDLE )
+    if( ( xResult == CKR_OK ) && ( xPalHandle == CK_INVALID_HANDLE ) )
     {
         xResult = CKR_DEVICE_MEMORY;
     }
@@ -2525,6 +2525,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint32_t ulIndex;
     P11Object_t * pxInternalObject;
+    P11StorageFunctions_t * pxStorageFxns;
 
     /*
      * Check parameters.
@@ -2585,8 +2586,22 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
 
             if( xPalHandle != CK_INVALID_HANDLE )
             {
+                pxStorageFxns = &xPalStorageFxns;
+            }
+            else
+            {
+                xPalHandle = xCodeStorageFxns.FindObject( pxSession->pxFindObjectLabel, ( uint8_t ) strlen( ( const char * ) pxSession->pxFindObjectLabel ) );
+
+                if( xPalHandle != CK_INVALID_HANDLE )
+                {
+                    pxStorageFxns = &xCodeStorageFxns;
+                }
+            }
+
+            if( xPalHandle != CK_INVALID_HANDLE )
+            {
                 /* Retrieve the object value, and check that it is not a "destroyed" object, which is zeroed out. */
-                xResult = xPalStorageFxns.GetObjectValue( xPalHandle, &pcObjectValue, &xObjectLength, &xIsPrivate );
+                xResult = pxStorageFxns->GetObjectValue( xPalHandle, &pcObjectValue, &xObjectLength, &xIsPrivate );
 
                 if( xResult == CKR_OK )
                 {
@@ -2601,11 +2616,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
                     }
                     else /* Add the valid object to the cache. */
                     {
-                        xResult = prvAddObjectToList( xPalHandle, pxObject, pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ), &xPalStorageFxns );
+                        xResult = prvAddObjectToList( xPalHandle, pxObject, pxSession->pxFindObjectLabel, strlen( ( const char * ) pxSession->pxFindObjectLabel ), pxStorageFxns );
                         *pulObjectCount = 1;
                     }
 
-                    xPalStorageFxns.GetObjectValueCleanup( pcObjectValue, xObjectLength );
+                    pxStorageFxns->GetObjectValueCleanup( pcObjectValue, xObjectLength );
                 }
             }
             else
