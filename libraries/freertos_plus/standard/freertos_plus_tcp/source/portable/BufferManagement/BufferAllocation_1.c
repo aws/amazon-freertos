@@ -280,13 +280,14 @@ UBaseType_t uxCount;
 					pxReturn->pxNextBuffer = NULL;
 				}
 				#endif /* ipconfigUSE_LINKED_RX_MESSAGES */
-
+#if( ipconfigUSE_TCP_WIN != 0 )
 				if( xTCPWindowLoggingLevel > 3 )
 				{
 					FreeRTOS_debug_printf( ( "BUF_GET[%ld]: %p (%p)\n",
 						bIsValidNetworkDescriptor( pxReturn ),
 						pxReturn, pxReturn->pucEthernetBuffer ) );
 				}
+#endif
 			}
 			iptraceNETWORK_BUFFER_OBTAINED( pxReturn );
 		}
@@ -390,11 +391,13 @@ BaseType_t xListItemAlreadyInFreeList;
 	{
 		xSemaphoreGive( xNetworkBufferSemaphore );
 		prvShowWarnings();
+#if( ipconfigUSE_TCP_WIN != 0 )
 		if( xTCPWindowLoggingLevel > 3 )
 			FreeRTOS_debug_printf( ( "BUF_PUT[%ld]: %p (%p) (now %lu)\n",
 				bIsValidNetworkDescriptor( pxNetworkBuffer ),
 				pxNetworkBuffer, pxNetworkBuffer->pucEthernetBuffer,
 				uxGetNumberOfFreeNetworkBuffers( ) ) );
+#endif
 	}
 	iptraceNETWORK_BUFFER_RELEASED( pxNetworkBuffer );
 }
