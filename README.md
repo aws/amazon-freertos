@@ -1,3 +1,46 @@
+## Amazon FreeRTOS 201908.00 Release ESP-IDF SMP Support
+
+This special branch of Amazon FreeRTOS contains the modifications necessary to support Espressif's
+fork of FreeRTOS bundles with ESP-IDF for the ESP32. That fork enables the ESP32's second CPU core
+for FreeRTOS tasks by [extending the FreeRTOS
+scheduler](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/freertos-smp.html). 
+
+This branch replaces the FreeRTOS 10 kernel in AmazonFreeRTOS with the Espressif fork from ESP-IDF
+3.1.1 Use this branch directly to build on Amazon FreeRTOS 201908.00, or apply these commits to
+future versions of Amazon FreeRTOS.
+
+The commit history is organized into the following types of changes: 
+
+1. *AFR FIX UPSTREAM* - These changes are candidates for pushing into the Amazon FreeRTOS master
+   repository
+2. *COPY* - Copy the FreeRTOS sources from esp-idf
+3. *LIBRARY PATCH* - Update the build system and flags for the new files
+4. *ESP-IDF PATCH* - These changes are candidates for pushing into any future releases of ESP-IDF
+   slated for integration with Amazon FreeRTOS
+5. *CONFIG* - Merge AFR requirements into the ESP-IDF `FreeRTOSConfig.h`. Many of these support the
+   demos. You may wish to modify these for your application.
+
+There are changes to the scheduler and handling of critical sections from FreeRTOS. ESP-IDF requires
+calls to `portENTER_CRITICAL()` to pass a mutex used to lock the other core. This port supports the
+original FreeRTOS macro signature by providing a global mutex. Note though that the other core will
+continue to run unless it enters a matching critical section.  Both of the
+following forms are supported:
+
+```
+/* 
+ * Scheduler and Interrupts are disabled on the local core. The other core will
+ * run until it similarly calls portENTER_CRITICAL() 
+ */
+ 
+/* Explicit critical section lock on a shared resource */
+static portMUX_TYPE xSubsystemMutex = portMUX_INITIALIZER_UNLOCKED;
+portENTER_CRITICAL(&xSubsystemMutex);
+ 
+/* Translated by the preprocessor into a lock on global_portmux */
+portENTER_CRITICAL();
+
+```
+
 ## Getting Started
 
 For more information on Amazon FreeRTOS, refer to the [Getting Started section of Amazon FreeRTOS webpage](https://aws.amazon.com/freertos).
@@ -8,52 +51,8 @@ For detailed documentation on Amazon FreeRTOS, refer to the [Amazon FreeRTOS Use
 
 ## Supported Hardware
 
-The following MCU boards are supported for Amazon FreeRTOS:
-1. **Texas Instruments** - [CC3220SF-LAUNCHXL](http://www.ti.com/tool/cc3220sf-launchxl).
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_ti.html)
-    * IDEs: [Code Composer Studio](http://www.ti.com/tools-software/ccs.html), [IAR Embedded Workbench](https://www.iar.com/iar-embedded-workbench/partners/texas-instruments)
-2. **STMicroelectronics** - [STM32L4 Discovery kit IoT node](http://www.st.com/en/evaluation-tools/b-l475e-iot01a.html).
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_st.html)
-    * IDE: [STM32 System Workbench](http://openstm32.org/HomePage)
-3. **NXP** - [LPC54018 IoT Module](http://www.nxp.com/LPC-AWS-Module).
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_nxp.html)
-    * IDEs: [IAR Embedded Workbench](https://www.iar.com/iar-embedded-workbench/partners/nxp), [MCUXpresso IDE](https://www.nxp.com/mcuxpresso/ide/download)
-4. **Microchip** - [Curiosity PIC32MZEF](http://www.microchipdirect.com/product/search/all/dm320104-BNDL).
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_mch.html)
-    * IDE: [MPLAB X IDE](http://www.microchip.com/mplab/mplab-x-ide)
-5. **Espressif** - [ESP32-DevKitC](https://www.espressif.com/en/products/hardware/esp32-devkitc/overview), [ESP-WROVER-KIT](https://www.espressif.com/en/products/hardware/esp-wrover-kit/overview).
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_espressif.html)
-6. **Infineon** - [Infineon XMC4800 IoT Connectivity Kit](https://www.infineon.com/connectivitykit)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_infineon.html)
-    * IDE: [DAVE](https://infineoncommunity.com/dave-download_ID645)
-7. **Xilinx** - [Xilinx Zynq-7000 based MicroZed Industrial IoT Bundle](http://www.zedboard.org/product/microzed-iiot-bundle-afreertos)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_xilinx.html)
-    * IDE: [Xilinx SDK](https://www.xilinx.com/products/design-tools/embedded-software/sdk.html)
-8. **MediaTek** - [MediaTek MT7697Hx Development Kit](https://www.mediatek.com/products/smartHome/mt7697h)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_mediatek.html)
-    * IDE: [Keil uVision](http://www2.keil.com/mdk5/install/)
-9. **Renesas** - [Renesas Starter Kit+ for RX65N-2MB](https://www.renesas.com/us/en/products/software-tools/boards-and-kits/renesas-starter-kits/renesas-starter-kitplus-for-rx65n-2mb.html)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_renesas.html)
-    * IDE: [e2 studio](https://www.renesas.com/us/en/products/software-tools/tools/ide/e2studio.html)
-10. **Cypress CYW54907** - [Cypress CYW954907AEVAL1F Evaluation Kit](https://www.cypress.com/documentation/development-kitsboards/cyw954907aeval1f-evaluation-kit)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_54.html)
-    * IDE: [WICED Studio](https://community.cypress.com/community/wiced-wifi)
-11. **Cypress CYW43907** - [Cypress CYW943907AEVAL1F Evaluation Kit](https://www.cypress.com/documentation/development-kitsboards/cyw943907aeval1f-evaluation-kit)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_cypress_43.html)
-    * IDE: [WICED Studio](https://community.cypress.com/community/wiced-wifi)
-12. **Marvell MW320** - [Marvell MW320 AWS IoT Starter Kit](https://www.marvell.com/microcontrollers/aws-iot-starter-kit/)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_marvell320.html)
-13. **Marvell MW322** - [Marvell MW322 AWS IoT Starter Kit](https://www.marvell.com/microcontrollers/aws-iot-starter-kit/)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_marvell322.html)
-14. **Nordic nRF52840 DK** - [nRF52840 DK Development kit](https://www.nordicsemi.com/Software-and-Tools/Development-Kits/nRF52840-DK/)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_nordic.html)  
-15. **Nuvoton** - [NuMaker-IoT-M487](https://direct.nuvoton.com/en/numaker-iot-m487)
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting-started-nuvoton-m487.html)
-16. **Windows Simulator** - To evaluate Amazon FreeRTOS without using MCU-based hardware, you can use the Windows Simulator.
-    * Requirements: Microsoft Windows 7 or newer, with at least a dual core and a hard-wired Ethernet connection
-    * [Getting Started Guide](https://docs.aws.amazon.com/freertos/latest/userguide/getting_started_windows.html)
-    * IDE: [Visual Studio Community Edition](https://www.visualstudio.com/downloads/)
-
+The following MCU boards are supported for this branch of Amazon FreeRTOS:
+1. **Espressif** - [ESP32-DevKitC](https://www.espressif.com/en/products/hardware/esp32-devkitc/overview), [ESP-WROVER-KIT](https://www.espressif.com/en/products/hardware/esp-wrover-kit/overview).
 
 ## amazon-freeRTOS/projects
 The ```./projects``` folder contains the IDE test and demo projects for each vendor and their boards. The majority of boards can be built with both IDE and cmake (there are some exceptions!). Please refer to the Getting Started Guides above for board specific instructions.
