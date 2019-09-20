@@ -82,7 +82,7 @@ TEST_GROUP( TEST_IOT_SPI );
  */
 TEST_SETUP( TEST_IOT_SPI )
 {
-   xtestIotSPISemaphore = xSemaphoreCreateCountingStatic( 10, 0, &xtestIotSPICompleted );
+   xtestIotSPISemaphore = xSemaphoreCreateBinaryStatic( &xtestIotSPICompleted );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotSPISemaphore );
 }
 /*-----------------------------------------------------------*/
@@ -106,12 +106,14 @@ TEST_GROUP_RUNNER( TEST_IOT_SPI )
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_CancelFail );
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_CancelSuccess );
 
+#if ( IOT_TEST_COMMON_IO_SPI_ASSISTED == 1 )
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadSync );
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadAsync );
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteSync );
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteAsync );
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferSync );
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferAsync );
+#endif
 
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_OpenFuzzing );
     RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_CloseFuzzing );
