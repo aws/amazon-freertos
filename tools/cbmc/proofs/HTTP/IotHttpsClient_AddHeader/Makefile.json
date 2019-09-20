@@ -1,7 +1,7 @@
 {
   "ENTRY": "IotHttpsClient_AddHeader",
 
-  # A CBMC pointer is an object id followed by an offest into the object.
+  # A CBMC pointer is an object id followed by an offset into the object.
   # The size of the offset is limited by the size of the object id.
   "CBMC_OBJECTID_BITS": "7",
   "CBMC_MAX_OBJECT_SIZE": "\"((UINT32_MAX>>CBMC_OBJECTID_BITS)>>1)\"",
