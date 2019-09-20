@@ -1250,12 +1250,12 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
     {
         /* Initialize socket */
         xClientSocket = prvUdpSocketHelper( &xClientSocketOpen );
-        TEST_ASSERT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xClientSocket, "Invalid Socket Error" );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xClientSocket, "Invalid Socket Error" );
         TEST_ASSERT_NOT_EQUAL_MESSAGE( pdFAIL, xClientSocketOpen, "Socket Allocation Failed" );
 
         prvUdpBindHelper( xClientSocket, &xClientAddress );
         /* setup 100MS timeout */
-        prvUdpRecvTimeoutHelper( xClientSocket, udptestRECEIVE_TIMEOUT);
+        prvUdpRecvTimeoutHelper( xClientSocket, udptestRECEIVE_TIMEOUT );
 
         prvUdpAddressHelper( &xEchoServerAddress );
         /* Send data to echo server */
