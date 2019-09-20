@@ -81,11 +81,6 @@
 static char * pcTxBuffer = &cBuffer[ 0 ];
 static char * pcRxBuffer = &cBuffer[ udptestBUFFER_SIZE ];
 
-/* Default Rx and Tx time outs are used to ensure the sockets do not
- * wait too long for missing data. */
-static const TickType_t xReceiveTimeOut = pdMS_TO_TICKS( integrationtestportableRECEIVE_TIMEOUT );
-static const TickType_t xSendTimeOut = pdMS_TO_TICKS( integrationtestportableSEND_TIMEOUT );
-
 /* Primary socket, declared globally so that it can be closed in test tear down
  * in the event that a test exits/fails before socket is closed. */
 static volatile Socket_t xSocket = SOCKETS_INVALID_SOCKET;
@@ -232,7 +227,7 @@ TEST_TEAR_DOWN( Full_UDP )
  */
 static Socket_t prvUdpSocketHelper( volatile BaseType_t * pxSocketOpen )
 {
-    Socket_t xSock;
+    Socket_t xSock = SOCKETS_INVALID_SOCKET;
 
     TEST_ASSERT_EQUAL( pdFALSE, *pxSocketOpen );
     /* Make socket. */
@@ -293,10 +288,8 @@ static void prvUdpBindHelper( Socket_t xSock,
 static void prvUdpRecvTimeoutHelper( Socket_t xSock,
                                      TickType_t xTimeout )
 {
-    TickType_t xTimeTicks;
     BaseType_t xResult;
 
-    xTimeTicks = pdMS_TO_TICKS( xTimeout );
     xResult = SOCKETS_SetSockOpt( xSock, 0, SOCKETS_SO_RCVTIMEO, &xTimeout, sizeof( TickType_t ) );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Failed to set receive timeout" );
 }
@@ -1171,7 +1164,6 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
     SocketsSockaddr_t xClientAddress = { 0 };
     uint8_t * pucRxBuffer = NULL;
     uint16_t uSendLength = 255;
-    int32_t ulStatus = 0;
     udptestEchoClientsTaskParams_t * pxUdptestEchoClientsTaskParams;
 
     pxUdptestEchoClientsTaskParams = ( ( udptestEchoClientsTaskParams_t * ) pvParameters );
@@ -1180,7 +1172,8 @@ static void prvThreadSafeDifferentSocketsDifferentTasks( void * pvParameters )
     {
         /* Initialize socket */
         xClientSocket = prvUdpSocketHelper( &xClientSocketOpen );
-        TEST_ASSERT_NOT_EQUAL_MESSAGE( pdFAIL, xClientSocket, "Socket Allocation Failed" );
+        TEST_ASSERT_EQUAL_MESSAGE( SOCKETS_INVALID_SOCKET, xClientSocket, "Invalid Socket Error" );
+        TEST_ASSERT_NOT_EQUAL_MESSAGE( pdFAIL, xClientSocketOpen, "Socket Allocation Failed" );
 
         prvUdpBindHelper( xClientSocket, &xClientAddress );
         /* setup 100MS timeout */
@@ -1300,7 +1293,7 @@ static void prvSOCKETS_RecvFrom_Peek()
     uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
     uint16_t uSendLength = 255;
     int32_t ulStatus = 0;
-    int32_t ulAddressLenght;
+    uint32_t ulAddressLength;
 
     /* Initialize socket */
     xSocket = prvUdpSocketHelper( &xSocketOpen );
@@ -1321,7 +1314,7 @@ static void prvSOCKETS_RecvFrom_Peek()
                                  1,
                                  SOCKETS_MSG_PEEK,
                                  &xClientAddress,
-                                 &ulAddressLenght );
+                                 &ulAddressLength );
 
     TEST_ASSERT_EQUAL_INT32_MESSAGE( ulStatus, 1, "Message Peek Failed" );
 
