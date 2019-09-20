@@ -49,7 +49,7 @@
 
 #undef _SECURE_SOCKETS_WRAPPER_NOT_REDEFINE
 
-#define SOCKETS_PRINT( X )               vLoggingPrintf X
+#define SOCKETS_PRINT( X )    vLoggingPrintf X
 
 
 /**
@@ -519,7 +519,7 @@ static int32_t prvWriteCertificate( const char * pcDeviceFileName,
     if( lRetCode == SOCKETS_ERROR_NONE )
     {
         lTIRetCode = sl_FsWrite( lFileHandle,
-                                 0U,                                      /* Offset zero means write from the beginning. */
+                                 0U,                                /* Offset zero means write from the beginning. */
                                  ( unsigned char * ) pcCertificate, /*lint !e605 cert bytes must be cast as unsigned for compliance with TI file. */
                                  ulCertificateSize );
 
@@ -583,8 +583,8 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
     /* Ensure that only supported values are supplied. */
     configASSERT( lDomain == SOCKETS_AF_INET );
-    configASSERT( lType == SOCKETS_SOCK_STREAM );
-    configASSERT( lProtocol == SOCKETS_IPPROTO_TCP );
+    configASSERT( ( lType == SOCKETS_SOCK_STREAM ) || ( lType == SOCKETS_SOCK_DGRAM ) );
+    configASSERT( ( lProtocol == SOCKETS_IPPROTO_TCP ) || ( lProtocol == SOCKETS_IPPROTO_UDP ) );
 
     /* Get a free socket from the free socket pool. */
     ulSocketNumber = prvGetFreeSocket();
@@ -604,7 +604,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
         pxSocketContext->xSSLHandshakeResult = 0;
 
         /* Create the socket on the TI network processor. */
-        pxSocketContext->sSocketDescriptor = sl_Socket( SL_AF_INET, SL_SOCK_STREAM, 0 );
+        pxSocketContext->sSocketDescriptor = sl_Socket( lDomain, lType, 0 );
 
         /* If the TI socket was created successfully, set the
          * default timeouts. */
@@ -901,6 +901,207 @@ int32_t SOCKETS_Send( Socket_t xSocket,
     return lRetCode;
 }
 /*-----------------------------------------------------------*/
+
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+    int32_t SOCKETS_Bind( Socket_t xSocket,
+                          const SocketsSockaddr_t * pxAddress,
+                          Socklen_t xAddressLength )
+    {
+        SlSockAddrIn_t xAddress;
+        SSocketContextPtr_t pxSocketContext;
+        _i16 sTIRetCode;
+        int32_t lRetCode = SOCKETS_ERROR_NONE;
+        uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+
+        /* Remove compiler warnings about unused parameters. */
+        ( void ) xAddressLength;
+
+        /* Ensure that the socket and address is valid. */
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) || ( pxAddress != NULL ) )
+        {
+            /* Shortcut for easy access. */
+            pxSocketContext = &( xSockets[ ulSocketNumber ] );
+
+            /* Connect. */
+            if( lRetCode == SOCKETS_ERROR_NONE )
+            {
+                /* Set up the address to connect to. */
+                xAddress.sin_family = SL_AF_INET;
+                xAddress.sin_port = pxAddress->usPort;
+                xAddress.sin_addr.s_addr = pxAddress->ulAddress;
+
+                /* Initiate connect. */
+                sTIRetCode = sl_Bind( pxSocketContext->sSocketDescriptor,
+                                      ( const SlSockAddr_t * ) &( xAddress ), /*lint !e9087 !e740 SlSockAddr_t behaves like a union of SlSockAddrIn_t.
+                                                                              * SlSockAddrIn_t is the appropriate interpretation of a IPv4 address. */
+                                      ( _i16 ) sizeof( SlSockAddrIn_t ) );
+
+                /* If connection is successful, mark the socket as connected. */
+                if( sTIRetCode != 0 )
+                {
+                    /* See vendors/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/net/wifi/errors.h */
+                    SOCKETS_PRINT( ( "ERROR: %d Socket failed to bind.\r\n", sTIRetCode ) );
+                    lRetCode = SOCKETS_SOCKET_ERROR;
+                }
+            }
+        }
+        else
+        {
+            SOCKETS_PRINT( ( "ERROR: Invalid socket number or address .\r\n" ) );
+            lRetCode = SOCKETS_EINVAL;
+        }
+
+        return lRetCode;
+    }
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_SendTo( Socket_t xSocket,
+                            const void * pvBuffer,
+                            size_t xDataLength,
+                            uint32_t ulFlags,
+                            const SocketsSockaddr_t * pxAddress,
+                            Socklen_t xAddressLength )
+    {
+        SlSockAddrIn_t xAddress;
+        SSocketContextPtr_t pxSocketContext;
+        _i16 sTIRetCode;
+        int32_t lRetCode = SOCKETS_SOCKET_ERROR;
+        uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+
+        /* Remove compiler warnings about unused parameters. */
+        ( void ) xAddressLength;
+
+        /* Ensure that the socket is valid and the passed buffer is not NULL. */
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) && ( pvBuffer != NULL ) )
+        {
+            /* Shortcut for easy access. */
+            pxSocketContext = &( xSockets[ ulSocketNumber ] );
+
+            /* Check that send is allowed on the socket. */
+            if( ( pxSocketContext->ulFlags & securesocketsSOCKET_WRITE_CLOSED_FLAG ) == 0UL )
+            {
+                /* Set up the address to send to. */
+                xAddress.sin_family = SL_AF_INET;
+                xAddress.sin_port = pxAddress->usPort;
+                xAddress.sin_addr.s_addr = pxAddress->ulAddress;
+
+                /* Send on the TI socket. */
+                sTIRetCode = sl_SendTo( pxSocketContext->sSocketDescriptor, pvBuffer, ( _i16 ) xDataLength, ( _i16 ) 0,
+                                        ( const SlSockAddr_t * ) &( xAddress ), ( SlSocklen_t ) sizeof( SlSockAddrIn_t ) );
+
+                if( sTIRetCode < 0 )
+                {
+                    /* See vendors/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/net/wifi/errors.h */
+                    SOCKETS_PRINT( ( "ERROR: %d Socket send failed.\r\n", sTIRetCode ) );
+
+                    if( sTIRetCode == SL_ERROR_BSD_EWOULDBLOCK )
+                    {
+                        /* If sl_Recv returned SL_ERROR_BSD_EWOULDBLOCK, return SOCKETS_EWOULDBLOCK. */
+                        lRetCode = SOCKETS_EWOULDBLOCK;
+                    }
+                    else
+                    {
+                        /* For any other error, return SOCKETS_SOCKET_ERROR. */
+                        lRetCode = SOCKETS_SOCKET_ERROR;
+                    }
+                }
+                else
+                {
+                    /* In case of success, return the number of bytes
+                     * sent. */
+                    lRetCode = sTIRetCode;
+                }
+            }
+            else
+            {
+                /* The socket has been closed for write. */
+                SOCKETS_PRINT( ( "ERROR: Socket closed for send.\r\n" ) );
+                lRetCode = SOCKETS_ECLOSED;
+            }
+        }
+        else
+        {
+            SOCKETS_PRINT( ( "ERROR: Invalid Socket number or NULL pvBuffer.\r\n" ) );
+            lRetCode = SOCKETS_EINVAL;
+        }
+
+        return lRetCode;
+    }
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_RecvFrom( Socket_t xSocket,
+                              void * pvBuffer,
+                              size_t xDataLength,
+                              uint32_t ulFlags,
+                              SocketsSockaddr_t * pxAddress,
+                              Socklen_t * pxAddressLength )
+    {
+        int32_t lRetCode = SOCKETS_SOCKET_ERROR;
+        SlSockAddrIn_t xAddress;
+        SSocketContextPtr_t pxSocketContext;
+        _i16 sTIRetCode;
+        uint32_t ulSocketNumber = ( uint32_t ) xSocket;
+        SlSocklen_t xAddressLength = sizeof( SlSockAddrIn_t );
+
+        /* Remove compiler warnings about unused parameters. */
+        ( void ) xAddressLength;
+
+        /* Ensure that the socket is valid and the passed buffer is not NULL. */
+        if( ( prvIsValidSocket( ulSocketNumber ) == pdTRUE ) && ( pvBuffer != NULL ) )
+        {
+            /* Shortcut for easy access. */
+            pxSocketContext = &( xSockets[ ulSocketNumber ] );
+
+            /* Check that receive is allowed on the socket. */
+            if( ( pxSocketContext->ulFlags & securesocketsSOCKET_READ_CLOSED_FLAG ) == 0UL )
+            {
+                /* Receive on the TI socket. */
+                sTIRetCode = sl_RecvFrom( pxSocketContext->sSocketDescriptor, pvBuffer, ( _i16 ) xDataLength, ( _i16 ) ulFlags,
+                                          ( const SlSockAddr_t * ) &( xAddress ), ( SlSocklen_t * ) &xAddressLength );
+
+                /* Address that is received from. */
+                pxAddress->ucSocketDomain = SL_AF_INET;
+                pxAddress->usPort = xAddress.sin_port;
+                pxAddress->ulAddress = xAddress.sin_addr.s_addr;
+                *pxAddressLength = sizeof( SocketsSockaddr_t );
+
+                if( sTIRetCode < 0 )
+                {
+                    if( sTIRetCode == SL_ERROR_BSD_EWOULDBLOCK )
+                    {
+                        /* If sl_Recv returned SL_ERROR_BSD_EWOULDBLOCK, return SOCKETS_EWOULDBLOCK. */
+                        lRetCode = SOCKETS_EWOULDBLOCK;
+                    }
+                    else
+                    {
+                        /* See vendors/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/net/wifi/errors.h */
+                        SOCKETS_PRINT( ( "ERROR: %d Socket receive failed.\r\n", sTIRetCode ) );
+                        lRetCode = SOCKETS_SOCKET_ERROR;
+                    }
+                }
+                else
+                {
+                    /* In case of success, return the number of bytes
+                     * read to the user. */
+                    lRetCode = sTIRetCode;
+                }
+            }
+            else
+            {
+                /* The socket has been closed for read. */
+                lRetCode = SOCKETS_ECLOSED;
+            }
+        }
+        else
+        {
+            SOCKETS_PRINT( ( "ERROR: Invalid Socket number or NULL pvBuffer.\r\n" ) );
+            lRetCode = SOCKETS_EINVAL;
+        }
+
+        return lRetCode;
+    }
+/*-----------------------------------------------------------*/
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
 
 int32_t SOCKETS_Shutdown( Socket_t xSocket,
                           uint32_t ulHow )
@@ -1304,13 +1505,13 @@ void SimpleLinkSockEventHandler( SlSockEvent_t * pSlSockEvent )
 
                     /* TODO: Should this call sockets close? */
                     SOCKETS_PRINT( ( "[SimpleLinkSockEventHandler ERROR]: Close socket (%d) operation failed to transmit all queued packets.\r\n",
-                                    pSlSockEvent->SocketAsyncEvent.SockTxFailData.Sd ) );
+                                     pSlSockEvent->SocketAsyncEvent.SockTxFailData.Sd ) );
                     break;
 
                 default:
                     SOCKETS_PRINT( ( "[SimpleLinkSockEventHandler ERROR]: TX Failed - socket %d, reason (%d).\r\n",
-                                    pSlSockEvent->SocketAsyncEvent.SockTxFailData.Sd,
-                                    pSlSockEvent->SocketAsyncEvent.SockTxFailData.Status ) );
+                                     pSlSockEvent->SocketAsyncEvent.SockTxFailData.Sd,
+                                     pSlSockEvent->SocketAsyncEvent.SockTxFailData.Status ) );
                     break;
             }
 
@@ -1346,8 +1547,8 @@ void SimpleLinkSockEventHandler( SlSockEvent_t * pSlSockEvent )
                 case SL_SSL_NOTIFICATION_HANDSHAKE_FAILED:
 
                     SOCKETS_PRINT( ( "[SimpleLinkSockEventHandler ERROR]: Handshake Failed - socket %d, reason: %d.\r\n",
-                                    pSlSockEvent->SocketAsyncEvent.SockAsyncData.Sd,
-                                    pSlSockEvent->SocketAsyncEvent.SockAsyncData.Val ) );
+                                     pSlSockEvent->SocketAsyncEvent.SockAsyncData.Sd,
+                                     pSlSockEvent->SocketAsyncEvent.SockAsyncData.Val ) );
 
                     /* Get the socket context this event is for. */
                     ulSocketNumber = prvGetSocketForDescriptor( pSlSockEvent->SocketAsyncEvent.SockAsyncData.Sd );
@@ -1383,9 +1584,9 @@ void SimpleLinkSockEventHandler( SlSockEvent_t * pSlSockEvent )
                 default:
 
                     SOCKETS_PRINT( ( "[SimpleLinkSockEventHandler EVENT]: Unexpected Event: %d, Socket: %d Reason: %d.\r\n",
-                                    pSlSockEvent->SocketAsyncEvent.SockAsyncData.Type,
-                                    pSlSockEvent->SocketAsyncEvent.SockAsyncData.Sd,
-                                    pSlSockEvent->SocketAsyncEvent.SockAsyncData.Val ) );
+                                     pSlSockEvent->SocketAsyncEvent.SockAsyncData.Type,
+                                     pSlSockEvent->SocketAsyncEvent.SockAsyncData.Sd,
+                                     pSlSockEvent->SocketAsyncEvent.SockAsyncData.Val ) );
 
                     break;
             }

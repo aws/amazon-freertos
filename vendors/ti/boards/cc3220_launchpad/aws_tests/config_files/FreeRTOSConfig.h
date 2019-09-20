@@ -187,4 +187,7 @@ function. */
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "TICC3220"
 
+/* The platform has UDP socket layer implemented */
+#define configPLATFORM_SOCKET_UDP_SUPPORT    ( 1 )
+
 #endif /* FREERTOS_CONFIG_H */
