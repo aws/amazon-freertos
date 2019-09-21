@@ -458,14 +458,18 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                                                     sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
-    /* Get the handle of the device private key. */
-    xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
-                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            CKO_PRIVATE_KEY,
-                                            &pxCtx->xP11PrivateKey );
+    if( CKR_OK == xResult )
+    {
+        /* Get the handle of the device private key. */
+        xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
+                                                pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                CKO_PRIVATE_KEY,
+                                                &pxCtx->xP11PrivateKey );
+    }
 
     if( pxCtx->xP11PrivateKey == CK_INVALID_HANDLE )
     {
+        xResult = TLS_ERROR_NO_PRIVATE_KEY;
         TLS_PRINT( ( "ERROR: Private key not found. " ) );
     }
 
@@ -518,6 +522,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 
     if( xCertObj == CK_INVALID_HANDLE )
     {
+        xResult = TLS_ERROR_NO_CERTIFICATE;
         TLS_PRINT( ( "No device certificate found." ) );
     }
 
