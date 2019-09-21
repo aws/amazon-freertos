@@ -556,8 +556,6 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
         CK_BYTE_PTR pxObject = NULL;
         CK_ATTRIBUTE xLabel;
         CK_OBJECT_HANDLE xPalHandle;
-        CK_OBJECT_HANDLE xPalHandle2;
-        CK_OBJECT_HANDLE xAppHandle2;
         CK_BYTE_PTR pxZeroedData = NULL;
         P11Object_t * pObject;
         P11Object_t * pObjectCorrespondingKey;
@@ -581,11 +579,11 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
                     /* Create an object label attribute. */
                     xLabel.type = CKA_LABEL;
                     xLabel.pValue = pObject->xLabel;
-                    xLabel.ulValueLen = strlen( pObject->xLabel );
+                    xLabel.ulValueLen = strlen( ( const char * ) pObject->xLabel );
                     /* Overwrite the object in NVM with zeros. */
-                    xPalHandle2 = pObject->pFunctions->SaveObject( &xLabel, pxZeroedData, ulObjectLength );
+                    xPalHandle = pObject->pFunctions->SaveObject( &xLabel, pxZeroedData, ulObjectLength );
 
-                    if( xPalHandle2 != pObject->xPalHandle )
+                    if( xPalHandle != pObject->xPalHandle )
                     {
                         xResult = CKR_GENERAL_ERROR;
                     }
@@ -855,11 +853,6 @@ CK_RV PKCS11_Code_GetObjectValue( CK_OBJECT_HANDLE xPalHandle,
                                   CK_BBOOL * pIsPrivate )
 {
     CK_RV xResult = CKR_OK;
-    uint8_t * pCertificate;
-    uint8_t * beginningOfInputBuffer;
-    size_t certLength;
-    char pemBegin[] = "-----BEGIN";
-    int convertResult = 0;
 
     xResult = prvGetCertificateInDER( xPalHandle,
                                       ppucData,
