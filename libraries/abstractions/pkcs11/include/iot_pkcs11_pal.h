@@ -31,35 +31,79 @@
 /*-----------------------------------------------------------*/
 
 /**
- *  @brief Save an object to storage.
+ * @brief Saves an object in non-volatile storage.
+ *
+ * Port-specific file write for cryptographic information.
+ *
+ * @param[in] pxLabel       Attribute containing label of the object to be stored.
+ * @param[in] pucData       The object data to be saved
+ * @param[in] pulDataSize   Size (in bytes) of object data.
+ *
+ * @return The object handle if successful.
+ * eInvalidHandle = 0 if unsuccessful.
  */
 CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                         uint8_t * pucData,
                                         uint32_t ulDataSize );
 
+
 /**
- * @brief Delete an object from NVM.
+ * @brief Destroys an object in non-volatile storage.
+ *
  */
 CK_RV PKCS11_PAL_DestroyObject( CK_OBJECT_HANDLE xHandle );
 
 /**
- *   @brief Look up an object handle using it's attributes
+ * @brief Translates a PKCS #11 label into an object handle.
+ *
+ * Port-specific object handle retrieval.
+ *
+ *
+ * @param[in] pLabel         Pointer to the label of the object
+ *                           who's handle should be found.
+ * @param[in] usLength       The length of the label, in bytes.
+ *
+ * @return The object handle if operation was successful.
+ * Returns eInvalidHandle if unsuccessful.
  */
 CK_OBJECT_HANDLE PKCS11_PAL_FindObject( uint8_t * pLabel,
                                         uint8_t usLength );
 
 /**
- *   @brief Get the value of an object.
- *   @note  Buffers may be allocated by this call, and should be
- *          freed up by calling PKCS11_PAL_GetObjectValueCleanup().
+ * @brief Gets the value of an object in storage, by handle.
+ *
+ * Port-specific file access for cryptographic information.
+ *
+ * This call dynamically allocates the buffer which object value
+ * data is copied into.  PKCS11_PAL_GetObjectValueCleanup()
+ * should be called after each use to free the dynamically allocated
+ * buffer.
+ *
+ * @sa PKCS11_PAL_GetObjectValueCleanup
+ *
+ * @param[in] pcFileName    The name of the file to be read.
+ * @param[out] ppucData     Pointer to buffer for file data.
+ * @param[out] pulDataSize  Size (in bytes) of data located in file.
+ * @param[out] pIsPrivate   Boolean indicating if value is private (CK_TRUE)
+ *                          or exportable (CK_FALSE)
+ *
+ * @return CKR_OK if operation was successful.  CKR_KEY_HANDLE_INVALID if
+ * no such object handle was found, CKR_DEVICE_MEMORY if memory for
+ * buffer could not be allocated, CKR_FUNCTION_FAILED for device driver
+ * error.
  */
 CK_RV PKCS11_PAL_GetObjectValue( CK_OBJECT_HANDLE xHandle,
-                                      uint8_t ** ppucData,
-                                      uint32_t * pulDataSize,
-                                      CK_BBOOL * xIsPrivate );
+                                 uint8_t ** ppucData,
+                                 uint32_t * pulDataSize,
+                                 CK_BBOOL * xIsPrivate );
 
 /**
- *  @brief Free the buffer allocated in PKCS11_PAL_GetObjectValue() (see PAL).
+ * @brief Cleanup after PKCS11_GetObjectValue().
+ *
+ * @param[in] pucData       The buffer to free.
+ *                          (*ppucData from PKCS11_PAL_GetObjectValue())
+ * @param[in] ulDataSize    The length of the buffer to free.
+ *                          (*pulDataSize from PKCS11_PAL_GetObjectValue())
  */
 void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucBuffer,
                                        uint32_t ulBufferSize );
