@@ -838,7 +838,7 @@ CK_OBJECT_HANDLE PKCS11_Code_FindObject( uint8_t * pLabel,
                                      &pCertificate,
                                      &certLength );
 
-    if( ( pCertificate == "" ) || ( pCertificate == NULL ) || ( certLength == 0 ) )
+    if( ( pCertificate == NULL ) || ( pCertificate[ 0 ] == '\0' ) || ( certLength == 0 ) )
     {
         handle = CK_INVALID_HANDLE;
     }
