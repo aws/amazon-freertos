@@ -1216,7 +1216,7 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectFindObject )
                                             &xFoundCertificateHandle );
 
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find RSA certificate." );
-    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xCertificateHandle, "Invalid object handle found for RSA certificate." );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xFoundCertificateHandle, "Invalid object handle found for RSA certificate." );
     TEST_ASSERT_EQUAL_MESSAGE( xCertificateHandle, xFoundCertificateHandle, "Certificate handle found does not match certificate handle created." );
 
     /* Close and reopen a new session.  Make sure that the private key and certificate can still be found. */

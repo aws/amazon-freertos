@@ -502,7 +502,7 @@ CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
     {
         for( lSearchIndex = pkcs11configMAX_NUM_OBJECTS - 1; lSearchIndex >= 0; lSearchIndex-- )
         {
-            if( xP11Context.xObjectList.xObjects[ lSearchIndex ].xPalHandle == xPalHandle )
+            if( 0 == memcmp( xP11Context.xObjectList.xObjects->xLabel, pcLabel, xLabelLength ) )
             {
                 /* Object already exists in list. */
                 xObjectFound = CK_TRUE;
@@ -666,7 +666,7 @@ void prvLookupObjectByHandle( CK_OBJECT_HANDLE xHandle,
         }
         else
         {
-            configPRINTF( ( "ERROR: JITP Certificate not specified.\r\n" ) );
+            PKCS11_PRINT( ( "ERROR: JITP Certificate not specified.\r\n" ) );
         }
     }
     else if( xHandle == eRootCertificate )
@@ -686,13 +686,19 @@ void prvLookupObjectByHandle( CK_OBJECT_HANDLE xHandle,
     }
 
     #if ( pkcs11configOTA_SUPPORTED == 1 )
-        else if( 0 == memcmp( pucLabel, pkcs11configLABEL_CODE_VERIFICATION_KEY, strlen( ( char * ) pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
+        else if( xHandle == eAwsCodeSigningKey )
         {
-            *ppucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM;
-            *pCertLength = sizeof( signingcredentialSIGNING_CERTIFICATE_PEM );
-            xPalHandle = eAwsCodeSigningKey;
+            if( NULL != signingcredentialSIGNING_CERTIFICATE_PEM )
+            {
+                *ppucCertData = ( uint8_t * ) signingcredentialSIGNING_CERTIFICATE_PEM;
+                *pCertLength = sizeof( signingcredentialSIGNING_CERTIFICATE_PEM );
+            }
+            else
+            {
+                PKCS11_WARNING_PRINT( ( "WARN: Code signing certificate not specified.\r\n" ) );
+            }
         }
-    #endif
+    #endif /* if ( pkcs11configOTA_SUPPORTED == 1 ) */
 }
 
 
@@ -713,7 +719,7 @@ CK_OBJECT_HANDLE prvLookupObjectByLabel( uint8_t * pucLabel,
         }
         else
         {
-            configPRINTF( ( "ERROR: JITP Certificate not specified.\r\n" ) );
+            PKCS11_PRINT( ( "ERROR: JITP Certificate not specified.\r\n" ) );
         }
     }
     else if( 0 == memcmp( pucLabel, pkcs11configLABEL_ROOT_CERTIFICATE, strlen( ( char * ) pkcs11configLABEL_ROOT_CERTIFICATE ) ) )
