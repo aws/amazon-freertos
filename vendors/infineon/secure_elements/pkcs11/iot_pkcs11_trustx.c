@@ -1889,6 +1889,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_DestroyObject )( CK_SESSION_HANDLE xSession,
 
 /**
  * @brief Query the value of the specified cryptographic object attribute.
+ * Regarding keys, only ECDSA P256 is supported by this implementation.
  */
 CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                                                   CK_OBJECT_HANDLE xObject,
@@ -2026,6 +2027,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                         }
                         else
                         {
+                            /* Elliptic-curve is the only asymmetric cryptosystem
+                             * supported by this implementation. */
                             xPkcsKeyType = CKK_EC;
 
                             memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
@@ -2036,8 +2039,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
                 case CKA_EC_PARAMS:
 
-                    /* TODO: Add check that is key, is ec key. */
-
+                    /* P256 is the only elliptic-curve supported by this
+                     * implementation. */
                     pxTemplate[ iAttrib ].ulValueLen = sizeof( ucP256Oid );
 
                     if( pxTemplate[ iAttrib ].pValue != NULL )
