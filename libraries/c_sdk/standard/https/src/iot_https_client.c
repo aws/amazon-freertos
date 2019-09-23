@@ -1184,6 +1184,14 @@ static void _networkReceiveCallback( void * pNetworkConnection,
 
     IOT_FUNCTION_CLEANUP_BEGIN();
 
+    /* Disconnect and return in the event of an out-of-order response */
+    if( fatalDisconnect && !pCurrentHttpsResponse )
+    {
+        IotLogDebug( "Disconnecting out-of-order response %d.", pCurrentHttpsResponse );
+        disconnectStatus = IotHttpsClient_Disconnect( pHttpsConnection );
+        return;
+    }
+
     /* Report errors back to the application. */
     if( HTTPS_FAILED( status ) )
     {
