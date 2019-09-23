@@ -240,4 +240,7 @@ extern int iMainRand32( void );
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "STM32L475"
 
+/* The platform has UDP socket layer implemented */
+#define configPLATFORM_SOCKET_UDP_SUPPORT    ( 1 )
+
 #endif /* FREERTOS_CONFIG_H */
