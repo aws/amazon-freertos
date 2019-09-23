@@ -10,7 +10,7 @@
 ### Pre-requisites
 1. Install the dependencies.  
    ```
-   pip install boto3 arparse
+   pip install boto3 argparse
    ```
 
 1. You will need an AWS Account with S3 access before beginning. You must install and configure the AWS CLI in order to 
@@ -25,7 +25,7 @@
 ### Usage
 1. Run the presigned_url_gen.py with your s3 **bucket-name** and s3 object key **object-key**.  
    ```
-   python presigned_url_gen.py --bucket my-bucket --key object-key
+   python presigned_urls_gen.py --bucket my-bucket --key object-key
    ```  
    An example expected output:  
    ```
