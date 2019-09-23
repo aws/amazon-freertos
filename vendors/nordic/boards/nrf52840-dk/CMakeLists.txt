@@ -106,16 +106,16 @@ afr_mcu_port(kernel)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
-        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/port.c"
-        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/port_cmsis.c"
-        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/port_cmsis_systick.c"
-        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/portmacro.h"
-        "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk/portmacro_cmsis.h"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port.c"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port_cmsis.c"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port_cmsis_systick.c"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/portmacro.h"
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/portmacro_cmsis.h"
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
 )
 set(
     kernel_inc_dirs
-    "${AFR_KERNEL_DIR}/portable/GCC/nrf52840-dk"
+    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk"
     "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
