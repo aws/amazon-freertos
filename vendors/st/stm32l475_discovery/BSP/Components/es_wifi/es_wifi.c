@@ -1564,9 +1564,7 @@ ES_WIFI_Status_t ES_WIFI_DNS_LookUp(ES_WIFIObject_t *Obj, const char *url, uint8
 ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_OK;
-  
-  if (conn->RemotePort == 0) return ES_WIFI_STATUS_ERROR;
-  
+
   LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
@@ -1580,17 +1578,28 @@ ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Con
 
   if (ret == ES_WIFI_STATUS_OK)
   {
-    sprintf((char*)Obj->CmdData,"P2=%d\r", conn->LocalPort);
+    sprintf( ( char * ) Obj->CmdData, "P2=%d\r", /*LocalPort*/ 56830 ); /* WARN: Does not work! */
     ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
 
-  if (ret == ES_WIFI_STATUS_OK)
+  if (ret == ES_WIFI_STATUS_OK && conn->RemotePort != 0) /* P4 sets local port for UDP. If P4 is not assigned, system will assign a port . */
   {
     sprintf((char*)Obj->CmdData,"P4=%d\r", conn->RemotePort);
     ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
 
-  if ((ret == ES_WIFI_STATUS_OK) && ((conn->Type == ES_WIFI_TCP_CONNECTION) || (conn->Type == ES_WIFI_TCP_SSL_CONNECTION) || ( conn->Type == ES_WIFI_UDP_CONNECTION )))
+  /* UDP standard does not require an address to 'bind'. 
+   * However, we are using this function as bind and setting P3 to a valid IP is required.
+   * Here, we use a dummy IP address to allow connection success. */
+  if ( conn->Type == ES_WIFI_UDP_CONNECTION )
+  {
+    conn->RemoteIP[ 0 ] = 8;
+    conn->RemoteIP[ 1 ] = 8;
+    conn->RemoteIP[ 2 ] = 8;
+    conn->RemoteIP[ 3 ] = 8;
+  }
+
+  if ((ret == ES_WIFI_STATUS_OK) && ((conn->Type == ES_WIFI_TCP_CONNECTION) || (conn->Type == ES_WIFI_TCP_SSL_CONNECTION) || (conn->Type == ES_WIFI_UDP_CONNECTION)))
   {
     sprintf((char*)Obj->CmdData,"P3=%d.%d.%d.%d\r", conn->RemoteIP[0],conn->RemoteIP[1],
             conn->RemoteIP[2],conn->RemoteIP[3]);
