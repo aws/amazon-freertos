@@ -576,6 +576,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     if( NULL != pxCertificate )
     {
         vPortFree( pxCertificate );
+		pxCertificate = NULL;
     }
     
     /*

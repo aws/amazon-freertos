@@ -38,6 +38,7 @@
  *
  * @todo Set this to the unique name of your IoT Thing.
  */
+extern const char * pcPkcs11GetThingName(void);
 #define clientcredentialIOT_THING_NAME               pcPkcs11GetThingName()
 
 /*
