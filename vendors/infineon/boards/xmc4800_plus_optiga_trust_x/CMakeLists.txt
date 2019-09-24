@@ -153,6 +153,7 @@ afr_mcu_port(kernel)
 
 #Driver source files
 afr_glob_src(driver_src DIRECTORY "${xmclib_dir}/drivers/src")
+afr_glob_src(dave_driver_src DIRECTORY "${xmclib_dir}/DAVE_Generated/XMC4800" RECURSE)
 
 #Trust X source files
 afr_glob_src(trustx_src DIRECTORY "${trustx_dir}/optiga" RECURSE)
@@ -173,6 +174,7 @@ target_sources(
        "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
         ${compiler_src}
         ${driver_src}
+		${dave_driver_src}
 		${trustx_src}
 		${trustx_utils_src}
 		${trustx_pal_src}
@@ -187,6 +189,7 @@ set( board_includes
      "${xmclib_dir}/drivers/inc"
      "${xmclib_dir}/third_party/ESP_AT_Lib/src/include"
      "${xmclib_dir}/CMSIS/Infineon/XMC4800_series/Include"
+	 "${xmclib_dir}/DAVE_Generated/XMC4800"
      "${xmc4800_aws_dir}/application_code/infineon_code"
 	 "${trustx_dir}/examples/ecdsa_utils"
 	 "${trustx_dir}/examples/authenticate_chip"

@@ -297,6 +297,11 @@
 			<locationURI>AFR_HOME/demos/tcp/aws_tcp_echo_client_single_tasks.h</locationURI>
 		</link>
 		<link>
+			<name>demos/posix/aws_posix_demo.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/demos/posix/aws_posix_demo.c</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/include/FreeRTOS.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/freertos_kernel/include/FreeRTOS.h</locationURI>
