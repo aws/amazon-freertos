@@ -1184,6 +1184,23 @@ static void _networkReceiveCallback( void * pNetworkConnection,
 
     IOT_FUNCTION_CLEANUP_BEGIN();
 
+    /* Disconnect and return in the event of an out-of-order response. If a response is received out of order
+     * pCurrentHttpsResponse will be NULL because there will be no response in the connection's response queue.
+     * If a response is received out of order that is an indication of a rogue server. */
+    if( fatalDisconnect && !pCurrentHttpsResponse )
+    {
+        IotLogError( "An out-of-order response was received. The connection will be disconnected." );
+        disconnectStatus = IotHttpsClient_Disconnect( pHttpsConnection );
+
+        if( HTTPS_FAILED( disconnectStatus ) )
+        {
+            IotLogWarn( "Failed to disconnect after an out of order response. Error code: %d.", disconnectStatus );
+        }
+
+        /* In this case this routine returns immediately after to avoid further uses of pCurrentHttpsResponse. */
+        return;
+    }
+
     /* Report errors back to the application. */
     if( HTTPS_FAILED( status ) )
     {

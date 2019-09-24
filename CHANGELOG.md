@@ -4,6 +4,12 @@
 ### New Features
 
 ### Updates
+#### HTTP Parser
+- Add nodejs/http_parser as a submodule in place of copied-over files.
+
+#### Unity
+- Add ThrowTheSwitch/Unity as a submodule in place of copied-over files. 
+
 #### PKCS #11
 - Update the PKCS #11 third-party headers to be the latest from OASIS (version 2.40 Plus Errata 01).
 
