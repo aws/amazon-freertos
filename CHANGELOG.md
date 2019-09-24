@@ -2,6 +2,9 @@
 
 ## Upcoming Release 
 ### New Features
+#### HTTPS Client Library PUT/POST support
+- Upload support with HTTP methods PUT and POST is now available in the HTTPS Client library.
+- Demonstration code with PUT and POST methods are now available in demos/https. 
 
 ### Updates
 #### HTTP Parser
