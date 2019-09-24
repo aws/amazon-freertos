@@ -1,5 +1,4 @@
 /*
- * NXP Demo Bootloader - Amazon FreeRTOS v201910
  * Copyright 2018 NXP
  *
  * Redistribution and use in source and binary forms, with or without modification,
