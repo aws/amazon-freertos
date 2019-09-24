@@ -480,10 +480,10 @@ class runTest:
 
     @staticmethod
     def _advertisement_connection_tests(scan_filter,
-            bleAdapter, 
-            UUID, 
+            bleAdapter,
+            UUID,
             discoveryEvent_Cb):
-        runTest._advertisement_start(scan_filter=scan_filter, 
+        runTest._advertisement_start(scan_filter=scan_filter,
                                      UUID=UUID,
                                      discoveryEvent_Cb=discoveryEvent_Cb,
                                      bleAdapter=bleAdapter)
@@ -512,7 +512,7 @@ class runTest:
         isTestSuccessFull = True
 
         # Check when manufacture data length is 0, but pointer is valid
-        runTest._advertisement_start(scan_filter=scan_filter, 
+        runTest._advertisement_start(scan_filter=scan_filter,
                                     UUID=runTest.DUT_UUID_128,
                                     discoveryEvent_Cb=runTest.discoveryEventCb,
                                     bleAdapter=bleAdapter)
@@ -525,7 +525,7 @@ class runTest:
         testutils.removeBondedDevices()
 
         # Check when manufacture data pointer is NULL, but length is not 0
-        runTest._advertisement_start(scan_filter=scan_filter, 
+        runTest._advertisement_start(scan_filter=scan_filter,
                                     UUID=runTest.DUT_UUID_128,
                                     discoveryEvent_Cb=runTest.discoveryEventCb,
                                     bleAdapter=bleAdapter)
@@ -538,7 +538,7 @@ class runTest:
         testutils.removeBondedDevices()
 
         # Check when manufacture data length is not 0, and pointer is valid
-        runTest._advertisement_start(scan_filter=scan_filter, 
+        runTest._advertisement_start(scan_filter=scan_filter,
                                     UUID=runTest.DUT_UUID_128,
                                     discoveryEvent_Cb=runTest.discoveryEventCb,
                                     bleAdapter=bleAdapter)

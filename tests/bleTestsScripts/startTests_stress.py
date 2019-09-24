@@ -54,7 +54,7 @@ def main():
                 bleAdapter.startDiscovery(runTest.discoveryEventCb)
             else:
                 bleAdapter.startDiscovery(runTest.discoveryStartedCb)
-            runTest.mainloop.run() 
+            runTest.mainloop.run()
             bleAdapter.stopDiscovery()
 
             testDevice = runTest.getTestDevice()
