@@ -5,7 +5,7 @@
 
 ### Updates
 #### HTTP Parser
-- Add nodejs/http-parser as a submodule in place of copied-over files.
+- Add nodejs/http_parser as a submodule in place of copied-over files.
 
 #### Unity
 - Add ThrowTheSwitch/Unity as a submodule in place of copied-over files. 
