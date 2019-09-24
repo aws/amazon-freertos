@@ -10,7 +10,7 @@ afr_find_compiler(AFR_COMPILER_ASM as)
 # Specify the cross compiler.
 set(CMAKE_C_COMPILER ${AFR_COMPILER_CC} CACHE FILEPATH "C compiler")
 set(CMAKE_CXX_COMPILER ${AFR_COMPILER_CXX} CACHE FILEPATH "C++ compiler")
-set(CMAKE_ASM_COMPILER ${AFR_COMPILER_ASM} )
+set(CMAKE_ASM_COMPILER ${AFR_COMPILER_ASM} CACHE FILEPATH "ASM compiler" )
 
 # Disable compiler checks.
 set(CMAKE_C_COMPILER_FORCED TRUE)
