@@ -1038,6 +1038,8 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             /* Get the bytes of the new public key. */
             if( CKR_OK == xResult )
             {
+                xGeneratedPrivateKey = CK_TRUE;
+
                 prvExportPublicKey( xSession,
                                     xProvisionedState.xPublicKey,
                                     &xProvisionedState.pucDerPublicKey,
