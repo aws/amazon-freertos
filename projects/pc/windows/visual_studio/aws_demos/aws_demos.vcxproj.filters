@@ -112,7 +112,7 @@
 		<Filter Include="libraries\3rdparty\mbedtls\include"/>
 		<Filter Include="libraries\3rdparty\pkcs11"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\http-parser"/>
+		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
 	</ItemGroup>
 	<ItemGroup>
@@ -647,8 +647,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h">
 			<Filter>libraries\3rdparty\pkcs11</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
@@ -1204,8 +1204,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
 			<Filter>libraries\3rdparty\tinycbor</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>

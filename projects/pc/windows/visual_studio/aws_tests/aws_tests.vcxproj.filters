@@ -131,7 +131,7 @@
 		<Filter Include="libraries\3rdparty\unity\extras\fixture"/>
 		<Filter Include="libraries\3rdparty\unity\extras"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\http-parser"/>
+		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
 	</ItemGroup>
 	<ItemGroup>
@@ -675,8 +675,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src\unity_fixture_malloc_overrides.h">
 			<Filter>libraries\3rdparty\unity\extras\fixture\src</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
@@ -1328,8 +1328,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
 			<Filter>libraries\3rdparty\tinycbor</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>
