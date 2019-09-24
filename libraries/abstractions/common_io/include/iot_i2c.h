@@ -322,7 +322,7 @@ int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
  *
  * @note Usually, the address of register needs to be written before calling this function.
  * @note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
- * @note Usually, iot_i2c_set_callback is called prior to this in order to get notification when the asynchronous call completes.
+ * @note In order to get notification when the asynchronous call is completed, iot_i2c_set_callback must be called prior to this.
  *
  * @warning Prior to this function, slave address must be already configured.
  * @warning pucBuffer must be valid before callback is invoked.
@@ -363,7 +363,7 @@ int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
  *
  * @note Usually, the first byte is treated as the register address and the following bytes are treated as data to be written.
  * @note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
- * @note Usually, iot_i2c_set_callback is called prior to this in order to get notification when the asynchronous call completes.
+ * @note In order to get notification when the asynchronous call is completed, iot_i2c_set_callback must be called prior to this.
  *
  * @warning Prior to this function, slave address must be already configured.
  * @warning None of other read or write functions shall be called during this function.
