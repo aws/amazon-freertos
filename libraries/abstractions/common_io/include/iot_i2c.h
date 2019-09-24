@@ -427,6 +427,27 @@ int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
  * - If the last transaction did both write and read, this returns the number of read bytes.
  *
  *
+ * @note eI2CSetSlaveAddr sets either 7-bit address or 10-bit address, according to hardware's capability.
+ * This request expects 2 bytes buffer (uint16_t)
+ * if 10-bit address is not supported, this function returns IOT_I2C_FUNCTION_NOT_SUPPORTED.
+ *
+ * @note eI2CGetTxNoOfbytes returns the number of written bytes in last transaction.
+ * This is supposed to be called in the caller task or application callback, right after last transaction completes.
+ * This request expects 2 bytes buffer (uint16_t).
+ *
+ * - If the last transaction only did write, this returns the actual number of written bytes which might be smaller than the requested number (partial write).
+ * - If the last transaction only did read, this returns 0.
+ * - If the last transaction did both write and read, this returns the number of written bytes.
+ *
+ * @note eI2CGetRxNoOfbytes returns the number of read bytes in last transaction.
+ * This is supposed to be called in the caller task or application callback, right after last transaction completes.
+ * This request expects 2 bytes buffer (uint16_t).
+ *
+ * - If the last transaction only did read, this returns the actual number of read bytes which might be smaller than the requested number (partial read).
+ * - If the last transaction only did write, this returns 0.
+ * - If the last transaction did both write and read, this returns the number of read bytes.
+ *
+ *
  * @return
  * - IOT_I2C_SUCCESS, on success
  * - IOT_I2C_INVALID_VALUE, if
