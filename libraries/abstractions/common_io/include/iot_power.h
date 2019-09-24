@@ -127,8 +127,9 @@ typedef enum IotPowerIoctlRequest
                                         and may are platform/SoC dependent. Takes input of type IotPowerWakeupSources_t */
     eGetWakeupSources,              /* Get the current wakeup sources set to wakeup the target from idle mode. Returns the
                                         wake-up sources as IotPowerWakeupSources_t type */
-    eGetLastIdleMode                /* Get the last Idle mode entered when the target was idle. Returns one of the modes
+    eGetLastIdleMode,               /* Get the last Idle mode entered when the target was idle. Returns one of the modes
                                         defined in IotPowerIdleMode_t */
+    eOverwriteWakeupTime            /* One-time overwrite default deep sleep wake up time to user provide value */
 } IotPowerIoctlRequest_t;
 
 /**
