@@ -98,7 +98,7 @@ typedef enum
     eI2CSendNoStopFlag,  /**<! Set flag to not send stop after transaction */
                          /**<! Default is always stop for every transaction */
                          /**<! Flag will auto reset to stop after one transaction if you set no stop */
-    eI2CSetSlaveAddr,    /**<! All the operations use this slave address after it is set. */
+    eI2CSetSlaveAddr,    /**<! This can be either 7-bit address or 10-bit address. All the operations use this slave address after it is set. */
     eI2CSetMasterConfig, /**<! Sets the I2C bus frequency and timeout using the struct IotI2CConfig_t, default speed is Standard mode. */
     eI2CGetMasterConfig, /**<! Gets the I2C bus frequency and timeout set for the I2C master. */
     eI2CGetBusState,     /**<! Get the current I2C bus status. Returns eI2CBusIdle or eI2CBusy */
@@ -109,6 +109,7 @@ typedef enum
 
 /**
  * @brief The I2C descriptor type defined in the source file.
+ * This is an anonymous struct that is vendor/driver specific.
  */
 struct                    IotI2CDescriptor;
 
@@ -135,6 +136,9 @@ typedef void (* IotI2CCallback_t) ( IotI2COperationStatus_t xOpStatus,
 /**
  * @brief Initiates and reserves an I2C instance as master.
  *
+ * One instance can communicate with one or more slave devices.
+ * Slave addresses need to be changed between actions to different slave devices.
+ *
  * @warning Once opened, the same I2C instance must be closed before calling open again.
  *
  * @lI2CInstance The instance of I2C to initialize. This is between 0 and the number of I2C instances on board - 1.
@@ -150,7 +154,12 @@ IotI2CHandle_t iot_i2c_open( int32_t lI2CInstance );
 /**
  * @brief Sets the application callback to be called on completion of an operation.
  *
- * @note This is only used in asynchronous call.
+ * The callback is guaranteed to be invoked when the current asynchronous operation completes, either successful or failed.
+ * This simply provides a notification mechanism to user's application. It has no impact if the callback is not set.
+ *
+ * @note This callback will not be invoked when synchronous operation completes.
+ * @note This callback is per handle. Each instance has its own callback.
+ * @note Single callback is used for both read_async and write_async. Newly set callback overrides the one previously set.
  * @warning If the input handle is invalid, this function silently takes no action.
  *
  * @param[in] pxI2CPeripheral The I2C peripheral handle returned in the open() call.
@@ -168,8 +177,8 @@ void iot_i2c_set_callback( IotI2CHandle_t const pxI2CPeripheral,
  * Partial read might happen, e.g. no more data is available.
  * And the number of bytes that have been actually read can be obtained by calling iot_i2c_ioctl.
  *
- * @Note Usually, the address of register needs to be written before calling this function.
- * @Note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
+ * @note Usually, the address of register needs to be written before calling this function.
+ * @note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
  *
  * @warning Prior to this function, slave address must be already configured.
  * @warning None of other read or write functions shall be called during this function.
@@ -194,6 +203,70 @@ void iot_i2c_set_callback( IotI2CHandle_t const pxI2CPeripheral,
  * - IOT_I2C_BUS_TIMEOUT, if timeout is supported and slave device does not respond within configured timeout.
  * - IOT_I2C_BUSY, if the bus is busy which means there is an ongoing transaction.
  * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
+ *
+ * <b>Example</b>
+ * @code{c}
+ *  // Declare an I2C handle.
+ *  IotI2CHandle_t xI2CHandle;
+ *
+ *  // Return value of I2C functions.
+ *  int32_t lRetVal = IOT_I2C_SUCCESS;
+ *
+ *  // Register address on I2C slave device.
+ *  uint8_t xDeviceRegisterAddress = 0x73;
+ *
+ *  // Number of read/write bytes.
+ *  uint16_t usReadBytes = 0;
+ *  uint16_t usWriteBytes = 0;
+ *
+ *  uint8_t ucReadBuffer[2] = {0};
+ *
+ *  // Configurations of I2C master device.
+ *  IotI2CConfig_t xI2CConfig =
+ *  {
+ *      .ulBusFreq       = IOT_I2C_FAST_MODE_BPS,
+ *      .ulMasterTimeout = 500
+ *  };
+ *
+ *  // Open one of the I2C instance and get a handle.
+ *  xI2CHandle = iot_i2c_open( 1 );
+ *
+ *  if ( xI2CHandle != NULL )
+ *  {
+ *      // Set I2C configuration.
+ *      lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetMasterConfig, &xI2CConfig );
+ *      // assert(lRetVal == IOT_I2C_SUCCESS);
+ *
+ *      // Set slave address.
+ *      lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
+ *      // assert(lRetVal == IOT_I2C_SUCCESS);
+ *
+ *      // Write the register address as single byte, in a transaction.
+ *      lRetVal = iot_i2c_write_sync( xI2CHandle, &xDeviceRegisterAddress, sizeof( xDeviceRegisterAddress ) );
+ *
+ *      if ( lRetVal == IOT_I2C_SUCCESS )
+ *      {
+ *          // Get the number of written bytes in last transaction.
+ *          lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetTxNoOfbytes, &usWriteBytes );
+ *          // assert(lRetVal == IOT_I2C_SUCCESS);
+ *          // assert(usWriteBytes == 1);
+ *
+ *          // Read two bytes of data to allocated buffer, in a transaction.
+ *          lRetVal = iot_i2c_read_sync( xI2CHandle, &ucReadBuffer, sizeof( ucReadBuffer ) );
+ *
+ *          if ( lRetVal == IOT_I2C_SUCCESS )
+ *          {
+ *              // Get the number of read bytes in last transaction.
+ *              lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetRxNoOfbytes, &usReadBytes );
+ *              // assert(lRetVal == IOT_I2C_SUCCESS);
+ *              // assert(usReadBytes == 2);
+ *          }
+ *      }
+ *
+ *      lRetVal = iot_i2c_close( xI2CHandle );
+ *      // assert(lRetVal == IOT_I2C_SUCCESS);
+ *  }
+ * @endcode
  */
 int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
                            uint8_t * const pucBuffer,
@@ -247,8 +320,9 @@ int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
  * Partial read might happen, e.g. slave device unable to receive more data.
  * And the number of bytes that have been actually read can be obtained by calling iot_i2c_ioctl.
  *
- * @Note Usually, the address of register needs to be written before calling this function.
- * @Note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
+ * @note Usually, the address of register needs to be written before calling this function.
+ * @note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
+ * @note In order to get notification when the asynchronous call is completed, iot_i2c_set_callback must be called prior to this.
  *
  * @warning Prior to this function, slave address must be already configured.
  * @warning pucBuffer must be valid before callback is invoked.
@@ -287,8 +361,9 @@ int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
  * Partial write might happen, e.g. slave device unable to receive more data.
  * And the number of bytes that have been actually written can be obtained by calling iot_i2c_ioctl.
  *
- * @Note Usually, the first byte is treated as the register address and the following bytes are treated as data to be written.
- * @Note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
+ * @note Usually, the first byte is treated as the register address and the following bytes are treated as data to be written.
+ * @note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
+ * @note In order to get notification when the asynchronous call is completed, iot_i2c_set_callback must be called prior to this.
  *
  * @warning Prior to this function, slave address must be already configured.
  * @warning None of other read or write functions shall be called during this function.
@@ -326,8 +401,36 @@ int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
  * @param[in,out] pvBuffer The configuration values for the IOCTL request.
  *
  * @note SetMasterConfig is expected only called once at beginning.
- * @note SetSlaveAddr is expected only called once at beginning.
+ * This request expects the buffer with size of IotI2CConfig_t.
+ *
+ * @note eI2CGetMasterConfig gets the current configuration for I2C master.
+ * This request expects the buffer with size of IotI2CConfig_t.
+ *
+ * @note eI2CGetBusState gets the current bus state.
+ * This request expects buffer with size of IotI2CBusStatus_t.
+ *
  * @note SendNoStopFlag is called at every operation you want to not send stop condition.
+ *
+ * @note eI2CSetSlaveAddr sets either 7-bit address or 10-bit address, according to hardware's capability.
+ * This request expects 2 bytes buffer (uint16_t)
+ * if 10-bit address is not supported, this function returns IOT_I2C_FUNCTION_NOT_SUPPORTED.
+ *
+ * @note eI2CGetTxNoOfbytes returns the number of written bytes in last transaction.
+ * This is supposed to be called in the caller task or application callback, right after last transaction completes.
+ * This request expects 2 bytes buffer (uint16_t).
+ *
+ * - If the last transaction only did write, this returns the actual number of written bytes which might be smaller than the requested number (partial write).
+ * - If the last transaction only did read, this returns 0.
+ * - If the last transaction did both write and read, this returns the number of written bytes.
+ *
+ * @note eI2CGetRxNoOfbytes returns the number of read bytes in last transaction.
+ * This is supposed to be called in the caller task or application callback, right after last transaction completes.
+ * This request expects 2 bytes buffer (uint16_t).
+ *
+ * - If the last transaction only did read, this returns the actual number of read bytes which might be smaller than the requested number (partial read).
+ * - If the last transaction only did write, this returns 0.
+ * - If the last transaction did both write and read, this returns the number of read bytes.
+ *
  *
  * @return
  * - IOT_I2C_SUCCESS, on success
