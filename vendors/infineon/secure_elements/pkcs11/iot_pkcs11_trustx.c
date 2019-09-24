@@ -2449,7 +2449,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_DigestFinal )( CK_SESSION_HANDLE xSession,
  * @param[in] xSession                      Handle of a valid PKCS #11 session.
  * @param[in] pxMechanism                   Mechanism used to sign.
  *                                          This port supports the following mechanisms:
- *                                          - CKM_RSA_PKCS for RSA signatures
  *                                          - CKM_ECDSA for elliptic curve signatures
  *                                          Note that neither of these mechanisms perform
  *                                          hash operations.
@@ -2511,23 +2510,15 @@ CK_DEFINE_FUNCTION( CK_RV, C_SignInit )( CK_SESSION_HANDLE xSession,
     /* Check that the mechanism and key type are compatible, supported. */
     if( xResult == CKR_OK )
     {
-        if( pxMechanism->mechanism == CKM_RSA_PKCS )
-        {
-            PKCS11_PRINT( ( "ERROR: RSA isn't supported on this chip \r\n" ) );
-
-            xResult = CKR_ACTION_PROHIBITED;
-        }
-        else if( pxMechanism->mechanism == CKM_ECDSA ) { }
-        else
+        if( pxMechanism->mechanism != CKM_ECDSA )
         {
             PKCS11_PRINT( ( "ERROR: Unsupported mechanism type %d \r\n", pxMechanism->mechanism ) );
             xResult = CKR_MECHANISM_INVALID;
         }
-    }
-
-    if( xResult == CKR_OK )
-    {
-        pxSession->xSignMechanism = pxMechanism->mechanism;
+        else
+        {
+            pxSession->xSignMechanism = pxMechanism->mechanism;
+        }
     }
 
     return xResult;
@@ -2586,20 +2577,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
     if( CKR_OK == xResult )
     {
         /* Update the signature length. */
-
-        if( pxSession->xSignMechanism == CKM_RSA_PKCS )
-        {
-            xResult = CKR_ACTION_PROHIBITED;
-        }
-        else if( pxSession->xSignMechanism == CKM_ECDSA )
-        {
-            xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
-            xExpectedInputLength = pkcs11SHA256_DIGEST_LENGTH;
-        }
-        else
-        {
-            xResult = CKR_OPERATION_NOT_INITIALIZED;
-        }
+        xSignatureLength = pkcs11ECDSA_P256_SIGNATURE_LENGTH;
+        xExpectedInputLength = pkcs11SHA256_DIGEST_LENGTH;
     }
 
     if( xResult == CKR_OK )
@@ -2654,11 +2633,8 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        /* If this an EC signature, reformat from DER encoded to 64-byte R & S components */
-        if( pxSession->xSignMechanism == CKM_ECDSA )
-        {
-            asn1_to_ecdsa_rs(ecSignature, ecSignatureLength, pucSignature, 64);
-        }
+        /* Reformat from DER encoded to 64-byte R & S components */
+        asn1_to_ecdsa_rs(ecSignature, ecSignatureLength, pucSignature, 64);
     }
 
     if( ( xResult == CKR_OK ) || ( xResult == CKR_BUFFER_TOO_SMALL ) )
@@ -2688,7 +2664,6 @@ CK_DEFINE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
  * @param[in] xSession                      Handle of a valid PKCS #11 session.
  * @param[in] pxMechanism                   Mechanism used to verify signature.
  *                                          This port supports the following mechanisms:
- *                                          - CKM_RSA_X_509 for RSA verifications
  *                                          - CKM_ECDSA for elliptic curve verifications
  * @param[in] xKey                          The handle of the public key to be used for
  *                                          verification. Key must be compatible with the
@@ -2744,9 +2719,14 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
         }
     }
 
-    if( xResult == CKR_OK )
+    /* Check for a supported crypto algorithm. */
+    if( pxMechanism->mechanism = CKM_ECDSA )
     {
         pxSession->xVerifyMechanism = pxMechanism->mechanism;
+    }
+    else
+    {
+        xResult = CKR_MECHANISM_INVALID;
     }
 
     return xResult;
@@ -2799,11 +2779,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
      * These PKCS #11 mechanism expect data to be pre-hashed/formatted. */
     if( xResult == CKR_OK )
     {
-        if( pxSession->xVerifyMechanism == CKM_RSA_X_509 )
-        {
-            xResult = CKR_ACTION_PROHIBITED;
-        }
-        else if( pxSession->xVerifyMechanism == CKM_ECDSA )
+        if( pxSession->xVerifyMechanism == CKM_ECDSA )
         {
             if( ulDataLen != pkcs11SHA256_DIGEST_LENGTH )
             {
@@ -2824,50 +2800,42 @@ CK_DEFINE_FUNCTION( CK_RV, C_Verify )( CK_SESSION_HANDLE xSession,
     /* Verification step. */
     if( xResult == CKR_OK )
     {
-        /* Perform an RSA verification. */
-        if( pxSession->xVerifyMechanism == CKM_RSA_X_509 )
+        /* Perform an ECDSA verification. */
+        if ( !ecdsa_rs_to_asn1_integers(&pucSignature[ 0 ], &pucSignature[ 32 ], 32,
+                                        pubASN1Signature, (size_t*)&pubASN1SignatureLength))
         {
+            xResult = CKR_SIGNATURE_INVALID;
+            PKCS11_PRINT( ( "Failed to parse EC signature \r\n" ) );
         }
 
-        /* Perform an ECDSA verification. */
-        else if( pxSession->xVerifyMechanism == CKM_ECDSA )
+        if( xResult == CKR_OK )
         {
-            if ( !ecdsa_rs_to_asn1_integers(&pucSignature[ 0 ], &pucSignature[ 32 ], 32,
-                                            pubASN1Signature, (size_t*)&pubASN1SignatureLength))
+            uint8_t temp[100];
+            uint16_t tempLen = 100;
+
+            if ( OPTIGA_LIB_SUCCESS != optiga_util_read_data(pxSession->usVerifyKeyOid, 2, &temp[3], &tempLen))
             {
                 xResult = CKR_SIGNATURE_INVALID;
-                PKCS11_PRINT( ( "Failed to parse EC signature \r\n" ) );
+                PKCS11_PRINT( ( "Failed to extract the Public Key from the SE\r\n" ) );
             }
+            // Return tags (e.g. 0x03, 0x42, 0x00) to the public key buffer
+            temp[0] = 0x03;
+            temp[1] = 0x42;
+            temp[2] = 0x00;
+            tempLen +=3;
 
-            if( xResult == CKR_OK )
+            public_key_from_host_t xPublicKeyDetails = {
+                                                            temp,
+                                                            tempLen,
+                                                            OPTIGA_ECC_NIST_P_256
+                                                        };
+
+            if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_verify ( pucData, ulDataLen,
+                                                                    pubASN1Signature, pubASN1SignatureLength,
+                                                                    OPTIGA_CRYPT_HOST_DATA, &xPublicKeyDetails ))
             {
-                uint8_t temp[100];
-                uint16_t tempLen = 100;
-
-                if ( OPTIGA_LIB_SUCCESS != optiga_util_read_data(pxSession->usVerifyKeyOid, 2, &temp[3], &tempLen))
-                {
-                    xResult = CKR_SIGNATURE_INVALID;
-                    PKCS11_PRINT( ( "Failed to extract the Public Key from the SE\r\n" ) );
-                }
-                // Return tags (e.g. 0x03, 0x42, 0x00) to the public key buffer
-                temp[0] = 0x03;
-                temp[1] = 0x42;
-                temp[2] = 0x00;
-                tempLen +=3;
-
-                public_key_from_host_t xPublicKeyDetails = {
-                                                             temp,
-                                                             tempLen,
-                                                             OPTIGA_ECC_NIST_P_256
-                                                            };
-
-                if ( OPTIGA_LIB_SUCCESS != optiga_crypt_ecdsa_verify ( pucData, ulDataLen,
-                                                                       pubASN1Signature, pubASN1SignatureLength,
-                                                                       OPTIGA_CRYPT_HOST_DATA, &xPublicKeyDetails ))
-                {
-                    xResult = CKR_SIGNATURE_INVALID;
-                    PKCS11_PRINT( ( "Failed to verify the EC signature\r\n" ) );
-                }
+                xResult = CKR_SIGNATURE_INVALID;
+                PKCS11_PRINT( ( "Failed to verify the EC signature\r\n" ) );
             }
         }
     }
