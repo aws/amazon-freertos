@@ -936,7 +936,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                                                                               * SlSockAddrIn_t is the appropriate interpretation of a IPv4 address. */
                                       ( _i16 ) sizeof( SlSockAddrIn_t ) );
 
-                /* If connection is successful, mark the socket as connected. */
+                /* If the connection wasn't successful, return a socket error. */
                 if( sTIRetCode != 0 )
                 {
                     /* See vendors/ti/SimpleLink_CC32xx/v2_10_00_04/source/ti/drivers/net/wifi/errors.h */
