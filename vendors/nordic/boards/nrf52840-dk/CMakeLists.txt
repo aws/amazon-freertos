@@ -86,6 +86,7 @@ target_compile_definitions(
 
 set(c_flags
     "-std=gnu99"
+    "-O0"
     "-g"
     "-fmessage-length=0"
     "-fno-diagnostics-show-caret"
