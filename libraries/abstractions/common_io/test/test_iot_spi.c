@@ -1156,6 +1156,17 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_CancelSuccess )
         TEST_ASSERT_EQUAL( pdFALSE, xCallbackReturn );
     }
 
+        lRetVal = iot_spi_cancel(xSPIHandle);
+        if( lRetVal != IOT_SPI_FUNCTION_NOT_SUPPORTED )
+        {
+            TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+        }
+
+        /* Wait to make sure operation was really canceled. */
+        xCallbackReturn = xSemaphoreTake( xtestIotSPISemaphore, testIotSPI_DEFAULT_SEMAPHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdFALSE, xCallbackReturn );
+
+    }
     /* restore original configuration */
     lRetVal = iot_spi_ioctl( xSPIHandle, eSPISetMasterConfig, &xOrigConfig );
     TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
