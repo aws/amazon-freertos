@@ -12,9 +12,9 @@ endif()
 
 # Include IDE specific cmake file.
 if(${AFR_TOOLCHAIN} STREQUAL "arm-gcc")
-    include("mcuxpresso.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/mcuxpresso.cmake")
 elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar")
-    include("iar.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/iar.cmake")
 elseif(NOT AFR_METADATA_MODE)
     message( FATAL_ERROR "The toolchain is not supported." )
 endif()

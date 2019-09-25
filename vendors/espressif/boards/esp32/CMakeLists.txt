@@ -2,10 +2,10 @@
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkitc")
-    include("esp32_devkitc.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/esp32_devkitc.cmake")
 endif()
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_wrover_kit")
-    include("esp32_wrover_kit.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/esp32_wrover_kit.cmake")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ target_sources(
     INTERFACE
         "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
-        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
+        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
         ${bluedroid_src}
         ${nimble_src}
 )

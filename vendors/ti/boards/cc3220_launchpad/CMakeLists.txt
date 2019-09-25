@@ -12,9 +12,9 @@ endif()
 
 # Include IDE specific cmake file.
 if(${AFR_TOOLCHAIN} STREQUAL "arm-ti")
-    include("ccs.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/ccs.cmake")
 elseif(${AFR_TOOLCHAIN} STREQUAL "arm-iar")
-    include("iar.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/iar.cmake")
     if(NOT AFR_METADATA_MODE)
         message(FATAL_ERROR "CMake support for TI using IAR is not complete yet.")
     endif()
@@ -148,7 +148,7 @@ target_sources(
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 target_link_libraries(
-    AFR::pkcs11_implementation::mcu_port    
+    AFR::pkcs11_implementation::mcu_port
     INTERFACE
         AFR::pkcs11_mbedtls
         3rdparty::mbedtls
