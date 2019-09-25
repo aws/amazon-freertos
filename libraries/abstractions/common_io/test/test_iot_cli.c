@@ -51,7 +51,7 @@ const aceCli_moduleCmd_t iot_tests_cli_sub[] = {
                             "4: rtc\n\t"
                             "5: gpio <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_AssistedIotGpioModeWritePushPullTrue\n\t\t2: AFQP_AssistedIotGpioModeWritePushPullFalse\n\t\t3: AFQP_AssistedIotGpioModeWriteOpenDrainTrue\n\t\t4: AFQP_AssistedIotGpioModeWriteOpenDrainFalse\n\t\t5: AFQP_AssistedIotGpioModeReadTrue\n\t\t6: AFQP_AssistedIotGpioModeReadFalse\n\t"
                             "6: timer\n\t"
-                            "7: adc\n\t"
+                            "7: adc <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotAdcPrintReadSample\n\t"
                             "8: reset <num>\n\t\t0: Shutdown\n\t\t1: RebootZero\n\t\t2: RebootNonZero"
                             "\n\t9: perfcounter\n\t10: pwm\n\t11: i2c\n\t12: tsensor\n\t13: power\n\t14: battery"
                             "\n\t15: efuse\n\t"
