@@ -46,14 +46,18 @@ ace_status_t runIotTests(int32_t argc, const char** argv) {
 }
 
 const aceCli_moduleCmd_t iot_tests_cli_sub[] = {
-                            {"test", "<num>\n\t0: all\n\t1: uart\n\t2: flash\n\t"
+                            {"test", "<num>\n\t0: all\n\t"
+                            "1: uart <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_AssistedIotUARTReadWriteSync\n\t\t2: AFQP_AssistedIotUARTBaudChange\n\t\t3: AFQP_AssistedIotUARTReadWriteAsync\n\t"
+                            "2: flash\n\t"
                             "3: wdog <num> \n\t\t0: All Non-Reset tests\n\t\t1: Bite-Reset test\n\t\t2: ResetReason Test\n\t"
                             "4: rtc\n\t"
                             "5: gpio <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_AssistedIotGpioModeWritePushPullTrue\n\t\t2: AFQP_AssistedIotGpioModeWritePushPullFalse\n\t\t3: AFQP_AssistedIotGpioModeWriteOpenDrainTrue\n\t\t4: AFQP_AssistedIotGpioModeWriteOpenDrainFalse\n\t\t5: AFQP_AssistedIotGpioModeReadTrue\n\t\t6: AFQP_AssistedIotGpioModeReadFalse\n\t"
                             "6: timer\n\t"
                             "7: adc <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotAdcPrintReadSample\n\t"
                             "8: reset <num>\n\t\t0: Shutdown\n\t\t1: RebootZero\n\t\t2: RebootNonZero"
-                            "\n\t9: perfcounter\n\t10: pwm\n\t11: i2c\n\t12: tsensor\n\t13: power\n\t14: battery"
+                            "\n\t9: perfcounter\n\t10: pwm\n\t11: i2c\n\t12: tsensor"
+                            "\n\t13: power <num>\n\t\t0: All tests excludes VddOff test\n\t\t1: Run VddOff test"
+                            "\n\t14: battery"
                             "\n\t15: efuse\n\t"
                             "16: spi <num> \n\t\t0: All Independent tests\n\t\t1: Read Sync Master\n\t\t"
                             "2: Write Sync Master\n\t\t3: Transfer Sync Master\n\t\t4: Read ASync Master\n\t\t"
