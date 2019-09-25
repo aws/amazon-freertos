@@ -496,6 +496,10 @@ size_t IotNetworkAfr_Send( void * pConnection,
         {
             bytesSent = ( size_t ) socketStatus;
         }
+        else
+        {
+            IotLogError( "Error %ld while sending data.", ( long int ) socketStatus );
+        }
 
         xSemaphoreGive( ( QueueHandle_t ) &( pNetworkConnection->socketMutex ) );
     }
