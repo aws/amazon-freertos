@@ -9,17 +9,18 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 
 [Doxygen Manual](http://www.doxygen.nl/manual/index.html)
 
-- download and install Doxygen
-- install graphviz
-	- on mac, run "brew install graphviz"
-    - on linux, run "sudo apt install graphiv"
-- goto the root directory of "amazon-freertos" (this will be referenced as $ROOT_AFR_DIR)
+- Download and install Doxygen
+- Install graphviz
+	- on MAC OK, run "brew install graphviz"
+	- on Linux, run "sudo apt install graphviz"
+- Go to the root directory of "amazon-freertos" (this will be referenced as $ROOT_AFR_DIR)
 	- cd $ROOT_AFR_DIR
-- run generate_doc.sh to generate the documents. All warnings will go to $ROOT_AFR_DIR/doxygen_warnings.txt.
+- Run generate_doc.sh to generate the documents. All warnings will go to $ROOT_AFR_DIR/doxygen_warnings.txt. 
   ```
   $ ./doc/generate_doc.sh .
   ```
-- the entry doc is $ROOT_AFR_DIR/doc/output/main/index.html, open it with browser and verify it looks good
+  This script runs on MAC OS, Linux, and Windows Subsystem for Linux (WSL).
+- The entry document is $ROOT_AFR_DIR/doc/output/main/index.html, open it with a browser and verify that it looks good.
 
 # Add documents for a new library
 
