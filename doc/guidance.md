@@ -11,7 +11,7 @@ This is about how to use Doxygen to maintain the API documents. There are three 
 
 - Download and install Doxygen
 - Install graphviz
-	- on MAC OK, run "brew install graphviz"
+	- on macOS, run "brew install graphviz"
 	- on Linux, run "sudo apt install graphviz"
 - Go to the root directory of "amazon-freertos" (this will be referenced as $ROOT_AFR_DIR)
 	- cd $ROOT_AFR_DIR
@@ -19,7 +19,7 @@ This is about how to use Doxygen to maintain the API documents. There are three 
   ```
   $ ./doc/generate_doc.sh .
   ```
-  This script runs on MAC OS, Linux, and Windows Subsystem for Linux (WSL).
+  This script runs on macOS, Linux, and Windows Subsystem for Linux (WSL).
 - The entry document is $ROOT_AFR_DIR/doc/output/main/index.html, open it with a browser and verify that it looks good.
 
 # Add documents for a new library
