@@ -35,7 +35,8 @@ import os
 
 
 test_class_list=[(gpio_test, "./gpio"),
-                 (pwm_test, "./pwm")]
+                 (pwm_test, "./pwm"),
+                 (adc_test, "./adc")]
 
 
 if __name__ == "__main__":

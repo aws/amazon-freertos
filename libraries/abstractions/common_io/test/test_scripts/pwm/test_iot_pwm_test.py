@@ -82,7 +82,7 @@ class pwm_test(test_template):
         res = str(self._serial.read(100))
 
         if res.find('PASS\\n') == -1:
-            print(sys._getframe().f_code.co_name, ": starlite pwm capture failed")
+            print(sys._getframe().f_code.co_name, ": device under test pwm capture failed")
             # self.clean()
             return 'Fail'
 
@@ -100,7 +100,7 @@ class pwm_test(test_template):
                         self.clean()
                         return 'Pass'
                 elif no_of_correct_freq > 0:
-                    print(sys._getframe().f_code.co_name, ": starlite pwm output failed")
+                    print(sys._getframe().f_code.co_name, ": device under test pwm output failed")
                     # self.clean()
                     return 'Fail'
 

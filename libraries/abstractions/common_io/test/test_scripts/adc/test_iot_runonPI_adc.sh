@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Amazon FreeRTOS V1.2.3
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -33,20 +33,10 @@ PASSWD=$1
 shift
 
 if [ "$1" == "-p" ]; then
-    #Secure copy the test_iot_read_PWM.py and test_iot_wave_PWM.py from Host ubuntu to RP3
+    #Secure copy the test_iot_adc_rp3.py from Host to RP3
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "mkdir -p /home/pi/Tests"
-    sshpass -p ${PASSWD} scp ./test_iot_read_PWM.py ./test_iot_wave_PWM.py ${LOGINID}@${IP}:/home/pi/Tests
-elif [ "$1" == "-c" ]; then
-    #Delete the result file on rpi
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "rm /home/pi/Tests/pwm_res.txt"
-else
-    #Run demon
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} 'sudo pigpiod -s 1 -b 200'
-    #Run two pwm scripts at same time
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} \
-     'nohup python /home/pi/Tests/test_iot_read_PWM.py > /home/pi/Tests/pwm_res.txt 2>/dev/null & python /home/pi/Tests/test_iot_wave_PWM.py'
-    #Kill demon
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} 'sudo killall pigpiod'
-    #Copy back result
-    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/pwm_res.txt .
+    sshpass -p ${PASSWD} scp ./test_iot_adc_rp3.py ${LOGINID}@${IP}:/home/pi/Tests
+elif [ ! -z $1 ]; then
+    #Set dac output voltage
+    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "python /home/pi/Tests/test_iot_adc_rp3.py $1"
 fi

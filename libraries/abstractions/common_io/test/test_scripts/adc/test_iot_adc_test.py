@@ -88,7 +88,7 @@ class adc_test(test_template):
                 # Wait serial to flush out.
                 sleep(0.2)
 
-            # Derive theoretical reading on the starlite based on ref voltage.
+            # Derive theoretical reading on the device under test based on ref voltage.
             ideal_adc_reading = int(di) / self.platform_ref_voltage * dac_ref_voltage
 
             # Compare the average reading with the ideal reading

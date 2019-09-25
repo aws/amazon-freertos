@@ -33,7 +33,7 @@ shift
 PASSWD=$1
 shift
 if [ "$1" == "-p" ]; then
-    #Secure copy the test_iot_gpio_rp3.py from Host ubuntu to RP3
+    #Secure copy the test_iot_gpio_rp3.py from Host to RP3
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "mkdir -p /home/pi/Tests"
     sshpass -p ${PASSWD} scp ./test_iot_gpio_rp3.py ${LOGINID}@${IP}:/home/pi/Tests/
 elif [ "$1" == "-w" ]; then
@@ -41,7 +41,7 @@ elif [ "$1" == "-w" ]; then
     #Open a SSH connection to RP3 and run the test_iot_gpio_rp3.py to read the GPIO pin status
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "python /home/pi/Tests/test_iot_gpio_rp3.py -i $2 > /home/pi/Tests/gpio_output_RP3.txt"
 
-    #Copy the GPIO pin status to host ubuntu for validation
+    #Copy the GPIO pin status to host for validation
     sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/gpio_output_RP3.txt .
 
 elif [ "$1" == "-r" ]; then
