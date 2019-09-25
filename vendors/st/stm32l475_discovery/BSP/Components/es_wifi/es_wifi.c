@@ -1578,7 +1578,7 @@ ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Con
 
   if (ret == ES_WIFI_STATUS_OK)
   {
-    sprintf( ( char * ) Obj->CmdData, "P2=%d\r", /*LocalPort*/ 56830 ); /* WARN: Does not work! */
+    sprintf( ( char * ) Obj->CmdData, "P2=%d\r", conn->LocalPort );
     ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
 

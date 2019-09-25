@@ -148,9 +148,6 @@ typedef struct STSecureSocket
     void * pvTLSContext;                /**< The TLS Context. */
     char * pcServerCertificate;         /**< Server certificate. Set using SOCKETS_SO_TRUSTED_SERVER_CERTIFICATE option in SOCKETS_SetSockOpt function. */
     uint32_t ulServerCertificateLength; /**< Length of the server certificate. */
-    #if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
-        uint16_t usLocalPort;
-    #endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
 } STSecureSocket_t;
 /*-----------------------------------------------------------*/
 
