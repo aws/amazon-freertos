@@ -758,7 +758,7 @@ CK_RV prvGetCertificateInDER( CK_OBJECT_HANDLE xPalHandle,
 {
     CK_RV xResult = CKR_OK;
     uint8_t * pCertificate;
-    uint8_t * beginningOfInputBuffer;
+    uint8_t * beginningOfInputBuffer = NULL;
     size_t certLength;
     char pemBegin[] = "-----BEGIN";
     int convertResult = 0;
@@ -2797,7 +2797,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalHandle = CK_INVALID_HANDLE;
     uint32_t ulIndex;
     P11Object_t * pxInternalObject;
-    P11StorageFunctions_t * pxStorageFxns;
+    P11StorageFunctions_t * pxStorageFxns = NULL;
 
     /*
      * Check parameters.

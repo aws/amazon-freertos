@@ -1628,7 +1628,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateFindGetAttributeValueCertificates )
     xResult = xProvisionCertificate( xGlobalSession,
                                      ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
                                      tlsSTARFIELD_ROOT_CERTIFICATE_LENGTH,
-                                     pkcs11configLABEL_ROOT_CERTIFICATE,
+                                     ( uint8_t * ) pkcs11configLABEL_ROOT_CERTIFICATE,
                                      &xRootCertificateHandle );
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create root EC certificate." );
@@ -1642,7 +1642,7 @@ TEST( Full_PKCS11_EC, AFQP_CreateFindGetAttributeValueCertificates )
     xResult = xProvisionCertificate( xGlobalSession,
                                      ( uint8_t * ) tlsSTARFIELD_ROOT_CERTIFICATE_PEM,
                                      sizeof( tlsSTARFIELD_ROOT_CERTIFICATE_PEM ),
-                                     pkcs11configLABEL_JITP_CERTIFICATE,
+                                     ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
                                      &xJITPCertificateHandle );
     #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
         TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to create JITP EC certificate." );
@@ -1652,11 +1652,11 @@ TEST( Full_PKCS11_EC, AFQP_CreateFindGetAttributeValueCertificates )
         TEST_ASSERT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Valid object handle returned when object not created." );
     #endif /* if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 ) */
 
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, ( uint8_t * ) pkcs11testLABEL_ROOT_CERTIFICATE, CKO_CERTIFICATE, &xRootCertificateHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession, ( char * ) pkcs11testLABEL_ROOT_CERTIFICATE, CKO_CERTIFICATE, &xRootCertificateHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find root certificate." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xRootCertificateHandle, "Invalid object handle returned finding root certificate." );
 
-    xResult = xFindObjectWithLabelAndClass( xGlobalSession, ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE, CKO_CERTIFICATE, &xJITPCertificateHandle );
+    xResult = xFindObjectWithLabelAndClass( xGlobalSession, ( char * ) pkcs11configLABEL_JITP_CERTIFICATE, CKO_CERTIFICATE, &xJITPCertificateHandle );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to find JITP certificate." );
     TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xJITPCertificateHandle, "Invalid object handle returned finding JITP certificate." );
 
