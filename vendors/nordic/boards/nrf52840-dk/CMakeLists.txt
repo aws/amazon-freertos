@@ -1,7 +1,8 @@
-set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
+set(nrf52840_dir "${AFR_VENDORS_DIR}/nordic/boards/nrf52840-dk")
+set(afr_ports_dir "${nrf52840_dir}/ports")
 set(nrf5_sdk "${AFR_VENDORS_DIR}/nordic/nRF5_SDK_15.2.0")
-set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
-set(board_tests_dir "${CMAKE_CURRENT_LIST_DIR}/aws_tests")
+set(board_demos_dir "${nrf52840_dir}/aws_demos")
+set(board_tests_dir "${nrf52840_dir}/aws_tests")
 if(AFR_IS_TESTING)
     set(board_dir "${board_tests_dir}")
 else()
@@ -36,10 +37,19 @@ afr_set_board_metadata(IS_ACTIVE "TRUE")
 afr_set_board_metadata(IDE_SeggerStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nordic/nrf52840-dk/ses/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
 
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
+
+if(AFR_IS_TESTING)
+    set(exe_target aws_tests)
+else()
+    set(exe_target aws_demos)
+endif()
+
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
+
 afr_mcu_port(compiler)
 set(
     defined_symbols
@@ -48,6 +58,8 @@ set(
     __SES_ARM
     __ARM_ARCH_FPV4_SP_D16__
     __SES_VERSION=41600
+    DEBUG
+    DEBUG_NRF
     NRF52840_XXAA
     BOARD_PCA10056
     CONFIG_GPIO_AS_PINRESET
@@ -68,25 +80,80 @@ set(
 
 target_compile_definitions(
     AFR::compiler::mcu_port
-    INTERFACE $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${defined_symbols}>
-)
-#"$<TARGET_FILE_DIR:${exe_target}>  Debug/Obj/${exe_target}.ld"
-set(c_flags "-fmessage-length=0" "-fno-diagnostics-show-caret" "-mcpu=cortex-m4" "-mlittle-endian" "-mfloat-abi=hard" "-mfpu=fpv4-sp-d16" "-mthumb" "-mtp=soft" "-munaligned-access" "-nostdinc" "-quiet" "-std=gnu99" "-gdwarf-4" "-g3" "-gpubnames" "-fomit-frame-pointer" "-fno-dwarf2-cfi-asm" "-fno-builtin" "-ffunction-sections" "-fdata-sections" "-fshort-enums" "-fno-common")
-set(linker_flags "-X" "--omagic" "-eReset_Handler" "--defsym=__vfprintf=__vfprintf_long_long" "--defsym=__vfscanf=__vfscanf_long_long" "-EL"
-"-T${CMAKE_BINARY_DIR}/aws_tests.ld"
-"-Map Output/Debug/Exe/aws_tests.map"
-"-u_vectors"
-"-o Output/Debug/Exe/aws_tests.elf"
-"--emit-relocs"
---start-group "@/home/ANT.AMAZON.COM/hbouvier/Desktop/afr-dev/amazon-freertos/vendors/nordic/boards/nrf52840-dk/aws_tests/ses/Output/aws_tests Debug/Obj/aws_tests.ind" --end-group
+    INTERFACE
+    ${defined_symbols}
 )
 
+set(c_flags
+    "-std=gnu99"
+    "-O0"
+    "-g"
+    "-fmessage-length=0"
+    "-fno-diagnostics-show-caret"
+    "-mcpu=cortex-m4"
+    "-mlittle-endian"
+    "-mfloat-abi=hard"
+    "-mfpu=fpv4-sp-d16"
+    "-mthumb"
+    "-mtp=soft"
+    "-munaligned-access"
+    "-nostdinc"
+    "-quiet"
+    "-gdwarf-4"
+    "-g3"
+    "-gpubnames"
+    "-fomit-frame-pointer"
+    "-fno-dwarf2-cfi-asm"
+    "-fno-builtin"
+    "-ffunction-sections"
+    "-fdata-sections"
+    "-fshort-enums"
+    "-fno-common"
+ )
 
 # Compiler flags
 target_compile_options(
     AFR::compiler::mcu_port
     INTERFACE
-        $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+    $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${c_flags}>
+)
+
+
+set(
+    asm_flags
+    "-fmessage-length=0"
+    "-fno-diagnostics-show-caret"
+    "-E"
+    "-mcpu=cortex-m4"
+    "-mlittle-endian"
+    "-mfloat-abi=hard"
+    "-mfpu=fpv4-sp-d16"
+    "-mthumb"
+    "-nostdinc"
+    "-quiet"
+    "-lang-asm"
+)
+
+
+target_compile_options(
+    AFR::compiler::mcu_port
+    INTERFACE
+        $<$<COMPILE_LANGUAGE:ASM>:${asm_flags}>
+)
+
+set(linker_flags
+    "-X"
+    "--omagic"
+    "-eReset_Handler"
+    "--defsym=__vfprintf=__vfprintf_long_long"
+    "--defsym=__vfscanf=__vfscanf_long_long"
+    "--gc-sections"
+    "-EL"
+    "-T${CMAKE_BINARY_DIR}/${exe_target}.ld"
+    "-Map"
+    "${CMAKE_BINARY_DIR}/${exe_target}.map"
+    "-u_vectors"
+    "--emit-relocs"
 )
 
 # Linker flags
@@ -96,6 +163,20 @@ target_link_options(
         ${linker_flags}
 )
 
+target_link_libraries(
+  AFR::compiler::mcu_port
+  INTERFACE
+  "${nrf5_sdk}/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a"
+  "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv5_d16_hard_t_le_eabi.a"
+  "${AFR_COMPILER_DIR}/../../../lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+  "${AFR_COMPILER_DIR}/../../../lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+  "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+  "${AFR_COMPILER_DIR}/../../../lib/libcpp_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+  "${AFR_COMPILER_DIR}/../../../lib/libdebugio_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+  "${AFR_COMPILER_DIR}/../../../lib/libvfprintf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
+  "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
+)
+
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers
@@ -103,23 +184,128 @@ target_link_options(
 # Kernel
 afr_mcu_port(kernel)
 
-target_sources(
-    AFR::kernel::mcu_port
-    INTERFACE
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port.c"
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port_cmsis.c"
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port_cmsis_systick.c"
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/portmacro.h"
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/portmacro_cmsis.h"
-        "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
-)
 set(
-    kernel_inc_dirs
-    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk"
-    "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
-    "${AFR_3RDPARTY_DIR}/jsmn"
-    "${AFR_3RDPARTY_DIR}/pkcs11"
-    "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+    compiler_src
+    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port.c"
+    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port_cmsis.c"
+    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/port_cmsis_systick.c"
+    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/portmacro.h"
+    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk/portmacro_cmsis.h"
+    "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
+ )
+
+ set(
+     nrf_sdk_src
+     "${nrf5_sdk}/components/ble/ble_advertising/ble_advertising.c"
+     "${nrf5_sdk}/components/ble/ble_link_ctx_manager/ble_link_ctx_manager.c"
+     "${nrf5_sdk}/components/ble/ble_services/ble_ipsp/ble_ipsp.c"
+     "${nrf5_sdk}/components/ble/common/ble_advdata.c"
+     "${nrf5_sdk}/components/ble/common/ble_conn_params.c"
+     "${nrf5_sdk}/components/ble/common/ble_conn_state.c"
+     "${nrf5_sdk}/components/ble/common/ble_srv_common.c"
+     "${nrf5_sdk}/components/ble/nrf_ble_gatt/nrf_ble_gatt.c"
+     "${nrf5_sdk}/components/ble/nrf_ble_qwr/nrf_ble_qwr.c"
+     "${nrf5_sdk}/components/ble/peer_manager/gatt_cache_manager.c"
+     "${nrf5_sdk}/components/ble/peer_manager/gatts_cache_manager.c"
+     "${nrf5_sdk}/components/ble/peer_manager/id_manager.c"
+     "${nrf5_sdk}/components/ble/peer_manager/nrf_ble_lesc.c"
+     "${nrf5_sdk}/components/ble/peer_manager/peer_data_storage.c"
+     "${nrf5_sdk}/components/ble/peer_manager/peer_database.c"
+     "${nrf5_sdk}/components/ble/peer_manager/peer_id.c"
+     "${nrf5_sdk}/components/ble/peer_manager/peer_manager.c"
+     "${nrf5_sdk}/components/ble/peer_manager/peer_manager_handler.c"
+     "${nrf5_sdk}/components/ble/peer_manager/pm_buffer.c"
+     "${nrf5_sdk}/components/ble/peer_manager/security_dispatcher.c"
+     "${nrf5_sdk}/components/ble/peer_manager/security_manager.c"
+     "${nrf5_sdk}/components/boards/boards.c"
+     "${nrf5_sdk}/components/libraries/atomic/nrf_atomic.c"
+     "${nrf5_sdk}/components/libraries/atomic_fifo/nrf_atfifo.c"
+     "${nrf5_sdk}/components/libraries/atomic_flags/nrf_atflags.c"
+     "${nrf5_sdk}/components/libraries/balloc/nrf_balloc.c"
+     "${nrf5_sdk}/components/libraries/bsp/bsp.c"
+     "${nrf5_sdk}/components/libraries/bsp/bsp_btn_ble.c"
+     "${nrf5_sdk}/components/libraries/bsp/bsp_nfc.c"
+     "${nrf5_sdk}/components/libraries/button/app_button.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_aead.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_aes.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_aes_shared.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_ecc.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_ecdh.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_ecdsa.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_eddsa.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_error.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_hash.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_hkdf.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_hmac.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_init.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_rng.c"
+     "${nrf5_sdk}/components/libraries/crypto/nrf_crypto_shared.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_aes.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_aes_aead.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_chacha_poly_aead.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_ecc.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_ecdh.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_ecdsa.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_eddsa.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_hash.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_hmac.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_init.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_mutex.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_rng.c"
+     "${nrf5_sdk}/components/libraries/crypto/backend/cc310/cc310_backend_shared.c"
+     "${nrf5_sdk}/components/libraries/experimental_section_vars/nrf_section_iter.c"
+     "${nrf5_sdk}/components/libraries/fds/fds.c"
+     "${nrf5_sdk}/components/libraries/fifo/app_fifo.c"
+     "${nrf5_sdk}/components/libraries/fstorage/nrf_fstorage.c"
+     "${nrf5_sdk}/components/libraries/fstorage/nrf_fstorage_sd.c"
+     "${nrf5_sdk}/components/libraries/log/src/nrf_log_backend_rtt.c"
+     "${nrf5_sdk}/components/libraries/log/src/nrf_log_backend_serial.c"
+     "${nrf5_sdk}/components/libraries/log/src/nrf_log_backend_uart.c"
+     "${nrf5_sdk}/components/libraries/log/src/nrf_log_default_backends.c"
+     "${nrf5_sdk}/components/libraries/log/src/nrf_log_frontend.c"
+     "${nrf5_sdk}/components/libraries/log/src/nrf_log_str_formatter.c"
+     "${nrf5_sdk}/components/libraries/mem_manager/mem_manager.c"
+     "${nrf5_sdk}/components/libraries/memobj/nrf_memobj.c"
+     "${nrf5_sdk}/components/libraries/queue/nrf_queue.c"
+     "${nrf5_sdk}/components/libraries/ringbuf/nrf_ringbuf.c"
+     "${nrf5_sdk}/components/libraries/scheduler/app_scheduler.c"
+     "${nrf5_sdk}/components/libraries/sensorsim/sensorsim.c"
+     "${nrf5_sdk}/components/libraries/strerror/nrf_strerror.c"
+     "${nrf5_sdk}/components/libraries/timer/app_timer_freertos.c"
+     "${nrf5_sdk}/components/libraries/uart/app_uart_fifo.c"
+     "${nrf5_sdk}/components/libraries/hardfault/hardfault_implementation.c"
+     "${nrf5_sdk}/components/libraries/hardfault/nrf52/handler/hardfault_handler_gcc.c"
+     "${nrf5_sdk}/components/libraries/util/app_error.c"
+     "${nrf5_sdk}/components/libraries/util/app_error_weak.c"
+     "${nrf5_sdk}/components/libraries/util/app_util_platform.c"
+     "${nrf5_sdk}/components/libraries/util/nrf_assert.c"
+     "${nrf5_sdk}/components/softdevice/common/nrf_sdh.c"
+     "${nrf5_sdk}/components/softdevice/common/nrf_sdh_ble.c"
+     "${nrf5_sdk}/components/softdevice/common/nrf_sdh_freertos.c"
+     "${nrf5_sdk}/components/softdevice/common/nrf_sdh_soc.c"
+     "${nrf5_sdk}/external/fprintf/nrf_fprintf.c"
+     "${nrf5_sdk}/external/fprintf/nrf_fprintf_format.c"
+     "${nrf5_sdk}/integration/nrfx/legacy/nrf_drv_clock.c"
+     "${nrf5_sdk}/integration/nrfx/legacy/nrf_drv_rng.c"
+     "${nrf5_sdk}/integration/nrfx/legacy/nrf_drv_uart.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_clock.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_gpiote.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_rng.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_saadc.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_timer.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_uart.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_wdt.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/prs/nrfx_prs.c"
+     "${nrf5_sdk}/modules/nrfx/drivers/src/nrfx_uarte.c"
+     "${nrf5_sdk}/modules/nrfx/hal/nrf_ecb.c"
+     "${nrf5_sdk}/modules/nrfx/hal/nrf_nvmc.c"
+     "${nrf5_sdk}/modules/nrfx/mdk/system_nrf52.c"
+     "${nrf5_sdk}/modules/nrfx/mdk/ses_startup_nrf_common.s"
+     "${nrf5_sdk}/modules/nrfx/mdk/ses_startup_nrf52840.s"
+ )
+
+ set(
+     nrf_sdk_include
     "${nrf5_sdk}/components/libraries/util"
     "${nrf5_sdk}/components/libraries/svc"
     "${nrf5_sdk}/components/libraries/fifo"
@@ -131,7 +317,6 @@ set(
     "${nrf5_sdk}/components/libraries/atomic_flags"
     "${nrf5_sdk}/components/libraries/mutex"
     "${nrf5_sdk}/components/softdevice/s140/headers"
-    "${nrf5_sdk}/components/ble/ble_link_ctx_manager"
     "${nrf5_sdk}/components/libraries/sensorsim"
     "${nrf5_sdk}/components/libraries/fds"
     "${nrf5_sdk}/components/libraries/fstorage"
@@ -192,6 +377,22 @@ set(
     "${nrf5_sdk}/modules/nrfx/drivers/include"
     "${nrf5_sdk}/modules/nrfx/hal"
     "${nrf5_sdk}/modules/nrfx/mdk"
+ )
+
+target_sources(
+    AFR::kernel::mcu_port
+    INTERFACE
+    ${compiler_src}
+    ${nrf_sdk_src}
+)
+set(
+    kernel_inc_dirs
+    "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/nrf52840-dk"
+    "${AFR_3RDPARTY_DIR}/tinycrypt/lib/include"
+    "${AFR_3RDPARTY_DIR}/jsmn"
+    "${AFR_3RDPARTY_DIR}/pkcs11"
+    "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
+    ${nrf_sdk_include}
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
@@ -243,6 +444,14 @@ target_sources(
         "${afr_ports_dir}/ota/asn1utility.h"
         "${afr_ports_dir}/ota/aws_ota_pal_settings.h"
 )
+
+target_link_libraries(
+    AFR::ota::mcu_port
+    INTERFACE
+        AFR::crypto
+        AFR::pkcs11
+)
+
 # POSIX
 afr_mcu_port(posix)
 target_sources(
@@ -260,31 +469,22 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
-set(CMAKE_EXECUTABLE_SUFFIX ".hex")
-
-if(AFR_IS_TESTING)
-    set(exe_target aws_tests)
-else()
-    set(exe_target aws_demos)
-endif()
-
-
-if(AFR_IS_TESTING)
+set( application_src
+    "${board_dir}/application_code/main.c"
+    "${board_dir}/application_code/nordic_code/SEGGER_HardFaultHandler.c"
+    "${board_dir}/application_code/nordic_code/SEGGER_RTT.c"
+    "${board_dir}/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c"
+    "${board_dir}/application_code/nordic_code/thumb_crt0.s"
+)
 add_executable(
     ${exe_target}
-    "${board_dir}/application_code/main.c"
+    ${application_src}
 )
-else()
-add_executable(
-    ${exe_target}
-    "${board_dir}/application_code/main.c"
-)
-endif()
 
 if(AFR_METADATA_MODE)
     return()
 else()
-    message(FATAL_ERROR "CMake support for Nordic is not complete yet.")
+	#message(FATAL_ERROR "CMake support for Nordic is not complete yet.")
 endif()
 
 
@@ -293,12 +493,36 @@ endif()
 # -------------------------------------------------------------------------------------------------
 
 set(
-    mkld_flags -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
-    -section-placement-file "${AFR_ROOT_DIR}/projects/nordic/nrf52840-dk/ses/aws_tests/flash_placement.xml"
-    -check-segment-overflow -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192" -section-placement-macros "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
+    mkld_flags
+    -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
+    -section-placement-file "${nrf52840_dir}/flash_placement.xml"
+    -check-segment-overflow
+    -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
+    -section-placement-macros
+    "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
 )
 
 add_custom_command(
     TARGET ${exe_target} PRE_LINK
-    COMMAND VERBATIM "/usr/share/segger_embedded_studio_for_arm_4.16/bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/aws_tests.ld"
+    COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/${exe_target}.ld"
+)
+
+find_program(gcc_objectcopy arm-none-eabi-objcopy)
+find_program(gcc_size arm-none-eabi-size)
+
+if(NOT gcc_objectcopy )
+    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+endif()
+
+set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+)
+
+add_custom_command(
+    TARGET ${exe_target} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
 )
