@@ -93,7 +93,8 @@ typedef int ( * pfnMbedTlsSign )( void * ctx,
 #define EC_PARAMS_IN_TEMPLATE         ( 1U << 3 )
 #define VERIFY_IN_TEMPLATE            ( 1U << 4 )
 
-
+/* Structure for storing pointers to object handling functions.
+ */
 typedef struct P11StorageFunctions_t
 {
     CK_OBJECT_HANDLE ( * SaveObject )( CK_ATTRIBUTE_PTR,
@@ -380,10 +381,8 @@ CK_RV prvGetObjectClass( CK_ATTRIBUTE_PTR pxTemplate,
  *
  * @param[in] pcLabel            Array containing label.
  * @param[in] xLableLength       Length of the label, in bytes.
- * @param[out] pxPalHandle       Pointer to the PAL handle to be provided.
- *                               CK_INVALID_HANDLE if no object found.
- * @param[out] pxAppHandle       Pointer to the application handle to be provided.
- *                               CK_INVALID_HANDLE if no object found.
+ * @param[out] ppObject          Updated to contain a pointer to the object's
+ *                               cached storage.
  */
 void prvFindObjectInListByLabel( uint8_t * pcLabel,
                                  size_t xLabelLength,
@@ -407,10 +406,7 @@ void prvFindObjectInListByLabel( uint8_t * pcLabel,
  * @brief Looks up a PKCS #11 object's label and PAL handle given an application handle.
  *
  * @param[in] xAppHandle         The handle of the object being lookedup for, used by the application.
- * @param[out] xPalHandle        Pointer to the handle corresponding to xPalHandle being used by the PAL.
- * @param[out] ppcLabel          Pointer to an array containing label.  NULL if object not found.
- * @param[out] pxLabelLength     Pointer to label length (includes a string null terminator).
- *                               0 if no object found.
+ * @param[out] ppObject          Updated to contain the pointer to the object's cached storage.
  */
 void prvFindObjectInListByHandle( CK_OBJECT_HANDLE xAppHandle,
                                   P11Object_t ** ppObject )
@@ -475,12 +471,14 @@ CK_RV prvDeleteObjectFromList( CK_OBJECT_HANDLE xAppHandle )
 
 
 /**
- * @brief Add an object that exists in NVM to the application object array.
+ * @brief Add an object that exists in storage to the application object array.
  *
- * @param[in[ xPalHandle         The handle used by the PKCS #11 PAL for object.
+ * @param[in] xPalHandle         The handle used by the PKCS #11 PAL for object.
  * @param[out] pxAppHandle       Updated to contain the application handle corresponding to xPalHandle.
  * @param[in]  pcLabel           Pointer to object label.
  * @param[in] xLabelLength       Length of the PKCS #11 label.
+ * @param[in] pStorageFunctions  Pointer to the functions associated with storing and retrieving
+ *                               the object.
  *
  */
 CK_RV prvAddObjectToList( CK_OBJECT_HANDLE xPalHandle,
@@ -648,6 +646,7 @@ extern int convert_pem_to_der( const unsigned char * pucInput,
                                unsigned char * pucOutput,
                                size_t * pxOlen );
 
+/* Look up objects that are stored in code by object PAL handle. */
 void prvLookupObjectByHandle( CK_OBJECT_HANDLE xHandle,
                               uint8_t ** ppucCertData,
                               size_t * pCertLength )
@@ -699,7 +698,7 @@ void prvLookupObjectByHandle( CK_OBJECT_HANDLE xHandle,
     #endif /* if ( pkcs11configOTA_SUPPORTED == 1 ) */
 }
 
-
+/* Look up object stored in code by its PKCS #11 label. */
 CK_OBJECT_HANDLE prvLookupObjectByLabel( uint8_t * pucLabel,
                                          size_t xLength,
                                          uint8_t ** ppucCertData,
@@ -752,6 +751,13 @@ CK_OBJECT_HANDLE prvLookupObjectByLabel( uint8_t * pucLabel,
     return xPalHandle;
 }
 
+/*
+ * Search for an object stored in code, then allocate a buffer
+ * to convert the object from PEM to DER format.
+ *
+ * \warn This function allocates memory which should be freed
+ * by PKCS11_Code_GetAttributeValueCleanup()
+ */
 CK_RV prvGetCertificateInDER( CK_OBJECT_HANDLE xPalHandle,
                               CK_BYTE_PTR * ppucData,
                               size_t * pulDataSize )
@@ -815,7 +821,18 @@ CK_RV prvGetCertificateInDER( CK_OBJECT_HANDLE xPalHandle,
     return xResult;
 }
 
+/*
+ * The following functions have a footprint that is interchangable with
+ * PKCS #11 PAL functions.   These functions perform equivalent functionality
+ * as the PKCS #11 PAL with the same name, but for objects that have been built
+ * into the binary. These functions should not be used for PKCS #11 objects
+ * that are unique per-device.
+ */
 
+/* Place holder function for saving an object.
+ * Since "code" objects are built into the binary,
+ * saving a code object is not supported.
+ */
 CK_OBJECT_HANDLE PKCS11_Code_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
                                          uint8_t * pucData,
                                          uint32_t ulDataSize )
@@ -826,6 +843,8 @@ CK_OBJECT_HANDLE PKCS11_Code_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
     return xHandle;
 }
 
+/* Search if an object exists in code, and return the object
+ * handle if found. */
 CK_OBJECT_HANDLE PKCS11_Code_FindObject( uint8_t * pLabel,
                                          uint8_t usLength )
 {
@@ -846,7 +865,10 @@ CK_OBJECT_HANDLE PKCS11_Code_FindObject( uint8_t * pLabel,
     return handle;
 }
 
-
+/* Get the value of an object stored in code.
+ * This function allocates a buffer at ppucData, and
+ * PKCS11_Code_GetObjectValueCleanup() must be called
+ * to free the memory. */
 CK_RV PKCS11_Code_GetObjectValue( CK_OBJECT_HANDLE xPalHandle,
                                   uint8_t ** ppucData,
                                   uint32_t * pulDataSize,
@@ -863,6 +885,8 @@ CK_RV PKCS11_Code_GetObjectValue( CK_OBJECT_HANDLE xPalHandle,
     return xResult;
 }
 
+/* Clean-up after a PKCS11_Code_GetObjectValue() call.
+ * This function frees previously allocated memory. */
 void PKCS11_Code_GetObjectValueCleanup( uint8_t * pucData,
                                         uint32_t ulDataSize )
 {
@@ -872,6 +896,8 @@ void PKCS11_Code_GetObjectValueCleanup( uint8_t * pucData,
     }
 }
 
+/* Placeholder for DestroyObject.  Note that
+ * destroying a code object is not supported. */
 CK_RV PKCS11_Code_DestroyObject( CK_OBJECT_HANDLE xHandle )
 {
     /* This object cannot be destroyed. */
