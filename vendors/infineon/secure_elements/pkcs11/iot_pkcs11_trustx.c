@@ -2720,7 +2720,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_VerifyInit )( CK_SESSION_HANDLE xSession,
     }
 
     /* Check for a supported crypto algorithm. */
-    if( pxMechanism->mechanism = CKM_ECDSA )
+    if( pxMechanism->mechanism == CKM_ECDSA )
     {
         pxSession->xVerifyMechanism = pxMechanism->mechanism;
     }
