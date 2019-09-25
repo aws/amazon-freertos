@@ -1426,14 +1426,20 @@ void _listNetworkTask( IotTaskPool_t taskPool,
 
     status = WIFI_Scan( scanNetworks, wifiProvisioning.listNetworkRequest.maxNetworks );
 
+    uint32_t networks_found = 0;
     if( status == eWiFiSuccess )
     {
         for( idx = 0; idx < wifiProvisioning.listNetworkRequest.maxNetworks; idx++ )
         {
             if( strlen( scanNetworks[ idx ].cSSID ) > 0 )
             {
+                networks_found++;
                 _sendScanNetwork( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, &scanNetworks[ idx ] );
             }
+        }
+        if(!networks_found)
+        {
+          _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, status );
         }
     }
     else
