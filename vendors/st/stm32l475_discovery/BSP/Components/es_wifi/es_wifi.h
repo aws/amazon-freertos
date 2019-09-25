@@ -300,6 +300,9 @@ ES_WIFI_Status_t  ES_WIFI_Ping(ES_WIFIObject_t *Obj, uint8_t *address, uint16_t 
 #endif
 ES_WIFI_Status_t  ES_WIFI_DNS_LookUp(ES_WIFIObject_t *Obj, const char *url, uint8_t *ipaddress);
 ES_WIFI_Status_t  ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn);
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+ES_WIFI_Status_t  ES_WIFI_StartUDPClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn);
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
 ES_WIFI_Status_t  ES_WIFI_StopClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn);
 #if (ES_WIFI_USE_AWS == 1)
 ES_WIFI_Status_t  ES_WIFI_StartAWSClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_AWS_Conn_t *conn);

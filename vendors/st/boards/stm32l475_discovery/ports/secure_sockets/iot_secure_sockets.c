@@ -903,16 +903,15 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                 xWiFiConnection.Number = ( uint8_t ) ulSocketNumber;
                 xWiFiConnection.Type = pxSocket->xSocketType;
 
-                /* WiFi Module expects the port number in host byte order.
-                 * Setting xWiFiConnection.RemotePort actually sets local port at hardware level */
-                xWiFiConnection.RemotePort = SOCKETS_ntohs( pxAddress->usPort );
+                /* WiFi Module expects the port number in host byte order. */
+                xWiFiConnection.LocalPort = SOCKETS_ntohs( pxAddress->usPort );
                 memcpy( &( xWiFiConnection.RemoteIP ),
                         &( pxAddress->ulAddress ),
                         sizeof( xWiFiConnection.RemoteIP ) );
                 xWiFiConnection.Name = NULL;
 
                 /* Start the client connection. */
-                if( ES_WIFI_StartClientConnection( &( xWiFiModule.xWifiObject ), &( xWiFiConnection ) ) == ES_WIFI_STATUS_OK )
+                if( ES_WIFI_StartUDPClientConnection( &( xWiFiModule.xWifiObject ), &( xWiFiConnection ) ) == ES_WIFI_STATUS_OK )
                 {
                     lRetVal = SOCKETS_ERROR_NONE;
                     /* Mark that the socket is connected. */
@@ -1058,7 +1057,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                                                        ( uint8_t * ) xWiFiConnection.RemoteIP,
                                                        ( uint16_t ) xWiFiConnection.RemotePort );
 
-                pxAddress->usPort = SOCKETS_ntohs( xWiFiConnection.RemotePort );     /* WiFi Module expects the port number in host byte order. */
+                pxAddress->usPort = SOCKETS_ntohs( xWiFiConnection.RemotePort ); /* WiFi Module expects the port number in host byte order. */
                 memcpy( &( pxAddress->ulAddress ),
                         &( xWiFiConnection.RemoteIP ),
                         sizeof( xWiFiConnection.RemoteIP ) );

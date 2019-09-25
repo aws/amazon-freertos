@@ -1564,7 +1564,9 @@ ES_WIFI_Status_t ES_WIFI_DNS_LookUp(ES_WIFIObject_t *Obj, const char *url, uint8
 ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
 {
   ES_WIFI_Status_t ret = ES_WIFI_STATUS_OK;
-
+  
+  if (conn->RemotePort == 0) return ES_WIFI_STATUS_ERROR;
+  
   LOCK_WIFI();  
 
   sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
@@ -1578,28 +1580,17 @@ ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Con
 
   if (ret == ES_WIFI_STATUS_OK)
   {
-    sprintf( ( char * ) Obj->CmdData, "P2=%d\r", conn->LocalPort );
+    sprintf((char*)Obj->CmdData,"P2=%d\r", conn->LocalPort);
     ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
 
-  if (ret == ES_WIFI_STATUS_OK && conn->RemotePort != 0) /* P4 sets local port for UDP. If P4 is not assigned, system will assign a port . */
+  if (ret == ES_WIFI_STATUS_OK)
   {
     sprintf((char*)Obj->CmdData,"P4=%d\r", conn->RemotePort);
     ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
   }
 
-  /* UDP standard does not require an address to 'bind'. 
-   * However, we are using this function as bind and setting P3 to a valid IP is required.
-   * Here, we use a dummy IP address to allow connection success. */
-  if ( conn->Type == ES_WIFI_UDP_CONNECTION )
-  {
-    conn->RemoteIP[ 0 ] = 8;
-    conn->RemoteIP[ 1 ] = 8;
-    conn->RemoteIP[ 2 ] = 8;
-    conn->RemoteIP[ 3 ] = 8;
-  }
-
-  if ((ret == ES_WIFI_STATUS_OK) && ((conn->Type == ES_WIFI_TCP_CONNECTION) || (conn->Type == ES_WIFI_TCP_SSL_CONNECTION) || (conn->Type == ES_WIFI_UDP_CONNECTION)))
+  if ((ret == ES_WIFI_STATUS_OK) && ((conn->Type == ES_WIFI_TCP_CONNECTION) || (conn->Type == ES_WIFI_TCP_SSL_CONNECTION)))
   {
     sprintf((char*)Obj->CmdData,"P3=%d.%d.%d.%d\r", conn->RemoteIP[0],conn->RemoteIP[1],
             conn->RemoteIP[2],conn->RemoteIP[3]);
@@ -1622,6 +1613,61 @@ ES_WIFI_Status_t ES_WIFI_StartClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Con
   return ret;
 }
 
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+
+/**
+  * @brief  Configure and Start a UDP Client connection. This function act as UDP Bind().
+  * @param  Obj: pointer to module handle
+  * @param  conn: pointer to the connection structure
+  * @retval Operation Status.
+  */
+ES_WIFI_Status_t ES_WIFI_StartUDPClientConnection(ES_WIFIObject_t *Obj, ES_WIFI_Conn_t *conn)
+{
+  ES_WIFI_Status_t ret = ES_WIFI_STATUS_OK;
+
+  LOCK_WIFI();  
+
+  sprintf((char*)Obj->CmdData,"P0=%d\r", conn->Number);
+  ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P1=%d\r", conn->Type);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  /* Instead of P3, P4 sets local port for UDP connection. If P4 is 0, system will assign a port . */
+  if (ret == ES_WIFI_STATUS_OK && conn->LocalPort != 0)
+  {
+    sprintf((char*)Obj->CmdData,"P4=%d\r", conn->LocalPort);
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  /* UDP standard does not require an address to bind(). 
+   * However, this function act as bind() and setting P3 to a valid IP is required to start a UDP client connection.
+   * We use a dummy IP address, which does not effect the IP address when calling ES_WIFI_SendDataTo and ES_WIFI_ReceiveDataFrom  */
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P3=8.8.8.8\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if ((ret == ES_WIFI_STATUS_OK) && (conn->Type == ES_WIFI_TCP_SSL_CONNECTION))
+  {
+    sprintf((char*)Obj->CmdData,"P9=2\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+
+  if (ret == ES_WIFI_STATUS_OK)
+  {
+    sprintf((char*)Obj->CmdData,"P6=1\r");
+    ret = AT_ExecuteCommand(Obj, Obj->CmdData, Obj->CmdData);
+  }
+  
+  UNLOCK_WIFI();
+  return ret;
+}
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
 
 /**
   * @brief  Stop Client connection.
