@@ -275,6 +275,8 @@ int atcacert_cert_build_start(atcacert_build_state_t* build_state,
                               const uint8_t           ca_public_key[64])
 {
     int ret = 0;
+    size_t new_cert_length;
+    size_t old_cert_der_length_size;
 
     if (build_state == NULL || cert_def == NULL || cert == NULL || cert_size == NULL)
     {
@@ -308,6 +310,15 @@ int atcacert_cert_build_start(atcacert_build_state_t* build_state,
         *build_state->cert_size = *cert_size;
     }
     memcpy(build_state->cert, build_state->cert_def->cert_template, *build_state->cert_size);
+
+    old_cert_der_length_size = build_state->cert_def->cert_template_size;
+
+    ret = atcacert_der_adjust_length(
+        &build_state->cert[1],
+        &old_cert_der_length_size,
+        (int)*cert_size - (int)build_state->cert_def->cert_template_size,
+        &new_cert_length);
+
 
     if (ca_public_key != NULL)
     {

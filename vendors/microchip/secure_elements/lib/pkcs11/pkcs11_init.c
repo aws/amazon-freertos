@@ -40,6 +40,10 @@
 #include "pkcs11_session.h"
 #include "cryptoauthlib.h"
 
+#ifdef CreateMutex
+#undef CreateMutex /* CreateMutex is defined to CreateMutexW in synchapi.h in Windows. */
+#endif
+
 /**
  * \defgroup pkcs11 Initialization (pkcs11_)
    @{ */
@@ -269,7 +273,7 @@ CK_RV pkcs11_init(CK_C_INITIALIZE_ARGS_PTR pInitArgs)
 /* Close the library */
 CK_RV pkcs11_deinit(CK_VOID_PTR pReserved)
 {
-    int i;
+    uint32_t ulSlot = 0;
 
     if (pReserved)
     {
@@ -285,9 +289,9 @@ CK_RV pkcs11_deinit(CK_VOID_PTR pReserved)
     atcab_release();
 
     /* Close all the sessions that might be open */
-    for (i = 0; i < pkcs11_context.slot_cnt; i++)
+    for ( ; ulSlot < pkcs11_context.slot_cnt; ulSlot++)
     {
-        pkcs11_slot_ctx_ptr slot_ctx_ptr = (pkcs11_slot_ctx_ptr)pkcs11_context.slots;
+        pkcs11_slot_ctx_ptr slot_ctx_ptr = &((pkcs11_slot_ctx_ptr)(pkcs11_context.slots))[ulSlot];
         if (slot_ctx_ptr)
         {
             (void)pkcs11_session_closeall(slot_ctx_ptr->slot_id);
