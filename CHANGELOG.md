@@ -6,6 +6,9 @@
 - Upload support with HTTP methods PUT and POST is now available in the HTTPS Client Library.
 - Demonstration code with PUT and POST methods are now available in demos/https. 
 
+#### New Board:Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
+- The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
+
 ### Updates
 #### HTTP Parser
 - Add nodejs/http_parser as a submodule in place of copied-over files.
