@@ -2,11 +2,15 @@
  * Trace Recorder Library for Tracealyzer v4.3.5
  * Percepio AB, www.percepio.com
  *
- * trcStreamingPort.h
+ * trcStreamingPort.c
  *
- * The interface definitions for trace streaming ("stream ports").
- * This "stream port" sets up the recorder to use TCP/IP as streaming channel.
- * The example is for lwIP.
+ * Supporting functions for trace streaming, used by the "stream ports" 
+ * for reading and writing data to the interface.
+ *
+ * Note that this stream port is more complex than the typical case, since
+ * the J-Link interface uses a separate RAM buffer in SEGGER_RTT.c, instead
+ * of the default buffer included in the recorder core. The other stream ports 
+ * offer more typical examples of how to define a custom streaming interface.
  *
  * Terms of Use
  * This file is part of the trace recorder library (RECORDER), which is the 
@@ -43,26 +47,37 @@
  * Copyright Percepio AB, 2018.
  * www.percepio.com
  ******************************************************************************/
+ 
+#include "trcRecorder.h"
 
-#ifndef TRC_STREAMING_PORT_H
-#define TRC_STREAMING_PORT_H
+#if (TRC_USE_TRACEALYZER_RECORDER == 1)
+#if (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+int32_t readFromRTT(void* ptrData, uint32_t size, int32_t* ptrBytesRead)
+{
+	uint32_t bytesRead = 0; 
+	
+	if (SEGGER_RTT_HASDATA(TRC_CFG_RTT_DOWN_BUFFER_INDEX))
+	{
+		bytesRead = SEGGER_RTT_Read((TRC_CFG_RTT_DOWN_BUFFER_INDEX), (char*)ptrData, size);
+	
+		if (ptrBytesRead != NULL)
+			*ptrBytesRead = (int32_t)bytesRead;
 
-#define TRC_STREAM_PORT_USE_INTERNAL_BUFFER 1
+	}
 
-int32_t trcTcpRead(void* data, uint32_t size, int32_t *ptrBytesRead);
-
-int32_t trcTcpWrite(void* data, uint32_t size, int32_t *ptrBytesWritten);
-
-#define TRC_STREAM_PORT_READ_DATA(_ptrData, _size, _ptrBytesRead) trcTcpRead(_ptrData, _size, _ptrBytesRead)
-
-#define TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, _ptrBytesSent) trcTcpWrite(_ptrData, _size, _ptrBytesSent)
-
-#ifdef __cplusplus
+	return 0;
 }
-#endif
 
-#endif /* TRC_STREAMING_PORT_H */
+int32_t writeToRTT(void* ptrData, uint32_t size, int32_t* ptrBytesWritten)
+{
+	uint32_t bytesWritten = SEGGER_RTT_Write((TRC_CFG_RTT_UP_BUFFER_INDEX), (const char*)ptrData, size);
+	
+	if (ptrBytesWritten != NULL)
+		*ptrBytesWritten = (int32_t)bytesWritten;
+
+	return 0;
+}
+
+#endif
+#endif
