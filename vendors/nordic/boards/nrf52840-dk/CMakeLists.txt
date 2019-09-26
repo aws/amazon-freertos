@@ -33,6 +33,7 @@ afr_set_board_metadata(RECOMMENDED_IDE "SeggerStudio")
 afr_set_board_metadata(IDE_SeggerStudio_NAME "SEGGER Embedded Studio")
 afr_set_board_metadata(IDE_SeggerStudio_COMPILER "segger-arm-gcc")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 afr_set_board_metadata(IDE_SeggerStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nordic/nrf52840-dk/ses/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
