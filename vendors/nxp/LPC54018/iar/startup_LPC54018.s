@@ -188,7 +188,7 @@ __image_header
         #endif
 
         #ifdef XIP_IMAGE
-                DCD   __vector_table  ; (0x08) Load_address
+                DCD   0x10000000  ; (0x08) Load_address
         #else
                 DCD   0x00000000  ; (0x08) Load_address
         #endif
