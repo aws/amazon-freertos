@@ -9,4 +9,4 @@
 [submodule "freertos_kernel"]
 	path = freertos_kernel
 	url = https://github.com/FreeRTOS/FreeRTOS.git
-	branch = kernel
+	branch = V10.2.1-convergence
