@@ -351,6 +351,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\freertos_kernel\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\drivers</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\cmsis_drivers</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\middleware\wifi_qca</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\middleware\wifi_qca\common_src\hcd</state>
@@ -387,6 +388,8 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\tls\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\crypto\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\abstractions\pkcs11\include</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\standard\utils\include</state>
@@ -416,7 +419,7 @@
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\unity\extras\fixture\src</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\tinycbor</state>
-					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser</state>
+					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser</state>
 					<state>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\jsmn</state>
 				</option>
 				<option>
@@ -1217,6 +1220,12 @@
 					<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\system_LPC54018.h</name>
 				</file>
 				<group>
+					<name>bootloader</name>
+					<file>
+						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\bootloader\spifi_boot.c</name>
+					</file>
+				</group>
+				<group>
 					<name>drivers</name>
 					<file>
 						<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\LPC54018\drivers\fsl_clock.c</name>
@@ -1796,6 +1805,12 @@
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\posix\FreeRTOS_POSIX_portable.h</name>
 							</file>
 						</group>
+						<group>
+							<name>ota</name>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\ports\ota\aws_ota_pal.c</name>
+							</file>
+						</group>
 					</group>
 					<group>
 						<name>aws_tests</name>
@@ -1848,6 +1863,9 @@
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_shadow_config.h</name>
+							</file>
+							<file>
+								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_test_ota_config.h</name>
 							</file>
 							<file>
 								<name>$PROJ_DIR$\..\..\..\..\..\vendors\nxp\boards\lpc54018iotmodule\aws_tests\config_files\aws_test_runner_config.h</name>
@@ -2597,6 +2615,78 @@
 			<group>
 				<name>aws</name>
 				<group>
+					<name>ota</name>
+					<group>
+						<name>src</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_agent.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_agent_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_pal.h</name>
+						</file>
+					</group>
+					<group>
+						<name>include</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h</name>
+						</file>
+					</group>
+					<group>
+						<name>test</name>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_agent_test_access_declare.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_agent_test_access_define.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_codesigner_certificate.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_pal_test_access_declare.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_ota_pal_test_access_define.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_agent.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_end_to_end.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal.c</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal_ecdsa_sha256_signature.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal_rsa_sha1_signature.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_pal_rsa_sha256_signature.h</name>
+						</file>
+						<file>
+							<name>$PROJ_DIR$\..\..\..\..\..\libraries\freertos_plus\aws\ota\test\aws_test_ota_signature_methods.h</name>
+						</file>
+					</group>
+				</group>
+				<group>
 					<name>greengrass</name>
 					<group>
 						<name>src</name>
@@ -3150,12 +3240,12 @@
 				</file>
 			</group>
 			<group>
-				<name>http-parser</name>
+				<name>http_parser</name>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h</name>
 				</file>
 				<file>
-					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c</name>
+					<name>$PROJ_DIR$\..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c</name>
 				</file>
 			</group>
 			<group>

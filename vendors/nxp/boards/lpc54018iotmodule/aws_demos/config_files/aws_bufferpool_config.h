@@ -34,11 +34,11 @@
 /**
  * @brief The number of buffers in the static buffer pool.
  */
-#define bufferpoolconfigNUM_BUFFERS    ( 4 )
+#define bufferpoolconfigNUM_BUFFERS    ( 8 )
 
 /**
  * @brief The size of each buffer in the static buffer pool.
  */
-#define bufferpoolconfigBUFFER_SIZE    ( 1024 + 128 )
+#define bufferpoolconfigBUFFER_SIZE    ( 2048 + 128 )
 
 #endif /* _AWS_BUFFER_POOL_CONFIG_H_ */

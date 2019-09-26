@@ -37,7 +37,7 @@
   [
     "$(FREERTOS)/libraries/c_sdk/standard/https/include",
     "$(FREERTOS)/libraries/c_sdk/standard/https/src/private",
-    "$(FREERTOS)/libraries/3rdparty/http-parser",
+    "$(FREERTOS)/libraries/3rdparty/http_parser",
     "$(FREERTOS)/libraries/c_sdk/standard/common/include/",
     "$(FREERTOS)/libraries/abstractions/platform/include/",
     "$(FREERTOS)/libraries/abstractions/platform/freertos/include/",

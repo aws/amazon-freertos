@@ -2412,14 +2412,14 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/http-parser/http_parser.h</name>
+			<name>libraries/3rdparty/http_parser/http_parser.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http-parser/http_parser.h</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http_parser/http_parser.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/http-parser/http_parser.c</name>
+			<name>libraries/3rdparty/http_parser/http_parser.c</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http-parser/http_parser.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>
