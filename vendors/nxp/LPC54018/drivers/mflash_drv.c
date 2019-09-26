@@ -49,12 +49,7 @@
 //#endif
 
 
-#if !defined(FLASHDRV_SMART_UPDATE) && (MFLASH_SECTOR_SIZE / MFLASH_PAGE_SIZE <= 32)
-#define FLASHDRV_SMART_UPDATE 1
-#endif
-
-
-/* Temporary sector storage. Use uint32_t type to force 4B alignment and
+/* Temporary sector storage. Use uint32_t type to force 4B alignment and 
  * improve copy operation */
 static uint32_t g_flashm_sector[MFLASH_SECTOR_SIZE / sizeof(uint32_t)];
 
@@ -99,21 +94,18 @@ static void mflash_drv_read_mode(void)
 }
 
 
-/* Initialize SPIFI & flash peripheral,
+/* Initialize SPIFI & flash peripheral, 
  * cannot be invoked directly, requires calling wrapper in non XIP memory */
 static int32_t mflash_drv_init_internal(void)
 {
     /* NOTE: Multithread access is not supported for SRAM target.
-     *       XIP target MUST be protected by disabling global interrupts
-     *       since all ISR (and API that is used inside) is placed at XIP.
+     *       XIP target MUST be protected by disabling global interrupts 
+     *       since all ISR (and API that is used inside) is placed at XIP. 
      *       It is necessary to place at least "mflash_drv_drv.o", "fsl_spifi.o" to SRAM */
-    /* disable interrupts when running from XIP
+    /* disable interrupts when running from XIP 
      * TODO: store/restore previous PRIMASK on stack to avoid
      * failure in case of nested critical sections !! */
-    uint32_t primask = __get_PRIMASK();
-
     __asm("cpsid i");
-
     spifi_config_t config = {0};
 
 #ifndef XIP_IMAGE
@@ -151,11 +143,7 @@ static int32_t mflash_drv_init_internal(void)
 
     mflash_drv_read_mode();
 
-    if (primask == 0)
-    {
-        __asm("cpsie i");
-    }
-
+    __asm("cpsie i");
     return 0;
 }
 
@@ -173,7 +161,8 @@ int32_t mflash_drv_init(void)
 /* Internal - erase single sector */
 static int32_t mflash_drv_sector_erase(uint32_t sector_addr)
 {
-    uint32_t primask = __get_PRIMASK();
+    if (false == mflash_drv_is_sector_aligned((uint32_t)sector_addr))
+        return -1;
 
     __asm("cpsid i");
 
@@ -191,84 +180,54 @@ static int32_t mflash_drv_sector_erase(uint32_t sector_addr)
     /* Switch to read mode to enable interrupts as soon ass possible */
     mflash_drv_read_mode();
 
-    if (primask == 0)
-    {
-        __asm("cpsie i");
-    }
-
-    /* Flush pipeline to allow pending interrupts take place */
+    __asm("cpsie i");
+    /* Flush pipeline to allow pending interrupts take place 
+     * before starting next loop */
     __ISB();
 
     return 0;
 }
 
 
-/* Internal - write single page */
-static int32_t mflash_drv_page_program(uint32_t page_addr, const uint32_t *page_data)
-{
-    uint32_t primask = __get_PRIMASK();
-
-    __asm("cpsid i");
-
-    /* Program page */
-    SPIFI_ResetCommand(MFLASH_SPIFI);
-    SPIFI_SetCommand(MFLASH_SPIFI, &command[WRITE_ENABLE]);
-    SPIFI_SetCommandAddress(MFLASH_SPIFI, page_addr);
-    SPIFI_SetCommand(MFLASH_SPIFI, &command[PROGRAM_PAGE]);
-
-    /* Store 4B in each loop. Sector has always 4B alignment and size multiple of 4 */
-    for (uint32_t i = 0; i < MFLASH_PAGE_SIZE/sizeof(page_data[0]); i++)
-    {
-        SPIFI_WriteData(MFLASH_SPIFI, page_data[i]);
-    }
-
-    mflash_drv_check_if_finish();
-    /* Switch to read mode to enable interrupts as soon ass possible */
-    mflash_drv_read_mode();
-
-    if (primask == 0)
-    {
-        __asm("cpsie i");
-    }
-
-    /* Flush pipeline to allow pending interrupts take place */
-    __ISB();
-
-    return 0;
-}
-
-
-#if !defined(FLASHDRV_SMART_UPDATE) || (FLASHDRV_SMART_UPDATE == 0)
-/* Internal - write whole sector */
-static int32_t mflash_drv_sector_program(uint32_t sector_addr, const uint32_t *sector_data)
+/* Internal - write single sector */
+static int32_t mflash_drv_sector_program(uint32_t sector_addr, uint32_t *sector_data)
 {
     if (false == mflash_drv_is_sector_aligned((uint32_t)sector_addr))
         return -1;
 
     uint32_t max_page = MFLASH_SECTOR_SIZE / MFLASH_PAGE_SIZE;
-    uint32_t page_addr = sector_addr;
-    const uint32_t *page_data = sector_data;
-
-    for (uint32_t page_idx = 0; page_idx < max_page; page_idx++)
+    for (uint32_t page_idx = 0, page_i = 0; page_idx < max_page; page_idx++)
     {
-        mflash_drv_page_program(page_addr, page_data);
-        page_addr += MFLASH_PAGE_SIZE;
-        page_data += MFLASH_PAGE_SIZE/sizeof(page_data[0]);
+        __asm("cpsid i");
+        /* Program page */
+        SPIFI_ResetCommand(MFLASH_SPIFI);
+        SPIFI_SetCommand(MFLASH_SPIFI, &command[WRITE_ENABLE]);
+        SPIFI_SetCommandAddress(MFLASH_SPIFI, sector_addr + page_idx * MFLASH_PAGE_SIZE);
+        SPIFI_SetCommand(MFLASH_SPIFI, &command[PROGRAM_PAGE]);
+        page_i = page_idx * (MFLASH_PAGE_SIZE/sizeof(sector_data[0]));
+        /* Store 4B in each loop. Sector has always 4B alignment and size multiple of 4 */
+        for (uint32_t i = 0; i < MFLASH_PAGE_SIZE/sizeof(sector_data[0]); i++)
+        {
+            SPIFI_WriteData(MFLASH_SPIFI, sector_data[page_i + i]);
+        }
+        mflash_drv_check_if_finish();
+        /* Switch to read mode to enable interrupts as soon ass possible */
+        mflash_drv_read_mode();
+        __asm("cpsie i");
+        /* Flush pipeline to allow pending interrupts take place 
+         * before starting next loop */
+        __ISB();
     }
+
+
 
     return 0;
 }
-#endif
 
 
 /* Internal - write data of 'data_len' to single sector 'sector_addr', starting from 'sect_off' */
-static int32_t mflash_drv_sector_update(uint32_t sector_addr, uint32_t sect_off, const uint8_t *data, uint32_t data_len)
+int32_t mflash_drv_sector_write(uint32_t sector_addr, uint32_t sect_off, uint8_t *data, uint32_t data_len)
 {
-#if FLASHDRV_SMART_UPDATE
-    int sector_erase_req = 0;
-    uint32_t page_program_map = 0; /* Current implementation is limited to 32 pages per sector */
-#endif
-
     /* Address not aligned to sector boundary */
     if (false == mflash_drv_is_sector_aligned((uint32_t)sector_addr))
         return -1;
@@ -277,7 +236,8 @@ static int32_t mflash_drv_sector_update(uint32_t sector_addr, uint32_t sect_off,
         return -1;
 
     /* Switch back to read mode */
-    mflash_drv_read_mode();
+    SPIFI_ResetCommand(MFLASH_SPIFI);
+    SPIFI_SetMemoryCommand(MFLASH_SPIFI, &command[READ]);
 
     /* Copy old sector data by 4B in each loop to buffer */
     for (uint32_t i = 0; i < sizeof(g_flashm_sector)/sizeof(g_flashm_sector[0]); i++)
@@ -285,133 +245,29 @@ static int32_t mflash_drv_sector_update(uint32_t sector_addr, uint32_t sect_off,
         g_flashm_sector[i] = *((uint32_t*)(sector_addr) + i);
     }
 
-#if FLASHDRV_SMART_UPDATE /* Perform only the erase/program operations that are necessary */
-
-    /* Copy custom data (1B in each loop) to buffer at specific position */
-    for (uint32_t i = 0; i < data_len; i++)
-    {
-        /* Unless it was already decided to erase the whole sector, evaluate differences between current and new data */
-        if (0 == sector_erase_req)
-        {
-            uint8_t cur_value = ((uint8_t*)(g_flashm_sector))[sect_off + i];
-            uint8_t new_value = data[i];
-
-            /* Check the the bit transitions */
-            if ((cur_value | new_value) != cur_value)
-            {
-                sector_erase_req = 1; /* A bit needs to be flipped from 0 to 1, the sector has to be erased */
-            }
-            else if ((cur_value & new_value) != cur_value)
-            {
-                page_program_map |= 1 << ((sect_off + i) / MFLASH_PAGE_SIZE); /* A bit needs to be flipped from 1 to 0, the page has to be programmed */
-            }
-        }
-
-        /* Copy data over to the buffer */
-        ((uint8_t*)g_flashm_sector)[sect_off + i] = data[i];
-    }
-
-    /* Erase the sector if required */
-    if (0 != sector_erase_req)
-    {
-        if (0 != mflash_drv_sector_erase(sector_addr))
-        {
-            return -2;
-        }
-
-        /* Update page program map according to non-blank areas in the buffer */
-        for (int page_idx = 0; page_idx < MFLASH_SECTOR_SIZE / MFLASH_PAGE_SIZE; page_idx++)
-        {
-            int page_word_start = page_idx * (MFLASH_PAGE_SIZE / sizeof(g_flashm_sector[0]));
-            int page_word_end = page_word_start + (MFLASH_PAGE_SIZE / sizeof(g_flashm_sector[0]));
-
-            for (int i = page_word_start; i < page_word_end ; i++)
-            {
-                if (g_flashm_sector[i] != 0xFFFFFFFF)
-                {
-                    /* Mark the page for programming and go for next one */
-                    page_program_map |= (1 << page_idx);
-                    break;
-                }
-            }
-        }
-    }
-
-    /* Program the pages */
-    for (int page_idx = 0; page_idx < MFLASH_SECTOR_SIZE / MFLASH_PAGE_SIZE; page_idx++)
-    {
-        /* Skip programming of blank pages */
-        if (0 == (page_program_map & (1 << page_idx)))
-        {
-            continue; /* The page needs not be programmed, skip it */
-        }
-
-        mflash_drv_page_program(sector_addr + page_idx * MFLASH_PAGE_SIZE, g_flashm_sector + page_idx * (MFLASH_PAGE_SIZE / sizeof(g_flashm_sector[0])));
-    }
-
-#else /* Erase the sector and all the pages unconditionally */
-
-    /* Copy custom data (1B in each loop) to buffer at specific position */
+    /* Copy custom data ( 1B in each loop ) to buffer at specific position */
     for (uint32_t i = 0; i < data_len; i++)
     {
         ((uint8_t*)g_flashm_sector)[sect_off + i] = data[i];
     }
 
-    /* Erase the sector */
+    /* Erase flash */
     if (0 != mflash_drv_sector_erase(sector_addr))
-    {
         return -2;
-    }
 
-    /* Program whole sector */
+    /* Program data */
     if (0 != mflash_drv_sector_program(sector_addr, g_flashm_sector))
-    {
         return -2;
-    }
-
-#endif /* FLASHDRV_SMART_UPDATE */
 
     /* Switch back to read mode */
-    mflash_drv_read_mode();
-    return 0;
-}
-
-
-/* Erase area of flash, cannot be invoked directly, requires calling wrapper in non XIP memory */
-int32_t mflash_drv_erase_internal(void *addr, uint32_t len)
-{
-    uint32_t sector_addr;
-
-    /* Address not aligned to sector boundary */
-    if (false == mflash_drv_is_sector_aligned((uint32_t)addr))
-        return -1;
-
-    /* Length is not aligned to sector size */
-    if (0 != len % MFLASH_SECTOR_SIZE)
-        return -1;
-
-    sector_addr = (uint32_t)addr;
-    while (len)
-    {
-        /* Perform blank-check of the sector and erase it if necessary */
-        for (uint32_t i = 0; i < MFLASH_SECTOR_SIZE / sizeof(uint32_t); i++)
-        {
-            if (0xFFFFFFFF != *((uint32_t*)(sector_addr) + i))
-            {
-                mflash_drv_sector_erase(sector_addr);
-                break;
-            }
-        }
-        sector_addr += MFLASH_SECTOR_SIZE;
-        len -= MFLASH_SECTOR_SIZE;
-    }
-
+    SPIFI_ResetCommand(MFLASH_SPIFI);
+    SPIFI_SetMemoryCommand(MFLASH_SPIFI, &command[READ]);
     return 0;
 }
 
 
 /* Write data to flash, cannot be invoked directly, requires calling wrapper in non XIP memory */
-int32_t mflash_drv_write_internal(void *any_addr, const uint8_t *data, uint32_t data_len)
+int32_t mflash_drv_write_internal(void *any_addr, uint8_t *data, uint32_t data_len)
 {
 
     uint32_t sect_size = MFLASH_SECTOR_SIZE;
@@ -450,7 +306,7 @@ int32_t mflash_drv_write_internal(void *any_addr, const uint8_t *data, uint32_t 
         }
 
         /* Write at 'sect_a' sector, starting at 'sect_of' using '&data[data_of]' of length 'to_write' */
-        result = mflash_drv_sector_update(sect_a, sect_of, data + data_of, to_write);
+        result = mflash_drv_sector_write(sect_a, sect_of, &data[data_of], to_write);
         if (0 != result)
             return -1;
         /* Only first sector is allowed to have an offset */
@@ -465,12 +321,13 @@ int32_t mflash_drv_write_internal(void *any_addr, const uint8_t *data, uint32_t 
  * Write 'data' of 'data_len' to 'any_addr' - which doesn't have to be sector aligned.
  * NOTE: Don't try to store constant data that are located in XIP !!
  */
-int32_t mflash_drv_write(void *any_addr, const uint8_t *data, uint32_t data_len)
+int32_t mflash_drv_write(void *any_addr, uint8_t *data, uint32_t data_len)
 {
     volatile int32_t result;
     result = mflash_drv_write_internal(any_addr, data, data_len);
     return result;
 }
+
 
 
 #if 0
