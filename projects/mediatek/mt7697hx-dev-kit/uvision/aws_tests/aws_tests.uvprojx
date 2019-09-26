@@ -18,7 +18,7 @@
 					<Cpu>IROM(0x10000000,0x00200000) IRAM(0x20000000,0x00040000) IRAM2(0x00100000,0x00010000) CPUTYPE(&quot;Cortex-M4&quot;) FPU2 CLOCK(12000000) ELITTLE</Cpu>
 					<FlashUtilSpec/>
 					<StartupFile/>
-					<FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF07687_32M_MXIC -FS010000000 -FL0200000 -FP0($$Device:MT7687F$tools\keil\mt7687\7687_32M_MXIC.FLM))</FlashDriverDll>
+					<FlashDriverDll>CMSIS_DAP(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF07687_32M_MXIC -FS010000000 -FL0200000 -FP0($$Device:MT7687F$tools\keil\mt7687\7687_32M_MXIC.FLM))</FlashDriverDll>
 					<DeviceId>0</DeviceId>
 					<RegisterFile>$$Device:MT7687F$driver\CMSIS\Device\MTK\mt7687\Include\mt7687.h</RegisterFile>
 					<MemoryEnv/>
@@ -134,7 +134,7 @@
 						<DriverSelection>4096</DriverSelection>
 					</Flash1>
 					<bUseTDR>1</bUseTDR>
-					<Flash2>BIN\UL2CM3.DLL</Flash2>
+					<Flash2>BIN\CMSIS_DAP.DLL</Flash2>
 					<Flash3>&quot;&quot; ()</Flash3>
 					<Flash4>.\flash_e3.ini</Flash4>
 					<pFcarmOut/>
