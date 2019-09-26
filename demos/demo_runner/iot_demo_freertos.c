@@ -62,6 +62,10 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
         extern const IotMqttSerializer_t IotBleMqttSerializer;
     #endif
 
+    #ifdef democonfigMEMORY_ANALYSIS
+        extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xMemoryAnalysisStackSize;
+    #endif
+
 
 /*-----------------------------------------------------------*/
 
@@ -306,6 +310,15 @@ void runDemoTask( void * pArgument )
         }
     #endif /* INSERT_DELAY_BEFORE_DEMO */
 
+    #ifdef democonfigMEMORY_ANALYSIS
+        demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark = 0;
+        xBeforeDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+
+        size_t xBeforeDemoHeapSize, xAfterDemoHeapSize = 0;
+        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( NULL );
+    #endif /* democonfigMEMORY_ANALYSIS */
+
+
     /* DO NOT EDIT - This demo start marker is used in the test framework to
      * determine the start of a demo. */
     IotLogInfo( "---------STARTING DEMO---------\n" );
@@ -346,8 +359,17 @@ void runDemoTask( void * pArgument )
         IotLogError( "Failed to initialize the demo. exiting..." );
     }
 
+    #ifdef democonfigMEMORY_ANALYSIS
+        xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( NULL );
+        IotLogInfo( "Demo Heap Total: %u Before: %u After: %u Usage: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize, ( xBeforeDemoHeapSize - xAfterDemoHeapSize ) );
+
+        xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+        IotLogInfo( "Demo Stack Total: %u Watermark Before: %u Watermark After: %u Watermark Difference: %u \r\n", xMemoryAnalysisStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark, ( xBeforeDemoTaskWaterMark - xAfterDemoTaskWaterMark ) );
+    #endif /* democonfigMEMORY_ANALYSIS */
+
     /* DO NOT EDIT - This demo end marker is used in the test framework to
      * determine the end of a demo. */
+
     IotLogInfo( "-------DEMO FINISHED-------\n" );
 }
 
