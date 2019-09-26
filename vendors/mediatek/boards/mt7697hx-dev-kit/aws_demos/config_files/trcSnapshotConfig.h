@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v3.1.2
+ * Trace Recorder Library for Tracealyzer v4.3.5
  * Percepio AB, www.percepio.com
  *
  * trcSnapshotConfig.h
@@ -39,15 +39,15 @@
  *
  * Tabs are used for indent in this file (1 tab = 4 spaces)
  *
- * Copyright Percepio AB, 2017.
+ * Copyright Percepio AB, 2018.
  * www.percepio.com
  ******************************************************************************/
 
 #ifndef TRC_SNAPSHOT_CONFIG_H
 #define TRC_SNAPSHOT_CONFIG_H
 
-#define TRC_SNAPSHOT_MODE_RING_BUFFER       ( 0x01 )
-#define TRC_SNAPSHOT_MODE_STOP_WHEN_FULL    ( 0x02 )
+#define TRC_SNAPSHOT_MODE_RING_BUFFER		(0x01)
+#define TRC_SNAPSHOT_MODE_STOP_WHEN_FULL	(0x02)
 
 /******************************************************************************
  * TRC_CFG_SNAPSHOT_MODE
@@ -67,23 +67,7 @@
  * recording is stopped when the buffer becomes full. This is useful for
  * recording events following a specific state, e.g., the startup sequence.
  *****************************************************************************/
-#define TRC_CFG_SNAPSHOT_MODE               TRC_SNAPSHOT_MODE_RING_BUFFER
-
-/*******************************************************************************
- * TRC_CFG_SCHEDULING_ONLY
- *
- * Macro which should be defined as an integer value.
- *
- * If this setting is enabled (= 1), only scheduling events are recorded.
- * If disabled (= 0), all events are recorded.
- *
- * For users of Tracealyzer Free Edition, that only displays scheduling events, this
- * option can be used to avoid storing other events.
- *
- * Default value is 0 (store all enabled events).
- *
- ******************************************************************************/
-#define TRC_CFG_SCHEDULING_ONLY             0
+#define TRC_CFG_SNAPSHOT_MODE TRC_SNAPSHOT_MODE_RING_BUFFER
 
 /*******************************************************************************
  * TRC_CFG_EVENT_BUFFER_SIZE
@@ -98,7 +82,7 @@
  * Default value is 1000, which means that 4000 bytes is allocated for the
  * event buffer.
  ******************************************************************************/
-#define TRC_CFG_EVENT_BUFFER_SIZE           1000
+#define TRC_CFG_EVENT_BUFFER_SIZE 1000
 
 /*******************************************************************************
  * TRC_CFG_NTASK, TRC_CFG_NISR, TRC_CFG_NQUEUE, TRC_CFG_NSEMAPHORE...
@@ -129,76 +113,8 @@
 #define TRC_CFG_NMUTEX                      90
 #define TRC_CFG_NTIMER                      250
 #define TRC_CFG_NEVENTGROUP                 90
-
-/******************************************************************************
- * TRC_CFG_INCLUDE_MEMMANG_EVENTS
- *
- * Macro which should be defined as either zero (0) or one (1).
- *
- * This controls if malloc and free calls should be traced. Set this to zero (0)
- * to exclude malloc/free calls, or one (1) to include such events in the trace.
- *
- * Default value is 1.
- *****************************************************************************/
-#define TRC_CFG_INCLUDE_MEMMANG_EVENTS      1
-
-/******************************************************************************
- * TRC_CFG_INCLUDE_USER_EVENTS
- *
- * Macro which should be defined as either zero (0) or one (1).
- *
- * If this is zero (0) the code for creating User Events is excluded to
- * reduce code size. User Events are application-generated events, like
- * "printf" but for the trace log and the formatting is done offline, by the
- * Tracealyzer visualization tool. User Events are much faster than a printf
- * and can therefore be used in timing critical code.
- *
- * Default value is 1.
- *****************************************************************************/
-#define TRC_CFG_INCLUDE_USER_EVENTS         1
-
-/*****************************************************************************
-* TRC_CFG_INCLUDE_ISR_TRACING
-*
-* Macro which should be defined as either zero (0) or one (1).
-*
-* If this is zero (0), the code for recording Interrupt Service Routines is
-* excluded, in order to reduce code size.
-*
-* Default value is 1.
-*
-* Note: tracing ISRs requires that you insert calls to vTraceStoreISRBegin
-* and vTraceStoreISREnd in your interrupt handlers.
-*****************************************************************************/
-#define TRC_CFG_INCLUDE_ISR_TRACING         1
-
-/*****************************************************************************
-* TRC_CFG_INCLUDE_READY_EVENTS
-*
-* Macro which should be defined as either zero (0) or one (1).
-*
-* If one (1), events are recorded when tasks enter scheduling state "ready".
-* This allows Tracealyzer to show the initial pending time before tasks enter
-* the execution state, and present accurate response times.
-* If zero (0), "ready events" are not created, which allows for recording
-* longer traces in the same amount of RAM.
-*
-* Default value is 1.
-*****************************************************************************/
-#define TRC_CFG_INCLUDE_READY_EVENTS        1
-
-/*****************************************************************************
-* TRC_CFG_INCLUDE_OSTICK_EVENTS
-*
-* Macro which should be defined as either zero (0) or one (1).
-*
-* If this is one (1), events will be generated whenever the OS clock is
-* increased. If zero (0), OS tick events are not generated, which allows for
-* recording longer traces in the same amount of RAM.
-*
-* Default value is 0.
-*****************************************************************************/
-#define TRC_CFG_INCLUDE_OSTICK_EVENTS       1
+#define TRC_CFG_NSTREAMBUFFER	5
+#define TRC_CFG_NMESSAGEBUFFER	5
 
 /******************************************************************************
  * TRC_CFG_INCLUDE_FLOAT_SUPPORT
@@ -216,20 +132,7 @@
  *
  * Default value is 0.
  *****************************************************************************/
-#define TRC_CFG_INCLUDE_FLOAT_SUPPORT       0
-
-/******************************************************************************
- * TRC_CFG_INCLUDE_OBJECT_DELETE
- *
- * Macro which should be defined as either zero (0) or one (1).
- *
- * This must be enabled (1) if tasks, queues or other
- * traced kernel objects are deleted at runtime. If no deletes are made, this
- * can be set to 0 in order to exclude the delete-handling code.
- *
- * Default value is 1.
- *****************************************************************************/
-#define TRC_CFG_INCLUDE_OBJECT_DELETE       1
+#define TRC_CFG_INCLUDE_FLOAT_SUPPORT 0
 
 /*******************************************************************************
  * TRC_CFG_SYMBOL_TABLE_SIZE
@@ -245,10 +148,10 @@
  *
  * Default value is 800.
  ******************************************************************************/
-#define TRC_CFG_SYMBOL_TABLE_SIZE           800
+#define TRC_CFG_SYMBOL_TABLE_SIZE 800
 
-#if ( TRC_CFG_SYMBOL_TABLE_SIZE == 0 )
-    #error "TRC_CFG_SYMBOL_TABLE_SIZE may not be zero!"
+#if (TRC_CFG_SYMBOL_TABLE_SIZE == 0)
+#error "TRC_CFG_SYMBOL_TABLE_SIZE may not be zero!"
 #endif
 
 /******************************************************************************
@@ -258,13 +161,15 @@
  * kernel objects, such as tasks and queues. If longer names are used, they will
  * be truncated when stored in the recorder.
  *****************************************************************************/
-#define TRC_CFG_NAME_LEN_TASK          15
-#define TRC_CFG_NAME_LEN_ISR           15
-#define TRC_CFG_NAME_LEN_QUEUE         15
-#define TRC_CFG_NAME_LEN_SEMAPHORE     15
-#define TRC_CFG_NAME_LEN_MUTEX         15
-#define TRC_CFG_NAME_LEN_TIMER         15
-#define TRC_CFG_NAME_LEN_EVENTGROUP    15
+#define TRC_CFG_NAME_LEN_TASK			15
+#define TRC_CFG_NAME_LEN_ISR			15
+#define TRC_CFG_NAME_LEN_QUEUE			15
+#define TRC_CFG_NAME_LEN_SEMAPHORE		15
+#define TRC_CFG_NAME_LEN_MUTEX			15
+#define TRC_CFG_NAME_LEN_TIMER			15
+#define TRC_CFG_NAME_LEN_EVENTGROUP 	15
+#define TRC_CFG_NAME_LEN_STREAMBUFFER 	15
+#define TRC_CFG_NAME_LEN_MESSAGEBUFFER 	15
 
 /******************************************************************************
  *** ADVANCED SETTINGS ********************************************************
@@ -284,7 +189,7 @@
 *
 * Default value is 0.
 ******************************************************************************/
-#define TRC_CFG_HEAP_SIZE_BELOW_16M                0
+#define TRC_CFG_HEAP_SIZE_BELOW_16M 0
 
 /******************************************************************************
  * TRC_CFG_USE_IMPLICIT_IFE_RULES
@@ -316,7 +221,7 @@
  * For details, see trcSnapshotKernelPort.h and look for references to the
  * macro trcKERNEL_HOOKS_SET_TASK_INSTANCE_FINISHED.
  *****************************************************************************/
-#define TRC_CFG_USE_IMPLICIT_IFE_RULES             1
+#define TRC_CFG_USE_IMPLICIT_IFE_RULES 1
 
 /******************************************************************************
  * TRC_CFG_USE_16BIT_OBJECT_HANDLES
@@ -340,7 +245,7 @@
  * the event buffer whenever the object is referenced. Moreover, some internal
  * tables in the recorder gets slightly larger when using 16-bit handles.
  *****************************************************************************/
-#define TRC_CFG_USE_16BIT_OBJECT_HANDLES           0
+#define TRC_CFG_USE_16BIT_OBJECT_HANDLES 0
 
 /******************************************************************************
  * TRC_CFG_USE_TRACE_ASSERT
@@ -358,7 +263,7 @@
  * parameters. Can be switched off to reduce the footprint of the tracing, but
  * we recommend to have it enabled initially.
  *****************************************************************************/
-#define TRC_CFG_USE_TRACE_ASSERT                   1
+#define TRC_CFG_USE_TRACE_ASSERT 1
 
 /*******************************************************************************
  * TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER
@@ -414,9 +319,9 @@
  *
  *  // Finds the existing UB channel
  *  vTracePrintF(chn2, "%Z: %d", value2);
- *
+
  ******************************************************************************/
-#define TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER     0
+#define TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER 0
 
 /*******************************************************************************
  * TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE
@@ -428,7 +333,7 @@
  *
  * Only applicable if TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER is 1.
  ******************************************************************************/
-#define TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE    200
+#define TRC_CFG_SEPARATE_USER_EVENT_BUFFER_SIZE 200
 
 /*******************************************************************************
  * TRC_CFG_UB_CHANNELS
@@ -442,7 +347,7 @@
  *
  * Only applicable if TRC_CFG_USE_SEPARATE_USER_EVENT_BUFFER is 1.
  ******************************************************************************/
-#define TRC_CFG_UB_CHANNELS                        32
+#define TRC_CFG_UB_CHANNELS 32
 
 /*******************************************************************************
  * TRC_CFG_ISR_TAILCHAINING_THRESHOLD
@@ -467,6 +372,6 @@
  * Note: This setting has separate definitions in trcSnapshotConfig.h and
  * trcStreamingConfig.h, since it is affected by the recorder mode.
  ******************************************************************************/
-#define TRC_CFG_ISR_TAILCHAINING_THRESHOLD         0
+#define TRC_CFG_ISR_TAILCHAINING_THRESHOLD 0
 
 #endif /*TRC_SNAPSHOT_CONFIG_H*/

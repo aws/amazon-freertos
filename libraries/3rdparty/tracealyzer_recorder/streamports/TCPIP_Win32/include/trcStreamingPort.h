@@ -6,7 +6,7 @@
  *
  * The interface definitions for trace streaming ("stream ports").
  * This "stream port" sets up the recorder to use TCP/IP as streaming channel.
- * The example is for lwIP.
+ * The example is for Windows sockets (Winsock), for use with Windows ports.
  *
  * Terms of Use
  * This file is part of the trace recorder library (RECORDER), which is the 
@@ -47,19 +47,26 @@
 #ifndef TRC_STREAMING_PORT_H
 #define TRC_STREAMING_PORT_H
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define TRC_STREAM_PORT_USE_INTERNAL_BUFFER 1
+int32_t readFromSocket(void* data, uint32_t size, int32_t *ptrBytesRead);
+int32_t writeToSocket(void* data, uint32_t size, int32_t *ptrBytesWritten);
 
-int32_t trcTcpRead(void* data, uint32_t size, int32_t *ptrBytesRead);
+/* This port supports both direct write and buffered mode ...*/
+#define TRC_STREAM_PORT_USE_INTERNAL_BUFFER 0
 
-int32_t trcTcpWrite(void* data, uint32_t size, int32_t *ptrBytesWritten);
+#define TRC_STREAM_PORT_READ_DATA(_ptrData, _size, _ptrBytesRead) readFromSocket(_ptrData, _size, _ptrBytesRead)
 
-#define TRC_STREAM_PORT_READ_DATA(_ptrData, _size, _ptrBytesRead) trcTcpRead(_ptrData, _size, _ptrBytesRead)
-
-#define TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, _ptrBytesSent) trcTcpWrite(_ptrData, _size, _ptrBytesSent)
+#if (TRC_STREAM_PORT_USE_INTERNAL_BUFFER == 1)    
+	#define TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, _ptrBytesWritten) writeToSocket(_ptrData, _size, _ptrBytesWritten)
+#else
+	/* In the direct mode, _ptrBytesWritten is not used, so it is assumed that "all or nothing" is written. */
+	#define TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, UNUSED) writeToSocket(_ptrData, _size, NULL)
+#endif
 
 #ifdef __cplusplus
 }
