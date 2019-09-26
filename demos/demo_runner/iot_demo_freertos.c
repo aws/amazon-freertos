@@ -56,7 +56,7 @@ static IotSemaphore_t demoNetworkSemaphore;
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
 #if MQTT_DEMO_TYPE_ENABLED
-    #if BLE_ENABLED
+    #if BLE_ENABLED && (IOT_BLE_ENABLE_MQTT == 1)
         extern const IotMqttSerializer_t IotBleMqttSerializer;
     #endif
 
@@ -67,7 +67,7 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
     {
         const IotMqttSerializer_t * ret = NULL;
 
-        #if BLE_ENABLED
+        #if BLE_ENABLED && (IOT_BLE_ENABLE_MQTT == 1)
             if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE )
             {
                 ret = &IotBleMqttSerializer;
@@ -126,6 +126,10 @@ static void _onNetworkStateChangeCallback( uint32_t network,
 
     if( ( state == eNetworkStateEnabled ) && ( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) )
     {
+        #if (IOT_BLE_ENABLE_MQTT != 1)
+        // if MQTT over BLE is not part of the build, ignore BLE network going "enabled"
+        if (network == AWSIOT_NETWORK_TYPE_BLE) return;
+        #endif
         demoConnectedNetwork = network;
         IotSemaphore_Post( &demoNetworkSemaphore );
 
@@ -246,7 +250,14 @@ static int _initialize( demoContext_t * pContext )
         /* Wait for network configured for the demo to be initialized. */
         demoConnectedNetwork = _getConnectedNetworkForDemo( pContext );
 
+
+        #if (IOT_BLE_ENABLE_MQTT == 1)
+        // if MQTT over BLE is part of the build, any network is OK
         if( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE )
+        #else
+        // if MQTT over BLE is not part of the build, we cannot accept "BLE connected" as a network the demo can use
+        if(( demoConnectedNetwork == AWSIOT_NETWORK_TYPE_NONE ) || (demoConnectedNetwork == AWSIOT_NETWORK_TYPE_BLE))
+        #endif
         {
             /* Network not yet initialized. Block for a network to be intialized. */
             IotLogInfo( "No networks connected for the demo. Waiting for a network connection. " );
