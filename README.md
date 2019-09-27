@@ -33,7 +33,7 @@ For detailed documentation on Amazon FreeRTOS, refer to the [Amazon FreeRTOS Use
 
 ## Supported Hardware
 
-For additional boards that are supported for Amazon FreeRTOS, please visit the [AWS Device Catalog](https://devices.amazonaws.com/search?kw=freertos&page=1)
+For additional boards that are supported for Amazon FreeRTOS, please visit the [AWS Device Catalog](https://devices.amazonaws.com/search?kw=freertos)
 
 The following MCU boards are supported for Amazon FreeRTOS:
 1. **Texas Instruments** - [CC3220SF-LAUNCHXL](http://www.ti.com/tool/cc3220sf-launchxl).
