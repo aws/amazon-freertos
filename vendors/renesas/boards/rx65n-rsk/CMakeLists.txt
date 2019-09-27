@@ -29,6 +29,7 @@ afr_set_board_metadata(SUPPORTED_IDE "E2Studio")
 afr_set_board_metadata(RECOMMENDED_IDE "E2Studio")
 afr_set_board_metadata(IDE_E2Studio_NAME "e2 studio")
 afr_set_board_metadata(IDE_E2Studio_COMPILER "CCRX")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 afr_set_board_metadata(IDE_E2Studio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/renesas/rx65n-rsk/e2studio/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")

@@ -49,6 +49,7 @@ afr_set_board_metadata(CODE_SIGNER "")
 afr_set_board_metadata(SUPPORTED_IDE "")
 afr_set_board_metadata(IDE_<IDE_ID>_NAME "")
 afr_set_board_metadata(IDE_<IDE_ID>_COMPILERS "")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
