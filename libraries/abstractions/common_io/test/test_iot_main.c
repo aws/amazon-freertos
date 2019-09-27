@@ -42,13 +42,30 @@
 /* Board config includes. */
 #include "test_iot_internal.h"
 
-static void RUN_TEST_IOT_UART(void)
+static void RUN_TEST_IOT_UART(int testCaseIndex)
 {
     int i;
     for(i = 0; i < UART_TEST_SET; i++)
     {
         SET_TEST_IOT_UART_CONFIG(i);
-        RUN_TEST_GROUP( TEST_IOT_UART );
+            switch (testCaseIndex)
+            {
+                case 0:
+                    RUN_TEST_GROUP( TEST_IOT_UART );
+                    break;
+                case 1:
+                    RUN_TEST_CASE( TEST_IOT_UART, AFQP_AssistedIotUARTWriteReadSync );
+                    break;
+                case 2:
+                    RUN_TEST_CASE( TEST_IOT_UART, AFQP_AssistedIotUARTBaudChange );
+                    break;
+                case 3:
+                    RUN_TEST_CASE( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync );
+                    break;
+                default:
+                    printf("Invalid UART test case\n");
+                    return;
+        }
     }
 }
 
@@ -494,7 +511,7 @@ void RunIotTests(int testIndex, int testCaseIndex)
             RUN_TEST_IOT_ALL_GROUP();
             break;
         case 1:
-            RUN_TEST_IOT_UART();
+            RUN_TEST_IOT_UART(0);
             break;
         case 2:
             RUN_TEST_IOT_FLASH();

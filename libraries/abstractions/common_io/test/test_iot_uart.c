@@ -39,7 +39,7 @@
 
 /*-----------------------------------------------------------*/
 /* Test Defines */
-#define testIotUART_DEFAULT_SEMPAHORE_DELAY            ( 5000 )                                                       /** Amount of time a function waits for every callback to finish. */
+#define testIotUART_DEFAULT_SEMPAHORE_DELAY            ( 60 )                                                       /** Amount of time a function waits for every callback to finish. */
 #define testIotUART_TEST_BAUD_RATE                     ( 38400 )                                                    /** Alternative baud rate to test. */
 #define testIotUART_TEST_BAUD_RATE_DEFAULT             ( IOT_UART_BAUD_RATE_DEFAULT )                               /** Default baud rate. */
 #define testIotUART_BAUD_RATE_STRING                   ( "Baudrate: 38400\n" )                                      /** Signal external device to change to different baudrate. */
@@ -138,6 +138,7 @@ TEST_TEAR_DOWN( TEST_IOT_UART )
 
 /*-----------------------------------------------------------*/
 
+/*-----------------------------------------------------------*/
 /**
  * @brief Function to define which tests to execute as part of this group.
  */
@@ -276,7 +277,6 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
-
 /**
  * @brief Test Function to check if UART can be configured to a different baudrate.
  *  Works by signal external device to change to a new baudrate. Sending and recieving a message.
@@ -619,7 +619,6 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
-
 /**
  * @brief Test Function to fuzz iot_uart_read_async
  *-----------------------------------------------------------*/
