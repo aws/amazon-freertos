@@ -125,13 +125,13 @@
 
 
 /* Default connection parameters. */
-static const MQTTAgentConnectParams_t xDefaultConnectParameters =
+MQTTAgentConnectParams_t xDefaultConnectParameters =
 {
     clientcredentialMQTT_BROKER_ENDPOINT,
     mqttagentREQUIRE_TLS,
     pdFALSE,
     clientcredentialMQTT_BROKER_PORT,
-    ( const uint8_t * ) clientcredentialIOT_THING_NAME,
+    NULL,
     0,
     pdTRUE,
     NULL,
@@ -341,16 +341,19 @@ TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
  */
 TEST_SETUP( Full_MQTT_Agent )
 {
+    xDefaultConnectParameters.pucClientId = clientcredentialIOT_THING_NAME;
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 TEST_SETUP( Full_MQTT_Agent_Stress_Tests )
 {
+    xDefaultConnectParameters.pucClientId = clientcredentialIOT_THING_NAME;
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 TEST_SETUP( Full_MQTT_Agent_ALPN )
 {
+    xDefaultConnectParameters.pucClientId = clientcredentialIOT_THING_NAME;
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }

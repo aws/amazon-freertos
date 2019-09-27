@@ -556,18 +556,6 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     /* Decode the client certificate. */
     if( 0 == xResult )
     {
-        int i;
-        printf("Client Certifcate");
-        for (i = 0; i < xTemplate[0].ulValueLen; i++)
-        {
-            if ((i % 16) == 0)
-            {
-                printf("\n");
-            }
-            printf(" %02x", ((uint8_t*)(xTemplate[0].pValue))[i]);
-        }
-        printf("\n");
-
         xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509Cli,
                                           ( const unsigned char * ) pxCertificate,
                                           xTemplate[ 0 ].ulValueLen );
@@ -632,18 +620,6 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     /* Decode the JITR certificate. */
     if( 0 == xResult )
     {
-        int i;
-        printf("JITR Certifcate");
-        for (i = 0; i < xTemplate[0].ulValueLen; i++)
-        {
-            if ((i % 16) == 0)
-            {
-                printf("\n");
-            }
-            printf(" %02x", ((uint8_t*)(xTemplate[0].pValue))[i]);
-        }
-        printf("\n");
-
         xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509Cli,
                                           ( const unsigned char * ) pxCertificate,
                                           xTemplate[ 0 ].ulValueLen );

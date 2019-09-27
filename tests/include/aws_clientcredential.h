@@ -38,7 +38,8 @@
  *
  * @todo Set this to the unique name of your IoT Thing.
  */
-#define clientcredentialIOT_THING_NAME               ""
+extern const char* pcPkcs11GetThingName(void);
+#define clientcredentialIOT_THING_NAME               pcPkcs11GetThingName()
 
 /*
  * @brief Port number the MQTT broker is using.
