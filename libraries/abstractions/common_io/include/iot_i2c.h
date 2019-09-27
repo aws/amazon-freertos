@@ -429,7 +429,6 @@ int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
  *
  * @note eI2CSetSlaveAddr sets either 7-bit address or 10-bit address, according to hardware's capability.
  * This request expects 2 bytes buffer (uint16_t)
- * if 10-bit address is not supported, this function returns IOT_I2C_FUNCTION_NOT_SUPPORTED.
  *
  * @note eI2CGetTxNoOfbytes returns the number of written bytes in last transaction.
  * This is supposed to be called in the caller task or application callback, right after last transaction completes.
