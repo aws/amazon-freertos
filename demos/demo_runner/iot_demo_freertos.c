@@ -360,11 +360,10 @@ void runDemoTask( void * pArgument )
     }
 
     #ifdef democonfigMEMORY_ANALYSIS
-        xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( NULL );
-        IotLogInfo( "Demo Heap Total: %u Before: %u After: %u Usage: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize, ( xBeforeDemoHeapSize - xAfterDemoHeapSize ) );
+        IotLogInfo( "Demo Memory Analysis Heap Total: %u Before: %u After: %u Usage: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize, ( xBeforeDemoHeapSize - xAfterDemoHeapSize ) );
 
         xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-        IotLogInfo( "Demo Stack Total: %u Watermark Before: %u Watermark After: %u Watermark Difference: %u \r\n", xMemoryAnalysisStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark, ( xBeforeDemoTaskWaterMark - xAfterDemoTaskWaterMark ) );
+        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u Watermark After: %u Watermark Difference: %u \r\n", xMemoryAnalysisStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark, ( xBeforeDemoTaskWaterMark - xAfterDemoTaskWaterMark ) );
     #endif /* democonfigMEMORY_ANALYSIS */
 
     /* DO NOT EDIT - This demo end marker is used in the test framework to
