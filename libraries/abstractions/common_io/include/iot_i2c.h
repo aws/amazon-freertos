@@ -202,7 +202,6 @@ void iot_i2c_set_callback( IotI2CHandle_t const pxI2CPeripheral,
  *     - there is some unknown driver error
  * - IOT_I2C_BUS_TIMEOUT, if timeout is supported and slave device does not respond within configured timeout.
  * - IOT_I2C_BUSY, if the bus is busy which means there is an ongoing transaction.
- * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  *
  * <b>Example</b>
  * @code{c}
@@ -304,7 +303,6 @@ int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
  *     - there is some unknown driver error
  * - IOT_I2C_BUS_TIMEOUT, if timeout is supported and slave device does not respond within configured timeout.
  * - IOT_I2C_BUSY, if the bus is busy which means there is an ongoing transaction.
- * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  */
 int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
                             uint8_t * const pucBuffer,
@@ -345,7 +343,6 @@ int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
  *     - the slave is unable to receive or transmit
  *     - the slave gets data or commands that it does not understand
  *     - there is some unknown driver error
- * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  */
 int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
                             uint8_t * const pucBuffer,
@@ -387,7 +384,6 @@ int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
  *     - there is some unknown driver error
  * - IOT_I2C_BUS_TIMEOUT, if timeout is supported and slave device does not respond within configured timeout.
  * - IOT_I2C_BUSY, if the bus is busy which means there is an ongoing transaction.
- * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  */
 int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
                              uint8_t * const pucBuffer,
@@ -409,11 +405,10 @@ int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
  * @note eI2CGetBusState gets the current bus state.
  * This request expects buffer with size of IotI2CBusStatus_t.
  *
- * @note SendNoStopFlag is called at every operation you want to not send stop condition.
+ * @note eI2CSendNoStopFlag is called at every operation you want to not send stop condition.
  *
  * @note eI2CSetSlaveAddr sets either 7-bit address or 10-bit address, according to hardware's capability.
  * This request expects 2 bytes buffer (uint16_t)
- * if 10-bit address is not supported, this function returns IOT_I2C_FUNCTION_NOT_SUPPORTED.
  *
  * @note eI2CGetTxNoOfbytes returns the number of written bytes in last transaction.
  * This is supposed to be called in the caller task or application callback, right after last transaction completes.
@@ -438,7 +433,10 @@ int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
  *     - pxI2CPeripheral is NULL
  *     - pxI2CPeripheral is not opened yet
  *     - pucBuffer is NULL with requests which needs buffer
- * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
+ * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this feature.
+ *     - eI2CSetSlaveAddr: 10-bit address is not supported
+ *     - eI2CSendNoStopFlag: explicitly not sending stop condition is not supported
+ *     - eI2CBusReset: reset bus is not supported
  */
 int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral,
                        IotI2CIoctlRequest_t xI2CRequest,
