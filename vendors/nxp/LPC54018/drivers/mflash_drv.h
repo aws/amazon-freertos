@@ -70,6 +70,6 @@ static inline uint32_t mflash_drv_addr_to_sector_of(uint32_t addr)
 }
 
 int32_t mflash_drv_init(void);
-int32_t mflash_drv_write(void *any_addr, const uint8_t *data, uint32_t data_len);
+int32_t mflash_drv_write(void *any_addr, uint8_t *data, uint32_t data_len);
 
 #endif

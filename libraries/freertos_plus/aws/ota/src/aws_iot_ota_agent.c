@@ -67,18 +67,10 @@
 #define OTA_MAX_JSON_STR_LEN               256U             /* Limit our JSON string compares to something small to avoid going into the weeds. */
 #define OTA_ERASED_BLOCKS_VAL              0xffU            /* The starting state of a group of erased blocks in the Rx block bitmap. */
 #define OTA_MAX_FILES                      1U               /* [MUST REMAIN 1! Future support.] Maximum number of concurrent OTA files. */
-#ifdef configOTA_NUM_MSG_Q_ENTRIES
-    #define OTA_NUM_MSG_Q_ENTRIES          configOTA_NUM_MSG_Q_ENTRIES
-#else
-    #define OTA_NUM_MSG_Q_ENTRIES          2U               /* Maximum number of entries in the OTA message queue. */
-#endif
+#define OTA_NUM_MSG_Q_ENTRIES              2U               /* Maximum number of entries in the OTA message queue. */
 #define OTA_SUBSCRIBE_WAIT_MS              30000UL
 #define OTA_UNSUBSCRIBE_WAIT_MS            1000UL
-#ifdef configOTA_PUBLISH_WAIT_MS
-    #define OTA_PUBLISH_WAIT_MS            configOTA_PUBLISH_WAIT_MS
-#else
-    #define OTA_PUBLISH_WAIT_MS            10000UL
-#endif
+#define OTA_PUBLISH_WAIT_MS                10000UL
 #define OTA_SUBSCRIBE_WAIT_TICKS           pdMS_TO_TICKS( OTA_SUBSCRIBE_WAIT_MS )
 #define OTA_UNSUBSCRIBE_WAIT_TICKS         pdMS_TO_TICKS( OTA_UNSUBSCRIBE_WAIT_MS )
 #define OTA_PUBLISH_WAIT_TICKS             pdMS_TO_TICKS( OTA_SUBSCRIBE_WAIT_TICKS )

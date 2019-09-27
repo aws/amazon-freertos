@@ -58,7 +58,7 @@
 #define configTICK_RATE_HZ                           ( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES                         ( 7 )
 #define configMINIMAL_STACK_SIZE                     ( ( uint16_t ) 90 )
-#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 100 * 1024 ) )
+#define configTOTAL_HEAP_SIZE                        ( ( size_t ) ( 85 * 1024 ) )    /* 85 Kbytes. */
 #define configMAX_TASK_NAME_LEN                      ( 16 )
 #define configUSE_TRACE_FACILITY                     1
 #define configUSE_16_BIT_TICKS                       0
@@ -185,11 +185,6 @@
 #define configECHO_SERVER_ADDR2       2
 #define configECHO_SERVER_ADDR3       6
 #define configTCP_ECHO_CLIENT_PORT    7
-
-/* Maximum number of entries in the OTA message queue. Larger values reduce packet drops. */
-#define configOTA_NUM_MSG_Q_ENTRIES                   40U
-/* Frequency of OTA status updates published via MQTT */
-#define configOTA_PUBLISH_WAIT_MS                     80000UL
 
 /* Prevent the assembler seeing code it doesn't understand. */
 #if defined(__ICCARM__) || defined( __ARMCC_VERSION ) || defined( __GNUC__)
