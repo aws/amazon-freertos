@@ -16,7 +16,7 @@ endif()
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "curiosity_pic32mzef")
-    include("curiosity_pic32mzef.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/curiosity_pic32mzef.cmake")
 endif()
 
 # -------------------------------------------------------------------------------------------------
