@@ -24,7 +24,7 @@
  */
 
 /**
- * @file iot_uart.h
+ * @file IOT_UART.h
  * @brief File for the HAL APIs of UART called by application layer.
  */
 #ifndef _IOT_UART_H_
@@ -35,7 +35,7 @@
 #include <stdint.h>
 
 /**
- * @defgroup iot_uart UART Abstraction APIs.
+ * @defgroup IOT_UART UART Abstraction APIs.
  * @{
  */
 
@@ -47,26 +47,26 @@
 /**
  * @brief Error codes returned by every function module in UART HAL.
  */
-#define IOT_UART_SUCCESS                   ( 0 )
-#define IOT_UART_INVALID_VALUE             ( 1 )
-#define IOT_UART_WRITE_FAILED              ( 2 )
-#define IOT_UART_READ_FAILED               ( 3 )
-#define IOT_UART_BUSY                      ( 4 )
-#define IOT_UART_NOTHING_TO_CANCEL         ( 5 )
-#define IOT_UART_FUNCTION_NOT_SUPPORTED    ( 6 )
+#define IOT_UART_SUCCESS                   ( 0 ) /*!< UART operation completed successfully. */
+#define IOT_UART_INVALID_VALUE             ( 1 ) /*!< At least one parameter is invalid. */
+#define IOT_UART_WRITE_FAILED              ( 2 ) /*!< UART driver returns error when performing write operation. */
+#define IOT_UART_READ_FAILED               ( 3 ) /*!< UART driver returns error when performing read operation. */
+#define IOT_UART_BUSY                      ( 4 ) /*!< UART bus is busy at current time. */
+#define IOT_UART_NOTHING_TO_CANCEL         ( 5 ) /*!< No ongoing receiving or transmitting when cancel operation is performed. */
+#define IOT_UART_FUNCTION_NOT_SUPPORTED    ( 6 ) /*!< UART operation is not supported. */
 
 /**
  * @brief UART read/write operation status values
  */
 typedef enum
 {
-    eUartCompleted = IOT_UART_SUCCESS,
-    eUartLastWriteFailed = IOT_UART_WRITE_FAILED,
-    eUartLastReadFailed = IOT_UART_READ_FAILED,
+    eUartCompleted = IOT_UART_SUCCESS,            /*!< UART operation completed successfully. */
+    eUartLastWriteFailed = IOT_UART_WRITE_FAILED, /*!< UART driver returns error when performing write operation. */
+    eUartLastReadFailed = IOT_UART_READ_FAILED,   /*!< UART driver returns error when performing read operation. */
 } IotUARTOperationStatus_t;
 
 /**
- * @brief UART callback.
+ * @brief The callback function for completion of UART operation.
  *
  * @param[out] xStatus      UART asynchronous operation status.
  * @param[in] pvUserContext User Context passed when setting the callback.
@@ -74,7 +74,8 @@ typedef enum
  *                          is provided by the caller when setting the callback, and is
  *                          passed back to the caller in the callback.
  */
-typedef void ( * IotUARTCallback_t )( IotUARTOperationStatus_t xStatus ,  void * pvUserContext );
+typedef void ( * IotUARTCallback_t )( IotUARTOperationStatus_t xStatus,
+                                      void * pvUserContext );
 
 
 /**
@@ -83,11 +84,11 @@ typedef void ( * IotUARTCallback_t )( IotUARTOperationStatus_t xStatus ,  void *
 struct                       IotUARTDescriptor_t;
 
 /**
- * @brief IotUARTHandle_t is the handle type returned by calling iot_uart_open().
+ * @brief IotUARTHandle_t is the handle type returned by calling IOT_UART_open().
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
-typedef struct IotUARTDescriptor_t   * IotUARTHandle_t;
+typedef struct IotUARTDescriptor_t * IotUARTHandle_t;
 
 /**
  * @brief Ioctl requests for UART HAL.
@@ -116,40 +117,51 @@ typedef struct
 } IotUARTConfig_t;
 
 /**
- * @brief Initializes the UART peripheral of the board with default configuration.
+ * @brief Initializes the UART peripheral of the board.
  *
  * The application should call this function to initialize the desired UART port.
  *
+ * @warning Once opened, the same UART instance must be closed before calling open again.
+ *
  * @param[in] lUartInstance The instance of the UART port to initialize.
  *
- * @return handle to the UART if everything succeeds, otherwise NULL.
+ * @return
+ * - 'the handle to the UART port (not NULL)', on success.
+ * - 'NULL', if
+ *     - invalid instance number
+ *     - open same instance more than once before closing it
  */
-IotUARTHandle_t iot_uart_open( int32_t lUartInstance );
+IotUARTHandle_t IOT_UART_open( int32_t lUartInstance );
 
 /**
  * @brief Sets the application callback to be called on completion of an operation.
  *
- * On completion of receive or transmit on UART, the application is notified with a
- * function callback with the state of the transaction. The callback function and the parameters
- * for the state of the callback are set using iot_uart_set_callback.
- * The application should call this function with the callback function and its parameters.
+ * The callback is guaranteed to be invoked when the current asynchronous operation completes, either successful or failed.
+ * This simply provides a notification mechanism to user's application. It has no impact if the callback is not set.
+ *
+ * @note This callback will not be invoked when synchronous operation completes.
+ * @note This callback is per handle. Each instance has its own callback.
+ * @note Single callback is used for both read_async and write_async. Newly set callback overrides the one previously set.
+ * @warning If the input handle is invalid, this function silently takes no action.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  * @param[in] xCallback The callback function to be called on completion of transaction.
  * @param[in] pvUserContext The user context to be passed back when callback is called.
  */
-void iot_uart_set_callback( IotUARTHandle_t const pxUartPeripheral,
+void IOT_UART_set_callback( IotUARTHandle_t const pxUartPeripheral,
                             IotUARTCallback_t xCallback,
                             void * pvUserContext );
 
 /**
- * @brief Starts receiving the data from UART synchronously i.e. this is a
- * blocking call.
+ * @brief Starts receiving the data from UART synchronously.
  *
- * The application should call this function to start synchronous read.
- * The application should also give the address of the buffer to read the data
- * into with number of bytes to read. If the number of bytes is not known,
- * the application reads one byte at a time.
+ * This function attempts to read certain number of bytes from slave device to a pre-allocated buffer, in synchronous way.
+ * Partial read might happen, e.g. no more data is available.
+ * And the number of bytes that have been actually read can be obtained by calling iot_uart_ioctl.
+ *
+ * @note If the number of bytes is not known, it is recommended that the application reads one byte at a time.
+ *
+ * @warning None of other read or write functions shall be called during this function.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  * @param[out] pvBuffer The buffer to store the received data.
@@ -157,73 +169,132 @@ void iot_uart_set_callback( IotUARTHandle_t const pxUartPeripheral,
  *
  * @return IOT_UART_SUCCESS on successful completion of synchronous read,
  *         else one of the IOT_UART_INVALID_VALUE, IOT_UART_BUSY, IOT_UART_READ_FAILED  on error.
+ * @return
+ * - IOT_UART_SUCCESS, on success (all the requested bytes have been read)
+ * - IOT_UART_INVALID_VALUE, if
+ *     - pxUartPeripheral is NULL
+ *     - pxUartPeripheral is not opened yet
+ *     - pucBuffer is NULL
+ *     - xBytes is 0
+ * - IOT_UART_READ_FAILED, if there is unknown driver error
+ * - IOT_UART_BUSY, if the bus is busy which means there is an ongoing operation.
  */
-int32_t iot_uart_read_sync( IotUARTHandle_t const pxUartPeripheral,
+int32_t IOT_UART_read_sync( IotUARTHandle_t const pxUartPeripheral,
                             uint8_t * const pvBuffer,
                             size_t xBytes );
 
 /**
- * @brief Starts the transmission of data from UART synchronously i.e. this is a
- * blocking call.
+ * @brief Starts the transmission of data from UART synchronously.
  *
- * The application should call this function to start synchronous write.
- * The application should also give the address of the buffer to send the data
- * from with number of bytes to write.
+ * This function attempts to write certain number of bytes from a pre-allocated buffer to a slave device, in synchronous way.
+ * Partial write might happen, e.g. slave device unable to receive more data.
+ * And the number of bytes that have been actually written can be obtained by calling iot_uart_ioctl.
+ *
+ * @warning None of other read or write functions shall be called during this function.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  * @param[in] pvBuffer The buffer with data to transmit.
  * @param[in] xBytes The number of bytes to send.
  *
- * @return IOT_UART_SUCCESS on successful completion of synchronous write,
- *         else one of the IOT_UART_INVALID_VALUE, IOT_UART_BUSY, IOT_UART_WRITE_FAILED on error.
+ * @return
+ * - IOT_UART_SUCCESS, on success (all the requested bytes have been read)
+ * - IOT_UART_INVALID_VALUE, if
+ *     - pxUartPeripheral is NULL
+ *     - pxUartPeripheral is not opened yet
+ *     - pucBuffer is NULL
+ *     - xBytes is 0
+ * - IOT_UART_WRITE_FAILED, if there is unknown driver error
+ * - IOT_UART_BUSY, if the bus is busy which means there is an ongoing operation.
  */
-int32_t iot_uart_write_sync( IotUARTHandle_t const pxUartPeripheral,
+int32_t IOT_UART_write_sync( IotUARTHandle_t const pxUartPeripheral,
                              uint8_t * const pvBuffer,
                              size_t xBytes );
 
 /**
  * @brief Starts receiving the data from UART asynchronously.
  *
- * The application should call this function to start asynchronous read.
- * The application should also give the address of the buffer to read into with
- * number of bytes to read. If the number of bytes is not known, the application
- * reads one byte at a time.
+ * This function attempts to read certain number of bytes from a pre-allocated buffer, in asynchronous way.
+ * It returns immediately when the operation is started and the status can be check by calling iot_uart_ioctl.
+ * Once the operation completes, successful or not, the user callback will be invoked.
+ *
+ * Partial read might happen.
+ * And the number of bytes that have been actually read can be obtained by calling iot_uart_ioctl.
+ *
+ * @note In order to get notification when the asynchronous call is completed, IOT_UART_set_callback must be called prior to this.
+ * @warning pucBuffer must be valid before callback is invoked.
+ * @warning None of other read or write functions shall be called during this function or before user callback.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  * @param[out] pvBuffer The buffer to store the received data.
  * @param[in] xBytes The number of bytes to read.
  *
- * @return IOT_UART_SUCCESS on successful start of asynchronous read,
- *         else one of the IOT_UART_INVALID_VALUE, IOT_UART_BUSY on error.
+ * @return
+ * - IOT_UART_SUCCESS, on success
+ * - IOT_UART_INVALID_VALUE, if
+ *     - pxUartPeripheral is NULL
+ *     - pxUartPeripheral is not opened yet
+ *     - pucBuffer is NULL
+ *     - xBytes is 0
+ * - IOT_UART_READ_FAILED, if there is unknown driver error
  */
-int32_t iot_uart_read_async( IotUARTHandle_t const pxUartPeripheral,
+int32_t IOT_UART_read_async( IotUARTHandle_t const pxUartPeripheral,
                              uint8_t * const pvBuffer,
                              size_t xBytes );
 
 /**
  * @brief Starts the transmission of data from UART asynchronously.
  *
- * The application should call this function to start asynchronous write.
- * The application should also give the address of the buffer to send the data
- * from; with number of bytes to write.
+ * This function attempts to write certain number of bytes from a pre-allocated buffer to a slave device, in asynchronous way.
+ * It returns immediately when the operation is started and the status can be check by calling iot_uart_ioctl.
+ * Once the operation completes, successful or not, the user callback will be invoked.
+ *
+ * Partial write might happen.
+ * And the number of bytes that have been actually written can be obtained by calling iot_uart_ioctl.
+ *
+ * @note In order to get notification when the asynchronous call is completed, iot_uart_set_callback must be called prior to this.
+ *
+ * @warning None of other read or write functions shall be called during this function.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  * @param[in] pvBuffer The buffer with data to transmit.
  * @param[in] xBytes The number of bytes to send.
  *
- * @return IOT_UART_SUCCESS on successful start of asynchronous write,
- *         else one of the IOT_UART_INVALID_VALUE, IOT_UART_BUSY on error.
+ * @return
+ * - IOT_UART_SUCCESS, on success
+ * - IOT_UART_INVALID_VALUE, if
+ *     - pxUartPeripheral is NULL
+ *     - pxUartPeripheral is not opened yet
+ *     - pucBuffer is NULL
+ *     - xBytes is 0
+ * - IOT_UART_WRITE_FAILED, if there is unknown driver error
  */
-int32_t iot_uart_write_async( IotUARTHandle_t const pxUartPeripheral,
+int32_t IOT_UART_write_async( IotUARTHandle_t const pxUartPeripheral,
                               uint8_t * const pvBuffer,
                               size_t xBytes );
 
 /**
  * @brief Configures the UART port with user configuration.
  *
- * The application should call this function to configure the UART port
- * with values in the structure IotUARTConfig_t. The application also
- * needs to specify the request which is as per the enum IotUARTIoctlRequest_t.
+ *
+ * @note eUartSetConfig sets the UART configuration.
+ * This request expects the buffer with size of IotUARTConfig_t.
+ *
+ * @note eUartGetConfig gets the current UART configuration.
+ * This request expects the buffer with size of IotUARTConfig_t.
+ *
+ * @note eGetTxNoOfbytes returns the number of written bytes in last operation.
+ * This is supposed to be called in the caller task or application callback, right after last operation completes.
+ * This request expects 2 bytes buffer (uint16_t).
+ *
+ * - If the last operation was write, this returns the actual number of written bytes which might be smaller than the requested number (partial write).
+ * - If the last operation was read, this returns 0.
+ *
+ * @note eGetRxNoOfbytes returns the number of read bytes in last operation.
+ * This is supposed to be called in the caller task or application callback, right after last operation completes.
+ * This request expects 2 bytes buffer (uint16_t).
+ *
+ * - If the last operation was read, this returns the actual number of read bytes which might be smaller than the requested number (partial read).
+ * - If the last operation was write, this returns 0.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  * @param[in] xUartRequest The configuration request. Should be one of the values
@@ -233,41 +304,54 @@ int32_t iot_uart_write_async( IotUARTHandle_t const pxUartPeripheral,
  * @return IOT_UART_SUCCESS on successful configuartion of UART port,
  *         else one of the IOT_UART_INVALID_VALUE, IOT_UART_BUSY,
  *         IOT_UART_FUNCTION_NOT_SUPPORTED on error.
+ * @return
+ * - IOT_UART_SUCCESS, on success
+ * - IOT_UART_INVALID_VALUE, if
+ *     - pxUartPeripheral is NULL
+ *     - pxUartPeripheral is not opened yet
+ *     - pucBuffer is NULL with requests which needs buffer
+ * - IOT_UART_FUNCTION_NOT_SUPPORTED, if this board doesn't support this feature.
+ *     - eUartSetConfig: specific configuration is not supported
  */
 int32_t iot_uart_ioctl( IotUARTHandle_t const pxUartPeripheral,
                         IotUARTIoctlRequest_t xUartRequest,
                         void * const pvBuffer );
 
 /**
- * @brief Aborts the transaction on the UART port if any underlying driver allows
- * cancellation of the transaction.
+ * @brief Aborts the operation on the UART port if any underlying driver allows
+ * cancellation of the operation.
  *
- * The application should call this function to stop the ongoing transaction.
+ * The application should call this function to stop the ongoing operation.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  *
- * @return IOT_UART_SUCCESS on successful cancellation of the operation,
- *         else one of IOT_UART_INVALID_VALUE or
- *         or IOT_UART_FUNCTION_NOT_SUPPORTED, IOT_UART_NOTHING_TO_CANCEL
+ * @return
+ * - IOT_UART_SUCCESS, on success
+ * - IOT_UART_INVALID_VALUE, if
+ *     - pxUartPeripheral is NULL
+ *     - pxUartPeripheral is not opened yet
+ * - IOT_UART_NOTHING_TO_CANCEL, if there is no on-going transaction.
+ * - IOT_UART_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  */
-int32_t iot_uart_cancel( IotUARTHandle_t const pxUartPeripheral );
+int32_t IOT_UART_cancel( IotUARTHandle_t const pxUartPeripheral );
 
 /**
- * @brief Stops the transmission and de-initializes the UART peripheral.
+ * @brief Stops the operation and de-initializes the UART peripheral.
  *
- * The application should call this function to stop the ongoing transaction
- * and de-initialize the UART port.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
  *
- * @return IOT_UART_SUCCESS on stop and deinitialization,
- *         IOT_UART_INVALID_VALUE on error.
+ * @return
+ * - IOT_UART_SUCCESS, on success
+ * - IOT_UART_INVALID_VALUE, if
+ *     - pxUartPeripheral is NULL
+ *     - pxUartPeripheral is not opened yet
  */
-int32_t iot_uart_close( IotUARTHandle_t const pxUartPeripheral );
+int32_t IOT_UART_close( IotUARTHandle_t const pxUartPeripheral );
 
 
 /**
  * @}
  */
-/* end of group iot_uart */
+/* end of group IOT_UART */
 #endif /* _IOT_UART_H_ */
