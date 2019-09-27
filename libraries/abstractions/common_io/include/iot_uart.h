@@ -24,7 +24,7 @@
  */
 
 /**
- * @file IOT_UART.h
+ * @file iot_uart.h
  * @brief File for the HAL APIs of UART called by application layer.
  */
 #ifndef _IOT_UART_H_
@@ -84,7 +84,7 @@ typedef void ( * IotUARTCallback_t )( IotUARTOperationStatus_t xStatus,
 struct                       IotUARTDescriptor_t;
 
 /**
- * @brief IotUARTHandle_t is the handle type returned by calling IOT_UART_open().
+ * @brief IotUARTHandle_t is the handle type returned by calling iot_uart_open().
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
@@ -131,7 +131,7 @@ typedef struct
  *     - invalid instance number
  *     - open same instance more than once before closing it
  */
-IotUARTHandle_t IOT_UART_open( int32_t lUartInstance );
+IotUARTHandle_t iot_uart_open( int32_t lUartInstance );
 
 /**
  * @brief Sets the application callback to be called on completion of an operation.
@@ -148,7 +148,7 @@ IotUARTHandle_t IOT_UART_open( int32_t lUartInstance );
  * @param[in] xCallback The callback function to be called on completion of transaction.
  * @param[in] pvUserContext The user context to be passed back when callback is called.
  */
-void IOT_UART_set_callback( IotUARTHandle_t const pxUartPeripheral,
+void iot_uart_set_callback( IotUARTHandle_t const pxUartPeripheral,
                             IotUARTCallback_t xCallback,
                             void * pvUserContext );
 
@@ -179,7 +179,7 @@ void IOT_UART_set_callback( IotUARTHandle_t const pxUartPeripheral,
  * - IOT_UART_READ_FAILED, if there is unknown driver error
  * - IOT_UART_BUSY, if the bus is busy which means there is an ongoing operation.
  */
-int32_t IOT_UART_read_sync( IotUARTHandle_t const pxUartPeripheral,
+int32_t iot_uart_read_sync( IotUARTHandle_t const pxUartPeripheral,
                             uint8_t * const pvBuffer,
                             size_t xBytes );
 
@@ -206,7 +206,7 @@ int32_t IOT_UART_read_sync( IotUARTHandle_t const pxUartPeripheral,
  * - IOT_UART_WRITE_FAILED, if there is unknown driver error
  * - IOT_UART_BUSY, if the bus is busy which means there is an ongoing operation.
  */
-int32_t IOT_UART_write_sync( IotUARTHandle_t const pxUartPeripheral,
+int32_t iot_uart_write_sync( IotUARTHandle_t const pxUartPeripheral,
                              uint8_t * const pvBuffer,
                              size_t xBytes );
 
@@ -220,7 +220,7 @@ int32_t IOT_UART_write_sync( IotUARTHandle_t const pxUartPeripheral,
  * Partial read might happen.
  * And the number of bytes that have been actually read can be obtained by calling iot_uart_ioctl.
  *
- * @note In order to get notification when the asynchronous call is completed, IOT_UART_set_callback must be called prior to this.
+ * @note In order to get notification when the asynchronous call is completed, iot_uart_set_callback must be called prior to this.
  * @warning pucBuffer must be valid before callback is invoked.
  * @warning None of other read or write functions shall be called during this function or before user callback.
  *
@@ -237,7 +237,7 @@ int32_t IOT_UART_write_sync( IotUARTHandle_t const pxUartPeripheral,
  *     - xBytes is 0
  * - IOT_UART_READ_FAILED, if there is unknown driver error
  */
-int32_t IOT_UART_read_async( IotUARTHandle_t const pxUartPeripheral,
+int32_t iot_uart_read_async( IotUARTHandle_t const pxUartPeripheral,
                              uint8_t * const pvBuffer,
                              size_t xBytes );
 
@@ -268,7 +268,7 @@ int32_t IOT_UART_read_async( IotUARTHandle_t const pxUartPeripheral,
  *     - xBytes is 0
  * - IOT_UART_WRITE_FAILED, if there is unknown driver error
  */
-int32_t IOT_UART_write_async( IotUARTHandle_t const pxUartPeripheral,
+int32_t iot_uart_write_async( IotUARTHandle_t const pxUartPeripheral,
                               uint8_t * const pvBuffer,
                               size_t xBytes );
 
@@ -333,7 +333,7 @@ int32_t iot_uart_ioctl( IotUARTHandle_t const pxUartPeripheral,
  * - IOT_UART_NOTHING_TO_CANCEL, if there is no on-going transaction.
  * - IOT_UART_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  */
-int32_t IOT_UART_cancel( IotUARTHandle_t const pxUartPeripheral );
+int32_t iot_uart_cancel( IotUARTHandle_t const pxUartPeripheral );
 
 /**
  * @brief Stops the operation and de-initializes the UART peripheral.
@@ -347,7 +347,7 @@ int32_t IOT_UART_cancel( IotUARTHandle_t const pxUartPeripheral );
  *     - pxUartPeripheral is NULL
  *     - pxUartPeripheral is not opened yet
  */
-int32_t IOT_UART_close( IotUARTHandle_t const pxUartPeripheral );
+int32_t iot_uart_close( IotUARTHandle_t const pxUartPeripheral );
 
 
 /**
