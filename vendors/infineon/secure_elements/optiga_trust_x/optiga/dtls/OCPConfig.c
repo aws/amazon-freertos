@@ -31,7 +31,7 @@
 */
 #include "optiga/dtls/DtlsTransportLayer.h"
 #include "optiga/dtls/DtlsHandshakeProtocol.h" //To be put under ifdef
-#include "optiga/dtls/DtlsRecordlayer.h"
+#include "optiga/dtls/DtlsRecordLayer.h"
 #include "optiga/dtls/HardwareCrypto.h"
 #include "optiga/optiga_dtls.h"
 
