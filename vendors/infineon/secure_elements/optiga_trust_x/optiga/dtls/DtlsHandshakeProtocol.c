@@ -34,7 +34,7 @@
 #include "optiga/dtls/AlertProtocol.h"
 #include "optiga/optiga_dtls.h"
 #include "optiga/dtls/DtlsRecordLayer.h"
-#include "optiga/dtls/DtlsFlightHandler.h"
+#include "optiga/dtls/DtlsFlighthandler.h"
 
 #ifdef MODULE_ENABLE_DTLS_MUTUAL_AUTH
 
