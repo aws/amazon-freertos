@@ -1411,6 +1411,7 @@ void _listNetworkTask( IotTaskPool_t taskPool,
     WIFINetworkProfile_t profile;
     uint16_t idx;
     WIFIReturnCode_t status;
+    uint32_t networks_found = 0;
 
     for( idx = 0; idx < wifiProvisioning.numNetworks; idx++ )
     {
@@ -1426,7 +1427,6 @@ void _listNetworkTask( IotTaskPool_t taskPool,
 
     status = WIFI_Scan( scanNetworks, wifiProvisioning.listNetworkRequest.maxNetworks );
 
-    uint32_t networks_found = 0;
     if( status == eWiFiSuccess )
     {
         for( idx = 0; idx < wifiProvisioning.listNetworkRequest.maxNetworks; idx++ )
