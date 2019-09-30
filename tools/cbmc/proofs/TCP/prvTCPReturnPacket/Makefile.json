@@ -1,0 +1,23 @@
+{
+  "ENTRY": "TCPReturnPacket",
+  "RX_MESSAGES":1,
+  "CBMCFLAGS":
+  [
+    "--unwind 1",
+    "--nondet-static"
+  ],
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.goto"
+  ],
+  "DEF":
+  [
+    "ipconfigUSE_LINKED_RX_MESSAGES={RX_MESSAGES}",
+    "FREERTOS_TCP_ENABLE_VERIFICATION"
+  ],
+  "INC":
+  [
+    "$(FREERTOS)/tools/cbmc/include"
+  ]
+}
