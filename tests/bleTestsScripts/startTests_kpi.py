@@ -59,7 +59,7 @@ def main():
             bleAdapter.startDiscovery(runTest.discoveryStartedCb)   #wait for DUT to start advertising
         tStartScan = time.time()
         runTest.mainloop.run()
-        startToReceived = time.time() - tStartScan  
+        startToReceived = time.time() - tStartScan
         bleAdapter.stopDiscovery()
 
         testDevice = runTest.getTestDevice()
