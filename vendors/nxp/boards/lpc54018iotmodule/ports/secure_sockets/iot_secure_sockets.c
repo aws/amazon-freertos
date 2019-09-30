@@ -261,7 +261,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     TLSParams_t xTLSParams = { 0 };
     SOCKADDR_T xTempAddress = { 0 };
 
-    if( ( SOCKETS_INVALID_SOCKET != pxContext ) && ( NULL != pxAddress ) && WIFI_IsConnected())
+    if( ( SOCKETS_INVALID_SOCKET != pxContext ) && ( NULL != pxAddress ) && WIFI_IsConnected() )
     {
         /* Connect the wrapped socket. */
 
@@ -474,6 +474,204 @@ int32_t SOCKETS_Send( Socket_t xSocket,
 }
 /*-----------------------------------------------------------*/
 
+#if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 )
+    int32_t SOCKETS_Bind( Socket_t xSocket,
+                          const SocketsSockaddr_t * pxAddress,
+                          Socklen_t xAddressLength )
+    {
+        int32_t xStatus = SOCKETS_ERROR_NONE;
+        SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
+        SOCKADDR_T xTempAddress = { 0 };
+
+        if( ( SOCKETS_INVALID_SOCKET != pxContext ) && ( NULL != pxAddress ) && WIFI_IsConnected() )
+        {
+            /* The driver code expects the endianess of the address and port in host order and then swaps before
+             * sending the connection data to the firmware. */
+            xTempAddress.sin_addr.s_addr = SOCKETS_ntohl( pxAddress->ulAddress );
+            xTempAddress.sin_family = pxAddress->ucSocketDomain;
+            xTempAddress.sin_port = SOCKETS_ntohs( pxAddress->usPort );
+            xStatus = qcom_bind( ( int ) pxContext->xSocket,
+                                 ( struct sockaddr * ) &xTempAddress,
+                                 xAddressLength );
+
+            /* Keep socket state - connected */
+            if( SOCKETS_ERROR_NONE == xStatus )
+            {
+                pxContext->ulState |= nxpsecuresocketsSOCKET_CONNECTED_FLAG;
+            }
+        }
+        else
+        {
+            xStatus = SOCKETS_SOCKET_ERROR;
+        }
+
+        return xStatus;
+    }
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_SendTo( Socket_t xSocket,
+                            const void * pvBuffer,
+                            size_t xDataLength,
+                            uint32_t ulFlags,
+                            const SocketsSockaddr_t * pxAddress,
+                            Socklen_t xAddressLength )
+    {
+        /* The WiFi module refuses to send data if it exceeds this threshold defined in
+         * atheros_stack_offload.h */
+        int32_t lStatus = 0;
+        SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
+        SOCKADDR_T xTempAddress = { 0 };
+        char * sendBuf = NULL;
+
+        if( ( SOCKETS_INVALID_SOCKET != pxContext ) &&
+            ( NULL != pvBuffer ) &&
+            ( NULL != pxAddress ) &&
+            ( ( uint32_t ) 0 != pxAddress->ulAddress ) )
+        {
+            if( !( nxpsecuresocketsSOCKET_WRITE_CLOSED_FLAG & pxContext->xShutdownFlags ) )
+            {
+                xTempAddress.sin_addr.s_addr = SOCKETS_ntohl( pxAddress->ulAddress );
+                xTempAddress.sin_family = pxAddress->ucSocketDomain;
+                xTempAddress.sin_port = SOCKETS_ntohs( pxAddress->usPort );
+
+                sendBuf = custom_alloc( xDataLength );
+
+                if( sendBuf != NULL )
+                {
+                    memcpy( sendBuf, pvBuffer, xDataLength );
+                    lStatus = qcom_sendto( ( int ) pxContext->xSocket,
+                                           sendBuf,
+                                           xDataLength,
+                                           0,
+                                           ( struct sockaddr * ) &xTempAddress,
+                                           ( int ) xAddressLength );
+                    custom_free( sendBuf );
+
+                    if( lStatus < 0 )
+                    {
+                        /* Set the error code to be returned */
+                        lStatus = SOCKETS_SOCKET_ERROR;
+                    }
+                }
+                else
+                {
+                    /* Error: TX buffer allocation failure */
+                    lStatus = SOCKETS_ENOMEM;
+                }
+            }
+            else
+            {
+                /* Error: Socket closed for write */
+                lStatus = SOCKETS_ECLOSED;
+            }
+        }
+        else
+        {
+            /* Error: Invalid parameter */
+            lStatus = SOCKETS_EINVAL;
+        }
+
+        return lStatus;
+    }
+/*-----------------------------------------------------------*/
+
+    int32_t SOCKETS_RecvFrom( Socket_t xSocket,
+                              void * pvBuffer,
+                              size_t xDataLength,
+                              uint32_t ulFlags,
+                              SocketsSockaddr_t * pxAddress,
+                              Socklen_t * xAddressLength )
+    {
+        TickType_t xTimeOnEntering = xTaskGetTickCount();
+        int32_t lStatus = SOCKETS_ERROR_NONE;
+        SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
+        SOCKADDR_T xTempAddress = { 0 };
+        char * buffLoc = NULL;
+        QCA_CONTEXT_STRUCT * enetCtx = wlan_get_context();
+        A_STATUS xSelectStatus;
+
+        if( ( SOCKETS_INVALID_SOCKET != xSocket ) &&
+            ( NULL != pvBuffer ) &&
+            ( NULL != pxAddress ) )
+        {
+            if( !( nxpsecuresocketsSOCKET_READ_CLOSED_FLAG & pxContext->xShutdownFlags ) )
+            {
+                pxContext->xRecvFlags = ( BaseType_t ) ulFlags;
+
+                for( ; ; )
+                {
+                    /* Check if there is anything to be received on this socket. */
+                    xSelectStatus = ( A_STATUS ) t_select( enetCtx,
+                                                           ( uint32_t ) pxContext->xSocket,
+                                                           nxpsecuresocketsONE_MILLISECOND );
+
+                    if( xSelectStatus == A_OK )
+                    {
+                        lStatus = qcom_recvfrom( ( int ) pxContext->xSocket,
+                                                 &buffLoc,
+                                                 xDataLength,
+                                                 pxContext->xRecvFlags,
+                                                 ( struct sockaddr * ) &xTempAddress,
+                                                 ( socklen_t * ) &xAddressLength );
+
+                        if( lStatus >= 0 )
+                        {
+                            if( buffLoc != NULL )
+                            {
+                                memcpy( pvBuffer, buffLoc, lStatus );
+                                zero_copy_free( buffLoc );
+                            }
+
+                            pxAddress->ulAddress = SOCKETS_htonl( xTempAddress.sin_addr.s_addr );
+                            pxAddress->ucSocketDomain = xTempAddress.sin_family;
+                            pxAddress->ucLength = ( uint8_t ) sizeof( *pxAddress );
+                            pxAddress->usPort = SOCKETS_htons( xTempAddress.sin_port );
+                            *xAddressLength = sizeof( SocketsSockaddr_t );
+                            break;
+                        }
+                        else
+                        {
+                            lStatus = SOCKETS_SOCKET_ERROR;
+                            break;
+                        }
+                    }
+                    else if( xSelectStatus == A_ERROR )
+                    {
+                        if( ( xTaskGetTickCount() - xTimeOnEntering ) < pxContext->ulRecvTimeout )
+                        {
+                            vTaskDelay( nxpsecuresocketsFIVE_MILLISECONDS );
+                        }
+                        else
+                        {
+                            lStatus = SOCKETS_SOCKET_ERROR;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        lStatus = SOCKETS_SOCKET_ERROR;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                /* Error: Socket closed for read */
+                lStatus = SOCKETS_ECLOSED;
+            }
+        }
+        else
+        {
+            /* Error: Invalid parameter */
+            lStatus = SOCKETS_EINVAL;
+        }
+
+        return lStatus;
+    }
+
+/*-----------------------------------------------------------*/
+#endif /* if ( configPLATFORM_SOCKET_UDP_SUPPORT == 1 ) */
+
 int32_t SOCKETS_SetSockOpt( Socket_t xSocket,
                             int32_t lLevel,
                             int32_t lOptionName,
@@ -684,8 +882,8 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
 
     /* Ensure that only supported values are supplied. */
     configASSERT( lDomain == SOCKETS_AF_INET );
-    configASSERT( lType == SOCKETS_SOCK_STREAM );
-    configASSERT( lProtocol == SOCKETS_IPPROTO_TCP );
+    configASSERT( ( lType == SOCKETS_SOCK_STREAM ) || ( lType == SOCKETS_SOCK_DGRAM ) );
+    configASSERT( ( lProtocol == SOCKETS_IPPROTO_TCP ) || ( lProtocol == SOCKETS_IPPROTO_UDP ) );
 
     /* Allocate the internal context structure. */
     pxContext = pvPortMalloc( sizeof( SSOCKETContext_t ) );
@@ -694,10 +892,24 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
     {
         memset( pxContext, 0, sizeof( SSOCKETContext_t ) );
 
-        /* Create the wrapped socket. */
-        xSocket = qcom_socket( ATH_AF_INET,
-                               SOCK_STREAM_TYPE,
-                               0 ); /*xProtocol*/
+        if( lProtocol == SOCKETS_IPPROTO_TCP )
+        {
+            /* Create the wrapped socket. */
+            xSocket = qcom_socket( ATH_AF_INET,
+                                   SOCK_STREAM_TYPE,
+                                   0 ); /*xProtocol*/
+        }
+        else if( lProtocol == SOCKETS_IPPROTO_UDP )
+        {
+            /* Create the wrapped socket. */
+            xSocket = qcom_socket( ATH_AF_INET,
+                                   SOCK_DGRAM_TYPE,
+                                   0 ); /*xProtocol*/
+        }
+        else
+        {
+            xSocket = A_ERROR;
+        }
 
         if( xSocket != A_ERROR )
         {

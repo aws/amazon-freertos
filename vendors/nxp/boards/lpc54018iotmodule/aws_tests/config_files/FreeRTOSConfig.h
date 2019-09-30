@@ -208,4 +208,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* The platform FreeRTOS is running on. */
 #define configPLATFORM_NAME    "NXPLPC54018"
 
+/* The platform has UDP socket layer implemented */
+#define configPLATFORM_SOCKET_UDP_SUPPORT    ( 1 )
+
 #endif /* FREERTOS_CONFIG_H */
