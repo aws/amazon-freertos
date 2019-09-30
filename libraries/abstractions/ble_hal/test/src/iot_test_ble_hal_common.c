@@ -461,7 +461,7 @@ void IotTestBleHal_StartService( BTService_t * xRefSrvc )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStartServiceCb.xStatus );
 }
 
-static size_t prvComputeNumberOfHandles( BTService_t * pxService )
+size_t IotTestBleHal_ComputeNumberOfHandles( BTService_t * pxService )
 {
     size_t xIndex;
     size_t nbHandles = 0;
@@ -488,7 +488,7 @@ static void prvCreateService( BTService_t * xRefSrvc )
     BTStatus_t xStatus = eBTStatusSuccess;
     BTGattSrvcId_t xSrvcId;
 
-    uint16_t usNumHandles = prvComputeNumberOfHandles( xRefSrvc );
+    uint16_t usNumHandles = IotTestBleHal_ComputeNumberOfHandles( xRefSrvc );
 
     xSrvcId.xId.ucInstId = xRefSrvc->ucInstId;
     xSrvcId.xId.xUuid = xRefSrvc->pxBLEAttributes[ 0 ].xServiceUUID;

@@ -265,7 +265,11 @@ BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    if( xGattServerCb.pxRegisterServerCb != NULL )
+    {
+        xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    }
+    
     return xStatus;
 }
 

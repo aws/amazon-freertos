@@ -47,6 +47,77 @@ extern BTService_t _xSrvcA;
 extern BTService_t _xSrvcB;
 extern uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
 extern response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
+extern BTGattAdvertismentParams_t xAdvertisementConfigA;
+extern BTGattAdvertismentParams_t xAdvertisementConfigB;
+extern BTUuid_t xServerUUID;
+extern BTUuid_t xAppUUID;
+
+BTCallbacks_t _xBTManager_NULL_Cb =
+{
+    .pxDeviceStateChangedCb     = prvDeviceStateChangedCb,
+    .pxAdapterPropertiesCb      = NULL,//prvAdapterPropertiesCb,
+    .pxRemoteDevicePropertiesCb = NULL,
+    .pxSspRequestCb             = NULL,//prvSspRequestCb,
+    .pxPairingStateChangedCb    = NULL,//prvPairingStateChangedCb,
+    .pxBondedCb                 = NULL,//prvBondedCb,
+    .pxDutModeRecvCb            = NULL,
+    .pxleTestModeCb             = NULL,
+    .pxEnergyInfoCb             = NULL,
+    .pxReadRssiCb               = NULL,
+    .pxTxPowerCb                = NULL,
+    .pxSlaveSecurityRequestCb   = NULL,
+};
+
+BTBleAdapterCallbacks_t _xBTBleAdapter_NULL_Cb =
+{
+    .pxRegisterBleAdapterCb          = NULL,
+    .pxScanResultCb                  = NULL,
+    .pxBleAdapterPropertiesCb        = NULL,
+    .pxBleRemoteDevicePropertiesCb   = NULL,
+    .pxOpenCb                        = NULL,
+    .pxCloseCb                       = NULL,
+    .pxReadRemoteRssiCb              = NULL,
+    .pxAdvStatusCb                   = NULL,
+    .pxSetAdvDataCb                  = NULL,
+    .pxConnParameterUpdateCb         = NULL,
+    .pxScanFilterCfgCb               = NULL,
+    .pxScanFilterParamCb             = NULL,
+    .pxScanFilterStatusCb            = NULL,
+    .pxMultiAdvEnableCb              = NULL,
+    .pxMultiAdvUpdateCb              = NULL,
+    .pxMultiAdvDataCb                = NULL,
+    .pxMultiAdvDisableCb             = NULL,
+    .pxCongestionCb                  = NULL,
+    .pxBatchscanCfgStorageCb         = NULL,
+    .pxBatchscanEnbDisableCb         = NULL,
+    .pxBatchscanReportsCb            = NULL,
+    .pxBatchscanThresholdCb          = NULL,
+    .pxTrackAdvEventCb               = NULL,
+    .pxScanParameterSetupCompletedCb = NULL,
+    .pxPhyUpdatedCb                  = NULL,
+};
+
+BTGattServerCallbacks_t _xBTGattServer_NULL_Cb =
+{
+    .pxRegisterServerCb       = NULL,
+    .pxUnregisterServerCb     = NULL,
+    .pxConnectionCb           = NULL,
+    .pxServiceAddedCb         = NULL,
+    .pxIncludedServiceAddedCb = NULL,
+    .pxCharacteristicAddedCb  = NULL,
+    .pxSetValCallbackCb       = NULL,
+    .pxDescriptorAddedCb      = NULL,
+    .pxServiceStartedCb       = NULL,
+    .pxServiceStoppedCb       = NULL,
+    .pxServiceDeletedCb       = NULL,
+    .pxRequestReadCb          = NULL,
+    .pxRequestWriteCb         = NULL,
+    .pxRequestExecWriteCb     = NULL,
+    .pxResponseConfirmationCb = NULL,
+    .pxIndicationSentCb       = NULL,
+    .pxCongestionCb           = NULL,
+    .pxMtuChangedCb           = NULL
+};
 
 TEST_GROUP( Full_BLE_Integration_Test );
 
@@ -127,24 +198,66 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test_Connection )
 TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 {
     RUN_TEST_CASE( Full_BLE, BLE_Setup );
+    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
 
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );
 
-    /*TODO: no need to test now. ACE MW change the sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
-    /* RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data ); */
+    // /*TODO: no need to test now. ACE MW change the sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
+    // /* RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data ); */
 
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Teardown );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Teardown );
 
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
 
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
+    // RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
     RUN_TEST_CASE( Full_BLE, BLE_Free );
+}
+
+TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
+{
+    BTStatus_t xStatus;
+    
+    /* Initialize with NULL Cb */
+    prvInitWithNULLCb();
+    printf("Initialize complete\n");
+
+    /* Create and Start Service */
+    prvCreateStartServicesWithNULLCb();
+    printf("Create and Start Service complete\n");
+
+    /* Set Adv property */
+    prvSetAdvPropertyWithNULLCb();
+    printf("Set Adv Property complete\n");
+
+    /* Remove all bonds */
+    prvRemoveAllBondWithNULLCb();
+
+    printf("Remove all bonds complete\n");
+
+    /* Set Adv Data */
+    prvSetAdvDataWithNULLCb( eBTuuidType128, 0, NULL );
+    printf("Set Adv Data complete\n");
+
+    /* Start Advertisement */
+    prvStartAdvertisementWithNULLCb();
+    printf("Start Adv complete\n");
+
+    /* Deinitialize */
+    prvStopServiceWithNULLCb( &_xSrvcA );
+    prvStopServiceWithNULLCb( &_xSrvcB );
+    prvDeleteServiceWithNULLCb( &_xSrvcA );
+    prvDeleteServiceWithNULLCb( &_xSrvcB );
+    prvBTUnregisterWithNULLCb();
+    xStatus = _pxBTInterface->pxDisable( 0 );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 /* Advertisement should work without initializing optional properties (device's name) */
@@ -475,6 +588,314 @@ void prvGAPInitEnableTwice()
 
     /* Second time enable */
     IotTestBleHal_BLEEnable( true );
+}
+
+void prvInitWithNULLCb( void )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    printf("Start Init\n");
+
+    /* GAP common setup with NULL Cb */
+    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
+
+    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManager_NULL_Cb );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    IotTestBleHal_BLEEnable( true );
+
+    printf("GAP common Init Complete\n");
+
+    /* BLEGAPInit with NULL Cb */
+    _pxBTLeAdapterInterface = ( BTBleAdapter_t * ) _pxBTInterface->pxGetLeAdapter();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTLeAdapterInterface );
+
+    xStatus = _pxBTLeAdapterInterface->pxBleAdapterInit( &_xBTBleAdapter_NULL_Cb );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = _pxBTLeAdapterInterface->pxRegisterBleApp( &xAppUUID );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    printf("GAP Init Complete\n");
+
+    /* BLEGATTInit with NULL Cb */
+    _pxGattServerInterface = ( BTGattServerInterface_t * ) _pxBTLeAdapterInterface->ppvGetGattServerInterface();
+    TEST_ASSERT_NOT_EQUAL( NULL, _pxGattServerInterface );
+
+    _pxGattServerInterface->pxGattServerInit( &_xBTGattServer_NULL_Cb );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = _pxGattServerInterface->pxRegisterServer( &xServerUUID );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    printf("GATT common Init Complete\n");
+}
+
+void prvCreateStartServicesWithNULLCb( void )
+{
+    BTStatus_t xStatus;
+
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
+
+    if( xStatus != eBTStatusUnsupported )
+    {
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+    else
+    {
+        /* Create service A */
+        prvCreateServiceWithNULLCb( &_xSrvcA );
+        prvCreateCharacteristicWithNULLCb( &_xSrvcA, bletestATTR_SRVCA_CHAR_A );
+
+        /* Create service B */
+        prvCreateServiceWithNULLCb( &_xSrvcB );
+        prvCreateCharacteristicWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHAR_A );
+        prvCreateCharacteristicWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHAR_B );
+        prvCreateCharacteristicWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHAR_C );
+        prvCreateCharacteristicWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHAR_D );
+        prvCreateCharacteristicWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHAR_E );
+        prvCreateCharacteristicDescriptorWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CCCD_E );
+        prvCreateCharacteristicWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHAR_F );
+        prvCreateCharacteristicDescriptorWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CCCD_F );
+        prvCreateCharacteristicDescriptorWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_A );
+        prvCreateCharacteristicDescriptorWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_B );
+        prvCreateCharacteristicDescriptorWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_C );
+        prvCreateCharacteristicDescriptorWithNULLCb( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_D );
+
+        /* Start service A */
+        prvStartServiceWithNULLCb( &_xSrvcA );
+        /* Start service B */
+        prvStartServiceWithNULLCb( &_xSrvcB );
+    }
+}
+
+void prvCreateServiceWithNULLCb( BTService_t * xRefSrvc )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+    BTGattSrvcId_t xSrvcId;
+
+    uint16_t usNumHandles = IotTestBleHal_ComputeNumberOfHandles( xRefSrvc );
+
+    xSrvcId.xId.ucInstId = xRefSrvc->ucInstId;
+    xSrvcId.xId.xUuid = xRefSrvc->pxBLEAttributes[ 0 ].xServiceUUID;
+    xSrvcId.xServiceType = xRefSrvc->xType;
+
+    xStatus = _pxGattServerInterface->pxAddService( _ucBLEServerIf, &xSrvcId, usNumHandles );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvCreateCharacteristicWithNULLCb( BTService_t * xSrvc,
+                                        int xAttribute )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxGattServerInterface->pxAddCharacteristic( _ucBLEServerIf,
+                                                           xSrvc->pusHandlesBuffer[ 0 ],
+                                                           &xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xUuid,
+                                                           xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xProperties,
+                                                           xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristic.xPermissions );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvCreateCharacteristicDescriptorWithNULLCb( BTService_t * xSrvc,
+                                                  int xAttribute )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxGattServerInterface->pxAddDescriptor( _ucBLEServerIf,
+                                                       xSrvc->pusHandlesBuffer[ 0 ],
+                                                       &xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristicDescr.xUuid,
+                                                       xSrvc->pxBLEAttributes[ xAttribute ].xCharacteristicDescr.xPermissions );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                  
+}
+
+void prvStartServiceWithNULLCb( BTService_t * xRefSrvc )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxGattServerInterface->pxStartService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ], BTTransportLe );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvSetAdvPropertyWithNULLCb( void )
+{
+    BTProperty_t pxProperty;
+    uint16_t usMTUsize = bletestsMTU_SIZE1;
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    pxProperty.xType = eBTpropertyBdname;
+    pxProperty.xLen = strlen( bletestsDEVICE_NAME );
+    pxProperty.pvVal = ( void * ) bletestsDEVICE_NAME;
+
+    /* Set the name */
+    xStatus = _pxBTInterface->pxSetDeviceProperty( &pxProperty );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    /* Get the name to check it is set */
+/*@TODO prvSetGetProperty(&pxProperty, false); */
+
+    pxProperty.xType = eBTpropertyLocalMTUSize;
+    pxProperty.xLen = sizeof( usMTUsize );
+    pxProperty.pvVal = &usMTUsize;
+
+    /* Set the MTU size */
+    xStatus = _pxBTInterface->pxSetDeviceProperty( &pxProperty );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    /* Get the MTU size to check it is set */
+    /*@TODOprvSetGetProperty(&pxProperty, false); */
+}
+
+void prvRemoveAllBondWithNULLCb( void )
+{
+    BTProperty_t pxProperty;
+    uint16_t usIndex;
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    /* Set the name */
+    pxProperty.xType = eBTpropertyAdapterBondedDevices;
+
+    /* Get bonded devices */
+    xStatus = _pxBTInterface->pxGetDeviceProperty( pxProperty.xType );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    printf("pre-check\n");
+
+    for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
+    {
+        prvRemoveBondWithNULLCb( &( ( BTBdaddr_t * ) pxProperty.pvVal )[ usIndex ] );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+    printf("post-check\n");
+
+    /* Get bonded devices. */
+    xStatus = _pxBTInterface->pxGetDeviceProperty( pxProperty.xType );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    /* Check none are left. */
+    TEST_ASSERT_EQUAL( 0, pxProperty.xLen );   
+}
+
+void prvRemoveBondWithNULLCb( BTBdaddr_t * pxDeviceAddress )
+{
+    BTStatus_t xStatus;
+
+    xStatus = _pxBTInterface->pxRemoveBond( pxDeviceAddress );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvSetAdvDataWithNULLCb( BTuuidType_t type,
+                              uint16_t usManufacturerLen,
+                            char * pcManufacturerData )
+{
+    uint16_t usServiceDataLen;
+    char * pcServiceData;
+    uint8_t serviceUUID_128[ bt128BIT_UUID_LEN ] = bletestsFREERTOS_SVC_UUID_128;
+    /* To make sure stack creates their own pointers, use local variables */
+    BTGattAdvertismentParams_t l_xAdvertisementConfigA;
+    BTGattAdvertismentParams_t l_xAdvertisementConfigB;
+    size_t xNbServices;
+
+    BTUuid_t xServiceUuid =
+    {
+        .ucType = type
+    };
+
+    switch( type )
+    {
+        case eBTuuidType16:
+            xServiceUuid.uu.uu16 = bletestsFREERTOS_SVC_UUID_16;
+            break;
+
+        case eBTuuidType32:
+            xServiceUuid.uu.uu32 = bletestsFREERTOS_SVC_UUID_32;
+            break;
+
+        case eBTuuidType128:
+            memcpy( xServiceUuid.uu.uu128, serviceUUID_128, sizeof( serviceUUID_128 ) );
+            break;
+    }
+
+    usServiceDataLen = 0;
+    pcServiceData = NULL;
+    xNbServices = 1;
+
+    l_xAdvertisementConfigA = xAdvertisementConfigA;
+    l_xAdvertisementConfigB = xAdvertisementConfigB;
+
+    prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigA,
+                         usServiceDataLen,
+                         pcServiceData,
+                         &xServiceUuid,
+                         xNbServices,
+                         usManufacturerLen,
+                         pcManufacturerData );
+
+    prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigB,
+                         usServiceDataLen,
+                         pcServiceData,
+                         NULL,
+                         0,
+                         usManufacturerLen,
+                         pcManufacturerData );
+}
+
+void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
+                                    uint16_t usServiceDataLen,
+                                    char * pcServiceData,
+                                    BTUuid_t * pxServiceUuid,
+                                    size_t xNbServices,
+                                    uint16_t usManufacturerLen,
+                                    char * pcManufacturerData )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxBTLeAdapterInterface->pxSetAdvData( _ucBLEAdapterIf,
+                                                     pxParams,
+                                                     usManufacturerLen,
+                                                     pcManufacturerData,
+                                                     usServiceDataLen,
+                                                     pcServiceData,
+                                                     pxServiceUuid,
+                                                     xNbServices );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvStartAdvertisementWithNULLCb( void )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxBTLeAdapterInterface->pxStartAdv( _ucBLEAdapterIf );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvStopServiceWithNULLCb( BTService_t * xRefSrvc )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxGattServerInterface->pxStopService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvDeleteServiceWithNULLCb( BTService_t * xRefSrvc )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxGattServerInterface->pxDeleteService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+}
+
+void prvBTUnregisterWithNULLCb( void )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    xStatus = _pxGattServerInterface->pxUnregisterServer( _ucBLEServerIf );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = _pxBTLeAdapterInterface->pxUnregisterBleApp( _ucBLEAdapterIf );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 void GAP_common_teardown()

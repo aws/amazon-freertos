@@ -500,5 +500,6 @@ void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
 
 void IotTestBleHal_StartStopAdvCheck( bool start );
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
+size_t IotTestBleHal_ComputeNumberOfHandles( BTService_t * pxService );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */

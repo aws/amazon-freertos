@@ -51,5 +51,30 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
                    uint16_t usOffset );
 void prvCreateAndStartServiceB( void );
 void prvShortWaitConnection( void );
+void prvInitWithNULLCb( void );
+void prvCreateStartServicesWithNULLCb( void );
+void prvCreateServiceWithNULLCb( BTService_t * xRefSrvc );
+void prvCreateCharacteristicWithNULLCb( BTService_t * xSrvc,
+                                        int xAttribute );
+void prvCreateCharacteristicDescriptorWithNULLCb( BTService_t * xSrvc,
+                                                  int xAttribute );                                      
+void prvStartServiceWithNULLCb( BTService_t * xRefSrvc );
+void prvSetAdvPropertyWithNULLCb( void );
+void prvRemoveAllBondWithNULLCb( void );
+void prvRemoveBondWithNULLCb( BTBdaddr_t * pxDeviceAddress );
+void prvSetAdvDataWithNULLCb( BTuuidType_t type,
+                              uint16_t usManufacturerLen,
+                            char * pcManufacturerData );
+void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
+                                    uint16_t usServiceDataLen,
+                                    char * pcServiceData,
+                                    BTUuid_t * pxServiceUuid,
+                                    size_t xNbServices,
+                                    uint16_t usManufacturerLen,
+                                    char * pcManufacturerData );
+void prvStartAdvertisementWithNULLCb( void );
+void prvStopServiceWithNULLCb( BTService_t * xRefSrvc );
+void prvDeleteServiceWithNULLCb( BTService_t * xRefSrvc );
+void prvBTUnregisterWithNULLCb( void );
 
 #endif /* ifndef _IOT_TEST_BLE_HAL_INTEGRATION_H_ */
