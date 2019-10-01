@@ -52,12 +52,7 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
 void prvCreateAndStartServiceB( void );
 void prvShortWaitConnection( void );
 void prvInitWithNULLCb( void );
-void prvCreateStartServicesWithNULLCb( void );
-void prvCreateServiceWithNULLCb( BTService_t * xRefSrvc );
-void prvCreateCharacteristicWithNULLCb( BTService_t * xSrvc,
-                                        int xAttribute );
-void prvCreateCharacteristicDescriptorWithNULLCb( BTService_t * xSrvc,
-                                                  int xAttribute );                                      
+void prvCreateStartServicesWithNULLCb( void );                                      
 void prvStartServiceWithNULLCb( BTService_t * xRefSrvc );
 void prvSetAdvPropertyWithNULLCb( void );
 void prvRemoveAllBondWithNULLCb( void );
@@ -72,7 +67,7 @@ void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
                                     size_t xNbServices,
                                     uint16_t usManufacturerLen,
                                     char * pcManufacturerData );
-void prvStartAdvertisementWithNULLCb( void );
+void prvStartStopAdvertisementWithNULLCb( void );
 void prvStopServiceWithNULLCb( BTService_t * xRefSrvc );
 void prvDeleteServiceWithNULLCb( BTService_t * xRefSrvc );
 void prvBTUnregisterWithNULLCb( void );

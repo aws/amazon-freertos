@@ -981,7 +981,11 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
     xStatus = BTNRFError( xErrCode );
 
-    xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    if( xBTBleAdapterCallbacks.pxSetAdvDataCb != NULL )
+    {
+        xBTBleAdapterCallbacks.pxSetAdvDataCb( xStatus );
+    }
+    
     return xStatus;
 }
 

@@ -466,6 +466,8 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
 
 void IotTestBleHal_BLEManagerInit( void );
 void IotTestBleHal_BLEEnable( bool bEnable );
+void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
+                        bool bIsSet );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
 void IotTestBleHal_CreateServiceA( void );
 void IotTestBleHal_CreateServiceB( void );

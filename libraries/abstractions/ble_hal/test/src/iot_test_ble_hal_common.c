@@ -737,7 +737,7 @@ void prvSendNotification( bletestAttSrvB_t xAttribute,
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
-void prvSetGetProperty( BTProperty_t * pxProperty,
+void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
                         bool bIsSet )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -793,20 +793,20 @@ void IotTestBleHal_SetAdvProperty( void )
     pxProperty.pvVal = ( void * ) bletestsDEVICE_NAME;
 
     /* Set the name */
-    prvSetGetProperty( &pxProperty, true );
+    IotTestBleHal_SetGetProperty( &pxProperty, true );
 
     /* Get the name to check it is set */
-/*@TODO prvSetGetProperty(&pxProperty, false); */
+/*@TODO IotTestBleHal_SetGetProperty(&pxProperty, false); */
 
     pxProperty.xType = eBTpropertyLocalMTUSize;
     pxProperty.xLen = sizeof( usMTUsize );
     pxProperty.pvVal = &usMTUsize;
 
     /* Set the MTU size */
-    prvSetGetProperty( &pxProperty, true );
+    IotTestBleHal_SetGetProperty( &pxProperty, true );
 
     /* Get the MTU size to check it is set */
-    /*@TODOprvSetGetProperty(&pxProperty, false); */
+    /*@TODOIotTestBleHal_SetGetProperty(&pxProperty, false); */
 }
 
 void IotTestBleHal_DeleteService( BTService_t * xRefSrvc )
