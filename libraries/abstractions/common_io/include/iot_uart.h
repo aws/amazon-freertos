@@ -52,7 +52,7 @@
 #define IOT_UART_WRITE_FAILED              ( 2 ) /*!< UART driver returns error when performing write operation. */
 #define IOT_UART_READ_FAILED               ( 3 ) /*!< UART driver returns error when performing read operation. */
 #define IOT_UART_BUSY                      ( 4 ) /*!< UART bus is busy at current time. */
-#define IOT_UART_NOTHING_TO_CANCEL         ( 5 ) /*!< No ongoing receiving or transmitting when cancel operation is performed. */
+#define IOT_UART_NOTHING_TO_CANCEL         ( 5 ) /*!< No ongoing operation when cancel is performed. */
 #define IOT_UART_FUNCTION_NOT_SUPPORTED    ( 6 ) /*!< UART operation is not supported. */
 
 /**
@@ -109,11 +109,11 @@ typedef enum
  */
 typedef struct
 {
-    uint32_t ulBaudrate;    /**< The baud rate to be set for the UART port. */
-    uint32_t ulParity;      /**< The parity to be set for the UART port. */
-    uint32_t ulWordlength;  /**< The word length to be set for the UART port. */
-    uint32_t ulStopbits;    /**< The stop bits to be set for the UART port. */
-    uint32_t ulFlowControl; /**< The flow control to be set for the UART port. */
+    uint32_t ulBaudrate;   /**< The baud rate to be set for the UART port. */
+    uint8_t ucParity;      /**< The parity to be set for the UART port: 0 is no parity, 1 is even parity and 2 is odd parity. */
+    uint8_t ucWordlength;  /**< The word length to be set for the UART port. */
+    uint8_t ucStopbits;    /**< The stop bits to be set for the UART port: 0 is no stop bits and 1 is stop bits. */
+    uint8_t ucFlowControl; /**< The flow control to be set for the UART port: 0 is disabled and 1 is enabled. */
 } IotUARTConfig_t;
 
 /**
@@ -145,8 +145,8 @@ IotUARTHandle_t iot_uart_open( int32_t lUartInstance );
  * @warning If the input handle is invalid, this function silently takes no action.
  *
  * @param[in] pxUartPeripheral The peripheral handle returned in the open() call.
- * @param[in] xCallback The callback function to be called on completion of transaction.
- * @param[in] pvUserContext The user context to be passed back when callback is called.
+ * @param[in] xCallback The callback function to be called on completion of transaction (This can be NULL).
+ * @param[in] pvUserContext The user context to be passed back when callback is called (This can be NULL).
  */
 void iot_uart_set_callback( IotUARTHandle_t const pxUartPeripheral,
                             IotUARTCallback_t xCallback,
