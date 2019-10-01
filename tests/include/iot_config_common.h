@@ -159,11 +159,22 @@
     #define IOT_PLATFORM_NAME                   "Unknown"
 #endif
 
+/* BLE_HAL test suites header file abstraction */
+#define IOT_LINEAR_CONTAINERS             "iot_linear_containers.h"
+#define IOT_THREADS                       "platform/iot_threads.h"
+#define IOT_PLATFORM_TYPES                "types/iot_platform_types.h"
+#define IOT_BT_HAL_MANAGER_ADAPTER_BLE    "bt_hal_manager_adapter_ble.h"
+#define IOT_BT_HAL_MANAGER_ADAPTER        "bt_hal_manager.h"
+#define IOT_BT_HAL_GATT_SERVER            "bt_hal_gatt_server.h"
+#define IOT_BT_HAL_GATT_TYPES             "bt_hal_gatt_types.h"
+#define IOT_UNITY_FIXTURE                 "unity_fixture.h"
+#define IOT_UNITY                         "unity.h"
+
 /* Cloud endpoint to which the device connects to. */
-#define IOT_CLOUD_ENDPOINT        clientcredentialMQTT_BROKER_ENDPOINT
+#define IOT_CLOUD_ENDPOINT                clientcredentialMQTT_BROKER_ENDPOINT
 
 /* Certificate for the device.*/
-#define IOT_DEVICE_CERTIFICATE    keyCLIENT_CERTIFICATE_PEM
+#define IOT_DEVICE_CERTIFICATE            keyCLIENT_CERTIFICATE_PEM
 
 /**
  * @brief Unique identifier used to recognize a device by the cloud.

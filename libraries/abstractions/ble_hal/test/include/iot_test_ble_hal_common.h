@@ -35,16 +35,16 @@
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
-#include "iot_linear_containers.h"
-#include "platform/iot_threads.h"
-#include "types/iot_platform_types.h"
-#include "bt_hal_manager_adapter_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_gatt_server.h"
-#include "bt_hal_gatt_types.h"
+#include IOT_LINEAR_CONTAINERS
+#include IOT_THREADS
+#include IOT_PLATFORM_TYPES
+#include IOT_BT_HAL_MANAGER_ADAPTER_BLE
+#include IOT_BT_HAL_MANAGER_ADAPTER
+#include IOT_BT_HAL_GATT_SERVER
+#include IOT_BT_HAL_GATT_TYPES
 /* Test framework includes. */
-#include "unity_fixture.h"
-#include "unity.h"
+#include IOT_UNITY_FIXTURE
+#include IOT_UNITY
 
 /**
  * @brief Connection parameters.
