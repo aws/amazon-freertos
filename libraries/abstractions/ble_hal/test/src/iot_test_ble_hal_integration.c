@@ -225,28 +225,22 @@ TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
     
     /* Initialize with NULL Cb */
     prvInitWithNULLCb();
-    printf("Initialize complete\n");
 
     /* Create and Start Service */
     prvCreateStartServicesWithNULLCb();
-    printf("Create and Start Service complete\n");
 
     /* Set Adv property */
     prvSetAdvPropertyWithNULLCb();
-    printf("Set Adv Property complete\n");
 
     /* Remove all bonds */
     prvRemoveAllBondWithNULLCb();
 
-    printf("Remove all bonds complete\n");
 
     /* Set Adv Data */
     prvSetAdvDataWithNULLCb( eBTuuidType128, 0, NULL );
-    printf("Set Adv Data complete\n");
 
     /* Start Advertisement */
     prvStartStopAdvertisementWithNULLCb();
-    printf("Start Adv complete\n");
 
     /* Deinitialize */
     prvStopServiceWithNULLCb( &_xSrvcA );
