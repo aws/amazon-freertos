@@ -16,7 +16,6 @@ install the requirements (from the path of this file):
 The application will have to built by loading the microchip_security_tool.sln
 project file and building either the x86 or x64 version of the application
 
-
 ## Set up a Certificate Ecosystem
 
 The first step is to set up a certificate chain that mirrors how a secure iot
@@ -27,8 +26,6 @@ hardware security modules (HSM) that are used in the Microchip facility during
 manufacturing of security devices.
 
 ### Create the Root CA
-
-
 
 ```
 > ca_create_root.py 
@@ -77,7 +74,7 @@ MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEojEQk85EaT1RU3Ip5SddaSqB5/Wm
 4) Run the ca_create_device script:
 
 ```
-> ca_create_device.py <public_key.pem>
+> ca_create_device.py  --sn 0123AE877AA4C660EE --cert signer-ca.crt --key signer-ca.key --file public_key.pem
 ```
 
 This step mirrors the production provisioning process where Microchip uses HSMs
@@ -104,7 +101,7 @@ The certificate is now ready to be used by the aws_demos_secure_element examples
 
 ### Export the client_credential_keys.h file
 
-> ca_export.py
+> ca_write_header.py
 
 This creates the file that is used by AWS FreeRTOS to save the generated
 certificates into the secure element. This file needs to be copied to the
