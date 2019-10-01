@@ -1437,9 +1437,10 @@ void _listNetworkTask( IotTaskPool_t taskPool,
                 _sendScanNetwork( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, &scanNetworks[ idx ] );
             }
         }
-        if(!networks_found)
+
+        if( !networks_found )
         {
-          _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, status );
+            _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, status );
         }
     }
     else
