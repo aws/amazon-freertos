@@ -21,9 +21,9 @@ endif()
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
-afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Kit-Plus-OPTIGA-Trust-X")
-afr_set_board_metadata(DISPLAY_NAME "XMC4800 IoT Connectivity Kit Plus OPTIGA(TM) Trust X")
-afr_set_board_metadata(DESCRIPTION "Development kit for ARM Cortex-M4 based XMC4800 MCU")
+afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Connectivity-Kit-With-OPTIGA-Trust-X")
+afr_set_board_metadata(DISPLAY_NAME "XMC4800 IoT Connectivity Kit with OPTIGA Trust X")
+afr_set_board_metadata(DESCRIPTION "Development kit for ARM Cortex-M4 based XMC4800 MCU with OPTIGA Trust X secure element")
 afr_set_board_metadata(VENDOR_NAME "Infineon")
 afr_set_board_metadata(FAMILY_NAME "XMC4x00")
 afr_set_board_metadata(CODE_SIGNER "null")

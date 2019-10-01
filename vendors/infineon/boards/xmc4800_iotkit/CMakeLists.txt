@@ -20,7 +20,7 @@ endif()
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
-afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Kit")
+afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Connectivity-Kit ")
 afr_set_board_metadata(DISPLAY_NAME "XMC4800 IoT Connectivity Kit")
 afr_set_board_metadata(DESCRIPTION "Development kit for ARM Cortex-M4 based XMC4800 MCU")
 afr_set_board_metadata(VENDOR_NAME "Infineon")
