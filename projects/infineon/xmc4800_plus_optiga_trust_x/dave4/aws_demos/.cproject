@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?>
+<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="com.ifx.xmc4000.appDebug.1480183648">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ifx.xmc4000.appDebug.1480183648" moduleId="org.eclipse.cdt.core.settings" name="Debug">
@@ -30,17 +31,16 @@
 								<option id="com.ifx.xmc4000.compiler.option.misc.mfloat.1517610586" name="Floating point" superClass="com.ifx.xmc4000.compiler.option.misc.mfloat" useByScannerDiscovery="false" value="org.eclipse.cdt.cross.arm.gnu.base.option.other.mfloat.softfp" valueType="enumerated"/>
 								<option id="com.ifx.xmc4000.compiler.option.include.paths.898122737" name="Include paths (-I)" superClass="com.ifx.xmc4000.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/i2c_master_dave"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/optiga/include"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/examples/ecdsa_utils"/>
-									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/pkcs11"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/drivers/inc"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/third_party/ESP_AT_Lib/src/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/CMSIS/Infineon/XMC4800_series/Include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/application_code/infineon_code"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/examples/ecdsa_utils"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/optiga_trust_x/optiga/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../vendors/infineon/secure_elements/pkcs11"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../freertos_kernel/portable/GCC/ARM_CM4F"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/3rdparty/mbedtls/include"/>
