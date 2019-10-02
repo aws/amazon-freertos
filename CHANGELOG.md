@@ -6,6 +6,10 @@
 - Upload support with HTTP methods PUT and POST is now available in the HTTPS Client Library.
 - Demonstration code with PUT and POST methods are now available in demos/https. 
 
+#### SoftHSMv2 port for PKCS #11
+- A port for SoftHSMv2, a third-party open-source implementation of PKCS #11, has been provided for use with the Windows Simulator project for Amazon FreeRTOS.
+- The purpose of the SoftHSMv2 port is to allow ad hoc interoperability testing with an independent implementation of the PKCS #11 standard.
+
 #### New Board:Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
 - The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
 
