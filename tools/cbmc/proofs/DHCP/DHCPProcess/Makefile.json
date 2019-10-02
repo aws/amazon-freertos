@@ -1,0 +1,17 @@
+{
+  "ENTRY": "DHCPProcess",
+  "CBMCFLAGS": "--unwind 4 --unwindset strlen.0:11,memcmp.0:7,prvProcessDHCPReplies.0:8 --nondet-static",
+  "OBJS":
+  [
+    "$(ENTRY)_harness.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.goto",
+    "$(FREERTOS)/libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.goto",
+    "$(FREERTOS)/freertos_kernel/tasks.goto"
+  ],
+# Minimal buffer size for maximum coverage, see harness for details.
+  "BUFFER_SIZE": 299,
+  "DEF":
+  [
+    "BUFFER_SIZE={BUFFER_SIZE}"
+  ]
+}
