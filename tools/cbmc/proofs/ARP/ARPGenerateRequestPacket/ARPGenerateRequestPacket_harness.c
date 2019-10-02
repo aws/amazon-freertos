@@ -20,5 +20,9 @@ void harness()
 
 	NetworkBufferDescriptor_t xNetworkBuffer2;
 	xNetworkBuffer2.pucEthernetBuffer = xBuffer;
+	xNetworkBuffer2.xDataLength = ucBUFFER_SIZE;
+
+	/* vARPGenerateRequestPacket asserts buffer has room for a packet */
+	__CPROVER_assume( xNetworkBuffer2.xDataLength >= sizeof(ARPPacket_t) );
 	vARPGenerateRequestPacket( &xNetworkBuffer2 );
 }
