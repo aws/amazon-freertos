@@ -38,6 +38,7 @@
 #include "iot_crypto.h"
 #include "aws_clientcredential.h"
 #include "iot_default_root_certificates.h"
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "iot_test_pkcs11_config.h"
@@ -282,12 +283,13 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
         #endif
 
-        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates );
-        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
-        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
+        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
+            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates );
+            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
+            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
+        #endif
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
-
 
         prvAfterRunningTests_Object();
     #endif /* if ( pkcs11testEC_KEY_SUPPORT == 1 ) */

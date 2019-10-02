@@ -40,8 +40,8 @@
 
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
-
 
 /*
  * Length of elliptic curve credentials included from aws_clientcredential_keys.h.
@@ -80,12 +80,15 @@ TEST_TEAR_DOWN( Full_TLS )
 
 TEST_GROUP_RUNNER( Full_TLS )
 {
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectDefault );
+    #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+        #ifdef pkcs11testEC_KEY_SUPPORT
+            RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
+            RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
+        #endif
+        RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
+        RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
+    #endif
 }
 
 /*-----------------------------------------------------------*/
@@ -270,7 +273,7 @@ static void prvExpectFailAfterDataSentWithProvisioning( ProvisioningParams_t * p
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectRSA )
+TEST( Full_TLS, AFQP_TLS_ConnectDefault )
 {
     const char * pcAWSIoTAddress = clientcredentialMQTT_BROKER_ENDPOINT;
     uint16_t usAWSIoTPort = clientcredentialMQTT_BROKER_PORT;

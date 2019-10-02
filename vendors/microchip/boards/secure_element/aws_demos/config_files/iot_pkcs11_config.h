@@ -68,9 +68,10 @@ extern const char * pcPkcs11GetThingName(void);
  */
 #define pkcs11configPAL_DESTROY_SUPPORTED                  0
 
-
+/**
+ * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
+ */
 #define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          0
-
 
 /**
  * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.

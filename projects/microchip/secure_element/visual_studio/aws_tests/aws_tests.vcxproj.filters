@@ -441,9 +441,6 @@
     <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\aws_ota_agent_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\aws_pkcs11_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\aws_secure_sockets_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
@@ -451,9 +448,6 @@
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\aws_test_ota_config.h">
-      <Filter>config_files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\aws_test_pkcs11_config.h">
       <Filter>config_files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\aws_test_runner_config.h">
@@ -1274,6 +1268,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\hidapi\hidapi.h">
       <Filter>vendors\microchip\secure_elements\third_party</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\iot_pkcs11_config.h">
+      <Filter>config_files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_tests\config_files\iot_test_pkcs11_config.h">
+      <Filter>config_files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

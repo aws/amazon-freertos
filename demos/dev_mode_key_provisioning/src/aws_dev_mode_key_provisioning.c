@@ -43,8 +43,8 @@
 #include "semphr.h"
 
 /* PKCS#11 includes. */
-#include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
+#include "iot_pkcs11.h"
 
 /* Client credential includes. */
 #include "aws_clientcredential.h"
@@ -621,6 +621,15 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
         xCertificateTemplate.xValue.ulValueLen = xDerLen;
     }
 
+    /* Best effort clean-up of the existing object, if it exists. */
+    if( xResult == CKR_OK )
+    {
+        xDestroyProvidedObjects( xSession,
+                                 &pucLabel,
+                                 &xCertificateClass,
+                                 1 );
+    }
+
     /* Create an object using the encoded client certificate. */
     if( xResult == CKR_OK )
     {
@@ -825,7 +834,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     CK_FUNCTION_LIST_PTR pxFunctionList;
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG ulSlotCount = 0;
-    CK_TOKEN_INFO xTokenInfo = {0};
+    CK_TOKEN_INFO xTokenInfo = { 0 };
     char * pcSpace = NULL;
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -877,24 +886,24 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
         xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], &xTokenInfo );
     }
 
-    if( CKR_OK == xResult && '\0' != xTokenInfo.label[0] && ' ' != xTokenInfo.label[0] )
+    if( ( CKR_OK == xResult ) && ( '\0' != xTokenInfo.label[ 0 ] ) && ( ' ' != xTokenInfo.label[ 0 ] ) )
     {
         /* PKCS #11 requires that token info fields are padded out with space
-        characters. However, a NULL terminated copy will be more useful to the 
-        caller. */
-        pcSpace = ( char * )memchr( xTokenInfo.label, ' ', sizeof( xTokenInfo.label ) );
+         * characters. However, a NULL terminated copy will be more useful to the
+         * caller. */
+        pcSpace = ( char * ) memchr( xTokenInfo.label, ' ', sizeof( xTokenInfo.label ) );
     }
 
     if( NULL != pcSpace )
     {
-        pxProvisionedState->pcIdentifier = (char *)pvPortMalloc( 1 + ( pcSpace - ( char *)xTokenInfo.label ) );
+        pxProvisionedState->pcIdentifier = ( char * ) pvPortMalloc( 1 + ( pcSpace - ( char * ) xTokenInfo.label ) );
 
-        if(NULL != pxProvisionedState->pcIdentifier)
+        if( NULL != pxProvisionedState->pcIdentifier )
         {
             memcpy( pxProvisionedState->pcIdentifier,
                     xTokenInfo.label,
-                    pcSpace - (char*)xTokenInfo.label);
-            pxProvisionedState->pcIdentifier[ 1 + ( pcSpace - (char*)xTokenInfo.label)] = '\0';
+                    pcSpace - ( char * ) xTokenInfo.label );
+            pxProvisionedState->pcIdentifier[ pcSpace - ( char * ) xTokenInfo.label ] = '\0';
         }
         else
         {
@@ -1078,6 +1087,8 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             /* Get the bytes of the new public key. */
             if( CKR_OK == xResult )
             {
+                xGeneratedPrivateKey = CK_TRUE;
+
                 prvExportPublicKey( xSession,
                                     xProvisionedState.xPublicKey,
                                     &xProvisionedState.pucDerPublicKey,
