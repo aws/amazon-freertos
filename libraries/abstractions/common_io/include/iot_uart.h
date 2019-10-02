@@ -155,7 +155,7 @@ void iot_uart_set_callback( IotUARTHandle_t const pxUartPeripheral,
 /**
  * @brief Starts receiving the data from UART synchronously.
  *
- * This function attempts to read certain number of bytes from slave device to a pre-allocated buffer, in synchronous way.
+ * This function attempts to read certain number of bytes from transmitter device to a pre-allocated buffer, in synchronous way.
  * Partial read might happen, e.g. no more data is available.
  * And the number of bytes that have been actually read can be obtained by calling iot_uart_ioctl.
  *
@@ -186,8 +186,8 @@ int32_t iot_uart_read_sync( IotUARTHandle_t const pxUartPeripheral,
 /**
  * @brief Starts the transmission of data from UART synchronously.
  *
- * This function attempts to write certain number of bytes from a pre-allocated buffer to a slave device, in synchronous way.
- * Partial write might happen, e.g. slave device unable to receive more data.
+ * This function attempts to write certain number of bytes from a pre-allocated buffer to a receiver device, in synchronous way.
+ * Partial write might happen, e.g. receiver device unable to receive more data.
  * And the number of bytes that have been actually written can be obtained by calling iot_uart_ioctl.
  *
  * @warning None of other read or write functions shall be called during this function.
@@ -244,7 +244,7 @@ int32_t iot_uart_read_async( IotUARTHandle_t const pxUartPeripheral,
 /**
  * @brief Starts the transmission of data from UART asynchronously.
  *
- * This function attempts to write certain number of bytes from a pre-allocated buffer to a slave device, in asynchronous way.
+ * This function attempts to write certain number of bytes from a pre-allocated buffer to a receiver device, in asynchronous way.
  * It returns immediately when the operation is started and the status can be check by calling iot_uart_ioctl.
  * Once the operation completes, successful or not, the user callback will be invoked.
  *
