@@ -1,0 +1,5 @@
+# Ignore auto-generated UVision IDE files.
+**/obj/*
+**/lst/*
+*.uvopt
+*.uvgui.*
