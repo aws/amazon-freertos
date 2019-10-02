@@ -21,7 +21,8 @@
 
 #### Bluetooth Low Energy
 - ESP32 board supports NIMBLE as the default underlying stack for Bluetooth Low Energy.
-- Contains various bug fixes and enhancements to the NIMBLE stack.
+- Contains bug fixes and enhancements in ESP NIMBLE stack.
+- Contains bug fixes in ESP Bluedroid stack.
 
 ## 201908.00 08/26/2019
 
