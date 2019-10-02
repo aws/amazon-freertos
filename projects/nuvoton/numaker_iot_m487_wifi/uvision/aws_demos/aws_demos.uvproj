@@ -459,9 +459,19 @@
 							<FilePath>../../../../../freertos_kernel/include/FreeRTOS.h</FilePath>
 						</File>
 						<File>
+							<FileName>StackMacros.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../freertos_kernel/include/StackMacros.h</FilePath>
+						</File>
+						<File>
 							<FileName>atomic.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../freertos_kernel/include/atomic.h</FilePath>
+						</File>
+						<File>
+							<FileName>croutine.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../freertos_kernel/include/croutine.h</FilePath>
 						</File>
 						<File>
 							<FileName>deprecated_definitions.h</FileName>
@@ -997,6 +1007,16 @@
 							<FileName>threading_alt.h</FileName>
 							<FileType>5</FileType>
 							<FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</FilePath>
+						</File>
+					</Files>
+				</Group>
+				<Group>
+					<GroupName>libraries/abstractions/pkcs11/include/</GroupName>
+					<Files>
+						<File>
+							<FileName>iot_pkcs11_pal.h</FileName>
+							<FileType>5</FileType>
+							<FilePath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</FilePath>
 						</File>
 					</Files>
 				</Group>
