@@ -501,6 +501,8 @@ static void prvInitialiseNewQueue( const UBaseType_t uxQueueLength, const UBaseT
 	Queue_t *pxNewQueue;
 	const UBaseType_t uxMutexLength = ( UBaseType_t ) 1, uxMutexSize = ( UBaseType_t ) 0;
 
+		configASSERT( pxStaticQueue );
+
 		/* Prevent compiler warnings about unused parameters if
 		configUSE_TRACE_FACILITY does not equal 1. */
 		( void ) ucQueueType;
@@ -520,6 +522,7 @@ static void prvInitialiseNewQueue( const UBaseType_t uxQueueLength, const UBaseT
 	{
 	void *pxReturn;
 
+		configASSERT( xSemaphore );
 		/* This function is called by xSemaphoreGetMutexHolder(), and should not
 		be called directly.  Note:  This is a good way of determining if the
 		calling task is the mutex holder, but not a good way of determining the
@@ -1919,7 +1922,11 @@ Queue_t *pxQueue;
 
 	taskENTER_CRITICAL();
 	{
-		uxReturn = pxQueue->uxLength - pxQueue->uxMessagesWaiting;
+		if(pxQueue->uxMessagesWaiting <= pxQueue->uxLength){
+			uxReturn = pxQueue->uxLength - pxQueue->uxMessagesWaiting;
+		}else{
+			uxReturn = 0;
+		}
 	}
 	taskEXIT_CRITICAL();
 
