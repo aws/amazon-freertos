@@ -67,5 +67,6 @@ uint16_t prvGattFromDevHandle( uint16_t handle );
 BTStatus_t prvSetIOs( BTIOtypes_t xPropertyIO );
 BTStatus_t prvToggleBondableFlag( bool bEnable );
 BTStatus_t prvToggleSecureConnectionOnlyMode( bool bEnable );
+void prvGattGetSemaphore();
 
 #endif /* ifndef _AWS_BLE_INTERNALS_H_ */

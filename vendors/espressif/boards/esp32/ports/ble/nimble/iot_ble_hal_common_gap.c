@@ -171,7 +171,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
     BTStatus_t xStatus = eBTStatusSuccess;
     BTSecurityLevel_t xSecurityLevel;
     BTBondState_t xBondedState = eBTbondStateNone;
-
+    struct ble_gatt_access_ctxt ctxt = {0};
     switch( event->type )
     {
         case BLE_GAP_EVENT_CONNECT:
@@ -399,11 +399,15 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                 }
             }
 
-            if( xGattServerCb.pxRequestWriteCb != NULL )
+            if( event->subscribe.attr_handle > gattOffset )
             {
-                xGattServerCb.pxRequestWriteCb( event->subscribe.conn_handle, 0, ( BTBdaddr_t * ) desc.peer_id_addr.val, event->subscribe.attr_handle - gattOffset + 1, 0, sizeof( ccc_val ), 1, 0, ( uint8_t * ) &ccc_val );
+                if( xGattServerCb.pxRequestWriteCb != NULL )
+                {
+                    ctxt.op = BLE_GATT_ACCESS_OP_WRITE_DSC;
+                    xGattServerCb.pxRequestWriteCb( event->subscribe.conn_handle, ( uint32_t ) &ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, event->subscribe.attr_handle - gattOffset + 1, 0, sizeof( ccc_val ), 1, 0, ( uint8_t * ) &ccc_val );
+                    prvGattGetSemaphore();
+                }
             }
-
             return 0;
 
             break;
