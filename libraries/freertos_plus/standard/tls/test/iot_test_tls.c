@@ -40,8 +40,8 @@
 
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
-
 
 /*
  * Length of elliptic curve credentials included from aws_clientcredential_keys.h.

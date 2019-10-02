@@ -38,6 +38,8 @@
 
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
+
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
 
 typedef struct ProvisioningParams_t
