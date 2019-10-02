@@ -35,9 +35,9 @@
 #define AWS_IOT_DEMO_SHADOW_UPDATE_COUNT        ( 20 )   /* Number of updates to publish. */
 #define AWS_IOT_DEMO_SHADOW_UPDATE_PERIOD_MS    ( 3000 ) /* Period of Shadow updates. */
 
-/* The Nuvoton NuMaker-IoT-M487 has limited memory. This is limited because of large
+/* The Nuvoton NuMaker-IoT-M487 has memory limitations. This is limited because of large
  * static variables declared in some physical layer libraries. Lower the number of buffers
- * used for the HTTPS Client asynchronous download demo. */
+ * used for the HTTPS Client asynchronous download demo some buffer sizes. */
 #define IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS       ( 1 )
 #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( 768 )
 #define IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE    ( 256 )
