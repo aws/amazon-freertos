@@ -315,7 +315,7 @@ void runDemoTask( void * pArgument )
         xBeforeDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
 
         size_t xBeforeDemoHeapSize, xAfterDemoHeapSize = 0;
-        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( NULL );
+        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( );
     #endif /* democonfigMEMORY_ANALYSIS */
 
 
@@ -360,15 +360,14 @@ void runDemoTask( void * pArgument )
     }
 
     #ifdef democonfigMEMORY_ANALYSIS
+	 xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( );
         IotLogInfo( "Demo Memory Analysis Heap Total: %u Before: %u After: %u Usage: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize, ( xBeforeDemoHeapSize - xAfterDemoHeapSize ) );
-
         xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u Watermark After: %u Watermark Difference: %u \r\n", xMemoryAnalysisStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark, ( xBeforeDemoTaskWaterMark - xAfterDemoTaskWaterMark ) );
+        IotLogInfo( "Demo Memory Analysis StackWatermark Before: %u Watermark After: %u Watermark Difference: %u \r\n", xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark, ( xBeforeDemoTaskWaterMark - xAfterDemoTaskWaterMark ) );
     #endif /* democonfigMEMORY_ANALYSIS */
 
     /* DO NOT EDIT - This demo end marker is used in the test framework to
      * determine the end of a demo. */
-
     IotLogInfo( "-------DEMO FINISHED-------\n" );
 }
 
