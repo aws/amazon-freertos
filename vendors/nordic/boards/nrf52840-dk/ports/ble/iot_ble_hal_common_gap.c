@@ -579,19 +579,18 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
             {
                 if( xSecurityParameters.bond == true )
                 {
-                    xBondedState = eBTbondStateNone;
+                    xBondedState = eBTbondStateBonded;
                 }
                 else
                 {
-                    xBondedState = eBTbondStateBonded;
+                    xBondedState = eBTbondStateNone;
                 }
 
                 xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess,
                                                       &xConnectionRemoteAddress,
                                                       xBondedState,
                                                       p_ble_evt->evt.gap_evt.params.conn_sec_update.conn_sec.sec_mode.lv,
-                                                      0
-                                                      );
+                                                      eBTauthSuccess );
             }
 
             break;
@@ -662,18 +661,13 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                                   error_src,
                                   error_src );
 
-                   if( xBTCallbacks.pxBondedCb && ( status == 0x85 ) ) /* NOTE: Decode other errors */
+                   if( xBTCallbacks.pxPairingStateChangedCb && ( status == 0x85 ) ) /* NOTE: Decode other errors */
                    {
-                       xBTCallbacks.pxBondedCb( eBTStatusAuthRejected, &xConnectionRemoteAddress, false );
-                   }
-               }
-               else
-               {
-                   if( xBTCallbacks.pxBondedCb )
-                   {
-                       xBTCallbacks.pxBondedCb( eBTStatusSuccess,
-                                                &xConnectionRemoteAddress,
-                                                true );
+                       xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail,
+                                               &xConnectionRemoteAddress,
+                                               eBTbondStateNone,
+                                               eBTSecLevelNoSecurity,
+                                               eBTauthFailHostRejectSecurity );
                    }
                }
            }
@@ -1260,9 +1254,13 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
     #endif /* ifdef DELETE_ALL_BONDS */
     xStatus = BTNRFError( xErrCode );
 
-    if( ( xBTCallbacks.pxBondedCb != NULL ) )
+    if( xBTCallbacks.pxPairingStateChangedCb != NULL )
     {
-        xBTCallbacks.pxBondedCb( xStatus, ( BTBdaddr_t * ) pxBdAddr, false );
+         xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess,
+                                               ( BTBdaddr_t * ) pxBdAddr,
+                                               eBTbondStateNone,
+                                               eBTSecLevelNoSecurity,
+                                               eBTauthSuccess );
     }
 
     return xStatus;
@@ -1425,17 +1423,6 @@ void prvPmEventHandler( const pm_evt_t * event )
 
     switch( event->evt_id )
     {
-        case PM_EVT_BONDED_PEER_CONNECTED:
-
-            if( xBTCallbacks.pxBondedCb )
-            {
-                xBTCallbacks.pxBondedCb( eBTStatusSuccess,
-                                         &xConnectionRemoteAddress,
-                                         true );
-            }
-
-            break;
-
         case PM_EVT_CONN_SEC_CONFIG_REQ:
             /* Repairing attempt between already bonded devices */
             conn_sec_config.allow_repairing = true;

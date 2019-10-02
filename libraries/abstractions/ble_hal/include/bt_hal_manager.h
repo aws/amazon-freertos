@@ -521,7 +521,6 @@ typedef struct
     BTPinRequestCallback_t pxPinRequestCb;
     BTSspRequestCallback_t pxSspRequestCb;
     BTPairingStateChangedCallback_t pxPairingStateChangedCb;
-    BTBondedCallback_t pxBondedCb;
     BTDutModeRecvCallback_t pxDutModeRecvCb;
     BTLeTestModeCallback_t pxleTestModeCb;
     BTEnergyInfoCallback_t pxEnergyInfoCb;

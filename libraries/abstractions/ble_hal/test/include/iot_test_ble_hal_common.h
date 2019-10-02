@@ -196,7 +196,6 @@ typedef enum
     eBLEHALEventSSPrequestConfirmationCb = 22,
     eBLEHALEventPairingStateChangedCb = 23,
     eBLEHALEventRequestExecWriteCb = 24,
-    eBLEHALEventBondedCb = 25,
     eBLENbHALEvents,
 } BLEHALEventsTypes_t;
 
@@ -309,6 +308,7 @@ typedef struct
     BTStatus_t xStatus;
     BTBdaddr_t xRemoteBdAddr;
     BTSecurityLevel_t xSecurityLevel;
+    BTBondState_t xBondState;
     BTAuthFailureReason_t xReason;
 } BLETESTPairingStateChangedCallback_t;
 
@@ -330,15 +330,6 @@ typedef struct
     BTBdaddr_t pxBda;
     bool bConnected;
 } BLETESTConnectionCallback_t;
-
-typedef struct
-{
-    BLEHALEventsInternals_t xEvent;
-    BTStatus_t xStatus;
-    BTBdaddr_t xRemoteBdAddr;
-    bool bIsBonded;
-} BLETESTBondedCallback_t;
-
 
 typedef enum
 {

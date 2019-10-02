@@ -259,7 +259,6 @@ BTCallbacks_t _xBTManagerCb =
     .pxRemoteDevicePropertiesCb = NULL,
     .pxSspRequestCb             = prvSspRequestCb,
     .pxPairingStateChangedCb    = prvPairingStateChangedCb,
-    .pxBondedCb                 = prvBondedCb,
     .pxDutModeRecvCb            = NULL,
     .pxleTestModeCb             = NULL,
     .pxEnergyInfoCb             = NULL,
@@ -1600,6 +1599,7 @@ void prvPairingStateChangedCb( BTStatus_t xStatus,
         pxPairingStateChangedCallback->xEvent.xEventTypes = eBLEHALEventPairingStateChangedCb;
         pxPairingStateChangedCallback->xEvent.lHandle = NO_HANDLE;
         pxPairingStateChangedCallback->xStatus = xStatus;
+        pxPairingStateChangedCallback->xBondState = xState;
 
         if( pxRemoteBdAddr != NULL )
         {
@@ -1643,33 +1643,6 @@ void prvRequestExecWriteCb( uint16_t usConnId,
         pxRequestExecWriteCallback->bExecWrite = bExecWrite;
 
         pushToQueue( &pxRequestExecWriteCallback->xEvent.eventList );
-    }
-}
-
-void prvBondedCb( BTStatus_t xStatus,
-                  BTBdaddr_t * pxRemoteBdAddr,
-                  bool bIsBonded )
-{
-    BLETESTBondedCallback_t * pxBondedCallback = IotTest_Malloc( sizeof( BLETESTBondedCallback_t ) );
-
-    if( pxBondedCallback != NULL )
-    {
-        pxBondedCallback->bIsBonded = bIsBonded;
-
-        if( pxRemoteBdAddr != NULL )
-        {
-            memcpy( &pxBondedCallback->xRemoteBdAddr, pxRemoteBdAddr, sizeof( BTBdaddr_t ) );
-        }
-        else
-        {
-            memset( &pxBondedCallback->xRemoteBdAddr, 0, sizeof( BTBdaddr_t ) );
-        }
-
-        pxBondedCallback->xStatus = xStatus;
-        pxBondedCallback->xEvent.xEventTypes = eBLEHALEventBondedCb;
-        pxBondedCallback->xEvent.lHandle = NO_HANDLE;
-
-        pushToQueue( &pxBondedCallback->xEvent.eventList );
     }
 }
 

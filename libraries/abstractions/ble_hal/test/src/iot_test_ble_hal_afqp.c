@@ -121,16 +121,16 @@ TEST_GROUP_RUNNER( Full_BLE )
 void prvRemoveBond( BTBdaddr_t * pxDeviceAddress )
 {
     BTStatus_t xStatus;
-    BLETESTBondedCallback_t xBondedEvent;
+    BLETESTPairingStateChangedCallback_t xPairingEvent;
 
     xStatus = _pxBTInterface->pxRemoveBond( pxDeviceAddress );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventBondedCb, NO_HANDLE, ( void * ) &xBondedEvent, sizeof( BLETESTBondedCallback_t ), BLE_TESTS_WAIT );
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xBondedEvent.xStatus );
-    TEST_ASSERT_EQUAL( false, xBondedEvent.bIsBonded );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xBondedEvent.xRemoteBdAddr, pxDeviceAddress, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingEvent.xStatus );
+    TEST_ASSERT_EQUAL( eBTbondStateNone, xPairingEvent.xBondState );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xPairingEvent.xRemoteBdAddr, pxDeviceAddress, sizeof( BTBdaddr_t ) ) );
 }
 
 TEST( Full_BLE, BLE_Setup )
@@ -253,11 +253,17 @@ TEST( Full_BLE, BLE_Connection_CheckBonding )
 TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 {
     BTStatus_t xStatus;
-    BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
-    BLETESTBondedCallback_t xBondedEvent;
+     BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
 
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
+
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                        /* Pairing should never come since it is secure connection only */
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus ); /* Pairing should never come since it is secure connection only */
+    TEST_ASSERT_EQUAL( eBTbondStateBonded, xPairingStateChangedEvent.xBondState );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel );
 
     prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
                               true,
@@ -292,7 +298,6 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
     BTStatus_t xStatus;
     BLETESTsspRequestCallback_t xSSPrequestEvent;
     BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
-    BLETESTBondedCallback_t xBondedEvent;
 
     /* Wait secure connection. Secure connection is triggered by writting to bletestsCHARB. */
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
@@ -314,6 +319,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus );
+    TEST_ASSERT_EQUAL( eBTbondStateBonded, xPairingStateChangedEvent.xBondState );
     TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
     TEST_ASSERT_EQUAL( eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel );
 
