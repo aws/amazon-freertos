@@ -34,10 +34,14 @@ void *FreeRTOS_GetUDPPayloadBuffer( size_t xRequestedSizeBytes, TickType_t xBloc
 }
 
 /*
- * In this stub we allocate a buffer within the specified range
- * Note that the values for BUFFER_SIZE and prvProcessDHCPReplies.0
- * are correlated, and their current values have been adjusted in order
- * to obtain maximum coverage in the shortest amount of time
+ * We stub out FreeRTOS_recvfrom to do nothing but return a buffer of
+ * arbitrary size (but size at most BUFFER_SIZE) containing arbitrary
+ * data.  We need to bound the size of the buffer in order to bound
+ * the number of iterations of the loop prvProcessDHCPReplies.0 that
+ * iterates over the buffer contents.  The bound BUFFER_SIZE is chosen
+ * to be large enough to ensure complete code coverage, and small
+ * enough to ensure CBMC terminates within a reasonable amount of
+ * time.
  */
 int32_t FreeRTOS_recvfrom(
   Socket_t xSocket, void *pvBuffer, size_t xBufferLength,
