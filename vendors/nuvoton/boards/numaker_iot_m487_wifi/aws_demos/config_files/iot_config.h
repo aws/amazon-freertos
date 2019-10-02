@@ -40,7 +40,7 @@
  * used for the HTTPS Client asynchronous download demo. */
 #define IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS       ( 1 )
 #define IOT_DEMO_HTTPS_RESP_USER_BUFFER_SIZE    ( 768 )
-#define IOT_DEMO_HTTPS_REQ_USER_BUFFER_SIZE     ( 400 )
+#define IOT_DEMO_HTTPS_RESP_BODY_BUFFER_SIZE    ( 256 )
 
 /* Library logging configuration. IOT_LOG_LEVEL_GLOBAL provides a global log
  * level for all libraries; the library-specific settings override the global
