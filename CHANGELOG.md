@@ -19,9 +19,6 @@
 #### PKCS #11
 - Update the PKCS #11 third-party headers to be the latest from OASIS (version 2.40 Plus Errata 01).
 
-#### Tracealyzer
-- Update Tracealyzer recorder library to 4.3.5.
-
 ## 201908.00 08/26/2019
 
 ### New Features
