@@ -82,7 +82,7 @@ TEST_GROUP_RUNNER( Full_TLS )
 {
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectDefault );
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-        #ifdef pkcs11testEC_KEY_SUPPORT
+        #if ( pkcs11testEC_KEY_SUPPORT == 1 )
             RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
             RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
         #endif
