@@ -38,6 +38,9 @@
 #include "aws_clientcredential_keys.h"
 #include "iot_test_tls.h"
 
+/* Configuration includes. */
+#include "iot_test_pkcs11_config.h"
+
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
 #include "iot_pkcs11.h"
