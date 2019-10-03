@@ -112,6 +112,8 @@ TEST_GROUP( TEST_IOT_UART );
  */
 TEST_SETUP( TEST_IOT_UART )
 {
+    xtestIotUARTSemaphore = xSemaphoreCreateCountingStatic( 10, 0, &xtestIotUARTCompleted );
+    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotUARTSemaphore );
 }
 
 /*-----------------------------------------------------------*/
