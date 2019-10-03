@@ -47,7 +47,7 @@
 /**
  * @brief  Incompatible API changes without backward compatibility.
  */
-#define btMAJOR_VERSION    2
+#define btMAJOR_VERSION    3
 
 /**
  * @brief Add new functionality with backward compatibility.
@@ -57,7 +57,7 @@
 /**
  * @brief Make changes in the API with backward compatibility.
  */
-#define btPATCH_VERSION    1
+#define btPATCH_VERSION    0
 
 /**
  * @brief  Help functions to convert version to string.
