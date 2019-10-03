@@ -265,8 +265,8 @@
 
 /**
  * @brief Enable MQTT over BLE GATT service.
- * 
- * The flag will enable the GATT service which communicates with Amazon FreeRTOS Mobile SDK,  
+ *
+ * The flag will enable the GATT service which communicates with Amazon FreeRTOS Mobile SDK,
  * which acts as a proxy to forward MQTT packets to AWS IoT.
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
