@@ -112,8 +112,6 @@ TEST_GROUP( TEST_IOT_UART );
  */
 TEST_SETUP( TEST_IOT_UART )
 {
-    xtestIotUARTSemaphore = xSemaphoreCreateCountingStatic( 10, 0, &xtestIotUARTCompleted );
-    TEST_ASSERT_NOT_EQUAL( NULL, xtestIotUARTSemaphore );
 }
 
 /*-----------------------------------------------------------*/
@@ -144,6 +142,7 @@ TEST_GROUP_RUNNER( TEST_IOT_UART )
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing );
 }
+/*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
@@ -179,7 +178,6 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteReadSync )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
-
 /*-----------------------------------------------------------*/
 /**
  * @brief Test Function to check UART Ioctl API specifications.
@@ -731,11 +729,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
         lIoctl = iot_uart_ioctl( xUartHandle, -1, &xUartConfigTest );
         TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
 
-        /* Call iot_uart_ioctl with enum eUartSetConfig, and NULL buffer.Expect IOT_UART_INVALID_VALUE */
         lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, NULL );
-        TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
-
-        /* Call iot_uart_ioctl with enum eUartGetConfig, and NULL buffer.Expect IOT_UART_INVALID_VALUE */
         lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, NULL );
         TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
 
@@ -751,6 +745,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
     lClose = iot_uart_close( xUartHandle );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
+/*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
