@@ -1,0 +1,12 @@
+[submodule "http-parser"]
+	path = libraries/3rdparty/http_parser
+	url = https://github.com/nodejs/http-parser.git
+	branch = v2.9.2
+[submodule "unity"]
+	path = libraries/3rdparty/unity
+	url = https://github.com/ThrowTheSwitch/Unity.git
+	branch = v2.4.3
+[submodule "freertos_kernel"]
+	path = freertos_kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+	branch = V10.2.1-convergence-FreeRTOS-Source

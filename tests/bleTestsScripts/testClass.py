@@ -1,24 +1,42 @@
+#
+# Amazon FreeRTOS BLE HAL V2.0.0
+# Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# http://aws.amazon.com/freertos
+# http://www.FreeRTOS.org
+#
+
 import sys
 import bleAdapter
 from bleAdapter import bleAdapter
 import time
+import testutils
 import dbus.mainloop.glib
 try:
   from gi.repository import GObject
 except ImportError:
   import gobject as GObject
 
-mainloop = GObject.MainLoop()
-testResult = None
-
-def discoveryStoppedCb(testDevice = None):
-    global testResult
-    testResult = False
-    if testDevice == None:
-        testResult = True
-    mainloop.quit()
-
 class runTest:
+    mainloop = GObject.MainLoop()
+
     DUT_GENERIC_STRING = "hello"
     DUT_FAIL_STRING = "fail"
     DUT_OPEN_CHAR_UUID = "8a7f1168-48af-4efb-83b5-e679f9320002"
@@ -30,7 +48,8 @@ class runTest:
     DUT_ENCRYPT_CHAR_UUID = "8a7f1168-48af-4efb-83b5-e679f9320003"
     DUT_ENCRYPT_DESCR_UUID = "8a7f1168-48af-4efb-83b5-e679f9320009"
 
-    DUT_UUID = "8a7f1168-48af-4efb-83b5-e679f932db5a"
+    DUT_UUID_128 = "8a7f1168-48af-4efb-83b5-e679f932db5a"
+    DUT_UUID_16 = "abcd"
     DUT_SERVICEB_UUID = "8a7f1168-48af-4efb-83b5-e679f9320001"
     DUT_CHAR= {"8a7f1168-48af-4efb-83b5-e679f9320002": {"Flags":"read, write"},
                "8a7f1168-48af-4efb-83b5-e679f9320003": {"Flags":"read, write"},
@@ -61,25 +80,96 @@ class runTest:
     numberOfTests = 0
     numberOfFailedTests = 0
 
+    # Manufacturer-specific Data
+    # First two bytes are company ID (randomly select Espressif(741) for test purpose)
+    # Next bytes are defined by the company (randomly select unit8_t 5 for test purpose)
+    COMPANY_ID = 741
+    MANU_DATA = 5
+
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
+    DUT_LONG_STRING = ["A" * (MTU_SIZE - 3), "B" * (MTU_SIZE - 3), "C" * (MTU_SIZE - 3)]
+    DUT_CHAR_E_STRING = "E"
+    DUT_CHAR_F_STRING = "F"
     isNotificationDeclinedSuccessFull = False
+
+    testResult = False
+
+    @staticmethod
+    def discoveryStoppedCb(testDevice = None):
+        global testResult
+        testResult = False
+        if testDevice == None:
+            testResult = True
+        runTest.mainloop.quit()
+
+    @staticmethod
+    def discoveryStartedCb(testDevice):
+        runTest.mainloop.quit()
+
+    @staticmethod
+    def discoveryEventCb(testDevice):
+        isTestSuccessFull = runTest.advertisement(testDevice)
+
+        if isTestSuccessFull == True:
+            runTest.setTestDevice(testDevice)
+            #discoveryEvent.set()
+            runTest.mainloop.quit()
+
+    @staticmethod
+    def discoveryEventCb_16bit(testDevice):
+        isTestSuccessFull = runTest.advertisement_16bit(testDevice)
+
+        if isTestSuccessFull == True:
+            runTest.setTestDevice(testDevice)
+            #discoveryEvent.set()
+            runTest.mainloop.quit()
+
+    @staticmethod
+    def notificationCb(uuid, value, flag):
+        isNotificationTestSuccessFull = runTest.notification(uuid, value, flag)
+        if isNotificationTestSuccessFull == True:
+            #notificationEvent.set()
+            runTest.mainloop.quit()
+
+    @staticmethod
+    def indicationCb(uuid, value, flag):
+        isIndicationTestSuccessFull = runTest.indication(uuid, value, flag)
+        if isIndicationTestSuccessFull == True:
+            #indicationEvent.set()
+            runTest.mainloop.quit()
+
+    @staticmethod
+    def notificationMTUCb(uuid, value, flag):
+        notification = runTest.notificationMTU2(uuid, value, flag)
+        if notification == runTest.DUT_FAIL_STRING:
+            runTest.mainloop.quit()
+            runTest.isNotificationDeclinedSuccessFull = True
+        if notification == runTest.DUT_MTU_2_STRING:
+            runTest.mainloop.quit()
+            runTest.isNotificationDeclinedSuccessFull = False
+
+    @staticmethod
+    def errorConnectCb():
+        print("Connection error")
+        sys.stdout.flush()
+        connectEvent.put(0)
 
     @staticmethod
     def stopAdvertisement(scan_filter):
         #Do one cycle of discovery to remove cached messages.
-        timerHandle = GObject.timeout_add(runTest.STOP_ADVERTISEMENT_TEST_TIMEOUT, discoveryStoppedCb)
+        timerHandle = GObject.timeout_add(runTest.STOP_ADVERTISEMENT_TEST_TIMEOUT, runTest.discoveryStoppedCb)
         bleAdapter.setDiscoveryFilter(scan_filter)
-        bleAdapter.startDiscovery(discoveryStoppedCb)#wait for DUT to start advertising
-        mainloop.run()
+        bleAdapter.startDiscovery(runTest.discoveryStoppedCb)#wait for DUT to start advertising
+        runTest.mainloop.run()
         bleAdapter.stopDiscovery()
 
         #All cached message have been remove. Try again a discovery.
-        timerHandle = GObject.timeout_add(runTest.STOP_ADVERTISEMENT_TEST_TIMEOUT, discoveryStoppedCb)
+        timerHandle = GObject.timeout_add(runTest.STOP_ADVERTISEMENT_TEST_TIMEOUT, runTest.discoveryStoppedCb)
         bleAdapter.setDiscoveryFilter(scan_filter)
-        bleAdapter.startDiscovery(discoveryStoppedCb)#wait for DUT to start advertising
-        mainloop.run()
+        bleAdapter.startDiscovery(runTest.discoveryStoppedCb)#wait for DUT to start advertising
+        runTest.mainloop.run()
         runTest.submitTestResult(testResult, runTest.stopAdvertisement)
         bleAdapter.stopDiscovery()
 
@@ -172,34 +262,41 @@ class runTest:
 
 
     @staticmethod
-    def indication(uuid, value):
+    def indication(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING):
+        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING) and (flag == "indicate"):
             isSuccessfull = True
 
         return isSuccessfull
 
     @staticmethod
-    def notification(uuid, value):
+    def notification(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_GENERIC_STRING) and (flag == "notify"):
             isSuccessfull = True
 
         return isSuccessfull
 
     @staticmethod
-    def notificationMTU2(uuid, value):
-        if uuid == runTest.DUT_NOTIFY_CHAR_UUID:
-            return value;
+    def notificationMTU2(uuid, value, flag):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (flag == "notify"):
+            return value
 
     @staticmethod
-    def notifyFailure(uuid, value):
+    def notificationOnCharE(uuid, value, flag):
         isSuccessfull = False
-        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_FAIL_STRING):
+        if (uuid == runTest.DUT_NOTIFY_CHAR_UUID) and (value == runTest.DUT_CHAR_E_STRING) and (flag == "notify"):
             isSuccessfull = True
 
         return isSuccessfull
 
+    @staticmethod
+    def indicationOnCharF(uuid, value, flag):
+        isSuccessfull = False
+        if (uuid == runTest.DUT_INDICATE_CHAR_UUID) and (value == runTest.DUT_CHAR_F_STRING) and (flag == "indicate"):
+            isSuccessfull = True
+
+        return isSuccessfull
 
     @staticmethod
     def writeWithoutResponse():
@@ -297,7 +394,8 @@ class runTest:
         return isSuccessfull
 
     @staticmethod
-    def advertisement(testDevice):
+    def advertisement(testDevice, DUT_UUID=None):
+        if (DUT_UUID == None): DUT_UUID = runTest.DUT_UUID_128
 
         if (bleAdapter.getPropertie(testDevice, "Address") == None):
             print("Advertisement test: Waiting for Address")
@@ -310,7 +408,7 @@ class runTest:
             sys.stdout.flush()
             return False
         else:
-            if (runTest.DUT_UUID not in UUIDs):
+            if (DUT_UUID not in UUIDs):
                 print("Advertisement test: Waiting for device UUID")
                 sys.stdout.flush()
                 return False
@@ -332,7 +430,7 @@ class runTest:
             if (runTest.DUT_NAME != name[:runTest.SHORT_LOCAL_NAME_SIZE]):
                 print("Advertisement test: name is incorrect: " + name)
                 sys.stdout.flush()
-                return False
+                # return False
 
         if (bleAdapter.getPropertie(testDevice, "TxPower") == None):
             print("Advertisement test: Waiting for TxPower")
@@ -345,6 +443,165 @@ class runTest:
             return False
 
         return True
+
+    @staticmethod
+    def get_manufacture_data(testDevice, DUT_UUID=None):
+        manufacture_data_dict = bleAdapter.getPropertie(testDevice, "ManufacturerData")
+
+        # If manufacture data doesn't exist, return None
+        if( manufacture_data_dict == None ):
+            print("No Manufacture Data")
+            sys.stdout.flush()
+            return None
+
+        # If manufacture data exists, return manufacture data
+        else:
+            print( "Manufacturer Specific Data: " + str(manufacture_data_dict.items()) )
+            sys.stdout.flush()
+            manufacture_data = manufacture_data_dict[runTest.COMPANY_ID]
+            return manufacture_data
+
+    @staticmethod
+    def _advertisement_start(scan_filter, UUID, discoveryEvent_Cb, bleAdapter):
+        scan_filter.update({ "UUIDs": [UUID]})
+        bleAdapter.setDiscoveryFilter(scan_filter)
+
+        #Discovery test
+        bleAdapter.startDiscovery(discoveryEvent_Cb)
+        runTest.mainloop.run()
+        bleAdapter.stopDiscovery()
+
+    @staticmethod
+    def _simple_connect():
+        #Simple Connection test
+        testDevice = runTest.getTestDevice()
+        isTestSuccessFull = bleAdapter.connect(testDevice)
+        time.sleep(2) #wait for connection parameters update
+
+    @staticmethod
+    def _advertisement_connection_tests(scan_filter,
+            bleAdapter,
+            UUID,
+            discoveryEvent_Cb):
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=UUID,
+                                     discoveryEvent_Cb=discoveryEvent_Cb,
+                                     bleAdapter=bleAdapter)
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        bleAdapter.disconnect()
+
+        testutils.removeBondedDevices()
+
+    @staticmethod
+    def Advertise_Without_Properties(scan_filter,
+            bleAdapter):
+
+        DUT_NAME_ORIGINAL = runTest.DUT_NAME
+        runTest.DUT_NAME = "nimb"
+        runTest._advertisement_connection_tests(scan_filter=scan_filter,
+                                                bleAdapter=bleAdapter,
+                                                UUID=runTest.DUT_UUID_128,
+                                                discoveryEvent_Cb=runTest.discoveryEventCb)
+        runTest.DUT_NAME = DUT_NAME_ORIGINAL
+        return True
+
+    @staticmethod
+    def Advertise_With_Manufacture_Data(scan_filter,
+            bleAdapter):
+        isTestSuccessFull = True
+
+        # Check when manufacture data length is 0, but pointer is valid
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                    UUID=runTest.DUT_UUID_128,
+                                    discoveryEvent_Cb=runTest.discoveryEventCb,
+                                    bleAdapter=bleAdapter)
+        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
+        if manufacture_data != None:
+            isTestSuccessFull = False
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        # Check when manufacture data pointer is NULL, but length is not 0
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                    UUID=runTest.DUT_UUID_128,
+                                    discoveryEvent_Cb=runTest.discoveryEventCb,
+                                    bleAdapter=bleAdapter)
+        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
+        if manufacture_data != None:
+            isTestSuccessFull = False
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        # Check when manufacture data length is not 0, and pointer is valid
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                    UUID=runTest.DUT_UUID_128,
+                                    discoveryEvent_Cb=runTest.discoveryEventCb,
+                                    bleAdapter=bleAdapter)
+        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
+        for data in manufacture_data:
+            if data != runTest.MANU_DATA:
+                isTestSuccessFull = False
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
+    def Advertise_With_16bit_ServiceUUID(scan_filter,
+            bleAdapter):
+        runTest._advertisement_connection_tests(scan_filter=scan_filter,
+                                                bleAdapter=bleAdapter,
+                                                UUID=runTest.DUT_UUID_16,
+                                                discoveryEvent_Cb=runTest.discoveryEventCb_16bit)
+        return True
+
+    @staticmethod
+    def Write_Notification_Size_Greater_Than_MTU_3(scan_filter,
+                                                        bleAdapter):
+        runTest._advertisement_connection_tests(scan_filter=scan_filter,
+                                                bleAdapter=bleAdapter,
+                                                UUID=runTest.DUT_UUID_128,
+                                                discoveryEvent_Cb=runTest.discoveryEventCb)
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        bleAdapter.gatt.updateLocalAttributeTable()
+
+        # Data size > MTU - 3 send notification test
+        bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
+        isTestSuccessFull = True
+        runTest.mainloop.run()
+        isTestSuccessFull &= runTest.isNotificationDeclinedSuccessFull
+
+        # unsubscribe
+        isTestSuccessFull &= bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe
+
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
+    def advertisement_16bit(testDevice):
+        return runTest.advertisement(testDevice, DUT_UUID=runTest.UUID_16to128(runTest.DUT_UUID_16))
+
+    @staticmethod
+    def UUID_16to128(UUID_16bit):
+        return "0000"+UUID_16bit+"-0000-1000-8000-00805f9b34fb"
+
+    @staticmethod
+    def setTestDevice(testDeviceTmp):
+        runTest.testDevice = testDeviceTmp
+
+    @staticmethod
+    def getTestDevice():
+        return runTest.testDevice
 
     @staticmethod
     def submitTestResult(isSuccessfull, testMethod):
@@ -367,7 +624,12 @@ class runTest:
             runTest.disconnect: "_disconnect",
             runTest.reconnectWhileBonded: "_reconnectWhileBonded",
             runTest.reconnectWhileNotBonded: "_reconnectWhileNotBonded",
-            runTest.stopAdvertisement: "_stopAdvertisement"
+            runTest.stopAdvertisement: "_stopAdvertisement",
+            runTest.Advertise_Without_Properties: "_Advertise_Without_Properties",
+            runTest.Advertise_With_16bit_ServiceUUID: "_Advertise_With_16bit_ServiceUUID",
+            runTest.Advertise_With_Manufacture_Data: "_Advertise_With_Manufacture_Data",
+            # runTest.Advertise_Interval_Consistent_After_BT_Reset: "_Advertise_Interval_Consistent_After_BT_Reset",
+            runTest.Write_Notification_Size_Greater_Than_MTU_3: "_Write_Notification_Size_Greater_Than_MTU_3"
         }
 
         runTest.numberOfTests += 1
@@ -386,11 +648,3 @@ class runTest:
         print("-----------------------")
         print(str(runTest.numberOfTests)+ " Tests "+str(runTest.numberOfFailedTests)+" Failures 0 Ignored")
         sys.stdout.flush()
-
-    @staticmethod
-    def setTestDevice(testDeviceTmp):
-        runTest.testDevice = testDeviceTmp
-
-    @staticmethod
-    def getTestDevice():
-        return runTest.testDevice

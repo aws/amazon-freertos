@@ -313,6 +313,7 @@ struct ble_gap_pairing_req {
     uint8_t io_cap;
     uint8_t oob_data_flag;
     uint8_t authreq;
+    uint8_t max_enc_key_size;
 };
 
 struct ble_gap_repeat_pairing {

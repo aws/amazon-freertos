@@ -193,7 +193,7 @@ static int prvGenerateRandomBytes( void * pvCtx,
 
     xResult = pxCtx->pxP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
 
-    if( xResult != 0 )
+    if( xResult != CKR_OK )
     {
         TLS_PRINT( ( "ERROR: Failed to generate random bytes %d \r\n", xResult ) );
         xResult = TLS_ERROR_RNG;
@@ -482,7 +482,7 @@ static int prvReadCertificateIntoContext( TLSContext_t * pxTlsContext,
  */
 static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 {
-    BaseType_t xResult = 0;
+    BaseType_t xResult = CKR_OK;
     CK_SLOT_ID * pxSlotIds = NULL;
     CK_ULONG xCount = 0;
     CK_ATTRIBUTE xTemplate[ 2 ];
@@ -521,7 +521,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 
     /* Start a private session with the P#11 module using the first
      * enumerated slot. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
                                                                           CKF_SERIAL_SESSION,
@@ -531,7 +531,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     }
 
     /* Put the module in authenticated mode. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_Login( pxCtx->xP11Session,
                                                                     CKU_USER,
@@ -539,14 +539,18 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                                                     sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
-    /* Get the handle of the device private key. */
-    xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
-                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            CKO_PRIVATE_KEY,
-                                            &pxCtx->xP11PrivateKey );
-
-    if( pxCtx->xP11PrivateKey == CK_INVALID_HANDLE )
+    if( CKR_OK == xResult )
     {
+        /* Get the handle of the device private key. */
+        xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
+                                                pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                CKO_PRIVATE_KEY,
+                                                &pxCtx->xP11PrivateKey );
+    }
+
+    if( ( CKR_OK == xResult ) && ( pxCtx->xP11PrivateKey == CK_INVALID_HANDLE ) )
+    {
+        xResult = TLS_ERROR_NO_PRIVATE_KEY;
         TLS_PRINT( ( "ERROR: Private key not found. " ) );
     }
 
@@ -654,7 +658,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 BaseType_t TLS_Init( void ** ppvContext,
                      TLSParams_t * pxParams )
 {
-    BaseType_t xResult = 0;
+    BaseType_t xResult = CKR_OK;
     TLSContext_t * pxCtx = NULL;
     CK_C_GetFunctionList xCkGetFunctionList = NULL;
 
@@ -681,7 +685,7 @@ BaseType_t TLS_Init( void ** ppvContext,
         xResult = ( BaseType_t ) xCkGetFunctionList( &pxCtx->pxP11FunctionList );
 
         /* Ensure that the PKCS #11 module is initialized. */
-        if( 0 == xResult )
+        if( CKR_OK == xResult )
         {
             xResult = ( BaseType_t ) xInitializePKCS11();
 

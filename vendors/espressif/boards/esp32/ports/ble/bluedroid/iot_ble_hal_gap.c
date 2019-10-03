@@ -350,6 +350,11 @@ BTStatus_t prvBTBleAdapterInit( const BTBleAdapterCallbacks_t * pxCallbacks )
 
     if( xESPstatus == ESP_OK )
     {
+        xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_MIN_KEY_SIZE, &xKeySize, sizeof( uint8_t ) );
+    }
+
+    if( xESPstatus == ESP_OK )
+    {
         xESPstatus = esp_ble_gap_set_security_param( ESP_BLE_SM_SET_INIT_KEY, &xInitKey, sizeof( uint8_t ) );
     }
 

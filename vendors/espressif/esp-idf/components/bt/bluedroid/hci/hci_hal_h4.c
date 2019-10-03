@@ -57,6 +57,7 @@ typedef struct {
     const allocator_t *allocator;
     size_t buffer_size;
     fixed_queue_t *rx_q;
+    uint16_t adv_free_num;
 } hci_hal_env_t;
 
 
@@ -84,6 +85,7 @@ static void hci_hal_env_init(
 
     hci_hal_env.allocator = buffer_allocator_get_interface();
     hci_hal_env.buffer_size = buffer_size;
+    hci_hal_env.adv_free_num = 0;
 
     hci_hal_env.rx_q = fixed_queue_new(max_buffer_count);
     if (hci_hal_env.rx_q) {
@@ -105,8 +107,11 @@ static bool hal_open(const hci_hal_callbacks_t *upper_callbacks)
 {
     assert(upper_callbacks != NULL);
     callbacks = upper_callbacks;
-
+#if (BLE_ADV_REPORT_FLOW_CONTROL == TRUE)
+    hci_hal_env_init(HCI_HAL_SERIAL_BUFFER_SIZE, BLE_ADV_REPORT_FLOW_CONTROL_NUM + L2CAP_HOST_FC_ACL_BUFS + QUEUE_SIZE_MAX); // adv flow control num + ACL flow control num + hci cmd numeber
+#else
     hci_hal_env_init(HCI_HAL_SERIAL_BUFFER_SIZE, QUEUE_SIZE_MAX);
+#endif
 
     xHciH4Queue = xQueueCreate(HCI_H4_QUEUE_LEN, sizeof(BtTaskEvt_t));
     xTaskCreatePinnedToCore(hci_hal_h4_rx_handler, HCI_H4_TASK_NAME, HCI_H4_TASK_STACK_SIZE, NULL, HCI_H4_TASK_PRIO, &xHciH4TaskHandle, HCI_H4_TASK_PINNED_TO_CORE);
@@ -225,11 +230,36 @@ static void hci_packet_complete(BT_HDR *packet){
 bool host_recv_adv_packet(BT_HDR *packet)
 {
     assert(packet);
-    if(packet->data[0] == DATA_TYPE_EVENT && packet->data[1] == HCI_BLE_EVENT && packet->data[3] ==  HCI_BLE_ADV_PKT_RPT_EVT) {
-        return true;
+    if(packet->data[0] == DATA_TYPE_EVENT && packet->data[1] == HCI_BLE_EVENT) {
+        if(packet->data[3] ==  HCI_BLE_ADV_PKT_RPT_EVT 
+#if (BLE_ADV_REPORT_FLOW_CONTROL == TRUE)
+        || packet->data[3] ==  HCI_BLE_ADV_DISCARD_REPORT_EVT
+#endif
+        ) {
+            return true;
+        }
     }
     return false;
 }
+
+#if (BLE_ADV_REPORT_FLOW_CONTROL == TRUE)
+static void hci_update_adv_report_flow_control(BT_HDR *packet)
+{
+    // this is adv packet
+    if(host_recv_adv_packet(packet)) {
+        // update adv free number
+        hci_hal_env.adv_free_num ++;
+        if (esp_vhci_host_check_send_available()){
+            // send hci cmd
+            btsnd_hcic_ble_update_adv_report_flow_control(hci_hal_env.adv_free_num);
+            hci_hal_env.adv_free_num = 0;
+        } else {
+            //do nothing
+        }
+    }
+
+}
+#endif
 
 static void hci_hal_h4_hdl_rx_packet(BT_HDR *packet)
 {
@@ -249,8 +279,10 @@ static void hci_hal_h4_hdl_rx_packet(BT_HDR *packet)
     packet->offset++;
     packet->len--;
     if (type == HCI_BLE_EVENT) {
+#if (!CONFIG_BT_STACK_NO_LOG)
         uint8_t len = 0;
         STREAM_TO_UINT8(len, stream);
+#endif
         HCI_TRACE_ERROR("Workround stream corrupted during LE SCAN: pkt_len=%d ble_event_len=%d\n",
                   packet->len, len);
         hci_hal_env.allocator->free(packet);
@@ -284,6 +316,11 @@ static void hci_hal_h4_hdl_rx_packet(BT_HDR *packet)
         hci_hal_env.allocator->free(packet);
         return;
     }
+
+#if (BLE_ADV_REPORT_FLOW_CONTROL == TRUE)
+    hci_update_adv_report_flow_control(packet);
+#endif
+
 #if SCAN_QUEUE_CONGEST_CHECK
     if(BTU_check_queue_is_congest() && host_recv_adv_packet(packet)) {
         HCI_TRACE_ERROR("BtuQueue is congested");
@@ -291,7 +328,6 @@ static void hci_hal_h4_hdl_rx_packet(BT_HDR *packet)
         return;
     }
 #endif
-
     packet->event = outbound_event_types[PACKET_TYPE_TO_INDEX(type)];
     callbacks->packet_ready(packet);
 }
@@ -333,7 +369,7 @@ static int host_recv_pkt_cb(uint8_t *data, uint16_t len)
     pkt->layer_specific = 0;
     memcpy(pkt->data, data, len);
     fixed_queue_enqueue(hci_hal_env.rx_q, pkt);
-    hci_hal_h4_task_post(100 / portTICK_PERIOD_MS);
+    hci_hal_h4_task_post(0);
 
     BTTRC_DUMP_BUFFER("Recv Pkt", pkt->data, len);
 

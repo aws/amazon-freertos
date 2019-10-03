@@ -96,12 +96,17 @@ void prvAfterRunningTests_Object( void );
  * These tests do not require provisioning. */
 TEST_GROUP( Full_PKCS11_StartFinish );
 
+/* Tests for determing the capabilities of the PKCS #11 module. */
+TEST_GROUP( Full_PKCS11_Capabilities );
+
 /* The NoKey test group is for test of cryptographic functionality
  * that do not require keys.  Covers digesting and randomness.
  * These tests do not require provisioning. */
 TEST_GROUP( Full_PKCS11_NoObject );
+
 /* The RSA test group is for tests that require RSA keys. */
 TEST_GROUP( Full_PKCS11_RSA );
+
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
 
@@ -137,6 +142,35 @@ TEST_GROUP_RUNNER( Full_PKCS11_StartFinish )
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_InitializeFinalize );
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_GetSlotList );
     RUN_TEST_CASE( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession );
+
+    prvAfterRunningTests_NoObject();
+}
+
+TEST_SETUP( Full_PKCS11_Capabilities )
+{
+    CK_RV xResult;
+
+    xResult = xInitializePKCS11();
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to initialize PKCS #11 module." );
+    xResult = xInitializePkcs11Session( &xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to open PKCS #11 session." );
+}
+
+TEST_TEAR_DOWN( Full_PKCS11_Capabilities )
+{
+    CK_RV xResult;
+
+    xResult = pxGlobalFunctionList->C_CloseSession( xGlobalSession );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to close session." );
+    xResult = pxGlobalFunctionList->C_Finalize( NULL );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to finalize session." );
+}
+
+TEST_GROUP_RUNNER( Full_PKCS11_Capabilities )
+{
+    prvBeforeRunningTests();
+
+    RUN_TEST_CASE( Full_PKCS11_Capabilities, AFQP_Capabilities );
 
     prvAfterRunningTests_NoObject();
 }
@@ -702,7 +736,119 @@ TEST( Full_PKCS11_StartFinish, AFQP_OpenSessionCloseSession )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_CRYPTOKI_NOT_INITIALIZED, xResult, "Negative Test: Opened a session before initializing module." );
 }
 
+/*--------------------------------------------------------*/
+/*-------------- Capabilities Tests --------------------- */
+/*--------------------------------------------------------*/
 
+TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
+{
+    CK_RV xResult = 0;
+    CK_ULONG xSlotCount = 0;
+    CK_SLOT_ID_PTR pxSlotId = NULL;
+    CK_MECHANISM_INFO MechanismInfo = { 0 };
+    CK_BBOOL xSupportsKeyGen = CK_FALSE;
+
+    /* Determine the number of slots. */
+    xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, NULL, &xSlotCount );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
+
+    /* Allocate memory to receive the list of slots, plus one extra. */
+    pxSlotId = pvPortMalloc( sizeof( CK_SLOT_ID ) * xSlotCount );
+    TEST_ASSERT_NOT_EQUAL_MESSAGE( NULL, pxSlotId, "Failed malloc memory for slot list" );
+
+    /* Call C_GetSlotList again to receive all slots with tokens present. */
+    xResult = pxGlobalFunctionList->C_GetSlotList( CK_TRUE, pxSlotId, &xSlotCount );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get slot count" );
+
+    /* Check for RSA PKCS #1 signing support. */
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_RSA_PKCS, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+
+    if( CKR_OK == xResult )
+    {
+        TEST_ASSERT_TRUE( 0 != ( CKF_SIGN & MechanismInfo.flags ) );
+
+        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
+                          MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
+
+        /* Check for pre-padded signature verification support. This is required
+         * for round-trip testing. */
+        xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_RSA_X_509, &MechanismInfo );
+        TEST_ASSERT_TRUE( CKR_OK == xResult );
+
+        TEST_ASSERT_TRUE( 0 != ( CKF_VERIFY & MechanismInfo.flags ) );
+
+        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11RSA_2048_MODULUS_BITS &&
+                          MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
+
+        /* Check consistency with static configuration. */
+        #ifndef pkcs11testRSA_KEY_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+
+        configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
+    }
+
+    /* Check for ECDSA support. */
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_ECDSA, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+
+    if( CKR_OK == xResult )
+    {
+        TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
+
+        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
+                          MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+
+        /* Check consistency with static configuration. */
+        #ifndef pkcs11testEC_KEY_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+
+        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
+    }
+
+    /* Check for elliptic-curve key generation support. */
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_EC_KEY_PAIR_GEN, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+
+    if( CKR_OK == xResult )
+    {
+        TEST_ASSERT_TRUE( 0 != ( CKF_GENERATE_KEY_PAIR & MechanismInfo.flags ) );
+
+        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
+                          MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+
+        xSupportsKeyGen = CK_TRUE;
+        configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
+    }
+
+    /* SHA-256 support is required, but we don't need to write it to the console,
+     * since it doesn't impact the execution sequence for IDT. */
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult );
+    TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
+
+    /* Check for consistency between static configuration and runtime key
+     * generation settings. */
+    if( CK_TRUE == xSupportsKeyGen )
+    {
+        #ifndef pkcs11testGENERATE_KEYPAIR_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+    }
+    else
+    {
+        #ifdef pkcs11testGENERATE_KEYPAIR_SUPPORT
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+    }
+
+    /* Report on static configuration for key import support. */
+    #ifdef pkcs11testIMPORT_PRIVATE_KEY_SUPPORT
+        configPRINTF( ( "The PKCS #11 module supports private key import.\r\n" ) );
+    #endif
+}
 
 /*--------------------------------------------------------*/
 /*-------------- No Object Tests ------------------------ */

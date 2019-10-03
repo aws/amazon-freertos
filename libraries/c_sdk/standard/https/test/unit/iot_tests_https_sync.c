@@ -446,7 +446,7 @@ TEST_SETUP( HTTPS_Client_Unit_Sync )
  */
 TEST_TEAR_DOWN( HTTPS_Client_Unit_Sync )
 {
-    IotHttpsClient_Deinit();
+    IotHttpsClient_Cleanup();
     IotSdk_Cleanup();
 }
 

@@ -108,9 +108,12 @@ CK_RV prvOpenSession( CK_SESSION_HANDLE * pxSession,
 }
 
 /*-----------------------------------------------------------*/
+
 #ifdef CreateMutex
     #undef CreateMutex /* This is a workaround because CreateMutex is redefined to CreateMutexW in synchapi.h in windows. :/ */
 #endif
+
+/*-----------------------------------------------------------*/
 
 CK_RV xInitializePKCS11( void )
 {
@@ -135,6 +138,8 @@ CK_RV xInitializePKCS11( void )
 
     return xResult;
 }
+
+/*-----------------------------------------------------------*/
 
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession )
 {
@@ -258,6 +263,8 @@ CK_RV xFindObjectWithLabelAndClass( CK_SESSION_HANDLE xSession,
 
     return xResult;
 }
+
+/*-----------------------------------------------------------*/
 
 CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
                                                 uint8_t * x51ByteHashOidBuffer )

@@ -1,3 +1,28 @@
+#
+# Amazon FreeRTOS BLE HAL V2.0.0
+# Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# http://aws.amazon.com/freertos
+# http://www.FreeRTOS.org
+#
+
 import Queue
 import sys
 import os
@@ -7,50 +32,6 @@ import testutils
 import time
 from testClass import runTest
 from bleAdapter import bleAdapter
-import dbus.mainloop.glib
-try:
-  from gi.repository import GObject
-except ImportError:
-  import gobject as GObject
-
-mainloop = GObject.MainLoop()
-notificationEvent = threading.Event()
-indicationEvent = threading.Event()
-discoveryEvent = threading.Event()
-servicesResolvedEvent = threading.Event()
-pairingEvent = threading.Event()
-
-def discoveryStartedCb(testDevice):
-    mainloop.quit()
-
-
-def discoveryEventCb(testDevice):
-    isTestSuccessFull = runTest.advertisement(testDevice)
-
-    if isTestSuccessFull == True:
-        runTest.setTestDevice(testDevice)
-        #discoveryEvent.set()
-        mainloop.quit()
-
-def notificationCb(uuid, value):
-    isNotificationTestSuccessFull = runTest.notification(uuid, value)
-    if isNotificationTestSuccessFull == True:
-        #notificationEvent.set()
-        mainloop.quit()
-
-    isIndicationTestSuccessFull = runTest.indication(uuid, value)
-    if isIndicationTestSuccessFull == True:
-        #indicationEvent.set()
-        mainloop.quit()
-
-def teardown_test(agent):
-    securityAgent.removeSecurityAgent()
-
-    os.system("sudo rm -rf \"/var/lib/bluetooth/*\"")
-    os.system("sudo hciconfig hci0 reset")
-
-    testutils.removeBondedDevices()
-    return agent
 
 def main():
     agent = None
@@ -59,7 +40,7 @@ def main():
     bleAdapter.init()
     agent = securityAgent.createSecurityAgent(agent=agent)
 
-    scan_filter.update({ "UUIDs": [runTest.DUT_UUID]})
+    scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
     bleAdapter.setDiscoveryFilter(scan_filter)
 
     #KPI test
@@ -73,18 +54,18 @@ def main():
 
     for i in range(numberOfReconnect):
         if i == 0:
-            bleAdapter.startDiscovery(discoveryEventCb)
+            bleAdapter.startDiscovery(runTest.discoveryEventCb)
         else:
-            bleAdapter.startDiscovery(discoveryStartedCb)   #wait for DUT to start advertising
+            bleAdapter.startDiscovery(runTest.discoveryStartedCb)   #wait for DUT to start advertising
         tStartScan = time.time()
-        mainloop.run()
-        startToReceived = time.time() - tStartScan  
+        runTest.mainloop.run()
+        startToReceived = time.time() - tStartScan
         bleAdapter.stopDiscovery()
-        
+
         testDevice = runTest.getTestDevice()
         isConnectSuccessFull = bleAdapter.connect(testDevice)
         startToConnected = time.time() - tStartScan
-        
+
         isTestSuccessFull &= isConnectSuccessFull
         startToReceivedSum += startToReceived
         if isConnectSuccessFull:
@@ -102,9 +83,3 @@ def main():
 
     time.sleep(2)
     runTest.printTestsSummary()
-    agent = teardown_test(agent)
-
-def errorConnectCb():
-    print("Connection error")
-    sys.stdout.flush()
-    connectEvent.put(0)

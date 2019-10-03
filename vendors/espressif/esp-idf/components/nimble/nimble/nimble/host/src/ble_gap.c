@@ -4501,6 +4501,7 @@ ble_gap_pairing_req_event(const struct ble_gap_pairing_req *req)
     event.pairing_req.io_cap = req->io_cap;
     event.pairing_req.oob_data_flag = req->oob_data_flag;
     event.pairing_req.authreq = req->authreq;
+    event.pairing_req.max_enc_key_size = req->max_enc_key_size;
 
     rc = ble_gap_call_conn_event_cb(&event, req->conn_handle);
     return rc;

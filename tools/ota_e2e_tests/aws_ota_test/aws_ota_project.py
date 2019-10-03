@@ -135,7 +135,7 @@ class OtaAfrProject:
         for command in buildCommands:
             command = command.format(**self._buildConfig)
             print('====> Executing Command: ' + command)
-            proc = subprocess.Popen(command + ' > build.log 2>&1', shell=True)
+            proc = subprocess.Popen(command + ' >> build.log 2>&1', shell=True)
             proc.wait()
             print('====> Command run completed with the return code: ', proc.returncode)
             returnCodes.append(proc.returncode)

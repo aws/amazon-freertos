@@ -35,16 +35,16 @@
 /* C standard library includes. */
 #include <stddef.h>
 #include <string.h>
-#include "iot_linear_containers.h"
-#include "platform/iot_threads.h"
-#include "types/iot_platform_types.h"
-#include "bt_hal_manager_adapter_ble.h"
-#include "bt_hal_manager.h"
-#include "bt_hal_gatt_server.h"
-#include "bt_hal_gatt_types.h"
+#include IOT_LINEAR_CONTAINERS
+#include IOT_THREADS
+#include IOT_PLATFORM_TYPES
+#include IOT_BT_HAL_MANAGER_ADAPTER_BLE
+#include IOT_BT_HAL_MANAGER_ADAPTER
+#include IOT_BT_HAL_GATT_SERVER
+#include IOT_BT_HAL_GATT_TYPES
 /* Test framework includes. */
-#include "unity_fixture.h"
-#include "unity.h"
+#include IOT_UNITY_FIXTURE
+#include IOT_UNITY
 
 /**
  * @brief Connection parameters.
@@ -59,7 +59,9 @@ typedef struct
 
 #define bletestsAPP_UUID                 { 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
 #define bletestsSERVER_UUID              { 0x22, 0x22, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
-#define bletestsFREERTOS_SVC_UUID        { 0x5A, 0xDB, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
+#define bletestsFREERTOS_SVC_UUID_128    { 0x5A, 0xDB, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }
+#define bletestsFREERTOS_SVC_UUID_32     0x8A7F1168
+#define bletestsFREERTOS_SVC_UUID_16     0xabcd
 
 #define NO_HANDLE                        -1
 
@@ -364,6 +366,12 @@ typedef enum
     bletestATTR_SRVCB_NUMBER
 } bletestAttSrvB_t;
 
+typedef struct
+{
+    size_t xLength;
+    uint8_t ucBuffer[ bletestsSTRINGYFIED_UUID_SIZE ];
+} response_t;
+
 void prvDeviceStateChangedCb( BTState_t xState );
 void prvRegisterBleAdapterCb( BTStatus_t xStatus,
                               uint8_t ucAdapterIf,
@@ -453,26 +461,52 @@ void prvRequestExecWriteCb( uint16_t usConnId,
 void prvBondedCb( BTStatus_t xStatus,
                   BTBdaddr_t * pxRemoteBdAddr,
                   bool bIsBonded );
-void prvStartAdvertisement( void );
-BTStatus_t prvWaitEventFromQueue( BLEHALEventsTypes_t xEventName,
-                                  int32_t lhandle,
-                                  void * pxMessage,
-                                  size_t xMessageLength,
-                                  uint32_t timeoutMs );
-void prvBLEManagerInit( void );
-void prvBLEEnable( bool bEnable );
-void prvStartService( BTService_t * xRefSrvc );
-void prvCreateServiceA( void );
-void prvCreateServiceB( void );
-void prvWaitConnection( bool bConnected );
-void prvStopService( BTService_t * xRefSrvc );
-void prvDeleteService( BTService_t * xRefSrvc );
-void checkNotificationIndication( bletestAttSrvB_t xAttribute,
-                                  bool enable );
-void prvBTUnregister( void );
-void prvBLEGAPInit( void );
-void prvBLEGATTInit( void );
-void prvSetAdvProperty( void );
-void prvSetAdvData( void );
+
+BTStatus_t bleStackInit( void );
+void IotTestBleHal_BLESetUp( void );
+void IotTestBleHal_BLEFree( void );
+
+void IotTestBleHal_StartAdvertisement( void );
+BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
+                                             int32_t lhandle,
+                                             void * pxMessage,
+                                             size_t xMessageLength,
+                                             uint32_t timeoutMs );
+void IotTestBleHal_BLEManagerInit( void );
+void IotTestBleHal_BLEEnable( bool bEnable );
+void IotTestBleHal_StartService( BTService_t * xRefSrvc );
+void IotTestBleHal_CreateServiceA( void );
+void IotTestBleHal_CreateServiceB( void );
+void IotTestBleHal_WaitConnection( bool bConnected );
+void IotTestBleHal_StopService( BTService_t * xRefSrvc );
+void IotTestBleHal_DeleteService( BTService_t * xRefSrvc );
+void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
+                                                bool enable );
+void IotTestBleHal_BTUnregister( void );
+void IotTestBleHal_BLEGAPInit( void );
+void IotTestBleHal_BLEGATTInit( void );
+void IotTestBleHal_SetAdvProperty( void );
+void IotTestBleHal_SetAdvData( BTuuidType_t Type,
+                               uint16_t usManufacturerLen,
+                               char * pcManufacturerData );
+
+void prvSendNotification( bletestAttSrvB_t xAttribute,
+                          bool bConfirm );
+void IotTestBleHal_CheckIndicationNotification( bool IsIndication,
+                                                bool IsConnected );
+BLETESTreadAttrCallback_t IotTestBleHal_ReadReceive( bletestAttSrvB_t xAttribute );
+void IotTestBleHal_ReadResponse( bletestAttSrvB_t xAttribute,
+                                 BLETESTreadAttrCallback_t xReadEvent,
+                                 bool IsConnected );
+BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribute,
+                                                       bool bNeedRsp,
+                                                       bool IsPrep,
+                                                       uint16_t usOffset );
+void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
+                                  BLETESTwriteAttrCallback_t xWriteEvent,
+                                  bool IsConnected );
+
+void IotTestBleHal_StartStopAdvCheck( bool start );
+void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */
