@@ -33,7 +33,7 @@
 /**
  * @brief Error code returned by ADC driver
  */
-#define IOT_ADC_SUCCESS                   ( 0 )     /*!< ADC operation completed succesfully. */
+#define IOT_ADC_SUCCESS                   ( 0 )     /*!< ADC operation completed successfully. */
 #define IOT_ADC_FAILED                    ( 1 )     /*!< ADC operation failed. */
 #define IOT_ADC_INVALID_VALUE             ( 2 )     /*!< At least one parameter is invalid. */
 #define IOT_ADC_NOT_OPEN                  ( 3 )     /*!< ADC operation not possible unless ADC instance is opened. */
@@ -89,7 +89,7 @@ IotAdcHandle_t iot_adc_open( int32_t lAdc );
  * All pending operation will be cancelled, put ADC module in reset state or low
  * power state if possible. Release all resources claimed during open call
  *
- * @param[in] pxAdc handle to ADC controller returned from open() call.
+ * @param[in] pxAdc handle to ADC controller returned from iot_adc_open() call.
  *
  * @return
  * - IOT_ADC_SUCCESS, on success;
@@ -271,8 +271,8 @@ typedef struct IotAdcConfig_s
 
 typedef enum
 {
-    eChStateIdle,     /*!< ADC is idle. */
-    eChStateBusy,     /*!< ADC is busy. */
+    eChStateIdle,     /*!< ADC channel is idle. */
+    eChStateBusy,     /*!< ADC channel is busy. */
 } IotAdcChState_t;
 
 /**
@@ -317,7 +317,7 @@ typedef struct IoTAdcChain_s
                            *!< logical number which client can use later to trigger group sampling */
     void * pvBuffer;      /*!< data buffer used by driver to save converted sample data.
                            *!< the buffer is allocated by client and passed to driver to use */
-    uint8_t ucBufLen;     /*!< data buffer length, shalll be large enough to hold group sample data */
+    uint8_t ucBufLen;     /*!< data buffer length, shall be large enough to hold group sample data */
     uint16_t usChainMask; /*!< define which ADC channels are in the chain group.
                            *!< e.g. 'x' bit set to 1 means ADC channel x is inclued in the group.
                            *!< Client shall manage potential ADC channel use conflict. */
