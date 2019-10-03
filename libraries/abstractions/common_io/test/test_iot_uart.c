@@ -115,7 +115,6 @@ static void prvReadWriteCallback( IotUARTOperationStatus_t xOpStatus,
 /* Define Test Group. */
 TEST_GROUP( TEST_IOT_UART );
 
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -159,6 +158,7 @@ TEST_GROUP_RUNNER( TEST_IOT_UART )
 /*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
 
+/*-----------------------------------------------------------*/
 /**
  * hardware loopback. The Tx and Rx pin on the vendor board are shorted with a
  * connector and the test is run by transmitting some bytes on write sync and checking
@@ -276,6 +276,8 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
     lClose = iot_uart_close( xUartHandle );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
+/*-----------------------------------------------------------*/
+
 /*-----------------------------------------------------------*/
 /**
  * @brief Test Function to check if UART can be configured to a different baudrate.
@@ -402,6 +404,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -455,7 +458,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
 
 /*-----------------------------------------------------------*/
 
-/**
+/*-----------------------------------------------------------*
  * @brief Test function to test the asynchronous read with UART by doing a
  * hardware loopback. The Tx and Rx pin on the vendor board are shorted with a
  * connector and the test is run by transmitting some bytes on write async and checking
@@ -619,6 +622,8 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
+/*-----------------------------------------------------------*/
 /**
  * @brief Test Function to fuzz iot_uart_read_async
  *-----------------------------------------------------------*/
@@ -704,11 +709,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
         lIoctl = iot_uart_ioctl( xUartHandle, -1, &xUartConfigTest );
         TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
 
-        /* Call iot_uart_ioctl with enum eUartSetConfig, and NULL buffer.Expect IOT_UART_INVALID_VALUE */
         lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, NULL );
-        TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
-
-        /* Call iot_uart_ioctl with enum eUartGetConfig, and NULL buffer.Expect IOT_UART_INVALID_VALUE */
         lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, NULL );
         TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
 
@@ -725,6 +726,8 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*/
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -757,6 +760,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
 /*-----------------------------------------------------------*/
 
 /* @brief Test Function to fuzz iot_uart_open and iot_uart_close
