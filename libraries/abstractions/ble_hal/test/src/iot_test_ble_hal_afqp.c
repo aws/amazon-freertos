@@ -253,13 +253,13 @@ TEST( Full_BLE, BLE_Connection_CheckBonding )
 TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 {
     BTStatus_t xStatus;
-     BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
+    BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
 
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), bletestWAIT_MODE1_LEVEL2_QUERY );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                        /* Pairing should never come since it is secure connection only */
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );                           /* Pairing should never come since it is secure connection only */
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus ); /* Pairing should never come since it is secure connection only */
     TEST_ASSERT_EQUAL( eBTbondStateBonded, xPairingStateChangedEvent.xBondState );
     TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
