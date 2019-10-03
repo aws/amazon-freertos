@@ -38,6 +38,9 @@
 #include "aws_clientcredential_keys.h"
 #include "iot_test_tls.h"
 
+/* Configuration includes. */
+#include "iot_test_pkcs11_config.h"
+
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
 #include "iot_pkcs11.h"
@@ -82,7 +85,7 @@ TEST_GROUP_RUNNER( Full_TLS )
 {
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectDefault );
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-        #ifdef pkcs11testEC_KEY_SUPPORT
+        #if ( pkcs11testEC_KEY_SUPPORT == 1 )
             RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
             RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
         #endif
