@@ -287,20 +287,18 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             rc = ble_gap_conn_find( event->enc_change.conn_handle, &desc );
             assert( rc == 0 );
 
-            if( desc.sec_state.bonded )
-            {
-                xBondedState = eBTbondStateBonded;
-
-                if( xBTCallbacks.pxBondedCb != NULL )
-                {
-                    xBTCallbacks.pxBondedCb( xStatus,
-                                             ( BTBdaddr_t * ) desc.peer_id_addr.val,
-                                             true );
-                }
-            }
 
             if( xBTCallbacks.pxPairingStateChangedCb != NULL )
             {
+                if( desc.sec_state.bonded )
+                {
+                    xBondedState = eBTbondStateBonded;
+                }
+                else
+                {
+                    xBondedState = eBTbondStateNone;
+                }
+
                 xSecurityLevel = prvConvertESPauthModeToSecurityLevel( desc );
 
                 if( event->enc_change.status == 0 )
@@ -923,11 +921,14 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
 
     xESPStatus = ble_store_util_count( BLE_STORE_OBJ_TYPE_OUR_SEC, &usNbDevices );
 
-    if( xBTCallbacks.pxBondedCb != NULL )
+    if( xBTCallbacks.pxPairingStateChangedCb != NULL )
     {
-        xBTCallbacks.pxBondedCb( xStatus,
-                                 ( BTBdaddr_t * ) pxBdAddr,
-                                 false );
+        xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess,
+                                              ( BTBdaddr_t * ) pxBdAddr,
+                                              eBTbondStateNone,
+                                              eBTSecLevelNoSecurity,
+                                              eBTauthSuccess );
+
     }
 
     return xStatus;

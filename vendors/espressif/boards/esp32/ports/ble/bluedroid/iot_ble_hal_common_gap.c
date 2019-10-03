@@ -251,16 +251,17 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
 
         case ESP_GAP_BLE_REMOVE_BOND_DEV_COMPLETE_EVT:
 
-            if( xBTCallbacks.pxBondedCb != NULL )
+            if( xBTCallbacks.pxPairingStateChangedCb != NULL )
             {
-                if( param->remove_bond_dev_cmpl.status != ESP_OK )
+                if( param->remove_bond_dev_cmpl.status == ESP_OK )
                 {
-                    xStatus = eBTStatusFail;
-                }
+                    xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess,
+                                                          ( BTBdaddr_t * ) &param->remove_bond_dev_cmpl.bd_addr,
+                                                          eBTbondStateNone,
+                                                          eBTSecLevelNoSecurity,
+                                                          0 );
 
-                xBTCallbacks.pxBondedCb( xStatus,
-                                         ( BTBdaddr_t * ) &param->remove_bond_dev_cmpl.bd_addr,
-                                         false );
+                }
             }
 
             break;
@@ -279,13 +280,6 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                 if( xProperties.bBondable == true )
                 {
                     xBondedState = eBTbondStateBonded;
-
-                    if( xBTCallbacks.pxBondedCb != NULL )
-                    {
-                        xBTCallbacks.pxBondedCb( xStatus,
-                                                 ( BTBdaddr_t * ) &param->ble_security.auth_cmpl.bd_addr,
-                                                 true );
-                    }
                 }
             }
             else
