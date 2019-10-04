@@ -596,9 +596,9 @@ void IotTestBleHal_CreateServiceA()
 void IotTestBleHal_CreateServiceB()
 {
     prvCreateService( &_xSrvcB );
-#ifdef ENABLE_TC_ADD_INCLUDED_SERVICE
-    prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
-#endif
+    #ifdef ENABLE_TC_ADD_INCLUDED_SERVICE
+        prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
+    #endif
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_B );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_C );
@@ -760,7 +760,7 @@ void prvSendNotification( bletestAttSrvB_t xAttribute,
 }
 
 void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
-                        bool bIsSet )
+                                   bool bIsSet )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTSetGetPropertyCallback_t xSetGetPropertyCb;
@@ -1492,7 +1492,7 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
     BTStatus_t xStatus = eBTStatusSuccess;
     void * pvPtr = NULL;
 
-    IDT_DEBUG("WaitEvent: %d, handle=0x%x\n", xEventName, (uint32_t)lhandle);
+    IDT_DEBUG( "WaitEvent: %d, handle=0x%x\n", xEventName, ( uint32_t ) lhandle );
 
     pvPtr = checkQueueForEvent( xEventName, lhandle );
 
@@ -1521,11 +1521,13 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
 
     if( xStatus == eBTStatusSuccess )
     {
-        IDT_DEBUG("Event Received: %d, handle=0x%x\n", xEventName, (uint32_t)lhandle);
+        IDT_DEBUG( "Event Received: %d, handle=0x%x\n", xEventName, ( uint32_t ) lhandle );
         memcpy( pxMessage, pvPtr, xMessageLength );
         IotTest_Free( pvPtr );
-    } else {
-        IDT_DEBUG("WaitEvent TIMEOUT!!! %d, handle=0x%x\n", xEventName, (uint32_t)lhandle);
+    }
+    else
+    {
+        IDT_DEBUG( "WaitEvent TIMEOUT!!! %d, handle=0x%x\n", xEventName, ( uint32_t ) lhandle );
     }
 
     return xStatus;
@@ -1548,9 +1550,11 @@ void prvIndicationSentCb( uint16_t usConnId,
     }
 }
 
- 
-void prvMtuChangedCb(uint16_t usConnId, uint16_t usMtu) {
-    IDT_DEBUG("prvMtuChangedCb conn=%d, mtu=%d", usConnId, usMtu);
+
+void prvMtuChangedCb( uint16_t usConnId,
+                      uint16_t usMtu )
+{
+    IDT_DEBUG( "prvMtuChangedCb conn=%d, mtu=%d", usConnId, usMtu );
     _bletestsMTU_SIZE = usMtu;
 }
 
@@ -1677,7 +1681,8 @@ void prvRequestExecWriteCb( uint16_t usConnId,
 void pushToQueue( IotLink_t * pEventList )
 {
     BLEHALEventsInternals_t * pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventList, eventList );
-    IDT_DEBUG("pushToQueue: event=%d, handl=0x%x\n", pEventIndex->xEventTypes, (uint32_t)pEventIndex->lHandle);
+
+    IDT_DEBUG( "pushToQueue: event=%d, handl=0x%x\n", pEventIndex->xEventTypes, ( uint32_t ) pEventIndex->lHandle );
 
     IotMutex_Lock( &threadSafetyMutex );
 

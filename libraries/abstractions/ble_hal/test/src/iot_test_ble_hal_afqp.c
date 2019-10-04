@@ -91,9 +91,9 @@ TEST_GROUP_RUNNER( Full_BLE )
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_UpdateConnectionParamReq ); */
 
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_ChangeMTUsize ); */
-#if ENABLE_TC_WRITE_LONG
-    RUN_TEST_CASE( Full_BLE, BLE_Property_WriteLongCharacteristic );
-#endif
+    #if ENABLE_TC_WRITE_LONG
+        RUN_TEST_CASE( Full_BLE, BLE_Property_WriteLongCharacteristic );
+    #endif
 
     RUN_TEST_CASE( Full_BLE, BLE_Property_WriteCharacteristic );
     RUN_TEST_CASE( Full_BLE, BLE_Property_WriteDescriptor );
@@ -323,10 +323,9 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
                               0 );
 }
 
-///TODO: to confirm ExecuteWrite doesn't need Resp
+/* TODO: to confirm ExecuteWrite doesn't need Resp */
 void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                               bool bNeedRsp
-                               )
+                                      bool bNeedRsp )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
     BLETESTconfirmCallback_t xConfirmEvent;
@@ -335,7 +334,7 @@ void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
 
     /* Wait write event on char A*/
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventRequestExecWriteCb, NO_HANDLE, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
-    IDT_DEBUG("\n prvExecuteWriteCheckAndResponse: received event (connid=%d, ulTransId=%d) \n", xWriteEvent.usConnId, xWriteEvent.ulTransId);
+    IDT_DEBUG( "\n prvExecuteWriteCheckAndResponse: received event (connid=%d, ulTransId=%d) \n", xWriteEvent.usConnId, xWriteEvent.ulTransId );
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
@@ -346,16 +345,16 @@ void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
     {
         xGattResponse.usHandle = usHandlesBufferB[ xAttribute ];
         xGattResponse.xAttrValue.usHandle = usHandlesBufferB[ xAttribute ];
-        ///TODO: check & save long write value
-        // ucRespBuffer[ xAttribute ].xLength = xWriteEvent.xLength;
-        // memcpy( ucRespBuffer[ xAttribute ].ucBuffer, xWriteEvent.ucValue, xWriteEvent.xLength );
-        // xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer;
+        /* /TODO: check & save long write value */
+        /* ucRespBuffer[ xAttribute ].xLength = xWriteEvent.xLength; */
+        /* memcpy( ucRespBuffer[ xAttribute ].ucBuffer, xWriteEvent.ucValue, xWriteEvent.xLength ); */
+        /* xGattResponse.xAttrValue.pucValue = ucRespBuffer[ xAttribute ].ucBuffer; */
         xStatus = _pxGattServerInterface->pxSendResponse( xWriteEvent.usConnId, xWriteEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
         xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
-        // TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xConfirmEvent.usAttrHandle );
+        /* TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xConfirmEvent.usAttrHandle ); */
     }
 }
 
@@ -368,7 +367,7 @@ void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
 
     xWriteEvent = IotTestBleHal_WriteReceive( xAttribute, bNeedRsp, IsPrep, usOffset );
 
-    if( xWriteEvent.bNeedRsp == true ) //this flag is different depending on different stack implementation
+    if( xWriteEvent.bNeedRsp == true ) /* this flag is different depending on different stack implementation */
     {
         IotTestBleHal_WriteResponse( xAttribute, xWriteEvent, true );
     }
@@ -389,11 +388,13 @@ BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribu
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
-    if (! IsPrep) { // not a prepare write req
-        TEST_ASSERT_EQUAL( bNeedRsp, xWriteEvent.bNeedRsp ); //NOT check bNeedRsp for PrepareWrite because of stack differences (Cypress stack sets this flag to 0)
-        //TODO: add check for Prepare Write Req
+
+    if( !IsPrep )                                            /* not a prepare write req */
+    {
+        TEST_ASSERT_EQUAL( bNeedRsp, xWriteEvent.bNeedRsp ); /* NOT check bNeedRsp for PrepareWrite because of stack differences (Cypress stack sets this flag to 0) */
+        /* TODO: add check for Prepare Write Req */
         TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
-        TEST_ASSERT_EQUAL( bletestsSTRINGYFIED_UUID_SIZE, xWriteEvent.xLength );        
+        TEST_ASSERT_EQUAL( bletestsSTRINGYFIED_UUID_SIZE, xWriteEvent.xLength );
     }
 
     return xWriteEvent;
@@ -438,6 +439,7 @@ void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
     BTStatus_t xStatus;
     BLETESTwriteAttrCallback_t xWriteEvent;
     BLETESTconfirmCallback_t xConfirmEvent;
+
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ xAttribute ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
@@ -581,7 +583,6 @@ TEST( Full_BLE, BLE_Property_WriteCharacteristic )
  */
 TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
 {
-    
     prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
                               true,
                               true,
@@ -590,12 +591,11 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
                               true,
                               true,
                               bletestsMTU_SIZE1 - 5 );
-    ///TODO: check what bNeedRsp should be (false here for CY)
+    /* /TODO: check what bNeedRsp should be (false here for CY) */
     prvExecuteWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                              false);
+                                     false );
 
-    //wait for execute write
-
+    /* wait for execute write */
 }
 
 TEST( Full_BLE, BLE_Connection_ChangeMTUsize )
