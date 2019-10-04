@@ -68,10 +68,10 @@ typedef enum
  */
 typedef enum
 {
-    eSPIMode0, /**< CPOL = 0 and CPHA = 0 */
-    eSPIMode1, /**< CPOL = 0 and CPHA = 1 */
-    eSPIMode2, /**< CPOL = 1 and CPHA = 0 */
-    eSPIMode3, /**< CPOL = 1 and CPHA = 1 */
+    eSPIMode0, /*!< CPOL = 0 and CPHA = 0 */
+    eSPIMode1, /*!< CPOL = 0 and CPHA = 1 */
+    eSPIMode2, /*!< CPOL = 1 and CPHA = 0 */
+    eSPIMode3, /*!<CPOL = 1 and CPHA = 1 */
 } IotSPIMode_t;
 
 /**
@@ -79,8 +79,8 @@ typedef enum
  */
 typedef enum
 {
-    eSPIMSBFirst, /**< The master sends the most-significant bit (MSB) first */
-    eSPILSBFirst  /**< The master sends the least-significant bit (LSB) first */
+    eSPIMSBFirst, /*!< The master sends the most-significant bit (MSB) first */
+    eSPILSBFirst  /*!< The master sends the least-significant bit (LSB) first */
 } IotSPIBitOrder_t;
 
 /**
@@ -88,10 +88,10 @@ typedef enum
  */
 typedef enum
 {
-    eSPISetMasterConfig, /** Sets the configuration of the SPI master. */
-    eSPIGetMasterConfig, /** Gets the configuration of the SPI master. */
-    eSPIGetTxNoOfbytes,  /** Get the number of bytes sent in write operation. */
-    eSPIGetRxNoOfbytes,  /** Get the number of bytes received in read operation. */
+    eSPISetMasterConfig, /*!< Sets the configuration of the SPI master and the data type is IotSPIMasterConfig_t. */
+    eSPIGetMasterConfig, /*!< Gets the configuration of the SPI master and the data type is IotSPIMasterConfig_t. */
+    eSPIGetTxNoOfbytes,  /*!< Get the number of bytes sent in write operation. */
+    eSPIGetRxNoOfbytes,  /*!< Get the number of bytes received in read operation. */
 } IotSPIIoctlRequest_t;
 
 /**
@@ -102,10 +102,10 @@ typedef enum
  */
 typedef struct IotSPIMasterConfig
 {
-    uint32_t ulFreq;               /**< SPI frequency set for data transmission. */
-    IotSPIMode_t eMode;            /**< Mode selected as per enum IotSPIMode_t. */
-    IotSPIBitOrder_t eSetBitOrder; /**< Bit Order selected as per enum IotSPIBitOrder_t. */
-    uint8_t ucDummyValue;          /**< The dummy value sent by master for SPI Read. */
+    uint32_t ulFreq;               /*!< SPI frequency set for data transmission. */
+    IotSPIMode_t eMode;            /*!< Mode selected as per enum IotSPIMode_t. */
+    IotSPIBitOrder_t eSetBitOrder; /*!< Bit Order selected as per enum IotSPIBitOrder_t. */
+    uint8_t ucDummyValue;          /*!< The dummy value sent by master for SPI Read. */
 } IotSPIMasterConfig_t;
 
 /**
