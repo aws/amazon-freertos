@@ -67,6 +67,10 @@
 /* For writing log lines without a prefix. */
 extern void vLoggingPrint( const char * pcFormat );
 
+/* Developer convenience override, for lab testing purposes, for generating
+ * a new default keyset, regardless of whether an existing keyset is present. */
+#define keyprovisioningFORCE_GENERATE_NEW_KEYSET    0
+
 /* Internal structure for parsing RSA keys. */
 
 /* Length parameters for importing RSA-2048 private keys. */
@@ -934,7 +938,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     ProvisionedState_t xProvisionedState = { 0 };
     CK_OBJECT_HANDLE xObject = 0;
     CK_BBOOL xImportedPrivateKey = CK_FALSE;
-    CK_BBOOL xGeneratedPrivateKey = CK_FALSE;
+    CK_BBOOL xKeysetGenerationMode = CK_FALSE;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -1027,24 +1031,34 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             ( CK_INVALID_HANDLE == xProvisionedState.xPublicKey ) ||
             ( NULL == xProvisionedState.pucDerPublicKey ) )
         {
-            /* Generate a new keyset if either of the above objects couldn't be
-             * found. */
-            xResult = xProvisionGenerateKeyPairEC( xSession,
-                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                                   ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
-                                                   &xProvisionedState.xPrivateKey,
-                                                   &xProvisionedState.xPublicKey );
+            xKeysetGenerationMode = CK_TRUE;
+        }
 
-            /* Get the bytes of the new public key. */
-            if( CKR_OK == xResult )
-            {
-                xGeneratedPrivateKey = CK_TRUE;
+        /* Ignore errors. If any of the above objects couldn't be read, try to
+         * generate new ones below. */
+        xResult = CKR_OK;
+    }
 
-                prvExportPublicKey( xSession,
-                                    xProvisionedState.xPublicKey,
-                                    &xProvisionedState.pucDerPublicKey,
-                                    &xProvisionedState.ulDerPublicKeyLength );
-            }
+    #if ( 1 == keyprovisioningFORCE_GENERATE_NEW_KEYSET )
+        xKeysetGenerationMode = CK_TRUE;
+    #endif
+
+    if( ( xResult == CKR_OK ) && ( CK_TRUE == xKeysetGenerationMode ) )
+    {
+        /* Generate a new default keyset. */
+        xResult = xProvisionGenerateKeyPairEC( xSession,
+                                               ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                               ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                               &xProvisionedState.xPrivateKey,
+                                               &xProvisionedState.xPublicKey );
+
+        /* Get the bytes of the new public key. */
+        if( CKR_OK == xResult )
+        {
+            prvExportPublicKey( xSession,
+                                xProvisionedState.xPublicKey,
+                                &xProvisionedState.pucDerPublicKey,
+                                &xProvisionedState.ulDerPublicKeyLength );
         }
 
         /* Ensure that an error condition is set if either object is still
@@ -1060,7 +1074,8 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     /* Log the device public key for developer enrollment purposes, but only if
     * there's not already a certificate, or if a new key was just generated. */
     if( ( CKR_OK == xResult ) &&
-        ( ( CK_INVALID_HANDLE == xProvisionedState.xClientCertificate ) || ( CK_TRUE == xGeneratedPrivateKey ) ) &&
+        ( ( CK_INVALID_HANDLE == xProvisionedState.xClientCertificate ) ||
+          ( CK_TRUE == xKeysetGenerationMode ) ) &&
         ( CK_FALSE == xImportedPrivateKey ) )
     {
         configPRINTF( ( "Warning: no client certificate is available. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
@@ -1068,6 +1083,11 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                    "Device public key",
                                    xProvisionedState.pucDerPublicKey,
                                    xProvisionedState.ulDerPublicKeyLength );
+
+        /* Delay since the downstream demo code is likely to fail quickly if
+         * provisioning isn't complete, and device certificate creation in the
+         * lab may depend on the developer obtaining the public key. */
+        vTaskDelay( pdMS_TO_TICKS( 100 ) );
     }
 
     /* Free memory. */
