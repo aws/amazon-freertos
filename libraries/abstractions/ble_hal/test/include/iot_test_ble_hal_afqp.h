@@ -33,10 +33,13 @@
 
 #include "iot_test_ble_hal_common.h"
 
+#define ENABLE_TC_WRITE_LONG (1)
+#define ENABLE_TC_ADD_INCLUDED_SERVICE (0)
+
 void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
                                bool bNeedRsp,
                                bool IsPrep,
-                               uint16_t usOffset );                          
+                               uint16_t usOffset );
 void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                           uint16_t usServiceDataLen,
                           char * pcServiceData,

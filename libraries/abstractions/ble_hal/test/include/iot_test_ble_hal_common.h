@@ -46,6 +46,12 @@
 #include IOT_UNITY_FIXTURE
 #include IOT_UNITY
 
+#if (0)
+    #define IDT_DEBUG(format, ...) printf("\n%d: " format, __LINE__, __VA_ARGS__);
+#else
+    #define IDT_DEBUG(format, ...)
+#endif
+
 /**
  * @brief Connection parameters.
  */
@@ -433,6 +439,7 @@ void prvRequestWriteCb( uint16_t usConnId,
                         uint8_t * pucValue );
 void prvIndicationSentCb( uint16_t usConnId,
                           BTStatus_t xStatus );
+void prvMtuChangedCb(uint16_t usConnId, uint16_t usMtu);
 void prvResponseConfirmationCb( BTStatus_t xStatus,
                                 uint16_t usHandle );
 void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
@@ -503,5 +510,6 @@ void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
 void IotTestBleHal_StartStopAdvCheck( bool start );
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
 size_t IotTestBleHal_ComputeNumberOfHandles( BTService_t * pxService );
+extern uint16_t _bletestsMTU_SIZE;
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */
