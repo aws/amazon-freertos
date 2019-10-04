@@ -780,7 +780,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
                           MechanismInfo.ulMinKeySize <= pkcs11RSA_2048_MODULUS_BITS );
 
         /* Check consistency with static configuration. */
-        #if( 0 == pkcs11testRSA_KEY_SUPPORT )
+        #if ( 0 == pkcs11testRSA_KEY_SUPPORT )
             TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
         #endif
 
@@ -799,7 +799,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
                           MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
 
         /* Check consistency with static configuration. */
-        #if( 0 == pkcs11testEC_KEY_SUPPORT )
+        #if ( 0 == pkcs11testEC_KEY_SUPPORT )
             TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
         #endif
 
@@ -831,19 +831,19 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
      * generation settings. */
     if( CK_TRUE == xSupportsKeyGen )
     {
-        #if( 0 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
+        #if ( 0 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
             TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
         #endif
     }
     else
     {
-        #if( 1 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
+        #if ( 1 == pkcs11testGENERATE_KEYPAIR_SUPPORT )
             TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
         #endif
     }
 
     /* Report on static configuration for key import support. */
-    #if( 1 == pkcs11testIMPORT_PRIVATE_KEY_SUPPORT )
+    #if ( 1 == pkcs11testIMPORT_PRIVATE_KEY_SUPPORT )
         configPRINTF( ( "The PKCS #11 module supports private key import.\r\n" ) );
     #endif
 }
