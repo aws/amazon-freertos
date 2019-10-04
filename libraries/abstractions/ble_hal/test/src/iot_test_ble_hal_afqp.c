@@ -150,7 +150,7 @@ TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
     pxProperty.xType = eBTpropertyAdapterBondedDevices;
 
     /* Get bonded devices */
-    prvSetGetProperty( &pxProperty, false );
+    IotTestBleHal_SetGetProperty( &pxProperty, false );
 
     for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
     {
@@ -158,7 +158,7 @@ TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
     }
 
     /* Get bonded devices. */
-    prvSetGetProperty( &pxProperty, false );
+    IotTestBleHal_SetGetProperty( &pxProperty, false );
     /* Check none are left. */
     TEST_ASSERT_EQUAL( 0, pxProperty.xLen );
 }
@@ -172,7 +172,7 @@ bool prvGetCheckDeviceBonded( BTBdaddr_t * pxDeviceAddress )
     pxProperty.xType = eBTpropertyAdapterBondedDevices;
 
     /* Set the name */
-    prvSetGetProperty( &pxProperty, false );
+    IotTestBleHal_SetGetProperty( &pxProperty, false );
 
     for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
     {

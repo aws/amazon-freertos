@@ -568,6 +568,24 @@ static void prvCreateCharacteristic( BTService_t * xSrvc,
     xSrvc->pusHandlesBuffer[ xAttribute ] = xBLETESTCharCb.usAttrHandle;
 }
 
+void prvCreateIncludedService( BTService_t * xSrvc,
+                               int xAttribute )
+{
+    BTStatus_t xStatus = eBTStatusSuccess;
+    BLETESTAttrCallback_t xBLETESTIncludedSvcCb;
+
+    xStatus = _pxGattServerInterface->pxAddIncludedService( _ucBLEServerIf,
+                                                            xSrvc->pusHandlesBuffer[ 0 ],
+                                                            _xSrvcA.pusHandlesBuffer[ 0 ] );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventIncludedServiceAdded, NO_HANDLE, ( void * ) &xBLETESTIncludedSvcCb, sizeof( BLETESTAttrCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xBLETESTIncludedSvcCb.xStatus );
+    TEST_ASSERT_EQUAL( xSrvc->pusHandlesBuffer[ 0 ], xBLETESTIncludedSvcCb.usSrvHandle );
+    xSrvc->pusHandlesBuffer[ xAttribute ] = xBLETESTIncludedSvcCb.usAttrHandle;
+}
+
 void IotTestBleHal_CreateServiceA()
 {
     prvCreateService( &_xSrvcA );
@@ -577,6 +595,7 @@ void IotTestBleHal_CreateServiceA()
 void IotTestBleHal_CreateServiceB()
 {
     prvCreateService( &_xSrvcB );
+    prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_B );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_C );
