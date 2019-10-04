@@ -180,7 +180,6 @@ TEST_GROUP_RUNNER( TEST_IOT_I2C )
 
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteSyncSuccess );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteSyncFail );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadSyncSuccess );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadSyncFail );
 
     /* If it supports not sending stop condition. */
@@ -191,7 +190,6 @@ TEST_GROUP_RUNNER( TEST_IOT_I2C )
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailIoctl );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailWriteTwice );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncSuccess );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailSetAddr );
@@ -366,85 +364,6 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail )
         /* i2c ioctl with unsupported request */
         lRetVal = iot_i2c_ioctl( xI2CHandle, testIotI2C_INVALID_IOCTL_INDEX, &xI2CConfig );
         TEST_ASSERT_EQUAL( IOT_I2C_INVALID_VALUE, lRetVal );
-    }
-
-    lRetVal = iot_i2c_close( xI2CHandle );
-    TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test Function for I2C async read success
- */
-TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncSuccess )
-{
-    IotI2CHandle_t xI2CHandle;
-    int32_t lRetVal;
-    uint16_t readBytes;
-    uint16_t writeBytes;
-
-    uint8_t singleByte;
-    uint8_t multipleBytes[ 4 ] = { 0 };
-
-    IotI2CConfig_t xI2CConfig =
-    {
-        .ulBusFreq       = testIotI2C_BAUDRATE,
-        .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT
-    };
-
-    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
-    TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
-
-    if( TEST_PROTECT() )
-    {
-        /* Set completion callback */
-        iot_i2c_set_callback( xI2CHandle, prvI2CCallback, NULL );
-
-        /* Set i2c configuration */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetMasterConfig, &xI2CConfig );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        /* Set i2c slave address for writing the device register */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        /* write the device register address. */
-        lRetVal = iot_i2c_write_sync( xI2CHandle, &xtestIotI2CDeviceRegister, sizeof( xtestIotI2CDeviceRegister ) );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        /* Set i2c slave address to read from the device register. */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        /* Read from i2c device for single byte. */
-        lRetVal = iot_i2c_read_async( xI2CHandle, &singleByte, sizeof( singleByte ) );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        lRetVal = xSemaphoreTake( xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT );
-        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
-
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetRxNoOfbytes, &readBytes );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-        /* Assert the number of bytes being read is 1. */
-        TEST_ASSERT_EQUAL( sizeof( singleByte ), readBytes );
-
-        /* Read from i2c device for multiple bytes. */
-        lRetVal = iot_i2c_read_async( xI2CHandle, multipleBytes, sizeof( multipleBytes ) );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        lRetVal = xSemaphoreTake( xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT );
-        TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
-
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetTxNoOfbytes, &writeBytes );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-        /* Assert the number of bytes being written is 1. */
-        TEST_ASSERT_EQUAL( sizeof( xtestIotI2CDeviceRegister ), writeBytes );
-
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetRxNoOfbytes, &readBytes );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-        /* Assert the number of bytes being read is 4. */
-        TEST_ASSERT_EQUAL( sizeof( multipleBytes ), readBytes );
     }
 
     lRetVal = iot_i2c_close( xI2CHandle );
@@ -1019,77 +938,6 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailWriteTwice )
 
         lRetVal = xSemaphoreTake( xtestIotI2CSemaphore, testIotI2C_MAX_TIMEOUT );
         TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
-    }
-
-    lRetVal = iot_i2c_close( xI2CHandle );
-    TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Test Function for I2C sync read
- */
-TEST( TEST_IOT_I2C, AFQP_IotI2CReadSyncSuccess )
-{
-    IotI2CHandle_t xI2CHandle;
-    int32_t lRetVal;
-    uint8_t singleByte;
-    uint8_t multipleBytes[ 4 ] = { 0 };
-
-    uint16_t readBytes;
-    uint16_t writeBytes;
-
-    IotI2CConfig_t xI2CConfig =
-    {
-        .ulBusFreq       = testIotI2C_BAUDRATE,
-        .ulMasterTimeout = testIotI2C_DEFAULT_TIMEOUT,
-    };
-
-    /* Open i2c to initialize hardware */
-    xI2CHandle = iot_i2c_open( testIotI2C_INSTANCE );
-    TEST_ASSERT_NOT_EQUAL( NULL, xI2CHandle );
-
-    if( TEST_PROTECT() )
-    {
-        /* Set i2c configuration */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetMasterConfig, &xI2CConfig );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        /* Set i2c slave address */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        /* write the device register address. */
-        lRetVal = iot_i2c_write_sync( xI2CHandle, &xtestIotI2CDeviceRegister, sizeof( xtestIotI2CDeviceRegister ) );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetTxNoOfbytes, &writeBytes );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-        /* Assert the number of bytes being written is 1. */
-        TEST_ASSERT_EQUAL( sizeof( xtestIotI2CDeviceRegister ), writeBytes );
-
-        /* repeated start to read */
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        /* read from i2c device for single byte */
-        lRetVal = iot_i2c_read_sync( xI2CHandle, &singleByte, sizeof( singleByte ) );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetRxNoOfbytes, &readBytes );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-        /* Assert the number of bytes being read is 1. */
-        TEST_ASSERT_EQUAL( sizeof( singleByte ), readBytes );
-
-        /* read from i2c device for multiple bytes */
-        lRetVal = iot_i2c_read_sync( xI2CHandle, multipleBytes, sizeof( multipleBytes ) );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-
-        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CGetRxNoOfbytes, &readBytes );
-        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
-        /* Assert the number of bytes being read is 4. */
-        TEST_ASSERT_EQUAL( sizeof( multipleBytes ), readBytes );
     }
 
     lRetVal = iot_i2c_close( xI2CHandle );
