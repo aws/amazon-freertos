@@ -10,7 +10,9 @@
 			<itemPath>../../../../../freertos_kernel/timers.c</itemPath>
 			<logicalFolder name="include" displayName="include" projectFiles="true">
 				<itemPath>../../../../../freertos_kernel/include/FreeRTOS.h</itemPath>
+				<itemPath>../../../../../freertos_kernel/include/StackMacros.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/atomic.h</itemPath>
+				<itemPath>../../../../../freertos_kernel/include/croutine.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/deprecated_definitions.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/event_groups.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/list.h</itemPath>
@@ -239,6 +241,9 @@
 					<logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</itemPath>
 						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</itemPath>
+					</logicalFolder>
+					<logicalFolder name="include" displayName="include" projectFiles="true">
+						<itemPath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</itemPath>
 					</logicalFolder>
 				</logicalFolder>
 				<logicalFolder name="wifi" displayName="wifi" projectFiles="true">
