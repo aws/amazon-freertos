@@ -39,25 +39,25 @@
 /**
  * @brief Return values used by this driver
  */
-#define IOT_FLASH_SUCCESS                   ( 0 )
-#define IOT_FLASH_INVALID_VALUE             ( 1 )
-#define IOT_FLASH_WRITE_FAILED              ( 2 )
-#define IOT_FLASH_READ_FAILED               ( 3 )
-#define IOT_FLASH_ERASE_FAILED              ( 4 )
-#define IOT_FLASH_DEVICE_BUSY               ( 5 )
-#define IOT_FLASH_CTRL_OP_FAILED            ( 6 )
-#define IOT_FLASH_FUNCTION_NOT_SUPPORTED    ( 7 )
+#define IOT_FLASH_SUCCESS                   ( 0 )    /*!< Flash operation completed succesfully. */
+#define IOT_FLASH_INVALID_VALUE             ( 1 )    /*!< At least one parameter is invalid. */
+#define IOT_FLASH_WRITE_FAILED              ( 2 )    /*!< Flash write operation failed. */
+#define IOT_FLASH_READ_FAILED               ( 3 )    /*!< Flash read operation failed. */
+#define IOT_FLASH_ERASE_FAILED              ( 4 )    /*!< Flash erase operation failed. */
+#define IOT_FLASH_DEVICE_BUSY               ( 5 )    /*!< Previous flash operation not complete yet. */
+#define IOT_FLASH_CTRL_OP_FAILED            ( 6 )    /*!< Flash control operation failed. */
+#define IOT_FLASH_FUNCTION_NOT_SUPPORTED    ( 7 )    /*!< Flash operation not supported. */
 
 /**
  * @brief Flash current status
  */
 typedef enum
 {
-    eFlashIdle,
-    eFlashCmdInProgress,
-    eFlashEraseFailed,
-    eFlashProgramSuspended,
-    eFlashEraseSuspended
+    eFlashIdle,                 /*!< Flash is idle. */
+    eFlashCmdInProgress,        /*!< Flash command in progress. */
+    eFlashEraseFailed,          /*!< Flash erase failed. */
+    eFlashProgramSuspended,     /*!< Flash program operation suspended. */
+    eFlashEraseSuspended        /*<! Flash erase operation suspended. */
 } IotFlashStatus_t;
 
 /**
@@ -65,10 +65,10 @@ typedef enum
  */
 typedef enum
 {
-    eFlashCompleted = IOT_FLASH_SUCCESS,
-    eFlashLastEraseFailed = IOT_FLASH_ERASE_FAILED,
-    eFlashLastReadFailed = IOT_FLASH_READ_FAILED,
-    eFlashLastWriteFailed = IOT_FLASH_WRITE_FAILED,
+    eFlashCompleted = IOT_FLASH_SUCCESS,             /*!< Flash operation completed successfully. */
+    eFlashLastEraseFailed = IOT_FLASH_ERASE_FAILED,  /*!< Flash erase operation failed. */
+    eFlashLastReadFailed = IOT_FLASH_READ_FAILED,    /*!< Flash read operation failed. */
+    eFlashLastWriteFailed = IOT_FLASH_WRITE_FAILED,  /*!< Flash write operation failed. */
 } IotFlashOperationStatus_t;
 
 /**
@@ -76,8 +76,8 @@ typedef enum
  */
 typedef enum
 {
-    eFlashReadWrite,
-    eFlashReadOnly
+    eFlashReadWrite,       /*!< Flash write protect set to read/write */
+    eFlashReadOnly         /*!< Flash write protect set to read only */
 } IotFlashWriteProtect_t;
 
 /**
@@ -93,11 +93,11 @@ typedef struct IotFlashInfo
                                  *   for example, if only 64k sectors can be write protected this will be set to 64K,
                                  *   and if sub-sectors of 4k can be write protected then this may be set to 4K*/
     uint8_t ucAsyncSupported;   /*!< Provides a flag to indicate if background erase/program
-                                 * is supported. User must check this before they can setup a callback and wait.*/
+                                 *   is supported. User must check this before they can setup a callback and wait.*/
 } IotFlashInfo_t;
 
 /**
- * Flash protection configuration.
+ * @brief  Flash protection configuration.
  */
 typedef struct IotFlashWriteProtectConfig
 {
@@ -120,8 +120,8 @@ typedef enum IotFlashIoctlRequest
     eResumeFlashProgramErase,  /*!< Resumes any program or erase operation that was previously
                                 * Suspended using eSuspendFlashProgramErase IOCTL */
     eGetFlashStatus,           /*!< Get flash status. Return IotFlashStatus_t type */
-    eGetFlashTxNoOfbytes,      /*!< Get the number of bytes sent in write operation. */
-    eGetFlashRxNoOfbytes,      /*!< Get the number of bytes received in read operation. */
+    eGetFlashTxNoOfbytes,      /*!< Get the number of bytes sent in write operation. Returns uint32_t type. */
+    eGetFlashRxNoOfbytes,      /*!< Get the number of bytes received in read operation. Returns uint32_t type. */
 } IotFlashIoctlRequest_t;
 
 /**
@@ -159,7 +159,11 @@ typedef void ( * IotFlashCallback_t)( IotFlashOperationStatus_t xStatus, void * 
  *                              If there are more than one flash per device, the
  *                              first flash is 0, the second flash is 1 etc.
  *
- * @return  returns the handle IotFlashHandle_t on success, or NULL on failure.
+ * @return
+ *   - returns the handle IotFlashHandle_t on success
+ *   - NULL if
+ *       - instance number is invalid
+ *       - same instance is already open.
  */
 IotFlashHandle_t iot_flash_open( int32_t lFlashInstance );
 
@@ -170,8 +174,9 @@ IotFlashHandle_t iot_flash_open( int32_t lFlashInstance );
  * @param[in]   pxFlashHandle    handle to flash driver returned in
  *                              iot_flash_open()
  *
- * @return  returns the pointer to flash information structure IotFlashInfo_t
- *          on success, or NULL on failure.
+ * @return
+ *   - the pointer to flash information structure IotFlashInfo_t
+ *   - NULL if pxFlashHandle was invalid
  */
 IotFlashInfo_t * iot_flash_getinfo( IotFlashHandle_t const pxFlashHandle );
 
@@ -183,6 +188,13 @@ IotFlashInfo_t * iot_flash_getinfo( IotFlashHandle_t const pxFlashHandle );
  *          If asynchronous operations are not supported, then erase/write/read operations
  *          are blocking operations, and this API has no affect, i.e even if a callback is set,
  *          it will never be called back.
+ *
+ * @note Single callback is used for asynchronous read / write / erase APIs.
+ * @note Newly set callback overrides the one previously set
+ * @note This callback will not be invoked when synchronous operation completes.
+ * @note This callback is per handle. Each instance has its own callback.
+ *
+ * @warning If input handle or if callback function is NULL, this function silently takes no action.
  *
  * @param[in]   pxFlashHandle    handle to flash driver returned in
  *                              iot_flash_open()
@@ -204,9 +216,14 @@ void iot_flash_set_callback( IotFlashHandle_t const pxFlashHandle,
  * @param[in]   xRequest        configuration request of type IotFlashIoctlRequest_t
  * @param[in,out] pvBuffer      configuration values to be written to flash or to be read from flash.
  *
- * @return  returns IOT_FLASH_SUCCESS on success or returns
- *          one of IOT_FLASH_INVALID_VALUE, IOT_FLASH_DEVICE_BUSY,IOT_FLASH_CTRL_OP_FAILED,
- *          IOT_FLASH_FUNCTION_NOT_SUPPORTED on error.
+ * @return
+ *   - IOT_FLASH_SUCCESS on success
+ *   - IOT_FLASH_INVALID_VALUE on NULL pxFlashHandle, invalid xRequest, or NULL pvBuffer when required.
+ *   - IOT_FLASH_DEVICE_BUSY if previous flash command still in progress.
+ *   - IOT_FLASH_CTRL_OP_FAILED if ioctl operation failed for any reason.
+ *   - IOT_FLASH_FUNCTION_NOT_SUPPORTED valid only for the following if not supported
+ *      - eSetFlashBlockProtection / eGetFlashBlockProtection
+ *      - eSuspendFlashProgramErase / eResumeFlashProgramErase
  */
 int32_t iot_flash_ioctl( IotFlashHandle_t const pxFlashHandle,
                          IotFlashIoctlRequest_t xRequest,
@@ -225,8 +242,53 @@ int32_t iot_flash_ioctl( IotFlashHandle_t const pxFlashHandle,
  * @param[in]   ulStartAddress  starting address(offset) in flash, from where erase starts. Aligned to ulSectorSize
  * @param[in]   xSize           size of the flash range to be erased. multiple of ulSectorSize
  *
- * @return  returns IOT_FLASH_SUCCESS on success or returns
- *          one of IOT_FLASH_INVALID_VALUE, IOT_FLASH_DEVICE_BUSY, IOT_FLASH_ERASE_FAILED on error.
+ * @return
+ *   - IOT_FLASH_SUCCESS on success.
+ *   - IOT_FLASH_INVALID_VALUE if any parameter is invalid.
+ *   - IOT_FLASH_DEVICE_BUSY if another asynchronous operation is currently being executed.
+ *   - IOT_FLASH_ERASE_FAILED on error.
+ *
+ * <b>Example</b>
+ * @code{c}
+ *   IotFlashHandle_t xFlashHandle;
+ *   IotFlashInfo_t* pxFlashInfo;
+ *   int32_t lRetVal;
+ *   uint32_t ulChunkOffset;
+ *
+ *   // Open flash to initialize hardware.
+ *   xFlashHandle = iot_flash_open(0);
+ *   // assert(xFlashHandle == NULL );
+ *
+ *   // Get the flash information.
+ *   pxFlashInfo = iot_flash_getinfo(xFlashHandle);
+ *   // assert(pxFlashInfo == NULL);
+ *
+ *   // If Erase asyc is supported, register a callback
+ *   if ( pxFlashInfo->ucAsyncSupported )
+ *   {
+ *       iot_flash_set_callback(xFlashHandle,
+ *                              prvIotFlashEraseCallback,
+ *                              NULL);
+ *   }
+ *
+ *   // Erase 2 sectors
+ *   lRetVal = iot_flash_erase_sectors(xFlashHandle,
+ *                                     ultestIotFlashStartOffset,
+ *                                     pxFlashInfo->ulSectorSize * 2);
+ *   //assert(IOT_FLASH_SUCCESS != lRetVal);
+ *
+ *   if ( pxFlashInfo->ucAsyncSupported )
+ *   {
+ *       // Wait for the Erase to be completed and callback is called.
+ *       lRetVal = xSemaphoreTake(xtestIotFlashSemaphore, portMAX_DELAY);
+ *       //assert(pdTRUE != lRetVal);
+ *   }
+ *
+ *   // Close the flash handle.
+ *   lRetVal = iot_flash_close(xFlashHandle);
+ *   //assert(IOT_FLASH_SUCCESS != lRetVal);
+ *
+ * @endcode
  */
 int32_t iot_flash_erase_sectors( IotFlashHandle_t const pxFlashHandle,
                                  uint32_t ulStartAddress,
@@ -239,8 +301,11 @@ int32_t iot_flash_erase_sectors( IotFlashHandle_t const pxFlashHandle,
  * @param[in]   pxFlashHandle    handle to flash driver returned in
  *                              iot_flash_open()
  *
- * @return  returns IOT_FLASH_SUCCESS on success or returns
- *          one of IOT_FLASH_INVALID_VALUE, IOT_FLASH_DEVICE_BUSY, IOT_FLASH_ERASE_FAILED on error.
+ * @return
+ *   - IOT_FLASH_SUCCESS on success.
+ *   - IOT_FLASH_INVALID_VALUE if any parameter is invalid.
+ *   - IOT_FLASH_DEVICE_BUSY if another asynchronous operation is currently being executed.
+ *   - IOT_FLASH_ERASE_FAILED on error.
  */
 int32_t iot_flash_erase_chip( IotFlashHandle_t const pxFlashHandle );
 
@@ -250,14 +315,20 @@ int32_t iot_flash_erase_chip( IotFlashHandle_t const pxFlashHandle );
  *          This is a blocking operation and waits until the number of bytes are written before returning.
  *          If there is another flash operation is in progress, write will return an error.
  *
+ * @warning writing to a sector that was not erased first, may result in incorrect data being written while
+ *          the API returns IOT_FLASH_SUCCESS.
+ *
  * @param[in]   pxFlashHandle    handle to flash driver returned in
  *                              iot_flash_open()
  * @param[in]   ulAddress       starting address(offset) in flash to write.
  * @param[in]   xBytes          number of bytes to write.
  * @param[in]   pvBuffer        data buffer to write to flash
  *
- * @return  returns IOT_FLASH_SUCCESS on success or returns
- *          one of IOT_FLASH_INVALID_VALUE, IOT_FLASH_DEVICE_BUSY, IOT_FLASH_WRITE_FAILED on error.
+ * @return
+ *   - IOT_FLASH_SUCCESS on success.
+ *   - IOT_FLASH_INVALID_VALUE if any parameter is invalid.
+ *   - IOT_FLASH_DEVICE_BUSY if another asynchronous operation is currently being executed.
+ *   - IOT_FLASH_WRITE_FAILED on error.
  */
 int32_t iot_flash_write_sync( IotFlashHandle_t const pxFlashHandle,
                               uint32_t ulAddress,
@@ -275,8 +346,11 @@ int32_t iot_flash_write_sync( IotFlashHandle_t const pxFlashHandle,
  * @param[in]   xBytes          number of bytes to be read.
  * @param[out]  pvBuffer        data buffer to hold the data read from flash
  *
- * @return  returns IOT_FLASH_SUCCESS on success or returns
- *          one of IOT_FLASH_INVALID_VALUE, IOT_FLASH_DEVICE_BUSY, IOT_FLASH_READ_FAILED on error.
+ * @return
+ *   - IOT_FLASH_SUCCESS on success.
+ *   - IOT_FLASH_INVALID_VALUE if any parameter is invalid.
+ *   - IOT_FLASH_DEVICE_BUSY if another asynchronous operation is currently being executed.
+ *   - IOT_FLASH_READ_FAILED on error.
  */
 int32_t iot_flash_read_sync( IotFlashHandle_t const pxFlashHandle,
                              uint32_t ulAddress,
@@ -299,9 +373,13 @@ int32_t iot_flash_read_sync( IotFlashHandle_t const pxFlashHandle,
  * @param[in]   xBytes          number of bytes to write.
  * @param[in]   pvBuffer        data buffer to write to flash
  *
- * @return  returns IOT_FLASH_SUCCESS on success or returns
- *          one of IOT_FLASH_INVALID_VALUE, IOT_FLASH_DEVICE_BUSY, IOT_FLASH_WRITE_FAILED on error
- *          IOT_FLASH_FUNCTION_NOT_SUPPORTED is returned if asynchronous is not supported (i,e ucAsyncSupported is set to false)
+ * @return
+ *   - IOT_FLASH_SUCCESS on success.
+ *   - IOT_FLASH_INVALID_VALUE if any parameter is invalid.
+ *   - IOT_FLASH_DEVICE_BUSY if another asynchronous operation is currently being executed.
+ *   - IOT_FLASH_WRITE_FAILED on error.
+ *   - IOT_FLASH_FUNCTION_NOT_SUPPORTED if asynchronous operation is not supported
+ *        (i,e ucAsyncSupported is set to false)
  */
 int32_t iot_flash_write_async( IotFlashHandle_t const pxFlashHandle,
                                uint32_t ulAddress,
@@ -323,9 +401,13 @@ int32_t iot_flash_write_async( IotFlashHandle_t const pxFlashHandle,
  * @param[in]   xBytes          number of bytes to be read.
  * @param[out]  pvBuffer        data buffer to hold the data read from flash
  *
- * @return  returns IOT_FLASH_SUCCESS on success or returns
- *          one of IOT_FLASH_INVALID_VALUE, IOT_FLASH_DEVICE_BUSY, IOT_FLASH_READ_FAILED on error
- *          IOT_FLASH_FUNCTION_NOT_SUPPORTED is returned if asynchronous is not supported (i,e ucAsyncSupported is set to false)
+ * @return
+ *   - IOT_FLASH_SUCCESS on success.
+ *   - IOT_FLASH_INVALID_VALUE if any parameter is invalid.
+ *   - IOT_FLASH_DEVICE_BUSY if another asynchronous operation is currently being executed.
+ *   - IOT_FLASH_READ_FAILED on error.
+ *   - IOT_FLASH_FUNCTION_NOT_SUPPORTED if asynchronous operation is not supported
+ *        (i,e ucAsyncSupported is set to false)
  */
 int32_t iot_flash_read_async( IotFlashHandle_t const pxFlashHandle,
                               uint32_t ulAddress,
@@ -340,8 +422,9 @@ int32_t iot_flash_read_async( IotFlashHandle_t const pxFlashHandle,
  * @param[in]   pxFlashHandle    handle to flash driver returned in
  *                              iot_flash_open()
  *
- * @return  returns IOT_FLASH_SUCCESS on success close or returns
- *          one of IOT_FLASH_INVALID_VALUE on error.
+ * @return
+ *   - IOT_FLASH_SUCCESS on success close
+ *   - IOT_FLASH_INVALID_VALUE on invalid pxFlashHandle.
  */
 int32_t iot_flash_close( IotFlashHandle_t const pxFlashHandle );
 
