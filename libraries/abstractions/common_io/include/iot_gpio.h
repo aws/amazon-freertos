@@ -23,13 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-/*******************************************************************************
- * @file iot_gpio.h
- *
- * @brief HAL APIs for GPIO
- *******************************************************************************
- */
-
 /**
  * @file    iot_gpio.h
  * @brief   This file contains all the GPIO HAL API definitions.
@@ -50,19 +43,19 @@
 /**
  * @brief Error codes
  */
-#define IOT_GPIO_SUCCESS                   ( 0 )
-#define IOT_GPIO_INVALID_VALUE             ( 1 )
-#define IOT_GPIO_READ_FAILED               ( 2 )
-#define IOT_GPIO_WRITE_FAILED              ( 3 )
-#define IOT_GPIO_FUNCTION_NOT_SUPPORTED    ( 4 )
+#define IOT_GPIO_SUCCESS                   ( 0 )    /*!< GPIO operation completed succesfully. */
+#define IOT_GPIO_INVALID_VALUE             ( 1 )    /*!< At least one parameter is invalid. */
+#define IOT_GPIO_READ_FAILED               ( 2 )    /*!< GPIO read operation failed. */
+#define IOT_GPIO_WRITE_FAILED              ( 3 )    /*!< GPIO write operation failed. */
+#define IOT_GPIO_FUNCTION_NOT_SUPPORTED    ( 4 )    /*!< GPIO operation not supported. */
 
 /**
  * @brief enum for configuring GPIO input/output direction.
  */
 typedef enum
 {
-    eGpioDirectionInput,
-    eGpioDirectionOutput
+    eGpioDirectionInput,    /*!< Configure GPIO pin direction for input. */
+    eGpioDirectionOutput    /*!< Configure GPIO pin direction for output. */
 } IotGpioDirection_t;
 
 /**
@@ -70,8 +63,8 @@ typedef enum
  */
 typedef enum
 {
-    eGpioOpenDrain,
-    eGpioPushPull
+    eGpioOpenDrain,         /*!< Configure GPIO pin mode as open drain. */
+    eGpioPushPull           /*!< Configure GPIO pin mode as push pull. */
 } IotGpioOutputMode_t;
 
 /**
@@ -79,9 +72,9 @@ typedef enum
  */
 typedef enum
 {
-    eGpioPullNone,
-    eGpioPullUp,
-    eGpioPullDown
+    eGpioPullNone,          /*!< Configure GPIO pin with no pull direction. */
+    eGpioPullUp,            /*!< Configure GPIO pin as pull up. */
+    eGpioPullDown           /*!< Configure GPIO pin as pull down. */
 } IotGpioPull_t;
 
 /**
@@ -89,12 +82,12 @@ typedef enum
  */
 typedef enum
 {
-    eGpioInterruptNone,
-    eGpioInterruptRising,
-    eGpioInterruptFalling,
-    eGpioInterruptEdge,
-    eGpioInterruptLow,
-    eGpioInterruptHigh,
+    eGpioInterruptNone,     /*!< Configure GPIO pin to not generate an interrupt. */
+    eGpioInterruptRising,   /*!< Configure GPIO pin to generate an interrupt when signal rises. */
+    eGpioInterruptFalling,  /*!< Configure GPIO pin to generate an interrupt when signal falls. */
+    eGpioInterruptEdge,     /*!< Configure GPIO pin to generate an interrupt when either rising or falling. */
+    eGpioInterruptLow,      /*!< Configure GPIO pin to generate an interrupt when signal is low. */
+    eGpioInterruptHigh,     /*!< Configure GPIO pin to generate an interrupt when signal is high. */
 } IotGpioInterrupt_t;
 
 /**
@@ -102,22 +95,22 @@ typedef enum
  */
 typedef enum
 {
-    eSetGpioFunction,      /*!< Set GPIO function. Takes integer as input to set the alternate function.
-                            * The value of the alternate function depends on the HW */
-    eSetGpioDirection,     /*!< Set GPIO Direction. Takes input type IotGpioDirection_t */
-    eSetGpioPull,          /*!< Set GPIO Pull value. Takes input type IotGpioPull_t */
-    eSetGpioOutputMode,    /*!< Set GPIO outut type. Takes input type IotGpioOutputType_t */
-    eSetGpioInterrupt,     /*!< Set GPIO Interrupt type. This configures the GPIO to generate an interrupt based on the configuration.
-                            * Takes input type IotGpioInterrupt_t */
-    eSetGpioSpeed,         /*!< Set GPIO Speed. Takes an integer value based on the underlying HW support */
-    eSetGpioDriveStrength, /*!< Set GPIO Drive Strength. Takes an integer value based on the underlying HW support */
-    eGetGpioFunction,      /*!< Get GPIO function. Returns an integer */
-    eGetGpioDirection,     /*!< Get GPIO Direction. Returns IotGpioDirection_t */
-    eGetGpioPull,          /*!< Get GPIO Pull value. Returns IotGpioPull_t */
-    eGetGpioOutputType,    /*!< Get GPIO outut type. Returns IotGpioOutputType_t */
-    eGetGpioInterrupt,     /*!< Get GPIO Interrupt config. Returns IotGpioInterrupt_t type */
-    eGetGpioSpeed,         /*!< Get GPIO Speed. Returns an integer type */
-    eGetGpioDriveStrength  /*!< Get GPIO Drive Strength. Returns integer type */
+    eSetGpioFunction,       /*!< Set GPIO function. Takes int32_t as input to set the alternate function.
+                             * The value of the alternate function depends on the HW */
+    eSetGpioDirection,      /*!< Set GPIO Direction. Takes input type IotGpioDirection_t */
+    eSetGpioPull,           /*!< Set GPIO Pull mode. Takes input type IotGpioPull_t */
+    eSetGpioOutputMode,     /*!< Set GPIO output type. Takes input type IotGpioOutputType_t */
+    eSetGpioInterrupt,      /*!< Set GPIO Interrupt type. This configures the GPIO to generate an interrupt based on the configuration.
+                             * Takes input type IotGpioInterrupt_t */
+    eSetGpioSpeed,          /*!< Set GPIO Speed. Takes a int32_t value based on the underlying HW support */
+    eSetGpioDriveStrength,  /*!< Set GPIO Drive Strength. Takes an int32_t value based on the underlying HW support */
+    eGetGpioFunction,       /*!< Get GPIO function setting. Returns an int32_t */
+    eGetGpioDirection,      /*!< Get GPIO Direction setting. Returns IotGpioDirection_t */
+    eGetGpioPull,           /*!< Get GPIO Pull mode setting. Returns IotGpioPull_t */
+    eGetGpioOutputType,     /*!< Get GPIO output type. Returns IotGpioOutputType_t */
+    eGetGpioInterrupt,      /*!< Get GPIO Interrupt config. Returns IotGpioInterrupt_t type */
+    eGetGpioSpeed,          /*!< Get GPIO Speed setting. Returns an int32_t type */
+    eGetGpioDriveStrength   /*!< Get GPIO Drive Strength. Returns int32_t type */
 } IotGpioIoctlRequest_t;
 
 /**
@@ -151,13 +144,23 @@ typedef void ( * IotGpioCallback_t )( uint8_t ucPinState,
  *                          implementation to map logical GPIO number to physical GPIO port
  *                          and pin.
  *
- * @return  handle to the GPIO peripheral if everything succeeds, otherwise NULL.
+ * @return
+ *   - handle to the GPIO peripheral if everything succeeds
+ *   - NULL, if
+ *    - invalid instance number
+ *    - open same instance more than once before closing it.
  */
 IotGpioHandle_t iot_gpio_open( int32_t lGpioNumber );
 
 /**
  * @brief   iot_gpio_set_callback is used to set the callback to be called when an
  *          interrupt is tirggered.
+ *
+ * @note Single callback is used for both read_async and write_async. Newly set callback overrides the one previously set
+ * @note This callback will not be invoked when synchronous operation completes.
+ * @note This callback is per handle. Each instance has its own callback.
+ *
+ * @warning If input handle or if callback function is NULL, this function silently takes no action.
  *
  * @param[in] pxGpio    The GPIO handle returned in the open() call.
  * @param[in] xGpioCallback The callback function to be called on interrupt.
@@ -173,7 +176,10 @@ void iot_gpio_set_callback( IotGpioHandle_t const pxGpio,
  * @param[in]   pxGpio      The GPIO handle returned in the open() call.
  * @param[out]  pucPinState The variable which reads state of the GPIO pin.
  *
- * @return  IOT_GPIO_SUCCESS on success or returns one of the IOT_GPIO_INVALID_VALUE or IOT_GPIO_READ_FAILED on failure.
+ * @return
+ *   - IOT_GPIO_SUCCESS on success
+ *   - IOT_GPIO_INVALID_VALUE if pxGpio or pucPinState are NULL
+ *   - IOT_GPIO_READ_FAILED on failure.
  *
  */
 int32_t iot_gpio_read_sync( IotGpioHandle_t const pxGpio,
@@ -185,7 +191,10 @@ int32_t iot_gpio_read_sync( IotGpioHandle_t const pxGpio,
  * @param[in]   pxGpio      The GPIO handle returned in the open() call.
  * @param[in]   ucState     The value to write into the GPIO pin.
  *
- * @return  IOT_GPIO_SUCCESS on success or returns one of the IOT_GPIO_INVALID_VALUE or IOT_GPIO_WRITE_FAILED on failure.
+ * @return
+ *   - IOT_GPIO_SUCCESS on success
+ *   - IOT_GPIO_INVALID_VALUE if pxGpio or pucPinState are NULL
+ *   - IOT_GPIO_WRITE_FAILED on failure.
  */
 int32_t iot_gpio_write_sync( IotGpioHandle_t const pxGpio,
                              uint8_t ucPinState );
@@ -196,7 +205,11 @@ int32_t iot_gpio_write_sync( IotGpioHandle_t const pxGpio,
  *
  * @param[in]   pxGpio The GPIO handle returned in the open() call.
  *
- * @return  IOT_GPIO_SUCCESS on success or returns one of the IOT_GPIO_INVALID_VALUE on failure.
+ * @return
+ *   - IOT_GPIO_SUCCESS on success
+ *   - IOT_GPIO_INVALID_VALUE if
+ *      - pxGpio handle is NULL
+ *      - if is not in open state (already closed).
  */
 int32_t iot_gpio_close( IotGpioHandle_t const pxGpio );
 
@@ -210,7 +223,14 @@ int32_t iot_gpio_close( IotGpioHandle_t const pxGpio );
  * @param[in] xRequest      One of IotGpioIoctlRequest_t enum
  * @param[in/out] pvBuffer  Buffer holding GPIO set or get values.
  *
- * @return  IOT_GPIO_SUCCESS on success or returns one of the IOT_GPIO_INVALID_VALUE or IOT_GPIO_FUNCTION_NOT_SUPPORTED on failure.
+ * @return
+ *   - IOT_GPIO_SUCCESS on success
+ *   - IOT_GPIO_INVALID_VALUE on NULL handle, invalid request, or NULL buffer when required.
+ *   - IOT_GPIO_FUNCTION_NOT_SUPPORTED is only valid for
+ *      - eSetGpioFunction / eGetGpioFunction
+ *      - eSetGpioSpeed / eGetGpioSpeed
+ *      - eSetGpioDriveStrength / eGetGpioDriveStrength
+ *      - eSetGpioInterrupt / eGetGpioInterrupt
  */
 int32_t iot_gpio_ioctl( IotGpioHandle_t const pxGpio,
                         IotGpioIoctlRequest_t xRequest,
