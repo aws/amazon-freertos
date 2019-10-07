@@ -26,10 +26,10 @@
 
 /**
  * @file aws_dev_mode_key_provisioning.c
- * @brief Simple key provisioning example using pkcs#11
+ * @brief Simple key provisioning example using PKCS #11
  *
  * A simple example to demonstrate key and certificate provisioning in
- * flash using PKCS#11 interface. This should be replaced
+ * flash using PKCS #11 interface. This should be replaced
  * by production ready key provisioning mechanism.
  */
 
@@ -68,8 +68,8 @@
 extern void vLoggingPrint( const char * pcFormat );
 
 /* Developer convenience override, for lab testing purposes, for generating
- * a new default keyset, regardless of whether an existing keyset is present. */
-#define keyprovisioningFORCE_GENERATE_NEW_KEYSET    0
+ * a new default key pair, regardless of whether an existing key pair is present. */
+#define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR    0
 
 /* Internal structure for parsing RSA keys. */
 
@@ -441,7 +441,7 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
-/* Generate a new 2048-bit RSA keyset. Please note that C_GenerateKeyPair for
+/* Generate a new 2048-bit RSA key pair. Please note that C_GenerateKeyPair for
  * RSA keys is not supported by the Amazon FreeRTOS mbedTLS PKCS #11 port. */
 CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
                                     uint8_t * pucPrivateKeyLabel,
@@ -492,7 +492,7 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
-/* Generate a new ECDSA keyset using curve P256. */
+/* Generate a new ECDSA key pair using curve P256. */
 CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
                                    uint8_t * pucPrivateKeyLabel,
                                    uint8_t * pucPublicKeyLabel,
@@ -927,8 +927,8 @@ static void prvWriteHexBytesToConsole( CK_SESSION_HANDLE xSession,
 /*-----------------------------------------------------------*/
 
 /* Attempt to provision the device with a client certificate, associated
- * private and public keyset, and optional Just-in-Time Registration certificate.
- * If either component of the keyset is unavailable in storage, generate a new
+ * private and public key pair, and optional Just-in-Time Registration certificate.
+ * If either component of the key pair is unavailable in storage, generate a new
  * pair. */
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                         ProvisioningParams_t * pxParams )
@@ -938,7 +938,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     ProvisionedState_t xProvisionedState = { 0 };
     CK_OBJECT_HANDLE xObject = 0;
     CK_BBOOL xImportedPrivateKey = CK_FALSE;
-    CK_BBOOL xKeysetGenerationMode = CK_FALSE;
+    CK_BBOOL xKeyPairGenerationMode = CK_FALSE;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -1019,7 +1019,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         }
     }
 
-    /* Check whether a keyset is now present. In order to support X.509
+    /* Check whether a key pair is now present. In order to support X.509
      * certificate enrollment, the public and private key objects must both be
      * available. */
     if( ( xResult == CKR_OK ) && ( CK_FALSE == xImportedPrivateKey ) )
@@ -1031,21 +1031,22 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
             ( CK_INVALID_HANDLE == xProvisionedState.xPublicKey ) ||
             ( NULL == xProvisionedState.pucDerPublicKey ) )
         {
-            xKeysetGenerationMode = CK_TRUE;
+            xKeyPairGenerationMode = CK_TRUE;
         }
 
-        /* Ignore errors. If any of the above objects couldn't be read, try to
-         * generate new ones below. */
+        /* Ignore errors, since the board may have been previously used with a
+         * different crypto middleware or app. If any of the above objects
+         * couldn't be read, try to generate new ones below. */
         xResult = CKR_OK;
     }
 
-    #if ( 1 == keyprovisioningFORCE_GENERATE_NEW_KEYSET )
-        xKeysetGenerationMode = CK_TRUE;
+    #if ( 1 == keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR )
+        xKeyPairGenerationMode = CK_TRUE;
     #endif
 
-    if( ( xResult == CKR_OK ) && ( CK_TRUE == xKeysetGenerationMode ) )
+    if( ( xResult == CKR_OK ) && ( CK_TRUE == xKeyPairGenerationMode ) )
     {
-        /* Generate a new default keyset. */
+        /* Generate a new default key pair. */
         xResult = xProvisionGenerateKeyPairEC( xSession,
                                                ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
                                                ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
@@ -1082,7 +1083,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
     * there's not already a certificate, or if a new key was just generated. */
     if( ( CKR_OK == xResult ) &&
         ( ( CK_INVALID_HANDLE == xProvisionedState.xClientCertificate ) ||
-          ( CK_TRUE == xKeysetGenerationMode ) ) &&
+          ( CK_TRUE == xKeyPairGenerationMode ) ) &&
         ( CK_FALSE == xImportedPrivateKey ) )
     {
         configPRINTF( ( "Warning: no client certificate is available. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
