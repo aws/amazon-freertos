@@ -33,7 +33,7 @@
 /**
  * @brief Error code returned by platform
  *
- * We assume that neigher hardware ID nor hardware revision number will ever be greater than 255
+ * We assume that neither hardware ID nor hardware revision number will ever be greater than 255
  * it means that API is not implemented or supported if API returns 0xFF
  */
 #define IOT_HW_UNSUPPORTED    ( 0xFFFF )
@@ -41,12 +41,20 @@
 /**
  * @brief API to read hardware ID.
  *
+ * @note:  the format and contents of this field are specific
+ *         to each vendor.  With the expectation that they will
+ *         be unique for each board.
+ *
  * @return hardware ID number as unsigned byte
  */
 uint16_t iot_hw_get_id( void );
 
 /**
  * @brief API to read hardware revision.
+ *
+ * @note:  the format and contents of this field are specific
+ *         to each vendor.  With the expectation that they will
+ *         be unique for each revision.
  *
  * @return hardware revision number as unsigned byte
  */

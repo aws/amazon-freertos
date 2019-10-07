@@ -47,11 +47,11 @@
 /**
  * @brief Return values used by BATTERY driver
  */
-#define IOT_BATTERY_SUCCESS                 ( 0 )
-#define IOT_BATTERY_INVALID_VALUE           ( 1 )
-#define IOT_BATTERY_NOT_EXIST               ( 2 )
-#define IOT_BATTERY_READ_FAILED             ( 3 )
-#define IOT_BATTERY_FUNCTION_NOT_SUPPORTED  ( 4 )
+#define IOT_BATTERY_SUCCESS                 ( 0 )    /*!< Battery operation completed successfully. */
+#define IOT_BATTERY_INVALID_VALUE           ( 1 )    /*!< At least one parameter is invalid. */
+#define IOT_BATTERY_NOT_EXIST               ( 2 )    /*!< No battery exists in this hardware. */
+#define IOT_BATTERY_READ_FAILED             ( 3 )    /*!< Battery read operation failed. */
+#define IOT_BATTERY_FUNCTION_NOT_SUPPORTED  ( 4 )    /*!< Battery operation not supported. */
 
 /**
  * @brief Battery Type
@@ -120,44 +120,56 @@ typedef struct IotBatteryInfo
 typedef enum IotBatteryIoctlRequest
 {
     eSetBatteryMinVoltageThreshold,     /*!< Set the battery minimum voltage threshold. When the voltage goes below this threshold
-                                            value, the registered callback will be called with the status set to "eBatteryUnderVoltage".
-                                            If battery management HW does not have a way to monitor voltage, this IOCTL will not be supported. */
+                                             value, the registered callback will be called with the status set to "eBatteryUnderVoltage".
+                                             If battery management HW does not have a way to monitor voltage, this IOCTL will not be supported.
+                                             Parameter is uint16_t value in milliVolt units. */
     eSetBatteryMaxVoltageThreshold,     /*!< Set the battery mimimum voltage threshold. When the voltage goes below this threshold
-                                            value, the registered callback will be called with the status set to "eBatteryOverVoltage".
-                                            If battery management HW does not have a way to monitor voltage, this IOCTL will not be supported. */
-
+                                             value, the registered callback will be called with the status set to "eBatteryOverVoltage".
+                                             If battery management HW does not have a way to monitor voltage, this IOCTL will not be supported.
+                                             Parameter is uint16_t value in milliVolt units. */
     eSetBatteryMinBatteryTempThreshold, /*!< Set the minimum battery temperature threshold. When the battery temperature goes below this value,
-                                            the registered callback will be called with the status value "eBatteryUnderTemp".
-                                            This IOCTL takes integer value as input */
+                                             the registered callback will be called with the status value "eBatteryUnderTemp".
+                                             This IOCTL takes int16_t value as input in milliCelcius units. */
     eSetBatteryMaxBatteryTempThreshold, /*!< Set the maximum battery temperature threshold. When the battery temperature goes above this value,
-                                            the registered callback will be called with the status value "eBatteryUnderTemp".
-                                            This IOCTL takes integer value as input */
+                                             the registered callback will be called with the status value "eBatteryUnderTemp".
+                                             This IOCTL takes int16_t value as input in milliCelcius units. */
     eSetBatteryMinChargeTempThreshold,  /*!< Set the minimum charge temperature threshold. When the charging temperature goes below this value,
-                                            the registered callback will be called with the status value "eBatteryUnderChargingTemp".
-                                            This IOCTL takes integer value as input */
+                                             the registered callback will be called with the status value "eBatteryUnderChargingTemp".
+                                             This IOCTL takes int16_t value as input in milliCelcius units.*/
     eSetBatteryMaxChargeTempThreshold,  /*!< Set the maximum charge temperature threshold. When the charging temperature goes above this value,
-                                            the registered callback will be called with the status value "eBatteryOverChargingTemp".
-                                            This IOCTL takes integer value as input */
+                                             the registered callback will be called with the status value "eBatteryOverChargingTemp".
+                                             This IOCTL takes int16_t value as input in milliCelcius units. */
     eSetBatteryMaxOutputCurrent,        /*!< Set the maximum output current limit from the battery.
-                                            This IOCTL takes integer value as input */
+                                             This IOCTL takes uint16_t value as input in milliAmp units. */
     eSetBatteryMaxInputChargeCurrent,   /*!< Set the maximum input charging current limit to the battery.
-                                            This IOCTL takes integer value as input */
+                                             This IOCTL takes uint16_t value as input in milliAmp units. */
     eSetBatteryChargeTimer,             /*!< Set the battery charging timer limit. AFter the timer expires charging will stop.
-                                            This IOCTL takes integer value as input*/
-
-    eGetBatteryMinVoltageThreshold,     /*!< Get the battery minimum thresold. */
-    eGetBatteryMaxVoltageThreshold,     /*!< Get the battery maximum thresold. */
-    eGetBatteryOCV,                     /*!< Get the battery OCV (open circuit voltage) */
-    eGetBatteryBootVoltage,             /*!< Get the battery boot-up voltage */
-    eGetBatteryMinBatteryTempThreshold, /*!< Get the minimum battery temperature threshold. */
-    eGetBatteryMaxBatteryTempThreshold, /*!< Get the maximum battery temperature threshold. */
-    eGetBatteryMinChargeTempThreshold,  /*!< Get the minimum charging temperature threshold. */
-    eGetBatteryMaxChargeTempThreshold,  /*!< Get the maximum charging temperature threshold. */
-    eGetBatteryMaxOutputCurrent,        /*!< Get the battery output current limit. */
-    eGetBatteryMaxInputChargeCurrent,   /*!< Get the battery input charge current limit. */
-    eGetBatteryChargeTimer,             /*!< Get the current battery charge time limit */
-    eGetBatteryChargeSource,            /*!< Get the current battery charge source */
-    eGetBatteryStatus                   /*!< Get the battery status. Returns one of the IotBatteryStatus_t values */
+                                             This IOCTL takes uint16_t value as input in milliSec units. */
+    eGetBatteryMinVoltageThreshold,     /*!< Get the battery minimum thresold.
+                                             This IOCTL returns uint16_t value in milliVolt units. */
+    eGetBatteryMaxVoltageThreshold,     /*!< Get the battery maximum thresold.
+                                             This IOCTL returns uint16_t value in milliVolt units. */
+    eGetBatteryOCV,                     /*!< Get the battery OCV (open circuit voltage)
+                                             This IOCTL returns uint16_t value in milliVolt units. */
+    eGetBatteryBootVoltage,             /*!< Get the battery boot-up voltage
+                                             This IOCTL returns uint16_t value in milliVolt units. */
+    eGetBatteryMinBatteryTempThreshold, /*!< Get the minimum battery temperature thresholde
+                                             This IOCTL returns int16_t value in milliCelcius units. */
+    eGetBatteryMaxBatteryTempThreshold, /*!< Get the maximum battery temperature threshold.
+                                             This IOCTL returns int16_t value in milliCelcius units. */
+    eGetBatteryMinChargeTempThreshold,  /*!< Get the minimum charging temperature threshold.
+                                             This IOCTL returns int16_t value in milliCelcius units. */
+    eGetBatteryMaxChargeTempThreshold,  /*!< Get the maximum charging temperature threshold.
+                                             This IOCTL returns int16_t value in milliCelcius units. */
+    eGetBatteryMaxOutputCurrent,        /*!< Get the battery output current limit.
+                                             This IOCTL returns uint16_t value in milliAmp units. */
+    eGetBatteryMaxInputChargeCurrent,   /*!< Get the battery input charge current limit.
+                                             This IOCTL returns uint16_t value in milliAmp units. */
+    eGetBatteryChargeTimer,             /*!< Get the current battery charge time limit.
+                                             This IOCTL returns uint16_t value in milliSec units. */
+    eGetBatteryChargeSource,            /*!< Get the current battery charge source.
+                                             This IOCTL returns a IotBatteryChargeSource_t as it's parameter. */
+    eGetBatteryStatus                   /*!< Get the battery status. Returns one of the IotBatteryStatus_t values as it's parameter. */
 
 } IotBatteryIoctlRequest_t;
 
@@ -197,7 +209,12 @@ typedef void ( * IotBatteryCallback_t)( IotBatteryStatus_t xStatus, void * pvUse
  * @param[in]   lBatteryInstance   The instance of the battery interface to initialize.
  *                                  Usually, there is only one battery interface.
  *
- * @return  returns the handle IotBatteryHandle_t on success, or NULL on failure.
+ * @return
+ * - handle to the Battery controller on success
+ * - NULL, if
+ *    - invalid instance
+ *    - open same instance more than once before closing it.
+ *    - on failure.
  */
 IotBatteryHandle_t iot_battery_open( int32_t lBatteryInstance );
 
@@ -207,6 +224,16 @@ IotBatteryHandle_t iot_battery_open( int32_t lBatteryInstance );
  *          notifications. Caller must check isAsyncNotificationSupported value before registering
  *          for callbacks, if async is not supported, registering for callback has no affect, and the callback
  *          will never be called.
+ *
+ * @note Single callback is used for all features that support callback
+ *   - eBatteryChargeTimeExpired,
+ *   - eSetBatteryMinVoltageThreshold, eSetBatteryMaxVoltageThreshold,
+ *   - eSetBatteryMinBatteryTempThreshold, eSetBatteryMaxBatteryTempThreshold,
+ *   - eSetBatteryMinChargeTempThreshold, eSetBatteryMaxChargeTempThreshold,
+ * @note Newly set callback overrides the one previously set
+ * @note This callback is per handle. Each instance has its own callback.
+ *
+ * @warning If input handle or if callback function is NULL, this function silently takes no action.
  *
  * @param[in]   pxBatteryHandle  handle to Battery driver returned in
  *                          iot_battery_open()
@@ -224,8 +251,9 @@ void iot_battery_set_callback( IotBatteryHandle_t const pxBatteryHandle,
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
  *
- * @return  returns a pointer to the IotBatteryInfo structure on success
- *          or returns NULL
+ * @return
+ * - returns a pointer to the IotBatteryInfo structure on success
+ * - NULL on error
  */
 IotBatteryInfo_t * iot_battery_getInfo( IotBatteryHandle_t const pxBatteryHandle);
 
@@ -234,11 +262,14 @@ IotBatteryInfo_t * iot_battery_getInfo( IotBatteryHandle_t const pxBatteryHandle
  *
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[out]  usCurrent   battery current value.
+ * @param[out]  pusCurrent   battery current value.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE or IOT_BATTERY_NOT_EXIST or IOT_BATTERY_READ_FAILED on error or
- *          IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if pxBatteryHandle == NULL or pusCurrent == NULL
+ * - IOT_BATTERY_NOT_EXIST if no battery present.
+ * - IOT_BATTERY_READ_FAILED on error obtaining valid reading
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_current( IotBatteryHandle_t const pxBatteryHandle,
                             uint16_t * pusCurrent);
@@ -248,11 +279,14 @@ int32_t iot_battery_current( IotBatteryHandle_t const pxBatteryHandle,
  *
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[out]  usVoltage  battery voltage value.
+ * @param[out]  pusVoltage  battery voltage value.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE or IOT_BATTERY_NOT_EXIST or IOT_BATTERY_READ_FAILED on error or
- *          IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if pxBatteryHandle == NULL  or pusVoltage == NULL
+ * - IOT_BATTERY_NOT_EXIST if no battery in this hardware
+ * - IOT_BATTERY_READ_FAILED on error
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_voltage( IotBatteryHandle_t const pxBatteryHandle,
                             uint16_t * pusVoltage);
@@ -262,11 +296,14 @@ int32_t iot_battery_voltage( IotBatteryHandle_t const pxBatteryHandle,
  *
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[out]  ucChargeLevel battery charging value.
+ * @param[out]  pucChargeLevel battery charging value.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE or IOT_BATTERY_NOT_EXIST or IOT_BATTERY_READ_FAILED on error or
- *          IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if pxBatteryHandle == NULL or pusChargeLevel == NULL
+ * - IOT_BATTERY_NOT_EXIST if no battery in this hardware
+ * - IOT_BATTERY_READ_FAILED on error
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_chargeLevel( IotBatteryHandle_t const pxBatteryHandle,
                                     uint8_t * pucChargeLevel);
@@ -277,28 +314,34 @@ int32_t iot_battery_chargeLevel( IotBatteryHandle_t const pxBatteryHandle,
  *
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[out]  usCapacity  battery capacity value.
+ * @param[out]  pusCapacity  battery capacity value.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE or IOT_BATTERY_NOT_EXIST or IOT_BATTERY_READ_FAILED on error or
- *          IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if pxBatteryHandle == NULL or pusCapacity == NULL
+ * - IOT_BATTERY_NOT_EXIST if no battery in this hardware
+ * - IOT_BATTERY_READ_FAILED on error
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_capacity( IotBatteryHandle_t const pxBatteryHandle,
                                     uint16_t * pusCapacity);
 
 /*!
- * @brief   iot_battery_temp is used to get the battery temperature in farenheit
+ * @brief   iot_battery_temp is used to get the battery temperature in milliCelcius
  *
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[out]  usTemp   battery temperature in Farenheit
+ * @param[out]  psTemp   battery temperature in milliCelcius
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE or IOT_BATTERY_NOT_EXIST or IOT_BATTERY_READ_FAILED on error or
- *          IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if pxBatteryHandle == NULL or psTemp == NULL
+ * - IOT_BATTERY_NOT_EXIST if no battery in this hardware
+ * - IOT_BATTERY_READ_FAILED on error
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_temp( IotBatteryHandle_t const pxBatteryHandle,
-                        uint16_t * pusTemp);
+                        int16_t * psTemp);
 
 /*!
  * @brief   iot_battery_enable_charging is used to enable battery charging if charging is supported.
@@ -306,13 +349,15 @@ int32_t iot_battery_temp( IotBatteryHandle_t const pxBatteryHandle,
  *          drops below 100, and even if battery is at critical level, and charging is not enabled, battery will
  *          not be charging. Charging is always enabled by default unless disabled by using this API.
  *
- * @param[in]   pxBatteryHandle handle to Battery driver returned in
+ * @param[in]  pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[in]  ucEnable   Enable or Disable the charging of battery. set to 1 to enable, or 0 to disable.
+ * @param[in]  pucEnable   Enable or Disable the charging of battery. set to 1 to enable, or 0 to disable.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE or IOT_BATTERY_NOT_EXIST on error or
- *          IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if NULL handle or NULL voltage pointer
+ * - IOT_BATTERY_NOT_EXIST if no battery in this hardware
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_enable_charging( IotBatteryHandle_t const pxBatteryHandle,
                                     uint8_t * pucEnable);
@@ -322,11 +367,13 @@ int32_t iot_battery_enable_charging( IotBatteryHandle_t const pxBatteryHandle,
  *
  * @param[in]   pxBatteryHandle handle to Battery driver returned in
  *                              iot_battery_open()
- * @param[out]  ucCharging   If charging this will contain value of 1 otherwise 0.
+ * @param[out]  pucCharging   If charging this will contain value of 1 otherwise 0.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE or IOT_BATTERY_NOT_EXIST on error or
- *          IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if pxBatteryHandle == NULL or pusCharging == NULL
+ * - IOT_BATTERY_NOT_EXIST if no battery in this hardware
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED if its not supported by the hardware.
  */
 int32_t iot_battery_is_charging( IotBatteryHandle_t const pxBatteryHandle,
                                 uint8_t * pucCharging);
@@ -340,8 +387,14 @@ int32_t iot_battery_is_charging( IotBatteryHandle_t const pxBatteryHandle,
  * @param[in]   xRequest    configuration request of type IotBatteryIoctlRequest_t
  * @param[in,out] pvBuffer  buffer holding Battery set and get values.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE, IOT_BATTERY_NOT_EXIST, IOT_BATTERY_FUNCTION_NOT_SUPPORTED on error.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if
+ *    - pxBatteryHandle == NULL
+ *    - invalid xRequest
+ *    - pvBuffer == NULL when required
+ * - IOT_BATTERY_NOT_EXIST if no battery in this hardware
+ * - IOT_BATTERY_FUNCTION_NOT_SUPPORTED valid for any ioctl if its not supported by the hardware.
  */
 int32_t iot_battery_ioctl( IotBatteryHandle_t const pxBatteryHandle,
                             IotBatteryIoctlRequest_t xRequest,
@@ -352,8 +405,11 @@ int32_t iot_battery_ioctl( IotBatteryHandle_t const pxBatteryHandle,
  *
  * @param[in]   pxBatteryHandle  handle to Battery interface.
  *
- * @return  returns IOT_BATTERY_SUCCESS on success or returns
- *          one of IOT_BATTERY_INVALID_VALUE on error.
+ * @return
+ * - IOT_BATTERY_SUCCESS on success
+ * - IOT_BATTERY_INVALID_VALUE if
+ *    - pxBatteryHandle == NULL
+ *    - if is not in open state (already closed).
  */
 int32_t iot_battery_close( IotBatteryHandle_t const pxBatteryHandle );
 
