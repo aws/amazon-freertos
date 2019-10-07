@@ -1052,9 +1052,16 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                                                &xProvisionedState.xPrivateKey,
                                                &xProvisionedState.xPublicKey );
 
-        /* Get the bytes of the new public key. */
         if( CKR_OK == xResult )
         {
+            /* Clean-up the previous buffer, if any. */
+            if( NULL != xProvisionedState.pucDerPublicKey )
+            {
+                vPortFree( xProvisionedState.pucDerPublicKey );
+                xProvisionedState.pucDerPublicKey = NULL;
+            }
+
+            /* Get the bytes of the new public key. */
             prvExportPublicKey( xSession,
                                 xProvisionedState.xPublicKey,
                                 &xProvisionedState.pucDerPublicKey,
