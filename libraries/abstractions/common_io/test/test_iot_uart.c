@@ -79,8 +79,8 @@ static  void    iot_uart_fast_setting(IotUARTConfig_t *pxConfig)
 {
     pxConfig->ulBaudrate   = testIotUART_BAUD_RATE_FAST;
     pxConfig->ucFlowControl= 0;
-    pxConfig->xParity     = 0;
-    pxConfig->xStopbits   = 0;
+    pxConfig->xParity     = eUartParityNone;
+    pxConfig->xStopbits   = eUartStopBitsOne;
     pxConfig->ucWordlength = 3;
 }
 
