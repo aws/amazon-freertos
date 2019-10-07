@@ -66,6 +66,25 @@ typedef enum
 } IotUARTOperationStatus_t;
 
 /**
+ * @brief UART parity mode
+ */
+typedef enum
+{
+    eUartParityNone,    /*!< UART parity as none. */
+    eUartParityOdd,     /*!< UART parity as odd. */
+    eUartParityEven,    /*!< UART parity as even. */
+} IotUARTParity_t;
+
+/**
+ * @brief UART stop bits
+ */
+typedef enum
+{
+    eUartStopBitsOne,   /*!< UART stop bits is 1. */
+    eUartStopBitsTwo,   /*!< UART stop bits is 2. */
+} IotUARTStopBits_t;
+
+/**
  * @brief The callback function for completion of UART operation.
  *
  * @param[out] xStatus      UART asynchronous operation status.
@@ -109,11 +128,11 @@ typedef enum
  */
 typedef struct
 {
-    uint32_t ulBaudrate;   /**< The baud rate to be set for the UART port. */
-    uint8_t ucParity;      /**< The parity to be set for the UART port: 0 is no parity, 1 is even parity and 2 is odd parity. */
-    uint8_t ucWordlength;  /**< The word length to be set for the UART port. */
-    uint8_t ucStopbits;    /**< The stop bits to be set for the UART port: 0 is no stop bits and 1 is stop bits. */
-    uint8_t ucFlowControl; /**< The flow control to be set for the UART port: 0 is disabled and 1 is enabled. */
+    uint32_t ulBaudrate;            /**< The baud rate to be set for the UART port. */
+    IotUARTParity_t xParity;        /**< The parity to be set for the UART port, defined in IotUARTParity_t. */
+    IotUARTStopBits_t xStopbits;    /**< The stop bits to be set for the UART port, defined in IotUARTStopBits_t. */
+    uint8_t ucWordlength;           /**< The word length to be set for the UART port. */
+    uint8_t ucFlowControl;          /**< The flow control to be set for the UART port: 0 is disabled and 1 is enabled. */
 } IotUARTConfig_t;
 
 /**
@@ -197,7 +216,7 @@ int32_t iot_uart_read_sync( IotUARTHandle_t const pxUartPeripheral,
  * @param[in] xBytes The number of bytes to send.
  *
  * @return
- * - IOT_UART_SUCCESS, on success (all the requested bytes have been read)
+ * - IOT_UART_SUCCESS, on success (all the requested bytes have been write)
  * - IOT_UART_INVALID_VALUE, if
  *     - pxUartPeripheral is NULL
  *     - pxUartPeripheral is not opened yet
