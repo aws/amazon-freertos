@@ -47,7 +47,12 @@
 /* Default configuration for all demos. Individual demos can override these below */
 #define democonfigDEMO_STACKSIZE                       ( configMINIMAL_STACK_SIZE * 20 )
 #define democonfigDEMO_PRIORITY                        ( tskIDLE_PRIORITY + 5 )
+
+#ifndef M487_ETH_DEMO
 #define democonfigNETWORK_TYPES                        ( AWSIOT_NETWORK_TYPE_WIFI )
+#else
+#define democonfigNETWORK_TYPES                         (AWSIOT_NETWORK_TYPE_ETH)
+#endif
 
 
 #define democonfigSHADOW_DEMO_NUM_TASKS                ( 2 )
