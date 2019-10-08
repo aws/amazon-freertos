@@ -1,5 +1,6 @@
 {
   "ENTRY": "OutputARPRequest",
+  "MINIMUM_PACKET_BYTES": 50,
   "CBMCFLAGS":
   [
       "--unwind {MINIMUM_PACKET_BYTES}",
@@ -13,7 +14,6 @@
     "$(FREERTOS)/freertos_kernel/list.goto",
     "$(FREERTOS)/freertos_kernel/queue.goto"
   ],
-  "MINIMUM_PACKET_BYTES": 50,
   "DEF":
   [
     {
