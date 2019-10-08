@@ -33,11 +33,8 @@ void vPortFree( void *pv ){
 }
 
 /*
- * This function is implemented by a third party.
- * After looking through a couple of samples in the demos folder, it seems
- * like the only shared contract is that you want to add the if statement
- * for releasing the buffer to the end. Apart from that, it is up to the vendor,
- * how to write this code out to the network.
+ * This function function writes a buffer to the network.  We stub it
+ * out here, and assume it has no side effects relevant to memory safety.
  */
 BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescriptor, BaseType_t bReleaseAfterSend ){
 	if( bReleaseAfterSend != pdFALSE )
