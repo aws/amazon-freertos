@@ -90,8 +90,8 @@ typedef enum
 {
     eSPISetMasterConfig, /*!< Sets the configuration of the SPI master and the data type is IotSPIMasterConfig_t. */
     eSPIGetMasterConfig, /*!< Gets the configuration of the SPI master and the data type is IotSPIMasterConfig_t. */
-    eSPIGetTxNoOfbytes,  /*!< Get the number of bytes sent in write operation. */
-    eSPIGetRxNoOfbytes,  /*!< Get the number of bytes received in read operation. */
+    eSPIGetTxNoOfbytes,  /*!< Get the number of bytes sent in write operation and the data type is uint16_t. */
+    eSPIGetRxNoOfbytes,  /*!< Get the number of bytes received in read operation and the data type is uint16_t. */
 } IotSPIIoctlRequest_t;
 
 /**
