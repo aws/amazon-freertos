@@ -23,31 +23,28 @@
 # http://www.FreeRTOS.org
 
 
-
 import csv
 import argparse
 import serial
-from gpio.test_iot_gpio_test import gpio_test
-from pwm.test_iot_pwm_test import pwm_test
-from adc.test_iot_adc_test import adc_test
+from gpio.test_iot_gpio_test import TestGpioAssisted
+from pwm.test_iot_pwm_test import TestPwmAssisted
+from adc.test_iot_adc_test import TestAdcAssisted
 import os
 
-
-
-test_class_list=[(gpio_test, "./gpio"),
-                 (pwm_test, "./pwm"),
-                 (adc_test, "./adc")]
-
+test_class_list = [(TestGpioAssisted, "./gpio"),
+                   (TestPwmAssisted, "./pwm"),
+                   (TestAdcAssisted, "./adc")
+]
 
 if __name__ == "__main__":
-    parser=argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()
 
     parser.add_argument('-i', '--ip', nargs=1, help='ip address of rpi')
     parser.add_argument('-l', '--login_name', nargs=1, help='login name of rpi')
     parser.add_argument('-s', '--password', nargs=1, help='password of rpi')
-    parser.add_argument('-p', '--port', nargs=1, help='com port of starlite')
+    parser.add_argument('-p', '--port', nargs=1, help='serial port of connected platform')
 
-    args=parser.parse_args()
+    args = parser.parse_args()
 
     try:
         serial_port = serial.Serial(port=args.port[0], timeout=5)
@@ -55,19 +52,19 @@ if __name__ == "__main__":
         print(e)
         exit()
 
-    rpi_ip=args.ip[0]
-    rpi_login=args.login_name[0]
-    rpi_pwd=args.password[0]
+    rpi_ip = args.ip[0]
+    rpi_login = args.login_name[0]
+    rpi_pwd = args.password[0]
 
     with open('test_result.csv', 'w', newline='') as csvfile:
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()
-        root_dir=os.getcwd()
+        root_dir = os.getcwd()
         for i in range(0, len(test_class_list)):
             print(test_class_list[i][0].__name__)
             os.chdir(test_class_list[i][1])
-            test_obj=test_class_list[i][0](serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
+            test_obj = test_class_list[i][0](serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
             test_obj.auto_run()
             os.chdir(root_dir)
             print("****************************")

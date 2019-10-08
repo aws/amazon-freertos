@@ -22,8 +22,8 @@
 # http://www.FreeRTOS.org
 
 
-
 import subprocess
+import os
 
 
 class test_template:
@@ -36,7 +36,8 @@ class test_template:
         self._pwd = pwd
         self._cr = csv_handler
 
-    shell_script=''
+    shell_script = ''
+    rpi_output_file = ''
 
     def auto_run(self):
         print('hardware ready? (y/n)')
@@ -62,3 +63,8 @@ class test_template:
     def run_shell_script(self, cmd):
         cmd_l = cmd.split()
         subprocess.call(cmd_l)
+
+    def clean(self):
+        if os.path.isfile(self.rpi_output_file):
+            os.remove(self.rpi_output_file)
+            self.run_shell_script(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-c']))
