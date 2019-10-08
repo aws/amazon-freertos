@@ -41,7 +41,7 @@
 #define MAX_DEFENDER_OUTSTANDING_PUBLISH_REQ    ( ( uint32_t ) 1 )
 
 #if WAIT_METRICS_JOB_MAX_SECONDS < AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS
-    #error "_WAIT_METRICS_JOB_MAX_SECONDS must be greater than AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS."
+    #error "WAIT_METRICS_JOB_MAX_SECONDS must be greater than AWS_IOT_DEFENDER_WAIT_SERVER_MAX_SECONDS."
 #endif
 
 /**
@@ -175,8 +175,7 @@ AwsIotDefenderError_t AwsIotDefender_Start( AwsIotDefenderStartInfo_t * pStartIn
             _pAwsIotDefenderDecoder = &_IotSerializerCborDecoder;
             _pAwsIotDefenderEncoder = &_IotSerializerCborEncoder;
         #else
-            _pAwsIotDefenderDecoder = IotSerializer_GetJsonDecoder();
-            _pAwsIotDefenderEncoder = IotSerializer_GetJsonEncoder();
+        #error "AWS IOT Defender library supports only CBOR encoder."
         #endif
 
         /* copy input start info into global variable _startInfo */
