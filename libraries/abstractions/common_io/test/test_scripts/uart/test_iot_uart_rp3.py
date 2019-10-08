@@ -38,26 +38,34 @@ serialport = serial.Serial(
 
 
 def write_async():
+    # Read from UART until '\n' line ending is found
     rcv = serialport.read_until()
     print(rcv)
 
 
 def write_read_sync():
+    # Read from UART until '\n' line ending is found
     rcv = serialport.read_until()
     rcv_str = str(repr(rcv))
     print(rcv_str)
+    # Echo message back to UART
     serialport.write(rcv)
 
 
 def baud_change_test():
+    # Pattern to find baudrate to switch to. The new baudrate for tests are signaled by DUT
     baud_pattern = re.compile(r"Baudrate:\s(\d+)")
     for i in range(4):
+        # Read from UART until '\n' line ending is found
         rcv = serialport.read_until()
         rcv_str = str(repr(rcv))
         baudrate = baud_pattern.search(rcv_str)
+        # Last message from UART was to switch to a different baudrate
         if baudrate:
+            # switch RPI UART baudrate to baudrate indicated by DUT
             serialport.baudrate = baudrate.group(1)
         else:
+            # If message was not signaling a new baudrate, the DUT sent a message with the intention of receiving an echo back
             serialport.write(rcv)
         print(rcv_str)
 
