@@ -30,8 +30,8 @@
 
 #include "FreeRTOS.h"
 #include "cbor.h"
-#include "aws_ota_cbor.h"
-#include "aws_ota_cbor_internal.h"
+#include "aws_iot_ota_cbor.h"
+#include "aws_iot_ota_cbor_internal.h"
 
 /**
  * @brief Message field definitions, per the server specification.
