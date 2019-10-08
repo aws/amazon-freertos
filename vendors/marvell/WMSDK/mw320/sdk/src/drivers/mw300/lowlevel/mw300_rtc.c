@@ -2,7 +2,7 @@
  *
  *  @brief    This file provides RTC functions.
  *
- *  (C) Copyright 2012-2018 Marvell International Ltd. All Rights Reserved.
+ *  (C) Copyright 2012-2019 Marvell International Ltd. All Rights Reserved.
  *
  *  MARVELL CONFIDENTIAL
  *  The source code contained or described herein and all documents related to

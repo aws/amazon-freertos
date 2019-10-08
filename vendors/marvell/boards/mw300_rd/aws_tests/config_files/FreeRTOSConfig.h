@@ -23,7 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  http://www.FreeRTOS.org
 */
 /*
- * Copyright (C) 2011-2018, Marvell International Ltd.
+ * Copyright (C) 2011-2019, Marvell International Ltd.
  * All Rights Reserved.
  */
 
@@ -111,7 +111,7 @@ unsigned long portWMSDK_GET_RUN_TIME_COUNTER_VALUE(void);
 
 /*  Software timer definitions. */
 #define configUSE_TIMERS		1
-#define configTIMER_TASK_PRIORITY	( configMAX_PRIORITIES - 1  )
+#define configTIMER_TASK_PRIORITY	( 4 )
 #define configTIMER_QUEUE_LENGTH	5
 #define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE )
 

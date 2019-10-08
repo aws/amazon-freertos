@@ -1,0 +1,121 @@
+Please start by looking at the documentation under
+doxy/refman/.
+
+/* Doxygen related documentation */
+/**
+* \mainpage
+*
+* \section intro Introduction
+*
+* Marvell's Wireless Microcontroller solution enables customers to
+* quickly develop applications of interest to add connectivity to
+* different sensors and appliances. The WMSDK supports rich set of
+* features required for connectivity. The WMSDK also relieves
+* developers by providing re-usable libraries and sample applications.
+*
+* \subsection devdoc  Developer Documentation
+*
+* This manual provides developer reference documentation for building
+* custom applications with the Wireless Microcontroller SDK.
+*
+* Please consult the SDK User Guide for an overview of the SDK and
+* user-centric documentation.
+*
+* The Software Development Kit may be used with compliant Wireless
+* Microcontroller platforms. Please consult the documentation for
+* your specific platform for any platform details.
+*
+* In addition to the reference documentation in this manual, you can
+* also explore the source code for the various software components
+* (distributed as part of the SDK) for more details.
+*
+* \subsubsection app_frame_intro Application Framework
+*
+* The SDK is equipped with an application framework that may be used
+* to develop applications. The application framework provides
+* implementation for most of the common activities required by a
+* network application. This relieves the developer from the management
+* of these common activities and facilitates quicker application
+* development.
+*
+* The application framework utilizes the same set of SDK modules
+* provided by the SDK. Developers may choose not to use the
+* application framework and implement similar functionality using the
+* rest of the SDK. The documentation for the application framework is
+* available here: \link app_framework.h Application Framework
+* documentation \endlink.
+*
+* After going through the \link app_framework.h Application Framework
+* documentation \endlink it would be worthwhile to look at the
+* implementation of the wlan based sample applications in the sample_apps/
+* folder. This will demonstrate how the application framework can
+* effectively be used by applications.
+*
+* Once you have a good understanding of this piece, you may start
+* digging deeper within individual SDK modules.
+
+* \subsubsection sdk_mod_intro SDK Modules
+*
+* The following modules are available in the SDK:
+* \li \link wlan.h WLAN Connection Manager \endlink
+* \li \link psm.h Persistent Storage Manager \endlink
+* \li \link wmtime.h Time Management \endlink
+* \li \link provisioning.h Provisioning Support \endlink
+* \li \link wps.h WPS 2.0 Support \endlink
+* \li \link p2p.h Wi-Fi Direct (P2P) Support \endlink
+* \li \link httpd.h HTTP Web Server API  \endlink
+* \li \link httpc.h HTTP Client \endlink
+* \li \link wm_mbedtls_helper_api.h TLS API \endlink
+* \li \link ezxml.h ezXML: Easy XML Parsing C Library \endlink
+* \li \link mdns.h mDNS/DNS-SD responder-querier \endlink
+* \li \link rfget.h Remote Firmware Upgrade \endlink
+* \li \link healthmon.h Health Monitor \endlink
+* \li \link pwrmgr.h Power Manager \endlink
+* \li \link wmcrypto.h Crypto Support \endlink
+* \li \link partition.h Partition Management \endlink
+* \li \link overlays.h Overlay Manager \endlink
+* \li \link json_parser.h JSON Generation and Parser \endlink
+* \li \link HAPPlatform+Init.h HomeKit Accessory Development Kit (ADK) PAL \endlink
+*
+* \subsubsection sdk_drivers SDK Drivers
+*
+* The following drivers are available in the SDK:
+* \li \link mdev_acomp.h mdev-based ACOMP Driver \endlink
+* \li \link mdev_adc.h mdev-based ADC Driver \endlink
+* \li \link mdev_aes.h mdev-based AES Driver \endlink
+* \li \link mdev_crc.h mdev-based CRC Driver \endlink
+* \li \link mdev_dac.h mdev-based DAC Driver \endlink
+* \li \link mdev_gpio.h mdev-based GPIO Driver \endlink
+* \li \link mdev_gpt.h mdev-based GPT Driver \endlink
+* \li \link mdev_i2c.h mdev-based I2C Driver \endlink
+* \li \link mdev_pm.h mdev-based Poiwer Management \endlink
+* \li \link mdev_fpu.h mdev-based FPU driver \endlink
+* \li \link mdev_pinmux.h mdev-based PINMUX Driver \endlink
+* \li \link mdev_rtc.h mdev-based RTC Driver \endlink
+* \li \link mdev_uart.h mdev-based UART Driver \endlink
+* \li \link mdev_ssp.h mdev-based SSP Driver \endlink
+* \li \link mdev_wdt.h mdev-based WATCHDOG Driver \endlink
+* \li \link mdev_sdio.h mdev-based SDIO Driver \endlink
+* \li \link mdev_usb_host.h mdev-based USB Host Driver \endlink
+* \li \link flash.h mdev-based Flash Driver \endlink
+*
+* \subsubsection sdk_porting SDK Porting
+*
+* \li \link board.h Board Specific APIs \endlink
+*
+* \subsubsection cloud_services Third-Party Cloud Providers
+* The SDK has support for Evrythng Cloud and AWS
+*
+* \subsubsection cmsis_info CMSIS Library
+* The SDK has support for CMSIS DSP Library V1.4.5.
+* Refer the link for API details:
+* http://www.keil.com/cmsis/dsp
+* \note
+* The Files section provides documentation for all the APIs that are
+* available in this SDK.
+*
+*/
+
+
+
+

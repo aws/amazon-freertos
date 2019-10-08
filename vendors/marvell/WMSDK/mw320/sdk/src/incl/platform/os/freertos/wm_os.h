@@ -1,5 +1,5 @@
 /*
-*  (C) Copyright 2008-2018 Marvell International Ltd. All Rights Reserved
+*  (C) Copyright 2008-2019 Marvell International Ltd. All Rights Reserved
 *
 *  MARVELL CONFIDENTIAL
 *  The source code contained or described herein and all documents related to
@@ -174,6 +174,42 @@ static inline unsigned long long os_total_ticks_get()
 		return xTaskGetTotalTickCount();
 }
 #endif
+
+static inline unsigned long long os_total_ticks_get_new()
+{
+       unsigned long long xTotalTicks;
+       TimeOut_t xTimeOut;
+
+       memset(&xTimeOut, '\0', sizeof(xTimeOut));
+
+       if (is_isr_context()){
+               UBaseType_t uxSavedInterruptStatus;
+               portASSERT_IF_INTERRUPT_PRIORITY_INVALID();
+
+               uxSavedInterruptStatus = portTICK_TYPE_SET_INTERRUPT_MASK_FROM_ISR();
+               {
+                       vTaskSetTimeOutState( &xTimeOut );
+                       xTotalTicks = ((unsigned long long)xTimeOut.xOverflowCount << 32);
+                       xTotalTicks |= xTimeOut.xTimeOnEntering;
+               }
+               portTICK_TYPE_CLEAR_INTERRUPT_MASK_FROM_ISR( uxSavedInterruptStatus );
+
+               return xTotalTicks;
+       }
+       else {
+               /* Critical section required if running on a 16 bit processor. */
+               taskENTER_CRITICAL();
+               {
+                       vTaskSetTimeOutState( &xTimeOut );
+                       xTotalTicks = ((unsigned long long)xTimeOut.xOverflowCount << 32);
+                       xTotalTicks |= xTimeOut.xTimeOnEntering;
+                       //xTotalTicks |= xTaskGetTickCount();
+               }
+               taskEXIT_CRITICAL();
+               return xTotalTicks;
+       }
+}
+
 
 /** Get ticks to next thread wakeup */
 #define os_ticks_to_unblock()	xTaskGetUnblockTime()
