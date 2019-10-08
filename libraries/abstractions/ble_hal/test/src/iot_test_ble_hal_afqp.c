@@ -39,6 +39,7 @@ extern BTBdaddr_t _xAddressConnectedDevice;
 
 extern BTService_t _xSrvcA;
 extern BTService_t _xSrvcB;
+extern BTService_t _xSrvcC;
 extern uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
 extern response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
 
@@ -91,9 +92,9 @@ TEST_GROUP_RUNNER( Full_BLE )
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_UpdateConnectionParamReq ); */
 
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_ChangeMTUsize ); */
-    #if ENABLE_TC_WRITE_LONG
-        RUN_TEST_CASE( Full_BLE, BLE_Property_WriteLongCharacteristic );
-    #endif
+#if ENABLE_TC_WRITE_LONG
+    RUN_TEST_CASE( Full_BLE, BLE_Property_WriteLongCharacteristic );
+#endif
 
     RUN_TEST_CASE( Full_BLE, BLE_Property_WriteCharacteristic );
     RUN_TEST_CASE( Full_BLE, BLE_Property_WriteDescriptor );
@@ -676,6 +677,10 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+#if ENABLE_TC_SECONDARY_SERVICE
+        xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcC );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+#endif
     }
     else
     {
@@ -685,10 +690,19 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         /* Create service B */
         IotTestBleHal_CreateServiceB();
 
+#if ENABLE_TC_SECONDARY_SERVICE
+        /* Create service C */
+        IotTestBleHal_CreateServiceC();
+#endif
+
         /* Start service A */
         IotTestBleHal_StartService( &_xSrvcA );
         /* Start service B */
         IotTestBleHal_StartService( &_xSrvcB );
+#if ENABLE_TC_SECONDARY_SERVICE
+        /* Start service C */
+        IotTestBleHal_StartService( &_xSrvcC );
+#endif
     }
 }
 

@@ -35,17 +35,18 @@
 
 #define ENABLE_TC_WRITE_LONG              ( 1 )
 #define ENABLE_TC_ADD_INCLUDED_SERVICE    ( 0 )
+#define ENABLE_TC_SECONDARY_SERVICE       ( 0 )
 
-    void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                                   bool bNeedRsp,
-                                   bool IsPrep,
-                                   uint16_t usOffset );
-    void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
-                              uint16_t usServiceDataLen,
-                              char * pcServiceData,
-                              BTUuid_t * pxServiceUuid,
-                              size_t xNbServices,
-                              uint16_t usManufacturerLen,
-                              char * pcManufacturerData );
+void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
+                               bool bNeedRsp,
+                               bool IsPrep,
+                               uint16_t usOffset );
+void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
+                          uint16_t usServiceDataLen,
+                          char * pcServiceData,
+                          BTUuid_t * pxServiceUuid,
+                          size_t xNbServices,
+                          uint16_t usManufacturerLen,
+                          char * pcManufacturerData );
 
 #endif /* _IOT_TEST_BLE_HAL_AFQP_H_ */

@@ -41,11 +41,13 @@ BTBdaddr_t _xAddressConnectedDevice;
 
 BTService_t _xSrvcA;
 BTService_t _xSrvcB;
+BTService_t _xSrvcC;
 uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
 response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
 
 uint16_t usHandlesBufferA[ bletestATTR_SRVCA_NUMBER ];
 uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
+uint16_t usHandlesBufferC[ bletestATTR_SRVCC_NUMBER ];
 
 uint8_t ucCbPropertyBuffer[ bletestsMAX_PROPERTY_SIZE ];
 uint32_t usCbConnInterval;
@@ -195,6 +197,34 @@ static const BTAttribute_t pxAttributeTableB[] =
             .pxPtrToService = &_xSrvcA
         }
     }
+};
+
+/* service C */
+
+static const BTAttribute_t pxAttributeTableC[] =
+{
+    {
+        .xAttributeType = eBTDbSecondaryService,
+        .xServiceUUID = bletestsFREERTOS_SVC_C_UUID
+    },
+    {
+        .xAttributeType = eBTDbCharacteristic,
+        .xCharacteristic =
+        {
+            .xUuid        = bletestsFREERTOS_CHAR_G_UUID,
+            .xPermissions = ( bletestsFULL_PERMISSIONS ),
+            .xProperties  = ( eBTPropRead | eBTPropWrite )
+        }
+    }
+};
+
+BTService_t _xSrvcC =
+{
+    .ucInstId            = 0,
+    .xType               = eBTServiceTypeSecondary,
+    .xNumberOfAttributes = bletestATTR_SRVCC_NUMBER,
+    .pusHandlesBuffer    = usHandlesBufferC,
+    .pxBLEAttributes     = ( BTAttribute_t * ) pxAttributeTableC
 };
 
 BTGattAdvertismentParams_t xAdvertisementConfigA =
@@ -596,9 +626,9 @@ void IotTestBleHal_CreateServiceA()
 void IotTestBleHal_CreateServiceB()
 {
     prvCreateService( &_xSrvcB );
-    #ifdef ENABLE_TC_ADD_INCLUDED_SERVICE
-        prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
-    #endif
+#if ENABLE_TC_ADD_INCLUDED_SERVICE
+    prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
+#endif
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_B );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_C );
@@ -611,6 +641,12 @@ void IotTestBleHal_CreateServiceB()
     prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_B );
     prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_C );
     prvCreateCharacteristicDescriptor( &_xSrvcB, bletestATTR_SRVCB_CHARF_DESCR_D );
+}
+
+void IotTestBleHal_CreateServiceC()
+{
+    prvCreateService( &_xSrvcC );
+    prvCreateCharacteristic( &_xSrvcC, bletestATTR_SRVCC_CHAR_A );
 }
 
 static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,

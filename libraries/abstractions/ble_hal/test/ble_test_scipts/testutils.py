@@ -136,9 +136,11 @@ def find_gatt_service_in_objects(services, characteristics, descriptors):
         sys.stdout.flush()
         if ifaces.get(SERVICE_INTERFACE) is not None:
             uuid = str(objInterface.Get(SERVICE_INTERFACE, "UUID"))
+            primary = objInterface.Get(SERVICE_INTERFACE, "Primary")
 
             services[uuid] = {}
             services[uuid]["obj"] = obj
+            services[uuid]["Primary"] = primary
 
         if ifaces.get(CHARACTERISTIC_INTERFACE) is not None:
             uuid = str(objInterface.Get(CHARACTERISTIC_INTERFACE, "UUID"))
