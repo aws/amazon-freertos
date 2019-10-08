@@ -79,7 +79,7 @@ typedef struct IotPwmDescriptor   * IotPwmHandle_t;
  * @return
  *   - Handle to PWM interface on success
  *   - NULL if
- *      - invalide instance
+ *      - invalid instance
  *      - instance already open
  */
 IotPwmHandle_t iot_pwm_open( int32_t lPwmInstance );
