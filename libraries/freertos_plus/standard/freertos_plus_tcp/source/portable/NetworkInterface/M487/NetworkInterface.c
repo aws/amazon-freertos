@@ -121,7 +121,7 @@ BaseType_t xNetworkInterfaceInitialise( void )
 
 BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescriptor, BaseType_t xReleaseAfterSend )
 {
-    uint8_t *buffer;
+    uint8_t *buffer=NULL;
 //    printf("<-- dataLength=%d\n",pxDescriptor->xDataLength);
     if( pxDescriptor->xDataLength >= PACKET_BUFFER_SIZE )
     {
@@ -225,8 +225,8 @@ static void prvEMACHandlerTask( void *pvParameters )
     BaseType_t xResult = 0;
     uint32_t ulStatus;
     uint16_t dataLength = 0;
-    uint8_t *buffer;
-    NetworkBufferDescriptor_t *pxBufferDescriptor;
+    uint8_t *buffer = NULL;
+    NetworkBufferDescriptor_t *pxBufferDescriptor = NULL;
     IPStackEvent_t xRxEvent;
     const TickType_t xBlockTime = pdMS_TO_TICKS( 5000ul );
     
