@@ -39,10 +39,10 @@
 /**
  * @brief Return values used by PWM driver.
  */
-#define IOT_PWM_SUCCESS                   ( 0 )
-#define IOT_PWM_INVALID_VALUE             ( 1 )
-#define IOT_PWM_NOT_CONFIGURED            ( 2 )
-#define IOT_PWM_FUNCTION_NOT_SUPPORTED    ( 3 )
+#define IOT_PWM_SUCCESS                   ( 0 )    /*!< PWM operation completed successfully. */
+#define IOT_PWM_INVALID_VALUE             ( 1 )    /*!< At least one parameter is invalid. */
+#define IOT_PWM_NOT_CONFIGURED            ( 2 )    /*!< PWM must be configured prior to start. */
+#define IOT_PWM_FUNCTION_NOT_SUPPORTED    ( 3 )    /*!< PWM operation not supported. */
 
 
 /**
@@ -52,7 +52,9 @@ typedef struct IotPwmConfig
 {
     uint32_t ulPwmFrequency; /*!< PWM frequency */
     uint8_t ucPwmDutyCycle;  /*!< PWM duty cycle */
-    uint8_t ucPwmChannel;    /*!< PWM output channel.*/
+    uint8_t ucPwmChannel;    /*!< PWM output channel.  Depending on individual HW implementations,
+                                  each pwm controller may have one or more channels, where the
+                                  output signal can be directed.  */
 } IotPwmConfig_t;
 
 /**
@@ -74,7 +76,11 @@ typedef struct IotPwmDescriptor   * IotPwmHandle_t;
  * @param[in]   lPwmInstance   The instance of the PWM to initialize.
                                 PWM is output only.
  *
- * @return Handle to PWM interface on success, or NULL on failure.
+ * @return
+ *   - Handle to PWM interface on success
+ *   - NULL if
+ *      - invalide instance
+ *      - instance already open
  */
 IotPwmHandle_t iot_pwm_open( int32_t lPwmInstance );
 
@@ -86,8 +92,9 @@ IotPwmHandle_t iot_pwm_open( int32_t lPwmInstance );
  *                          iot_pwm_open
  * @param[in]   xConfig     PWM configuration to be setup.
  *
- * @return  returns IOT_PWM_SUCCESS on success or returns
- *          one of IOT_PWM_INVALID_VALUE on error.
+ * @return
+ *   - IOT_PWM_SUCCESS on success
+ *   - IOT_PWM_INVALID_VALUE if pxPwmHandle == NULL or invalid config setting
  */
 int32_t iot_pwm_set_config( IotPwmHandle_t const pxPwmHandle,
                             const IotPwmConfig_t xConfig );
@@ -98,20 +105,25 @@ int32_t iot_pwm_set_config( IotPwmHandle_t const pxPwmHandle,
  * @param[in]   pxPwmHandle  Handle to PWM driver returned in
  *                          iot_pwm_open
  *
- * @return  returns pointer to current PWM configuration on success,
- *          or returns NULL
+ * @return
+ *   - pointer to current PWM configuration on success
+ *   - NULL if pxPwmHandle == NULL
  */
 IotPwmConfig_t * iot_pwm_get_config( IotPwmHandle_t const pxPwmHandle );
 
 /*!
  * @brief   Start the PWM hardware. PWM configuration must be
- *          set before PWM is started.
+ *          set before PWM is started.  PWM signal availability
+ *          on the configured output based on the PWMChannel configured
+ *          in iot_pwm_set_config().
  *
  * @param[in]   pxPwmHandle  Handle to PWM driver returned in
  *                          iot_pwm_open
  *
- * @return  returns IOT_PWM_SUCCESS on success or returns
- *          one of IOT_PWM_INVALID_VALUE on error.
+ * @return
+ *   - IOT_PWM_SUCCESS on success
+ *   - IOT_PWM_INVALID_VALUE if pxPwmHandle == NULL
+ *   - IOT_PWM_NOT_CONFIGURED if iot_pwm_set_config hasn't been called.
  */
 int32_t iot_pwm_start( IotPwmHandle_t const pxPwmHandle );
 
@@ -121,8 +133,9 @@ int32_t iot_pwm_start( IotPwmHandle_t const pxPwmHandle );
  * @param[in]   pxPwmHandle  Handle to PWM driver returned in
  *                          iot_pwm_open
  *
- * @return  returns IOT_PWM_SUCCESS on success or returns
- *          one of IOT_PWM_INVALID_VALUE on error.
+ * @return
+ *   - IOT_PWM_SUCCESS on success
+ *   - IOT_PWM_INVALID_VALUE if pxPwmHandle == NULL
  */
 int32_t iot_pwm_stop( IotPwmHandle_t const pxPwmHandle );
 
@@ -132,8 +145,12 @@ int32_t iot_pwm_stop( IotPwmHandle_t const pxPwmHandle );
  * @param[in]   pxPwmHandle  Handle to PWM driver returned in
  *                          iot_pwm_open
  *
- * @return  returns IOT_PWM_SUCCESS on success or returns
- *          one of IOT_PWM_INVALID_VALUE on error.
+ * @return
+ *   - IOT_PWM_SUCCESS on success
+ *   - IOT_PWM_INVALID_VALUE if
+ *      - pxPwmHandle == NULL
+ *      - not in open state (already closed).
+
  */
 int32_t iot_pwm_close( IotPwmHandle_t const pxPwmHandle );
 

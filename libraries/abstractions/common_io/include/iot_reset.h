@@ -41,8 +41,9 @@
 /**
  * Return values used by reset driver
  */
-#define IOT_RESET_SUCCESS                   ( 0 )
-#define IOT_RESET_FUNCTION_NOT_SUPPORTED    ( 1 )
+#define IOT_RESET_SUCCESS                   ( 0 )    /**< Reset operation completed successfully. */
+#define IOT_RESET_FUNCTION_NOT_SUPPORTED    ( 1 )    /**< Reset function not supported. */
+#define IOT_RESET_INVALID_VALUE             ( 2 )    /**< At least one parameter is invalid. */
 
 typedef enum
 {
@@ -81,8 +82,9 @@ void iot_reset_reboot( IotResetBootFlag_t xResetBootFlag );
  *          If the target does not support shutdown of the device, IOT_RESET_FUNCTION_NOT_SUPPORTED
  *          is returned to the user.
  *
- * @return  does not return and device shutdown on success, or returns one of
- *          IOT_RESET_FUNCTION_NOT_SUPPORTED
+ * @return
+ *   - does not return and device shutdown on success
+ *   - IOT_RESET_FUNCTION_NOT_SUPPORTED if shutdown not supported.
  */
 int32_t iot_reset_shutdown();
 
@@ -94,7 +96,10 @@ int32_t iot_reset_shutdown();
  *
  * @param[out]   xResetReason  One of the reset reasons specified in IotResetReason_t types
  *
- * @return  returns one of IOT_RESET_SUCCESS or IOT_RESET_FUNCTION_NOT_SUPPORTED
+ * @return
+ *   - IOT_RESET_SUCCESS on success.
+ *   - IOT_RESET_FUNCTION_NOT_SUPPORTED if not supported.
+ *   - IOT_RESET_INVALID_VALUE if xREsetReason == NULL
  */
 int32_t iot_get_reset_reason(IotResetReason_t  * xResetReason);
 

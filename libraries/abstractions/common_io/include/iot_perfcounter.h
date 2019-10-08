@@ -42,6 +42,10 @@
 /**
  * @defgroup iot_perfcounter PerfCounter HAL APIs
  * @{
+ * @brief   The perf counter is generally used to measure the cycles (usually processor clock cycles )
+ *          taken between 2 places in code. perfcounters can be implemented using cycle counters if
+ *          the processor supports, or any generic timer that is granular enough to measure the time
+ *          between 2 points in code.
  */
 
 /**
@@ -63,7 +67,7 @@ uint64_t iot_perfcounter_get_value(void);
  *          performance counters are running at. This can be used to determine the
  *          time delta between two perfcounter values returned by valling iot_perfcounter_get_value()
  *
- * @return  returns the frequency of the performance counter.
+ * @return  returns the frequency of the performance counter as a uint32 value.
  *          This can be used to deterime the period between perfcounter
  *          increments.
  */
