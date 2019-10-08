@@ -38,6 +38,7 @@
 #include "iot_crypto.h"
 #include "aws_clientcredential.h"
 #include "iot_default_root_certificates.h"
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "iot_test_pkcs11_config.h"
