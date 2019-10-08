@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2017, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 #
 # Description:
@@ -28,8 +28,8 @@ global-cflags-y += -Isdk/src/boards
 #################################################
 
 ######### SDK Version
-SDK_VERSION_INTERNAL ?= v1.2.r6
-EXTRA_SDK_VERSION ?= p1
+SDK_VERSION_INTERNAL ?= v1.2.r8
+EXTRA_SDK_VERSION ?= p2
 SDK_VERSION :=\"$(SDK_VERSION_INTERNAL)\"
 global-cflags-y += -DSDK_VERSION=$(SDK_VERSION)
 

@@ -73,14 +73,14 @@
  * @defgroup MQTTTask MQTT task configuration parameters.
  */
 /** @{ */
-#define mqttconfigMQTT_TASK_STACK_DEPTH    ( configMINIMAL_STACK_SIZE * 4 )
-#define mqttconfigMQTT_TASK_PRIORITY       ( configMAX_PRIORITIES - 3 )
+#define mqttconfigMQTT_TASK_STACK_DEPTH    ( configMINIMAL_STACK_SIZE * 8 )
+#define mqttconfigMQTT_TASK_PRIORITY       ( tskIDLE_PRIORITY + 6 )
 /** @} */
 
 /**
  * @brief Maximum number of MQTT clients that can exist simultaneously.
  */
-#define mqttconfigMAX_BROKERS            ( 4 )
+#define mqttconfigMAX_BROKERS            ( 2 )
 
 /**
  * @brief Maximum number of parallel operations per client.
@@ -95,7 +95,7 @@
 /**
  * @brief Length of the buffer used to receive data.
  */
-#define mqttconfigRX_BUFFER_SIZE         ( 128 )
+#define mqttconfigRX_BUFFER_SIZE         ( 1024 + 128 )
 
 /**
  * @brief The maximum time in ticks for which the MQTT task is permitted to block.

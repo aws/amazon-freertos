@@ -5,7 +5,7 @@
 *  linked with mdns.  Various compiler and system defines are also implemented
 *  in this file.  Feel free to expand these to work with you system.
 *
-*  (C) Copyright 2008-2018 Marvell International Ltd. All Rights Reserved
+*  (C) Copyright 2008-2019 Marvell International Ltd. All Rights Reserved
 *
 *  MARVELL CONFIDENTIAL
 *  The source code contained or described herein and all documents related to
