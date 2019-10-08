@@ -429,7 +429,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
 
         lIoctl = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount_2 );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_GREATER_THAN( lTransferAmount_1  , lTransferAmount_2  );
+        TEST_ASSERT_GREATER_THAN( lTransferAmount_1, lTransferAmount_2  );
 
         /* Delay for 1 sec. */
         vTaskDelay(testIotUART_DELAY);
@@ -566,7 +566,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
         lWrite = iot_uart_write_async( xUartHandle, cSmallBuf, uSmallBuflen );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
-        /* Wait to make sure operation was really canceled. */
+        /* Wait to make sure operation has completed. */
         xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xtestIotUARTCompleted, testIotUART_DEFAULT_SEMPAHORE_DELAY );
         TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
 

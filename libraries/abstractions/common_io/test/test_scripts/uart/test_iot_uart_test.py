@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Amazon FreeRTOS V1.2.3
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -27,18 +28,19 @@ import csv
 import argparse
 import os, sys
 import re
+import socket
 
 parentdir = os.path.dirname(os.getcwd())
 sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 
 
-class uart_test(test_template):
+class TestUartAssisted(test_template):
     """
     Test class for uart tests.
     """
 
-    outputfile = "./uart_res.txt"
+    rpi_output_file = "./uart_res.txt"
 
     def __init__(self, serial, ip, login, pwd, csv_handler):
         self._func_list = [self.test_IotUartWriteReadAsync, self.test_IotUartBaudChange, self.test_IotUartWriteAsync]
@@ -65,6 +67,18 @@ class uart_test(test_template):
             " ".join([self.shell_script, self._ip, self._login, self._pwd, "0"])
         )
 
+        # Create a tcp type socket with AF_INET address family.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time_out = 10
+        # Wait until connection with the process on rpi is established.
+        while s.connect_ex((self._ip, self.port)) != 0 and time_out > 0:
+            time_out -= 1
+            sleep(1)
+        if time_out == 0:
+            print("Socket connection cannot be established")
+            s.close()
+            return "Fail"
+
         self._serial.reset_input_buffer()
 
         cmd = "iot_tests test 1 0"
@@ -75,8 +89,11 @@ class uart_test(test_template):
         dut_res = str(self._serial.read(100))
         dut_result = dut_res_pattern.search(dut_res)
 
-        with open(self.outputfile, "r") as f:
+        with open(self.rpi_output_file, "r") as f:
             pi_result = pi_regex.search(str(f.read()))
+
+        s.send(b'E')
+        s.close()
         self.clean()
 
         return "Pass" if pi_result and dut_result else "Fail"
@@ -95,6 +112,18 @@ class uart_test(test_template):
             " ".join([self.shell_script, self._ip, self._login, self._pwd, "1"])
         )
 
+        # Create a tcp type socket with AF_INET address family.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time_out = 10
+        # Wait until connection with the process on rpi is established.
+        while s.connect_ex((self._ip, self.port)) != 0 and time_out > 0:
+            time_out -= 1
+            sleep(1)
+        if time_out == 0:
+            print("Socket connection cannot be established")
+            s.close()
+            return "Fail"
+
         self._serial.reset_input_buffer()
 
         cmd = "iot_tests test 1 1"
@@ -105,8 +134,10 @@ class uart_test(test_template):
         dut_res = str(self._serial.read(100))
         dut_result = ut_res_pattern.search(dut_res)
 
-        with open(self.outputfile, "r") as f:
+        with open(self.rpi_output_file, "r") as f:
             result_matches = pi_res_pattern.findall(str(f.read()))
+        s.send(b'E')
+        s.close()
         self.clean()
 
         return "Pass" if len(result_matches) >= 2 and dut_result else "Fail"
@@ -125,6 +156,18 @@ class uart_test(test_template):
             " ".join([self.shell_script, self._ip, self._login, self._pwd, "2"])
         )
 
+        # Create a tcp type socket with AF_INET address family.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time_out = 10
+        # Wait until connection with the process on rpi is established.
+        while s.connect_ex((self._ip, self.port)) != 0 and time_out > 0:
+            time_out -= 1
+            sleep(1)
+        if time_out == 0:
+            print("Socket connection cannot be established")
+            s.close()
+            return "Fail"
+
         self._serial.reset_input_buffer()
 
         cmd = "iot_tests test 1 2"
@@ -135,8 +178,11 @@ class uart_test(test_template):
         dut_res = str(self._serial.read(100))
         dut_result = dut_res_pattern.search(dut_res)
 
-        with open(self.outputfile, "r") as f:
+        with open(self.rpi_output_file, "r") as f:
             pi_result = pi_res_pattern.search(str(f.read()))
+
+        s.send(b'E')
+        s.close()
         self.clean()
 
         return "Pass" if pi_result and dut_result else "Fail"
@@ -175,7 +221,7 @@ if __name__ == "__main__":
         field_name = ["test name", "test result"]
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()
-        t_handler = uart_test(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
+        t_handler = TestUartAssisted(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
         t_handler.auto_run()
 
     serial_port.close()

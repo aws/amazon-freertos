@@ -25,6 +25,10 @@ import argparse
 import serial
 import time
 import re
+import socket
+
+HOST = ''
+PORT = 50007
 
 # open GPIO pins UART on PI. Make sure that you have enabled the PI in raspi-config.
 serialport = serial.Serial(
@@ -37,13 +41,17 @@ serialport = serial.Serial(
 )
 
 
-def write_async():
+def write_async(s):
+    # Notify host rpi is ready.
+    conn, addr = s.accept()
     # Read from UART until '\n' line ending is found
     rcv = serialport.read_until()
     print(rcv)
 
 
-def write_read_sync():
+def write_read_sync(s):
+    # Notify host rpi is ready.
+    conn, addr = s.accept()
     # Read from UART until '\n' line ending is found
     rcv = serialport.read_until()
     rcv_str = str(repr(rcv))
@@ -52,9 +60,12 @@ def write_read_sync():
     serialport.write(rcv)
 
 
-def baud_change_test():
+def baud_change_test(s):
     # Pattern to find baudrate to switch to. The new baudrate for tests are signaled by DUT
     baud_pattern = re.compile(r"Baudrate:\s(\d+)")
+
+    # Notify host rpi is ready.
+    conn, addr = s.accept()
     for i in range(4):
         # Read from UART until '\n' line ending is found
         rcv = serialport.read_until()
@@ -82,9 +93,19 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+    socket.setdefaulttimeout(10)
+
+    # Use socket to signal RPI is ready
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((HOST, PORT))
+    s.listen(1)
+
     if args.d[0] == 0:
-        write_read_sync()
+        write_read_sync(s)
     elif args.d[0] == 1:
-        baud_change_test()
+        baud_change_test(s)
     elif args.d[0] == 2:
-        write_async()
+        write_async(s)
+
+    s.close()

@@ -30,7 +30,7 @@ import serial
 from gpio.test_iot_gpio_test import gpio_test
 from pwm.test_iot_pwm_test import pwm_test
 from adc.test_iot_adc_test import adc_test
-from uart.test_iot_uart_test import uart_test
+from uart.test_iot_uart_test import TestUartAssisted
 import os
 
 
@@ -38,7 +38,7 @@ import os
 test_class_list=[(gpio_test, "./gpio"),
                  (pwm_test, "./pwm"),
                  (adc_test, "./adc"),
-                 (uart_test "./uart")]
+                 (TestUartAssisted "./uart")]
 
 
 if __name__ == "__main__":
