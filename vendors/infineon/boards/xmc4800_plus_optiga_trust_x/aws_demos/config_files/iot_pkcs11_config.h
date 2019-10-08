@@ -125,4 +125,9 @@
  */
 #define pkcs11configLABEL_ROOT_CERTIFICATE                 "0xE0E8"
 
+/**
+ * @brief Set to 1 if importing device private key via C_CreateObject is supported. 0 if not.
+ */
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          0
+
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

@@ -10,7 +10,9 @@
 			<itemPath>../../../../../freertos_kernel/timers.c</itemPath>
 			<logicalFolder name="include" displayName="include" projectFiles="true">
 				<itemPath>../../../../../freertos_kernel/include/FreeRTOS.h</itemPath>
+				<itemPath>../../../../../freertos_kernel/include/StackMacros.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/atomic.h</itemPath>
+				<itemPath>../../../../../freertos_kernel/include/croutine.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/deprecated_definitions.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/event_groups.h</itemPath>
 				<itemPath>../../../../../freertos_kernel/include/list.h</itemPath>
@@ -254,6 +256,9 @@
 					<logicalFolder name="mbedtls" displayName="mbedtls" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</itemPath>
 						<itemPath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</itemPath>
+					</logicalFolder>
+					<logicalFolder name="include" displayName="include" projectFiles="true">
+						<itemPath>../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</itemPath>
 					</logicalFolder>
 					<logicalFolder name="test" displayName="test" projectFiles="true">
 						<itemPath>../../../../../libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</itemPath>
@@ -1065,9 +1070,9 @@
 				<property key="preprocessor-macros" value=""/>
 				<property key="warning-level" value=""/>
 			</C32-AS>
-      <C32-CO>
-        <property key="coverage-enable" value=""/>
-      </C32-CO>
+			<C32-CO>
+				<property key="coverage-enable" value=""/>
+			</C32-CO>
 			<C32-LD>
 				<property key="additional-options-use-response-files" value="false"/>
 				<property key="additional-options-write-sla" value="false"/>

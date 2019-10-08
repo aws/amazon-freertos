@@ -93,7 +93,7 @@
  *
  * The public key corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
  */
-#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "0xF1D1"
+#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "0xF1D2"
 
 /**
  * @brief The PKCS #11 label for the device certificate.
@@ -124,5 +124,10 @@
  * @see aws_default_root_certificates.h
  */
 #define pkcs11configLABEL_ROOT_CERTIFICATE                 "0xE0E8"
+
+/**
+ * @brief Set to 1 if importing device private key via C_CreateObject is supported. 0 if not.
+ */
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          0
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */
