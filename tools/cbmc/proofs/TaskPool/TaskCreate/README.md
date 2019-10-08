@@ -1,7 +1,9 @@
-This proof demonstrates the memory safety of the TaskCreate function.  We
-assume task lists to be initialized, and nondet. set `pxCurrentTCB`,
-`uxCurrentNumberOfTasks`, `pcName` and `pxCreateTask`. STACK_DEPTH is set to a
-fixed number (10) since it is not possible to specify a range.
+This proof demonstrates the memory safety of the TaskCreate function.
+We initialize task lists, but we set other data structures to
+unconstrained (arbitrary) values, including the data structures
+`pxCurrentTCB`, `uxCurrentNumberOfTasks`, `pcName` and `pxCreateTask`.
+STACK_DEPTH is set to a fixed number (10) since it is not possible to
+specify a range.
 
 This proof is a work-in-progress.  Proof assumptions are described in
 the harness.  The proof also assumes the following functions are

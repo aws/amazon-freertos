@@ -96,11 +96,6 @@ BaseType_t xPrepareTaskLists( TaskHandle_t * xTask )
 
 	if ( pxTCB != NULL )
 	{
-		/*
-		 * The `return pdFAIL` statement that follows can be uncommented
-		 * to test coverage when the task handle passed to TaskPrioritySet is NULL
-		 */
-		// return pdFAIL;
 		if ( nondet_bool() )
 		{
 			/* Nondet. insertion of this task in ready tasks list to allow both cases in line 1651 (tasks.c) */

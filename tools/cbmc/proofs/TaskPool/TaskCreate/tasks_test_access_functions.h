@@ -29,8 +29,8 @@
 #include "cbmc.h"
 
 /*
- * pvPortMalloc is nondeterministic by definition, thus we do not need
- * to check for NULL allocation in this function
+ * Our stub for pvPortMalloc in cbmc.h nondeterministically chooses
+ * either to return NULL or to allocate the requested memory.
  */
 void vNondetSetCurrentTCB( void )
 {
