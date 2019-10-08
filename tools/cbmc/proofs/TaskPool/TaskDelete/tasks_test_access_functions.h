@@ -111,11 +111,6 @@ BaseType_t xPrepareTaskLists( TaskHandle_t * xTask )
 	pxTCB = xUnconstrainedTCB();
 	if ( pxTCB != NULL )
 	{
-		/*
-		 * The `return pdFAIL` statement that follows can be uncommented
-		 * to test coverage when the task handle passed to TaskDelete is NULL
-		 */
-		// return pdFAIL;
 		if ( nondet_bool() )
 		{
 			TCB_t * pxOtherTCB;
