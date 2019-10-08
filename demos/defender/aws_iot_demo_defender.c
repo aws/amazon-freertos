@@ -17,6 +17,9 @@
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * http://aws.amazon.com/freertos
+ * http://www.FreeRTOS.org
  */
 
 /* Demo configuration includes. */
@@ -45,12 +48,17 @@
  *
  * An MQTT ping request will be sent periodically at this interval.
  */
-#define KEEP_ALIVE_SECONDS    ( 60 )
+#define KEEP_ALIVE_SECONDS           ( ( uint16_t ) 60 )
 
 /**
  * @brief The timeout for Defender and MQTT operations in this demo.
  */
-#define TIMEOUT_MS            ( 5000 )
+#define TIMEOUT_MS                   ( ( uint32_t ) 5000 )
+
+/**
+ * @brief Defender metrics publish interval, 5 minutes (300 seconds) is minumum.
+ */
+#define DEFENDER_PUBLISH_INTERVAL    ( ( uint32_t ) 300 )
 
 /*-----------------------------------------------------------*/
 
@@ -70,23 +78,26 @@ static void _defenderCallback( void * pCallbackContext,
 
     IotLogInfo( "User's callback is invoked on event: %s.", AwsIotDefender_EventType( pCallbackInfo->eventType ) );
 
-    /*  Callback info processing example . */
-    if( pCallbackInfo->pMetricsReport != NULL )
+    if( pCallbackInfo != NULL )
     {
-        IotLogInfo( "Published metrics report." );
-    }
-    else
-    {
-        IotLogError( "No metrics report was generated." );
-    }
+        /*  Callback info processing example . */
+        if( pCallbackInfo->pMetricsReport != NULL )
+        {
+            IotLogInfo( "Published metrics report." );
+        }
+        else
+        {
+            IotLogError( "No metrics report was generated." );
+        }
 
-    if( pCallbackInfo->pPayload != NULL )
-    {
-        IotLogInfo( "Received MQTT message." );
-    }
-    else
-    {
-        IotLogError( "No message has been returned from subscribed topic." );
+        if( pCallbackInfo->pPayload != NULL )
+        {
+            IotLogInfo( "Received MQTT message." );
+        }
+        else
+        {
+            IotLogError( "No message has been returned from subscribed topic." );
+        }
     }
 }
 
@@ -244,8 +255,8 @@ int RunDefenderDemo( bool awsIotMqttMode,
 
     if( status == EXIT_SUCCESS )
     {
-        /* Set metrics report period to 5 minutes(300 seconds) */
-        defenderResult = AwsIotDefender_SetPeriod( 300 );
+        /* Set metrics report period */
+        defenderResult = AwsIotDefender_SetPeriod( DEFENDER_PUBLISH_INTERVAL );
 
         if( defenderResult != AWS_IOT_DEFENDER_SUCCESS )
         {
