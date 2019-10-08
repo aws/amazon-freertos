@@ -47,13 +47,12 @@ afr_mcu_port(compiler)
 #Set defined symbols for compiler and assembler
 set( defined_symbols
      XMC4800_F100x2048
-	 USE_CMDLIB_WITH_RTOS
+     USE_CMDLIB_WITH_RTOS
      MBEDTLS_ECDSA_SIGN_ALT
      MBEDTLS_ECDSA_VERIFY_ALT
      MBEDTLS_ECDH_COMPUTE_SHARED_ALT
      MBEDTLS_ECDH_GEN_PUBLIC_ALT
      PAL_OS_HAS_EVENT_INIT
-	 pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED=0
 )
 
 # Compiler defined symbols.
