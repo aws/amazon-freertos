@@ -32,11 +32,19 @@
 
 /* Demo includes */
 #include "aws_demo.h"
+#include "types/iot_network_types.h"
+#include "aws_iot_network_config.h"
 
 /* AWS library includes. */
 #include "iot_system_init.h"
 #include "iot_logging_task.h"
+#if(configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH)
+#include "FreeRTOS_IP.h"
+#include "FreeRTOS_Sockets.h"
+#endif
+#if(configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI)
 #include "iot_wifi.h"
+#endif
 #include "aws_clientcredential.h"
 #include "aws_application_version.h"
 #include "aws_dev_mode_key_provisioning.h"
@@ -109,10 +117,13 @@ const uint8_t ucMACAddress[ 6 ] =
  */
 void vApplicationDaemonTaskStartupHook( void );
 
+
 /**
  * @brief Connects to Wi-Fi.
  */
+#if(configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI)
 static void prvWifiConnect( void );
+#endif
 
 /**
  * @brief Initializes the board.
@@ -156,6 +167,7 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
+    configPRINTF( ( "FreeRTOS App Ver:%x\n", xAppFirmwareVersion));    
     configPRINTF( ( "FreeRTOS_IPInit\n" ) );	
     xTaskCreate( vCheckTask, "Check", mainCHECK_TASK_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY, NULL );	
 
@@ -163,11 +175,19 @@ int main( void )
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
     vDevModeKeyProvisioning();       
-  
+
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
+    FreeRTOS_IPInit( ucIPAddress,
+                     ucNetMask,
+                     ucGatewayAddress,
+                     ucDNSServerAddress,
+                     ucMACAddress );
+#endif
+    
     /* Start the scheduler.  Initialization that requires the OS to be running,
      * including the WiFi initialization, is performed in the RTOS daemon task
      * startup hook. */
-	  configPRINTF( ( "vTaskStartScheduler\n" ) );
+	configPRINTF( ( "vTaskStartScheduler\n" ) );
     vTaskStartScheduler();
 
     return 0;
@@ -249,6 +269,7 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI )
     if( SYSTEM_Init() == pdPASS )
     {
         /* Connect to the Wi-Fi before running the tests. */
@@ -257,10 +278,12 @@ void vApplicationDaemonTaskStartupHook( void )
         /* Start the demo tasks. */
         DEMO_RUNNER_RunDemos();
     }
+#endif
+    ;
 }
 /*-----------------------------------------------------------*/
 
-
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_WIFI )
 void prvWifiConnect( void )
 {
     WIFINetworkParams_t  xNetworkParams;
@@ -331,6 +354,55 @@ void prvWifiConnect( void )
 #endif
     }
 }
+#endif
+
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
+void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
+{
+    uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
+    char cBuffer[ 16 ];
+    static BaseType_t xTasksAlreadyCreated = pdFALSE;
+
+    /* If the network has just come up...*/
+    if( eNetworkEvent == eNetworkUp )
+    {
+        /* The network is up so we can run. */
+			  
+        if( ( SYSTEM_Init() == pdPASS ) && ( xTasksAlreadyCreated == pdFALSE ) )
+        {
+          /* A simple example to demonstrate key and certificate provisioning in
+            * microcontroller flash using PKCS#11 interface. This should be replaced
+            * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
+          
+            /* Run all demos. */
+            DEMO_RUNNER_RunDemos();
+            xTasksAlreadyCreated = pdTRUE;
+        }
+
+        /* Print out the network configuration, which may have come from a DHCP
+         * server. */
+        FreeRTOS_GetAddressConfiguration(
+            &ulIPAddress,
+            &ulNetMask,
+            &ulGatewayAddress,
+            &ulDNSServerAddress );
+        FreeRTOS_inet_ntoa( ulIPAddress, cBuffer );
+        FreeRTOS_printf( ( "\r\n\r\nIP Address: %s\r\n", cBuffer ) );
+
+        FreeRTOS_inet_ntoa( ulNetMask, cBuffer );
+        FreeRTOS_printf( ( "Subnet Mask: %s\r\n", cBuffer ) );
+
+        FreeRTOS_inet_ntoa( ulGatewayAddress, cBuffer );
+        FreeRTOS_printf( ( "Gateway Address: %s\r\n", cBuffer ) );
+
+        FreeRTOS_inet_ntoa( ulDNSServerAddress, cBuffer );
+        FreeRTOS_printf( ( "DNS Server Address: %s\r\n\r\n\r\n", cBuffer ) );
+    }
+
+}
+
+#endif
 /*-----------------------------------------------------------*/
 
 void vAssertCalled( const char * pcFile,

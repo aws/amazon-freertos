@@ -3163,11 +3163,6 @@
               <FileName>main_eth.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/main_eth.c</FilePath>
-            </File>
-            <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_demos\application_code\main.c</FilePath>
               <FileOption>
                 <CommonProperty>
                   <UseCPPCompiler>2</UseCPPCompiler>
@@ -3218,6 +3213,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\vendors\nuvoton\boards\numaker_iot_m487_wifi\aws_demos\application_code\main.c</FilePath>
             </File>
           </Files>
         </Group>
