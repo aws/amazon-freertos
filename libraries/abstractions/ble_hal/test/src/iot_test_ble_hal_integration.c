@@ -52,73 +52,6 @@ extern BTGattAdvertismentParams_t xAdvertisementConfigB;
 extern BTUuid_t xServerUUID;
 extern BTUuid_t xAppUUID;
 
-BTCallbacks_t _xBTManager_NULL_Cb =
-{
-    .pxDeviceStateChangedCb     = prvDeviceStateChangedCb,
-    .pxAdapterPropertiesCb      = prvAdapterPropertiesCb,
-    .pxRemoteDevicePropertiesCb = NULL,
-    .pxSspRequestCb             = NULL,
-    .pxPairingStateChangedCb    = NULL,
-    .pxBondedCb                 = NULL,
-    .pxDutModeRecvCb            = NULL,
-    .pxleTestModeCb             = NULL,
-    .pxEnergyInfoCb             = NULL,
-    .pxReadRssiCb               = NULL,
-    .pxTxPowerCb                = NULL,
-    .pxSlaveSecurityRequestCb   = NULL,
-};
-
-BTBleAdapterCallbacks_t _xBTBleAdapter_NULL_Cb =
-{
-    .pxRegisterBleAdapterCb          = NULL,
-    .pxScanResultCb                  = NULL,
-    .pxBleAdapterPropertiesCb        = NULL,
-    .pxBleRemoteDevicePropertiesCb   = NULL,
-    .pxOpenCb                        = NULL,
-    .pxCloseCb                       = NULL,
-    .pxReadRemoteRssiCb              = NULL,
-    .pxAdvStatusCb                   = NULL,
-    .pxSetAdvDataCb                  = NULL,
-    .pxConnParameterUpdateCb         = NULL,
-    .pxScanFilterCfgCb               = NULL,
-    .pxScanFilterParamCb             = NULL,
-    .pxScanFilterStatusCb            = NULL,
-    .pxMultiAdvEnableCb              = NULL,
-    .pxMultiAdvUpdateCb              = NULL,
-    .pxMultiAdvDataCb                = NULL,
-    .pxMultiAdvDisableCb             = NULL,
-    .pxCongestionCb                  = NULL,
-    .pxBatchscanCfgStorageCb         = NULL,
-    .pxBatchscanEnbDisableCb         = NULL,
-    .pxBatchscanReportsCb            = NULL,
-    .pxBatchscanThresholdCb          = NULL,
-    .pxTrackAdvEventCb               = NULL,
-    .pxScanParameterSetupCompletedCb = NULL,
-    .pxPhyUpdatedCb                  = NULL,
-};
-
-BTGattServerCallbacks_t _xBTGattServer_NULL_Cb =
-{
-    .pxRegisterServerCb       = NULL,
-    .pxUnregisterServerCb     = NULL,
-    .pxConnectionCb           = NULL,
-    .pxServiceAddedCb         = prvServiceAddedCb,
-    .pxIncludedServiceAddedCb = prvIncludedServiceAddedCb,
-    .pxCharacteristicAddedCb  = prvCharacteristicAddedCb,
-    .pxSetValCallbackCb       = NULL,
-    .pxDescriptorAddedCb      = prvCharacteristicDescrAddedCb,
-    .pxServiceStartedCb       = NULL,
-    .pxServiceStoppedCb       = NULL,
-    .pxServiceDeletedCb       = NULL,
-    .pxRequestReadCb          = NULL,
-    .pxRequestWriteCb         = NULL,
-    .pxRequestExecWriteCb     = NULL,
-    .pxResponseConfirmationCb = NULL,
-    .pxIndicationSentCb       = NULL,
-    .pxCongestionCb           = NULL,
-    .pxMtuChangedCb           = NULL
-};
-
 TEST_GROUP( Full_BLE_Integration_Test );
 
 TEST_SETUP( Full_BLE_Integration_Test )
@@ -225,7 +158,7 @@ TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
     BTStatus_t xStatus;
 
     /* Initialize with NULL Cb */
-    prvInitWithNULLCb();
+    IotTestBleHal_InitWithNULLCb();
 
     /* Create and Start Service */
     prvCreateStartServicesWithNULLCb();
@@ -586,40 +519,6 @@ void prvGAPInitEnableTwice()
 }
 
 #if ENABLE_TC_CALLBACK_NULL_CHECK
-void prvInitWithNULLCb( void )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    /* GAP common setup with NULL Cb */
-    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
-
-    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManager_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    IotTestBleHal_BLEEnable( true );
-
-    /* BLEGAPInit with NULL Cb */
-    _pxBTLeAdapterInterface = ( BTBleAdapter_t * ) _pxBTInterface->pxGetLeAdapter();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTLeAdapterInterface );
-
-    xStatus = _pxBTLeAdapterInterface->pxBleAdapterInit( &_xBTBleAdapter_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = _pxBTLeAdapterInterface->pxRegisterBleApp( &xAppUUID );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    /* BLEGATTInit with NULL Cb */
-    _pxGattServerInterface = ( BTGattServerInterface_t * ) _pxBTLeAdapterInterface->ppvGetGattServerInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxGattServerInterface );
-
-    _pxGattServerInterface->pxGattServerInit( &_xBTGattServer_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = _pxGattServerInterface->pxRegisterServer( &xServerUUID );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
-
 void prvCreateStartServicesWithNULLCb( void )
 {
     BTStatus_t xStatus;

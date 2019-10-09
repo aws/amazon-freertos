@@ -52,7 +52,6 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
                    uint16_t usOffset );
 void prvCreateAndStartServiceB( void );
 void prvShortWaitConnection( void );
-void prvInitWithNULLCb( void );
 void prvCreateStartServicesWithNULLCb( void );
 void prvStartServiceWithNULLCb( BTService_t * xRefSrvc );
 void prvSetAdvPropertyWithNULLCb( void );

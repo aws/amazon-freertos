@@ -515,6 +515,7 @@ void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
 void IotTestBleHal_BTUnregister( void );
 void IotTestBleHal_BLEGAPInit( void );
 void IotTestBleHal_BLEGATTInit( void );
+void IotTestBleHal_InitWithNULLCb( void );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
                                uint16_t usManufacturerLen,
