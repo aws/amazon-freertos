@@ -346,7 +346,6 @@ void IotTestBleHal_BLESetUp()
 
 void IotTestBleHal_BLEFree( void )
 {
-
     IotMutex_Lock( &threadSafetyMutex );
 
     /* Get the event associated to the callback */
@@ -1507,12 +1506,11 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
 
 void IotTestBleHal_ClearEventQueue( void )
 {
-	IotMutex_Lock( &threadSafetyMutex );
+    IotMutex_Lock( &threadSafetyMutex );
 
-	IotListDouble_RemoveAll( &eventQueueHead, IotTest_Free, offsetof( BLEHALEventsInternals_t, eventList ) );
+    IotListDouble_RemoveAll( &eventQueueHead, IotTest_Free, offsetof( BLEHALEventsInternals_t, eventList ) );
 
-	IotMutex_Unlock( &threadSafetyMutex );
-
+    IotMutex_Unlock( &threadSafetyMutex );
 }
 
 

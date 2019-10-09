@@ -70,11 +70,10 @@ TEST_SETUP( Full_BLE )
 
 TEST_TEAR_DOWN( Full_BLE )
 {
-	if( isBLESetup == true )
-	{
-		IotTestBleHal_ClearEventQueue();
-	}
-
+    if( isBLESetup == true )
+    {
+        IotTestBleHal_ClearEventQueue();
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -262,6 +261,7 @@ TEST( Full_BLE, BLE_Connection_CheckBonding )
 TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 {
     BTStatus_t xStatus;
+
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 
