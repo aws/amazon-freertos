@@ -28,7 +28,10 @@
 
 {
   "ENTRY": "QueueSemaphoreTake",
+
+  # This bound on queue size is needed to bound a loop in prvUnlockQueue
   "QUEUE_BOUND": 5,
+
   "CBMCFLAGS": [
     "--unwind 2",
     "--signed-overflow-check",

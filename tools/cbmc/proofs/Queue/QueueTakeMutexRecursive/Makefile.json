@@ -27,8 +27,12 @@
 #
 
 {
+  # This bound on queue size is needed to bound a loop in prvUnlockQueue
   "PRV_UNLOCK_UNWINDING_BOUND": 4,
+
+  # This is a bound on the timeout cycles
   "QueueSemaphoreTake_BOUND": 4,
+
   "ENTRY": "QueueTakeMutexRecursive",
   "CBMCFLAGS": [
     "--unwind {QueueSemaphoreTake_BOUND}",
@@ -46,7 +50,8 @@
   "DEF": [
     "configUSE_TRACE_FACILITY=0",
     "configGENERATE_RUN_TIME_STATS=0",
-    "PRV_UNLOCK_UNWINDING_BOUND={PRV_UNLOCK_UNWINDING_BOUND}"
+    "PRV_UNLOCK_UNWINDING_BOUND={PRV_UNLOCK_UNWINDING_BOUND}",
+    "QueueSemaphoreTake_BOUND={QueueSemaphoreTake_BOUND}"
   ],
   "INC": [
     "."
