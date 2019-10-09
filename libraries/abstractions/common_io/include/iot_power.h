@@ -215,7 +215,7 @@ int32_t iot_power_reset_mode( IotPowerHandle_t const pxPowerHandle );
  *          and when target is coming out of low power mode. Callback must not use any HW resources
  *          when this callback is called with out first requesting for a performance mode.
  *
- * @note Single callback is used for both entering and exiging low power mode.
+ * @note Single callback is used for both entering and exiting low power mode.
  * @note Newly set callback overrides the one previously set
  *
  * @warning If input handle or if callback function is NULL, this function silently takes no action.
