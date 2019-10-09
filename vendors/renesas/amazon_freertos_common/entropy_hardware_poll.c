@@ -15,7 +15,7 @@ void get_random_number(uint8_t *data, uint32_t len);
 /******************************************************************************
 Functions : hardware entropy collector(repeatedly called until enough gathered)
 ******************************************************************************/
-int renamed_mbedtls_hardware_poll( void *data,
+int ulPortGetEntropyFromHardware( void *data,
                            unsigned char *output, size_t len, size_t *olen )
 {
     R_INTERNAL_NOT_USED(data);

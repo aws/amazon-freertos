@@ -49,11 +49,11 @@
 #include "main.h"
 #include "stm32l4xx_hal.h"
 
-int renamed_mbedtls_hardware_poll( void *data, unsigned char *output, size_t len, size_t *olen );
+int ulPortGetEntropyFromHardware( void *data, unsigned char *output, size_t len, size_t *olen );
 
 
 
-int renamed_mbedtls_hardware_poll( void *data,
+int ulPortGetEntropyFromHardware( void *data,
                     unsigned char *output, size_t len, size_t *olen )
 {
   HAL_StatusTypeDef status = HAL_OK;

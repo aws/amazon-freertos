@@ -47,7 +47,7 @@
 #endif
 
 
-int renamed_mbedtls_hardware_poll(void *data, unsigned char *output, size_t len, size_t *olen)
+int ulPortGetEntropyFromHardware(void *data, unsigned char *output, size_t len, size_t *olen)
 {
     status_t result = kStatus_Success;
 

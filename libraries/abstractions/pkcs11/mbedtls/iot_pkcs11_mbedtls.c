@@ -3789,10 +3789,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-extern int renamed_mbedtls_hardware_poll( void * data,
-                                          unsigned char * output,
-                                          size_t len,
-                                          size_t * olen );
+extern int ulPortGetEntropyFromHardware( void * data,
+                                         unsigned char * output,
+                                         size_t len,
+                                         size_t * olen );
 
 /**
  * @brief Generate cryptographically random bytes.
@@ -3825,7 +3825,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        lMbedResult = renamed_mbedtls_hardware_poll( NULL, pucRandomData, ulRandomLen, &olen );
+        lMbedResult = ulPortGetEntropyFromHardware( NULL, pucRandomData, ulRandomLen, &olen );
     }
 
     if( ( lMbedResult != 0 ) || ( olen != ulRandomLen ) )

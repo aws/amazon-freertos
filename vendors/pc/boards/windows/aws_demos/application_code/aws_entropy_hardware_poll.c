@@ -30,7 +30,7 @@
 
 /*-----------------------------------------------------------*/
 
-int renamed_mbedtls_hardware_poll( void * data,
+int ulPortGetEntropyFromHardware( void * data,
                            unsigned char * output,
                            size_t len,
                            size_t * olen )
