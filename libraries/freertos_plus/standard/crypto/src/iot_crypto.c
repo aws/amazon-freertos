@@ -354,8 +354,9 @@ int CRYPTO_GenerateRandomBytesMbedTls( void * pvCtx,
     return xResult;
 }
 
-CK_RV CRYPTO_GetRandomBytes( CK_BYTE_PTR pRandomBytes,
-                             CK_ULONG length )
+
+int CRYPTO_GetRandomBytes( uint8_t * pRandomBytes,
+                           size_t length )
 {
     int lResult = 0;
 
@@ -363,7 +364,7 @@ CK_RV CRYPTO_GetRandomBytes( CK_BYTE_PTR pRandomBytes,
         ( length == 0 ) )
     {
         CRYPTO_PRINT( ( "ERROR: Invalid inputs to CRYPTO_GetRandomBytes \r\n" ) );
-        lResult = CKR_ARGUMENTS_BAD;
+        lResult = CRYPTO_ERROR_RNG;
     }
 
     if( lResult == 0 )
@@ -373,7 +374,7 @@ CK_RV CRYPTO_GetRandomBytes( CK_BYTE_PTR pRandomBytes,
         if( lResult != 0 )
         {
             CRYPTO_PRINT( ( "ERROR: DRBG failed %d \r\n", lResult ) );
-            lResult = CKR_FUNCTION_FAILED;
+            lResult = CRYPTO_ERROR_RNG;
         }
     }
 

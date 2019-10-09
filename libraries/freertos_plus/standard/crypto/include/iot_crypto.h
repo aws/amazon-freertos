@@ -28,6 +28,11 @@
 
 #include "FreeRTOS.h"
 
+/*
+ * Error codes
+ */
+#define CRYPTO_ERROR_RNG             0x3000
+
 /**
  * @brief Commonly used buffer sizes for storing cryptographic hash computation
  * results.
@@ -95,11 +100,11 @@ int CRYPTO_GenerateRandomBytesMbedTls( void * pvCtx,
  * @param[in] length              Number of random bytes to be generated.  pRandomBytes
  *                                must be at least length bytes long.
  *
- * @return CKR_OK on success, otherwise error.
+ * @return 0 on success, otherwise error.
  *
  */
-CK_RV CRYPTO_GetRandomBytes( CK_BYTE_PTR pRandomBytes,
-                             CK_ULONG length );
+int CRYPTO_GetRandomBytes( uint8_t * pRandomBytes,
+                           size_t length );
 
 
 /**
