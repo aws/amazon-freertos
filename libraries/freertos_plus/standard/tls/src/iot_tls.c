@@ -734,7 +734,7 @@ BaseType_t TLS_Connect( void * pvContext )
         mbedtls_ssl_conf_authmode( &pxCtx->xMbedSslConfig, MBEDTLS_SSL_VERIFY_REQUIRED );
 
         /* Set the RNG callback. */
-        mbedtls_ssl_conf_rng( &pxCtx->xMbedSslConfig, &CRYPTO_GenerateRandomBytesMbedTls, NULL ); /*lint !e546 Nothing wrong here. */
+        mbedtls_ssl_conf_rng( &pxCtx->xMbedSslConfig, &CRYPTO_GetRandomBytes, NULL ); /*lint !e546 Nothing wrong here. */
 
         /* Set issuer certificate. */
         mbedtls_ssl_conf_ca_chain( &pxCtx->xMbedSslConfig, &pxCtx->xMbedX509CA, NULL );

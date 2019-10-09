@@ -336,28 +336,13 @@ int mbedtls_hardware_poll( void * data,
 }
 
 
-int CRYPTO_GenerateRandomBytesMbedTls( void * pvCtx,
-                                       unsigned char * pucRandom,
-                                       size_t xRandomLength )
-{
-    ( void ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
-    int xResult;
 
-    xResult = CRYPTO_GetRandomBytes( pucRandom, xRandomLength );
-
-    if( xResult != CKR_OK )
-    {
-        CRYPTO_PRINT( ( "ERROR: Failed to generate random bytes %d \r\n", xResult ) );
-        xResult = 0xa1e8a;
-    }
-
-    return xResult;
-}
-
-
-int CRYPTO_GetRandomBytes( uint8_t * pRandomBytes,
+int CRYPTO_GetRandomBytes( void * pvCtx,
+                           uint8_t * pRandomBytes,
                            size_t length )
 {
+    ( void ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
+
     int lResult = 0;
 
     if( ( NULL == pRandomBytes ) ||

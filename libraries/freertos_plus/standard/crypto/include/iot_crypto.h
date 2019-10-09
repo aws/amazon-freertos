@@ -77,24 +77,12 @@ void CRYPTO_ConfigureDRBG( void );
 #define cryptoASYMMETRIC_ALGORITHM_ECDSA    2
 
 
-/**
- * @brief Callback that wraps CRYPTO_GetRandomBytes for
- * replacement of mbedTLS f_rng().
- *
- * @param[in] pvCtx Caller context, which is ignored.
- * @param[in] pucRandom Byte array to fill with random data.
- * @param[in] xRandomLength Length of byte array.
- *
- * @return Zero on success.
- */
-int CRYPTO_GenerateRandomBytesMbedTls( void * pvCtx,
-                                       unsigned char * pucRandom,
-                                       size_t xRandomLength );
-
 
 /**
  * @brief Generate random bytes.
  *
+ * @param[in] pvContext           Pointer to a context for compatibility with other crypto
+ *                                libraries.  This input is ignored in this port.
  * @param[out] pRandomBytes       Pointer to the location where random bytes will be
  *                                placed.  This memory should be allocated by the caller.
  * @param[in] length              Number of random bytes to be generated.  pRandomBytes
@@ -103,7 +91,8 @@ int CRYPTO_GenerateRandomBytesMbedTls( void * pvCtx,
  * @return 0 on success, otherwise error.
  *
  */
-int CRYPTO_GetRandomBytes( uint8_t * pRandomBytes,
+int CRYPTO_GetRandomBytes( void * pvContext,
+                           uint8_t * pRandomBytes,
                            size_t length );
 
 

@@ -3069,7 +3069,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                                       ulDataLen,
                                                       pxSignatureBuffer,
                                                       ( size_t * ) &xExpectedInputLength,
-                                                      CRYPTO_GenerateRandomBytesMbedTls,
+                                                      CRYPTO_GetRandomBytes,
                                                       NULL );
 
                     if( lMbedTLSResult != CKR_OK )
@@ -3728,7 +3728,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     {
         if( 0 != mbedtls_ecp_gen_key( MBEDTLS_ECP_DP_SECP256R1,
                                       mbedtls_pk_ec( xCtx ),
-                                      CRYPTO_GenerateRandomBytesMbedTls,
+                                      CRYPTO_GetRandomBytes,
                                       NULL ) )
         {
             xResult = CKR_FUNCTION_FAILED;

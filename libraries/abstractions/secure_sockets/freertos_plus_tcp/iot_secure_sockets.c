@@ -638,8 +638,7 @@ uint32_t ulRand( void )
 
     uint32_t ulRandomValue = 0;
 
-
-    xResult = CRYPTO_GetRandomBytes( &ulRandomValue, sizeof( ulRandomValue ) );
+    xResult = CRYPTO_GetRandomBytes( NULL, &ulRandomValue, sizeof( ulRandomValue ) );
 
     /* Check if any of the API calls failed. */
     if( CKR_OK != xResult )
@@ -684,7 +683,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
         if( CK_FALSE == xKeyIsInitialized )
         {
             /* One-time initialization, per boot, of the random seed. */
-            xResult = CRYPTO_GetRandomBytes( &ullKey, sizeof( ullKey ) );
+            xResult = CRYPTO_GetRandomBytes( NULL, &ullKey, sizeof( ullKey ) );
 
             if( xResult == CKR_OK )
             {
