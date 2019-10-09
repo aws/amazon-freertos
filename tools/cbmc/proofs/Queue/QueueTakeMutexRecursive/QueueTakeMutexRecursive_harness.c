@@ -32,19 +32,6 @@
 #include "queue_datastructure.h"
 #include "cbmc.h"
 
-/* prvUnlockQueue is going to decrement this value to 0 in the loop.
-   We need a bound for the loop. Using 5 has a reasonable performance resulting
-   in 4 unwinding iterations of the loop. The loop is mostly modifying a
-   data structure in task.c that is not in the scope of the proof. */
-#ifndef PRV_UNLOCK_UNWINDING_BOUND
-	#define PRV_UNLOCK_UNWINDING_BOUND 5
-#endif
-
-/* Bound for the timeout cycles */
-#ifndef QueueSemaphoreTake_BOUND
-	#define QueueSemaphoreTake_BOUND 3
-#endif
-
 QueueHandle_t xMutex;
 
 void vTaskInternalSetTimeOutState( TimeOut_t * const pxTimeOut )

@@ -66,7 +66,7 @@ void harness(){
 		if(xQueue->uxItemSize == 0)
 		{
 			/* uxQueue->xQueueType is a pointer to the head of the queue storage area.
-			   If an item has a sice, this pointer must not be modified after init.
+			   If an item has a size, this pointer must not be modified after init.
 			   Otherwise some of the write statements will fail. */
 			xQueue->uxQueueType = nondet_int8_t();
 			pvItemToQueue = 0;
