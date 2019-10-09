@@ -136,8 +136,6 @@ uint8_t *numaker_eth_get_tx_buf(void);
 void numaker_eth_trigger_tx(uint16_t length, void *p);
 int numaker_eth_get_rx_buf(uint16_t *len, uint8_t **buf);
 void numaker_eth_rx_next(void);
-uint8_t *numaker_eth_get_tx_buf(void);
-void numaker_eth_trigger_tx(uint16_t length, void *p);
 void numaker_eth_trigger_rx(void);
 int numaker_eth_link_ok(void);
 void numaker_mac_address(uint8_t *mac);
