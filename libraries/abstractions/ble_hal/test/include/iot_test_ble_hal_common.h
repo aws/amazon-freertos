@@ -46,6 +46,14 @@
 #include IOT_UNITY_FIXTURE
 #include IOT_UNITY
 
+/* Enable/Disable test cases */
+/* AFQP test */
+#define ENABLE_TC_WRITE_LONG              ( 1 )
+#define ENABLE_TC_ADD_INCLUDED_SERVICE    ( 0 )
+#define ENABLE_TC_SECONDARY_SERVICE       ( 0 )
+/* Integration test */
+#define ENABLE_TC_CALLBACK_NULL_CHECK     ( 0 )
+
 #if ( 0 )
     #define IDT_DEBUG( format, ... )    printf( "\n%d: " format, __LINE__, __VA_ARGS__ );
 #else
