@@ -56,6 +56,7 @@
 		<Filter Include="vendors"/>
 		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
 		<Filter Include="libraries\abstractions\pkcs11"/>
+		<Filter Include="libraries\abstractions\pkcs11\include"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -119,7 +120,13 @@
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
 			<Filter>freertos_kernel\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\StackMacros.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\croutine.h">
 			<Filter>freertos_kernel\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h">
@@ -313,6 +320,9 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
 			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
+			<Filter>libraries\abstractions\pkcs11\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>

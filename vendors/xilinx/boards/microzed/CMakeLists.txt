@@ -31,6 +31,7 @@ afr_set_board_metadata(RECOMMENDED_IDE "XSDK")
 afr_set_board_metadata(IDE_XSDK_NAME "Xilinx SDK")
 afr_set_board_metadata(IDE_XSDK_COMPILER "GCC")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 afr_set_board_metadata(IDE_XSDK_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/xilinx/microzed/xsdk/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION ${xilinx_config_dir})

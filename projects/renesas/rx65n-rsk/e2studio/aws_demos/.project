@@ -57,9 +57,19 @@
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
 		</link>
 		<link>
+			<name>freertos_kernel/include/StackMacros.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/StackMacros.h</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/include/atomic.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/croutine.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/croutine.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/deprecated_definitions.h</name>
@@ -1290,6 +1300,11 @@
 			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>

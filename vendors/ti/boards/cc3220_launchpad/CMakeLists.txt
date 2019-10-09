@@ -40,6 +40,7 @@ afr_set_board_metadata(IDE_CCS_COMPILER "TI-ARM")
 afr_set_board_metadata(IDE_IAR_NAME "IAR Embedded Workbench")
 afr_set_board_metadata(IDE_IAR_COMPILER "IAR-ARM")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 afr_set_board_metadata(IDE_CCS_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/ccs/aws_demos")
 afr_set_board_metadata(IDE_IAR_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/ti/cc3220_launchpad/iar/aws_demos")

@@ -37,6 +37,7 @@ afr_set_board_metadata(IDE_IAREmbeddedWorkbench_NAME "IAR Embedded Workbench")
 afr_set_board_metadata(IDE_IAREmbeddedWorkbench_COMPILER "IAR")
 afr_set_board_metadata(IDE_MCUXpresso_NAME "MCUXpresso")
 afr_set_board_metadata(IDE_MCUXpresso_COMPILER "GCC")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 afr_set_board_metadata(IDE_IAREmbeddedWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nxp/lpc54018iotmodule/iar/aws_demos")
 afr_set_board_metadata(IDE_MCUXpresso_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nxp/lpc54018iotmodule/mcuxpresso/aws_demos")

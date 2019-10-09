@@ -79,7 +79,7 @@
         #define democonfigDEMO_PRIORITY     democonfigTCP_ECHO_TASKS_SINGLE_TASK_PRIORITY
     #endif
 #elif defined( CONFIG_DEFENDER_DEMO_ENABLED )
-    #define DEMO_entryFUNCTION              vStartDefenderDemo
+    #define DEMO_entryFUNCTION              RunDefenderDemo
 #elif defined( CONFIG_POSIX_DEMO_ENABLED )
     #define DEMO_entryFUNCTION              vStartPOSIXDemo
 #elif defined( CONFIG_OTA_UPDATE_DEMO_ENABLED )
