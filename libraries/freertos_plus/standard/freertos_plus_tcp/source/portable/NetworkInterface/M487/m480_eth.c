@@ -3,6 +3,10 @@
  *
  * Description:   M480 MAC driver source file
  */
+#include "FreeRTOS.h"
+#include "list.h"
+#include "FreeRTOS_IP.h"
+
 #include "m480_eth.h"
 
 #define ETH_TRIGGER_RX()    do{EMAC->RXST = 0;}while(0)
@@ -115,8 +119,8 @@ static int reset_phy(void)
             EMAC->CTL &= ~(EMAC_CTL_OPMODE_Msk | EMAC_CTL_FUDUP_Msk);
         }
     }
-	printf("PHY ID 1:0x%x\r\n", mdio_read(CONFIG_PHY_ADDR, MII_PHYSID1));
-	printf("PHY ID 2:0x%x\r\n", mdio_read(CONFIG_PHY_ADDR, MII_PHYSID2));
+	FreeRTOS_printf(("PHY ID 1:0x%x\r\n", mdio_read(CONFIG_PHY_ADDR, MII_PHYSID1)));
+	FreeRTOS_printf(("PHY ID 2:0x%x\r\n", mdio_read(CONFIG_PHY_ADDR, MII_PHYSID2)));
 
     return(0);
 }

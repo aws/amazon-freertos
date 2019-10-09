@@ -77,7 +77,7 @@ BaseType_t xNetworkInterfaceInitialise( void )
     /* Init ETH */
     numaker_mac_address(hwaddr);
     FreeRTOS_UpdateMACAddress(hwaddr);
-    printf("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", hwaddr[0], hwaddr[1],hwaddr[2],hwaddr[3],hwaddr[4],hwaddr[5]);
+    FreeRTOS_printf( ("mac address %02x-%02x-%02x-%02x-%02x-%02x \r\n", hwaddr[0], hwaddr[1],hwaddr[2],hwaddr[3],hwaddr[4],hwaddr[5]) );
     /* Enable clock & set EMAC configuration         */
     /* Enable MAC and DMA transmission and reception */
     if( numaker_eth_init(hwaddr) < 0)
@@ -114,7 +114,7 @@ BaseType_t xNetworkInterfaceInitialise( void )
 
         numaker_eth_enable_interrupts();
 
-        printf("ETH-RX priority:%d\n",NVIC_GetPriority( EMAC_RX_IRQn));
+        FreeRTOS_printf( ("ETH-RX priority:%d\n",NVIC_GetPriority( EMAC_RX_IRQn)) );
 
     return xReturn;
 }
@@ -122,7 +122,7 @@ BaseType_t xNetworkInterfaceInitialise( void )
 BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescriptor, BaseType_t xReleaseAfterSend )
 {
     uint8_t *buffer=NULL;
-//    printf("<-- dataLength=%d\n",pxDescriptor->xDataLength);
+//    FreeRTOS_printf(("<-- dataLength=%d\n",pxDescriptor->xDataLength));
     if( pxDescriptor->xDataLength >= PACKET_BUFFER_SIZE )
     {
         FreeRTOS_printf(("TX buffer length %d over %d\n", pxDescriptor->xDataLength, PACKET_BUFFER_SIZE));
@@ -204,7 +204,7 @@ static void prvPhyTmrCallback( TimerHandle_t xTimer )
     BaseType_t currLink = xGetPhyLinkStatus();
     if( currLink != lastLink )
     {
-        printf("PHY Link %s\n", (currLink) ? "Up" : "Down");
+        FreeRTOS_printf(("PHY Link %s\n", (currLink) ? "Up" : "Down"));
         if( !currLink )
         {
             xRxEvent.eEventType = eNetworkDownEvent;
@@ -268,7 +268,7 @@ static void prvEMACHandlerTask( void *pvParameters )
             if( pxBufferDescriptor != NULL )
             {        
                 memcpy( pxBufferDescriptor->pucEthernetBuffer, buffer, dataLength );
-//                          printf("--> dataLength=%d\n",dataLength);
+//                          FreeRTOS_printf(("--> dataLength=%d\n",dataLength));
                 pxBufferDescriptor->xDataLength = dataLength;            
             } else {
                 numaker_eth_rx_next();
