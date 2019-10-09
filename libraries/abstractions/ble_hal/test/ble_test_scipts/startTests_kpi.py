@@ -33,6 +33,7 @@ import time
 from testClass import runTest
 from bleAdapter import bleAdapter
 
+
 def main():
     agent = None
     scan_filter = dict()
@@ -40,10 +41,10 @@ def main():
     bleAdapter.init()
     agent = securityAgent.createSecurityAgent(agent=agent)
 
-    scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
+    scan_filter.update({"UUIDs": [runTest.DUT_UUID_128]})
     bleAdapter.setDiscoveryFilter(scan_filter)
 
-    #KPI test
+    # KPI test
     # Evaluate KPI from scanning start to advertisement received.
     # Evaluate KPI from scanning start to connection created.
     isTestSuccessFull = True
@@ -56,7 +57,8 @@ def main():
         if i == 0:
             bleAdapter.startDiscovery(runTest.discoveryEventCb)
         else:
-            bleAdapter.startDiscovery(runTest.discoveryStartedCb)   #wait for DUT to start advertising
+            # wait for DUT to start advertising
+            bleAdapter.startDiscovery(runTest.discoveryStartedCb)
         tStartScan = time.time()
         runTest.mainloop.run()
         startToReceived = time.time() - tStartScan

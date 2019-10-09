@@ -23,6 +23,7 @@
 # http://www.FreeRTOS.org
 #
 
+
 class attributesCommon:
     uuid = {}
     value = {}

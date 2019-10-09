@@ -33,6 +33,7 @@ from testClass import runTest
 from bleAdapter import bleAdapter
 import testutils
 
+
 def main():
     agent = None
     numberOfReconnect = 1
@@ -45,7 +46,7 @@ def main():
     bleAdapter.init()
     agent = securityAgent.createSecurityAgent(agent=agent)
 
-    scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
+    scan_filter.update({"UUIDs": [runTest.DUT_UUID_128]})
 
     for i in range(numberOfInit * numberOfEnable):
         bleAdapter.setDiscoveryFilter(scan_filter)

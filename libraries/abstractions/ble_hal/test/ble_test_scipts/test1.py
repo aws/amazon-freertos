@@ -33,15 +33,16 @@ import time
 import dbus.mainloop.glib
 import bleAdapter
 try:
-  from gi.repository import GObject
+    from gi.repository import GObject
 except ImportError:
-  import gobject as GObject
+    import gobject as GObject
 import testutils
 import startTests_afqp as startTests
 import threading
 import securityAgent
 
 devices = {}
+
 
 def backGroundEvents():
     try:
@@ -53,6 +54,7 @@ def backGroundEvents():
         print("Thread: KeyboardInterrupt")
     return
 
+
 if __name__ == '__main__':
 
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -60,5 +62,5 @@ if __name__ == '__main__':
     testutils.removeBondedDevices()
 
     #startBackGroundEvents = threading.Thread(target=backGroundEvents)
-    #startBackGroundEvents.start()
+    # startBackGroundEvents.start()
     startTests.main()
