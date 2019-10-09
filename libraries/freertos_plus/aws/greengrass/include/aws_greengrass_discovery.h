@@ -76,6 +76,12 @@ typedef struct
  * The buffer size of pcBuffer need to be big enough to hold the complete
  * JSON file.
  *
+ * @param [in] pcHostAddress: Endpoint of the MQTT Broker.
+ *
+ * @param [in] usGGDPort: Port number for Green Grass Discovery.
+ *
+ * @param [in] pcThingName: The Thing Name of the client.
+ *
  * @param [in] pcBuffer: Memory buffer provided by the user.
  *
  * @param [in] ulBufferSize: Size of the memory buffer.
@@ -85,7 +91,10 @@ typedef struct
  * @return If connection was successful then pdPASS is
  * returned.  Otherwise pdFAIL is returned.
  */
-BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer,
+BaseType_t GGD_GetGGCIPandCertificate( const char * pcHostAddress,
+                                       uint16_t usGGDPort,
+                                       const char * pcThingName,
+                                       char * pcBuffer,
                                        const uint32_t ulBufferSize,
                                        GGD_HostAddressData_t * pxHostAddressData );
 
@@ -95,12 +104,21 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer,
  * @note: This call will open a socket. Socket will need to be closed
  * by either calling GGD_JSONRequestGetFile or GGD_JSONRequestAbort
  *
+ * @param [in] pcHostAddress: Endpoint of the MQTT Broker.
+ *
+ * @param [in] usGGDPort: Port number for Green Grass Discovery.
+ *
+ * @param [in] pcThingName: The Thing Name of the client.
+ *
  * @param [out] pxSocket: Socket for the cloud connection.
  *
  * @return If the JSON request was performed successfully
  * then pdPASS is returned.  Otherwise pdFAIL is returned.
  */
-BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket );
+BaseType_t GGD_JSONRequestStart( const char * pcHostAddress,
+                                 uint16_t usGGDPort,
+                                 const char * pcThingName,
+                                 Socket_t * pxSocket );
 
 /*
  * @brief Get the size of the requested JSON file.

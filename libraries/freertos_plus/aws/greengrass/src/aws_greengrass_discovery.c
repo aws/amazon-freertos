@@ -155,7 +155,10 @@ static BaseType_t prvCheckForContentLengthString( uint8_t * pucIndex,
 
 /*-----------------------------------------------------------*/
 
-BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use char without signed/unsigned. */
+BaseType_t GGD_GetGGCIPandCertificate( const char * pcHostAddress,
+                                       uint16_t usGGDPort,
+                                       const char * pcThingName,
+                                       char * pcBuffer, /*lint !e971 can use char without signed/unsigned. */
                                        const uint32_t ulBufferSize,
                                        GGD_HostAddressData_t * pxHostAddressData )
 {
@@ -168,7 +171,7 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use cha
     configASSERT( pxHostAddressData != NULL );
     configASSERT( pcBuffer != NULL );
 
-    xStatus = GGD_JSONRequestStart( &xSocket );
+    xStatus = GGD_JSONRequestStart( pcHostAddress, usGGDPort, pcThingName, &xSocket );
 
     if( xStatus == pdPASS )
     {
@@ -225,7 +228,10 @@ BaseType_t GGD_GetGGCIPandCertificate( char * pcBuffer, /*lint !e971 can use cha
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
+BaseType_t GGD_JSONRequestStart( const char * pcHostAddress,
+                                 uint16_t usGGDPort,
+                                 const char * pcThingName,
+                                 Socket_t * pxSocket )
 {
     GGD_HostAddressData_t xHostAddressData;
     char * pcHttpGetRequest = NULL;
@@ -233,12 +239,14 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
     uint32_t ulCharsWritten = 0;
     BaseType_t xStatus;
 
+    configASSERT( pcHostAddress != NULL );
+    configASSERT( pcThingName != NULL );
     configASSERT( pxSocket != NULL );
 
-    xHostAddressData.pcHostAddress = clientcredentialMQTT_BROKER_ENDPOINT; /*lint !e971 can use char without signed/unsigned. */
+    xHostAddressData.pcHostAddress = pcHostAddress; /*lint !e971 can use char without signed/unsigned. */
     xHostAddressData.pcCertificate = NULL;                                 /* Use default certificate. */
     xHostAddressData.ulCertificateSize = 0;
-    xHostAddressData.usPort = clientcredentialGREENGRASS_DISCOVERY_PORT;
+    xHostAddressData.usPort = usGGDPort;
 
     /* Establish secure connection. */
     xStatus = GGD_SecureConnect_Connect( &xHostAddressData,
@@ -250,7 +258,7 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
     {
         /* Build the HTTP GET request string that is specific to this host. */
         ulHttpGetLength = 1 + strlen( ggdCLOUD_DISCOVERY_ADDRESS ) +
-                          strlen( clientcredentialIOT_THING_NAME );
+                          strlen( pcThingName );
         pcHttpGetRequest = pvPortMalloc( ulHttpGetLength );
 
         if( NULL == pcHttpGetRequest )
@@ -262,7 +270,7 @@ BaseType_t GGD_JSONRequestStart( Socket_t * pxSocket )
             ulCharsWritten = snprintf( pcHttpGetRequest,
                                        ulHttpGetLength,
                                        ggdCLOUD_DISCOVERY_ADDRESS,
-                                       clientcredentialIOT_THING_NAME );
+                                       pcThingName );
 
             if( ulCharsWritten >= ulHttpGetLength )
             {

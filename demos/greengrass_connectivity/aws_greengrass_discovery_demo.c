@@ -195,7 +195,10 @@ static void prvDiscoverGreenGrassCore( void * pvParameters )
         /* Demonstrate automated connection. */
         configPRINTF( ( "Attempting automated selection of Greengrass device\r\n" ) );
 
-        if( GGD_GetGGCIPandCertificate( pcJSONFile,
+        if( GGD_GetGGCIPandCertificate( clientcredentialMQTT_BROKER_ENDPOINT,
+                                        clientcredentialGREENGRASS_DISCOVERY_PORT,
+                                        clientcredentialIOT_THING_NAME,
+                                        pcJSONFile,
                                         ggdDEMO_DISCOVERY_FILE_SIZE,
                                         &xHostAddressData )
             == pdPASS )
