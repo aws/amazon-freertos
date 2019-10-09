@@ -265,7 +265,6 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 
-
     prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
                               true,
                               false,

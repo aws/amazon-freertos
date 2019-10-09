@@ -206,7 +206,7 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             {
                 if( param->adv_start_cmpl.status != ESP_OK )
                 {
-                	IotLogError( "Failed to start advertisement" );
+                    IotLogError( "Failed to start advertisement" );
                     xStatus = eBTStatusFail;
                 }
 
@@ -216,11 +216,12 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
             break;
 
         case ESP_GAP_BLE_ADV_STOP_COMPLETE_EVT:
+
             if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
             {
-            	if( param->adv_stop_cmpl.status != ESP_OK )
+                if( param->adv_stop_cmpl.status != ESP_OK )
                 {
-            		IotLogError( "Failed to stop advertisement" );
+                    IotLogError( "Failed to stop advertisement" );
                     xStatus = eBTStatusFail;
                 }
 
@@ -260,7 +261,6 @@ void prvGAPeventHandler( esp_gap_ble_cb_event_t event,
                                                           eBTbondStateNone,
                                                           eBTSecLevelNoSecurity,
                                                           0 );
-
                 }
             }
 

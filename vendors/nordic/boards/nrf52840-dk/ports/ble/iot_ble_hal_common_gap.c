@@ -664,10 +664,10 @@ void prvGAPeventHandler( ble_evt_t const * p_ble_evt,
                    if( xBTCallbacks.pxPairingStateChangedCb && ( status == 0x85 ) ) /* NOTE: Decode other errors */
                    {
                        xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail,
-                                               &xConnectionRemoteAddress,
-                                               eBTbondStateNone,
-                                               eBTSecLevelNoSecurity,
-                                               eBTauthFailHostRejectSecurity );
+                                                             &xConnectionRemoteAddress,
+                                                             eBTbondStateNone,
+                                                             eBTSecLevelNoSecurity,
+                                                             eBTauthFailHostRejectSecurity );
                    }
                }
            }
@@ -1256,11 +1256,11 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
 
     if( xBTCallbacks.pxPairingStateChangedCb != NULL )
     {
-         xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess,
-                                               ( BTBdaddr_t * ) pxBdAddr,
-                                               eBTbondStateNone,
-                                               eBTSecLevelNoSecurity,
-                                               eBTauthSuccess );
+        xBTCallbacks.pxPairingStateChangedCb( eBTStatusSuccess,
+                                              ( BTBdaddr_t * ) pxBdAddr,
+                                              eBTbondStateNone,
+                                              eBTSecLevelNoSecurity,
+                                              eBTauthSuccess );
     }
 
     return xStatus;

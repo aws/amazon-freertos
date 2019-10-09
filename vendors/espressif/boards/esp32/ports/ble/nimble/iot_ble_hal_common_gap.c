@@ -171,7 +171,8 @@ int prvGAPeventHandler( struct ble_gap_event * event,
     BTStatus_t xStatus = eBTStatusSuccess;
     BTSecurityLevel_t xSecurityLevel;
     BTBondState_t xBondedState = eBTbondStateNone;
-    struct ble_gatt_access_ctxt ctxt = {0};
+    struct ble_gatt_access_ctxt ctxt = { 0 };
+
     switch( event->type )
     {
         case BLE_GAP_EVENT_CONNECT:
@@ -261,11 +262,9 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                     }
 
                     return BLE_SM_ERR_AUTHREQ;
-
                 }
                 else if( event->pairing_req.max_enc_key_size < BLE_SM_PAIR_KEY_SZ_MAX )
                 {
-
                     if( xBTCallbacks.pxPairingStateChangedCb != NULL )
                     {
                         xBTCallbacks.pxPairingStateChangedCb( eBTStatusFail, ( BTBdaddr_t * ) desc.peer_id_addr.val,
@@ -286,7 +285,6 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                       event->enc_change.status );
             rc = ble_gap_conn_find( event->enc_change.conn_handle, &desc );
             assert( rc == 0 );
-
 
             if( xBTCallbacks.pxPairingStateChangedCb != NULL )
             {
@@ -330,17 +328,20 @@ int prvGAPeventHandler( struct ble_gap_event * event,
 
         case BLE_GAP_EVENT_NOTIFY_TX:
             xStatus = eBTStatusSuccess;
+
             if( event->notify_tx.indication )
             {
                 if( event->notify_tx.status == 0 )
                 {
                     break;
                 }
+
                 if( event->notify_tx.status != BLE_HS_EDONE )
                 {
                     xStatus = eBTStatusFail;
                 }
-                ESP_LOGD(TAG, "Indication tx status received: %d", event->notify_tx.status);
+
+                ESP_LOGD( TAG, "Indication tx status received: %d", event->notify_tx.status );
             }
             else
             {
@@ -348,7 +349,8 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                 {
                     xStatus = eBTStatusFail;
                 }
-                ESP_LOGD(TAG, "Notification tx status received: %d", event->notify_tx.status);
+
+                ESP_LOGD( TAG, "Notification tx status received: %d", event->notify_tx.status );
             }
 
             if( xGattServerCb.pxIndicationSentCb != NULL )
@@ -406,6 +408,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                     prvGattGetSemaphore();
                 }
             }
+
             return 0;
 
             break;
@@ -572,10 +575,12 @@ BTStatus_t prvBTDisable()
     int rc;
 
     rc = nimble_port_stop();
+
     if( rc == 0 )
     {
         nimble_port_deinit();
         rc = esp_nimble_hci_and_controller_deinit();
+
         if( rc != ESP_OK )
         {
             ESP_LOGE( TAG, "esp_nimble_hci_and_controller_deinit() failed with error %d", rc );
@@ -928,7 +933,6 @@ BTStatus_t prvBTRemoveBond( const BTBdaddr_t * pxBdAddr )
                                               eBTbondStateNone,
                                               eBTSecLevelNoSecurity,
                                               eBTauthSuccess );
-
     }
 
     return xStatus;
