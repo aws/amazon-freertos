@@ -1507,10 +1507,6 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
 
 void IotTestBleHal_ClearEventQueue( void )
 {
-
-	BLEHALEventsInternals_t * pEventIndex;
-	IotLink_t * pEventListIndex;
-
 	IotMutex_Lock( &threadSafetyMutex );
 
 	IotListDouble_RemoveAll( &eventQueueHead, IotTest_Free, offsetof( BLEHALEventsInternals_t, eventList ) );
