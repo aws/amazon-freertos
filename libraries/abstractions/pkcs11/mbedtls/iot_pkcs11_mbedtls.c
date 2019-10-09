@@ -112,11 +112,9 @@ typedef struct P11ObjectList_t
 /* PKCS #11 Module Object */
 typedef struct P11Struct_t
 {
-    CK_BBOOL xIsInitialized;                     /* Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
-    mbedtls_ctr_drbg_context xMbedDrbgCtx;       /* CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
-    mbedtls_entropy_context xMbedEntropyContext; /* Entropy context for PKCS #11 module - used to collect entropy for RNG. */
-    P11ObjectList_t xObjectList;                 /* List of PKCS #11 objects that have been found/created since module initialization.
-                                                  * The array position indicates the "App Handle"  */
+    CK_BBOOL xIsInitialized;     /* Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
+    P11ObjectList_t xObjectList; /* List of PKCS #11 objects that have been found/created since module initialization.
+                                  * The array position indicates the "App Handle"  */
 } P11Struct_t, * P11Context_t;
 
 /* The global PKCS #11 module object.
@@ -265,23 +263,7 @@ CK_RV prvMbedTLS_Initialize( void )
         memset( &xP11Context, 0, sizeof( xP11Context ) );
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
-        CRYPTO_Init();
-        /* Initialize the entropy source and DRBG for the PKCS#11 module */
-        mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
-        mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
-
-        if( 0 != mbedtls_ctr_drbg_seed( &xP11Context.xMbedDrbgCtx,
-                                        mbedtls_entropy_func,
-                                        &xP11Context.xMbedEntropyContext,
-                                        NULL,
-                                        0 ) )
-        {
-            xResult = CKR_FUNCTION_FAILED;
-        }
-        else
-        {
-            xP11Context.xIsInitialized = CK_TRUE;
-        }
+        xP11Context.xIsInitialized = CK_TRUE;
     }
 
     return xResult;
@@ -697,16 +679,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
 
     if( xResult == CKR_OK )
     {
-        if( NULL != &xP11Context.xMbedEntropyContext )
-        {
-            mbedtls_entropy_free( &xP11Context.xMbedEntropyContext );
-        }
-
-        if( NULL != &xP11Context.xMbedDrbgCtx )
-        {
-            mbedtls_ctr_drbg_free( &xP11Context.xMbedDrbgCtx );
-        }
-
         vSemaphoreDelete( xP11Context.xObjectList.xMutex );
 
         xP11Context.xIsInitialized = CK_FALSE;
@@ -3097,8 +3069,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                                       ulDataLen,
                                                       pxSignatureBuffer,
                                                       ( size_t * ) &xExpectedInputLength,
-                                                      mbedtls_ctr_drbg_random,
-                                                      &xP11Context.xMbedDrbgCtx );
+                                                      CRYPTO_GenerateRandomBytesMbedTls,
+                                                      NULL );
 
                     if( lMbedTLSResult != CKR_OK )
                     {
@@ -3756,8 +3728,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     {
         if( 0 != mbedtls_ecp_gen_key( MBEDTLS_ECP_DP_SECP256R1,
                                       mbedtls_pk_ec( xCtx ),
-                                      mbedtls_ctr_drbg_random,
-                                      &xP11Context.xMbedDrbgCtx ) )
+                                      CRYPTO_GenerateRandomBytesMbedTls,
+                                      NULL ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -3817,6 +3789,11 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+extern int renamed_mbedtls_hardware_poll( void * data,
+                                          unsigned char * output,
+                                          size_t len,
+                                          size_t * olen );
+
 /**
  * @brief Generate cryptographically random bytes.
  *
@@ -3836,6 +3813,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult = CKR_OK;
     int lMbedResult = 0;
+    size_t olen;
 
     xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -3847,13 +3825,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        lMbedResult = mbedtls_ctr_drbg_random( &xP11Context.xMbedDrbgCtx, pucRandomData, ulRandomLen );
+        lMbedResult = renamed_mbedtls_hardware_poll( NULL, pucRandomData, ulRandomLen, &olen );
+    }
 
-        if( lMbedResult != 0 )
-        {
-            PKCS11_PRINT( ( "ERROR: DRBG failed %d \r\n", lMbedResult ) );
-            xResult = CKR_FUNCTION_FAILED;
-        }
+    if( ( lMbedResult != 0 ) || ( olen != ulRandomLen ) )
+    {
+        xResult = CKR_FUNCTION_FAILED;
     }
 
     return xResult;

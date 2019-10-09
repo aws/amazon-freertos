@@ -57,12 +57,50 @@ void CRYPTO_ConfigureThreading( void );
 void CRYPTO_ConfigureHeap( void );
 
 /**
+ * @brief Initializes the CRYPTO-maintained DRBG.
+ *
+ */
+void CRYPTO_ConfigureDRBG( void );
+
+
+/**
  * @brief Library-independent cryptographic algorithm identifiers.
  */
 #define cryptoHASH_ALGORITHM_SHA1           1
 #define cryptoHASH_ALGORITHM_SHA256         2
 #define cryptoASYMMETRIC_ALGORITHM_RSA      1
 #define cryptoASYMMETRIC_ALGORITHM_ECDSA    2
+
+
+/**
+ * @brief Callback that wraps CRYPTO_GetRandomBytes for
+ * replacement of mbedTLS f_rng().
+ *
+ * @param[in] pvCtx Caller context, which is ignored.
+ * @param[in] pucRandom Byte array to fill with random data.
+ * @param[in] xRandomLength Length of byte array.
+ *
+ * @return Zero on success.
+ */
+int CRYPTO_GenerateRandomBytesMbedTls( void * pvCtx,
+                                       unsigned char * pucRandom,
+                                       size_t xRandomLength );
+
+
+/**
+ * @brief Generate random bytes.
+ *
+ * @param[out] pRandomBytes       Pointer to the location where random bytes will be
+ *                                placed.  This memory should be allocated by the caller.
+ * @param[in] length              Number of random bytes to be generated.  pRandomBytes
+ *                                must be at least length bytes long.
+ *
+ * @return CKR_OK on success, otherwise error.
+ *
+ */
+CK_RV CRYPTO_GetRandomBytes( CK_BYTE_PTR pRandomBytes,
+                             CK_ULONG length );
+
 
 /**
  * @brief Initializes digital signature verification.
