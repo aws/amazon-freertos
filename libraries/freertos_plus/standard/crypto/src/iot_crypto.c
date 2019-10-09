@@ -316,18 +316,18 @@ int mbedtls_hardware_poll( void * data,
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
-    if ( xResult == CKR_OK )
+    if( xResult == CKR_OK )
     {
         xResult = xInitializePkcs11Session( &xSession );
     }
 
-    if ( xResult == CKR_OK )
+    if( xResult == CKR_OK )
     {
         xSessionOpened = CK_TRUE;
         xResult = pxFunctionList->C_GenerateRandom( xSession, output, len );
     }
 
-    if ( xSessionOpened == CK_TRUE )
+    if( xSessionOpened == CK_TRUE )
     {
         xResult = pxFunctionList->C_CloseSession( xSession );
     }
@@ -335,16 +335,7 @@ int mbedtls_hardware_poll( void * data,
     return lStatus;
 }
 
-/**
- * @brief Callback that wraps CRYPTO_GetRandomBytes for
- * replacement of mbedTLS f_rng().
- *
- * @param[in] pvCtx Caller context, which is ignored.
- * @param[in] pucRandom Byte array to fill with random data.
- * @param[in] xRandomLength Length of byte array.
- *
- * @return Zero on success.
- */
+
 int CRYPTO_GenerateRandomBytesMbedTls( void * pvCtx,
                                        unsigned char * pucRandom,
                                        size_t xRandomLength )

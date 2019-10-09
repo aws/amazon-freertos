@@ -642,7 +642,7 @@ uint32_t ulRand( void )
     xResult = CRYPTO_GetRandomBytes( &ulRandomValue, sizeof( ulRandomValue ) );
 
     /* Check if any of the API calls failed. */
-    if ( CKR_OK != xResult )
+    if( CKR_OK != xResult )
     {
         ulRandomValue = 0;
     }
