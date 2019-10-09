@@ -527,12 +527,8 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 
 BTStatus_t prvBtManagerCleanup()
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
 
-    esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-    esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
-
-    return xStatus;
+    return eBTStatusSuccess;
 }
 
 /*-----------------------------------------------------------*/
@@ -566,7 +562,7 @@ BTStatus_t prvBTDisable()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
+    if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
     {
         if( esp_bt_controller_disable() != ESP_OK )
         {

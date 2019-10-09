@@ -525,20 +525,56 @@ void ble_store_config_init( void );
 BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    esp_err_t xRet;
 
-    nimble_port_init();
 
-    ble_hs_cfg.reset_cb = bleprph_on_reset;
-    ble_hs_cfg.sync_cb = bleprph_on_sync;
-    ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
-    ble_store_config_init();
-
-    if( pxCallbacks != NULL )
+    xRet = esp_nimble_hci_and_controller_init();
+    if( xRet == ESP_OK )
     {
-        xBTCallbacks = *pxCallbacks;
+        if( pxCallbacks != NULL )
+        {
+            xBTCallbacks = *pxCallbacks;
+        }
+        else
+        {
+            xStatus = eBTStatusFail;
+        }
+
     }
     else
     {
+        xStatus = eBTStatusFail;
+    }
+
+
+    if( xStatus == eBTStatusSuccess )
+    {
+
+        nimble_port_init();
+
+        ble_hs_cfg.reset_cb = bleprph_on_reset;
+        ble_hs_cfg.sync_cb = bleprph_on_sync;
+        ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
+        ble_store_config_init();
+    }
+    
+    return xStatus;
+
+}
+
+/*-----------------------------------------------------------*/
+
+BTStatus_t prvBtManagerCleanup()
+{
+    esp_err_t xRet;
+    BTStatus_t xStatus = eBTStatusSuccess;
+
+    nimble_port_deinit();
+
+    xRet = esp_nimble_hci_and_controller_deinit();
+    if( xRet != ESP_OK )
+    {
+        ESP_LOGE( TAG, "esp_nimble_hci_and_controller_deinit() failed with error %d", xRet );
         xStatus = eBTStatusFail;
     }
 
@@ -547,24 +583,10 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 
 /*-----------------------------------------------------------*/
 
-BTStatus_t prvBtManagerCleanup()
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-
-    return xStatus;
-}
-
-/*-----------------------------------------------------------*/
-
 BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
     nimble_port_freertos_init( ble_host_task );
-
-    return xStatus;
+    return eBTStatusSuccess;
 }
 
 /*-----------------------------------------------------------*/
@@ -578,17 +600,7 @@ BTStatus_t prvBTDisable()
 
     if( rc == 0 )
     {
-        nimble_port_deinit();
-        rc = esp_nimble_hci_and_controller_deinit();
-
-        if( rc != ESP_OK )
-        {
-            ESP_LOGE( TAG, "esp_nimble_hci_and_controller_deinit() failed with error %d", rc );
-        }
-        else
-        {
-            xStatus = eBTStatusSuccess;
-        }
+        xStatus = eBTStatusSuccess;
     }
 
     /** If status is ok and callback is set, trigger the callback.
