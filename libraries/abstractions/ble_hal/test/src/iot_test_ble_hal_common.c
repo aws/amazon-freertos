@@ -371,7 +371,6 @@ BTCallbacks_t _xBTManager_NULL_Cb =
     .pxRemoteDevicePropertiesCb = NULL,
     .pxSspRequestCb             = NULL,
     .pxPairingStateChangedCb    = NULL,
-    .pxBondedCb                 = NULL,
     .pxDutModeRecvCb            = NULL,
     .pxleTestModeCb             = NULL,
     .pxEnergyInfoCb             = NULL,
