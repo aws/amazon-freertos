@@ -510,6 +510,7 @@ BTSecurityLevel_t prvConvertESPauthModeToSecurityLevel( esp_ble_auth_req_t xAuth
 BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+
     /* Initialize BLE */
 
     if( pxCallbacks != NULL )
@@ -528,7 +529,6 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 
 BTStatus_t prvBtManagerCleanup()
 {
-
     return eBTStatusSuccess;
 }
 
@@ -544,30 +544,30 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 
     if( xRet == ESP_OK )
     {
-    	xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
+        xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
     }
     else
     {
-    	configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
+        configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
     }
 
     if( xRet == ESP_OK )
     {
-    	xRet = esp_bluedroid_init();
+        xRet = esp_bluedroid_init();
     }
     else
     {
-    	configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
+        configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
     }
 
     if( xRet == ESP_OK )
     {
-    	xRet = esp_bluedroid_enable();
+        xRet = esp_bluedroid_enable();
     }
 
     if( xRet != ESP_OK )
     {
-    	xStatus = eBTStatusFail;
+        xStatus = eBTStatusFail;
     }
 
     /** If status is ok and callback is set, trigger the callback.
@@ -590,30 +590,30 @@ BTStatus_t prvBTDisable()
 
     if( esp_bluedroid_get_status() == ESP_BLUEDROID_STATUS_ENABLED )
     {
-    	xRet = esp_bluedroid_disable();
+        xRet = esp_bluedroid_disable();
     }
 
     if( xRet == ESP_OK )
     {
-    	xRet = esp_bluedroid_deinit();
+        xRet = esp_bluedroid_deinit();
     }
 
     if( xRet == ESP_OK )
     {
-    	if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
-    	{
-    		xRet = esp_bt_controller_disable();
-    	}
+        if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
+        {
+            xRet = esp_bt_controller_disable();
+        }
     }
 
     if( xRet == ESP_OK )
     {
-    	xRet = esp_bt_controller_deinit();
+        xRet = esp_bt_controller_deinit();
     }
 
     if( xRet != ESP_OK )
     {
-    	xStatus = eBTStatusFail;
+        xStatus = eBTStatusFail;
     }
 
     /** If status is ok and callback is set, trigger the callback.

@@ -330,6 +330,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     esp_err_t bleStackTeardown( void )
     {
         esp_err_t xRet;
+
         xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
 
         if( xRet == ESP_OK )
@@ -341,14 +342,14 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     }
 
 
-#else  /* if CONFIG_NIMBLE_ENABLED == 1 */
+#else /* if CONFIG_NIMBLE_ENABLED == 1 */
 
 /*
  * Return on success
  */
     BTStatus_t bleStackInit( void )
     {
-       return eBTStatusSuccess;
+        return eBTStatusSuccess;
     }
 
     esp_err_t bleStackTeardown( void )

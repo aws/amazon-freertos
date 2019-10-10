@@ -529,6 +529,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 
 
     xRet = esp_nimble_hci_and_controller_init();
+
     if( xRet == ESP_OK )
     {
         if( pxCallbacks != NULL )
@@ -539,26 +540,22 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
         {
             xStatus = eBTStatusFail;
         }
-
     }
     else
     {
         xStatus = eBTStatusFail;
     }
 
-
     if( xStatus == eBTStatusSuccess )
     {
-
         ble_hs_cfg.reset_cb = bleprph_on_reset;
         ble_hs_cfg.sync_cb = bleprph_on_sync;
         ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
 
         ble_store_config_init();
     }
-    
-    return xStatus;
 
+    return xStatus;
 }
 
 /*-----------------------------------------------------------*/
@@ -569,6 +566,7 @@ BTStatus_t prvBtManagerCleanup()
     BTStatus_t xStatus = eBTStatusSuccess;
 
     xRet = esp_nimble_hci_and_controller_deinit();
+
     if( xRet != ESP_OK )
     {
         ESP_LOGE( TAG, "esp_nimble_hci_and_controller_deinit() failed with error %d", xRet );

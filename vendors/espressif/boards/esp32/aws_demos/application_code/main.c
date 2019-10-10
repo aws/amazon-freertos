@@ -182,6 +182,7 @@ static void prvMiscInitialization( void )
         esp_err_t xBLEStackTeardown( void )
         {
             esp_err_t xRet;
+
             xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
 
             if( xRet == ESP_OK )
