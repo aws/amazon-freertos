@@ -78,7 +78,7 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
         return ret;
     }
-#endif /* if MQTT_DEMO_TYPE_ENABLED */
+#endif /* if defined( MQTT_DEMO_TYPE_ENABLED ) */
 
 /*-----------------------------------------------------------*/
 
