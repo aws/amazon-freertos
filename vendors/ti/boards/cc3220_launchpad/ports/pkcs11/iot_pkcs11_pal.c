@@ -657,7 +657,7 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
 /*-----------------------------------------------------------*/
 
-int ulPortGetEntropyFromHardware( void * data,
+int lPortGetEntropyFromHardware( void * data,
                                   unsigned char * output,
                                   size_t len,
                                   size_t * olen )

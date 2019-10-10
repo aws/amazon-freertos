@@ -47,7 +47,7 @@
 #endif
 
 
-int ulPortGetEntropyFromHardware(void *data, unsigned char *output, size_t len, size_t *olen)
+int lPortGetEntropyFromHardware(void *data, unsigned char *output, size_t len, size_t *olen)
 {
     status_t result = kStatus_Success;
 

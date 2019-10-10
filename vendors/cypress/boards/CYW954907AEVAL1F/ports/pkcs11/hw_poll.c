@@ -61,7 +61,7 @@ extern uint32_t ulSeed;
 static uint32_t ulPrgnSeedDone = 0;
 #endif
 
-int ulPortGetEntropyFromHardware( void * data,
+int lPortGetEntropyFromHardware( void * data,
                                   unsigned char * output,
                                   size_t len,
                                   size_t * olen )

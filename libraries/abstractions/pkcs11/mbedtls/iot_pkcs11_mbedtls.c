@@ -3789,10 +3789,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-extern int ulPortGetEntropyFromHardware( void * data,
-                                         unsigned char * output,
-                                         size_t len,
-                                         size_t * olen );
+extern int lPortGetEntropyFromHardware( void * data,
+                                        unsigned char * output,
+                                        size_t len,
+                                        size_t * olen );
 
 /**
  * @brief Generate cryptographically random bytes.
@@ -3812,7 +3812,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                 CK_ULONG ulRandomLen )
 {
     CK_RV xResult = CKR_OK;
-    int lMbedResult = 0;
+    int lResult = 0;
     size_t olen;
 
     xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
@@ -3825,11 +3825,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        lMbedResult = ulPortGetEntropyFromHardware( NULL, pucRandomData, ulRandomLen, &olen );
+        lResult = lPortGetEntropyFromHardware( NULL, pucRandomData, ulRandomLen, &olen );
     }
 
-    if( ( lMbedResult != 0 ) || ( olen != ulRandomLen ) )
+    if( ( lResult != 0 ) || ( olen != ulRandomLen ) )
     {
+        PKCS11_PRINT( ( "ERROR: Failed to get entropy from hardware. Error %d, Bytes %d\r\n ", lResult, olen ) )
         xResult = CKR_FUNCTION_FAILED;
     }
 

@@ -49,11 +49,11 @@
 #include "main.h"
 #include "stm32l4xx_hal.h"
 
-int ulPortGetEntropyFromHardware( void *data, unsigned char *output, size_t len, size_t *olen );
+int lPortGetEntropyFromHardware( void *data, unsigned char *output, size_t len, size_t *olen );
 
 
 
-int ulPortGetEntropyFromHardware( void *data,
+int lPortGetEntropyFromHardware( void *data,
                     unsigned char *output, size_t len, size_t *olen )
 {
   HAL_StatusTypeDef status = HAL_OK;

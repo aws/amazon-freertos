@@ -30,7 +30,7 @@
 
 /*-----------------------------------------------------------*/
 
-int ulPortGetEntropyFromHardware( void * data,
+int lPortGetEntropyFromHardware( void * data,
                            unsigned char * output,
                            size_t len,
                            size_t * olen )
