@@ -3864,6 +3864,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
             totalBytes += olen;
             lLoops++;
+            PKCS11_PRINT(("loop#: %d, requested bytes: %d, total bytes: %d, olen: %d\r\n", lLoops, ulRandomLen, totalBytes, olen));
+            vPortDelay(100);
         }
     }
 
