@@ -1,5 +1,5 @@
 set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
-set(harmony_dir "${mchp_dir}/harmony/v2.05")
+set(ecc608_dir "${mchp_dir}/secure_elements")
 
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
@@ -78,12 +78,15 @@ target_link_libraries(
     INTERFACE AFR::freertos_plus_posix
 )
 
+# ECC608 Secure Element
+add_subdirectory("${mchp_dir}/secure_elements/lib")
+
 # PKCS11
 afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${AFR_VENDORS_DIR}/microchip/secure_elements/lib"
+        "${mchp_dir}/secure_elements/lib/pkcs11/pkcs11_main.c"
 )
 
 # FreeRTOS Plus TCP

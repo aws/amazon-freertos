@@ -1,6 +1,7 @@
 set(
     AFR_MANIFEST_SUPPORTED_BOARDS
     curiosity_pic32mzef
+    secure_element
     CACHE INTERNAL "Supported boards list."
 )
 
