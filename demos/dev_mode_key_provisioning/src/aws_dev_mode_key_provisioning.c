@@ -143,7 +143,7 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     {
         lMbedResult = mbedtls_mpi_write_binary( &( pxKeyPair->d ), pxD, EC_D_LENGTH );
 
-        if( lMbedResult != 0)
+        if( lMbedResult != 0 )
         {
             DEV_MODE_KEY_PROVISIONING_PRINT( ( "Failed to parse EC private key components. \r\n" ) );
             xResult = CKR_ATTRIBUTE_VALUE_INVALID;
@@ -176,9 +176,9 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
         };
 
         xResult = pxFunctionList->C_CreateObject( xSession,
-                                                    ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
-                                                    sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-                                                    pxObjectHandle );
+                                                  ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                                                  sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                  pxObjectHandle );
     }
 
     if( pxD != NULL )
@@ -753,7 +753,7 @@ static CK_RV prvExportPublicKey( CK_SESSION_HANDLE xSession,
     uint8_t pucUnusedKeyTag[] = { 0x04, 0x41 };
 
     /* This variable is used only for it's size. This gets rid of compiler warnings. */
-    ( void )pucUnusedKeyTag;
+    ( void ) pucUnusedKeyTag;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 

@@ -1298,7 +1298,7 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
 
     if( *pxPalHandle != CK_INVALID_HANDLE )
     {
-        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, ( uint32_t* )&xDataLength, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, ( uint32_t * ) &xDataLength, &xIsPrivate );
 
         if( xResult == CKR_OK )
         {
