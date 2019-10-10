@@ -177,7 +177,7 @@ typedef struct
         .uu.uu128 = { 0x02, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }, \
         .ucType = eBTuuidType128                                                                                        \
     }
-    
+
 #define bletestsFREERTOS_CHAR_G_UUID                                                                                    \
     {                                                                                                                   \
         .uu.uu128 = { 0x03, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }, \
