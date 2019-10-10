@@ -52,10 +52,6 @@ IotBleConnectionParam_t xConnectionParamA =
     .timeout     = 400
 };
 
-
-static bool isBLESetup = false;
-
-
 /*-----------------------------------------------------------*/
 
 TEST_GROUP( Full_BLE );
@@ -70,10 +66,6 @@ TEST_SETUP( Full_BLE )
 
 TEST_TEAR_DOWN( Full_BLE )
 {
-    if( isBLESetup == true )
-    {
-        IotTestBleHal_ClearEventQueue();
-    }
 }
 
 /*-----------------------------------------------------------*/
@@ -142,13 +134,11 @@ void prvRemoveBond( BTBdaddr_t * pxDeviceAddress )
 TEST( Full_BLE, BLE_Setup )
 {
     IotTestBleHal_BLESetUp();
-    isBLESetup = true;
 }
 
 TEST( Full_BLE, BLE_Free )
 {
     IotTestBleHal_BLEFree();
-    isBLESetup = false;
 }
 
 TEST( Full_BLE, BLE_Connection_RemoveAllBonds )

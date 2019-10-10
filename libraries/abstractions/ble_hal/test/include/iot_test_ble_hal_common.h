@@ -464,8 +464,6 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              size_t xMessageLength,
                                              uint32_t timeoutMs );
 
-void IotTestBleHal_ClearEventQueue( void );
-
 void IotTestBleHal_BLEManagerInit( void );
 void IotTestBleHal_BLEEnable( bool bEnable );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
