@@ -1087,10 +1087,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
             vSemaphoreDelete( pxSession->xVerifyMutex );
         }
 
-        if( NULL != &pxSession->xSHA256Context )
-        {
-            mbedtls_sha256_free( &pxSession->xSHA256Context );
-        }
+        mbedtls_sha256_free( &pxSession->xSHA256Context );
 
         vPortFree( pxSession );
     }
@@ -1301,7 +1298,7 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
 
     if( *pxPalHandle != CK_INVALID_HANDLE )
     {
-        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, &xDataLength, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, ( uint32_t* )&xDataLength, &xIsPrivate );
 
         if( xResult == CKR_OK )
         {
@@ -2021,7 +2018,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE_PTR pxObject )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
-    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_OBJECT_CLASS xClass;
 
     if( ( NULL == pxTemplate ) ||

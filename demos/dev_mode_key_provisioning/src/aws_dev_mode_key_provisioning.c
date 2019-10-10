@@ -125,6 +125,7 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     CK_BBOOL xTrue = CK_TRUE;
     CK_KEY_TYPE xPrivateKeyType = CKK_EC;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
+    mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedPkContext->pk_ctx;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -140,9 +141,17 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        mbedtls_ecp_keypair * pxKeyPair = ( mbedtls_ecp_keypair * ) pxMbedPkContext->pk_ctx;
         lMbedResult = mbedtls_mpi_write_binary( &( pxKeyPair->d ), pxD, EC_D_LENGTH );
 
+        if( lMbedResult != 0)
+        {
+            DEV_MODE_KEY_PROVISIONING_PRINT( ( "Failed to parse EC private key components. \r\n" ) );
+            xResult = CKR_ATTRIBUTE_VALUE_INVALID;
+        }
+    }
+
+    if( xResult == CKR_OK )
+    {
         if( pxKeyPair->grp.id == MBEDTLS_ECP_DP_SECP256R1 )
         {
             pxEcParams = ( CK_BYTE * ) ( "\x06\x08" MBEDTLS_OID_EC_GRP_SECP256R1 );
@@ -151,25 +160,25 @@ static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
         {
             xResult = CKR_CURVE_NOT_SUPPORTED;
         }
+    }
 
-        if( xResult == CKR_OK )
+    if( xResult == CKR_OK )
+    {
+        CK_ATTRIBUTE xPrivateKeyTemplate[] =
         {
-            CK_ATTRIBUTE xPrivateKeyTemplate[] =
-            {
-                { CKA_CLASS,     &xPrivateKeyClass, sizeof( CK_OBJECT_CLASS )                        },
-                { CKA_KEY_TYPE,  &xPrivateKeyType,  sizeof( CK_KEY_TYPE )                            },
-                { CKA_LABEL,     pucLabel,          ( CK_ULONG ) strlen( ( const char * ) pucLabel ) },
-                { CKA_TOKEN,     &xTrue,            sizeof( CK_BBOOL )                               },
-                { CKA_SIGN,      &xTrue,            sizeof( CK_BBOOL )                               },
-                { CKA_EC_PARAMS, pxEcParams,        EC_PARAMS_LENGTH                                 },
-                { CKA_VALUE,     pxD,               EC_D_LENGTH                                      }
-            };
+            { CKA_CLASS,     &xPrivateKeyClass, sizeof( CK_OBJECT_CLASS )                        },
+            { CKA_KEY_TYPE,  &xPrivateKeyType,  sizeof( CK_KEY_TYPE )                            },
+            { CKA_LABEL,     pucLabel,          ( CK_ULONG ) strlen( ( const char * ) pucLabel ) },
+            { CKA_TOKEN,     &xTrue,            sizeof( CK_BBOOL )                               },
+            { CKA_SIGN,      &xTrue,            sizeof( CK_BBOOL )                               },
+            { CKA_EC_PARAMS, pxEcParams,        EC_PARAMS_LENGTH                                 },
+            { CKA_VALUE,     pxD,               EC_D_LENGTH                                      }
+        };
 
-            xResult = pxFunctionList->C_CreateObject( xSession,
-                                                      ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
-                                                      sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
-                                                      pxObjectHandle );
-        }
+        xResult = pxFunctionList->C_CreateObject( xSession,
+                                                    ( CK_ATTRIBUTE_PTR ) &xPrivateKeyTemplate,
+                                                    sizeof( xPrivateKeyTemplate ) / sizeof( CK_ATTRIBUTE ),
+                                                    pxObjectHandle );
     }
 
     if( pxD != NULL )
@@ -742,6 +751,9 @@ static CK_RV prvExportPublicKey( CK_SESSION_HANDLE xSession,
         0x42, 0x00
     };
     uint8_t pucUnusedKeyTag[] = { 0x04, 0x41 };
+
+    /* This variable is used only for it's size. This gets rid of compiler warnings. */
+    ( void )pucUnusedKeyTag;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
