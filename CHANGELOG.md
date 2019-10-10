@@ -2,6 +2,10 @@
 
 ## Upcoming Release 
 ### New Features
+#### Defender Client Library V3.0.0
+- Defender Library API change to shared MQTT connection.
+- Demonstration code for Defender Library updated to show use of shared connection.
+
 #### HTTPS Client Library V1.1.0
 - Upload support with HTTP methods PUT and POST is now available in the HTTPS Client Library.
 - Demonstration code with PUT and POST methods are now available in demos/https. 
