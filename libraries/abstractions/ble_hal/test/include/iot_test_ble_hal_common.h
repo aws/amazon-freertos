@@ -46,6 +46,16 @@
 #include IOT_UNITY_FIXTURE
 #include IOT_UNITY
 
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_HAL_API_TEST" )
+#include "iot_logging_setup.h"
+
 /* Enable/Disable test cases */
 /* AFQP test */
 #define ENABLE_TC_WRITE_LONG              ( 1 )
@@ -54,11 +64,6 @@
 /* Integration test */
 #define ENABLE_TC_CALLBACK_NULL_CHECK     ( 0 )
 
-#if ( 0 )
-    #define IDT_DEBUG( format, ... )    printf( "\n%d: " format, __LINE__, __VA_ARGS__ );
-#else
-    #define IDT_DEBUG( format, ... )
-#endif
 
 /**
  * @brief Connection parameters.

@@ -53,6 +53,20 @@ uint8_t ucCbPropertyBuffer[ bletestsMAX_PROPERTY_SIZE ];
 uint32_t usCbConnInterval;
 uint16_t _bletestsMTU_SIZE = bletestsMTU_SIZE1;
 
+#if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
+
+/**
+ * @brief If logging is enabled, define a log configuration that only prints the log
+ * string. This is used when printing out details of deserialized MQTT packets.
+ */
+    static const IotLogConfig_t _logHideAll =
+    {
+        .hideLibraryName = true,
+        .hideLogLevel    = true,
+        .hideTimestring  = true
+    };
+#endif
+
 /* service A */
 
 static const BTAttribute_t pxAttributeTableA[] =
@@ -1629,7 +1643,11 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
     BTStatus_t xStatus = eBTStatusSuccess;
     void * pvPtr = NULL;
 
-    IDT_DEBUG( "WaitEvent: %d, handle=0x%x\n", xEventName, ( uint32_t ) lhandle );
+    IotLog( IOT_LOG_DEBUG,
+            &_logHideAll,
+            "WaitEvent: %d, handle=0x%x",
+            xEventName,
+            ( uint32_t ) lhandle );
 
     pvPtr = checkQueueForEvent( xEventName, lhandle );
 
@@ -1658,13 +1676,21 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
 
     if( xStatus == eBTStatusSuccess )
     {
-        IDT_DEBUG( "Event Received: %d, handle=0x%x\n", xEventName, ( uint32_t ) lhandle );
+        IotLog( IOT_LOG_DEBUG,
+                &_logHideAll,
+                "Event Received: %d, handle=0x%x",
+                xEventName,
+                ( uint32_t ) lhandle );
         memcpy( pxMessage, pvPtr, xMessageLength );
         IotTest_Free( pvPtr );
     }
     else
     {
-        IDT_DEBUG( "WaitEvent TIMEOUT!!! %d, handle=0x%x\n", xEventName, ( uint32_t ) lhandle );
+        IotLog( IOT_LOG_DEBUG,
+                &_logHideAll,
+                "WaitEvent TIMEOUT!!! %d, handle=0x%x",
+                xEventName,
+                ( uint32_t ) lhandle );
     }
 
     return xStatus;
@@ -1691,7 +1717,11 @@ void prvIndicationSentCb( uint16_t usConnId,
 void prvMtuChangedCb( uint16_t usConnId,
                       uint16_t usMtu )
 {
-    IDT_DEBUG( "prvMtuChangedCb conn=%d, mtu=%d", usConnId, usMtu );
+    IotLog( IOT_LOG_DEBUG,
+            &_logHideAll,
+            "prvMtuChangedCb conn=%d, mtu=%d",
+            usConnId,
+            usMtu );
     _bletestsMTU_SIZE = usMtu;
 }
 
@@ -1819,7 +1849,11 @@ void pushToQueue( IotLink_t * pEventList )
 {
     BLEHALEventsInternals_t * pEventIndex = IotLink_Container( BLEHALEventsInternals_t, pEventList, eventList );
 
-    IDT_DEBUG( "pushToQueue: event=%d, handl=0x%x\n", pEventIndex->xEventTypes, ( uint32_t ) pEventIndex->lHandle );
+    IotLog( IOT_LOG_DEBUG,
+            &_logHideAll,
+            "pushToQueue: event=%d, handl=0x%x",
+            pEventIndex->xEventTypes,
+            ( uint32_t ) pEventIndex->lHandle );
 
     IotMutex_Lock( &threadSafetyMutex );
 

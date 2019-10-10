@@ -45,6 +45,20 @@ extern response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
 
 const uint32_t bletestWAIT_MODE1_LEVEL2_QUERY = 10000; /* Wait 10s max */
 
+#if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
+
+/**
+ * @brief If logging is enabled, define a log configuration that only prints the log
+ * string. This is used when printing out details of deserialized MQTT packets.
+ */
+    static const IotLogConfig_t _logHideAll =
+    {
+        .hideLibraryName = true,
+        .hideLogLevel    = true,
+        .hideTimestring  = true
+    };
+#endif
+
 IotBleConnectionParam_t xConnectionParamA =
 {
     .minInterval = bletestsMIN_CONNECTION_INTERVAL,
@@ -335,7 +349,11 @@ void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
 
     /* Wait write event on char A*/
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventRequestExecWriteCb, NO_HANDLE, ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
-    IDT_DEBUG( "\n prvExecuteWriteCheckAndResponse: received event (connid=%d, ulTransId=%d) \n", xWriteEvent.usConnId, xWriteEvent.ulTransId );
+    IotLog( IOT_LOG_DEBUG,
+            &_logHideAll,
+            "prvExecuteWriteCheckAndResponse: received event (connid=%d, ulTransId=%d)",
+            xWriteEvent.usConnId,
+            xWriteEvent.ulTransId );
 
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
