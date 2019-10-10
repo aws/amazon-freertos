@@ -3856,6 +3856,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                    &pucRandomData[ totalBytes ],
                                                    ulRandomLen - totalBytes,
                                                    &olen );
+
+            if( lResult != 0 )
+            {
+                break;
+            }
+
             totalBytes += olen;
             lLoops++;
         }
