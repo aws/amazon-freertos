@@ -333,7 +333,7 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 }
 
 
-int int ulPortGetEntropyFromHardware( void * data,
+int ulPortGetEntropyFromHardware( void * data,
                                   unsigned char * output,
                                   size_t len,
                                   size_t * olen )                        
