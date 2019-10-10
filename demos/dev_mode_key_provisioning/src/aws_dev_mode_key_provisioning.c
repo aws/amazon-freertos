@@ -752,7 +752,7 @@ static CK_RV prvExportPublicKey( CK_SESSION_HANDLE xSession,
     };
     uint8_t pucUnusedKeyTag[] = { 0x04, 0x41 };
 
-    /* This variable is used only for it's size. This gets rid of compiler warnings. */
+    /* This variable is used only for its size. This gets rid of compiler warnings. */
     ( void ) pucUnusedKeyTag;
 
     xResult = C_GetFunctionList( &pxFunctionList );
