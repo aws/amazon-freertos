@@ -41,9 +41,11 @@
 #include "iot_init.h"
 
 /* Remove dependency to MQTT */
-#define MQTT_DEMO_TYPE_ENABLED    ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
+#if ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
+    #define MQTT_DEMO_TYPE_ENABLED
+#endif
 
-#if MQTT_DEMO_TYPE_ENABLED
+#if defined( MQTT_DEMO_TYPE_ENABLED )
     #include "iot_mqtt.h"
 #endif
 
@@ -55,7 +57,7 @@ static IotSemaphore_t demoNetworkSemaphore;
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
-#if MQTT_DEMO_TYPE_ENABLED
+#if defined( MQTT_DEMO_TYPE_ENABLED )
     #if BLE_ENABLED
         extern const IotMqttSerializer_t IotBleMqttSerializer;
     #endif
@@ -76,7 +78,7 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
         return ret;
     }
-#endif /* if MQTT_DEMO_TYPE_ENABLED */
+#endif /* if defined( MQTT_DEMO_TYPE_ENABLED ) */
 
 /*-----------------------------------------------------------*/
 
