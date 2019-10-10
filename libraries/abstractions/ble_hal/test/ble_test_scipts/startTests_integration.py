@@ -33,6 +33,7 @@ import time
 from testClass import runTest
 from bleAdapter import bleAdapter
 
+
 def main():
     scan_filter = dict()
 
@@ -42,7 +43,7 @@ def main():
     # default DUT_name: nimble(without set_property)
     # TODO: check DUT with MAC address instead of name.
 
-    scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
+    scan_filter.update({"UUIDs": [runTest.DUT_UUID_128]})
 
     # default DUT_name: nimble(without set_property)
     # TODO: check DUT with MAC address instead of name.
@@ -64,12 +65,13 @@ def main():
     testDevice = runTest.getTestDevice()
     isTestSuccessFull = bleAdapter.connect(testDevice)
     runTest.submitTestResult(isTestSuccessFull, runTest.simpleConnection)
-    time.sleep(2) #wait for connection parameters update
+    time.sleep(2)  # wait for connection parameters update
 
     isTestSuccessFull &= bleAdapter.disconnect()
 
     # Second time connection
-    bleAdapter.startDiscovery(runTest.discoveryStartedCb)#wait for DUT to start advertising
+    # wait for DUT to start advertising
+    bleAdapter.startDiscovery(runTest.discoveryStartedCb)
     secondStartScan = time.time()
     runTest.mainloop.run()
     secondKPI = time.time() - secondStartScan
@@ -77,12 +79,13 @@ def main():
     isConnectSuccessFull = bleAdapter.connect(testDevice)
     isTestSuccessFull &= isConnectSuccessFull
     runTest.submitTestResult(isTestSuccessFull, runTest.reConnection)
-    time.sleep(2) #wait for connection parameters update
+    time.sleep(2)  # wait for connection parameters update
     # Second time disconnect
     isTestSuccessFull &= bleAdapter.disconnect()
 
-    #Third time connection
-    bleAdapter.startDiscovery(runTest.discoveryStartedCb)#wait for DUT to start advertising
+    # Third time connection
+    # wait for DUT to start advertising
+    bleAdapter.startDiscovery(runTest.discoveryStartedCb)
     thirdStartScan = time.time()
     runTest.mainloop.run()
     thirdKPI = time.time() - thirdStartScan
@@ -97,18 +100,21 @@ def main():
     isTestSuccessFull = runTest.discoverPrimaryServices()
     bleAdapter.gatt.updateLocalAttributeTable()
 
-    isTestSuccessFull &= runTest.writeResultWithoutResponse(chr(isTestSuccessFull + 48))
+    isTestSuccessFull &= runTest.writeResultWithoutResponse(
+        chr(isTestSuccessFull + 48))
     runTest.submitTestResult(isTestSuccessFull, runTest.writeWithoutResponse)
 
     # Data size > MTU - 3 send notification test
     bleAdapter.setNotificationCallBack(runTest.notificationMTUCb)
-    bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID) #subscribe for next test
+    bleAdapter.subscribeForNotification(
+        runTest.DUT_NOTIFY_CHAR_UUID)  # subscribe for next test
     isTestSuccessFull = True
     runTest.mainloop.run()
     isTestSuccessFull = runTest.isNotificationDeclinedSuccessFull
     runTest.submitTestResult(isTestSuccessFull, runTest.notification)
 
-    isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe
+    isTestSuccessFull = bleAdapter.subscribeForNotification(
+        runTest.DUT_NOTIFY_CHAR_UUID, subscribe=False)  # unsubscribe
     runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
 
     isTestSuccessFull &= bleAdapter.disconnect()
@@ -116,13 +122,18 @@ def main():
 
     runTest.DUT_NAME = DUT_ORIGINAL_NAME
 
-    isTestSuccessFull = runTest.Advertise_With_16bit_ServiceUUID(scan_filter=scan_filter, bleAdapter=bleAdapter)
-    runTest.submitTestResult(isTestSuccessFull, runTest.Advertise_With_16bit_ServiceUUID)
+    isTestSuccessFull = runTest.Advertise_With_16bit_ServiceUUID(
+        scan_filter=scan_filter, bleAdapter=bleAdapter)
+    runTest.submitTestResult(isTestSuccessFull,
+                             runTest.Advertise_With_16bit_ServiceUUID)
 
-    isTestSuccessFull = runTest.Advertise_With_Manufacture_Data(scan_filter=scan_filter, bleAdapter=bleAdapter)
-    runTest.submitTestResult(isTestSuccessFull, runTest.Advertise_With_Manufacture_Data)
+    isTestSuccessFull = runTest.Advertise_With_Manufacture_Data(
+        scan_filter=scan_filter, bleAdapter=bleAdapter)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.Advertise_With_Manufacture_Data)
 
-    scan_filter.update({ "UUIDs": [runTest.DUT_UUID_128]})
+    scan_filter.update({"UUIDs": [runTest.DUT_UUID_128]})
     # default DUT_name: nimble(without set_property)
     bleAdapter.setDiscoveryFilter(scan_filter)
 
@@ -138,22 +149,28 @@ def main():
     runTest.submitTestResult(isTestSuccessFull, runTest.simpleConnection)
 
     isTestSuccessFull = runTest.discoverPrimaryServices()
-    runTest.submitTestResult(isTestSuccessFull, runTest.discoverPrimaryServices)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.discoverPrimaryServices)
 
     bleAdapter.gatt.updateLocalAttributeTable()
 
-    # Check device not present. After discovery of services, advertisement should have stopped.
+    # Check device not present. After discovery of services, advertisement
+    # should have stopped.
     runTest.stopAdvertisement(scan_filter)
 
     # Check write and read
-    bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_OPEN_DESCR_UUID)
+    bleAdapter.writeCharacteristic(
+        runTest.DUT_OPEN_CHAR_UUID,
+        runTest.DUT_OPEN_DESCR_UUID)
     bleAdapter.readCharacteristic(runTest.DUT_OPEN_CHAR_UUID)
 
     # Enable and receive notification and indication then disable.
     bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID)
-    bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
+    bleAdapter.subscribeForNotification(
+        runTest.DUT_INDICATE_CHAR_UUID)  # subscribe for next test
 
-    time.sleep(2) #wait for connection parameters update
+    time.sleep(2)  # wait for connection parameters update
 
     # Check Notification and Indication
     bleAdapter.setNotificationCallBack(runTest.notificationCb)
@@ -169,7 +186,8 @@ def main():
     isTestSuccessFull &= bleAdapter.disconnect()
 
     # Second time connection
-    bleAdapter.startDiscovery(runTest.discoveryStartedCb)#wait for DUT to start advertising
+    # wait for DUT to start advertising
+    bleAdapter.startDiscovery(runTest.discoveryStartedCb)
     runTest.mainloop.run()
     bleAdapter.stopDiscovery()
     isConnectSuccessFull = bleAdapter.connect(testDevice)
@@ -177,10 +195,13 @@ def main():
     runTest.submitTestResult(isTestSuccessFull, runTest.reConnection)
 
     bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID)
-    bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID) #subscribe for next test
+    bleAdapter.subscribeForNotification(
+        runTest.DUT_INDICATE_CHAR_UUID)  # subscribe for next test
 
     # Check write and read after reconnection
-    bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, runTest.DUT_OPEN_DESCR_UUID)
+    bleAdapter.writeCharacteristic(
+        runTest.DUT_OPEN_CHAR_UUID,
+        runTest.DUT_OPEN_DESCR_UUID)
     bleAdapter.readCharacteristic(runTest.DUT_OPEN_CHAR_UUID)
 
     # Check Notification and Indication after reconnection
@@ -194,17 +215,19 @@ def main():
     runTest.mainloop.run()
     runTest.submitTestResult(isTestSuccessFull, runTest.indication)
 
-    isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID, subscribe = False) #unsubscribe
+    isTestSuccessFull = bleAdapter.subscribeForNotification(
+        runTest.DUT_NOTIFY_CHAR_UUID, subscribe=False)  # unsubscribe
     isTestSuccessFull = True
     runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
 
-    isTestSuccessFull = bleAdapter.subscribeForNotification(runTest.DUT_INDICATE_CHAR_UUID, subscribe = False) #unsubscribe
+    isTestSuccessFull = bleAdapter.subscribeForNotification(
+        runTest.DUT_INDICATE_CHAR_UUID, subscribe=False)  # unsubscribe
     isTestSuccessFull = True
     runTest.submitTestResult(isTestSuccessFull, runTest.removeIndication)
 
     isTestSuccessFull &= bleAdapter.disconnect()
     testutils.removeBondedDevices()
 
-    time.sleep(2) #wait for connection parameters update
+    time.sleep(2)  # wait for connection parameters update
     runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)
     runTest.printTestsSummary()
