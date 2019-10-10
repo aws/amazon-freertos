@@ -96,6 +96,8 @@ typedef struct SSOCKETContext
     uint32_t ulState;
 } SSOCKETContext_t, * SSOCKETContextPtr_t;
 
+#define SOCKETS_INVALID_CONTEXT		( ( SSOCKETContextPtr_t ) ~0U )
+
 /*
  * Helper routines.
  */
