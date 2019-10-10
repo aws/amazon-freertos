@@ -131,9 +131,9 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test_Connection )
 TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 {
     RUN_TEST_CASE( Full_BLE, BLE_Setup );
-#if ENABLE_TC_CALLBACK_NULL_CHECK
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
-#endif
+    #if ENABLE_TC_CALLBACK_NULL_CHECK
+        RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
+    #endif
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );
@@ -519,218 +519,218 @@ void prvGAPInitEnableTwice()
 }
 
 #if ENABLE_TC_CALLBACK_NULL_CHECK
-void prvCreateStartServicesWithNULLCb( void )
-{
-    BTStatus_t xStatus;
-
-    /* Try to create using blob service API first.
-        * If blob is not supported then try legacy APIs. */
-    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
-
-    if( xStatus != eBTStatusUnsupported )
+    void prvCreateStartServicesWithNULLCb( void )
     {
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        BTStatus_t xStatus;
+
+        /* Try to create using blob service API first.
+         * If blob is not supported then try legacy APIs. */
+        xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
+
+        if( xStatus != eBTStatusUnsupported )
+        {
+            TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+            xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
+            TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        }
+        else
+        {
+            /* Create service A */
+            IotTestBleHal_CreateServiceA();
+
+            /* Create service B */
+            IotTestBleHal_CreateServiceB();
+
+            /* Start service A */
+            prvStartServiceWithNULLCb( &_xSrvcA );
+            /* Start service B */
+            prvStartServiceWithNULLCb( &_xSrvcB );
+        }
     }
-    else
+
+    void prvStartServiceWithNULLCb( BTService_t * xRefSrvc )
     {
-        /* Create service A */
-        IotTestBleHal_CreateServiceA();
+        BTStatus_t xStatus = eBTStatusSuccess;
 
-        /* Create service B */
-        IotTestBleHal_CreateServiceB();
-
-        /* Start service A */
-        prvStartServiceWithNULLCb( &_xSrvcA );
-        /* Start service B */
-        prvStartServiceWithNULLCb( &_xSrvcB );
-    }
-}
-
-void prvStartServiceWithNULLCb( BTService_t * xRefSrvc )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    xStatus = _pxGattServerInterface->pxStartService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ], BTTransportLe );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
-
-void prvSetAdvPropertyWithNULLCb( void )
-{
-    BTProperty_t pxProperty;
-    uint16_t usMTUsize = bletestsMTU_SIZE1;
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    pxProperty.xType = eBTpropertyBdname;
-    pxProperty.xLen = strlen( bletestsDEVICE_NAME );
-    pxProperty.pvVal = ( void * ) bletestsDEVICE_NAME;
-
-    /* Set the name */
-    xStatus = _pxBTInterface->pxSetDeviceProperty( &pxProperty );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    /* Get the name to check it is set */
-/*@TODO IotTestBleHal_SetGetProperty(&pxProperty, false); */
-
-    pxProperty.xType = eBTpropertyLocalMTUSize;
-    pxProperty.xLen = sizeof( usMTUsize );
-    pxProperty.pvVal = &usMTUsize;
-
-    /* Set the MTU size */
-    xStatus = _pxBTInterface->pxSetDeviceProperty( &pxProperty );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    /* Get the MTU size to check it is set */
-    /*@TODOIotTestBleHal_SetGetProperty(&pxProperty, false); */
-}
-
-void prvRemoveAllBondWithNULLCb( void )
-{
-    BTProperty_t pxProperty;
-    uint16_t usIndex;
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    /* Set the name */
-    pxProperty.xType = eBTpropertyAdapterBondedDevices;
-
-    /* Get bonded devices */
-    IotTestBleHal_SetGetProperty( &pxProperty, false );
-
-    for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
-    {
-        prvRemoveBondWithNULLCb( &( ( BTBdaddr_t * ) pxProperty.pvVal )[ usIndex ] );
+        xStatus = _pxGattServerInterface->pxStartService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ], BTTransportLe );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
 
-    /* Get bonded devices. */
-    IotTestBleHal_SetGetProperty( &pxProperty, false );
-    /* Check none are left. */
-    TEST_ASSERT_EQUAL( 0, pxProperty.xLen );
-}
-
-void prvRemoveBondWithNULLCb( BTBdaddr_t * pxDeviceAddress )
-{
-    BTStatus_t xStatus;
-
-    xStatus = _pxBTInterface->pxRemoveBond( pxDeviceAddress );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
-
-void prvSetAdvDataWithNULLCb( BTuuidType_t type,
-                                uint16_t usManufacturerLen,
-                                char * pcManufacturerData )
-{
-    uint16_t usServiceDataLen;
-    char * pcServiceData;
-    uint8_t serviceUUID_128[ bt128BIT_UUID_LEN ] = bletestsFREERTOS_SVC_UUID_128;
-    /* To make sure stack creates their own pointers, use local variables */
-    BTGattAdvertismentParams_t l_xAdvertisementConfigA;
-    BTGattAdvertismentParams_t l_xAdvertisementConfigB;
-    size_t xNbServices;
-
-    BTUuid_t xServiceUuid =
+    void prvSetAdvPropertyWithNULLCb( void )
     {
-        .ucType = type
-    };
+        BTProperty_t pxProperty;
+        uint16_t usMTUsize = bletestsMTU_SIZE1;
+        BTStatus_t xStatus = eBTStatusSuccess;
 
-    switch( type )
-    {
-        case eBTuuidType16:
-            xServiceUuid.uu.uu16 = bletestsFREERTOS_SVC_UUID_16;
-            break;
+        pxProperty.xType = eBTpropertyBdname;
+        pxProperty.xLen = strlen( bletestsDEVICE_NAME );
+        pxProperty.pvVal = ( void * ) bletestsDEVICE_NAME;
 
-        case eBTuuidType32:
-            xServiceUuid.uu.uu32 = bletestsFREERTOS_SVC_UUID_32;
-            break;
+        /* Set the name */
+        xStatus = _pxBTInterface->pxSetDeviceProperty( &pxProperty );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-        case eBTuuidType128:
-            memcpy( xServiceUuid.uu.uu128, serviceUUID_128, sizeof( serviceUUID_128 ) );
-            break;
+        /* Get the name to check it is set */
+        /*@TODO IotTestBleHal_SetGetProperty(&pxProperty, false); */
+
+        pxProperty.xType = eBTpropertyLocalMTUSize;
+        pxProperty.xLen = sizeof( usMTUsize );
+        pxProperty.pvVal = &usMTUsize;
+
+        /* Set the MTU size */
+        xStatus = _pxBTInterface->pxSetDeviceProperty( &pxProperty );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        /* Get the MTU size to check it is set */
+        /*@TODOIotTestBleHal_SetGetProperty(&pxProperty, false); */
     }
 
-    usServiceDataLen = 0;
-    pcServiceData = NULL;
-    xNbServices = 1;
+    void prvRemoveAllBondWithNULLCb( void )
+    {
+        BTProperty_t pxProperty;
+        uint16_t usIndex;
+        BTStatus_t xStatus = eBTStatusSuccess;
 
-    l_xAdvertisementConfigA = xAdvertisementConfigA;
-    l_xAdvertisementConfigB = xAdvertisementConfigB;
+        /* Set the name */
+        pxProperty.xType = eBTpropertyAdapterBondedDevices;
 
-    prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigA,
-                                    usServiceDataLen,
-                                    pcServiceData,
-                                    &xServiceUuid,
-                                    xNbServices,
-                                    usManufacturerLen,
-                                    pcManufacturerData );
+        /* Get bonded devices */
+        IotTestBleHal_SetGetProperty( &pxProperty, false );
 
-    prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigB,
-                                    usServiceDataLen,
-                                    pcServiceData,
-                                    NULL,
-                                    0,
-                                    usManufacturerLen,
-                                    pcManufacturerData );
-}
+        for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
+        {
+            prvRemoveBondWithNULLCb( &( ( BTBdaddr_t * ) pxProperty.pvVal )[ usIndex ] );
+            TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        }
 
-void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
-                                    uint16_t usServiceDataLen,
-                                    char * pcServiceData,
-                                    BTUuid_t * pxServiceUuid,
-                                    size_t xNbServices,
-                                    uint16_t usManufacturerLen,
-                                    char * pcManufacturerData )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
+        /* Get bonded devices. */
+        IotTestBleHal_SetGetProperty( &pxProperty, false );
+        /* Check none are left. */
+        TEST_ASSERT_EQUAL( 0, pxProperty.xLen );
+    }
 
-    xStatus = _pxBTLeAdapterInterface->pxSetAdvData( _ucBLEAdapterIf,
-                                                        pxParams,
-                                                        usManufacturerLen,
-                                                        pcManufacturerData,
-                                                        usServiceDataLen,
-                                                        pcServiceData,
-                                                        pxServiceUuid,
-                                                        xNbServices );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
+    void prvRemoveBondWithNULLCb( BTBdaddr_t * pxDeviceAddress )
+    {
+        BTStatus_t xStatus;
 
-void prvStartStopAdvertisementWithNULLCb( void )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
+        xStatus = _pxBTInterface->pxRemoveBond( pxDeviceAddress );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
 
-    xStatus = _pxBTLeAdapterInterface->pxStartAdv( _ucBLEAdapterIf );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    void prvSetAdvDataWithNULLCb( BTuuidType_t type,
+                                  uint16_t usManufacturerLen,
+                                  char * pcManufacturerData )
+    {
+        uint16_t usServiceDataLen;
+        char * pcServiceData;
+        uint8_t serviceUUID_128[ bt128BIT_UUID_LEN ] = bletestsFREERTOS_SVC_UUID_128;
+        /* To make sure stack creates their own pointers, use local variables */
+        BTGattAdvertismentParams_t l_xAdvertisementConfigA;
+        BTGattAdvertismentParams_t l_xAdvertisementConfigB;
+        size_t xNbServices;
 
-    xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
+        BTUuid_t xServiceUuid =
+        {
+            .ucType = type
+        };
 
-void prvStopServiceWithNULLCb( BTService_t * xRefSrvc )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
+        switch( type )
+        {
+            case eBTuuidType16:
+                xServiceUuid.uu.uu16 = bletestsFREERTOS_SVC_UUID_16;
+                break;
 
-    xStatus = _pxGattServerInterface->pxStopService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
+            case eBTuuidType32:
+                xServiceUuid.uu.uu32 = bletestsFREERTOS_SVC_UUID_32;
+                break;
 
-void prvDeleteServiceWithNULLCb( BTService_t * xRefSrvc )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
+            case eBTuuidType128:
+                memcpy( xServiceUuid.uu.uu128, serviceUUID_128, sizeof( serviceUUID_128 ) );
+                break;
+        }
 
-    xStatus = _pxGattServerInterface->pxDeleteService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
+        usServiceDataLen = 0;
+        pcServiceData = NULL;
+        xNbServices = 1;
 
-void prvBTUnregisterWithNULLCb( void )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
+        l_xAdvertisementConfigA = xAdvertisementConfigA;
+        l_xAdvertisementConfigB = xAdvertisementConfigB;
 
-    xStatus = _pxGattServerInterface->pxUnregisterServer( _ucBLEServerIf );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigA,
+                                       usServiceDataLen,
+                                       pcServiceData,
+                                       &xServiceUuid,
+                                       xNbServices,
+                                       usManufacturerLen,
+                                       pcManufacturerData );
 
-    xStatus = _pxBTLeAdapterInterface->pxUnregisterBleApp( _ucBLEAdapterIf );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-}
+        prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigB,
+                                       usServiceDataLen,
+                                       pcServiceData,
+                                       NULL,
+                                       0,
+                                       usManufacturerLen,
+                                       pcManufacturerData );
+    }
+
+    void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
+                                        uint16_t usServiceDataLen,
+                                        char * pcServiceData,
+                                        BTUuid_t * pxServiceUuid,
+                                        size_t xNbServices,
+                                        uint16_t usManufacturerLen,
+                                        char * pcManufacturerData )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+
+        xStatus = _pxBTLeAdapterInterface->pxSetAdvData( _ucBLEAdapterIf,
+                                                         pxParams,
+                                                         usManufacturerLen,
+                                                         pcManufacturerData,
+                                                         usServiceDataLen,
+                                                         pcServiceData,
+                                                         pxServiceUuid,
+                                                         xNbServices );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+
+    void prvStartStopAdvertisementWithNULLCb( void )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+
+        xStatus = _pxBTLeAdapterInterface->pxStartAdv( _ucBLEAdapterIf );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+
+    void prvStopServiceWithNULLCb( BTService_t * xRefSrvc )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+
+        xStatus = _pxGattServerInterface->pxStopService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+
+    void prvDeleteServiceWithNULLCb( BTService_t * xRefSrvc )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+
+        xStatus = _pxGattServerInterface->pxDeleteService( _ucBLEServerIf, xRefSrvc->pusHandlesBuffer[ 0 ] );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+
+    void prvBTUnregisterWithNULLCb( void )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+
+        xStatus = _pxGattServerInterface->pxUnregisterServer( _ucBLEServerIf );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        xStatus = _pxBTLeAdapterInterface->pxUnregisterBleApp( _ucBLEAdapterIf );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
 #endif /* if ENABLE_TC_CALLBACK_NULL_CHECK */
 
 void GAP_common_teardown()
