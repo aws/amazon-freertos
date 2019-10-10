@@ -3789,6 +3789,27 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+
+/**
+ * @brief Obtain entropy data.
+ *
+ * For mbedTLS-based implementations, this is
+ * a wrapper of mbedtls_hardware_poll()
+ *
+ * @note Note that if the port using NVM seeding,
+ * lPortGetEntropyFromHardware() would need to map to
+ * mbedtls_nv_seed_poll() wrapper instead of
+ * mbedtls_hardware_poll() wrapper.
+ *
+ * @param[in] data      Unused in current implementation.
+ *                      Implementation should be able to
+ *                      accept NULL for this input.
+ * @param[out] output   Location that random bytes should be
+ *                      placed.
+ * @param[len] len      Number of bytes requested.
+ * @param[in/out] olen  Updated to contain the actual number of
+ *                      bytes returned.
+ */
 extern int lPortGetEntropyFromHardware( void * data,
                                         unsigned char * output,
                                         size_t len,
@@ -3811,9 +3832,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                 CK_BYTE_PTR pucRandomData,
                                                 CK_ULONG ulRandomLen )
 {
+#define ENTROPY_MAX_LOOPS    256
+
     CK_RV xResult = CKR_OK;
     int lResult = 0;
-    size_t olen;
+    size_t olen = 0;
+    int lLoops = 0;
+    int totalBytes = 0;
 
     xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -3825,7 +3850,15 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        lResult = lPortGetEntropyFromHardware( NULL, pucRandomData, ulRandomLen, &olen );
+        while( ( lLoops < ENTROPY_MAX_LOOPS ) && ( totalBytes < ulRandomLen ) )
+        {
+            lResult = lPortGetEntropyFromHardware( NULL,
+                                                   &pucRandomData[ totalBytes ],
+                                                   ulRandomLen - totalBytes,
+                                                   &olen );
+            totalBytes += olen;
+            lLoops++;
+        }
     }
 
     if( ( lResult != 0 ) || ( olen != ulRandomLen ) )
