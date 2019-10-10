@@ -332,6 +332,12 @@ int mbedtls_hardware_poll( void * data,
         xResult = pxFunctionList->C_CloseSession( xSession );
     }
 
+    if( xResult == CKR_OK )
+    {
+        lStatus = 0;
+        *olen = len;
+    }
+
     return lStatus;
 }
 
