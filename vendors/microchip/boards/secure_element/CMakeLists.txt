@@ -41,12 +41,44 @@ target_compile_options(
 # -------------------------------------------------------------------------------------------------
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
+
+# ECC608 source files
+afr_glob_src(ecc608_src DIRECTORY ${ecc608_dir}/lib)
+afr_glob_src(ecc608_atacert_src RECURSE DIRECTORY ${ecc608_dir}/lib/atcacert)
+afr_glob_src(ecc608_basic_src RECURSE DIRECTORY ${ecc608_dir}/lib/basic)
+afr_glob_src(ecc608_crypto_src RECURSE DIRECTORY ${ecc608_dir}/lib/crypto)
+afr_glob_src(ecc608_host_src RECURSE DIRECTORY ${ecc608_dir}/lib/host)
+afr_glob_src(ecc608_pkcs11_src RECURSE DIRECTORY ${ecc608_dir}/lib/pkcs11)
+
+set(
+    ecc608_hid_src
+    "${ecc608_dir}/third_party/hidapi/windows/hid.c"
+)
+set(
+    ecc608_hal_src
+        "${ecc608_dir}/lib/hal/atca_hal.c"
+        "${ecc608_dir}/lib/hal/hal_all_platforms_kit_hidapi.c"
+        "${ecc608_dir}/lib/hal/hal_freertos.c"
+        "${ecc608_dir}/lib/hal/hal_windows.c"
+        "${ecc608_dir}/lib/hal/kit_protocol.c"
+        "${ecc608_dir}/lib/hal/atca_hal.h"
+        "${ecc608_dir}/lib/hal/hal_all_platforms_kit_hidapi.h"
+        "${ecc608_dir}/lib/hal/kit_phy.h"
+        "${ecc608_dir}/lib/hal/kit_protocol.h"
+)
 target_sources(
     AFR::kernel::mcu_port
     INTERFACE
         "${AFR_KERNEL_DIR}/portable/MSVC-MingW/port.c"
         "${AFR_KERNEL_DIR}/portable/MSVC-MingW/portmacro.h"
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
+        "${ecc608_src}"
+        "${ecc608_atacert_src}"
+        "${ecc608_basic_src}"
+        "${ecc608_crypto_src}"
+        "${ecc608_hal_src}"
+        "${ecc608_hid_src}"
+        "${ecc608_host_src}"
 )
 target_include_directories(
     AFR::kernel::mcu_port
@@ -54,6 +86,8 @@ target_include_directories(
         "${AFR_KERNEL_DIR}/portable/MSVC-MingW"
         "${board_dir}/config_files"
         "${board_dir}/application_code"
+        "${ecc608_dir}/lib"
+        "${ecc608_dir}/third_party/hidapi/hidapi"
         # Need aws_clientcredential.h
         "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
@@ -78,15 +112,14 @@ target_link_libraries(
     INTERFACE AFR::freertos_plus_posix
 )
 
-# ECC608 Secure Element
-add_subdirectory("${mchp_dir}/secure_elements/lib")
-
 # PKCS11
 afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${mchp_dir}/secure_elements/lib/pkcs11/pkcs11_main.c"
+        "${ecc608_pkcs11_src}"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
 )
 
 # FreeRTOS Plus TCP
@@ -130,7 +163,6 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # TODO, remove network manager src.
 afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
-afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 # Build an OTA test that only builds on Windows.
 afr_module_sources(
@@ -149,8 +181,8 @@ endif()
 add_executable(
     ${exe_target}
     "${board_dir}/application_code/main.c"
+    "${board_demos_dir}/application_code/atca_cert_chain.c"
     "${board_demos_dir}/application_code/aws_demo_logging.c"
-    "${board_demos_dir}/application_code/aws_demo_logging.h"
     "${board_demos_dir}/application_code/aws_entropy_hardware_poll.c"
     "${board_demos_dir}/application_code/aws_run-time-stats-utils.c"
     ${extra_src}
@@ -166,4 +198,5 @@ target_link_libraries(
         AFR::freertos_plus_tcp
         AFR::utils
         AFR::dev_mode_key_provisioning
+        setupapi.lib
 )
