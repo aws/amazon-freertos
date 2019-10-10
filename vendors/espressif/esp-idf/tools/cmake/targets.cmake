@@ -39,25 +39,20 @@ macro(idf_check_config_target)
 endmacro()
 
 macro(idf_set_toolchain)
-    # Check if toolchain file override is set
-    if(EXISTS ${IDF_TOOLCHAIN_FILE})
-        set(CMAKE_TOOLCHAIN_FILE ${IDF_TOOLCHAIN_FILE})
+    # First try to load the toolchain file from the tools/cmake/ directory of IDF
+    set(toolchain_file_global $ENV{IDF_PATH}/tools/cmake/toolchain-${IDF_TARGET}.cmake)
+    if(EXISTS ${toolchain_file_global})
+        set(CMAKE_TOOLCHAIN_FILE ${toolchain_file_global})
     else()
-        # First try to load the toolchain file from the tools/cmake/ directory of IDF
-        set(toolchain_file_global $ENV{IDF_PATH}/tools/cmake/toolchain-${IDF_TARGET}.cmake)
-        if(EXISTS ${toolchain_file_global})
-            set(CMAKE_TOOLCHAIN_FILE ${toolchain_file_global})
+        # Try to load the toolchain file from the directory of ${IDF_TARGET} component
+        components_find_all("${IDF_COMPONENT_DIRS}" ALL_COMPONENT_PATHS ALL_COMPONENTS ALL_TEST_COMPONENTS)
+        find_component_path(${IDF_TARGET} "${ALL_COMPONENTS}" "${ALL_COMPONENT_PATHS}" target_component_path)
+        set(toolchain_file_component ${target_component_path}/toolchain-${IDF_TARGET}.cmake)
+        if(EXISTS ${toolchain_file_component})
+            set(CMAKE_TOOLCHAIN_FILE ${toolchain_file_component})
         else()
-            # Try to load the toolchain file from the directory of ${IDF_TARGET} component
-            components_find_all("${IDF_COMPONENT_DIRS}" ALL_COMPONENT_PATHS ALL_COMPONENTS ALL_TEST_COMPONENTS)
-            find_component_path(${IDF_TARGET} "${ALL_COMPONENTS}" "${ALL_COMPONENT_PATHS}" target_component_path)
-            set(toolchain_file_component ${target_component_path}/toolchain-${IDF_TARGET}.cmake)
-            if(EXISTS ${toolchain_file_component})
-                set(CMAKE_TOOLCHAIN_FILE ${toolchain_file_component})
-            else()
-                message(FATAL_ERROR "Toolchain file toolchain-${IDF_TARGET}.cmake not found,"
+            message(FATAL_ERROR "Toolchain file toolchain-${IDF_TARGET}.cmake not found,"
                     "checked ${toolchain_file_global} and ${toolchain_file_component}")
-            endif()
         endif()
     endif()
 endmacro()

@@ -37,6 +37,7 @@ User should implement their DUTTool classes.
 If they using different port then need to implement their DUTPort class as well.
 """
 
+from __future__ import print_function
 import time
 import re
 import threading
@@ -271,7 +272,7 @@ class BaseDUT(object):
     :param kwargs: extra args for DUT to create ports
     """
 
-    DEFAULT_EXPECT_TIMEOUT = 5
+    DEFAULT_EXPECT_TIMEOUT = 10
     MAX_EXPECT_FAILURES_TO_SAVED = 10
     RECV_THREAD_CLS = RecvThread
     """ DUT subclass can specify RECV_THREAD_CLS to do add some extra stuff when receive data.
@@ -295,8 +296,8 @@ class BaseDUT(object):
         self.record_data_lock = threading.RLock()
         self.receive_thread = None
         self.expect_failures = []
-        # open and start during init
-        self.open()
+        self._port_open()
+        self.start_receive()
 
     def __str__(self):
         return "DUT({}: {})".format(self.name, str(self.port))
@@ -401,26 +402,46 @@ class BaseDUT(object):
         pass
 
     # methods that features raw port methods
-    def open(self):
+    def start_receive(self):
         """
-        open port and create thread to receive data.
+        Start thread to receive data.
 
         :return: None
         """
-        self._port_open()
         self.receive_thread = self.RECV_THREAD_CLS(self._port_read, self)
         self.receive_thread.start()
 
-    def close(self):
+    def stop_receive(self):
         """
-        close receive thread and then close port.
-
+        stop the receiving thread for the port
         :return: None
         """
         if self.receive_thread:
             self.receive_thread.exit()
-        self._port_close()
         self.LOG_THREAD.flush_data()
+        self.receive_thread = None
+
+    def close(self):
+        """
+        permanently close the port
+        """
+        self.stop_receive()
+        self._port_close()
+
+    @staticmethod
+    def u_to_bytearray(data):
+        """
+        if data is not bytearray then it tries to convert it
+
+        :param data: data which needs to be checked and maybe transformed
+        """
+        if isinstance(data, type(u'')):
+            try:
+                data = data.encode('utf-8')
+            except Exception as e:
+                print(u'Cannot encode {} of type {}'.format(data, type(data)))
+                raise e
+        return data
 
     def write(self, data, eol="\r\n", flush=True):
         """
@@ -436,7 +457,7 @@ class BaseDUT(object):
             self.data_cache.flush()
         # do write if cache
         if data is not None:
-            self._port_write(data + eol if eol else data)
+            self._port_write(self.u_to_bytearray(data) + self.u_to_bytearray(eol) if eol else self.u_to_bytearray(data))
 
     @_expect_lock
     def read(self, size=0xFFFFFFFF):
@@ -517,9 +538,13 @@ class BaseDUT(object):
         :return: match groups if match succeed otherwise None
         """
         ret = None
+        if isinstance(pattern.pattern, type(u'')):
+            pattern = re.compile(BaseDUT.u_to_bytearray(pattern.pattern))
+        if isinstance(data, type(u'')):
+            data = BaseDUT.u_to_bytearray(data)
         match = pattern.search(data)
         if match:
-            ret = match.groups()
+            ret = tuple(None if x is None else x.decode() for x in match.groups())
             index = match.end()
         else:
             index = -1
@@ -527,7 +552,8 @@ class BaseDUT(object):
 
     EXPECT_METHOD = [
         [type(re.compile("")), "_expect_re"],
-        [str, "_expect_str"],
+        [type(b''), "_expect_str"],  # Python 2 & 3 hook to work without 'from builtins import str' from future
+        [type(u''), "_expect_str"],
     ]
 
     def _get_expect_method(self, pattern):

@@ -9,7 +9,10 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "sdkconfig.h"
-
+#include "soc/rtc.h"
+#include "esp_clk.h"
+#include "esp_system.h"
+#include "test_utils.h"
 
 #if portNUM_PROCESSORS == 2
 
@@ -221,17 +224,14 @@ static void get_time_task(void *pvParameters)
 static void start_measure(int64_t* sys_time, int64_t* real_time)
 {
     struct timeval tv_time;
-    *real_time = esp_timer_get_time();
-    gettimeofday(&tv_time, NULL);
+    int64_t t1, t2;
+    do {
+        t1 = esp_timer_get_time();
+        gettimeofday(&tv_time, NULL);
+        t2 = esp_timer_get_time();
+    } while (t2 - t1 > 40);
+    *real_time = t2;
     *sys_time = (int64_t)tv_time.tv_sec * 1000000L + tv_time.tv_usec;
-}
-
-static void end_measure(int64_t* sys_time, int64_t* real_time)
-{
-    struct timeval tv_time;
-    gettimeofday(&tv_time, NULL);
-    *real_time = esp_timer_get_time();
-    *sys_time  = (int64_t)tv_time.tv_sec * 1000000L + tv_time.tv_usec;
 }
 
 static int64_t calc_correction(const char* tag, int64_t* sys_time, int64_t* real_time)
@@ -251,40 +251,45 @@ static int64_t calc_correction(const char* tag, int64_t* sys_time, int64_t* real
 
 static void measure_time_task(void *pvParameters)
 {
-    struct timeval tv_time;
-    int64_t real_time_us[2];
-    int64_t sys_time_us[2];
-    int64_t delay_us = 2 * 1000000; // 2 sec
     xSemaphoreHandle *sema = (xSemaphoreHandle *) pvParameters;
+    int64_t main_real_time_us[2];
+    int64_t main_sys_time_us[2];
+    struct timeval tv_time = {.tv_sec = 1550000000, .tv_usec = 0};
+    TEST_ASSERT_EQUAL(0, settimeofday(&tv_time, NULL));
+    struct timeval delta = {.tv_sec = 2000, .tv_usec = 900000};
+    adjtime(&delta, NULL);
     gettimeofday(&tv_time, NULL);
-    start_measure(&sys_time_us[0], &real_time_us[0]);
-    // although exit flag is set in another task, checking (exit_flag == false) is safe
-    while (exit_flag == false) {
-        ets_delay_us(delay_us);
+    start_measure(&main_sys_time_us[0], &main_real_time_us[0]);
 
-        end_measure(&sys_time_us[1], &real_time_us[1]);
-        result_adjtime_correction_us[1] += calc_correction("measure", sys_time_us, real_time_us);
+    {
+        int64_t real_time_us[2] = { main_real_time_us[0], 0};
+        int64_t sys_time_us[2] = { main_sys_time_us[0], 0};
+        // although exit flag is set in another task, checking (exit_flag == false) is safe
+        while (exit_flag == false) {
+            ets_delay_us(2 * 1000000); // 2 sec
 
-        sys_time_us[0]  = sys_time_us[1];
-        real_time_us[0] = real_time_us[1];
+            start_measure(&sys_time_us[1], &real_time_us[1]);
+            result_adjtime_correction_us[1] += calc_correction("measure", sys_time_us, real_time_us);
+
+            sys_time_us[0]  = sys_time_us[1];
+            real_time_us[0] = real_time_us[1];
+        }
+        main_sys_time_us[1] = sys_time_us[1];
+        main_real_time_us[1] = real_time_us[1];
     }
+
+    result_adjtime_correction_us[0] = calc_correction("main", main_sys_time_us, main_real_time_us);
+    int64_t delta_us = result_adjtime_correction_us[0] - result_adjtime_correction_us[1];
+    printf("\nresult of adjtime correction: %lli us, %lli us. delta = %lli us\n", result_adjtime_correction_us[0], result_adjtime_correction_us[1], delta_us);
+    TEST_ASSERT_INT_WITHIN(100, 0, delta_us);
+
     xSemaphoreGive(*sema);
     vTaskDelete(NULL);
 }
 
 TEST_CASE("test time adjustment happens linearly", "[newlib][timeout=35]")
 {
-    int64_t real_time_us[2];
-    int64_t sys_time_us[2];
-
     exit_flag = false;
-
-    struct timeval tv_time = {.tv_sec = 1550000000, .tv_usec = 0};
-    TEST_ASSERT_EQUAL(0, settimeofday(&tv_time, NULL));
-
-    struct timeval delta = {.tv_sec = 2000, .tv_usec = 900000};
-    adjtime(&delta, NULL);
-    gettimeofday(&tv_time, NULL);
 
     xSemaphoreHandle exit_sema[2];
     for (int i = 0; i < 2; ++i) {
@@ -292,10 +297,8 @@ TEST_CASE("test time adjustment happens linearly", "[newlib][timeout=35]")
         result_adjtime_correction_us[i] = 0;
     }
 
-    start_measure(&sys_time_us[0], &real_time_us[0]);
-
-    xTaskCreatePinnedToCore(get_time_task, "get_time_task", 2048, &exit_sema[0], UNITY_FREERTOS_PRIORITY - 1, NULL, 0);
-    xTaskCreatePinnedToCore(measure_time_task, "measure_time_task", 2048, &exit_sema[1], UNITY_FREERTOS_PRIORITY - 1, NULL, 1);
+    xTaskCreatePinnedToCore(get_time_task, "get_time_task", 4096, &exit_sema[0], UNITY_FREERTOS_PRIORITY - 1, NULL, 0);
+    xTaskCreatePinnedToCore(measure_time_task, "measure_time_task", 4096, &exit_sema[1], UNITY_FREERTOS_PRIORITY - 1, NULL, 1);
 
     printf("start waiting for 30 seconds\n");
     vTaskDelay(30000 / portTICK_PERIOD_MS);
@@ -309,15 +312,113 @@ TEST_CASE("test time adjustment happens linearly", "[newlib][timeout=35]")
         }
     }
 
-    end_measure(&sys_time_us[1], &real_time_us[1]);
-    result_adjtime_correction_us[0] = calc_correction("main", sys_time_us, real_time_us);
-
-    int64_t delta_us = result_adjtime_correction_us[0] - result_adjtime_correction_us[1];
-    printf("\nresult of adjtime correction: %lli us, %lli us. delta = %lli us\n", result_adjtime_correction_us[0], result_adjtime_correction_us[1], delta_us);
-    TEST_ASSERT_INT_WITHIN(100, 0, delta_us);
-
     for (int i = 0; i < 2; ++i) {
         vSemaphoreDelete(exit_sema[i]);
     }
 }
 #endif
+
+#if defined( CONFIG_ESP32_TIME_SYSCALL_USE_RTC ) || defined( CONFIG_ESP32_TIME_SYSCALL_USE_RTC_FRC1 )
+#define WITH_RTC 1
+#endif
+
+#if defined( CONFIG_ESP32_TIME_SYSCALL_USE_FRC1 ) || defined( CONFIG_ESP32_TIME_SYSCALL_USE_RTC_FRC1 )
+#define WITH_FRC 1
+#endif
+void test_posix_timers_clock (void)
+{
+#ifndef _POSIX_TIMERS
+    TEST_ASSERT_MESSAGE(false, "_POSIX_TIMERS - is not defined");
+#endif
+
+#if defined( WITH_FRC )
+    printf("WITH_FRC    ");
+#endif
+
+#if defined( WITH_RTC )
+    printf("WITH_RTC    ");
+#endif
+
+#ifdef CONFIG_ESP32_RTC_CLOCK_SOURCE_EXTERNAL_CRYSTAL
+    printf("External (crystal) Frequency = %d Hz\n", rtc_clk_slow_freq_get_hz());
+#else
+    printf("Internal Frequency = %d Hz\n", rtc_clk_slow_freq_get_hz());
+#endif
+
+    TEST_ASSERT(clock_settime(CLOCK_REALTIME, NULL) == -1);
+    TEST_ASSERT(clock_gettime(CLOCK_REALTIME, NULL) == -1);
+    TEST_ASSERT(clock_getres(CLOCK_REALTIME,  NULL) == -1);
+
+    TEST_ASSERT(clock_settime(CLOCK_MONOTONIC, NULL) == -1);
+    TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, NULL) == -1);
+    TEST_ASSERT(clock_getres(CLOCK_MONOTONIC,  NULL) == -1);
+
+#if defined( WITH_FRC ) || defined( WITH_RTC )
+    struct timeval now = {0};
+    now.tv_sec  = 10L;
+    now.tv_usec = 100000L;
+    TEST_ASSERT(settimeofday(&now, NULL) == 0);
+    TEST_ASSERT(gettimeofday(&now, NULL) == 0);
+
+    struct timespec ts = {0};
+
+    TEST_ASSERT(clock_settime(0xFFFFFFFF, &ts) == -1);
+    TEST_ASSERT(clock_gettime(0xFFFFFFFF, &ts) == -1);
+    TEST_ASSERT(clock_getres(0xFFFFFFFF,  &ts) == 0);
+
+    TEST_ASSERT(clock_gettime(CLOCK_REALTIME, &ts) == 0);
+    TEST_ASSERT(now.tv_sec == ts.tv_sec);
+    TEST_ASSERT_INT_WITHIN(5000000L, ts.tv_nsec, now.tv_usec * 1000L);
+
+    ts.tv_sec  = 20;
+    ts.tv_nsec = 100000000L;
+    TEST_ASSERT(clock_settime(CLOCK_REALTIME, &ts) == 0);
+    TEST_ASSERT(gettimeofday(&now, NULL) == 0);
+    TEST_ASSERT(now.tv_sec == ts.tv_sec);
+    TEST_ASSERT_INT_WITHIN(5000L, now.tv_usec,  ts.tv_nsec / 1000L);
+
+    TEST_ASSERT(clock_settime(CLOCK_MONOTONIC, &ts) == -1);
+
+    uint64_t delta_monotonic_us = 0;
+#if defined( WITH_FRC )
+
+    TEST_ASSERT(clock_getres(CLOCK_REALTIME, &ts) == 0);
+    TEST_ASSERT_EQUAL_INT(1000, ts.tv_nsec);
+    TEST_ASSERT(clock_getres(CLOCK_MONOTONIC, &ts) == 0);
+    TEST_ASSERT_EQUAL_INT(1000, ts.tv_nsec);
+
+    TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &ts) == 0);
+    delta_monotonic_us = esp_timer_get_time() - (ts.tv_sec * 1000000L + ts.tv_nsec / 1000L);
+    TEST_ASSERT(delta_monotonic_us > 0 || delta_monotonic_us == 0);
+    TEST_ASSERT_INT_WITHIN(5000L, 0, delta_monotonic_us);
+
+    #elif defined( WITH_RTC )
+
+    TEST_ASSERT(clock_getres(CLOCK_REALTIME, &ts) == 0);
+    TEST_ASSERT_EQUAL_INT(1000000000L / rtc_clk_slow_freq_get_hz(), ts.tv_nsec);
+    TEST_ASSERT(clock_getres(CLOCK_MONOTONIC, &ts) == 0);
+    TEST_ASSERT_EQUAL_INT(1000000000L / rtc_clk_slow_freq_get_hz(), ts.tv_nsec);
+
+    TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &ts) == 0);
+    delta_monotonic_us = esp_clk_rtc_time() - (ts.tv_sec * 1000000L + ts.tv_nsec / 1000L);
+    TEST_ASSERT(delta_monotonic_us > 0 || delta_monotonic_us == 0);
+    TEST_ASSERT_INT_WITHIN(5000L, 0, delta_monotonic_us);
+
+#endif // WITH_FRC
+
+#else
+    struct timespec ts = {0};
+    TEST_ASSERT(clock_settime(CLOCK_REALTIME, &ts) == -1);
+    TEST_ASSERT(clock_gettime(CLOCK_REALTIME, &ts) == -1);
+    TEST_ASSERT(clock_getres(CLOCK_REALTIME,  &ts) == -1);
+
+    TEST_ASSERT(clock_settime(CLOCK_MONOTONIC, &ts) == -1);
+    TEST_ASSERT(clock_gettime(CLOCK_MONOTONIC, &ts) == -1);
+    TEST_ASSERT(clock_getres(CLOCK_MONOTONIC,  &ts) == -1);
+#endif // defined( WITH_FRC ) || defined( WITH_RTC )
+}
+
+TEST_CASE("test posix_timers clock_... functions", "[newlib]")
+{
+    test_posix_timers_clock();
+}

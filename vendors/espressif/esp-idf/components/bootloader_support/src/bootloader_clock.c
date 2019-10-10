@@ -29,7 +29,7 @@ void bootloader_clock_configure()
     uart_tx_wait_idle(0);
 
     /* Set CPU to 80MHz. Keep other clocks unmodified. */
-    rtc_cpu_freq_t cpu_freq = RTC_CPU_FREQ_80M;
+    int cpu_freq_mhz = 80;
 
     /* On ESP32 rev 0, switching to 80/160 MHz if clock was previously set to
      * 240 MHz may cause the chip to lock up (see section 3.5 of the errata
@@ -39,12 +39,12 @@ void bootloader_clock_configure()
     uint32_t chip_ver_reg = REG_READ(EFUSE_BLK0_RDATA3_REG);
     if ((chip_ver_reg & EFUSE_RD_CHIP_VER_REV1_M) == 0 &&
             DPORT_REG_GET_FIELD(DPORT_CPU_PER_CONF_REG, DPORT_CPUPERIOD_SEL) == DPORT_CPUPERIOD_SEL_240) {
-        cpu_freq = RTC_CPU_FREQ_240M;
+        cpu_freq_mhz = 240;
     }
 
     rtc_clk_config_t clk_cfg = RTC_CLK_CONFIG_DEFAULT();
     clk_cfg.xtal_freq = CONFIG_ESP32_XTAL_FREQ;
-    clk_cfg.cpu_freq = cpu_freq;
+    clk_cfg.cpu_freq_mhz = cpu_freq_mhz;
     clk_cfg.slow_freq = rtc_clk_slow_freq_get();
     clk_cfg.fast_freq = rtc_clk_fast_freq_get();
     rtc_clk_init(clk_cfg);

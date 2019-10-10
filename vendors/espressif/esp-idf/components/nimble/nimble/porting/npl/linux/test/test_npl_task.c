@@ -67,7 +67,7 @@ void *task1_run(void *args)
  *                  ble_npl_stack_t *stack_bottom, uint16_t stack_size)
  *
  */
-int test_init()
+int test_init(void)
 {
     int err;
     err = ble_npl_task_init(NULL,

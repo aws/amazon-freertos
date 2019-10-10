@@ -35,6 +35,9 @@
 #define BTM_BLE_ONLY_ACCEPT_SPECIFIED_SEC_AUTH_DISABLE 0
 #define BTM_BLE_ONLY_ACCEPT_SPECIFIED_SEC_AUTH_ENABLE  1
 
+#define BTM_BLE_OOB_DISABLE  0
+#define BTM_BLE_OOB_ENABLE   1
+
 tBTE_APPL_CFG bte_appl_cfg = {
 #if SMP_INCLUDED == TRUE
     BTA_LE_AUTH_REQ_SC_MITM_BOND, // Authentication requirements
@@ -46,7 +49,18 @@ tBTE_APPL_CFG bte_appl_cfg = {
     BTM_BLE_RESPONDER_KEY_SIZE,
     BTM_BLE_MAX_KEY_SIZE,
     BTM_BLE_MIN_KEY_SIZE,
-    BTM_BLE_ONLY_ACCEPT_SPECIFIED_SEC_AUTH_DISABLE
+    BTM_BLE_ONLY_ACCEPT_SPECIFIED_SEC_AUTH_DISABLE,
+    BTM_BLE_OOB_DISABLE,
+};
+#endif
+
+#if (defined CLASSIC_BT_INCLUDED && CLASSIC_BT_INCLUDED == TRUE && BT_SSP_INCLUDED == TRUE)
+#include "common/bte_appl.h"
+#include "btm_int.h"
+tBTE_BT_APPL_CFG bte_bt_appl_cfg = {
+  0,                    //Todo, Authentication requirements
+  BTM_LOCAL_IO_CAPS,
+  NULL,                 //Todo, OOB data
 };
 #endif
 
@@ -69,6 +83,34 @@ BOOLEAN bta_dm_co_get_compress_memory(tBTA_SYS_ID id, UINT8 **memory_p, UINT32 *
     UNUSED(memory_p);
     UNUSED(memory_size);
     return TRUE;
+}
+
+/*******************************************************************************
+**
+** Function         bta_dm_co_bt_set_io_cap
+**
+** Description      This function is used to set IO capabilities
+**
+** Parameters       bt_io_cap  - IO capabilities
+**
+** @return          - ESP_BT_STATUS_SUCCESS : success
+**                  - other  : failed
+**
+*******************************************************************************/
+esp_err_t bta_dm_co_bt_set_io_cap(UINT8 bt_io_cap)
+{
+    esp_err_t ret = ESP_BT_STATUS_SUCCESS;
+#if (BT_SSP_INCLUDED == TRUE)
+    if(bt_io_cap < BTM_IO_CAP_MAX ) {
+        bte_bt_appl_cfg.bt_io_cap = bt_io_cap;
+        btm_cb.devcb.loc_io_caps = bt_io_cap;
+        ret = ESP_BT_STATUS_SUCCESS;
+    } else {
+        ret = ESP_BT_STATUS_FAIL;
+        APPL_TRACE_ERROR("%s error:Invalid io cap value.",__func__);
+    }
+#endif  ///BT_SSP_INCLUDED == TRUE
+    return ret;
 }
 
 /*******************************************************************************
@@ -301,11 +343,15 @@ void bta_dm_co_ble_io_req(BD_ADDR bd_addr,  tBTA_IO_CAP *p_io_cap,
      * If the answer can not be obtained right away,
      * set *p_oob_data to BTA_OOB_UNKNOWN and call bta_dm_ci_io_req() when the answer is available */
 
-    *p_oob_data = FALSE;
+    *p_oob_data = bte_appl_cfg.oob_support;
 
     /* *p_auth_req by default is FALSE for devices with NoInputNoOutput; TRUE for other devices. */
 
     *p_auth_req = bte_appl_cfg.ble_auth_req | (bte_appl_cfg.ble_auth_req & BTA_LE_AUTH_REQ_MITM) | ((*p_auth_req) & BTA_LE_AUTH_REQ_MITM);
+
+    if (*p_oob_data == BTM_BLE_OOB_ENABLE) {
+        *p_auth_req = (*p_auth_req)&(~BTA_LE_AUTH_REQ_SC_ONLY);
+    }
 
     if (bte_appl_cfg.ble_io_cap <= 4) {
         *p_io_cap = bte_appl_cfg.ble_io_cap;
@@ -405,6 +451,17 @@ UINT8 bta_dm_co_ble_get_auth_req(void)
     return bte_appl_cfg.ble_auth_req;
 #endif  ///SMP_INCLUDED == TRUE
     return 0;
+}
+
+void bta_dm_co_ble_oob_support(UINT8 enable)
+{
+#if (SMP_INCLUDED == TRUE)
+    if (enable) {
+        bte_appl_cfg.oob_support = BTM_BLE_OOB_ENABLE;
+    } else {
+        bte_appl_cfg.oob_support = BTM_BLE_OOB_DISABLE;
+    }
+#endif  ///SMP_INCLUDED == TRUE
 }
 
 #endif

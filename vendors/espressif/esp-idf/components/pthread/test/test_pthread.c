@@ -22,7 +22,7 @@ TEST_CASE("pthread create join", "[pthread]")
     volatile int num = 7;
     volatile bool attr_init = false;
     void *thread_rval = NULL;
-    pthread_t new_thread = NULL;
+    pthread_t new_thread = (pthread_t)NULL;
     pthread_attr_t attr;
 
     if (TEST_PROTECT()) {
@@ -57,6 +57,75 @@ TEST_CASE("pthread create join", "[pthread]")
 
     if (attr_init) {
         pthread_attr_destroy(&attr);
+    }
+}
+
+static void *waiting_thread(void *arg)
+{
+    TaskHandle_t *task_handle = (TaskHandle_t *)arg;
+    TaskHandle_t parent_task  = *task_handle;
+
+    *task_handle = xTaskGetCurrentTaskHandle();
+
+    xTaskNotify(parent_task, 0, eNoAction);
+    xTaskNotifyWait(0, 0, NULL, portMAX_DELAY);
+    return NULL;
+}
+
+TEST_CASE("pthread detach", "[pthread]")
+{
+    int res = 0;
+    pthread_t new_thread = (pthread_t)NULL;
+    TaskHandle_t task_handle = NULL;
+    const int task_count = uxTaskGetNumberOfTasks();
+    bool detach_works = false;
+
+    if (TEST_PROTECT()) {
+        task_handle = xTaskGetCurrentTaskHandle();
+        res = pthread_create(&new_thread, NULL, waiting_thread, (void *)&task_handle);
+        TEST_ASSERT_EQUAL_INT(0, res);
+
+        res = xTaskNotifyWait(0, 0, NULL, 100 / portTICK_PERIOD_MS);
+        TEST_ASSERT_EQUAL_INT(pdTRUE, res);
+
+        xTaskNotify(task_handle, 0, eNoAction);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+
+        res = pthread_detach(new_thread);
+        TEST_ASSERT_EQUAL_INT(0, res);
+
+        res = uxTaskGetNumberOfTasks();
+        TEST_ASSERT_EQUAL_INT(task_count, res);
+        detach_works = true;
+    }
+
+    if (!detach_works) {
+        vTaskDelete(task_handle);
+    } else {
+        detach_works = false;
+    }
+
+    if (TEST_PROTECT()) {
+        task_handle = xTaskGetCurrentTaskHandle();
+        res = pthread_create(&new_thread, NULL, waiting_thread, (void *)&task_handle);
+        TEST_ASSERT_EQUAL_INT(0, res);
+
+        res = xTaskNotifyWait(0, 0, NULL, 100 / portTICK_PERIOD_MS);
+        TEST_ASSERT_EQUAL_INT(pdTRUE, res);
+
+        res = pthread_detach(new_thread);
+        TEST_ASSERT_EQUAL_INT(0, res);
+
+        xTaskNotify(task_handle, 0, eNoAction);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+
+        res = uxTaskGetNumberOfTasks();
+        TEST_ASSERT_EQUAL_INT(task_count, res);
+        detach_works = true;
+    }
+
+    if (!detach_works) {
+        vTaskDelete(task_handle);
     }
 }
 
@@ -161,6 +230,11 @@ TEST_CASE("pthread mutex lock unlock", "[pthread]")
 {
     int res = 0;
 
+    /* Present behavior of mutex initializer is unlike what is
+     * defined in Posix standard, ie. calling pthread_mutex_lock
+     * on such a mutex would internally cause dynamic allocation.
+     * Therefore pthread_mutex_destroy needs to be called in
+     * order to avoid memory leak. */
     pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     res = pthread_mutex_lock(&mutex);
@@ -169,11 +243,15 @@ TEST_CASE("pthread mutex lock unlock", "[pthread]")
     res = pthread_mutex_unlock(&mutex);
     TEST_ASSERT_EQUAL_INT(0, res);
 
+    /* This deviates from the Posix standard static mutex behavior.
+     * This needs to be removed in the future when standard mutex
+     * initializer is supported */
+    pthread_mutex_destroy(&mutex);
+
     test_mutex_lock_unlock(PTHREAD_MUTEX_ERRORCHECK);
     test_mutex_lock_unlock(PTHREAD_MUTEX_RECURSIVE);
 }
 
-#if CONFIG_PTHREAD_MUTEX_TIMEDLOCK
 static void timespec_add_nano(struct timespec * out, struct timespec * in, long val)
 {
     out->tv_nsec = val + in->tv_nsec;
@@ -214,4 +292,3 @@ TEST_CASE("pthread mutex trylock timedlock", "[pthread]")
         pthread_mutex_destroy(&mutex);
     }
 }
-#endif /* CONFIG_PTHREAD_MUTEX_TIMEDLOCK */

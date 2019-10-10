@@ -7,8 +7,12 @@ if(NOT CONFIG_HEAP_POISONING_DISABLED)
     list(APPEND COMPONENT_SRCS "multi_heap_poisoning.c")
 endif()
 
-set(COMPONENT_ADD_INCLUDEDIRS "include")
+if(CONFIG_HEAP_TASK_TRACKING)
+    list(APPEND COMPONENT_SRCS "heap_task_info.c")
+endif()
 
+set(COMPONENT_ADD_INCLUDEDIRS "include")
+set(COMPONENT_ADD_LDFRAGMENTS linker.lf)
 set(COMPONENT_REQUIRES "")
 
 register_component()
@@ -26,7 +30,7 @@ if(CONFIG_HEAP_TRACING)
         heap_caps_realloc_default)
 
     foreach(wrap ${WRAP_FUNCTIONS})
-        target_link_libraries(heap "-Wl,--wrap=${wrap}")
+        target_link_libraries(${COMPONENT_TARGET} "-Wl,--wrap=${wrap}")
     endforeach()
 
 endif()

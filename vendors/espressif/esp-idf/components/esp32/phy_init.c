@@ -36,10 +36,11 @@
 #include "freertos/portmacro.h"
 #include "phy.h"
 #include "phy_init_data.h"
-#include "coexist_internal.h"
+#include "esp_coexist_internal.h"
 #include "driver/periph_ctrl.h"
 #include "esp_wifi_internal.h"
 
+extern wifi_mac_time_update_cb_t s_wifi_mac_time_update_cb;
 
 static const char* TAG = "phy_init";
 
@@ -92,7 +93,9 @@ static inline void phy_update_wifi_mac_time(bool en_clock_stopped, int64_t now)
         if (s_common_clock_disable_time) {
             uint32_t diff = (uint64_t)now - s_common_clock_disable_time;
 
-            esp_wifi_internal_update_mac_time(diff);
+            if (s_wifi_mac_time_update_cb) {
+                s_wifi_mac_time_update_cb(diff);
+            }
             s_common_clock_disable_time = 0;
             ESP_LOGD(TAG, "wifi mac time delta: %u", diff);
         }
@@ -159,14 +162,6 @@ esp_err_t esp_phy_rf_init(const esp_phy_init_data_t* init_data, esp_phy_calibrat
 #endif
             }
 
-
-extern esp_err_t wifi_osi_funcs_register(wifi_osi_funcs_t *osi_funcs);
-            status = wifi_osi_funcs_register(&g_wifi_osi_funcs);
-            if(status != ESP_OK) {
-                ESP_LOGE(TAG, "failed to register wifi os adapter, ret(%d)", status);
-                _lock_release(&s_phy_rf_init_lock);
-                return ESP_FAIL;
-            }
             coex_bt_high_prio();
         }
     }
@@ -480,6 +475,30 @@ esp_err_t esp_phy_store_cal_data_to_nvs(const esp_phy_calibration_data_t* cal_da
     }
 }
 
+esp_err_t esp_phy_erase_cal_data_in_nvs(void)
+{
+    nvs_handle handle;
+    esp_err_t err = nvs_open(PHY_NAMESPACE, NVS_READWRITE, &handle);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "%s: failed to open NVS phy namespace (0x%x)", __func__, err);
+        return err;
+    }
+    else {
+        err = nvs_erase_all(handle);
+        if (err != ESP_OK) {
+            ESP_LOGE(TAG, "%s: failed to erase NVS phy namespace (0x%x)", __func__, err);
+        }
+        else {
+            err = nvs_commit(handle);
+            if (err != ESP_OK) {
+                ESP_LOGE(TAG, "%s: failed to commit NVS phy namespace (0x%x)", __func__, err);
+            }
+        }
+    }
+    nvs_close(handle);
+    return err;
+}
+
 static esp_err_t load_cal_data_from_nvs_handle(nvs_handle handle,
         esp_phy_calibration_data_t* out_cal_data)
 {
@@ -564,6 +583,18 @@ static esp_err_t store_cal_data_to_nvs_handle(nvs_handle handle,
     return err;
 }
 
+#if CONFIG_REDUCE_PHY_TX_POWER
+static void esp_phy_reduce_tx_power(esp_phy_init_data_t* init_data)
+{
+    uint8_t i;
+                                         
+    for(i = 0; i < PHY_TX_POWER_NUM; i++) {
+        // LOWEST_PHY_TX_POWER is the lowest tx power
+        init_data->params[PHY_TX_POWER_OFFSET+i] = PHY_TX_POWER_LOWEST;   
+    }
+}
+#endif
+
 void esp_phy_load_cal_and_init(phy_rf_module_t module)
 {
     esp_phy_calibration_data_t* cal_data =
@@ -573,11 +604,30 @@ void esp_phy_load_cal_and_init(phy_rf_module_t module)
         abort();
     }
 
+#if CONFIG_REDUCE_PHY_TX_POWER
+    const esp_phy_init_data_t* phy_init_data = esp_phy_get_init_data();
+    if (phy_init_data == NULL) {
+        ESP_LOGE(TAG, "failed to obtain PHY init data");
+        abort();
+    }
+
+    esp_phy_init_data_t* init_data = (esp_phy_init_data_t*) malloc(sizeof(esp_phy_init_data_t));
+    if (init_data == NULL) {
+        ESP_LOGE(TAG, "failed to allocate memory for phy init data");
+        abort();
+    }
+
+    memcpy(init_data, phy_init_data, sizeof(esp_phy_init_data_t));
+    if (esp_reset_reason() == ESP_RST_BROWNOUT) {
+        esp_phy_reduce_tx_power(init_data);
+    }
+#else
     const esp_phy_init_data_t* init_data = esp_phy_get_init_data();
     if (init_data == NULL) {
         ESP_LOGE(TAG, "failed to obtain PHY init data");
         abort();
     }
+#endif
 
 #ifdef CONFIG_ESP32_PHY_CALIBRATION_AND_DATA_STORAGE
     esp_phy_calibration_mode_t calibration_mode = PHY_RF_CAL_PARTIAL;
@@ -604,7 +654,12 @@ void esp_phy_load_cal_and_init(phy_rf_module_t module)
     esp_phy_rf_init(init_data, PHY_RF_CAL_FULL, cal_data, module);
 #endif
 
+#if CONFIG_REDUCE_PHY_TX_POWER
+    esp_phy_release_init_data(phy_init_data);
+    free(init_data);
+#else
     esp_phy_release_init_data(init_data);
+#endif
 
     free(cal_data); // PHY maintains a copy of calibration data, so we can free this
 }

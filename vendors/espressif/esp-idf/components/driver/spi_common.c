@@ -31,6 +31,7 @@
 #include "driver/periph_ctrl.h"
 #include "esp_heap_caps.h"
 #include "driver/spi_common.h"
+#include "stdatomic.h"
 
 static const char *SPI_TAG = "spi";
 
@@ -57,23 +58,36 @@ typedef struct spi_device_t spi_device_t;
 #define DMA_CHANNEL_ENABLED(dma_chan)    (BIT(dma_chan-1))
 
 //Periph 1 is 'claimed' by SPI flash code.
-static bool spi_periph_claimed[3] = {true, false, false};
+static atomic_bool spi_periph_claimed[3] = { ATOMIC_VAR_INIT(true), ATOMIC_VAR_INIT(false), ATOMIC_VAR_INIT(false)};
+static const char* spi_claiming_func[3] = {NULL, NULL, NULL};
 static uint8_t spi_dma_chan_enabled = 0;
 static portMUX_TYPE spi_dma_spinlock = portMUX_INITIALIZER_UNLOCKED;
 
 
 //Returns true if this peripheral is successfully claimed, false if otherwise.
-bool spicommon_periph_claim(spi_host_device_t host)
+bool spicommon_periph_claim(spi_host_device_t host, const char* source)
 {
-    bool ret = __sync_bool_compare_and_swap(&spi_periph_claimed[host], false, true);
-    if (ret) periph_module_enable(spi_periph_signal[host].module);
+    bool false_var = false;
+    bool ret = atomic_compare_exchange_strong(&spi_periph_claimed[host], &false_var, true);
+    if (ret) {
+        spi_claiming_func[host] = source;
+        periph_module_enable(spi_periph_signal[host].module);
+    } else {
+        ESP_EARLY_LOGE(SPI_TAG, "SPI%d already claimed by %s.", host+1, spi_claiming_func[host]);
+    }
     return ret;
+}
+
+bool spicommon_periph_in_use(spi_host_device_t host)
+{
+    return atomic_load(&spi_periph_claimed[host]);
 }
 
 //Returns true if this peripheral is successfully freed, false if otherwise.
 bool spicommon_periph_free(spi_host_device_t host)
 {
-    bool ret = __sync_bool_compare_and_swap(&spi_periph_claimed[host], true, false);
+    bool true_var = true;
+    bool ret = atomic_compare_exchange_strong(&spi_periph_claimed[host], &true_var, false);
     if (ret) periph_module_disable(spi_periph_signal[host].module);
     return ret;
 }
@@ -104,6 +118,12 @@ bool spicommon_dma_chan_claim (int dma_chan)
     portEXIT_CRITICAL(&spi_dma_spinlock);
 
     return ret;
+}
+
+bool spicommon_dma_chan_in_use(int dma_chan)
+{
+    assert(dma_chan==1 || dma_chan == 2);
+    return spi_dma_chan_enabled & DMA_CHANNEL_ENABLED(dma_chan);
 }
 
 bool spicommon_dma_chan_free(int dma_chan)
@@ -213,7 +233,7 @@ esp_err_t spicommon_bus_initialize_io(spi_host_device_t host, const spi_bus_conf
     if (use_iomux) {
         //All SPI iomux pin selections resolve to 1, so we put that here instead of trying to figure
         //out which FUNC_GPIOx_xSPIxx to grab; they all are defined to 1 anyway.
-        ESP_LOGD(SPI_TAG, "SPI%d use iomux pins.", host );
+        ESP_LOGD(SPI_TAG, "SPI%d use iomux pins.", host+1);
         if (bus_config->mosi_io_num >= 0) {
             gpio_iomux_in(bus_config->mosi_io_num, spi_periph_signal[host].spid_in);
             gpio_iomux_out(bus_config->mosi_io_num, FUNC_SPI, false);
@@ -237,7 +257,7 @@ esp_err_t spicommon_bus_initialize_io(spi_host_device_t host, const spi_bus_conf
         temp_flag |= SPICOMMON_BUSFLAG_NATIVE_PINS;
     } else {
         //Use GPIO matrix
-        ESP_LOGD(SPI_TAG, "SPI%d use gpio matrix.", host );
+        ESP_LOGD(SPI_TAG, "SPI%d use gpio matrix.", host+1);
         if (bus_config->mosi_io_num >= 0) {
             if (mosi_need_output || (temp_flag&SPICOMMON_BUSFLAG_DUAL)) {
                 gpio_set_direction(bus_config->mosi_io_num, GPIO_MODE_INPUT_OUTPUT);

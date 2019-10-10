@@ -7,11 +7,20 @@
 #if __has_include("esp32/ulp.h")
 #include "esp32/ulp.h"
 #endif
+#if __has_include("esp_efuse.h")
+#include "esp_efuse.h"
+#endif
 #if __has_include("esp_err.h")
 #include "esp_err.h"
 #endif
 #if __has_include("esp_http_client.h")
 #include "esp_http_client.h"
+#endif
+#if __has_include("esp_http_server.h")
+#include "esp_http_server.h"
+#endif
+#if __has_include("esp_https_ota.h")
+#include "esp_https_ota.h"
 #endif
 #if __has_include("esp_image_format.h")
 #include "esp_image_format.h"
@@ -122,11 +131,11 @@ static const esp_err_msg_t esp_err_msg_table[] = {
     ERR_TBL_IT(ESP_ERR_NVS_INVALID_HANDLE),                 /*  4359 0x1107 Handle has been closed or is NULL */
 #   endif
 #   ifdef      ESP_ERR_NVS_REMOVE_FAILED
-    ERR_TBL_IT(ESP_ERR_NVS_REMOVE_FAILED),                  /*  4360 0x1108 The value wasn’t updated because flash
-                                                                            write operation has failed. The value was
-                                                                            written however, and update will be finished
-                                                                            after re-initialization of nvs, provided
-                                                                            that flash operation doesn’t fail again. */
+    ERR_TBL_IT(ESP_ERR_NVS_REMOVE_FAILED),                  /*  4360 0x1108 The value wasn’t updated because flash write
+                                                                            operation has failed. The value was written
+                                                                            however, and update will be finished after
+                                                                            re-initialization of nvs, provided that
+                                                                            flash operation doesn’t fail again. */
 #   endif
 #   ifdef      ESP_ERR_NVS_KEY_TOO_LONG
     ERR_TBL_IT(ESP_ERR_NVS_KEY_TOO_LONG),                   /*  4361 0x1109 Key name is too long */
@@ -221,6 +230,39 @@ static const esp_err_msg_t esp_err_msg_table[] = {
 #   endif
 #   ifdef      ESP_ERR_OTA_VALIDATE_FAILED
     ERR_TBL_IT(ESP_ERR_OTA_VALIDATE_FAILED),                /*  5379 0x1503 Error if OTA app image is invalid */
+#   endif
+#   ifdef      ESP_ERR_OTA_SMALL_SEC_VER
+    ERR_TBL_IT(ESP_ERR_OTA_SMALL_SEC_VER),                  /*  5380 0x1504 Error if the firmware has a secure version
+                                                                            less than the running firmware. */
+#   endif
+#   ifdef      ESP_ERR_OTA_ROLLBACK_FAILED
+    ERR_TBL_IT(ESP_ERR_OTA_ROLLBACK_FAILED),                /*  5381 0x1505 Error if flash does not have valid firmware
+                                                                            in passive partition and hence rollback is
+                                                                            not possible */
+#   endif
+#   ifdef      ESP_ERR_OTA_ROLLBACK_INVALID_STATE
+    ERR_TBL_IT(ESP_ERR_OTA_ROLLBACK_INVALID_STATE),         /*  5382 0x1506 Error if current active firmware is still
+                                                                            marked in pending validation state
+                                                                            (ESP_OTA_IMG_PENDING_VERIFY), essentially
+                                                                            first boot of firmware image post upgrade
+                                                                            and hence firmware upgrade is not possible */
+#   endif
+    // components/efuse/include/esp_efuse.h
+#   ifdef      ESP_ERR_EFUSE
+    ERR_TBL_IT(ESP_ERR_EFUSE),                              /*  5632 0x1600 Base error code for efuse api. */
+#   endif
+#   ifdef      ESP_OK_EFUSE_CNT
+    ERR_TBL_IT(ESP_OK_EFUSE_CNT),                           /*  5633 0x1601 OK the required number of bits is set. */
+#   endif
+#   ifdef      ESP_ERR_EFUSE_CNT_IS_FULL
+    ERR_TBL_IT(ESP_ERR_EFUSE_CNT_IS_FULL),                  /*  5634 0x1602 Error field is full. */
+#   endif
+#   ifdef      ESP_ERR_EFUSE_REPEATED_PROG
+    ERR_TBL_IT(ESP_ERR_EFUSE_REPEATED_PROG),                /*  5635 0x1603 Error repeated programming of programmed
+                                                                            bits is strictly forbidden. */
+#   endif
+#   ifdef      ESP_ERR_CODING
+    ERR_TBL_IT(ESP_ERR_CODING),                             /*  5636 0x1604 Error while a encoding operation. */
 #   endif
     // components/bootloader_support/include/esp_image_format.h
 #   ifdef      ESP_ERR_IMAGE_BASE
@@ -426,7 +468,7 @@ static const esp_err_msg_t esp_err_msg_table[] = {
 #   ifdef      ESP_ERR_TCPIP_ADAPTER_DHCP_NOT_STOPPED
     ERR_TBL_IT(ESP_ERR_TCPIP_ADAPTER_DHCP_NOT_STOPPED),     /* 20487 0x5007 */
 #   endif
-    // components/lwip/apps/ping/esp_ping.h
+    // components/lwip/include/apps/esp_ping.h
 #   ifdef      ESP_ERR_PING_BASE
     ERR_TBL_IT(ESP_ERR_PING_BASE),                          /* 24576 0x6000 */
 #   endif
@@ -455,6 +497,50 @@ static const esp_err_msg_t esp_err_msg_table[] = {
 #   ifdef      ESP_ERR_HTTP_INVALID_TRANSPORT
     ERR_TBL_IT(ESP_ERR_HTTP_INVALID_TRANSPORT),             /* 28677 0x7005 There are no transport support for the input
                                                                             scheme */
+#   endif
+#   ifdef      ESP_ERR_HTTP_CONNECTING
+    ERR_TBL_IT(ESP_ERR_HTTP_CONNECTING),                    /* 28678 0x7006 HTTP connection hasn't been established yet */
+#   endif
+#   ifdef      ESP_ERR_HTTP_EAGAIN
+    ERR_TBL_IT(ESP_ERR_HTTP_EAGAIN),                        /* 28679 0x7007 Mapping of errno EAGAIN to esp_err_t */
+#   endif
+    // components/esp_http_server/include/esp_http_server.h
+#   ifdef      ESP_ERR_HTTPD_BASE
+    ERR_TBL_IT(ESP_ERR_HTTPD_BASE),                         /* 32768 0x8000 Starting number of HTTPD error codes */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_HANDLERS_FULL
+    ERR_TBL_IT(ESP_ERR_HTTPD_HANDLERS_FULL),                /* 32769 0x8001 All slots for registering URI handlers have
+                                                                            been consumed */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_HANDLER_EXISTS
+    ERR_TBL_IT(ESP_ERR_HTTPD_HANDLER_EXISTS),               /* 32770 0x8002 URI handler with same method and target URI
+                                                                            already registered */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_INVALID_REQ
+    ERR_TBL_IT(ESP_ERR_HTTPD_INVALID_REQ),                  /* 32771 0x8003 Invalid request pointer */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_RESULT_TRUNC
+    ERR_TBL_IT(ESP_ERR_HTTPD_RESULT_TRUNC),                 /* 32772 0x8004 Result string truncated */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_RESP_HDR
+    ERR_TBL_IT(ESP_ERR_HTTPD_RESP_HDR),                     /* 32773 0x8005 Response header field larger than supported */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_RESP_SEND
+    ERR_TBL_IT(ESP_ERR_HTTPD_RESP_SEND),                    /* 32774 0x8006 Error occured while sending response packet */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_ALLOC_MEM
+    ERR_TBL_IT(ESP_ERR_HTTPD_ALLOC_MEM),                    /* 32775 0x8007 Failed to dynamically allocate memory for
+                                                                            resource */
+#   endif
+#   ifdef      ESP_ERR_HTTPD_TASK
+    ERR_TBL_IT(ESP_ERR_HTTPD_TASK),                         /* 32776 0x8008 Failed to launch server task/thread */
+#   endif
+    // components/esp_https_ota/include/esp_https_ota.h
+#   ifdef      ESP_ERR_HTTPS_OTA_BASE
+    ERR_TBL_IT(ESP_ERR_HTTPS_OTA_BASE),                     /* 36864 0x9000 */
+#   endif
+#   ifdef      ESP_ERR_HTTPS_OTA_IN_PROGRESS
+    ERR_TBL_IT(ESP_ERR_HTTPS_OTA_IN_PROGRESS),              /* 36865 0x9001 */
 #   endif
     // components/spi_flash/include/esp_spi_flash.h
 #   ifdef      ESP_ERR_FLASH_BASE

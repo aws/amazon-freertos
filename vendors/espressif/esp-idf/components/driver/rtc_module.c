@@ -383,6 +383,37 @@ void rtc_gpio_force_hold_dis_all()
     }
 }
 
+esp_err_t rtc_gpio_wakeup_enable(gpio_num_t gpio_num, gpio_int_type_t intr_type)
+{
+    int rtc_num = rtc_gpio_desc[gpio_num].rtc_num;
+    if (rtc_num < 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    if (( intr_type != GPIO_INTR_LOW_LEVEL ) && ( intr_type != GPIO_INTR_HIGH_LEVEL )) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    uint32_t reg = RTC_GPIO_PIN0_REG + rtc_num * sizeof(uint32_t);
+    /* each pin has its own register, spinlock not needed */
+    REG_SET_BIT(reg, RTC_GPIO_PIN0_WAKEUP_ENABLE);
+    REG_SET_FIELD(reg, RTC_GPIO_PIN0_INT_TYPE, intr_type);
+    return ESP_OK;
+}
+
+esp_err_t rtc_gpio_wakeup_disable(gpio_num_t gpio_num)
+{
+    int rtc_num = rtc_gpio_desc[gpio_num].rtc_num;
+    if (rtc_num < 0) {
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    uint32_t reg = RTC_GPIO_PIN0_REG + rtc_num * sizeof(uint32_t);
+    /* each pin has its own register, spinlock not needed */
+    REG_CLR_BIT(reg, RTC_GPIO_PIN0_WAKEUP_ENABLE);
+    REG_SET_FIELD(reg, RTC_GPIO_PIN0_INT_TYPE, 0);
+    return ESP_OK;
+}
+
 
 /*---------------------------------------------------------------
                     Touch Pad
@@ -833,10 +864,13 @@ esp_err_t touch_pad_deinit()
         touch_pad_filter_stop();
         touch_pad_filter_delete();
     }
+    xSemaphoreTake(rtc_touch_mux, portMAX_DELAY);
     s_touch_pad_init_bit = 0x0000;
     touch_pad_set_fsm_mode(TOUCH_FSM_MODE_SW);
     touch_pad_clear_status();
     touch_pad_intr_disable();
+    xSemaphoreGive(rtc_touch_mux);
+    vSemaphoreDelete(rtc_touch_mux);
     rtc_touch_mux = NULL;
     return ESP_OK;
 }
@@ -1997,6 +2031,7 @@ esp_err_t rtc_isr_deregister(intr_handler_t handler, void* handler_arg)
                 SLIST_REMOVE_AFTER(prev, next);
             }
             found = true;
+            free(it);
             break;
         }
         prev = it;

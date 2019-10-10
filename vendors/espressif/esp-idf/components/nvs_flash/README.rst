@@ -27,7 +27,7 @@ NVS operates on key-value pairs. Keys are ASCII strings, maximum key length is c
 -  variable length binary data (blob)
 
 .. note::
-   String and blob values are currently limited to 1984 bytes. For strings, this includes the null terminator. If multi-page blob support is enabled, these limits change to the following: 1) 4000 bytes for strings 2) For blobs, 508000 bytes or (97.6% of the partition size - 4000) bytes whichever is lower.
+   String values are currently limited to 4000 bytes. This includes the null terminator. Blob values are limited to 508000 bytes or (97.6% of the partition size - 4000) bytes whichever is lower.
 
 Additional types, such as ``float`` and ``double`` may be added later.
 
@@ -152,7 +152,7 @@ Erased (2'b00)
 Structure of entry
 ^^^^^^^^^^^^^^^^^^
 
-For values of primitive types (currently integers from 1 to 8 bytes long), entry holds one key-value pair. For string and blob types, entry holds part of the whole key-value pair. In case when a key-value pair spans multiple entries, all entries are stored in the same page. If multi-page blob support is enabled, blobs are allowed to span over multiple pages by dividing them into smaller chunks. For the purpose tracking these chunks, an additional fixed length metadata entry is stored called "blob index" entry. Earlier format of blobs are still supported (can be read and modified). However, once the blobs are modified, they are stored using the new format.
+For values of primitive types (currently integers from 1 to 8 bytes long), entry holds one key-value pair. For string and blob types, entry holds part of the whole key-value pair. For strings, in case when a key-value pair spans multiple entries, all entries are stored in the same page. Blobs are allowed to span over multiple pages by dividing them into smaller chunks. For the purpose tracking these chunks, an additional fixed length metadata entry is stored called "blob index" entry. Earlier format of blobs are still supported (can be read and modified). However, once the blobs are modified, they are stored using the new format.
 
 ::
 

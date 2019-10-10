@@ -64,32 +64,22 @@ FAILED_EXAMPLES=""
 RESULT_ISSUES=22  # magic number result code for issues found
 LOG_SUSPECTED=${LOG_PATH}/common_log.txt
 touch ${LOG_SUSPECTED}
+SDKCONFIG_DEFAULTS_CI=sdkconfig.ci
 
 EXAMPLE_PATHS=$( find ${IDF_PATH}/examples/ -type f -name CMakeLists.txt | grep -v "/components/" | grep -v "/main/" | sort )
 
-if [ $# -eq 0 ]
+if [ -z "${CI_NODE_TOTAL:-}" ]
 then
     START_NUM=0
     END_NUM=999
 else
-    JOB_NAME=$1
-
-    # parse text prefix at the beginning of string 'some_your_text_NUM'
-    # (will be 'some_your_text' without last '_')
-    JOB_PATTERN=$( echo ${JOB_NAME} | sed -n -r 's/^(.*)_[0-9]+$/\1/p' )
-    [ -z ${JOB_PATTERN} ] && die "JOB_PATTERN is bad"
-
-    # parse number 'NUM' at the end of string 'some_your_text_NUM'
-    JOB_NUM=$( echo ${JOB_NAME} | sed -n -r 's/^.*_([0-9]+)$/\1/p' )
-    [ -z ${JOB_NUM} ] && die "JOB_NUM is bad"
-
+    JOB_NUM=${CI_NODE_INDEX}
     # count number of the jobs
-    NUM_OF_JOBS=$( grep -c -E "^${JOB_PATTERN}_[0-9]+:$" "${IDF_PATH}/.gitlab-ci.yml" )
-    [ -z ${NUM_OF_JOBS} ] && die "NUM_OF_JOBS is bad"
+    NUM_OF_JOBS=${CI_NODE_TOTAL}
 
     # count number of examples
     NUM_OF_EXAMPLES=$( echo "${EXAMPLE_PATHS}" | wc -l )
-    [ ${NUM_OF_EXAMPLES} -lt 80 ] && die "NUM_OF_EXAMPLES is bad"
+    [ ${NUM_OF_EXAMPLES} -lt 100 ] && die "NUM_OF_EXAMPLES is bad"
 
     # separate intervals
     #57 / 5 == 12
@@ -97,10 +87,10 @@ else
     [ -z ${NUM_OF_EX_PER_JOB} ] && die "NUM_OF_EX_PER_JOB is bad"
 
     # ex.: [0; 12); [12; 24); [24; 36); [36; 48); [48; 60)
-    START_NUM=$(( ${JOB_NUM} * ${NUM_OF_EX_PER_JOB} ))
+    START_NUM=$(( (${JOB_NUM} - 1) * ${NUM_OF_EX_PER_JOB} ))
     [ -z ${START_NUM} ] && die "START_NUM is bad"
 
-    END_NUM=$(( (${JOB_NUM} + 1) * ${NUM_OF_EX_PER_JOB} ))
+    END_NUM=$(( ${JOB_NUM} * ${NUM_OF_EX_PER_JOB} ))
     [ -z ${END_NUM} ] && die "END_NUM is bad"
 fi
 
@@ -118,16 +108,30 @@ build_example () {
     cp -r "${EXAMPLE_DIR}" "example_builds/${ID}"
     pushd "example_builds/${ID}/${EXAMPLE_NAME}"
         # be stricter in the CI build than the default IDF settings
-        export EXTRA_CFLAGS="-Werror -Werror=deprecated-declarations"
+        export EXTRA_CFLAGS=${PEDANTIC_CFLAGS}
         export EXTRA_CXXFLAGS=${EXTRA_CFLAGS}
+
+        # sdkconfig files are normally not checked into git, but may be present when
+        # a developer runs this script locally
+        rm -f sdkconfig
+
+        # If sdkconfig.ci file is present, append it to sdkconfig.defaults,
+        # replacing environment variables
+        if [[ -f "$SDKCONFIG_DEFAULTS_CI" ]]; then
+            cat $SDKCONFIG_DEFAULTS_CI | $IDF_PATH/tools/ci/envsubst.py >> sdkconfig.defaults
+        fi
 
         # build non-verbose first
         local BUILDLOG=${LOG_PATH}/ex_${ID}_log.txt
         touch ${BUILDLOG}
 
-        idf.py fullclean >>${BUILDLOG} 2>&1 &&
-        idf.py build >>${BUILDLOG} 2>&1 &&
-        cp build/flash_project_args build/download.config || # backwards compatible download.config filename
+        if [ "$EXAMPLE_NAME" != "idf_as_lib" ]; then
+            idf.py fullclean >>${BUILDLOG} 2>&1 &&
+            idf.py build >>${BUILDLOG} 2>&1
+        else
+            rm -rf build &&
+            ./build.sh >>${BUILDLOG} 2>&1
+        fi ||
         {
             RESULT=$?; FAILED_EXAMPLES+=" ${EXAMPLE_NAME}" ;
         }
@@ -139,6 +143,8 @@ build_example () {
 }
 
 EXAMPLE_NUM=0
+
+echo "Current job will build example ${START_NUM} - ${END_NUM}"
 
 for EXAMPLE_PATH in ${EXAMPLE_PATHS}
 do
@@ -160,8 +166,17 @@ echo -e "\nFound issues:"
 #       Ignore the next messages:
 # "error.o" or "-Werror" in compiler's command line
 # "reassigning to symbol" or "changes choice state" in sdkconfig
-sort -u "${LOG_SUSPECTED}" | \
-grep -v "library/error.o\|\ -Werror\|reassigning to symbol\|changes choice state" \
+# 'Compiler and toochain versions is not supported' from crosstool_version_check.cmake
+IGNORE_WARNS="\
+library/error\.o\
+\|\ -Werror\
+\|error\.d\
+\|reassigning to symbol\
+\|changes choice state\
+\|crosstool_version_check\.cmake\
+"
+
+sort -u "${LOG_SUSPECTED}" | grep -v "${IGNORE_WARNS}" \
     && RESULT=$RESULT_ISSUES \
     || echo -e "\tNone"
 

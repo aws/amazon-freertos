@@ -19,7 +19,6 @@
 #include "common/bt_defs.h"
 #include "common/bt_trace.h"
 #include "stack/bt_types.h"
-#include "hci/buffer_allocator.h"
 #include "osi/fixed_queue.h"
 #include "hci/hci_hal.h"
 #include "hci/hci_internals.h"
@@ -54,7 +53,6 @@ static const uint16_t outbound_event_types[] = {
 };
 
 typedef struct {
-    const allocator_t *allocator;
     size_t buffer_size;
     fixed_queue_t *rx_q;
     uint16_t adv_free_num;
@@ -83,7 +81,6 @@ static void hci_hal_env_init(
     assert(buffer_size > 0);
     assert(max_buffer_count > 0);
 
-    hci_hal_env.allocator = buffer_allocator_get_interface();
     hci_hal_env.buffer_size = buffer_size;
     hci_hal_env.adv_free_num = 0;
 
@@ -99,7 +96,7 @@ static void hci_hal_env_init(
 
 static void hci_hal_env_deinit(void)
 {
-    fixed_queue_free(hci_hal_env.rx_q, hci_hal_env.allocator->free);
+    fixed_queue_free(hci_hal_env.rx_q, osi_free_func);
     hci_hal_env.rx_q = NULL;
 }
 
@@ -117,8 +114,9 @@ static bool hal_open(const hci_hal_callbacks_t *upper_callbacks)
     xTaskCreatePinnedToCore(hci_hal_h4_rx_handler, HCI_H4_TASK_NAME, HCI_H4_TASK_STACK_SIZE, NULL, HCI_H4_TASK_PRIO, &xHciH4TaskHandle, HCI_H4_TASK_PINNED_TO_CORE);
 
     //register vhci host cb
-    esp_vhci_host_register_callback(&vhci_host_cb);
-
+    if (esp_vhci_host_register_callback(&vhci_host_cb) != ESP_OK) {
+        return false;
+    }
 
     return true;
 }
@@ -191,10 +189,10 @@ task_post_status_t hci_hal_h4_task_post(task_post_t timeout)
     evt.par = 0;
 
     if (xQueueSend(xHciH4Queue, &evt, timeout) != pdTRUE) {
-        return TASK_POST_SUCCESS;
+        return TASK_POST_FAIL;
     }
 
-    return TASK_POST_FAIL;
+    return TASK_POST_SUCCESS;
 }
 
 #if (C2H_FLOW_CONTROL_INCLUDED == TRUE)
@@ -285,21 +283,21 @@ static void hci_hal_h4_hdl_rx_packet(BT_HDR *packet)
 #endif
         HCI_TRACE_ERROR("Workround stream corrupted during LE SCAN: pkt_len=%d ble_event_len=%d\n",
                   packet->len, len);
-        hci_hal_env.allocator->free(packet);
+        osi_free(packet);
         return;
     }
     if (type < DATA_TYPE_ACL || type > DATA_TYPE_EVENT) {
         HCI_TRACE_ERROR("%s Unknown HCI message type. Dropping this byte 0x%x,"
                   " min %x, max %x\n", __func__, type,
                   DATA_TYPE_ACL, DATA_TYPE_EVENT);
-        hci_hal_env.allocator->free(packet);
+        osi_free(packet);
         return;
     }
     hdr_size = preamble_sizes[type - 1];
     if (packet->len < hdr_size) {
         HCI_TRACE_ERROR("Wrong packet length type=%d pkt_len=%d hdr_len=%d",
                   type, packet->len, hdr_size);
-        hci_hal_env.allocator->free(packet);
+        osi_free(packet);
         return;
     }
     if (type == DATA_TYPE_ACL) {
@@ -313,7 +311,7 @@ static void hci_hal_h4_hdl_rx_packet(BT_HDR *packet)
     if ((length + hdr_size) != packet->len) {
         HCI_TRACE_ERROR("Wrong packet length type=%d hdr_len=%d pd_len=%d "
                   "pkt_len=%d", type, hdr_size, length, packet->len);
-        hci_hal_env.allocator->free(packet);
+        osi_free(packet);
         return;
     }
 
@@ -324,7 +322,7 @@ static void hci_hal_h4_hdl_rx_packet(BT_HDR *packet)
 #if SCAN_QUEUE_CONGEST_CHECK
     if(BTU_check_queue_is_congest() && host_recv_adv_packet(packet)) {
         HCI_TRACE_ERROR("BtuQueue is congested");
-        hci_hal_env.allocator->free(packet);
+        osi_free(packet);
         return;
     }
 #endif
@@ -359,7 +357,8 @@ static int host_recv_pkt_cb(uint8_t *data, uint16_t len)
     }
 
     pkt_size = BT_HDR_SIZE + len;
-    pkt = (BT_HDR *)hci_hal_env.allocator->alloc(pkt_size);
+    pkt = (BT_HDR *) osi_calloc(pkt_size);
+    //pkt = (BT_HDR *)hci_hal_env.allocator->alloc(pkt_size);
     if (!pkt) {
         HCI_TRACE_ERROR("%s couldn't aquire memory for inbound data buffer.\n", __func__);
         return -1;

@@ -65,6 +65,20 @@ typedef enum {
 	NVS_READWRITE  /*!< Read and write */
 } nvs_open_mode;
 
+typedef enum {
+    NVS_TYPE_U8    = 0x01,
+    NVS_TYPE_I8    = 0x11,
+    NVS_TYPE_U16   = 0x02,
+    NVS_TYPE_I16   = 0x12,
+    NVS_TYPE_U32   = 0x04,
+    NVS_TYPE_I32   = 0x14,
+    NVS_TYPE_U64   = 0x08,
+    NVS_TYPE_I64   = 0x18,
+    NVS_TYPE_STR   = 0x21,
+    NVS_TYPE_BLOB  = 0x42,
+    NVS_TYPE_ANY   = 0xff // Must be last
+} nvs_type_t;
+
 /**
  * @brief      Open non-volatile storage with a given namespace from the default NVS partition
  *
@@ -136,7 +150,7 @@ esp_err_t nvs_open_from_partition(const char *part_name, const char* name, nvs_o
  *                     15 characters. Shouldn't be empty.
  * @param[in]  value   The value to set.
  *                     For strings, the maximum length (including null character) is
- *                     1984 bytes (4000 bytes if multi-page blob support is enabled).
+ *                     4000 bytes.
  *
  * @return
  *             - ESP_OK if value was set successfully
@@ -173,8 +187,8 @@ esp_err_t nvs_set_str (nvs_handle handle, const char* key, const char* value);
  * @param[in]  key     Key name. Maximal length is 15 characters. Shouldn't be empty.
  * @param[in]  value   The value to set.
  * @param[in]  length  length of binary value to set, in bytes; Maximum length is
- *                     1984 bytes (508000 bytes or (97.6% of the partition size - 4000) bytes
- *                     whichever is lower, in case multi-page blob support is enabled).
+ *                     508000 bytes or (97.6% of the partition size - 4000) bytes
+ *                     whichever is lower.
  *
  * @return
  *             - ESP_OK if value was set successfully

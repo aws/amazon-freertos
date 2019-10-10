@@ -27,6 +27,7 @@ if(NOT __idf_environment_set)
     include(git_submodules)
     include(GetGitRevisionDescription)
     include(crosstool_version_check)
+    include(ldgen)
 
     set_default(PYTHON "python")
 
@@ -61,6 +62,8 @@ macro(idf_set_variables)
 
     set(IDF_PROJECT_PATH "${CMAKE_SOURCE_DIR}")
 
+    set(ESP_PLATFORM 1 CACHE BOOL INTERNAL)
+
     spaces2list(IDF_COMPONENT_DIRS)
     spaces2list(IDF_COMPONENTS)
     spaces2list(IDF_COMPONENT_REQUIRES_COMMON)
@@ -86,7 +89,6 @@ function(idf_set_global_compile_options)
     list(APPEND compile_options "${CMAKE_C_FLAGS}")
     list(APPEND c_compile_options "${CMAKE_C_FLAGS}")
     list(APPEND cxx_compile_options "${CMAKE_CXX_FLAGS}")
-    add_definitions(-DPROJECT_NAME=\"${PROJECT_NAME}\")
 
     if(CONFIG_OPTIMIZATION_LEVEL_RELEASE)
         list(APPEND compile_options "-Os")
@@ -221,11 +223,13 @@ endfunction()
 function(idf_get_git_revision)
     git_describe(IDF_VER_GIT "${IDF_PATH}")
     if(EXISTS "${IDF_PATH}/version.txt")
-        file(STRINGS "${IDF_PATH}/version.txt" IDF_VER)
+        file(STRINGS "${IDF_PATH}/version.txt" IDF_VER_T)
         set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${IDF_PATH}/version.txt")
     else()
-        set(IDF_VER ${IDF_VER_GIT})
+        set(IDF_VER_T ${IDF_VER_GIT})
     endif()
+    # cut IDF_VER to required 32 characters.
+    string(SUBSTRING "${IDF_VER_T}" 0 31 IDF_VER)
     message(STATUS "IDF_VER: ${IDF_VER}")
     add_definitions(-DIDF_VER=\"${IDF_VER}\")
     git_submodule_check("${IDF_PATH}")
@@ -239,19 +243,24 @@ endfunction()
 # If PROJECT_VER variable set in project CMakeLists.txt file, its value will be used.
 # Else, if the _project_path/version.txt exists, its contents will be used as PROJECT_VER.
 # Else, if the project is located inside a Git repository, the output of git describe will be used.
-# Otherwise, PROJECT_VER will be empty.
+# Otherwise, PROJECT_VER will be "1".
 function(app_get_revision _project_path)
-    git_describe(PROJECT_VER_GIT "${_project_path}")
     if(NOT DEFINED PROJECT_VER)
         if(EXISTS "${_project_path}/version.txt")
             file(STRINGS "${_project_path}/version.txt" PROJECT_VER)
             set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${_project_path}/version.txt")
         else()
-            set(PROJECT_VER ${PROJECT_VER_GIT})
+            git_describe(PROJECT_VER_GIT "${_project_path}")
+            if(PROJECT_VER_GIT)
+                set(PROJECT_VER ${PROJECT_VER_GIT})
+            else()
+                message(STATUS "Project is not inside a git repository, \
+                        will not use 'git describe' to determine PROJECT_VER.")
+                set(PROJECT_VER "1")
+            endif()
         endif()
     endif()
     message(STATUS "Project version: ${PROJECT_VER}")
-    git_submodule_check("${_project_path}")
     set(PROJECT_VER ${PROJECT_VER} PARENT_SCOPE)
 endfunction()
 
@@ -296,7 +305,116 @@ endfunction()
 # idf_import_components
 #
 # Adds ESP-IDF as a subdirectory to the current project and imports the components
-function(idf_import_components var idf_path build_path)
+macro(idf_import_components var idf_path build_path)
+    #
+    # Set variables that control the build configuration and the build itself
+    #
+    idf_set_variables()
+
+    kconfig_set_variables()
+
+    #
+    # Generate a component dependencies file, enumerating components to be included in the build
+    # as well as their dependencies.
+    #
+    execute_process(COMMAND "${CMAKE_COMMAND}"
+        -D "COMPONENTS=${IDF_COMPONENTS}"
+        -D "COMPONENT_REQUIRES_COMMON=${IDF_COMPONENT_REQUIRES_COMMON}"
+        -D "EXCLUDE_COMPONENTS=${IDF_EXCLUDE_COMPONENTS}"
+        -D "TEST_COMPONENTS=${IDF_TEST_COMPONENTS}"
+        -D "TEST_EXCLUDE_COMPONENTS=${IDF_TEST_EXCLUDE_COMPONENTS}"
+        -D "BUILD_TESTS=${IDF_BUILD_TESTS}"
+        -D "DEPENDENCIES_FILE=${CMAKE_BINARY_DIR}/component_depends.cmake"
+        -D "COMPONENT_DIRS=${IDF_COMPONENT_DIRS}"
+        -D "BOOTLOADER_BUILD=${BOOTLOADER_BUILD}"
+        -D "IDF_TARGET=${IDF_TARGET}"
+        -D "IDF_PATH=${IDF_PATH}"
+        -D "DEBUG=${DEBUG}"
+        -P "${IDF_PATH}/tools/cmake/scripts/expand_requirements.cmake"
+        WORKING_DIRECTORY "${PROJECT_PATH}"
+        RESULT_VARIABLE expand_requirements_result)
+
+    if(expand_requirements_result)
+        message(FATAL_ERROR "Failed to expand component requirements")
+    endif()
+
+    include("${CMAKE_BINARY_DIR}/component_depends.cmake")
+
+    #
+    # We now have the following component-related variables:
+    #
+    # IDF_COMPONENTS is the list of initial components set by the user
+    # (or empty to include all components in the build).
+    # BUILD_COMPONENTS is the list of components to include in the build.
+    # BUILD_COMPONENT_PATHS is the paths to all of these components, obtained from the component dependencies file.
+    #
+    # Print the list of found components and test components
+    #
+    string(REPLACE ";" " " BUILD_COMPONENTS_SPACES "${BUILD_COMPONENTS}")
+    message(STATUS "Component names: ${BUILD_COMPONENTS_SPACES}")
+    unset(BUILD_COMPONENTS_SPACES)
+    message(STATUS "Component paths: ${BUILD_COMPONENT_PATHS}")
+
+    # Print list of test components
+    if(TESTS_ALL EQUAL 1 OR TEST_COMPONENTS)
+        string(REPLACE ";" " " BUILD_TEST_COMPONENTS_SPACES "${BUILD_TEST_COMPONENTS}")
+        message(STATUS "Test component names: ${BUILD_TEST_COMPONENTS_SPACES}")
+        unset(BUILD_TEST_COMPONENTS_SPACES)
+        message(STATUS "Test component paths: ${BUILD_TEST_COMPONENT_PATHS}")
+    endif()
+
+    # Generate project configuration
+    kconfig_process_config()
+
+    # Include sdkconfig.cmake so rest of the build knows the configuration
+    include(${SDKCONFIG_CMAKE})
+
+    # Verify the environment is configured correctly
+    idf_verify_environment()
+
+    # Check git revision (may trigger reruns of cmake)
+    ##  sets IDF_VER to IDF git revision
+    idf_get_git_revision()
+
+    # Check that the targets set in cache, sdkconfig, and in environment all match
+    idf_check_config_target()
+
+    ## get PROJECT_VER
+    if(NOT BOOTLOADER_BUILD)
+        app_get_revision("${CMAKE_SOURCE_DIR}")
+    endif()
+
+    # Add some idf-wide definitions
+    idf_set_global_compile_options()
+
+    # generate compile_commands.json (needs to come after project)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
+
+    #
+    # Setup variables for linker script generation
+    #
+    ldgen_set_variables()
+
+    # Include any top-level project_include.cmake files from components
+    foreach(component ${BUILD_COMPONENT_PATHS})
+        set(COMPONENT_PATH "${component}")
+        include_if_exists("${component}/project_include.cmake")
+        unset(COMPONENT_PATH)
+    endforeach()
+
     add_subdirectory(${idf_path} ${build_path})
-    set(${var} ${BUILD_COMPONENTS} PARENT_SCOPE)
-endfunction()
+
+    if(IDF_BUILD_ARTIFACTS)
+        # Write project description JSON file
+        make_json_list("${BUILD_COMPONENTS}" build_components_json)
+        make_json_list("${BUILD_COMPONENT_PATHS}" build_component_paths_json)
+        configure_file("${IDF_PATH}/tools/cmake/project_description.json.in"
+            "${IDF_BUILD_ARTIFACTS_DIR}/project_description.json")
+        unset(build_components_json)
+        unset(build_component_paths_json)
+    endif()
+
+    ldgen_add_dependencies()
+
+    set(${var} ${BUILD_COMPONENTS})
+endmacro()
