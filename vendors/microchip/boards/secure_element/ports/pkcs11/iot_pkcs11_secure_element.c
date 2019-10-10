@@ -79,7 +79,7 @@ CK_FUNCTION_LIST pkcs11FunctionList =
     NULL, /*C_GetSlotInfo*/
     C_GetTokenInfo,
     NULL, /*C_GetMechanismList*/
-    NULL, /*C_GetMechansimInfo */
+    C_GetMechanismInfo,
     C_InitToken,
     NULL, /*C_InitPIN*/
     NULL, /*C_SetPIN*/
