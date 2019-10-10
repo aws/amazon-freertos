@@ -334,7 +334,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 
         if( xRet == ESP_OK )
         {
-            xRet =esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
+            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
         }
 
         return xRet;
@@ -348,45 +348,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
  */
     BTStatus_t bleStackInit( void )
     {
-        /* Initialize BLE */
-        esp_err_t xRet = ESP_OK;
-        esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-        BTStatus_t status = eBTStatusFail;
-
-
-        configPRINTF( ( "Initializing BLE stack.\n" ) );
-
-        xRet = esp_bt_controller_init( &xBtCfg );
-
-        if( xRet == ESP_OK )
-        {
-            xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
-        }
-        else
-        {
-            configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
-        }
-
-        if( xRet == ESP_OK )
-        {
-            xRet = esp_bluedroid_init();
-        }
-        else
-        {
-            configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
-        }
-
-        if( xRet == ESP_OK )
-        {
-            xRet = esp_bluedroid_enable();
-        }
-
-        if( xRet == ESP_OK )
-        {
-            status = eBTStatusSuccess;
-        }
-
-        return status;
+       return eBTStatusSuccess;
     }
 
     esp_err_t bleStackTeardown( void )
@@ -400,7 +362,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 
         if( xRet == ESP_OK )
         {
-            xRet = esp_bluedorid_deinit();
+            xRet = esp_bluedroid_deinit();
         }
 
         if( xRet == ESP_OK )

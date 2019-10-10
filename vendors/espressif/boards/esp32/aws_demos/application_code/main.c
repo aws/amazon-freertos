@@ -186,7 +186,7 @@ static void prvMiscInitialization( void )
 
             if( xRet == ESP_OK )
             {
-                xRet =esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
+                xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
             }
 
             return xRet;
@@ -196,39 +196,7 @@ static void prvMiscInitialization( void )
 
         static esp_err_t prvBLEStackInit( void )
         {
-            /* Initialize BLE */
-            esp_err_t xRet = ESP_OK;
-            esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-
-
-            ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
-
-            xRet = esp_bt_controller_init( &xBtCfg );
-
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
-            }
-            else
-            {
-                configPRINTF( ( "Failed to initialize bt controller, err = %d", xRet ) );
-            }
-
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bluedroid_init();
-            }
-            else
-            {
-                configPRINTF( ( "Failed to initialize bluedroid stack, err = %d", xRet ) );
-            }
-
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bluedroid_enable();
-            }
-
-            return xRet;
+            return ESP_OK;
         }
 
         esp_err_t xBLEStackTeardown( void )
@@ -242,7 +210,7 @@ static void prvMiscInitialization( void )
 
             if( xRet == ESP_OK )
             {
-                xRet = esp_bluedorid_deinit();
+                xRet = esp_bluedroid_deinit();
             }
 
             if( xRet == ESP_OK )

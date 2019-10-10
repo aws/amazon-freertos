@@ -550,11 +550,10 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
     if( xStatus == eBTStatusSuccess )
     {
 
-        nimble_port_init();
-
         ble_hs_cfg.reset_cb = bleprph_on_reset;
         ble_hs_cfg.sync_cb = bleprph_on_sync;
         ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
+
         ble_store_config_init();
     }
     
@@ -568,8 +567,6 @@ BTStatus_t prvBtManagerCleanup()
 {
     esp_err_t xRet;
     BTStatus_t xStatus = eBTStatusSuccess;
-
-    nimble_port_deinit();
 
     xRet = esp_nimble_hci_and_controller_deinit();
     if( xRet != ESP_OK )
@@ -585,6 +582,7 @@ BTStatus_t prvBtManagerCleanup()
 
 BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
+    nimble_port_init();
     nimble_port_freertos_init( ble_host_task );
     return eBTStatusSuccess;
 }
@@ -600,6 +598,7 @@ BTStatus_t prvBTDisable()
 
     if( rc == 0 )
     {
+        nimble_port_deinit();
         xStatus = eBTStatusSuccess;
     }
 

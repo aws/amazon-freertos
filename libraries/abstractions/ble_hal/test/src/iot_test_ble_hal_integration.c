@@ -463,6 +463,9 @@ void prvGAPInitEnableTwice()
     TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
     TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
 
+    /* First time disable */
+    IotTestBleHal_BLEEnable( false );
+
     /*First time Deinit*/
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
