@@ -36,7 +36,7 @@
 
 #include "iot_test_ble_hal_common.h"
 
-#define bletestsFAIL_CHAR_VALUE          "fail"
+#define bletestsFAIL_CHAR_VALUE    "fail"
 
 void GAP_common_teardown();
 void GAP_common_setup();

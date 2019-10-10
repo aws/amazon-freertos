@@ -741,9 +741,9 @@ void IotTestBleHal_CreateServiceA()
 void IotTestBleHal_CreateServiceB()
 {
     prvCreateService( &_xSrvcB );
-#if ENABLE_TC_ADD_INCLUDED_SERVICE
-    prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
-#endif
+    #if ENABLE_TC_ADD_INCLUDED_SERVICE
+        prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
+    #endif
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_B );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_C );
