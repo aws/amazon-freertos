@@ -196,7 +196,6 @@ typedef enum
     eBLEHALEventSSPrequestConfirmationCb = 22,
     eBLEHALEventPairingStateChangedCb = 23,
     eBLEHALEventRequestExecWriteCb = 24,
-    eBLEHALEventBondedCb = 25,
     eBLENbHALEvents,
 } BLEHALEventsTypes_t;
 
@@ -309,6 +308,7 @@ typedef struct
     BTStatus_t xStatus;
     BTBdaddr_t xRemoteBdAddr;
     BTSecurityLevel_t xSecurityLevel;
+    BTBondState_t xBondState;
     BTAuthFailureReason_t xReason;
 } BLETESTPairingStateChangedCallback_t;
 
@@ -330,15 +330,6 @@ typedef struct
     BTBdaddr_t pxBda;
     bool bConnected;
 } BLETESTConnectionCallback_t;
-
-typedef struct
-{
-    BLEHALEventsInternals_t xEvent;
-    BTStatus_t xStatus;
-    BTBdaddr_t xRemoteBdAddr;
-    bool bIsBonded;
-} BLETESTBondedCallback_t;
-
 
 typedef enum
 {
@@ -472,6 +463,7 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              void * pxMessage,
                                              size_t xMessageLength,
                                              uint32_t timeoutMs );
+
 void IotTestBleHal_BLEManagerInit( void );
 void IotTestBleHal_BLEEnable( bool bEnable );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
