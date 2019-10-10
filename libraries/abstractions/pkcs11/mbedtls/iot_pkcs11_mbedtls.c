@@ -3869,7 +3869,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     if( ( lResult != 0 ) || ( totalBytes != ulRandomLen ) )
     {
-        PKCS11_PRINT( ( "ERROR: Failed to get entropy from hardware. Error %d, Bytes %d\r\n ", lResult, olen ) );
+        PKCS11_PRINT( ( "ERROR: Failed to get entropy from hardware. Error %d, Bytes Generated %d, Bytes Requested %d\r\n ", lResult, olen, ulRandomLen) );
         xResult = CKR_FUNCTION_FAILED;
     }
 
