@@ -29,7 +29,13 @@
 #include "iot_crypto.h"
 
 /* mbedTLS includes. */
-#include "mbedtls/config.h"
+
+#if !defined( MBEDTLS_CONFIG_FILE )
+    #include "mbedtls/config.h"
+#else
+    #include MBEDTLS_CONFIG_FILE
+#endif
+
 #include "mbedtls/platform.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/sha1.h"

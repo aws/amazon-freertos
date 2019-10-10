@@ -98,7 +98,7 @@ def make_header_file(goto_binary, fyle, target_folder):
         res = subprocess.run(drop_header_cmd,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.STDOUT,
-                             text=True,
+                             universal_newlines=True,
                              cwd=tmpdir)
         if res.returncode:
             logging.error("Dumping type header for file '%s' failed", fyle)

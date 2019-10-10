@@ -23,7 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  http://www.FreeRTOS.org
 */
 /*
- * Copyright (C) 2011-2018, Marvell International Ltd.
+ * Copyright (C) 2011-2019, Marvell International Ltd.
  * All Rights Reserved.
  */
 

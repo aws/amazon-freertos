@@ -23,11 +23,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>CC3220SF.ccxml</name>
-			<type>1</type>
-			<locationURI>PARENT-5-PROJECT_LOC/vendors/ti/boards/cc3220_launchpad/CC3220SF.ccxml</locationURI>
-		</link>
-		<link>
 			<name>freertos_kernel/event_groups.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/event_groups.c</locationURI>
@@ -63,9 +58,19 @@
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
 		</link>
 		<link>
+			<name>freertos_kernel/include/StackMacros.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/StackMacros.h</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/include/atomic.h</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/croutine.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/freertos_kernel/include/croutine.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/deprecated_definitions.h</name>
@@ -598,6 +603,11 @@
 			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/crypto/src/iot_crypto.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/standard/crypto/src/iot_crypto.c</locationURI>
@@ -858,9 +868,9 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/aws_ota_cbor_internal.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</name>
+			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</name>
 			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</locationURI>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/aws/ota/include/aws_ota_types.h</name>
@@ -1641,11 +1651,6 @@
 			<name>libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</locationURI>
-		</link>
-		<link>
-			<name>libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</name>
-			<type>1</type>
-			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/includeaws_iot_ota_agent.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/aes.h</name>

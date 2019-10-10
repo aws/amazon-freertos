@@ -84,7 +84,9 @@
 	<ImportGroup Label="ExtensionTargets"/>
 	<ItemGroup>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h"/>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\StackMacros.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h"/>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\croutine.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\event_groups.h"/>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\list.h"/>
@@ -149,6 +151,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\crypto\include\iot_crypto.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include\iot_pkcs11.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_pki_utils.h"/>
 		<ClInclude Include="..\..\..\..\..\demos\dev_mode_key_provisioning\include\aws_dev_mode_key_provisioning.h"/>

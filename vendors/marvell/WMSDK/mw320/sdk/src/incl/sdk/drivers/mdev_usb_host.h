@@ -1,5 +1,5 @@
 /*
-*  (C) Copyright 2008-2018 Marvell International Ltd. All Rights Reserved
+*  (C) Copyright 2008-2019 Marvell International Ltd. All Rights Reserved
 *
 *  MARVELL CONFIDENTIAL
 *  The source code contained or described herein and all documents related to
@@ -89,11 +89,8 @@
 
 #include <mdev.h>
 #include <wmerrno.h>
-#include <usbvideo.h>
-#include <usbaudio.h>
-#include <usbcdc.h>
-#include <usbdisk.h>
-#include <usbclass.h>
+#include <mdev_usb_host_port.h>
+
 
 #define USB_HOST_LOG(...)  wmlog("usb-host", __VA_ARGS__)
 

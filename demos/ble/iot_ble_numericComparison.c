@@ -56,6 +56,7 @@ QueueHandle_t xNumericComparisonQueue = NULL;
 
 void BLEGAPPairingStateChangedCb( BTStatus_t xStatus,
                                   BTBdaddr_t * pxRemoteBdAddr,
+                                  BTBondState_t bondState,
                                   BTSecurityLevel_t xSecurityLevel,
                                   BTAuthFailureReason_t xReason )
 {
