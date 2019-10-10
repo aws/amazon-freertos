@@ -118,7 +118,6 @@ target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${ecc608_pkcs11_src}"
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
         "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
 )
 
