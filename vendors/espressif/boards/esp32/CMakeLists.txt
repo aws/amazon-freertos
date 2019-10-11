@@ -47,6 +47,8 @@ set(
     "${esp_idf_dir}/components/app_update/include/"
     "${esp_idf_dir}/components/bootloader_support/include"
     "${esp_idf_dir}/components/esp32/include"
+    "${esp_idf_dir}/components/esp_event/include"
+    "${esp_idf_dir}/components/efuse/include"
     "${esp_idf_dir}/components/driver/include"
     "${esp_idf_dir}/components/heap/include"
     "${esp_idf_dir}/components/log/include"

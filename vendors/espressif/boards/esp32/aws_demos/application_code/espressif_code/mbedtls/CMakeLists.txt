@@ -11,6 +11,7 @@ target_compile_options(
 
 target_include_directories(
     afr_3rdparty_mbedtls
+    BEFORE
     PRIVATE
     "${AFR_VENDORS_DIR}/espressif/esp-idf/components/vfs/include"
     PUBLIC
