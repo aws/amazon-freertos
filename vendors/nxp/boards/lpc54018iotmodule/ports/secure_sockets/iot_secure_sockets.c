@@ -361,6 +361,7 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
         )
     {
         pxContext->xRecvFlags = ( BaseType_t ) ulFlags;
+
         if( pdTRUE == pxContext->xRequireTLS )
         {
             /* Receive through TLS pipe, if negotiated. */
@@ -516,8 +517,6 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                             const SocketsSockaddr_t * pxAddress,
                             Socklen_t xAddressLength )
     {
-        /* The WiFi module refuses to send data if it exceeds this threshold defined in
-         * atheros_stack_offload.h */
         int32_t lStatus = 0;
         SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
         SOCKADDR_T xTempAddress = { 0 };
@@ -601,6 +600,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                 for( ; ; )
                 {
                     /* Check if there is anything to be received on this socket. */
+                    /* A recvfrom call is blocking, so select can be used to periodically check for incoming packets . */
                     xSelectStatus = ( A_STATUS ) t_select( enetCtx,
                                                            ( uint32_t ) pxContext->xSocket,
                                                            nxpsecuresocketsONE_MILLISECOND );
@@ -635,7 +635,7 @@ int32_t SOCKETS_Send( Socket_t xSocket,
                             break;
                         }
                     }
-                    else if( xSelectStatus == A_ERROR )
+                    else if( xSelectStatus == A_ERROR ) /* Timeout occurred, no activity */
                     {
                         if( ( xTaskGetTickCount() - xTimeOnEntering ) < pxContext->ulRecvTimeout )
                         {
