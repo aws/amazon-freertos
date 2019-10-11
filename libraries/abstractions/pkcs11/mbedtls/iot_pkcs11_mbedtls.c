@@ -3864,6 +3864,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
             totalBytes += olen;
             lLoops++;
+
+            /* If no entropy was returned, give the hardware time
+             * to generate additional entropy. */
+            if( olen == 0 )
+            {
+                vTaskDelay( 1 );
+            }
         }
     }
 
