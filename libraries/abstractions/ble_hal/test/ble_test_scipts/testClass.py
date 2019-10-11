@@ -34,6 +34,10 @@ try:
 except ImportError:
     import gobject as GObject
 
+# Config for enable/disable test case
+ENABLE_TC_WRITE_LONG = 0
+ENABLE_TC_WRITE_NORMAL = 1
+ENABLE_TC_SECONDARY_SERVICE = 0
 
 class runTest:
     mainloop = GObject.MainLoop()
@@ -343,13 +347,11 @@ class runTest:
 
     @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
-        ENABLE_TC_WRITE_LONG = 1
         if (ENABLE_TC_WRITE_LONG == 1):
             #enable long write test
             long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
             bleAdapter.writeCharacteristic(charUUID, long_value)
 
-        ENABLE_TC_WRITE_NORMAL = 1
         if (ENABLE_TC_WRITE_NORMAL == 1):
             bleAdapter.writeCharacteristic(charUUID, charUUID)
 
@@ -426,12 +428,13 @@ class runTest:
             isTestSuccessfull = False
 
         #Check secondary service UUID
-        if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
-            print("checkUUIDs test: missing secondary service UUID: "+runTest.DUT_SERVICEC_UUID)
-            isTestSuccessfull = False
-        elif (gatt.services[runTest.DUT_SERVICEC_UUID]["Primary"] != False):
-            print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
-            isTestSuccessfull = False
+        if (ENABLE_TC_SECONDARY_SERVICE == 1):
+            if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
+                print("checkUUIDs test: missing secondary service UUID: "+runTest.DUT_SERVICEC_UUID)
+                isTestSuccessfull = False
+            elif (gatt.services[runTest.DUT_SERVICEC_UUID]["Primary"] != False):
+                print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
+                isTestSuccessfull = False
 
         # Check characteristics UUIDs
         for uuid in runTest.DUT_CHAR.keys():
