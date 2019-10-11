@@ -2,8 +2,8 @@
 # Component Makefile
 #
 
-ifdef CONFIG_NIMBLE_ENABLED
-COMPONENT_ADD_INCLUDEDIRS := nimble/nimble/include                     \
+ifeq ($(CONFIG_NIMBLE_ENABLED),y)
+COMPONENT_ADD_INCLUDEDIRS += nimble/nimble/include                     \
                              nimble/nimble/host/include                \
                              nimble/porting/nimble/include             \
                              nimble/porting/npl/freertos/include       \
@@ -17,12 +17,14 @@ COMPONENT_ADD_INCLUDEDIRS := nimble/nimble/include                     \
                              nimble/nimble/host/util/include           \
                              nimble/nimble/host/store/ram/include      \
                              nimble/nimble/host/store/config/include   \
-                             nimble/nimble/host/mesh/include           \
                              esp-hci/include                           \
-                             port/include                              \
+                             port/include
 
+ifndef CONFIG_NIMBLE_CRYPTO_STACK_MBEDTLS
+COMPONENT_ADD_INCLUDEDIRS += nimble/ext/tinycrypt/include
+endif
 
-COMPONENT_SRCDIRS := nimble/nimble/host/src                            \
+COMPONENT_SRCDIRS += nimble/nimble/host/src                            \
                      nimble/porting/nimble/src                         \
                      nimble/porting/npl/freertos/src                   \
                      nimble/nimble/host/services/ans/src               \
@@ -35,12 +37,15 @@ COMPONENT_SRCDIRS := nimble/nimble/host/src                            \
                      nimble/nimble/host/util/src                       \
                      nimble/nimble/host/store/ram/src                  \
                      nimble/nimble/host/store/config/src               \
-                     esp-hci/src                                       \
+                     esp-hci/src
+
+ifndef CONFIG_NIMBLE_CRYPTO_STACK_MBEDTLS
+COMPONENT_SRCDIRS += nimble/ext/tinycrypt/src
+endif
 
 COMPONENT_OBJEXCLUDE += nimble/nimble/host/store/config/src/ble_store_config_conf.o
 
-ifdef CONFIG_NIMBLE_MESH
-
+ifeq ($(CONFIG_NIMBLE_MESH),y)
 COMPONENT_ADD_INCLUDEDIRS += nimble/nimble/host/mesh/include
 COMPONENT_SRCDIRS += nimble/nimble/host/mesh/src
 

@@ -718,8 +718,7 @@ ble_hs_tx_data(struct os_mbuf *om)
     ble_monitor_send_om(BLE_MONITOR_OPCODE_ACL_TX_PKT, om);
 #endif
 
-    ble_hci_trans_hs_acl_tx(om);
-    return 0;
+    return ble_hci_trans_hs_acl_tx(om);
 }
 
 void

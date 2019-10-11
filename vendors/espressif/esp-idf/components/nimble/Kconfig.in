@@ -5,7 +5,7 @@ menuconfig NIMBLE_ENABLED
 
 config NIMBLE_MAX_CONNECTIONS
     int "Maximum number of concurrent connections"
-    range 1 10
+    range 1 9
     default 1
     depends on NIMBLE_ENABLED
     help
@@ -27,7 +27,7 @@ config NIMBLE_MAX_CCCDS
 
 config NIMBLE_L2CAP_COC_MAX_NUM
     int "Maximum number of connection oriented channels"
-    range 0 10
+    range 0 9
     depends on NIMBLE_ENABLED
     default 0
     help
@@ -53,6 +53,13 @@ config NIMBLE_PINNED_TO_CORE
     default 0 if NIMBLE_PINNED_TO_CORE_0
     default 1 if NIMBLE_PINNED_TO_CORE_1
     default 0
+
+config NIMBLE_TASK_STACK_SIZE
+    int "NimBLE Host task stack size"
+    depends on NIMBLE_ENABLED
+    default 4096
+    help
+        This configures stack size of NimBLE host task
 
 config NIMBLE_ROLE_CENTRAL
     bool "Enable BLE Central role"
@@ -96,11 +103,20 @@ config NIMBLE_SM_SC
         Enable security manager secure connections
 
 config NIMBLE_DEBUG
-    bool "Enable host debugging"
+    bool "Enable extra runtime asserts and host debugging"
     default n
     depends on NIMBLE_ENABLED
     help
-        This enables extra runtime assertions
+        This enables extra runtime asserts and host debugging
+
+config NIMBLE_SM_SC_DEBUG_KEYS
+    bool "Use predefined public-private key pair"
+    default n
+    depends on NIMBLE_ENABLED && NIMBLE_SM_SC
+    help
+        If this option is enabled, SM uses predefined DH key pair as described
+        in Core Specification, Vol. 3, Part H, 2.3.5.6.1. This allows to
+        decrypt air traffic easily and thus should only be used for debugging.
 
 config NIMBLE_SVC_GAP_DEVICE_NAME
     string "BLE GAP default device name"
@@ -253,4 +269,14 @@ config NIMBLE_MESH_DEVICE_NAME
     depends on NIMBLE_MESH
     help
         This value defines Bluetooth Mesh device/node name
+
+config NIMBLE_CRYPTO_STACK_MBEDTLS
+    bool "Override TinyCrypt with mbedTLS for crypto computations"
+    default y
+    depends on NIMBLE_ENABLED
+    select MBEDTLS_ECP_RESTARTABLE
+    select MBEDTLS_CMAC_C
+    help
+        Enable this option to choose mbedTLS instead of TinyCrypt for crypto
+        computations.
 
