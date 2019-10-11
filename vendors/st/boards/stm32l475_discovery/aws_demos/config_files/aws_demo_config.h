@@ -73,7 +73,7 @@
 
 #ifdef democonfigMEMORY_ANALYSIS
     #define demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
-    #define demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( )     xPortGetMinimumEverFreeHeapSize( )
+    #define demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        xPortGetMinimumEverFreeHeapSize()
     #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
         #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x )
     #else

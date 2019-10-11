@@ -57,13 +57,13 @@ static IotSemaphore_t demoNetworkSemaphore;
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
+#ifdef democonfigMEMORY_ANALYSIS
+    extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xMemoryAnalysisStackSize;
+#endif
+
 #if defined( MQTT_DEMO_TYPE_ENABLED )
     #if BLE_ENABLED
         extern const IotMqttSerializer_t IotBleMqttSerializer;
-    #endif
-
-    #ifdef democonfigMEMORY_ANALYSIS
-        extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xMemoryAnalysisStackSize;
     #endif
 
 
@@ -315,7 +315,7 @@ void runDemoTask( void * pArgument )
         xBeforeDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
 
         size_t xBeforeDemoHeapSize, xAfterDemoHeapSize = 0;
-        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( );
+        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
     #endif /* democonfigMEMORY_ANALYSIS */
 
 
@@ -360,10 +360,10 @@ void runDemoTask( void * pArgument )
     }
 
     #ifdef democonfigMEMORY_ANALYSIS
-	 xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE( );
-        IotLogInfo( "Demo Memory Analysis Heap Total: %u Before: %u After: %u Usage: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize, ( xBeforeDemoHeapSize - xAfterDemoHeapSize ) );
+        xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+        IotLogInfo( "Demo Memory Analysis Heap Total: %u Before: %u After: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
         xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-        IotLogInfo( "Demo Memory Analysis StackWatermark Before: %u Watermark After: %u Watermark Difference: %u \r\n", xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark, ( xBeforeDemoTaskWaterMark - xAfterDemoTaskWaterMark ) );
+        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xMemoryAnalysisStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
     #endif /* democonfigMEMORY_ANALYSIS */
 
     /* DO NOT EDIT - This demo end marker is used in the test framework to
