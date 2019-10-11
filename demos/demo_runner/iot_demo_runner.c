@@ -71,7 +71,7 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
 #endif
 
 #ifdef democonfigMEMORY_ANALYSIS
-    demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xMemoryAnalysisStackSize;
+    demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xDemoStackSize;
 #endif
 
 /*-----------------------------------------------------------*/
@@ -84,7 +84,7 @@ void DEMO_RUNNER_RunDemos( void )
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
 
     #ifdef democonfigMEMORY_ANALYSIS
-        xMemoryAnalysisStackSize = democonfigDEMO_STACKSIZE;
+        xDemoStackSize = democonfigDEMO_STACKSIZE;
     #endif
 
     static demoContext_t mqttDemoContext =

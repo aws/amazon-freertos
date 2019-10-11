@@ -58,7 +58,7 @@ static IotSemaphore_t demoNetworkSemaphore;
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
 #ifdef democonfigMEMORY_ANALYSIS
-    extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xMemoryAnalysisStackSize;
+    extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xDemoStackSize;
 #endif
 
 #if defined( MQTT_DEMO_TYPE_ENABLED )
@@ -363,7 +363,7 @@ void runDemoTask( void * pArgument )
         xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
         IotLogInfo( "Demo Memory Analysis Heap Total: %u Minimum heap size ever before running demo: %u after running demo: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
         xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xMemoryAnalysisStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
+        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
     #endif /* democonfigMEMORY_ANALYSIS */
 
     /* DO NOT EDIT - This demo end marker is used in the test framework to
