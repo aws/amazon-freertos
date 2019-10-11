@@ -46,22 +46,22 @@
 /**
  * @brief Return values used by RTC driver
  */
-#define IOT_RTC_SUCCESS                   ( 0 )
-#define IOT_RTC_INVALID_VALUE             ( 1 )
-#define IOT_RTC_NOT_STARTED               ( 2 )
-#define IOT_RTC_GET_FAILED                ( 3 )
-#define IOT_RTC_SET_FAILED                ( 4 )
-#define IOT_RTC_FUNCTION_NOT_SUPPORTED    ( 5 )
+#define IOT_RTC_SUCCESS                   ( 0 )    /*!< RTC operation completed successfully. */
+#define IOT_RTC_INVALID_VALUE             ( 1 )    /*!< At least one parameter is invalid. */
+#define IOT_RTC_NOT_STARTED               ( 2 )    /*!< RTC not started. */
+#define IOT_RTC_GET_FAILED                ( 3 )    /*!< RTC get operation failed. */
+#define IOT_RTC_SET_FAILED                ( 4 )    /*!< RTC set operation failed. */
+#define IOT_RTC_FUNCTION_NOT_SUPPORTED    ( 5 )    /*!< RTC operation not supported. */
 
 /**
  * @brief RTC driver status values
  */
 typedef enum
 {
-    eRtcTimerStopped,
-    eRtcTimerRunning,
-    eRtcTimerAlaramTriggered,
-    eRtcTimerWakeupTriggered,
+    eRtcTimerStopped,              /*!< RTC Timer status: stopped. */
+    eRtcTimerRunning,              /*!< RTC Timer status: running. */
+    eRtcTimerAlarmTriggered,       /*!< RTC Timer status: alarm triggered. */
+    eRtcTimerWakeupTriggered,      /*!< RTC Timer status: wakeup triggered. */
 } IotRtcStatus_t;
 
 /**
@@ -80,10 +80,13 @@ typedef struct IotRtcDatetime
 
 /**
  * @brief Ioctl request types.
+ *
+ * @note:  WakeupTime is a timer, in milliseconds in the future.  AlarmTime is an exact time in the future.
  */
 typedef enum IotRtcIoctlRequest
 {
-    eSetRtcAlarm,       /*!< Set Alarm, date&time when Alarm need to occur. Takes input type IotRtcDatetime_t */
+    eSetRtcAlarm,       /*!< Set Alarm, date&time when Alarm need to occur. Takes input type IotRtcDatetime_t
+                          @warning time must be in the future.*/
     eGetRtcAlarm,       /*!< Get Alarm, gives the date&time when Alarm will occur. Returns IotRtcDatetime_t */
     eCancelRtcAlarm,    /*!< Cancel any scheduled Alarm */
     eSetRtcWakeupTime,  /*!< Set Wakeup time  in miliseconds. Maximum number of miliseconds depend on the platform.  Value is uint32_t */
@@ -122,7 +125,11 @@ typedef void ( * IotRtcCallback_t)( IotRtcStatus_t xStatus, void * pvUserContext
  *
  * @param[in]   lRtcInstance   The instance of the RTC timer to initialize.
  *
- * @return  returns the handle IotRtcHandle_t on success, or NULL on failure.
+ * @return
+ *   - the handle IotRtcHandle_t on success
+ *   - NULL if
+ *      - if instance is already open
+ *      - invalid instance
  */
 IotRtcHandle_t iot_rtc_open( int32_t lRtcInstance );
 
@@ -130,13 +137,15 @@ IotRtcHandle_t iot_rtc_open( int32_t lRtcInstance );
  * @brief   iot_rtc_set_callback is used to set the callback to be called when alarmTime triggers.
  *          The caller must set the Alarm time using IOCTL to get the callback.
  *
+ * @note Single callback is used for both rtc_alarm, and rtc_wakeup features.
+ * @note Newly set callback overrides the one previously set
+ * @note This callback is per handle. Each instance has its own callback.
+ *
  * @param[in]   pxRtcHandle  handle to RTC driver returned in
  *                          iot_rtc_open()
  * @param[in]   xCallback   callback function to be called.
  * @param[in]   pvUserContext   user context to be passed when callback is called.
  *
- * @return  returns IOT_RTC_SUCCESS on success or returns
- *          one of IOT_RTC_INVALID_VALUE, IOT_RTC_NOT_STARTED on error.
  */
 void iot_rtc_set_callback( IotRtcHandle_t const pxRtcHandle,
                            IotRtcCallback_t xCallback,
@@ -152,9 +161,16 @@ void iot_rtc_set_callback( IotRtcHandle_t const pxRtcHandle,
  * @param[in]   xRequest    configuration request of type IotRtcIoctlRequest_t
  * @param[in,out] pvBuffer  buffer holding RTC set and get values.
  *
- * @return  returns IOT_RTC_SUCCESS on success or returns
- *          one of IOT_RTC_INVALID_VALUE, IOT_RTC_NOT_STARTED on error
- *          or IOT_RTC_FUNCTION_NOT_SUPPORTED.
+ * @return
+ *   - IOT_RTC_SUCCESS on success
+ *   - IOT_RTC_INVALID_VALUE if
+ *      - pxRtcHandle == NULL
+ *      - xRequest is invalid
+ *      - pvBuffer == NULL (excluding eCancelRtcAlarm, eCancelRtcWakeup)
+ *      - if date/time is set in the past for eSetRtcAlarm
+ *   - IOT_RTC_NOT_STARTED on error
+ *   - IOT_RTC_FUNCTION_NOT_SUPPORTED if feature not supported
+ *      - Only valid for eCancelRtcAlarm, eCancelRtcWakeup
  */
 int32_t iot_rtc_ioctl( IotRtcHandle_t const pxRtcHandle,
                        IotRtcIoctlRequest_t xRequest,
@@ -168,8 +184,10 @@ int32_t iot_rtc_ioctl( IotRtcHandle_t const pxRtcHandle,
  * @param[in]   pxDatetime  pointer to IotRtcDatetime_t structure to set the date&time
  *                          to be set in RTC counter.
  *
- * @return  returns IOT_RTC_SUCCESS on success or returns
- *          one of IOT_RTC_INVALID_VALUE, IOT_RTC_SET_FAILED on error.
+ * @return
+ *   - IOT_RTC_SUCCESS on success
+ *   - IOT_RTC_INVALID_VALUE if pxRtcHandle == NULL or pxDatetime == NULL
+ *   - IOT_RTC_SET_FAILED on error.
  */
 int32_t iot_rtc_set_datetime( IotRtcHandle_t const pxRtcHandle,
                               const IotRtcDatetime_t * pxDatetime );
@@ -183,8 +201,10 @@ int32_t iot_rtc_set_datetime( IotRtcHandle_t const pxRtcHandle,
  * @param[in]   pxDatetime  pointer to IotRtcDatetime_t structure to get the date&time
  *                          from RTC counter.
  *
- * @return  returns IOT_RTC_SUCCESS on success or returns
- *          one of IOT_RTC_INVALID_VALUE, IOT_RTC_NOT_STARTED on error.
+ * @return
+ *   - IOT_RTC_SUCCESS on success
+ *   - IOT_RTC_INVALID_VALUE if pxRtcHandle == NULL or pxDatetime == NULL
+ *   - IOT_RTC_NOT_STARTED on error
  */
 int32_t iot_rtc_get_datetime( IotRtcHandle_t const pxRtcHandle,
                               IotRtcDatetime_t * pxDatetime );
@@ -195,8 +215,11 @@ int32_t iot_rtc_get_datetime( IotRtcHandle_t const pxRtcHandle,
  *
  * @param[in]   pxRtcHandle  handle to RTC interface.
  *
- * @return  returns IOT_RTC_SUCCESS on success or returns
- *          one of IOT_RTC_INVALID_VALUE on error.
+ * @return
+ *   - IOT_RTC_SUCCESS on success
+ *   - IOT_RTC_INVALID_VALUE if
+ *      - pxRtcHandle == NULL
+ *      - not in open state (already closed).
  */
 int32_t iot_rtc_close( IotRtcHandle_t const pxRtcHandle );
 
