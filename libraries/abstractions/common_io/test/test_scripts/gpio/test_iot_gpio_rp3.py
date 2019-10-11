@@ -27,6 +27,10 @@
 import argparse
 from gpiozero import LED, Button
 from time import sleep
+import socket
+
+HOST = ''
+PORT = 50007
 
 if __name__ == "__main__":
 
@@ -42,14 +46,23 @@ if __name__ == "__main__":
     # Check if gpio output or input is requested.
     if args.o:
         GPIO = 20
+        socket.setdefaulttimeout(10)
+        # Create socket server.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((HOST, PORT))
+        s.listen(1)
         led = LED(GPIO)
         # Set gpio high if platform is performing input high test, otherwise set gpio to low.
         if args.o[0] > 0:
             led.on()
-            sleep(3)
         else:
             led.off()
-            sleep(3)
+        # Start to accept connection from client. It can notify host process, rpi is ready.
+        conn, addr = s.accept()
+        # End process until received data from host or time out.
+        data = conn.recv(1024)
+        s.close()
 
     elif args.i:
         GPIO = 21

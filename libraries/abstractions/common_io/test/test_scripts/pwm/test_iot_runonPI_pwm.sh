@@ -35,18 +35,17 @@ shift
 if [ "$1" == "-p" ]; then
     #Secure copy the test_iot_read_PWM.py and test_iot_wave_PWM.py from Host to RP3
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "mkdir -p /home/pi/Tests"
-    sshpass -p ${PASSWD} scp ./test_iot_read_PWM.py ./test_iot_wave_PWM.py ${LOGINID}@${IP}:/home/pi/Tests
+    sshpass -p ${PASSWD} scp ./test_iot_pwm_rp3.py ${LOGINID}@${IP}:/home/pi/Tests
 elif [ "$1" == "-c" ]; then
     #Delete the result file on rpi
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "rm /home/pi/Tests/pwm_res.txt"
+    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "rm /home/pi/Tests/pwm_rpi_res.txt"
 else
     #Run demon
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} 'sudo pigpiod -s 1 -b 200'
     #Run two pwm scripts at same time
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} \
-     'nohup python /home/pi/Tests/test_iot_read_PWM.py > /home/pi/Tests/pwm_res.txt 2>/dev/null & python /home/pi/Tests/test_iot_wave_PWM.py'
+    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} 'python /home/pi/Tests/test_iot_pwm_rp3.py > /home/pi/Tests/pwm_rpi_res.txt'
     #Kill demon
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} 'sudo killall pigpiod'
     #Copy back result
-    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/pwm_res.txt .
+    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/pwm_rpi_res.txt .
 fi
