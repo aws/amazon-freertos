@@ -58,7 +58,7 @@
 
 /* Enable/Disable test cases */
 /* AFQP test */
-#define ENABLE_TC_WRITE_LONG              ( 1 )
+#define ENABLE_TC_WRITE_LONG              ( 0 )
 #define ENABLE_TC_ADD_INCLUDED_SERVICE    ( 0 )
 #define ENABLE_TC_SECONDARY_SERVICE       ( 0 )
 /* Integration test */
