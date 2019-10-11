@@ -1,5 +1,5 @@
 set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
-set(ecc608_dir "${mchp_dir}/secure_elements")
+set(ecc608a_dir "${mchp_dir}/secure_elements")
 
 set(afr_ports_dir "${CMAKE_CURRENT_LIST_DIR}/ports")
 set(board_demos_dir "${CMAKE_CURRENT_LIST_DIR}/aws_demos")
@@ -14,8 +14,8 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-if("${AFR_BOARD_NAME}" STREQUAL "secure_element")
-    include("${CMAKE_CURRENT_LIST_DIR}/secure_element.cmake")
+if("${AFR_BOARD_NAME}" STREQUAL "ecc608a_plus_winsim")
+    include("${CMAKE_CURRENT_LIST_DIR}/ecc608a_plus_winsim.cmake")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -42,29 +42,29 @@ target_compile_options(
 # Normally the portable layer for kernel should be vendor's driver code.
 afr_mcu_port(kernel)
 
-# ECC608 source files
-afr_glob_src(ecc608_src DIRECTORY ${ecc608_dir}/lib)
-afr_glob_src(ecc608_atacert_src RECURSE DIRECTORY ${ecc608_dir}/lib/atcacert)
-afr_glob_src(ecc608_basic_src RECURSE DIRECTORY ${ecc608_dir}/lib/basic)
-afr_glob_src(ecc608_crypto_src RECURSE DIRECTORY ${ecc608_dir}/lib/crypto)
-afr_glob_src(ecc608_host_src RECURSE DIRECTORY ${ecc608_dir}/lib/host)
-afr_glob_src(ecc608_pkcs11_src RECURSE DIRECTORY ${ecc608_dir}/lib/pkcs11)
+# ECC608A source files
+afr_glob_src(ecc608a_src DIRECTORY ${ecc608a_dir}/lib)
+afr_glob_src(ecc608a_atacert_src RECURSE DIRECTORY ${ecc608a_dir}/lib/atcacert)
+afr_glob_src(ecc608a_basic_src RECURSE DIRECTORY ${ecc608a_dir}/lib/basic)
+afr_glob_src(ecc608a_crypto_src RECURSE DIRECTORY ${ecc608a_dir}/lib/crypto)
+afr_glob_src(ecc608a_host_src RECURSE DIRECTORY ${ecc608a_dir}/lib/host)
+afr_glob_src(ecc608a_pkcs11_src RECURSE DIRECTORY ${ecc608a_dir}/lib/pkcs11)
 
 set(
-    ecc608_hid_src
-    "${ecc608_dir}/third_party/hidapi/windows/hid.c"
+    ecc608a_hid_src
+    "${ecc608a_dir}/third_party/hidapi/windows/hid.c"
 )
 set(
-    ecc608_hal_src
-        "${ecc608_dir}/lib/hal/atca_hal.c"
-        "${ecc608_dir}/lib/hal/hal_all_platforms_kit_hidapi.c"
-        "${ecc608_dir}/lib/hal/hal_freertos.c"
-        "${ecc608_dir}/lib/hal/hal_windows.c"
-        "${ecc608_dir}/lib/hal/kit_protocol.c"
-        "${ecc608_dir}/lib/hal/atca_hal.h"
-        "${ecc608_dir}/lib/hal/hal_all_platforms_kit_hidapi.h"
-        "${ecc608_dir}/lib/hal/kit_phy.h"
-        "${ecc608_dir}/lib/hal/kit_protocol.h"
+    ecc608a_hal_src
+        "${ecc608a_dir}/lib/hal/atca_hal.c"
+        "${ecc608a_dir}/lib/hal/hal_all_platforms_kit_hidapi.c"
+        "${ecc608a_dir}/lib/hal/hal_freertos.c"
+        "${ecc608a_dir}/lib/hal/hal_windows.c"
+        "${ecc608a_dir}/lib/hal/kit_protocol.c"
+        "${ecc608a_dir}/lib/hal/atca_hal.h"
+        "${ecc608a_dir}/lib/hal/hal_all_platforms_kit_hidapi.h"
+        "${ecc608a_dir}/lib/hal/kit_phy.h"
+        "${ecc608a_dir}/lib/hal/kit_protocol.h"
 )
 target_sources(
     AFR::kernel::mcu_port
@@ -72,13 +72,13 @@ target_sources(
         "${AFR_KERNEL_DIR}/portable/MSVC-MingW/port.c"
         "${AFR_KERNEL_DIR}/portable/MSVC-MingW/portmacro.h"
         "${AFR_KERNEL_DIR}/portable/MemMang/heap_4.c"
-        "${ecc608_src}"
-        "${ecc608_atacert_src}"
-        "${ecc608_basic_src}"
-        "${ecc608_crypto_src}"
-        "${ecc608_hal_src}"
-        "${ecc608_hid_src}"
-        "${ecc608_host_src}"
+        "${ecc608a_src}"
+        "${ecc608a_atacert_src}"
+        "${ecc608a_basic_src}"
+        "${ecc608a_crypto_src}"
+        "${ecc608a_hal_src}"
+        "${ecc608a_hid_src}"
+        "${ecc608a_host_src}"
 )
 target_include_directories(
     AFR::kernel::mcu_port
@@ -86,8 +86,8 @@ target_include_directories(
         "${AFR_KERNEL_DIR}/portable/MSVC-MingW"
         "${board_dir}/config_files"
         "${board_dir}/application_code"
-        "${ecc608_dir}/lib"
-        "${ecc608_dir}/third_party/hidapi/hidapi"
+        "${ecc608a_dir}/lib"
+        "${ecc608a_dir}/third_party/hidapi/hidapi"
         # Need aws_clientcredential.h
         "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
@@ -117,7 +117,7 @@ afr_mcu_port(pkcs11_implementation)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
-        "${ecc608_pkcs11_src}"
+        "${ecc608a_pkcs11_src}"
         "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
 )
 
