@@ -358,6 +358,12 @@ int CRYPTO_GetRandomBytes( void * pvCtx,
         lResult = CRYPTO_ERROR_RNG;
     }
 
+    if( xDrbg.xIsInitialized != CK_TRUE )
+    {
+        CRYPTO_PRINT( ( "ERROR: DRBG is not initialized \r\n" ) );
+        lResult = CRYPTO_ERROR_RNG;
+    }
+
     if( lResult == 0 )
     {
         lResult = mbedtls_ctr_drbg_random( &xDrbg.xMbedDrbgCtx, pRandomBytes, length );
