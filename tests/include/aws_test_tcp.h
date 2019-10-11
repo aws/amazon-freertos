@@ -26,10 +26,7 @@
 #ifndef AWS_TEST_TCP_H
 #define AWS_TEST_TCP_H
 
-/* UDP Echo Server. TODO update address
- * Update udptestECHO_SERVER_ADDR# and
- * udptestECHO_PORT with IP address
- * and port of unencrypted TCP echo server. */
+/* UDP Echo Server. Update address with UDP echo server */
 #define udptestECHO_SERVER_ADDR0         10
 #define udptestECHO_SERVER_ADDR1         184
 #define udptestECHO_SERVER_ADDR2         166

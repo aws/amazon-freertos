@@ -64,6 +64,7 @@
 #define testrunnerUTIL_PLATFORM_THREADS_ENABLED        0
 #define testrunnerUTIL_PLATFORM_NETWORK_UDP_ENABLED    0
 #define testrunnerFULL_HTTPS_CLIENT_ENABLED            0
+#define testrunnerFULL_SNTP_ENABLED                    0
 
 
 /* On systems using FreeRTOS+TCP (such as this one) the TCP segments must be

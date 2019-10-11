@@ -1,5 +1,12 @@
 # Change Log for Amazon FreeRTOS
 
+## NTP Beta
+
+### New Features
+#### Simple Network Time Ptotocol Client (Beta).
+- This version does not support server authentication.
+- This version is only recommended for testing and not for production.
+
 ## 201908.00 08/26/2019
 
 ### New Features

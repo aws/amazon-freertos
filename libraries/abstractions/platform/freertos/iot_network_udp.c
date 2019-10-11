@@ -214,7 +214,7 @@ static void _networkReceiveTask( void * pArgument )
                                      _FLAG_RECEIVE_TASK_EXITED );
     }
 
-    IotLogDebug( "Network receive task: before vTaskDelete" );
+    IotLogDebug( "Network receive task: deleting" );
 
     vTaskDelete( NULL );
 }
@@ -448,13 +448,11 @@ size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
                                          &serverAddress,
                                          &addrLength );
 
-        if( socketStatus <= 0 )
+        if( ( socketStatus <= 0 ) || ( socketStatus != bytesRequested ) )
         {
-            IotLogError( "Failed to receive requested bytes: %d, received: %d socketStatus: %d", bytesRequested, bytesReceived,
+            IotLogError( "Failed to receive requested bytes: %d, received: %d socketStatus: %d", bytesRequested, socketStatus,
                          socketStatus );
         }
-
-        configASSERT( socketStatus == bytesRequested );
     }
 
     if( ( socketStatus > 0 ) && ( pNetworkConnection->strictServerAddrCheck ) )
@@ -480,6 +478,12 @@ size_t IotNetworkUdp_ReceiveFrom( void * pConnection,
 IotNetworkError_t IotNetworkUdp_Close( void * pConnection )
 {
     IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
+
+    if( pConnection == NULL )
+    {
+        IotLogError( " Invalid Connection Reference" );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_BAD_PARAMETER );
+    }
 
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
@@ -511,6 +515,12 @@ IotNetworkError_t IotNetworkUdp_Close( void * pConnection )
 IotNetworkError_t IotNetworkUdp_Destroy( void * pConnection )
 {
     IOT_FUNCTION_ENTRY( IotNetworkError_t, IOT_NETWORK_SUCCESS );
+
+    if( pConnection == NULL )
+    {
+        IotLogError( " Invalid Connection Reference" );
+        IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_BAD_PARAMETER );
+    }
 
     /* Cast network connection to the correct type. */
     _networkConnection_t * pNetworkConnection = ( _networkConnection_t * ) pConnection;
