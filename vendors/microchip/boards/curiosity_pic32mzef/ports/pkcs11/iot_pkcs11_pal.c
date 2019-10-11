@@ -98,7 +98,7 @@ typedef struct
  */
 static P11KeyConfig_t P11ConfigSave;
 
-int mbedtls_hardware_poll( void * data,
+int lPortGetEntropyFromHardware( void * data,
                            unsigned char * output,
                            size_t len,
                            size_t * olen );
@@ -373,7 +373,7 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 
 /*-----------------------------------------------------------*/
 
-int mbedtls_hardware_poll( void * data,
+int lPortGetEntropyFromHardware( void * data,
                            unsigned char * output,
                            size_t len,
                            size_t * olen )

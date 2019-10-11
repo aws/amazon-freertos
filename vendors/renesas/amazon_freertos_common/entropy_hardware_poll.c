@@ -15,19 +15,19 @@ void get_random_number(uint8_t *data, uint32_t len);
 /******************************************************************************
 Functions : hardware entropy collector(repeatedly called until enough gathered)
 ******************************************************************************/
-int mbedtls_hardware_poll( void *data,
+int lPortGetEntropyFromHardware( void *data,
                            unsigned char *output, size_t len, size_t *olen )
 {
     R_INTERNAL_NOT_USED(data);
-    R_INTERNAL_NOT_USED(len);
 
     uint32_t random_number = 0;
+    size_t num_bytes = ( len < 4 ) ? len : 4;
 
-    get_random_number((uint8_t *)&random_number, sizeof(uint32_t));
+    get_random_number( ( uint8_t * ) &random_number, num_bytes );
     *olen = 0;
 
-    memcpy(output, &random_number, sizeof(uint32_t));
-    *olen = sizeof(uint32_t);
+    memcpy( output, &random_number, num_bytes );
+    *olen = num_bytes;
 
     return 0;
 }

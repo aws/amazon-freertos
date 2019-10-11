@@ -657,10 +657,10 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
 
 /*-----------------------------------------------------------*/
 
-int mbedtls_hardware_poll( void * data,
-                           unsigned char * output,
-                           size_t len,
-                           size_t * olen )
+int lPortGetEntropyFromHardware( void * data,
+                                  unsigned char * output,
+                                  size_t len,
+                                  size_t * olen )
 {
     int lStatus = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
 

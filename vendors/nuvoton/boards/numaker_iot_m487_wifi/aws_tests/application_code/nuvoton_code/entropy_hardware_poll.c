@@ -213,7 +213,7 @@ static BaseType_t trng_init()
  * Get len bytes of entropy from the hardware RNG.
  */
  
-int mbedtls_hardware_poll( void *data,
+int lPortGetEntropyFromHardware( void *data,
                     unsigned char *output, size_t len, size_t *olen )
 {
     /* Enabling ADC and sampling the internal voltage to come out one random seed,

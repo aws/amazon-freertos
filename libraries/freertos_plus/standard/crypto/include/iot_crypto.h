@@ -28,6 +28,11 @@
 
 #include "FreeRTOS.h"
 
+/*
+ * Error codes
+ */
+#define CRYPTO_ERROR_RNG             0x3000
+
 /**
  * @brief Commonly used buffer sizes for storing cryptographic hash computation
  * results.
@@ -57,12 +62,39 @@ void CRYPTO_ConfigureThreading( void );
 void CRYPTO_ConfigureHeap( void );
 
 /**
+ * @brief Initializes the CRYPTO-maintained DRBG.
+ *
+ */
+void CRYPTO_ConfigureDRBG( void );
+
+
+/**
  * @brief Library-independent cryptographic algorithm identifiers.
  */
 #define cryptoHASH_ALGORITHM_SHA1           1
 #define cryptoHASH_ALGORITHM_SHA256         2
 #define cryptoASYMMETRIC_ALGORITHM_RSA      1
 #define cryptoASYMMETRIC_ALGORITHM_ECDSA    2
+
+
+
+/**
+ * @brief Generate random bytes.
+ *
+ * @param[in] pvContext           Pointer to a context for compatibility with other crypto
+ *                                libraries.  This input is ignored in this port.
+ * @param[out] pRandomBytes       Pointer to the location where random bytes will be
+ *                                placed.  This memory should be allocated by the caller.
+ * @param[in] length              Number of random bytes to be generated.  pRandomBytes
+ *                                must be at least length bytes long.
+ *
+ * @return 0 on success, otherwise error.
+ *
+ */
+int CRYPTO_GetRandomBytes( void * pvContext,
+                           uint8_t * pRandomBytes,
+                           size_t length );
+
 
 /**
  * @brief Initializes digital signature verification.

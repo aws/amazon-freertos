@@ -11,7 +11,7 @@
 #if defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
 
 extern int os_get_random(unsigned char *buf, size_t len);
-int mbedtls_hardware_poll( void *data,
+int lPortGetEntropyFromHardware( void *data,
                            unsigned char *output, size_t len, size_t *olen )
 {
     os_get_random(output, len);

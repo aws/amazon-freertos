@@ -39,7 +39,7 @@
 
 #if defined(MBEDTLS_ENTROPY_HARDWARE_ALT)
 
-int mbedtls_hardware_poll( void *data,
+int lPortGetEntropyFromHardware( void *data,
                            unsigned char *output, size_t len, size_t *olen )
 {
     optiga_lib_status_t status;

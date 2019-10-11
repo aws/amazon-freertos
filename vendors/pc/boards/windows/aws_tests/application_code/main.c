@@ -145,6 +145,9 @@ int main( void )
         0,
         0 );
 
+    /* Initialize AWS system libraries. */
+    SYSTEM_Init();
+
     /* Initialize the network interface.
      *
      ***NOTE*** Tasks that use the network are created in the network event hook
@@ -173,8 +176,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     /* If the network has just come up...*/
     if( ( eNetworkEvent == eNetworkUp ) && ( xTasksAlreadyCreated == pdFALSE ) )
     {
-        /* Initialize AWS system libraries. */
-        SYSTEM_Init();
 
         vDevModeKeyProvisioning();
 
