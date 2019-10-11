@@ -57,6 +57,10 @@ static IotSemaphore_t demoNetworkSemaphore;
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
+#ifdef democonfigMEMORY_ANALYSIS
+    extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xDemoStackSize;
+#endif
+
 #if defined( MQTT_DEMO_TYPE_ENABLED )
     #if BLE_ENABLED
         extern const IotMqttSerializer_t IotBleMqttSerializer;
@@ -306,6 +310,15 @@ void runDemoTask( void * pArgument )
         }
     #endif /* INSERT_DELAY_BEFORE_DEMO */
 
+    #ifdef democonfigMEMORY_ANALYSIS
+        demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark = 0;
+        xBeforeDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+
+        size_t xBeforeDemoHeapSize, xAfterDemoHeapSize = 0;
+        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+    #endif /* democonfigMEMORY_ANALYSIS */
+
+
     /* DO NOT EDIT - This demo start marker is used in the test framework to
      * determine the start of a demo. */
     IotLogInfo( "---------STARTING DEMO---------\n" );
@@ -345,6 +358,13 @@ void runDemoTask( void * pArgument )
     {
         IotLogError( "Failed to initialize the demo. exiting..." );
     }
+
+    #ifdef democonfigMEMORY_ANALYSIS
+        xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+        IotLogInfo( "Demo Memory Analysis Heap Total: %u Minimum heap size ever before running demo: %u after running demo: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
+        xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
+    #endif /* democonfigMEMORY_ANALYSIS */
 
     /* DO NOT EDIT - This demo end marker is used in the test framework to
      * determine the end of a demo. */
