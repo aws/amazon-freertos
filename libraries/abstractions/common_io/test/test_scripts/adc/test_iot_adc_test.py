@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Amazon FreeRTOS V1.2.3
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -33,7 +34,7 @@ sys.path.insert(0,parentdir)
 from test_iot_test_template import test_template
 
 
-class adc_test(test_template):
+class TestAdcAssisted(test_template):
     """
     Test class for adc tests.
     """
@@ -124,7 +125,7 @@ if __name__ == "__main__":
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()
-        t_handler = adc_test(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
+        t_handler = TestAdcAssisted(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
         t_handler.auto_run()
 
     serial_port.close()

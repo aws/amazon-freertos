@@ -39,17 +39,17 @@ if [ "$1" == "-p" ]; then
 elif [ "$1" == "-w" ]; then
 
     #Open a SSH connection to RP3 and run the test_iot_gpio_rp3.py to read the GPIO pin status
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "python /home/pi/Tests/test_iot_gpio_rp3.py -i $2 > /home/pi/Tests/gpio_output_RP3.txt"
+    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "python /home/pi/Tests/test_iot_gpio_rp3.py -i $2 > /home/pi/Tests/gpio_rpi_res.txt"
 
     #Copy the GPIO pin status to host for validation
-    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/gpio_output_RP3.txt .
+    sshpass -p ${PASSWD} scp ${LOGINID}@${IP}:/home/pi/Tests/gpio_rpi_res.txt .
 
 elif [ "$1" == "-r" ]; then
     #Open a SSH connection to RP3 and run the test_iot_gpio_rp3.py to set the GPIO pin output
     sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "python /home/pi/Tests/test_iot_gpio_rp3.py -o $2"
 
 elif [ "$1" == "-c" ]; then
-    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "rm /home/pi/Tests/gpio_output_RP3.txt"
+    sshpass -p ${PASSWD} ssh ${LOGINID}@${IP} "rm /home/pi/Tests/gpio_rpi_res.txt"
 fi
 
 exit 0

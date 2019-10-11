@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Amazon FreeRTOS V1.2.3
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -22,7 +23,6 @@
 # http://www.FreeRTOS.org
 
 
-
 import serial
 import csv
 import threading
@@ -31,12 +31,14 @@ import sys
 import math
 import os
 import argparse
+
 parentdir = os.path.dirname(os.getcwd())
-sys.path.insert(0,parentdir)
+sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
+import socket
 
 
-class pwm_test(test_template):
+class TestPwmAssisted(test_template):
     """
     Test class for pwm tests.
     """
@@ -55,6 +57,8 @@ class pwm_test(test_template):
         self._cr = csv_handler
 
     shell_script = "./test_iot_runonPI_pwm.sh"
+    rpi_output_file = "./pwm_rpi_res.txt"
+    port = 50007
 
     def test_IotPwmAccuracy(self):
         """
@@ -66,7 +70,17 @@ class pwm_test(test_template):
         t_shell = threading.Thread(target=self.run_shell_script,
                                    args=(" ".join([self.shell_script, self._ip, self._login, self._pwd]),))
         t_shell.start()
-        sleep(2)
+        # Create a tcp type socket with AF_INET address family.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time_out = 10
+        # Wait until connection with the process on rpi is established.
+        while s.connect_ex((self._ip, self.port)) != 0 and time_out > 0:
+            time_out -= 1
+            sleep(1)
+        if time_out == 0:
+            print("Socket connection cannot be established")
+            s.close()
+            return "Fail"
 
         self._serial.reset_input_buffer()
 
@@ -77,17 +91,21 @@ class pwm_test(test_template):
 
         self._serial.write('\r\n'.encode('utf-8'))
 
+        sleep(5)
+        # End rpi process.
+        s.send(b'E')
+
         # wait the script on rpi to finish.
         t_shell.join()
-        res = str(self._serial.read(100))
+        s.close()
+        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
 
         if res.find('PASS\\n') == -1:
             print(sys._getframe().f_code.co_name, ": device under test pwm capture failed")
-            # self.clean()
             return 'Fail'
 
         no_of_correct_freq = 0
-        with open("pwm_res.txt", "r") as f:
+        with open(self.rpi_output_file, "r") as f:
             for line in f:
                 data = line.split()
                 # Test whether the read frequency and duty cycle are within the error.
@@ -101,15 +119,9 @@ class pwm_test(test_template):
                         return 'Pass'
                 elif no_of_correct_freq > 0:
                     print(sys._getframe().f_code.co_name, ": device under test pwm output failed")
-                    # self.clean()
                     return 'Fail'
 
-        # self.clean()
         return 'Fail'
-
-    def clean(self):
-        os.remove("./pwm_res.txt")
-        self.run_shell_script(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-c']))
 
 
 # unit test
@@ -137,7 +149,7 @@ if __name__ == "__main__":
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()
-        t_handler = pwm_test(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
+        t_handler = TestPwmAssisted(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
         t_handler.auto_run()
 
     serial_port.close()
