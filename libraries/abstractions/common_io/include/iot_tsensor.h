@@ -41,13 +41,13 @@
 /**
  * @brief Return values used by tsensor driver
  */
-#define IOT_TSENSOR_SUCCESS         ( 0 )
-#define IOT_TSENSOR_INVALID_VALUE   ( 1 )
-#define IOT_TSENSOR_DISABLED        ( 2 )
-#define IOT_TSENSOR_CLOSED          ( 3 )
-#define IOT_TSENSOR_GET_TEMP_FAILED ( 4 )
-#define IOT_TSENSOR_SET_FAILED      ( 5 )
-#define IOT_TSENSOR_NOT_SUPPORTED   ( 6 )
+#define IOT_TSENSOR_SUCCESS         ( 0 )    /*!< TempSensor operation completed successfully.*/
+#define IOT_TSENSOR_INVALID_VALUE   ( 1 )    /*!< At least one parameter is invalid.*/
+#define IOT_TSENSOR_DISABLED        ( 2 )    /*!< TempSensor is disabled.*/
+#define IOT_TSENSOR_CLOSED          ( 3 )    /*!< TempSensor instance is not open.*/
+#define IOT_TSENSOR_GET_TEMP_FAILED ( 4 )    /*!< TempSensor failed to get the temperature.*/
+#define IOT_TSENSOR_SET_FAILED      ( 5 )    /*!< TempSensor set threshold operation failed.*/
+#define IOT_TSENSOR_NOT_SUPPORTED   ( 6 )    /*!< TempSensor operation not supported.*/
 
 /**
  * @brief tsensor threshold reached status
@@ -63,10 +63,10 @@ typedef enum
  */
 typedef enum
 {
-    eTsensorSetMinThreshold,    /*!< Set min temperature threshold using IotI2CIoctlConfig_t */
-    eTsensorSetMaxThreshold,    /*!< Set max temperature threshold using IotI2CIoctlConfig_t */
-    eTsensorGetMinThreshold,    /*!< Get min temperature threshold using IotI2CIoctlConfig_t */
-    eTsensorGetMaxThreshold,    /*!< Get max temperature threshold using IotI2CIoctlConfig_t */
+    eTsensorSetMinThreshold,    /*!< Set min temperature threshold using IotI2CIoctlConfig_t.  Takes int32_t value in degrees celcius.*/
+    eTsensorSetMaxThreshold,    /*!< Set max temperature threshold using IotI2CIoctlConfig_t . Takes int32_t value in degrees celcius.*/
+    eTsensorGetMinThreshold,    /*!< Get min temperature threshold using IotI2CIoctlConfig_t.  Returns int32_t value in degrees celcius.*/
+    eTsensorGetMaxThreshold,    /*!< Get max temperature threshold using IotI2CIoctlConfig_t.  Returns int32_t value in degrees celcius.*/
     eTsensorPerformCalibration  /*!< Perform calibration of the sensor */
 } IotTsensorIoctlRequest_t;
 
@@ -99,13 +99,24 @@ typedef void( * IotTsensorCallback_t)(IotTsensorStatus_t xStatus, void * pvUserC
  *                                 number is platform specific. i,e if you have more than one temperature
  *                                 ensors, then 2 instances point to 2 different sensors.
  *
- * @return Handle to tsensor interface on success, or NULL on failure.
+ * @return
+ *   - Handle to tsensor interface on success.
+ *   - NULL if
+ *      - lTesnsorInstance is invalid.
+ *      - instance is already open.
  */
 IotTsensorHandle_t iot_tsensor_open(int32_t lTsensorInstance);
 
 /**
  * @brief   Set the callback to be called when a threshold is reached on the sensor.
- *          The caller must set the threshold level using IOCTL first.
+ *          The caller must set the threshold level using IOCTL before the callback can be called.
+ *
+ * @note Single callback is used per instance for both min and max threshold points being reached.
+ * @note Newly set callback overrides the one previously set
+ *
+ * @warning If input handle or if callback function is NULL, this function silently takes no action.
+ *
+ * @warning If threshold detection is not supported by the hardware, then the callback function will not work.
  *
  * @param[in]   xTsensorHandle  Handle to tsensor driver returned in open() call
  * @param[in]   xCallback       The callback function to be called on completion of transaction.
@@ -122,8 +133,9 @@ void iot_tsensor_set_callback(IotTsensorHandle_t const xTsensorHandle,
  * @param[in]   xTsensorHandle  Handle to tsensor driver returned in
  *                              iot_tsensor_open
  *
- * @return  SUCCESS=IOT_TSENSOR_SUCCESS,
- *          FAILED=IOT_TSENSOR_INVALID_VALUE,
+ * @return
+ *   - IOT_TSENSOR_SUCCESS on success
+ *   - IOT_TSENSOR_INVALID_VALUE if xTsensorHandle is NULL.
  */
 int32_t iot_tsensor_enable(IotTsensorHandle_t const xTsensorHandle);
 
@@ -134,8 +146,9 @@ int32_t iot_tsensor_enable(IotTsensorHandle_t const xTsensorHandle);
  * @param[in]   xTsensorHandle  Handle to tsensor driver returned in
  *                              iot_tsensor_open
  *
- * @return  SUCCESS=IOT_TSENSOR_SUCCESS,
- *          FAILED=IOT_TSENSOR_INVALID_VALUE,
+ * @return
+ *   - IOT_TSENSOR_SUCCESS on success
+ *   - IOT_TSENSOR_INVALID_VALUE if xTsensorHandle is NULL.
  */
 int32_t iot_tsensor_disable(IotTsensorHandle_t const xTsensorHandle);
 
@@ -145,15 +158,18 @@ int32_t iot_tsensor_disable(IotTsensorHandle_t const xTsensorHandle);
  *
  * @param[in]   xTsensorHandle  handle to tsensor driver returned in
  *                              iot_tsensor_open
- * @param[out]  lTemp           temperature read from the sensor.
+ * @param[out]  plTemp           temperature read from the sensor.
  *
- * @return  SUCCESS=IOT_TSENSOR_SUCCESS,
- *          Input_Error=IOT_TSENSOR_INVALID_VALUE,
- *          Sensor_Disabled=IOT_TSENSOR_DISABLED,
- *          Get_Temp_Fail=IOT_TSENSOR_GET_TEMP_FAILED
+ * @return
+ *   - IOT_TSENSOR_SUCCESS on success
+ *   - IOT_TSENSOR_INVALID_VALUE if
+ *      - xTsensorHandle is NULL
+ *      - lTemp is NULL
+ *   - IOT_TSENSOR_DISABLED if tsensor instance has been disabled with call to iot_tsensor_disable().
+ *   - IOT_TSENSOR_GET_TEMP_FAILED if error occured reading the temperature.
  */
 int32_t iot_tsensor_get_temp(IotTsensorHandle_t const xTsensorHandle,
-                             int32_t * lTemp);
+                             int32_t * plTemp);
 
 /**
  * @brief   iot_tsensor_ioctl is used to set tsensor configuration
@@ -165,12 +181,19 @@ int32_t iot_tsensor_get_temp(IotTsensorHandle_t const xTsensorHandle,
  * @param[in]       xRequest    configuration request.
  * @param[in,out]   pvBuffer    buffer holding tsensor set and get values.
  *
- * @return  SUCCESS=IOT_TSENSOR_SUCCESS,
- *          FAILED=IOT_TSENSOR_INVALID_VALUE,
- *          Sensor_Disabled=IOT_TSENSOR_DISABLED,
- *          Ioctl_Fail=IOT_TSENSOR_SET_FAILED
- *          NOT_SUPPORT=IOT_TSENSOR_NOT_SUPPORTED
- *
+ * @return
+ *   - IOT_TSENSOR_SUCCESS on success
+ *   - IOT_TSENSOR_INVALID_VALUE
+ *      - xTsensorHandle is NULL
+ *      - xRequest is invalid
+ *      - pvBuffer is NULL (excluding eTsensorPerformCalibration)
+ *   - IOT_TSENSOR_CLOSED if instance not in open state.
+ *   - IOT_TSENSOR_DISABLED if tsensor instance has been disabled with call to iot_tsensor_disable().
+ *   - IOT_TSENSOR_GET_TEMP_FAILED if error occured reading the temperature.
+ *   - IOT_TSENSOR_SET_FAILED if set threshold operation failed.
+ *   - IOT_TSENSOR_NOT_SUPPORTED valid if xRequest feature not supported.
+ * @note:  If eTsensorSetMinThreshold or eTsensorSetMaxThreshold ioctl is supported, then the
+ *         corresponding eTsensorGetMinThreshold and eTsensorGetMaxThreshold must also be supported.
  */
 int32_t iot_tsensor_ioctl(IotTsensorHandle_t const xTsensorHandle,
                           IotTsensorIoctlRequest_t xRequest,
@@ -182,8 +205,11 @@ int32_t iot_tsensor_ioctl(IotTsensorHandle_t const xTsensorHandle,
  * @param[in]   xTsensorHandle  handle to tsensor driver returned in
  *                              iot_tsensor_open
  *
- * @return  SUCCESS=IOT_TSENSOR_SUCCESS,
- *          FAILED=IOT_TSENSOR_INVALID_VALUE,
+ * @return
+ *   - IOT_TSENSOR_SUCCESS on success
+ *   - IOT_TSENSOR_INVALID_VALUE if
+ *      - xTensorHandle is NULL
+ *      - not in open state (already closed)
  */
 int32_t iot_tsensor_close( IotTsensorHandle_t const xTsensorHandle);
 

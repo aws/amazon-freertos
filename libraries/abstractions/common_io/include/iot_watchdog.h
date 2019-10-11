@@ -46,10 +46,10 @@
 /**
  * @brief Return values used by WatchDog driver
  */
-#define IOT_WATCHDOG_SUCCESS                    ( 0 )
-#define IOT_WATCHDOG_INVALID_VALUE              ( 1 )
-#define IOT_WATCHDOG_TIME_NOT_SET               ( 2 )
-#define IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED     ( 3 )
+#define IOT_WATCHDOG_SUCCESS                    ( 0 )    /*!< Watchdog operation completed successfully.*/
+#define IOT_WATCHDOG_INVALID_VALUE              ( 1 )    /*!< At least one parameter is invalid.*/
+#define IOT_WATCHDOG_TIME_NOT_SET               ( 2 )    /*!< Watchdog timeout value not set.*/
+#define IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED     ( 3 )    /*!< Watchdog operation not supported.*/
 
 /**
  * @brief WatchDog timer status values
@@ -85,18 +85,29 @@ typedef struct IotWatchdogDescriptor   * IotWatchdogHandle_t;
 
 /**
  * @brief Ioctl request types.
+ *
+ * @note BarkTime is the number of msec before a warning signaled in the form of an interrupt call to the
+ * set callback function.
+ * @note BiteTime is the number of msec before a critical condition is signaled in the form of an interrupt
+ * (If supported and configured), and usually ends with the system being reset.
+ *
+ * @warning the BarkTime must be less than or equal to the BiteTime
  */
 typedef enum
 {
-    eSetWatchdogBarkTime,     /*!< Set the WatchDog warning time (bark value) in msec
-                               * the maximum value is based on the clock and number of bits used for WatchDog counter*/
-    eGetWatchdogBarkTime,     /*!< Get the WatchDog warning time (bark value) in msec */
-    eSetWatchdogBiteTime,     /*!< Set the WatchDog expire time (bite value) in msec
-                               * the maximum value is based on the clock and number of bits used for WatchDog counter*/
-    eGetWatchdogBiteTime,     /*!< Get the WatchDog expire time (bite value) in msec */
+    eSetWatchdogBarkTime,     /*!< Set the WatchDog warning time (bark value) as uint32_t in msec.
+                               @warning The maximum value is limited to by the number of bits used for
+                               WatchDog counter in the HW.  ex:  at 24-bit Watchdog counter would have
+                               a maximum of 16,777,215 msec.*/
+    eGetWatchdogBarkTime,     /*!< Get the WatchDog warning time (bark value) as uint32_t in msec */
+    eSetWatchdogBiteTime,     /*!< Set the WatchDog expire time (bite value) as uint32_t in msec.
+                               @warning The maximum value is limited to by the number of bits used for
+                               WatchDog counter in the HW.  ex:  at 24-bit Watchdog counter would have
+                               a maximum of 16,777,215 msec.*/
+    eGetWatchdogBiteTime,     /*!< Get the WatchDog expire time (bite value) as uint32_t in msec */
     eGetWatchdogStatus,       /*!< Returns the WatchDog timer status of type IotWatchdogStatus_t */
-    eSetWatchdogBiteBehaviour /*!< Set the WatchDog bite behavior. Takes IotWatchdogBiteConfig_t type
-                               * Not all platforms may support interrupt generation. */
+    eSetWatchdogBiteBehaviour /*!< Set the WatchDog bite behavior. Takes IotWatchdogBiteConfig_t type */
+                              /*!< @warning  Not all platforms may support interrupt generation. */
 } IotWatchdogIoctlRequest_t;
 
 /**
@@ -104,6 +115,9 @@ typedef enum
  *          to the driver by using iot_watchdog_set_callback API. This callback is used for
  *          warning notification when the bark timer or bite timer expires based on the configuration.
  *          Caller can check the status of the WatchDog timer by using eGetStatus IOCTL
+ *
+ * @warning The callback will only be called if WatchdogBark is supported, or if WatchdogBite behavior
+ *          is set to interrupt and is supported.
  *
  * @param[in] pvUserContext User Context passed when setting the callback.
  *                          This is not used by the driver, but just passed back to the user
@@ -118,7 +132,11 @@ typedef void (* IotWatchdogCallback_t)( void * pvUserContext );
  *
  * @param[in]   lWatchdogInstance   The instance of the WatchDog to initialize.
  *
- * @return  Handle to IotWatchdogHandle_t on success, or NULL on failure.
+ * @return
+ *   - Handle to IotWatchdogHandle_t on success
+ *   - NULL if
+ *      - invalid lWatchdogInstance
+ *      - instance is already open
  */
 IotWatchdogHandle_t iot_watchdog_open( int32_t lWatchdogInstance );
 
@@ -130,8 +148,10 @@ IotWatchdogHandle_t iot_watchdog_open( int32_t lWatchdogInstance );
  * @param[in]   pxWatchdogHandle handle to WatchDog interface returned in
  *                              iot_watchdog_open.
  *
- * @return  returns IOT_WATCHDOG_SUCCESS on success or returns
- *          one of IOT_WATCHDOG_INVALID_VALUE on error.
+ * @return
+ *   - IOT_WATCHDOG_SUCCESS on success
+ *   - IOT_WATCHDOG_INVALID_VALUE if pxWatchdogHandle is NULL
+ *   - IOT_WATCHDOG_TIME_NOT_SET if bite time has not been set.
  */
 int32_t iot_watchdog_start( IotWatchdogHandle_t const pxWatchdogHandle );
 
@@ -143,9 +163,10 @@ int32_t iot_watchdog_start( IotWatchdogHandle_t const pxWatchdogHandle );
  * @param[in]   pxWatchdogHandle handle to WatchDog interface returned in
  *                              iot_watchdog_open.
  *
- * @return  returns IOT_WATCHDOG_SUCCESS on success or returns
- *          one of IOT_WATCHDOG_INVALID_VALUE on error
- *          or IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED.
+ * @return
+ *   - IOT_WATCHDOG_SUCCESS on success
+ *   - IOT_WATCHDOG_INVALID_VALUE if pxWatchdogHandle is NULL
+ *   - IOT_WATCHDOG_NOT_SUPPORTED if stop operation not supported.
  */
 int32_t iot_watchdog_stop( IotWatchdogHandle_t const pxWatchdogHandle );
 
@@ -162,8 +183,10 @@ int32_t iot_watchdog_stop( IotWatchdogHandle_t const pxWatchdogHandle );
  * @param[in]   pxWatchdogHandle handle to WatchDog interface returned in
  *                              iot_watchdog_open.
  *
- * @return  returns IOT_WATCHDOG_SUCCESS on success or returns
- *          one of IOT_WATCHDOG_INVALID_VALUE, IOT_WATCHDOG_TIME_NOT_SET on error.
+ * @return
+ *   - IOT_WATCHDOG_SUCCESS on success
+ *   - IOT_WATCHDOG_INVALID_VALUE if pxWatchdogHandle is NULL
+ *   - IOT_WATCHDOG_TIME_NOT_SET if watchdog bark or bite time have not been set.
  */
 int32_t iot_watchdog_restart( IotWatchdogHandle_t const pxWatchdogHandle );
 
@@ -174,6 +197,12 @@ int32_t iot_watchdog_restart( IotWatchdogHandle_t const pxWatchdogHandle );
  *          IOCTL and start the timer for the callback to be called back.
  *          Caller must restart the timer when bark timer expires and bite time is configured
  *          to reset the device to avoid the target reset.
+ *
+ * @note Single callback is used, per instance, if eWatchdogBiteTimerInterrupt has been configured or
+ *       if the bark time reaches the WatchDog counter.
+ * @note Newly set callback overrides the one previously set
+ *
+ * @warning If input handle or if callback function is NULL, this function silently takes no action.
  *
  * @param[in]   pxWatchdogHandle handle to WatchDog interface returned in
  *                              iot_watchdog_open.
@@ -194,9 +223,14 @@ void iot_watchdog_set_callback( IotWatchdogHandle_t const pxWatchdogHandle,
  * @param[in]   xRequest    configuration request of type IotFlashIoctlRequest_t
  * @param[in,out] pvBuffer   the configuration buffer to hold the request or response of IOCTL.
  *
- * @return  returns IOT_WATCHDOG_SUCCESS on success or returns
- *          one of IOT_WATCHDOG_INVALID_VALUE, IOT_WATCHDOG_TIME_NOT_SET on error
- *          or IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED
+ * @return
+ *   - returns IOT_WATCHDOG_SUCCESS on success
+ *   - IOT_WATCHDOG_INVALID_VALUE if
+ *      - pxWatchdogHandle is NULL
+ *      - xRequest is invalid
+ *      - pvBuffer is NULL
+ *   - IOT_WATCHDOG_TIME_NOT_SET on error
+ *   - IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED
  */
 int32_t iot_watchdog_ioctl( IotWatchdogHandle_t const pxWatchdogHandle,
                             IotWatchdogIoctlRequest_t xRequest,
@@ -208,8 +242,11 @@ int32_t iot_watchdog_ioctl( IotWatchdogHandle_t const pxWatchdogHandle,
  *
  * @param[in]   pxWatchdogHandle handle to WatchDog interface returned in
  *                              iot_watchdog_open.
- * @return  returns IOT_WATCHDOG_SUCCESS on success or returns
- *          one of IOT_WATCHDOG_INVALID_VALUE on error.
+ * @return
+ *   - IOT_WATCHDOG_SUCCESS on success
+ *   - IOT_WATCHDOG_INVALID_VALUE if
+ *      - pxWatchdogHandle == NULL
+ *      - pxWatchdogHandle is not open (previously closed).
  */
 int32_t iot_watchdog_close( IotWatchdogHandle_t const pxWatchdogHandle );
 
