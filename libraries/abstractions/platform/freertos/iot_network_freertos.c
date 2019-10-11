@@ -382,7 +382,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
 
     if( socketStatus != SOCKETS_ERROR_NONE )
     {
-        IotLogError( "Failed to establish new connection." );
+        IotLogError( "Failed to establish new connection. Socket status: %d.", socketStatus );
         IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
@@ -395,7 +395,7 @@ IotNetworkError_t IotNetworkAfr_Create( void * pConnectionInfo,
 
     if( socketStatus != SOCKETS_ERROR_NONE )
     {
-        IotLogError( "Failed to set socket receive timeout." );
+        IotLogError( "Failed to set socket receive timeout. Socket status %d.", socketStatus );
         IOT_SET_AND_GOTO_CLEANUP( IOT_NETWORK_SYSTEM_ERROR );
     }
 
