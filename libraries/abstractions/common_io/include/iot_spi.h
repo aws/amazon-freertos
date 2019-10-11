@@ -47,12 +47,12 @@
 #define IOT_SPI_READ_FAILED               ( 3 ) /*!< SPI driver returns error when performing read operation. */
 #define IOT_SPI_TRANSFER_ERROR            ( 4 ) /*!< SPI driver returns error when performing transfer. */
 #define IOT_SPI_BUS_BUSY                  ( 5 ) /*!< SPI bus is busy at current time. */
-#define IOT_SPI_NOTHING_TO_CANCEL         ( 6 ) /*!< No ongoing transaction when cancel operation is performed. */
+#define IOT_SPI_NOTHING_TO_CANCEL         ( 6 ) /*!< No ongoing operation when cancel operation is performed. */
 #define IOT_SPI_FUNCTION_NOT_SUPPORTED    ( 7 ) /*!< SPI operation is not supported. */
 
 
 /**
- * @brief The SPI return status from Async transactions
+ * @brief The SPI return status from Async operations.
  */
 typedef enum
 {
@@ -153,7 +153,7 @@ IotSPIHandle_t iot_spi_open( int32_t lSPIInstance );
  * @warning If the input handle is invalid, this function silently takes no action.
  *
  * @param[in] pxSPIPeripheral The SPI peripheral handle returned in the open() call.
- * @param[in] xCallback The callback function to be called on completion of transaction.
+ * @param[in] xCallback The callback function to be called on completion of operation.
  * @param[in] pvUserContext The user context to be passed back when callback is called.
  */
 void iot_spi_set_callback( IotSPIHandle_t const pxSPIPeripheral,
@@ -228,7 +228,7 @@ int32_t iot_spi_ioctl( IotSPIHandle_t const pxSPIPeripheral,
  *     - pucBuffer is NULL
  *     - xBytes is 0
  * - IOT_SPI_READ_ERROR, if there is some unknown driver error.
- * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing transaction.
+ * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing operation.
  */
 int32_t iot_spi_read_sync( IotSPIHandle_t const pxSPIPeripheral,
                            uint8_t * const pvBuffer,
@@ -248,7 +248,7 @@ int32_t iot_spi_read_sync( IotSPIHandle_t const pxSPIPeripheral,
  * @note Dummy data will be written to slave while reading. The dummy data value can be configured with iot_spi_ioctl.
  * @note In order to get notification when the asynchronous call is completed, iot_spi_set_callback must be called prior to this.
  *
- * @warning pucBuffer must be valid before callback is invoked.
+ * @warning pvBuffer must be valid before callback is invoked.
  * @warning None of other read or write functions shall be called during this function or before user callback.
  *
  * @param[in] pxSPIPeripheral The SPI peripheral handle returned in open() call.
@@ -263,7 +263,7 @@ int32_t iot_spi_read_sync( IotSPIHandle_t const pxSPIPeripheral,
  *     - pucBuffer is NULL
  *     - xBytes is 0
  * - IOT_SPI_READ_ERROR, if there is some unknown driver error.
- * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing transaction.
+ * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing operation.
  */
 int32_t iot_spi_read_async( IotSPIHandle_t const pxSPIPeripheral,
                             uint8_t * const pvBuffer,
@@ -291,7 +291,7 @@ int32_t iot_spi_read_async( IotSPIHandle_t const pxSPIPeripheral,
  *     - pucBuffer is NULL
  *     - xBytes is 0
  * - IOT_SPI_WRITE_ERROR, if there is some unknown driver error.
- * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing transaction.
+ * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing operation.
  */
 int32_t iot_spi_write_sync( IotSPIHandle_t const pxSPIPeripheral,
                             uint8_t * const pvBuffer,
@@ -302,16 +302,15 @@ int32_t iot_spi_write_sync( IotSPIHandle_t const pxSPIPeripheral,
  *
  * This function attempts to read certain number of bytes from a pre-allocated buffer, in asynchronous way.
  * It returns immediately when the operation is started and the status can be check by calling iot_spi_ioctl.
- * Once the operation completes, successful or not, the user callback will be invoked.
  *
  * Once the operation completes successfully, the user callback will be invoked.
  * If the operation encounters an error, the user callback will be invoked.
  * The callback is not invoked on paritial write, unless there is an error.
- * And the number of bytes that have been actually read can be obtained by calling iot_spi_ioctl.
+ * And the number of bytes that have been actually written can be obtained by calling iot_spi_ioctl.
  *
  * @note In order to get notification when the asynchronous call is completed, iot_spi_set_callback must be called prior to this.
  *
- * @warning pucBuffer must be valid before callback is invoked.
+ * @warning pvBuffer must be valid before callback is invoked.
  * @warning None of other read or write functions shall be called during this function or before user callback.
  *
  * @param[in] pxSPIPeripheral The SPI peripheral handle returned in open() call.
@@ -326,7 +325,7 @@ int32_t iot_spi_write_sync( IotSPIHandle_t const pxSPIPeripheral,
  *     - pucBuffer is NULL
  *     - xBytes is 0
  * - IOT_SPI_WRITE_ERROR, if there is some unknown driver error.
- * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing transaction.
+ * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing operation.
  */
 int32_t iot_spi_write_async( IotSPIHandle_t const pxSPIPeripheral,
                              uint8_t * const pvBuffer,
@@ -336,8 +335,8 @@ int32_t iot_spi_write_async( IotSPIHandle_t const pxSPIPeripheral,
  * @brief The SPI master starts a synchronous transfer between master and the slave.
  *
  * This function attempts to read/write certain number of bytes from/to two pre-allocated buffers at the same time, in synchronous way.
- * his function does not return on paritial read/write, unless there is an error.
- * And the number of bytes that have been actually written can be obtained by calling iot_spi_ioctl.
+ * This function does not return on paritial read/write, unless there is an error.
+ * And the number of bytes that have been actually read or written can be obtained by calling iot_spi_ioctl.
  *
  * @param[in] pxSPIPeripheral The SPI peripheral handle returned in open() call.
  * @param[in] pvTxBuffer The buffer to store the received data.
@@ -352,7 +351,7 @@ int32_t iot_spi_write_async( IotSPIHandle_t const pxSPIPeripheral,
  *     - pucBuffer is NULL
  *     - xBytes is 0
  * - IOT_SPI_TRANSFER_ERROR, if there is some unknown driver error.
- * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing transaction.
+ * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing operation.
  */
 int32_t iot_spi_transfer_sync( IotSPIHandle_t const pxSPIPeripheral,
                                uint8_t * const pvTxBuffer,
@@ -364,9 +363,8 @@ int32_t iot_spi_transfer_sync( IotSPIHandle_t const pxSPIPeripheral,
  *
  * This function attempts to read/write certain number of bytes from/to two pre-allocated buffers at the same time, in asynchronous way.
  * It returns immediately when the operation is started and the status can be check by calling iot_spi_ioctl.
- * Once the operation completes, no matter successful or failed, the user callback will be invoked.
  *
- *  Once the operation completes successfully, the user callback will be invoked.
+ * Once the operation completes successfully, the user callback will be invoked.
  * If the operation encounters an error, the user callback will be invoked.
  * The callback is not invoked on paritial read/write, unless there is an error.
  * And the number of bytes that have been actually read/write can be obtained by calling iot_spi_ioctl.
@@ -383,7 +381,7 @@ int32_t iot_spi_transfer_sync( IotSPIHandle_t const pxSPIPeripheral,
  *     - pucBuffer is NULL
  *     - xBytes is 0
  * - IOT_SPI_TRANSFER_ERROR, if there is some unknown driver error.
- * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing transaction.
+ * - IOT_SPI_BUSY, if the bus is busy which means there is an ongoing opeartion.
  */
 int32_t iot_spi_transfer_async( IotSPIHandle_t const pxSPIPeripheral,
                                 uint8_t * const pvTxBuffer,
@@ -414,7 +412,7 @@ int32_t iot_spi_close( IotSPIHandle_t const pxSPIPeripheral );
  * - IOT_SPI_INVALID_VALUE, if
  *     - pxSPIPeripheral is NULL
  *     - pxSPIPeripheral is not opened yet
- * - IOT_SPI_NOTHING_TO_CANCEL, if there is no on-going transaction.
+ * - IOT_SPI_NOTHING_TO_CANCEL, if there is no on-going operation.
  * - IOT_SPI_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  */
 int32_t iot_spi_cancel( IotSPIHandle_t const pxSPIPeripheral );
