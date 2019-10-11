@@ -46,6 +46,25 @@
 #include IOT_UNITY_FIXTURE
 #include IOT_UNITY
 
+/* Configure logs for the functions in this file. */
+#ifdef IOT_LOG_LEVEL_GLOBAL
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_LEVEL_GLOBAL
+#else
+    #define LIBRARY_LOG_LEVEL    IOT_LOG_NONE
+#endif
+
+#define LIBRARY_LOG_NAME         ( "BLE_HAL_API_TEST" )
+#include "iot_logging_setup.h"
+
+/* Enable/Disable test cases */
+/* AFQP test */
+#define ENABLE_TC_WRITE_LONG              ( 1 )
+#define ENABLE_TC_ADD_INCLUDED_SERVICE    ( 0 )
+#define ENABLE_TC_SECONDARY_SERVICE       ( 0 )
+/* Integration test */
+#define ENABLE_TC_CALLBACK_NULL_CHECK     ( 0 )
+
+
 /**
  * @brief Connection parameters.
  */
@@ -151,6 +170,18 @@ typedef struct
     {                                                                                                              \
         .uu.uu128 = { 11, 0, 0x32, 0xF9, 0x79, 0xE6, 0xB5, 0x83, 0xFB, 0x4E, 0xAF, 0x48, 0x68, 0x11, 0x7F, 0x8A }, \
         .ucType = eBTuuidType128                                                                                   \
+    }
+
+#define bletestsFREERTOS_SVC_C_UUID                                                                                     \
+    {                                                                                                                   \
+        .uu.uu128 = { 0x02, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }, \
+        .ucType = eBTuuidType128                                                                                        \
+    }
+
+#define bletestsFREERTOS_CHAR_G_UUID                                                                                    \
+    {                                                                                                                   \
+        .uu.uu128 = { 0x03, 0x00, 0x1B, 0xE1, 0x14, 0xC6, 0x83, 0xAA, 0x9A, 0x4F, 0x9F, 0x4B, 0x87, 0xA1, 0x13, 0x31 }, \
+        .ucType = eBTuuidType128                                                                                        \
     }
 
 
@@ -357,6 +388,13 @@ typedef enum
     bletestATTR_SRVCB_NUMBER
 } bletestAttSrvB_t;
 
+typedef enum
+{
+    bletestATTR_SRVCC_SERVICE,
+    bletestATTR_SRVCC_CHAR_A,
+    bletestATTR_SRVCC_NUMBER
+} bletestAttSrvC_t;
+
 typedef struct
 {
     size_t xLength;
@@ -433,6 +471,8 @@ void prvRequestWriteCb( uint16_t usConnId,
                         uint8_t * pucValue );
 void prvIndicationSentCb( uint16_t usConnId,
                           BTStatus_t xStatus );
+void prvMtuChangedCb( uint16_t usConnId,
+                      uint16_t usMtu );
 void prvResponseConfirmationCb( BTStatus_t xStatus,
                                 uint16_t usHandle );
 void prvSspRequestCb( BTBdaddr_t * pxRemoteBdAddr,
@@ -466,9 +506,12 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
 
 void IotTestBleHal_BLEManagerInit( void );
 void IotTestBleHal_BLEEnable( bool bEnable );
+void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
+                                   bool bIsSet );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
 void IotTestBleHal_CreateServiceA( void );
 void IotTestBleHal_CreateServiceB( void );
+void IotTestBleHal_CreateServiceC( void );
 void IotTestBleHal_WaitConnection( bool bConnected );
 void IotTestBleHal_StopService( BTService_t * xRefSrvc );
 void IotTestBleHal_DeleteService( BTService_t * xRefSrvc );
@@ -477,6 +520,7 @@ void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
 void IotTestBleHal_BTUnregister( void );
 void IotTestBleHal_BLEGAPInit( void );
 void IotTestBleHal_BLEGATTInit( void );
+void IotTestBleHal_InitWithNULLCb( void );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
                                uint16_t usManufacturerLen,
@@ -500,5 +544,7 @@ void IotTestBleHal_WriteResponse( bletestAttSrvB_t xAttribute,
 
 void IotTestBleHal_StartStopAdvCheck( bool start );
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute );
+size_t IotTestBleHal_ComputeNumberOfHandles( BTService_t * pxService );
+extern uint16_t _bletestsMTU_SIZE;
 
 #endif /* _IOT_TEST_BLE_HAL_COMMON_H */

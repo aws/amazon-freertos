@@ -52,6 +52,7 @@ class runTest:
     DUT_UUID_128 = "8a7f1168-48af-4efb-83b5-e679f932db5a"
     DUT_UUID_16 = "abcd"
     DUT_SERVICEB_UUID = "8a7f1168-48af-4efb-83b5-e679f9320001"
+    DUT_SERVICEC_UUID = "3113a187-4b9f-4f9a-aa83-c614e11b0002"
     DUT_CHAR = {"8a7f1168-48af-4efb-83b5-e679f9320002": {"Flags": "read, write"},
                 "8a7f1168-48af-4efb-83b5-e679f9320003": {"Flags": "read, write"},
                 "8a7f1168-48af-4efb-83b5-e679f9320004": {"Flags": "read, write"},
@@ -342,7 +343,16 @@ class runTest:
 
     @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
-        bleAdapter.writeCharacteristic(charUUID, charUUID)
+        ENABLE_TC_WRITE_LONG = 1
+        if (ENABLE_TC_WRITE_LONG == 1):
+            #enable long write test
+            long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
+            bleAdapter.writeCharacteristic(charUUID, long_value)
+
+        ENABLE_TC_WRITE_NORMAL = 1
+        if (ENABLE_TC_WRITE_NORMAL == 1):
+            bleAdapter.writeCharacteristic(charUUID, charUUID)
+
         bleAdapter.writeDescriptor(descrUUID, descrUUID)
 
         (isTestSuccessfull, charRead) = bleAdapter.readCharacteristic(charUUID)
@@ -410,6 +420,17 @@ class runTest:
             print(
                 "checkUUIDs test: missing service UUID: " +
                 runTest.DUT_SERVICEB_UUID)
+            isTestSuccessfull = False
+        elif (gatt.services[runTest.DUT_SERVICEB_UUID]["Primary"] != True):
+            print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
+            isTestSuccessfull = False
+
+        #Check secondary service UUID
+        if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
+            print("checkUUIDs test: missing secondary service UUID: "+runTest.DUT_SERVICEC_UUID)
+            isTestSuccessfull = False
+        elif (gatt.services[runTest.DUT_SERVICEC_UUID]["Primary"] != False):
+            print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
             isTestSuccessfull = False
 
         # Check characteristics UUIDs
