@@ -23,7 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
  * @file iot_efuse.h
  * @brief File for the APIs of efuse called by application layer.
@@ -39,15 +38,13 @@
 /**
  * The return codes for the functions in EFUSE.
  */
-#define IOT_EFUSE_SUCCESS                       ( 0 )
-#define IOT_EFUSE_INVALID_VALUE                 ( 1 )
-#define IOT_EFUSE_READ_FAIL                     ( 2 )
-#define IOT_EFUSE_WRITE_FAIL                    ( 3 )
-#define IOT_EFUSE_OPEN_FAIL                     ( 4 )
-#define IOT_EFUSE_CLOSE_FAIL                    ( 5 )
-#define IOT_EFUSE_UNKNOWN_FAIL                  ( 6 )
-#define IOT_EFUSE_FUNCTION_NOT_SUPPORTED        ( 7 )
-#define IOT_EFUSE_ERROR                         ( 8 )
+#define IOT_EFUSE_SUCCESS                   ( 0 )      /*!< Efuse operation completed successfully. */
+#define IOT_EFUSE_INVALID_VALUE             ( 1 )      /*!< At least one parameter is invalid. */
+#define IOT_EFUSE_READ_FAIL                 ( 2 )      /*!< Error reading Efuse value. */
+#define IOT_EFUSE_WRITE_FAIL                ( 3 )      /*!< Error writing Efuse value. */
+#define IOT_EFUSE_CLOSE_FAIL                ( 4 )      /*!< Error closing Efuse instance. */
+#define IOT_EFUSE_FUNCTION_NOT_SUPPORTED    ( 5 )      /*!< Efuse operation not supported. */
+#define IOT_EFUSE_ERROR                     ( 6 )      /*!< Error performing Efuse operation. */
 
 /**
  * @brief The Efuse descriptor type defined in the source file.
@@ -59,24 +56,29 @@ struct                      IotEfuseDescriptor;
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
  */
-typedef struct IotEfuseDescriptor   * IotEfuseHandle_t;
+typedef struct IotEfuseDescriptor * IotEfuseHandle_t;
 
 /**
  * @brief iot_efuse_open is used to Initialize things needed to access efuse.
  *
- * @return Handle to IotEfuseHandle_t on success or NULL on failure
+ * @return
+ *   - Handle to IotEfuseHandle_t on success
+ *   -  NULL if the handle is already opened. handle must be closed before calling open again
  */
-IotEfuseHandle_t iot_efuse_open(void);
+IotEfuseHandle_t iot_efuse_open( void );
 
 /**
  * @brief iot_efuse_close is used to de Initialize things needed to disable efuse access.
  *
  * @param[in] pxEfuseHandle handle to efuse interface returned in iot_efuse_open()
  *
- * @return IOT_EFUSE_SUCCESS if succeeded,
- *         IOT_EFUSE_FAIL if failed
+ * @return
+ *   - IOT_EFUSE_SUCCESS if succeeded,
+ *   - IOT_EFUSE_INVALID_VALUE on NULL pxEfuseHandle
+ *   - IOT_EFUSE_INVALID_VALUE if instance not previously opened.
+ *   - IOT_EFUSE_CLOSE_FAIL if the underneath HW deinit api returns fail.
  */
-int32_t iot_efuse_close(IotEfuseHandle_t const pxEfuseHandle);
+int32_t iot_efuse_close( IotEfuseHandle_t const pxEfuseHandle );
 
 /**
  * @brief Read 32-bit efuse word from specified index.
@@ -86,14 +88,15 @@ int32_t iot_efuse_close(IotEfuseHandle_t const pxEfuseHandle);
  *            efuse mechanism and make sure index is a valid one.
  * @param[out] ulValue The receive buffer to read the data into
  *
- * @return IOT_EFUSE_SUCCESS if read succeeded,
- *         IOT_EFUSE_READ_FAIL if read failed,
- *         IOT_EFUSE_INVALID_VALUE if buffer is incorrect, or index is invalid.
- *         IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 32-bit efuse word is not supported
+ * @return
+ *   - IOT_EFUSE_SUCCESS if read succeeded,
+ *   - IOT_EFUSE_READ_FAIL if read failed,
+ *   - IOT_EFUSE_INVALID_VALUE if pxEfuseHandle is NULL,  index is invalid, or ulValue is NULL.
+ *   - IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 32-bit efuse word is not supported
  */
 int32_t iot_efuse_read_32bit_word( IotEfuseHandle_t const pxEfuseHandle,
-                        uint32_t ulIndex,
-                        uint32_t *ulValue);
+                                   uint32_t ulIndex,
+                                   uint32_t * ulValue );
 
 /**
  * @brief Write 32-bit value to the 32-bit efuse word at specified index.
@@ -103,14 +106,15 @@ int32_t iot_efuse_read_32bit_word( IotEfuseHandle_t const pxEfuseHandle,
  *            efuse mechanism and make sure index is a valid one.
  * @param[in] ulValue The 32-bit value to write.
  *
- * @return IOT_EFUSE_SUCCESS if write succeeded,
- *         IOT_EFUSE_WRITE_FAIL if write failed
- *         IOT_EFUSE_INVALID_VALUE if index is invalid.
- *         IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 32-bit efuse word is not supported
+ * @return
+ *   - IOT_EFUSE_SUCCESS if write succeeded,
+ *   - IOT_EFUSE_WRITE_FAIL if write failed
+ *   - IOT_EFUSE_INVALID_VALUE if pxEfuseHandle is NULL, or index is invalid.
+ *   - IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 32-bit efuse word is not supported
  */
 int32_t iot_efuse_write_32bit_word( IotEfuseHandle_t const pxEfuseHandle,
-                         uint32_t ulIndex,
-                         uint32_t ulValue);
+                                    uint32_t ulIndex,
+                                    uint32_t ulValue );
 
 /**
  * @brief Read 16-bit efuse word from specified index.
@@ -120,14 +124,15 @@ int32_t iot_efuse_write_32bit_word( IotEfuseHandle_t const pxEfuseHandle,
  *            efuse mechanism and make sure index is a valid one.
  * @param[out] ulValue The receive buffer to read the data into
  *
- * @return IOT_EFUSE_SUCCESS if read succeeded,
- *         IOT_EFUSE_READ_FAIL if read failed
- *         IOT_EFUSE_INVALID_VALUE if buffer is incorrect, or index is invalid
- *         IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 16-bit efuse word is not supported
+ * @return
+ *   - IOT_EFUSE_SUCCESS if read succeeded,
+ *   - IOT_EFUSE_READ_FAIL if read failed
+ *   - IOT_EFUSE_INVALID_VALUE if pxEfuseHandle or ulValue is NULL, or index is invalid
+ *   - IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 16-bit efuse word is not supported
  */
 int32_t iot_efuse_read_16bit_word( IotEfuseHandle_t const pxEfuseHandle,
-                        uint32_t ulIndex,
-                        uint16_t *ulValue);
+                                   uint32_t ulIndex,
+                                   uint16_t * ulValue );
 
 /**
  * @brief Write 16-bit value to the 16-bit efuse word at specified index.
@@ -137,14 +142,16 @@ int32_t iot_efuse_read_16bit_word( IotEfuseHandle_t const pxEfuseHandle,
  *            efuse mechanism and make sure index is a valid one.
  * @param[in] ulValue The 16-bit value to write.
  *
- * @return IOT_EFUSE_SUCCESS if write succeeded,
- *         IOT_EFUSE_WRITE_FAIL if write failed
- *         IOT_EFUSE_INVALID_VALUE if index is invalid.
- *         IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 16-bit efuse word is not supported
+ * @return
+ *   - IOT_EFUSE_SUCCESS if write succeeded,
+ *   - IOT_EFUSE_WRITE_FAIL if write failed
+ *   - IOT_EFUSE_INVALID_VALUE if index is invalid, or pxEfuseHandle is NULL.
+ *   - IOT_EFUSE_FUNCTION_NOT_SUPPORTED if 16-bit efuse word is not supported
  */
 int32_t iot_efuse_write_16bit_word( IotEfuseHandle_t const pxEfuseHandle,
-                         uint32_t ulIndex,
-                         uint16_t value);
+                                    uint32_t ulIndex,
+                                    uint16_t value );
+
 /**
  * @}
  */
