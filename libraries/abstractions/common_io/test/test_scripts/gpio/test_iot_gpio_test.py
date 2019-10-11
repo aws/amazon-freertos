@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Amazon FreeRTOS V1.2.3
 # Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
 #
@@ -21,24 +22,23 @@
 # http://aws.amazon.com/freertos
 # http://www.FreeRTOS.org
 
-
-
 import serial
 from time import sleep
 import csv
 import threading
 import os, sys
 import argparse
+import socket
+
 parentdir = os.path.dirname(os.getcwd())
-sys.path.insert(0,parentdir)
+sys.path.insert(0, parentdir)
 from test_iot_test_template import test_template
 
 
-class gpio_test(test_template):
+class TestGpioAssisted(test_template):
     """
     Test class for gpio tests.
     """
-    outputfile = './gpio_output_RP3.txt'
 
     def __init__(self, serial, ip, login, pwd, csv_handler):
         self._func_list = [self.test_AssistedIotGpioModeWritePushPullTrue,
@@ -56,6 +56,8 @@ class gpio_test(test_template):
         self._cr = csv_handler
 
     shell_script = './test_iot_runonPI_gpio.sh'
+    rpi_output_file = "./gpio_rpi_res.txt"
+    port = 50007
 
     def test_AssistedIotGpioModeWritePushPullTrue(self):
         """
@@ -66,6 +68,8 @@ class gpio_test(test_template):
         rpi_button_read = 'True'
         cmd = "iot_tests test 5 1"
 
+        self._serial.reset_input_buffer()
+
         self._serial.write('\r\n'.encode('utf-8'))
 
         self._serial.write(cmd.encode('utf-8'))
@@ -74,7 +78,7 @@ class gpio_test(test_template):
         # Set RPi gpio to pull down. So the test will pass only if platform side is high.
         self.run_shell_script(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-w', '0']))
 
-        fp = open(self.outputfile)
+        fp = open(self.rpi_output_file)
         line = fp.readline()
         line = line.strip()
 
@@ -92,6 +96,8 @@ class gpio_test(test_template):
         rpi_button_read = 'True'
         cmd = "iot_tests test 5 2"
 
+        self._serial.reset_input_buffer()
+
         self._serial.write('\r\n'.encode('utf-8'))
 
         self._serial.write(cmd.encode('utf-8'))
@@ -100,7 +106,7 @@ class gpio_test(test_template):
         # Set RPi gpio to pull up. So the test will pass only if platform side is low.
         self.run_shell_script(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-w', '1']))
 
-        fp = open(self.outputfile)
+        fp = open(self.rpi_output_file)
         line = fp.readline()
         line = line.strip()
 
@@ -120,6 +126,8 @@ class gpio_test(test_template):
         rpi_button_read = 'False'
         cmd = "iot_tests test 5 3"
 
+        self._serial.reset_input_buffer()
+
         self._serial.write('\r\n'.encode('utf-8'))
 
         self._serial.write(cmd.encode('utf-8'))
@@ -128,7 +136,7 @@ class gpio_test(test_template):
         # Set RPi gpio to pull up as open drain pull up resistor.
         self.run_shell_script(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-w', '1']))
 
-        fp = open(self.outputfile)
+        fp = open(self.rpi_output_file)
         line = fp.readline()
         line = line.strip()
 
@@ -146,6 +154,8 @@ class gpio_test(test_template):
         rpi_button_read = 'True'
         cmd = "iot_tests test 5 4"
 
+        self._serial.reset_input_buffer()
+
         self._serial.write('\r\n'.encode('utf-8'))
 
         self._serial.write(cmd.encode('utf-8'))
@@ -154,7 +164,7 @@ class gpio_test(test_template):
         # Set RPi gpio to pull up as open drain pull up resistor.
         self.run_shell_script(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-w', '1']))
 
-        fp = open(self.outputfile)
+        fp = open(self.rpi_output_file)
         line = fp.readline()
         line = line.strip()
 
@@ -171,7 +181,18 @@ class gpio_test(test_template):
         t_shell = threading.Thread(target=self.run_shell_script,
                                    args=(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-r 1']),))
         t_shell.start()
-        sleep(1)
+        # Create a tcp type socket with AF_INET address family.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time_out = 10
+        # Wait until connection with the process on rpi is established.
+        while s.connect_ex((self._ip, self.port)) != 0 and time_out > 0:
+            time_out -= 1
+            sleep(1)
+        if time_out == 0:
+            print("Socket connection cannot be established")
+            s.close()
+            return "Fail"
+
         self._serial.reset_input_buffer()
 
         cmd = "iot_tests test 5 5"
@@ -181,13 +202,17 @@ class gpio_test(test_template):
 
         self._serial.write('\r\n'.encode('utf-8'))
 
-        # wait for the script on rpi to finish. The gpio pin on the rpi needs to be properly closed before moving on.
+        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        # End process on raspberry pi.
+        s.send(b'E')
+        sleep(1)
+        # wait the script on rpi to finish. The gpio pin on the rpi needs to be properly closed before moving on.
         t_shell.join()
-        res = str(self._serial.read(100))
-
+        s.close()
         if res.find('PASS\\n') != -1:
             return 'Pass'
         else:
+            print(res)
             return 'Fail'
 
     def test_AssistedIotGpioModeReadFalse(self):
@@ -198,7 +223,18 @@ class gpio_test(test_template):
         t_shell = threading.Thread(target=self.run_shell_script,
                                    args=(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-r 0']),))
         t_shell.start()
-        sleep(1)
+        # Create a tcp type socket with AF_INET address family.
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        time_out = 10
+        # Wait until connection with the process on rpi is established.
+        while s.connect_ex((self._ip, self.port)) != 0 and time_out > 0:
+            time_out -= 1
+            sleep(1)
+        if time_out == 0:
+            print("Socket connection cannot be established")
+            s.close()
+            return "Fail"
+
         self._serial.reset_input_buffer()
 
         cmd = "iot_tests test 5 6"
@@ -208,18 +244,18 @@ class gpio_test(test_template):
 
         self._serial.write('\r\n'.encode('utf-8'))
 
-        # wait the script on rpi to finish. The gpio pin on the rpi needs to be properly closed before moving on.
+        res = str(self._serial.read_until(terminator=serial.to_bytes([ord(c) for c in 'Ignored \n\r'])))
+        # End process on raspberry pi.
+        s.send(b'E')
+        sleep(1)
+        # Wait the script on rpi to finish. The gpio pin on the rpi needs to be properly closed before moving on.
         t_shell.join()
-        res = str(self._serial.read(100))
-
+        s.close()
         if res.find('PASS\\n') != -1:
             return 'Pass'
         else:
+            print(res)
             return 'Fail'
-
-    def clean(self):
-        os.remove("./gpio_output_RP3.txt")
-        self.run_shell_script(" ".join([self.shell_script, self._ip, self._login, self._pwd, '-c']))
 
 
 # unit test
@@ -234,7 +270,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     try:
-        serial_port = serial.Serial(port=args.port[0], timeout=5)
+        serial_port = serial.Serial(port=args.port[0], timeout=3)
     except Exception as e:
         print(e)
         exit()
@@ -247,7 +283,7 @@ if __name__ == "__main__":
         field_name = ['test name', 'test result']
         writer = csv.DictWriter(csvfile, fieldnames=field_name)
         writer.writeheader()
-        t_handler = gpio_test(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
+        t_handler = TestGpioAssisted(serial_port, rpi_ip, rpi_login, rpi_pwd, writer)
         t_handler.auto_run()
 
     serial_port.close()
