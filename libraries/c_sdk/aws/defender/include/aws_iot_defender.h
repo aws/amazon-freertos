@@ -103,13 +103,13 @@
     {                                         \
         .pCallbackContext = NULL,             \
         .function = NULL                      \
-    }
+    } /**< Initializer of #AwsIotDefenderCallback_t. */
 #define AWS_IOT_DEFENDER_START_INFO_INITIALIZER          \
     { .pClientIdentifier = NULL,                         \
       .clientIdentifierLength = 0,                       \
       .mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER, \
       .callback = AWS_IOT_DEFENDER_CALLBACK_INITIALIZER  \
-    } /**< Initializer of #AwsIotDefenderCallbackInfo_t. */
+    } /**< Initializer of #AwsIotDefenderStartInfo_t. */
 /**@} */
 
 /**
@@ -199,9 +199,9 @@ typedef struct AwsIotDefenderCallback
  */
 typedef struct AwsIotDefenderStartInfo
 {
-    const char * pClientIdentifier;     /**< @brief MQTT client identifier. */
-    uint16_t clientIdentifierLength;    /**< @brief Length of #IotMqttConnectInfo_t.pClientIdentifier. */
-    IotMqttConnection_t mqttConnection; /**< MQTT connection used by defender (required). */
+    const char * pClientIdentifier;     /**< @brief MQTT client identifier (required). */
+    uint16_t clientIdentifierLength;    /**< @brief Length of #IotMqttConnectInfo_t.pClientIdentifier (required). */
+    IotMqttConnection_t mqttConnection; /**< @brief MQTT connection used by defender (required). */
     AwsIotDefenderCallback_t callback;  /**< Callback function parameter (optional). */
 } AwsIotDefenderStartInfo_t;
 
@@ -303,7 +303,7 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
  *     const AwsIotDefenderCallback_t callback = { .function = logDefenderCallback, .pCallbackContext = NULL };
  *
  *     // define parameters of AwsIotDefender_Start function
- *     // Note: This example assumes, connection is already established and metrics library is initialized.
+ *     // Note: This example assumes MQTT connection is already established and metrics library is initialized.
  *     const AwsIotDefenderStartInfo_t startInfo =
  *     {
  *         .pClientIdentifier = pClientIdentifier,
