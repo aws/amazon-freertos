@@ -228,6 +228,8 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
     BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
     BLETESTsspRequestCallback_t xSSPrequestEvent;
 
+    IotTestBleHal_ClearEventQueue();
+
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 
