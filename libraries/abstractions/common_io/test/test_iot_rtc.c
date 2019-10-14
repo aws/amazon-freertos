@@ -355,8 +355,8 @@ TEST( TEST_IOT_RTC, AFQP_IotRtcSetGetAlarm )
                                  eGetRtcStatus,
                                  ( void * const ) &lStatus);
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
-    TEST_ASSERT_EQUAL( eRtcTimerAlaramTriggered,
-                       lStatus & eRtcTimerAlaramTriggered );
+    TEST_ASSERT_EQUAL( eRtcTimerAlarmTriggered,
+                       lStatus & eRtcTimerAlarmTriggered );
 
     lRetVal = iot_rtc_close( xRtcHandle );
     TEST_ASSERT_EQUAL( IOT_RTC_SUCCESS, lRetVal );
