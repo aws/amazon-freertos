@@ -26,15 +26,20 @@
 #ifndef AWS_TEST_TCP_H
 #define AWS_TEST_TCP_H
 
-/* UDP Echo Server. TODO update address
- * Update udptestECHO_SERVER_ADDR# and
- * udptestECHO_PORT with IP address
- * and port of unencrypted TCP echo server. */
-#define udptestECHO_SERVER_ADDR0         10
-#define udptestECHO_SERVER_ADDR1         184
-#define udptestECHO_SERVER_ADDR2         166
-#define udptestECHO_SERVER_ADDR3         154
-#define udptestECHO_PORT                 ( 8883 )
+/* UDP Echo Server
+ * Please update udptestECHO_SERVER_ADDR# and udptestECHO_PORT with IP address and
+ * port of unencrypted TCP echo server.
+ *
+ * #define udptestECHO_SERVER_ADDR0   127
+ * #define udptestECHO_SERVER_ADDR1   0
+ * #define udptestECHO_SERVER_ADDR2   0
+ * #define udptestECHO_SERVER_ADDR3   1
+ * #define udptestECHO_PORT           8883
+ **/
+
+#ifndef udptestECHO_SERVER_ADDR0
+    #error ACTION REQUIRED: Please ensure you have an UDP echo server running. Its IP address and port should be entered in aws_test_tcp.h
+#endif
 
 /* Non-Encrypted Echo Server.
  * Update tcptestECHO_SERVER_ADDR# and

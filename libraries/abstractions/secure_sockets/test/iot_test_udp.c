@@ -531,6 +531,8 @@ static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
                      xLength,
                      ulTxCount );
 
+    /* Since UDP does not guarantee data delivery, we will retry until there is a
+     * successful loop */
     for( ulRetry = 0; ulRetry < udptestMAX_RETRY; ulRetry++ )
     {
         xIntermResult = prvSendHelper( xSocket,
