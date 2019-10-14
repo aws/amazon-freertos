@@ -58,23 +58,47 @@ registration so we'll upload the devices certificate manually.
 
 ### Create the Device Certificate
 
-1) Build the demo application and program the target device
-2) When the device boots is will export the pem formatted public key to the
-uart
+1) In the demo, navigate to aws_dev_mode_key_provisioning.c.  Ensure that a fresh
+keypair will be generated for this process.
+```
+#define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR   1
+```
+2) Build the demo application and run the code.
+3) When the device boots is will export the ECC608a device serial number and 
+the DER formatted public key to the console.
 
 ```
------BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEojEQk85EaT1RU3Ip5SddaSqB5/Wm
-+Vnxtu96G3i+gQRb8tb5xylXTXHQawL68SPW4/oCXXS4x7KGV0MNPneB6g==
------END PUBLIC KEY-----
+6 2005 [IP-task] Recommended certificate subject name: CN=01234D2C14CBEAD5EE
+7 2007 [IP-task] Device public key, 91 bytes:
+3059 3013 0607 2a86 48ce 3d02 0106 082a
+8644 ce3d 0301 0703 4200 0424 3557 251f
+d8b8 de2f 80f8 f743 2929 dab9 140e c69d
+89dc ef44 9fc4 f99e 053b 13b3 1f12 5c3c
+0f04 5055 1234 2127 ffdf 5678 abf0 cd66
+3d85 ee41 255a 57e0 a393 56
 ```
 
-3) Save this key as public_key.pem for use in the device certificate creation
-
-4) Run the ca_create_device script:
+4) Copy the six lines of key bytes into a file called *DevicePublicKeyAsciiHex.txt*. Then use the command-line tool xxd to parse the hex bytes into binary:
 
 ```
-> ca_create_device.py  --sn 0123AE877AA4C660EE --cert signer-ca.crt --key signer-ca.key --file public_key.pem
+xxd -r -ps DevicePublicKeyAsciiHex.txt DevicePublicKeyDer.bin
+```
+
+5) Use openssl to format the binary encoded (DER) device public key as PEM:
+
+```
+openssl ec -inform der -in DevicePublicKeyDer.bin -pubin -pubout -outform pem -out public_key.pem
+```
+
+6) Don't forget to disable the temporary key generation setting you enabled above. Otherwise, the device will create yet another key pair, and you will have to repeat the previous steps:
+
+```
+#define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR 0
+```
+7) Run the ca_create_device script, using the 18 characters following CN= for the --sn input:
+
+```
+> ca_create_device.py  --sn 01234D2C14CBEAD5EE --cert signer-ca.crt --key signer-ca.key --file public_key.pem
 ```
 
 This step mirrors the production provisioning process where Microchip uses HSMs
@@ -105,13 +129,20 @@ The certificate is now ready to be used by the aws_demos_secure_element examples
 
 This creates the file that is used by AWS FreeRTOS to save the generated
 certificates into the secure element. This file needs to be copied to the
-demos/common/include directory of the demo project.
+demos/common/include directory of the demo project to replace the existing
+blank file.
+
+### Update aws_clientcredential.h file
+Update clientcredentialMQTT_BROKER_ENDPOINT[] and clientcredentialIOT_THING_NAME using
+the instructions located in the section "To configure your AWS IoT endpoint"
+https://docs.aws.amazon.com/freertos/latest/userguide/freertos-configure.html
+(Do not follow instructions in other sections on this page.)
 
 ### Run the provisioning
 
-With the client_credential_keys.h file now saved build and load the firmware to
-the target device. Upon boot the call to vDevModeKeyProvisioning will correctly
-provision the secure element. 
+With the aws_clientcredential.h and aws_clientcredential_keys.h file now 
+saved build and load the firmware to the target device. Upon boot the call to
+vDevModeKeyProvisioning will correctly provision the secure element. 
 
 Once a connection has been established and proven
 the call to vDevModeKeyProvisioning and the aws_dev_mode_key_provisioning.c 
