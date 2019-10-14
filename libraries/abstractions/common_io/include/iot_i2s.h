@@ -273,7 +273,7 @@ int32_t iot_i2s_close( IotI2SHandle_t const pxI2SPeripheral);
  *   - IOT_I2S_INVALID_VALUE if
  *      - pxI2SPeriperal is NULL
  *      - xI2SRequest is invalid
- *      - pvBuvver is NULL
+ *      - pvBuffer is NULL
  *   - IOT_I2S_FUNCTION_NOT_SUPPORTED if designated IotI2SMode_t in eI2SSetConfig is not supported.
  */
 int32_t iot_i2s_ioctl( IotI2SHandle_t const pxI2SPeripheral,
