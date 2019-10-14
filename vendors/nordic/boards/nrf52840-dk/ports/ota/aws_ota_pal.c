@@ -30,8 +30,8 @@
 /* Amazon FreeRTOS include. */
 #include "FreeRTOS.h"
 #include "aws_iot_ota_agent.h"
-#include "aws_ota_pal.h"
-#include "aws_ota_agent_internal.h"
+#include "aws_iot_ota_pal.h"
+#include "aws_iot_ota_agent_internal.h"
 #include "aws_ota_pal_settings.h"
 #include "aws_ota_codesigner_certificate.h"
 
@@ -196,7 +196,7 @@ OTA_Err_t prvPAL_CreateFileForRx( OTA_FileContext_t * const C )
         /* Erase the required memory */
         OTA_LOG_L1( "[%s] Erasing the flash memory \n", OTA_METHOD_NAME );
         xStatus = prvErasePages(otapalSECOND_BANK_START, otapalSECOND_BANK_END);
-        if (xStatus != kOTA_Err_None) 
+        if (xStatus != kOTA_Err_None)
         {
              OTA_LOG_L1( "[%s] Erasing the flash memory failed with error_code %d\n", OTA_METHOD_NAME, xStatus );
         }
@@ -290,7 +290,7 @@ static OTA_Err_t prvPAL_CheckFileSignature( OTA_FileContext_t * const C )
     if (xErrCode == NRF_SUCCESS) {
         prvComputeSHA256Hash( (uint8_t *)otapalSECOND_BANK_START + otapalDESCRIPTOR_SIZE, C->ulFileSize, &xHash, &ulHashLength );
         xErrCode = prvVerifySignature( (uint8_t*) &xHash, ulHashLength, C->pxSignature->ucData, C->pxSignature->usSize, pusCertificate, ulCertificateSize );
-        vPortFree( pusCertificate );        
+        vPortFree( pusCertificate );
     }
 
     if( xErrCode != NRF_SUCCESS )
@@ -328,14 +328,14 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
     size_t ulDecodedCertificateSize;
     mbedtls_base64_decode(pucDecodedCertificate, 0, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     pucDecodedCertificate = (char*) pvPortMalloc(ulDecodedCertificateSize);
-    if (pucDecodedCertificate == NULL) 
+    if (pucDecodedCertificate == NULL)
     {
         return NULL;
-    }    
+    }
     mbedtls_base64_decode(pucDecodedCertificate, ulDecodedCertificateSize, &ulDecodedCertificateSize, pucCertBegin, pucCertEnd - pucCertBegin);
     /* Find the tag of the ECDSA public signature*/
     uint8_t * pucPublicKeyStart = pucDecodedCertificate;
-    while (pucPublicKeyStart < pucDecodedCertificate + ulDecodedCertificateSize ) 
+    while (pucPublicKeyStart < pucDecodedCertificate + ulDecodedCertificateSize )
     {
         if (memcmp(pucPublicKeyStart, pcOTA_PAL_ASN_1_ECDSA_TAG, sizeof(pcOTA_PAL_ASN_1_ECDSA_TAG) - 1) == 0)
         {
@@ -348,7 +348,7 @@ static uint8_t * prvPAL_ReadAndAssumeCertificate( const uint8_t * const pucCertN
         vPortFree(pucDecodedCertificate);
         return NULL;
     }
-    pucPublicKeyStart -= 4; 
+    pucPublicKeyStart -= 4;
     * ulSignerCertSize = pucPublicKeyStart[1] + 2;
     vPortFree(pucDecodedCertificate);
     pucPublicKey = pvPortMalloc(* ulSignerCertSize);
@@ -539,7 +539,7 @@ ret_code_t prvWriteFlash( uint32_t ulOffset,
       }
        /* clear buffer to avoid garbage. */
       pulSerializingArray[(ulByteToSend+3)/4] = 0;
-      memcpy(pulSerializingArray, pacData + ulByteSent, ulByteToSend); 
+      memcpy(pulSerializingArray, pacData + ulByteSent, ulByteToSend);
 
       xEventGroupClearBits( xFlashEventGrp, otapalFLASH_SUCCESS | otapalFLASH_FAILURE );
       /* Softdevice can write only by 32-bit words */
@@ -611,7 +611,7 @@ ret_code_t prvVerifySignature( uint8_t * pusHash,
 
     memset( &xPublicKey, 0, sizeof( xPublicKey ) );
     memset( &xSignature, 0, sizeof( xSignature ) );
-    
+
     /* The public key comes in the ASN.1 DER format,  and so we need everything
      * except the DER metadata which fortunately in this case is containded in the front part of buffer */
     pucTmpPublicKey  = pucPublicKey + ( ulPublicKeySize - NRF_CRYPTO_ECC_SECP256R1_RAW_PUBLIC_KEY_SIZE );
@@ -667,7 +667,7 @@ OTA_Err_t testCheckSignature(){
     OTA_FileContext_t C;
     uint32_t ulCertSize = sizeof(signingcredentialSIGNING_CERTIFICATE_PEM);
     uint8_t * pusCertificate = prvPAL_ReadAndAssumeCertificate(signingcredentialSIGNING_CERTIFICATE_PEM, &ulCertSize);
-    vPortFree( pusCertificate ); 
+    vPortFree( pusCertificate );
     ImageDescriptor_t * descriptor = ( ImageDescriptor_t * ) ( otapalSECOND_BANK_START );
     C.ulFileSize = descriptor->ulEndAddress - descriptor->ulStartAddress;
     return prvPAL_CheckFileSignature( &C );

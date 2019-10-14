@@ -45,7 +45,7 @@
 #include "platform/iot_network.h"
 
 /* Type definitions for OTA Agent */
-#include "aws_ota_types.h"
+#include "aws_iot_ota_types.h"
 
 /* General constants. */
 #define LOG2_BITS_PER_BYTE             3UL                                             /* Log base 2 of bits per byte. */

@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "aws_iot_ota_agent.h"
-#include "aws_ota_pal.h"
+#include "aws_iot_ota_pal.h"
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "esp_system.h"

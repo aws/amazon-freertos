@@ -32,7 +32,7 @@
 #define _AWS_IOT_OTA_AGENT_H_
 
 /* Type definitions for OTA Agent */
-#include "aws_ota_types.h"
+#include "aws_iot_ota_types.h"
 
 /* Includes required by the FreeRTOS timers structure. */
 #include "FreeRTOS.h"

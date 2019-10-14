@@ -26,7 +26,7 @@
 #ifndef _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 #define _AWS_OTA_PAL_TEST_ACCESS_DECLARE_H_
 
-#include "aws_ota_types.h"
+#include "aws_iot_ota_types.h"
 #include "aws_iot_ota_agent.h"
 #include "aws_test_ota_config.h"
 

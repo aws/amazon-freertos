@@ -41,7 +41,7 @@
 #include "aws_ota_agent_test_access_declare.h"
 #include "aws_iot_ota_agent.h"
 #include "aws_clientcredential.h"
-#include "aws_ota_agent_internal.h"
+#include "aws_iot_ota_agent_internal.h"
 
 /* Test network header include. */
 #include IOT_TEST_NETWORK_HEADER
@@ -319,7 +319,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 
     /* Shutdown the OTA agent. */
     eOtaStatus = OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_NotReady, eOtaStatus );
+    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Stopped, eOtaStatus );
 
     /* End test. */
 }

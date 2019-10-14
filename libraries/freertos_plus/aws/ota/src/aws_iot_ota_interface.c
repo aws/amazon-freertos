@@ -28,15 +28,19 @@
  * @brief .
  */
 
+/* Standard library includes. */
+#include <string.h>
+
+/* OTA inteface includes. */
 #include "aws_iot_ota_interface.h"
 
 /* OTA transport inteface includes. */
 #ifdef OTA_DATA_OVER_MQTT
-#include "aws_iot_ota_mqtt.h"
+#include "mqtt/aws_iot_ota_mqtt.h"
 #endif
 
 #ifdef OTA_DATA_OVER_HTTP
-#include "aws_iot_ota_http.h"
+#include "http/aws_iot_ota_http.h"
 #endif
 
 
@@ -51,7 +55,7 @@ void prvSetControlInterface(OTA_Interface_t * pxInterface)
 void prvSetDataInterface(OTA_Interface_t * pxInterface, uint8_t *  pucProtocol)
 {
 
-   if(NULL != strstr(pucProtocol, OTA_PRIMARY_DATA_PROTOCOL ))
+   if(NULL != strstr((const char*)pucProtocol, OTA_PRIMARY_DATA_PROTOCOL ))
    {
 
 	   pxInterface->xDataInterface.prvInitFileTransfer = prvInitFileTransfer_Mqtt;
@@ -60,7 +64,7 @@ void prvSetDataInterface(OTA_Interface_t * pxInterface, uint8_t *  pucProtocol)
 	   pxInterface->xDataInterface.prvCleanup = prvCleanup_Mqtt;
    }
 #ifdef OTA_DATA_OVER_HTTP
-   else if(NULL != strstr(pucProtocol, OTA_SECONDARY_DATA_PROTOCOL))
+   else if(NULL != strstr((const char*)pucProtocol, OTA_SECONDARY_DATA_PROTOCOL))
    {
 	   pxInterface->xDataInterface.prvInitFileTransfer = prvInitFileTransfer_Http;
 	   pxInterface->xDataInterface.prvRequestFileBlock = prvRequestFileBlock_Http;
