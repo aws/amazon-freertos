@@ -34,14 +34,14 @@
 /**
  * @brief The number of words allocated to the stack for the OTA agent.
  */
-#define otaconfigSTACK_SIZE                     4000U
+#define otaconfigSTACK_SIZE                     6000U
 
 /**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
  *
  * 10 bits yields a data block size of 1KB.
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           10UL
+#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL
 
 /**
  * @brief Milliseconds to wait for the self test phase to succeed before we force reset.
