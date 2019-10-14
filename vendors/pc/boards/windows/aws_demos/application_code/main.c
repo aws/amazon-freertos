@@ -110,6 +110,9 @@ int main( void )
      * the random number generator. */
     prvMiscInitialisation();
 
+    /* Initialize AWS system libraries */
+    SYSTEM_Init();
+
     /* Initialize the network interface.
      *
      ***NOTE*** Tasks that use the network are created in the network event hook
@@ -156,9 +159,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
              * microcontroller flash using PKCS#11 interface. This should be replaced
              * by production ready key provisioning mechanism. */
             vDevModeKeyProvisioning( );
-
-            /* Initialize AWS system libraries */
-            SYSTEM_Init();
 
             /* Start the demo tasks. */
             DEMO_RUNNER_RunDemos();
