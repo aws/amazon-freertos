@@ -133,20 +133,21 @@ void vApplicationDaemonTaskStartupHook( void )
     xtUartHndl = InitTerm();
     UART_control( xtUartHndl, UART_CMD_RXDISABLE, NULL );
 
-    // Emit some serial port debugging
+    /* Emit some serial port debugging */
     vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
-
-
+    /* A simple example to demonstrate key and certificate provisioning in
+     * flash using PKCS#11 interface. This should be replaced
+     * by production ready key provisioning mechanism. This function must be called after
+     * initializing the TI File System using WIFI_On. */
+    WIFI_On();
 
     /* Initialize the AWS Libraries system. */
     if( SYSTEM_Init() == pdPASS )
     {
         /* A simple example to demonstrate key and certificate provisioning in
          * flash using PKCS#11 interface. This should be replaced
-         * by production ready key provisioning mechanism. This function must be called after
-         * initializing the TI File System using WIFI_On. */
-        WIFI_On();
+         * by production ready key provisioning mechanism. */
         vDevModeKeyProvisioning();
         prvProvisionRootCA();
 

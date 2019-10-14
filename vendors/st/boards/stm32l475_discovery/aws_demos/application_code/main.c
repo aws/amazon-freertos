@@ -169,13 +169,15 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         configPRINTF( ( "WiFi module initialized.\r\n" ) );
 
-        /* A simple example to demonstrate key and certificate provisioning in
-         * microcontroller flash using PKCS#11 interface. This should be replaced
-         * by production ready key provisioning mechanism. */
-        vDevModeKeyProvisioning();
-
+        /* Initialize the AWS Libraries system.
+         * This initializes the CRYPTO random number state. */
         if( SYSTEM_Init() == pdPASS )
         {
+            /* A simple example to demonstrate key and certificate provisioning in
+             * microcontroller flash using PKCS#11 interface. This should be replaced
+             * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
+
             /* Connect to the WiFi before running the demos */
             prvWifiConnect();
 

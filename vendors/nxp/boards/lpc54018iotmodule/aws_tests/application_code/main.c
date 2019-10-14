@@ -231,6 +231,9 @@ int main( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
+    /* Initialize AWS system libraries.
+     * SYSTEM_Init() initializes mbedTLS and the
+     * random number generator. */
     if( SYSTEM_Init() == pdPASS )
     {
         prvWifiConnect();

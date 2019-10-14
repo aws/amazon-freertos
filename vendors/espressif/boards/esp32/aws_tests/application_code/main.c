@@ -142,6 +142,8 @@ static void prvMiscInitialization( void );
  */
 int app_main( void )
 {
+    BaseType_t xSystemInitResult;
+
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
@@ -151,13 +153,18 @@ int app_main( void )
                             tskIDLE_PRIORITY + 5,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
-    FreeRTOS_IPInit( ucIPAddress,
-                     ucNetMask,
-                     ucGatewayAddress,
-                     ucDNSServerAddress,
-                     ucMACAddress );
+    /* Initialize the AWS Libraries system.
+     * This initializes the CRYPTO random number state,
+     * so it should be called before FreeRTOS_IPInit().*/
+    xSystemInitResult = SYSTEM_Init()
 
-    if( SYSTEM_Init() == pdPASS )
+                        FreeRTOS_IPInit( ucIPAddress,
+                                         ucNetMask,
+                                         ucGatewayAddress,
+                                         ucDNSServerAddress,
+                                         ucMACAddress );
+
+    if( xSystemInitResult == pdPASS )
     {
         /* Connect to the wifi before running the tests. */
         prvWifiConnect();
@@ -337,7 +344,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         return status;
     }
 
-#else  /* if CONFIG_NIMBLE_ENABLED == 1 */
+#else /* if CONFIG_NIMBLE_ENABLED == 1 */
 
 /*
  * Return on success

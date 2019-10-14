@@ -110,6 +110,12 @@ int main( void )
      * the random number generator. */
     prvMiscInitialisation();
 
+    /* Initialize AWS system libraries.
+     * SYSTEM_Init() initializes mbedTLS and the
+     * random number generator, so this must be called
+     * before FreeRTOS_IPInit() or provisioning. */
+    SYSTEM_Init();
+
     /* Initialize the network interface.
      *
      ***NOTE*** Tasks that use the network are created in the network event hook
@@ -117,8 +123,8 @@ int main( void )
      * vApplicationIPNetworkEventHook() below).  The address values passed in here
      * are used if ipconfigUSE_DHCP is set to 0, or if ipconfigUSE_DHCP is set to 1
      * but a DHCP server cannot be contacted. */
-	FreeRTOS_printf(("FreeRTOS_IPInit\n"));
-	vApplicationIPInit();
+    FreeRTOS_printf( ( "FreeRTOS_IPInit\n" ) );
+    vApplicationIPInit();
 
     /* Start the RTOS scheduler. */
     FreeRTOS_printf( ( "vTaskStartScheduler\n" ) );
@@ -130,7 +136,7 @@ int main( void )
      * timer tasks to be created.  See the memory management section on the
      * FreeRTOS web site for more details (this is standard text that is not
      * really applicable to the Win32 simulator port). */
-    for( ; ;)
+    for( ; ; )
     {
         Sleep( ulLongTime_ms );
     }
@@ -155,10 +161,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
             /* A simple example to demonstrate key and certificate provisioning in
              * microcontroller flash using PKCS#11 interface. This should be replaced
              * by production ready key provisioning mechanism. */
-            vDevModeKeyProvisioning( );
-
-            /* Initialize AWS system libraries */
-            SYSTEM_Init();
+            vDevModeKeyProvisioning();
 
             /* Start the demo tasks. */
             DEMO_RUNNER_RunDemos();

@@ -48,13 +48,13 @@
 #include "sys_init.h"
 #include "bsp_gpio_ept_config.h"
 #ifdef HAL_GPIO_LOW_POWER_ENABLED
-#include "hal_lp.h"
+    #include "hal_lp.h"
 #endif
 
 #define WIFI_FW_DEBUG_LOG_PORT
 
 /* Set the following to 1 to enable debugging. */
-#define MTK_DEBUGGER  0
+#define MTK_DEBUGGER    0
 
 /**
  * @brief Application task startup hook for applications using Wi-Fi. If you are not
@@ -98,7 +98,13 @@ static void prvMiscInitialization( void );
 int main( void )
 {
     #if ( MTK_DEBUGGER != 0 )
-        { volatile int wait_ice = 1 ; while ( wait_ice ) ; }
+        {
+            volatile int wait_ice = 1;
+
+            while( wait_ice )
+            {
+            }
+        }
     #endif
 
     /* Perform any hardware initialization that does not require the RTOS to be
@@ -108,14 +114,14 @@ int main( void )
     /* console print can be used after console UART ports have been configured
      * in prvMiscInitialization(). */
 
-#if ( configUSE_DAEMON_TASK_STARTUP_HOOK != 1 )
+    #if ( configUSE_DAEMON_TASK_STARTUP_HOOK != 1 )
         configASSERT( xTaskCreate( vApplicationWrapperTask,
                                    "wrap",
                                    configTIMER_TASK_STACK_DEPTH,
                                    NULL,
                                    configTIMER_TASK_PRIORITY,
                                    NULL ) == pdPASS );
-#endif
+    #endif
 
     /* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
@@ -176,13 +182,14 @@ static void prvMiscInitialization( void )
 void vApplicationDaemonTaskStartupHook( void )
 {
     configPRINTF( ( "Starting up\n" ) );
-    /* A simple example to demonstrate key and certificate provisioning in
-     * microcontroller flash using PKCS#11 interface. This should be replaced
-     * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();
 
     if( SYSTEM_Init() == pdPASS )
     {
+        /* A simple example to demonstrate key and certificate provisioning in
+         * microcontroller flash using PKCS#11 interface. This should be replaced
+         * by production ready key provisioning mechanism. */
+        vDevModeKeyProvisioning();
+
         /* Connect to the wifi before running real jobs. */
         prvWifiConnect();
 

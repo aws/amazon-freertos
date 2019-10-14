@@ -72,12 +72,18 @@ static void prvMiscInitialization( void );
 /**
  * @brief Application runtime entry point.
  */
-extern void  vApplicationIPInit( void );
+extern void vApplicationIPInit( void );
 int main( void )
 {
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
+
+    /* Initialize AWS system libraries.
+     * SYSTEM_Init() initializes mbedTLS and the
+     * random number generator and should be called
+     * before provisioning or FreeRTOS_IPInit(). */
+    SYSTEM_Init();
 
     vApplicationIPInit();
 
@@ -112,7 +118,7 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     if( eNetworkEvent == eNetworkUp )
     {
         /* The network is up so we can run. */
-        if( ( SYSTEM_Init() == pdPASS ) && ( xTasksAlreadyCreated == pdFALSE ) )
+        if( xTasksAlreadyCreated == pdFALSE )
         {
             /* A simple example to demonstrate key and certificate provisioning in
              * microcontroller flash using PKCS#11 interface. This should be replaced
@@ -232,5 +238,3 @@ void vApplicationIdleHook( void )
     Sleep( ulMSToSleep );
 }
 /*-----------------------------------------------------------*/
-
-

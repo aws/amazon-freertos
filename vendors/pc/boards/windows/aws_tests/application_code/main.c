@@ -138,14 +138,16 @@ int main( void )
     vTraceEnable( TRC_START );
 
     /* Initialize logging for libraries that depend on it. */
-    vLoggingInit(
-        pdTRUE,
-        pdFALSE,
-        pdFALSE,
-        0,
-        0 );
+    vLoggingInit( pdTRUE,
+                  pdFALSE,
+                  pdFALSE,
+                  0,
+                  0 );
 
-    /* Initialize AWS system libraries. */
+    /* Initialize AWS system libraries.
+     * SYSTEM_Init() initializes mbedTLS and the
+     * random number generator, so this must be called
+     * before FreeRTOS_IPInit() or provisioning. */
     SYSTEM_Init();
 
     /* Initialize the network interface.
@@ -156,12 +158,11 @@ int main( void )
      * are used if ipconfigUSE_DHCP is set to 0, or if ipconfigUSE_DHCP is set to 1
      * but a DHCP server cannot be contacted. */
     FreeRTOS_printf( ( "FreeRTOS_IPInit\n" ) );
-    FreeRTOS_IPInit(
-        ucIPAddress,
-        ucNetMask,
-        ucGatewayAddress,
-        ucDNSServerAddress,
-        ucMACAddress );
+    FreeRTOS_IPInit( ucIPAddress,
+                     ucNetMask,
+                     ucGatewayAddress,
+                     ucDNSServerAddress,
+                     ucMACAddress );
 
     vTaskStartScheduler();
 
@@ -176,7 +177,6 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     /* If the network has just come up...*/
     if( ( eNetworkEvent == eNetworkUp ) && ( xTasksAlreadyCreated == pdFALSE ) )
     {
-
         vDevModeKeyProvisioning();
 
         xTaskCreate( TEST_RUNNER_RunTests_task,

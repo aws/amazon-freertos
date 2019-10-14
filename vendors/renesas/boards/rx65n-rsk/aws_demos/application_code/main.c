@@ -137,6 +137,9 @@ void vApplicationDaemonTaskStartupHook( void )
 {
     prvMiscInitialization();
 
+    /* SYSTEM_Init() initializes mbedTLS and the
+     * random number generator, so this must be called
+     * before FreeRTOS_IPInit() or provisioning. */
     if( SYSTEM_Init() == pdPASS )
     {
         /* Initialise the RTOS's TCP/IP stack.  The tasks that use the network

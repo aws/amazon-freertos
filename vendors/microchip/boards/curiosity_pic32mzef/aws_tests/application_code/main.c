@@ -43,13 +43,14 @@
 #include "iot_logging_task.h"
 
 /* Sleep on this platform */
-#define Sleep( nMs )  vTaskDelay(pdMS_TO_TICKS(nMs));
+#define Sleep( nMs )    vTaskDelay( pdMS_TO_TICKS( nMs ) );
 #define mainDEVICE_NICK_NAME                "Microchip_Demo"
 
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 8 )
+
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
  * 1 but a DHCP server could not be contacted.  See the online documentation for
@@ -100,13 +101,13 @@ const uint8_t ucMACAddress[ 6 ] =
 };
 
 /* Set the following constant to pdTRUE to log using the method indicated by the
-name of the constant, or pdFALSE to not log using the method indicated by the
-name of the constant.  Options include to standard out (xLogToStdout), to a disk
-file (xLogToFile), and to a UDP port (xLogToUDP).  If xLogToUDP is set to pdTRUE
-then UDP messages are sent to the IP address configured as the echo server
-address (see the configECHO_SERVER_ADDR0 definitions in FreeRTOSConfig.h) and
-the port number set by configPRINT_PORT in FreeRTOSConfig.h. */
-/* PIC32 note: xLogToFile is NOT supported! */ 
+ * name of the constant, or pdFALSE to not log using the method indicated by the
+ * name of the constant.  Options include to standard out (xLogToStdout), to a disk
+ * file (xLogToFile), and to a UDP port (xLogToUDP).  If xLogToUDP is set to pdTRUE
+ * then UDP messages are sent to the IP address configured as the echo server
+ * address (see the configECHO_SERVER_ADDR0 definitions in FreeRTOSConfig.h) and
+ * the port number set by configPRINT_PORT in FreeRTOSConfig.h. */
+/* PIC32 note: xLogToFile is NOT supported! */
 const BaseType_t xLogToStdout = pdTRUE, xLogToFile = pdFALSE, xLogToUDP = pdFALSE;
 
 /**
@@ -129,6 +130,12 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
+
+    /* Initialize AWS system libraries.
+     * SYSTEM_Init() initializes mbedTLS and the
+     * random number generator and should be called
+     * before provisioning or FreeRTOS_IPInit(). */
+    SYSTEM_Init();
 
     FreeRTOS_IPInit( ucIPAddress,
                      ucNetMask,
@@ -162,29 +169,29 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
     char cBuffer[ 16 ];
     static BaseType_t xTasksAlreadyCreated = pdFALSE;
-    
+
     /* If the network has just come up...*/
     if( eNetworkEvent == eNetworkUp )
     {
-        if( SYSTEM_Init() == pdPASS && xTasksAlreadyCreated == pdFALSE )
+        if( xTasksAlreadyCreated == pdFALSE )
         {
             /* A simple example to demonstrate key and certificate provisioning in
              * microcontroller flash using PKCS#11 interface. This should be replaced
              * by production ready key provisioning mechanism. */
             vDevModeKeyProvisioning();
-            
+
             /* If the network has just come up...*/
             xTaskCreate( TEST_RUNNER_RunTests_task,
                          "TestRunner",
                          mainTEST_RUNNER_TASK_STACK_SIZE,
                          NULL,
                          tskIDLE_PRIORITY, NULL );
-                         
+
             xTasksAlreadyCreated = pdTRUE;
         }
 
         /* Print out the network configuration, which may have come from a DHCP
-        * server. */
+         * server. */
         FreeRTOS_GetAddressConfiguration(
             &ulIPAddress,
             &ulNetMask,
@@ -263,7 +270,7 @@ void vApplicationGetTimerTaskMemory( StaticTask_t ** ppxTimerTaskTCBBuffer,
 
     const char * pcApplicationHostnameHook( void )
     {
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }

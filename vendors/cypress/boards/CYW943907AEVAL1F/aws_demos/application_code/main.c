@@ -142,12 +142,14 @@ void vApplicationDaemonTaskStartupHook( void )
      * running, here. */
     wiced_init();
 
-    /* Initialize the AWS Libraries system. */
+    /* Generate seed for PRNG */
+    prvGenerateRandomSeed();
+
+    /* Initialize the AWS Libraries system.
+     * This initializes the CRYPTO random number state,
+     * so call prvGenerateRandomSeed() before SYSTEM_Init() */
     if( SYSTEM_Init() == pdPASS )
     {
-        /* Generate seed for PRNG */
-        prvGenerateRandomSeed();
-
         /* Provision the device with AWS certificate and private key. */
         vDevModeKeyProvisioning();
 

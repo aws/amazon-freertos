@@ -63,7 +63,7 @@
 void vApplicationDaemonTaskStartupHook( void );
 
 /* Defined in es_wifi_io.c. */
-extern void SPI_WIFI_ISR(void);
+extern void SPI_WIFI_ISR( void );
 extern SPI_HandleTypeDef hspi;
 
 /**********************
@@ -125,13 +125,15 @@ void vApplicationDaemonTaskStartupHook( void )
     {
         configPRINTF( ( "WiFi module initialized.\r\n" ) );
 
-        /* A simple example to demonstrate key and certificate provisioning in
-         * microcontroller flash using PKCS#11 interface. This should be replaced
-         * by production ready key provisioning mechanism. */
-        vDevModeKeyProvisioning();
-
+        /* Initialize the AWS Libraries system.
+         * This initializes the CRYPTO random number state. */
         if( SYSTEM_Init() == pdPASS )
         {
+            /* A simple example to demonstrate key and certificate provisioning in
+             * microcontroller flash using PKCS#11 interface. This should be replaced
+             * by production ready key provisioning mechanism. */
+            vDevModeKeyProvisioning();
+
             /* Connect to the wifi before running the demos */
             prvWifiConnect();
 
@@ -158,7 +160,7 @@ void prvWifiConnect( void )
 {
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4];
+    uint8_t ucTempIp[ 4 ];
 
     /* Initialize Network params. */
     xNetworkParams.pcSSID = clientcredentialWIFI_SSID;
@@ -175,12 +177,12 @@ void prvWifiConnect( void )
         configPRINTF( ( "WiFi Connected to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
         xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus )
+
+        if( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] ) );
         }
-
     }
     else
     {
@@ -475,7 +477,9 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     portDISABLE_INTERRUPTS();
 
     /* Loop forever */
-    for( ; ; );
+    for( ; ; )
+    {
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -611,16 +615,12 @@ void HAL_GPIO_EXTI_Callback( uint16_t GPIO_Pin )
     {
         /* Pin number 1 is connected to Inventek Module Cmd-Data
          * ready pin. */
-        case( GPIO_PIN_1 ):
-        {
+        case ( GPIO_PIN_1 ):
             SPI_WIFI_ISR();
             break;
-        }
 
         default:
-        {
             break;
-        }
     }
 }
 /*-----------------------------------------------------------*/
@@ -646,7 +646,7 @@ void SPI3_IRQHandler( void )
  * @param  htim : TIM handle
  * @retval None
  */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void HAL_TIM_PeriodElapsedCallback( TIM_HandleTypeDef * htim )
 {
     if( htim->Instance == TIM6 )
     {

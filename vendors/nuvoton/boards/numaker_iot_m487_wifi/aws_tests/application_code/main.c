@@ -123,6 +123,7 @@ static void prvWifiConnect( void );
 static void prvMiscInitialization( void );
 
 /*-----------------------------------------------------------*/
+
 /**
  * @Set up the hardware ready to run this demo.
  */
@@ -133,10 +134,10 @@ static void prvSetupHardware( void );
 /**
  * @brief Application runtime entry point.
  */
-#define mainCHECK_TASK_PRIORITY             ( tskIDLE_PRIORITY + 3UL )
+#define mainCHECK_TASK_PRIORITY      ( tskIDLE_PRIORITY + 3UL )
 
-#define mainCHECK_TASK_STACK_SIZE           ( configMINIMAL_STACK_SIZE )
-#define mainCHECK_DELAY                     ( ( portTickType ) 5000 / portTICK_RATE_MS )
+#define mainCHECK_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE )
+#define mainCHECK_DELAY              ( ( portTickType ) 5000 / portTICK_RATE_MS )
 
 
 int main( void )
@@ -144,17 +145,24 @@ int main( void )
     /* Perform any hardware initialization that does not require the RTOS to be
      * running.  */
     prvMiscInitialization();
-    configPRINTF( ( "FreeRTOS_IPInit\n") );	
+    configPRINTF( ( "FreeRTOS_IPInit\n" ) );
 
-    /* Start the scheduler.  Initialization that requires the OS to be running,
-     * including the WiFi initialization, is performed in the RTOS daemon task
-     * startup hook. */ 
-         
+    /* Initialize AWS system libraries.
+     * SYSTEM_Init() initializes mbedTLS and the
+     * random number generator and should be called
+     * before provisioning or FreeRTOS_IPInit(). */
+    SYSTEM_Init();
+
     /* A simple example to demonstrate key and certificate provisioning in
      * microcontroller flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
-    vDevModeKeyProvisioning();     
-    configPRINTF( ( "vTaskStartScheduler\n" ) );  
+    vDevModeKeyProvisioning();
+
+    configPRINTF( ( "vTaskStartScheduler\n" ) );
+
+    /* Start the scheduler.  Initialization that requires the OS to be running,
+     * including the WiFi initialization, is performed in the RTOS daemon task
+     * startup hook. */
     vTaskStartScheduler();
 
     return 0;
@@ -167,29 +175,29 @@ static void prvSetupHardware( void )
     SYS_UnlockReg();
 
     /* Set XT1_OUT(PF.2) and XT1_IN(PF.3) to input mode */
-    PF->MODE &= ~(GPIO_MODE_MODE2_Msk | GPIO_MODE_MODE3_Msk);
+    PF->MODE &= ~( GPIO_MODE_MODE2_Msk | GPIO_MODE_MODE3_Msk );
 
     /* Enable External XTAL (4~24 MHz) */
-    CLK_EnableXtalRC(CLK_PWRCTL_HXTEN_Msk);
+    CLK_EnableXtalRC( CLK_PWRCTL_HXTEN_Msk );
 
     /* Waiting for 12MHz clock ready */
-    CLK_WaitClockReady( CLK_STATUS_HXTSTB_Msk);
+    CLK_WaitClockReady( CLK_STATUS_HXTSTB_Msk );
 
     /* Set core clock as PLL_CLOCK from PLL */
-    CLK_SetCoreClock(FREQ_192MHZ);
+    CLK_SetCoreClock( FREQ_192MHZ );
 
     /* Set both PCLK0 and PCLK1 as HCLK/2 */
     CLK->PCLKDIV = CLK_PCLKDIV_PCLK0DIV2 | CLK_PCLKDIV_PCLK1DIV2;
 
     /* Enable IP clock */
-    CLK_EnableModuleClock(UART0_MODULE);
-    CLK_EnableModuleClock(EMAC_MODULE);
+    CLK_EnableModuleClock( UART0_MODULE );
+    CLK_EnableModuleClock( EMAC_MODULE );
 
     /* Select IP clock source */
-    CLK_SetModuleClock(UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0(1));
+    CLK_SetModuleClock( UART0_MODULE, CLK_CLKSEL1_UART0SEL_HXT, CLK_CLKDIV0_UART0( 1 ) );
 
-    // Configure MDC clock rate to HCLK / (127 + 1) = 1.5 MHz if system is running at 192 MHz
-    CLK_SetModuleClock(EMAC_MODULE, 0, CLK_CLKDIV3_EMAC(127));
+    /* Configure MDC clock rate to HCLK / (127 + 1) = 1.5 MHz if system is running at 192 MHz */
+    CLK_SetModuleClock( EMAC_MODULE, 0, CLK_CLKDIV3_EMAC( 127 ) );
 
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock. */
@@ -198,9 +206,9 @@ static void prvSetupHardware( void )
 
 
     /* Set GPB multi-function pins for UART0 RXD and TXD */
-    SYS->GPB_MFPH &= ~(SYS_GPB_MFPH_PB12MFP_Msk | SYS_GPB_MFPH_PB13MFP_Msk);
-    SYS->GPB_MFPH |= (SYS_GPB_MFPH_PB12MFP_UART0_RXD | SYS_GPB_MFPH_PB13MFP_UART0_TXD);
-    // Configure RMII pins
+    SYS->GPB_MFPH &= ~( SYS_GPB_MFPH_PB12MFP_Msk | SYS_GPB_MFPH_PB13MFP_Msk );
+    SYS->GPB_MFPH |= ( SYS_GPB_MFPH_PB12MFP_UART0_RXD | SYS_GPB_MFPH_PB13MFP_UART0_TXD );
+    /* Configure RMII pins */
     SYS->GPA_MFPL |= SYS_GPA_MFPL_PA6MFP_EMAC_RMII_RXERR | SYS_GPA_MFPL_PA7MFP_EMAC_RMII_CRSDV;
     SYS->GPC_MFPL |= SYS_GPC_MFPL_PC6MFP_EMAC_RMII_RXD1 | SYS_GPC_MFPL_PC7MFP_EMAC_RMII_RXD0;
     SYS->GPC_MFPH |= SYS_GPC_MFPH_PC8MFP_EMAC_RMII_REFCLK;
@@ -210,16 +218,16 @@ static void prvSetupHardware( void )
                      SYS_GPE_MFPH_PE11MFP_EMAC_RMII_TXD1 |
                      SYS_GPE_MFPH_PE12MFP_EMAC_RMII_TXEN;
 
-    // Enable high slew rate on all RMII TX output pins
-    PE->SLEWCTL = (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN10_Pos) |
-                  (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN11_Pos) |
-                  (GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN12_Pos);
+    /* Enable high slew rate on all RMII TX output pins */
+    PE->SLEWCTL = ( GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN10_Pos ) |
+                  ( GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN11_Pos ) |
+                  ( GPIO_SLEWCTL_HIGH << GPIO_SLEWCTL_HSREN12_Pos );
 
     /* Lock protected registers */
     SYS_LockReg();
 
     /* Init UART to 115200-8n1 for print message */
-    UART_Open(UART0, 115200);
+    UART_Open( UART0, 115200 );
 }
 
 /*-----------------------------------------------------------*/
@@ -236,27 +244,24 @@ static void prvMiscInitialization( void )
 
 void vApplicationDaemonTaskStartupHook( void )
 {
-    if( SYSTEM_Init() == pdPASS )
-    {
-        /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
-        
-        /* Create the task to run tests. */
-        xTaskCreate( TEST_RUNNER_RunTests_task,
-                     "TestRunner",
-                     mainTEST_RUNNER_TASK_STACK_SIZE,
-                     NULL,
-                     tskIDLE_PRIORITY,
-                     NULL );
-    }
+    /* Connect to the Wi-Fi before running the tests. */
+    prvWifiConnect();
+
+    /* Create the task to run tests. */
+    xTaskCreate( TEST_RUNNER_RunTests_task,
+                 "TestRunner",
+                 mainTEST_RUNNER_TASK_STACK_SIZE,
+                 NULL,
+                 tskIDLE_PRIORITY,
+                 NULL );
 }
 /*-----------------------------------------------------------*/
 
 void prvWifiConnect( void )
 {
-    WIFINetworkParams_t  xNetworkParams;
+    WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucIpAddr[4] = { 0 };
+    uint8_t ucIpAddr[ 4 ] = { 0 };
 
     xWifiStatus = WIFI_On();
 
@@ -268,7 +273,7 @@ void prvWifiConnect( void )
     {
         configPRINTF( ( "Wi-Fi module failed to initialize.\r\n" ) );
 
-        /* Delay to allow the lower priority logging task to print the above status. 
+        /* Delay to allow the lower priority logging task to print the above status.
          * The while loop below will block the above printing. */
         Sleep( mainLOGGING_WIFI_STATUS_DELAY );
 
@@ -292,7 +297,8 @@ void prvWifiConnect( void )
         configPRINTF( ( "Wi-Fi Connected to AP. Creating tasks which use network...\r\n" ) );
 
         xWifiStatus = WIFI_GetIP( ucIpAddr );
-        if ( eWiFiSuccess == xWifiStatus ) 
+
+        if( eWiFiSuccess == xWifiStatus )
         {
             configPRINTF( ( "IP Address acquired %d.%d.%d.%d\r\n",
                             ucIpAddr[ 0 ], ucIpAddr[ 1 ], ucIpAddr[ 2 ], ucIpAddr[ 3 ] ) );
@@ -300,26 +306,25 @@ void prvWifiConnect( void )
     }
     else
     {
-#if 0
-        /* Connection failed, configure SoftAP. */
-        configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
+        #if 0
+            /* Connection failed, configure SoftAP. */
+            configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
-        xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
-        xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
-        xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
-        xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
+            xNetworkParams.pcSSID = wificonfigACCESS_POINT_SSID_PREFIX;
+            xNetworkParams.pcPassword = wificonfigACCESS_POINT_PASSKEY;
+            xNetworkParams.xSecurity = wificonfigACCESS_POINT_SECURITY;
+            xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
 
-        configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
-        {
-            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+            configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
                             xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
-        }
 
-        configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
-#endif
+            while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+            {
+                configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                                xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+            }
+            configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
+        #endif /* if 0 */
     }
 }
 /*-----------------------------------------------------------*/
@@ -354,7 +359,7 @@ void vAssertCalled( const char * pcFile,
 
     const char * pcApplicationHostnameHook( void )
     {
-        /* This function will be called during the DHCP: the machine will be registered 
+        /* This function will be called during the DHCP: the machine will be registered
          * with an IP address plus this name. */
         return clientcredentialIOT_THING_NAME;
     }
@@ -419,14 +424,14 @@ void vApplicationIdleHook( void )
      * cycle of the idle task if configUSE_IDLE_HOOK is set to 1 in
      * FreeRTOSConfig.h.  It must *NOT* attempt to block.  In this case the
      * idle task just sleeps to lower the CPU usage. */
-//    Sleep( ulMSToSleep ); /* Call vTaskDelay in IdleHook will cause vTaskSwitchContext failure*/
-
+/*    Sleep( ulMSToSleep ); / * Call vTaskDelay in IdleHook will cause vTaskSwitchContext failure* / */
 }
 /*-----------------------------------------------------------*/
 
 void vApplicationTickHook( void )
 {
-	static uint32_t tickHookCnt=0; 
-	tickHookCnt++;
+    static uint32_t tickHookCnt = 0;
+
+    tickHookCnt++;
 }
 /*-----------------------------------------------------------*/

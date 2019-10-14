@@ -105,6 +105,12 @@ int app_main( void )
 
     prvMiscInitialization();
 
+    /* Initializes random number generator, configures
+     * mbedTLS to use FreeRTOS heap & mutexes.
+     *
+     * SYSTEM_Init() must be called before using any
+     * CRYPTO functions or libraries dependent on mbedTLS.
+     */
     if( SYSTEM_Init() == pdPASS )
     {
         /* A simple example to demonstrate key and certificate provisioning in

@@ -49,20 +49,20 @@
 #include "aws_dev_mode_key_provisioning.h"
 
 /* Declare the firmware version structure for all to see.
-const AppVersion32_t xAppFirmwareVersion = {
-	.u.x.ucMajor = APP_VERSION_MAJOR,
-	.u.x.ucMinor = APP_VERSION_MINOR,
-	.u.x.usBuild = APP_VERSION_BUILD,
-};*/
+ * const AppVersion32_t xAppFirmwareVersion = {
+ *  .u.x.ucMajor = APP_VERSION_MAJOR,
+ *  .u.x.ucMinor = APP_VERSION_MINOR,
+ *  .u.x.usBuild = APP_VERSION_BUILD,
+ * };*/
 
 /* Logging Task Defines. */
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 32 )
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 8 )
 
 /* Startup defines. */
-#define mainSTARTUP_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 4 )
+#define mainSTARTUP_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 4 )
 
-/* The task delay for allowing the lower priority logging task to print out Wi-Fi 
+/* The task delay for allowing the lower priority logging task to print out Wi-Fi
  * failure status before blocking indefinitely. */
 #define mainLOGGING_WIFI_STATUS_DELAY       pdMS_TO_TICKS( 1000 )
 
@@ -70,9 +70,9 @@ const AppVersion32_t xAppFirmwareVersion = {
 #define mainTEST_RUNNER_TASK_STACK_SIZE     ( configMINIMAL_STACK_SIZE * 16 )
 
 /* The name of the devices for xApplicationDNSQueryHook. */
-#define mainDEVICE_NICK_NAME				"mw300_rd" /* FIX ME.*/
+#define mainDEVICE_NICK_NAME                "mw300_rd" /* FIX ME.*/
 
-static char ll_msg_buf_[MAX_MSG_LEN] = "Hello_world";
+static char ll_msg_buf_[ MAX_MSG_LEN ] = "Hello_world";
 psm_hnd_t psm_hnd;
 flash_desc_t fl;
 
@@ -86,54 +86,60 @@ flash_desc_t fl;
 
 void init_uart()
 {
-    UART_CFG_Type uartCfg = { 115200,
-	                      UART_DATABITS_8,
-	                      UART_PARITY_NONE,
-	                      UART_STOPBITS_1,
-	                      DISABLE };
+    UART_CFG_Type uartCfg =
+    {
+        115200,
+        UART_DATABITS_8,
+        UART_PARITY_NONE,
+        UART_STOPBITS_1,
+        DISABLE
+    };
 
-    board_uart_pin_config(UART0_ID);
-    CLK_SetUARTClkSrc(CLK_UART_ID_0, CLK_UART_SLOW);
-    CLK_ModuleClkEnable(CLK_UART0);
-    UART_Disable(UART0_ID);
-    UART_Enable(UART0_ID);
-    UART_Init(UART0_ID, &uartCfg);
+    board_uart_pin_config( UART0_ID );
+    CLK_SetUARTClkSrc( CLK_UART_ID_0, CLK_UART_SLOW );
+    CLK_ModuleClkEnable( CLK_UART0 );
+    UART_Disable( UART0_ID );
+    UART_Enable( UART0_ID );
+    UART_Init( UART0_ID, &uartCfg );
 }
 
 void deinit_uart()
 {
-    UART_Disable(UART0_ID);
-    CLK_ModuleClkDisable(CLK_UART0);
+    UART_Disable( UART0_ID );
+    CLK_ModuleClkDisable( CLK_UART0 );
 }
 
 void wm_flush()
 {
-    while (UART_GetLineStatus(UART0_ID, UART_LINESTATUS_TEMT)
-            != SET)
-		;
+    while( UART_GetLineStatus( UART0_ID, UART_LINESTATUS_TEMT )
+           != SET )
+    {
+    }
 }
 
-void wm_putchar(int ch_)
+void wm_putchar( int ch_ )
 {
-    UART_SendData(UART0_ID, ch_);
+    UART_SendData( UART0_ID, ch_ );
     wm_flush();
 }
 
-void wm_printf(const char *format, ...)
+void wm_printf( const char * format,
+                ... )
 {
-    wm_putchar('\r');
-    snprintf(ll_msg_buf_, sizeof(ll_msg_buf_),
-		&format[0]);
-    UART_WriteLine(UART0_ID, (uint8_t *) ll_msg_buf_);
+    wm_putchar( '\r' );
+    snprintf( ll_msg_buf_, sizeof( ll_msg_buf_ ),
+              &format[ 0 ] );
+    UART_WriteLine( UART0_ID, ( uint8_t * ) ll_msg_buf_ );
 }
+
 /**
- * @brief Application task startup hook for applications using Wi-Fi. If you are not 
+ * @brief Application task startup hook for applications using Wi-Fi. If you are not
  * using Wi-Fi, then start network dependent applications in the vApplicationIPNetorkEventHook
  * function. If you are not using Wi-Fi, this hook can be disabled by setting
  * configUSE_DAEMON_TASK_STARTUP_HOOK to 0.
  */
-//void vApplicationDaemonTaskStartupHook( void );
-void vStartupHook( void *pvParameters);
+/*void vApplicationDaemonTaskStartupHook( void ); */
+void vStartupHook( void * pvParameters );
 
 /**
  * @brief Application IP network event hook called by the FreeRTOS+TCP stack for
@@ -153,7 +159,7 @@ static void prvWifiConnect( void );
  */
 static void prvMiscInitialization( void );
 
-extern void  vApplicationIPInit( void );
+extern void vApplicationIPInit( void );
 
 /*-----------------------------------------------------------*/
 
@@ -171,13 +177,19 @@ int main( void )
                             tskIDLE_PRIORITY,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
+    /* Initialize AWS system libraries.
+     * SYSTEM_Init() initializes mbedTLS and the
+     * random number generator and should be called
+     * before provisioning or FreeRTOS_IPInit(). */
+    SYSTEM_Init();
+
     /* FreeRTOS+TCP stack init */
     vApplicationIPInit();
 
     /* Create the task to run unit tests. */
     xTaskCreate( vStartupHook,
                  "Startup Hook",
-		             mainSTARTUP_TASK_STACK_SIZE,
+                 mainSTARTUP_TASK_STACK_SIZE,
                  NULL,
                  tskIDLE_PRIORITY + 2,
                  NULL );
@@ -204,9 +216,12 @@ int os_init()
     /* Create a global mutex here, this is done to avoid inter dependency
      * between modules where they can't create or initialize mutex.
      */
-    ret = os_mutex_create(&biglock, "big_lock", OS_MUTEX_INHERIT);
-    if (ret != WM_SUCCESS)
-        os_thread_self_complete(NULL);
+    ret = os_mutex_create( &biglock, "big_lock", OS_MUTEX_INHERIT );
+
+    if( ret != WM_SUCCESS )
+    {
+        os_thread_self_complete( NULL );
+    }
 
     /* Add memory bank from SRAM1 if available */
     add_heap_2_bank();
@@ -214,51 +229,56 @@ int os_init()
     main();
 
     /* Nothing to do, wait forever */
-    for (;;)
-        ;
+    for( ; ; )
+    {
+    }
 }
 /*-----------------------------------------------------------*/
 
 static void prvMiscInitialization( void )
 {
-    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be 
+    /* FIX ME: Perform any hardware initializations, that don't require the RTOS to be
      * running, here
      */
     int ret;
-    init_uart(UART0_ID, 0);
+
+    init_uart( UART0_ID, 0 );
 
     /* Enable following to get log messages from Marvell */
-#if 0
-    wmstdio_init(UART0_ID, 0);
-#endif
+    #if 0
+        wmstdio_init( UART0_ID, 0 );
+    #endif
 
     /* Set the TCP/UDP Packet Send Retry Count to 10 */
-    wifi_set_packet_retry_count(3);
+    wifi_set_packet_retry_count( 3 );
 
-    ret = part_get_desc_from_id(FC_COMP_PSM, &fl);
-    if (ret != WM_SUCCESS) {
-        configPRINT("Unable to get flash desc from id\r\n");
-    }
-    ret = psm_module_init(&fl, &psm_hnd, NULL);
-    if (ret != 0) {
-        configPRINT("Failed to initialize psm module\r\n");
+    ret = part_get_desc_from_id( FC_COMP_PSM, &fl );
+
+    if( ret != WM_SUCCESS )
+    {
+        configPRINT( "Unable to get flash desc from id\r\n" );
     }
 
-    configPRINT_STRING("FreeRTOS Started\r\n");
+    ret = psm_module_init( &fl, &psm_hnd, NULL );
+
+    if( ret != 0 )
+    {
+        configPRINT( "Failed to initialize psm module\r\n" );
+    }
+
+    configPRINT_STRING( "FreeRTOS Started\r\n" );
 }
 /*-----------------------------------------------------------*/
 
-//void vApplicationDaemonTaskStartupHook( void )
-void vStartupHook( void *pvParameters)
+/*void vApplicationDaemonTaskStartupHook( void ) */
+void vStartupHook( void * pvParameters )
 {
-    configPRINT("\r\nApplication Daemon Startup \r\n");
+    configPRINT( "\r\nApplication Daemon Startup \r\n" );
 
-    if( SYSTEM_Init() == pdPASS ) {
-        /* Connect to the Wi-Fi before running the tests. */
-        prvWifiConnect();
-    } else {
-        configPRINT("\r\nSystem Init failed \r\n");
-    }
+
+    /* Connect to the Wi-Fi before running the tests. */
+    prvWifiConnect();
+
     /* A simple example to demonstrate key and certificate provisioning in
      * flash using PKCS#11 interface. This should be replaced
      * by production ready key provisioning mechanism. */
@@ -266,7 +286,7 @@ void vStartupHook( void *pvParameters)
 
     /* Start the demo tasks. */
     DEMO_RUNNER_RunDemos();
-    vTaskDelete(NULL);
+    vTaskDelete( NULL );
 }
 /*-----------------------------------------------------------*/
 #include <FreeRTOS_Sockets.h>
@@ -275,79 +295,85 @@ void vStartupHook( void *pvParameters)
 eDHCPCallbackAnswer_t xApplicationDHCPHook( eDHCPCallbackPhase_t eDHCPPhase,
                                             uint32_t ulIPAddress )
 {
-  eDHCPCallbackAnswer_t eReturn;
-  uint32_t ulStaticIPAddress, ulStaticNetMask;
+    eDHCPCallbackAnswer_t eReturn;
+    uint32_t ulStaticIPAddress, ulStaticNetMask;
 
-  /* This hook is called in a couple of places during the DHCP process, as
-  identified by the eDHCPPhase parameter. */
-  switch( eDHCPPhase )
-  {
-    case eDHCPPhasePreDiscover  :
-      /* A DHCP discovery is about to be sent out.  eDHCPContinue is
-      returned to allow the discovery to go out.
+    /* This hook is called in a couple of places during the DHCP process, as
+     * identified by the eDHCPPhase parameter. */
+    switch( eDHCPPhase )
+    {
+        case eDHCPPhasePreDiscover:
 
-      If eDHCPUseDefaults had been returned instead then the DHCP process
-      would be stopped and the statically configured IP address would be
-      used.
+            /* A DHCP discovery is about to be sent out.  eDHCPContinue is
+             * returned to allow the discovery to go out.
+             *
+             * If eDHCPUseDefaults had been returned instead then the DHCP process
+             * would be stopped and the statically configured IP address would be
+             * used.
+             *
+             * If eDHCPStopNoChanges had been returned instead then the DHCP
+             * process would be stopped and whatever the current network
+             * configuration was would continue to be used. */
+            eReturn = eDHCPContinue;
+            break;
 
-      If eDHCPStopNoChanges had been returned instead then the DHCP
-      process would be stopped and whatever the current network
-      configuration was would continue to be used. */
-      eReturn = eDHCPContinue;
-      break;
+        case eDHCPPhasePreRequest:
 
-    case eDHCPPhasePreRequest  :
-      /* An offer has been received from the DHCP server, and the offered
-      IP address is passed in the ulIPAddress parameter.  Convert the
-      offered and statically allocated IP addresses to 32-bit values. */
-      ulStaticIPAddress = FreeRTOS_inet_addr_quick( configIP_ADDR0,
-                                                    configIP_ADDR1,
-                                                    configIP_ADDR2,
-                                                    configIP_ADDR3 );
+            /* An offer has been received from the DHCP server, and the offered
+             * IP address is passed in the ulIPAddress parameter.  Convert the
+             * offered and statically allocated IP addresses to 32-bit values. */
+            ulStaticIPAddress = FreeRTOS_inet_addr_quick( configIP_ADDR0,
+                                                          configIP_ADDR1,
+                                                          configIP_ADDR2,
+                                                          configIP_ADDR3 );
 
-      ulStaticNetMask = FreeRTOS_inet_addr_quick( configNET_MASK0,
-                                                  configNET_MASK1,
-                                                  configNET_MASK2,
-                                                  configNET_MASK3 );
+            ulStaticNetMask = FreeRTOS_inet_addr_quick( configNET_MASK0,
+                                                        configNET_MASK1,
+                                                        configNET_MASK2,
+                                                        configNET_MASK3 );
 
-      /* Mask the IP addresses to leave just the sub-domain octets. */
-      ulStaticIPAddress &= ulStaticNetMask;
-      ulIPAddress &= ulStaticNetMask;
+            /* Mask the IP addresses to leave just the sub-domain octets. */
+            ulStaticIPAddress &= ulStaticNetMask;
+            ulIPAddress &= ulStaticNetMask;
 
-      /* Are the sub-domains the same? */
-      if( ulStaticIPAddress == ulIPAddress ) {
-        /* The sub-domains match, so the default IP address can be
-        used.  The DHCP process is stopped at this point. */
-        eReturn = eDHCPUseDefaults;
-      }
-      else {
-        /* The sub-domains don't match, so continue with the DHCP
-        process so the offered IP address is used. */
-        eReturn = eDHCPContinue;
-      }
+            /* Are the sub-domains the same? */
+            if( ulStaticIPAddress == ulIPAddress )
+            {
+                /* The sub-domains match, so the default IP address can be
+                 * used.  The DHCP process is stopped at this point. */
+                eReturn = eDHCPUseDefaults;
+            }
+            else
+            {
+                /* The sub-domains don't match, so continue with the DHCP
+                 * process so the offered IP address is used. */
+                eReturn = eDHCPContinue;
+            }
 
-      break;
+            break;
 
-    default :
-      /* Cannot be reached, but set eReturn to prevent compiler warnings
-      where compilers are disposed to generating one. */
-      eReturn = eDHCPContinue;
-      break;
-  }
+        default:
 
-  return eReturn;
+            /* Cannot be reached, but set eReturn to prevent compiler warnings
+             * where compilers are disposed to generating one. */
+            eReturn = eDHCPContinue;
+            break;
+    }
+
+    return eReturn;
 }
 /*-----------------------------------------------------------*/
 
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
-    /* FIX ME: If your application is using Ethernet network connections and the 
-     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the 
-     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been 
-     * imported into the project. If you are not using Ethernet see the 
+    /* FIX ME: If your application is using Ethernet network connections and the
+     * FreeRTOS+TCP stack, delete the surrounding compiler directives to enable the
+     * unit tests and after MQTT, Bufferpool, and Secure Sockets libraries have been
+     * imported into the project. If you are not using Ethernet see the
      * vApplicationDaemonTaskStartupHook function. */
-    if (eNetworkEvent == eNetworkUp) {
-        configPRINT("\r\nNetwork connection successful.\r\n");
+    if( eNetworkEvent == eNetworkUp )
+    {
+        configPRINT( "\r\nNetwork connection successful.\r\n" );
     }
 
     static BaseType_t xTasksAlreadyCreated = pdFALSE;
@@ -365,24 +391,27 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 
 void prvWifiConnect( void )
 {
-
     WIFINetworkParams_t xNetworkParams;
     WIFIReturnCode_t xWifiStatus;
-    uint8_t ucTempIp[4] = { 0 };
+    uint8_t ucTempIp[ 4 ] = { 0 };
 
-    configPRINT("\r\nWill attempt to start wlan \r\n");
+    configPRINT( "\r\nWill attempt to start wlan \r\n" );
     xWifiStatus = WIFI_On();
 
-    if( xWifiStatus == eWiFiSuccess ) {
+    if( xWifiStatus == eWiFiSuccess )
+    {
         configPRINT( "\r\nWi-Fi module initialized. Connecting to AP...\r\n" );
-    } else {
-        configPRINT( "\r\nWi-Fi module failed to initialize.\r\n");
+    }
+    else
+    {
+        configPRINT( "\r\nWi-Fi module failed to initialize.\r\n" );
 
         /* Delay to allow the lower priority logging task to print the above status.
          * The while loop below will block the above printing. */
         vTaskDelay( mainLOGGING_WIFI_STATUS_DELAY );
 
-        while( 1 ) {
+        while( 1 )
+        {
         }
     }
 
@@ -394,15 +423,21 @@ void prvWifiConnect( void )
     xNetworkParams.xSecurity = clientcredentialWIFI_SECURITY;
     xNetworkParams.cChannel = 0;
 
-    xWifiStatus = WIFI_ConnectAP(&xNetworkParams);
-    if( xWifiStatus == eWiFiSuccess ) {
+    xWifiStatus = WIFI_ConnectAP( &xNetworkParams );
+
+    if( xWifiStatus == eWiFiSuccess )
+    {
         configPRINT( "\r\nWi-Fi Connected to AP. Creating tasks which use network...\r\n" );
         xWifiStatus = WIFI_GetIP( ucTempIp );
-        if ( eWiFiSuccess == xWifiStatus ) {
+
+        if( eWiFiSuccess == xWifiStatus )
+        {
             wmprintf( "IP Address acquired %d.%d.%d.%d\r\n",
-                ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] );
+                      ucTempIp[ 0 ], ucTempIp[ 1 ], ucTempIp[ 2 ], ucTempIp[ 3 ] );
         }
-    } else {
+    }
+    else
+    {
         /* Connection failed, configure SoftAP. */
         configPRINTF( ( "Wi-Fi failed to connect to AP %s.\r\n", xNetworkParams.pcSSID ) );
 
@@ -412,11 +447,12 @@ void prvWifiConnect( void )
         xNetworkParams.cChannel = wificonfigACCESS_POINT_CHANNEL;
 
         configPRINTF( ( "Connect to SoftAP %s using password %s. \r\n",
-                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+                        xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
 
-        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess ) {
-                configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
-                                xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
+        while( WIFI_ConfigureAP( &xNetworkParams ) != eWiFiSuccess )
+        {
+            configPRINTF( ( "Connect to SoftAP %s using password %s and configure Wi-Fi. \r\n",
+                            xNetworkParams.pcSSID, xNetworkParams.pcPassword ) );
         }
 
         configPRINTF( ( "Wi-Fi configuration successful. \r\n" ) );
@@ -434,7 +470,7 @@ void prvWifiConnect( void )
 void vApplicationIdleHook( void )
 {
     /* FIX ME. If necessary, update to application idle periodic actions. */
-    
+
     static TickType_t xLastPrint = 0;
     TickType_t xTimeNow;
     const TickType_t xPrintFrequency = pdMS_TO_TICKS( 5000 );
@@ -450,8 +486,8 @@ void vApplicationIdleHook( void )
 /*-----------------------------------------------------------*/
 
 /**
-* @brief User defined application hook to process names returned by the DNS server.
-*/
+ * @brief User defined application hook to process names returned by the DNS server.
+ */
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
     BaseType_t xApplicationDNSQueryHook( const char * pcName )
     {
@@ -477,7 +513,7 @@ void vApplicationIdleHook( void )
 
         return xReturn;
     }
-	
+
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
 /*-----------------------------------------------------------*/
 
@@ -485,32 +521,31 @@ void vApplicationIdleHook( void )
  * @brief User defined assertion call. This function is plugged into configASSERT.
  * See FreeRTOSConfig.h to define configASSERT to something different.
  */
-void vAssertCalled(const char * pcFile,
-	uint32_t ulLine)
+void vAssertCalled( const char * pcFile,
+                    uint32_t ulLine )
 {
     /* FIX ME. If necessary, update to applicable assertion routine actions. */
 
-	const uint32_t ulLongSleep = 1000UL;
-	volatile uint32_t ulBlockVariable = 0UL;
-	volatile char * pcFileName = (volatile char *)pcFile;
-	volatile uint32_t ulLineNumber = ulLine;
+    const uint32_t ulLongSleep = 1000UL;
+    volatile uint32_t ulBlockVariable = 0UL;
+    volatile char * pcFileName = ( volatile char * ) pcFile;
+    volatile uint32_t ulLineNumber = ulLine;
 
-	(void)pcFileName;
-	(void)ulLineNumber;
+    ( void ) pcFileName;
+    ( void ) ulLineNumber;
 
-	printf("vAssertCalled %s, %ld\n", pcFile, (long)ulLine);
-	fflush(stdout);
+    printf( "vAssertCalled %s, %ld\n", pcFile, ( long ) ulLine );
+    fflush( stdout );
 
-	/* Setting ulBlockVariable to a non-zero value in the debugger will allow
-	* this function to be exited. */
-	taskDISABLE_INTERRUPTS();
-	{
-		while (ulBlockVariable == 0UL)
-		{
-			vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
-		}
-	}
-	taskENABLE_INTERRUPTS();
+    /* Setting ulBlockVariable to a non-zero value in the debugger will allow
+     * this function to be exited. */
+    taskDISABLE_INTERRUPTS();
+    {
+        while( ulBlockVariable == 0UL )
+        {
+            vTaskDelay( pdMS_TO_TICKS( ulLongSleep ) );
+        }
+    }
+    taskENABLE_INTERRUPTS();
 }
 /*-----------------------------------------------------------*/
-
