@@ -2393,7 +2393,7 @@ static void prvOTAAgentTask( void * pvUnused )
     for( ; ; )
     {
         /* Receive the next event form the OTA event queue to process . */
-        if( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, 0 ) == pdTRUE )
+        if( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, portMAX_DELAY ) == pdTRUE )
         {
             /* Get the next event entry from the table to execute respective event handler. */
             pxStateTableEntry = ( OTAStateTableEntry_t * ) &OTATransitionTable[ xOTA_Agent.eState ][ xEventMsg.xEventId ];
