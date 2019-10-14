@@ -22,6 +22,7 @@
  * http://aws.amazon.com/freertos
  * http://www.FreeRTOS.org
  */
+
 /*******************************************************************************
 * @file iot_hal_i2s.h
 * @brief File for the APIs of I2S called by application layer.
@@ -34,22 +35,22 @@
 /**
  * The return codes for the functions in I2S.
  */
-#define IOT_I2S_SUCCESS                 ( 0 )
-#define IOT_I2S_INVALID_VALUE           ( 1 )
-#define IOT_I2S_NOT_INITIALIZED         ( 2 )
-#define IOT_I2S_BUSY                    ( 3 )
-#define IOT_I2S_WRITE_FAILED            ( 4 )
-#define IOT_I2S_READ_FAILED             ( 5 )
-#define IOT_I2S_NOTHING_TO_CANCEL       ( 7 )
-#define IOT_I2S_FUNCTION_NOT_SUPPORTED  ( 8 )
+#define IOT_I2S_SUCCESS                 ( 0 )    /*!< I2S operation completed successfully. */
+#define IOT_I2S_INVALID_VALUE           ( 1 )    /*!< At least one parameter is invalid. */
+#define IOT_I2S_NOT_INITIALIZED         ( 2 )    /*!< I2S interface not initialized. */
+#define IOT_I2S_BUSY                    ( 3 )    /*!< I2S operation can't be completed because another operation is happening. */
+#define IOT_I2S_WRITE_FAILED            ( 4 )    /*!< I2S write operation failed. */
+#define IOT_I2S_READ_FAILED             ( 5 )    /*!< I2S read operation failed. */
+#define IOT_I2S_NOTHING_TO_CANCEL       ( 7 )    /*!< No active I2S operations to cancel. */
+#define IOT_I2S_FUNCTION_NOT_SUPPORTED  ( 8 )    /*!< I2S operation not supported. */
 
 /**
  * @brief I2S Bus status
  */
 typedef enum
 {
-    eI2SBusIdle = 0,
-    eI2SBusBusy = IOT_I2S_BUSY,
+    eI2SBusIdle = 0,               /*!< I2S Bus status is idle. */
+    eI2SBusBusy = IOT_I2S_BUSY,    /*!< I2S Bus status is busy. */
 } IotI2SBusStatus_t;
 
 /**
@@ -57,9 +58,9 @@ typedef enum
  */
 typedef enum
 {
-    eI2SCompleted = IOT_I2S_SUCCESS,
-    eI2SLastWriteFailed = IOT_I2S_WRITE_FAILED,
-    eI2SLastReadFailed = IOT_I2S_READ_FAILED,
+    eI2SCompleted = IOT_I2S_SUCCESS,              /*!< I2S operation completed successfully. */
+    eI2SLastWriteFailed = IOT_I2S_WRITE_FAILED,   /*!< I2S write operation failed. */
+    eI2SLastReadFailed = IOT_I2S_READ_FAILED,     /*!< I2S read operation failed. */
 
 } IotI2SOperationStatus_t;
 
@@ -68,9 +69,9 @@ typedef enum
  */
 typedef enum
 {
-    eI2SSetConfig,      /* Set I2S configuration using the struct IotI2SIoctlConfig_t */
-    eI2SGetConfig,      /* Get I2S configuration using the struct IotI2SIoctlConfig_t */
-    eI2SGetBusState,    /* Get the State of the I2S Bus form of the error code i.e. Idle or Busy */
+    eI2SSetConfig,      /*!< Set I2S configuration taking the struct IotI2SIoctlConfig_t */
+    eI2SGetConfig,      /*!< Get I2S configuration returning the struct IotI2SIoctlConfig_t */
+    eI2SGetBusState,    /*!< Get the State of the I2S Bus returning the struct IotI2SBusStatus_t */
 } IotI2SIoctlRequest_t;
 
 /**
@@ -78,11 +79,11 @@ typedef enum
  */
 typedef enum
 {
-    eI2SNormalMode,
-    eI2SLeftJustifiedMode,
-    eI2SRightJustifiedMode,
-    eI2SPcmMode,
-    eI2SDspMode,
+    eI2SNormalMode,           /*!< HW uses normal mode for signal detection. */
+    eI2SLeftJustifiedMode,    /*!< HW uses left justified mode for signal detection. */
+    eI2SRightJustifiedMode,   /*!< HW uses right justified mode for signal detection. */
+    eI2SPcmMode,              /*!< HW uses PCM mode for signal detection. */
+    eI2SDspMode,              /*!< HW uses DSP mode for signal detection. */
 } IotI2SMode_t;
 
 /**
@@ -90,8 +91,8 @@ typedef enum
  */
 typedef enum
 {
-    eI2SChannelStereo,
-    eI2SChannelMono,
+    eI2SChannelStereo,        /*!< Channel is in stereo. */
+    eI2SChannelMono,          /*!< Channel is in mono. */
 } IotI2SChannel_t;
 
 /**
@@ -99,8 +100,8 @@ typedef enum
  */
 typedef enum
 {
-    eI2SFallingEdge,
-    eI2SRisingEdge,
+    eI2SFallingEdge,          /*!< Clock polarity detected on falling edge of signal. */
+    eI2SRisingEdge,           /*!< Clock polarity detected on rising edge of signal. */
 } IotI2SClkPolarity_t;
 
 /**
@@ -143,12 +144,21 @@ typedef void ( * IotI2SCallback_t )( IotI2SOperationStatus_t xOpStatus, void * p
  *
  * @param[in]   lI2SInstance The index of I2S to initialize.
  *
- * @return  The handle to the I2S port if SUCCESS else NULL.
+ * @return
+ *   - The handle to the I2S port if SUCCESS
+ *   - NULL if
+ *      - invalid lI2SInstance
+ *      - lI2SInstance already open
  */
 IotI2SHandle_t iot_i2s_open( int32_t lI2SInstance );
 
 /**
  * @brief Sets the application callback to be called on completion of an operation.
+ *
+ * @note Single callback is used per instance for iot_i2s_read_async() and iot_i2s_write_async() calls only.
+ * @note Newly set callback overrides the one previously set
+ *
+ * @warning If input handle or if callback function is NULL, this function silently takes no action.
  *
  * @param[in]   pxI2SPeripheral The I2S handle returned in open() call.
  * @param[in]   xCallback  The callback function to be called on completion of transaction.
@@ -165,7 +175,14 @@ void iot_i2s_set_callback( IotI2SHandle_t const pxI2SPeripheral,
  * @param[in]   pvBuffer        The receive buffer to read the data into.
  * @param[in]   xBytes          The number of bytes to read.
  *
- * @return  SUCCESS=IOT_I2S_SUCCESS, FAILED=IOT_I2S_INVALID_VALUE, Driver_Error=IOT_I2S_READ_FAIL, Not initialized=IOT_I2S_NOT_INITIALIZED
+ * @return
+ *   - IOT_I2S_SUCCESS on success
+ *   - IOT_I2S_INVALID_VALUE if
+ *      - pxI2SPeriperal or pvBuffer are NULL
+ *      - xBytes == 0
+ *   - IOT_I2S_READ_FAIL if there was an error doing the read
+ *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
+ *   - IOT_I2S_BUSY is another read (sync or async) is in process
  */
 int32_t iot_i2s_read_async( IotI2SHandle_t const pxI2SPeripheral,
                             uint8_t * const pvBuffer,
@@ -178,7 +195,14 @@ int32_t iot_i2s_read_async( IotI2SHandle_t const pxI2SPeripheral,
  * @param[in]   pvBuffer        The transmit buffer to write the data into.
  * @param[in]   xBytes          The number of bytes to write.
  *
- * @return  SUCCESS=IOT_I2S_SUCCESS, FAILED=IOT_I2S_INVALID_VALUE, Driver_Error=IOT_I2S_WRITE_FAILED, Not initialized=IOT_I2S_NOT_INITIALIZED
+ * @return
+ *   - IOT_I2S_SUCCESS on success
+ *   - IOT_I2S_INVALID_VALUE if
+ *      - pxI2SPeriperal or pvBuffer are NULL
+ *      - xBytes == 0
+ *   - IOT_I2S_WRITE_FAIL if there was an error doing the write
+ *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
+ *   - IOT_I2S_BUSY is another write (sync or async) is in process
  */
 int32_t iot_i2s_write_async( IotI2SHandle_t const pxI2SPeripheral,
                              uint8_t * const pvBuffer,
@@ -191,7 +215,14 @@ int32_t iot_i2s_write_async( IotI2SHandle_t const pxI2SPeripheral,
  * @param[in]   pvBuffer        The receive buffer to read the data into.
  * @param[in]   xBytes          The number of bytes to read.
  *
- * @return  SUCCESS=IOT_I2S_SUCCESS, FAILED=IOT_I2S_INVALID_VALUE, Driver_Error=IOT_I2S_READ_FAILED, Not initialized=IOT_I2S_NOT_INITIALIZED
+ * @return
+ *   - IOT_I2S_SUCCESS on success
+ *   - IOT_I2S_INVALID_VALUE if
+ *      - pxI2SPeriperal or pvBuffer are NULL
+ *      - xBytes == 0
+ *   - IOT_I2S_READ_FAIL if there was an error doing the read
+ *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
+ *   - IOT_I2S_BUSY is another read (sync or async) is in process
  */
 int32_t iot_i2s_read_sync( IotI2SHandle_t const pxI2SPeripheral,
                            uint8_t * const pvBuffer,
@@ -204,7 +235,14 @@ int32_t iot_i2s_read_sync( IotI2SHandle_t const pxI2SPeripheral,
  * @param[in]   pvBuffer        The transmit buffer to write the data into.
  * @param[in]   xBytes          The number of bytes to write.
  *
- * @return  SUCCESS=IOT_I2S_SUCCESS, FAILED=IOT_I2S_INVALID_VALUE, Driver_Error=IOT_I2S_WRITE_FAIL, Not initialized=IOT_I2S_NOT_INITIALIZED
+ * @return
+ *   - IOT_I2S_SUCCESS on success
+ *   - IOT_I2S_INVALID_VALUE if
+ *      - pxI2SPeriperal or pvBuffer are NULL
+ *      - xBytes == 0
+ *   - IOT_I2S_WRITE_FAIL if there was an error doing the write
+ *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
+ *   - IOT_I2S_BUSY is another write (sync or async) is in process
  */
 int32_t iot_i2s_write_sync( IotI2SHandle_t const pxI2SPeripheral,
                             uint8_t * const pvBuffer,
@@ -215,7 +253,11 @@ int32_t iot_i2s_write_sync( IotI2SHandle_t const pxI2SPeripheral,
  *
  * @param[in]   pxI2SPeripheral The I2S handle returned in open() call.
  *
- * @return  SUCCESS=IOT_I2S_SUCCESS, Not initialized=IOT_I2S_NOT_INITIALIZED
+ * @return
+ *   - IOT_I2S_SUCCESS on success
+ *   - IOT_I2S_INVALID_VALUE if
+ *      - pxI2SPeriperal is NULL
+ *      - instance not open (previously closed)
  */
 int32_t iot_i2s_close( IotI2SHandle_t const pxI2SPeripheral);
 
@@ -226,8 +268,13 @@ int32_t iot_i2s_close( IotI2SHandle_t const pxI2SPeripheral);
  * @param[in]   lRequest    Should be one of I2S_Ioctl_Request_t.
  * @param[in]   pvBuffer    The configuration values for the IOCTL request.
  *
- * @return  SUCCESS=IOT_I2S_SUCCESS, or one of IOT_I2S_INVALID_VALUE, IOT_I2S_NOT_INITIALIZED,
- *          IOT_I2S_FUNCTION_NOT_SUPPORTED
+ * @return
+ *   - IOT_I2S_SUCCESS on success
+ *   - IOT_I2S_INVALID_VALUE if
+ *      - pxI2SPeriperal is NULL
+ *      - xI2SRequest is invalid
+ *      - pvBuvver is NULL
+ *   - IOT_I2S_FUNCTION_NOT_SUPPORTED if designated IotI2SMode_t in eI2SSetConfig is not supported.
  */
 int32_t iot_i2s_ioctl( IotI2SHandle_t const pxI2SPeripheral,
                        IotI2SIoctlRequest_t xI2SRequest,
@@ -238,8 +285,11 @@ int32_t iot_i2s_ioctl( IotI2SHandle_t const pxI2SPeripheral,
  *
  * @param[in]   pxI2SPeripheral The I2S handle returned in open() call.
  *
- * @return  SUCCESS=IOT_I2S_SUCCESS, or one of IOT_I2S_INVALID_VALUE on error
- *          or IOT_I2S_NOTHING_TO_CANCEL, IOT_I2S_FUNCTION_NOT_SUPPORTED
+ * @return
+ *   - IOT_I2S_SUCCESS on success
+ *   - IOT_I2S_INVALID_VALUE if pxI2SPeriperal is NULL
+ *   - IOT_I2S_NOTHING_TO_CANCEL if nothing to cancel.
+ *   - IOT_I2S_FUNCTION_NOT_SUPPORTED if cancel operation not supported.
  */
 int32_t iot_i2s_cancel( IotI2SHandle_t const pxI2SPeripheral);
 
