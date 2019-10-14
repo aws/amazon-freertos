@@ -34,7 +34,7 @@
 #define OTA_SECONDARY_DATA_PROTOCOL  "HTTP"
 
 #define OTA_DATA_OVER_MQTT
-//#define OTA_DATA_OVER_HTTP
+#define OTA_DATA_OVER_HTTP
 
 typedef struct
 {
