@@ -149,6 +149,40 @@ typedef struct
  * - 'NULL', if
  *     - invalid instance number
  *     - open same instance more than once before closing it
+ *
+ * <b>Example</b>
+ * @code{c}
+ *  // These two buffers can contain 32 bytes for reading and writing.
+ *  uint8_t cpBuffer[ 32 ] = { 0 };
+ *  uint8_t cpBufferRead[ 32 ] = { 0 };
+ *
+ *  IotUARTHandle_t xOpen;
+ *  int32_t lRead, lWrite, lClose;
+ *  BaseType_t xCallbackReturn;
+ *  uint8_t ucPort = 1; /* Each UART peripheral will be assigned an integer.
+ *
+ *  xOpen = iot_uart_open( ucPort );
+ *  if( xOpen != NULL )
+ *  {
+ *      iot_uart_set_callback( xOpen, prvReadWriteCallback, NULL );
+ *
+ *      lWrite = iot_uart_write_async( xOpen, cpBuffer, testIotUART_READ_BUFFER_LENGTH );
+ *      // assert(IOT_UART_SUCCESS, lWrite)
+ *      // Wait for asynchronous write to complete
+ *      xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xUartSemaphore, IotUART_DEFAULT_SEMPAHORE_DELAY );
+ *      // assert(xCallbackReturn, pdTrue)
+ *
+ *      lRead = iot_uart_read_async( xOpen, cpBufferRead, testIotUART_READ_BUFFER_LENGTH );
+ *      // assert(IOT_UART_SUCCESS, lRead)
+ *
+ *      // Wait for asynchronous read to complete
+ *      xCallbackReturn = xSemaphoreTake( ( SemaphoreHandle_t ) &xUartSemaphore, IotUART_DEFAULT_SEMPAHORE_DELAY );
+ *      // assert(xCallbackReturn, pdTrue)
+ *  }
+ *
+ *  lClose = iot_uart_close( xOpen );
+ *  // assert(IOT_UART_SUCCESS, lClose)
+ *  @endcode
  */
 IotUARTHandle_t iot_uart_open( int32_t lUartInstance );
 
