@@ -999,8 +999,9 @@ size_t xOptionsLength = sizeof( ucDHCPDiscoverOptions );
 		{
 			/* Close socket to ensure packets don't queue on it. */
 			vSocketClose( xDHCPData.xDHCPSocket );
+		    xDHCPData.xDHCPSocket = NULL;
 		}
-		xDHCPData.xDHCPSocket = NULL;
+
 		xDHCPData.xDHCPTxPeriod = pdMS_TO_TICKS( 3000ul + ( ipconfigRAND32() & 0x3fful ) ); /*  do ARP test every (3 + 0-1024mS) seconds. */
 
 		xARPHadIPClash = pdFALSE;	   /* reset flag that shows if have ARP clash. */
