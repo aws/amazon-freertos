@@ -63,12 +63,13 @@
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 12 )
 
 #ifdef democonfigMEMORY_ANALYSIS
-    #define demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
     #define demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        heap_caps_get_minimum_free_size(NULL)
     #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
+    #define demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
         #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x )
     #else
-        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    NULL
+        #define demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE      ( void * )
+        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )  ( NULL )
     #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
 #endif /* democonfigMEMORY_ANALYSIS */
 
