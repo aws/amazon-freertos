@@ -102,17 +102,4 @@ to perform a TLS negotiation. */
 /* Send AWS IoT MQTT traffic encrypted to destination port 443. */
 #define democonfigMQTT_AGENT_CONNECT_FLAGS          	   ( mqttagentREQUIRE_TLS )
 
-#define democonfigMEMORY_ANALYSIS
-
-#ifdef democonfigMEMORY_ANALYSIS
-    #define demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
-    #define demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        xPortGetMinimumEverFreeHeapSize()
-    #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
-        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x )
-    #else
-        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    NULL
-    #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
-#endif /* democonfigMEMORY_ANALYSIS */
-
-
 #endif /* _AWS_DEMO_CONFIG_H_ */
