@@ -162,7 +162,7 @@ IotI2SHandle_t iot_i2s_open( int32_t lI2SInstance );
  *
  * @param[in]   pxI2SPeripheral The I2S handle returned in open() call.
  * @param[in]   xCallback  The callback function to be called on completion of transaction.
- * @param[in] pvUserContext The user context to be passed back when callback is called.
+ * @param[in]   pvUserContext The user context to be passed back when callback is called.
  */
 void iot_i2s_set_callback( IotI2SHandle_t const pxI2SPeripheral,
                            IotI2SCallback_t xCallback,
@@ -182,7 +182,7 @@ void iot_i2s_set_callback( IotI2SHandle_t const pxI2SPeripheral,
  *      - xBytes == 0
  *   - IOT_I2S_READ_FAIL if there was an error doing the read
  *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
- *   - IOT_I2S_BUSY is another read (sync or async) is in process
+ *   - IOT_I2S_BUSY if another read (sync or async) is in process
  */
 int32_t iot_i2s_read_async( IotI2SHandle_t const pxI2SPeripheral,
                             uint8_t * const pvBuffer,
@@ -202,7 +202,7 @@ int32_t iot_i2s_read_async( IotI2SHandle_t const pxI2SPeripheral,
  *      - xBytes == 0
  *   - IOT_I2S_WRITE_FAIL if there was an error doing the write
  *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
- *   - IOT_I2S_BUSY is another write (sync or async) is in process
+ *   - IOT_I2S_BUSY if another write (sync or async) is in process
  */
 int32_t iot_i2s_write_async( IotI2SHandle_t const pxI2SPeripheral,
                              uint8_t * const pvBuffer,
@@ -222,7 +222,7 @@ int32_t iot_i2s_write_async( IotI2SHandle_t const pxI2SPeripheral,
  *      - xBytes == 0
  *   - IOT_I2S_READ_FAIL if there was an error doing the read
  *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
- *   - IOT_I2S_BUSY is another read (sync or async) is in process
+ *   - IOT_I2S_BUSY if another read (sync or async) is in process
  */
 int32_t iot_i2s_read_sync( IotI2SHandle_t const pxI2SPeripheral,
                            uint8_t * const pvBuffer,
@@ -242,7 +242,7 @@ int32_t iot_i2s_read_sync( IotI2SHandle_t const pxI2SPeripheral,
  *      - xBytes == 0
  *   - IOT_I2S_WRITE_FAIL if there was an error doing the write
  *   - IOT_I2S_NOT_INITIALIZED if I2S not first initialized with ioctl call eI2SSetConfig.
- *   - IOT_I2S_BUSY is another write (sync or async) is in process
+ *   - IOT_I2S_BUSY if another write (sync or async) is in process
  */
 int32_t iot_i2s_write_sync( IotI2SHandle_t const pxI2SPeripheral,
                             uint8_t * const pvBuffer,
