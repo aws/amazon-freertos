@@ -88,6 +88,7 @@
 		<Filter Include="libraries\freertos_plus\aws\ota"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src"/>
 		<Filter Include="libraries\freertos_plus\aws\ota\src\mqtt"/>
+		<Filter Include="libraries\freertos_plus\aws\ota\src\http"/>
 		<Filter Include="libraries\3rdparty\mbedtls\library"/>
 		<Filter Include="libraries\3rdparty\mbedtls"/>
 		<Filter Include="libraries\3rdparty"/>
@@ -403,6 +404,9 @@
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h">
 			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h">
+			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h">
 			<Filter>libraries\abstractions\posix\include\FreeRTOS_POSIX</Filter>
@@ -924,6 +928,9 @@
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c">
 			<Filter>libraries\freertos_plus\aws\ota\src\mqtt</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c">
+			<Filter>libraries\freertos_plus\aws\ota\src\http</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c">
 			<Filter>libraries\3rdparty\mbedtls\library</Filter>

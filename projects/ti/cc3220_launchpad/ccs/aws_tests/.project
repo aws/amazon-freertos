@@ -903,6 +903,16 @@
 			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</name>
+			<type>1</type>
+			<locationURI>BASE_DIR_ROOT/libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/3rdparty/mbedtls/library/base64.c</name>
 			<type>1</type>
 			<locationURI>BASE_DIR_ROOT/libraries/3rdparty/mbedtls/library/base64.c</locationURI>

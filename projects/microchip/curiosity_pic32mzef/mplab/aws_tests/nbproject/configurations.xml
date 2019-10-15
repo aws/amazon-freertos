@@ -442,6 +442,10 @@
 								<itemPath>../../../../../libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.c</itemPath>
 								<itemPath>../../../../../libraries/freertos_plus/aws/ota/src/mqtt/aws_iot_ota_mqtt.h</itemPath>
 							</logicalFolder>
+							<logicalFolder name="http" displayName="http" projectFiles="true">
+								<itemPath>../../../../../libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.c</itemPath>
+								<itemPath>../../../../../libraries/freertos_plus/aws/ota/src/http/aws_iot_ota_http.h</itemPath>
+							</logicalFolder>
 						</logicalFolder>
 						<logicalFolder name="test" displayName="test" projectFiles="true">
 							<itemPath>../../../../../libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</itemPath>
