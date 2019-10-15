@@ -34,6 +34,12 @@
 
 #include "iot_test_ble_hal_integration.h"
 extern BTCallbacks_t _xBTManagerCb;
+extern BTBleAdapterCallbacks_t _xBTBleAdapterCb;
+extern BTGattServerCallbacks_t _xBTGattServerCb;
+extern BTCallbacks_t _xBTManager_NULL_Cb;
+extern BTBleAdapterCallbacks_t _xBTBleAdapter_NULL_Cb;
+extern BTGattServerCallbacks_t _xBTGattServer_NULL_Cb;
+extern BTGattServerCallbacks_t _xBTGattServer_Nested_Cb;
 
 extern BTGattServerInterface_t * _pxGattServerInterface;
 extern BTBleAdapter_t * _pxBTLeAdapterInterface;
@@ -51,6 +57,7 @@ extern BTGattAdvertismentParams_t xAdvertisementConfigA;
 extern BTGattAdvertismentParams_t xAdvertisementConfigB;
 extern BTUuid_t xServerUUID;
 extern BTUuid_t xAppUUID;
+extern bool CharAddedComplete;
 
 TEST_GROUP( Full_BLE_Integration_Test );
 
@@ -134,6 +141,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_CALLBACK_NULL_CHECK
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
     #endif
+    RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );
@@ -153,12 +161,31 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
 
+TEST( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback )
+{
+    BTStatus_t xStatus;
+
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
+    IotTestBleHal_BLEGATTInit( &_xBTGattServer_Nested_Cb, true );
+
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
+    if( xStatus != eBTStatusUnsupported )
+    {
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+    else
+    {
+        /* Create service B */
+        IotTestBleHal_CreateServiceB_Nested();
+    }
+}
+
 TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
 {
     BTStatus_t xStatus;
 
     /* Initialize with NULL Cb */
-    IotTestBleHal_InitWithNULLCb();
+    prvInitWithNULLCb();
 
     /* Create and Start Service */
     prvCreateStartServicesWithNULLCb();
@@ -191,8 +218,8 @@ TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
 /* Advertisement should work without initializing optional properties (device's name) */
 TEST( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties )
 {
-    IotTestBleHal_BLEGAPInit();
-    IotTestBleHal_BLEGATTInit();
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
+    IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
     IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
     IotTestBleHal_StartAdvertisement();
     /* Connect for evaluate KPI for next test case. */
@@ -308,8 +335,8 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     IotTestBleHal_BLEEnable( true );
-    IotTestBleHal_BLEGAPInit();
-    IotTestBleHal_BLEGATTInit();
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
+    IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
     prvCreateAndStartServiceB();
     IotTestBleHal_SetAdvProperty();
     IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
@@ -519,12 +546,28 @@ void prvGAPInitEnableTwice()
 }
 
 #if ENABLE_TC_CALLBACK_NULL_CHECK
+    void prvInitWithNULLCb( void )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+
+        /* GAP common setup with NULL Cb */
+        IotTestBleHal_BLEManagerInit( &_xBTManager_NULL_Cb );
+
+        IotTestBleHal_BLEEnable( true );
+
+        /* BLEGAPInit with NULL Cb */
+        IotTestBleHal_BLEGAPInit( &_xBTBleAdapter_NULL_Cb, false);
+
+        /* BLEGATTInit with NULL Cb */
+        IotTestBleHal_BLEGATTInit( &_xBTGattServer_NULL_Cb, false );
+    }
+
     void prvCreateStartServicesWithNULLCb( void )
     {
         BTStatus_t xStatus;
 
         /* Try to create using blob service API first.
-         * If blob is not supported then try legacy APIs. */
+            * If blob is not supported then try legacy APIs. */
         xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
 
         if( xStatus != eBTStatusUnsupported )
@@ -571,7 +614,7 @@ void prvGAPInitEnableTwice()
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
         /* Get the name to check it is set */
-        /*@TODO IotTestBleHal_SetGetProperty(&pxProperty, false); */
+    /*@TODO IotTestBleHal_SetGetProperty(&pxProperty, false); */
 
         pxProperty.xType = eBTpropertyLocalMTUSize;
         pxProperty.xLen = sizeof( usMTUsize );
@@ -618,8 +661,8 @@ void prvGAPInitEnableTwice()
     }
 
     void prvSetAdvDataWithNULLCb( BTuuidType_t type,
-                                  uint16_t usManufacturerLen,
-                                  char * pcManufacturerData )
+                                    uint16_t usManufacturerLen,
+                                    char * pcManufacturerData )
     {
         uint16_t usServiceDataLen;
         char * pcServiceData;
@@ -657,20 +700,20 @@ void prvGAPInitEnableTwice()
         l_xAdvertisementConfigB = xAdvertisementConfigB;
 
         prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigA,
-                                       usServiceDataLen,
-                                       pcServiceData,
-                                       &xServiceUuid,
-                                       xNbServices,
-                                       usManufacturerLen,
-                                       pcManufacturerData );
+                                        usServiceDataLen,
+                                        pcServiceData,
+                                        &xServiceUuid,
+                                        xNbServices,
+                                        usManufacturerLen,
+                                        pcManufacturerData );
 
         prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigB,
-                                       usServiceDataLen,
-                                       pcServiceData,
-                                       NULL,
-                                       0,
-                                       usManufacturerLen,
-                                       pcManufacturerData );
+                                        usServiceDataLen,
+                                        pcServiceData,
+                                        NULL,
+                                        0,
+                                        usManufacturerLen,
+                                        pcManufacturerData );
     }
 
     void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
@@ -684,13 +727,13 @@ void prvGAPInitEnableTwice()
         BTStatus_t xStatus = eBTStatusSuccess;
 
         xStatus = _pxBTLeAdapterInterface->pxSetAdvData( _ucBLEAdapterIf,
-                                                         pxParams,
-                                                         usManufacturerLen,
-                                                         pcManufacturerData,
-                                                         usServiceDataLen,
-                                                         pcServiceData,
-                                                         pxServiceUuid,
-                                                         xNbServices );
+                                                            pxParams,
+                                                            usManufacturerLen,
+                                                            pcManufacturerData,
+                                                            usServiceDataLen,
+                                                            pcServiceData,
+                                                            pxServiceUuid,
+                                                            xNbServices );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
 
@@ -772,8 +815,8 @@ void GATT_teardown()
 void GATT_setup()
 {
     GAP_common_setup();
-    IotTestBleHal_BLEGAPInit();
-    IotTestBleHal_BLEGATTInit();
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
+    IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
 }
 
 void Advertisement_teardown()

@@ -432,6 +432,11 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
                                BTUuid_t * pxUuid,
                                uint16_t usServiceHandle,
                                uint16_t usCharHandle );
+void prvCharAddedNestedCb( BTStatus_t xStatus,
+                           uint8_t ucServerIf,
+                           BTUuid_t * pxUuid,
+                           uint16_t usServiceHandle,
+                           uint16_t usCharHandle );
 void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
                                     uint8_t ucServerIf,
                                     BTUuid_t * pxUuid,
@@ -505,7 +510,7 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              uint32_t timeoutMs );
 void IotTestBleHal_ClearEventQueue( void );
 
-void IotTestBleHal_BLEManagerInit( void );
+void IotTestBleHal_BLEManagerInit( BTCallbacks_t * pBTmanagerCb);
 void IotTestBleHal_BLEEnable( bool bEnable );
 void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
                                    bool bIsSet );
@@ -513,15 +518,15 @@ void IotTestBleHal_StartService( BTService_t * xRefSrvc );
 void IotTestBleHal_CreateServiceA( void );
 void IotTestBleHal_CreateServiceB( void );
 void IotTestBleHal_CreateServiceC( void );
+void IotTestBleHal_CreateServiceB_Nested( void );
 void IotTestBleHal_WaitConnection( bool bConnected );
 void IotTestBleHal_StopService( BTService_t * xRefSrvc );
 void IotTestBleHal_DeleteService( BTService_t * xRefSrvc );
 void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
                                                 bool enable );
 void IotTestBleHal_BTUnregister( void );
-void IotTestBleHal_BLEGAPInit( void );
-void IotTestBleHal_BLEGATTInit( void );
-void IotTestBleHal_InitWithNULLCb( void );
+void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb, bool EnableCb );
+void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb, bool EnableCb );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
                                uint16_t usManufacturerLen,
