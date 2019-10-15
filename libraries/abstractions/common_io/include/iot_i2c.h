@@ -141,7 +141,7 @@ typedef void (* IotI2CCallback_t) ( IotI2COperationStatus_t xOpStatus,
  *
  * @warning Once opened, the same I2C instance must be closed before calling open again.
  *
- * @lI2CInstance The instance of I2C to initialize. This is between 0 and the number of I2C instances on board - 1.
+ * @param[in] lI2CInstance The instance of I2C to initialize. This is between 0 and the number of I2C instances on board - 1.
  *
  * @return
  * - 'the handle to the I2C port (not NULL)', on success.
@@ -278,8 +278,8 @@ int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
  * Partial write might happen, e.g. slave device unable to receive more data.
  * And the number of bytes that have been actually written can be obtained by calling iot_i2c_ioctl.
  *
- * @Note Usually, the first byte is treated as the register address and the following bytes are treated as data to be written.
- * @Note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
+ * @note Usually, the first byte is treated as the register address and the following bytes are treated as data to be written.
+ * @note If eI2CSendNoStopFlag is set and this function returns, whether the actual transaction has been started is undefined. This is board-specific behavior.
  *
  * @warning Prior to this function, slave address must be already configured.
  * @warning None of other read or write functions shall be called during this function.
