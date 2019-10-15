@@ -173,6 +173,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor_internal.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.h"/>
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\errno.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\fcntl.h"/>
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\posix\include\FreeRTOS_POSIX\mqueue.h"/>
@@ -346,6 +347,7 @@
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_iot_ota_interface.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_cbor.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\mqtt\aws_iot_ota_mqtt.c"/>
+		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\http\aws_iot_ota_http.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\mbedtls\library\base64.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\ports\ota\aws_ota_pal.c"/>
 		<ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\source\FreeRTOS_POSIX_clock.c"/>
