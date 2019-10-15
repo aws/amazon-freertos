@@ -110,6 +110,10 @@ static void prvEchoClientTxTask( void * pvParameters );
 #define udptestECHO_TEST_LOW_PRIORITY     tskIDLE_PRIORITY
 #define udptestECHO_TEST_HIGH_PRIORITY    ( configMAX_PRIORITIES - 1 )
 
+/* static size_t xSyncLoop; */
+static BaseType_t xSendSuccess;
+static BaseType_t xRecvSuccess;
+
 /* The queue used by prvEchoClientTxTask() to send the next socket to use to
  * prvEchoClientRxTask(). */
 static volatile QueueHandle_t xSocketPassingQueue = NULL;
@@ -472,29 +476,104 @@ static BaseType_t prvCheckRxTxBuffers( uint8_t * pucTxBuffer,
         {
             xReturn = pdFAIL;
             udptestFAILUREPRINTF( ( "Message bytes received different than those sent. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
-            udptestASSERT( xReturn == pdPASS );
+            break;
         }
     }
 
-    /* Check that neither the Rx nor Tx buffers were modified/overflowed. */
-    for( xIndex = xMessageLength; xIndex < udptestBUFFER_SIZE; xIndex++ )
+    if( xReturn == pdPASS )
     {
-        if( pucRxBuffer[ xIndex ] != udptestRX_BUFFER_FILLER )
+        /* Check that neither the Rx nor Tx buffers were modified/overflowed. */
+        for( xIndex = xMessageLength; xIndex < udptestBUFFER_SIZE; xIndex++ )
         {
-            xReturn = pdFAIL;
-            udptestFAILUREPRINTF( ( "Rx buffer padding modified byte. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
-        }
+            if( pucRxBuffer[ xIndex ] != udptestRX_BUFFER_FILLER )
+            {
+                xReturn = pdFAIL;
+                udptestFAILUREPRINTF( ( "Rx buffer padding modified byte. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
+            }
 
-        if( pucTxBuffer[ xIndex ] != udptestTX_BUFFER_FILLER )
-        {
-            xReturn = pdFAIL;
-            udptestFAILUREPRINTF( ( "Tx buffer padding modified. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
+            if( pucTxBuffer[ xIndex ] != udptestTX_BUFFER_FILLER )
+            {
+                xReturn = pdFAIL;
+                udptestFAILUREPRINTF( ( "Tx buffer padding modified. Message Length %d, Byte Index %d \r\n", xMessageLength, xIndex ) );
+            }
         }
     }
 
-    udptestASSERT( xReturn == pdPASS );
+    /* udptestASSERT( xReturn == pdPASS ); */
 
     return xReturn;
+}
+/*-----------------------------------------------------------*/
+
+/*
+ * @brief Test SendTo and RecvFrom echo server. Return pdFAIL if one of the operation fails, allowing retry.
+ * We expect the socket to not fail during retry.
+ */
+static BaseType_t prvSendRecvEchoTestHelper( Socket_t xSocket,
+                                             size_t xLength,
+                                             SocketsSockaddr_t * pxEchoServerAddress,
+                                             uint32_t ulTxCount )
+{
+    BaseType_t xResult;
+    BaseType_t xIntermResult;
+    uint8_t * pucTxBuffer = ( uint8_t * ) pcTxBuffer;
+    uint8_t * pucRxBuffer = ( uint8_t * ) pcRxBuffer;
+    SocketsSockaddr_t xReceiveAddress = { 0 };
+    uint32_t ulRetry;
+
+    xIntermResult = pdPASS;
+    xResult = pdFAIL;
+    ulRetry = 0;
+
+    memset( pucTxBuffer, udptestTX_BUFFER_FILLER, udptestBUFFER_SIZE );
+
+    prvCreateTxData( ( char * ) pucTxBuffer,
+                     xLength,
+                     ulTxCount );
+
+    for( ; ulRetry < udptestMAX_RETRY; ulRetry++ )
+    {
+        xIntermResult = prvSendHelper( xSocket,
+                                       pucTxBuffer,
+                                       xLength,
+                                       pxEchoServerAddress );
+
+        if( xIntermResult != pdPASS )
+        {
+            udptestPRINTF( ( "Tx %d data failed to send on try %d\r\n", ulTxCount, ulRetry ) );
+            continue;
+        }
+
+        memset( pucRxBuffer, udptestRX_BUFFER_FILLER, udptestBUFFER_SIZE );
+        xIntermResult = prvRecvHelper( xSocket,
+                                       pucRxBuffer,
+                                       xLength,
+                                       &xReceiveAddress );
+
+        if( xIntermResult != pdPASS )
+        {
+            udptestPRINTF( ( "Rx %d data was not received on try %d\r\n", ulTxCount, ulRetry ) );
+            continue;
+        }
+
+        xIntermResult = prvCheckRxTxBuffers( pucTxBuffer,
+                                             pucRxBuffer,
+                                             xLength );
+
+        if( xIntermResult != pdPASS )
+        {
+            udptestPRINTF( ( "Rx %d data not match with Tx data on try %d\r\n", ulTxCount, ulRetry ) );
+            continue;
+        }
+
+        if( pxEchoServerAddress->ulAddress == xReceiveAddress.ulAddress )
+        {
+            xResult = pdPASS;
+            break;
+        }
+    }
+
+    return xResult;
 }
 /*-----------------------------------------------------------*/
 
@@ -511,7 +590,7 @@ TEST_GROUP_RUNNER( Full_UDP )
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_SendToInvalidParams );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromInvalidParams );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_SendRecv_VaryLength );
-    RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromWithPeek );
+    // RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_RecvFromWithPeek );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_Threadsafe_SameSocketDifferentTasks );
     RUN_TEST_CASE( Full_UDP, AFQP_SOCKETS_Threadsafe_DifferentSocketsDifferentTasks );
 }
@@ -937,7 +1016,6 @@ static void prvEchoClientTxTask( void * pvParameters )
     BaseType_t xTransmitted;
     BaseType_t xStatus;
     size_t xLenToSend, xSendLoop;
-    /* size_t xMaxBufferSize; */
     udptestEchoTestModes_t xMode;
     SocketsSockaddr_t xEchoServerAddress = { 0 };
     Socklen_t xSocketAddrLen = 0;
@@ -945,18 +1023,9 @@ static void prvEchoClientTxTask( void * pvParameters )
     /* Avoid warning about unused parameter. */
     ( void ) pvParameters;
 
-    /* Offset by one so of sending and receiving task are not always the same. Sometimes both low/high or opposite. */
-
-    /*  Recv task                   Sending task
-     *  LARGE_BUFFER_HIGH_PRIORITY  SMALL_BUFFER_HIGH_PRIORITY
-     *  SMALL_BUFFER_HIGH_PRIORITY  LARGE_BUFFER_LOW_PRIORITY
-     *  LARGE_BUFFER_LOW_PRIORITY   SMALL_BUFFER_LOW_PRIORITY
-     *  SMALL_BUFFER_LOW_PRIORITY   LARGE_BUFFER_HIGH_PRIORITY
-     */
-
     prvUdpAddressHelper( &xEchoServerAddress );
 
-    for( xSendLoop = 0; xSendLoop < udptestMAX_LOOPS_ECHO_TEST; xSendLoop++ )
+    for( xSendLoop = 0; xSendLoop < udptestMAX_LOOPS_ECHO_TEST; )
     {
         xMode = ( udptestEchoTestModes_t ) ( xSendLoop % udptestMAX_ECHO_TEST_MODES ); /* % should be optimized to simple masking since only 4 modes are present.*/
         /* Using % to avoid bug in case a new state is unknowingly added. */
@@ -986,6 +1055,7 @@ static void prvEchoClientTxTask( void * pvParameters )
         }
 
         xTransmitted = 0;
+        xSendSuccess = pdFALSE;
         xStatus = pdTRUE;
 
         xReturned = SOCKETS_SendTo( xSocket,                                            /* The socket being sent to. */
@@ -997,7 +1067,12 @@ static void prvEchoClientTxTask( void * pvParameters )
 
         if( xReturned <= 0 )
         {
-            xStatus = pdFAIL;
+            /* xStatus = pdFAIL; */
+            udptestPRINTF( ( "SendTo Error: code %d\r\n", xReturned ) );
+        }
+        else
+        {
+            xSendSuccess = pdTRUE;
         }
 
         /* Wait for the Rx task to recognize the socket is closing and stop
@@ -1008,12 +1083,12 @@ static void prvEchoClientTxTask( void * pvParameters )
                              ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ), /* Also wait for the Rx task. */
                              udptestECHO_TEST_SYNC_TIMEOUT_TICKS ) != ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ) )
         {
-            xStatus = pdFAIL;
+            break;
         }
 
-        if( xStatus == pdFAIL )
+        if( ( xRecvSuccess == pdTRUE ) && ( xSendSuccess == pdTRUE ) )
         {
-            break;
+            xSendLoop++;
         }
     }
 
@@ -1041,6 +1116,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks()
     SocketsSockaddr_t xEchoServerAddress = { 0 };
     SocketsSockaddr_t xClientAddress = { 0 };
     Socklen_t xServerAddrLen = 0;
+    uint32_t ulRetry = 0;
 
     if( TEST_PROTECT() )
     {
@@ -1064,7 +1140,7 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks()
                                ( TaskHandle_t * ) &xCreatedTask );
         TEST_ASSERT_EQUAL_MESSAGE( pdPASS, xResult, "Task creation failed" );
 
-        for( xRecvLoop = 0; xRecvLoop < udptestMAX_LOOPS_ECHO_TEST; xRecvLoop++ )
+        for( xRecvLoop = 0; xRecvLoop < udptestMAX_LOOPS_ECHO_TEST; )
         {
             xSocket = prvUdpSocketHelper( &xSocketOpen );
             TEST_ASSERT_EQUAL_MESSAGE( pdPASS, xSocketOpen, "Socket Creation Failed" );
@@ -1073,17 +1149,9 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks()
             /* setup 100MS timeout */
             prvUdpRecvTimeoutHelper( xSocket, udptestRECEIVE_TIMEOUT);
 
-            /* Wait to receive the socket that will be used from the Tx task. */
-            if( xEventGroupSync( xSyncEventGroup,                             /* The event group used for the rendezvous. */
-                                 udptestRX_TASK_BIT,                          /* The bit representing the Tx task reaching the rendezvous. */
-                                 ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ), /* Also wait for the Rx task. */
-                                 udptestECHO_TEST_SYNC_TIMEOUT_TICKS ) != ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ) )
-            {
-                TEST_FAIL();
-            }
-
             /* Nothing received yet. */
             xTotalReceived = 0;
+            xRecvSuccess = pdFALSE;
 
             xMode = ( udptestEchoTestModes_t ) ( xRecvLoop % udptestMAX_ECHO_TEST_MODES );
 
@@ -1101,15 +1169,33 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks()
                 xRecvLen = 10;
             }
 
+            /* Wait to receive the socket that will be used from the Tx task. */
+            if( xEventGroupSync( xSyncEventGroup,                            /* The event group used for the rendezvous. */
+                                 udptestRX_TASK_BIT,                         /* The bit representing the Tx task reaching the rendezvous. */
+                                 ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ),/* Also wait for the Rx task. */
+                                 udptestECHO_TEST_SYNC_TIMEOUT_TICKS ) != ( udptestTX_TASK_BIT | udptestRX_TASK_BIT ) )
+            {
+                TEST_FAIL();
+            }
+            
             xReturned = SOCKETS_RecvFrom( ( Socket_t ) xSocket, ( char * ) pcReceivedString, xRecvLen, 0, &xEchoServerAddress, &xServerAddrLen );
 
-            TEST_ASSERT_NOT_EQUAL_MESSAGE( 0, xReturned, "Timeout occurred" );
-            TEST_ASSERT_GREATER_THAN_MESSAGE( 0, xReturned, "Error occured receiving large message" );
+            if( xReturned == 0 )
+            {
+                udptestPRINTF( ( "RecvFrom Error: Timeout on try %d\r\n", ulRetry ) );
+            }
 
-            /* Data was received. */
-            TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
+            else if( xReturned < 0 )
+            {
+                udptestPRINTF( ( "RecvFrom Error: code %d on try %d\r\n", xReturned, ulRetry ) );
+            }
+            else
+            {
+                TEST_ASSERT_EQUAL_MEMORY( &cTransmittedString[ xTotalReceived ], pcReceivedString, xReturned );
+                xRecvSuccess = pdTRUE;
 
-            xTotalReceived += xReturned;
+                xTotalReceived += xReturned;
+            }
 
             /* Rendez-vous with the Tx task ready to start a new cycle with a
              * different socket. */
@@ -1123,6 +1209,22 @@ static void prvSOCKETS_Threadsafe_SameSocketDifferentTasks()
 
             xResult = prvCloseHelper( xSocket, &xSocketOpen );
             TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
+
+            /* retry if one of the task failed. */
+            if( ( xRecvSuccess == pdTRUE ) && ( xSendSuccess == pdTRUE ) )
+            {
+                ulRetry = 0;
+                xRecvLoop++;
+            }
+            else
+            {
+                ulRetry++;
+
+                if( ulRetry > udptestMAX_RETRY )
+                {
+                    TEST_FAIL();
+                }
+            }
         }
     }
 
