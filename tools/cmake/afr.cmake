@@ -30,6 +30,14 @@ set(AFR_VERSION_VCS "Unknown" CACHE INTERNAL "")
 # Check if we're in a Git repository.
 find_package(Git)
 if(Git_FOUND AND EXISTS "${AFR_ROOT_DIR}/.git")
+    message(STATUS "Submodule update")
+    # TODO: Update submodule only if it hasn't been checked out (check if directory is empty).
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+    endif()
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" "describe" "--always" WORKING_DIRECTORY "${AFR_ROOT_DIR}"
         OUTPUT_VARIABLE __version OUTPUT_STRIP_TRAILING_WHITESPACE
