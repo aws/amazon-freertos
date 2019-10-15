@@ -43,6 +43,10 @@ extern BTService_t _xSrvcC;
 extern uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
 extern response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
 
+extern BTCallbacks_t _xBTManagerCb;
+extern BTBleAdapterCallbacks_t _xBTBleAdapterCb;
+extern BTGattServerCallbacks_t _xBTGattServerCb;
+
 const uint32_t bletestWAIT_MODE1_LEVEL2_QUERY = 10000; /* Wait 10s max */
 
 #if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
@@ -730,18 +734,18 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 
 TEST( Full_BLE, BLE_Initialize_BLE_GATT )
 {
-    IotTestBleHal_BLEGATTInit();
+    IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
 }
 
 TEST( Full_BLE, BLE_Initialize_common_GAP )
 {
-    IotTestBleHal_BLEManagerInit();
+    IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
     IotTestBleHal_BLEEnable( true );
 }
 
 TEST( Full_BLE, BLE_Initialize_BLE_GAP )
 {
-    IotTestBleHal_BLEGAPInit();
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb,true );
 }
 
 TEST( Full_BLE, BLE_DeInitialize )

@@ -33,6 +33,7 @@
 extern BTService_t _xSrvcA;
 extern BTService_t _xSrvcB;
 extern BTInterface_t * _pxBTInterface;
+extern BTCallbacks_t _xBTManagerCb;
 
 /*-----------------------------------------------------------*/
 
@@ -93,7 +94,7 @@ TEST_GROUP_RUNNER( Full_BLE_Stress_Test )
 
 TEST( Full_BLE_Stress_Test, BLE_Stack_Init )
 {
-    IotTestBleHal_BLEManagerInit();
+    IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Stack_Enable )
