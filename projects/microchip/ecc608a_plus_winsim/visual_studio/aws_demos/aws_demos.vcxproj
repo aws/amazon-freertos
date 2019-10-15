@@ -40,7 +40,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files;..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code;..\..\..\..\..\vendors\microchip\boards\secure_element\ports\posix;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\vendors\microchip\secure_elements\lib;..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\hidapi</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\..\..\libraries\freertos_plus\standard\pkcs11\include;..\..\..\..\..\demos\dev_mode_key_provisioning\include;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code;..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\posix;..\..\..\..\..\demos\include;..\..\..\..\..\demos\network_manager;..\..\..\..\..\freertos_kernel\include;..\..\..\..\..\freertos_kernel\portable\MSVC-MingW;..\..\..\..\..\libraries\abstractions\pkcs11\include;..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls;..\..\..\..\..\libraries\abstractions\platform\include;..\..\..\..\..\libraries\abstractions\platform\freertos\include;..\..\..\..\..\libraries\abstractions\posix\include;..\..\..\..\..\libraries\abstractions\secure_sockets\include;..\..\..\..\..\libraries\c_sdk\aws\defender\include;..\..\..\..\..\libraries\c_sdk\aws\shadow\include;..\..\..\..\..\libraries\c_sdk\standard\common\include;..\..\..\..\..\libraries\c_sdk\standard\common\include\private;..\..\..\..\..\libraries\c_sdk\standard\mqtt\include;..\..\..\..\..\libraries\c_sdk\standard\serializer\include;..\..\..\..\..\libraries\freertos_plus\aws\greengrass\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\include;..\..\..\..\..\libraries\freertos_plus\aws\ota\src;..\..\..\..\..\libraries\freertos_plus\standard\crypto\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_posix\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\include;..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\Compiler\MSVC;..\..\..\..\..\libraries\freertos_plus\standard\provisioning\include;..\..\..\..\..\libraries\freertos_plus\standard\tls\include;..\..\..\..\..\libraries\freertos_plus\standard\utils\include;..\..\..\..\..\libraries\3rdparty\mbedtls\include;..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\Include;..\..\..\..\..\libraries\3rdparty\jsmn;..\..\..\..\..\libraries\3rdparty\pkcs11;..\..\..\..\..\libraries\3rdparty\tinycbor;..\..\..\..\..\libraries\3rdparty\win_pcap;..\..\..\..\..\vendors\microchip\secure_elements\lib;..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\hidapi</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;__free_rtos__;_CONSOLE;_WIN32_WINNT=0x0500;WINVER=0x400;_CRT_SECURE_NO_WARNINGS;__PRETTY_FUNCTION__=__FUNCTION__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>
       </MinimalRebuild>
@@ -345,23 +345,23 @@
     <ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_slot.h" />
     <ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_token.h" />
     <ClInclude Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_demo_logging.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_bufferpool_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_demo_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_ggd_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_iot_network_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\iot_mqtt_agent_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_mqtt_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_ota_agent_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_secure_sockets_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\aws_shadow_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\FreeRTOSConfig.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\FreeRTOSIPConfig.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\iot_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\iot_pkcs11_config.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\trcConfig.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\config_files\trcSnapshotConfig.h" />
-    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\secure_element\ports\posix\FreeRTOS_POSIX_portable.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\aws_demo_logging.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_bufferpool_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_demo_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_ggd_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_iot_network_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\iot_mqtt_agent_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_mqtt_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_ota_agent_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_secure_sockets_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\aws_shadow_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\FreeRTOSConfig.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\FreeRTOSIPConfig.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\iot_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\iot_pkcs11_config.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\trcConfig.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\config_files\trcSnapshotConfig.h" />
+    <ClInclude Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\posix\FreeRTOS_POSIX_portable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\..\demos\defender\aws_iot_demo_defender.c" />
@@ -554,8 +554,8 @@
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\tls\src\iot_tls.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_pki_utils.c" />
     <ClCompile Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\src\iot_system_init.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\atca_cert_chain.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\ports\pkcs11\iot_pkcs11_secure_element.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\atca_cert_chain.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\pkcs11\iot_pkcs11_secure_element.c" />
     <ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_client.c" />
     <ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_date.c" />
     <ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atcacert\atcacert_def.c" />
@@ -627,10 +627,10 @@
     <ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_token.c" />
     <ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\pkcs11\pkcs11_util.c" />
     <ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\third_party\hidapi\windows\hid.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_demo_logging.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_entropy_hardware_poll.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\aws_run-time-stats-utils.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\aws_demos\application_code\main.c" />
-    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\secure_element\ports\ota\aws_ota_pal.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\aws_demo_logging.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\aws_entropy_hardware_poll.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\aws_run-time-stats-utils.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\aws_demos\application_code\main.c" />
+    <ClCompile Include="..\..\..\..\..\vendors\microchip\boards\ecc608a_plus_winsim\ports\ota\aws_ota_pal.c" />
   </ItemGroup>
 </Project>
