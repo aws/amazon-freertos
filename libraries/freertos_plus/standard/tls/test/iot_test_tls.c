@@ -39,6 +39,7 @@
 #include "iot_test_tls.h"
 
 /* Configuration includes. */
+#include "iot_pkcs11_config.h"
 #include "iot_test_pkcs11_config.h"
 
 /* Provisioning include. */
