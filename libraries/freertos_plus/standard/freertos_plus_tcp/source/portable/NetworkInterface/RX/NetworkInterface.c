@@ -43,23 +43,6 @@ Includes   <System Includes> , "Project Includes"
 #include "NetworkBufferManagement.h"
 #include "NetworkInterface.h"
 
-/* Renesas */
-#define STREAM_BUFFER_H // Prevent from including stream_buffer.h in platform.h in r_ether_rx_if.h
-// because we need FreeRTOS_Stream_Buffer.h but stream_buffer.h has following incompatibilities at least.
-//
-// stream_buffer.h(628):W0520147:Declaration is incompatible with "BaseType_t xStreamBufferIsFull(const StreamBuffer_t *)" (declared at line 179 of FreeRTOS_Stream_Buffer.h)
-// stream_buffer.h(648):W0520147:Declaration is incompatible with "BaseType_t xStreamBufferIsEmpty(const StreamBuffer_t *)" (declared at line 161 of FreeRTOS_Stream_Buffer.h)
-//
-// lib\FreeRTOS-Plus-TCP\include\FreeRTOS_Stream_Buffer.h
-//
-// static portINLINE BaseType_t xStreamBufferIsFull( const StreamBuffer_t *pxBuffer );
-// static portINLINE BaseType_t xStreamBufferIsEmpty( const StreamBuffer_t *pxBuffer );
-//
-// lib\include\stream_buffer.h
-//
-// BaseType_t xStreamBufferIsFull( StreamBufferHandle_t xStreamBuffer ) PRIVILEGED_FUNCTION;
-// BaseType_t xStreamBufferIsEmpty( StreamBufferHandle_t xStreamBuffer ) PRIVILEGED_FUNCTION;
-//
 #include "r_ether_rx_if.h"
 #include "r_pinset.h"
 
