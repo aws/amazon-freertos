@@ -83,7 +83,7 @@ BaseType_t xPrepareTaskLists( TaskHandle_t * xTask )
 
 	pxTCB = xUnconstrainedTCB();
 
-	/* Nondet. insertion of another task in the same list to allow both cases in line 1656 (tasks.c) */
+	/* Needed for coverage: nondet insertion of task. */
 	if ( nondet_bool() )
 	{
 		TCB_t * pxOtherTCB;
@@ -96,9 +96,9 @@ BaseType_t xPrepareTaskLists( TaskHandle_t * xTask )
 
 	if ( pxTCB != NULL )
 	{
+  	        /* Needed for coverage: nondeterministic insertion of task */
 		if ( nondet_bool() )
 		{
-			/* Nondet. insertion of this task in ready tasks list to allow both cases in line 1651 (tasks.c) */
 			vListInsert( &pxReadyTasksLists[ pxTCB->uxPriority ], &( pxTCB->xStateListItem ) );
 		}
 	}
@@ -112,12 +112,12 @@ BaseType_t xPrepareTaskLists( TaskHandle_t * xTask )
 		return pdFAIL;
 	}
 
-	/* Nondet. insertion of this task in ready tasks list to allow both cases in line 1651 (tasks.c) */
+	/* Needed for coverage: nondeterministic insertion of task */
 	if ( nondet_bool() )
 	{
 		vListInsert( &pxReadyTasksLists[ pxCurrentTCB->uxPriority ], &( pxCurrentTCB->xStateListItem ) );
 
-		/* Use of this macro ensures coverage on line 185 (list.c) */
+		/* Needed for coverage. */
 		listGET_OWNER_OF_NEXT_ENTRY( pxCurrentTCB , &pxReadyTasksLists[ pxCurrentTCB->uxPriority ] );
 	}
 

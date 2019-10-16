@@ -75,7 +75,7 @@ char *pcNondetSetString( size_t xStringLength )
 	char *pcName = pvPortMalloc( xStringLength );
 
 	if ( pcName != NULL ) {
-		uint8_t uNondetIndex;
+		size_t uNondetIndex;
 		__CPROVER_assume( uNondetIndex < xStringLength );
 		pcName[uNondetIndex] = '\0';
 	}

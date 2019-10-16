@@ -33,7 +33,8 @@
     { "default":
       [
         "FREERTOS_MODULE_TEST",
-        "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'"
+        "'mtCOVERAGE_TEST_MARKER()=__CPROVER_assert(1, \"Coverage marker\")'",
+	"configUSE_TICK_HOOK=0"
       ]
     },
     { "useTickHook1":

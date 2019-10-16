@@ -59,9 +59,9 @@ void harness()
 	pcName = pcNondetSetString( configMAX_TASK_NAME_LEN );
 
 	xTaskCreate(pxTaskCode,
-				pcName,
-				usStackDepth,
-				pvParameters,
-				uxPriority,
-				pxCreatedTask );
+		    pcName,
+		    usStackDepth,
+		    pvParameters,
+		    uxPriority,
+		    pxCreatedTask );
 }

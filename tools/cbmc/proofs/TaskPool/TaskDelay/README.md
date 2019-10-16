@@ -7,8 +7,9 @@ variables `xTickCount` and `xNextTaskUnblockTime`, and `pdFALSE` for
 `uxSchedulerSuspended` (to avoid assertion failure).
 
 Configurations available:
- * `default`: The default configuration.  `useTickHook1`: The default
- * configuration with `INCLUDE_vTaskSuspend=0`
+
+ * `default`: The default configuration.
+ * `useTickHook1`: The default configuration with `INCLUDE_vTaskSuspend=0`
 
 This proof is a work-in-progress.  Proof assumptions are described in
 the harness.  The proof also assumes the following functions are

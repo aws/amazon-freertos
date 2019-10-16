@@ -53,6 +53,7 @@ void harness()
 
 	xTasksPrepared = xPrepareTaskLists( &xTask );
 
+	/* Check that this second invocation of xPrepareTaskLists is needed. */
 	if ( xPrepareTaskLists( &xTask ) != pdFAIL )
 	{
 		vTaskPrioritySet( xTask, uxNewPriority );

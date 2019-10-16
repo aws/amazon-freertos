@@ -34,7 +34,7 @@ enum CBMC_LOOP_CONDITION { CBMC_LOOP_BREAK, CBMC_LOOP_CONTINUE, CBMC_LOOP_RETURN
 #define __CPROVER_printf2_ptr(str,exp) { uint8_t *ValueOf_ ## str = (uint8_t *) (exp); }
 
 /*
- * As assertion that pvPortMalloc returns NULL when asked to allocate 0 bytes.
+ * An assertion that pvPortMalloc returns NULL when asked to allocate 0 bytes.
  * This assertion is used in some of the TaskPool proofs.
  */
 #define __CPROVER_assert_zero_allocation() \

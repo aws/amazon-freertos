@@ -39,20 +39,20 @@
 BaseType_t xPrepareCurrentTCB( void );
 
 /*
- * We just need to make sure that `pxTimeOut`, `pxTicksToWait`
- * and `pxCurrentTCB` are not NULL values before calling the function
+ * The function requires that the function arguments `pxTimeOut` and
+ * `pxTicksToWait` and the global variable `pxCurrentTCB` are not
+ * NULL.
  */
 void harness()
 {
-	UBaseType_t xTasksPrepared;
-	TimeOut_t pxTimeOut;
-	TickType_t pxTicksToWait;
-	UBaseType_t xResult;
+        UBaseType_t xTasksPrepared;
+        TimeOut_t pxTimeOut;
+        TickType_t pxTicksToWait;
 
-	xTasksPrepared = xPrepareCurrentTCB();
+        xTasksPrepared = xPrepareCurrentTCB();
 
-    if ( xTasksPrepared != pdFAIL )
-    {
-    	xResult = xTaskCheckForTimeOut( &pxTimeOut, &pxTicksToWait );
-    }
+        if ( xTasksPrepared != pdFAIL )
+        {
+                xTaskCheckForTimeOut( &pxTimeOut, &pxTicksToWait );
+        }
 }
