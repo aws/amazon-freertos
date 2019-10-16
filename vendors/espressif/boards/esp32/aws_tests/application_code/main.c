@@ -156,16 +156,16 @@ int app_main( void )
     /* Initialize the AWS Libraries system.
      * This initializes the CRYPTO random number state,
      * so it should be called before FreeRTOS_IPInit().*/
-    xSystemInitResult = SYSTEM_Init()
-
-                        FreeRTOS_IPInit( ucIPAddress,
-                                         ucNetMask,
-                                         ucGatewayAddress,
-                                         ucDNSServerAddress,
-                                         ucMACAddress );
+    xSystemInitResult = SYSTEM_Init();
 
     if( xSystemInitResult == pdPASS )
     {
+        FreeRTOS_IPInit( ucIPAddress,
+                         ucNetMask,
+                         ucGatewayAddress,
+                         ucDNSServerAddress,
+                         ucMACAddress );
+
         /* Connect to the wifi before running the tests. */
         prvWifiConnect();
 
