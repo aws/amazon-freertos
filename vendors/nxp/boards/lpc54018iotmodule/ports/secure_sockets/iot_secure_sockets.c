@@ -356,7 +356,7 @@ int32_t SOCKETS_Recv( Socket_t xSocket,
     SSOCKETContextPtr_t pxContext = ( SSOCKETContextPtr_t ) xSocket;
 
 
-    if( ( SOCKETS_INVALID_CONTEXT != xSocket ) &&
+    if( ( SOCKETS_INVALID_SOCKET != xSocket ) &&
         ( NULL != pvBuffer ) &&
         ( ( nxpsecuresocketsSOCKET_READ_CLOSED_FLAG & pxContext->xShutdownFlags ) == 0UL ) &&
         ( pxContext->ulState & ( nxpsecuresocketsSOCKET_CONNECTED_FLAG ) )
