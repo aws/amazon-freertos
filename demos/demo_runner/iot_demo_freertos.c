@@ -283,6 +283,7 @@ static int _initialize( demoContext_t * pContext )
  */
 static void _cleanup( void )
 {
+    AwsIotNetworkManager_DisableNetwork( configENABLED_NETWORKS );
     /* Remove network manager subscription */
     AwsIotNetworkManager_RemoveSubscription( subscription );
     IotSemaphore_Destroy( &demoNetworkSemaphore );
