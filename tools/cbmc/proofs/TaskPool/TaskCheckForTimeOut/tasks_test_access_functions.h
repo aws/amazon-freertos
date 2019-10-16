@@ -33,10 +33,7 @@
  */
 TaskHandle_t xUnconstrainedTCB( void )
 {
-  TCB_t * pxTCB = pvPortMalloc(sizeof(TCB_t));
-
-  if ( pxTCB == NULL )
-    return NULL;
+  TCB_t * pxTCB = pvPortMalloc( sizeof( TCB_t ) );
 
   return pxTCB;
 }
@@ -49,10 +46,6 @@ BaseType_t xPrepareCurrentTCB( void )
   __CPROVER_assert_zero_allocation();
 
   pxCurrentTCB = xUnconstrainedTCB();
-  if ( pxCurrentTCB == NULL )
-  {
-    return pdFAIL;
-  }
 
-  return pdPASS;
+  return pxCurrentTCB == NULL ? pdFAIL : pdPASS;
 }

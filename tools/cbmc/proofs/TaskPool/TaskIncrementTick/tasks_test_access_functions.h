@@ -91,8 +91,7 @@ BaseType_t xPrepareTaskLists( void )
 
 	prvInitialiseTaskLists();
 
-	/* This task will be moved to a ready list, granting coverage
-	 * on lines 2780-2786 (tasks.c) */
+	/* Needed for coverage: This task will be moved to a ready list */
 	pxTCB = xUnconstrainedTCB();
 	if ( pxTCB == NULL )
 	{
@@ -100,7 +99,7 @@ BaseType_t xPrepareTaskLists( void )
 	}
 	vListInsert( pxOverflowDelayedTaskList, &( pxTCB->xStateListItem ) );
 
-	/* Use of this macro ensures coverage on line 185 (list.c) */
+	/* Needed for coverage. */
 	listGET_OWNER_OF_NEXT_ENTRY( pxTCB , pxOverflowDelayedTaskList );
 
 	pxTCB = xUnconstrainedTCB();
@@ -110,7 +109,7 @@ BaseType_t xPrepareTaskLists( void )
 	}
 	vListInsert( &xPendingReadyList, &( pxTCB->xStateListItem ) );
 
-	/* This nondeterministic choice ensure coverage in line 2746 (tasks.c) */
+	/* Needed for coverage: A nondeterministic choice */
 	if ( nondet_bool() )
 	{
 		vListInsert( pxOverflowDelayedTaskList, &( pxTCB->xEventListItem ) );

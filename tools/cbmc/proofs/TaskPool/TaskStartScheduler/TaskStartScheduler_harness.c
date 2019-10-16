@@ -44,12 +44,12 @@ BaseType_t xPrepareTasks( void );
  */
 void harness()
 {
-	BaseType_t xTasksPrepared;
+  BaseType_t xTasksPrepared;
 
-    xTasksPrepared = xPrepareTasks();
+  xTasksPrepared = xPrepareTasks();
 
-    if ( xTasksPrepared != pdFAIL )
-    {
-	   vTaskStartScheduler();
-    }
+  if ( xTasksPrepared != pdFAIL )
+  {
+    vTaskStartScheduler();
+  }
 }
