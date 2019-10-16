@@ -63,6 +63,7 @@
 #define ENABLE_TC_SECONDARY_SERVICE       ( 0 )
 /* Integration test */
 #define ENABLE_TC_CALLBACK_NULL_CHECK     ( 0 )
+#define ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK (1)
 
 
 /**
