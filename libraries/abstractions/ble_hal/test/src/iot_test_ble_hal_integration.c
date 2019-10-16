@@ -141,7 +141,9 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_CALLBACK_NULL_CHECK
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
     #endif
-    RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback );
+    #if ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK
+        RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback );
+    #endif
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit );
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );

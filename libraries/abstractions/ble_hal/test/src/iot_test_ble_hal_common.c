@@ -55,7 +55,7 @@ uint16_t _bletestsMTU_SIZE = bletestsMTU_SIZE1;
 
 const int ServiceB_CharNumber = 6;
 const int ServiceB_CharArray[] = { bletestATTR_SRVCB_CHAR_A, bletestATTR_SRVCB_CHAR_B, bletestATTR_SRVCB_CHAR_C, bletestATTR_SRVCB_CHAR_D, bletestATTR_SRVCB_CHAR_E, bletestATTR_SRVCB_CHAR_F };
-int ServiceB_Char;
+int ServiceB_Char = 0;
 bool CharAddedComplete = false;
 
 #if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
@@ -792,8 +792,6 @@ void IotTestBleHal_CreateServiceC()
 
 void IotTestBleHal_CreateServiceB_Nested()
 {
-    ServiceB_Char = 0;
-
     prvCreateService( &_xSrvcB );
     prvCreateCharacteristic( &_xSrvcB, ServiceB_CharArray[ServiceB_Char] );
 }
