@@ -244,7 +244,7 @@ BaseType_t GGD_JSONRequestStart( const char * pcHostAddress,
     configASSERT( pxSocket != NULL );
 
     xHostAddressData.pcHostAddress = pcHostAddress; /*lint !e971 can use char without signed/unsigned. */
-    xHostAddressData.pcCertificate = NULL;                                 /* Use default certificate. */
+    xHostAddressData.pcCertificate = NULL;          /* Use default certificate. */
     xHostAddressData.ulCertificateSize = 0;
     xHostAddressData.usPort = usGGDPort;
 

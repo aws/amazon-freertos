@@ -31,7 +31,6 @@
 #ifndef _AWS_GREENGRASS_DISCOVERY_H_
 #define _AWS_GREENGRASS_DISCOVERY_H_
 #include "FreeRTOS.h"
-#include "aws_clientcredential.h"
 #include "iot_secure_sockets.h"
 
 /**
