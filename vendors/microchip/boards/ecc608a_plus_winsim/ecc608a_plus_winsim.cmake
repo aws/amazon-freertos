@@ -1,8 +1,8 @@
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
-afr_set_board_metadata(ID "Microchip-ATECC608A-with-Windows-Simulator")
-afr_set_board_metadata(DISPLAY_NAME "Microchip ATECC608A with Windows Simulator")
+afr_set_board_metadata(ID "MCHP-ATECC608A-With-Windows-Simulator")
+afr_set_board_metadata(DISPLAY_NAME "ATECC608A with Windows Simulator")
 afr_set_board_metadata(DESCRIPTION " Microchip ATECC608A secure element with Windows Simulator ")
 afr_set_board_metadata(VENDOR_NAME "Microchip")
 afr_set_board_metadata(FAMILY_NAME "ATECC608A")
