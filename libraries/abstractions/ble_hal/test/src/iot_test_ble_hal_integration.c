@@ -141,7 +141,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_CALLBACK_NULL_CHECK
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
     #endif
-    #if ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK
+    #if ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK
         RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback );
     #endif
     RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
@@ -180,7 +180,12 @@ TEST( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback 
     {
         /* Create service B */
         IotTestBleHal_CreateServiceB_Nested();
+        /* Start service B */
+        IotTestBleHal_StartService( &_xSrvcB );
     }
+
+    IotTestBleHal_StopService( &_xSrvcB );
+    IotTestBleHal_DeleteService( &_xSrvcB );
 }
 
 TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
