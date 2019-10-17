@@ -26,11 +26,15 @@
 
 #### PKCS #11
 - Update the PKCS #11 third-party headers to be the latest from OASIS (version 2.40 Plus Errata 01).
+- Add PKCS #11 as a submodule.
 
 #### Bluetooth Low Energy
 - ESP32 board supports NIMBLE as the default underlying stack for Bluetooth Low Energy.
 - Contains bug fixes and enhancements in ESP NIMBLE stack.
 - Contains bug fixes in ESP Bluedroid stack.
+
+#### Marvell SDK Update
+- Marvell SDK now updated to R8 P2 (v1.2.r8.p2)
 
 ## 201908.00 08/26/2019
 
