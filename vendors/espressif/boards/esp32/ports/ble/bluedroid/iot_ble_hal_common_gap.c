@@ -511,6 +511,8 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
+    /* Initialize BLE */
+
     if( pxCallbacks != NULL )
     {
         xBTCallbacks = *pxCallbacks;
@@ -527,12 +529,7 @@ BTStatus_t prvBTManagerInit( const BTCallbacks_t * pxCallbacks )
 
 BTStatus_t prvBtManagerCleanup()
 {
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
-    esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
-
-    return xStatus;
+    return eBTStatusSuccess;
 }
 
 /*-----------------------------------------------------------*/
@@ -540,13 +537,37 @@ BTStatus_t prvBtManagerCleanup()
 BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    esp_err_t xRet = ESP_OK;
+    esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
 
-    if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
+    xRet = esp_bt_controller_init( &xBtCfg );
+
+    if( xRet == ESP_OK )
     {
-        if( esp_bt_controller_enable( ESP_BT_MODE_BLE ) != ESP_OK )
-        {
-            xStatus = eBTStatusFail;
-        }
+        xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
+    }
+    else
+    {
+        configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
+    }
+
+    if( xRet == ESP_OK )
+    {
+        xRet = esp_bluedroid_init();
+    }
+    else
+    {
+        configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
+    }
+
+    if( xRet == ESP_OK )
+    {
+        xRet = esp_bluedroid_enable();
+    }
+
+    if( xRet != ESP_OK )
+    {
+        xStatus = eBTStatusFail;
     }
 
     /** If status is ok and callback is set, trigger the callback.
@@ -565,13 +586,34 @@ BTStatus_t prvBTEnable( uint8_t ucGuestMode )
 BTStatus_t prvBTDisable()
 {
     BTStatus_t xStatus = eBTStatusSuccess;
+    esp_err_t xRet = ESP_OK;
 
-    if( esp_bt_controller_get_status() != ESP_BT_CONTROLLER_STATUS_ENABLED )
+    if( esp_bluedroid_get_status() == ESP_BLUEDROID_STATUS_ENABLED )
     {
-        if( esp_bt_controller_disable() != ESP_OK )
+        xRet = esp_bluedroid_disable();
+    }
+
+    if( xRet == ESP_OK )
+    {
+        xRet = esp_bluedroid_deinit();
+    }
+
+    if( xRet == ESP_OK )
+    {
+        if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
         {
-            xStatus = eBTStatusFail;
+            xRet = esp_bt_controller_disable();
         }
+    }
+
+    if( xRet == ESP_OK )
+    {
+        xRet = esp_bt_controller_deinit();
+    }
+
+    if( xRet != ESP_OK )
+    {
+        xStatus = eBTStatusFail;
     }
 
     /** If status is ok and callback is set, trigger the callback.
