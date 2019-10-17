@@ -491,17 +491,6 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         ${exe_target}
         ${application_src}
     )
-
-    set(
-        mkld_flags -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
-        -section-placement-file "${AFR_ROOT_DIR}/projects/nordic/nrf52840-dk/ses/aws_tests/flash_placement.xml"
-        -check-segment-overflow -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192" -section-placement-macros "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
-    )
-
-    add_custom_command(
-        TARGET ${exe_target} PRE_LINK
-        COMMAND VERBATIM "/usr/share/segger_embedded_studio_for_arm_4.16/bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/aws_tests.ld"
-    )
 endif()
 
 if(NOT AFR_METADATA_MODE)
