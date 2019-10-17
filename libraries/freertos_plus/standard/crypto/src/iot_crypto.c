@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Crypto V1.0.4
+ * Amazon FreeRTOS Crypto V1.0.5
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -27,14 +27,24 @@
 #include "FreeRTOS.h"
 #include "FreeRTOSIPConfig.h"
 #include "iot_crypto.h"
+#include "iot_pkcs11.h"
 
 /* mbedTLS includes. */
-#include "mbedtls/config.h"
+
+#if !defined( MBEDTLS_CONFIG_FILE )
+    #include "mbedtls/config.h"
+#else
+    #include MBEDTLS_CONFIG_FILE
+#endif
+
 #include "mbedtls/platform.h"
 #include "mbedtls/sha256.h"
 #include "mbedtls/sha1.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/x509_crt.h"
+#include "mbedtls/ctr_drbg.h"
+#include "mbedtls/entropy.h"
+
 /* Threading mutex implementations for mbedTLS. */
 #include "mbedtls/threading.h"
 #include "threading_alt.h"
@@ -240,6 +250,7 @@ void CRYPTO_Init( void )
 {
     CRYPTO_ConfigureHeap();
     CRYPTO_ConfigureThreading();
+    CRYPTO_ConfigureDRBG();
 }
 
 /**
@@ -254,6 +265,16 @@ void CRYPTO_ConfigureHeap( void )
 }
 
 
+typedef struct CryptoDRBG_t
+{
+    CK_BBOOL xIsInitialized;                     /* Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
+    mbedtls_ctr_drbg_context xMbedDrbgCtx;       /* CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
+    mbedtls_entropy_context xMbedEntropyContext; /* Entropy context for PKCS #11 module - used to collect entropy for RNG. */
+} CryptoDRBG_t;
+
+CryptoDRBG_t xDrbg;
+
+
 void CRYPTO_ConfigureThreading( void )
 {
     /* Configure mbedtls to use FreeRTOS mutexes. */
@@ -262,6 +283,107 @@ void CRYPTO_ConfigureThreading( void )
                                aws_mbedtls_mutex_lock,
                                aws_mbedtls_mutex_unlock );
 }
+
+
+void CRYPTO_ConfigureDRBG( void )
+{
+    int lMbedResult = 0;
+
+    /* Initialize the entropy source and DRBG for the CRYPTO module */
+    mbedtls_entropy_init( &xDrbg.xMbedEntropyContext );
+    mbedtls_ctr_drbg_init( &xDrbg.xMbedDrbgCtx );
+
+    if( 0 != mbedtls_ctr_drbg_seed( &xDrbg.xMbedDrbgCtx,
+                                    mbedtls_entropy_func,
+                                    &xDrbg.xMbedEntropyContext,
+                                    NULL,
+                                    0 ) )
+    {
+        CRYPTO_PRINT( ( "Failed to seed DRBG" ) );
+    }
+    else
+    {
+        xDrbg.xIsInitialized = CK_TRUE;
+    }
+}
+
+
+
+int mbedtls_hardware_poll( void * data,
+                           unsigned char * output,
+                           size_t len,
+                           size_t * olen )
+{
+    int lStatus = MBEDTLS_ERR_ENTROPY_SOURCE_FAILED;
+    CK_RV xSession = CK_INVALID_HANDLE;
+    CK_RV xResult = CKR_OK;
+    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
+    CK_BBOOL xSessionOpened = CK_FALSE;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    if( xResult == CKR_OK )
+    {
+        xResult = xInitializePkcs11Session( &xSession );
+    }
+
+    if( xResult == CKR_OK )
+    {
+        xSessionOpened = CK_TRUE;
+        xResult = pxFunctionList->C_GenerateRandom( xSession, output, len );
+    }
+
+    if( xSessionOpened == CK_TRUE )
+    {
+        xResult = pxFunctionList->C_CloseSession( xSession );
+    }
+
+    if( xResult == CKR_OK )
+    {
+        lStatus = 0;
+        *olen = len;
+    }
+
+    return lStatus;
+}
+
+
+
+int CRYPTO_GetRandomBytes( void * pvCtx,
+                           uint8_t * pRandomBytes,
+                           size_t length )
+{
+    ( void ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
+
+    int lResult = 0;
+
+    if( ( NULL == pRandomBytes ) ||
+        ( length == 0 ) )
+    {
+        CRYPTO_PRINT( ( "ERROR: Invalid inputs to CRYPTO_GetRandomBytes \r\n" ) );
+        lResult = CRYPTO_ERROR_RNG;
+    }
+
+    if( xDrbg.xIsInitialized != CK_TRUE )
+    {
+        CRYPTO_PRINT( ( "ERROR: DRBG is not initialized \r\n" ) );
+        lResult = CRYPTO_ERROR_RNG;
+    }
+
+    if( lResult == 0 )
+    {
+        lResult = mbedtls_ctr_drbg_random( &xDrbg.xMbedDrbgCtx, pRandomBytes, length );
+
+        if( lResult != 0 )
+        {
+            CRYPTO_PRINT( ( "ERROR: DRBG failed %d \r\n", lResult ) );
+            lResult = CRYPTO_ERROR_RNG;
+        }
+    }
+
+    return lResult;
+}
+
 
 /**
  * @brief Creates signature verification context.

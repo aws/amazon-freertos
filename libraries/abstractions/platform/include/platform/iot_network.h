@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -69,6 +69,8 @@ typedef enum IotNetworkError
  * @function_brief{platform_network_function_send}
  * - @function_name{platform_network_function_receive}
  * @function_brief{platform_network_function_receive}
+ * - @function_name{platform_network_function_receiveupto}
+ * @function_brief{platform_network_function_receiveupto}
  * - @function_name{platform_network_function_close}
  * @function_brief{platform_network_function_close}
  * - @function_name{platform_network_function_destroy}
@@ -90,6 +92,9 @@ typedef enum IotNetworkError
  * @function_page{IotNetworkInterface_t::receive,platform_network,receive}
  * @function_snippet{platform_network,receive,this}
  * @copydoc IotNetworkInterface_t::receive
+ * @function_page{IotNetworkInterface_t::receiveUpto,platform_network,receiveupto}
+ * @function_snippet{platform_network,receiveupto,this}
+ * @copydoc IotNetworkInterface_t::receiveUpto
  * @function_page{IotNetworkInterface_t::close,platform_network,close}
  * @function_snippet{platform_network,close,this}
  * @copydoc IotNetworkInterface_t::close
@@ -211,6 +216,29 @@ typedef struct IotNetworkInterface
                           uint8_t * pBuffer,
                           size_t bytesRequested );
     /* @[declare_platform_network_receive] */
+
+    /**
+     * @brief Read incoming data available in the network buffers.
+     *
+     * Reads bytes available in the network buffers into `pBuffer`.
+     * - If there is less data available than requested, it will return
+     *   the available number of bytes.
+     * - If there is more data available than requested, it will fill the
+     *   whole `pBuffer`.
+     * - If there is no data available, it will return 0.
+     *
+     * @param[in] pConnection The connection to receive data on, defined by
+     * the network stack.
+     * @param[out] pBuffer The buffer to place the incoming network data.
+     * @param[in] bufferSize The size of `pBuffer`.
+     *
+     * @return The number of bytes successfully received.
+     */
+    /* @[declare_platform_network_receiveupto] */
+    size_t ( * receiveUpto )( void * pConnection,
+                              uint8_t * pBuffer,
+                              size_t bufferSize );
+    /* @[declare_platform_network_receiveupto] */
 
     /**
      * @brief Close a network connection.

@@ -1,6 +1,20 @@
 # -------------------------------------------------------------------------------------------------
 # 3rdparty libraries
 # -------------------------------------------------------------------------------------------------
+# http_parser - HTTP message parser
+if(EXISTS "${AFR_3RDPARTY_DIR}/http_parser")
+    afr_3rdparty_module(http_parser)
+    target_sources(
+        3rdparty::http_parser INTERFACE
+        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.h"
+        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.c"
+    )
+    target_include_directories(
+        3rdparty::http_parser INTERFACE
+        "${AFR_3RDPARTY_DIR}/http_parser"
+    )
+endif()
+
 # jsmn - JSON parser
 if(EXISTS "${AFR_3RDPARTY_DIR}/jsmn")
     afr_3rdparty_module(jsmn)

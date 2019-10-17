@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -23,6 +23,7 @@
  * http://www.FreeRTOS.org
  */
 
+#include <stdio.h>
 #include <string.h>
 
 /* Defender internal include. */
@@ -37,16 +38,20 @@
 
 #define TOPIC_SUFFIX_REJECTED    TOPIC_SUFFIX_PUBLISH "/rejected"
 
+/*-----------------------------------------------------------*/
+
+extern IotMqttCallbackInfo_t _acceptCallbackInfo;
+extern IotMqttCallbackInfo_t _rejectCallbackInfo;
 extern AwsIotDefenderStartInfo_t _startInfo;
 
-/* defender internally manages network and mqtt connection */
-static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
-
 static char * _pPublishTopic = NULL;
+static size_t _publishTopicLength = 0;
 
 static char * _pAcceptTopic = NULL;
+static size_t _acceptTopicLength = 0;
 
 static char * _pRejectTopic = NULL;
+static size_t _rejectTopicLength = 0;
 
 /*-----------------------------------------------------------*/
 
@@ -54,13 +59,14 @@ AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( void )
 {
     AwsIotDefenderError_t returnedError = AWS_IOT_DEFENDER_SUCCESS;
 
-    const char * pThingName = _startInfo.mqttConnectionInfo.pClientIdentifier;
-    uint16_t thingNameLength = _startInfo.mqttConnectionInfo.clientIdentifierLength;
+    const char * pThingName = _startInfo.pClientIdentifier;
+    uint16_t thingNameLength = _startInfo.clientIdentifierLength;
+    size_t topicPrefixLength = strlen( TOPIC_PREFIX );
 
     /* Calculate topics lengths. Plus one for string terminator. */
-    size_t publishTopicLength = strlen( TOPIC_PREFIX ) + thingNameLength + strlen( TOPIC_SUFFIX_PUBLISH ) + 1;
-    size_t acceptTopicLength = strlen( TOPIC_PREFIX ) + thingNameLength + strlen( TOPIC_SUFFIX_ACCEPTED ) + 1;
-    size_t rejectTopicLength = strlen( TOPIC_PREFIX ) + thingNameLength + strlen( TOPIC_SUFFIX_REJECTED ) + 1;
+    size_t publishTopicLength = topicPrefixLength + thingNameLength + strlen( TOPIC_SUFFIX_PUBLISH ) + 1;
+    size_t acceptTopicLength = topicPrefixLength + thingNameLength + strlen( TOPIC_SUFFIX_ACCEPTED ) + 1;
+    size_t rejectTopicLength = topicPrefixLength + thingNameLength + strlen( TOPIC_SUFFIX_REJECTED ) + 1;
 
     /* Allocate memory for each of them. */
     char * pPublishTopic = AwsIotDefender_MallocTopic( publishTopicLength * sizeof( char ) );
@@ -82,17 +88,24 @@ AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( void )
         _pAcceptTopic = pAcceptTopic;
         _pRejectTopic = pRejectTopic;
 
-        strcpy( _pPublishTopic, TOPIC_PREFIX );
-        strncat( _pPublishTopic, pThingName, thingNameLength );
-        strcat( _pPublishTopic, TOPIC_SUFFIX_PUBLISH );
+        snprintf( _pPublishTopic, publishTopicLength, "%s%s%s",
+                  TOPIC_PREFIX,
+                  pThingName,
+                  TOPIC_SUFFIX_PUBLISH );
 
-        strcpy( _pAcceptTopic, TOPIC_PREFIX );
-        strncat( _pAcceptTopic, pThingName, thingNameLength );
-        strcat( _pAcceptTopic, TOPIC_SUFFIX_ACCEPTED );
+        snprintf( _pAcceptTopic, acceptTopicLength, "%s%s%s",
+                  TOPIC_PREFIX,
+                  pThingName,
+                  TOPIC_SUFFIX_ACCEPTED );
 
-        strcpy( _pRejectTopic, TOPIC_PREFIX );
-        strncat( _pRejectTopic, pThingName, thingNameLength );
-        strcat( _pRejectTopic, TOPIC_SUFFIX_REJECTED );
+        snprintf( _pRejectTopic, rejectTopicLength, "%s%s%s",
+                  TOPIC_PREFIX,
+                  pThingName,
+                  TOPIC_SUFFIX_REJECTED );
+
+        _publishTopicLength = publishTopicLength - 1;
+        _acceptTopicLength = acceptTopicLength - 1;
+        _rejectTopicLength = rejectTopicLength - 1;
     }
 
     return returnedError;
@@ -108,37 +121,30 @@ void AwsIotDefenderInternal_DeleteTopicsNames( void )
     _pPublishTopic = NULL;
     _pAcceptTopic = NULL;
     _pRejectTopic = NULL;
+
+    _publishTopicLength = 0;
+    _acceptTopicLength = 0;
+    _rejectTopicLength = 0;
 }
 
 /*-----------------------------------------------------------*/
 
-IotMqttError_t AwsIotDefenderInternal_MqttConnect( void )
-{
-    return IotMqtt_Connect( &_startInfo.mqttNetworkInfo,
-                            &_startInfo.mqttConnectionInfo,
-                            _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_CONNECT_TIMEOUT_SECONDS ),
-                            &_mqttConnection );
-}
-
-/*-----------------------------------------------------------*/
-
-IotMqttError_t AwsIotDefenderInternal_MqttSubscribe( IotMqttCallbackInfo_t acceptCallback,
-                                                     IotMqttCallbackInfo_t rejectCallback )
+IotMqttError_t AwsIotDefenderInternal_MqttSubscribe( void )
 {
     /* subscribe to two topics: accept and reject. */
     IotMqttSubscription_t subscriptions[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER, IOT_MQTT_SUBSCRIPTION_INITIALIZER };
 
     subscriptions[ 0 ].qos = IOT_MQTT_QOS_0;
     subscriptions[ 0 ].pTopicFilter = _pAcceptTopic;
-    subscriptions[ 0 ].topicFilterLength = ( uint16_t ) strlen( _pAcceptTopic );
-    subscriptions[ 0 ].callback = acceptCallback;
+    subscriptions[ 0 ].topicFilterLength = ( uint16_t ) _acceptTopicLength;
+    subscriptions[ 0 ].callback = _acceptCallbackInfo;
 
     subscriptions[ 1 ].qos = IOT_MQTT_QOS_0;
     subscriptions[ 1 ].pTopicFilter = _pRejectTopic;
-    subscriptions[ 1 ].topicFilterLength = ( uint16_t ) strlen( _pRejectTopic );
-    subscriptions[ 1 ].callback = rejectCallback;
+    subscriptions[ 1 ].topicFilterLength = ( uint16_t ) _rejectTopicLength;
+    subscriptions[ 1 ].callback = _rejectCallbackInfo;
 
-    return IotMqtt_TimedSubscribe( _mqttConnection,
+    return IotMqtt_TimedSubscribe( _startInfo.mqttConnection,
                                    subscriptions,
                                    2,
                                    0,
@@ -154,11 +160,11 @@ IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 
     publishInfo.qos = IOT_MQTT_QOS_0;
     publishInfo.pTopicName = _pPublishTopic;
-    publishInfo.topicNameLength = ( uint16_t ) strlen( _pPublishTopic );
+    publishInfo.topicNameLength = ( uint16_t ) _publishTopicLength;
     publishInfo.pPayload = pData;
     publishInfo.payloadLength = dataLength;
-
-    return IotMqtt_TimedPublish( _mqttConnection,
+    /* Publish Defender Report */
+    return IotMqtt_TimedPublish( _startInfo.mqttConnection,
                                  &publishInfo,
                                  0,
                                  _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_PUBLISH_TIMEOUT_SECONDS ) );
@@ -166,7 +172,26 @@ IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
 
 /*-----------------------------------------------------------*/
 
-void AwsIotDefenderInternal_MqttDisconnect( void )
+IotMqttError_t AwsIotDefenderInternal_MqttUnSubscribe( void )
 {
-    IotMqtt_Disconnect( _mqttConnection, false );
+    /* unsubscribe to two topics: accept and reject. */
+    IotMqttSubscription_t subscriptions[ 2 ] = { IOT_MQTT_SUBSCRIPTION_INITIALIZER, IOT_MQTT_SUBSCRIPTION_INITIALIZER };
+
+    subscriptions[ 0 ].qos = IOT_MQTT_QOS_0;
+    subscriptions[ 0 ].pTopicFilter = _pAcceptTopic;
+    subscriptions[ 0 ].topicFilterLength = ( uint16_t ) _acceptTopicLength;
+    subscriptions[ 0 ].callback = _acceptCallbackInfo;
+
+    subscriptions[ 1 ].qos = IOT_MQTT_QOS_0;
+    subscriptions[ 1 ].pTopicFilter = _pRejectTopic;
+    subscriptions[ 1 ].topicFilterLength = ( uint16_t ) _rejectTopicLength;
+    subscriptions[ 1 ].callback = _rejectCallbackInfo;
+
+    return IotMqtt_TimedUnsubscribe( _startInfo.mqttConnection,
+                                     subscriptions,
+                                     2,
+                                     0,
+                                     _defenderToMilliseconds( AWS_IOT_DEFENDER_MQTT_SUBSCRIBE_TIMEOUT_SECONDS ) );
 }
+
+/*-----------------------------------------------------------*/

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -71,7 +71,7 @@ TEST_TEAR_DOWN( UTIL_Platform_Threads )
 TEST_GROUP_RUNNER( UTIL_Platform_Threads )
 {
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_CreateDetachedThread );
-    #if ( configUSE_TRACE_FACILITY == 1 )
+    #if ( INCLUDE_uxTaskPriorityGet == 1 )
         RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_ThreadPriority );
     #endif
     RUN_TEST_CASE( UTIL_Platform_Threads, IotThreads_MutexTest );
@@ -116,26 +116,10 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 /**
  * @brief helper function for testing thread priority
  */
-#if ( configUSE_TRACE_FACILITY == 1 )
+#if ( INCLUDE_uxTaskPriorityGet == 1 )
     void threadPriorityTestFunction( void * param )
     {
-        TaskStatus_t xTaskDetails;
-
-        /* Use the handle to obtain further information about the task. */
-        vTaskGetInfo( /* The handle of the task being queried. */
-            NULL,
-
-            /* The TaskStatus_t structure to complete with information
-             * on xTask. */
-            &xTaskDetails,
-
-            /* Include the stack high water mark value in the
-             * TaskStatus_t structure. */
-            pdTRUE,
-            /* Include the task state in the TaskStatus_t structure. */
-            eInvalid );
-
-        *( int32_t * ) param = xTaskDetails.uxCurrentPriority;
+        *( int32_t * ) param = uxTaskPriorityGet( NULL );
     }
 
     TEST( UTIL_Platform_Threads, IotThreads_ThreadPriority )
@@ -179,32 +163,7 @@ TEST( UTIL_Platform_Threads, IotThreads_CreateDetachedThread )
 
         printf( "Expected Pri = 7, actual = %d\r\n", ( int ) attrData );
     }
-/*-----------------------------------------------------------*/
-
-/**
- * @brief helper function for testing thread priority
- */
-    void threadStackSizeTestFunction( void * param )
-    {
-        TaskStatus_t xTaskDetails;
-
-        /* Use the handle to obtain further information about the task. */
-        vTaskGetInfo( /* The handle of the task being queried. */
-            NULL,
-
-            /* The TaskStatus_t structure to complete with information
-             * on xTask. */
-            &xTaskDetails,
-
-            /* Include the stack high water mark value in the
-             * TaskStatus_t structure. */
-            pdTRUE,
-            /* Include the task state in the TaskStatus_t structure. */
-            eInvalid );
-
-        *( int32_t * ) param = 300 + xTaskDetails.usStackHighWaterMark;
-    }
-#endif /* if ( configUSE_TRACE_FACILITY == 1 ) */
+#endif /* if ( INCLUDE_uxTaskPriorityGet == 1 ) */
 
 /**
  * @brief helper function for testing mutex

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -99,9 +99,17 @@
  * @brief Initializers of data handles.
  */
 /**@{ */
-#define AWS_IOT_DEFENDER_START_INFO_INITIALIZER \
-    { .mqttNetworkInfo = { 0 }                  \
-    } /**< Initializer of #AwsIotDefenderCallbackInfo_t. */
+#define AWS_IOT_DEFENDER_CALLBACK_INITIALIZER \
+    {                                         \
+        .pCallbackContext = NULL,             \
+        .function = NULL                      \
+    } /**< Initializer of #AwsIotDefenderCallback_t. */
+#define AWS_IOT_DEFENDER_START_INFO_INITIALIZER          \
+    { .pClientIdentifier = NULL,                         \
+      .clientIdentifierLength = 0,                       \
+      .mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER, \
+      .callback = AWS_IOT_DEFENDER_CALLBACK_INITIALIZER  \
+    } /**< Initializer of #AwsIotDefenderStartInfo_t. */
 /**@} */
 
 /**
@@ -180,7 +188,7 @@ typedef struct AwsIotDefenderCallbackInfo
  */
 typedef struct AwsIotDefenderCallback
 {
-    void * param1;                                               /**< The first parameter to pass to the callback function(optional). */
+    void * pCallbackContext;                                     /**< The callback context for caller's use (optional). */
     void ( * function )( void *,
                          AwsIotDefenderCallbackInfo_t * const ); /**< Callback function signature(optional). */
 } AwsIotDefenderCallback_t;
@@ -191,47 +199,31 @@ typedef struct AwsIotDefenderCallback
  */
 typedef struct AwsIotDefenderStartInfo
 {
-    IotMqttNetworkInfo_t mqttNetworkInfo;    /**< MQTT Network info used by defender (required). */
-    IotMqttConnectInfo_t mqttConnectionInfo; /**< MQTT connection info used by defender (required). */
-    AwsIotDefenderCallback_t callback;       /**< Callback function parameter (optional). */
+    const char * pClientIdentifier;     /**< @brief MQTT client identifier (required). */
+    uint16_t clientIdentifierLength;    /**< @brief Length of #IotMqttConnectInfo_t.pClientIdentifier (required). */
+    IotMqttConnection_t mqttConnection; /**< @brief MQTT connection used by defender (required). */
+    AwsIotDefenderCallback_t callback;  /**< Callback function parameter (optional). */
 } AwsIotDefenderStartInfo_t;
 
 /**
- * @functions_page{defender, Device Defender}
- * @functions_brief{Device Defender}
- * - @function_name{defender_function_setmetrics}
- * @function_brief{defender_function_setmetrics}
- * - @function_name{defender_function_start}
- * @function_brief{defender_function_start}
- * - @function_name{defender_function_stop}
- * @function_brief{defender_function_stop}
- * - @function_name{defender_function_setperiod}
- * @function_brief{defender_function_setperiod}
- * - @function_name{defender_function_getperiod}
- * @function_brief{defender_function_getperiod}
- * - @function_name{defender_function_strerror}
- * @function_brief{defender_function_strerror}
+ * @functionspage{defender,Device Defender library}
+ * - @functionname{defender_function_setmetrics}
+ * - @functionname{defender_function_start}
+ * - @functionname{defender_function_stop}
+ * - @functionname{defender_function_setperiod}
+ * - @functionname{defender_function_getperiod}
+ * - @functionname{defender_function_strerror}
+ * - @functionname{defender_function_EventType}
  */
 
 /**
- * @function_page{AwsIotDefender_SetMetrics,defender,setmetrics}
- * @function_snippet{defender,setmetrics,this}
- * @copydoc AwsIotDefender_SetMetrics
- * @function_page{AwsIotDefender_Start,defender,start}
- * @function_snippet{defender,start,this}
- * @copydoc AwsIotDefender_Start
- * @function_page{AwsIotDefender_Stop,defender,stop}
- * @function_snippet{defender,stop,this}
- * @copydoc AwsIotDefender_Stop
- * @function_page{AwsIotDefender_SetPeriod,defender,setperiod}
- * @function_snippet{defender,setperiod,this}
- * @copydoc AwsIotDefender_SetPeriod
- * @function_page{AwsIotDefender_GetPeriod,defender,getperiod}
- * @function_snippet{defender,getperiod,this}
- * @copydoc AwsIotDefender_GetPeriod
- * @function_page{AwsIotDefender_strerror,defender,strerror}
- * @function_snippet{defender,strerror,this}
- * @copydoc AwsIotDefender_strerror
+ * @functionpage{AwsIotDefender_SetMetrics,defender,setmetrics}
+ * @functionpage{AwsIotDefender_Start,defender,start}
+ * @functionpage{AwsIotDefender_Stop,defender,stop}
+ * @functionpage{AwsIotDefender_SetPeriod,defender,setperiod}
+ * @functionpage{AwsIotDefender_GetPeriod,defender,getperiod}
+ * @functionpage{AwsIotDefender_strerror,defender,strerror}
+ * @functionpage{AwsIotDefender_EventType,defender,EventType}
  */
 
 /**
@@ -278,9 +270,10 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
  *
  * @code{c}
  *
- * // assume valid IotMqttNetworkInfo_t and IotMqttConnectInfo_t are created.
- * const IotMqttNetworkInfo_t _mqttNetworkInfo;
- * const IotMqttConnectInfo_t _mqttConnectionInfo;
+ * // assume valid IotMqttConnection_t is created and available.
+ * const IotMqttConnection_t _mqttConnection;
+ * // use AWS thing name as client identifier
+ * const char * pClientIdentifier = "AwsThingName";
  *
  * void logDefenderCallback( void * param1, AwsIotDefenderCallbackInfo_t * const pCallbackInfo )
  * {
@@ -307,13 +300,15 @@ AwsIotDefenderError_t AwsIotDefender_SetMetrics( AwsIotDefenderMetricsGroup_t me
  * void startDefender()
  * {
  *     // define a simple callback function which simply logs
- *     const AwsIotDefenderCallback_t callback = { .function = logDefenderCallback, .param1 = NULL };
+ *     const AwsIotDefenderCallback_t callback = { .function = logDefenderCallback, .pCallbackContext = NULL };
  *
  *     // define parameters of AwsIotDefender_Start function
+ *     // Note: This example assumes MQTT connection is already established and metrics library is initialized.
  *     const AwsIotDefenderStartInfo_t startInfo =
  *     {
- *         .mqttNetworkInfo = _mqttNetworkInfo,
- *         .mqttConnectionInfo = _mqttConnectionInfo,
+ *         .pClientIdentifier = pClientIdentifier,
+ *         .clientIdentifierLength = strlen( pClientIdentifier ),
+ *         .mqttConnection = _mqttConnection,
  *         .callback = callback
  *     };
  *
@@ -402,4 +397,12 @@ uint32_t AwsIotDefender_GetPeriod( void );
 const char * AwsIotDefender_strerror( AwsIotDefenderError_t error );
 /* @[declare_defender_strerror] */
 
+/**
+ * @brief Return a string that describes #AwsIotDefenderEventType_t
+ *
+ * @return A string that describes given #AwsIotDefenderEventType_t
+ */
+/* @[declare_defender_EventType] */
+const char * AwsIotDefender_EventType( AwsIotDefenderEventType_t eventType );
+/* @[declare_defender_EventType] */
 #endif /* AWS_IOT_DEFENDER_H_ */

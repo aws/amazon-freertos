@@ -32,8 +32,8 @@
 #define testrunnerUNSUPPORTED                       0
 
 /* Unsupported tests */
-#define testrunnerFULL_OTA_CBOR_ENABLED            testrunnerUNSUPPORTED
-#define testrunnerFULL_POSIX_ENABLED               testrunnerUNSUPPORTED
+#define testrunnerFULL_OTA_CBOR_ENABLED               testrunnerUNSUPPORTED
+#define testrunnerFULL_POSIX_ENABLED                  testrunnerUNSUPPORTED
 
 /* Enable tests by setting defines to 1 */
 #define testrunnerFULL_OTA_AGENT_ENABLED            0
@@ -62,5 +62,6 @@
 #define testrunnerFULL_LINEAR_CONTAINERS_ENABLED    0
 #define testrunnerUTIL_PLATFORM_THREADS_ENABLED     0
 #define testrunnerFULL_SERIALIZER_ENABLED           0
+#define testrunnerFULL_HTTPS_CLIENT_ENABLED         0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

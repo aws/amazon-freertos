@@ -263,14 +263,26 @@ typedef enum {
 
 typedef enum {
     ESP_BLE_SM_PASSKEY = 0,
+    /* Authentication requirements of local device */
     ESP_BLE_SM_AUTHEN_REQ_MODE,
+    /* The IO capability of local device */
     ESP_BLE_SM_IOCAP_MODE,
+    /* Initiator Key Distribution/Generation */
     ESP_BLE_SM_SET_INIT_KEY,
+    /* Responder Key Distribution/Generation */
     ESP_BLE_SM_SET_RSP_KEY,
+    /* Maximum Encryption key size to support */
     ESP_BLE_SM_MAX_KEY_SIZE,
+    /* Minimum Encryption key size requirement from Peer */
+    ESP_BLE_SM_MIN_KEY_SIZE,
+    /* Set static Passkey */
     ESP_BLE_SM_SET_STATIC_PASSKEY,
+    /* Reset static Passkey */
     ESP_BLE_SM_CLEAR_STATIC_PASSKEY,
+    /* Accept only specified SMP Authentication requirement */
     ESP_BLE_SM_ONLY_ACCEPT_SPECIFIED_SEC_AUTH,
+    /* Enable/Disable OOB support */
+    ESP_BLE_SM_OOB_SUPPORT,
     ESP_BLE_SM_MAX_PARAM,
 } esp_ble_sm_param_t;
 
@@ -540,6 +552,7 @@ typedef enum {
     ESP_GAP_SEARCH_DISC_CMPL_EVT           = 4,      /*!< Discovery complete. */
     ESP_GAP_SEARCH_DI_DISC_CMPL_EVT        = 5,      /*!< Discovery complete. */
     ESP_GAP_SEARCH_SEARCH_CANCEL_CMPL_EVT  = 6,      /*!< Search cancelled */
+    ESP_GAP_SEARCH_INQ_DISCARD_NUM_EVT     = 7,      /*!< The number of pkt discarded by flow control */
 } esp_gap_search_evt_t;
 
 /**
@@ -595,6 +608,7 @@ typedef union {
         int num_resps;                              /*!< Scan result number */
         uint8_t adv_data_len;                       /*!< Adv data length */
         uint8_t scan_rsp_len;                       /*!< Scan response length */
+        uint32_t num_dis;                          /*!< The number of discard packets */
     } scan_rst;                                     /*!< Event parameter of ESP_GAP_BLE_SCAN_RESULT_EVT */
     /**
      * @brief ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT

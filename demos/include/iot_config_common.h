@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -97,6 +97,8 @@
 #define IotBle_Malloc        pvPortMalloc
 #define IotBle_Free          vPortFree
 /* #define IotLogging_StaticBufferSize */
+#define IotDemo_Malloc       pvPortMalloc
+#define IotDemo_Free         vPortFree
 
 /* Memory allocation function configuration for the MQTT and Defender library.
  * These libraries will be affected by IOT_STATIC_MEMORY_ONLY. */

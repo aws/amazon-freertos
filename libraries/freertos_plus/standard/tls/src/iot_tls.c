@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS TLS V1.1.4
+ * Amazon FreeRTOS TLS V1.1.5
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -171,35 +171,6 @@ static int prvNetworkRecv( void * pvContext,
     TLSContext_t * pxCtx = ( TLSContext_t * ) pvContext; /*lint !e9087 !e9079 Allow casting void* to other types. */
 
     return ( int ) pxCtx->xNetworkRecv( pxCtx->pvCallerContext, pucReceiveBuffer, xReceiveLength );
-}
-
-/*-----------------------------------------------------------*/
-
-/**
- * @brief Callback that wraps PKCS#11 for pseudo-random number generation.
- *
- * @param[in] pvCtx Caller context.
- * @param[in] pucRandom Byte array to fill with random data.
- * @param[in] xRandomLength Length of byte array.
- *
- * @return Zero on success.
- */
-static int prvGenerateRandomBytes( void * pvCtx,
-                                   unsigned char * pucRandom,
-                                   size_t xRandomLength )
-{
-    TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
-    BaseType_t xResult;
-
-    xResult = pxCtx->pxP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
-
-    if( xResult != 0 )
-    {
-        TLS_PRINT( ( "ERROR: Failed to generate random bytes %d \r\n", xResult ) );
-        xResult = TLS_ERROR_RNG;
-    }
-
-    return xResult;
 }
 
 /*-----------------------------------------------------------*/
@@ -399,11 +370,11 @@ static int prvPrivateKeySigningCallback( void * pvContext,
  */
 static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 {
-    BaseType_t xResult = 0;
+    BaseType_t xResult = CKR_OK;
     CK_SLOT_ID * pxSlotIds = NULL;
     CK_ULONG xCount = 0;
     CK_ATTRIBUTE xTemplate[ 2 ];
-    CK_OBJECT_HANDLE xCertObj = 0;
+    CK_OBJECT_HANDLE xCertObj = CK_INVALID_HANDLE;
     CK_BYTE * pxCertificate = NULL;
     mbedtls_pk_type_t xKeyAlgo = ( mbedtls_pk_type_t ) ~0;
     char * pcJitrCertificate = keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
@@ -440,7 +411,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 
     /* Start a private session with the P#11 module using the first
      * enumerated slot. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_OpenSession( pxSlotIds[ 0 ],
                                                                           CKF_SERIAL_SESSION,
@@ -450,7 +421,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     }
 
     /* Put the module in authenticated mode. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = ( BaseType_t ) pxCtx->pxP11FunctionList->C_Login( pxCtx->xP11Session,
                                                                     CKU_USER,
@@ -458,14 +429,18 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                                                     sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1 );
     }
 
-    /* Get the handle of the device private key. */
-    xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
-                                            pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-                                            CKO_PRIVATE_KEY,
-                                            &pxCtx->xP11PrivateKey );
-
-    if( pxCtx->xP11PrivateKey == CK_INVALID_HANDLE )
+    if( CKR_OK == xResult )
     {
+        /* Get the handle of the device private key. */
+        xResult = xFindObjectWithLabelAndClass( pxCtx->xP11Session,
+                                                pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                CKO_PRIVATE_KEY,
+                                                &pxCtx->xP11PrivateKey );
+    }
+
+    if( ( CKR_OK == xResult ) && ( pxCtx->xP11PrivateKey == CK_INVALID_HANDLE ) )
+    {
+        xResult = TLS_ERROR_NO_PRIVATE_KEY;
         TLS_PRINT( ( "ERROR: Private key not found. " ) );
     }
 
@@ -518,10 +493,11 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 
     if( xCertObj == CK_INVALID_HANDLE )
     {
+        xResult = TLS_ERROR_NO_CERTIFICATE;
         TLS_PRINT( ( "No device certificate found." ) );
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         /* Query the device certificate size. */
         xTemplate[ 0 ].type = CKA_VALUE;
@@ -533,7 +509,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
                                                                                 1 );
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         /* Create a buffer for the certificate. */
         pxCertificate = ( CK_BYTE_PTR ) pvPortMalloc( xTemplate[ 0 ].ulValueLen ); /*lint !e9079 Allow casting void* to other types. */
@@ -544,7 +520,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
         }
     }
 
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         /* Export the certificate. */
         xTemplate[ 0 ].pValue = pxCertificate;
@@ -555,7 +531,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
     }
 
     /* Decode the client certificate. */
-    if( 0 == xResult )
+    if( CKR_OK == xResult )
     {
         xResult = mbedtls_x509_crt_parse( &pxCtx->xMbedX509Cli,
                                           ( const unsigned char * ) pxCertificate,
@@ -614,7 +590,7 @@ static int prvInitializeClientCredential( TLSContext_t * pxCtx )
 BaseType_t TLS_Init( void ** ppvContext,
                      TLSParams_t * pxParams )
 {
-    BaseType_t xResult = 0;
+    BaseType_t xResult = CKR_OK;
     TLSContext_t * pxCtx = NULL;
     CK_C_GetFunctionList xCkGetFunctionList = NULL;
 
@@ -641,7 +617,7 @@ BaseType_t TLS_Init( void ** ppvContext,
         xResult = ( BaseType_t ) xCkGetFunctionList( &pxCtx->pxP11FunctionList );
 
         /* Ensure that the PKCS #11 module is initialized. */
-        if( 0 == xResult )
+        if( CKR_OK == xResult )
         {
             xResult = ( BaseType_t ) xInitializePKCS11();
 
@@ -758,7 +734,7 @@ BaseType_t TLS_Connect( void * pvContext )
         mbedtls_ssl_conf_authmode( &pxCtx->xMbedSslConfig, MBEDTLS_SSL_VERIFY_REQUIRED );
 
         /* Set the RNG callback. */
-        mbedtls_ssl_conf_rng( &pxCtx->xMbedSslConfig, &prvGenerateRandomBytes, pxCtx ); /*lint !e546 Nothing wrong here. */
+        mbedtls_ssl_conf_rng( &pxCtx->xMbedSslConfig, &CRYPTO_GetRandomBytes, NULL ); /*lint !e546 Nothing wrong here. */
 
         /* Set issuer certificate. */
         mbedtls_ssl_conf_ca_chain( &pxCtx->xMbedSslConfig, &pxCtx->xMbedX509CA, NULL );
@@ -852,40 +828,38 @@ BaseType_t TLS_Recv( void * pvContext,
 
     if( ( NULL != pxCtx ) && ( pdTRUE == pxCtx->xTLSHandshakeSuccessful ) )
     {
-        while( xRead < xReadLength )
+        /* This routine will return however many bytes are returned from from mbedtls_ssl_read
+         * immediately unless MBEDTLS_ERR_SSL_WANT_READ is returned, in which case we try again. */
+        do
         {
             xResult = mbedtls_ssl_read( &pxCtx->xMbedSslCtx,
                                         pucReadBuffer + xRead,
                                         xReadLength - xRead );
 
-            if( 0 < xResult )
+            if( xResult > 0 )
             {
                 /* Got data, so update the tally and keep looping. */
                 xRead += ( size_t ) xResult;
             }
-            else if( 0 == xResult )
-            {
-                /* No data received (and no error). The secure sockets
-                 * API supports non-blocking read, so stop the loop but don't
-                 * flag an error. */
-                break;
-            }
-            else if( MBEDTLS_ERR_SSL_WANT_READ != xResult )
-            {
-                /* Hard error: invalidate the context and stop. */
-                prvFreeContext( pxCtx );
-                break;
-            }
-        }
+
+            /* If xResult == 0, then no data was received (and there is no error).
+             * The secure sockets API supports non-blocking read, so stop the loop,
+             * but don't flag an error. */
+        } while( ( xResult == MBEDTLS_ERR_SSL_WANT_READ ) );
     }
     else
     {
         xResult = MBEDTLS_ERR_SSL_INTERNAL_ERROR;
     }
 
-    if( 0 <= xResult )
+    if( xResult >= 0 )
     {
         xResult = ( BaseType_t ) xRead;
+    }
+    else
+    {
+        /* xResult < 0 is a hard error, so invalidate the context and stop. */
+        prvFreeContext( pxCtx );
     }
 
     return xResult;

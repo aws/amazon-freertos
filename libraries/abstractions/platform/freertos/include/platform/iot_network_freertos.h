@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Platform V1.0.0
+ * Amazon FreeRTOS Platform V1.1.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -150,6 +150,14 @@ size_t IotNetworkAfr_Send( void * pConnection,
 size_t IotNetworkAfr_Receive( void * pConnection,
                               uint8_t * pBuffer,
                               size_t bytesRequested );
+
+/**
+ * @brief An implementation of #IotNetworkInterface_t::receiveUpto for Amazon FreeRTOS
+ * Secure Sockets.
+ */
+size_t IotNetworkAfr_ReceiveUpto( void * pConnection,
+                                  uint8_t * pBuffer,
+                                  size_t bufferSize );
 
 /**
  * @brief An implementation of #IotNetworkInterface_t::close for Amazon FreeRTOS

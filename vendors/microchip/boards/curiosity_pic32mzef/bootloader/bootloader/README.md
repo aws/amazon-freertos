@@ -1,7 +1,5 @@
-# Amazon FreeRTOS Reference Bootloader ##
-The reference bootloader demonstrates features for supporting OTA and crypto signature verification on boot.
-
-**Note that currently the reference bootloader works on Microchip only.**
+# Amazon FreeRTOS Demo Bootloader for Microchip Curiosity Board - PIC32MZ  ##
+The demo bootloader demonstrates features for supporting OTA and crypto signature verification on boot.
 
 ## Building the bootloader
 
@@ -16,7 +14,7 @@ The reference bootloader demonstrates features for supporting OTA and crypto sig
 `pip install pyopenssl`
 
 * Put the ECDSA code signer certificate in pem format in the path - 
-    `\demos\common\ota\bootloader\utility\codesigner_cert_utility`  
+    `\vendors\microchip\boards\curiosity_pic32mzef\bootloader\bootloader\utility\codesigner_cert_utility`  
     rename the cert to `aws_ota_codesigner_certificate.pem`  
     
 * The codesigner_cert_utility.py runs as the pre build step for the bootloader 
@@ -25,11 +23,11 @@ is then linked in the bootloader.
 
 ## Building the OTA application image
 
-* Update the OTA sequence number in file `\demos\common\ota\bootloader\utility\user-config\ota-descriptor.config`  
+* Update the OTA sequence number in file `\vendors\microchip\boards\curiosity_pic32mzef\bootloader\bootloader\utility\user-config\ota-descriptor.config`  
     The OTA sequence number should be incremented for every new OTA image generated as the bootloader will determine 
     the application to boot from this sequence number.
     
-*  Update the application version number in `\demos\common\include\aws_application_version.h`  
+*  Update the application version number in `\demos\include\aws_application_version.h`  
 
 *  The ota_image_generator.py utility runs as the post-build step and generates the final OTA binary file 
     that should be uploaded when creating OTA job. The name of the binary has the extension of `ota.bin`.

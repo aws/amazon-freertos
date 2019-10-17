@@ -1,0 +1,38 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "HTTPS Client"
+PROJECT_BRIEF = "HTTPS Client v1.0.0 library"
+
+# Library documentation output directory.
+HTML_OUTPUT = https
+
+# Directories containing extra files.
+HTML_EXTRA_FILES = doc/extra_files/https/gettysburg.txt
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/output/https.tag
+
+# Directories containing library source code.
+INPUT = doc \
+        doc/lib \
+        libraries/c_sdk/standard/https/include \
+        libraries/c_sdk/standard/https/include/types \
+        libraries/c_sdk/standard/https/src/private \
+        libraries/c_sdk/standard/https/src \
+        demos/ \
+        libraries/c_sdk/standard/https/test \
+        libraries/c_sdk/standard/https/test/unit \
+        libraries/c_sdk/standard/https/test/access \
+        libraries/c_sdk/standard/https/test/system 
+
+# Library file names.
+FILE_PATTERNS = *https*.c *https*.h *https*.txt
+
+# External tag files required by this library.
+TAGFILES = doc/output/main.tag=../main \
+           doc/output/linear_containers.tag=../linear_containers \
+           doc/output/logging.tag=../logging \
+           doc/output/platform.tag=../platform

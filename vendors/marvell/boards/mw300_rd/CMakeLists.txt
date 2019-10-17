@@ -14,10 +14,10 @@ endif()
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "mw320")
-    include("mw320.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/mw320.cmake")
 endif()
 if("${AFR_BOARD_NAME}" STREQUAL "mw322")
-    include("mw322.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/mw322.cmake")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -127,6 +127,19 @@ target_link_options(
      INTERFACE ${tc-lflags-y} ${tc-lflags-tc-cortex-m4-y}
 )
 
+if(EXISTS "${mw320_dir}/bin/libs/libwlcmgr.a")
+target_link_libraries(
+    AFR::compiler::mcu_port
+    INTERFACE
+        "${mw320_dir}/bin/libs/libwlcmgr.a"
+	"${mw320_dir}/bin/libs/libwifidriver.a"
+	"${mw320_dir}/bin/libs/librfget.a"
+	"${mw320_dir}/bin/libs/libpsm.a"
+	"${mw320_dir}/bin/libs/libpart.a"
+	"${CMAKE_BINARY_DIR}/afr_kernel.a"
+)
+endif()
+
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS portable layers
 # -------------------------------------------------------------------------------------------------
@@ -165,19 +178,28 @@ set(
     "${mw320_dir}/sdk/src/drivers/common/hardfault"
     "${mw320_dir}/sdk/src/boards"
     "${mw320_dir}/sdk/src/incl/platform/net/freertos-plus-tcp"
-    "${mw320_dir}/sdk/src/wlan/wifidriver"
-    "${mw320_dir}/sdk/src/wlan/wifidriver/incl"
     "${AFR_KERNEL_DIR}/portable/GCC/ARM_CM4F"
+    "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include/"
+    "${AFR_ROOT_DIR}/libraries/3rdparty/mbedtls/include/mbedtls/"
     "${mw320_dir}/sdk/src/incl/platform/os/freertos"
     "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/include"
     "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/Compiler/GCC"
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
+if(NOT EXISTS "${mw320_dir}/bin/libs/libwlcmgr.a")
+set(
+    kernel_inc_lib_directories
+    "${mw320_dir}/sdk/src/wlan/wifidriver"
+    "${mw320_dir}/sdk/src/wlan/wifidriver/incl"
+)
+endif()
+
 # Global include directories
 target_include_directories(
      AFR::kernel::mcu_port
      INTERFACE ${kernel_inc_directories}
+     ${kernel_inc_lib_directories}
 )
 
 # WiFi

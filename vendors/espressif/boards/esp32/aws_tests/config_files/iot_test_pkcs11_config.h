@@ -138,4 +138,9 @@
  */
 #define pkcs11testLABEL_ROOT_CERTIFICATE                 pkcs11configLABEL_ROOT_CERTIFICATE
 
+/**
+ * @brief The size of the stack used for multithread tests.
+ */
+#define pkcs11testMULTI_TASK_STACK_SIZE                  4096
+
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */

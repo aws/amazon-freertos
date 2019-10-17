@@ -1,10 +1,53 @@
 # Change Log for Amazon FreeRTOS
 
+## Upcoming Release 
 ### New Features
+#### Defender Client Library V3.0.0
+- Defender Library API change to shared MQTT connection.
+- Demonstration code for Defender Library updated to show use of shared connection.
+
+#### HTTPS Client Library V1.1.0
+- Upload support with HTTP methods PUT and POST is now available in the HTTPS Client Library.
+- Demonstration code with PUT and POST methods are now available in demos/https. 
+
+#### SoftHSMv2 port for PKCS #11
+- A port for SoftHSMv2, a third-party open-source implementation of PKCS #11, has been provided for use with the Windows Simulator project for Amazon FreeRTOS.
+- The purpose of the SoftHSMv2 port is to allow ad hoc interoperability testing with an independent implementation of the PKCS #11 standard.
+
+#### New Board:Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
+- The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
+
+### Updates
+#### HTTP Parser
+- Add nodejs/http_parser as a submodule in place of copied-over files.
+
+#### Unity
+- Add ThrowTheSwitch/Unity as a submodule in place of copied-over files. 
+
+#### PKCS #11
+- Update the PKCS #11 third-party headers to be the latest from OASIS (version 2.40 Plus Errata 01).
+
+#### Bluetooth Low Energy
+- ESP32 board supports NIMBLE as the default underlying stack for Bluetooth Low Energy.
+- Contains bug fixes and enhancements in ESP NIMBLE stack.
+- Contains bug fixes in ESP Bluedroid stack.
+
+## 201908.00 08/26/2019
+
+### New Features
+#### New Board:Nuvoton NuMaker-IoT-M487
+- Nuvoton NuMaker-IoT-M487 is now qualified for Amazon FreeRTOS.
+- Disclaimer on RNG: The random number generation solution in this port is for demonstration purposes only. 
+
 #### FreeRTOS Kernel V10.2.1
 - Kernel version for Amazon FreeRTOS is updated to V10.2.1.
 - Add ARM Cortex-M23 (ARMv8-M) GCC/ARMclang and IAR ports.
 - Add support to automatically switch between 32-bit and 64-bit cores to RISC-V port.
+
+#### HTTPS Client Library V1.0.0
+- The HTTPS Client library for Amazon FreeRTOS supports the HTTP/1.1 protocol over TLS. 
+- The current request methods supported are GET and HEAD.
+- Examples demonstrate downloading a file from S3 using GET with a pre-signed URL.
 
 ### Updates
 #### PKCS #11
@@ -20,6 +63,9 @@
 
 ### Test Updates
 - Remove elliptic curve tests from "quarantine" test group and add them back to the TLS test group.
+
+#### AWS OTA Agent
+- OTA Callback changes for custom and secondary processor jobs. Modifying the OTA Agent to use callback structure instead of directly calling PAL functions. This allows users to pass in custom callbacks for the PAL functions.
 
 ## 201906.00 Major 06/17/2019
 ### Release Versioning
@@ -319,13 +365,13 @@ Applications calling into PKCS #11 functions directly (rather than indirectly vi
 - C_Initialize handles initialization of randomness in an effort to minimize entropy generation (or seed access) every time sessions are created and destroyed.  To protect random values, thread safety has been enabled in mbedTLS.
 - C_SignInit and C_VerifyInit utilize the key handle that is passed in, rather than the first key found in order to comply with the PKCS #11 standard
 - C_FindObject APIs no longer instantiate keys from the aws_clientcredential_keys.h header file if keys are not found. This removes the dependency of PKCS #11 on values that will be unique per-device (a transition step for enabling production-scale provisioning). Note that calling vDevModeKeyProvisioning() is now necessary to provision the device.
-- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see iot_pkcs11.h for pkcs11configLABEL_* defines to access labels, and iot_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
+- C_FindObject PKCS #11 objects can be looked up by CKA_LABEL, in order to provide a standard-compliant object lookup.  Note that pkcs11configFILE_NAME_* configurations have been removed from aws_pkcs11_config.h, see aws_pkcs11.h for pkcs11configLABEL_* defines to access labels, and aws_pkcs11_pal.c for pkcs11palFILE_NAME_* defines.
 - C_FindObject and C_GetAttributeValue accept different attribute arguments.
 - C_CreateObject requires DER encoded certificates and keys instead of PEM formatted and object attributes required for creating objects have changed.  Note that vDevModeKeyProvisioning() has been updated to supply required attributes and convert inputs from DER to PEM if necessary.
 - C_GenerateKeyPair now stores keys in non-volatile memory.
 - C_Finalize is no longer invoked by helper functions to prevent threads from interfering with each other's PKCS #11 instances.
 - Some error codes have been changes to better match the PKCS #11 standard.
-- iot_tls.c and PKCS #11 AFQP tests have updates to reflect these changes.
+- aws_tls.c and PKCS #11 AFQP tests have updates to reflect these changes.
     - mbedTLS-based PKCS #11 V1.0.5
     - TLS V1.1.3
 

@@ -28,11 +28,11 @@
 #include <stdbool.h>
 
 /* How long the MQTT library will wait for PINGRESPs or PUBACKs. */
-#define IOT_MQTT_RESPONSE_WAIT_MS            ( 10000 )
+#define IOT_MQTT_RESPONSE_WAIT_MS               ( 10000 )
 
 /* MQTT demo configuration. */
-#define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT    ( 10 )
-#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE     ( 2 )
+#define IOT_DEMO_MQTT_PUBLISH_BURST_COUNT       ( 10 )
+#define IOT_DEMO_MQTT_PUBLISH_BURST_SIZE        ( 2 )
 
 /* Shadow demo configuration. The demo publishes periodic Shadow updates and responds
  * to changing Shadows. */
@@ -51,10 +51,11 @@
 #define IOT_LOG_LEVEL_MQTT                      IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_SHADOW                IOT_LOG_INFO
 #define AWS_IOT_LOG_LEVEL_DEFENDER              IOT_LOG_INFO
+#define IOT_LOG_LEVEL_HTTPS                     IOT_LOG_INFO
 
 /* Platform thread stack size and priority. */
-#define IOT_THREAD_DEFAULT_STACK_SIZE    6000
-#define IOT_THREAD_DEFAULT_PRIORITY      5
+#define IOT_THREAD_DEFAULT_STACK_SIZE           6000
+#define IOT_THREAD_DEFAULT_PRIORITY             5
 
 /* This board supports MQTT-over-BLE, which uses a different serializer than normal
  * MQTT 3.1.1. Enable the serializer overrides of the MQTT library. */
@@ -63,13 +64,13 @@
 /* Provide additional serializer initialization functions. */
 extern bool IotBleMqtt_InitSerialize( void );
 extern void IotBleMqtt_CleanupSerialize( void );
-#define _IotMqtt_InitSerializeAdditional      IotBleMqtt_InitSerialize
-#define _IotMqtt_CleanupSerializeAdditional   IotBleMqtt_CleanupSerialize
+#define _IotMqtt_InitSerializeAdditional       IotBleMqtt_InitSerialize
+#define _IotMqtt_CleanupSerializeAdditional    IotBleMqtt_CleanupSerialize
 
 /* Provide a function to retrieve the serializer function pointers in the MQTT demo. */
 typedef struct IotMqttSerializer IotMqttSerializer_t;
 extern const IotMqttSerializer_t * demoGetMqttSerializer( void );
-#define IOT_DEMO_MQTT_SERIALIZER   demoGetMqttSerializer()
+#define IOT_DEMO_MQTT_SERIALIZER    demoGetMqttSerializer()
 
 /* Include the common configuration file for FreeRTOS. */
 #include "iot_config_common.h"

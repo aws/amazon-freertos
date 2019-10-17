@@ -1249,32 +1249,24 @@ WIFIReturnCode_t WIFI_Disconnect( void )
     xSemaphoreTake( _g_state.critical_section, portMAX_DELAY );
 
     /*
+     * early exit if already disconnected
+     */
+    if( _g_state.connected == false )
+    {
+        LOG_I( wifi, "%s: Already disconnected.\n", __FUNCTION__ );
+        xSemaphoreGive( _g_state.critical_section );
+        return eWiFiSuccess;
+    }
+    else
+    {
+        LOG_I( wifi, "%s: Connected. Proceeding to disconnect.\n", __FUNCTION__ );
+    }
+
+    /*
      * stop ip stack
      */
 
     _mtk_sta_ip_down( &_g_state );
-
-    /*
-     * early exit if already disconnected
-     */
-
-    if( wifi_connection_get_link_status( &link_status ) >= 0 )
-    {
-        if( WIFI_STATUS_LINK_DISCONNECTED == link_status )
-        {
-            LOG_I( wifi, "%s: link down\n", __FUNCTION__ );
-            xSemaphoreGive( _g_state.critical_section );
-            return eWiFiSuccess;
-        }
-        else
-        {
-            LOG_I( wifi, "%s: link up\n", __FUNCTION__ );
-        }
-    }
-    else
-    {
-        LOG_I( wifi, "%s: unable to get link status\n", __FUNCTION__ );
-    }
 
     /*
      * disconnect AP

@@ -1,5 +1,5 @@
 /*
- * FreeRTOS+TCP V2.0.11
+ * FreeRTOS+TCP V2.1.0
  * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -394,6 +394,12 @@ struct freertos_sockaddr xAddress;
 				pointer to the received buffer is located in the pvData member
 				of the received event structure. */
 				prvHandleEthernetPacket( ( NetworkBufferDescriptor_t * ) ( xReceivedEvent.pvData ) );
+				break;
+
+			case eNetworkTxEvent:
+				/* Send a network packet. The ownership will  be transferred to
+				the driver, which will release it after delivery. */
+				xNetworkInterfaceOutput( ( NetworkBufferDescriptor_t * ) ( xReceivedEvent.pvData ), pdTRUE );
 				break;
 
 			case eARPTimerEvent :

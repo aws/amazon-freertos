@@ -57,9 +57,19 @@
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
 		</link>
 		<link>
+			<name>freertos_kernel/include/StackMacros.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/StackMacros.h</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/include/atomic.h</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/croutine.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/freertos_kernel/include/croutine.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/deprecated_definitions.h</name>
@@ -1277,6 +1287,11 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
 		</link>
 		<link>
+			<name>vendors/renesas/boards/rx65n-rsk/ports/pkcs11/iot_pkcs11_pal.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</locationURI>
@@ -1287,9 +1302,9 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
-			<name>vendors/renesas/boards/rx65n-rsk/ports/pkcs11/iot_pkcs11_pal.c</name>
+			<name>libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</name>
 			<type>1</type>
-			<locationURI>AWS_IOT_MCU_ROOT/vendors/renesas/boards/rx65n-rsk/ports/pkcs11/iot_pkcs11_pal.c</locationURI>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
@@ -1477,6 +1492,16 @@
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/aws/shadow/include/aws_shadow.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/c_sdk/standard/https/src/iot_https_client.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/https/src/iot_https_client.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/c_sdk/standard/https/src/iot_https_utils.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/c_sdk/standard/https/src/iot_https_utils.c</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</locationURI>
@@ -1510,6 +1535,31 @@
 			<name>demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_download_sync.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/https/iot_demo_https_s3_download_sync.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_download_async.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/https/iot_demo_https_s3_download_async.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_upload_sync.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/https/iot_demo_https_s3_upload_sync.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_upload_async.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/https/iot_demo_https_s3_upload_async.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_common.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/demos/https/iot_demo_https_common.c</locationURI>
 		</link>
 		<link>
 			<name>demos/mqtt/iot_demo_mqtt.c</name>
@@ -2375,6 +2425,16 @@
 			<name>libraries/3rdparty/tinycbor/cborparser_dup_string.c</name>
 			<type>1</type>
 			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/http_parser/http_parser.h</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http_parser/http_parser.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/3rdparty/http_parser/http_parser.c</name>
+			<type>1</type>
+			<locationURI>AWS_IOT_MCU_ROOT/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS TLS V1.1.4
+ * Amazon FreeRTOS TLS V1.1.5
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,9 +38,11 @@
  * error codes, or codes from mbedTLS.
  */
 /**@{ */
-#define TLS_ERROR_HANDSHAKE_FAILED    ( -2001 )   /*!< Error in handshake. */
-#define TLS_ERROR_RNG                 ( -2002 )   /*!< Error in RNG. */
-#define TLS_ERROR_SIGN                ( -2003 )   /*!< Error in sign operation. */
+#define TLS_ERROR_HANDSHAKE_FAILED    ( -2001 ) /*!< Error in handshake. */
+#define TLS_ERROR_RNG                 ( -2002 ) /*!< Error in RNG. */
+#define TLS_ERROR_SIGN                ( -2003 ) /*!< Error in sign operation. */
+#define TLS_ERROR_NO_PRIVATE_KEY      ( -2004 ) /*!< Private key was not provisioned. */
+#define TLS_ERROR_NO_CERTIFICATE      ( -2005 ) /*!< Client certificate not provisioned. */
 
 /**@} */
 

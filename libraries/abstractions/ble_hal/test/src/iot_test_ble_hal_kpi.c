@@ -73,9 +73,9 @@ TEST( Full_BLE_KPI_Test, BLE_KPI_ReConnect )
 
     for( loop = 0; loop < TOTAL_NUMBER_RECONNECT; loop++ )
     {
-        prvStartAdvertisement();
-        prvWaitConnection( true );
-        prvWaitConnection( false );
+        IotTestBleHal_StartAdvertisement();
+        IotTestBleHal_WaitConnection( true );
+        IotTestBleHal_WaitConnection( false );
     }
 }
 
@@ -83,8 +83,8 @@ TEST( Full_BLE_KPI_Test, BLE_KPI_Teardown )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    prvBTUnregister();
-    prvBLEEnable( false );
+    IotTestBleHal_BTUnregister();
+    IotTestBleHal_BLEEnable( false );
 
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );

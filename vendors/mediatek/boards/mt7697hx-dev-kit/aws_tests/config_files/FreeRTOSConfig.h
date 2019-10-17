@@ -52,7 +52,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 /* Hook function related definitions. */
 #define configUSE_TICK_HOOK                        0
 #define configUSE_IDLE_HOOK                        0
-#define configUSE_MALLOC_FAILED_HOOK               0
+#define configUSE_MALLOC_FAILED_HOOK               1
 #define configCHECK_FOR_STACK_OVERFLOW             2      /* Not applicable to the Win32 port. */
 
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION    0

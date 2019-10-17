@@ -34,12 +34,14 @@
  * so agrees to indemnify Cypress against all liability.
  */
 
-/* The random number generation solution presented in this file is
- * for demonstration purposes only. It is not recommended to go into production with
- * the logic presented here. The current solution takes entropy from WLAN Firmware
- * generated random number and the CPU ticks.
- * For production development, it is recommended to use a source which will be
- * truly random in nature.
+/* For best security practice, it is recommended to utilize a random number
+ * generation solution that is truly randomized and conforms to the guidelines
+ * provided in the Amazon FreeRTOS Qualification Guide
+ * (https://docs.aws.amazon.com/freertos/latest/qualificationguide/afq-checklist.html).
+ * The random number generator method presented in this file by the silicon vendor
+ * is not truly random in nature. The current solution takes entropy from
+ * WLAN Firmware generated random number and the CPU ticks.
+ * Please contact the silicon vendor for details regarding the method implemented.
  */
 
 /* Amazon FreeRTOS Includes. */
@@ -61,10 +63,10 @@ extern uint32_t ulSeed;
 static uint32_t ulPrgnSeedDone = 0;
 #endif
 
-int mbedtls_hardware_poll( void * data,
-                           unsigned char * output,
-                           size_t len,
-                           size_t * olen )
+int lPortGetEntropyFromHardware( void * data,
+                                  unsigned char * output,
+                                  size_t len,
+                                  size_t * olen )
 {
 
 #ifdef WLAN_FIRMWARE_PRNG_SEED
@@ -98,6 +100,3 @@ int mbedtls_hardware_poll( void * data,
 #endif
     return 0;
 }
-
-
-

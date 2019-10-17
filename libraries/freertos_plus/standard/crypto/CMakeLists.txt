@@ -19,6 +19,7 @@ afr_module_include_dirs(
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     PRIVATE 3rdparty::mbedtls
+    PRIVATE AFR::pkcs11
 )
 
 # Crypto test

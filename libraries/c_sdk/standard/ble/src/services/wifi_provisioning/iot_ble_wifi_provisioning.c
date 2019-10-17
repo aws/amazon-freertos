@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -1411,6 +1411,7 @@ void _listNetworkTask( IotTaskPool_t taskPool,
     WIFINetworkProfile_t profile;
     uint16_t idx;
     WIFIReturnCode_t status;
+    uint32_t networks_found = 0;
 
     for( idx = 0; idx < wifiProvisioning.numNetworks; idx++ )
     {
@@ -1432,8 +1433,14 @@ void _listNetworkTask( IotTaskPool_t taskPool,
         {
             if( strlen( scanNetworks[ idx ].cSSID ) > 0 )
             {
+                networks_found++;
                 _sendScanNetwork( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, &scanNetworks[ idx ] );
             }
+        }
+
+        if( !networks_found )
+        {
+            _sendStatusResponse( IOT_BLE_WIFI_PROV_MSG_TYPE_LIST_NETWORK_RESP, status );
         }
     }
     else

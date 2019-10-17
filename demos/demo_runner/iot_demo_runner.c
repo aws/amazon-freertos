@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -70,6 +70,9 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
     #define DEMO_networkDisconnectedCallback    ( NULL )
 #endif
 
+#ifdef democonfigMEMORY_ANALYSIS
+    demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xDemoStackSize;
+#endif
 
 /*-----------------------------------------------------------*/
 
@@ -79,6 +82,11 @@ int DEMO_entryFUNCTION( bool awsIotMqttMode,
 void DEMO_RUNNER_RunDemos( void )
 {
     /* These demos are shared with the C SDK and perform their own initialization and cleanup. */
+
+    #ifdef democonfigMEMORY_ANALYSIS
+        xDemoStackSize = democonfigDEMO_STACKSIZE;
+    #endif
+
     static demoContext_t mqttDemoContext =
     {
         .networkTypes                = democonfigNETWORK_TYPES,

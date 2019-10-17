@@ -112,11 +112,9 @@ typedef struct P11ObjectList_t
 /* PKCS #11 Module Object */
 typedef struct P11Struct_t
 {
-    CK_BBOOL xIsInitialized;                     /* Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
-    mbedtls_ctr_drbg_context xMbedDrbgCtx;       /* CTR-DRBG context for PKCS #11 module - used to generate pseudo-random numbers. */
-    mbedtls_entropy_context xMbedEntropyContext; /* Entropy context for PKCS #11 module - used to collect entropy for RNG. */
-    P11ObjectList_t xObjectList;                 /* List of PKCS #11 objects that have been found/created since module initialization.
-                                                  * The array position indicates the "App Handle"  */
+    CK_BBOOL xIsInitialized;     /* Indicates whether PKCS #11 module has been initialized with a call to C_Initialize. */
+    P11ObjectList_t xObjectList; /* List of PKCS #11 objects that have been found/created since module initialization.
+                                  * The array position indicates the "App Handle"  */
 } P11Struct_t, * P11Context_t;
 
 /* The global PKCS #11 module object.
@@ -185,7 +183,7 @@ static CK_FUNCTION_LIST prvP11FunctionList =
     NULL, /*C_GetSlotInfo*/
     C_GetTokenInfo,
     NULL, /*C_GetMechanismList*/
-    NULL, /*C_GetMechansimInfo */
+    C_GetMechanismInfo,
     C_InitToken,
     NULL, /*C_InitPIN*/
     NULL, /*C_SetPIN*/
@@ -265,23 +263,7 @@ CK_RV prvMbedTLS_Initialize( void )
         memset( &xP11Context, 0, sizeof( xP11Context ) );
         xP11Context.xObjectList.xMutex = xSemaphoreCreateMutex();
 
-        CRYPTO_Init();
-        /* Initialize the entropy source and DRBG for the PKCS#11 module */
-        mbedtls_entropy_init( &xP11Context.xMbedEntropyContext );
-        mbedtls_ctr_drbg_init( &xP11Context.xMbedDrbgCtx );
-
-        if( 0 != mbedtls_ctr_drbg_seed( &xP11Context.xMbedDrbgCtx,
-                                        mbedtls_entropy_func,
-                                        &xP11Context.xMbedEntropyContext,
-                                        NULL,
-                                        0 ) )
-        {
-            xResult = CKR_FUNCTION_FAILED;
-        }
-        else
-        {
-            xP11Context.xIsInitialized = CK_TRUE;
-        }
+        xP11Context.xIsInitialized = CK_TRUE;
     }
 
     return xResult;
@@ -697,16 +679,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_Finalize )( CK_VOID_PTR pvReserved )
 
     if( xResult == CKR_OK )
     {
-        if( NULL != &xP11Context.xMbedEntropyContext )
-        {
-            mbedtls_entropy_free( &xP11Context.xMbedEntropyContext );
-        }
-
-        if( NULL != &xP11Context.xMbedDrbgCtx )
-        {
-            mbedtls_ctr_drbg_free( &xP11Context.xMbedDrbgCtx );
-        }
-
         vSemaphoreDelete( xP11Context.xObjectList.xMutex );
 
         xP11Context.xIsInitialized = CK_FALSE;
@@ -827,6 +799,53 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetTokenInfo )( CK_SLOT_ID slotID,
     return CKR_OK;
 }
 
+/**
+ * @brief This function obtains information about a particular
+ * mechanism possibly supported by a token.
+ *
+ *  \param[in]  xSlotID         This parameter is unused in this port.
+ *  \param[in]  type            The cryptographic capability for which support
+ *                              information is being queried.
+ *  \param[out] pInfo           Algorithm sizes and flags for the requested
+ *                              mechanism, if supported.
+ *
+ * @return CKR_OK if the mechanism is supported. Otherwise, CKR_MECHANISM_INVALID.
+ */
+CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
+                                                  CK_MECHANISM_TYPE type,
+                                                  CK_MECHANISM_INFO_PTR pInfo )
+{
+    CK_RV xResult = CKR_MECHANISM_INVALID;
+    struct CryptoMechanisms
+    {
+        CK_MECHANISM_TYPE xType;
+        CK_MECHANISM_INFO xInfo;
+    }
+    pxSupportedMechanisms[] =
+    {
+        { CKM_RSA_PKCS,        { 2048, 2048, CKF_SIGN              } },
+        { CKM_RSA_X_509,       { 2048, 2048, CKF_VERIFY            } },
+        { CKM_ECDSA,           { 256,  256,  CKF_SIGN | CKF_VERIFY } },
+        { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
+        { CKM_SHA256,          { 0,    0,    CKF_DIGEST            } }
+    };
+    uint32_t ulMech = 0;
+
+    /* Look for the requested mechanism in the above table. */
+    for( ; ulMech < sizeof( pxSupportedMechanisms ) / sizeof( pxSupportedMechanisms[ 0 ] ); ulMech++ )
+    {
+        if( pxSupportedMechanisms[ ulMech ].xType == type )
+        {
+            /* The mechanism is supported. Copy out the details and break
+             * out of the loop. */
+            memcpy( pInfo, &( pxSupportedMechanisms[ ulMech ].xInfo ), sizeof( CK_MECHANISM_INFO ) );
+            xResult = CKR_OK;
+            break;
+        }
+    }
+
+    return xResult;
+}
 
 /**
  * @brief This function is not implemented for this port.
@@ -1040,10 +1059,7 @@ CK_DECLARE_FUNCTION( CK_RV, C_CloseSession )( CK_SESSION_HANDLE xSession )
             vSemaphoreDelete( pxSession->xVerifyMutex );
         }
 
-        if( NULL != &pxSession->xSHA256Context )
-        {
-            mbedtls_sha256_free( &pxSession->xSHA256Context );
-        }
+        mbedtls_sha256_free( &pxSession->xSHA256Context );
 
         vPortFree( pxSession );
     }
@@ -1254,7 +1270,7 @@ CK_RV prvGetExistingKeyComponent( CK_OBJECT_HANDLE_PTR pxPalHandle,
 
     if( *pxPalHandle != CK_INVALID_HANDLE )
     {
-        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, &xDataLength, &xIsPrivate );
+        xResult = PKCS11_PAL_GetObjectValue( *pxPalHandle, &pucData, ( uint32_t * ) &xDataLength, &xIsPrivate );
 
         if( xResult == CKR_OK )
         {
@@ -1974,7 +1990,6 @@ CK_DECLARE_FUNCTION( CK_RV, C_CreateObject )( CK_SESSION_HANDLE xSession,
                                               CK_OBJECT_HANDLE_PTR pxObject )
 { /*lint !e9072 It's OK to have different parameter name. */
     CK_RV xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
-    P11SessionPtr_t pxSession = prvSessionPointerFromHandle( xSession );
     CK_OBJECT_CLASS xClass;
 
     if( ( NULL == pxTemplate ) ||
@@ -3050,8 +3065,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_Sign )( CK_SESSION_HANDLE xSession,
                                                       ulDataLen,
                                                       pxSignatureBuffer,
                                                       ( size_t * ) &xExpectedInputLength,
-                                                      mbedtls_ctr_drbg_random,
-                                                      &xP11Context.xMbedDrbgCtx );
+                                                      CRYPTO_GetRandomBytes,
+                                                      NULL );
 
                     if( lMbedTLSResult != CKR_OK )
                     {
@@ -3709,8 +3724,8 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     {
         if( 0 != mbedtls_ecp_gen_key( MBEDTLS_ECP_DP_SECP256R1,
                                       mbedtls_pk_ec( xCtx ),
-                                      mbedtls_ctr_drbg_random,
-                                      &xP11Context.xMbedDrbgCtx ) )
+                                      CRYPTO_GetRandomBytes,
+                                      NULL ) )
         {
             xResult = CKR_FUNCTION_FAILED;
         }
@@ -3770,6 +3785,32 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+
+/**
+ * @brief Obtain entropy data.
+ *
+ * For mbedTLS-based implementations, this is
+ * a wrapper of mbedtls_hardware_poll()
+ *
+ * @note Note that if the port using NVM seeding,
+ * lPortGetEntropyFromHardware() would need to map to
+ * mbedtls_nv_seed_poll() wrapper instead of
+ * mbedtls_hardware_poll() wrapper.
+ *
+ * @param[in] data      Unused in current implementation.
+ *                      Implementation should be able to
+ *                      accept NULL for this input.
+ * @param[out] output   Location that random bytes should be
+ *                      placed.
+ * @param[len] len      Number of bytes requested.
+ * @param[in/out] olen  Updated to contain the actual number of
+ *                      bytes returned.
+ */
+extern int lPortGetEntropyFromHardware( void * data,
+                                        unsigned char * output,
+                                        size_t len,
+                                        size_t * olen );
+
 /**
  * @brief Generate cryptographically random bytes.
  *
@@ -3787,8 +3828,13 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
                                                 CK_BYTE_PTR pucRandomData,
                                                 CK_ULONG ulRandomLen )
 {
+#define ENTROPY_MAX_LOOPS    256
+
     CK_RV xResult = CKR_OK;
-    int lMbedResult = 0;
+    int lResult = 0;
+    size_t olen = 0;
+    int lLoops = 0;
+    int totalBytes = 0;
 
     xResult = PKCS11_SESSION_VALID_AND_MODULE_INITIALIZED( xSession );
 
@@ -3800,13 +3846,34 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateRandom )( CK_SESSION_HANDLE xSession,
 
     if( xResult == CKR_OK )
     {
-        lMbedResult = mbedtls_ctr_drbg_random( &xP11Context.xMbedDrbgCtx, pucRandomData, ulRandomLen );
-
-        if( lMbedResult != 0 )
+        while( ( lLoops < ENTROPY_MAX_LOOPS ) && ( totalBytes < ulRandomLen ) )
         {
-            PKCS11_PRINT( ( "ERROR: DRBG failed %d \r\n", lMbedResult ) );
-            xResult = CKR_FUNCTION_FAILED;
+            lResult = lPortGetEntropyFromHardware( NULL,
+                                                   &pucRandomData[ totalBytes ],
+                                                   ulRandomLen - totalBytes,
+                                                   &olen );
+
+            if( lResult != 0 )
+            {
+                break;
+            }
+
+            totalBytes += olen;
+            lLoops++;
+
+            /* If no entropy was returned, give the hardware time
+             * to generate additional entropy. */
+            if( olen == 0 )
+            {
+                vTaskDelay( 1 );
+            }
         }
+    }
+
+    if( ( lResult != 0 ) || ( totalBytes != ulRandomLen ) )
+    {
+        PKCS11_PRINT( ( "ERROR: Failed to get entropy from hardware. Error %d, Bytes Generated %d, Bytes Requested %d\r\n ", lResult, olen, ulRandomLen ) );
+        xResult = CKR_FUNCTION_FAILED;
     }
 
     return xResult;

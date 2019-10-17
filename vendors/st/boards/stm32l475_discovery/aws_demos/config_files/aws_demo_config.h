@@ -36,6 +36,10 @@
  *          CONFIG_DEFENDER_DEMO_ENABLED
  *          CONFIG_POSIX_DEMO_ENABLED
  *          CONFIG_OTA_UPDATE_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 
@@ -47,7 +51,7 @@
 #define democonfigNETWORK_TYPES                           ( AWSIOT_NETWORK_TYPE_WIFI )
 
 #define democonfigSHADOW_DEMO_NUM_TASKS                   ( 2 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( configMINIMAL_STACK_SIZE * 4 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( 1024 )
 #define democonfigSHADOW_DEMO_TASK_PRIORITY               ( tskIDLE_PRIORITY + 5 )
 #define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 5 )
 
@@ -64,5 +68,17 @@
 /* Greengrass discovery example task parameters. */
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 22 )
 #define democonfigGREENGRASS_DISCOVERY_TASK_PRIORITY      ( tskIDLE_PRIORITY )
+
+#define democonfigMEMORY_ANALYSIS
+
+#ifdef democonfigMEMORY_ANALYSIS
+    #define demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
+    #define demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        xPortGetMinimumEverFreeHeapSize()
+    #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
+        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x )
+    #else
+        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    NULL
+    #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
+#endif /* democonfigMEMORY_ANALYSIS */
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

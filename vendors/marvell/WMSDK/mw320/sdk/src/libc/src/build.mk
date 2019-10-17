@@ -1,4 +1,4 @@
-# Copyright 2008-2017, Marvell International Ltd.
+# Copyright 2008-2019, Marvell International Ltd.
 
 libs-y += libc
 

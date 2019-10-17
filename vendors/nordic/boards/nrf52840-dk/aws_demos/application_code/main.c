@@ -57,9 +57,6 @@
 #include "app_uart.h"
 #include "queue.h"
 
-/* MQTT v4 include. */
-#include "iot_mqtt.h"
-
 #include "iot_ble.h"
 #include "iot_ble_numericComparison.h"
 #include "iot_network_manager_private.h"

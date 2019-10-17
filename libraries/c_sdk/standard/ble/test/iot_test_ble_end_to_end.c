@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,20 +43,23 @@
 
 /*-----------------------------------------------------------*/
 
-extern void IotTestNetwork_SelectNetworkType( uint16_t networkType );
+extern bool IotTestNetwork_SelectNetworkType( uint16_t networkType );
+static bool bBLEInitialized = pdFALSE;
 
 /**
  * @brief Declares and runs an MQTT system test.
  */
-#define RUN_MQTT_SYSTEM_TEST( name )                    \
-    extern void TEST_MQTT_System_ ## name ## _( void ); \
+#define RUN_MQTT_SYSTEM_TEST( name )                               \
+    extern void TEST_MQTT_System_ ## name ## _( void );            \
+    TEST_ASSERT_MESSAGE( bBLEInitialized, "BLE Not initialized" ); \
     TEST_MQTT_System_ ## name ## _();
 
 /**
  * @brief Declares and runs shadow system test.
  */
-#define RUN_SHADOW_SYSTEM_TEST( name )                    \
-    extern void TEST_Shadow_System_ ## name ## _( void ); \
+#define RUN_SHADOW_SYSTEM_TEST( name )                             \
+    extern void TEST_Shadow_System_ ## name ## _( void );          \
+    TEST_ASSERT_MESSAGE( bBLEInitialized, "BLE Not initialized" ); \
     TEST_Shadow_System_ ## name ## _();
 /*-----------------------------------------------------------*/
 
@@ -87,7 +90,7 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END_MQTT )
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END_MQTT )
 {
     /* For these tests, use the BLE network interface. */
-    IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
+    bBLEInitialized = IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS0 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_MQTT, SubscribePublishWaitQoS1 );
@@ -178,7 +181,7 @@ TEST_TEAR_DOWN( Full_BLE_END_TO_END_SHADOW )
 TEST_GROUP_RUNNER( Full_BLE_END_TO_END_SHADOW )
 {
     /* For these tests, use the BLE network interface. */
-    IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
+    bBLEInitialized = IotTestNetwork_SelectNetworkType( AWSIOT_NETWORK_TYPE_BLE );
 
     RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS0 );
     RUN_TEST_CASE( Full_BLE_END_TO_END_SHADOW, UpdateGetDeleteAsyncQoS1 );

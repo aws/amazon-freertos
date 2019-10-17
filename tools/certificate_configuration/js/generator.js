@@ -6,7 +6,42 @@ if (window.File && window.FileReader && window.FileList && window.Blob) {
     alert('Please use a web browser that supports HTML5 file APIs.');
 }
 
-function formatCredentialText(credentialText) {
+
+function formatCredentialTextForHTML(credentialText) {
+    // Remove whitespace at end of PEM file (to eliminate differences between input files)
+    credentialText = credentialText.trim();
+
+    // Replace any CR/LF pairs with a newline character.
+    credentialText = credentialText.replace(/\r\n/g, "\n");
+
+    // Add line endings, string quote, and line continuation, as well as html line breaks. (\n"\ <break>)
+    credentialText = credentialText.replace(/\n/g, "\\n\"\\<br>\n\"");
+
+    // Format the end of the last line with " (but no line continuation).
+    credentialText = credentialText + "\"\n";
+
+    return credentialText;
+}
+
+function generatePemTextToDisplay() {
+    var readerPemFile = new FileReader()
+
+    // Define a handler to create appropriate private key file text.
+    readerPemFile.onload = (function (e) {
+        pemCredentialText = e.target.result;
+
+        // Add C-language variable declaration plus EOL formatting.
+        pemCredentialText = "\"" + formatCredentialTextForHTML(pemCredentialText);
+
+        // Give the HTML a way to access the text to display.
+        document.getElementById("pemToDisplay").innerHTML = pemCredentialText;
+    });
+
+    //Start first async read - other calls are chained inline
+    readerPemFile.readAsText(pemInputFile.files[0]);
+}
+
+function formatCredentialTextForHeader(credentialText) {
     // Replace any CR/LF pairs with a newline character.
     credentialText = credentialText.replace(/\r\n/g, "\n");
 
@@ -32,7 +67,7 @@ function generateCertificateConfigurationHeader() {
 
         // Add C-language variable declaration plus EOL formatting.
         pemCertificateText = "#define keyCLIENT_CERTIFICATE_PEM \\\n" + "\"" +
-            formatCredentialText(pemCertificateText);
+            formatCredentialTextForHeader(pemCertificateText);
 
         // Because this is async, read next file inline.
         readerPrivateKey.readAsText(pemInputFilePrivateKey.files[0]);
@@ -44,7 +79,7 @@ function generateCertificateConfigurationHeader() {
 
         // Add C-language variable declaration plus EOL formatting.
         pemPrivateKeyText = "#define keyCLIENT_PRIVATE_KEY_PEM \\\n" + "\"" +
-            formatCredentialText(pemPrivateKeyText);
+            formatCredentialTextForHeader(pemPrivateKeyText);
 
         // Concatenate results for the final output.
         outputText = header_begin_text +

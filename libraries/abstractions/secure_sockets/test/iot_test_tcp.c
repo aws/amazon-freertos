@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.5
+ * Amazon FreeRTOS Secure Sockets V1.1.6
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -168,7 +168,7 @@ typedef struct
 } tcptestEchoClientsTaskParams_t;
 
 /* Number of time the test goes through all the modes. */
-#define tcptestMAX_LOOPS_ECHO_TEST            ( 4 * tcptestMAX_ECHO_TEST_MODES )
+#define tcptestMAX_LOOPS_ECHO_TEST            tcptestMAX_ECHO_TEST_MODES
 
 #define tcptestECHO_TEST_LOW_PRIORITY         tskIDLE_PRIORITY
 #define tcptestECHO_TEST_HIGH_PRIORITY        ( configMAX_PRIORITIES - 1 )
@@ -1348,7 +1348,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     }
     while( xResult >= 0 );
 
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
@@ -1371,7 +1371,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
      *  xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
      * }
      * while( xResult >= 0 );
-     * TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+     * TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
      */
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
@@ -1392,7 +1392,7 @@ static void prvSOCKETS_Shutdown( Server_t xConn )
     }
     while( xResult >= 0 );
 
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     xResult = prvCloseHelper( xSocket, &xSocketOpen );
     TEST_ASSERT_EQUAL_INT32_MESSAGE( SOCKETS_ERROR_NONE, xResult, "Socket failed to close" );
@@ -1437,9 +1437,9 @@ static void prvTestSOCKETS_Close( Server_t xConn )
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
     xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     /* Close a connected socket */
     xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
@@ -1453,9 +1453,9 @@ static void prvTestSOCKETS_Close( Server_t xConn )
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
     xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     /* Close a shutdown socket */
     xResult = prvConnectHelperWithRetry( &xSocket, xConn, xReceiveTimeOut, xSendTimeOut, &xSocketOpen );
@@ -1472,9 +1472,9 @@ static void prvTestSOCKETS_Close( Server_t xConn )
 
     /* Closed socket should not connect, send or receive */
     xResult = SOCKETS_Send( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
     xResult = SOCKETS_Recv( xSocket, &ucBuf, 1, 0 );
-    TEST_ASSERT_LESS_THAN_UINT32( 0, xResult );
+    TEST_ASSERT_LESS_THAN_INT32( 0, xResult );
 
     tcptestPRINTF( ( "%s passed\r\n", __FUNCTION__ ) );
 }

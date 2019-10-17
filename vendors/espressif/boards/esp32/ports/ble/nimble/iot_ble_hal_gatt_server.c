@@ -30,6 +30,7 @@
 
 #include <string.h>
 #include "FreeRTOS.h"
+#include "iot_ble_config.h"
 #include "host/ble_hs.h"
 #include "host/ble_gap.h"
 #include "services/gap/ble_svc_gap.h"
@@ -42,14 +43,11 @@
 #define APP_ID          0
 #define MAX_SERVICES    20
 
-
-static struct ble_gatt_access_ctxt g_ctxt;
 static struct ble_gatt_svc_def espServices[ MAX_SERVICES + 1 ];
 static BTService_t * afrServices[ MAX_SERVICES ];
 static uint16_t serviceCnt = 0;
 static SemaphoreHandle_t xSem;
 uint16_t gattOffset = 0;
-
 
 void prvGattGetSemaphore()
 {
@@ -70,7 +68,6 @@ void * pvPortCalloc( size_t xNum,
 
     return pvReturn;
 }
-
 
 BTGattServerCallbacks_t xGattServerCb;
 uint32_t ulGattServerIFhandle = 0;
@@ -341,6 +338,7 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
                                 void * arg )
 {
     struct ble_gap_conn_desc desc;
+    uint32_t trans_id;
     int rc = 0;
     bool need_rsp = 1;
     uint16_t out_len = 0;
@@ -353,14 +351,13 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
         case BLE_GATT_ACCESS_OP_READ_CHR:
         case BLE_GATT_ACCESS_OP_READ_DSC:
             ESP_LOGD( TAG, "In read for handle %d", attr_handle );
-            memcpy( &g_ctxt, ctxt, sizeof( g_ctxt ) );
 
             if( xGattServerCb.pxRequestReadCb != NULL )
             {
                 xGattServerCb.pxRequestReadCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0 );
+                prvGattGetSemaphore();
             }
 
-            prvGattGetSemaphore();
             break;
 
         case BLE_GATT_ACCESS_OP_WRITE_CHR:
@@ -373,19 +370,18 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
             }
 
             ESP_LOGD( TAG, "In write for handle %d and len %d", attr_handle, out_len );
-
+            trans_id = ( uint32_t ) ctxt;
             if( xGattServerCb.pxRequestWriteCb != NULL )
             {
-                memcpy( &g_ctxt, ctxt, sizeof( g_ctxt ) );
-
                 if( ( ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR ) && ( ctxt->chr->flags & BLE_GATT_CHR_F_WRITE_NO_RSP ) )
                 {
                     need_rsp = 0;
+                    trans_id = 0;
                 }
 
                 if( xGattServerCb.pxRequestWriteCb != NULL )
                 {
-                    xGattServerCb.pxRequestWriteCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0, out_len, need_rsp, 0, dst_buf );
+                    xGattServerCb.pxRequestWriteCb( conn_handle, trans_id, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0, out_len, need_rsp, 0, dst_buf );
                 }
 
                 if( need_rsp )
@@ -614,16 +610,6 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
     {
         ESP_LOGD( TAG, "Send Notifications" );
         xESPstatus = ble_gattc_notify_custom( usConnId, usAttributeHandle + gattOffset, om );
-
-        if( xGattServerCb.pxIndicationSentCb != NULL )
-        {
-            if( xESPstatus != 0 )
-            {
-                xStatus = eBTStatusFail;
-            }
-
-            xGattServerCb.pxIndicationSentCb( usConnId, xStatus );
-        }
     }
 
     if( xESPstatus != 0 )
@@ -636,28 +622,43 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
 
 /*-----------------------------------------------------------*/
 
+static bool prvValidGattRequest()
+{
+    if( uxSemaphoreGetCount( xSem ) == 0 )
+    {
+        return true;
+    }
+    return false;
+}
+
 BTStatus_t prvBTSendResponse( uint16_t usConnId,
                               uint32_t ulTransId,
                               BTStatus_t xStatus,
                               BTGattResponse_t * pxResponse )
 {
-    /*struct ble_gatt_access_ctxt *ctxt = ( struct ble_gatt_access_ctxt * )ulTransId; */
-    struct ble_gatt_access_ctxt * ctxt = &g_ctxt;
+    struct ble_gatt_access_ctxt *ctxt = ( struct ble_gatt_access_ctxt * )ulTransId;
 
     BTStatus_t xReturnStatus = eBTStatusSuccess;
 
-    if( ctxt && ( ( ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR ) || ( ctxt->op == BLE_GATT_ACCESS_OP_READ_DSC ) ) )
+    if( prvValidGattRequest() )
     {
-        /* Huge array allocate in the stack */
-        int rc = os_mbuf_append( ctxt->om, pxResponse->xAttrValue.pucValue, pxResponse->xAttrValue.xLen );
-
-        if( rc != 0 )
+        if( ctxt && ( ( ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR ) || ( ctxt->op == BLE_GATT_ACCESS_OP_READ_DSC ) ) )
         {
-            xReturnStatus = eBTStatusFail;
-        }
-    }
+            /* Huge array allocate in the stack */
+            int rc = os_mbuf_append( ctxt->om, pxResponse->xAttrValue.pucValue, pxResponse->xAttrValue.xLen );
 
-    xSemaphoreGive( xSem );
+            if( rc != 0 )
+            {
+                xReturnStatus = eBTStatusFail;
+            }
+        }
+        xSemaphoreGive( xSem );
+    }
+    else
+    {
+        xStatus = eBTStatusFail;
+        xReturnStatus = eBTStatusFail;
+    }
 
     if( xGattServerCb.pxResponseConfirmationCb != NULL )
     {
@@ -888,6 +889,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     pCharacteristics[ charCount ].arg = ( void * ) pxService;
                     pCharacteristics[ charCount ].access_cb = prvGATTCharAccessCb;
                     pCharacteristics[ charCount ].flags = prvAFRToESPCharPerm( pxService->pxBLEAttributes[ index ].xCharacteristic.xProperties, pxService->pxBLEAttributes[ index ].xCharacteristic.xPermissions );
+                    pCharacteristics[ charCount ].min_key_size = IOT_BLE_ENCRYPT_KEY_SIZE_MIN;
 
                     /* Allocate memory for descriptors. */
                     pCharacteristics[ charCount ].descriptors = pvPortCalloc( prvCountDescriptor( pxService, index + 1 ) + 1, sizeof( struct ble_gatt_dsc_def ) );
@@ -933,6 +935,7 @@ BTStatus_t prvAddServiceBlob( uint8_t ucServerIf,
                     pDescriptors->uuid = uuid;
                     pDescriptors->arg = ( void * ) pxService;
                     pDescriptors->access_cb = prvGATTCharAccessCb;
+                    pDescriptors->min_key_size  = IOT_BLE_ENCRYPT_KEY_SIZE_MIN;
                     pDescriptors->att_flags = prvAFRToESPDescPerm( pxService->pxBLEAttributes[ index ].xCharacteristicDescr.xPermissions );
 
                     dscrCount++;

@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE HAL V1.0.0
+ * Amazon FreeRTOS BLE HAL V2.0.0
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -47,7 +47,7 @@
 /**
  * @brief  Incompatible API changes without backward compatibility.
  */
-#define btMAJOR_VERSION    2
+#define btMAJOR_VERSION    3
 
 /**
  * @brief Add new functionality with backward compatibility.
@@ -57,7 +57,7 @@
 /**
  * @brief Make changes in the API with backward compatibility.
  */
-#define btPATCH_VERSION    1
+#define btPATCH_VERSION    0
 
 /**
  * @brief  Help functions to convert version to string.
@@ -521,7 +521,6 @@ typedef struct
     BTPinRequestCallback_t pxPinRequestCb;
     BTSspRequestCallback_t pxSspRequestCb;
     BTPairingStateChangedCallback_t pxPairingStateChangedCb;
-    BTBondedCallback_t pxBondedCb;
     BTDutModeRecvCallback_t pxDutModeRecvCb;
     BTLeTestModeCallback_t pxleTestModeCb;
     BTEnergyInfoCallback_t pxEnergyInfoCb;

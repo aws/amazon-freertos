@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,9 +41,11 @@
 #include "iot_init.h"
 
 /* Remove dependency to MQTT */
-#define MQTT_DEMO_TYPE_ENABLED    ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
+#if ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
+    #define MQTT_DEMO_TYPE_ENABLED
+#endif
 
-#if MQTT_DEMO_TYPE_ENABLED
+#if defined( MQTT_DEMO_TYPE_ENABLED )
     #include "iot_mqtt.h"
 #endif
 
@@ -55,7 +57,11 @@ static IotSemaphore_t demoNetworkSemaphore;
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
-#if MQTT_DEMO_TYPE_ENABLED
+#ifdef democonfigMEMORY_ANALYSIS
+    extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xDemoStackSize;
+#endif
+
+#if defined( MQTT_DEMO_TYPE_ENABLED )
     #if BLE_ENABLED
         extern const IotMqttSerializer_t IotBleMqttSerializer;
     #endif
@@ -76,7 +82,8 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
         return ret;
     }
-#endif /* if MQTT_DEMO_TYPE_ENABLED */
+#endif /* if defined( MQTT_DEMO_TYPE_ENABLED ) */
+
 /*-----------------------------------------------------------*/
 
 static uint32_t _getConnectedNetworkForDemo( demoContext_t * pDemoContext )
@@ -111,7 +118,6 @@ static uint32_t _waitForDemoNetworkConnection( demoContext_t * pDemoContext )
 
     return _getConnectedNetworkForDemo( pDemoContext );
 }
-
 
 /*-----------------------------------------------------------*/
 
@@ -170,6 +176,7 @@ static void _onNetworkStateChangeCallback( uint32_t network,
     }
 }
 
+/*-----------------------------------------------------------*/
 
 /**
  * @brief Initialize the common libraries, Mqtt library and network manager.
@@ -269,11 +276,14 @@ static int _initialize( demoContext_t * pContext )
     return status;
 }
 
+/*-----------------------------------------------------------*/
+
 /**
  * @brief Clean up the common libraries and the MQTT library.
  */
 static void _cleanup( void )
 {
+    AwsIotNetworkManager_DisableNetwork( configENABLED_NETWORKS );
     /* Remove network manager subscription */
     AwsIotNetworkManager_RemoveSubscription( subscription );
     IotSemaphore_Destroy( &demoNetworkSemaphore );
@@ -281,6 +291,7 @@ static void _cleanup( void )
 }
 
 /*-----------------------------------------------------------*/
+
 void runDemoTask( void * pArgument )
 {
     /* On Amazon FreeRTOS, credentials and server info are defined in a header
@@ -290,6 +301,24 @@ void runDemoTask( void * pArgument )
     const IotNetworkInterface_t * pNetworkInterface = NULL;
     void * pConnectionParams = NULL, * pCredentials = NULL;
     int status;
+
+    #ifdef INSERT_DELAY_BEFORE_DEMO
+        {
+            /* DO NOT EDIT - The test framework relies on this delay to ensure that
+             * the "STARTING DEMO" tag below is not missed while the framework opens
+             * the serial port for reading output.*/
+            vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
+        }
+    #endif /* INSERT_DELAY_BEFORE_DEMO */
+
+    #ifdef democonfigMEMORY_ANALYSIS
+        demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark = 0;
+        xBeforeDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+
+        size_t xBeforeDemoHeapSize, xAfterDemoHeapSize = 0;
+        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+    #endif /* democonfigMEMORY_ANALYSIS */
+
 
     /* DO NOT EDIT - This demo start marker is used in the test framework to
      * determine the start of a demo. */
@@ -331,6 +360,13 @@ void runDemoTask( void * pArgument )
         IotLogError( "Failed to initialize the demo. exiting..." );
     }
 
+    #ifdef democonfigMEMORY_ANALYSIS
+        xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+        IotLogInfo( "Demo Memory Analysis Heap Total: %u Minimum heap size ever before running demo: %u after running demo: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
+        xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
+    #endif /* democonfigMEMORY_ANALYSIS */
+
     /* DO NOT EDIT - This demo end marker is used in the test framework to
      * determine the end of a demo. */
     IotLogInfo( "-------DEMO FINISHED-------\n" );
@@ -364,6 +400,7 @@ void runDemoTask( void * pArgument )
     }
 
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -386,6 +423,7 @@ void vApplicationMallocFailedHook()
     {
     }
 }
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -413,3 +451,5 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
     {
     }
 }
+
+/*-----------------------------------------------------------*/

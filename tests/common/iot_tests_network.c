@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -207,8 +207,10 @@ const IotNetworkInterface_t * IotTestNetwork_GetNetworkInterface( void )
 
 /*-----------------------------------------------------------*/
 
-void IotTestNetwork_SelectNetworkType( uint16_t networkType )
+bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
 {
+    bool bInitializeSucceeded = pdFALSE;
+
     switch( networkType )
     {
         #if ( BLE_SUPPORTED == 1 )
@@ -216,13 +218,14 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
 
                 if( bleEnabled == false )
                 {
-                    bleEnabled = true;
-                    _BLEEnable();
+                    bleEnabled = pdTRUE;
+                    bInitializeSucceeded = _BLEEnable();
                 }
                 break;
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
             case AWSIOT_NETWORK_TYPE_WIFI:
+                bInitializeSucceeded = pdTRUE;
                 break;
         #endif
         default:
@@ -230,6 +233,7 @@ void IotTestNetwork_SelectNetworkType( uint16_t networkType )
     }
 
     _IotTestNetworkType = networkType;
+    return bInitializeSucceeded;
 }
 
 /*-----------------------------------------------------------*/

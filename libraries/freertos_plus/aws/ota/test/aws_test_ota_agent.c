@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.2
+ * Amazon FreeRTOS OTA V1.0.3
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -171,7 +171,11 @@ TEST_SETUP( Full_OTA_AGENT )
 TEST_TEAR_DOWN( Full_OTA_AGENT )
 {
     /* Disconnect from the MQTT broker. */
-    IotMqtt_Disconnect( xMQTTClientHandle, 0 );
+    /* This must be protected against a Null xMQTTClientHandle if setup failed, for example due to an intermittent network connection */
+    if( xMQTTClientHandle != NULL )
+    {
+        IotMqtt_Disconnect( xMQTTClientHandle, 0 );
+    }
 
     xMQTTClientHandle = NULL;
     IotMqtt_Cleanup();

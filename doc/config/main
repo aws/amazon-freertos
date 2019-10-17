@@ -25,6 +25,7 @@ AUTOLINK_SUPPORT = NO
 TAGFILES = doc/output/logging.tag=../logging \
            doc/output/platform.tag=../platform \
            doc/output/mqtt.tag=../mqtt \
+           doc/output/https.tag=../https \
            doc/output/posix.tag=../posix \
            doc/output/posix.tag=../atomic \
            doc/output/shadow.tag=../shadow

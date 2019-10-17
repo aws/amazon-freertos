@@ -124,7 +124,9 @@ void vConfigureTimerForRunTimeStats( void );
 /* Assert call defined for debug builds. */
 extern void vAssertCalled( const char * pcFile,
                            uint32_t ulLine );
+#ifndef configASSERT
 #define configASSERT( x )    if( ( x ) == 0 ) vAssertCalled( __FILE__, __LINE__ )
+#endif
 
 /* The function that implements FreeRTOS printf style output, and the macro
  * that maps the configPRINTF() macros to that function. */

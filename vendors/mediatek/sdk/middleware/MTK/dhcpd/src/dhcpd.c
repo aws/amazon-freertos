@@ -1281,11 +1281,11 @@ void dhcpd_stop(void)
     dhcpd_mutex_lock();
     if (dhcpd_running == 1) {
         dhcpd_running = 0;
-        vTaskDelete(dhcpd_task_handle);
-        dhcpd_task_handle=0;
         wifi_connection_unregister_event_notifier(WIFI_EVENT_IOT_DISCONNECTED, dhcpd_wifi_api_rx_event_handler);
         close(dhcpd_socket);
         dhcpd_socket = -1;
+        vTaskDelete(dhcpd_task_handle);
+        dhcpd_task_handle=0;
 
 		dhcpd_release_alloc_info_lists();
 

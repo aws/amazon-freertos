@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,8 +36,15 @@
 /* Defender agent's status, initialized with eDefenderRepInit. */
 static DefenderReportStatus_t _status = eDefenderRepInit;
 
-static IotNetworkServerInfo_t _AWS_IOT_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static IotNetworkServerInfo_t _serverInfo = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
+static IotNetworkCredentials_t _credential = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+static bool _mqttConnectionStarted = false;
+
+/*-----------------------------------------------------------*/
+
+static IotMqttError_t _startMqttConnection( void );
+static void _stopMqttConnection( void );
 
 /*-----------------------------------------------------------*/
 
@@ -141,35 +148,40 @@ DefenderErr_t DEFENDER_ConnectionTimeoutSet( uint32_t ulTimeoutMs )
 DefenderErr_t DEFENDER_Start( void )
 {
     /* Register an internal callback. */
-    const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .param1 = NULL };
-
+    const AwsIotDefenderCallback_t callback = { .function = _defenderCallback, .pCallbackContext = NULL };
+    DefenderErr_t defError = eDefenderErrSuccess;
     AwsIotDefenderStartInfo_t startInfo = AWS_IOT_DEFENDER_START_INFO_INITIALIZER;
+    IotMqttError_t mqttError = IOT_MQTT_SUCCESS;
 
-    /* Set network information. */
-    startInfo.mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
-    startInfo.mqttNetworkInfo.createNetworkConnection = true;
-    startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo = &_AWS_IOT_SERVER_INFO;
-    startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
-
-    /* Only set ALPN protocol if the connected port is 443. */
-    if( ( ( IotNetworkServerInfo_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
+    if( _serverInfo.port != 443 )
     {
-        ( ( IotNetworkCredentials_t * ) ( startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
+        _credential.pAlpnProtos = NULL;
     }
 
-    /* Set network interface. */
-    startInfo.mqttNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+    /* Set network information. */
+    startInfo.mqttConnection = _mqttConnection;
+    startInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+    startInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
 
-    /* Set MQTT connection information. */
-    startInfo.mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    startInfo.mqttConnectionInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
-    startInfo.mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+    /* Start MQTT connection */
+    mqttError = _startMqttConnection();
 
-    /* Set Defender callback. */
-    startInfo.callback = callback;
+    if( mqttError == IOT_MQTT_SUCCESS )
+    {
+        startInfo.mqttConnection = _mqttConnection;
 
-    /* Invoke defender start API. */
-    return _toDefenderErr( AwsIotDefender_Start( &startInfo ) );
+        /* Set Defender callback. */
+        startInfo.callback = callback;
+
+        /* Invoke defender start API. */
+        defError = _toDefenderErr( AwsIotDefender_Start( &startInfo ) );
+    }
+    else
+    {
+        defError = eDefenderErrOther;
+    }
+
+    return defError;
 }
 
 /*-----------------------------------------------------------*/
@@ -177,6 +189,7 @@ DefenderErr_t DEFENDER_Start( void )
 DefenderErr_t DEFENDER_Stop( void )
 {
     AwsIotDefender_Stop();
+    _stopMqttConnection();
 
     /* No failure cases. */
     return eDefenderErrSuccess;
@@ -263,4 +276,51 @@ char const * DEFENDER_ReportStatusAsString( DefenderReportStatus_t eStatusNum )
     }
 
     return "Invalid value";
+}
+
+static IotMqttError_t _startMqttConnection( void )
+{
+    IotMqttError_t mqttError = IOT_MQTT_SUCCESS;
+    IotMqttNetworkInfo_t mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
+    IotMqttConnectInfo_t mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
+
+    if( !_mqttConnectionStarted )
+    {
+        mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
+        mqttNetworkInfo.createNetworkConnection = true;
+        mqttNetworkInfo.u.setup.pNetworkServerInfo = &_serverInfo;
+        mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_credential;
+
+        mqttNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+
+        mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
+
+        /* Set MQTT connection information. */
+        mqttConnectionInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
+        mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+
+        mqttError = IotMqtt_Connect( &mqttNetworkInfo,
+                                     &mqttConnectionInfo,
+                                     1000,
+                                     &_mqttConnection );
+
+        if( mqttError == IOT_MQTT_SUCCESS )
+        {
+            _mqttConnectionStarted = true;
+        }
+    }
+
+    return mqttError;
+}
+
+/*-----------------------------------------------------------*/
+
+static void _stopMqttConnection( void )
+{
+    if( _mqttConnectionStarted )
+    {
+        IotMqtt_Disconnect( _mqttConnection, false );
+        _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+        _mqttConnectionStarted = false;
+    }
 }

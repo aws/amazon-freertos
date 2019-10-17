@@ -165,7 +165,7 @@ check-lxdialog  := $(SRCDIR)/lxdialog/check-lxdialog.sh
 # Use recursively expanded variables so we do not call gcc unless
 # we really need to do so. (Do not call gcc as part of make mrproper)
 CFLAGS += $(shell $(CONFIG_SHELL) $(check-lxdialog) -ccflags) \
-                    -DLOCALE -MD
+                    -DLOCALE -MMD -MP
 
 %.o: $(SRCDIR)/%.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
@@ -334,7 +334,7 @@ conf-idf: $(conf-objs)
 zconf.tab.c: zconf.lex.c
 
 zconf.lex.c: $(SRCDIR)/zconf.l
-	flex -L -P zconf -o zconf.lex.c $<
+	flex -L -Pzconf -ozconf.lex.c $<
 
 zconf.hash.c: $(SRCDIR)/zconf.gperf
 # strip CRs on Windows systems where gperf will otherwise barf on them

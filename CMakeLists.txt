@@ -6,8 +6,8 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 project(amazon-freertos)
-set(PROJECT_VERSION "201906.00 Major")
-set(PROJECT_VERSION_MAJOR "201906")
+set(PROJECT_VERSION "201908.00")
+set(PROJECT_VERSION_MAJOR "201908")
 set(PROJECT_VERSION_MINOR "00")
 
 # Import global configurations.
@@ -44,11 +44,16 @@ elseif(DEFINED AFR_MANIFEST_BOARD_DIR)
 else()
     message(FATAL_ERROR "Could not import board CMakeLists.txt.")
 endif()
-add_subdirectory("${AFR_BOARD_PATH}")
+# Use include here because we need portable layer targets defined by vendor to be at
+# the same directory level as our library components.
+include("${AFR_BOARD_PATH}/CMakeLists.txt")
 
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS modules
 # -------------------------------------------------------------------------------------------------
+# Do not prefix the output library file.
+set(CMAKE_STATIC_LIBRARY_PREFIX "")
+
 # Initialize all modules.
 add_subdirectory("libraries")
 add_subdirectory("demos")

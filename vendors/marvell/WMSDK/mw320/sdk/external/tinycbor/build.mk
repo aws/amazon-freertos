@@ -1,12 +1,12 @@
-# Copyright (C) 2008-2017, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 
 libs-y += libawstinycbor
 
 libawstinycbor-objs-y := \
-		../../../../../../../tinycbor/cborencoder.c \
-		../../../../../../../tinycbor/cborparser.c \
-		../../../../../../../tinycbor/cborencoder_close_container_checked.c
+		../../../../../../../libraries/3rdparty/tinycbor/cborencoder.c \
+		../../../../../../../libraries/3rdparty/tinycbor/cborparser.c \
+		../../../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c
 
 libawsjsmn-supported-toolchain-y := arm_gcc iar
 

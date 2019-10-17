@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.5
+ * Amazon FreeRTOS Secure Sockets V1.1.6
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -159,7 +159,7 @@ int32_t SOCKETS_Connect( Socket_t xSocket,
     TLSParams_t xTLSParams = { 0 };
     struct freertos_sockaddr xTempAddress = { 0 };
 
-    if( ( pxContext != SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) )
+    if( ( pxContext != ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET ) && ( pxAddress != NULL ) )
     {
         /* A connection was attempted. If this function fails, then the socket is invalid and the user
          * must call SOCKETS_Close(), on this socket, and SOCKETS_Socket() to get a new socket. */
@@ -509,7 +509,7 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
         {
             /* Need to close socket. */
             ( void ) FreeRTOS_closesocket( xSocket );
-            pxContext = SOCKETS_INVALID_SOCKET;
+            pxContext = ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET;
         }
         else
         {
@@ -519,10 +519,10 @@ Socket_t SOCKETS_Socket( int32_t lDomain,
     }
     else
     {
-        pxContext = SOCKETS_INVALID_SOCKET;
+        pxContext = ( SSOCKETContextPtr_t ) SOCKETS_INVALID_SOCKET;
     }
 
-    return pxContext;
+    return ( Socket_t ) pxContext;
 }
 /*-----------------------------------------------------------*/
 
@@ -635,32 +635,20 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 uint32_t ulRand( void )
 {
     CK_RV xResult = 0;
-    SemaphoreHandle_t xSessionLock = NULL;
-    CK_SESSION_HANDLE xPkcs11Session = 0;
-    CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
+
     uint32_t ulRandomValue = 0;
 
-    xResult = prvSocketsGetCryptoSession( &xSessionLock,
-                                          &xPkcs11Session,
-                                          &pxPkcs11FunctionList );
-
-    if( 0 == xResult )
-    {
-        /* Request a sequence of cryptographically random byte values using
-         * PKCS#11. */
-        xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
-                                                          ( CK_BYTE_PTR ) &ulRandomValue,
-                                                          sizeof( ulRandomValue ) );
-    }
+    xResult = CRYPTO_GetRandomBytes( NULL, &ulRandomValue, sizeof( ulRandomValue ) );
 
     /* Check if any of the API calls failed. */
-    if( 0 != xResult )
+    if( CKR_OK != xResult )
     {
         ulRandomValue = 0;
     }
 
     return ulRandomValue;
 }
+
 /*-----------------------------------------------------------*/
 
 /**
@@ -695,9 +683,7 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
         if( CK_FALSE == xKeyIsInitialized )
         {
             /* One-time initialization, per boot, of the random seed. */
-            xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
-                                                              ( CK_BYTE_PTR ) &ullKey,
-                                                              sizeof( ullKey ) );
+            xResult = CRYPTO_GetRandomBytes( NULL, &ullKey, sizeof( ullKey ) );
 
             if( xResult == CKR_OK )
             {

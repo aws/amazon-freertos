@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -56,23 +56,23 @@
 #include "platform/iot_metrics.h"
 
 /* Total time to wait for a state to be true. */
-#define _WAIT_STATE_TOTAL_SECONDS    15
+#define WAIT_STATE_TOTAL_SECONDS    ( ( uint32_t ) 15 )
 
 /* Time interval for defender agent to publish metrics. It will be throttled if too frequent. */
 /* TODO: if we can change "thingname" in each test, this can be lowered. */
-#define _DEFENDER_PUBLISH_INTERVAL_SECONDS    20
+#define DEFENDER_PUBLISH_INTERVAL_SECONDS    ( ( uint32_t ) 20 )
 
 /* Estimated max size of message payload received in MQTT callback. */
-#define _PAYLOAD_MAX_SIZE                     200
+#define PAYLOAD_MAX_SIZE                     ( ( uint32_t ) 200 )
 
 /* Estimated max size of metrics report defender published. */
-#define _METRICS_MAX_SIZE                     200
+#define METRICS_MAX_SIZE                     ( ( uint32_t ) 200 )
 
 /* Max size of address: IP + port. */
-#define _MAX_ADDRESS_LENGTH                   25
+#define MAX_ADDRESS_LENGTH                   ( ( uint32_t ) 25 )
 
 /* Use a big number to represent no event happened in defender. */
-#define _NO_EVENT                             10000
+#define NO_EVENT                             ( ( AwsIotDefenderEventType_t ) 10000 )
 
 /* Define a decoder based on chosen format. */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
@@ -90,17 +90,17 @@ static const uint32_t _ECHO_SERVER_IP = SOCKETS_inet_addr_quick( tcptestECHO_SER
                                                                  tcptestECHO_SERVER_ADDR2,
                                                                  tcptestECHO_SERVER_ADDR3 );
 
-static char _ECHO_SERVER_ADDRESS[ _MAX_ADDRESS_LENGTH ];
+static char _ECHO_SERVER_ADDRESS[ MAX_ADDRESS_LENGTH ];
 
-static const AwsIotDefenderCallback_t _EMPTY_CALLBACK = { .function = NULL, .param1 = NULL };
-
-static IotNetworkServerInfo_t _DEFENDER_SERVER_INFO = AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-static IotNetworkCredentials_t _AWS_IOT_CREDENTIALS = AWS_IOT_NETWORK_CREDENTIALS_AFR_INITIALIZER;
+static const AwsIotDefenderCallback_t _emptyCallback = { .function = NULL, .pCallbackContext = NULL };
+static IotNetworkServerInfo_t _serverInfo = IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
+static IotNetworkCredentials_t _credential = IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER;
+static IotMqttConnection_t _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
 /*------------------ global variables -----------------------------*/
 
-static uint8_t _payloadBuffer[ _PAYLOAD_MAX_SIZE ];
-static uint8_t _metricsBuffer[ _METRICS_MAX_SIZE ];
+static uint8_t _payloadBuffer[ PAYLOAD_MAX_SIZE ];
+static uint8_t _metricsBuffer[ METRICS_MAX_SIZE ];
 
 static AwsIotDefenderCallback_t _testCallback;
 
@@ -117,6 +117,8 @@ static AwsIotDefenderCallbackInfo_t _callbackInfo;
 static IotSerializerDecoderObject_t _decoderObject;
 static IotSerializerDecoderObject_t _metricsObject;
 
+static bool _mqttConnectionStarted = false;
+static bool _mockedMqttConnection = false;
 /*------------------ Functions -----------------------------*/
 
 /* Copy data from MQTT callback to local buffer. */
@@ -138,10 +140,11 @@ static void _verifyMetricsCommon();
 static void _verifyTcpConnections( int total,
                                    ... );
 
-/* Indicate this test doesn't actually publish report. */
-static void _publishMetricsNotNeeded();
-
 static void _resetCalbackInfo();
+
+static IotMqttError_t _startMqttConnection( void );
+static void _stopMqttConnection( void );
+
 
 static char * _getIotAddress();
 
@@ -155,8 +158,25 @@ TEST_SETUP( Full_DEFENDER )
     SOCKETS_inet_ntoa( _ECHO_SERVER_IP, _ECHO_SERVER_ADDRESS );
     sprintf( _ECHO_SERVER_ADDRESS, "%s:%d", _ECHO_SERVER_ADDRESS, tcptestECHO_PORT );
 
-    TEST_ASSERT_EQUAL( true, IotSdk_Init() );
-    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
+    if( IotSdk_Init() == false )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize SDK." );
+    }
+
+    if( IotTestNetwork_Init() != IOT_NETWORK_SUCCESS )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize network stack." );
+    }
+
+    if( IotMqtt_Init() != IOT_MQTT_SUCCESS )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize MQTT." );
+    }
+
+    if( IotMetrics_Init() == false )
+    {
+        TEST_FAIL_MESSAGE( "Failed to initialize metrics." );
+    }
 
     /* Create a binary semaphore with initial value 0. */
     if( !IotSemaphore_Create( &_callbackInfoSem, 0, 1 ) )
@@ -166,38 +186,35 @@ TEST_SETUP( Full_DEFENDER )
 
     _resetCalbackInfo();
 
+    _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+
     _decoderObject = ( IotSerializerDecoderObject_t ) IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
     _metricsObject = ( IotSerializerDecoderObject_t ) IOT_SERIALIZER_DECODER_OBJECT_INITIALIZER;
 
     /* Reset test callback. */
     _testCallback = ( AwsIotDefenderCallback_t ) {
-        .function = _copyDataCallbackFunction, .param1 = NULL
+        .function = _copyDataCallbackFunction, .pCallbackContext = NULL
     };
 
-    /* Reset server info. */
-    _DEFENDER_SERVER_INFO = ( IotNetworkServerInfo_t ) AWS_IOT_NETWORK_SERVER_INFO_AFR_INITIALIZER;
-
-    /* Set network information. */
-    _startInfo.mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
-    _startInfo.mqttNetworkInfo.createNetworkConnection = true;
-    _startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo = &_DEFENDER_SERVER_INFO;
-    _startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_AWS_IOT_CREDENTIALS;
-
-    /* Only set ALPN protocol if the connected port is 443. */
-    if( ( ( IotNetworkServerInfo_t * ) ( _startInfo.mqttNetworkInfo.u.setup.pNetworkServerInfo ) )->port != 443 )
+    /* By default IOT_TEST_NETWORK_CREDENTIALS_INITIALIZER enables ALPN. ALPN
+     * must be used with port 443; disable ALPN if another port is being used. */
+    if( _serverInfo.port != 443 )
     {
-        ( ( IotNetworkCredentials_t * ) ( _startInfo.mqttNetworkInfo.u.setup.pNetworkCredentialInfo ) )->pAlpnProtos = NULL;
+        _credential.pAlpnProtos = NULL;
     }
 
-    /* Set network interface. */
-    _startInfo.mqttNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+    /* Reset server info. */
+    _serverInfo = ( IotNetworkServerInfo_t ) IOT_TEST_NETWORK_SERVER_INFO_INITIALIZER;
 
-    /* Set MQTT connection information. */
-    _startInfo.mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
-    _startInfo.mqttConnectionInfo.pClientIdentifier = clientcredentialIOT_THING_NAME;
-    _startInfo.mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( clientcredentialIOT_THING_NAME );
+    /* Set fields of start info. */
+    _startInfo.pClientIdentifier = AWS_IOT_TEST_SHADOW_THING_NAME;
+    _startInfo.clientIdentifierLength = ( uint16_t ) strlen( AWS_IOT_TEST_SHADOW_THING_NAME );
+    _startInfo.callback = _emptyCallback;
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _startMqttConnection() );
+    _startInfo.mqttConnection = _mqttConnection;
 
-    _startInfo.callback = _EMPTY_CALLBACK;
+    /* start actual MQTT connection */
+    TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, _startMqttConnection() );
 }
 
 TEST_TEAR_DOWN( Full_DEFENDER )
@@ -208,12 +225,14 @@ TEST_TEAR_DOWN( Full_DEFENDER )
     if( ( _callbackInfo.eventType == AWS_IOT_DEFENDER_METRICS_ACCEPTED ) ||
         ( _callbackInfo.eventType == AWS_IOT_DEFENDER_METRICS_REJECTED ) )
     {
-        IotClock_SleepMs( _DEFENDER_PUBLISH_INTERVAL_SECONDS * 1000 );
+        IotClock_SleepMs( DEFENDER_PUBLISH_INTERVAL_SECONDS * 1000 );
     }
 
     IotSemaphore_Destroy( &_callbackInfoSem );
-
+    _stopMqttConnection();
+    IotMetrics_Cleanup();
     IotMqtt_Cleanup();
+    IotTestNetwork_Cleanup();
     IotSdk_Cleanup();
 }
 
@@ -370,8 +389,6 @@ TEST( Full_DEFENDER, SetMetrics_with_TCP_connections_all )
 
 TEST( Full_DEFENDER, SetMetrics_after_defender_started )
 {
-    _publishMetricsNotNeeded();
-
     AwsIotDefenderError_t error = AwsIotDefender_Start( &_startInfo );
 
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
@@ -387,22 +404,18 @@ TEST( Full_DEFENDER, SetMetrics_after_defender_started )
 
 TEST( Full_DEFENDER, Start_with_wrong_network_information )
 {
-    _publishMetricsNotNeeded();
-
     /* Set test callback to verify report. */
     _startInfo.callback = _testCallback;
+    /* Simulate wrong network by using uninitialized MQTT connection information */
+    _startInfo.mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
 
     AwsIotDefenderError_t error = AwsIotDefender_Start( &_startInfo );
 
-    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
-
-    _assertEvent( AWS_IOT_DEFENDER_FAILURE_MQTT, _WAIT_STATE_TOTAL_SECONDS );
+    TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_INVALID_INPUT, error );
 }
 
 TEST( Full_DEFENDER, Start_should_return_success )
 {
-    _publishMetricsNotNeeded();
-
     AwsIotDefenderError_t error = AwsIotDefender_Start( &_startInfo );
 
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
@@ -410,8 +423,6 @@ TEST( Full_DEFENDER, Start_should_return_success )
 
 TEST( Full_DEFENDER, Start_should_return_err_if_already_started )
 {
-    _publishMetricsNotNeeded();
-
     AwsIotDefenderError_t error = AwsIotDefender_Start( &_startInfo );
 
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
@@ -434,7 +445,7 @@ TEST( Full_DEFENDER, Metrics_empty_are_published )
 
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
-    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
     _verifyTcpConnections( 0 );
@@ -462,7 +473,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
     _verifyTcpConnections( 1, pIotAddress );
@@ -494,10 +505,10 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_all_are_published_multiple_sockets 
         TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
         /* Wait certain time for _reportAccepted to be true. */
-        _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+        _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
 
         _verifyMetricsCommon();
-        _verifyTcpConnections( 2, _ECHO_SERVER_ADDRESS, pIotAddress );
+        _verifyTcpConnections( 2, pIotAddress, _ECHO_SERVER_ADDRESS );
     }
 
     SOCKETS_Shutdown( socket, SOCKETS_SHUT_RDWR );
@@ -526,7 +537,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_total_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
     _verifyTcpConnections( 1 );
@@ -554,7 +565,7 @@ TEST( Full_DEFENDER, Metrics_TCP_connections_remote_addr_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, error );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
     _verifyTcpConnections( 1, pIotAddress );
@@ -577,7 +588,7 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_Start( &_startInfo ) );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
     _verifyTcpConnections( 1, pIotAddress );
@@ -587,7 +598,7 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     /* Reset _callbackInfo before restarting. */
     _resetCalbackInfo();
 
-    IotClock_SleepMs( _DEFENDER_PUBLISH_INTERVAL_SECONDS * 1000 );
+    IotClock_SleepMs( DEFENDER_PUBLISH_INTERVAL_SECONDS * 1000 );
 
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS,
                        AwsIotDefender_SetMetrics( AWS_IOT_DEFENDER_METRICS_TCP_CONNECTIONS, AWS_IOT_DEFENDER_METRICS_ALL ) );
@@ -598,7 +609,7 @@ TEST( Full_DEFENDER, Restart_and_updated_metrics_are_published )
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS, AwsIotDefender_Start( &_startInfo ) );
 
     /* Wait certain time for _reportAccepted to be true. */
-    _waitForMetricsAccepted( _WAIT_STATE_TOTAL_SECONDS );
+    _waitForMetricsAccepted( WAIT_STATE_TOTAL_SECONDS );
 
     _verifyMetricsCommon();
     _verifyTcpConnections( 1, pIotAddress );
@@ -618,8 +629,6 @@ TEST( Full_DEFENDER, SetPeriod_with_proper_value )
 
 TEST( Full_DEFENDER, SetPeriod_after_started )
 {
-    _publishMetricsNotNeeded();
-
     TEST_ASSERT_EQUAL( AWS_IOT_DEFENDER_SUCCESS,
                        AwsIotDefender_Start( &_startInfo ) );
 
@@ -630,11 +639,11 @@ TEST( Full_DEFENDER, SetPeriod_after_started )
 
 /*-----------------------------------------------------------*/
 
-static void _copyDataCallbackFunction( void * param1,
+static void _copyDataCallbackFunction( void * pCallBackInfo,
                                        AwsIotDefenderCallbackInfo_t * const pCallbackInfo )
 {
     /* Silence the compiler. */
-    ( void ) param1;
+    ( void ) pCallBackInfo;
 
     /* Print out rejected message to stdout. */
     if( pCallbackInfo->eventType == AWS_IOT_DEFENDER_METRICS_REJECTED )
@@ -669,12 +678,51 @@ static void _copyDataCallbackFunction( void * param1,
     IotSemaphore_Post( &_callbackInfoSem );
 }
 
+static IotMqttError_t _startMqttConnection( void )
+{
+    IotMqttError_t mqttError = IOT_MQTT_SUCCESS;
+    IotMqttNetworkInfo_t mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
+    IotMqttConnectInfo_t mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
+
+    if( !_mqttConnectionStarted )
+    {
+        mqttNetworkInfo = ( IotMqttNetworkInfo_t ) IOT_MQTT_NETWORK_INFO_INITIALIZER;
+        mqttNetworkInfo.createNetworkConnection = true;
+        mqttNetworkInfo.u.setup.pNetworkServerInfo = &_serverInfo;
+        mqttNetworkInfo.u.setup.pNetworkCredentialInfo = &_credential;
+
+        mqttNetworkInfo.pNetworkInterface = IOT_NETWORK_INTERFACE_AFR;
+
+        mqttConnectionInfo = ( IotMqttConnectInfo_t ) IOT_MQTT_CONNECT_INFO_INITIALIZER;
+
+        /* Set MQTT connection information. */
+        mqttConnectionInfo.pClientIdentifier = AWS_IOT_TEST_SHADOW_THING_NAME;
+        mqttConnectionInfo.clientIdentifierLength = ( uint16_t ) strlen( AWS_IOT_TEST_SHADOW_THING_NAME );
+
+        mqttError = IotMqtt_Connect( &mqttNetworkInfo,
+                                     &mqttConnectionInfo,
+                                     1000,
+                                     &_mqttConnection );
+
+        if( mqttError == IOT_MQTT_SUCCESS )
+        {
+            _mqttConnectionStarted = true;
+        }
+    }
+
+    return mqttError;
+}
+
 /*-----------------------------------------------------------*/
 
-static void _publishMetricsNotNeeded()
+static void _stopMqttConnection( void )
 {
-    /* Given a dummy IoT endpoint to fail network connection. */
-    _DEFENDER_SERVER_INFO.pHostName = "dummy endpoint";
+    if( _mqttConnectionStarted )
+    {
+        IotMqtt_Disconnect( _mqttConnection, false );
+        _mqttConnection = IOT_MQTT_CONNECTION_INITIALIZER;
+        _mqttConnectionStarted = false;
+    }
 }
 
 /*-----------------------------------------------------------*/
@@ -682,8 +730,8 @@ static void _publishMetricsNotNeeded()
 static void _resetCalbackInfo()
 {
     /* Clean data buffer. */
-    memset( _payloadBuffer, 0, _PAYLOAD_MAX_SIZE );
-    memset( _metricsBuffer, 0, _METRICS_MAX_SIZE );
+    memset( _payloadBuffer, 0, PAYLOAD_MAX_SIZE );
+    memset( _metricsBuffer, 0, METRICS_MAX_SIZE );
 
     /* Reset callback info. */
     _callbackInfo = ( AwsIotDefenderCallbackInfo_t ) {
@@ -691,7 +739,7 @@ static void _resetCalbackInfo()
         .metricsReportLength = 0,
         .pPayload = _payloadBuffer,
         .payloadLength = 0,
-        .eventType = ( AwsIotDefenderEventType_t ) _NO_EVENT
+        .eventType = ( AwsIotDefenderEventType_t ) NO_EVENT
     };
 }
 
@@ -964,7 +1012,7 @@ static void _verifyTcpConnections( int total,
 static char * _getIotAddress()
 {
     uint32_t ip = SOCKETS_GetHostByName( clientcredentialMQTT_BROKER_ENDPOINT );
-    static char address[ _MAX_ADDRESS_LENGTH ];
+    static char address[ MAX_ADDRESS_LENGTH ];
 
     SOCKETS_inet_ntoa( ip, address );
     sprintf( address, "%s:%d", address, clientcredentialMQTT_BROKER_PORT );

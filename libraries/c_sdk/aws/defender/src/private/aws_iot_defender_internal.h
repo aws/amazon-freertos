@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Defender V2.0.0
+ * Amazon FreeRTOS Defender V2.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -57,12 +57,15 @@
  */
 #if AWS_IOT_DEFENDER_ENABLE_ASSERTS == 1
     #ifndef AwsIotDefender_Assert
-        #include <assert.h>
-        #define AwsIotDefender_Assert( expression )    assert( expression )
+        #ifdef Iot_DefaultAssert
+            #define AwsIotDefender_Assert( expression )    Iot_DefaultAssert( expression )
+        #else
+            #error "Asserts are enabled for Defender, but AwsIotDefender_Assert is not defined"
+        #endif
     #endif
-#else
+#else /* if AWS_IOT_DEFENDER_ENABLE_ASSERTS == 1 */
     #define AwsIotDefender_Assert( expression )
-#endif
+#endif /* if AWS_IOT_DEFENDER_ENABLE_ASSERTS == 1 */
 
 /* Configure logs for Defender functions. */
 #ifdef AWS_IOT_LOG_LEVEL_DEFENDER
@@ -113,24 +116,37 @@
  */
     #define AwsIotDefender_FreeTopic       Iot_FreeMessageBuffer
 #else /* if IOT_STATIC_MEMORY_ONLY */
-    #include <stdlib.h>
-
     #ifndef AwsIotDefender_MallocReport
-        #define AwsIotDefender_MallocReport    malloc
+        #ifdef Iot_DefaultMalloc
+            #define AwsIotDefender_MallocReport    Iot_DefaultMalloc
+        #else
+            #error "No malloc function defined for AwsIotDefender_MallocReport"
+        #endif
     #endif
 
     #ifndef AwsIotDefender_FreeReport
-        #define AwsIotDefender_FreeReport    free
+        #ifdef Iot_DefaultFree
+            #define AwsIotDefender_FreeReport    Iot_DefaultFree
+        #else
+            #error "No free function defined for AwsIotDefender_FreeReport"
+        #endif
     #endif
 
     #ifndef AwsIotDefender_MallocTopic
-        #define AwsIotDefender_MallocTopic    malloc
+        #ifdef Iot_DefaultMalloc
+            #define AwsIotDefender_MallocTopic    Iot_DefaultMalloc
+        #else
+            #error "No malloc function defined for AwsIotDefender_MallocTopic"
+        #endif
     #endif
 
     #ifndef AwsIotDefender_FreeTopic
-        #define AwsIotDefender_FreeTopic    free
+        #ifdef Iot_DefaultFree
+            #define AwsIotDefender_FreeTopic    Iot_DefaultFree
+        #else
+            #error "No free function defined for AwsIotDefender_FreeTopic"
+        #endif
     #endif
-
 #endif /* if IOT_STATIC_MEMORY_ONLY */
 
 /**
@@ -236,20 +252,9 @@
  * Define encoder/decoder based on configuration AWS_IOT_DEFENDER_FORMAT.
  */
 #if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR
-
-    #define DEFENDER_FORMAT     "cbor"
-    #define _defenderEncoder    _IotSerializerCborEncoder       /**< Global defined in iot_serializer.h . */
-    #define _defenderDecoder    _IotSerializerCborDecoder       /**< Global defined in iot_serializer.h . */
-
-#elif AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_JSON
-
-    #define DEFENDER_FORMAT     "json"
-    #define _defenderEncoder    _IotSerializerJsonEncoder       /**< Global defined in iot_serializer.h . */
-    #define _defenderDecoder    _IotSerializerJsonDecoder       /**< Global defined in iot_serializer.h . */
-
+    #define DEFENDER_FORMAT    "cbor"
 #else /* if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR */
-    #error "AWS_IOT_DEFENDER_FORMAT must be either AWS_IOT_DEFENDER_FORMAT_CBOR or AWS_IOT_DEFENDER_FORMAT_JSON."
-
+    #error "AWS_IOT_DEFENDER_FORMAT must be AWS_IOT_DEFENDER_FORMAT_CBOR"
 #endif /* if AWS_IOT_DEFENDER_FORMAT == AWS_IOT_DEFENDER_FORMAT_CBOR */
 
 /**
@@ -318,15 +323,10 @@ AwsIotDefenderError_t AwsIotDefenderInternal_BuildTopicsNames( void );
 void AwsIotDefenderInternal_DeleteTopicsNames( void );
 
 /**
- * Connect to AWS with MQTT.
- */
-IotMqttError_t AwsIotDefenderInternal_MqttConnect( void );
-
-/**
  * Subscribe accept/reject defender topics.
  */
-IotMqttError_t AwsIotDefenderInternal_MqttSubscribe( IotMqttCallbackInfo_t acceptCallback,
-                                                     IotMqttCallbackInfo_t rejectCallback );
+
+IotMqttError_t AwsIotDefenderInternal_MqttSubscribe( void );
 
 /**
  * Publish metrics data to defender topic.
@@ -335,12 +335,16 @@ IotMqttError_t AwsIotDefenderInternal_MqttPublish( uint8_t * pData,
                                                    size_t dataLength );
 
 /**
- * Disconnect with AWS MQTT.
+ * Unsubscribe accept/reject defender topics.
  */
-void AwsIotDefenderInternal_MqttDisconnect( void );
+IotMqttError_t AwsIotDefenderInternal_MqttUnSubscribe( void );
+
 
 /*----------------- Below this line are INTERNAL global variables --------------------*/
 
 extern _defenderMetrics_t _AwsIotDefenderMetrics;
+
+extern const IotSerializerEncodeInterface_t * _pAwsIotDefenderEncoder;
+extern const IotSerializerDecodeInterface_t * _pAwsIotDefenderDecoder;
 
 #endif /* ifndef AWS_IOT_DEFENDER_INTERNAL_H_ */

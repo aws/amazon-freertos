@@ -53,5 +53,6 @@
 #define testrunnerFULL_MEMORYLEAK_ENABLED          0
 #define testrunnerFULL_TLS_ENABLED                 0
 #define testrunnerFULL_POSIX_ENABLED               0
+#define testrunnerFULL_HTTPS_CLIENT_ENABLED        0
 
 #endif /* AWS_TEST_RUNNER_CONFIG_H */

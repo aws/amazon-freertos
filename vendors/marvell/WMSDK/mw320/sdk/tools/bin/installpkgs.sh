@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (C) 2008-2015, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 #
 # This script can be invoked to resolve the dependencies required for wmsdk

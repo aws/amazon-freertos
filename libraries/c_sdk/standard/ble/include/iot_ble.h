@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -284,25 +284,17 @@ typedef void ( * IotBle_ConnParameterUpdateRequestCallback_t )( BTStatus_t statu
 
 /**
  * @ingroup ble_datatypes_functionpointers
- * @brief Callback invoked on BLE_RemoveBond.
- *
- * @param[in] status Returns eBTStatusSuccess if operation succeeded.
- * @param[in] pRemoteBdAddr Address of the bonded device.
- */
-typedef void (* IotBleRemoveBondCallback_t)( BTStatus_t status,
-                                             const BTBdaddr_t * pRemoteBdAddr );
-
-/**
- * @ingroup ble_datatypes_functionpointers
  * @brief Callback invoked when pairing state is changed.
  *
  * @param[in] status Returns eBTStatusSuccess if operation succeeded.
  * @param[in] pRemoteBdAddr Address of the remote device.
+ * @param[in] bondState Bond state value.
  * @param[in] securityLevel Security level (mode 1, level 1, 2 ,3 ,4).
  * @param[in] reason Reason for failing to authenticate.
  */
 typedef void (* IotBle_PairingStateChanged_t)( BTStatus_t status,
                                                BTBdaddr_t * pRemoteBdAddr,
+                                               BTBondState_t bondstate,
                                                BTSecurityLevel_t securityLevel,
                                                BTAuthFailureReason_t reason );
 
@@ -318,25 +310,11 @@ typedef void ( * IotBle_NumericComparisonCallback_t )( BTBdaddr_t * pRemoteBdAdd
                                                        uint32_t passKey );
 
 /**
- * @ingroup ble_datatypes_functionpointers
- * @brief Bonded callback, called when a bonded is established or removed.
- * Invoked on bond event or on BLE_RemoveBond.
- *
- * @param[in] status Returns eBTStatusSuccess if operation succeeded.
- * @param[in] pRemoteBdAddr Remote device address.
- * @param[in] isBonded true if address is bonded, false otherwise
- */
-typedef void ( * IotBle_BondedCallback_t)( BTStatus_t status,
-                                           BTBdaddr_t * pRemoteBdAddr,
-                                           bool isBonded );
-
-/**
  * @ingroup ble_datatypes_enums
  * @brief enum listing all the BLE events (not directly triggered by a function call)
  */
 typedef enum
 {
-    eBLEBonded,                             /**< Bonded toggled event */
     eBLEMtuChanged,                         /**< eBLEMtuChanged Event triggering BLEMtuChangedCallback_t. */
     eBLEConnection,                         /**< eBLEConnection Event  triggering BLEConnectionCallback_t. */
     eBLEPairingStateChanged,                /**< eBLEPairingStateChanged Event triggering BLEPairingStateChanged_t. */
@@ -352,7 +330,6 @@ typedef enum
  */
 typedef union
 {
-    IotBle_BondedCallback_t pBondedCb;                                         /**< Device bonded event. */
     IotBle_MtuChangedCallback_t pMtuChangedCb;                                 /**<  MTU changed event */
     IotBle_ConnectionCallback_t pConnectionCb;                                 /**<  Connection event. */
     IotBle_PairingStateChanged_t pGAPPairingStateChangedCb;                    /**<  Pairing state changed event. */

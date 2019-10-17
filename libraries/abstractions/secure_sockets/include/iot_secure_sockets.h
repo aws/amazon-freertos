@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.5
+ * Amazon FreeRTOS Secure Sockets V1.1.6
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -64,7 +64,8 @@
  *
  * Data contained by the Socket_t type is port specific.
  */
-typedef void * Socket_t;
+struct xSOCKET;
+typedef struct xSOCKET * Socket_t;
 
 /**
  * @brief The "size_t" of secure sockets.

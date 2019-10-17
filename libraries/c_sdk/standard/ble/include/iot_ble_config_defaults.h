@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS BLE V1.0.0
+ * Amazon FreeRTOS BLE V2.0.0
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -102,6 +102,12 @@
 #ifndef IOT_BLE_ADVERTISING_INTERVAL
     #define IOT_BLE_ADVERTISING_INTERVAL    300
 #endif
+
+/**< Min encryption key size. */
+#ifndef IOT_BLE_ENCRYPT_KEY_SIZE_MIN
+    #define IOT_BLE_ENCRYPT_KEY_SIZE_MIN    16
+#endif
+
 
 /**
  * @brief Appearance of the device when advertising.
@@ -245,7 +251,9 @@
 /**
  * @brief Enable WIFI provisioning GATT service.
  *
- * By default WIFI provisioning will be disabled.
+ * By default WIFI provisioning will be disabled. The flag will enable the GATT
+ * service which communicates with Amazon FreeRTOS Mobile SDK to provision WiFi Networks.
+ *
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
     #ifndef IOT_BLE_ENABLE_WIFI_PROVISIONING
@@ -256,7 +264,10 @@
 #endif
 
 /**
- * @brief Flag to enable MQTT over BLE using Amazon FreeRTOS Mobile SDK.
+ * @brief Enable MQTT over BLE GATT service.
+ *
+ * The flag will enable the GATT service which communicates with Amazon FreeRTOS Mobile SDK,
+ * which acts as a proxy to forward MQTT packets to AWS IoT.
  */
 #if ( IOT_BLE_ENABLE_FREERTOS_GATT_SERVICES == 1 )
     #ifndef IOT_BLE_ENABLE_MQTT

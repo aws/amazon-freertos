@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201908.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -691,8 +691,8 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
         /* If a complete burst of messages has been published, wait for an equal
          * number of messages to be received. Note that messages may be received
          * out-of-order, especially if a message was lost and had to be retried. */
-        if( ( publishCount > 0 ) &&
-            ( publishCount % IOT_DEMO_MQTT_PUBLISH_BURST_SIZE == 0 ) )
+        if( ( publishCount % IOT_DEMO_MQTT_PUBLISH_BURST_SIZE ) ==
+            ( IOT_DEMO_MQTT_PUBLISH_BURST_SIZE - 1 ) )
         {
             IotLogInfo( "Waiting for %d publishes to be received.",
                         IOT_DEMO_MQTT_PUBLISH_BURST_SIZE );
@@ -716,30 +716,6 @@ static int _publishAllMessages( IotMqttConnection_t mqttConnection,
         if( status == EXIT_FAILURE )
         {
             break;
-        }
-    }
-
-    /* Wait for the messages in the last burst to be received. This should also
-     * wait for all previously published messages. */
-    if( status == EXIT_SUCCESS )
-    {
-        IotLogInfo( "Waiting for all publishes to be received." );
-
-        for( i = 0; i < IOT_DEMO_MQTT_PUBLISH_BURST_SIZE; i++ )
-        {
-            if( IotSemaphore_TimedWait( pPublishReceivedCounter,
-                                        MQTT_TIMEOUT_MS ) == false )
-            {
-                IotLogError( "Timed out waiting for incoming PUBLISH messages." );
-                status = EXIT_FAILURE;
-
-                break;
-            }
-        }
-
-        if( i == IOT_DEMO_MQTT_PUBLISH_BURST_SIZE )
-        {
-            IotLogInfo( "All publishes received." );
         }
     }
 
