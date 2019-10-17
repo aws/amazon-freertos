@@ -580,8 +580,24 @@ NetworkBufferDescriptor_t *pxNetworkBuffer;
 			}
 		}
 		#endif
+		if( xIsCallingFromIPTask() != 0 )
+		{
+			/* Only the IP-task is allowed to call this function directly. */
+			xNetworkInterfaceOutput( pxNetworkBuffer, pdTRUE );
+		}
+		else
+		{
+		IPStackEvent_t xSendEvent;
 
-		xNetworkInterfaceOutput( pxNetworkBuffer, pdTRUE );
+			/* Send a message to the IP-task to send this ARP packet. */
+			xSendEvent.eEventType = eNetworkTxEvent;
+			xSendEvent.pvData = ( void * ) pxNetworkBuffer;
+			if( xSendEventStructToIPTask( &xSendEvent, ( TickType_t ) portMAX_DELAY ) == pdFAIL )
+			{
+				/* Failed to send the message, so release the network buffer. */
+				vReleaseNetworkBufferAndDescriptor( pxNetworkBuffer );
+			}
+		}
 	}
 }
 

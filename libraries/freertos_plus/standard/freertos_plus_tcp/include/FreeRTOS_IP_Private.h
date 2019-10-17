@@ -244,16 +244,17 @@ typedef enum
 	eNoEvent = -1,
 	eNetworkDownEvent,		/* 0: The network interface has been lost and/or needs [re]connecting. */
 	eNetworkRxEvent,		/* 1: The network interface has queued a received Ethernet frame. */
-	eARPTimerEvent,			/* 2: The ARP timer expired. */
-	eStackTxEvent,			/* 3: The software stack has queued a packet to transmit. */
-	eDHCPEvent,				/* 4: Process the DHCP state machine. */
-	eTCPTimerEvent,			/* 5: See if any TCP socket needs attention. */
-	eTCPAcceptEvent,		/* 6: Client API FreeRTOS_accept() waiting for client connections. */
-	eTCPNetStat,			/* 7: IP-task is asked to produce a netstat listing. */
-	eSocketBindEvent,		/* 8: Send a message to the IP-task to bind a socket to a port. */
-	eSocketCloseEvent,		/* 9: Send a message to the IP-task to close a socket. */
-	eSocketSelectEvent,		/*10: Send a message to the IP-task for select(). */
-	eSocketSignalEvent,		/*11: A socket must be signalled. */
+	eNetworkTxEvent,		/* 2: Let the IP-task send a network packet. */
+	eARPTimerEvent,			/* 3: The ARP timer expired. */
+	eStackTxEvent,			/* 4: The software stack has queued a packet to transmit. */
+	eDHCPEvent,				/* 5: Process the DHCP state machine. */
+	eTCPTimerEvent,			/* 6: See if any TCP socket needs attention. */
+	eTCPAcceptEvent,		/* 7: Client API FreeRTOS_accept() waiting for client connections. */
+	eTCPNetStat,			/* 8: IP-task is asked to produce a netstat listing. */
+	eSocketBindEvent,		/* 9: Send a message to the IP-task to bind a socket to a port. */
+	eSocketCloseEvent,		/*10: Send a message to the IP-task to close a socket. */
+	eSocketSelectEvent,		/*11: Send a message to the IP-task for select(). */
+	eSocketSignalEvent,		/*12: A socket must be signalled. */
 } eIPEvent_t;
 
 typedef struct IP_TASK_COMMANDS
