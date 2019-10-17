@@ -58,12 +58,12 @@
 
 /* Enable/Disable test cases */
 /* AFQP test */
-#define ENABLE_TC_WRITE_LONG              ( 0 )
-#define ENABLE_TC_ADD_INCLUDED_SERVICE    ( 0 )
-#define ENABLE_TC_SECONDARY_SERVICE       ( 0 )
+#define ENABLE_TC_WRITE_LONG                        ( 0 )
+#define ENABLE_TC_ADD_INCLUDED_SERVICE              ( 0 )
+#define ENABLE_TC_SECONDARY_SERVICE                 ( 0 )
 /* Integration test */
-#define ENABLE_TC_CALLBACK_NULL_CHECK     ( 0 )
-#define ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK (1)
+#define ENABLE_TC_CALLBACK_NULL_CHECK               ( 0 )
+#define ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK    ( 1 )
 
 
 /**
@@ -511,7 +511,7 @@ BTStatus_t IotTestBleHal_WaitEventFromQueue( BLEHALEventsTypes_t xEventName,
                                              uint32_t timeoutMs );
 void IotTestBleHal_ClearEventQueue( void );
 
-void IotTestBleHal_BLEManagerInit( BTCallbacks_t * pBTmanagerCb);
+void IotTestBleHal_BLEManagerInit( BTCallbacks_t * pBTmanagerCb );
 void IotTestBleHal_BLEEnable( bool bEnable );
 void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
                                    bool bIsSet );
@@ -526,8 +526,10 @@ void IotTestBleHal_DeleteService( BTService_t * xRefSrvc );
 void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
                                                 bool enable );
 void IotTestBleHal_BTUnregister( void );
-void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb, bool EnableCb );
-void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb, bool EnableCb );
+void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb,
+                               bool EnableCb );
+void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
+                                bool EnableCb );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
                                uint16_t usManufacturerLen,

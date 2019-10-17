@@ -745,7 +745,7 @@ TEST( Full_BLE, BLE_Initialize_common_GAP )
 
 TEST( Full_BLE, BLE_Initialize_BLE_GAP )
 {
-    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb,true );
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
 }
 
 TEST( Full_BLE, BLE_DeInitialize )
