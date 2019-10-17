@@ -62,6 +62,7 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 25 )
 
+extern uint8_t ucMACAddress[ 6 ];
 
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
@@ -97,20 +98,6 @@ static const uint8_t ucDNSServerAddress[ 4 ] =
     configDNS_SERVER_ADDR3
 };
 
-/* Default MAC address configuration.  The demo creates a virtual network
- * connection that uses this MAC address by accessing the raw Ethernet data
- * to and from a real network connection on the host PC.  See the
- * configNETWORK_INTERFACE_TO_USE definition for information on how to configure
- * the real network connection to use. */
-const uint8_t ucMACAddress[ 6 ] =
-{
-    configMAC_ADDR0,
-    configMAC_ADDR1,
-    configMAC_ADDR2,
-    configMAC_ADDR3,
-    configMAC_ADDR4,
-    configMAC_ADDR5
-};
 
 /**
  * @brief Application task startup hook.
@@ -432,17 +419,6 @@ void vAssertCalled( const char * pcFile,
 
 /*-----------------------------------------------------------*/
 
-#if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) || ( ipconfigDHCP_REGISTER_HOSTNAME == 1 )
-
-    const char * pcApplicationHostnameHook( void )
-    {
-        /* This function will be called during the DHCP: the machine will be registered 
-         * with an IP address plus this name. */
-        return clientcredentialIOT_THING_NAME;
-    }
-
-#endif
-/*-----------------------------------------------------------*/
 
 #if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 )
 

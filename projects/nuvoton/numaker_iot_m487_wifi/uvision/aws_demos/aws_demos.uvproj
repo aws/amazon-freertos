@@ -416,8 +416,18 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>freertos_kernel/</GroupName>
+          <GroupName>freertos_kernel</GroupName>
           <Files>
+            <File>
+              <FileName>port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../freertos_kernel/portable/RVDS/ARM_CM4F/port.c</FilePath>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../freertos_kernel/portable/MemMang/heap_4.c</FilePath>
+            </File>
             <File>
               <FileName>event_groups.c</FileName>
               <FileType>1</FileType>
@@ -486,26 +496,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>freertos_kernel/portable/MemMang/</GroupName>
-          <Files>
-            <File>
-              <FileName>heap_4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../freertos_kernel/portable/MemMang/heap_4.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>freertos_kernel/portable/RVDS/ARM_CM4F/</GroupName>
-          <Files>
-            <File>
-              <FileName>port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../freertos_kernel/portable/RVDS/ARM_CM4F/port.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/</GroupName>
           <Files>
             <File>
@@ -532,6 +522,61 @@
               <FileName>iot_demo_runner.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../demos/demo_runner/iot_demo_runner.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_demo_network_addr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\demos\demo_runner\aws_demo_network_addr.c</FilePath>
+              <FileOption>
+                <CommonProperty>
+                  <UseCPPCompiler>2</UseCPPCompiler>
+                  <RVCTCodeConst>0</RVCTCodeConst>
+                  <RVCTZI>0</RVCTZI>
+                  <RVCTOtherData>0</RVCTOtherData>
+                  <ModuleSelection>0</ModuleSelection>
+                  <IncludeInBuild>0</IncludeInBuild>
+                  <AlwaysBuild>2</AlwaysBuild>
+                  <GenerateAssemblyFile>2</GenerateAssemblyFile>
+                  <AssembleAssemblyFile>2</AssembleAssemblyFile>
+                  <PublicsOnly>2</PublicsOnly>
+                  <StopOnExitCode>11</StopOnExitCode>
+                  <CustomArgument></CustomArgument>
+                  <IncludeLibraryModules></IncludeLibraryModules>
+                  <ComprImg>1</ComprImg>
+                </CommonProperty>
+                <FileArmAds>
+                  <Cads>
+                    <interw>2</interw>
+                    <Optim>0</Optim>
+                    <oTime>2</oTime>
+                    <SplitLS>2</SplitLS>
+                    <OneElfS>2</OneElfS>
+                    <Strict>2</Strict>
+                    <EnumInt>2</EnumInt>
+                    <PlainCh>2</PlainCh>
+                    <Ropi>2</Ropi>
+                    <Rwpi>2</Rwpi>
+                    <wLevel>0</wLevel>
+                    <uThumb>2</uThumb>
+                    <uSurpInc>2</uSurpInc>
+                    <uC99>2</uC99>
+                    <useXO>2</useXO>
+                    <v6Lang>0</v6Lang>
+                    <v6LangP>0</v6LangP>
+                    <vShortEn>2</vShortEn>
+                    <vShortWch>2</vShortWch>
+                    <v6Lto>2</v6Lto>
+                    <v6WtE>2</v6WtE>
+                    <v6Rtti>2</v6Rtti>
+                    <VariousControls>
+                      <MiscControls></MiscControls>
+                      <Define></Define>
+                      <Undefine></Undefine>
+                      <IncludePath></IncludePath>
+                    </VariousControls>
+                  </Cads>
+                </FileArmAds>
+              </FileOption>
             </File>
           </Files>
         </Group>
@@ -1031,7 +1076,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/</GroupName>
+          <GroupName>numaker_iot_m487_wifi/aws_demos/config_files/</GroupName>
           <Files>
             <File>
               <FileName>FreeRTOSConfig.h</FileName>
@@ -1101,7 +1146,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/</GroupName>
+          <GroupName>aws_demos/application_code</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -1131,8 +1176,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/mbedtls/library/</GroupName>
+          <GroupName>lib/mbedtls</GroupName>
           <Files>
+            <File>
+              <FileName>mbedtls_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</FilePath>
+            </File>
             <File>
               <FileName>aes.c</FileName>
               <FileType>1</FileType>
@@ -1496,16 +1546,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/mbedtls/utils/</GroupName>
-          <Files>
-            <File>
-              <FileName>mbedtls_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>libraries/3rdparty/pkcs11/</GroupName>
           <Files>
             <File>
@@ -1591,140 +1631,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/freertos_plus/standard/freertos_plus_tcp/</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-              <ComprImg>1</ComprImg>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <uC99>2</uC99>
-                <useXO>2</useXO>
-                <v6Lang>0</v6Lang>
-                <v6LangP>0</v6LangP>
-                <vShortEn>2</vShortEn>
-                <vShortWch>2</vShortWch>
-                <v6Lto>2</v6Lto>
-                <v6WtE>2</v6WtE>
-                <v6Rtti>2</v6Rtti>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <useXO>2</useXO>
-                <uClangAs>2</uClangAs>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
-          <Files>
-            <File>
-              <FileName>m480_eth.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\M487\m480_eth.c</FilePath>
-            </File>
-            <File>
-              <FileName>NetworkInterface.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\M487\NetworkInterface.c</FilePath>
-            </File>
-            <File>
-              <FileName>BufferAllocation_1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_1.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_ARP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_ARP.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_DHCP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DHCP.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_DNS.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DNS.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_IP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_IP.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_Sockets.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Sockets.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_Stream_Buffer.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Stream_Buffer.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_TCP_IP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_IP.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_TCP_WIN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_WIN.c</FilePath>
-            </File>
-            <File>
-              <FileName>FreeRTOS_UDP_IP.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lib/secure_sockets/freertos_plus_tcp/</GroupName>
+          <GroupName>lib/freertos_plus_tcp</GroupName>
           <GroupOption>
             <CommonProperty>
               <UseCPPCompiler>0</UseCPPCompiler>
@@ -1798,6 +1705,66 @@
               <FileName>iot_secure_sockets.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c</FilePath>
+            </File>
+            <File>
+              <FileName>m480_eth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\M487\m480_eth.c</FilePath>
+            </File>
+            <File>
+              <FileName>NetworkInterface.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\NetworkInterface\M487\NetworkInterface.c</FilePath>
+            </File>
+            <File>
+              <FileName>BufferAllocation_1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\portable\BufferManagement\BufferAllocation_1.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_ARP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_ARP.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_DHCP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DHCP.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_DNS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_DNS.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_IP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_IP.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_Sockets.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Sockets.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_Stream_Buffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_Stream_Buffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_TCP_IP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_IP.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_TCP_WIN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_TCP_WIN.c</FilePath>
+            </File>
+            <File>
+              <FileName>FreeRTOS_UDP_IP.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -2213,8 +2180,18 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>freertos_kernel/</GroupName>
+          <GroupName>freertos_kernel</GroupName>
           <Files>
+            <File>
+              <FileName>port.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../freertos_kernel/portable/RVDS/ARM_CM4F/port.c</FilePath>
+            </File>
+            <File>
+              <FileName>heap_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../freertos_kernel/portable/MemMang/heap_4.c</FilePath>
+            </File>
             <File>
               <FileName>event_groups.c</FileName>
               <FileType>1</FileType>
@@ -2283,26 +2260,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>freertos_kernel/portable/MemMang/</GroupName>
-          <Files>
-            <File>
-              <FileName>heap_4.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../freertos_kernel/portable/MemMang/heap_4.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>freertos_kernel/portable/RVDS/ARM_CM4F/</GroupName>
-          <Files>
-            <File>
-              <FileName>port.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../freertos_kernel/portable/RVDS/ARM_CM4F/port.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/</GroupName>
           <Files>
             <File>
@@ -2329,6 +2286,11 @@
               <FileName>iot_demo_runner.c</FileName>
               <FileType>1</FileType>
               <FilePath>../../../../../demos/demo_runner/iot_demo_runner.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_demo_network_addr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\demos\demo_runner\aws_demo_network_addr.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3032,7 +2994,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/config_files/</GroupName>
+          <GroupName>numaker_iot_m487_wifi/aws_demos/config_files/</GroupName>
           <Files>
             <File>
               <FileName>FreeRTOSConfig.h</FileName>
@@ -3102,7 +3064,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/</GroupName>
+          <GroupName>aws_demos/application_code</GroupName>
           <Files>
             <File>
               <FileName>main.c</FileName>
@@ -3132,8 +3094,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/mbedtls/library/</GroupName>
+          <GroupName>lib/mbedtls</GroupName>
           <Files>
+            <File>
+              <FileName>mbedtls_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</FilePath>
+            </File>
             <File>
               <FileName>aes.c</FileName>
               <FileType>1</FileType>
@@ -3497,16 +3464,6 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/mbedtls/utils/</GroupName>
-          <Files>
-            <File>
-              <FileName>mbedtls_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
           <GroupName>libraries/3rdparty/pkcs11/</GroupName>
           <Files>
             <File>
@@ -3592,8 +3549,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/freertos_plus/standard/freertos_plus_tcp/</GroupName>
+          <GroupName>lib/freertos_plus_tcp</GroupName>
           <Files>
+            <File>
+              <FileName>iot_secure_sockets.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c</FilePath>
+            </File>
             <File>
               <FileName>m480_eth.c</FileName>
               <FileType>1</FileType>
@@ -3653,16 +3615,6 @@
               <FileName>FreeRTOS_UDP_IP.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\..\libraries\freertos_plus\standard\freertos_plus_tcp\source\FreeRTOS_UDP_IP.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lib/secure_sockets/freertos_plus_tcp/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_secure_sockets.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\..\libraries\abstractions\secure_sockets\freertos_plus_tcp\iot_secure_sockets.c</FilePath>
             </File>
           </Files>
         </Group>
