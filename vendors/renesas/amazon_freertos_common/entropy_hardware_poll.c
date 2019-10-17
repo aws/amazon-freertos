@@ -35,13 +35,18 @@ int mbedtls_hardware_poll( void *data,
 /******************************************************************************
 Functions : random number generator(XorShift method)
 
-WARNING: The random number generation solution presented in this application is 
-    for demonstration purposes only. It is not recommended to go into production with 
-    the logic presented here. The current solution takes entropy from the a
-    temperature sensor on the board and from the current system time. For 
-    production development, Renesas RX65x customers are recommended to use the 
-    TRNG included in the Trusted Secure IP Driver. Please see the following for more information
-    on the Trusted Secure IP Driver: https://www.renesas.com/us/en/products/software-tools/software-os-middleware-driver/security-crypto/trusted-secure-ip-driver.html
+WARNING: For best security practice, it is recommended to utilize a
+    random number generation solution that is truly randomized and conforms to
+    the guidelines provided in the Amazon FreeRTOS Qualification Guide
+    (https://docs.aws.amazon.com/freertos/latest/qualificationguide/afq-checklist.html).
+    The random number generator method presented in this file by the silicon vendor
+    is not truly random in nature. The current solution takes entropy from the
+    temperature sensor on the board and from the current system time.
+    For production development, Renesas RX65x customers are recommended to use
+    the TRNG included in the Trusted Secure IP Driver.
+    Please see the following for more information on the Trusted Secure IP Driver:
+    https://www.renesas.com/us/en/products/software-tools/software-os-middleware-driver/security-crypto/trusted-secure-ip-driver.html.
+    Please contact the silicon vendor for details regarding the method implemented.
 
 ******************************************************************************/
 void get_random_number(uint8_t *data, uint32_t len)
