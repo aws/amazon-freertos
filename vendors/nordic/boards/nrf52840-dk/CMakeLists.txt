@@ -478,8 +478,11 @@ else()
     set(exe_target aws_demos)
 endif()
 
+include("${CMAKE_CURRENT_LIST_DIR}/bootloader.cmake")
+
 # Do not add demos or tests if they're turned off.
 if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+	
     set( application_src
         "${board_dir}/application_code/main.c"
         "${board_dir}/application_code/nordic_code/SEGGER_HardFaultHandler.c"
@@ -501,28 +504,60 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         -section-placement-macros
         "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
     )
-    add_custom_command(
-        TARGET ${exe_target} PRE_LINK
-        COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/${exe_target}.ld"
+
+
+    # -------------------------------------------------------------------------------------------------
+    # Additional build configurations
+    # -------------------------------------------------------------------------------------------------
+
+    set( mkld_flags
+         -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
+         -section-placement-file "${nrf52840_dir}/flash_placement.xml"
+         -check-segment-overflow
+         -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
+         -section-placement-macros
+         "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
     )
 
-    find_program(gcc_objectcopy arm-none-eabi-objcopy)
-    find_program(gcc_size arm-none-eabi-size)
+    function(nrf52840_build)
+        set( build_target ${ARGV0} )
+        set( build_mkld_flags ${${ARGV1}} )
+        add_custom_command(
+            TARGET ${build_target}
+            PRE_LINK
+            COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${build_mkld_flags} "${CMAKE_BINARY_DIR}/${build_target}.ld"
+        )
 
-    if(NOT gcc_objectcopy )
-        message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-    endif()
+        find_program(gcc_objectcopy arm-none-eabi-objcopy)
+        find_program(gcc_size arm-none-eabi-size)
 
-    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+        if(NOT gcc_objectcopy )
+            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+        endif()
 
-    add_custom_command(
-        TARGET ${exe_target} POST_BUILD
-        COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-        COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+        set(output_file "$<TARGET_FILE_DIR:${build_target}>/${build_target}.hex")
+
+        add_custom_command(
+            TARGET ${build_target} POST_BUILD
+            COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${build_target}>" "${output_file}"
+            COMMAND "${gcc_size}" "$<TARGET_FILE:${build_target}>"
+        )
+
+        add_custom_command(
+            TARGET ${build_target} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+        )
+
+    endfunction()
+
+    nrf52840_build(
+        bootloader
+        bootloader_mkld_flags
     )
 
-    add_custom_command(
-        TARGET ${exe_target} POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+    nrf52840_build(
+        ${exe_target}
+        mkld_flags
     )
+
 endif()
