@@ -343,9 +343,13 @@ void runDemoTask( void * pArgument )
 
         #ifdef democonfigMEMORY_ANALYSIS
             xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
-            IotLogInfo( "Demo Memory Analysis Heap Total: %u Minimum heap size ever before running demo: %u after running demo: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
+            IotLogInfo( "memory_metrics:heap:total: %u\n"
+                         "memory_metrics:heap:before: %u\n"
+                         "memory_metrics:heap:after: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
             xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-            IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
+            IotLogInfo( "memory_metrics:stack:total: %u\n"
+                         "memory_metrics:stack:before: %u\n" 
+                         "memory_metrics:stack:after: %u\r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
         #endif /* democonfigMEMORY_ANALYSIS */
 
         /* Log the demo status. */
