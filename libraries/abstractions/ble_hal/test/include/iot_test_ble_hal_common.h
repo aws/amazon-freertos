@@ -65,13 +65,13 @@
 #define ENABLE_TC_CALLBACK_NULL_CHECK                          ( 0 )
 #define ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK               ( 0 )
 #define ENABLE_TC_ADVERTISE_WITHOUT_PROPERTISE                 ( 0 )
-#define ENABLE_TC_ADVERTISE_WITH_16BIT_SERVICEUUID             ( 1 )
-#define ENABLE_TC_ADVERTISE_WITH_MANUFACTIRUNG_DATA            ( 1 )
-#define ENABLE_TC_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET ( 1 )
+#define ENABLE_TC_ADVERTISE_WITH_16BIT_SERVICEUUID             ( 0 )
+#define ENABLE_TC_ADVERTISE_WITH_MANUFACTIRUNG_DATA            ( 0 )
+#define ENABLE_TC_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET ( 0 )
 #define ENABLE_TC_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3   ( 1 )
-#define ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT               ( 1 )
-#define ENABLE_TC_SEND_DATA_AFTER_DISCONNECED                  ( 1 )
-#define ENABLE_TC_INIT_ENABLE_TWICE                            ( 1 )
+#define ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT               ( 0 )
+#define ENABLE_TC_SEND_DATA_AFTER_DISCONNECED                  ( 0 )
+#define ENABLE_TC_INIT_ENABLE_TWICE                            ( 0 )
 
 /**
  * @brief Connection parameters.

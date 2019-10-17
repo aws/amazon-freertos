@@ -158,7 +158,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
     #endif
     #if ENABLE_TC_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET
-        RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset );
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent_After_BT_Reset );
     #endif
     #if ENABLE_TC_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3
         RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
@@ -354,9 +354,9 @@ TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
 
 /*Advertisement interval measured OTA can be out the range set by app, after reset BT stack, adv interval can change to 1.28s.
  * Make sure KPI is consistent after reset BT.*/
-TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset )
+TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent_After_BT_Reset )
 {
-    GATT_setup();
+    BTStatus_t xStatus = eBTStatusSuccess;
 
     IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
     IotTestBleHal_StartAdvertisement();
@@ -364,9 +364,6 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     IotTestBleHal_WaitConnection( true );
     /* Second time reconnection. Got Second KPI. */
     IotTestBleHal_WaitConnection( false );
-
-    /* BT reset. */
-    BTStatus_t xStatus = eBTStatusSuccess;
 
     IotTestBleHal_BTUnregister();
     IotTestBleHal_BLEEnable( false );
@@ -398,8 +395,6 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     IotTestBleHal_WaitConnection( false );
     IotTestBleHal_StopService( &_xSrvcB );
     IotTestBleHal_DeleteService( &_xSrvcB );
-
-    GATT_teardown();
 }
 
 /* If data size is > MTU - 3 then BT stack can truncate it to MTU - 3 and keep trying to send it over to other peer.
