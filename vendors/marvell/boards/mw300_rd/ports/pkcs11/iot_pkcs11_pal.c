@@ -322,7 +322,7 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 /*-----------------------------------------------------------*/
 
 
-int lPortGetEntropyFromHardware( void * data,
+int mbedtls_hardware_poll( void * data,
                            unsigned char * output,
                            size_t len,
                            size_t * olen )

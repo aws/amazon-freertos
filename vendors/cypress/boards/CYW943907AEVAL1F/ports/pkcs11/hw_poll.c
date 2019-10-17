@@ -63,10 +63,10 @@ extern uint32_t ulSeed;
 static uint32_t ulPrgnSeedDone = 0;
 #endif
 
-int lPortGetEntropyFromHardware( void * data,
-                                  unsigned char * output,
-                                  size_t len,
-                                  size_t * olen )
+int mbedtls_hardware_poll( void * data,
+                           unsigned char * output,
+                           size_t len,
+                           size_t * olen )
 {
 
 #ifdef WLAN_FIRMWARE_PRNG_SEED
