@@ -788,24 +788,21 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
         configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
     }
 
-    /* Check for ECDSA support. */
-    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_ECDSA, &MechanismInfo );
-    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+    /* Check for ECDSA support, if applicable. */
+    #if ( 1 == pkcs11testEC_KEY_SUPPORT )
+        xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_ECDSA, &MechanismInfo );
+        TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
 
-    if( CKR_OK == xResult )
-    {
-        TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
+        if( CKR_OK == xResult )
+        {
+            TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
 
-        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
-                          MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+            TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
+                              MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
 
-        /* Check consistency with static configuration. */
-        #if ( 0 == pkcs11testEC_KEY_SUPPORT )
-            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
-        #endif
-
-        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
-    }
+            configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
+        }
+    #endif /* if ( 1 == pkcs11testEC_KEY_SUPPORT ) */
 
     /* Check for elliptic-curve key generation support. */
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_EC_KEY_PAIR_GEN, &MechanismInfo );
@@ -822,8 +819,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
         configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
     }
 
-    /* SHA-256 support is required, but we don't need to write it to the console,
-     * since it doesn't impact the execution sequence for IDT. */
+    /* SHA-256 support is required. */
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
     TEST_ASSERT_TRUE( CKR_OK == xResult );
     TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
