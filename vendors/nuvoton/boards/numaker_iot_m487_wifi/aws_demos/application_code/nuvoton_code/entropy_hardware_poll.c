@@ -16,16 +16,19 @@
  * Get Random number generator.
  */
 
-/* The random number generation solution presented in this file is
-* for demonstration purposes only. It is not recommended to go into production with
-* the logic presented here. The current solution takes entropy from ADC white noise signal and uses it
-* as input seed to generate a random number from the RNG HW.
-* For production development, it is recommended to use a source which will be
-* truly random in nature.
-*/
+/* For best security practice, it is recommended to utilize a random number
+ * generation solution that is truly randomized and conforms to the guidelines
+ * provided in the Amazon FreeRTOS Qualification Guide
+ * (https://docs.aws.amazon.com/freertos/latest/qualificationguide/afq-checklist.html).
+ * The random number generator method presented in this file by the silicon vendor
+ * is not truly random in nature.
+ * The current solution takes entropy from ADC white noise signal and
+ * uses it as input seed to generate a random number from the RNG HW.
+ * Please contact the silicon vendor for details regarding the method implemented.
+ */
 
 #define PRNG_KEY_SIZE  (0x20UL)
- 
+
 static volatile int  g_PRNG_done;
 volatile int  g_AES_done;
 
@@ -56,10 +59,10 @@ int  adc_trng_gen_bit()
     int        ret_val;
     /* Internal full scale voltage 3.3v, internal measure voltage 1.2v  */
     /* ADC 12 bits, it's resolution 0~4095 */
-    /* To filter peak, set sampling data range as -50 ~ +50 */    
+    /* To filter peak, set sampling data range as -50 ~ +50 */
     int ref_bg_ub = ((1.2/3.3)*4095) + 50;
     int ref_bg_lb = ((1.2/3.3)*4095) - 50;
-    
+
     do{
       new_val = get_adc_bg_val();
     } while( (new_val > ref_bg_ub) || (new_val < ref_bg_lb) );
@@ -100,16 +103,16 @@ static void  adc_init()
 {
     static uint8_t init_flag = FALSE;
     int    i;
-    
+
     if( init_flag ) return;
-  
+
     /* ADC refernce external 1.2V */
     /* Unlock protected registers */
-    //SYS_UnlockReg();    
+    //SYS_UnlockReg();
     //SYS->VREFCTL = SYS_VREFCTL_VREF_PIN;
     /* Lock protected registers */
     //SYS_LockReg();
-  
+
     /* Enable EADC clock */
     CLK->APBCLK0 |= CLK_APBCLK0_EADCCKEN_Msk;
 
@@ -145,7 +148,7 @@ void CRYPTO_IRQHandler()
         AES_CLR_INT_FLAG(CRPT);
     }
 
-} 
+}
 
 //extern void *pxCurrentTCB;
 
@@ -153,14 +156,14 @@ static void trng_get(unsigned char *pConversionData)
 {
 	uint32_t *p32ConversionData;
     uint32_t u32val;
-  
+
 	p32ConversionData = (uint32_t *)pConversionData;
 
     if( xSemaphoreTake( xTrngMutex, ( TickType_t ) 10 ) == pdTRUE ) {
 
-        //printf("### SemaphoreTake 0x%x\r\n", pxCurrentTCB);    
+        //printf("### SemaphoreTake 0x%x\r\n", pxCurrentTCB);
         PRNG_ENABLE_INT(CRPT);
-	
+
         u32val = adc_trng_gen_rnd();
         //printf("=== %s: 0x%x \n", __FUNCTION__, u32val);
         PRNG_Open(CRPT, PRNG_KEY_SIZE_256, 1, u32val); //adc_trng_gen_rnd());
@@ -171,8 +174,8 @@ static void trng_get(unsigned char *pConversionData)
         PRNG_Read(CRPT, p32ConversionData);
 
         PRNG_DISABLE_INT(CRPT);
-        //printf("### SemaphoreGive 0x%x\r\n", pxCurrentTCB);        
-        xSemaphoreGive( xTrngMutex );   
+        //printf("### SemaphoreGive 0x%x\r\n", pxCurrentTCB);
+        xSemaphoreGive( xTrngMutex );
     }
 }
 
@@ -180,7 +183,7 @@ static void trng_get(unsigned char *pConversionData)
 static BaseType_t trng_init()
 {
     static BaseType_t init_done = pdFALSE;
-    
+
     taskENTER_CRITICAL();
     if( xTrngMutex == NULL ) {
         xTrngMutex = xSemaphoreCreateMutex();
@@ -192,14 +195,14 @@ static BaseType_t trng_init()
         if( init_done != pdTRUE ) {
             adc_init();
             /* Unlock protected registers */
-            SYS_UnlockReg();	
+            SYS_UnlockReg();
             /* Enable IP clock */
             CLK_EnableModuleClock(CRPT_MODULE);
-	
+
             /* Lock protected registers */
-            SYS_LockReg();	
-	
-            NVIC_EnableIRQ(CRPT_IRQn);    
+            SYS_LockReg();
+
+            NVIC_EnableIRQ(CRPT_IRQn);
             init_done = pdTRUE;
         }
         xSemaphoreGive( xTrngMutex );
@@ -212,7 +215,7 @@ static BaseType_t trng_init()
 /*
  * Get len bytes of entropy from the hardware RNG.
  */
- 
+
 int lPortGetEntropyFromHardware( void *data,
                     unsigned char *output, size_t len, size_t *olen )
 {
@@ -227,7 +230,7 @@ int lPortGetEntropyFromHardware( void *data,
     ((void) data);
 
     if( trng_init() == pdFALSE ) return (-1);
-    
+
     while (len >= sizeof(tmpBuff)) {
         trng_get(output);
         output += sizeof(tmpBuff);
@@ -240,10 +243,10 @@ int lPortGetEntropyFromHardware( void *data,
         cur_length += len;
     }
     *olen = cur_length;
-	
+
     return( 0 );
 }
- 
+
 #if 1
 uint32_t numaker_ulRand( void )
 {
@@ -253,4 +256,3 @@ uint32_t numaker_ulRand( void )
 	return *((uint32_t*)tmpBuff);
 }
 #endif
-
