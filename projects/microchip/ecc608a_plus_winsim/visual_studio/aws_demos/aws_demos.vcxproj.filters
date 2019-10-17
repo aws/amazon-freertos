@@ -853,9 +853,6 @@
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c">
 			<Filter>freertos_kernel\portable\MemMang</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.c">
-			<Filter>vendors\microchip\secure_elements\lib</Filter>
-		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.c">
 			<Filter>vendors\microchip\secure_elements\lib</Filter>
 		</ClCompile>

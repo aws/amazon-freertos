@@ -326,7 +326,6 @@
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\timers.c"/>
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MSVC-MingW\port.c"/>
 		<ClCompile Include="..\..\..\..\..\freertos_kernel\portable\MemMang\heap_4.c"/>
-		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_cfgs.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_command.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_device.c"/>
 		<ClCompile Include="..\..\..\..\..\vendors\microchip\secure_elements\lib\atca_execution.c"/>

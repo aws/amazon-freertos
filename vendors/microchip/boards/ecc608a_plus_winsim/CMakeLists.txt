@@ -44,6 +44,7 @@ afr_mcu_port(kernel)
 
 # ECC608A source files
 afr_glob_src(ecc608a_src DIRECTORY ${ecc608a_dir}/lib)
+list(REMOVE_ITEM ecc608a_src "${ecc608a_dir}/lib/atca_cfgs.c")
 afr_glob_src(ecc608a_atacert_src RECURSE DIRECTORY ${ecc608a_dir}/lib/atcacert)
 afr_glob_src(ecc608a_basic_src RECURSE DIRECTORY ${ecc608a_dir}/lib/basic)
 afr_glob_src(ecc608a_crypto_src RECURSE DIRECTORY ${ecc608a_dir}/lib/crypto)
