@@ -44,6 +44,9 @@ afr_mcu_port(kernel)
 
 # ECC608A source files
 afr_glob_src(ecc608a_src DIRECTORY ${ecc608a_dir}/lib)
+# vendors/microchip/secure_elements/lib/atca_cfgs.c should not be included in the project because
+# cfg_ateccx08a_kithid_default is re-declared in:
+# vendors/microchip/boards/ecc608a_plus_winsim/ports/pkcs11/iot_pkcs11_secure_element.c
 list(REMOVE_ITEM ecc608a_src "${ecc608a_dir}/lib/atca_cfgs.c")
 afr_glob_src(ecc608a_atacert_src RECURSE DIRECTORY ${ecc608a_dir}/lib/atcacert)
 afr_glob_src(ecc608a_basic_src RECURSE DIRECTORY ${ecc608a_dir}/lib/basic)
