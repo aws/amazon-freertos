@@ -63,7 +63,7 @@
 #define ENABLE_TC_SECONDARY_SERVICE                            ( 0 )
 /* Integration test */
 #define ENABLE_TC_CALLBACK_NULL_CHECK                          ( 1 )
-#define ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK               ( 1 )
+#define ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK               ( 0 )
 #define ENABLE_TC_ADVERTISE_WITHOUT_PROPERTISE                 ( 1 )
 #define ENABLE_TC_ADVERTISE_WITH_16BIT_SERVICEUUID             ( 1 )
 #define ENABLE_TC_ADVERTISE_WITH_MANUFACTIRUNG_DATA            ( 1 )
