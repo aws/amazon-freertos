@@ -202,6 +202,8 @@ TEST( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback 
 
     IotTestBleHal_StopService( &_xSrvcB );
     IotTestBleHal_DeleteService( &_xSrvcB );
+
+    IotTestBleHal_BTUnregister();
 }
 
 TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )

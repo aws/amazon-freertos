@@ -706,24 +706,27 @@ class runTest:
         runTest._simple_connect()
 
         runTest.stopAdvertisement(scan_filter)
-        isTestSuccessFull = runTest.discoverPrimaryServices()
+        isTestSuccessFull_discover = runTest.discoverPrimaryServices()
         bleAdapter.gatt.updateLocalAttributeTable()
 
         bleAdapter.setNotificationCallBack(runTest.notificationMTUCb)
         bleAdapter.subscribeForNotification(
             runTest.DUT_NOTIFY_CHAR_UUID)  # subscribe for next test
-        isTestSuccessFull = True
         runTest.mainloop.run()
-        isTestSuccessFull = runTest.isNotificationDeclinedSuccessFull
-        runTest.submitTestResult(isTestSuccessFull, runTest.notification)
+        isTestSuccessFull_notification = runTest.isNotificationDeclinedSuccessFull
+        runTest.submitTestResult(isTestSuccessFull_notification, runTest.notification)
 
-        isTestSuccessFull = bleAdapter.subscribeForNotification(
+        isTestSuccessFull_removenotification = bleAdapter.subscribeForNotification(
             runTest.DUT_NOTIFY_CHAR_UUID, subscribe=False)  # unsubscribe
-        runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
+        runTest.submitTestResult(isTestSuccessFull_removenotification, runTest.removeNotification)
 
-        isTestSuccessFull &= bleAdapter.disconnect()
+        isTestSuccessFull_disconnect = bleAdapter.disconnect()
         testutils.removeBondedDevices()
 
+        isTestSuccessFull = (isTestSuccessFull_discover &
+                             isTestSuccessFull_notification &
+                             isTestSuccessFull_removenotification &
+                             isTestSuccessFull_disconnect)
         return isTestSuccessFull
 
     @staticmethod
