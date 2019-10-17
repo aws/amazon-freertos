@@ -171,6 +171,7 @@ TEST( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback 
     IotTestBleHal_BLEGATTInit( &_xBTGattServer_Nested_Cb, true );
 
     xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
+
     if( xStatus != eBTStatusUnsupported )
     {
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
@@ -558,7 +559,7 @@ void prvGAPInitEnableTwice()
         IotTestBleHal_BLEEnable( true );
 
         /* BLEGAPInit with NULL Cb */
-        IotTestBleHal_BLEGAPInit( &_xBTBleAdapter_NULL_Cb, false);
+        IotTestBleHal_BLEGAPInit( &_xBTBleAdapter_NULL_Cb, false );
 
         /* BLEGATTInit with NULL Cb */
         IotTestBleHal_BLEGATTInit( &_xBTGattServer_NULL_Cb, false );
@@ -569,7 +570,7 @@ void prvGAPInitEnableTwice()
         BTStatus_t xStatus;
 
         /* Try to create using blob service API first.
-            * If blob is not supported then try legacy APIs. */
+         * If blob is not supported then try legacy APIs. */
         xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
 
         if( xStatus != eBTStatusUnsupported )
@@ -616,7 +617,7 @@ void prvGAPInitEnableTwice()
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
         /* Get the name to check it is set */
-    /*@TODO IotTestBleHal_SetGetProperty(&pxProperty, false); */
+        /*@TODO IotTestBleHal_SetGetProperty(&pxProperty, false); */
 
         pxProperty.xType = eBTpropertyLocalMTUSize;
         pxProperty.xLen = sizeof( usMTUsize );
@@ -663,8 +664,8 @@ void prvGAPInitEnableTwice()
     }
 
     void prvSetAdvDataWithNULLCb( BTuuidType_t type,
-                                    uint16_t usManufacturerLen,
-                                    char * pcManufacturerData )
+                                  uint16_t usManufacturerLen,
+                                  char * pcManufacturerData )
     {
         uint16_t usServiceDataLen;
         char * pcServiceData;
@@ -702,20 +703,20 @@ void prvGAPInitEnableTwice()
         l_xAdvertisementConfigB = xAdvertisementConfigB;
 
         prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigA,
-                                        usServiceDataLen,
-                                        pcServiceData,
-                                        &xServiceUuid,
-                                        xNbServices,
-                                        usManufacturerLen,
-                                        pcManufacturerData );
+                                       usServiceDataLen,
+                                       pcServiceData,
+                                       &xServiceUuid,
+                                       xNbServices,
+                                       usManufacturerLen,
+                                       pcManufacturerData );
 
         prvSetAdvertisementWithNULLCb( &l_xAdvertisementConfigB,
-                                        usServiceDataLen,
-                                        pcServiceData,
-                                        NULL,
-                                        0,
-                                        usManufacturerLen,
-                                        pcManufacturerData );
+                                       usServiceDataLen,
+                                       pcServiceData,
+                                       NULL,
+                                       0,
+                                       usManufacturerLen,
+                                       pcManufacturerData );
     }
 
     void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
@@ -729,13 +730,13 @@ void prvGAPInitEnableTwice()
         BTStatus_t xStatus = eBTStatusSuccess;
 
         xStatus = _pxBTLeAdapterInterface->pxSetAdvData( _ucBLEAdapterIf,
-                                                            pxParams,
-                                                            usManufacturerLen,
-                                                            pcManufacturerData,
-                                                            usServiceDataLen,
-                                                            pcServiceData,
-                                                            pxServiceUuid,
-                                                            xNbServices );
+                                                         pxParams,
+                                                         usManufacturerLen,
+                                                         pcManufacturerData,
+                                                         usServiceDataLen,
+                                                         pcServiceData,
+                                                         pxServiceUuid,
+                                                         xNbServices );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
 

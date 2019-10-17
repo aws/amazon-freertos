@@ -502,7 +502,8 @@ void IotTestBleHal_BLEManagerInit( BTCallbacks_t * pBTmanagerCb )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
-void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb, bool EnableCb )
+void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb,
+                               bool EnableCb )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
@@ -523,7 +524,8 @@ void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb, bool E
     }
 }
 
-void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb, bool EnableCb )
+void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
+                                bool EnableCb )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
     BLETESTInitDeinitCallback_t xInitDeinitCb;
@@ -790,11 +792,13 @@ void IotTestBleHal_CreateServiceC()
     prvCreateCharacteristic( &_xSrvcC, bletestATTR_SRVCC_CHAR_A );
 }
 
-void IotTestBleHal_CreateServiceB_Nested()
-{
-    prvCreateService( &_xSrvcB );
-    prvCreateCharacteristic( &_xSrvcB, ServiceB_CharArray[ServiceB_Char] );
-}
+#if ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK
+    void IotTestBleHal_CreateServiceB_Nested()
+    {
+        prvCreateService( &_xSrvcB );
+        prvCreateCharacteristic( &_xSrvcB, ServiceB_CharArray[ ServiceB_Char ] );
+    }
+#endif
 
 static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                                  uint16_t usServiceDataLen,
@@ -1301,31 +1305,33 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
     pushToQueue( &pxAttrCb->xEvent.eventList );
 }
 
-void prvCharAddedNestedCb( BTStatus_t xStatus,
-                           uint8_t ucServerIf,
-                           BTUuid_t * pxUuid,
-                           uint16_t usServiceHandle,
-                           uint16_t usCharHandle )
-{
-    BTGattSrvcId_t xSrvcId;
-    uint16_t usNumHandles;
-
-    if(( CharAddedComplete != true ) && ( ++ServiceB_Char < ServiceB_CharNumber ))
+#if ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK
+    void prvCharAddedNestedCb( BTStatus_t xStatus,
+                               uint8_t ucServerIf,
+                               BTUuid_t * pxUuid,
+                               uint16_t usServiceHandle,
+                               uint16_t usCharHandle )
     {
-        xStatus = _pxGattServerInterface->pxAddCharacteristic( _ucBLEServerIf,
-                                                               _xSrvcB.pusHandlesBuffer[ 0 ],
-                                                               &_xSrvcB.pxBLEAttributes[ ServiceB_Char ].xCharacteristic.xUuid,
-                                                               _xSrvcB.pxBLEAttributes[ ServiceB_Char ].xCharacteristic.xProperties,
-                                                               _xSrvcB.pxBLEAttributes[ ServiceB_Char ].xCharacteristic.xPermissions );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    }
-    else if( ServiceB_Char >= ServiceB_CharNumber )
-    {
-        TEST_ASSERT_EQUAL( true, CharAddedComplete );
-    }
+        BTGattSrvcId_t xSrvcId;
+        uint16_t usNumHandles;
 
-    prvCharacteristicAddedCb( xStatus, ucServerIf, pxUuid, usServiceHandle, usCharHandle );
-}
+        if( ( CharAddedComplete != true ) && ( ++ServiceB_Char < ServiceB_CharNumber ) )
+        {
+            xStatus = _pxGattServerInterface->pxAddCharacteristic( _ucBLEServerIf,
+                                                                   _xSrvcB.pusHandlesBuffer[ 0 ],
+                                                                   &_xSrvcB.pxBLEAttributes[ ServiceB_Char ].xCharacteristic.xUuid,
+                                                                   _xSrvcB.pxBLEAttributes[ ServiceB_Char ].xCharacteristic.xProperties,
+                                                                   _xSrvcB.pxBLEAttributes[ ServiceB_Char ].xCharacteristic.xPermissions );
+            TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        }
+        else if( ServiceB_Char >= ServiceB_CharNumber )
+        {
+            TEST_ASSERT_EQUAL( true, CharAddedComplete );
+        }
+
+        prvCharacteristicAddedCb( xStatus, ucServerIf, pxUuid, usServiceHandle, usCharHandle );
+    }
+#endif /* if ENABLE_TC_ADD_CAHRACTERISTIC_IN_CALLBACK */
 
 void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
                                     uint8_t ucServerIf,
