@@ -1,0 +1,23 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "Common I/O I2C"
+PROJECT_BRIEF = "AWS IoT Common I/O I2C library"
+
+# Library documentation output directory.
+HTML_OUTPUT = common_io_i2c
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/output/common_io_i2c.tag
+
+# Directories containing library source code.
+INPUT = libraries/abstractions/common_io/include
+
+
+# Library file names.
+FILE_PATTERNS = iot_i2c.h
+
+# External tag files required by this library.
+TAGFILES = doc/output/main.tag=../main

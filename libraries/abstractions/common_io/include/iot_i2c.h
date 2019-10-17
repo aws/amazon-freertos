@@ -35,21 +35,29 @@
 #include <stddef.h>
 
 /**
- * @defgroup iot_i2c I2C Abstraction APIs.
- * @{
+ * @constants_page{common_io_i2c}
+ * @constants_brief{Common I/O I2C library}
+ *
+ * @section common_io_i2c_constants_initializers I2C Speeds
+ * @brief The speeds supported by I2C bus.
+ *
+ * @snippet this define_common_io_i2c_speeds
+ *
+ *
+ * @section common_io_i2c_constants_errors I2C Return Codes
+ * @brief The return codes for the functions in I2C.
+ *
+ * @snippet this define_common_io_i2c_errors
  */
 
-/**
- * The speeds supported by I2C bus.
- */
-#define IOT_I2C_STANDARD_MODE_BPS         ( 100000 )  /*!< Standard mode bits per second. */
-#define IOT_I2C_FAST_MODE_BPS             ( 400000 )  /*!< Fast mode bits per second. */
-#define IOT_I2C_FAST_MODE_PLUS_BPS        ( 1000000 ) /*!< Fast plus mode bits per second. */
-#define IOT_I2C_HIGH_SPEED_BPS            ( 3400000 ) /*!< High speed mode bits per second. */
+/* @[define_common_io_i2c_speeds] */
+#define IOT_I2C_STANDARD_MODE_BPS     ( 100000 )      /*!< Standard mode bits per second. */
+#define IOT_I2C_FAST_MODE_BPS         ( 400000 )      /*!< Fast mode bits per second. */
+#define IOT_I2C_FAST_MODE_PLUS_BPS    ( 1000000 )     /*!< Fast plus mode bits per second. */
+#define IOT_I2C_HIGH_SPEED_BPS        ( 3400000 )     /*!< High speed mode bits per second. */
+/* @[define_common_io_i2c_speeds] */
 
-/**
- * The return codes for the functions in I2C.
- */
+/* @[define_common_io_i2c_errors] */
 #define IOT_I2C_SUCCESS                   ( 0 )     /*!< I2C operation completed successfully. */
 #define IOT_I2C_INVALID_VALUE             ( 1 )     /*!< At least one parameter is invalid. */
 #define IOT_I2C_BUSY                      ( 2 )     /*!< I2C bus is busy at current time. */
@@ -60,8 +68,15 @@
 #define IOT_I2C_NOTHING_TO_CANCEL         ( 7 )     /*!< No ongoing transaction when cancel operation is performed. */
 #define IOT_I2C_FUNCTION_NOT_SUPPORTED    ( 8 )     /*!< I2C operation is not supported. */
 #define IOT_I2C_SLAVE_ADDRESS_NOT_SET     ( 9 )     /*!< Slave address is not set before calling I2C read or write operation. */
+/* @[define_common_io_i2c_errors] */
 
 /**
+ * @enums_group{common_io_i2c}
+ * @enums_brief{Common I/O I2C library}
+ */
+
+/**
+ * @ingroup common_io_i2c_datatypes_enums
  * @brief I2C Bus status
  */
 typedef enum
@@ -71,6 +86,7 @@ typedef enum
 } IotI2CBusStatus_t;
 
 /**
+ * @ingroup common_io_i2c_datatypes_enums
  * @brief I2C operation status.
  */
 typedef enum
@@ -82,15 +98,7 @@ typedef enum
 } IotI2COperationStatus_t;
 
 /**
- * @brief I2C bus configuration
- */
-typedef struct IotI2CConfig
-{
-    uint32_t ulMasterTimeout; /**<! Master timeout value in msec, to relinquish the bus if slave does not respond. This is an extended feature of SMBus which is not part of I2C protocol. */
-    uint32_t ulBusFreq;       /**<! Bus frequency/baud rate */
-} IotI2CConfig_t;
-
-/**
+ * @ingroup common_io_i2c_datatypes_enums
  * @brief Ioctl request types.
  */
 typedef enum
@@ -108,12 +116,33 @@ typedef enum
 } IotI2CIoctlRequest_t;
 
 /**
+ * @paramstructs_group{common_io_i2c}
+ * @paramstructs_brief{common_io_i2c, Common I/O I2C}
+ */
+
+/**
+ * @ingroup common_io_i2c_datatypes_paramstructs
+ * @brief I2C bus configuration
+ */
+typedef struct IotI2CConfig
+{
+    uint32_t ulMasterTimeout; /**<! Master timeout value in msec, to relinquish the bus if slave does not respond. This is an extended feature of SMBus which is not part of I2C protocol. */
+    uint32_t ulBusFreq;       /**<! Bus frequency/baud rate */
+} IotI2CConfig_t;
+
+/**
  * @brief The I2C descriptor type defined in the source file.
  * This is an anonymous struct that is vendor/driver specific.
  */
 struct                    IotI2CDescriptor;
 
 /**
+ * @handles_group{common_io_i2c}
+ * @handles_brief{Common I/O I2C library}
+ */
+
+/**
+ * @ingroup common_io_i2c_datatypes_handles
  * @brief IotI2CHandle_t is the handle type returned by calling iot_i2c_open().
  *        This is initialized in open and returned to caller. The caller must pass
  *        this pointer to the rest of APIs.
@@ -134,6 +163,62 @@ typedef void (* IotI2CCallback_t) ( IotI2COperationStatus_t xOpStatus,
                                     void * pvUserContext );
 
 /**
+ * @functions_page{common_io_i2c, Common I/O I2C}
+ * @functions_brief{common_io_i2c}
+ * - @function_name{common_io_i2c_function_open}
+ * @function_brief{common_io_i2c_function_open}
+ * - @function_name{common_io_i2c_function_set_callback}
+ * @function_brief{common_io_i2c_function_set_callback}
+ * - @function_name{common_io_i2c_function_read_sync}
+ * @function_brief{common_io_i2c_function_read_sync}
+ * - @function_name{common_io_i2c_function_write_sync}
+ * @function_brief{common_io_i2c_function_write_sync}
+ * - @function_name{common_io_i2c_function_read_async}
+ * @function_brief{common_io_i2c_function_read_async}
+ * - @function_name{common_io_i2c_function_write_async}
+ * @function_brief{common_io_i2c_function_write_async}
+ * - @function_name{common_io_i2c_function_ioctl}
+ * @function_brief{common_io_i2c_function_ioctl}
+ * - @function_name{common_io_i2c_function_close}
+ * @function_brief{common_io_i2c_function_close}
+ * - @function_name{common_io_i2c_function_cancel}
+ * @function_brief{common_io_i2c_function_cancel}
+ */
+
+/**
+ * @page common_io_i2c_function_open iot_i2c_open
+ * @snippet this declare_common_io_i2c_open
+ * @copydoc iot_i2c_open
+ * @page common_io_i2c_function_set_callback iot_i2c_set_callback
+ * @snippet this declare_common_io_i2c_set_callback
+ * @copydoc iot_i2c_set_callback
+ * @page common_io_i2c_function_open iot_i2c_open
+ * @snippet this declare_common_io_i2c_open
+ * @copydoc iot_i2c_open
+ * @page common_io_i2c_function_read_sync iot_i2c_read_sync
+ * @snippet this declare_common_io_i2c_read_sync
+ * @copydoc iot_i2c_read_sync
+ * @page common_io_i2c_function_write_sync iot_i2c_write_sync
+ * @snippet this declare_common_io_i2c_write_sync
+ * @copydoc iot_i2c_write_sync
+ * @page common_io_i2c_function_read_async iot_i2c_read_async
+ * @snippet this declare_common_io_i2c_read_async
+ * @copydoc iot_i2c_read_async
+ * @page common_io_i2c_function_write_async iot_i2c_write_async
+ * @snippet this declare_common_io_i2c_write_async
+ * @copydoc iot_i2c_write_async
+ * @page common_io_i2c_function_ioctl iot_i2c_ioctl
+ * @snippet this declare_common_io_i2c_ioctl
+ * @copydoc iot_i2c_ioctl
+ * @page common_io_i2c_function_close iot_i2c_close
+ * @snippet this declare_common_io_i2c_close
+ * @copydoc iot_i2c_close
+ * @page common_io_i2c_function_cancel iot_i2c_cancel
+ * @snippet this declare_common_io_i2c_cancel
+ * @copydoc iot_i2c_cancel
+ */
+
+/**
  * @brief Initiates and reserves an I2C instance as master.
  *
  * One instance can communicate with one or more slave devices.
@@ -149,7 +234,10 @@ typedef void (* IotI2CCallback_t) ( IotI2COperationStatus_t xOpStatus,
  *     - invalid instance number
  *     - open same instance more than once before closing it
  */
+/* @[declare_common_io_i2c_open] */
 IotI2CHandle_t iot_i2c_open( int32_t lI2CInstance );
+/* @[declare_common_io_i2c_open] */
+
 
 /**
  * @brief Sets the application callback to be called on completion of an operation.
@@ -166,9 +254,11 @@ IotI2CHandle_t iot_i2c_open( int32_t lI2CInstance );
  * @param[in] xCallback The callback function to be called on completion of transaction.
  * @param[in] pvUserContext The user context to be passed back when callback is called.
  */
+/* @[declare_common_io_i2c_set_callback] */
 void iot_i2c_set_callback( IotI2CHandle_t const pxI2CPeripheral,
                            IotI2CCallback_t xCallback,
                            void * pvUserContext );
+/* @[declare_common_io_i2c_set_callback] */
 
 /**
  * @brief Starts the I2C master read operation in synchronous mode.
@@ -267,9 +357,11 @@ void iot_i2c_set_callback( IotI2CHandle_t const pxI2CPeripheral,
  *  }
  * @endcode
  */
+/* @[declare_common_io_i2c_read_sync] */
 int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
                            uint8_t * const pucBuffer,
                            size_t xBytes );
+/* @[declare_common_io_i2c_read_sync] */
 
 /**
  * @brief Starts the I2C master write operation in synchronous mode.
@@ -304,9 +396,11 @@ int32_t iot_i2c_read_sync( IotI2CHandle_t const pxI2CPeripheral,
  * - IOT_I2C_BUS_TIMEOUT, if timeout is supported and slave device does not respond within configured timeout.
  * - IOT_I2C_BUSY, if the bus is busy which means there is an ongoing transaction.
  */
+/* @[declare_common_io_i2c_write_sync] */
 int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
                             uint8_t * const pucBuffer,
                             size_t xBytes );
+/* @[declare_common_io_i2c_write_sync] */
 
 /**
  * @brief Starts the I2C master read operation in asynchronous mode.
@@ -344,9 +438,11 @@ int32_t iot_i2c_write_sync( IotI2CHandle_t const pxI2CPeripheral,
  *     - the slave gets data or commands that it does not understand
  *     - there is some unknown driver error
  */
+/* @[declare_common_io_i2c_read_async] */
 int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
                             uint8_t * const pucBuffer,
                             size_t xBytes );
+/* @[declare_common_io_i2c_read_async] */
 
 /**
  * @brief Starts the I2C master write operation in asynchronous mode.
@@ -385,9 +481,11 @@ int32_t iot_i2c_read_async( IotI2CHandle_t const pxI2CPeripheral,
  * - IOT_I2C_BUS_TIMEOUT, if timeout is supported and slave device does not respond within configured timeout.
  * - IOT_I2C_BUSY, if the bus is busy which means there is an ongoing transaction.
  */
+/* @[declare_common_io_i2c_write_async] */
 int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
                              uint8_t * const pucBuffer,
                              size_t xBytes );
+/* @[declare_common_io_i2c_write_async] */
 
 /**
  * @brief Configures the I2C master with user configuration.
@@ -438,10 +536,11 @@ int32_t iot_i2c_write_async( IotI2CHandle_t const pxI2CPeripheral,
  *     - eI2CSendNoStopFlag: explicitly not sending stop condition is not supported
  *     - eI2CBusReset: reset bus is not supported
  */
+/* @[declare_common_io_i2c_ioctl] */
 int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral,
                        IotI2CIoctlRequest_t xI2CRequest,
                        void * const pvBuffer );
-
+/* @[declare_common_io_i2c_ioctl] */
 
 /**
  * @brief Stops the ongoing operation and de-initializes the I2C peripheral.
@@ -454,7 +553,9 @@ int32_t iot_i2c_ioctl( IotI2CHandle_t const pxI2CPeripheral,
  *     - pxI2CPeripheral is NULL
  *     - pxI2CPeripheral is not opened yet
  */
+/* @[declare_common_io_i2c_close] */
 int32_t iot_i2c_close( IotI2CHandle_t const pxI2CPeripheral );
+/* @[declare_common_io_i2c_close] */
 
 /**
  * @brief This function is used to cancel the current operation in progress, if possible.
@@ -469,11 +570,8 @@ int32_t iot_i2c_close( IotI2CHandle_t const pxI2CPeripheral );
  * - IOT_I2C_NOTHING_TO_CANCEL, if there is no on-going transaction.
  * - IOT_I2C_FUNCTION_NOT_SUPPORTED, if this board doesn't support this operation.
  */
+/* @[declare_common_io_i2c_cancel] */
 int32_t iot_i2c_cancel( IotI2CHandle_t const pxI2CPeripheral );
-
-/**
- * @}
- */
-/* end of group iot_i2c */
+/* @[declare_common_io_i2c_cancel] */
 
 #endif /* ifndef _IOT_I2C_H_ */
