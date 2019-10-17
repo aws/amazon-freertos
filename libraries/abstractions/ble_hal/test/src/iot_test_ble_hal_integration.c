@@ -151,7 +151,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_ADVERTISE_WITH_16BIT_SERVICEUUID
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
     #endif
-    #if ENABLE_TC_ADVERTISE_WITH_MANUFACTIRUNG_DATA
+    #if ENABLE_TC_ADVERTISE_WITH_MANUFACTUREDATA
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
     #endif
     #if ENABLE_TC_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET
@@ -163,7 +163,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Integration_Connection_Timeout );
     #endif
-    #if ENABLE_TC_SEND_DATA_AFTER_DISCONNECED
+    #if ENABLE_TC_SEND_DATA_AFTER_DISCONNECTED
         RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
     #endif
     #if ENABLE_TC_CALLBACK_NULL_CHECK
