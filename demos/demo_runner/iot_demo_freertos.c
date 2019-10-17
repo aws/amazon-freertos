@@ -348,7 +348,6 @@ void runDemoTask( void * pArgument )
             IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
         #endif /* democonfigMEMORY_ANALYSIS */
 
-
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )
         {
