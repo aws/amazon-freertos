@@ -341,6 +341,14 @@ void runDemoTask( void * pArgument )
                                          pCredentials,
                                          pNetworkInterface );
 
+        #ifdef democonfigMEMORY_ANALYSIS
+            xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+            IotLogInfo( "Demo Memory Analysis Heap Total: %u Minimum heap size ever before running demo: %u after running demo: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
+            xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+            IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
+        #endif /* democonfigMEMORY_ANALYSIS */
+
+
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )
         {
@@ -359,13 +367,6 @@ void runDemoTask( void * pArgument )
     {
         IotLogError( "Failed to initialize the demo. exiting..." );
     }
-
-    #ifdef democonfigMEMORY_ANALYSIS
-        xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
-        IotLogInfo( "Demo Memory Analysis Heap Total: %u Minimum heap size ever before running demo: %u after running demo: %u \r\n", configTOTAL_HEAP_SIZE, xBeforeDemoHeapSize, xAfterDemoHeapSize );
-        xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-        IotLogInfo( "Demo Memory Analysis Stack Total: %u Watermark Before: %u After: %u \r\n", xDemoStackSize, xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark );
-    #endif /* democonfigMEMORY_ANALYSIS */
 
     /* DO NOT EDIT - This demo end marker is used in the test framework to
      * determine the end of a demo. */
