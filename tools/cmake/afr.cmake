@@ -54,8 +54,12 @@ if(NOT DEFINED CACHE{AFR_TOOLCHAIN})
     set(AFR_TOOLCHAIN ${__toolchain} CACHE INTERNAL "Toolchain to build Amazon FreeRTOS.")
 endif()
 
-# Provide an option to enable demos.
-option(AFR_ENABLE_DEMOS "Build demos for Amazon FreeRTOS." ON)
+# Provide an option to enable demos. If we're not at top level, turn off demos build by default.
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+    option(AFR_ENABLE_DEMOS "Build demos for Amazon FreeRTOS." ON)
+else()
+    option(AFR_ENABLE_DEMOS "Build demos for Amazon FreeRTOS." OFF)
+endif()
 
 # Provide an option to enable tests. Also set an helper variable to use in generator expression.
 option(AFR_ENABLE_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
