@@ -44,8 +44,8 @@
 
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
-
 
 /*
  * Length of elliptic curve credentials included from aws_clientcredential_keys.h.
@@ -86,7 +86,7 @@ TEST_GROUP_RUNNER( Full_TLS )
 {
     RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectDefault );
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-        #if ( pkcs11testEC_KEY_SUPPORT == 1 )
+        #ifdef pkcs11testEC_KEY_SUPPORT
             RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
             RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
         #endif
