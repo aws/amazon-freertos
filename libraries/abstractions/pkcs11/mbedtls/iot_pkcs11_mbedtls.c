@@ -2293,6 +2293,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
 
                     break;
 
+                case CKA_PRIVATE_EXPONENT:
+
+                    xResult = CKR_ATTRIBUTE_SENSITIVE;
+
+                    break;
+
                 case CKA_EC_PARAMS:
 
                     /* TODO: Add check that is key, is ec key. */
