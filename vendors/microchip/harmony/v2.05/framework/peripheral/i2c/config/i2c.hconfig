@@ -1,0 +1,9 @@
+source "$HARMONY_VERSION_PATH/framework/peripheral/i2c/processor/i2c_$DEVICE.hconfig"
+
+ifblock PROJECT_STANDALONE
+file PLIB_I2C_H "$HARMONY_VERSION_PATH/framework/peripheral/i2c/plib_i2c.h" to "$PROJECT_HEADER_FILES/framework/peripheral/i2c/plib_i2c.h"
+file PLIB_I2C_HELPER_MACROS_H "$HARMONY_VERSION_PATH/framework/peripheral/i2c/plib_i2c_helper_macros.h" to "$PROJECT_HEADER_FILES/framework/peripheral/i2c/plib_i2c_helper_macros.h"
+file PLIB_I2C_P32XXXX_H "$HARMONY_VERSION_PATH/framework/peripheral/i2c/processor/i2c_p32xxxx.h" to "$PROJECT_HEADER_FILES/framework/peripheral/i2c/processor/i2c_p32xxxx.h"
+file PLIB_I2C_PROCESSOR_H "$HARMONY_VERSION_PATH/framework/peripheral/i2c/processor/i2c_processor.h" to "$PROJECT_HEADER_FILES/framework/peripheral/i2c/processor/i2c_processor.h"
+file PLIB_I2C_REGISTERS_H "$HARMONY_VERSION_PATH/framework/peripheral/i2c/templates/i2c_Registers.h" to "$PROJECT_HEADER_FILES/framework/peripheral/i2c/templates/i2c_Registers.h"
+endif
