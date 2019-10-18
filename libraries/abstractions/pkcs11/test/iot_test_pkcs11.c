@@ -789,20 +789,23 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
     }
 
     /* Check for ECDSA support, if applicable. */
-    #if ( 1 == pkcs11testEC_KEY_SUPPORT )
-        xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_ECDSA, &MechanismInfo );
-        TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
+    xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_ECDSA, &MechanismInfo );
+    TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
 
-        if( CKR_OK == xResult )
-        {
-            TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
+    if( CKR_OK == xResult )
+    {
+        TEST_ASSERT_TRUE( 0 != ( ( CKF_SIGN | CKF_VERIFY ) & MechanismInfo.flags ) );
 
-            TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
-                              MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
+        TEST_ASSERT_TRUE( MechanismInfo.ulMaxKeySize >= pkcs11ECDSA_P256_KEY_BITS &&
+                          MechanismInfo.ulMinKeySize <= pkcs11ECDSA_P256_KEY_BITS );
 
-            configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
-        }
-    #endif /* if ( 1 == pkcs11testEC_KEY_SUPPORT ) */
+        /* Check consistency with static configuration. */
+        #if ( 0 == pkcs11testEC_KEY_SUPPORT )
+            TEST_FAIL_MESSAGE( "Static and runtime configuration for key generation support are inconsistent." );
+        #endif
+
+        configPRINTF( ( "The PKCS #11 module supports ECDSA.\r\n" ) );
+    }
 
     /* Check for elliptic-curve key generation support. */
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_EC_KEY_PAIR_GEN, &MechanismInfo );

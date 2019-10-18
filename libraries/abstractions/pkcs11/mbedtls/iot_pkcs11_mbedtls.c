@@ -825,8 +825,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetMechanismInfo )( CK_SLOT_ID slotID,
     {
         { CKM_RSA_PKCS,        { 2048, 2048, CKF_SIGN              } },
         { CKM_RSA_X_509,       { 2048, 2048, CKF_VERIFY            } },
-        { CKM_ECDSA,           { 256,  256,  CKF_SIGN | CKF_VERIFY } },
-        { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
+        #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+            { CKM_ECDSA,           { 256,  256,  CKF_SIGN | CKF_VERIFY } },
+            { CKM_EC_KEY_PAIR_GEN, { 256,  256,  CKF_GENERATE_KEY_PAIR } },
+        #endif
         { CKM_SHA256,          { 0,    0,    CKF_DIGEST            } }
     };
     uint32_t ulMech = 0;
@@ -1586,51 +1588,54 @@ CK_RV prvCreatePrivateKey( CK_ATTRIBUTE_PTR pxTemplate,
             xResult = CKR_HOST_MEMORY;
         }
     }
-    else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
-    {
-        /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
-        prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-        xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
-
-        if( xPalHandle == CK_INVALID_HANDLE )
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+        else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
-            /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
-             * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
-             * the structure so that the mbedTLS structures will look the same as they would if a key
-             * had been found, minus the public key component. */
+            /* Key will be assembled in the mbedTLS key context and then exported to DER for storage. */
+            prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-            /* If a key had been found by prvGetExistingKeyComponent, the keypair context
-             * would have been malloc'ed. */
-            pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+            xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
 
-            if( pxKeyPair != NULL )
+            if( xPalHandle == CK_INVALID_HANDLE )
             {
-                /* Initialize the info. */
-                xMbedContext.pk_info = &mbedtls_eckey_info;
+                /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
+                 * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
+                 * the structure so that the mbedTLS structures will look the same as they would if a key
+                 * had been found, minus the public key component. */
 
-                /* Initialize the context. */
-                xMbedContext.pk_ctx = pxKeyPair;
-                mbedtls_ecp_keypair_init( pxKeyPair );
-                mbedtls_ecp_group_init( &pxKeyPair->grp );
-                /*/ * At this time, only P-256 curves are supported. * / */
-                mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                /* If a key had been found by prvGetExistingKeyComponent, the keypair context
+                 * would have been malloc'ed. */
+                pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+
+                if( pxKeyPair != NULL )
+                {
+                    /* Initialize the info. */
+                    xMbedContext.pk_info = &mbedtls_eckey_info;
+
+                    /* Initialize the context. */
+                    xMbedContext.pk_ctx = pxKeyPair;
+                    mbedtls_ecp_keypair_init( pxKeyPair );
+                    mbedtls_ecp_group_init( &pxKeyPair->grp );
+                    /*/ * At this time, only P-256 curves are supported. * / */
+                    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                }
+                else
+                {
+                    xResult = CKR_HOST_MEMORY;
+                }
             }
-            else
-            {
-                xResult = CKR_HOST_MEMORY;
-            }
+
+            xResult = prvCreateEcPrivateKey( &xMbedContext,
+                                             &pxLabel,
+                                             pxTemplate,
+                                             ulCount,
+                                             pxObject );
         }
-
-        xResult = prvCreateEcPrivateKey( &xMbedContext,
-                                         &pxLabel,
-                                         pxTemplate,
-                                         ulCount,
-                                         pxObject );
-    }
+    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
     {
-        xResult = CKR_TEMPLATE_INCONSISTENT;
+        xResult = CKR_MECHANISM_INVALID;
     }
 
     /* Convert back to DER and save to memory. */
@@ -1832,52 +1837,56 @@ CK_RV prvCreatePublicKey( CK_ATTRIBUTE_PTR pxTemplate,
 
     if( xKeyType == CKK_RSA )
     {
+        xResult = CKR_ATTRIBUTE_TYPE_INVALID;
     }
-    else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
-    {
-        prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-        xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
-
-        if( xPalHandle == CK_INVALID_HANDLE )
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 )
+        else if( xKeyType == CKK_EC ) /* CKK_EC = CKK_ECDSA. */
         {
-            /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
-             * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
-             * the structure so that the mbedTLS structures will look the same as they would if a key
-             * had been found, minus the private key component. */
+            prvGetLabel( &pxLabel, pxTemplate, ulCount );
 
-            /* If a key had been found by prvGetExistingKeyComponent, the keypair context
-             * would have been malloc'ed. */
-            pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+            xResult = prvGetExistingKeyComponent( &xPalHandle, &xMbedContext, pxLabel );
 
-            if( pxKeyPair != NULL )
+            if( xPalHandle == CK_INVALID_HANDLE )
             {
-                /* Initialize the info. */
-                xMbedContext.pk_info = &mbedtls_eckey_info;
+                /* An mbedTLS key is comprised of 2 pieces of data- an "info" and a "context".
+                 * Since a valid key was not found by prvGetExistingKeyComponent, we are going to initialize
+                 * the structure so that the mbedTLS structures will look the same as they would if a key
+                 * had been found, minus the private key component. */
 
-                /* Initialize the context. */
-                xMbedContext.pk_ctx = pxKeyPair;
-                mbedtls_ecp_keypair_init( pxKeyPair );
-                mbedtls_ecp_group_init( &pxKeyPair->grp );
-                /*/ * At this time, only P-256 curves are supported. * / */
-                mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                /* If a key had been found by prvGetExistingKeyComponent, the keypair context
+                 * would have been malloc'ed. */
+                pxKeyPair = pvPortMalloc( sizeof( mbedtls_ecp_keypair ) );
+
+                if( pxKeyPair != NULL )
+                {
+                    /* Initialize the info. */
+                    xMbedContext.pk_info = &mbedtls_eckey_info;
+
+                    /* Initialize the context. */
+                    xMbedContext.pk_ctx = pxKeyPair;
+                    mbedtls_ecp_keypair_init( pxKeyPair );
+                    mbedtls_ecp_group_init( &pxKeyPair->grp );
+                    /*/ * At this time, only P-256 curves are supported. * / */
+                    mbedtls_ecp_group_load( &pxKeyPair->grp, MBEDTLS_ECP_DP_SECP256R1 );
+                }
+                else
+                {
+                    xResult = CKR_HOST_MEMORY;
+                }
             }
             else
             {
-                xResult = CKR_HOST_MEMORY;
+                xPrivateKeyFound = CK_TRUE;
             }
-        }
-        else
-        {
-            xPrivateKeyFound = CK_TRUE;
-        }
 
-        xResult = prvCreateECPublicKey( &xMbedContext, &pxLabel, pxTemplate, ulCount, pxObject );
-    }
+            xResult = prvCreateECPublicKey( &xMbedContext, &pxLabel, pxTemplate, ulCount, pxObject );
+        }
+    #endif /* if ( pkcs11configSUPPRESS_ECDSA_MECHANISM != 1 ) */
     else
     {
         PKCS11_PRINT( ( "Invalid key type %d \r\n", xKeyType ) );
-        xResult = CKR_TEMPLATE_INCONSISTENT;
+        xResult = CKR_MECHANISM_INVALID;
     }
 
     if( xResult == CKR_OK )
@@ -3673,18 +3682,31 @@ CK_DECLARE_FUNCTION( CK_RV, C_GenerateKeyPair )( CK_SESSION_HANDLE xSession,
     CK_OBJECT_HANDLE xPalPublic = CK_INVALID_HANDLE;
     CK_OBJECT_HANDLE xPalPrivate = CK_INVALID_HANDLE;
 
-    if( ( pxPublicKeyTemplate == NULL ) ||
-        ( pxPrivateKeyTemplate == NULL ) ||
-        ( pxPublicKey == NULL ) ||
-        ( pxPrivateKey == NULL ) ||
-        ( pxMechanism == NULL ) )
+    #if ( pkcs11configSUPPRESS_ECDSA_MECHANISM == 1 )
+        if( xResult == CKR_OK )
+        {
+            xResult = CKR_MECHANISM_INVALID;
+        }
+    #endif
+
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_ARGUMENTS_BAD;
+        if( ( pxPublicKeyTemplate == NULL ) ||
+            ( pxPrivateKeyTemplate == NULL ) ||
+            ( pxPublicKey == NULL ) ||
+            ( pxPrivateKey == NULL ) ||
+            ( pxMechanism == NULL ) )
+        {
+            xResult = CKR_ARGUMENTS_BAD;
+        }
     }
 
-    if( pucDerFile == NULL )
+    if( xResult == CKR_OK )
     {
-        xResult = CKR_HOST_MEMORY;
+        if( pucDerFile == NULL )
+        {
+            xResult = CKR_HOST_MEMORY;
+        }
     }
 
     if( xResult == CKR_OK )
