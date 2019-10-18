@@ -1823,7 +1823,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     xTemplate.type = CKA_VALUE;
     xTemplate.pValue = xPrivateKeyBuffer;
     xTemplate.ulValueLen = sizeof( xPrivateKeyBuffer );
-    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyBuffer, &xTemplate, 1 );
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
     TEST_ASSERT_EQUAL_MESSAGE( CKR_ATTRIBUTE_SENSITIVE, xResult, "Wrong error code retrieving private key" );
     TEST_ASSERT_EACH_EQUAL_INT8_MESSAGE( 0, xPrivateKeyBuffer, sizeof( xPrivateKeyBuffer ), "Private key bytes returned when they should not be" );
 

@@ -2163,6 +2163,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObjectValue, &ulLength, &xIsPrivate );
         }
+        else
+        {
+            xResult = CKR_OBJECT_HANDLE_INVALID;
+        }
     }
 
     /* Determine what kind of object we are dealing with. */
