@@ -491,46 +491,38 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         ${exe_target}
         ${application_src}
     )
+
+    set(
+        mkld_flags
+        -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
+        -section-placement-file "${nrf52840_dir}/flash_placement.xml"
+        -check-segment-overflow
+        -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
+        -section-placement-macros
+        "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
+    )
+    add_custom_command(
+        TARGET ${exe_target} PRE_LINK
+        COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/${exe_target}.ld"
+    )
+
+    find_program(gcc_objectcopy arm-none-eabi-objcopy)
+    find_program(gcc_size arm-none-eabi-size)
+
+    if(NOT gcc_objectcopy )
+        message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+    endif()
+
+    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+        COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+    )
+
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+    )
 endif()
-
-if(NOT AFR_METADATA_MODE)
-    message(FATAL_ERROR "CMake support for Nordic is not complete yet.")
-endif()
-# -------------------------------------------------------------------------------------------------
-# Additional build configurations
-# -------------------------------------------------------------------------------------------------
-
-set(
-    mkld_flags
-    -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
-    -section-placement-file "${nrf52840_dir}/flash_placement.xml"
-    -check-segment-overflow
-    -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
-    -section-placement-macros
-    "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
-)
-
-add_custom_command(
-    TARGET ${exe_target} PRE_LINK
-    COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/${exe_target}.ld"
-)
-
-find_program(gcc_objectcopy arm-none-eabi-objcopy)
-find_program(gcc_size arm-none-eabi-size)
-
-if(NOT gcc_objectcopy )
-    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-endif()
-
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
-)
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
-)
