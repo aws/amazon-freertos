@@ -904,27 +904,30 @@ size_t xChunkLength;
 }
 /*-----------------------------------------------------------*/
 
-#if( ipconfigDNS_USE_CALLBACKS == 1 ) || ( ipconfigUSE_LLMNR == 1 )
-	uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer )
+/* The function below will only be called :
+when ipconfigDNS_USE_CALLBACKS == 1
+when ipconfigUSE_LLMNR == 1
+for testing purposes, by the module iot_test_freertos_tcp.c
+*/
+uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer )
+{
+DNSMessage_t *pxDNSMessageHeader;
+
+	if( pxNetworkBuffer->xDataLength >= sizeof( DNSMessage_t ) )
 	{
-	DNSMessage_t *pxDNSMessageHeader;
+		pxDNSMessageHeader =
+			( DNSMessage_t * ) ( pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t ) );
 
-		if( pxNetworkBuffer->xDataLength >= sizeof( DNSMessage_t ) )
-		{
-			pxDNSMessageHeader =
-				( DNSMessage_t * ) ( pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t ) );
-
-			/* The parameter pdFALSE indicates that the reply was not expected. */
-			prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
-							  pxNetworkBuffer->xDataLength,
-							  pdFALSE );
-		}
-
-		/* The packet was not consumed. */
-		return pdFAIL;
+		/* The parameter pdFALSE indicates that the reply was not expected. */
+		prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
+						  pxNetworkBuffer->xDataLength,
+						  pdFALSE );
 	}
-	/*-----------------------------------------------------------*/
-#endif /* if ( ipconfigDNS_USE_CALLBACKS == 1 ) || ( ipconfigUSE_LLMNR == 1 ) */
+
+	/* The packet was not consumed. */
+	return pdFAIL;
+}
+/*-----------------------------------------------------------*/
 
 #if( ipconfigUSE_NBNS == 1 )
 
