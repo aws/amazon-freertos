@@ -323,7 +323,6 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
-
         prvAfterRunningTests_Object();
     #endif /* if ( pkcs11testEC_KEY_SUPPORT == 1 ) */
 }
