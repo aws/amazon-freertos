@@ -10,13 +10,50 @@ All system calls (including networking) used in this SDK's libraries go through 
   @copybrief platform_threads
 - @ref platform_network <br>
   @copybrief platform_network
+- @ref platform_metrics <br>
+  <i>Only used by [Device Defender](@ref defender); does not need to be ported if not using Defender.</i> <br>
+  @copybrief platform_metrics <br>
+- @ref platform_atomic <br>
+  @copybrief platform_atomic
 
-All of the functions in each component will need to be implemented to port the libraries to a new platform. Currently, implementations exist for the following platforms:
+Currently, implementations exist for the following platforms:
 Component                   | Supported platforms
 ---------                   | -------------------
-@ref platform_clock         | [POSIX](https://en.wikipedia.org/wiki/POSIX)
-@ref platform_threads       | [POSIX](https://en.wikipedia.org/wiki/POSIX)
-@ref platform_network       | [Berkeley sockets](https://en.wikipedia.org/wiki/Berkeley_sockets) + [OpenSSL](https://en.wikipedia.org/wiki/OpenSSL) + [POSIX](https://en.wikipedia.org/wiki/POSIX) <br> [Amazon FreeRTOS Secure Sockets](https://docs.aws.amazon.com/freertos/latest/userguide/secure-sockets.html)
+@ref platform_clock         | [FreeRTOS Software Timers](https://www.freertos.org/RTOS-software-timer.html)
+@ref platform_threads       | [FreeRTOS Semaphores](https://www.freertos.org/Inter-Task-Communication.html) + [FreeRTOS Tasks](https://www.freertos.org/a00015.html)
+@ref platform_network       | [Berkeley sockets](https://en.wikipedia.org/wiki/Berkeley_sockets)
+@ref platform_metrics       | Sample implementation using [Berkeley sockets](https://en.wikipedia.org/wiki/Berkeley_sockets). <br> This implementation is not intended for production use.
+@ref platform_atomic        | [FreeRTOS Kernel Control](https://www.freertos.org/a00020.html)
+*/
+
+/**
+@config_page{platform}
+@config_brief{platform layer}
+
+@section IOT_LOG_LEVEL_PLATFORM
+@brief Set the log level of all platform components except the [networking component](@ref platform_network).
+
+This setting overrides @ref IOT_LOG_LEVEL_GLOBAL for the platform layer components that it affects. All log messages with a level at or below this setting will be printed. The [platform networking component](@ref platform_network) is generally more verbose than others, so its logging is controlled separately by @ref IOT_LOG_LEVEL_NETWORK.
+
+@configpossible One of the @ref logging_constants_levels.<br>
+@configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then #IOT_LOG_NONE.
+
+@section IOT_LOG_LEVEL_NETWORK
+@brief Set the log level of the [platform networking component](@ref platform_network).
+
+This setting overrides @ref IOT_LOG_LEVEL_GLOBAL for the [platform networking component](@ref platform_network). All log messages with a level at or below this setting will be printed. See @ref IOT_LOG_LEVEL_PLATFORM to set the log level of other platform components.
+
+@configpossible One of the @ref logging_constants_levels.<br>
+@configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then #IOT_LOG_NONE.
+
+@section platform_config_memory Memory allocation
+@brief Memory allocation function overrides for the platform layer.
+
+Some platform layers are not affected by @ref IOT_STATIC_MEMORY_ONLY. Currently, the following platform implementations require memory allocation:
+- POSIX <br>
+  This implementation is not affected by @ref IOT_STATIC_MEMORY_ONLY. However, its memory allocation functions may be overridden by setting the following constants. All memory allocation functions must have the same signatures as [malloc](http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html) and [free](http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
+  - `IotThreads_Malloc` and `IotThreads_Free`.
+  - `IotNetwork_Malloc` and `IotNetwork_Free`.
 */
 
 /**
@@ -55,6 +92,44 @@ digraph clock_dependencies
 
 Currently, the platform clock component has the following dependencies:
 - The operating system must provide the necessary APIs to implement the clock component's functions.
+- The logging library may be used if @ref IOT_LOG_LEVEL_PLATFORM is not #IOT_LOG_NONE.
+*/
+
+/**
+@page platform_threads Thread Management
+@brief @copybrief iot_threads.h
+
+The platform thread management component provides other libraries with functions relating to threading and synchronization. It interfaces directly with the operating system to provide:
+- A function to create new threads.
+- Synchronization mechanisms such as [mutexes](@ref IotMutex_t) and [counting semaphores](@ref IotSemaphore_t).
+
+@dependencies_section{platform_threads}
+@dependencies_brief{platform thread management component}
+
+@dot "Thread management direct dependencies"
+digraph threads_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph { rank=min; logging[label="Logging", fillcolor="#aed8a9ff" URL="@ref logging"]; }
+    subgraph
+    {
+        platform_threads[label="Thread management", fillcolor="#e89025ff"];
+    }
+    subgraph
+    {
+        rank = same;
+        operating_system[label="Operating system", fillcolor="#999999ff"]
+        standard_library[label="Standard library\nstdbool, stddef, stdint", fillcolor="#d15555ff"];
+    }
+    platform_threads -> operating_system;
+    platform_threads -> standard_library;
+    platform_threads -> logging [label=" if logging enabled", style="dashed"];
+}
+@enddot
+
+Currently, the platform thread management component has the following dependencies:
+- The operating system must provide the necessary APIs to implement the [thread management functions](@ref platform_threads_functions).
 - The logging library may be used if @ref IOT_LOG_LEVEL_PLATFORM is not #IOT_LOG_NONE.
 */
 
@@ -101,94 +176,69 @@ Functions should be implemented against the system's network stack to match the 
 */
 
 /**
-@page platform_threads Thread Management
-@brief @copybrief iot_threads.h
+@page platform_metrics Metrics
+@brief @copybrief iot_metrics.h
 
-The platform thread management component provides other libraries with functions relating to threading and synchronization. It interfaces directly with the operating system to provide:
-- A function to create new threads.
-- Synchronization mechanisms such as [mutexes](@ref IotMutex_t) and [counting semaphores](@ref IotSemaphore_t).
+Device Defender reports metrics to monitor devices. This component of the platform layer is only required by Device Defender. It does not need to be implemented if Device Defender is not used.
 
-@dependencies_section{platform_threads}
-@dependencies_brief{platform thread management component}
-
-@dot "Thread management direct dependencies"
-digraph threads_dependencies
+@dependencies_section{platform_metrics}
+@dependencies_brief{platform metrics component}
+@dot "Metrics direct dependencies"
+digraph metrics_dependencies
 {
     node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
     edge[fontname=Helvetica, fontsize=10];
-    subgraph { rank=min; logging[label="Logging", fillcolor="#aed8a9ff" URL="@ref logging"]; }
     subgraph
     {
-        platform_threads[label="Thread management", fillcolor="#e89025ff"];
+        platform_metrics[label="Metrics", fillcolor="#e89025ff"];
     }
     subgraph
     {
         rank = same;
+        rankdir = LR;
         operating_system[label="Operating system", fillcolor="#999999ff"]
         standard_library[label="Standard library\nstdbool, stddef, stdint", fillcolor="#d15555ff"];
     }
-    platform_threads -> operating_system;
-    platform_threads -> standard_library;
-    platform_threads -> logging [label=" if logging enabled", style="dashed"];
+    platform_metrics -> operating_system;
+    platform_metrics -> standard_library;
 }
 @enddot
 
-Currently, the platform thread management component has the following dependencies:
-- The operating system must provide the necessary APIs to implement the [thread management functions](@ref platform_threads_functions).
-- The logging library may be used if @ref IOT_LOG_LEVEL_PLATFORM is not #IOT_LOG_NONE.
+The platform metrics component is meant to query its data directory from the operating system.
+
+@note Platform metrics implementations are generally not portable, since they depend on non-portable operating system APIs. Because maintaining OS-specific implementations is beyond the scope of this SDK, the provided metrics implementation is a sample that calls in to other platform components, instead of the operating system.
 */
 
 /**
-@config_page{platform}
-@config_brief{platform layer}
+@page platform_atomic Atomics
+@brief Atomic operations: small inlined functions used for atomically manipulating memory.
 
-@section IOT_LOG_LEVEL_PLATFORM
-@brief Set the log level of all platform components except the [networking component](@ref platform_network).
+The platform atomic component provides lock-free and wait-free mutually exclusive access to a memory location.
 
-This setting overrides @ref IOT_LOG_LEVEL_GLOBAL for the platform layer components that it affects. All log messages with a level at or below this setting will be printed. The [platform networking component](@ref platform_network) is generally more verbose than others, so its logging is controlled separately by @ref IOT_LOG_LEVEL_NETWORK.
+Unlike the other components of the platform layer, which rely on APIs provided by the host operating system, the atomic component relies on facilities provided by compilers. Many compilers, particularly recent versions that support C11 atomic features, provide compiler intrinsics for atomic operations. 
 
-@configpossible One of the @ref logging_constants_levels.<br>
-@configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then #IOT_LOG_NONE.
+FreeRTOS ported atomic.h provides a generic implementation. Compiler/architecture dependent implementation of atomic.h is to be provided under each port directory.
 
-@section IOT_LOG_LEVEL_NETWORK
-@brief Set the log level of the [platform networking component](@ref platform_network).
-
-This setting overrides @ref IOT_LOG_LEVEL_GLOBAL for the [platform networking component](@ref platform_network). All log messages with a level at or below this setting will be printed. See @ref IOT_LOG_LEVEL_PLATFORM to set the log level of other platform components.
-
-@configpossible One of the @ref logging_constants_levels.<br>
-@configdefault @ref IOT_LOG_LEVEL_GLOBAL; if that is undefined, then #IOT_LOG_NONE.
-
-@section platform_config_memory Memory allocation
-@brief Memory allocation function overrides for the platform layer.
-
-Some platform layers are not affected by @ref IOT_STATIC_MEMORY_ONLY. Currently, the following platform implementations require memory allocation:
-- POSIX <br>
-  This implementation is not affected by @ref IOT_STATIC_MEMORY_ONLY. However, its memory allocation functions may be overridden by setting the following constants. All memory allocation functions must have the same signatures as [malloc](http://pubs.opengroup.org/onlinepubs/9699919799/functions/malloc.html) and [free](http://pubs.opengroup.org/onlinepubs/9699919799/functions/free.html).
-  - `IotThreads_Malloc` and `IotThreads_Free`.
-  - `IotNetwork_Malloc` and `IotNetwork_Free`.
-
-@section platform_config_posixheaders POSIX headers
-@brief The POSIX platform layer allows the standard POSIX header includes to be overridden. Overrides only affect the POSIX platform layer.
-
-Any substitute headers are expected to provide the same functionality as the standard POSIX headers. The POSIX header overrides should only be used if the system's headers do not follow the standard names for POSIX headers. The POSIX headers may be overridden by defining the following settings:
-Standard name | Setting
-------------- | -------
-[errno.h](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/errno.h.html) | `POSIX_ERRNO_HEADER`
-[limits.h](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/limits.h.html) | `POSIX_LIMITS_HEADER`
-[pthread.h](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/pthread.h.html) | `POSIX_PTHREAD_HEADER`
-[signal.h](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/signal.h.html) | `POSIX_SIGNAL_HEADER`
-[semaphore.h](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/semaphore.h.html) | `POSIX_SEMAPHORE_HEADER`
-[time.h](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/time.h.html) | `POSIX_TIME_HEADER`
-[sys/types.h](http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/sys_types.h.html) | `POSIX_TYPES_HEADER`
-
-<b>Example:</b><br>
-To use a header named `custom_errno.h` instead of `errno.h`, the `POSIX_ERRNO_HEADER` setting should be defined.
-@code{c}
-#define POSIX_ERRNO_HEADER    "custom_errno.h"
-@endcode
-
-@configpossible Strings representing file names. These files must be in the compiler's include path. <br>
-@configdefault Standard POSIX header names.
+@dependencies_section{platform_atomic}
+@dependencies_brief{platform atomics component}
+@dot "Atomics direct dependencies"
+digraph atomic_dependencies
+{
+    node[shape=box, fontname=Helvetica, fontsize=10, style=filled];
+    edge[fontname=Helvetica, fontsize=10];
+    subgraph
+    {
+        platform_atomic[label="Atomics", fillcolor="#e89025ff"];
+    }
+    subgraph
+    {
+        rank = same;
+        rankdir = LR;
+        compiler[label="Compiler", fillcolor="#999999ff"]
+    }
+    platform_atomic -> compiler;
+}
+@enddot
 */
 
 /**
@@ -201,7 +251,7 @@ To use a header named `custom_errno.h` instead of `errno.h`, the `POSIX_ERRNO_HE
 */
 
 /**
-@functions_page{platform, Platform}
+@functions_page{platform, platform layer}
 @functions_brief{platform layer}
 - @subpage platform_clock_functions <br>
   @copybrief platform_clock_functions
@@ -209,4 +259,8 @@ To use a header named `custom_errno.h` instead of `errno.h`, the `POSIX_ERRNO_HE
   @copybrief platform_network_functions
 - @subpage platform_threads_functions <br>
   @copybrief platform_threads_functions
+- @subpage platform_metrics_functions <br>
+  @copybrief platform_metrics_functions
+- @subpage platform_atomic_functions <br>
+  @copybrief platform_atomic_functions
 */

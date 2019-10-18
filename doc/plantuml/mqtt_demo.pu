@@ -16,8 +16,8 @@ participant "MQTT Server" as server
 main -> server: Subscribe to topic filters
 server -> main: Subscription ACK
 
-loop AWS_IOT_DEMO_MQTT_PUBLISH_BURST_COUNT times
-    loop AWS_IOT_DEMO_MQTT_PUBLISH_BURST_SIZE times
+loop IOT_DEMO_MQTT_PUBLISH_BURST_COUNT times
+    loop IOT_DEMO_MQTT_PUBLISH_BURST_SIZE times
         main -> server: Publish "Hello world n!"
         server -> main: Publish ACK
         server -> server: Check for\nmatching subscriptions
@@ -27,7 +27,7 @@ loop AWS_IOT_DEMO_MQTT_PUBLISH_BURST_COUNT times
         server -> callback: Publish ACK
     end
 
-    main -> main: Wait for\nAWS_IOT_DEMO_MQTT_BURST_SIZE\nmessages to be received
+    main -> main: Wait for\nIOT_DEMO_MQTT_BURST_SIZE\nmessages to be received
 end
 
 main -> server: Unsubscribe from topic filters
