@@ -470,60 +470,59 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
-set( application_src
-    "${board_dir}/application_code/main.c"
-    "${board_dir}/application_code/nordic_code/SEGGER_HardFaultHandler.c"
-    "${board_dir}/application_code/nordic_code/SEGGER_RTT.c"
-    "${board_dir}/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c"
-    "${board_dir}/application_code/nordic_code/thumb_crt0.s"
-)
-add_executable(
-    ${exe_target}
-    ${application_src}
-)
+set(CMAKE_EXECUTABLE_SUFFIX ".hex")
 
-if(AFR_METADATA_MODE)
-    return()
+if(AFR_IS_TESTING)
+    set(exe_target aws_tests)
 else()
-	#message(FATAL_ERROR "CMake support for Nordic is not complete yet.")
+    set(exe_target aws_demos)
 endif()
 
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    set( application_src
+        "${board_dir}/application_code/main.c"
+        "${board_dir}/application_code/nordic_code/SEGGER_HardFaultHandler.c"
+        "${board_dir}/application_code/nordic_code/SEGGER_RTT.c"
+        "${board_dir}/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c"
+        "${board_dir}/application_code/nordic_code/thumb_crt0.s"
+    )
+    add_executable(
+        ${exe_target}
+        ${application_src}
+    )
 
-# -------------------------------------------------------------------------------------------------
-# Additional build configurations
-# -------------------------------------------------------------------------------------------------
+    set(
+        mkld_flags
+        -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
+        -section-placement-file "${nrf52840_dir}/flash_placement.xml"
+        -check-segment-overflow
+        -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
+        -section-placement-macros
+        "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
+    )
+    add_custom_command(
+        TARGET ${exe_target} PRE_LINK
+        COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/${exe_target}.ld"
+    )
 
-set(
-    mkld_flags
-    -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
-    -section-placement-file "${nrf52840_dir}/flash_placement.xml"
-    -check-segment-overflow
-    -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
-    -section-placement-macros
-    "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
-)
+    find_program(gcc_objectcopy arm-none-eabi-objcopy)
+    find_program(gcc_size arm-none-eabi-size)
 
-add_custom_command(
-    TARGET ${exe_target} PRE_LINK
-    COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/${exe_target}.ld"
-)
+    if(NOT gcc_objectcopy )
+        message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+    endif()
 
-find_program(gcc_objectcopy arm-none-eabi-objcopy)
-find_program(gcc_size arm-none-eabi-size)
+    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
 
-if(NOT gcc_objectcopy )
-    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+        COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+    )
+
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+    )
 endif()
-
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
-)
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
-)
