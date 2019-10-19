@@ -635,20 +635,32 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 uint32_t ulRand( void )
 {
     CK_RV xResult = 0;
-
+    SemaphoreHandle_t xSessionLock = NULL;
+    CK_SESSION_HANDLE xPkcs11Session = 0;
+    CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
     uint32_t ulRandomValue = 0;
 
-    xResult = CRYPTO_GetRandomBytes( NULL, &ulRandomValue, sizeof( ulRandomValue ) );
+    xResult = prvSocketsGetCryptoSession( &xSessionLock,
+                                          &xPkcs11Session,
+                                          &pxPkcs11FunctionList );
+
+    if( 0 == xResult )
+    {
+        /* Request a sequence of cryptographically random byte values using
+         * PKCS#11. */
+        xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
+                                                          ( CK_BYTE_PTR ) &ulRandomValue,
+                                                          sizeof( ulRandomValue ) );
+    }
 
     /* Check if any of the API calls failed. */
-    if( CKR_OK != xResult )
+    if( 0 != xResult )
     {
         ulRandomValue = 0;
     }
 
     return ulRandomValue;
 }
-
 /*-----------------------------------------------------------*/
 
 /**
@@ -683,7 +695,9 @@ uint32_t ulApplicationGetNextSequenceNumber( uint32_t ulSourceAddress,
         if( CK_FALSE == xKeyIsInitialized )
         {
             /* One-time initialization, per boot, of the random seed. */
-            xResult = CRYPTO_GetRandomBytes( NULL, &ullKey, sizeof( ullKey ) );
+            xResult = pxPkcs11FunctionList->C_GenerateRandom( xPkcs11Session,
+                                                              ( CK_BYTE_PTR ) &ullKey,
+                                                              sizeof( ullKey ) );
 
             if( xResult == CKR_OK )
             {

@@ -176,6 +176,35 @@ static int prvNetworkRecv( void * pvContext,
 /*-----------------------------------------------------------*/
 
 /**
+ * @brief Callback that wraps PKCS#11 for pseudo-random number generation.
+ *
+ * @param[in] pvCtx Caller context.
+ * @param[in] pucRandom Byte array to fill with random data.
+ * @param[in] xRandomLength Length of byte array.
+ *
+ * @return Zero on success.
+ */
+static int prvGenerateRandomBytes( void * pvCtx,
+                                   unsigned char * pucRandom,
+                                   size_t xRandomLength )
+{
+    TLSContext_t * pxCtx = ( TLSContext_t * ) pvCtx; /*lint !e9087 !e9079 Allow casting void* to other types. */
+    BaseType_t xResult;
+
+    xResult = pxCtx->pxP11FunctionList->C_GenerateRandom( pxCtx->xP11Session, pucRandom, xRandomLength );
+
+    if( xResult != CKR_OK )
+    {
+        TLS_PRINT( ( "ERROR: Failed to generate random bytes %d \r\n", xResult ) );
+        xResult = TLS_ERROR_RNG;
+    }
+
+    return xResult;
+}
+
+/*-----------------------------------------------------------*/
+
+/**
  * @brief Callback that enforces a worst-case expiration check on TLS server
  * certificates.
  *
@@ -734,7 +763,7 @@ BaseType_t TLS_Connect( void * pvContext )
         mbedtls_ssl_conf_authmode( &pxCtx->xMbedSslConfig, MBEDTLS_SSL_VERIFY_REQUIRED );
 
         /* Set the RNG callback. */
-        mbedtls_ssl_conf_rng( &pxCtx->xMbedSslConfig, &CRYPTO_GetRandomBytes, NULL ); /*lint !e546 Nothing wrong here. */
+        mbedtls_ssl_conf_rng( &pxCtx->xMbedSslConfig, &prvGenerateRandomBytes, pxCtx ); /*lint !e546 Nothing wrong here. */
 
         /* Set issuer certificate. */
         mbedtls_ssl_conf_ca_chain( &pxCtx->xMbedSslConfig, &pxCtx->xMbedX509CA, NULL );

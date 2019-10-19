@@ -110,7 +110,7 @@ TEST_GROUP( Full_PKCS11_RSA );
 /* The EC test group is for tests that require elliptic curve keys. */
 TEST_GROUP( Full_PKCS11_EC );
 
-/*#define PKCS11_TEST_MEMORY_LEAK */
+/* #define PKCS11_TEST_MEMORY_LEAK */
 #ifdef PKCS11_TEST_MEMORY_LEAK
     BaseType_t xHeapBefore;
     BaseType_t xHeapAfter;
@@ -1042,8 +1042,9 @@ static void prvGenerateRandomMultiThreadTask( void * pvParameters )
 
     for( xCount = 0; xCount < pkcs11testMULTI_THREAD_LOOP_COUNT; xCount++ )
     {
-        /* TS-9475 */
-        xResult = CRYPTO_GetRandomBytes( NULL, xRandomData, sizeof( xRandomData ) );
+        xResult = pxGlobalFunctionList->C_GenerateRandom( xSession,
+                                                          xRandomData,
+                                                          sizeof( xRandomData ) );
 
         if( xResult != CKR_OK )
         {
