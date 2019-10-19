@@ -634,7 +634,7 @@ IotNetworkError_t IotNetworkAfr_Close( void * pConnection )
 
     /* Call Secure Sockets shutdown function to close connection. */
     socketStatus = SOCKETS_Shutdown( pNetworkConnection->socket,
-                                     SOCKETS_SHUT_RDWR );
+                                     SOCKETS_SHUT_WR );
 
     if( socketStatus != SOCKETS_ERROR_NONE )
     {
