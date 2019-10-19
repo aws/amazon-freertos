@@ -49,9 +49,9 @@ typedef struct
 } HostParameters_t;
 
 /**
- * @brief Green Grass Core connection parameters.
+ * @brief Greengrass Core connection parameters.
  *
- * Green Grass Core connection parameters extracted from the JSON file
+ * Greengrass Core connection parameters extracted from the JSON file
  * returned from the local discovery or from the Cloud.
  * This is the return parameter from the discovery.
  */
@@ -64,7 +64,7 @@ typedef struct
 } GGD_HostAddressData_t;
 
 /*
- * @brief Connect directly to the green grass core.
+ * @brief Connect directly to the Greengrass core.
  *
  * @note: In most case only calling this function is needed!
  * This function will perform in series:
@@ -75,9 +75,9 @@ typedef struct
  * The buffer size of pcBuffer need to be big enough to hold the complete
  * JSON file.
  *
- * @param [in] pcHostAddress: Endpoint of the MQTT Broker.
+ * @param [in] pcHostAddress: Endpoint for Greengrass Discovery.
  *
- * @param [in] usGGDPort: Port number for Green Grass Discovery.
+ * @param [in] usGGDPort: Port number for Greengrass Discovery.
  *
  * @param [in] pcThingName: The Thing Name of the client.
  *
@@ -103,9 +103,9 @@ BaseType_t GGD_GetGGCIPandCertificate( const char * pcHostAddress,
  * @note: This call will open a socket. Socket will need to be closed
  * by either calling GGD_JSONRequestGetFile or GGD_JSONRequestAbort
  *
- * @param [in] pcHostAddress: Endpoint of the MQTT Broker.
+ * @param [in] pcHostAddress: Endpoint for Greengrass Discovery.
  *
- * @param [in] usGGDPort: Port number for Green Grass Discovery.
+ * @param [in] usGGDPort: Port number for Greengrass Discovery.
  *
  * @param [in] pcThingName: The Thing Name of the client.
  *
@@ -195,7 +195,7 @@ void GGD_JSONRequestAbort( Socket_t * pxSocket );
 /*
  * @brief  Get host IP and certificate
  *
- * Get host IP and certificate with the JSON file given the greengrass group
+ * Get host IP and certificate with the JSON file given the Greengrass group
  * and cloud core address the user wants to connect.
  *
  * @note:  The JSON file contains the certificate that is going to be used to
