@@ -62,7 +62,9 @@
 #define mainLOGGING_TASK_STACK_SIZE         ( configMINIMAL_STACK_SIZE * 5 )
 #define mainLOGGING_MESSAGE_QUEUE_LENGTH    ( 25 )
 
-extern uint8_t ucMACAddress[ 6 ];
+#if ( configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_ETH )
+extern uint8_t ucMACAddress[ ipMAC_ADDRESS_LENGTH_BYTES ];
+#endif
 
 /* The default IP and MAC address used by the demo.  The address configuration
  * defined here will be used if ipconfigUSE_DHCP is 0, or if ipconfigUSE_DHCP is
