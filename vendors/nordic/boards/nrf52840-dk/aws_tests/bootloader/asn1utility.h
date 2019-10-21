@@ -31,7 +31,7 @@
 #ifndef _ASN1UTILITY_H_
 #define _ASN1UTILITY_H_
 
-#include <tinycrypt/ecc.h>
+#include <stdint.h>
 
 /**
  * @brief asn1_getBigInteger.

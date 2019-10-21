@@ -28,9 +28,8 @@
  * @brief ASN1 utility implementation.
  */
 
-#include "asn1.h"
+#include "mbedtls/asn1.h"
 #include "string.h"
-#include <tinycrypt/ecc.h>
 #include "asn1utility.h"
 
 
