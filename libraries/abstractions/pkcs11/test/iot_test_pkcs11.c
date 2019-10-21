@@ -1264,6 +1264,7 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue )
     CK_OBJECT_HANDLE xCertificateHandle;
     CK_ATTRIBUTE xTemplate;
     CK_BYTE xCertificateValue[ CERTIFICATE_VALUE_LENGTH ];
+    CK_BYTE xKeyComponent[ ( pkcs11RSA_2048_MODULUS_BITS / 8 ) + 1 ] = { 0 };
 
     prvProvisionRsaTestCredentials( &xPrivateKeyHandle, &xCertificateHandle );
 
@@ -1281,6 +1282,14 @@ TEST( Full_PKCS11_RSA, AFQP_CreateObjectGetAttributeValue )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Failed to get RSA certificate value" );
     TEST_ASSERT_EQUAL_MESSAGE( CERTIFICATE_VALUE_LENGTH, xTemplate.ulValueLen, "GetAttributeValue returned incorrect length of RSA certificate value" );
     /* TODO: Check byte array */
+
+    /* Check that the private key cannot be retrieved. */
+    xTemplate.type = CKA_PRIVATE_EXPONENT;
+    xTemplate.pValue = xKeyComponent;
+    xTemplate.ulValueLen = sizeof( xKeyComponent );
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_ATTRIBUTE_SENSITIVE, xResult, "Incorrect error code retrieved when trying to obtain private key." );
+    TEST_ASSERT_EACH_EQUAL_INT8_MESSAGE( 0, xKeyComponent, sizeof( xKeyComponent ), "Private key bytes returned when they should not be." );
 }
 
 
@@ -1718,7 +1727,7 @@ TEST( Full_PKCS11_EC, AFQP_Sign )
 
 /*
  * 1. Generates an Elliptic Curve P256 key pair
- * 2. Calls GetAttributeValue to check generated key attirbutes
+ * 2. Calls GetAttributeValue to check generated key & that private key is not extractable.
  * 3. Constructs the public key using values from GetAttributeValue calls
  * 4. Uses private key to perform a sign operation
  * 5. Verifies the signature using mbedTLS library and reconstructed public key
@@ -1737,6 +1746,7 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     CK_MECHANISM xMechanism;
     CK_BYTE xSignature[ pkcs11RSA_2048_SIGNATURE_LENGTH ] = { 0 };
     CK_BYTE xEcPoint[ 256 ] = { 0 };
+    CK_BYTE xPrivateKeyBuffer[ 32 ] = { 0 };
     CK_BYTE xEcParams[ 11 ] = { 0 };
     CK_KEY_TYPE xKeyType;
     CK_ULONG xSignatureLength;
@@ -1807,6 +1817,14 @@ TEST( Full_PKCS11_EC, AFQP_GenerateKeyPair )
     TEST_ASSERT_EQUAL_MESSAGE( CKR_OK, xResult, "Error getting attribute value of EC Parameters." );
     TEST_ASSERT_EQUAL_MESSAGE( sizeof( ucSecp256r1Oid ), xTemplate.ulValueLen, "Length of ECParameters identifier incorrect in GetAttributeValue" );
     TEST_ASSERT_EQUAL_INT8_ARRAY_MESSAGE( ucSecp256r1Oid, xEcParams, xTemplate.ulValueLen, "EcParameters did not match P256 OID." );
+
+    /* Check that the private key cannot be retrieved. */
+    xTemplate.type = CKA_VALUE;
+    xTemplate.pValue = xPrivateKeyBuffer;
+    xTemplate.ulValueLen = sizeof( xPrivateKeyBuffer );
+    xResult = pxGlobalFunctionList->C_GetAttributeValue( xGlobalSession, xPrivateKeyHandle, &xTemplate, 1 );
+    TEST_ASSERT_EQUAL_MESSAGE( CKR_ATTRIBUTE_SENSITIVE, xResult, "Wrong error code retrieving private key" );
+    TEST_ASSERT_EACH_EQUAL_INT8_MESSAGE( 0, xPrivateKeyBuffer, sizeof( xPrivateKeyBuffer ), "Private key bytes returned when they should not be" );
 
     /* Check that public key point can be retrieved for public key. */
     xTemplate.type = CKA_EC_POINT;
