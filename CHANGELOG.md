@@ -36,6 +36,9 @@
 #### Marvell SDK Update
 - Marvell SDK now updated to R8 P2 (v1.2.r8.p2)
 
+#### CMake Builds
+- CMake files are now available for Nordic nRF52840 DK Development kit
+
 ## 201908.00 08/26/2019
 
 ### New Features
