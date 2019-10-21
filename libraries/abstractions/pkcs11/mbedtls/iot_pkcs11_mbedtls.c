@@ -2163,6 +2163,10 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
         {
             xResult = PKCS11_PAL_GetObjectValue( xPalHandle, &pxObjectValue, &ulLength, &xIsPrivate );
         }
+        else
+        {
+            xResult = CKR_OBJECT_HANDLE_INVALID;
+        }
     }
 
     /* Determine what kind of object we are dealing with. */
@@ -2290,6 +2294,12 @@ CK_DECLARE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                             memcpy( pxTemplate[ iAttrib ].pValue, &xPkcsKeyType, sizeof( CK_KEY_TYPE ) );
                         }
                     }
+
+                    break;
+
+                case CKA_PRIVATE_EXPONENT:
+
+                    xResult = CKR_ATTRIBUTE_SENSITIVE;
 
                     break;
 
