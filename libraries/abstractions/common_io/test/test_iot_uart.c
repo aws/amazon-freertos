@@ -54,6 +54,8 @@
 #define testIotUARTBUFFERSIZE                  ( 32 )
 #define testIotUART_BUFFER_LENGTH_LARGE        ( 200 )
 #define testIotUART_DELAY                      ( 1000 )
+#define testIotUART_7BIT_WORD_LENGTH           ( 0 )
+#define testIotUART_8BIT_WORD_LENGTH           ( 1 )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
@@ -72,17 +74,22 @@ uint32_t ultestIotUartStopBits = 0;
 static SemaphoreHandle_t xtestIotUARTSemaphore = NULL;
 static StaticSemaphore_t xtestIotUARTCompleted;
 
-/**
- * This function sets the fast Baud rate.
- */
-static  void    iot_uart_fast_setting(IotUARTConfig_t *pxConfig)
-{
-    pxConfig->ulBaudrate   = testIotUART_BAUD_RATE_FAST;
-    pxConfig->ucFlowControl= 0;
-    pxConfig->xParity     = eUartParityNone;
-    pxConfig->xStopbits   = eUartStopBitsOne;
-    pxConfig->ucWordlength = 3;
-}
+// note:  config1 is different in each field from config2
+static IotUARTConfig_t xSampleConfig1 = {
+    testIotUART_BAUD_RATE_FAST,
+    false,                          // no flow control
+    eUartParityNone,
+    eUartStopBitsOne,
+    testIotUART_7BIT_WORD_LENGTH,
+    };
+static IotUARTConfig_t xSampleConfig2 = {
+    testIotUART_BAUD_RATE_SLOW,
+    true,                           // yes flow control
+    eUartParityOdd,
+    eUartStopBitsTwo,
+    testIotUART_8BIT_WORD_LENGTH,
+    };
+
 
 /**
  * @brief Application/POSIX defined callback for asynchronous write operation on
@@ -190,7 +197,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lClose, lTransferAmount;
-    IotUARTConfig_t pvgetConfigBuffer, pvConfigBuffer, pvOriginalConfig;
+    IotUARTConfig_t xgetConfigBuffer, xConfigBuffer, xOriginalConfig;
 
     xUartHandle = iot_uart_open( ustestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
@@ -199,58 +206,61 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
     {
 
         /* Save original UART config */
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &pvOriginalConfig );
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xOriginalConfig );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_NOT_EQUAL( testIotUART_TEST_BAUD_RATE, pvOriginalConfig.ulBaudrate );
-        TEST_ASSERT_NOT_EQUAL( testIotUART_TEST_BAUD_RATE, pvgetConfigBuffer.ulBaudrate );
 
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &pvConfigBuffer );
+        /* Initialze to a known value, then one by one change, and make sure it changes */
+        memcpy( &xConfigBuffer, &xSampleConfig1, sizeof(IotUARTConfig_t) );
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
 
         /* Test changing baudrate config */
-        pvConfigBuffer.ulBaudrate = testIotUART_TEST_BAUD_RATE;
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &pvConfigBuffer );
+        xConfigBuffer.ulBaudrate = xSampleConfig2.ulBaudrate;
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
 
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &pvgetConfigBuffer );
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xgetConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_EQUAL( testIotUART_TEST_BAUD_RATE, pvgetConfigBuffer.ulBaudrate );
+        TEST_ASSERT_EQUAL( xSampleConfig2.ulBaudrate, xgetConfigBuffer.ulBaudrate );
 
         /* Test changing control flow config */
-        pvConfigBuffer.ucFlowControl = ultestIotUartFlowControl;
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &pvConfigBuffer );
+        xConfigBuffer.ucFlowControl = xSampleConfig2.ucFlowControl;
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_NOT_EQUAL( ultestIotUartFlowControl, pvOriginalConfig.ucFlowControl );
-        TEST_ASSERT_NOT_EQUAL( ultestIotUartFlowControl, pvgetConfigBuffer.ucFlowControl );
 
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &pvgetConfigBuffer );
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xgetConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_EQUAL( ultestIotUartFlowControl, pvgetConfigBuffer.ucFlowControl );
+        TEST_ASSERT_EQUAL( xSampleConfig2.ucFlowControl, xgetConfigBuffer.ucFlowControl );
 
         /* Test changing stop bit config */
-        pvConfigBuffer.xStopbits = ultestIotUartStopBits;
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &pvConfigBuffer );
+        xConfigBuffer.xStopbits = xSampleConfig2.xStopbits;
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_NOT_EQUAL( ultestIotUartStopBits, pvOriginalConfig.xStopbits );
-        TEST_ASSERT_NOT_EQUAL( ultestIotUartStopBits, pvgetConfigBuffer.xStopbits );
 
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &pvgetConfigBuffer );
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xgetConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_EQUAL( ultestIotUartStopBits, pvgetConfigBuffer.xStopbits );
+        TEST_ASSERT_EQUAL( xSampleConfig2.xStopbits, xgetConfigBuffer.xStopbits );
+
+        /* Test changing parity config */
+        xConfigBuffer.xParity = xSampleConfig2.xParity;
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
+
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xgetConfigBuffer );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
+        TEST_ASSERT_EQUAL( xSampleConfig2.xParity, xgetConfigBuffer.xParity );
 
         /* Test changing Wordlength config */
-        pvConfigBuffer.ucWordlength = ultestIotUartWordLength;
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &pvConfigBuffer );
+        xConfigBuffer.ucWordlength = xSampleConfig2.ucWordlength;
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_NOT_EQUAL( ultestIotUartWordLength, pvOriginalConfig.ucWordlength );
-        TEST_ASSERT_NOT_EQUAL( ultestIotUartWordLength, pvgetConfigBuffer.ucWordlength );
 
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &pvgetConfigBuffer );
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xgetConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_EQUAL( ultestIotUartWordLength, pvgetConfigBuffer.ucWordlength );
+        TEST_ASSERT_EQUAL( xSampleConfig2.ucWordlength, xgetConfigBuffer.ucWordlength );
 
         /* Set config back to original */
-        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &pvOriginalConfig );
+        lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xOriginalConfig );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
 
         /* Getting transfer byte amount only works on an operation in flight. */
@@ -460,22 +470,26 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncReadAsyncLoopbackTest )
     xUartHandle = iot_uart_open( ustestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
 
-    lWrite = iot_uart_write_sync( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
-    TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
+    if( TEST_PROTECT() )
+    {
 
-    iot_uart_set_callback( xUartHandle, prvReadWriteCallback, NULL );
+        lWrite = iot_uart_write_sync( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
-    lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
-    TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
+        iot_uart_set_callback( xUartHandle, prvReadWriteCallback, NULL );
 
-    xCallbackReturn = xSemaphoreTake( xtestIotUARTSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
-    TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
+        lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
 
-    lIoctl = iot_uart_ioctl( xUartHandle, eGetRxNoOfbytes, &lTransferAmount );
-    TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
+        xCallbackReturn = xSemaphoreTake( xtestIotUARTSemaphore, testIotUART_DEFAULT_SEMPAHORE_DELAY );
+        TEST_ASSERT_EQUAL( pdTRUE, xCallbackReturn );
 
-    uStringCompare = memcmp( cpBuffer, cpBufferRead, testIotUART_BUFFER_LENGTH );
-    TEST_ASSERT_EQUAL( 0, uStringCompare );
+        lIoctl = iot_uart_ioctl( xUartHandle, eGetRxNoOfbytes, &lTransferAmount );
+        TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
+
+        uStringCompare = memcmp( cpBuffer, cpBufferRead, testIotUART_BUFFER_LENGTH );
+        TEST_ASSERT_EQUAL( 0, uStringCompare );
+    }
 
     lClose = iot_uart_close( xUartHandle );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
