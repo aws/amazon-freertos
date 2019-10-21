@@ -21,7 +21,7 @@
 	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|Win32&apos;" Label="Configuration">
 		<ConfigurationType>Application</ConfigurationType>
 		<UseDebuglib>true</UseDebuglib>
-		<PlatformToolset>v142</PlatformToolset>
+		<PlatformToolset>v141</PlatformToolset>
 		<CharacterSet>Unicode</CharacterSet>
 	</PropertyGroup>
 	<PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
