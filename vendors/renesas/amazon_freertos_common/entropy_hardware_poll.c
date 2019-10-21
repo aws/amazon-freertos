@@ -21,7 +21,7 @@ int mbedtls_hardware_poll( void *data,
     R_INTERNAL_NOT_USED(data);
 
     uint32_t random_number = 0;
-    size_t num_bytes = ( len < 4 ) ? len : 4;
+    size_t num_bytes = ( len < sizeof( uint32_t ) ) ? len : sizeof( uint32_t );
 
     get_random_number( ( uint8_t * ) &random_number, sizeof( uint32_t ) );
     *olen = 0;
