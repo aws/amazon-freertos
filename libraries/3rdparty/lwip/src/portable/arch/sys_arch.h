@@ -56,6 +56,10 @@ typedef struct sys_mbox sys_mbox_t;
 #define sys_sem_valid( x ) ( ( ( *x ) == NULL) ? pdFALSE : pdTRUE )
 #define sys_sem_set_invalid( x ) ( ( *x ) = NULL )
 
+#if LWIP_NETCONN_SEM_PER_THREAD
+sys_sem_t* sys_arch_netconn_sem_get(void);
+#define LWIP_NETCONN_THREAD_SEM_GET()   sys_arch_netconn_sem_get()
+#endif /* LWIP_NETCONN_SEM_PER_THREAD */
 
 #endif /* __ARCH_SYS_ARCH_H__ */
 

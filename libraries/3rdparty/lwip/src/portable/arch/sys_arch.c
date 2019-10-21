@@ -578,6 +578,46 @@ sys_thread_t xReturn;
     return xReturn;
 }
 
+#if LWIP_NETCONN_SEM_PER_THREAD
+#if configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0
+
+/*---------------------------------------------------------------------------*
+ * Routine:  sys_arch_netconn_sem_get
+ *---------------------------------------------------------------------------*
+ * Description:
+ *      Lookup the task-specific semaphore; create one if necessary.
+ *      The semaphore pointer lives in the 0th slot of the
+ *      TCB local storage array.  Once allocated, it is never released.
+ *---------------------------------------------------------------------------*/
+sys_sem_t *
+sys_arch_netconn_sem_get(void)
+{
+    void* ret;
+    TaskHandle_t task = xTaskGetCurrentTaskHandle();
+    configASSERT( task != NULL );
+
+    ret = pvTaskGetThreadLocalStoragePointer( task, 0 );
+    if( ret == NULL )
+    {
+        sys_sem_t *sem;
+        err_t err;
+        /* allocate memory for this semaphore */
+        sem = mem_malloc( sizeof( sys_sem_t ) );
+        configASSERT( sem != NULL );
+        err = sys_sem_new( sem, 0 );
+        configASSERT( err == ERR_OK );
+        configASSERT( sys_sem_valid( sem ) );
+        vTaskSetThreadLocalStoragePointer( task, 0, sem );
+        ret = sem;
+    }
+    return ret;
+}
+#else /* configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0 */
+#error LWIP_NETCONN_SEM_PER_THREAD needs configNUM_THREAD_LOCAL_STORAGE_POINTERS
+#endif /* configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0 */
+
+#endif /* LWIP_NETCONN_SEM_PER_THREAD */
+
 /*---------------------------------------------------------------------------*
  * Routine:  sys_arch_protect
  *---------------------------------------------------------------------------*
