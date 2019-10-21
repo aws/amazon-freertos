@@ -482,7 +482,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/bootloader.cmake")
 
 # Do not add demos or tests if they're turned off.
 if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
-	
+
     set( application_src
         "${board_dir}/application_code/main.c"
         "${board_dir}/application_code/nordic_code/SEGGER_HardFaultHandler.c"
@@ -528,7 +528,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
             COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${build_mkld_flags} "${CMAKE_BINARY_DIR}/${build_target}.ld"
         )
 
-        find_program(gcc_objectcopy arm-none-eabi-objcopy)
+        find_program(gcc_objectcopy objcopy)
         find_program(gcc_size arm-none-eabi-size)
 
         if(NOT gcc_objectcopy )
