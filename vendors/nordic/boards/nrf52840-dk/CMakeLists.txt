@@ -468,8 +468,6 @@ else()
     set(exe_target aws_demos)
 endif()
 
-include("${CMAKE_CURRENT_LIST_DIR}/bootloader.cmake")
-
 # Do not add demos or tests if they're turned off.
 if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
 
@@ -522,7 +520,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         find_program(gcc_size arm-none-eabi-size)
 
         if(NOT gcc_objectcopy )
-            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+            message(FATAL_ERROR "Cannot find objcopy.")
         endif()
 
         set(output_file "$<TARGET_FILE_DIR:${build_target}>/${build_target}.hex")
@@ -539,6 +537,12 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         )
 
     endfunction()
+
+    if (AFR_METADATA_MODE)
+        return()
+    endif()
+
+    include("${CMAKE_CURRENT_LIST_DIR}/bootloader.cmake")
 
     nrf52840_build(
         bootloader
