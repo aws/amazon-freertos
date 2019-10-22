@@ -341,19 +341,19 @@ TEST_GROUP( Full_MQTT_Agent_Stress_Tests );
  */
 TEST_SETUP( Full_MQTT_Agent )
 {
-    xDefaultConnectParameters.pucClientId = clientcredentialIOT_THING_NAME;
+    xDefaultConnectParameters.pucClientId = ( uint8_t * ) clientcredentialIOT_THING_NAME;
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 TEST_SETUP( Full_MQTT_Agent_Stress_Tests )
 {
-    xDefaultConnectParameters.pucClientId = clientcredentialIOT_THING_NAME;
+    xDefaultConnectParameters.pucClientId = ( uint8_t * ) clientcredentialIOT_THING_NAME;
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }
 TEST_SETUP( Full_MQTT_Agent_ALPN )
 {
-    xDefaultConnectParameters.pucClientId = clientcredentialIOT_THING_NAME;
+    xDefaultConnectParameters.pucClientId = ( uint8_t * ) clientcredentialIOT_THING_NAME;
     TEST_ASSERT_EQUAL( true, IotSdk_Init() );
     TEST_ASSERT_EQUAL( IOT_MQTT_SUCCESS, IotMqtt_Init() );
 }

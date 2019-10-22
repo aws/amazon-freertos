@@ -317,11 +317,9 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
             RUN_TEST_CASE( Full_PKCS11_EC, AFQP_Verify );
         #endif
 
-        #if ( pkcs11testIMPORT_PRIVATE_KEY_SUPPORT == 1 )
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates );
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
-            RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
-        #endif
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_CreateObjectDestroyObjectCertificates );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GenerateKeyPair );
+        RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
 
