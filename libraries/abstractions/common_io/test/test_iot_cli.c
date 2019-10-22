@@ -32,6 +32,8 @@
 #include "ace_cli.h"
 #include <ace/aceCli.h>
 
+
+extern int32_t ltestIotI2SReadSize;
 ace_status_t runIotTests(int32_t argc, const char** argv) {
     if (argc < 1)
     {
@@ -41,6 +43,10 @@ ace_status_t runIotTests(int32_t argc, const char** argv) {
 
     int testIndex = ((int)atoi(argv[0]));
     int testCaseIndex = ((int)atoi(argv[1]));
+
+    if( argc == 3 ) {
+       ltestIotI2SReadSize = ((int)atoi(argv[2]));
+    }
     RunIotTests(testIndex, testCaseIndex);
     return ACE_STATUS_OK;
 }
@@ -53,18 +59,33 @@ const aceCli_moduleCmd_t iot_tests_cli_sub[] = {
                             "4: rtc\n\t"
                             "5: gpio <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_AssistedIotGpioModeWritePushPullTrue\n\t\t2: AFQP_AssistedIotGpioModeWritePushPullFalse\n\t\t3: AFQP_AssistedIotGpioModeWriteOpenDrainTrue\n\t\t4: AFQP_AssistedIotGpioModeWriteOpenDrainFalse\n\t\t5: AFQP_AssistedIotGpioModeReadTrue\n\t\t6: AFQP_AssistedIotGpioModeReadFalse\n\t"
                             "6: timer\n\t"
-                            "7: adc <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotAdcPrintReadSample\n\t"
-                            "8: reset <num>\n\t\t0: Shutdown\n\t\t1: RebootZero\n\t\t2: RebootNonZero"
-                            "\n\t9: perfcounter\n\t10: pwm\n\t11: i2c\n\t12: tsensor"
-                            "\n\t13: power <num>\n\t\t0: All tests excludes VddOff test\n\t\t1: Run VddOff test"
-                            "\n\t14: battery"
-                            "\n\t15: efuse\n\t"
+                            "7: adc\n\t"
+                            "8: reset <num>\n\t\t0: Shutdown\n\t\t1: RebootZero\n\t\t2: RebootNonZero\n\t"
+                            "9: perfcounter\n\t"
+                            "10: pwm\n\t"
+                            "11: i2c\n\t"
+                            "12: tsensor\n\t"
+                            "13: power <num>\n\t\t0: All tests excludes VddOff test\n\t\t1: Run VddOff test\n\t"
+                            "14: battery\n\t"
+                            "15: efuse\n\t"
                             "16: spi <num> \n\t\t0: All Independent tests\n\t\t1: Read Sync Master\n\t\t"
                             "2: Write Sync Master\n\t\t3: Transfer Sync Master\n\t\t4: Read ASync Master\n\t\t"
                             "5: Write ASync Master\n\t\t6: Transfer ASync Master\n\t\t"
                             "10: Read Sync Slave\n\t\t11: Write Sync Slave\n\t\t12: Transfer Sync Slave"
                             "\n\t17: UsbDevice <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotUsbDeviceHidAttach\n\t\t2: AFQP_IotUsbDeviceHidDetach\n\t\t3: AFQP_IotUsbDeviceEndpointStall\n\t\t4: AFQP_IotUsbDeviceGetSpeed\n\t\t5: AFQP_IotUsbDeviceWriteAsync\n\t\t6: AFQP_IotUsbDeviceReadAsync\n\t\t7: AFQP_IotUsbDeviceWriteSync\n\t\t8: AFQP_IotUsbDeviceReadSync\n\t\t9: AFQP_IotUsbDeviceEndpointCancelTransfer\n\t\t10: AFQP_IotUsbDeviceIoctl\n\t"
-                            "18: UsbHost <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotUsbHostHidGeneric\n\t\t2: AFQP_IotUsbHostWriteAsync\n\t\t3: AFQP_IotUsbHostReadAsync\n\t",
+                            "18: UsbHost <num> \n\t\t0: All Independent tests\n\t\t1: AFQP_IotUsbHostHidGeneric\n\t\t2: AFQP_IotUsbHostWriteAsync\n\t\t3: AFQP_IotUsbHostReadAsync\n\t"
+                            "19: i2s <num> \n\t\t"
+                              "0: All Independent tests\n\t\t"
+                              "1: Read Sync Master\n\t\t"
+                              "2: Write Sync Master\n\t\t"
+                              "3: Read Async Master\n\t\t"
+                              "4: Write Async Master\n\t\t"
+                              "5: Write Async Read Async Loopback\n\t\t"
+                              "6: Write Sync Read Async Loopback\n\t\t"
+                              "7: Write Async Read Sync Loopback\n\t\t"
+                              "8: Write Sync Read Sync Loopback\n\t\t"
+                              "10: Read Sync Slave\n\t\t"
+                              "11: Write Sync Slave\n\t\t",
                             ACE_CLI_SET_LEAF, .command.func=&runIotTests},
                             ACE_CLI_NULL_MODULE
                             };
