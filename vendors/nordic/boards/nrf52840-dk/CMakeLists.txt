@@ -331,18 +331,9 @@ set(
     "${nrf5_sdk}/components"
     "${nrf5_sdk}/components/ble/common"
     "${nrf5_sdk}/components/boards"
-    "${nrf5_sdk}/components/device"
-    "${nrf5_sdk}/components/drivers_nrf/clock"
-    "${nrf5_sdk}/components/drivers_nrf/common"
-    "${nrf5_sdk}/components/drivers_nrf/delay"
-    "${nrf5_sdk}/components/drivers_nrf/gpiote"
     "${nrf5_sdk}/components/ble/nrf_ble_gatt"
     "${nrf5_sdk}/components/ble/ble_services/ble_nus"
     "${nrf5_sdk}/components/ble/nrf_ble_qwr"
-    "${nrf5_sdk}/components/drivers_nrf/hal"
-    "${nrf5_sdk}/components/drivers_nrf/rng"
-    "${nrf5_sdk}/components/drivers_nrf/timer"
-    "${nrf5_sdk}/components/drivers_nrf/wdt"
     "${nrf5_sdk}/components/libraries/atomic"
     "${nrf5_sdk}/components/libraries/balloc"
     "${nrf5_sdk}/components/libraries/bsp"
@@ -450,7 +441,6 @@ target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
-        AFR::pkcs11
 )
 
 # POSIX
