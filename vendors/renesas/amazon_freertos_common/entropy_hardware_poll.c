@@ -19,15 +19,15 @@ int mbedtls_hardware_poll( void *data,
                            unsigned char *output, size_t len, size_t *olen )
 {
     R_INTERNAL_NOT_USED(data);
-    R_INTERNAL_NOT_USED(len);
 
     uint32_t random_number = 0;
+    size_t num_bytes = ( len < sizeof( uint32_t ) ) ? len : sizeof( uint32_t );
 
-    get_random_number((uint8_t *)&random_number, sizeof(uint32_t));
+    get_random_number( ( uint8_t * ) &random_number, sizeof( uint32_t ) );
     *olen = 0;
 
-    memcpy(output, &random_number, sizeof(uint32_t));
-    *olen = sizeof(uint32_t);
+    memcpy( output, &random_number, num_bytes );
+    *olen = num_bytes;
 
     return 0;
 }
