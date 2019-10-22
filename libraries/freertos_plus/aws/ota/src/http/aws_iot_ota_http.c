@@ -368,7 +368,14 @@ static void _httpReadReadyCallback( void * pPrivateData,
         }
     }
 
-    OTA_FUNCTION_NO_CLEANUP();
+    OTA_FUNCTION_CLEANUP_BEGIN();
+
+    if( _httpDownloader.state != OTA_HTTP_OK )
+    {
+        IotHttpsClient_CancelResponseAsync( responseHandle );
+    }
+
+    OTA_FUNCTION_CLEANUP_END();
 }
 
 static void _httpResponseCompleteCallback( void * pPrivateData,
@@ -722,7 +729,8 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     httpsStatus = _httpConnect( pURL, pNetworkInterface, pNetworkCredentials );
     if( httpsStatus != IOT_HTTPS_OK )
     {
-        IotLogError( "Failed to connect to %.*s", _httpDownloader.httpUrlInfo.addressLength, _httpDownloader.httpUrlInfo.pAddress );
+        IotLogError( "Failed to connect to %.*s. Error code: %d", _httpDownloader.httpUrlInfo.addressLength,
+                     _httpDownloader.httpUrlInfo.pAddress, httpsStatus );
         status = kOTA_Err_Panic;
         OTA_GOTO_CLEANUP();
     }
