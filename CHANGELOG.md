@@ -32,6 +32,9 @@
 - Contains bug fixes and enhancements in ESP NIMBLE stack.
 - Contains bug fixes in ESP Bluedroid stack.
 
+#### Enable lwIP full duplex feature
+- The same socket may be used by multiple tasks concurrently.
+
 ## 201908.00 08/26/2019
 
 ### New Features
