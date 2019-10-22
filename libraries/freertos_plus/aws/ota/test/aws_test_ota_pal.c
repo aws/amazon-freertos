@@ -39,9 +39,9 @@
 #include "aws_iot_ota_agent.h"
 
 #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
-#include "iot_pkcs11.h"
-#include "iot_pkcs11_config.h"
-#include "aws_dev_mode_key_provisioning.h"
+    #include "iot_pkcs11.h"
+    #include "iot_pkcs11_config.h"
+    #include "aws_dev_mode_key_provisioning.h"
 #endif
 
 #include "aws_ota_codesigner_certificate.h"
@@ -234,56 +234,56 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
         TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
     }
 }
- #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
-CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
-                                       size_t xCertificateLength,
-                                       uint8_t * pucLabel )
-{
-    /* Find the certificate */
-    CK_OBJECT_HANDLE xHandle;
-    CK_RV xResult;
-    CK_FUNCTION_LIST_PTR xFunctionList;
-    CK_SLOT_ID xSlotId;
-    CK_ULONG xCount = 1;
-    CK_SESSION_HANDLE xSession;
-    CK_BBOOL xSessionOpen = CK_FALSE;
-
-    xResult = C_GetFunctionList( &xFunctionList );
-
-    if( CKR_OK == xResult )
+#if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
+    CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
+                                           size_t xCertificateLength,
+                                           uint8_t * pucLabel )
     {
-        xResult = xInitializePKCS11();
+        /* Find the certificate */
+        CK_OBJECT_HANDLE xHandle;
+        CK_RV xResult;
+        CK_FUNCTION_LIST_PTR xFunctionList;
+        CK_SLOT_ID xSlotId;
+        CK_ULONG xCount = 1;
+        CK_SESSION_HANDLE xSession;
+        CK_BBOOL xSessionOpen = CK_FALSE;
+
+        xResult = C_GetFunctionList( &xFunctionList );
+
+        if( CKR_OK == xResult )
+        {
+            xResult = xInitializePKCS11();
+        }
+
+        if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
+        {
+            xResult = xFunctionList->C_GetSlotList( CK_TRUE, &xSlotId, &xCount );
+        }
+
+        if( CKR_OK == xResult )
+        {
+            xResult = xFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, &xSession );
+        }
+
+        if( CKR_OK == xResult )
+        {
+            xSessionOpen = CK_TRUE;
+            xResult = xProvisionCertificate( xSession,
+                                             ( uint8_t * ) pucCertificate,
+                                             xCertificateLength,
+                                             pucLabel,
+                                             &xHandle );
+        }
+
+        if( xSessionOpen == CK_TRUE )
+        {
+            xResult = xFunctionList->C_CloseSession( xSession );
+        }
+
+        return xResult;
     }
 
-    if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
-    {
-        xResult = xFunctionList->C_GetSlotList( CK_TRUE, &xSlotId, &xCount );
-    }
-
-    if( CKR_OK == xResult )
-    {
-        xResult = xFunctionList->C_OpenSession( xSlotId, CKF_SERIAL_SESSION, NULL, NULL, &xSession );
-    }
-
-    if( CKR_OK == xResult )
-    {
-        xSessionOpen = CK_TRUE;
-        xResult = xProvisionCertificate( xSession,
-                                         ( uint8_t * ) pucCertificate,
-                                         xCertificateLength,
-                                         pucLabel,
-                                         &xHandle );
-    }
-
-    if( xSessionOpen == CK_TRUE )
-    {
-        xResult = xFunctionList->C_CloseSession( xSession );
-    }
-
-    return xResult;
-}
-
-#endif
+#endif /* if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 ) */
 
 /**
  * @brief Test prvPAL_CloseFile with a valid signature and signature verification
