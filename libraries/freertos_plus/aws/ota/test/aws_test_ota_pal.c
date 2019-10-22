@@ -37,11 +37,16 @@
 #include "aws_ota_pal_test_access_declare.h"
 #include "aws_ota_pal.h"
 #include "aws_iot_ota_agent.h"
+
+#if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
 #include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
+#include "aws_dev_mode_key_provisioning.h"
+#endif
+
 #include "aws_ota_codesigner_certificate.h"
 #include "aws_test_ota_config.h"
-#include "aws_dev_mode_key_provisioning.h"
+
 
 /* The Texas Instruments CC3220SF has special requirements on its file system security.
  * We enable code specially for testing the OTA PAL layer for this device. */
@@ -229,7 +234,7 @@ TEST( Full_OTA_PAL, prvPAL_CloseFile_ValidSignature )
         TEST_ASSERT_EQUAL_INT( kOTA_Err_None, xOtaStatus );
     }
 }
-
+ #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
 CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
                                        size_t xCertificateLength,
                                        uint8_t * pucLabel )
@@ -277,6 +282,8 @@ CK_RV prvImportCodeSigningCertificate( const uint8_t * pucCertificate,
 
     return xResult;
 }
+
+#endif
 
 /**
  * @brief Test prvPAL_CloseFile with a valid signature and signature verification
