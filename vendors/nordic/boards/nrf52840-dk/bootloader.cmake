@@ -127,7 +127,7 @@ set(
     "${board_dir}/bootloader/crypto.c"
     "${board_dir}/bootloader/main.c"
     "${board_dir}/bootloader/utils.c"
-    "${AFR_COMPILER_DIR}/../../../source/thumb_crt0.s"
+    "${board_dir}/application_code/nordic_code/thumb_crt0.s"
     "${nrf5_sdk}/components/boards/boards.c"
     "${nrf5_sdk}/modules/nrfx/mdk/ses_startup_nrf_common.s"
     "${nrf5_sdk}/modules/nrfx/mdk/ses_startup_nrf52840.s"
@@ -228,11 +228,6 @@ target_include_directories(
     bootloader
     PRIVATE
     $<$<NOT:$<COMPILE_LANGUAGE:ASM>>:${bootloader_inc}>
-)
-
-target_link_libraries(
-    bootloader
-    PRIVATE
 )
 
 # -------------------------------------------------------------------------------------------------
