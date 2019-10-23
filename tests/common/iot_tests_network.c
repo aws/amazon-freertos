@@ -218,9 +218,10 @@ bool IotTestNetwork_SelectNetworkType( uint16_t networkType )
 
                 if( bleEnabled == false )
                 {
-                    bleEnabled = pdTRUE;
-                    bInitializeSucceeded = _BLEEnable();
+                    bleEnabled = _BLEEnable();
                 }
+
+                bInitializeSucceeded = bleEnabled;
                 break;
         #endif
         #if !defined( WIFI_SUPPORTED ) || ( WIFI_SUPPORTED != 0 )
