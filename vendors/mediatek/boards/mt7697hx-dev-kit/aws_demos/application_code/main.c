@@ -119,7 +119,7 @@ int main( void )
 
     /* Create tasks that are not dependent on the WiFi being initialized. */
     xLoggingTaskInitialize( mainLOGGING_TASK_STACK_SIZE,
-                            tskIDLE_PRIORITY + 2,
+                            tskIDLE_PRIORITY + 1,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
     /* Start the scheduler.  Initialization that requires the OS to be running,
