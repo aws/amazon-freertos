@@ -105,7 +105,9 @@ typedef struct ProvisionedState_t
     CK_OBJECT_HANDLE xPublicKey;
     uint8_t * pucDerPublicKey;
     uint32_t ulDerPublicKeyLength;
-    char * pcIdentifier;
+    char * pcIdentifier; /* The token label. On some devices, a unique device
+                          * ID might be stored here which can be used as a field
+                          * in the subject of the device certificate. */
 } ProvisionedState_t;
 
 /* This function can be found in libraries/3rdparty/mbedtls/utils/mbedtls_utils.c. */
@@ -839,7 +841,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
     CK_SLOT_ID_PTR pxSlotId = NULL;
     CK_ULONG ulSlotCount = 0;
     CK_TOKEN_INFO xTokenInfo = { 0 };
-    char * pcSpace = NULL;
+    int i = 0;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -895,23 +897,29 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
         /* PKCS #11 requires that token info fields are padded out with space
          * characters. However, a NULL terminated copy will be more useful to the
          * caller. */
-        pcSpace = ( char * ) memchr( xTokenInfo.label, ' ', sizeof( xTokenInfo.label ) );
-    }
-
-    if( NULL != pcSpace )
-    {
-        pxProvisionedState->pcIdentifier = ( char * ) pvPortMalloc( 1 + ( pcSpace - ( char * ) xTokenInfo.label ) );
-
-        if( NULL != pxProvisionedState->pcIdentifier )
+        for( i = 0; i < sizeof( xTokenInfo.label ); i++ )
         {
-            memcpy( pxProvisionedState->pcIdentifier,
-                    xTokenInfo.label,
-                    pcSpace - ( char * ) xTokenInfo.label );
-            pxProvisionedState->pcIdentifier[ pcSpace - ( char * ) xTokenInfo.label ] = '\0';
+            if( xTokenInfo.label[ i ] == ' ' )
+            {
+                break;
+            }
         }
-        else
+
+        if( 0 != i )
         {
-            xResult = CKR_HOST_MEMORY;
+            pxProvisionedState->pcIdentifier = ( char * ) pvPortMalloc( 1 + i * sizeof( xTokenInfo.label[ 0 ] ) );
+
+            if( NULL != pxProvisionedState->pcIdentifier )
+            {
+                memcpy( pxProvisionedState->pcIdentifier,
+                        xTokenInfo.label,
+                        i );
+                pxProvisionedState->pcIdentifier[ i ] = '\0';
+            }
+            else
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
         }
     }
 
@@ -1149,7 +1157,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
         /* Delay since the downstream demo code is likely to fail quickly if
          * provisioning isn't complete, and device certificate creation in the
          * lab may depend on the developer obtaining the public key. */
-        vTaskDelay( pdMS_TO_TICKS( 100 ) );
+        /*vTaskDelay( pdMS_TO_TICKS( 100 ) ); */
     }
 
     /* Free memory. */
