@@ -161,21 +161,13 @@ set(linker_flags
 target_link_options(
     AFR::compiler::mcu_port
     INTERFACE
-        ${linker_flags}
+    ${linker_flags}
 )
 
 target_link_libraries(
   AFR::compiler::mcu_port
   INTERFACE
-  "${nrf5_sdk}/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv5_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libcpp_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libdebugio_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libvfprintf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
-  "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
+
 )
 
 
@@ -196,7 +188,7 @@ set(
  )
 
  set(
-     nrf_sdk_src
+     nrf5_sdk_src
      "${nrf5_sdk}/components/ble/ble_advertising/ble_advertising.c"
      "${nrf5_sdk}/components/ble/ble_link_ctx_manager/ble_link_ctx_manager.c"
      "${nrf5_sdk}/components/ble/ble_services/ble_ipsp/ble_ipsp.c"
@@ -306,7 +298,7 @@ set(
  )
 
  set(
-     nrf_sdk_include
+     nrf5_sdk_include
     "${nrf5_sdk}/components/libraries/util"
     "${nrf5_sdk}/components/libraries/svc"
     "${nrf5_sdk}/components/libraries/fifo"
@@ -375,7 +367,6 @@ target_sources(
     AFR::kernel::mcu_port
     INTERFACE
     ${compiler_src}
-    ${nrf_sdk_src}
 )
 set(
     kernel_inc_dirs
@@ -384,7 +375,7 @@ set(
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
     "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
-    ${nrf_sdk_include}
+    ${nrf5_sdk_include}
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
@@ -483,18 +474,22 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
     add_executable(
         ${exe_target}
         ${application_src}
+        ${nrf5_sdk_src}
     )
 
-    set(
-        mkld_flags
-        -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
-        -section-placement-file "${nrf52840_dir}/flash_placement.xml"
-        -check-segment-overflow
-        -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
-        -section-placement-macros
-        "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
+    target_link_libraries(
+       ${exe_target}
+       PRIVATE
+       "${nrf5_sdk}/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv5_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libcpp_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libdebugio_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libvfprintf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
+       "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
     )
-
 
     # -------------------------------------------------------------------------------------------------
     # Additional build configurations
