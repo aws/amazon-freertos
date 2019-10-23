@@ -209,7 +209,11 @@ static uint32_t ota_select_crc(const ota_select *s)
 
 static bool ota_select_valid(const ota_select *s)
 {
-    return s->ota_seq != UINT32_MAX && s->crc == ota_select_crc(s);
+    bool val = s->ota_seq != UINT32_MAX && s->crc == ota_select_crc(s);
+#ifdef CONFIG_BOOTLOADER_OTA_ROLLBACK
+    val &= (s->ota_flags != ESP_OTA_IMG_INVALID && s->ota_flags != ESP_OTA_IMG_ABORTED);
+#endif
+    return val;
 }
 
 static esp_err_t rewrite_ota_seq(uint32_t seq, uint8_t sec_id, const esp_partition_t *ota_data_partition)
@@ -336,8 +340,12 @@ esp_err_t aws_esp_ota_set_boot_partition(const esp_partition_t *partition)
     // if set boot partition to factory bin, just format ota info partition
     if (partition->type == ESP_PARTITION_TYPE_APP) {
         if (partition->subtype == ESP_PARTITION_SUBTYPE_APP_FACTORY) {
-            ESP_LOGE(TAG, "factory partition not supported");
-            return ESP_ERR_INVALID_ARG;
+            find_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_OTA, NULL);
+            if (find_partition != NULL) {
+                return esp_partition_erase_range(find_partition, 0, find_partition->size);
+            } else {
+            return ESP_ERR_NOT_FOUND;
+            }
         } else {
             // try to find this partition in flash,if not find it ,return error
             find_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_OTA, NULL);
