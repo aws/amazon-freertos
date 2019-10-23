@@ -51,6 +51,16 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
         return jobStatus, summary
 
     def run(self):
+        # Build 0.9.0 for download
+        jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 0)
+        if jobStatus.status == 'SUCCEEDED':
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
+
+        # Build 0.9.1 for download
+        jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 1)
+        if jobStatus.status != 'SUCCEEDED':
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
+
         # Build 0.9.1 for download
         jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 1)
         if jobStatus.status != 'SUCCEEDED':
@@ -60,9 +70,19 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
         jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 2)
         if jobStatus.status != 'SUCCEEDED':
             return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
-
+            
         # Build 0.9.3 for download
         jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 3)
+        if jobStatus.status != 'SUCCEEDED':
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
+            
+        # Build 0.9.3 for download
+        jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 3)
+        if jobStatus.status != 'SUCCEEDED':
+            return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
+            
+        # Build 0.9.4 for download
+        jobStatus, summary = self.__buildAndOtaInputVersion(0, 9, 4)
         if jobStatus.status != 'SUCCEEDED':
             return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
 
