@@ -40,7 +40,7 @@
 
 
 #if ( otatestpalREAD_CERTIFICATE_FROM_NVM_WITH_PKCS11 == 1 )
-    #include "iot_pkcs11_config.h"    
+    #include "iot_pkcs11_config.h"
     #include "iot_pkcs11.h"
     #include "aws_dev_mode_key_provisioning.h"
 #endif
