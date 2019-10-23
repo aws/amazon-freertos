@@ -211,7 +211,7 @@ static bool ota_select_valid(const ota_select *s)
 {
     bool val = s->ota_seq != UINT32_MAX && s->crc == ota_select_crc(s);
 #ifdef CONFIG_BOOTLOADER_OTA_ROLLBACK
-    val &= (s->ota_flags != ESP_OTA_IMG_INVALID && s->ota_flags != ESP_OTA_IMG_ABORTED && s->ota_flags != ESP_OTA_IMG_PENDING_VERIFY);
+    val &= (s->ota_flags != ESP_OTA_IMG_INVALID && s->ota_flags != ESP_OTA_IMG_ABORTED);
 #endif
     return val;
 }
