@@ -788,7 +788,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
         configPRINTF( ( "The PKCS #11 module supports RSA signing.\r\n" ) );
     }
 
-    /* Check for ECDSA support. */
+    /* Check for ECDSA support, if applicable. */
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_ECDSA, &MechanismInfo );
     TEST_ASSERT_TRUE( CKR_OK == xResult || CKR_MECHANISM_INVALID == xResult );
 
@@ -822,8 +822,7 @@ TEST( Full_PKCS11_Capabilities, AFQP_Capabilities )
         configPRINTF( ( "The PKCS #11 module supports elliptic-curve key generation.\r\n" ) );
     }
 
-    /* SHA-256 support is required, but we don't need to write it to the console,
-     * since it doesn't impact the execution sequence for IDT. */
+    /* SHA-256 support is required. */
     xResult = pxGlobalFunctionList->C_GetMechanismInfo( pxSlotId[ 0 ], CKM_SHA256, &MechanismInfo );
     TEST_ASSERT_TRUE( CKR_OK == xResult );
     TEST_ASSERT_TRUE( 0 != ( CKF_DIGEST & MechanismInfo.flags ) );
