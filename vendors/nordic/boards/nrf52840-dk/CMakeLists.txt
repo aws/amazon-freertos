@@ -517,7 +517,7 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
         find_program(gcc_size arm-none-eabi-size)
 
         if(NOT gcc_objectcopy )
-            message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+            message(FATAL_ERROR "Cannot find objcopy.")
         endif()
 
         set(output_file "$<TARGET_FILE_DIR:${build_target}>/${build_target}.hex")
