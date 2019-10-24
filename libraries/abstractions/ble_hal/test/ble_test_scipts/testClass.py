@@ -35,7 +35,7 @@ except ImportError:
     import gobject as GObject
 
 # Config for enable/disable test case
-ENABLE_TC_SECONDARY_SERVICE = 0
+ENABLE_TC_AFQP_SECONDARY_SERVICE = 0
 
 class runTest:
     mainloop = GObject.MainLoop()
@@ -425,7 +425,7 @@ class runTest:
             isTestSuccessfull = False
 
         #Check secondary service UUID
-        if (ENABLE_TC_SECONDARY_SERVICE == 1):
+        if (ENABLE_TC_AFQP_SECONDARY_SERVICE == 1):
             if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
                 print("checkUUIDs test: missing secondary service UUID: "+runTest.DUT_SERVICEC_UUID)
                 isTestSuccessfull = False

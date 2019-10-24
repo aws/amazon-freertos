@@ -769,7 +769,7 @@ void IotTestBleHal_CreateServiceA()
 void IotTestBleHal_CreateServiceB()
 {
     prvCreateService( &_xSrvcB );
-    #if ENABLE_TC_ADD_INCLUDED_SERVICE
+    #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
         prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
     #endif
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A );
@@ -792,7 +792,7 @@ void IotTestBleHal_CreateServiceC()
     prvCreateCharacteristic( &_xSrvcC, bletestATTR_SRVCC_CHAR_A );
 }
 
-#if ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK
+#if ENABLE_TC_INTEGRATION_ADD_CHARACTERISTIC_IN_CALLBACK
     void IotTestBleHal_CreateServiceB_Nested()
     {
         prvCreateService( &_xSrvcB );
@@ -1305,7 +1305,7 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
     pushToQueue( &pxAttrCb->xEvent.eventList );
 }
 
-#if ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK
+#if ENABLE_TC_INTEGRATION_ADD_CHARACTERISTIC_IN_CALLBACK
     void prvCharAddedNestedCb( BTStatus_t xStatus,
                                uint8_t ucServerIf,
                                BTUuid_t * pxUuid,
@@ -1331,7 +1331,7 @@ void prvCharacteristicAddedCb( BTStatus_t xStatus,
 
         prvCharacteristicAddedCb( xStatus, ucServerIf, pxUuid, usServiceHandle, usCharHandle );
     }
-#endif /* if ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK */
+#endif /* if ENABLE_TC_INTEGRATION_ADD_CHARACTERISTIC_IN_CALLBACK */
 
 void prvCharacteristicDescrAddedCb( BTStatus_t xStatus,
                                     uint8_t ucServerIf,

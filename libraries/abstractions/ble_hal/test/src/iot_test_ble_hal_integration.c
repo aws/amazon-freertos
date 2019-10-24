@@ -142,34 +142,34 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 {
     RUN_TEST_CASE( Full_BLE, BLE_Setup );
 
-    #if ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK
+    #if ENABLE_TC_INTEGRATION_ADD_CHARACTERISTIC_IN_CALLBACK
         RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback );
     #endif
-    #if ENABLE_TC_ADVERTISE_WITHOUT_PROPERTISE
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITHOUT_PROPERTY
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Without_Properties );
     #endif
-    #if ENABLE_TC_ADVERTISE_WITH_16BIT_SERVICEUUID
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_16BIT_SERVICEUUID
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
     #endif
-    #if ENABLE_TC_ADVERTISE_WITH_MANUFACTUREDATA
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUFACTUREDATA
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
     #endif
-    #if ENABLE_TC_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent_After_BT_Reset );
     #endif
-    #if ENABLE_TC_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3
+    #if ENABLE_TC_INTEGRATION_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3
         RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
     #endif
     #if ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Integration_Connection_Timeout );
     #endif
-    #if ENABLE_TC_SEND_DATA_AFTER_DISCONNECTED
+    #if ENABLE_TC_INTEGRATION_SEND_DATA_AFTER_DISCONNECTED
         RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
     #endif
-    #if ENABLE_TC_CALLBACK_NULL_CHECK
+    #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
     #endif
-    #if ENABLE_TC_INIT_ENABLE_TWICE
+    #if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     #endif
 
@@ -547,7 +547,7 @@ void prvCreateAndStartServiceB()
     }
 }
 
-#if ENABLE_TC_CALLBACK_NULL_CHECK
+#if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
     void prvInitWithNULLCb( void )
     {
         BTStatus_t xStatus = eBTStatusSuccess;
@@ -776,7 +776,7 @@ void prvCreateAndStartServiceB()
         xStatus = _pxBTLeAdapterInterface->pxUnregisterBleApp( _ucBLEAdapterIf );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
-#endif /* if ENABLE_TC_CALLBACK_NULL_CHECK */
+#endif /* if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK */
 
 void GAP_common_teardown()
 {

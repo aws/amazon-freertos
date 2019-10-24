@@ -110,7 +110,7 @@ TEST_GROUP_RUNNER( Full_BLE )
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_UpdateConnectionParamReq ); */
 
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_ChangeMTUsize ); */
-    #if ENABLE_TC_WRITE_LONG
+    #if ENABLE_TC_AFQP_WRITE_LONG
         RUN_TEST_CASE( Full_BLE, BLE_Property_WriteLongCharacteristic );
     #endif
 
@@ -729,7 +729,7 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        #if ENABLE_TC_SECONDARY_SERVICE
+        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
             xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcC );
             TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         #endif
@@ -742,7 +742,7 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         /* Create service B */
         IotTestBleHal_CreateServiceB();
 
-        #if ENABLE_TC_SECONDARY_SERVICE
+        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
             /* Create service C */
             IotTestBleHal_CreateServiceC();
         #endif
@@ -751,7 +751,7 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         IotTestBleHal_StartService( &_xSrvcA );
         /* Start service B */
         IotTestBleHal_StartService( &_xSrvcB );
-        #if ENABLE_TC_SECONDARY_SERVICE
+        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
             /* Start service C */
             IotTestBleHal_StartService( &_xSrvcC );
         #endif

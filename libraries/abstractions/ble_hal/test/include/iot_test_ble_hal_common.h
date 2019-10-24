@@ -56,22 +56,8 @@
 #define LIBRARY_LOG_NAME         ( "BLE_HAL_API_TEST" )
 #include "iot_logging_setup.h"
 
-/* Enable/Disable test cases */
-/* AFQP test */
-#define ENABLE_TC_WRITE_LONG                                      ( 1 )
-#define ENABLE_TC_ADD_INCLUDED_SERVICE                            ( 0 )
-#define ENABLE_TC_SECONDARY_SERVICE                               ( 0 )
-/* Integration test */
-#define ENABLE_TC_CALLBACK_NULL_CHECK                             ( 1 )
-#define ENABLE_TC_ADD_CHARACTERISTIC_IN_CALLBACK                  ( 0 )
-#define ENABLE_TC_ADVERTISE_WITHOUT_PROPERTISE                    ( 1 )
-#define ENABLE_TC_ADVERTISE_WITH_16BIT_SERVICEUUID                ( 1 )
-#define ENABLE_TC_ADVERTISE_WITH_MANUFACTUREDATA                  ( 1 )
-#define ENABLE_TC_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET    ( 1 )
-#define ENABLE_TC_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3      ( 1 )
-#define ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT                  ( 1 )
-#define ENABLE_TC_SEND_DATA_AFTER_DISCONNECTED                    ( 1 )
-#define ENABLE_TC_INIT_ENABLE_TWICE                               ( 1 )
+/* Configs for enable/diable test cases */
+#include "iot_test_ble_hal_config_defaults.h"
 
 /**
  * @brief Connection parameters.
@@ -206,7 +192,7 @@ typedef struct
 #define QUEUE_LENGTH                          20
 #define ITEM_SIZE                             sizeof( void * )
 
-#define BLE_TESTS_WAIT                        60000                 /* Wait 60s max */
+#define BLE_TESTS_WAIT                        10000                 /* Wait 10s max */
 #define BLE_TESTS_SHORT_WAIT                  4000                  /* Wait 4s max */
 
 typedef enum
