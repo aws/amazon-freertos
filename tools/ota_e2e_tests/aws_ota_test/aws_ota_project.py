@@ -85,7 +85,7 @@ class OtaAfrProject:
         OtaAfrProject.APPLICATION_VERSION_PATH = self._buildProject + '/include/aws_application_version.h'
         OtaAfrProject.CLIENT_CREDENTIAL_KEYS_PATH = self._buildProject + '/include/aws_clientcredential_keys.h'
         OtaAfrProject.OTA_CODESIGNER_CERTIFICATE_PATH = 'demos/include/aws_ota_codesigner_certificate.h'
-        if 'microchip' in self._boardProjectPath:
+        if 'curiosity_pic32mzef' in self._board_name:
             OtaAfrProject.OTA_BOOTLOADER_CONFIG_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/user-config/ota-descriptor.config'
             OtaAfrProject.OTA_BOOTLOADER_CERTIFICATE_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/codesigner_cert_utility/aws_ota_codesigner_certificate.pem'
             OtaAfrProject.OTA_FACTORY_IMAGE_GENERATOR_PATH = boardConfig['vendor_board_path'] + '/bootloader/bootloader/utility/factory_image_generator.py'
@@ -135,7 +135,7 @@ class OtaAfrProject:
         for command in buildCommands:
             command = command.format(**self._buildConfig)
             print('====> Executing Command: ' + command)
-            proc = subprocess.Popen(command + ' > build.log 2>&1', shell=True)
+            proc = subprocess.Popen(command + ' >> build.log 2>&1', shell=True)
             proc.wait()
             print('====> Command run completed with the return code: ', proc.returncode)
             returnCodes.append(proc.returncode)
