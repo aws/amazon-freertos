@@ -322,11 +322,7 @@ void runDemoTask( void * pArgument )
 
     /* DO NOT EDIT - This demo start marker is used in the test framework to
      * determine the start of a demo. */
-    vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
-    vTaskDelay( pdMS_TO_TICKS( 5000UL ) );
     IotLogInfo( "---------STARTING DEMO---------\n" );
-    IotLogInfo( "UUID: _uuid_a28dd41e8d5c4818818035b8a2cc8e70\n" );
-    IotLogInfo( "UUID: _uuid_d714daa01134460b8a6181960b66172c\n" );
 
     status = _initialize( pContext );
 
@@ -349,13 +345,13 @@ void runDemoTask( void * pArgument )
             /* If memory anaalysis is enabled metrics regarding the heap and stack usage of the demo will print. */
             /* This format is used for easier parsing and creates an avenue for future metrics to be added. */
             xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
-            IotLogInfo( "memory_metrics:heap:total:%u", demoMEMORY_ANALYSIS_HEAP_SIZE );
-            IotLogInfo( "memory_metrics:heap:before:%u", xBeforeDemoHeapSize );
-            IotLogInfo( "memory_metrics:heap:after:%u", xAfterDemoHeapSize );
+            IotLogInfo( "memory_metrics:heap:total:bytes:%u", demoMEMORY_ANALYSIS_HEAP_SIZE );
+            IotLogInfo( "memory_metrics:heap:before:bytes:%u", xBeforeDemoHeapSize );
+            IotLogInfo( "memory_metrics:heap:after:bytes:%u", xAfterDemoHeapSize );
             xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-            IotLogInfo( "memory_metrics:stack:total:%u", xDemoStackSize );
-            IotLogInfo( "memory_metrics:stack:before:%u", xBeforeDemoTaskWaterMark );
-            IotLogInfo( "memory_metrics:stack:after:%u", xAfterDemoTaskWaterMark );
+            IotLogInfo( "memory_metrics:stack:total:stack_words:%u", xDemoStackSize );
+            IotLogInfo( "memory_metrics:stack:before:stack_words:%u", xBeforeDemoTaskWaterMark );
+            IotLogInfo( "memory_metrics:stack:after:stack_words:%u", xAfterDemoTaskWaterMark );
         #endif /* democonfigMEMORY_ANALYSIS */
 
         /* Log the demo status. */
