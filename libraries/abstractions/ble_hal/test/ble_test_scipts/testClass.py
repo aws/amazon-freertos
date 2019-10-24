@@ -35,8 +35,6 @@ except ImportError:
     import gobject as GObject
 
 # Config for enable/disable test case
-ENABLE_TC_WRITE_LONG = 0
-ENABLE_TC_WRITE_NORMAL = 1
 ENABLE_TC_SECONDARY_SERVICE = 0
 
 class runTest:
@@ -346,14 +344,13 @@ class runTest:
             runTest.DUT_WRITE_NO_RESP_CHAR_UUID, result, False)
 
     @staticmethod
-    def _readWriteChecks(charUUID, descrUUID):
-        if (ENABLE_TC_WRITE_LONG == 1):
-            #enable long write test
-            long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
-            bleAdapter.writeCharacteristic(charUUID, long_value)
+    def writeLongCharacteristic():
+        long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
+        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
 
-        if (ENABLE_TC_WRITE_NORMAL == 1):
-            bleAdapter.writeCharacteristic(charUUID, charUUID)
+    @staticmethod
+    def _readWriteChecks(charUUID, descrUUID):
+        bleAdapter.writeCharacteristic(charUUID, charUUID)
 
         bleAdapter.writeDescriptor(descrUUID, descrUUID)
 
@@ -845,6 +842,7 @@ class runTest:
             runTest.reConnection: "_reConnection",
             runTest.checkProperties: "_checkProperties",
             runTest.checkUUIDs: "_checkUUIDs",
+            runTest.writeLongCharacteristic: "_writeLongCharacteristic",
             runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
             runTest.writeWithoutResponse: "_writeWithoutResponse",
             runTest.notification: "_notification",

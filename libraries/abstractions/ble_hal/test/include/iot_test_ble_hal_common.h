@@ -58,7 +58,7 @@
 
 /* Enable/Disable test cases */
 /* AFQP test */
-#define ENABLE_TC_WRITE_LONG                                      ( 0 )
+#define ENABLE_TC_WRITE_LONG                                      ( 1 )
 #define ENABLE_TC_ADD_INCLUDED_SERVICE                            ( 0 )
 #define ENABLE_TC_SECONDARY_SERVICE                               ( 0 )
 /* Integration test */
@@ -78,10 +78,10 @@
  */
 typedef struct
 {
-    uint32_t minInterval;     /**< Minimum connection interval. */
-    uint32_t maxInterval;     /**< Maximum connection interval. */
-    uint32_t latency;         /**< Slave latency. */
-    uint32_t timeout;         /**< Connection timeout. */
+    uint32_t minInterval; /**< Minimum connection interval. */
+    uint32_t maxInterval; /**< Maximum connection interval. */
+    uint32_t latency;     /**< Slave latency. */
+    uint32_t timeout;     /**< Connection timeout. */
 } IotBleConnectionParam_t;
 
 #define bletestsAPP_UUID                 { 0x11, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }
@@ -96,6 +96,7 @@ typedef struct
 
 #define bletestsDEFAULT_CHAR_VALUE       "hello"
 #define bletestsSTRINGYFIED_UUID_SIZE    36 /* like "8a7f1168-48af-4efb-83b5-e679f9320002" */
+#define bletests_LONG_WRITE_LEN          210
 #define bletestsFULL_PERMISSIONS         ( eBTPermRead | eBTPermWrite )
 #define bletestsNB_INCLUDEDSERVICES      1
 

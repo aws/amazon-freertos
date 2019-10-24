@@ -1640,7 +1640,7 @@ void prvRequestWriteCb( uint16_t usConnId,
         }
         else
         {
-            memset( pxWriteAttrCallback->ucValue, 0, bletestsSTRINGYFIED_UUID_SIZE );
+            memcpy( pxWriteAttrCallback->ucValue, pucValue, bletestsSTRINGYFIED_UUID_SIZE );
         }
 
         pxWriteAttrCallback->xEvent.xEventTypes = eBLEHALEventWriteAttrCb;

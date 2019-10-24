@@ -438,7 +438,7 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_
 
     if( xStatus != eBTStatusSuccess )
     {
-        /* Notify RPI failure here. Expect to receive "fail" messaprvSetAdvertisementge. */
+        /* Notify RPI failure here. Expect to receive "fail" message. */
         memcpy( ucLargeBuffer, bletestsFAIL_CHAR_VALUE, sizeof( bletestsFAIL_CHAR_VALUE ) - 1 );
         xfStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
                                                              usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],

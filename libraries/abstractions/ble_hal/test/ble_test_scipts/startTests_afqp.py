@@ -78,6 +78,10 @@ def main():
     isTestSuccessFull = runTest.checkProperties(bleAdapter.gatt)
     runTest.submitTestResult(isTestSuccessFull, runTest.checkProperties)
 
+    # CHeck long write
+    isTestSuccessFull = runTest.writeLongCharacteristic()
+    runTest.submitTestResult(isTestSuccessFull, runTest.writeLongCharacteristic)
+
     # Check read/write, simple connection
     isTestSuccessFull = runTest.readWriteSimpleConnection()
     runTest.submitTestResult(
