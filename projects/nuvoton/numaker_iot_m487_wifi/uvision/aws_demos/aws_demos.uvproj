@@ -461,8 +461,18 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>nuvoton/sdk/StdDriver/src/</GroupName>
+          <GroupName>nuvoton_sdk</GroupName>
           <Files>
+            <File>
+              <FileName>system_M480.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/system_M480.c</FilePath>
+            </File>
+            <File>
+              <FileName>startup_M480.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/startup_M480.s</FilePath>
+            </File>
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
@@ -496,18 +506,58 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/</GroupName>
+          <GroupName>demos-common</GroupName>
           <Files>
             <File>
-              <FileName>entropy_hardware_poll.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/entropy_hardware_poll.c</FilePath>
+              <FileName>aws_tcp_echo_client_single_tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_tasks.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/demo_runner/</GroupName>
-          <Files>
+            <File>
+              <FileName>aws_tcp_echo_client_single_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_demo_shadow.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_demo_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_greengrass_discovery_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_demo_defender.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/defender/aws_iot_demo_defender.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_dev_mode_key_provisioning.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_network_manager_private.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../demos/network_manager/iot_network_manager_private.h</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_demo_network.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/network_manager/aws_iot_demo_network.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_network_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/network_manager/aws_iot_network_manager.c</FilePath>
+            </File>
             <File>
               <FileName>aws_demo_version.c</FileName>
               <FileType>1</FileType>
@@ -581,28 +631,83 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>demos/network_manager/</GroupName>
+          <GroupName>lib-c_sdk</GroupName>
           <Files>
             <File>
-              <FileName>aws_iot_network_manager.c</FileName>
+              <FileName>iot_json_utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../demos/network_manager/aws_iot_network_manager.c</FilePath>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</FilePath>
             </File>
             <File>
-              <FileName>aws_iot_demo_network.c</FileName>
+              <FileName>iot_serializer_static_memory.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../demos/network_manager/aws_iot_demo_network.c</FilePath>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</FilePath>
             </File>
             <File>
-              <FileName>iot_network_manager_private.h</FileName>
+              <FileName>iot_serializer_json_encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_serializer_json_decoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_serializer_tinycbor_encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_serializer_tinycbor_decoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_internal.h</FileName>
               <FileType>5</FileType>
-              <FilePath>../../../../../demos/network_manager/iot_network_manager_private.h</FilePath>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/common/</GroupName>
-          <Files>
+            <File>
+              <FileName>aws_iot_defender_v1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_collector.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_taskpool_static_memory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_taskpool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_logging.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_logging_task_dynamic_buffers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</FilePath>
+            </File>
             <File>
               <FileName>iot_init.c</FileName>
               <FileType>1</FileType>
@@ -621,37 +726,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/standard/common/logging/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_logging_task_dynamic_buffers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_logging.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/common/taskpool/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_taskpool.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_taskpool_static_memory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/abstractions/platform/freertos/</GroupName>
+          <GroupName>lib-abstract-freertos</GroupName>
           <Files>
             <File>
               <FileName>iot_clock_freertos.c</FileName>
@@ -676,7 +751,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/secure_sockets/</GroupName>
+          <GroupName>wifi-secure_sockets</GroupName>
           <Files>
             <File>
               <FileName>iot_secure_sockets.c</FileName>
@@ -686,8 +761,43 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/tls/src/</GroupName>
+          <GroupName>lib-freertos_plus</GroupName>
           <Files>
+            <File>
+              <FileName>aws_helper_secure_connect.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</FilePath>
+            </File>
+            <File>
+              <FileName>aws_helper_secure_connect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_greengrass_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pki_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_system_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pkcs11.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_crypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
+            </File>
             <File>
               <FileName>iot_demo_freertos.c</FileName>
               <FileType>1</FileType>
@@ -701,28 +811,33 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/crypto/src/</GroupName>
+          <GroupName>lib-pkcs11</GroupName>
           <Files>
             <File>
-              <FileName>iot_crypto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
+              <FileName>pkcs11t.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/freertos_plus/standard/pkcs11/src/</GroupName>
-          <Files>
             <File>
-              <FileName>iot_pkcs11.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</FilePath>
+              <FileName>pkcs11f.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11f.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/pkcs11/</GroupName>
-          <Files>
+            <File>
+              <FileName>pkcs11.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11.h</FilePath>
+            </File>
+            <File>
+              <FileName>threading_alt.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pkcs11_mbedtls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
+            </File>
             <File>
               <FileName>iot_pkcs11_pal.c</FileName>
               <FileType>1</FileType>
@@ -731,38 +846,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/abstractions/pkcs11/mbedtls/</GroupName>
+          <GroupName>wifi-common</GroupName>
           <Files>
             <File>
-              <FileName>iot_pkcs11_mbedtls.c</FileName>
+              <FileName>esp8266_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
+              <FilePath>../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c</FilePath>
             </File>
-            <File>
-              <FileName>threading_alt.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/freertos_plus/standard/utils/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_system_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_pki_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/wifi/</GroupName>
-          <Files>
             <File>
               <FileName>iot_wifi.c</FileName>
               <FileType>1</FileType>
@@ -771,62 +861,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/sdk/middleware/wifi_esp8266/</GroupName>
-          <Files>
-            <File>
-              <FileName>esp8266_wifi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/dev_mode_key_provisioning/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_dev_mode_key_provisioning.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/aws/defender/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_defender_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_defender_collector.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_defender_mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_defender_v1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/aws/defender/src/private/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_defender_internal.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/mqtt/src/</GroupName>
+          <GroupName>lib-mqtt</GroupName>
           <Files>
             <File>
               <FileName>iot_mqtt_api.c</FileName>
@@ -871,52 +906,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/standard/serializer/src/cbor/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_serializer_tinycbor_decoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_serializer_tinycbor_encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/serializer/src/json/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_serializer_json_decoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_serializer_json_encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/serializer/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_serializer_static_memory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_json_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/aws/shadow/src/</GroupName>
+          <GroupName>lib-shadow</GroupName>
           <Files>
             <File>
               <FileName>aws_iot_shadow_api.c</FileName>
@@ -956,7 +946,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/standard/https/src/</GroupName>
+          <GroupName>lib-https</GroupName>
           <Files>
             <File>
               <FileName>iot_https_client.c</FileName>
@@ -971,47 +961,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/aws/greengrass/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_greengrass_discovery.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_helper_secure_connect.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_helper_secure_connect.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/defender/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_demo_defender.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/defender/aws_iot_demo_defender.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/greengrass_connectivity/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_greengrass_discovery_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/https/</GroupName>
+          <GroupName>demos-https</GroupName>
           <Files>
             <File>
               <FileName>iot_demo_https_s3_download_sync.c</FileName>
@@ -1041,42 +991,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>demos/mqtt/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_demo_mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/shadow/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_demo_shadow.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/tcp/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_tcp_echo_client_single_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_tcp_echo_client_single_tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_tasks.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>numaker_iot_m487_wifi/aws_demos/config_files/</GroupName>
+          <GroupName>aws_demos-config_files</GroupName>
           <Files>
             <File>
               <FileName>FreeRTOSConfig.h</FileName>
@@ -1146,8 +1061,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>aws_demos/application_code</GroupName>
+          <GroupName>aws_demos-application_code</GroupName>
           <Files>
+            <File>
+              <FileName>entropy_hardware_poll.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/entropy_hardware_poll.c</FilePath>
+            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
@@ -1156,27 +1076,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/</GroupName>
-          <Files>
-            <File>
-              <FileName>startup_M480.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/startup_M480.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/</GroupName>
-          <Files>
-            <File>
-              <FileName>system_M480.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/system_M480.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lib/mbedtls</GroupName>
+          <GroupName>lib-mbedtls</GroupName>
           <Files>
             <File>
               <FileName>mbedtls_utils.c</FileName>
@@ -1546,27 +1446,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/pkcs11/</GroupName>
-          <Files>
-            <File>
-              <FileName>pkcs11.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11.h</FilePath>
-            </File>
-            <File>
-              <FileName>pkcs11f.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11f.h</FilePath>
-            </File>
-            <File>
-              <FileName>pkcs11t.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/3rdparty/tinycbor/</GroupName>
+          <GroupName>3rd-tinycbor</GroupName>
           <Files>
             <File>
               <FileName>cborpretty.c</FileName>
@@ -1601,7 +1481,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/http_parser/</GroupName>
+          <GroupName>3rd-http_parser</GroupName>
           <Files>
             <File>
               <FileName>http_parser.h</FileName>
@@ -1616,7 +1496,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/jsmn/</GroupName>
+          <GroupName>3rd-jsmn</GroupName>
           <Files>
             <File>
               <FileName>jsmn.h</FileName>
@@ -1631,7 +1511,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/freertos_plus_tcp</GroupName>
+          <GroupName>lib-freertos_plus_tcp</GroupName>
           <GroupOption>
             <CommonProperty>
               <UseCPPCompiler>0</UseCPPCompiler>
@@ -2225,8 +2105,18 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>nuvoton/sdk/StdDriver/src/</GroupName>
+          <GroupName>nuvoton_sdk</GroupName>
           <Files>
+            <File>
+              <FileName>system_M480.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/system_M480.c</FilePath>
+            </File>
+            <File>
+              <FileName>startup_M480.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/startup_M480.s</FilePath>
+            </File>
             <File>
               <FileName>clk.c</FileName>
               <FileType>1</FileType>
@@ -2260,18 +2150,58 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/</GroupName>
+          <GroupName>demos-common</GroupName>
           <Files>
             <File>
-              <FileName>entropy_hardware_poll.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/entropy_hardware_poll.c</FilePath>
+              <FileName>aws_tcp_echo_client_single_tasks.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_tasks.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/demo_runner/</GroupName>
-          <Files>
+            <File>
+              <FileName>aws_tcp_echo_client_single_task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_task.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_demo_shadow.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_demo_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_greengrass_discovery_demo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_demo_defender.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/defender/aws_iot_demo_defender.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_dev_mode_key_provisioning.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_network_manager_private.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../demos/network_manager/iot_network_manager_private.h</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_demo_network.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/network_manager/aws_iot_demo_network.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_network_manager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../demos/network_manager/aws_iot_network_manager.c</FilePath>
+            </File>
             <File>
               <FileName>aws_demo_version.c</FileName>
               <FileType>1</FileType>
@@ -2295,28 +2225,83 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>demos/network_manager/</GroupName>
+          <GroupName>lib-c_sdk</GroupName>
           <Files>
             <File>
-              <FileName>aws_iot_network_manager.c</FileName>
+              <FileName>iot_json_utils.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../demos/network_manager/aws_iot_network_manager.c</FilePath>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</FilePath>
             </File>
             <File>
-              <FileName>aws_iot_demo_network.c</FileName>
+              <FileName>iot_serializer_static_memory.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../demos/network_manager/aws_iot_demo_network.c</FilePath>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</FilePath>
             </File>
             <File>
-              <FileName>iot_network_manager_private.h</FileName>
+              <FileName>iot_serializer_json_encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_serializer_json_decoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_serializer_tinycbor_encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_serializer_tinycbor_decoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_internal.h</FileName>
               <FileType>5</FileType>
-              <FilePath>../../../../../demos/network_manager/iot_network_manager_private.h</FilePath>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/common/</GroupName>
-          <Files>
+            <File>
+              <FileName>aws_iot_defender_v1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_collector.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_iot_defender_api.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_taskpool_static_memory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_taskpool.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_logging.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_logging_task_dynamic_buffers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</FilePath>
+            </File>
             <File>
               <FileName>iot_init.c</FileName>
               <FileType>1</FileType>
@@ -2335,37 +2320,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/standard/common/logging/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_logging_task_dynamic_buffers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_logging.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/common/taskpool/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_taskpool.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_taskpool_static_memory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/abstractions/platform/freertos/</GroupName>
+          <GroupName>lib-abstract-freertos</GroupName>
           <Files>
             <File>
               <FileName>iot_clock_freertos.c</FileName>
@@ -2390,7 +2345,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/secure_sockets/</GroupName>
+          <GroupName>wifi-secure_sockets</GroupName>
           <GroupOption>
             <CommonProperty>
               <UseCPPCompiler>0</UseCPPCompiler>
@@ -2468,8 +2423,43 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/tls/src/</GroupName>
+          <GroupName>lib-freertos_plus</GroupName>
           <Files>
+            <File>
+              <FileName>aws_helper_secure_connect.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</FilePath>
+            </File>
+            <File>
+              <FileName>aws_helper_secure_connect.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</FilePath>
+            </File>
+            <File>
+              <FileName>aws_greengrass_discovery.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pki_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_system_init.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pkcs11.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</FilePath>
+            </File>
+            <File>
+              <FileName>iot_crypto.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
+            </File>
             <File>
               <FileName>iot_demo_freertos.c</FileName>
               <FileType>1</FileType>
@@ -2483,28 +2473,33 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/standard/crypto/src/</GroupName>
+          <GroupName>lib-pkcs11</GroupName>
           <Files>
             <File>
-              <FileName>iot_crypto.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</FilePath>
+              <FileName>pkcs11t.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/freertos_plus/standard/pkcs11/src/</GroupName>
-          <Files>
             <File>
-              <FileName>iot_pkcs11.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</FilePath>
+              <FileName>pkcs11f.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11f.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/pkcs11/</GroupName>
-          <Files>
+            <File>
+              <FileName>pkcs11.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11.h</FilePath>
+            </File>
+            <File>
+              <FileName>threading_alt.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</FilePath>
+            </File>
+            <File>
+              <FileName>iot_pkcs11_mbedtls.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
+            </File>
             <File>
               <FileName>iot_pkcs11_pal.c</FileName>
               <FileType>1</FileType>
@@ -2513,115 +2508,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/abstractions/pkcs11/mbedtls/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_pkcs11_mbedtls.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</FilePath>
-            </File>
-            <File>
-              <FileName>threading_alt.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/freertos_plus/standard/utils/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_system_init.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_pki_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/wifi/</GroupName>
-          <GroupOption>
-            <CommonProperty>
-              <UseCPPCompiler>0</UseCPPCompiler>
-              <RVCTCodeConst>0</RVCTCodeConst>
-              <RVCTZI>0</RVCTZI>
-              <RVCTOtherData>0</RVCTOtherData>
-              <ModuleSelection>0</ModuleSelection>
-              <IncludeInBuild>0</IncludeInBuild>
-              <AlwaysBuild>2</AlwaysBuild>
-              <GenerateAssemblyFile>2</GenerateAssemblyFile>
-              <AssembleAssemblyFile>2</AssembleAssemblyFile>
-              <PublicsOnly>2</PublicsOnly>
-              <StopOnExitCode>11</StopOnExitCode>
-              <CustomArgument></CustomArgument>
-              <IncludeLibraryModules></IncludeLibraryModules>
-              <ComprImg>1</ComprImg>
-            </CommonProperty>
-            <GroupArmAds>
-              <Cads>
-                <interw>2</interw>
-                <Optim>0</Optim>
-                <oTime>2</oTime>
-                <SplitLS>2</SplitLS>
-                <OneElfS>2</OneElfS>
-                <Strict>2</Strict>
-                <EnumInt>2</EnumInt>
-                <PlainCh>2</PlainCh>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <wLevel>0</wLevel>
-                <uThumb>2</uThumb>
-                <uSurpInc>2</uSurpInc>
-                <uC99>2</uC99>
-                <useXO>2</useXO>
-                <v6Lang>0</v6Lang>
-                <v6LangP>0</v6LangP>
-                <vShortEn>2</vShortEn>
-                <vShortWch>2</vShortWch>
-                <v6Lto>2</v6Lto>
-                <v6WtE>2</v6WtE>
-                <v6Rtti>2</v6Rtti>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Cads>
-              <Aads>
-                <interw>2</interw>
-                <Ropi>2</Ropi>
-                <Rwpi>2</Rwpi>
-                <thumb>2</thumb>
-                <SplitLS>2</SplitLS>
-                <SwStkChk>2</SwStkChk>
-                <NoWarn>2</NoWarn>
-                <uSurpInc>2</uSurpInc>
-                <useXO>2</useXO>
-                <uClangAs>2</uClangAs>
-                <VariousControls>
-                  <MiscControls></MiscControls>
-                  <Define></Define>
-                  <Undefine></Undefine>
-                  <IncludePath></IncludePath>
-                </VariousControls>
-              </Aads>
-            </GroupArmAds>
-          </GroupOption>
-          <Files>
-            <File>
-              <FileName>iot_wifi.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/wifi/iot_wifi.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/sdk/middleware/wifi_esp8266/</GroupName>
+          <GroupName>wifi-common</GroupName>
           <GroupOption>
             <CommonProperty>
               <UseCPPCompiler>0</UseCPPCompiler>
@@ -2696,55 +2583,15 @@
               <FileType>1</FileType>
               <FilePath>../../../../../vendors/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/dev_mode_key_provisioning/src/</GroupName>
-          <Files>
             <File>
-              <FileName>aws_dev_mode_key_provisioning.c</FileName>
+              <FileName>iot_wifi.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../../../../../demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</FilePath>
+              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/ports/wifi/iot_wifi.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/aws/defender/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_defender_api.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_defender_collector.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_defender_mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_iot_defender_v1.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/aws/defender/src/private/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_defender_internal.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/mqtt/src/</GroupName>
+          <GroupName>lib-mqtt</GroupName>
           <Files>
             <File>
               <FileName>iot_mqtt_api.c</FileName>
@@ -2789,52 +2636,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/standard/serializer/src/cbor/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_serializer_tinycbor_decoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_serializer_tinycbor_encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/serializer/src/json/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_serializer_json_decoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_serializer_json_encoder.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/standard/serializer/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_serializer_static_memory.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</FilePath>
-            </File>
-            <File>
-              <FileName>iot_json_utils.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/c_sdk/aws/shadow/src/</GroupName>
+          <GroupName>lib-shadow</GroupName>
           <Files>
             <File>
               <FileName>aws_iot_shadow_api.c</FileName>
@@ -2874,7 +2676,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/c_sdk/standard/https/src/</GroupName>
+          <GroupName>lib-https</GroupName>
           <Files>
             <File>
               <FileName>iot_https_client.c</FileName>
@@ -2889,47 +2691,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/freertos_plus/aws/greengrass/src/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_greengrass_discovery.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_helper_secure_connect.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_helper_secure_connect.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/defender/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_demo_defender.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/defender/aws_iot_demo_defender.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/greengrass_connectivity/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_greengrass_discovery_demo.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/greengrass_connectivity/aws_greengrass_discovery_demo.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/https/</GroupName>
+          <GroupName>demos-https</GroupName>
           <Files>
             <File>
               <FileName>iot_demo_https_s3_download_sync.c</FileName>
@@ -2959,42 +2721,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>demos/mqtt/</GroupName>
-          <Files>
-            <File>
-              <FileName>iot_demo_mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/mqtt/iot_demo_mqtt.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/shadow/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_iot_demo_shadow.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/shadow/aws_iot_demo_shadow.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>demos/tcp/</GroupName>
-          <Files>
-            <File>
-              <FileName>aws_tcp_echo_client_single_task.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_task.c</FilePath>
-            </File>
-            <File>
-              <FileName>aws_tcp_echo_client_single_tasks.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../demos/tcp/aws_tcp_echo_client_single_tasks.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>numaker_iot_m487_wifi/aws_demos/config_files/</GroupName>
+          <GroupName>aws_demos-config_files</GroupName>
           <Files>
             <File>
               <FileName>FreeRTOSConfig.h</FileName>
@@ -3064,8 +2791,13 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>aws_demos/application_code</GroupName>
+          <GroupName>aws_demos-application_code</GroupName>
           <Files>
+            <File>
+              <FileName>entropy_hardware_poll.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../../../../../vendors/nuvoton/boards/numaker_iot_m487_wifi/aws_demos/application_code/nuvoton_code/entropy_hardware_poll.c</FilePath>
+            </File>
             <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
@@ -3074,27 +2806,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/</GroupName>
-          <Files>
-            <File>
-              <FileName>startup_M480.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/ARM/startup_M480.s</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/</GroupName>
-          <Files>
-            <File>
-              <FileName>system_M480.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../../../../../vendors/nuvoton/sdk/Device/Nuvoton/numaker_iot_m487_wifi/Source/system_M480.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>lib/mbedtls</GroupName>
+          <GroupName>lib-mbedtls</GroupName>
           <Files>
             <File>
               <FileName>mbedtls_utils.c</FileName>
@@ -3464,27 +3176,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/pkcs11/</GroupName>
-          <Files>
-            <File>
-              <FileName>pkcs11.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11.h</FilePath>
-            </File>
-            <File>
-              <FileName>pkcs11f.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11f.h</FilePath>
-            </File>
-            <File>
-              <FileName>pkcs11t.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>libraries/3rdparty/tinycbor/</GroupName>
+          <GroupName>3rd-tinycbor</GroupName>
           <Files>
             <File>
               <FileName>cborpretty.c</FileName>
@@ -3519,7 +3211,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/http_parser/</GroupName>
+          <GroupName>3rd-http_parser</GroupName>
           <Files>
             <File>
               <FileName>http_parser.h</FileName>
@@ -3534,7 +3226,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>libraries/3rdparty/jsmn/</GroupName>
+          <GroupName>3rd-jsmn</GroupName>
           <Files>
             <File>
               <FileName>jsmn.h</FileName>
@@ -3549,7 +3241,7 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/freertos_plus_tcp</GroupName>
+          <GroupName>lib-freertos_plus_tcp</GroupName>
           <Files>
             <File>
               <FileName>iot_secure_sockets.c</FileName>
