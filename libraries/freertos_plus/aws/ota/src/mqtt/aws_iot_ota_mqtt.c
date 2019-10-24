@@ -836,9 +836,9 @@ OTA_Err_t prvDecodeFileBlock_Mqtt(const uint8_t* pucMessageBuffer,
 		(const uint8_t*)pucMessageBuffer,
 		xMessageSize,
 		plFileId,
-		plBlockId, /*lint !e9087 CBOR requires pointer to int and our block index's never exceed 31 bits. */
+		plBlockId,    /*lint !e9087 CBOR requires pointer to int and our block index's never exceed 31 bits. */
 		plBlockSize,  /*lint !e9087 CBOR requires pointer to int and our block sizes never exceed 31 bits. */
-		ppucPayload,                 /* This payload gets malloc'd by OTA_CBOR_Decode_GetStreamResponseMessage(). We must free it. */
+		ppucPayload,  /* This payload gets malloc'd by OTA_CBOR_Decode_GetStreamResponseMessage(). We must free it. */
 		pxPayloadSize))
 	{
 		xErr = kOTA_Err_GenericIngestError;
@@ -850,7 +850,7 @@ OTA_Err_t prvDecodeFileBlock_Mqtt(const uint8_t* pucMessageBuffer,
 
 		vPortFree(*ppucPayload);
 
-		ppucPayload = &pucMessageBuffer;
+		*ppucPayload = pucMessageBuffer;
 
 		xErr = kOTA_Err_None;
 
