@@ -235,8 +235,8 @@ const uint8_t atecc608_config[] = {
     0x00,  /* Count match */
     0x01,  /* Chip mode */
     0x85, 0x66, /* SlotConfig 0 */
-    0x85, 0x66, //1
-    0x85, 0x20, //2
+    0x82, 0x00, //1
+    0x85, 0x66, //2
     0x85, 0x20, //3
     0x85, 0x20, //4
     0xC6, 0x46, //5
@@ -267,7 +267,7 @@ const uint8_t atecc608_config[] = {
     0x00, 0x00, 0x00, 0x00, /* X509 Format */
     0x53, 0x00,  /* KeyConfig[0] */
     0x53, 0x00, //1
-    0x73, 0x00, //2
+    0x53, 0x00, //2
     0x73, 0x00, //3
     0x73, 0x00, //4
     0x38, 0x00, //5
@@ -403,7 +403,7 @@ CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, p
     {
         /* Slot 0 - Device Private Key */
         pkcs11_config_init_private(pObject, pLabel->pValue, pLabel->ulValueLen);
-        pObject->slot = 1;
+        pObject->slot = 2;
         pObject->config = &pSlot->cfg_zone;
         pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
     }
@@ -413,7 +413,7 @@ CK_RV pkcs11_config_key(pkcs11_lib_ctx_ptr pLibCtx, pkcs11_slot_ctx_ptr pSlot, p
     {
         /* Slot 0 - Device Private Key */
         pkcs11_config_init_public(pObject, pLabel->pValue, pLabel->ulValueLen);
-        pObject->slot = 1;
+        pObject->slot = 2;
         pObject->config = &pSlot->cfg_zone;
         pObject->flags = PKCS11_OBJECT_FLAG_DESTROYABLE;
     }
