@@ -67,11 +67,11 @@ def main():
         isTestSuccessFull,
         runTest.Write_Notification_Size_Greater_Than_MTU_3)
 
-    isTestSuccessFull = runTest.Send_Data_After_Disconected(
+    isTestSuccessFull = runTest.Send_Data_After_Disconnected(
         scan_filter=scan_filter, bleAdapter=bleAdapter)
     runTest.submitTestResult(
         isTestSuccessFull,
-        runTest.Send_Data_After_Disconected)
+        runTest.Send_Data_After_Disconnected)
 
     time.sleep(2)  # wait for connection parameters update
     runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)

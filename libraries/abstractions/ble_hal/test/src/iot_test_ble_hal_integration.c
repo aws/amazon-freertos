@@ -164,7 +164,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Integration_Connection_Timeout );
     #endif
     #if ENABLE_TC_INTEGRATION_SEND_DATA_AFTER_DISCONNECTED
-        RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconnected );
     #endif
     #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
@@ -327,12 +327,6 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
 }
 
-
-/* Crash if calling pxEnable twice (MTK)
- * (1)init -> (2)enable -> (3)deinit -> (4)init -> (5)enable
- * There are 2 issues with this sequence:
- * (4)init reset stack state to disabled even though it's still enabled
- * (5)enable trigger pxEnable again while MTK stack is enabled -> mtk crashed   */
 TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
@@ -450,7 +444,7 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_
     }
 }
 
-TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
+TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconnected )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
     BLETESTreadAttrCallback_t xReadEvent;

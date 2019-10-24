@@ -727,7 +727,7 @@ class runTest:
         return isTestSuccessFull
 
     @staticmethod
-    def Send_Data_After_Disconected(scan_filter,
+    def Send_Data_After_Disconnected(scan_filter,
                                     bleAdapter):
         runTest._advertisement_start(scan_filter=scan_filter,
                                      UUID=runTest.DUT_UUID_128,
@@ -860,7 +860,7 @@ class runTest:
             runTest.Advertise_With_16bit_ServiceUUID: "_Advertise_With_16bit_ServiceUUID",
             runTest.Advertise_With_Manufacture_Data: "_Advertise_With_Manufacture_Data",
             runTest.Advertise_Interval_Consistent_After_BT_Reset: "_Advertise_Interval_Consistent_After_BT_Reset",
-            runTest.Send_Data_After_Disconected: "_Send_Data_After_Disconected",
+            runTest.Send_Data_After_Disconnected: "_Send_Data_After_Disconnected",
             runTest.Write_Notification_Size_Greater_Than_MTU_3: "_Write_Notification_Size_Greater_Than_MTU_3"
         }
 
