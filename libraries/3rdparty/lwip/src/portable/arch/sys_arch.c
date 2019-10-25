@@ -101,16 +101,15 @@ err_t sys_mbox_new( sys_mbox_t *pxMailBox, int iSize )
  * Outputs:
  *      sys_mbox_t              -- Handle to new mailbox
  *---------------------------------------------------------------------------*/
-void sys_mbox_free( sys_mbox_t *pxMailBox )
+void sys_mbox_free( volatile sys_mbox_t *pxMailBox )
 {
     unsigned long ulMessagesWaiting;
     QueueHandle_t xMbox;
     TaskHandle_t xTask;
-    sys_mbox_t volatile * pvxMailBox = pxMailBox;
 
-    if( pvxMailBox != NULL )
+    if( pxMailBox != NULL )
     {
-        ulMessagesWaiting = uxQueueMessagesWaiting( pvxMailBox->xMbox );
+        ulMessagesWaiting = uxQueueMessagesWaiting( pxMailBox->xMbox );
         configASSERT( ( ulMessagesWaiting == 0 ) );
 
         #if SYS_STATS
@@ -125,9 +124,9 @@ void sys_mbox_free( sys_mbox_t *pxMailBox )
         #endif /* SYS_STATS */
 
         taskENTER_CRITICAL();
-        xMbox = pvxMailBox->xMbox;
-        xTask = pvxMailBox->xTask;
-        pvxMailBox->xMbox = NULL;
+        xMbox = pxMailBox->xMbox;
+        xTask = pxMailBox->xTask;
+        pxMailBox->xMbox = NULL;
         taskEXIT_CRITICAL();
 
         if( xTask != NULL )
@@ -229,26 +228,25 @@ err_t sys_mbox_trypost_fromisr( sys_mbox_t *pxMailBox, void *pxMessageToPost )
  * Outputs:
  *      u32_t                   -- SYS_ARCH_TIMEOUT if timeout, else 1
  *---------------------------------------------------------------------------*/
-u32_t sys_arch_mbox_fetch( sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTimeOut )
+u32_t sys_arch_mbox_fetch( volatile sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTimeOut )
 {
     void *pvDummy;
     unsigned long ulReturn = SYS_ARCH_TIMEOUT;
     QueueHandle_t xMbox;
     TaskHandle_t xTask;
     BaseType_t xResult;
-    sys_mbox_t volatile * pvxMailBox = pxMailBox;
 
-    if( pvxMailBox == NULL )
+    if( pxMailBox == NULL )
     {
         goto exit;
     }
 
     taskENTER_CRITICAL();
-    xMbox = pvxMailBox->xMbox;
+    xMbox = pxMailBox->xMbox;
     xTask = xTaskGetCurrentTaskHandle();
-    if( ( xMbox != NULL ) && ( xTask != NULL ) && ( pvxMailBox->xTask == NULL ) )
+    if( ( xMbox != NULL ) && ( xTask != NULL ) && ( pxMailBox->xTask == NULL ) )
     {
-        pvxMailBox->xTask = xTask;
+        pxMailBox->xTask = xTask;
     }
     else
     {
@@ -285,7 +283,7 @@ u32_t sys_arch_mbox_fetch( sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTime
         for( xResult = pdFALSE; ( xMbox != NULL ) && ( xResult != pdTRUE ); )
         {
             xResult = xQueueReceive( xMbox, &( *ppvBuffer ), portMAX_DELAY );
-            xMbox = pvxMailBox->xMbox;
+            xMbox = pxMailBox->xMbox;
         }
 
         if( xResult == pdTRUE )
@@ -294,7 +292,7 @@ u32_t sys_arch_mbox_fetch( sys_mbox_t *pxMailBox, void **ppvBuffer, u32_t ulTime
         }
     }
 
-    pvxMailBox->xTask = NULL;
+    pxMailBox->xTask = NULL;
 
 exit:
     return ulReturn;
@@ -579,46 +577,6 @@ sys_thread_t xReturn;
 
     return xReturn;
 }
-
-#if LWIP_NETCONN_SEM_PER_THREAD
-#if configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0
-
-/*---------------------------------------------------------------------------*
- * Routine:  sys_arch_netconn_sem_get
- *---------------------------------------------------------------------------*
- * Description:
- *      Lookup the task-specific semaphore; create one if necessary.
- *      The semaphore pointer lives in the 0th slot of the
- *      TCB local storage array.  Once allocated, it is never released.
- *---------------------------------------------------------------------------*/
-sys_sem_t *
-sys_arch_netconn_sem_get(void)
-{
-    void* ret;
-    TaskHandle_t task = xTaskGetCurrentTaskHandle();
-    configASSERT( task != NULL );
-
-    ret = pvTaskGetThreadLocalStoragePointer( task, 0 );
-    if( ret == NULL )
-    {
-        sys_sem_t *sem;
-        err_t err;
-        /* allocate memory for this semaphore */
-        sem = mem_malloc( sizeof( sys_sem_t ) );
-        configASSERT( sem != NULL );
-        err = sys_sem_new( sem, 0 );
-        configASSERT( err == ERR_OK );
-        configASSERT( sys_sem_valid( sem ) );
-        vTaskSetThreadLocalStoragePointer( task, 0, sem );
-        ret = sem;
-    }
-    return ret;
-}
-#else /* configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0 */
-#error LWIP_NETCONN_SEM_PER_THREAD needs configNUM_THREAD_LOCAL_STORAGE_POINTERS
-#endif /* configNUM_THREAD_LOCAL_STORAGE_POINTERS > 0 */
-
-#endif /* LWIP_NETCONN_SEM_PER_THREAD */
 
 /*---------------------------------------------------------------------------*
  * Routine:  sys_arch_protect
