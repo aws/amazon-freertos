@@ -43,6 +43,10 @@ extern BTService_t _xSrvcC;
 extern uint16_t usHandlesBufferB[ bletestATTR_SRVCB_NUMBER ];
 extern response_t ucRespBuffer[ bletestATTR_SRVCB_NUMBER ];
 
+extern BTCallbacks_t _xBTManagerCb;
+extern BTBleAdapterCallbacks_t _xBTBleAdapterCb;
+extern BTGattServerCallbacks_t _xBTGattServerCb;
+
 const uint32_t bletestWAIT_MODE1_LEVEL2_QUERY = 10000; /* Wait 10s max */
 
 #if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
@@ -106,7 +110,7 @@ TEST_GROUP_RUNNER( Full_BLE )
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_UpdateConnectionParamReq ); */
 
 /*RUN_TEST_CASE( Full_BLE, BLE_Connection_ChangeMTUsize ); */
-    #if ENABLE_TC_WRITE_LONG
+    #if ENABLE_TC_AFQP_WRITE_LONG
         RUN_TEST_CASE( Full_BLE, BLE_Property_WriteLongCharacteristic );
     #endif
 
@@ -409,13 +413,18 @@ BLETESTwriteAttrCallback_t IotTestBleHal_WriteReceive( bletestAttSrvB_t xAttribu
     TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xWriteEvent.usAttrHandle );
     TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
     TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
 
     if( !IsPrep )                                            /* not a prepare write req */
     {
-        TEST_ASSERT_EQUAL( bNeedRsp, xWriteEvent.bNeedRsp ); /* NOT check bNeedRsp for PrepareWrite because of stack differences (Cypress stack sets this flag to 0) */
+        TEST_ASSERT_EQUAL( bNeedRsp, xWriteEvent.bNeedRsp ); /* NOT check bNeedRsp for PrepareWrite because of stack differences */
         /* TODO: add check for Prepare Write Req */
-        TEST_ASSERT_EQUAL( usOffset, xWriteEvent.usOffset );
         TEST_ASSERT_EQUAL( bletestsSTRINGYFIED_UUID_SIZE, xWriteEvent.xLength );
+    }
+    else
+    {
+        TEST_ASSERT_EQUAL( bletests_LONG_WRITE_LEN - bletestsMTU_SIZE1 + 5, xWriteEvent.xLength );
+        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, xWriteEvent.xLength );
     }
 
     return xWriteEvent;
@@ -604,19 +613,42 @@ TEST( Full_BLE, BLE_Property_WriteCharacteristic )
  */
 TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
 {
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                              true,
-                              true,
-                              0 );
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                              true,
-                              true,
-                              bletestsMTU_SIZE1 - 5 );
-    /* /TODO: check what bNeedRsp should be (false here for CY) */
-    prvExecuteWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                                     false );
+    BLETESTwriteAttrCallback_t xWriteEvent;
+    BTStatus_t xStatus;
 
-    /* wait for execute write */
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventWriteAttrCb, usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], ( void * ) &xWriteEvent, sizeof( BLETESTwriteAttrCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xWriteEvent.usConnId );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xWriteEvent.xBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( 0, xWriteEvent.usOffset );
+
+    if( xWriteEvent.bIsPrep == true )
+    {
+        TEST_ASSERT_EQUAL( usHandlesBufferB[ bletestATTR_SRVCB_CHAR_A ], xWriteEvent.usAttrHandle );
+        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, bletestsSTRINGYFIED_UUID_SIZE );
+
+        if( xWriteEvent.bNeedRsp == true ) /* this flag is different depending on different stack implementation */
+        {
+            IotTestBleHal_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
+        }
+
+        prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
+                                  true,
+                                  true,
+                                  bletestsMTU_SIZE1 - 5 );
+        prvExecuteWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
+                                         true );
+    }
+    else
+    {
+        TEST_ASSERT_EQUAL( bletests_LONG_WRITE_LEN, xWriteEvent.xLength );
+        TEST_ASSERT_EACH_EQUAL_INT8( 49, xWriteEvent.ucValue, bletestsSTRINGYFIED_UUID_SIZE );
+
+        if( xWriteEvent.bNeedRsp == true )
+        {
+            IotTestBleHal_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
+        }
+    }
 }
 
 TEST( Full_BLE, BLE_Connection_ChangeMTUsize )
@@ -697,7 +729,7 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        #if ENABLE_TC_SECONDARY_SERVICE
+        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
             xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcC );
             TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         #endif
@@ -710,7 +742,7 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         /* Create service B */
         IotTestBleHal_CreateServiceB();
 
-        #if ENABLE_TC_SECONDARY_SERVICE
+        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
             /* Create service C */
             IotTestBleHal_CreateServiceC();
         #endif
@@ -719,7 +751,7 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
         IotTestBleHal_StartService( &_xSrvcA );
         /* Start service B */
         IotTestBleHal_StartService( &_xSrvcB );
-        #if ENABLE_TC_SECONDARY_SERVICE
+        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
             /* Start service C */
             IotTestBleHal_StartService( &_xSrvcC );
         #endif
@@ -730,18 +762,18 @@ TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 
 TEST( Full_BLE, BLE_Initialize_BLE_GATT )
 {
-    IotTestBleHal_BLEGATTInit();
+    IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
 }
 
 TEST( Full_BLE, BLE_Initialize_common_GAP )
 {
-    IotTestBleHal_BLEManagerInit();
+    IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
     IotTestBleHal_BLEEnable( true );
 }
 
 TEST( Full_BLE, BLE_Initialize_BLE_GAP )
 {
-    IotTestBleHal_BLEGAPInit();
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
 }
 
 TEST( Full_BLE, BLE_DeInitialize )

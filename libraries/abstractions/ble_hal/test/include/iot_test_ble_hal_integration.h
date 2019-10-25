@@ -44,7 +44,7 @@ void GATT_teardown();
 void GATT_setup();
 void Advertisement_teardown();
 void Advertisement_setup();
-void prvGAPInitEnableTwice( void );
+void prvInitWithNULLCb( void );
 
 void prvGetResult( bletestAttSrvB_t xAttribute,
                    bool IsPrep,

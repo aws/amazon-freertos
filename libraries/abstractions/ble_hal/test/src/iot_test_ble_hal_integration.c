@@ -34,6 +34,12 @@
 
 #include "iot_test_ble_hal_integration.h"
 extern BTCallbacks_t _xBTManagerCb;
+extern BTBleAdapterCallbacks_t _xBTBleAdapterCb;
+extern BTGattServerCallbacks_t _xBTGattServerCb;
+extern BTCallbacks_t _xBTManager_NULL_Cb;
+extern BTBleAdapterCallbacks_t _xBTBleAdapter_NULL_Cb;
+extern BTGattServerCallbacks_t _xBTGattServer_NULL_Cb;
+extern BTGattServerCallbacks_t _xBTGattServer_Nested_Cb;
 
 extern BTGattServerInterface_t * _pxGattServerInterface;
 extern BTBleAdapter_t * _pxBTLeAdapterInterface;
@@ -51,6 +57,7 @@ extern BTGattAdvertismentParams_t xAdvertisementConfigA;
 extern BTGattAdvertismentParams_t xAdvertisementConfigB;
 extern BTUuid_t xServerUUID;
 extern BTUuid_t xAppUUID;
+extern bool CharAddedComplete;
 
 TEST_GROUP( Full_BLE_Integration_Test );
 
@@ -119,6 +126,9 @@ TEST_TEAR_DOWN( Full_BLE_Integration_Test_Connection )
 {
     /* Disconnect */
     IotTestBleHal_WaitConnection( false );
+    IotTestBleHal_StopService( &_xSrvcB );
+    IotTestBleHal_DeleteService( &_xSrvcB );
+
     GATT_teardown();
 }
 
@@ -131,26 +141,69 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test_Connection )
 TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 {
     RUN_TEST_CASE( Full_BLE, BLE_Setup );
-    #if ENABLE_TC_CALLBACK_NULL_CHECK
+
+    #if ENABLE_TC_INTEGRATION_ADD_CHARACTERISTIC_IN_CALLBACK
+        RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITHOUT_PROPERTY
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Without_Properties );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_16BIT_SERVICEUUID
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_WITH_MANUFACTUREDATA
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent_After_BT_Reset );
+    #endif
+    #if ENABLE_TC_INTEGRATION_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
+    #endif
+    #if ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Integration_Connection_Timeout );
+    #endif
+    #if ENABLE_TC_INTEGRATION_SEND_DATA_AFTER_DISCONNECTED
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconnected );
+    #endif
+    #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Callback_NULL_Check );
     #endif
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties );
+    #if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE
+        RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
+    #endif
 
-    /*TODO: no need to test now. ACE MW change the sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
+    /*TODO: Test sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
     /* RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data ); */
 
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout );
-    RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Integration_Teardown );
-
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_16bit_ServiceUUID );
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_With_ManufactureData );
-
-    RUN_TEST_CASE( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected );
     RUN_TEST_CASE( Full_BLE, BLE_Free );
+}
+
+TEST( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback )
+{
+    BTStatus_t xStatus;
+
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
+    IotTestBleHal_BLEGATTInit( &_xBTGattServer_Nested_Cb, true );
+
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
+
+    if( xStatus != eBTStatusUnsupported )
+    {
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
+    else
+    {
+        /* Create service B */
+        IotTestBleHal_CreateServiceB_Nested();
+        /* Start service B */
+        IotTestBleHal_StartService( &_xSrvcB );
+    }
+
+    IotTestBleHal_StopService( &_xSrvcB );
+    IotTestBleHal_DeleteService( &_xSrvcB );
+
+    IotTestBleHal_BTUnregister();
 }
 
 TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
@@ -158,7 +211,7 @@ TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
     BTStatus_t xStatus;
 
     /* Initialize with NULL Cb */
-    IotTestBleHal_InitWithNULLCb();
+    prvInitWithNULLCb();
 
     /* Create and Start Service */
     prvCreateStartServicesWithNULLCb();
@@ -189,14 +242,14 @@ TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
 }
 
 /* Advertisement should work without initializing optional properties (device's name) */
-TEST( Full_BLE_Integration_Test, BLE_Advertise_Without_Properties )
+TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Without_Properties )
 {
-    IotTestBleHal_BLEGAPInit();
-    IotTestBleHal_BLEGATTInit();
     IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
     IotTestBleHal_StartAdvertisement();
     /* Connect for evaluate KPI for next test case. */
     IotTestBleHal_WaitConnection( true );
+    /* Disconnect */
+    IotTestBleHal_WaitConnection( false );
 }
 
 /* Advertisement should work with 16bit Service UUID as well */
@@ -257,6 +310,8 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     BLETESTInitDeinitCallback_t xInitDeinitCb;
     clock_t returnTime, cbRecvTime;
 
+    GAP_common_setup();
+
     /* disable */
     IotTestBleHal_BLEEnable( false );
 
@@ -272,31 +327,44 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
 }
 
-
-/* Crash if calling pxEnable twice (MTK)
- * (1)init -> (2)enable -> (3)deinit -> (4)init -> (5)enable
- * There are 2 issues with this sequence:
- * (4)init reset stack state to disabled even though it's still enabled
- * (5)enable trigger pxEnable again while MTK stack is enabled -> mtk crashed   */
 TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
 {
-    prvGAPInitEnableTwice();
+    BTStatus_t xStatus = eBTStatusSuccess;
+    clock_t returnTime, cbRecvTime;
+
+    IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
+    returnTime = clock();
+    IotTestBleHal_BLEEnable( true );
+    cbRecvTime = clock();
+
+    TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
+
+    /* First time disable */
+    IotTestBleHal_BLEEnable( false );
+
+    /*First time Deinit*/
+    xStatus = _pxBTInterface->pxBtManagerCleanup();
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    /* Second time init */
+    IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
+    IotTestBleHal_BLEEnable( true );
+
+    GAP_common_teardown();
 }
 
 /*Advertisement interval measured OTA can be out the range set by app, after reset BT stack, adv interval can change to 1.28s.
  * Make sure KPI is consistent after reset BT.*/
-TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Reset )
+TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent_After_BT_Reset )
 {
-    /* First time connection disconnects. */
-    IotTestBleHal_WaitConnection( false );
-
-    /* Second time reconnection. Got Second KPI. */
-    IotTestBleHal_StartAdvertisement();
-    IotTestBleHal_WaitConnection( true );
-    IotTestBleHal_WaitConnection( false );
-
-    /* BT reset. */
     BTStatus_t xStatus = eBTStatusSuccess;
+
+    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+    IotTestBleHal_StartAdvertisement();
+
+    IotTestBleHal_WaitConnection( true );
+    /* Second time reconnection. Got Second KPI. */
+    IotTestBleHal_WaitConnection( false );
 
     IotTestBleHal_BTUnregister();
     IotTestBleHal_BLEEnable( false );
@@ -308,8 +376,8 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     IotTestBleHal_BLEEnable( true );
-    IotTestBleHal_BLEGAPInit();
-    IotTestBleHal_BLEGATTInit();
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
+    IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
     prvCreateAndStartServiceB();
     IotTestBleHal_SetAdvProperty();
     IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
@@ -323,12 +391,17 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Interval_Consistent_After_BT_Rese
     prvGetResult( bletestATTR_SRVCB_CHAR_D,
                   false,
                   0 );
+
+    /* Disconnect */
+    IotTestBleHal_WaitConnection( false );
+    IotTestBleHal_StopService( &_xSrvcB );
+    IotTestBleHal_DeleteService( &_xSrvcB );
 }
 
 /* If data size is > MTU - 3 then BT stack can truncate it to MTU - 3 and keep trying to send it over to other peer.
  * Make sure calling pxSendIndication() with xLen > MTU - 3 and HAL returns failure.*/
 /* 2 chars has the same descriptor uuid which can cause read/write the descriptors of chars to return wrong values. */
-TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
+TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
     uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
@@ -359,7 +432,7 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
 
     if( xStatus != eBTStatusSuccess )
     {
-        /* Notify RPI failure here. Expect to receive "fail" messaprvSetAdvertisementge. */
+        /* Notify RPI failure here. Expect to receive "fail" message. */
         memcpy( ucLargeBuffer, bletestsFAIL_CHAR_VALUE, sizeof( bletestsFAIL_CHAR_VALUE ) - 1 );
         xfStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
                                                              usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
@@ -371,7 +444,7 @@ TEST( Full_BLE_Integration_Test, BLE_Write_Notification_Size_Greater_Than_MTU_3 
     }
 }
 
-TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
+TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconnected )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
     BLETESTreadAttrCallback_t xReadEvent;
@@ -414,24 +487,13 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconected )
 }
 
 /* trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout. */
-TEST( Full_BLE_Integration_Test, BLE_Integration_Connection_Timeout )
+TEST( Full_BLE_Integration_Test_Advertisement, BLE_Integration_Connection_Timeout )
 {
-    IotTestBleHal_WaitConnection( false );
+    /* Advertise and Connect */
+    IotTestBleHal_SetAdvProperty();
+    IotTestBleHal_SetAdvData( eBTuuidType32, 0, NULL );
     IotTestBleHal_StartAdvertisement();
     prvShortWaitConnection();
-}
-
-TEST( Full_BLE_Integration_Test, BLE_Integration_Teardown )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    IotTestBleHal_StopService( &_xSrvcB );
-    IotTestBleHal_DeleteService( &_xSrvcB );
-    IotTestBleHal_BTUnregister();
-    IotTestBleHal_BLEEnable( false );
-
-    xStatus = _pxBTInterface->pxBtManagerCleanup();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 void prvGetResult( bletestAttSrvB_t xAttribute,
@@ -479,49 +541,23 @@ void prvCreateAndStartServiceB()
     }
 }
 
-void prvGAPInitEnableTwice()
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-    BLETESTInitDeinitCallback_t xInitDeinitCb;
-    clock_t returnTime, cbRecvTime;
+#if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
+    void prvInitWithNULLCb( void )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
 
-    /* Get BT interface */
-    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
+        /* GAP common setup with NULL Cb */
+        IotTestBleHal_BLEManagerInit( &_xBTManager_NULL_Cb );
 
-    /* First time init */
-    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
-    returnTime = clock();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        IotTestBleHal_BLEEnable( true );
 
-    /* First time enable */
-    xStatus = _pxBTInterface->pxEnable( 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        /* BLEGAPInit with NULL Cb */
+        IotTestBleHal_BLEGAPInit( &_xBTBleAdapter_NULL_Cb, false );
 
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-    cbRecvTime = clock();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-    TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
+        /* BLEGATTInit with NULL Cb */
+        IotTestBleHal_BLEGATTInit( &_xBTGattServer_NULL_Cb, false );
+    }
 
-    /* First time disable */
-    IotTestBleHal_BLEEnable( false );
-
-    /*First time Deinit*/
-    xStatus = _pxBTInterface->pxBtManagerCleanup();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    /* Second time init */
-    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManagerCb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    /*Second time check if BT stack is enabled after deinit and init*/
-    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-
-    /* Second time enable */
-    IotTestBleHal_BLEEnable( true );
-}
-
-#if ENABLE_TC_CALLBACK_NULL_CHECK
     void prvCreateStartServicesWithNULLCb( void )
     {
         BTStatus_t xStatus;
@@ -734,7 +770,7 @@ void prvGAPInitEnableTwice()
         xStatus = _pxBTLeAdapterInterface->pxUnregisterBleApp( _ucBLEAdapterIf );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     }
-#endif /* if ENABLE_TC_CALLBACK_NULL_CHECK */
+#endif /* if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK */
 
 void GAP_common_teardown()
 {
@@ -775,8 +811,8 @@ void GATT_teardown()
 void GATT_setup()
 {
     GAP_common_setup();
-    IotTestBleHal_BLEGAPInit();
-    IotTestBleHal_BLEGATTInit();
+    IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
+    IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
 }
 
 void Advertisement_teardown()

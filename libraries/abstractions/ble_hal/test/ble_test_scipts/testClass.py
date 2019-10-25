@@ -34,6 +34,8 @@ try:
 except ImportError:
     import gobject as GObject
 
+# Config for enable/disable test case
+ENABLE_TC_AFQP_SECONDARY_SERVICE = 0
 
 class runTest:
     mainloop = GObject.MainLoop()
@@ -342,16 +344,13 @@ class runTest:
             runTest.DUT_WRITE_NO_RESP_CHAR_UUID, result, False)
 
     @staticmethod
-    def _readWriteChecks(charUUID, descrUUID):
-        ENABLE_TC_WRITE_LONG = 1
-        if (ENABLE_TC_WRITE_LONG == 1):
-            #enable long write test
-            long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
-            bleAdapter.writeCharacteristic(charUUID, long_value)
+    def writeLongCharacteristic():
+        long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
+        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
 
-        ENABLE_TC_WRITE_NORMAL = 1
-        if (ENABLE_TC_WRITE_NORMAL == 1):
-            bleAdapter.writeCharacteristic(charUUID, charUUID)
+    @staticmethod
+    def _readWriteChecks(charUUID, descrUUID):
+        bleAdapter.writeCharacteristic(charUUID, charUUID)
 
         bleAdapter.writeDescriptor(descrUUID, descrUUID)
 
@@ -426,12 +425,13 @@ class runTest:
             isTestSuccessfull = False
 
         #Check secondary service UUID
-        if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
-            print("checkUUIDs test: missing secondary service UUID: "+runTest.DUT_SERVICEC_UUID)
-            isTestSuccessfull = False
-        elif (gatt.services[runTest.DUT_SERVICEC_UUID]["Primary"] != False):
-            print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
-            isTestSuccessfull = False
+        if (ENABLE_TC_AFQP_SECONDARY_SERVICE == 1):
+            if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
+                print("checkUUIDs test: missing secondary service UUID: "+runTest.DUT_SERVICEC_UUID)
+                isTestSuccessfull = False
+            elif (gatt.services[runTest.DUT_SERVICEC_UUID]["Primary"] != False):
+                print("checkUUIDs test: wrong service type: "+runTest.DUT_SERVICEC_UUID)
+                isTestSuccessfull = False
 
         # Check characteristics UUIDs
         for uuid in runTest.DUT_CHAR.keys():
@@ -642,28 +642,173 @@ class runTest:
             discoveryEvent_Cb=runTest.discoveryEventCb_16bit)
         return True
 
+
+    @staticmethod
+    def _scan_discovery_with_timer(bleAdapter):
+        bleAdapter.startDiscovery(runTest.discoveryStartedCb)
+        StartScan = time.time()
+        runTest.mainloop.run()
+        ScanTime = time.time() - StartScan
+        bleAdapter.stopDiscovery()
+        return ScanTime
+
+
+    @staticmethod
+    def Advertise_Interval_Consistent_After_BT_Reset(scan_filter,
+                                                     bleAdapter):
+        isTestSuccessFull = True
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
+        secondKPI = runTest._scan_discovery_with_timer(bleAdapter)
+
+        runTest._simple_connect()
+
+        isTestSuccessFull = runTest.discoverPrimaryServices()
+        bleAdapter.gatt.updateLocalAttributeTable()
+
+        time.sleep(2)  # wait for connection parameters update
+        # Second time disconnect
+        isTestSuccessFull &= bleAdapter.disconnect()
+
+        # Third time connection
+        # wait for DUT to start advertising
+        thirdKPI = runTest._scan_discovery_with_timer(bleAdapter)
+        isTestSuccessFull &=  bleAdapter.connect(runTest.testDevice)
+
+        if thirdKPI > secondKPI * 10:
+            isTestSuccessFull &= False
+
+        # write result back to server
+        isTestSuccessFull = runTest.discoverPrimaryServices()
+        bleAdapter.gatt.updateLocalAttributeTable()
+
+        isTestSuccessFull &= runTest.writeResultWithoutResponse(
+            chr(isTestSuccessFull + 48))
+
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
     @staticmethod
     def Write_Notification_Size_Greater_Than_MTU_3(scan_filter,
                                                    bleAdapter):
-        runTest._advertisement_connection_tests(
-            scan_filter=scan_filter,
-            bleAdapter=bleAdapter,
-            UUID=runTest.DUT_UUID_128,
-            discoveryEvent_Cb=runTest.discoveryEventCb)
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
         runTest._simple_connect()
+
         runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull_discover = runTest.discoverPrimaryServices()
         bleAdapter.gatt.updateLocalAttributeTable()
 
-        # Data size > MTU - 3 send notification test
+        bleAdapter.setNotificationCallBack(runTest.notificationMTUCb)
         bleAdapter.subscribeForNotification(
             runTest.DUT_NOTIFY_CHAR_UUID)  # subscribe for next test
+        runTest.mainloop.run()
+        isTestSuccessFull_notification = runTest.isNotificationDeclinedSuccessFull
+        runTest.submitTestResult(isTestSuccessFull_notification, runTest.notification)
+
+        isTestSuccessFull_removenotification = bleAdapter.subscribeForNotification(
+            runTest.DUT_NOTIFY_CHAR_UUID, subscribe=False)  # unsubscribe
+        runTest.submitTestResult(isTestSuccessFull_removenotification, runTest.removeNotification)
+
+        isTestSuccessFull_disconnect = bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        isTestSuccessFull = (isTestSuccessFull_discover &
+                             isTestSuccessFull_notification &
+                             isTestSuccessFull_removenotification &
+                             isTestSuccessFull_disconnect)
+        return isTestSuccessFull
+
+    @staticmethod
+    def Send_Data_After_Disconnected(scan_filter,
+                                    bleAdapter):
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
+        runTest._simple_connect()
+
+        isTestSuccessFull = runTest.discoverPrimaryServices()
+        runTest.submitTestResult(
+            isTestSuccessFull,
+            runTest.discoverPrimaryServices)
+
+        bleAdapter.gatt.updateLocalAttributeTable()
+
+        # Check device not present. After discovery of services, advertisement
+        # should have stopped.
+        runTest.stopAdvertisement(scan_filter)
+
+        # Check write and read
+        bleAdapter.writeCharacteristic(
+            runTest.DUT_OPEN_CHAR_UUID,
+            runTest.DUT_OPEN_DESCR_UUID)
+        bleAdapter.readCharacteristic(runTest.DUT_OPEN_CHAR_UUID)
+
+        # Enable and receive notification and indication then disable.
+        bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID)
+        bleAdapter.subscribeForNotification(
+            runTest.DUT_INDICATE_CHAR_UUID)  # subscribe for next test
+
+        time.sleep(2)  # wait for connection parameters update
+
+        # Check Notification and Indication
+        bleAdapter.setNotificationCallBack(runTest.notificationCb)
         isTestSuccessFull = True
         runTest.mainloop.run()
-        isTestSuccessFull &= runTest.isNotificationDeclinedSuccessFull
+        runTest.submitTestResult(isTestSuccessFull, runTest.notification)
 
-        # unsubscribe
-        isTestSuccessFull &= bleAdapter.subscribeForNotification(
+        bleAdapter.setNotificationCallBack(runTest.indicationCb)
+        isTestSuccessFull = True
+        runTest.mainloop.run()
+        runTest.submitTestResult(isTestSuccessFull, runTest.indication)
+
+        isTestSuccessFull &= bleAdapter.disconnect()
+
+        # Second time connection
+        # wait for DUT to start advertising
+        bleAdapter.startDiscovery(runTest.discoveryStartedCb)
+        runTest.mainloop.run()
+        bleAdapter.stopDiscovery()
+        runTest._simple_connect()
+
+        bleAdapter.subscribeForNotification(runTest.DUT_NOTIFY_CHAR_UUID)
+        bleAdapter.subscribeForNotification(
+            runTest.DUT_INDICATE_CHAR_UUID)  # subscribe for next test
+
+        # Check write and read after reconnection
+        bleAdapter.writeCharacteristic(
+            runTest.DUT_OPEN_CHAR_UUID,
+            runTest.DUT_OPEN_DESCR_UUID)
+        bleAdapter.readCharacteristic(runTest.DUT_OPEN_CHAR_UUID)
+
+        # Check Notification and Indication after reconnection
+        bleAdapter.setNotificationCallBack(runTest.notificationCb)
+        isTestSuccessFull = True
+        runTest.mainloop.run()
+        runTest.submitTestResult(isTestSuccessFull, runTest.notification)
+
+        bleAdapter.setNotificationCallBack(runTest.indicationCb)
+        isTestSuccessFull = True
+        runTest.mainloop.run()
+        runTest.submitTestResult(isTestSuccessFull, runTest.indication)
+
+        isTestSuccessFull = bleAdapter.subscribeForNotification(
             runTest.DUT_NOTIFY_CHAR_UUID, subscribe=False)  # unsubscribe
+        isTestSuccessFull = True
+        runTest.submitTestResult(isTestSuccessFull, runTest.removeNotification)
+
+        isTestSuccessFull = bleAdapter.subscribeForNotification(
+            runTest.DUT_INDICATE_CHAR_UUID, subscribe=False)  # unsubscribe
+        isTestSuccessFull = True
+        runTest.submitTestResult(isTestSuccessFull, runTest.removeIndication)
 
         isTestSuccessFull &= bleAdapter.disconnect()
         testutils.removeBondedDevices()
@@ -697,6 +842,7 @@ class runTest:
             runTest.reConnection: "_reConnection",
             runTest.checkProperties: "_checkProperties",
             runTest.checkUUIDs: "_checkUUIDs",
+            runTest.writeLongCharacteristic: "_writeLongCharacteristic",
             runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
             runTest.writeWithoutResponse: "_writeWithoutResponse",
             runTest.notification: "_notification",
@@ -713,8 +859,8 @@ class runTest:
             runTest.Advertise_Without_Properties: "_Advertise_Without_Properties",
             runTest.Advertise_With_16bit_ServiceUUID: "_Advertise_With_16bit_ServiceUUID",
             runTest.Advertise_With_Manufacture_Data: "_Advertise_With_Manufacture_Data",
-            # runTest.Advertise_Interval_Consistent_After_BT_Reset:
-            # "_Advertise_Interval_Consistent_After_BT_Reset",
+            runTest.Advertise_Interval_Consistent_After_BT_Reset: "_Advertise_Interval_Consistent_After_BT_Reset",
+            runTest.Send_Data_After_Disconnected: "_Send_Data_After_Disconnected",
             runTest.Write_Notification_Size_Greater_Than_MTU_3: "_Write_Notification_Size_Greater_Than_MTU_3"
         }
 
