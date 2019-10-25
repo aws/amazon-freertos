@@ -578,11 +578,11 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 
         if( CKR_OK == xResult )
         {
-            xResult = xInitializePKCS11();
+            xResult = xInitializePkcs11Token();
         }
 
         /* Get the crypto token slot count. */
-        if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
+        if( CKR_OK == xResult )
         {
             xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
                                                            NULL,
