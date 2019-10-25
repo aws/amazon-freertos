@@ -345,13 +345,13 @@ void runDemoTask( void * pArgument )
             /* If memory anaalysis is enabled metrics regarding the heap and stack usage of the demo will print. */
             /* This format is used for easier parsing and creates an avenue for future metrics to be added. */
             xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
-            IotLogInfo( "memory_metrics:heap:total:bytes:%u", demoMEMORY_ANALYSIS_HEAP_SIZE );
-            IotLogInfo( "memory_metrics:heap:before:bytes:%u", xBeforeDemoHeapSize );
-            IotLogInfo( "memory_metrics:heap:after:bytes:%u", xAfterDemoHeapSize );
+            IotLogInfo( "memory_metrics:freertos_heap:total:bytes:%u", demoMEMORY_ANALYSIS_HEAP_SIZE );
+            IotLogInfo( "memory_metrics:freertos_heap:before:bytes:%u", xBeforeDemoHeapSize );
+            IotLogInfo( "memory_metrics:freertos_heap:after:bytes:%u", xAfterDemoHeapSize );
             xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-            IotLogInfo( "memory_metrics:stack:total:stack_words:%u", xDemoStackSize );
-            IotLogInfo( "memory_metrics:stack:before:stack_words:%u", xBeforeDemoTaskWaterMark );
-            IotLogInfo( "memory_metrics:stack:after:stack_words:%u", xAfterDemoTaskWaterMark );
+            IotLogInfo( "memory_metrics:demo_task_stack:total:stack_words:%u", xDemoStackSize );
+            IotLogInfo( "memory_metrics:demo_task_stack:before:stack_words:%u", xBeforeDemoTaskWaterMark );
+            IotLogInfo( "memory_metrics:demo_task_stack:after:stack_words:%u", xAfterDemoTaskWaterMark );
         #endif /* democonfigMEMORY_ANALYSIS */
 
         /* Log the demo status. */
@@ -459,3 +459,4 @@ void vApplicationStackOverflowHook( TaskHandle_t xTask,
 }
 
 /*-----------------------------------------------------------*/
+
