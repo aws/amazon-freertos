@@ -215,31 +215,37 @@ static bool _disconnectSerializerOverride = false;  /**< @brief Tracks if #_disc
  * @brief Establish an MQTT connection. Retry if retries are enabled.
  */
 static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
-                          const IotMqttConnectInfo_t * pConnectInfo,
-                          uint32_t timeoutMs,
-                          IotMqttConnection_t * const pMqttConnection )
+                                    const IotMqttConnectInfo_t * pConnectInfo,
+                                    uint32_t timeoutMs,
+                                    IotMqttConnection_t * const pMqttConnection )
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
-#if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1)
-    int32_t retried = 0;
-    uint32_t periodMs = 200;
-    int32_t retries = 3;
-    for( ; retried <= retries; retried++ ) 
-    {
-#endif
-        status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection );
-#if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1)
-        if( status != IOT_MQTT_SUCCESS )
+
+    #if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1 )
+        int32_t retried = 0;
+
+        /* Often connections fail because the server throttles the tests. One second
+        * may be sufficient of a time to wait before trying again on the network. */
+        uint32_t periodMs = 1000;
+        int32_t retries = 3;
+
+        for( ; retried <= retries; retried++ )
+        {
+    #endif
+    status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection );
+    #if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1 )
+        if( ( status == IOT_MQTT_NETWORK_ERROR ) || ( status == IOT_MQTT_TIMEOUT ) )
         {
             IotClock_SleepMs( periodMs );
             periodMs *= 2;
         }
+
         else
         {
             break;
         }
-    }
-#endif
+}
+    #endif /* if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1 ) */
     return status;
 }
 

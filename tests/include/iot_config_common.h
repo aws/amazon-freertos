@@ -253,7 +253,7 @@ extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
 #define IOT_TEST_MQTT_SERIALIZER    IotTestNetwork_GetSerializer()
 
 /* Retry the MQTT Connections in the MQTT System unit tests for all hardware
-   platforms supported in Amazon FreeRTOS. */
+ * platforms supported in Amazon FreeRTOS. */
 #define IOT_TEST_MQTT_CONNECT_RETRY_ENABLED  1
 
 /* Forward declarations of network types used in the tests. */
