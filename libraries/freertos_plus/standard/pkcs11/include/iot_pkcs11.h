@@ -200,6 +200,14 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
 
 /**
+ *  \brief Initializes a PKCS #11 module and token.
+ *
+ *  \return CKR_OK upon success.  PKCS #11 error code on failure.
+ *          Note that PKCS #11 error codes are positive.
+ */
+CK_RV xInitializePkcs11Token( void );
+
+/**
  * \brief Searches for an object with a matching label and class provided.
  *
  *   \param[in]  xSession       An open PKCS #11 session.
