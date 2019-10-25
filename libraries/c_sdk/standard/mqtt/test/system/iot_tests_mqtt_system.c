@@ -224,9 +224,9 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
     #if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1 )
         int32_t retried = 0;
 
-        /* Often connections fail because the server throttles the tests. One second
-        * may be sufficient of a time to wait before trying again on the network. */
-        uint32_t periodMs = 1000;
+        /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
+         * Wait until 1100 ms have elapsed since the last connection. */
+        uint32_t periodMs = 1100;
         int32_t retries = 3;
 
         for( ; retried <= retries; retried++ )
