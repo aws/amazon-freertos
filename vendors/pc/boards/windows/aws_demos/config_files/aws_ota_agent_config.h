@@ -93,7 +93,6 @@
  * the selected communication channel before aborting and returning error.
  *
  */
-
 #define otaconfigMAX_NUM_REQUEST_MOMENTUM       32U
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */
