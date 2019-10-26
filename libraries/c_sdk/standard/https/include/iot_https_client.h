@@ -390,7 +390,7 @@ IotHttpsReturnCode_t IotHttpsClient_InitializeRequest( IotHttpsRequestHandle_t *
  * the entity body. These 2 characters are accounted for in #requestUserBufferMinimumSize.
  *
  * The remaining length, after the header is added, is printed to the system configured standard debug output when
- * IOT_LOG_LEVEL_HTTPS is set to IOT_LOG_DEBUG in iot_config.h.
+ * @ref IOT_LOG_LEVEL_HTTPS is set to @ref IOT_LOG_DEBUG in iot_config.h.
  *
  * For an asynchronous request, this function can be invoked before the request is sent with
  * @ref https_client_function_sendasync, or during #IotHttpsClientCallbacks_t.appendHeaderCallback. It is
@@ -530,7 +530,7 @@ IotHttpsReturnCode_t IotHttpsClient_WriteRequestBody( IotHttpsRequestHandle_t re
  * to fit the headers received, then headers that don't fit will be thrown away. Please see
  * #responseUserBufferMinimumSize for information about sizing the #IotHttpsResponseInfo_t.userBuffer.
  * To receive feedback on headers discarded, debug logging must be turned on in iot_config.h by setting
- * @ref IOT_LOG_LEVEL_HTTPS to IOT_LOG_DEBUG.
+ * @ref IOT_LOG_LEVEL_HTTPS to @ref IOT_LOG_DEBUG.
  *
  * Multiple threads must not call this function for the same #IotHttpsRequestHandle_t. Multiple threads can call this
  * function for a different #IotHttpsRequestHandle_t, even on the same #IotHttpsConnectionHandle_t. An application must

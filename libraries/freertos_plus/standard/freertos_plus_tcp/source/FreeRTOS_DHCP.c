@@ -995,8 +995,13 @@ size_t xOptionsLength = sizeof( ucDHCPDiscoverOptions );
 		xNetworkAddressing.ulBroadcastAddress = ( xDHCPData.ulOfferedIPAddress & xNetworkAddressing.ulNetMask ) |  ~xNetworkAddressing.ulNetMask;
 
 		/* Close socket to ensure packets don't queue on it. not needed anymore as DHCP failed. but still need timer for ARP testing. */
-		vSocketClose( xDHCPData.xDHCPSocket );
-		xDHCPData.xDHCPSocket = NULL;
+		if( xDHCPData.xDHCPSocket != NULL )
+		{
+			/* Close socket to ensure packets don't queue on it. */
+			vSocketClose( xDHCPData.xDHCPSocket );
+		    xDHCPData.xDHCPSocket = NULL;
+		}
+
 		xDHCPData.xDHCPTxPeriod = pdMS_TO_TICKS( 3000ul + ( ipconfigRAND32() & 0x3fful ) ); /*  do ARP test every (3 + 0-1024mS) seconds. */
 
 		xARPHadIPClash = pdFALSE;	   /* reset flag that shows if have ARP clash. */

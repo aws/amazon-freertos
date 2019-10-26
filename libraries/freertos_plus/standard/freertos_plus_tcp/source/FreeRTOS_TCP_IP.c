@@ -1308,7 +1308,7 @@ UBaseType_t uxNewMSS;
 							{
 								if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xTCP.pxHandleSent ) )
 								{
-									pxSocket->u.xTCP.pxHandleSent( (Socket_t *)pxSocket, ulCount );
+									pxSocket->u.xTCP.pxHandleSent( ( Socket_t )pxSocket, ulCount );
 								}
 							}
 							#endif /* ipconfigUSE_CALLBACKS == 1  */
@@ -1599,7 +1599,7 @@ BaseType_t bAfter  = ( BaseType_t ) NOW_CONNECTED( eTCPState );						/* Is it co
 		if( xConnected != NULL )
 		{
 			/* The 'connected' state has changed, call the OnConnect handler of the parent. */
-			xConnected->u.xTCP.pxHandleConnected( ( Socket_t * ) xConnected, bAfter );
+			xConnected->u.xTCP.pxHandleConnected( ( Socket_t ) xConnected, bAfter );
 		}
 	}
 	#endif
@@ -2416,7 +2416,7 @@ int32_t lDistance, lSendResult;
 				{
 					if( ipconfigIS_VALID_PROG_ADDRESS( pxSocket->u.xTCP.pxHandleSent ) )
 					{
-						pxSocket->u.xTCP.pxHandleSent( (Socket_t *)pxSocket, ulCount );
+						pxSocket->u.xTCP.pxHandleSent( ( Socket_t )pxSocket, ulCount );
 					}
 				}
 				#endif /* ipconfigUSE_CALLBACKS == 1  */

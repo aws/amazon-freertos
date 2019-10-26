@@ -52,24 +52,39 @@
 
 #if defined( democonfigBLE_MQTT_ECHO_DEMO_ENABLED )
     #undef democonfigNETWORK_TYPES
-    #define democonfigNETWORK_TYPES                    ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
+    #define democonfigNETWORK_TYPES                       ( AWSIOT_NETWORK_TYPE_WIFI | AWSIOT_NETWORK_TYPE_BLE )
 #endif
 
-#define democonfigSHADOW_DEMO_NUM_TASKS                ( 1 )
-#define democonfigSHADOW_DEMO_TASK_STACK_SIZE          ( 1024 )
-#define democonfigSHADOW_DEMO_TASK_PRIORITY            ( tskIDLE_PRIORITY + 5 )
-#define shadowDemoUPDATE_TASK_STACK_SIZE               ( configMINIMAL_STACK_SIZE * 5 )
+#define democonfigSHADOW_DEMO_NUM_TASKS                   ( 1 )
+#define democonfigSHADOW_DEMO_TASK_STACK_SIZE             ( 1024 )
+#define democonfigSHADOW_DEMO_TASK_PRIORITY               ( tskIDLE_PRIORITY + 5 )
+#define shadowDemoUPDATE_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 5 )
 
-#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT    pdMS_TO_TICKS( 12000 )
-#define democonfigMQTT_ECHO_TASK_PRIORITY              ( tskIDLE_PRIORITY )
+#define democonfigMQTT_ECHO_TLS_NEGOTIATION_TIMEOUT       pdMS_TO_TICKS( 12000 )
+#define democonfigMQTT_ECHO_TASK_PRIORITY                 ( tskIDLE_PRIORITY )
 
 /* Timeout used when performing MQTT operations that do not need extra time
  * to perform a TLS negotiation. */
-#define democonfigMQTT_TIMEOUT                         pdMS_TO_TICKS( 3000 )
+#define democonfigMQTT_TIMEOUT                            pdMS_TO_TICKS( 3000 )
 
 /* Send AWS IoT MQTT traffic encrypted. */
-#define democonfigMQTT_AGENT_CONNECT_FLAGS             ( mqttagentREQUIRE_TLS )
+#define democonfigMQTT_AGENT_CONNECT_FLAGS                ( mqttagentREQUIRE_TLS )
 
 #define democonfigGREENGRASS_DISCOVERY_TASK_STACK_SIZE    ( configMINIMAL_STACK_SIZE * 14 )
+
+
+#define democonfigMEMORY_ANALYSIS
+
+#ifdef democonfigMEMORY_ANALYSIS
+    #define demoMEMORY_ANALYSIS_HEAP_SIZE           configTOTAL_HEAP_SIZE
+    #define demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE    UBaseType_t
+    #define demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE()        xPortGetMinimumEverFreeHeapSize()
+    #if ( INCLUDE_uxTaskGetStackHighWaterMark == 1 )
+        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    uxTaskGetStackHighWaterMark( x )
+    #else
+        #define demoMEMORY_ANALYSIS_STACK_WATERMARK( x )    NULL
+    #endif /* if( INCLUDE_uxTaskGetStackHighWaterMark == 1 ) */
+#endif /* democonfigMEMORY_ANALYSIS */
+
 
 #endif /* _AWS_DEMO_CONFIG_H_ */

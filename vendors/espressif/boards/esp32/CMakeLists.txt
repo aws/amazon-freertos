@@ -192,33 +192,31 @@ afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/common/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
-    set(
-        extra_exe_sources
-        "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
-    )
 endif()
 
-add_executable(
-    ${exe_target}
-    "${board_dir}/application_code/main.c"
-    ${extra_exe_sources}
-)
-target_include_directories(
-    ${exe_target}
-    PUBLIC
-        $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-        $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
-)
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-        AFR::ble
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        "${board_dir}/application_code/main.c"
+        ${extra_exe_sources}
+    )
+    target_include_directories(
+        ${exe_target}
+        PUBLIC
+            $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+            AFR::ble
+    )
+endif()
 
 if(AFR_METADATA_MODE)
     return()

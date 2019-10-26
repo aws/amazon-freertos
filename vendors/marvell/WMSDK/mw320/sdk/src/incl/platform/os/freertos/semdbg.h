@@ -2,7 +2,7 @@
 *
 *  @brief This file contains declarations for Semaphore Debug functions
 *
-*  (C) Copyright 2013-2018 Marvell International Ltd. All Rights Reserved
+*  (C) Copyright 2013-2019 Marvell International Ltd. All Rights Reserved
 *
 *  MARVELL CONFIDENTIAL
 *  The source code contained or described herein and all documents related to

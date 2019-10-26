@@ -202,6 +202,7 @@ static void prvMiscInitialization( void )
         /* Release BT memory as it is not used. */
         ESP_ERROR_CHECK( esp_bt_controller_mem_release( ESP_BT_MODE_CLASSIC_BT ) );
     #endif
+
     ESP_ERROR_CHECK( ret );
 }
 /*-----------------------------------------------------------*/
@@ -323,65 +324,71 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 #if CONFIG_NIMBLE_ENABLED == 1
     BTStatus_t bleStackInit( void )
     {
-        /* Initialize BLE */
-        esp_err_t xRet = ESP_OK;
-        BTStatus_t status = eBTStatusFail;
+        return eBTStatusSuccess;
+    }
 
-        xRet = esp_nimble_hci_and_controller_init();
+    esp_err_t bleStackTeardown( void )
+    {
+        esp_err_t xRet;
+
+        xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
 
         if( xRet == ESP_OK )
         {
-            status = eBTStatusSuccess;
+            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
         }
 
-        return status;
+        return xRet;
     }
 
-#else  /* if CONFIG_NIMBLE_ENABLED == 1 */
+
+#else /* if CONFIG_NIMBLE_ENABLED == 1 */
 
 /*
  * Return on success
  */
     BTStatus_t bleStackInit( void )
     {
-        /* Initialize BLE */
+        return eBTStatusSuccess;
+    }
+
+    esp_err_t bleStackTeardown( void )
+    {
         esp_err_t xRet = ESP_OK;
-        esp_bt_controller_config_t xBtCfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-        BTStatus_t status = eBTStatusFail;
 
-        configPRINTF( ( "Initializing BLE stack.\n" ) );
-
-
-        xRet = esp_bt_controller_init( &xBtCfg );
-
-        if( xRet == ESP_OK )
+        if( esp_bluedroid_get_status() == ESP_BLUEDROID_STATUS_ENABLED )
         {
-            xRet = esp_bt_controller_enable( ESP_BT_MODE_BLE );
-        }
-        else
-        {
-            configPRINTF( ( "Failed to initialize bt controller, err = %d.\n", xRet ) );
+            xRet = esp_bluedroid_disable();
         }
 
         if( xRet == ESP_OK )
         {
-            xRet = esp_bluedroid_init();
-        }
-        else
-        {
-            configPRINTF( ( "Failed to initialize bluedroid stack, err = %d.\n", xRet ) );
+            xRet = esp_bluedroid_deinit();
         }
 
         if( xRet == ESP_OK )
         {
-            xRet = esp_bluedroid_enable();
+            if( esp_bt_controller_get_status() == ESP_BT_CONTROLLER_STATUS_ENABLED )
+            {
+                xRet = esp_bt_controller_disable();
+            }
         }
 
         if( xRet == ESP_OK )
         {
-            status = eBTStatusSuccess;
+            xRet = esp_bt_controller_deinit();
         }
 
-        return status;
+        if( xRet == ESP_OK )
+        {
+            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
+        }
+
+        if( xRet == ESP_OK )
+        {
+            xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
+        }
+
+        return xRet;
     }
 #endif /* if CONFIG_NIMBLE_ENABLED == 1 */

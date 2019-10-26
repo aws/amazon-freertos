@@ -1,16 +1,23 @@
-// CBMC pointer uses BITS bits for object id, remaining bits for offset
-// ProcessDHCPReplies needs 7 bits, most need at most 4
+/*
+ * CBMC models a pointer as an object id and an offset into that
+ * object.  The top bits of a pointer encode the object id and the
+ * remaining bits encode the offset.  This means there is a bound on
+ * the maximum offset into an object in CBMC, and hence a bound on the
+ * size of objects in CBMC.
+ */
 #define CBMC_BITS 7
 #define CBMC_MAX_OBJECT_SIZE (0xFFFFFFFF >> CBMC_BITS)
 
 enum CBMC_LOOP_CONDITION { CBMC_LOOP_BREAK, CBMC_LOOP_CONTINUE, CBMC_LOOP_RETURN };
 
-// CBMC specification: capture old value for precondition/postcondition checking
+// CBMC specification: capture old value for precondition /
+// postcondition checking
 
 #define OLDVAL(var) _old_ ## var
 #define SAVE_OLDVAL(var,typ) const typ OLDVAL(var) = var
 
-// CBMC specification: capture old value for values passed by reference in function abstractions
+// CBMC specification: capture old value for values passed by
+// reference in function abstractions
 
 #define OBJ(var) (*var)
 #define OLDOBJ(var) _oldobj_ ## var
@@ -26,12 +33,26 @@ enum CBMC_LOOP_CONDITION { CBMC_LOOP_BREAK, CBMC_LOOP_CONTINUE, CBMC_LOOP_RETURN
 #define __CPROVER_printf_ptr(var) { uint8_t *ValueOf_ ## var = (uint8_t *) var; }
 #define __CPROVER_printf2_ptr(str,exp) { uint8_t *ValueOf_ ## str = (uint8_t *) (exp); }
 
-/* xWantedSize is not bounded in this function, but there might be a need to bound it in the future.
- * In theory, CBMC malloc allows to allocate an arbitrary amount of data. This will not be true for
- * embedded devices.
+/*
+ * An assertion that pvPortMalloc returns NULL when asked to allocate 0 bytes.
+ * This assertion is used in some of the TaskPool proofs.
+ */
+#define __CPROVER_assert_zero_allocation() \
+        __CPROVER_assert( pvPortMalloc(0) == NULL, \
+			  "pvPortMalloc allows zero-allocated memory.")
+
+/*
+ * A stub for pvPortMalloc that nondeterministically chooses to return
+ * either NULL or an allocation of the requested space.  The stub is
+ * guaranteed to return NULL when asked to allocate 0 bytes.
+ * This stub is used in some of the TaskPool proofs.
  */
 void *pvPortMalloc( size_t xWantedSize )
 {
+	if ( xWantedSize == 0 )
+	{
+		return NULL;
+	}
 	return nondet_bool() ? malloc( xWantedSize ) : NULL;
 }
 
@@ -40,3 +61,7 @@ void vPortFree( void *pv )
 	(void)pv;
 	free(pv);
 }
+
+BaseType_t nondet_basetype();
+UBaseType_t nondet_ubasetype();
+TickType_t nondet_ticktype();

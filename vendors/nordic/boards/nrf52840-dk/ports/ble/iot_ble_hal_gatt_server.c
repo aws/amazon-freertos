@@ -265,7 +265,11 @@ BTStatus_t prvBTRegisterServer( BTUuid_t * pxUuid )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    if( xGattServerCb.pxRegisterServerCb != NULL )
+    {
+        xGattServerCb.pxRegisterServerCb( eBTStatusSuccess, ulGattServerIFhandle, pxUuid );
+    }
+    
     return xStatus;
 }
 
@@ -276,7 +280,11 @@ BTStatus_t prvBTUnregisterServer( uint8_t ucServerIf )
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
+    if( xGattServerCb.pxUnregisterServerCb != NULL )
+    {
+        xGattServerCb.pxUnregisterServerCb( eBTStatusSuccess, ulGattServerIFhandle );
+    }
+    
     return xStatus;
 }
 
@@ -936,7 +944,10 @@ BTStatus_t prvBTStartService( uint8_t ucServerIf,
     }
 
     xStatus = BTNRFError( xErrCode );
-    xGattServerCb.pxServiceStartedCb( xStatus, ucServerIf, usServiceHandle );
+    if( xGattServerCb.pxServiceStartedCb != NULL )
+    {
+        xGattServerCb.pxServiceStartedCb( xStatus, ucServerIf, usServiceHandle );
+    }
 
     return xStatus;
 }

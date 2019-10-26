@@ -255,57 +255,8 @@ target_link_libraries(
 )
 
 # -------------------------------------------------------------------------------------------------
-# Amazon FreeRTOS demos and tests
-# -------------------------------------------------------------------------------------------------
-
-if(AFR_IS_TESTING)
-    set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/common/iot_tests_network.c")
-else()
-    set(exe_target aws_demos)
-    set(
-        extra_exe_sources
-        ${NETWORK_MANAGER_SOURCES}
-    )
-endif()
-
-afr_glob_src(microchip_code RECURSE DIRECTORY "${board_dir}/application_code/microchip_code")
-afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
-add_executable(
-    ${exe_target}
-    ${config_files}
-    "${board_dir}/application_code/main.c"
-    ${microchip_code}
-    ${extra_exe_sources}
-    "${board_dir}/application_code/microchip_code/app_mz.ld"
-)
-
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-        "${harmony_dir}/bin/framework/peripheral/PIC32MZ2048EFM100_peripherals.a"
-)
-
-target_include_directories(
-    ${exe_target}
-    PUBLIC
-        "${harmony_dir}/framework/system/common"
-)
-
-
-if(AFR_METADATA_MODE)
-    return()
-endif()
-
-
-# -------------------------------------------------------------------------------------------------
 # Additional build configurations
 # -------------------------------------------------------------------------------------------------
-set(CMAKE_EXECUTABLE_SUFFIX ".elf")
-
-
 set_source_files_properties(${AFR_MODULES_C_SDK_DIR}/aws/greengrass/aws_greengrass_discovery.c
     ${AFR_DEMOS_DIR}/tcp/aws_tcp_echo_client_single_task.c
     ${AFR_DEMOS_DIR}/secure_sockets/iot_test_tcp.c
@@ -336,39 +287,83 @@ set_source_files_properties(${AFR_DEMOS_DIR}/posix/iot_test_posix_pthread.c
 
 set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 
+# -------------------------------------------------------------------------------------------------
+# Amazon FreeRTOS demos and tests
+# -------------------------------------------------------------------------------------------------
+set(CMAKE_EXECUTABLE_SUFFIX ".elf")
 
-find_program(xc32_bin2hex xc32-bin2hex PATHS "${AFR_COMPILER_DIR}")
-find_program(xc32_objcopy xc32-objcopy PATHS "${AFR_COMPILER_DIR}")
+afr_glob_src(microchip_code RECURSE DIRECTORY "${board_dir}/application_code/microchip_code")
+afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
-# Locate microchip hexmate.
-set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
-find_program(hexmate_path hexmate PATHS "${MCHP_HEXMATE_PATH}" PATH_SUFFIXES bin)
-if (NOT AFR_METADATA_MODE)
-    if(NOT hexmate_path)
-        message(FATAL_ERROR "Cannot find Microchip's hexmate tool. Set MCHP_HEXMATE_PATH to the hexmate tool that comes with MPLAB. Try MPLABX\{VERSION}\mplab_platform\bin or /Applications/microchip/mplabx/{VERSION}/mplab_ide.app/Contents/Resources/mplab_ide/bin.")
-    endif()
+if(AFR_IS_TESTING)
+    set(exe_target aws_tests)
+    set(extra_exe_sources "${AFR_TESTS_DIR}/common/iot_tests_network.c")
+else()
+    set(exe_target aws_demos)
 endif()
 
-# These locations have to be generalized through the toolchain
-# We may have to re-build the bootloader hex file?
-set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X.production.hex)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        ${config_files}
+        "${board_dir}/application_code/main.c"
+        ${microchip_code}
+        ${extra_exe_sources}
+        "${board_dir}/application_code/microchip_code/app_mz.ld"
+    )
 
-set(output_hex_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-set(output_bin_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.production.bin")
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "echo" "Running Post-build step"
-    COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
-    COMMAND "echo" "Running Hexmate to combine bootloader with image"
-    COMMAND "${hexmate_path}" ${output_hex_file}  ${bl_hex_file} -O${exe_target}.production.unified.hex
-)
-if(NOT AFR_IS_TESTING)
-    set(ota_image_generator "${CMAKE_CURRENT_LIST_DIR}/bootloader/bootloader/utility/ota_image_generator.py")
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+            "${harmony_dir}/bin/framework/peripheral/PIC32MZ2048EFM100_peripherals.a"
+    )
+
+    target_include_directories(
+        ${exe_target}
+        PUBLIC
+            "${harmony_dir}/framework/system/common"
+    )
+
+    if(AFR_METADATA_MODE)
+        return()
+    endif()
+
+    find_program(xc32_bin2hex xc32-bin2hex PATHS "${AFR_COMPILER_DIR}")
+    find_program(xc32_objcopy xc32-objcopy PATHS "${AFR_COMPILER_DIR}")
+
+    # Locate microchip hexmate.
+    set(MCHP_HEXMATE_PATH "" CACHE STRING "Path to microchip hexmate, usually this should be mplab's path")
+    find_program(hexmate_path hexmate PATHS "${MCHP_HEXMATE_PATH}" PATH_SUFFIXES bin)
+    if (NOT AFR_METADATA_MODE)
+        if(NOT hexmate_path)
+            message(FATAL_ERROR "Cannot find Microchip's hexmate tool. Set MCHP_HEXMATE_PATH to the hexmate tool that comes with MPLAB. Try MPLABX\{VERSION}\mplab_platform\bin or /Applications/microchip/mplabx/{VERSION}/mplab_ide.app/Contents/Resources/mplab_ide/bin.")
+        endif()
+    endif()
+
+    # These locations have to be generalized through the toolchain
+    # We may have to re-build the bootloader hex file?
+    set(bl_hex_file ${CMAKE_CURRENT_LIST_DIR}/bootloader/aws_bootloader.X.production.hex)
+
+    set(output_hex_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+    set(output_bin_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.production.bin")
     add_custom_command(
         TARGET ${exe_target} POST_BUILD
-        COMMAND "echo" "Running xc32-objcopy"
-        COMMAND "${xc32_objcopy}" -I ihex ${output_hex_file} -O binary "${output_bin_file}"
-        COMMAND "echo" "Creating binary image"
-        COMMAND "python" "${ota_image_generator}" -b "${output_bin_file}" -p MCHP-Curiosity-PIC32MZEF
+        COMMAND "echo" "Running Post-build step"
+        COMMAND "${xc32_bin2hex}" "$<TARGET_FILE:${exe_target}>"
+        COMMAND "echo" "Running Hexmate to combine bootloader with image"
+        COMMAND "${hexmate_path}" ${output_hex_file}  ${bl_hex_file} -O${exe_target}.production.unified.hex
     )
+    if(NOT AFR_IS_TESTING)
+        set(ota_image_generator "${CMAKE_CURRENT_LIST_DIR}/bootloader/bootloader/utility/ota_image_generator.py")
+        add_custom_command(
+            TARGET ${exe_target} POST_BUILD
+            COMMAND "echo" "Running xc32-objcopy"
+            COMMAND "${xc32_objcopy}" -I ihex ${output_hex_file} -O binary "${output_bin_file}"
+            COMMAND "echo" "Creating binary image"
+            COMMAND "python" "${ota_image_generator}" -b "${output_bin_file}" -p MCHP-Curiosity-PIC32MZEF
+        )
+    endif()
 endif()

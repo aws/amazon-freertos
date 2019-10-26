@@ -776,7 +776,7 @@ typedef struct IotHttpsConnectionInfo
      *
      * This contains the interface to connect, disconnect, send data, and receive data from the network.
      *
-     * In Amazon FreeRTOS this should be of the type IotNetworkInterface_t.
+     * In Amazon FreeRTOS this should be of the type @ref IotNetworkInterface_t.
      */
     IOT_HTTPS_NETWORK_INTERFACE_TYPE pNetworkInterface;
 } IotHttpsConnectionInfo_t;

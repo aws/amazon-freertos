@@ -44,12 +44,31 @@ void GATT_teardown();
 void GATT_setup();
 void Advertisement_teardown();
 void Advertisement_setup();
-void prvGAPInitEnableTwice( void );
+void prvInitWithNULLCb( void );
 
 void prvGetResult( bletestAttSrvB_t xAttribute,
                    bool IsPrep,
                    uint16_t usOffset );
 void prvCreateAndStartServiceB( void );
 void prvShortWaitConnection( void );
+void prvCreateStartServicesWithNULLCb( void );
+void prvStartServiceWithNULLCb( BTService_t * xRefSrvc );
+void prvSetAdvPropertyWithNULLCb( void );
+void prvRemoveAllBondWithNULLCb( void );
+void prvRemoveBondWithNULLCb( BTBdaddr_t * pxDeviceAddress );
+void prvSetAdvDataWithNULLCb( BTuuidType_t type,
+                              uint16_t usManufacturerLen,
+                              char * pcManufacturerData );
+void prvSetAdvertisementWithNULLCb( BTGattAdvertismentParams_t * pxParams,
+                                    uint16_t usServiceDataLen,
+                                    char * pcServiceData,
+                                    BTUuid_t * pxServiceUuid,
+                                    size_t xNbServices,
+                                    uint16_t usManufacturerLen,
+                                    char * pcManufacturerData );
+void prvStartStopAdvertisementWithNULLCb( void );
+void prvStopServiceWithNULLCb( BTService_t * xRefSrvc );
+void prvDeleteServiceWithNULLCb( BTService_t * xRefSrvc );
+void prvBTUnregisterWithNULLCb( void );
 
 #endif /* ifndef _IOT_TEST_BLE_HAL_INTEGRATION_H_ */

@@ -21,9 +21,9 @@ endif()
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 
-afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Kit-Plus-OPTIGA-Trust-X")
-afr_set_board_metadata(DISPLAY_NAME "XMC4800 IoT Connectivity Kit Plus OPTIGA(TM) Trust X")
-afr_set_board_metadata(DESCRIPTION "Development kit for ARM� Cortex�-M4 based XMC4800 MCU")
+afr_set_board_metadata(ID "Infineon-XMC4800-IoT-Connectivity-Kit-With-OPTIGA-Trust-X")
+afr_set_board_metadata(DISPLAY_NAME "XMC4800 IoT Connectivity Kit with OPTIGA Trust X")
+afr_set_board_metadata(DESCRIPTION "Development kit for ARM Cortex-M4 based XMC4800 MCU with OPTIGA Trust X secure element")
 afr_set_board_metadata(VENDOR_NAME "Infineon")
 afr_set_board_metadata(FAMILY_NAME "XMC4x00")
 afr_set_board_metadata(CODE_SIGNER "null")
@@ -33,9 +33,10 @@ afr_set_board_metadata(SUPPORTED_IDE "DAVE")
 afr_set_board_metadata(RECOMMENDED_IDE "DAVE")
 afr_set_board_metadata(IDE_DAVE_NAME "DAVE")
 afr_set_board_metadata(IDE_DAVE_COMPILER "GCC")
-
-afr_set_board_metadata(IDE_DAVE_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/infineon/xmc4800_iotkit_plus_optiga_trust_x/dave4/aws_demos")
-afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/infineon/boards/xmc4800_iotkit/aws_demos/config_files")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "FALSE")
+afr_set_board_metadata(IS_ACTIVE "TRUE")
+afr_set_board_metadata(IDE_DAVE_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/infineon/xmc4800_plus_optiga_trust_x/dave4/aws_demos")
+afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${AFR_ROOT_DIR}/vendors/infineon/boards/xmc4800_plus_optiga_trust_x/aws_demos/config_files")
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
@@ -46,13 +47,12 @@ afr_mcu_port(compiler)
 #Set defined symbols for compiler and assembler
 set( defined_symbols
      XMC4800_F100x2048
-	 USE_CMDLIB_WITH_RTOS
+     USE_CMDLIB_WITH_RTOS
      MBEDTLS_ECDSA_SIGN_ALT
      MBEDTLS_ECDSA_VERIFY_ALT
      MBEDTLS_ECDH_COMPUTE_SHARED_ALT
      MBEDTLS_ECDH_GEN_PUBLIC_ALT
      PAL_OS_HAS_EVENT_INIT
-	 pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED=0
 )
 
 # Compiler defined symbols.

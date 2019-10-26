@@ -33,6 +33,7 @@ afr_set_board_metadata(RECOMMENDED_IDE "SeggerStudio")
 afr_set_board_metadata(IDE_SeggerStudio_NAME "SEGGER Embedded Studio")
 afr_set_board_metadata(IDE_SeggerStudio_COMPILER "segger-arm-gcc")
 afr_set_board_metadata(IS_ACTIVE "TRUE")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 afr_set_board_metadata(IDE_SeggerStudio_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/nordic/nrf52840-dk/ses/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
@@ -160,21 +161,13 @@ set(linker_flags
 target_link_options(
     AFR::compiler::mcu_port
     INTERFACE
-        ${linker_flags}
+    ${linker_flags}
 )
 
 target_link_libraries(
   AFR::compiler::mcu_port
   INTERFACE
-  "${nrf5_sdk}/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv5_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libcpp_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libdebugio_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
-  "${AFR_COMPILER_DIR}/../../../lib/libvfprintf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
-  "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
+
 )
 
 
@@ -195,7 +188,7 @@ set(
  )
 
  set(
-     nrf_sdk_src
+     nrf5_sdk_src
      "${nrf5_sdk}/components/ble/ble_advertising/ble_advertising.c"
      "${nrf5_sdk}/components/ble/ble_link_ctx_manager/ble_link_ctx_manager.c"
      "${nrf5_sdk}/components/ble/ble_services/ble_ipsp/ble_ipsp.c"
@@ -305,7 +298,7 @@ set(
  )
 
  set(
-     nrf_sdk_include
+     nrf5_sdk_include
     "${nrf5_sdk}/components/libraries/util"
     "${nrf5_sdk}/components/libraries/svc"
     "${nrf5_sdk}/components/libraries/fifo"
@@ -330,18 +323,9 @@ set(
     "${nrf5_sdk}/components"
     "${nrf5_sdk}/components/ble/common"
     "${nrf5_sdk}/components/boards"
-    "${nrf5_sdk}/components/device"
-    "${nrf5_sdk}/components/drivers_nrf/clock"
-    "${nrf5_sdk}/components/drivers_nrf/common"
-    "${nrf5_sdk}/components/drivers_nrf/delay"
-    "${nrf5_sdk}/components/drivers_nrf/gpiote"
     "${nrf5_sdk}/components/ble/nrf_ble_gatt"
     "${nrf5_sdk}/components/ble/ble_services/ble_nus"
     "${nrf5_sdk}/components/ble/nrf_ble_qwr"
-    "${nrf5_sdk}/components/drivers_nrf/hal"
-    "${nrf5_sdk}/components/drivers_nrf/rng"
-    "${nrf5_sdk}/components/drivers_nrf/timer"
-    "${nrf5_sdk}/components/drivers_nrf/wdt"
     "${nrf5_sdk}/components/libraries/atomic"
     "${nrf5_sdk}/components/libraries/balloc"
     "${nrf5_sdk}/components/libraries/bsp"
@@ -383,7 +367,6 @@ target_sources(
     AFR::kernel::mcu_port
     INTERFACE
     ${compiler_src}
-    ${nrf_sdk_src}
 )
 set(
     kernel_inc_dirs
@@ -392,7 +375,7 @@ set(
     "${AFR_3RDPARTY_DIR}/jsmn"
     "${AFR_3RDPARTY_DIR}/pkcs11"
     "${AFR_MODULES_ABSTRACTIONS_DIR}/pkcs11/include"
-    ${nrf_sdk_include}
+    ${nrf5_sdk_include}
     "$<IF:${AFR_IS_TESTING},${AFR_TESTS_DIR},${AFR_DEMOS_DIR}>/include"
 )
 
@@ -449,7 +432,6 @@ target_link_libraries(
     AFR::ota::mcu_port
     INTERFACE
         AFR::crypto
-        AFR::pkcs11
 )
 
 # POSIX
@@ -469,60 +451,98 @@ target_link_libraries(
 # -------------------------------------------------------------------------------------------------
 # Amazon FreeRTOS demos and tests
 # -------------------------------------------------------------------------------------------------
-set( application_src
-    "${board_dir}/application_code/main.c"
-    "${board_dir}/application_code/nordic_code/SEGGER_HardFaultHandler.c"
-    "${board_dir}/application_code/nordic_code/SEGGER_RTT.c"
-    "${board_dir}/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c"
-    "${board_dir}/application_code/nordic_code/thumb_crt0.s"
-)
-add_executable(
-    ${exe_target}
-    ${application_src}
-)
+set(CMAKE_EXECUTABLE_SUFFIX ".hex")
 
-if(AFR_METADATA_MODE)
-    return()
+if(AFR_IS_TESTING)
+    set(exe_target aws_tests)
 else()
-	#message(FATAL_ERROR "CMake support for Nordic is not complete yet.")
+    set(exe_target aws_demos)
 endif()
 
+include("${CMAKE_CURRENT_LIST_DIR}/bootloader.cmake")
 
-# -------------------------------------------------------------------------------------------------
-# Additional build configurations
-# -------------------------------------------------------------------------------------------------
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
 
-set(
-    mkld_flags
-    -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
-    -section-placement-file "${nrf52840_dir}/flash_placement.xml"
-    -check-segment-overflow
-    -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
-    -section-placement-macros
-    "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
-)
+    set( application_src
+        "${board_dir}/application_code/main.c"
+        "${board_dir}/application_code/nordic_code/SEGGER_HardFaultHandler.c"
+        "${board_dir}/application_code/nordic_code/SEGGER_RTT.c"
+        "${board_dir}/application_code/nordic_code/SEGGER_RTT_Syscalls_SES.c"
+        "${board_dir}/application_code/nordic_code/thumb_crt0.s"
+    )
+    add_executable(
+        ${exe_target}
+        ${application_src}
+        ${nrf5_sdk_src}
+    )
 
-add_custom_command(
-    TARGET ${exe_target} PRE_LINK
-    COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${mkld_flags} "${CMAKE_BINARY_DIR}/${exe_target}.ld"
-)
+    target_link_libraries(
+       ${exe_target}
+       PRIVATE
+       "${nrf5_sdk}/external/nrf_cc310/lib/libnrf_cc310_0.9.10.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv5_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libdebugio_mempoll_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libm_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libc_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libcpp_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libdebugio_v7em_fpv4_sp_d16_hard_t_le_eabi.a"
+       "${AFR_COMPILER_DIR}/../../../lib/libvfprintf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
+       "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
+    )
 
-find_program(gcc_objectcopy arm-none-eabi-objcopy)
-find_program(gcc_size arm-none-eabi-size)
+    # -------------------------------------------------------------------------------------------------
+    # Additional build configurations
+    # -------------------------------------------------------------------------------------------------
 
-if(NOT gcc_objectcopy )
-    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+    set( mkld_flags
+         -memory-map-segments "FLASH RX 0x0 0x100000$<SEMICOLON>RAM RWX 0x20000000 0x40000"
+         -section-placement-file "${nrf52840_dir}/flash_placement.xml"
+         -check-segment-overflow
+         -symbols "__STACKSIZE__=8192$<SEMICOLON>__STACKSIZE_PROCESS__=0$<SEMICOLON>__HEAPSIZE__=8192"
+         -section-placement-macros
+         "FLASH_PH_START=0x0$<SEMICOLON>FLASH_PH_SIZE=0x100000$<SEMICOLON>RAM_PH_START=0x20000000$<SEMICOLON>RAM_PH_SIZE=0x40000$<SEMICOLON>FLASH_START=0x27000$<SEMICOLON>FLASH_SIZE=0xda000$<SEMICOLON>RAM_START=0x200046F8$<SEMICOLON>RAM_SIZE=0x3B908"
+    )
+
+    function(nrf52840_build)
+        set( build_target ${ARGV0} )
+        set( build_mkld_flags ${${ARGV1}} )
+        add_custom_command(
+            TARGET ${build_target}
+            PRE_LINK
+            COMMAND VERBATIM "${AFR_COMPILER_DIR}/../../../bin/mkld" ${build_mkld_flags} "${CMAKE_BINARY_DIR}/${build_target}.ld"
+        )
+
+        find_program(gcc_objectcopy objcopy)
+        find_program(gcc_size arm-none-eabi-size)
+
+        if(NOT gcc_objectcopy )
+            message(FATAL_ERROR "Cannot find objcopy.")
+        endif()
+
+        set(output_file "$<TARGET_FILE_DIR:${build_target}>/${build_target}.hex")
+
+        add_custom_command(
+            TARGET ${build_target} POST_BUILD
+            COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${build_target}>" "${output_file}"
+            COMMAND "${gcc_size}" "$<TARGET_FILE:${build_target}>"
+        )
+
+        add_custom_command(
+            TARGET ${build_target} POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+        )
+
+    endfunction()
+
+    nrf52840_build(
+        bootloader
+        bootloader_mkld_flags
+    )
+
+    nrf52840_build(
+        ${exe_target}
+        mkld_flags
+    )
+
 endif()
-
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objectcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
-)
-
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
-)

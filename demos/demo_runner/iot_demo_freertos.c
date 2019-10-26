@@ -41,9 +41,11 @@
 #include "iot_init.h"
 
 /* Remove dependency to MQTT */
-#define MQTT_DEMO_TYPE_ENABLED    ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
+#if ( defined( CONFIG_MQTT_DEMO_ENABLED ) || defined( CONFIG_SHADOW_DEMO_ENABLED ) || defined( CONFIG_DEFENDER_DEMO_ENABLED ) || defined( CONFIG_OTA_UPDATE_DEMO_ENABLED ) )
+    #define MQTT_DEMO_TYPE_ENABLED
+#endif
 
-#if MQTT_DEMO_TYPE_ENABLED
+#if defined( MQTT_DEMO_TYPE_ENABLED )
     #include "iot_mqtt.h"
 #endif
 
@@ -55,7 +57,11 @@ static IotSemaphore_t demoNetworkSemaphore;
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
-#if MQTT_DEMO_TYPE_ENABLED
+#ifdef democonfigMEMORY_ANALYSIS
+    extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xDemoStackSize;
+#endif
+
+#if defined( MQTT_DEMO_TYPE_ENABLED )
     #if BLE_ENABLED
         extern const IotMqttSerializer_t IotBleMqttSerializer;
     #endif
@@ -76,7 +82,7 @@ static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
         return ret;
     }
-#endif /* if MQTT_DEMO_TYPE_ENABLED */
+#endif /* if defined( MQTT_DEMO_TYPE_ENABLED ) */
 
 /*-----------------------------------------------------------*/
 
@@ -277,6 +283,7 @@ static int _initialize( demoContext_t * pContext )
  */
 static void _cleanup( void )
 {
+    AwsIotNetworkManager_DisableNetwork( configENABLED_NETWORKS );
     /* Remove network manager subscription */
     AwsIotNetworkManager_RemoveSubscription( subscription );
     IotSemaphore_Destroy( &demoNetworkSemaphore );
@@ -304,6 +311,15 @@ void runDemoTask( void * pArgument )
         }
     #endif /* INSERT_DELAY_BEFORE_DEMO */
 
+    #ifdef democonfigMEMORY_ANALYSIS
+        demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark = 0;
+        xBeforeDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+
+        size_t xBeforeDemoHeapSize, xAfterDemoHeapSize = 0;
+        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+    #endif /* democonfigMEMORY_ANALYSIS */
+
+
     /* DO NOT EDIT - This demo start marker is used in the test framework to
      * determine the start of a demo. */
     IotLogInfo( "---------STARTING DEMO---------\n" );
@@ -324,6 +340,19 @@ void runDemoTask( void * pArgument )
                                          pConnectionParams,
                                          pCredentials,
                                          pNetworkInterface );
+
+        #ifdef democonfigMEMORY_ANALYSIS
+            /* If memory anaalysis is enabled metrics regarding the heap and stack usage of the demo will print. */
+            /* This format is used for easier parsing and creates an avenue for future metrics to be added. */
+            xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+            IotLogInfo( "memory_metrics:freertos_heap:total:bytes:%u", demoMEMORY_ANALYSIS_HEAP_SIZE );
+            IotLogInfo( "memory_metrics:freertos_heap:before:bytes:%u", xBeforeDemoHeapSize );
+            IotLogInfo( "memory_metrics:freertos_heap:after:bytes:%u", xAfterDemoHeapSize );
+            xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+            IotLogInfo( "memory_metrics:demo_task_stack:total:stack_words:%u", xDemoStackSize );
+            IotLogInfo( "memory_metrics:demo_task_stack:before:stack_words:%u", xBeforeDemoTaskWaterMark );
+            IotLogInfo( "memory_metrics:demo_task_stack:after:stack_words:%u", xAfterDemoTaskWaterMark );
+        #endif /* democonfigMEMORY_ANALYSIS */
 
         /* Log the demo status. */
         if( status == EXIT_SUCCESS )

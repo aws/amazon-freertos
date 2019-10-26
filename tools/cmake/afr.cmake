@@ -30,6 +30,14 @@ set(AFR_VERSION_VCS "Unknown" CACHE INTERNAL "")
 # Check if we're in a Git repository.
 find_package(Git)
 if(Git_FOUND AND EXISTS "${AFR_ROOT_DIR}/.git")
+    message(STATUS "Submodule update")
+    # TODO: Update submodule only if it hasn't been checked out (check if directory is empty).
+    execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                    RESULT_VARIABLE GIT_SUBMOD_RESULT)
+    if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "git submodule update --init failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+    endif()
     execute_process(
         COMMAND "${GIT_EXECUTABLE}" "describe" "--always" WORKING_DIRECTORY "${AFR_ROOT_DIR}"
         OUTPUT_VARIABLE __version OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -54,9 +62,18 @@ if(NOT DEFINED CACHE{AFR_TOOLCHAIN})
     set(AFR_TOOLCHAIN ${__toolchain} CACHE INTERNAL "Toolchain to build Amazon FreeRTOS.")
 endif()
 
+# Provide an option to enable demos. If we're not at top level, turn off demos build by default.
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+    option(AFR_ENABLE_DEMOS "Build demos for Amazon FreeRTOS." ON)
+else()
+    option(AFR_ENABLE_DEMOS "Build demos for Amazon FreeRTOS." OFF)
+endif()
+
 # Provide an option to enable tests. Also set an helper variable to use in generator expression.
 option(AFR_ENABLE_TESTS "Build tests for Amazon FreeRTOS. Requires recompiling whole library." OFF)
 if(AFR_ENABLE_TESTS)
+    # Turning off demo when tests are enabled.
+    set(AFR_ENABLE_DEMOS 0 CACHE BOOL "Build demos for Amazon FreeRTOS." FORCE)
     add_compile_definitions(AMAZON_FREERTOS_ENABLE_UNIT_TESTS)
     add_compile_definitions(IOT_BUILD_TESTS=1)
     set(AFR_IS_TESTING 1 CACHE INTERNAL "")

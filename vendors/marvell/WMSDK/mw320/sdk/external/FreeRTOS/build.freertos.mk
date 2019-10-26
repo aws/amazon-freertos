@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2018, Marvell International Ltd.
+# Copyright (C) 2008-2019, Marvell International Ltd.
 # All Rights Reserved.
 
 libs-y += libfreertos
@@ -6,19 +6,19 @@ libs-y += libfreertos
 disable-lto-for += libfreertos
 
 libfreertos-objs-y := \
-		../../../../../../../../FreeRTOS/list.c \
-		../../../../../../../../FreeRTOS/queue.c \
-		../../../../../../../../FreeRTOS/tasks.c \
-		../../../../../../../../FreeRTOS/event_groups.c \
-		../../../../../../../../FreeRTOS/timers.c \
-		../../../../../../../../FreeRTOS/stream_buffer.c \
+		../../../../../../../freertos_kernel/list.c \
+		../../../../../../../freertos_kernel/queue.c \
+		../../../../../../../freertos_kernel/tasks.c \
+		../../../../../../../freertos_kernel/event_groups.c \
+		../../../../../../../freertos_kernel/timers.c \
+		../../../../../../../freertos_kernel/stream_buffer.c \
 		portable/MemMang/heap_marvell.c
 
 libfreertos-objs-$(tc-cortex-m4-y) += \
-		../../../../../../../../FreeRTOS/portable/$(tc-src-dir-y)/ARM_CM4F/port.c
+		../../../../../../../freertos_kernel/portable/$(tc-src-dir-y)/ARM_CM4F/port.c
 
 libfreertos-objs-$(tc-iar-env-$(tc-cortex-m4-y)) += \
-		../../../../../../../../FreeRTOS/portable/$(tc-src-dir-y)/ARM_CM4F/portasm.s
+		../../../../../../../freertos_kernel/portable/$(tc-src-dir-y)/ARM_CM4F/portasm.s
 
 libfreertos-cflags-$(DEBUG_HEAP) += -DDEBUG_HEAP
 

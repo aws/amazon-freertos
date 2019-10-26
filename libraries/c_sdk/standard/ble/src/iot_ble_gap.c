@@ -167,9 +167,6 @@ static void _advStatusCb( BTStatus_t status,
                           uint32_t serverIf,
                           bool bStart );
 static void _setAdvDataCb( BTStatus_t status );
-static void _bondedCb( BTStatus_t status,
-                       BTBdaddr_t * pRemoteBdAddr,
-                       bool isBonded );
 
 static const BTCallbacks_t _BTManagerCb =
 {
@@ -178,7 +175,6 @@ static const BTCallbacks_t _BTManagerCb =
     .pxRemoteDevicePropertiesCb = NULL,
     .pxSspRequestCb             = _sspRequestCb,
     .pxPairingStateChangedCb    = _pairingStateChangedCb,
-    .pxBondedCb                 = _bondedCb,
     .pxDutModeRecvCb            = NULL,
     .pxleTestModeCb             = NULL,
     .pxEnergyInfoCb             = NULL,
@@ -278,7 +274,7 @@ void _pairingStateChangedCb( BTStatus_t status,
     IotContainers_ForEach( &_BTInterface.subscrEventListHead[ eBLEPairingStateChanged ], pEventListIndex )
     {
         pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, eventList );
-        pEventIndex->subscribedEventCb.pGAPPairingStateChangedCb( status, pRemoteBdAddr, securityLevel, reason );
+        pEventIndex->subscribedEventCb.pGAPPairingStateChangedCb( status, pRemoteBdAddr, state, securityLevel, reason );
     }
 
     IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
@@ -333,28 +329,6 @@ void _setAdvDataCb( BTStatus_t status )
     _BTInterface.cbStatus = status;
     IotSemaphore_Post( &_BTInterface.callbackSemaphore );
 }
-
-
-/*-----------------------------------------------------------*/
-
-void _bondedCb( BTStatus_t status,
-                BTBdaddr_t * pRemoteBdAddr,
-                bool isBonded )
-{
-    IotLink_t * pEventListIndex;
-    _bleSubscrEventListElement_t * pEventIndex;
-
-    IotMutex_Lock( &_BTInterface.threadSafetyMutex );
-    /* Get the event associated to the callback */
-    IotContainers_ForEach( &_BTInterface.subscrEventListHead[ eBLEBonded ], pEventListIndex )
-    {
-        pEventIndex = IotLink_Container( _bleSubscrEventListElement_t, pEventListIndex, eventList );
-        pEventIndex->subscribedEventCb.pBondedCb( status, pRemoteBdAddr, isBonded );
-    }
-
-    IotMutex_Unlock( &_BTInterface.threadSafetyMutex );
-}
-
 
 /*-----------------------------------------------------------*/
 

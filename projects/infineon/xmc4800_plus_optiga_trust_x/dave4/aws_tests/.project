@@ -59,9 +59,19 @@
 			<locationURI>AFR_HOME/freertos_kernel/include/FreeRTOS.h</locationURI>
 		</link>
 		<link>
+			<name>freertos_kernel/include/StackMacros.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/freertos_kernel/include/StackMacros.h</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/include/atomic.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/croutine.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/freertos_kernel/include/croutine.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/deprecated_definitions.h</name>
@@ -389,49 +399,19 @@
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.h</locationURI>
-		</link>		
-		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.c</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.h</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_extern.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_extern.h</locationURI>
-		</link>	
+		</link>
 		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.h</locationURI>
-		</link>		
-		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.c</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.h</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_extern.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_extern.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.c</name>
@@ -439,49 +419,9 @@
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.h</locationURI>
-		</link>		
-		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.c</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.h</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_extern.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_extern.h</locationURI>
-		</link>
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.c</locationURI>
-		</link>
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.h</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.c</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.c</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.h</locationURI>
-		</link>		
-		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_extern.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_extern.h</locationURI>
 		</link>
 		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.c</name>
@@ -489,29 +429,524 @@
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.c</locationURI>
 		</link>
 		<link>
-			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.h</name>
-			<type>1</type>
-			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.h</locationURI>
-		</link>		
-		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.c</locationURI>
-		</link>		
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_conf.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/CLOCK_XMC4/clock_xmc4_extern.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_conf.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/GLOBAL_CCU4/global_ccu4_extern.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_conf.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/I2C_MASTER/i2c_master_extern.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt.h</locationURI>
+		</link>
 		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_conf.h</locationURI>
-		</link>		
+		</link>
 		<link>
 			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_extern.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/INTERRUPT/interrupt_extern.h</locationURI>
-		</link>	
+		</link>
 		<link>
-			<name>vendors/infineon/secure_elements</name>
-			<type>2</type>
-			<locationURI>AFR_HOME/vendors/infineon/secure_elements</locationURI>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_conf.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_extern.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/XMCLib/2.1.20/DAVE_Generated/XMC4800/TIMER/timer_extern.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/cmd/CommandLib.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/cmd/CommandLib.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/common/Logger.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/common/Logger.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/common/Util.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/common/Util.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_config.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_config.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_data_link_layer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_data_link_layer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_physical_layer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_physical_layer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_transport_layer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/ifx_i2c/ifx_i2c_transport_layer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/optiga_comms.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/comms/optiga_comms.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/crypt/optiga_crypt.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/crypt/optiga_crypt.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/AlertProtocol.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/AlertProtocol.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsFlightHandler.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsFlightHandler.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsHandshakeProtocol.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsHandshakeProtocol.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsRecordLayer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsRecordLayer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsTransportLayer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsTransportLayer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsWindowing.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/DtlsWindowing.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/HardwareCrypto.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/HardwareCrypto.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/MessageLayer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/MessageLayer.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/OCP.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/OCP.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/OCPConfig.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/dtls/OCPConfig.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/util/optiga_util.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/util/optiga_util.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/Version.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/Version.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/cmd/CommandLib.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/cmd/CommandLib.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/AuthLibSettings.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/AuthLibSettings.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/Datatypes.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/Datatypes.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/ErrorCodes.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/ErrorCodes.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/Logger.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/Logger.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/MemoryMgmt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/MemoryMgmt.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/Util.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/common/Util.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/comms/optiga_comms.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/comms/optiga_comms.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/AlertProtocol.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/AlertProtocol.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/BaseErrorCodes.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/BaseErrorCodes.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsFlighthandler.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsFlighthandler.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsHandshakeProtocol.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsHandshakeProtocol.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsRecordLayer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsRecordLayer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsTransportLayer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsTransportLayer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsWindowing.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/DtlsWindowing.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/HardwareCrypto.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/HardwareCrypto.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/MessageLayer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/MessageLayer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpCommon.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpCommon.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpCommonIncludes.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpCommonIncludes.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpCryptoLayer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpCryptoLayer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpRecordLayer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpRecordLayer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpTransportLayer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/OcpTransportLayer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/UDPErrorCodes.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/dtls/UDPErrorCodes.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_config.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_data_link_layer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_data_link_layer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_physical_layer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_physical_layer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_transport_layer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/ifx_i2c/ifx_i2c_transport_layer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/optiga_crypt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/optiga_crypt.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/optiga_dtls.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/optiga_dtls.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/optiga_util.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/optiga_util.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_gpio.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_gpio.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_i2c.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_i2c.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_ifx_i2c_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_ifx_i2c_config.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_event.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_event.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_lock.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_lock.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_random.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_random.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_timer.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_os_timer.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_socket.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/optiga/include/optiga/pal/pal_socket.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/example_authenticate_chip.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/example_authenticate_chip.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/pal_crypt_mbedtls.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/pal_crypt_mbedtls.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/ecdsa_utils/ecdsa_utils.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/ecdsa_utils/ecdsa_utils.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/mbedtls_port/trustx_ecdh.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/mbedtls_port/trustx_ecdh.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/mbedtls_port/trustx_ecdsa.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/mbedtls_port/trustx_ecdsa.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/mbedtls_port/trustx_random.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/mbedtls_port/trustx_random.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecc_generate_keypair.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecc_generate_keypair.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecdh.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecdh.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecdsa_sign.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecdsa_sign.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecdsa_verify.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_ecdsa_verify.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_hash.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_hash.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_random.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_random.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_tls_prf_sha256.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_crypt_tls_prf_sha256.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_util_read_data.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_util_read_data.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_util_write_data.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/optiga/example_optiga_util_write_data.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/mbedtls_config.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/mbedtls_config.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/pal_crypt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/authenticate_chip/pal_crypt.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/examples/ecdsa_utils/ecdsa_utils.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/examples/ecdsa_utils/ecdsa_utils.h</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_gpio.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_gpio.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_i2c.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_i2c.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_ifx_i2c_config.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_ifx_i2c_config.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_os_event.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_os_event.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_os_lock.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_os_lock.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_os_timer.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/optiga_trust_x/pal/xmc4800_freertos/pal_os_timer.c</locationURI>
 		</link>
 		<link>
 			<name>tests/common/aws_test_framework.c</name>
@@ -772,6 +1207,11 @@
 			<name>libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</locationURI>
+		</link>
+		<link>
+			<name>vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/vendors/infineon/secure_elements/pkcs11/iot_pkcs11_trustx.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
@@ -1173,7 +1613,7 @@
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/common/test/iot_tests_taskpool.c</locationURI>
 		</link>
-				<link>
+		<link>
 			<name>libraries/c_sdk/standard/https/test/unit/iot_tests_https_client.c</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/c_sdk/standard/https/test/unit/iot_tests_https_client.c</locationURI>
@@ -2477,6 +2917,11 @@
 			<name>libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</name>
 			<type>1</type>
 			<locationURI>AFR_HOME/libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</locationURI>
+		</link>
+		<link>
+			<name>libraries/abstractions/pkcs11/mbedtls/threading_alt.h</name>
+			<type>1</type>
+			<locationURI>AFR_HOME/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/pkcs11/pkcs11.h</name>

@@ -1164,7 +1164,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
     }
 
     /* Retrieve the size of the file specified in the S3 pre-signed URL. */
-    if( _IotHttpsDemo_GetS3ObjectFileSize( &fileSize,
+    if( _IotHttpsDemo_GetS3ObjectFileSize( ( uint32_t * ) ( &fileSize ),
                                            _connHandle,
                                            pPath,
                                            strlen( pPath ),
