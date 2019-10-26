@@ -24,13 +24,13 @@
  */
 
 /**
- * @file aws_ota_cbor_internal.h
+ * @file aws_iot_ota_cbor_internal.h
  * @brief Macros, enums, variables, and definitions internal to the OTA CBOR module and
  * shared by the testing files.
  */
 
-#ifndef _AWS_OTA_CBOR_INTERNAL_H_
-#define _AWS_OTA_CBOR_INTERNAL_H_
+#ifndef _AWS_IOT_OTA_CBOR_INTERNAL_H_
+#define _AWS_IOT_OTA_CBOR_INTERNAL_H_
 
 /**
  * @brief Message field definitions, per the server specification. These are
@@ -48,4 +48,4 @@
 #define OTA_CBOR_BLOCKPAYLOAD_KEY         "p"
 #define OTA_CBOR_NUMBEROFBLOCKS_KEY       "n"
 
-#endif /* ifndef _AWS_OTA_CBOR_INTERNAL_H_ */
+#endif /* ifndef _AWS_IOT_OTA_CBOR_INTERNAL_H_ */

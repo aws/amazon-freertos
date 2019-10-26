@@ -24,7 +24,7 @@
  */
 
 /**
- * @file aws_ota_cbor.c
+ * @file aws_iot_ota_cbor.c
  * @brief CBOR encode/decode routines for AWS IoT Over-the-Air updates.
  */
 

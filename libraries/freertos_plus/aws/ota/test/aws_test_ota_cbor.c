@@ -37,8 +37,8 @@
 
 /* CBOR and OTA includes. */
 #include "aws_iot_ota_agent.h"
-#include "aws_ota_cbor.h"
-#include "aws_ota_cbor_internal.h"
+#include "mqtt/aws_iot_ota_cbor.h"
+#include "mqtt/aws_iot_ota_cbor_internal.h"
 #include "aws_ota_agent_test_access_declare.h"
 #include "cbor.h"
 
