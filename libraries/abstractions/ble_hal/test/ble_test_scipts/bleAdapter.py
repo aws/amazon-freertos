@@ -31,6 +31,7 @@ from gattClient import gattClient
 import Queue
 import time
 import dbus.mainloop.glib
+
 try:
     from gi.repository import GObject
 except ImportError:
@@ -41,6 +42,7 @@ connectEvent = Queue.Queue()
 disconnectEvent = Queue.Queue()
 attributeAccessEvent = Queue.Queue()
 mainloop = GObject.MainLoop()
+disconnectReceivedEvent = Queue.Queue()
 
 
 class bleAdapter:
@@ -51,6 +53,7 @@ class bleAdapter:
     discoverAllPrimaryServicesEvent = False
     notificationCb = None
     remoteDevice = None
+    disconnectInitiated = False
 
     gatt = gattClient()
 
@@ -124,6 +127,7 @@ class bleAdapter:
     @staticmethod
     def disconnect():
         isSuccessfull = False
+        bleAdapter.disconnectInitiated = True
         bleAdapter.getDeviceInterface(
             bleAdapter.remoteDevice).Disconnect(
             reply_handler=disconnectSuccess,
@@ -131,6 +135,20 @@ class bleAdapter:
             timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
         mainloop.run()
         isSuccessfull = disconnectEvent.get()
+        bleAdapter.disconnectInitiated = False
+        return isSuccessfull
+
+    @staticmethod
+    def waitForDisconnect(timeout=None):
+        isSuccessfull = False
+        try:
+            if timeout is None:
+                isSuccessfull = disconnectReceivedEvent.get()
+            else:
+                isSuccessfull = disconnectReceivedEvent.get(timeout=timeout)
+        except exception as ex:
+            print("Caught exception while waiting for disconnect event " + str(ex))
+            pass
         return isSuccessfull
 
     @staticmethod
@@ -165,6 +183,10 @@ class bleAdapter:
     def __processEventDeviceInterface(path):
         bus = dbus.SystemBus()
         obj = bus.get_object(testutils.SERVICE_NAME, path)
+
+        connected = bleAdapter.getPropertie(obj, "Connected")
+        if connected == 0 and bleAdapter.disconnectInitiated == False:
+            disconnectReceivedEvent.put(True)
 
         if bleAdapter.discoveryEventCb is not None:
             bleAdapter.discoveryEventCb.im_func(obj)

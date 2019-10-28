@@ -134,7 +134,7 @@ TEST_GROUP_RUNNER( Full_BLE )
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Disconnect );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_BondedReconnectAndPair );
-    RUN_TEST_CASE( Full_BLE, BLE_Connection_Disconnect );
+    RUN_TEST_CASE( Full_BLE, BLE_Connection_Disconnect_From_DUT );
 
     RUN_TEST_CASE( Full_BLE, BLE_Connection_CheckBonding );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_RemoveBonding );
@@ -295,6 +295,14 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 TEST( Full_BLE, BLE_Connection_Disconnect )
 {
     IotTestBleHal_WaitConnection( false );
+}
+
+TEST( Full_BLE, BLE_Connection_Disconnect_From_DUT )
+{
+	BTStatus_t xStatus;
+	xStatus = _pxBTLeAdapterInterface->pxDisconnect( _ucBLEAdapterIf, &_xAddressConnectedDevice, _usBLEConnId );
+	TEST_ASSERT_EQUAL(eBTStatusSuccess, xStatus );
+
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr )

@@ -218,6 +218,11 @@ class runTest:
         runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)
 
     @staticmethod
+    def waitForDisconnect():
+        isTestSuccessfull = bleAdapter.waitForDisconnect(timeout=runTest.GENERIC_TEST_TIMEOUT)
+        runTest.submitTestResult(isTestSuccessfull, runTest.waitForDisconnect)
+
+    @staticmethod
     def pairing():
         isTestSuccessFull = True
         if bleAdapter.isPaired() == False:
@@ -850,53 +855,23 @@ class runTest:
 
     @staticmethod
     def submitTestResult(isSuccessfull, testMethod):
-        switch = {
-            runTest.advertisement: "_advertisement",
-            runTest.discoverPrimaryServices: "_discoverPrimaryServices",
-            runTest.simpleConnection: "_simpleConnection",
-            runTest.reConnection: "_reConnection",
-            runTest.checkProperties: "_checkProperties",
-            runTest.checkUUIDs: "_checkUUIDs",
-            runTest.writereadLongCharacteristic: "_writereadLongCharacteristic",
-            runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
-            runTest.writeWithoutResponse: "_writeWithoutResponse",
-            runTest.notification: "_notification",
-            runTest.indication: "_indication",
-            runTest.removeNotification: "_removeNotification",
-            runTest.removeIndication: "_removeIndication",
-            runTest.readWriteProtectedAttributesWhileNotPaired: "_readWriteProtectedAttributesWhileNotPaired",
-            runTest.readWriteProtectedAttributesWhilePaired: "_readWriteProtectedAttributesWhilePaired",
-            runTest.pairing: "_pairing",
-            runTest.disconnect: "_disconnect",
-            runTest.reconnectWhileBonded: "_reconnectWhileBonded",
-            runTest.reconnectWhileNotBonded: "_reconnectWhileNotBonded",
-            runTest.stopAdvertisement: "_stopAdvertisement",
-            runTest.Advertise_Without_Properties: "_Advertise_Without_Properties",
-            runTest.Advertise_With_16bit_ServiceUUID: "_Advertise_With_16bit_ServiceUUID",
-            runTest.Advertise_With_Manufacture_Data: "_Advertise_With_Manufacture_Data",
-            runTest.Advertise_Interval_Consistent_After_BT_Reset: "_Advertise_Interval_Consistent_After_BT_Reset",
-            runTest.Send_Data_After_Disconnected: "_Send_Data_After_Disconnected",
-            runTest.Write_Notification_Size_Greater_Than_MTU_3: "_Write_Notification_Size_Greater_Than_MTU_3"
-        }
-
         runTest.numberOfTests += 1
 
-        if(isSuccessfull):
+        if isSuccessfull is True:
             successString = "PASS"
         else:
             successString = "FAIL"
             runTest.numberOfFailedTests += 1
 
-        print(
-            "TEST(" +
-            runTest.TEST_GROUP +
-            ", " +
-            runTest.TEST_NAME_PREFIX +
-            switch.get(
-                testMethod,
-                "methodNotFound") +
-            ") " +
-            successString)
+        print( "TEST("
+                + runTest.TEST_GROUP
+                + ", "
+                + runTest.TEST_NAME_PREFIX
+                + "_"
+                + testMethod.__name__
+                + ") "
+                + successString )
+
         sys.stdout.flush()
 
     @staticmethod
