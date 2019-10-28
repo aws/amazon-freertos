@@ -416,6 +416,8 @@ const pkcs11_attrib_model pkcs11_key_private_attributes[] = {
     { CKA_EC_PARAMS,           pkcs11_key_get_ec_params                                                              },
     /** DER - encoding of ANSI X9.62 ECPoint value Q */
     { CKA_EC_POINT,            pkcs11_key_get_ec_point                                                               },
+    /** The value of the private key should remain private.  A NULL function pointer is interpreted as a sensitive attribute. */
+    { CKA_VALUE,               NULL_PTR                                                                              },
 };
 
 const CK_ULONG pkcs11_key_private_attributes_count = PKCS11_UTIL_ARRAY_SIZE(pkcs11_key_private_attributes);
