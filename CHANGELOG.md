@@ -2,6 +2,12 @@
 
 ## Upcoming Release 
 ### New Features
+#### New Board:Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
+- The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
+
+#### New Board:Microchip ATECC608A with Windows Simulator
+- The Microchip ATECC608A secure element with Windows Simulator is now qualified for Amazon FreeRTOS.
+
 #### Defender Client Library V3.0.0
 - Defender Library API change to shared MQTT connection.
 - Demonstration code for Defender Library updated to show use of shared connection.
@@ -14,8 +20,8 @@
 - A port for SoftHSMv2, a third-party open-source implementation of PKCS #11, has been provided for use with the Windows Simulator project for Amazon FreeRTOS.
 - The purpose of the SoftHSMv2 port is to allow ad hoc interoperability testing with an independent implementation of the PKCS #11 standard.
 
-#### New Board:Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
-- The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
+#### CMake Builds
+- CMake files are now available for Nordic nRF52840 DK Development kit
 
 ### Updates
 #### HTTP Parser
@@ -35,9 +41,6 @@
 
 #### Marvell SDK Update
 - Marvell SDK now updated to R8 P2 (v1.2.r8.p2)
-
-#### CMake Builds
-- CMake files are now available for Nordic nRF52840 DK Development kit
 
 ## 201908.00 08/26/2019
 
