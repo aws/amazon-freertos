@@ -148,23 +148,17 @@ void handle_data_packet(const t_u8 interface, const t_u8 *rcvdata,
 
 BaseType_t xNetworkInterfaceInitialise( void )
 {
-    static BaseType_t xMACAdrInitialized = pdFALSE;
     uint8_t ret;
+    mac_addr_t mac_addr;
 
-    if (xInterfaceState == INTERFACE_UP) {
-	if (xMACAdrInitialized == pdFALSE) {
-	    mac_addr_t mac_addr;
-	    ret = wifi_get_device_mac_addr(&mac_addr);
-	    if (ret != WM_SUCCESS) {
+	ret = wifi_get_device_mac_addr(&mac_addr);
+	if (ret != WM_SUCCESS) {
 		net_d("Failed to get mac address");
-		return pdFALSE;
-	    }
-	    FreeRTOS_UpdateMACAddress(mac_addr.mac);
-	    xMACAdrInitialized = pdTRUE;
-	 }
-	 return pdTRUE;
-    }
-    return pdFALSE;
+	}
+
+	FreeRTOS_UpdateMACAddress(mac_addr.mac);
+
+    return ( xInterfaceState == INTERFACE_UP && ret == WM_SUCCESS ) ? pdTRUE : pdFALSE;
 }
 
 void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkBuffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ] )
