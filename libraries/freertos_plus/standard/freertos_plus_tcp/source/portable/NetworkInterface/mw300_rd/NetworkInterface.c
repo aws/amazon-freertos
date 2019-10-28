@@ -150,15 +150,15 @@ BaseType_t xNetworkInterfaceInitialise( void )
 {
     uint8_t ret;
     mac_addr_t mac_addr;
-    
+
 	ret = wifi_get_device_mac_addr(&mac_addr);
 	if (ret != WM_SUCCESS) {
 		net_d("Failed to get mac address");
-		return pdFALSE;
 	}
+
 	FreeRTOS_UpdateMACAddress(mac_addr.mac);
 
-    return pdFALSE;
+    return ( xInterfaceState == INTERFACE_UP && ret == WM_SUCCESS ) ? pdTRUE : pdFALSE;
 }
 
 void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkBuffers[ ipconfigNUM_NETWORK_BUFFER_DESCRIPTORS ] )
