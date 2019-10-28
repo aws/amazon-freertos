@@ -212,7 +212,7 @@ static bool _disconnectSerializerOverride = false;  /**< @brief Tracks if #_disc
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Establish an MQTT connection. Retry if retries are enabled.
+ * @brief Establish an MQTT connection. Retry if enabled.
  */
 static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
                                     const IotMqttConnectInfo_t * pConnectInfo,
@@ -221,19 +221,19 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
 
-    #if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1 )
+    #if defined( IOT_TEST_MQTT_CONNECT_RETRY_COUNT )
         int32_t retried = 0;
 
         /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
          * Wait until 1100 ms have elapsed since the last connection. */
         uint32_t periodMs = 1100;
-        int32_t retries = 3;
+        int32_t retries = IOT_TEST_MQTT_CONNECT_RETRY_COUNT;
 
         for( ; retried <= retries; retried++ )
         {
     #endif
     status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection );
-    #if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1 )
+    #if defined( IOT_TEST_MQTT_CONNECT_RETRY_COUNT )
         if( ( status == IOT_MQTT_NETWORK_ERROR ) || ( status == IOT_MQTT_TIMEOUT ) )
         {
             IotClock_SleepMs( periodMs );
@@ -245,7 +245,7 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
             break;
         }
 }
-    #endif /* if ( IOT_TEST_MQTT_CONNECT_RETRY_ENABLED == 1 ) */
+    #endif /* if defined( IOT_TEST_MQTT_CONNECT_RETRY_COUNT ) */
     return status;
 }
 
