@@ -148,22 +148,16 @@ void handle_data_packet(const t_u8 interface, const t_u8 *rcvdata,
 
 BaseType_t xNetworkInterfaceInitialise( void )
 {
-    static BaseType_t xMACAdrInitialized = pdFALSE;
     uint8_t ret;
-
-    if (xInterfaceState == INTERFACE_UP) {
-	if (xMACAdrInitialized == pdFALSE) {
-	    mac_addr_t mac_addr;
-	    ret = wifi_get_device_mac_addr(&mac_addr);
-	    if (ret != WM_SUCCESS) {
+    mac_addr_t mac_addr;
+    
+	ret = wifi_get_device_mac_addr(&mac_addr);
+	if (ret != WM_SUCCESS) {
 		net_d("Failed to get mac address");
 		return pdFALSE;
-	    }
-	    FreeRTOS_UpdateMACAddress(mac_addr.mac);
-	    xMACAdrInitialized = pdTRUE;
-	 }
-	 return pdTRUE;
-    }
+	}
+	FreeRTOS_UpdateMACAddress(mac_addr.mac);
+
     return pdFALSE;
 }
 
