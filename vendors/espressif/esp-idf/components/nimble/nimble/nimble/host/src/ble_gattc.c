@@ -485,7 +485,7 @@ ble_gattc_dbg_assert_proc_not_inserted(struct ble_gattc_proc *proc)
  *****************************************************************************/
 
 static void
-ble_gattc_log_proc_init(char *name)
+ble_gattc_log_proc_init(const char *name)
 {
     BLE_HS_LOG(INFO, "GATT procedure initiated: %s", name);
 }
@@ -587,7 +587,7 @@ ble_gattc_log_read_mult(const uint16_t *handles, uint8_t num_handles)
 static void
 ble_gattc_log_write(uint16_t att_handle, uint16_t len, int expecting_rsp)
 {
-    char *name;
+    const char *name;
 
     if (expecting_rsp) {
         name = "write; ";
