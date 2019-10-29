@@ -22,9 +22,12 @@
 - The purpose of the SoftHSMv2 port is to allow ad hoc interoperability testing with an independent implementation of the PKCS #11 standard.
 
 #### CMake Builds
-- CMake files are now available for Nordic nRF52840 DK Development kit
+- CMake build is now supported for Nordic nRF52840 DK Development kit.
 
 ### Updates
+#### FreeRTOS Kernel
+- FreeRTOS kernel is now a submodule from https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+
 #### HTTP Parser
 - Add nodejs/http_parser as a submodule in place of copied-over files.
 
