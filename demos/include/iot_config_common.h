@@ -35,10 +35,10 @@
 #include "platform/iot_platform_types_freertos.h"
 
 /* Used to get the cloud broker endpoint for FreeRTOS. */
-#include "aws_clientcredential.h"
+#include <aws_clientcredential.h>
 
 /* Used to get the certificate used by the device. */
-#include "aws_clientcredential_keys.h"
+#include <aws_clientcredential_keys.h>
 
 /* SDK version. */
 #define IOT_SDK_VERSION    "4.0.0"
