@@ -6,7 +6,7 @@ ecosystem keys and certificates.
 
 ## Dependencies
 
-Python scripts will require python 3 to be installed. Once python is installed
+1) Python scripts will require python 3 to be installed. Once python is installed
 install the requirements (from the path of this file):
 
 ```
@@ -14,25 +14,22 @@ install the requirements (from the path of this file):
 ```
 
 The application will have to built by loading the microchip_security_tool.sln
-project file and building either the x86 or x64 version of the application
+project file and building either the x86 or x64 version of the application.
+
+2) All commands starting with `aws iot` require that the AWS Command Line Interface (CLI) has been installed.  For more information about the AWS CLI and how to install it, please see
+https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html.
+
+3) Install OpenSSL.
 
 ## Set up a Certificate Ecosystem
 
-The first step is to set up a certificate chain that mirrors how a secure iot
-ecosystem would be configured. For this we'll create a dummy root certificate
-authority (normally this would be handled by a third party, or an internal
-PKI system) and an intermediate certificate authority that mirrors the signing
-hardware security modules (HSM) that are used in the Microchip facility during
-manufacturing of security devices.
-
-In this flow, you will create a Root CA, a Signing CA, and finally a device certificate
-in what is known as a "chain of trust".
+The first step is to setup a certificate chain of trust that resembles a production IoT ecosystem. For lab testing purposes, we'll create a self-signed root certificate authority and an intermediate certificate authority.
 
 Your Root CA will be self-signed at the top of your chain of trust.  
 
-Your Signing Certificate will be trusted by your Root CA, and will be used to issue your device certificate.
+Your Signing Certificate is an intermediate CA and will be issued by your Root CA.  It will be used to issue your device certificate.
 
-Your Device Certificate will be unique per device, and is trusted by your Signing Certificate.
+Your Device Certificate will be unique per device, and is issued by your Signing Certificate.
 
 ### Create the Root CA
 First, create your Root CA.  
@@ -43,13 +40,13 @@ First, create your Root CA.
 ### Create the Signing CA
 Next, create your Signing CA.  This CA will be registered with your AWS IoT account.  
 In order to prove your ownership of the Signing CA, obtain a registration code from AWS.
+This registration code will be used to generate a verification certificate (by placing the code into the issued certificate as its subject name).
 
 ```
 aws iot get-registration-code
 ```
 
-This code will be used to generate a verification certificate, 
-as well as a Signing CA certificate & keys.
+Run this script to generate the Signing CA certificate & keys, as well as the verification certificate.
 
 ```
 >python ca_create_signer.py <code_from_aws>
@@ -72,10 +69,7 @@ aws iot update-ca-certificate --certificate-id <ca-certificate-id> --new-status 
 ```
 where <ca-certificate-id> is the ID you got back when you registered your signing CA.
 
-Note that if you are using Just In Time Registration or Just In Time Provisioning, you will also need to enable auto-registration.
-```
-aws iot update-ca-certificate --certificate-id <ca-certifiate-id> --new-auto-registration-status ENABLE
-```
+You have now created your Signing CA, and registered it with your AWS account.
 
 ### Create the Device Certificate
 For each device that you want to register with AWS, you will need to generate
@@ -141,14 +135,6 @@ that you formatted step 5 as your public key.
 
 You now have a device certificate called device.crt.
 
-This step mirrors the production provisioning process where Microchip uses HSMs
-to sign each device produced and loads the certificate information into them.
-This performs the certificate creation and signing process but does not load the
-certificates into the device (provisioning).
-
-If lambda functions have been set up for Just In Time Registration this following
-step may be skipped, otherwise we have to load the device certificate into the
-aws certificatehub manually.
 
 ### Register with AWS IoT
 
@@ -168,7 +154,7 @@ aws iot update-certificate --certificate-id <device-certificate-id> --new-status
 ```
 
 3) Create a policy called "DemoPolicy" for your thing's certificate.
-Modify policy_template.json to restrict or expand the permissions of your device.
+Modify the policy_template.json file in this directory to restrict or expand the permissions of your device.
 ```
 aws iot create-policy --policy-name DemoPolicy --policy-document file://policy_template.json
 ```
@@ -192,7 +178,7 @@ id/device certificate id for your device certificate's ID.
 aws iot attach-thing-principal --thing-name 01234D2C14CBEAD5EE --principal arn:aws:iot:<region>:<account-id>:cert/<device-certificate-id>
 ```
 
-The certificate is now ready to be used by the aws_demos examples
+The certificate is now ready to be used by the aws_demos examples.
 
 ### Export the client_credential_keys.h file
 Next you will need to tell your device about the certificate you just created for it.
