@@ -1,17 +1,17 @@
 # -------------------------------------------------------------------------------------------------
 # 3rdparty libraries
 # -------------------------------------------------------------------------------------------------
-# http-parser - HTTP message parser
-if(EXISTS "${AFR_3RDPARTY_DIR}/http-parser")
-    afr_3rdparty_module(http-parser)
+# http_parser - HTTP message parser
+if(EXISTS "${AFR_3RDPARTY_DIR}/http_parser")
+    afr_3rdparty_module(http_parser)
     target_sources(
-        3rdparty::http-parser INTERFACE
-        "${AFR_3RDPARTY_DIR}/http-parser/http_parser.h"
-        "${AFR_3RDPARTY_DIR}/http-parser/http_parser.c"
+        3rdparty::http_parser INTERFACE
+        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.h"
+        "${AFR_3RDPARTY_DIR}/http_parser/http_parser.c"
     )
     target_include_directories(
-        3rdparty::http-parser INTERFACE
-        "${AFR_3RDPARTY_DIR}/http-parser"
+        3rdparty::http_parser INTERFACE
+        "${AFR_3RDPARTY_DIR}/http_parser"
     )
 endif()
 

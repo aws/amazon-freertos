@@ -852,7 +852,7 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
     {
         if( ( pcServiceData != NULL ) && ( usServiceDataLen != 0 ) )
         {
-            xAdvData->p_service_data_array = IotBle_Malloc( sizeof( ble_advdata_manuf_data_t ) );
+            xAdvData->p_service_data_array = IotBle_Malloc( sizeof( ble_advdata_service_data_t ) );
 
             if( xAdvData->p_service_data_array == NULL )
             {

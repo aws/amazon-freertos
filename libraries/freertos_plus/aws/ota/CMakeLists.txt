@@ -20,7 +20,7 @@ afr_module_sources(
         "${src_dir}/aws_ota_pal.h"
         "${src_dir}/aws_ota_agent_internal.h"
         "${src_dir}/aws_ota_cbor_internal.h"
-        "${inc_dir}/aws_ota_agent.h"
+        "${inc_dir}/aws_iot_ota_agent.h"
         "${inc_dir}/aws_ota_types.h"
 )
 

@@ -8,6 +8,7 @@
 
     <!-- Links to the library documentation. -->
     <tab type="user" title="MQTT" url="../mqtt/index.html"/>
+    <tab type="user" title="POSIX" url="../posix/index.html"/>	
     <tab type="user" title="Thing Shadows" url="../shadow/index.html"/>
     <tab type="usergroup" title="Common" url="">
       <tab type="user" title="Atomic" url="../atomic/index.html"/>

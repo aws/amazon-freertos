@@ -6,7 +6,7 @@ set(test_dir "${CMAKE_CURRENT_LIST_DIR}/test")
 
 # TODO, this is a workaround to remove iot_logging_task_dynamic_buffers.c from common, because
 # winsim use a different logging implementation.
-if(NOT AFR_BOARD STREQUAL "pc.windows")
+if(NOT AFR_BOARD MATCHES "pc.windows|microchip.ecc608a_plus_winsim")
     set(aws_logging_task "${src_dir}/logging/iot_logging_task_dynamic_buffers.c")
 endif()
 

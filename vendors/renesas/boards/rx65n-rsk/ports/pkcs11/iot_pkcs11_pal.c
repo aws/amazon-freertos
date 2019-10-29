@@ -114,6 +114,8 @@ typedef struct _pkcs_data
 #error "iot_pkcs11_pal.c does not support your MCU"
 #endif
 
+#define PKCS11_PAL_DEBUG_PRINT( X )      /* configPRINTF( X ) */
+
 typedef struct _pkcs_storage_control_block_sub
 {
     uint8_t local_storage[((FLASH_DF_BLOCK_SIZE * FLASH_NUM_BLOCKS_DF) / 4) - (sizeof(PKCS_DATA) * PKCS_OBJECT_HANDLES_NUM) - PKCS_SHA256_LENGTH]; /* RX65N case: 8KB */
@@ -450,13 +452,13 @@ static void update_dataflash_data_from_image(void)
         required_dataflash_block_num++;
     }
 
-    configPRINTF(("erase dataflash(main)...\r\n"));
+    PKCS11_PAL_DEBUG_PRINT(("erase dataflash(main)...\r\n"));
     R_BSP_InterruptsDisable();
     flash_error_code = R_FLASH_Erase((flash_block_address_t)&pkcs_control_block_data, required_dataflash_block_num);
     R_BSP_InterruptsEnable();
     if(FLASH_SUCCESS == flash_error_code)
     {
-        configPRINTF(("OK\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
     }
     else
     {
@@ -464,13 +466,13 @@ static void update_dataflash_data_from_image(void)
         configPRINTF(("R_FLASH_Erase() returns error code = %d.\r\n", flash_error_code));
     }
 
-    configPRINTF(("write dataflash(main)...\r\n"));
+    PKCS11_PAL_DEBUG_PRINT(("write dataflash(main)...\r\n"));
     R_BSP_InterruptsDisable();
     flash_error_code = R_FLASH_Write((flash_block_address_t)&pkcs_control_block_data_image, (flash_block_address_t)&pkcs_control_block_data, FLASH_DF_BLOCK_SIZE * required_dataflash_block_num);
     R_BSP_InterruptsEnable();
     if(FLASH_SUCCESS == flash_error_code)
     {
-        configPRINTF(("OK\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
     }
     else
     {
@@ -492,13 +494,13 @@ static void update_dataflash_data_mirror_from_image(void)
         required_dataflash_block_num++;
     }
 
-    configPRINTF(("erase dataflash(mirror)...\r\n"));
+    PKCS11_PAL_DEBUG_PRINT(("erase dataflash(mirror)...\r\n"));
     R_BSP_InterruptsDisable();
     flash_error_code = R_FLASH_Erase((flash_block_address_t)&pkcs_control_block_data_mirror, required_dataflash_block_num);
     R_BSP_InterruptsEnable();
     if(FLASH_SUCCESS == flash_error_code)
     {
-        configPRINTF(("OK\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
     }
     else
     {
@@ -507,13 +509,13 @@ static void update_dataflash_data_mirror_from_image(void)
         return;
     }
 
-    configPRINTF(("write dataflash(mirror)...\r\n"));
+    PKCS11_PAL_DEBUG_PRINT(("write dataflash(mirror)...\r\n"));
     R_BSP_InterruptsDisable();
     flash_error_code = R_FLASH_Write((flash_block_address_t)&pkcs_control_block_data_image, (flash_block_address_t)&pkcs_control_block_data_mirror, FLASH_DF_BLOCK_SIZE * required_dataflash_block_num);
     R_BSP_InterruptsEnable();
     if(FLASH_SUCCESS == flash_error_code)
     {
-        configPRINTF(("OK\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
     }
     else
     {
@@ -542,27 +544,27 @@ static void check_dataflash_area(uint32_t retry_counter)
 
     if(retry_counter)
     {
-        configPRINTF(("recover retry count = %d.\r\n", retry_counter));
+        PKCS11_PAL_DEBUG_PRINT(("recover retry count = %d.\r\n", retry_counter));
         if(retry_counter == MAX_CHECK_DATAFLASH_AREA_RETRY_COUNT)
         {
             configPRINTF(("retry over the limit.\r\n"));
             while(1);
         }
     }
-    configPRINTF(("data flash(main) hash check...\r\n"));
+    PKCS11_PAL_DEBUG_PRINT(("data flash(main) hash check...\r\n"));
     mbedtls_sha256_starts_ret(&ctx, 0); /* 0 means SHA256 context */
     mbedtls_sha256_update_ret(&ctx, (unsigned char *)&pkcs_control_block_data.data, sizeof(pkcs_control_block_data.data));
     mbedtls_sha256_finish_ret(&ctx, hash_sha256);
     if(!memcmp(pkcs_control_block_data.hash_sha256, hash_sha256, sizeof(hash_sha256)))
     {
-        configPRINTF(("OK\r\n"));
-        configPRINTF(("data flash(mirror) hash check...\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("data flash(mirror) hash check...\r\n"));
         mbedtls_sha256_starts_ret(&ctx, 0); /* 0 means SHA256 context */
         mbedtls_sha256_update_ret(&ctx, (unsigned char *)&pkcs_control_block_data_mirror.data, sizeof(pkcs_control_block_data_mirror.data));
         mbedtls_sha256_finish_ret(&ctx, hash_sha256);
         if(!memcmp(pkcs_control_block_data_mirror.hash_sha256, hash_sha256, sizeof(hash_sha256)))
         {
-            configPRINTF(("OK\r\n"));
+            PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
         }
         else
         {
@@ -575,15 +577,15 @@ static void check_dataflash_area(uint32_t retry_counter)
     }
     else
     {
-        configPRINTF(("NG\r\n"));
-        configPRINTF(("data flash(mirror) hash check...\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("NG\r\n"));
+        PKCS11_PAL_DEBUG_PRINT(("data flash(mirror) hash check...\r\n"));
         mbedtls_sha256_starts_ret(&ctx, 0); /* 0 means SHA256 context */
         mbedtls_sha256_update_ret(&ctx, (unsigned char *)&pkcs_control_block_data_mirror.data, sizeof(pkcs_control_block_data_mirror.data));
         mbedtls_sha256_finish_ret(&ctx, hash_sha256);
         if(!memcmp(pkcs_control_block_data_mirror.hash_sha256, hash_sha256, sizeof(hash_sha256)))
         {
-            configPRINTF(("OK\r\n"));
-            configPRINTF(("recover main from mirror.\r\n"));
+            PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
+            PKCS11_PAL_DEBUG_PRINT(("recover main from mirror.\r\n"));
             memcpy(&pkcs_control_block_data_image, (void *)&pkcs_control_block_data_mirror, sizeof(pkcs_control_block_data_mirror));
             update_dataflash_data_from_image();
             check_dataflash_area(retry_counter + 1);

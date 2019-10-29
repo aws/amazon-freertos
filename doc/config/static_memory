@@ -10,7 +10,7 @@ PROJECT_BRIEF = "Statically-allocated buffer pools"
 HTML_OUTPUT = static_memory
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/static_memory.tag
+GENERATE_TAGFILE = doc/output/static_memory.tag
 
 # Directories containing library source code.
 INPUT = doc/lib \
@@ -22,6 +22,6 @@ INPUT = doc/lib \
 FILE_PATTERNS = *static_memory*.h *static_memory*.c *static_memory*.txt
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
-           doc/tag/mqtt.tag=../mqtt \
-           doc/tag/shadow.tag=../shadow
+TAGFILES = doc/output/main.tag=../main \
+           doc/output/mqtt.tag=../mqtt \
+           doc/output/shadow.tag=../shadow

@@ -9,7 +9,7 @@ PROJECT_NAME = "Wi-Fi Management Library"
 HTML_OUTPUT = wifi
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/wifi.tag
+GENERATE_TAGFILE = doc/output/wifi.tag
 
 # Directories containing library source code.
 INPUT = libraries/abstractions/wifi/include/iot_wifi.h \
@@ -21,4 +21,4 @@ FILE_PATTERNS = *wifi*.h *wifi*.c *wifi*.txt
 EXAMPLE_PATH = libraries/abstractions/wifi/include/iot_wifi.h
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
+TAGFILES = doc/output/main.tag=../main \

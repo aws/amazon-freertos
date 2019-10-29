@@ -2,10 +2,10 @@
 # Amazon FreeRTOS Console metadata
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkitc")
-    include("esp32_devkitc.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/esp32_devkitc.cmake")
 endif()
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_wrover_kit")
-    include("esp32_wrover_kit.cmake")
+    include("${CMAKE_CURRENT_LIST_DIR}/esp32_wrover_kit.cmake")
 endif()
 
 # -------------------------------------------------------------------------------------------------
@@ -94,23 +94,46 @@ afr_mcu_port(ble_hal)
 afr_glob_src( bluedroid_src DIRECTORY ${afr_ports_dir}/ble/bluedroid  RECURSE )
 set_source_files_properties( ${bluedroid_src} PROPERTIES HEADER_FILE_ONLY TRUE )
 
-# TODO: Include Nimble HAL files as header files.
+# Include Nimble HAL files as header files.
+afr_glob_src( nimble_src DIRECTORY ${afr_ports_dir}/ble/nimble  RECURSE )
+set_source_files_properties( ${nimble_src} PROPERTIES HEADER_FILE_ONLY TRUE )
 
 target_sources(
     AFR::ble_hal::mcu_port
     INTERFACE
         "${afr_ports_dir}/ble/iot_ble_hal_common_gap.c"
         "${afr_ports_dir}/ble/iot_ble_hal_gap.c"
-        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"     
+        "${afr_ports_dir}/ble/iot_ble_hal_gatt_server.c"
         ${bluedroid_src}
+        ${nimble_src}
 )
+
 target_include_directories(
     AFR::ble_hal::mcu_port
     INTERFACE
         "${esp_idf_dir}/components/bt/bluedroid/api/include/api"
         "${esp_idf_dir}/components/bt/include"
+        "${esp_idf_dir}/components/nimble/nimble/porting/nimble/include"
+        "${esp_idf_dir}/components/nimble/port/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/ans/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/bas/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/gap/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/gatt/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/ias/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/lls/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/services/tps/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/util/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/store/ram/include"
+        "${esp_idf_dir}/components/nimble/nimble/nimble/host/store/config/include"
+        "${esp_idf_dir}/components/nimble/nimble/porting/npl/freertos/include"
+        "${esp_idf_dir}/components/nimble/nimble/ext/tinycrypt/include"
+        "${esp_idf_dir}/components/nimble/esp-hci/include"
+
         "${afr_ports_dir}/ble"
         "${afr_ports_dir}/ble/bluedroid"
+        "${afr_ports_dir}/ble/nimble"
 )
 
 # PKCS11
@@ -169,33 +192,31 @@ afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 if(AFR_IS_TESTING)
     set(exe_target aws_tests)
-    set(extra_exe_sources "${AFR_TESTS_DIR}/common/iot_tests_network.c")
 else()
     set(exe_target aws_demos)
-    set(
-        extra_exe_sources
-        "${AFR_DEMOS_DIR}/wifi_provisioning/aws_wifi_connect_task.c"
-    )
 endif()
 
-add_executable(
-    ${exe_target}
-    "${board_dir}/application_code/main.c"
-    ${extra_exe_sources}
-)
-target_include_directories(
-    ${exe_target}
-    PUBLIC
-        $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
-        $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
-)
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-        AFR::ble
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        "${board_dir}/application_code/main.c"
+        ${extra_exe_sources}
+    )
+    target_include_directories(
+        ${exe_target}
+        PUBLIC
+            $<TARGET_PROPERTY:AFR::kernel,INTERFACE_INCLUDE_DIRECTORIES>
+            $<TARGET_PROPERTY:AFR::ble_hal::mcu_port,INTERFACE_INCLUDE_DIRECTORIES>
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+            AFR::ble
+    )
+endif()
 
 if(AFR_METADATA_MODE)
     return()

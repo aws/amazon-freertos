@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201908.00
+ * Amazon FreeRTOS V201910.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -36,9 +36,10 @@
  * should not be used in production code.
  */
 
-
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
+
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
 
 typedef struct ProvisioningParams_t
@@ -60,17 +61,19 @@ typedef struct ProvisioningParams_t
                                          *   for help with formatting.
                                          *   - See https://aws.amazon.com/blogs/iot/setting-up-just-in-time-provisioning-with-aws-iot-core/
                                          *   for more information about getting started with JITP */
-    uint32_t ulJITPCertifiateLength;    /**< Length of the Just-In-Time Provisioning (JITP) certificate in bytes.
+    uint32_t ulJITPCertificateLength;   /**< Length of the Just-In-Time Provisioning (JITP) certificate in bytes.
                                          *   If JITP is not being used, this value should be set to 0. */
 } ProvisioningParams_t;
-
 
 /** \brief Provisions device with default credentials.
  *
  * Imports the certificate and private key located in
  * aws_clientcredential_keys.h to device NVM.
+ *
+ * \return CKR_OK upon successful credential setup.
+ * Otherwise, a positive PKCS #11 error code.
  */
-void vDevModeKeyProvisioning( void );
+CK_RV vDevModeKeyProvisioning( void );
 
 /** \brief Provisiong a device given a valid PKCS #11 session.
  *
@@ -78,7 +81,7 @@ void vDevModeKeyProvisioning( void );
  * \param[in] pxParams       Pointer to an initialized provisioning
  *                           structure.
  *
- * \return CKR_OK upon successful key creation.
+ * \return CKR_OK upon successful credential setup.
  * Otherwise, a positive PKCS #11 error code.
  */
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
@@ -88,9 +91,11 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
  *
  * \param[in] xParams       Provisioning parameters for credentials
  *                          to be provisioned.
+ *
+ * \return CKR_OK upon successful credential setup.
+ * Otherwise, a positive PKCS #11 error code.
  */
-void vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
-
+CK_RV vAlternateKeyProvisioning( ProvisioningParams_t * xParams );
 
 /** \brief Provisions a private key using PKCS #11 library.
  *
@@ -217,7 +222,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
  *   \return CKR_OK if all credentials were destroyed.
  *   Otherwise, a positive PKCS #11 error code.
  */
-CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession );
+CK_RV xDestroyDefaultCryptoObjects( CK_SESSION_HANDLE xSession );
 
 /**
  * \brief Destroys specified credentials in PKCS #11 module.

@@ -1,3 +1,28 @@
+#
+# Amazon FreeRTOS BLE HAL V2.0.0
+# Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of
+# this software and associated documentation files (the "Software"), to deal in
+# the Software without restriction, including without limitation the rights to
+# use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+# the Software, and to permit persons to whom the Software is furnished to do so,
+# subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+# FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+# IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#
+# http://aws.amazon.com/freertos
+# http://www.FreeRTOS.org
+#
+
 import dbus
 import os, sys
 import testutils
@@ -140,8 +165,9 @@ class bleAdapter:
         obj = bus.get_object(testutils.SERVICE_NAME, path)
         if bleAdapter.notificationCb != None:
             uuid = bleAdapter.getPropertie(obj, "UUID", interface=testutils.CHARACTERISTIC_INTERFACE)
+            flag = bleAdapter.getPropertie(obj, "Flags", interface=testutils.CHARACTERISTIC_INTERFACE)[0]
             value = testutils.convert_dbus_array_to_string(bleAdapter.getPropertie(obj, "Value", interface=testutils.CHARACTERISTIC_INTERFACE))
-            bleAdapter.notificationCb.im_func(uuid, value)
+            bleAdapter.notificationCb.im_func(uuid, value, flag)
 
     @staticmethod
     def interfaces_added(path, interfaces):
@@ -216,7 +242,7 @@ class bleAdapter:
         return (isSuccessfull, value)
 
     @staticmethod
-    def writeCharacteristic(uuid, value, response = True, prepareWrite=False):
+    def writeCharacteristic(uuid, value, response = True, offset = 0, prepareWrite=False, reliableWrite = False):
         objInterface  =  dbus.Interface(bleAdapter.gatt.characteristics[uuid]["obj"], dbus_interface=testutils.CHARACTERISTIC_INTERFACE)
         return bleAdapter._writeAttribute(objInterface, uuid, value, prepareWrite = prepareWrite)
 

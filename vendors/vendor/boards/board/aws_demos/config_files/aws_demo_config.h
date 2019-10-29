@@ -41,6 +41,8 @@
  *          CONFIG_BLE_NUMERIC_COMPARISON_DEMO_ENABLED
  *          CONFIG_HTTPS_SYNC_DOWNLOAD_DEMO_ENABLED
  *          CONFIG_HTTPS_ASYNC_DOWNLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_SYNC_UPLOAD_DEMO_ENABLED
+ *          CONFIG_HTTPS_ASYNC_UPLOAD_DEMO_ENABLED
  *
  *  These defines are used in iot_demo_runner.h for demo selection */
 

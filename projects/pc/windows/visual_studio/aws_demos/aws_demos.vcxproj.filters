@@ -56,6 +56,7 @@
 		<Filter Include="vendors"/>
 		<Filter Include="libraries\abstractions\pkcs11\mbedtls"/>
 		<Filter Include="libraries\abstractions\pkcs11"/>
+		<Filter Include="libraries\abstractions\pkcs11\include"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\src"/>
 		<Filter Include="libraries\freertos_plus\standard\utils"/>
 		<Filter Include="libraries\freertos_plus\standard\utils\include"/>
@@ -105,22 +106,27 @@
 		<Filter Include="demos\ota"/>
 		<Filter Include="demos\shadow"/>
 		<Filter Include="demos\tcp"/>
-		<Filter Include="vendors\pc\boards\windows\aws_demos\application_code"/>
-		<Filter Include="vendors\pc\boards\windows\aws_demos"/>
+		<Filter Include="application_code"/>
 		<Filter Include="libraries\3rdparty\tracealyzer_recorder"/>
 		<Filter Include="libraries\3rdparty\mbedtls\utils"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include\mbedtls"/>
 		<Filter Include="libraries\3rdparty\mbedtls\include"/>
 		<Filter Include="libraries\3rdparty\pkcs11"/>
 		<Filter Include="libraries\3rdparty\tinycbor"/>
-		<Filter Include="libraries\3rdparty\http-parser"/>
+		<Filter Include="libraries\3rdparty\http_parser"/>
 		<Filter Include="libraries\3rdparty\jsmn"/>
 	</ItemGroup>
 	<ItemGroup>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\FreeRTOS.h">
 			<Filter>freertos_kernel\include</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\StackMacros.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\atomic.h">
+			<Filter>freertos_kernel\include</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\croutine.h">
 			<Filter>freertos_kernel\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\freertos_kernel\include\deprecated_definitions.h">
@@ -315,6 +321,9 @@
 		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\mbedtls\threading_alt.h">
 			<Filter>libraries\abstractions\pkcs11\mbedtls</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\..\..\libraries\abstractions\pkcs11\include\iot_pkcs11_pal.h">
+			<Filter>libraries\abstractions\pkcs11\include</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\standard\utils\include\iot_system_init.h">
 			<Filter>libraries\freertos_plus\standard\utils\include</Filter>
 		</ClInclude>
@@ -366,7 +375,7 @@
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\src\aws_ota_cbor_internal.h">
 			<Filter>libraries\freertos_plus\aws\ota\src</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_agent.h">
+		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_iot_ota_agent.h">
 			<Filter>libraries\freertos_plus\aws\ota\include</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\freertos_plus\aws\ota\include\aws_ota_types.h">
@@ -424,7 +433,7 @@
 			<Filter>demos\tcp</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.h">
-			<Filter>vendors\pc\boards\windows\aws_demos\application_code</Filter>
+			<Filter>application_code</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\mbedtls\include\mbedtls\aes.h">
 			<Filter>libraries\3rdparty\mbedtls\include\mbedtls</Filter>
@@ -648,8 +657,8 @@
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\pkcs11\pkcs11t.h">
 			<Filter>libraries\3rdparty\pkcs11</Filter>
 		</ClInclude>
-		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.h">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.h">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.h">
 			<Filter>libraries\3rdparty\jsmn</Filter>
@@ -932,6 +941,12 @@
 		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_download_async.c">
 			<Filter>demos\https</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_sync.c">
+			<Filter>demos\https</Filter>
+		</ClCompile>
+		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_s3_upload_async.c">
+			<Filter>demos\https</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\demos\https\iot_demo_https_common.c">
 			<Filter>demos\https</Filter>
 		</ClCompile>
@@ -948,16 +963,16 @@
 			<Filter>demos\tcp</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\main.c">
-			<Filter>vendors\pc\boards\windows\aws_demos\application_code</Filter>
+			<Filter>application_code</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_demo_logging.c">
-			<Filter>vendors\pc\boards\windows\aws_demos\application_code</Filter>
+			<Filter>application_code</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_entropy_hardware_poll.c">
-			<Filter>vendors\pc\boards\windows\aws_demos\application_code</Filter>
+			<Filter>application_code</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\vendors\pc\boards\windows\aws_demos\application_code\aws_run-time-stats-utils.c">
-			<Filter>vendors\pc\boards\windows\aws_demos\application_code</Filter>
+			<Filter>application_code</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tracealyzer_recorder\trcKernelPort.c">
 			<Filter>libraries\3rdparty\tracealyzer_recorder</Filter>
@@ -1199,8 +1214,8 @@
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\tinycbor\cborparser_dup_string.c">
 			<Filter>libraries\3rdparty\tinycbor</Filter>
 		</ClCompile>
-		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http-parser\http_parser.c">
-			<Filter>libraries\3rdparty\http-parser</Filter>
+		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\http_parser\http_parser.c">
+			<Filter>libraries\3rdparty\http_parser</Filter>
 		</ClCompile>
 		<ClCompile Include="..\..\..\..\..\libraries\3rdparty\jsmn\jsmn.c">
 			<Filter>libraries\3rdparty\jsmn</Filter>

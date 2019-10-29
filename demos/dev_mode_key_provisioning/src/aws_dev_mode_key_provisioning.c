@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201908.00
+ * Amazon FreeRTOS V201910.00
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -26,10 +26,10 @@
 
 /**
  * @file aws_dev_mode_key_provisioning.c
- * @brief Simple key provisioning example using pkcs#11
+ * @brief Simple key provisioning example using PKCS #11
  *
  * A simple example to demonstrate key and certificate provisioning in
- * flash using PKCS#11 interface. This should be replaced
+ * flash using PKCS #11 interface. This should be replaced
  * by production ready key provisioning mechanism.
  */
 
@@ -43,8 +43,8 @@
 #include "semphr.h"
 
 /* PKCS#11 includes. */
-#include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
+#include "iot_pkcs11.h"
 
 /* Client credential includes. */
 #include "aws_clientcredential.h"
@@ -61,16 +61,68 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/oid.h"
 
+/* Default Amazon FreeRTOS API for console logging. */
 #define DEV_MODE_KEY_PROVISIONING_PRINT( X )    vLoggingPrintf X
+
+/* For writing log lines without a prefix. */
+extern void vLoggingPrint( const char * pcFormat );
+
+/* Developer convenience override, for lab testing purposes, for generating
+ * a new default key pair, regardless of whether an existing key pair is present. */
+#define keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR    0
+
+/* Internal structure for parsing RSA keys. */
+
+/* Length parameters for importing RSA-2048 private keys. */
+#define MODULUS_LENGTH        pkcs11RSA_2048_MODULUS_BITS / 8
+#define E_LENGTH              3
+#define D_LENGTH              pkcs11RSA_2048_MODULUS_BITS / 8
+#define PRIME_1_LENGTH        128
+#define PRIME_2_LENGTH        128
+#define EXPONENT_1_LENGTH     128
+#define EXPONENT_2_LENGTH     128
+#define COEFFICIENT_LENGTH    128
+
+/* Adding one to all of the lengths because ASN1 may pad a leading 0 byte
+ * to numbers that could be interpreted as negative */
+typedef struct RsaParams_t
+{
+    CK_BYTE modulus[ MODULUS_LENGTH + 1 ];
+    CK_BYTE e[ E_LENGTH + 1 ];
+    CK_BYTE d[ D_LENGTH + 1 ];
+    CK_BYTE prime1[ PRIME_1_LENGTH + 1 ];
+    CK_BYTE prime2[ PRIME_2_LENGTH + 1 ];
+    CK_BYTE exponent1[ EXPONENT_1_LENGTH + 1 ];
+    CK_BYTE exponent2[ EXPONENT_2_LENGTH + 1 ];
+    CK_BYTE coefficient[ COEFFICIENT_LENGTH + 1 ];
+} RsaParams_t;
+
+/* Internal structure for capturing the privisioned state of the host device. */
+typedef struct ProvisionedState_t
+{
+    CK_OBJECT_HANDLE xPrivateKey;
+    CK_OBJECT_HANDLE xClientCertificate;
+    CK_OBJECT_HANDLE xPublicKey;
+    uint8_t * pucDerPublicKey;
+    uint32_t ulDerPublicKeyLength;
+    char * pcIdentifier; /* The token label. On some devices, a unique device
+                          * ID might be stored here which can be used as a field
+                          * in the subject of the device certificate. */
+} ProvisionedState_t;
+
+/* This function can be found in libraries/3rdparty/mbedtls/utils/mbedtls_utils.c. */
+extern int convert_pem_to_der( const unsigned char * pucInput,
+                               size_t xLen,
+                               unsigned char * pucOutput,
+                               size_t * pxOlen );
 
 /*-----------------------------------------------------------*/
 
-CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
-                                uint8_t * pucPrivateKey,
-                                size_t xPrivateKeyLength,
-                                uint8_t * pucLabel,
-                                CK_OBJECT_HANDLE_PTR pxObjectHandle,
-                                mbedtls_pk_context * pxMbedPkContext )
+/* Import the specified ECDSA private key into storage. */
+static CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
+                                       uint8_t * pucLabel,
+                                       CK_OBJECT_HANDLE_PTR pxObjectHandle,
+                                       mbedtls_pk_context * pxMbedPkContext )
 {
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
@@ -79,7 +131,6 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     int lMbedResult = 0;
     CK_BBOOL xTrue = CK_TRUE;
     CK_KEY_TYPE xPrivateKeyType = CKK_EC;
-
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
 
     xResult = C_GetFunctionList( &pxFunctionList );
@@ -136,43 +187,17 @@ CK_RV prvProvisionPrivateECKey( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
 
-
-/* Length parameters for importing RSA-2048 private keys. */
-#define MODULUS_LENGTH        pkcs11RSA_2048_MODULUS_BITS / 8
-#define E_LENGTH              3
-#define D_LENGTH              pkcs11RSA_2048_MODULUS_BITS / 8
-#define PRIME_1_LENGTH        128
-#define PRIME_2_LENGTH        128
-#define EXPONENT_1_LENGTH     128
-#define EXPONENT_2_LENGTH     128
-#define COEFFICIENT_LENGTH    128
-
-/* Adding one to all of the lengths because ASN1 may pad a leading 0 byte
- * to numbers that could be interpreted as negative */
-typedef struct RsaParams_t
-{
-    CK_BYTE modulus[ MODULUS_LENGTH + 1 ];
-    CK_BYTE e[ E_LENGTH + 1 ];
-    CK_BYTE d[ D_LENGTH + 1 ];
-    CK_BYTE prime1[ PRIME_1_LENGTH + 1 ];
-    CK_BYTE prime2[ PRIME_2_LENGTH + 1 ];
-    CK_BYTE exponent1[ EXPONENT_1_LENGTH + 1 ];
-    CK_BYTE exponent2[ EXPONENT_2_LENGTH + 1 ];
-    CK_BYTE coefficient[ COEFFICIENT_LENGTH + 1 ];
-} RsaParams_t;
-
-CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
-                                 uint8_t * pucPrivateKey,
-                                 size_t xPrivateKeyLength,
-                                 uint8_t * pucLabel,
-                                 CK_OBJECT_HANDLE_PTR pxObjectHandle,
-                                 mbedtls_pk_context * pxMbedPkContext )
+/* Import the specified RSA private key into storage. */
+static CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
+                                        uint8_t * pucLabel,
+                                        CK_OBJECT_HANDLE_PTR pxObjectHandle,
+                                        mbedtls_pk_context * pxMbedPkContext )
 {
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     int lMbedResult = 0;
-    CK_BBOOL xTokenStorage = CK_TRUE;
     CK_KEY_TYPE xPrivateKeyType = CKK_RSA;
     mbedtls_rsa_context * xRsaContext = pxMbedPkContext->pk_ctx;
     CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
@@ -254,6 +279,9 @@ CK_RV prvProvisionPrivateRSAKey( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Import the specified private key into storage. */
 CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             uint8_t * pucPrivateKey,
                             size_t xPrivateKeyLength,
@@ -261,13 +289,9 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
                             CK_OBJECT_HANDLE_PTR pxObjectHandle )
 {
     CK_RV xResult = CKR_OK;
-    CK_OBJECT_CLASS xPrivateKeyClass = CKO_PRIVATE_KEY;
-    CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
     mbedtls_pk_type_t xMbedKeyType = MBEDTLS_PK_NONE;
-    CK_KEY_TYPE xPrivateKeyType = ( CK_KEY_TYPE ) 0xFFFFFFFF; /* Invalid key type value. */
     int lMbedResult = 0;
     mbedtls_pk_context xMbedPkContext = { 0 };
-    CK_BBOOL xTokenStorage = CK_TRUE;
 
     mbedtls_pk_init( &xMbedPkContext );
     lMbedResult = mbedtls_pk_parse_key( &xMbedPkContext, pucPrivateKey, xPrivateKeyLength, NULL, 0 );
@@ -286,8 +310,6 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         if( xMbedKeyType == MBEDTLS_PK_RSA )
         {
             xResult = prvProvisionPrivateRSAKey( xSession,
-                                                 pucPrivateKey,
-                                                 xPrivateKeyLength,
                                                  pucLabel,
                                                  pxObjectHandle,
                                                  &xMbedPkContext );
@@ -295,8 +317,6 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
         else if( ( xMbedKeyType == MBEDTLS_PK_ECDSA ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY ) || ( xMbedKeyType == MBEDTLS_PK_ECKEY_DH ) )
         {
             xResult = prvProvisionPrivateECKey( xSession,
-                                                pucPrivateKey,
-                                                xPrivateKeyLength,
                                                 pucLabel,
                                                 pxObjectHandle,
                                                 &xMbedPkContext );
@@ -313,6 +333,9 @@ CK_RV xProvisionPrivateKey( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Import the specified public key into storage. */
 CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
                            uint8_t * pucKey,
                            size_t xKeyLength,
@@ -380,13 +403,15 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
         size_t xLength;
         CK_BYTE xEcPoint[ 256 ] = { 0 };
 
-        mbedtls_ecdsa_context * pxEcdsaContext;
-        pxEcdsaContext = ( mbedtls_ecdsa_context * ) xMbedPkContext.pk_ctx;
+        mbedtls_ecdsa_context * pxEcdsaContext = ( mbedtls_ecdsa_context * ) xMbedPkContext.pk_ctx;
 
         /* DER encoded EC point. Leave 2 bytes for the tag and length. */
-        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp, &pxEcdsaContext->Q,
-                                                      MBEDTLS_ECP_PF_UNCOMPRESSED, &xLength,
-                                                      xEcPoint + 2, sizeof( xEcPoint ) - 2 );
+        lMbedResult = mbedtls_ecp_point_write_binary( &pxEcdsaContext->grp,
+                                                      &pxEcdsaContext->Q,
+                                                      MBEDTLS_ECP_PF_UNCOMPRESSED,
+                                                      &xLength,
+                                                      xEcPoint + 2,
+                                                      sizeof( xEcPoint ) - 2 );
         xEcPoint[ 0 ] = 0x04; /* Octet string. */
         xEcPoint[ 1 ] = ( CK_BYTE ) xLength;
 
@@ -417,10 +442,10 @@ CK_RV xProvisionPublicKey( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-
 /*-----------------------------------------------------------*/
 
-/* NOTE: C_GenerateKeyPair for RSA keys is not supported by the Amazon FreeRTOS mbedTLS PKCS #11 port. */
+/* Generate a new 2048-bit RSA key pair. Please note that C_GenerateKeyPair for
+ * RSA keys is not supported by the Amazon FreeRTOS mbedTLS PKCS #11 port. */
 CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
                                     uint8_t * pucPrivateKeyLabel,
                                     uint8_t * pucPublicKeyLabel,
@@ -470,6 +495,7 @@ CK_RV xProvisionGenerateKeyPairRSA( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
+/* Generate a new ECDSA key pair using curve P256. */
 CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
                                    uint8_t * pucPrivateKeyLabel,
                                    uint8_t * pucPublicKeyLabel,
@@ -518,13 +544,7 @@ CK_RV xProvisionGenerateKeyPairEC( CK_SESSION_HANDLE xSession,
 
 /*-----------------------------------------------------------*/
 
-/* This function can be found in libraries/3rdparty/mbedtls/utils/mbedtls_utils.c. */
-extern int convert_pem_to_der( const unsigned char * pucInput,
-                               size_t xLen,
-                               unsigned char * pucOutput,
-                               size_t * pxOlen );
-
-
+/* Import the specified X.509 client certificate into storage. */
 CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
                              uint8_t * pucCertificate,
                              size_t xCertificateLength,
@@ -546,7 +566,6 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
      * this should be updated so that subject matches proper
      * format for future ports. */
     CK_BYTE xSubject[] = "TestSubject";
-
 
     /* Initialize the client certificate template. */
     xCertificateTemplate.xObjectClass.type = CKA_CLASS;
@@ -608,6 +627,15 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
         xCertificateTemplate.xValue.ulValueLen = xDerLen;
     }
 
+    /* Best effort clean-up of the existing object, if it exists. */
+    if( xResult == CKR_OK )
+    {
+        xDestroyProvidedObjects( xSession,
+                                 &pucLabel,
+                                 &xCertificateClass,
+                                 1 );
+    }
+
     /* Create an object using the encoded client certificate. */
     if( xResult == CKR_OK )
     {
@@ -627,6 +655,9 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
+/*-----------------------------------------------------------*/
+
+/* Delete the specified crypto object from storage. */
 CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
                                CK_BYTE_PTR * ppxPkcsLabels,
                                CK_OBJECT_CLASS * xClass,
@@ -679,7 +710,10 @@ CK_RV xDestroyProvidedObjects( CK_SESSION_HANDLE xSession,
     return xResult;
 }
 
-CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
+/*-----------------------------------------------------------*/
+
+/* Delete well-known crypto objects from storage. */
+CK_RV xDestroyDefaultCryptoObjects( CK_SESSION_HANDLE xSession )
 {
     CK_RV xResult;
     CK_BYTE * pxPkcsLabels[] =
@@ -707,31 +741,303 @@ CK_RV xDestroyCredentials( CK_SESSION_HANDLE xSession )
 
 /*-----------------------------------------------------------*/
 
+static CK_RV prvExportPublicKey( CK_SESSION_HANDLE xSession,
+                                 CK_OBJECT_HANDLE xPublicKeyHandle,
+                                 uint8_t ** ppucDerPublicKey,
+                                 uint32_t * pulDerPublicKeyLength )
+{
+    CK_RV xResult;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_KEY_TYPE xKeyType = 0;
+    CK_ATTRIBUTE xTemplate = { 0 };
+    uint8_t pucEcP256AsnAndOid[] =
+    {
+        0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86,
+        0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a,
+        0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03,
+        0x42, 0x00
+    };
+    uint8_t pucUnusedKeyTag[] = { 0x04, 0x41 };
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    /* Query the key type. */
+    if( CKR_OK == xResult )
+    {
+        xTemplate.type = CKA_KEY_TYPE;
+        xTemplate.pValue = &xKeyType;
+        xTemplate.ulValueLen = sizeof( xKeyType );
+        xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                       xPublicKeyHandle,
+                                                       &xTemplate,
+                                                       1 );
+    }
+
+    /* Scope to ECDSA keys only, since there's currently no use case for
+     * onboard keygen and certificate enrollment for RSA. */
+    if( ( CKR_OK == xResult ) && ( CKK_ECDSA == xKeyType ) )
+    {
+        /* Query the size of the public key. */
+        xTemplate.type = CKA_EC_POINT;
+        xTemplate.pValue = NULL;
+        xTemplate.ulValueLen = 0;
+        xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                       xPublicKeyHandle,
+                                                       &xTemplate,
+                                                       1 );
+
+        /* Allocate a buffer large enough for the full, encoded public key. */
+        if( CKR_OK == xResult )
+        {
+            /* Add space for the full DER header. */
+            xTemplate.ulValueLen += sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
+            *pulDerPublicKeyLength = xTemplate.ulValueLen;
+
+            /* Get a heap buffer. */
+            *ppucDerPublicKey = pvPortMalloc( xTemplate.ulValueLen );
+
+            /* Check for resource exhaustion. */
+            if( NULL == *ppucDerPublicKey )
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+
+        /* Export the public key. */
+        if( CKR_OK == xResult )
+        {
+            xTemplate.pValue = *ppucDerPublicKey + sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag );
+            xTemplate.ulValueLen -= ( sizeof( pucEcP256AsnAndOid ) - sizeof( pucUnusedKeyTag ) );
+            xResult = pxFunctionList->C_GetAttributeValue( xSession,
+                                                           xPublicKeyHandle,
+                                                           &xTemplate,
+                                                           1 );
+        }
+
+        /* Prepend the full DER header. */
+        if( CKR_OK == xResult )
+        {
+            memcpy( *ppucDerPublicKey, pucEcP256AsnAndOid, sizeof( pucEcP256AsnAndOid ) );
+        }
+    }
+
+    /* Free memory if there was an error after allocation. */
+    if( ( NULL != *ppucDerPublicKey ) && ( CKR_OK != xResult ) )
+    {
+        vPortFree( *ppucDerPublicKey );
+        *ppucDerPublicKey = NULL;
+    }
+
+    return xResult;
+}
+
+/* Determine which required client crypto objects are already present in
+ * storage. */
+static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
+                                     ProvisionedState_t * pxProvisionedState )
+{
+    CK_RV xResult;
+    CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_SLOT_ID_PTR pxSlotId = NULL;
+    CK_ULONG ulSlotCount = 0;
+    CK_TOKEN_INFO xTokenInfo = { 0 };
+    int i = 0;
+
+    xResult = C_GetFunctionList( &pxFunctionList );
+
+    /* Check for a private key. */
+    if( CKR_OK == xResult )
+    {
+        xResult = xFindObjectWithLabelAndClass( xSession,
+                                                pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                                CKO_PRIVATE_KEY,
+                                                &pxProvisionedState->xPrivateKey );
+    }
+
+    if( ( CKR_OK == xResult ) && ( CK_INVALID_HANDLE != pxProvisionedState->xPrivateKey ) )
+    {
+        /* Check also for the corresponding public. */
+        xResult = xFindObjectWithLabelAndClass( xSession,
+                                                pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                                CKO_PUBLIC_KEY,
+                                                &pxProvisionedState->xPublicKey );
+    }
+
+    if( ( CKR_OK == xResult ) && ( CK_INVALID_HANDLE != pxProvisionedState->xPublicKey ) )
+    {
+        /* Export the public key. */
+        xResult = prvExportPublicKey( xSession,
+                                      pxProvisionedState->xPublicKey,
+                                      &pxProvisionedState->pucDerPublicKey,
+                                      &pxProvisionedState->ulDerPublicKeyLength );
+    }
+
+    /* Check for the client certificate. */
+    if( CKR_OK == xResult )
+    {
+        xResult = xFindObjectWithLabelAndClass( xSession,
+                                                pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                                CKO_CERTIFICATE,
+                                                &pxProvisionedState->xClientCertificate );
+    }
+
+    /* Check for a crypto element identifier. */
+    if( CKR_OK == xResult )
+    {
+        xResult = xGetSlotList( &pxSlotId, &ulSlotCount );
+    }
+
+    if( CKR_OK == xResult )
+    {
+        xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], &xTokenInfo );
+    }
+
+    if( ( CKR_OK == xResult ) && ( '\0' != xTokenInfo.label[ 0 ] ) && ( ' ' != xTokenInfo.label[ 0 ] ) )
+    {
+        /* PKCS #11 requires that token info fields are padded out with space
+         * characters. However, a NULL terminated copy will be more useful to the
+         * caller. */
+        for( i = 0; i < sizeof( xTokenInfo.label ); i++ )
+        {
+            if( xTokenInfo.label[ i ] == ' ' )
+            {
+                break;
+            }
+        }
+
+        if( 0 != i )
+        {
+            pxProvisionedState->pcIdentifier = ( char * ) pvPortMalloc( 1 + i * sizeof( xTokenInfo.label[ 0 ] ) );
+
+            if( NULL != pxProvisionedState->pcIdentifier )
+            {
+                memcpy( pxProvisionedState->pcIdentifier,
+                        xTokenInfo.label,
+                        i );
+                pxProvisionedState->pcIdentifier[ i ] = '\0';
+            }
+            else
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+    }
+
+    return xResult;
+}
+
+/*-----------------------------------------------------------*/
+
+/* Write the ASN.1 encoded bytes of the device public key to the console.
+ * This is for debugging purposes as well as to faciliate developer-driven
+ * certificate enrollment for onboard crypto hardware (i.e. if available). */
+static void prvWriteHexBytesToConsole( char * pcDescription,
+                                       uint8_t * pucData,
+                                       uint32_t ulDataLength )
+{
+#define BYTES_TO_DISPLAY_PER_ROW    16
+    char pcByteRow[ 1 + ( BYTES_TO_DISPLAY_PER_ROW * 2 ) + ( BYTES_TO_DISPLAY_PER_ROW / 2 ) ];
+    char * pcNextChar = pcByteRow;
+    uint32_t ulIndex = 0;
+    uint8_t ucByteValue = 0;
+
+    /* Write help text to the console. */
+    configPRINTF( ( "%s, %d bytes:\r\n", pcDescription, ulDataLength ) );
+
+    /* Iterate over the bytes of the encoded public key. */
+    for( ; ulIndex < ulDataLength; ulIndex++ )
+    {
+        /* Convert one byte to ASCII hex. */
+        ucByteValue = *( pucData + ulIndex );
+        snprintf( pcNextChar,
+                  sizeof( pcByteRow ) - ( pcNextChar - pcByteRow ),
+                  "%02x",
+                  ucByteValue );
+        pcNextChar += 2;
+
+        /* Check for the end of a two-byte display word. */
+        if( 0 == ( ( ulIndex + 1 ) % sizeof( uint16_t ) ) )
+        {
+            *pcNextChar = ' ';
+            pcNextChar++;
+        }
+
+        /* Check for the end of a row. */
+        if( 0 == ( ( ulIndex + 1 ) % BYTES_TO_DISPLAY_PER_ROW ) )
+        {
+            *pcNextChar = '\0';
+            vLoggingPrint( pcByteRow );
+            vLoggingPrint( "\r\n" );
+            pcNextChar = pcByteRow;
+        }
+    }
+
+    /* Check for a partial line to print. */
+    if( pcNextChar > pcByteRow )
+    {
+        *pcNextChar = '\0';
+        vLoggingPrint( pcByteRow );
+        vLoggingPrint( "\r\n" );
+    }
+}
+
+/*-----------------------------------------------------------*/
+
+/* Attempt to provision the device with a client certificate, associated
+ * private and public key pair, and optional Just-in-Time Registration certificate.
+ * If either component of the key pair is unavailable in storage, generate a new
+ * pair. */
 CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
                         ProvisioningParams_t * pxParams )
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
+    ProvisionedState_t xProvisionedState = { 0 };
     CK_OBJECT_HANDLE xObject = 0;
+    CK_BBOOL xImportedPrivateKey = CK_FALSE;
+    CK_BBOOL xKeyPairGenerationMode = CK_FALSE;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
     #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-        if( xResult == CKR_OK )
-        {
-            xResult = xProvisionCertificate( xSession,
-                                             pxParams->pucClientCertificate,
-                                             pxParams->ulClientCertificateLength,
-                                             ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-                                             &xObject );
 
-            if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+        /* Attempt to clean-up old crypto objects, but only if private key import is
+         * supported by this application, and only if the caller has provided new
+         * objects to use instead. */
+        if( ( CKR_OK == xResult ) &&
+            ( NULL != pxParams->pucClientCertificate ) &&
+            ( NULL != pxParams->pucClientPrivateKey ) )
+        {
+            xResult = xDestroyDefaultCryptoObjects( xSession );
+
+            if( xResult != CKR_OK )
             {
-                configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
+                configPRINTF( ( "Warning: could not clean-up old crypto objects. %d \r\n", xResult ) );
             }
         }
+    #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
 
-        if( xResult == CKR_OK )
+    /* If a client certificate has been provided by the caller, attempt to
+     * import it. */
+    if( ( xResult == CKR_OK ) && ( NULL != pxParams->pucClientCertificate ) )
+    {
+        xResult = xProvisionCertificate( xSession,
+                                         pxParams->pucClientCertificate,
+                                         pxParams->ulClientCertificateLength,
+                                         ( uint8_t * ) pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS,
+                                         &xObject );
+
+        if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
+        {
+            configPRINTF( ( "ERROR: Failed to provision device certificate. %d \r\n", xResult ) );
+        }
+    }
+
+    #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+
+        /* If this application supports importing private keys, and if a private
+         * key has been provided by the caller, attempt to import it. */
+        if( ( xResult == CKR_OK ) && ( NULL != pxParams->pucClientPrivateKey ) )
         {
             xResult = xProvisionPrivateKey( xSession,
                                             pxParams->pucClientPrivateKey,
@@ -741,105 +1047,128 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
 
             if( ( xResult != CKR_OK ) || ( xObject == CK_INVALID_HANDLE ) )
             {
-                configPRINTF( ( "ERROR: Failed to provision device private key. %d \r\n", xResult ) );
+                configPRINTF( ( "ERROR: Failed to provision device private key with status %d.\r\n", xResult ) );
+            }
+            else
+            {
+                xImportedPrivateKey = CK_TRUE;
             }
         }
     #endif /* if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 ) */
 
-    if( xResult == CKR_OK )
+    /* If a Just-in-Time Provisioning certificate has been provided by the
+     * caller, attempt to import it. Not all crypto tokens
+     * and PKCS #11 module implementations provide storage for this particular
+     * object. In that case, the statically defined object, if any, will be used
+     * during TLS session negotiation with AWS IoT. */
+    if( ( xResult == CKR_OK ) && ( NULL != pxParams->pucJITPCertificate ) )
     {
-        if( pxParams->ulJITPCertifiateLength != 0 )
-        {
-            xResult = xProvisionCertificate( xSession,
-                                             pxParams->pucJITPCertificate,
-                                             pxParams->ulJITPCertifiateLength,
-                                             ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
-                                             &xObject );
+        xResult = xProvisionCertificate( xSession,
+                                         pxParams->pucJITPCertificate,
+                                         pxParams->ulJITPCertificateLength,
+                                         ( uint8_t * ) pkcs11configLABEL_JITP_CERTIFICATE,
+                                         &xObject );
 
-            if( xResult == CKR_DEVICE_MEMORY )
+        if( xResult == CKR_DEVICE_MEMORY )
+        {
+            xResult = CKR_OK;
+            configPRINTF( ( "Warning: no persistent storage is available for the JITP certificate. The certificate in aws_clientcredential_keys.h will be used instead.\r\n" ) );
+        }
+    }
+
+    /* Check whether a key pair is now present. In order to support X.509
+     * certificate enrollment, the public and private key objects must both be
+     * available. */
+    if( ( xResult == CKR_OK ) && ( CK_FALSE == xImportedPrivateKey ) )
+    {
+        xResult = prvGetProvisionedState( xSession,
+                                          &xProvisionedState );
+
+        if( ( CK_INVALID_HANDLE == xProvisionedState.xPrivateKey ) ||
+            ( CK_INVALID_HANDLE == xProvisionedState.xPublicKey ) ||
+            ( NULL == xProvisionedState.pucDerPublicKey ) )
+        {
+            xKeyPairGenerationMode = CK_TRUE;
+        }
+
+        /* Ignore errors, since the board may have been previously used with a
+         * different crypto middleware or app. If any of the above objects
+         * couldn't be read, try to generate new ones below. */
+        xResult = CKR_OK;
+    }
+
+    #if ( 1 == keyprovisioningFORCE_GENERATE_NEW_KEY_PAIR )
+        xKeyPairGenerationMode = CK_TRUE;
+    #endif
+
+    if( ( xResult == CKR_OK ) && ( CK_TRUE == xKeyPairGenerationMode ) )
+    {
+        /* Generate a new default key pair. */
+        xResult = xProvisionGenerateKeyPairEC( xSession,
+                                               ( uint8_t * ) pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
+                                               ( uint8_t * ) pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+                                               &xProvisionedState.xPrivateKey,
+                                               &xProvisionedState.xPublicKey );
+
+        if( CKR_OK == xResult )
+        {
+            /* Clean-up the previous buffer, if any. */
+            if( NULL != xProvisionedState.pucDerPublicKey )
             {
-                xResult = CKR_OK;
-                configPRINTF( ( "Warning: Device does not have memory allocated for just in time provisioning (JITP) certificate.  Certificate from aws_clientcredential_keys.h will be used for JITP. \r\n" ) );
+                vPortFree( xProvisionedState.pucDerPublicKey );
+                xProvisionedState.pucDerPublicKey = NULL;
             }
+
+            /* Get the bytes of the new public key. */
+            prvExportPublicKey( xSession,
+                                xProvisionedState.xPublicKey,
+                                &xProvisionedState.pucDerPublicKey,
+                                &xProvisionedState.ulDerPublicKeyLength );
         }
-    }
 
-    if( xResult == CKR_OK )
-    {
-        configPRINTF( ( "Device credential provisioning succeeded.\r\n" ) );
-    }
-    else
-    {
-        configPRINTF( ( "Device credential provisioning failed.\r\n" ) );
-    }
-
-    return xResult;
-}
-
-CK_RV xInitializePkcs11Token()
-{
-    CK_RV xResult;
-
-    CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_SLOT_ID * pxSlotId = NULL;
-    CK_ULONG xSlotCount;
-    CK_FLAGS xTokenFlags = 0;
-    CK_TOKEN_INFO_PTR pxTokenInfo = NULL;
-
-    xResult = C_GetFunctionList( &pxFunctionList );
-
-    if( xResult == CKR_OK )
-    {
-        xResult = xInitializePKCS11();
-    }
-
-    if( ( xResult == CKR_OK ) || ( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
-    {
-        xResult = xGetSlotList( &pxSlotId, &xSlotCount );
-    }
-
-    if( xResult == CKR_OK )
-    {
-        /* Check if token is initialized */
-        pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
-
-        if( pxTokenInfo != NULL )
+        /* Ensure that an error condition is set if either object is still
+         * missing. */
+        if( ( CKR_OK == xResult ) &&
+            ( ( CK_INVALID_HANDLE == xProvisionedState.xPrivateKey ) ||
+              ( CK_INVALID_HANDLE == xProvisionedState.xPublicKey ) ) )
         {
-            /* We will take the first slot available.
-             * If your application has multiple slots, insert logic
-             * for selecting an appropriate slot here.
-             * TODO: Consider a define here instead.
-             */
-            xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
+            xResult = CKR_KEY_HANDLE_INVALID;
         }
-        else
+    }
+
+    /* Log the device public key for developer enrollment purposes, but only if
+    * there's not already a certificate, or if a new key was just generated. */
+    if( ( CKR_OK == xResult ) &&
+        ( ( CK_INVALID_HANDLE == xProvisionedState.xClientCertificate ) ||
+          ( CK_TRUE == xKeyPairGenerationMode ) ) &&
+        ( CK_FALSE == xImportedPrivateKey ) )
+    {
+        configPRINTF( ( "Warning: the client certificate should be updated. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
+
+        if( NULL != xProvisionedState.pcIdentifier )
         {
-            xResult = CKR_HOST_MEMORY;
+            configPRINTF( ( "Recommended certificate subject name: CN=%s\r\n", xProvisionedState.pcIdentifier ) );
         }
+
+        prvWriteHexBytesToConsole( "Device public key",
+                                   xProvisionedState.pucDerPublicKey,
+                                   xProvisionedState.ulDerPublicKeyLength );
+
+        /* Delay since the downstream demo code is likely to fail quickly if
+         * provisioning isn't complete, and device certificate creation in the
+         * lab may depend on the developer obtaining the public key. */
+        /*vTaskDelay( pdMS_TO_TICKS( 100 ) ); */
     }
 
-    if( CKR_OK == xResult )
+    /* Free memory. */
+    if( NULL != xProvisionedState.pucDerPublicKey )
     {
-        xTokenFlags = pxTokenInfo->flags;
+        vPortFree( xProvisionedState.pucDerPublicKey );
     }
 
-    if( ( CKR_OK == xResult ) && !( CKF_TOKEN_INITIALIZED & xTokenFlags ) )
+    if( NULL != xProvisionedState.pcIdentifier )
     {
-        /* Initialize the token if it is not already. */
-        xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
-                                               ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
-                                               sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1,
-                                               ( CK_UTF8CHAR_PTR ) "FreeRTOS" );
-    }
-
-    if( pxTokenInfo != NULL )
-    {
-        vPortFree( pxTokenInfo );
-    }
-
-    if( pxSlotId != NULL )
-    {
-        vPortFree( pxSlotId );
+        vPortFree( xProvisionedState.pcIdentifier );
     }
 
     return xResult;
@@ -847,7 +1176,8 @@ CK_RV xInitializePkcs11Token()
 
 /*-----------------------------------------------------------*/
 
-void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
+/* Perform device provisioning using the specified TLS client credentials. */
+CK_RV vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 {
     CK_RV xResult = CKR_OK;
     CK_FUNCTION_LIST_PTR pxFunctionList = NULL;
@@ -868,51 +1198,67 @@ void vAlternateKeyProvisioning( ProvisioningParams_t * xParams )
 
     if( xResult == CKR_OK )
     {
-        #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
-            xDestroyCredentials( xSession );
-        #endif
-
         xResult = xProvisionDevice( xSession, xParams );
 
         pxFunctionList->C_CloseSession( xSession );
     }
+
+    return xResult;
 }
+
 /*-----------------------------------------------------------*/
 
-void vDevModeKeyProvisioning( void )
+/* Perform device provisioning using the default TLS client credentials. */
+CK_RV vDevModeKeyProvisioning( void )
 {
     ProvisioningParams_t xParams;
 
+    xParams.pucJITPCertificate = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
     xParams.pucClientPrivateKey = ( uint8_t * ) keyCLIENT_PRIVATE_KEY_PEM;
     xParams.pucClientCertificate = ( uint8_t * ) keyCLIENT_CERTIFICATE_PEM;
-    xParams.pucJITPCertificate = ( uint8_t * ) keyJITR_DEVICE_CERTIFICATE_AUTHORITY_PEM;
 
     /* If using a JITR flow, a JITR certificate must be supplied. If using credentials generated by
      * AWS, this certificate is not needed. */
-    if( ( NULL == xParams.pucJITPCertificate ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
+    if( ( NULL != xParams.pucJITPCertificate ) &&
+        ( 0 != strcmp( "", ( const char * ) xParams.pucJITPCertificate ) ) )
     {
-        xParams.ulJITPCertifiateLength = 0;
+        /* We want the NULL terminator to be written to storage, so include it
+         * in the length calculation. */
+        xParams.ulJITPCertificateLength = sizeof( char ) + strlen( ( const char * ) xParams.pucJITPCertificate );
     }
     else
     {
-        xParams.ulJITPCertifiateLength = 1 + strlen( ( const char * ) xParams.pucJITPCertificate );
+        xParams.pucJITPCertificate = NULL;
     }
 
-    if( ( NULL == xParams.pucClientPrivateKey ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) ||
-        ( NULL == xParams.pucClientCertificate ) ||
-        ( 0 == strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
+    /* The hard-coded client certificate and private key can be useful for
+     * first-time lab testing. They are optional after the first run, though, and
+     * not recommended at all for going into production. */
+    if( ( NULL != xParams.pucClientPrivateKey ) &&
+        ( 0 != strcmp( "", ( const char * ) xParams.pucClientPrivateKey ) ) )
     {
-        configPRINTF( ( "ERROR: the vDevModeKeyProvisioning function requires a valid device private key and certificate.\r\n" ) );
-        configASSERT( pdFALSE );
+        /* We want the NULL terminator to be written to storage, so include it
+         * in the length calculation. */
+        xParams.ulClientPrivateKeyLength = sizeof( char ) + strlen( ( const char * ) xParams.pucClientPrivateKey );
     }
     else
     {
-        xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
-        xParams.ulClientCertificateLength = 1 + strlen( ( const char * ) xParams.pucClientCertificate );
-        vAlternateKeyProvisioning( &xParams );
+        xParams.pucClientPrivateKey = NULL;
     }
+
+    if( ( NULL != xParams.pucClientCertificate ) &&
+        ( 0 != strcmp( "", ( const char * ) xParams.pucClientCertificate ) ) )
+    {
+        /* We want the NULL terminator to be written to storage, so include it
+         * in the length calculation. */
+        xParams.ulClientCertificateLength = sizeof( char ) + strlen( ( const char * ) xParams.pucClientCertificate );
+    }
+    else
+    {
+        xParams.pucClientCertificate = NULL;
+    }
+
+    return vAlternateKeyProvisioning( &xParams );
 }
 
 /*-----------------------------------------------------------*/

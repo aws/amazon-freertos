@@ -24,6 +24,7 @@ afr_set_board_metadata(SUPPORTED_IDE "SystemWorkbench")
 afr_set_board_metadata(RECOMMENDED_IDE "SystemWorkbench")
 afr_set_board_metadata(IDE_SystemWorkbench_NAME "System Workbench for STM32")
 afr_set_board_metadata(IDE_SystemWorkbench_COMPILER "GCC")
+afr_set_board_metadata(KEY_IMPORT_PROVISIONING "TRUE")
 
 afr_set_board_metadata(IDE_SystemWorkbench_PROJECT_LOCATION "${AFR_ROOT_DIR}/projects/st/stm32l475_discovery/ac6/aws_demos")
 afr_set_board_metadata(AWS_DEMOS_CONFIG_FILES_LOCATION "${CMAKE_CURRENT_LIST_DIR}/aws_demos/config_files")
@@ -153,57 +154,43 @@ else()
     set(exe_target aws_demos)
 endif()
 
-# TODO, remove network manager src.
-afr_glob_src(network_manager_src DIRECTORY "${AFR_DEMOS_DIR}/network_manager")
 afr_glob_src(board_code_src DIRECTORY "${board_dir}/application_code/st_code")
 afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
-if(AFR_IS_TESTING)
-add_executable(
-    ${exe_target}
-    ${board_code_src}
-    ${config_files}
-    "${board_dir}/application_code/main.c"
-)
-else()
-add_executable(
-    ${exe_target}
-    ${board_code_src}
-    ${config_files}
-    ${network_manager_src}
-    "${board_dir}/application_code/main.c"
-)
+# Do not add demos or tests if they're turned off.
+if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    add_executable(
+        ${exe_target}
+        ${board_code_src}
+        ${config_files}
+        "${board_dir}/application_code/main.c"
+    )
+    target_link_libraries(
+        ${exe_target}
+        PRIVATE
+            AFR::wifi
+            AFR::utils
+            -T"${board_dir}/STM32L475VGTx_FLASH.ld"
+    )
+
+    if(AFR_METADATA_MODE)
+        return()
+    endif()
+
+    find_program(gcc_objcopy arm-none-eabi-objcopy)
+    find_program(gcc_size arm-none-eabi-size)
+    if(NOT gcc_objcopy)
+        message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
+    endif()
+
+    set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${gcc_objcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
+        COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
+    )
+    add_custom_command(
+        TARGET ${exe_target} POST_BUILD
+        COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
+    )
 endif()
-
-target_link_libraries(
-    ${exe_target}
-    PRIVATE
-        AFR::wifi
-        AFR::utils
-        -T"${board_dir}/STM32L475VGTx_FLASH.ld"
-)
-
-if(AFR_METADATA_MODE)
-    return()
-endif()
-
-# -------------------------------------------------------------------------------------------------
-# Additional build configurations
-# -------------------------------------------------------------------------------------------------
-
-find_program(gcc_objcopy arm-none-eabi-objcopy)
-find_program(gcc_size arm-none-eabi-size)
-if(NOT gcc_objcopy)
-    message(FATAL_ERROR "Cannot find arm-none-eabi-objcopy.")
-endif()
-
-set(output_file "$<TARGET_FILE_DIR:${exe_target}>/${exe_target}.hex")
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${gcc_objcopy}" -O ihex "$<TARGET_FILE:${exe_target}>" "${output_file}"
-    COMMAND "${gcc_size}" "$<TARGET_FILE:${exe_target}>"
-)
-add_custom_command(
-    TARGET ${exe_target} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy "${output_file}" "${CMAKE_BINARY_DIR}"
-)

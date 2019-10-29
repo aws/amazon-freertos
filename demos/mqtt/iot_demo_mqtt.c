@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201908.00
+ * Amazon FreeRTOS V201910.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -431,7 +431,7 @@ static int _establishMqttConnection( bool awsIotMqttMode,
 
     /* Use the parameter client identifier if provided. Otherwise, generate a
      * unique client identifier. */
-    if( pIdentifier != NULL )
+    if( ( pIdentifier != NULL ) && ( pIdentifier[ 0 ] != '\0' ) )
     {
         connectInfo.pClientIdentifier = pIdentifier;
         connectInfo.clientIdentifierLength = ( uint16_t ) strlen( pIdentifier );

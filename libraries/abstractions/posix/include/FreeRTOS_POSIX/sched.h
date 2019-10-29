@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS POSIX V1.1.1
+ * Amazon FreeRTOS POSIX V1.1.2
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -41,6 +41,7 @@
 /**@} */
 
 /**
+ * @ingroup posix_datatypes_paramstructs
  * @brief Scheduling parameters required for implementation of each supported
  * scheduling policy.
  */

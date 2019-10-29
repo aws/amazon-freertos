@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201908.00
+ * Amazon FreeRTOS V201910.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -136,6 +136,7 @@ static void RunTests( void )
 
     #if ( testrunnerFULL_PKCS11_ENABLED == 1 )
         RUN_TEST_GROUP( Full_PKCS11_StartFinish );
+        RUN_TEST_GROUP( Full_PKCS11_Capabilities );
         RUN_TEST_GROUP( Full_PKCS11_NoObject );
         RUN_TEST_GROUP( Full_PKCS11_RSA );
         RUN_TEST_GROUP( Full_PKCS11_EC );
@@ -173,11 +174,23 @@ static void RunTests( void )
     #endif
 
     #if ( testrunnerFULL_BLE_ENABLED == 1 )
-        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
         RUN_TEST_GROUP( Full_BLE );
     #endif
 
+    #if ( testrunnerFULL_BLE_STRESS_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_Stress_Test );
+    #endif
+
+    #if ( testrunnerFULL_BLE_KPI_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_KPI_Test );
+    #endif
+
+    #if ( testrunnerFULL_BLE_INTEGRATION_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( Full_BLE_Integration_Test );
+    #endif
+
     #if ( testrunnerFULL_BLE_END_TO_END_TEST_ENABLED == 1 )
+        RUN_TEST_GROUP( MQTT_Unit_BLE_Serialize );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_MQTT );
         RUN_TEST_GROUP( Full_BLE_END_TO_END_SHADOW );
     #endif

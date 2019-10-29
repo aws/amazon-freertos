@@ -139,7 +139,7 @@ class OtaAwsAgent:
                 self._stageParams
             )
         else:
-            response = self._awsIotClient.describe_endpoint()
+            response = self._awsIotClient.describe_endpoint(endpointType='iot:Data-ATS')
         return response['endpointAddress']
 
     def getCodeSignerCertificateFromArn(self, certArn):
@@ -349,7 +349,7 @@ class OtaAwsAgent:
                 streamId = str(uuid4()),
                 files= customFiles,
                 roleArn = self._otaRoleArn
-            );
+            )
 
         return createStreamResponse['streamId']
 
@@ -710,7 +710,7 @@ class AWSS3Bucket:
         self._stageParams = stageParams
         self.s3_name = name
         self.s3_bucket = self._s3_client.Bucket(self.s3_name)
-        self.__create_bucket();
+        self.__create_bucket()
 
     def __create_bucket(self):
         response = None
@@ -727,7 +727,7 @@ class AWSS3Bucket:
                         'LocationConstraint': boto3.session.Session().region_name
                     }
                 )
-            self._s3_client.BucketVersioning(self.s3_name).enable();
+            self._s3_client.BucketVersioning(self.s3_name).enable()
 
         # If the bucket exists we want to make sure it is in the right region for the AWS development stage.
         if response and self._stageParams:

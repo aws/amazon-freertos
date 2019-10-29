@@ -292,7 +292,7 @@ extern CK_RV prvMbedTLS_Initialize( void );
     #error LPC54018 requires alternate C_Initialization
 #endif
 
-CK_DEFINE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
+CK_DECLARE_FUNCTION( CK_RV, C_Initialize )( CK_VOID_PTR pvInitArgs )
 {   /*lint !e9072 It's OK to have different parameter name. */
     ( void ) ( pvInitArgs );
 

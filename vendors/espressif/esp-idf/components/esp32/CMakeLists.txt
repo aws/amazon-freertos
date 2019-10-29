@@ -55,12 +55,20 @@ else()
     # driver is a public requirement because esp_sleep.h uses gpio_num_t & touch_pad_t
     # tcpip_adapter is a public requirement because esp_event.h uses tcpip_adapter types
     set(COMPONENT_PRIV_REQUIRES
-        app_trace bootloader_support ethernet log mbedtls nvs_flash
+        app_trace app_update bootloader_support ethernet log mbedtls nvs_flash
         pthread smartconfig_ack spi_flash vfs wpa_supplicant xtensa-debug-module)
 
     register_component()
 
     target_link_libraries(${COMPONENT_TARGET} "-L ${CMAKE_CURRENT_SOURCE_DIR}/lib")
+
+    # Add a different linker search path depending on WiFi optimisations
+    if (CONFIG_ESP32_WIFI_IRAM_OPT)
+        target_link_libraries(${COMPONENT_TARGET} "-L ${CMAKE_CURRENT_SOURCE_DIR}/ld/wifi_iram_opt")
+    else()
+        target_link_libraries(${COMPONENT_TARGET} "-L ${CMAKE_CURRENT_SOURCE_DIR}/ld/wifi_iram_noopt")
+    endif()
+
     if(NOT CONFIG_NO_BLOBS)
         target_link_libraries(${COMPONENT_TARGET} coexist core espnow mesh net80211 phy pp rtc smartconfig wpa2 wpa wps)
     endif()
@@ -80,7 +88,10 @@ else()
         )
 
     if(CONFIG_SPIRAM_CACHE_WORKAROUND)
-        add_compile_options(-mfix-esp32-psram-cache-issue)
+        # Note: Adding as a PUBLIC compile option here causes this option to propagate to all components that depend on esp32.
+        #
+        # To handle some corner cases, the same flag is set in project_include.cmake
+        target_compile_options(${COMPONENT_TARGET} PUBLIC -mfix-esp32-psram-cache-issue)
     else()
         target_linker_script(${COMPONENT_TARGET} "ld/esp32.rom.spiram_incompatible_fns.ld")
     endif()
@@ -131,6 +142,12 @@ else()
         add_custom_target(phy_init_data ALL DEPENDS ${PHY_INIT_DATA_BIN})
         add_dependencies(flash phy_init_data)
     endif()
+
+    # disable stack protection in files which are involved in initialization of that feature
+    set_source_files_properties(
+        stack_check.c cpu_start.c
+        PROPERTIES COMPILE_FLAGS
+        -fno-stack-protector)
 
     # Enable dynamic esp_timer overflow value if building unit tests 
     if(NOT "${BUILD_TEST_COMPONENTS}" EQUAL "")

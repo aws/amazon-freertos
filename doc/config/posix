@@ -1,0 +1,30 @@
+# Include common configuration options.
+@INCLUDE_PATH = doc/config
+@INCLUDE = common
+
+# Basic project information.
+PROJECT_NAME = "POSIX"
+
+# Library documentation output directory.
+HTML_OUTPUT = POSIX
+
+# Generate Doxygen tag file for this library.
+GENERATE_TAGFILE = doc/output/POSIX.tag
+
+# Directories containing library source code.
+INPUT = doc \
+        doc/lib \
+        libraries/freertos_plus/standard/freertos_plus_posix/include \
+        libraries/freertos_plus/standard/freertos_plus_posix/source \
+		libraries/abstractions/posix/include/FreeRTOS_POSIX/sys \
+		libraries/abstractions/posix/include/FreeRTOS_POSIX
+
+# Library file names.
+FILE_PATTERNS = *POSIX*.h *POSIX*.c posix.txt
+
+# External tag files required by this library.
+TAGFILES = doc/output/main.tag=../main \
+		   doc/output/atomic.tag=../atomic
+		   
+		   
+

@@ -46,6 +46,20 @@ afr_module_dependencies(
         AFR::serializer
 )
 
+# BLE test
+afr_test_module()
+afr_module_sources(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        "${test_dir}/iot_test_ble_end_to_end.c"
+)
+afr_module_dependencies(
+    ${AFR_CURRENT_MODULE}
+    INTERFACE
+        AFR::ble
+)
+
+
 afr_module(NAME ble_wifi_provisioning)
 
 afr_module_sources(
@@ -69,17 +83,15 @@ afr_module_dependencies(
         AFR::wifi
 )
 
-# BLE test
-afr_test_module()
+#BLE Wifi provisioning test
+afr_test_module(ble_wifi_provisioning)
 afr_module_sources(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        "${test_dir}/iot_test_ble_end_to_end.c"
         "${test_dir}/iot_test_wifi_provisioning.c"
 )
 afr_module_dependencies(
     ${AFR_CURRENT_MODULE}
     INTERFACE
-        AFR::ble
         AFR::ble_wifi_provisioning
 )

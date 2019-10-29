@@ -1,0 +1,346 @@
+/**
+@mainpage Overview
+@brief 
+The Portable Operating System Interface (POSIX) is a family of standards specified by the IEEE Computer Society for maintaining compatibility between operating systems. With FreeRTOS+POSIX, an existing POSIX compliant application can be easily ported to FreeRTOS ecosystem, and thus leveraging the entire AWS IoT service stack.<br><br>
+
+FreeRTOS+POSIX partially implements IEEE Std 1003.1-2017 Edition The Open Group Technical Standard Base Specifications, Issue 7. It currently supports:<br>
+
+- errno.h
+- fcntl.h
+- mqueue.h
+- pthread.h
+- sched.h
+- semaphore.h
+- signal.h
+- sys/types.h
+- time.h
+- unistd.h
+
+Please see each above header file for detailed FreeRTOS+POSIX implementation of POSIX.
+
+To adopt FreeRTOS+POSIX in your project, these porting related header files are needed.
+| FreeRTOS platform specific POSIX configuration | High Level Description |
+| :--------------------------------------------- | :--------------------- |
+| FreeRTOS_POSIX.h.                              | This header file brings in dependencies required by FreeRTOS+POSIX. This file must be included before all other FreeRTOS+POSIX includes. |
+| FreeRTOS_POSIX_portable_default.h              | Defaults for port-specific configuration of FreeRTOS+POSIX. |
+| FreeRTOS_POSIX_portable.h                      | Port-specific configuration overwrite of FreeRTOS+POSIX. As an example, /lib/FreeRTOS-Plus-POSIX/include/portable/pc/windows/FreeRTOS_POSIX_portable.h, Windows simulator uses the defaults, thus does not need to overwrite anything. |
+*/
+
+ /**
+ * @paramstructs_group{posix}
+ * @paramstructs_brief{posix,POSIX}
+ */
+
+/**
+ * @handles_group{posix}
+ * @handles_brief{posix library}
+ */
+
+
+/**
+@config_page{posix}
+@config_brief{posix library}
+
+@section posixconfigENABLE_CLOCK_T
+@brief Set this to `1` defines clock_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_CLOCKID_T
+@brief Set this to `1` defines clockid_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_MODE_T
+@brief Set this to `1` defines mode_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PID_T
+@brief Set this to `1` defines pid_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PTHREAD_ATTR_T
+@brief Set this to `1` defines pthread_attr_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PTHREAD_BARRIER_T
+@brief Set this to `1` defines pthread_barrier_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PTHREAD_COND_T
+@brief Set this to `1` defines pthread_cond_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PTHREAD_CONDATTR_T
+@brief Set this to `1` defines pthread_condattr_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PTHREAD_MUTEX_T
+@brief Set this to `1` defines pthread_mutex_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PTHREAD_MUTEXATTR_T
+@brief Set this to `1` defines pthread_mutexattr_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_PTHREAD_T
+@brief Set this to `1` defines pthread_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_SSIZE_T
+@brief Set this to `1` defines ssize_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_TIME_T
+@brief Set this to `1` defines time_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_TIMER_T
+@brief Set this to `1` defines timer_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_USECONDS_T
+@brief Set this to `1` defines useconds_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_OFF_T
+@brief Set this to `1` defines off_t.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_TIMESPEC
+@brief Set this to `1` defines struct timespec.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+
+@section posixconfigENABLE_ITIMERSPEC
+@brief Set this to `1` defines struct itimerspec.
+
+Third party code may already define this handle. Set to `1` to avoid redefinition.
+
+@configpossible `0` or `1` <br>
+@configdefault `1`
+*/
+
+/**
+* @functions_page{posix,POSIX}
+* @functions_brief{posix}
+* - @function_name{mq_close}
+* @function_brief{mq_close}
+* - @function_name{mq_getattr}
+* @function_brief{mq_getattr}
+* - @function_name{mq_open}
+* @function_brief{mq_open}
+* - @function_name{mq_receive}
+* @function_brief{mq_receive}
+* - @function_name{mq_send}
+* @function_brief{mq_send}
+* - @function_name{mq_timedreceive}
+* @function_brief{mq_timedreceive}
+* - @function_name{mq_timedsend}
+* @function_brief{mq_timedsend}
+* - @function_name{mq_unlink}
+* @function_brief{mq_unlink}
+* - @function_name{pthread_attr_destroy}
+* @function_brief{pthread_attr_destroy}
+* - @function_name{pthread_attr_getdetachstate}
+* @function_brief{pthread_attr_getdetachstate}
+* - @function_name{pthread_attr_getschedparam}
+* @function_brief{pthread_attr_getschedparam}
+* - @function_name{pthread_attr_getstacksize}
+* @function_brief{pthread_attr_getstacksize}
+* - @function_name{pthread_attr_init}
+* @function_brief{pthread_attr_init}
+* - @function_name{pthread_attr_setdetachstate}
+* @function_brief{pthread_attr_setdetachstate}
+* - @function_name{pthread_attr_setschedparam}
+* @function_brief{pthread_attr_setschedparam}
+* - @function_name{pthread_attr_setschedpolicy}
+* @function_brief{pthread_attr_setschedpolicy}
+* - @function_name{pthread_attr_setstacksize}
+* @function_brief{pthread_attr_setstacksize}
+* - @function_name{pthread_barrier_destroy}
+* @function_brief{pthread_barrier_destroy}
+* - @function_name{pthread_barrier_init}
+* @function_brief{pthread_barrier_init}
+* - @function_name{pthread_barrier_wait}
+* @function_brief{pthread_barrier_wait}
+* - @function_name{pthread_create}
+* @function_brief{pthread_create}
+* - @function_name{pthread_cond_broadcast}
+* @function_brief{pthread_cond_broadcast}
+* - @function_name{pthread_cond_destroy}
+* @function_brief{pthread_cond_destroy}
+* - @function_name{pthread_cond_init}
+* @function_brief{pthread_cond_init}
+* - @function_name{pthread_cond_signal}
+* @function_brief{pthread_cond_signal}
+* - @function_name{pthread_cond_timedwait}
+* @function_brief{pthread_cond_timedwait}
+* - @function_name{pthread_cond_wait}
+* @function_brief{pthread_cond_wait}
+* - @function_name{pthread_equal}
+* @function_brief{pthread_equal}
+* - @function_name{pthread_exit}
+* @function_brief{pthread_exit}
+* - @function_name{pthread_getschedparam}
+* @function_brief{pthread_getschedparam}
+* - @function_name{pthread_join}
+* @function_brief{pthread_join}
+* - @function_name{pthread_mutex_destroy}
+* @function_brief{pthread_mutex_destroy}
+* - @function_name{pthread_mutex_init}
+* @function_brief{pthread_mutex_init}
+* - @function_name{pthread_mutex_lock}
+* @function_brief{pthread_mutex_lock}
+* - @function_name{pthread_mutex_timedlock}
+* @function_brief{pthread_mutex_timedlock}
+* - @function_name{pthread_mutex_trylock}
+* @function_brief{pthread_mutex_trylock}
+* - @function_name{pthread_mutex_unlock}
+* @function_brief{pthread_mutex_unlock}
+* - @function_name{pthread_mutexattr_destroy}
+* @function_brief{pthread_mutexattr_destroy}
+* - @function_name{pthread_mutexattr_gettype}
+* @function_brief{pthread_mutexattr_gettype}
+* - @function_name{pthread_cond_timedwait}
+* @function_brief{pthread_cond_timedwait}
+* - @function_name{pthread_mutexattr_init}
+* @function_brief{pthread_mutexattr_init}
+* - @function_name{pthread_mutexattr_settype}
+* @function_brief{pthread_mutexattr_settype}
+* - @function_name{pthread_self}
+* @function_brief{pthread_self}
+* - @function_name{pthread_setschedparam}
+* @function_brief{pthread_setschedparam}
+* - @function_name{sched_get_priority_max}
+* @function_brief{sched_get_priority_max}
+* - @function_name{sched_get_priority_min}
+* @function_brief{sched_get_priority_min}
+* - @function_name{sched_yield}
+* @function_brief{sched_yield}
+* - @function_name{sem_destroy}
+* @function_brief{sem_destroy}
+* - @function_name{sem_getvalue}
+* @function_brief{sem_getvalue}
+* - @function_name{sem_init}
+* @function_brief{sem_init}
+* - @function_name{sem_post}
+* @function_brief{sem_post}
+* - @function_name{sem_timedwait}
+* @function_brief{sem_timedwait}
+* - @function_name{sem_trywait}
+* @function_brief{sem_trywait}
+* - @function_name{sem_wait}
+* @function_brief{sem_wait}
+* - @function_name{clock}
+* @function_brief{clock}
+* - @function_name{clock_getcpuclockid}
+* @function_brief{clock_getcpuclockid}
+* - @function_name{clock_getres}
+* @function_brief{clock_getres}
+* - @function_name{clock_gettime}
+* @function_brief{clock_gettime}
+* - @function_name{clock_nanosleep}
+* @function_brief{clock_nanosleep}
+* - @function_name{clock_settime}
+* @function_brief{clock_settime}
+* - @function_name{nanosleep}
+* @function_brief{nanosleep}
+* - @function_name{timer_create}
+* @function_brief{timer_create}
+* - @function_name{timer_delete}
+* @function_brief{timer_delete}
+* - @function_name{timer_getoverrun}
+* @function_brief{timer_getoverrun}
+* - @function_name{timer_gettime}
+* @function_brief{timer_gettime}
+* - @function_name{timer_settime}
+* @function_brief{timer_settime}
+* - @function_name{sleep}
+* @function_brief{sleep}
+* - @function_name{usleep}
+* @function_brief{usleep}
+* - @function_name{UTILS_strnlen}
+* @function_brief{UTILS_strnlen}
+* - @function_name{UTILS_AbsoluteTimespecToDeltaTicks}
+* @function_brief{UTILS_AbsoluteTimespecToDeltaTicks}
+* - @function_name{UTILS_TimespecToTicks}
+* @function_brief{UTILS_TimespecToTicks}
+* - @function_name{UTILS_NanosecondsToTimespec}
+* @function_brief{UTILS_NanosecondsToTimespec}
+* - @function_name{UTILS_TimespecAdd}
+* @function_brief{UTILS_TimespecAdd}
+* - @function_name{UTILS_TimespecAddNanoseconds}
+* @function_brief{UTILS_TimespecAddNanoseconds}
+* - @function_name{UTILS_TimespecSubtract}
+* @function_brief{UTILS_TimespecSubtract}
+* - @function_name{UTILS_TimespecCompare}
+* @function_brief{UTILS_TimespecCompare}
+* - @function_name{UTILS_ValidateTimespec}
+* @function_brief{UTILS_ValidateTimespec}
+*/

@@ -10,7 +10,7 @@
 	"WINVER=0x400",
 	"_CRT_SECURE_NO_WARNINGS",
 	"__PRETTY_FUNCTION__=__FUNCTION__",
-	"'configASSERT(X)=__CPROVER_assert(X, \"Assertion Error\")'",
+	"'configASSERT(X)=__CPROVER_assert(X,\"Assertion Error\")'",
     "'configPRECONDITION(X)=__CPROVER_assume(X)'"
     ],
 
@@ -40,6 +40,10 @@
 	"--32",
 	"--bounds-check",
 	"--pointer-check"
+    ],
+
+    "TYPE_HEADERS": [
+        "$(FREERTOS)/freertos_kernel/queue.c"
     ]
 }
 

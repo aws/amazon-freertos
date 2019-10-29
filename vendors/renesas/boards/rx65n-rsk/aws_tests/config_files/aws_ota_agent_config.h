@@ -32,7 +32,7 @@
 #define _AWS_OTA_AGENT_CONFIG_H_
 
 /**
- * @brief Special OTA Agent printing definition (in stead of definition in lib/include/aws_ota_agent.h).
+ * @brief Special OTA Agent printing definition (in stead of definition in lib/include/aws_iot_ota_agent.h).
  */
 #define OTA_DEBUG_LOG_LEVEL                     1
 
@@ -75,4 +75,19 @@
  * Thing name used in all OTA base topics. Namely $aws/things/<thingName>
  */
 #define otaconfigMAX_THINGNAME_LEN              64U
+
+/**
+ * @brief The maximum number of data blocks requested from OTA streaming service.
+ * 
+ *  This configuration parameter is sent with data requests and represents the maximum number of 
+ *  data blocks the service will send in response. The maximum limit for this must be calculated 
+ *  from the maximum data response limit (128 KB from service) divided by the block size. 
+ *  For example if block size is set as 1 KB then the maximum number of data blocks that we can
+ *  request is 128/1 = 128 blocks. Configure this parameter to this maximum limit or lower based on 
+ *  how many data blocks response is expected for each data requests. 
+ *  Please note that this must be set larger than zero.
+ *  
+ */
+ #define otaconfigMAX_NUM_BLOCKS_REQUEST        128U
+ 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */

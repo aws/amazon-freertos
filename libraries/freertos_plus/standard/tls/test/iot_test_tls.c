@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS TLS V1.1.5
+ * Amazon FreeRTOS TLS V1.1.6
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,10 +38,14 @@
 #include "aws_clientcredential_keys.h"
 #include "iot_test_tls.h"
 
+/* Configuration includes. */
+#include "iot_pkcs11_config.h"
+#include "iot_test_pkcs11_config.h"
+
 /* Provisioning include. */
 #include "aws_dev_mode_key_provisioning.h"
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
-
 
 /*
  * Length of elliptic curve credentials included from aws_clientcredential_keys.h.
@@ -80,12 +84,15 @@ TEST_TEAR_DOWN( Full_TLS )
 
 TEST_GROUP_RUNNER( Full_TLS )
 {
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectRSA );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
-    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
+    RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectDefault );
+    #if ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED == 1 )
+        #if ( pkcs11testEC_KEY_SUPPORT == 1 )
+            RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectEC );
+            RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectBYOCCredentials );
+        #endif
+        RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectMalformedCert );
+        RUN_TEST_CASE( Full_TLS, AFQP_TLS_ConnectUntrustedCert );
+    #endif
 }
 
 /*-----------------------------------------------------------*/
@@ -270,7 +277,7 @@ static void prvExpectFailAfterDataSentWithProvisioning( ProvisioningParams_t * p
 }
 /*-----------------------------------------------------------*/
 
-TEST( Full_TLS, AFQP_TLS_ConnectRSA )
+TEST( Full_TLS, AFQP_TLS_ConnectDefault )
 {
     const char * pcAWSIoTAddress = clientcredentialMQTT_BROKER_ENDPOINT;
     uint16_t usAWSIoTPort = clientcredentialMQTT_BROKER_PORT;
@@ -309,7 +316,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectEC )
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_PRIVATE_KEY_LENGTH_EC;
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_EC;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_LENGTH_EC;
-    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvConnectWithProvisioning( &( xParams ),
@@ -327,7 +334,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectMalformedCert )
     xParams.ulClientPrivateKeyLength = 1 + strlen( ( const char * ) xParams.pucClientPrivateKey );
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_CERTIFICATE_PEM_MALFORMED;
     xParams.ulClientCertificateLength = tlstestCLIENT_CERTIFICATE_PEM_MALFORMED_LENGTH;
-    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvExpectFailAfterDataSentWithProvisioning( &( xParams ) );
@@ -343,7 +350,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectUntrustedCert )
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_UNTRUSTED_PRIVATE_KEY_PEM_LENGTH;
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM;
     xParams.ulClientCertificateLength = tlstestCLIENT_UNTRUSTED_CERTIFICATE_PEM_LENGTH;
-    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvExpectFailAfterDataSentWithProvisioning( &( xParams ) );
@@ -359,7 +366,7 @@ TEST( Full_TLS, AFQP_TLS_ConnectBYOCCredentials )
     xParams.ulClientPrivateKeyLength = tlstestCLIENT_BYOC_PRIVATE_KEY_PEM_LENGTH;
     xParams.pucClientCertificate = ( uint8_t * ) tlstestCLIENT_BYOC_CERTIFICATE_PEM;
     xParams.ulClientCertificateLength = tlstestCLIENT_BYOC_CERTIFICATE_PEM_LENGTH;
-    xParams.ulJITPCertifiateLength = 0; /* Do not provision JITP certificate. */
+    xParams.ulJITPCertificateLength = 0; /* Do not provision JITP certificate. */
     xParams.pucJITPCertificate = NULL;
 
     prvConnectWithProvisioning( &( xParams ),

@@ -64,6 +64,9 @@ EXPAND_ONLY_PREDEF = YES
 EXPAND_AS_DEFINED = TEST
 EXCLUDE_SYMBOLS += "TEST_*_run"
 
+#Custom command
+ALIASES += sideeffect="\par Side Effects"
+
 # Alias for starting a dependencies section.
 ALIASES += dependencies_section{1}="@section \1_dependencies Dependencies"
 ALIASES += dependencies_brief{1}="@brief Dependencies of the \1."

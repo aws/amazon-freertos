@@ -10,7 +10,7 @@ PROJECT_BRIEF = "BLE"
 HTML_OUTPUT = ble
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/ble.tag
+GENERATE_TAGFILE = doc/output/ble.tag
 
 # Directories containing library source code.
 INPUT = doc \
@@ -22,8 +22,8 @@ INPUT = doc \
 FILE_PATTERNS = *ble*.c *ble*.h *ble*.txt
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
-           doc/tag/linear_containers.tag=../linear_containers \
-           doc/tag/logging.tag=../logging \
-           doc/tag/platform.tag=../platform \
-           doc/tag/static_memory.tag=../static_memory \
+TAGFILES = doc/output/main.tag=../main \
+           doc/output/linear_containers.tag=../linear_containers \
+           doc/output/logging.tag=../logging \
+           doc/output/platform.tag=../platform \
+           doc/output/static_memory.tag=../static_memory \

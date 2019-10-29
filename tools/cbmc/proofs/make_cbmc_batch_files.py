@@ -23,6 +23,7 @@
 # SOFTWARE.
 
 import os
+import platform
 import subprocess
 
 
@@ -35,6 +36,9 @@ def remove_cbmc_yaml_files():
 
 
 def create_cbmc_yaml_files():
+    # The YAML files are only used by CI and are not needed on Windows.
+    if platform.system() == "Windows":
+        return
     for dyr, _, files in os.walk("."):
         harness = [file for file in files if file.endswith("_harness.c")]
         if harness and "Makefile" in files:

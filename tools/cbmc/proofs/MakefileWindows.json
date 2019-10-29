@@ -37,5 +37,8 @@
     ],
     "CP": [
 	"copy"
+    ],
+    "TYPE_HEADER_SCRIPT": [
+    "$(PROOFS)\\make_type_header_files.py"
     ]
 }

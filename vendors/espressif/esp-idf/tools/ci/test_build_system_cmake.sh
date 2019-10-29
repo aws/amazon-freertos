@@ -212,6 +212,75 @@ function run_tests()
     mv CMakeLists.bak CMakeLists.txt
     assert_built ${APP_BINS} ${BOOTLOADER_BINS} ${PARTITION_BIN}
 
+    print_status "Building a project with CMake and PSRAM workaround, all files compile with workaround"
+    cp sdkconfig sdkconfig.bak
+    rm -rf build
+    echo "CONFIG_SPIRAM_SUPPORT=y" >> sdkconfig
+    echo "CONFIG_SPIRAM_CACHE_WORKAROUND=y" >> sdkconfig
+    # note: we do 'reconfigure' here, as we just need to run cmake
+    idf.py reconfigure
+    grep -q '"command"' build/compile_commands.json || failure "compile_commands.json missing or has no no 'commands' in it"
+    (grep '"command"' build/compile_commands.json | grep -v mfix-esp32-psram-cache-issue) && failure "All commands in compile_commands.json should use PSRAM cache workaround"
+    mv sdkconfig.bak sdkconfig
+
+    print_status "Make sure a full build never runs '/usr/bin/env python' or similar"
+    OLDPATH="$PATH"
+    PYTHON="$(which python)"
+    rm -rf build
+    cat > ./python << EOF
+    #!/bin/sh
+    echo "The build system has executed '/usr/bin/env python' or similar"
+    exit 1
+EOF
+    chmod +x ./python
+    export PATH="$(pwd):$PATH"
+    ${PYTHON} $IDF_PATH/tools/idf.py build || failure "build failed"
+    export PATH="$OLDPATH"
+    rm ./python
+
+    print_status "Custom bootloader overrides original"
+    clean_build_dir
+    (mkdir components && cd components && cp -r $IDF_PATH/components/bootloader .)
+    idf.py build
+    grep "$PWD/components/bootloader/subproject/main/bootloader_start.c" build/bootloader/compile_commands.json \
+        || failure "Custom bootloader source files should be built instead of the original's"
+    rm -rf components
+
+    print_status "Empty directory not treated as a component"
+    clean_build_dir
+    mkdir -p components/esp32 && idf.py reconfigure
+    ! grep "$PWD/components/esp32"  $PWD/build/project_description.json || failure "Failed to build with empty esp32 directory in components"
+    rm -rf components
+
+    print_status "If a component directory is added to COMPONENT_DIRS, its subdirectories are not added"
+    clean_build_dir
+    mkdir -p main/test
+    echo "register_component()" > main/test/CMakeLists.txt
+    idf.py reconfigure
+    ! grep "$PWD/main/test" $PWD/build/project_description.json || failure "COMPONENT_DIRS has added component subdirectory to the build"
+    grep "$PWD/main" $PWD/build/project_description.json || failure "COMPONENT_DIRS parent component directory should be included in the build"
+    rm -rf main/test
+
+    print_status "If a component directory is added to COMPONENT_DIRS, its sibling directories are not added"
+    clean_build_dir
+    mkdir -p mycomponents/mycomponent 
+    echo "register_component()" > mycomponents/mycomponent/CMakeLists.txt
+    # first test by adding single component directory to EXTRA_COMPONENT_DIRS
+    mkdir -p mycomponents/esp32
+    echo "register_component()" > mycomponents/esp32/CMakeLists.txt
+    (export EXTRA_COMPONENT_DIRS=$PWD/mycomponents/mycomponent && idf.py reconfigure)
+    ! grep "$PWD/mycomponents/esp32" $PWD/build/project_description.json || failure "EXTRA_COMPONENT_DIRS has added a sibling directory"
+    grep "$PWD/mycomponents/mycomponent" $PWD/build/project_description.json || failure "EXTRA_COMPONENT_DIRS valid sibling directory should be in the build"
+    rm -rf mycomponents/esp32
+    # now the same thing, but add a components directory
+    mkdir -p esp32
+    echo "register_component()" > esp32/CMakeLists.txt
+    (export EXTRA_COMPONENT_DIRS=$PWD/mycomponents/mycomponent && idf.py reconfigure)
+    ! grep "$PWD/esp32" $PWD/build/project_description.json || failure "EXTRA_COMPONENT_DIRS has added a sibling directory"
+    grep "$PWD/mycomponents/mycomponent" $PWD/build/project_description.json || failure "EXTRA_COMPONENT_DIRS valid sibling directory should be in the build"
+    rm -rf esp32
+    rm -rf mycomponents
+
     print_status "All tests completed"
     if [ -n "${FAILURES}" ]; then
         echo "Some failures were detected:"

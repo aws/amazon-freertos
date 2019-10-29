@@ -58,9 +58,19 @@
 			<locationURI>AFR_ROOT/freertos_kernel/include/FreeRTOS.h</locationURI>
 		</link>
 		<link>
+			<name>freertos_kernel/include/StackMacros.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/include/StackMacros.h</locationURI>
+		</link>
+		<link>
 			<name>freertos_kernel/include/atomic.h</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/freertos_kernel/include/atomic.h</locationURI>
+		</link>
+		<link>
+			<name>freertos_kernel/include/croutine.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/freertos_kernel/include/croutine.h</locationURI>
 		</link>
 		<link>
 			<name>freertos_kernel/include/deprecated_definitions.h</name>
@@ -583,6 +593,11 @@
 			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/mbedtls/threading_alt.h</locationURI>
 		</link>
 		<link>
+			<name>libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</locationURI>
+		</link>
+		<link>
 			<name>libraries/freertos_plus/standard/utils/src/iot_system_init.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/libraries/freertos_plus/standard/utils/src/iot_system_init.c</locationURI>
@@ -821,6 +836,16 @@
 			<name>demos/https/iot_demo_https_s3_download_async.c</name>
 			<type>1</type>
 			<locationURI>AFR_ROOT/demos/https/iot_demo_https_s3_download_async.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_upload_sync.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/https/iot_demo_https_s3_upload_sync.c</locationURI>
+		</link>
+		<link>
+			<name>demos/https/iot_demo_https_s3_upload_async.c</name>
+			<type>1</type>
+			<locationURI>AFR_ROOT/demos/https/iot_demo_https_s3_upload_async.c</locationURI>
 		</link>
 		<link>
 			<name>demos/https/iot_demo_https_common.c</name>
@@ -1723,14 +1748,14 @@
 			<locationURI>AFR_ROOT/libraries/3rdparty/tinycbor/cborparser_dup_string.c</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/http-parser/http_parser.h</name>
+			<name>libraries/3rdparty/http_parser/http_parser.h</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/3rdparty/http-parser/http_parser.h</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/http_parser/http_parser.h</locationURI>
 		</link>
 		<link>
-			<name>libraries/3rdparty/http-parser/http_parser.c</name>
+			<name>libraries/3rdparty/http_parser/http_parser.c</name>
 			<type>1</type>
-			<locationURI>AFR_ROOT/libraries/3rdparty/http-parser/http_parser.c</locationURI>
+			<locationURI>AFR_ROOT/libraries/3rdparty/http_parser/http_parser.c</locationURI>
 		</link>
 		<link>
 			<name>libraries/3rdparty/jsmn/jsmn.h</name>

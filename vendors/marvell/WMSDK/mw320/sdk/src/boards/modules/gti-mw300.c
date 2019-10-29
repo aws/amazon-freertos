@@ -3,7 +3,7 @@
 *  @brief This file contains module specific configuration for the
 *         RD-88MW300 module based on schematic dated 19th June 2014
 *
-*  (C) Copyright 2008-2018 Marvell International Ltd. All Rights Reserved
+*  (C) Copyright 2008-2019 Marvell International Ltd. All Rights Reserved
 *
 *  MARVELL CONFIDENTIAL
 *  The source code contained or described herein and all documents related to

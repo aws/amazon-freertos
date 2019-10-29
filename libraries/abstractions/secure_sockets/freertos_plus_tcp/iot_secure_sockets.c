@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS Secure Sockets V1.1.6
+ * Amazon FreeRTOS Secure Sockets V1.1.7
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -578,11 +578,11 @@ static CK_RV prvSocketsGetCryptoSession( SemaphoreHandle_t * pxSessionLock,
 
         if( CKR_OK == xResult )
         {
-            xResult = xInitializePKCS11();
+            xResult = xInitializePkcs11Token();
         }
 
         /* Get the crypto token slot count. */
-        if( ( CKR_OK == xResult ) || ( CKR_CRYPTOKI_ALREADY_INITIALIZED == xResult ) )
+        if( CKR_OK == xResult )
         {
             xResult = pxPkcs11FunctionList->C_GetSlotList( CK_TRUE,
                                                            NULL,

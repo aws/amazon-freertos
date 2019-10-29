@@ -103,6 +103,12 @@
     #define IOT_BLE_ADVERTISING_INTERVAL    300
 #endif
 
+/**< Min encryption key size. */
+#ifndef IOT_BLE_ENCRYPT_KEY_SIZE_MIN
+    #define IOT_BLE_ENCRYPT_KEY_SIZE_MIN    16
+#endif
+
+
 /**
  * @brief Appearance of the device when advertising.
  *

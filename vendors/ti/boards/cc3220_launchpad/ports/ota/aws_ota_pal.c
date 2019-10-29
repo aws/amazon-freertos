@@ -25,7 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /* OTA PAL implementation for TI CC3220SF platform. */
 
-#include "aws_ota_agent.h"
+#include "aws_iot_ota_agent.h"
 #include "aws_ota_pal.h"
 
 #define kOTA_HalfSecondDelay pdMS_TO_TICKS(500UL)

@@ -10,7 +10,7 @@ PROJECT_BRIEF = "Platform portability layer"
 HTML_OUTPUT = platform
 
 # Generate Doxygen tag file for this library.
-GENERATE_TAGFILE = doc/tag/platform.tag
+GENERATE_TAGFILE = doc/output/platform.tag
 
 # Directories containing library source code.
 INPUT = doc/lib \
@@ -25,7 +25,7 @@ FILE_PATTERNS = platform.txt \
                 iot_platform_types.h
 
 # External tag files required by this library.
-TAGFILES = doc/tag/main.tag=../main \
-           doc/tag/logging.tag=../logging \
-           doc/tag/mqtt.tag=../mqtt \
-           doc/tag/shadow.tag=../shadow
+TAGFILES = doc/output/main.tag=../main \
+           doc/output/logging.tag=../logging \
+           doc/output/mqtt.tag=../mqtt \
+           doc/output/shadow.tag=../shadow

@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "aws_tests", "aws_tests.vcxproj", "{D2737FCB-E8AB-49CA-86AD-D6AB594D428E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D2737FCB-E8AB-49CA-86AD-D6AB594D428E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D2737FCB-E8AB-49CA-86AD-D6AB594D428E}.Debug|Win32.Build.0 = Debug|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6476D9ED-B6B7-4561-8CFC-BE0A82679141}
+	EndGlobalSection
+EndGlobal

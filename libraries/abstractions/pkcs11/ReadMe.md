@@ -13,14 +13,14 @@ Amazon FreeRTOS offers two distinct options for silicon partners to integrate wi
 ## When to implement a complete PKCS #11 module ##
 If you wish to integrate a crypto engine that allows for handle-based private key operations to take place outside of main MCU RAM, such that the private key itself is not exposed to the main MCU app, then you must implement a “monolithic” PKCS #11 module. The benefit of this approach is that it allows the app to take advantage of offload crypto while mitigating the threats of private key cloning and theft. The cost of this approach is the additional effort required to implement a complete PKCS #11 module (i.e. as opposed to a PAL, described below).
  
-In order to keep Amazon FreeRTOS as lean as possible, we use subset of PKCS #11. That subset is defined by our qualification tests, https://github.com/aws/amazon-freertos/blob/fix/pkcs11_compliance/tests/common/pkcs11/aws_test_pkcs11.c. These tests are currently located on a branch named ‘fix/pkcs11_compliance’. Implementers are free to integrate more than our required subset of PKCS #11, but it is optional to do so. 
+In order to keep Amazon FreeRTOS as lean as possible, we use subset of PKCS #11. That subset is defined by our qualification tests, https://github.com/aws/amazon-freertos/blob/master/libraries/abstractions/pkcs11/test/iot_test_pkcs11.c. Implementers are free to integrate more than our required subset of PKCS #11, but it is optional to do so. 
  
 The PKCS #11 API functions required by Amazon FreeRTOS are described in the following table. 
 
 Amazon FreeRTOS Library | Required PKCS #11 API Family
 ----------------------- | ----------------------------
 Any | Initialize, Finalize, Open/Close Session, GetSlotList, Login
-Provisioning Demo | GenerateKeyPair, CreateObject, DestroyObject
+Provisioning Demo | GenerateKeyPair, CreateObject, DestroyObject, InitToken, GetTokenInfo
 TLS | Random, Sign, FindObject, GetAttributeValue
 FreeRTOS+TCP | Random, Digest
 OTA | Verify, Digest, FindObject, GetAttributeValue
@@ -43,14 +43,14 @@ CK_OBJECT_HANDLE PKCS11_PAL_FindObject(
     uint8_t * pLabel,
     uint8_t usLength );
  
-BaseType_t PKCS11_PAL_GetObjectValue(
+CK_RV PKCS11_PAL_GetObjectValue(
      CK_OBJECT_HANDLE xHandle,
     uint8_t ** ppucData,
     uint32_t * pulDataSize,
-    CK_BBOOL * xIsPrivate );
+    CK_BBOOL * pIsPrivate );
  
 void PKCS11_PAL_GetObjectValueCleanup( 
-    uint8_t * pucBuffer,
-    uint32_t ulBufferSize );
+    uint8_t * pucData,
+    uint32_t ulDataSize );
 ```
-A stub of the PAL interface can be found at https://github.com/aws/amazon-freertos/blob/master/lib/pkcs11/portable/vendor/board/aws_pkcs11_pal.c.
+A stub of the PAL interface can be found at https://github.com/aws/amazon-freertos/blob/master/vendors/vendor/boards/board/ports/pkcs11/iot_pkcs11_pal.c.
