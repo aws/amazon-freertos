@@ -1,11 +1,12 @@
 # Change Log for Amazon FreeRTOS
 
-## Upcoming Release 
+## 201910.00 10/29/2019
+
 ### New Features
-#### New Board:Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
+#### New Board: Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
 - The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
 
-#### New Board:Microchip ATECC608A with Windows Simulator
+#### New Board: Microchip ATECC608A with Windows Simulator
 - The Microchip ATECC608A secure element with Windows Simulator is now qualified for Amazon FreeRTOS.
 
 #### Defender Client Library V3.0.0
