@@ -192,7 +192,7 @@ typedef struct
 #define QUEUE_LENGTH                          20
 #define ITEM_SIZE                             sizeof( void * )
 
-#define BLE_TESTS_WAIT                        10000                 /* Wait 10s max */
+#define BLE_TESTS_WAIT                        60000                 /* Wait 60s max */
 #define BLE_TESTS_SHORT_WAIT                  4000                  /* Wait 4s max */
 
 typedef enum
