@@ -34,6 +34,7 @@
 /* Enable/Disable test cases */
 /* AFQP test */
 #define ENABLE_TC_AFQP_WRITE_LONG                                             ( 1 )
+#define ENABLE_TC_AFQP_READ_LONG                                              ( 1 )
 #define ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE                                   ( 0 )
 #define ENABLE_TC_AFQP_SECONDARY_SERVICE                                      ( 0 )
 /* Integration test */

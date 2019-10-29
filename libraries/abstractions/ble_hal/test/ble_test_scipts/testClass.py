@@ -344,9 +344,21 @@ class runTest:
             runTest.DUT_WRITE_NO_RESP_CHAR_UUID, result, False)
 
     @staticmethod
-    def writeLongCharacteristic():
+    def writereadLongCharacteristic():
         long_value="1" * (runTest.MTU_SIZE + 10) #TODO: get correct mtu size, assume 200 for now
-        return bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
+        bleAdapter.writeCharacteristic(runTest.DUT_OPEN_CHAR_UUID, long_value)
+        (isTestSuccessfull, charRead) = bleAdapter.readCharacteristic(runTest.DUT_OPEN_CHAR_UUID)
+
+        if charRead != long_value:
+            isTestSuccessfull = False
+            print(
+                "readWriteSimpleConnection test: Expected value:" +
+                long_value +
+                " got:" +
+                charRead)
+
+        sys.stdout.flush()
+        return isTestSuccessfull
 
     @staticmethod
     def _readWriteChecks(charUUID, descrUUID):
@@ -842,7 +854,7 @@ class runTest:
             runTest.reConnection: "_reConnection",
             runTest.checkProperties: "_checkProperties",
             runTest.checkUUIDs: "_checkUUIDs",
-            runTest.writeLongCharacteristic: "_writeLongCharacteristic",
+            runTest.writereadLongCharacteristic: "_writereadLongCharacteristic",
             runTest.readWriteSimpleConnection: "_readWriteSimpleConnection",
             runTest.writeWithoutResponse: "_writeWithoutResponse",
             runTest.notification: "_notification",
