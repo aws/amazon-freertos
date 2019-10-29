@@ -219,7 +219,7 @@ class runTest:
 
     @staticmethod
     def waitForDisconnect():
-        isTestSuccessfull = bleAdapter.waitForDisconnect(timeout=runTest.GENERIC_TEST_TIMEOUT)
+        isTestSuccessfull = bleAdapter.isDisconnected(timeout=runTest.GENERIC_TEST_TIMEOUT)
         runTest.submitTestResult(isTestSuccessfull, runTest.waitForDisconnect)
 
     @staticmethod
@@ -229,7 +229,7 @@ class runTest:
             bleAdapter.writeCharacteristic(
                 runTest.DUT_ENCRYPT_CHAR_UUID,
                 runTest.DUT_ENCRYPT_CHAR_UUID)  # should trigger a pairing event
-            isTestSuccessFull = bleAdapter.isPaired()
+            isTestSuccessFull = bleAdapter.isPaired(timeout=runTest.GENERIC_TEST_TIMEOUT)
         else:
             isTestSuccessFull = False
         return isTestSuccessFull
@@ -408,7 +408,14 @@ class runTest:
 
     @staticmethod
     def discoverPrimaryServices():
-        return bleAdapter.getPropertie(runTest.testDevice, "ServicesResolved")
+        retries = 5
+        for x in range(retries):
+            status = bleAdapter.getPropertie(runTest.testDevice, "ServicesResolved")
+            if status == True:
+                return True
+            time.sleep(1)
+            print("Retrying....")
+        return False
 
     @staticmethod
     def checkProperties(gatt):

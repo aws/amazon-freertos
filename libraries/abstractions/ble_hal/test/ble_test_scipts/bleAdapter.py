@@ -31,6 +31,7 @@ from gattClient import gattClient
 import Queue
 import time
 import dbus.mainloop.glib
+import threading
 
 try:
     from gi.repository import GObject
@@ -40,10 +41,10 @@ except ImportError:
 pairingEvent = Queue.Queue()
 connectEvent = Queue.Queue()
 disconnectEvent = Queue.Queue()
+isDisconnected = threading.Event()
+isPaired = threading.Event()
 attributeAccessEvent = Queue.Queue()
 mainloop = GObject.MainLoop()
-disconnectReceivedEvent = Queue.Queue()
-
 
 class bleAdapter:
     DBUS_HANDLER_GENERIC_TIMEOUT = 3000  # 3 seconds timeout
@@ -53,12 +54,12 @@ class bleAdapter:
     discoverAllPrimaryServicesEvent = False
     notificationCb = None
     remoteDevice = None
-    disconnectInitiated = False
 
     gatt = gattClient()
 
     @staticmethod
     def init():
+        isDisconnected.set()
         bleAdapter.adapter = testutils.find_adapter()
         bus = dbus.SystemBus()
         bus.add_signal_receiver(
@@ -127,7 +128,6 @@ class bleAdapter:
     @staticmethod
     def disconnect():
         isSuccessfull = False
-        bleAdapter.disconnectInitiated = True
         bleAdapter.getDeviceInterface(
             bleAdapter.remoteDevice).Disconnect(
             reply_handler=disconnectSuccess,
@@ -135,25 +135,34 @@ class bleAdapter:
             timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
         mainloop.run()
         isSuccessfull = disconnectEvent.get()
-        bleAdapter.disconnectInitiated = False
         return isSuccessfull
 
     @staticmethod
-    def waitForDisconnect(timeout=None):
+    def isDisconnected(timeout=None):
         isSuccessfull = False
         try:
             if timeout is None:
-                isSuccessfull = disconnectReceivedEvent.get()
+                isSuccessfull = isDisconnected.is_set()
             else:
-                isSuccessfull = disconnectReceivedEvent.get(timeout=timeout)
+                isSuccessfull = isDisconnected.wait(timeout=timeout)
         except exception as ex:
             print("Caught exception while waiting for disconnect event " + str(ex))
             pass
         return isSuccessfull
 
     @staticmethod
-    def isPaired():
-        return bleAdapter.getPropertie(bleAdapter.remoteDevice, "Paired")
+    def isPaired(timeout=None):
+        ret = False
+        try:
+            if timeout is None:
+                ret = isPaired.is_set()
+            else:
+                ret = isPaired.wait(timeout=timeout)
+        except exception as ex:
+            print("Caught exception while waiting for paired event" + str(ex))
+            pass
+
+        return ret
 
     @staticmethod
     def isPairable():
@@ -185,8 +194,18 @@ class bleAdapter:
         obj = bus.get_object(testutils.SERVICE_NAME, path)
 
         connected = bleAdapter.getPropertie(obj, "Connected")
-        if connected == 0 and bleAdapter.disconnectInitiated == False:
-            disconnectReceivedEvent.put(True)
+        if connected == 1:
+            isDisconnected.clear()
+        elif connected == 0:
+            isDisconnected.set()
+
+        #print("Connected = "+ str(not isDisconnected.is_set()))
+
+        paired = bleAdapter.getPropertie(obj, "Paired")
+        if paired == True:
+            isPaired.set()
+        else:
+            isPaired.clear()
 
         if bleAdapter.discoveryEventCb is not None:
             bleAdapter.discoveryEventCb.im_func(obj)
