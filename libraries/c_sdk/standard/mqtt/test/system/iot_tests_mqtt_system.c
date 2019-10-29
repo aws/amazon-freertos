@@ -60,12 +60,19 @@
  * Provide default values of test configuration constants.
  */
 #ifndef IOT_TEST_MQTT_TIMEOUT_MS
-    #define IOT_TEST_MQTT_TIMEOUT_MS      ( 5000 )
+    #define IOT_TEST_MQTT_TIMEOUT_MS             ( 5000 )
 #endif
 #ifndef IOT_TEST_MQTT_TOPIC_PREFIX
-    #define IOT_TEST_MQTT_TOPIC_PREFIX    "iotmqtttest"
+    #define IOT_TEST_MQTT_TOPIC_PREFIX           "iotmqtttest"
+#endif
+#ifndef IOT_TEST_MQTT_CONNECT_RETRY_COUNT
+    #define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    ( 1 )
 #endif
 /** @endcond */
+
+#if IOT_TEST_MQTT_CONNECT_RETRY_COUNT < 1
+    #error "IOT_TEST_MQTT_CONNECT_RETRY_COUNT must be at least 1."
+#endif
 
 /**
  * @brief Determine which MQTT server mode to test (AWS IoT or Mosquitto).
@@ -221,31 +228,29 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
 {
     IotMqttError_t status = IOT_MQTT_STATUS_PENDING;
 
-    #if defined( IOT_TEST_MQTT_CONNECT_RETRY_COUNT )
-        int32_t retried = 0;
+    int32_t retryCount = 0;
 
-        /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
-         * Wait until 1100 ms have elapsed since the last connection. */
-        uint32_t periodMs = 1100;
-        int32_t retries = IOT_TEST_MQTT_CONNECT_RETRY_COUNT;
+    /* AWS IoT Service limits only allow 1 connection per MQTT client ID per second.
+     * Wait until 1100 ms have elapsed since the last connection. */
+    uint32_t periodMs = 1100;
 
-        for( ; retried <= retries; retried++ )
-        {
-    #endif
-    status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection );
-    #if defined( IOT_TEST_MQTT_CONNECT_RETRY_COUNT )
-        if( ( status == IOT_MQTT_NETWORK_ERROR ) || ( status == IOT_MQTT_TIMEOUT ) )
-        {
-            IotClock_SleepMs( periodMs );
-            periodMs *= 2;
-        }
+    for( ; retryCount <= IOT_TEST_MQTT_CONNECT_RETRY_COUNT; retryCount++ )
+    {
+        status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection );
 
-        else
-        {
-            break;
-        }
-}
-    #endif /* if defined( IOT_TEST_MQTT_CONNECT_RETRY_COUNT ) */
+        #if ( IOT_TEST_MQTT_CONNECT_RETRY_COUNT > 1 )
+            if( ( status == IOT_MQTT_NETWORK_ERROR ) || ( status == IOT_MQTT_TIMEOUT ) )
+            {
+                IotClock_SleepMs( periodMs );
+                periodMs *= 2;
+            }
+            else
+            {
+                break;
+            }
+        #endif
+    }
+
     return status;
 }
 
