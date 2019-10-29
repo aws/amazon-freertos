@@ -660,9 +660,9 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     BTGattResponse_t xGattResponse;
     BLETESTconfirmCallback_t xConfirmEvent;
     BTStatus_t xStatus;
-    uint8_t LongReadBuffer[bletests_LONG_WRITE_LEN];
+    uint8_t LongReadBuffer[ bletests_LONG_WRITE_LEN ];
 
-    memset( LongReadBuffer, 49, bletests_LONG_WRITE_LEN*sizeof(uint8_t));
+    memset( LongReadBuffer, 49, bletests_LONG_WRITE_LEN * sizeof( uint8_t ) );
 
     /* Read transaction */
     xReadEvent = IotTestBleHal_ReadReceive( bletestATTR_SRVCB_CHAR_A );
