@@ -32,8 +32,8 @@
 #include "FreeRTOS.h"
 
 /* Credentials include. */
-#include "aws_clientcredential.h"
-#include "aws_clientcredential_keys.h"
+#include <aws_clientcredential.h>
+#include <aws_clientcredential_keys.h>
 
 /* Unity framework includes. */
 #include "unity.h"
