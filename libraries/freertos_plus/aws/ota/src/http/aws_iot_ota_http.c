@@ -29,7 +29,7 @@
 #include <string.h>
 
 /* Error handling from C-SDK. */
-#include "iot_error.h"
+#include "private/iot_error.h"
 
 /* HTTP includes. */
 #include "iot_https_client.h"
