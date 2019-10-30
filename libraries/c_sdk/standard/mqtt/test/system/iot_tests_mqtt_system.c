@@ -234,7 +234,7 @@ static IotMqttError_t _mqttConnect( const IotMqttNetworkInfo_t * pNetworkInfo,
      * Wait until 1100 ms have elapsed since the last connection. */
     uint32_t periodMs = 1100;
 
-    for( ; retryCount <= IOT_TEST_MQTT_CONNECT_RETRY_COUNT; retryCount++ )
+    for( ; retryCount < IOT_TEST_MQTT_CONNECT_RETRY_COUNT; retryCount++ )
     {
         status = IotMqtt_Connect( pNetworkInfo, pConnectInfo, timeoutMs, pMqttConnection );
 
