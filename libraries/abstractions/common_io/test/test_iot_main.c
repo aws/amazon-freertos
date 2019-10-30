@@ -278,7 +278,18 @@ static void RUN_IOT_TEST_TSENSOR(void)
     for(i = 0; i < TEMP_SENSOR_TEST_SET; i++)
     {
         SET_TEST_IOT_TEMP_SENSOR_CONFIG(i);
-        RUN_TEST_GROUP( TEST_IOT_TSENSOR );
+        switch (testCaseIndex)
+        {
+            case 0:
+                RUN_TEST_GROUP( TEST_IOT_TSENSOR );
+                break;
+            case 1:
+                RUN_TEST_CASE( TEST_IOT_TSENSOR, AFQP_IotTsensorTemp );
+                break;
+            default:
+                printf("Invalid reset test case\n");
+                return;
+        }
     }
 }
 
@@ -473,7 +484,7 @@ static void RUN_TEST_IOT_ALL_GROUP(void){
     RUN_TEST_IOT_PERFCOUNTER();
     RUN_TEST_IOT_PWM(0);
     RUN_TEST_IOT_I2C();
-    RUN_IOT_TEST_TSENSOR();
+    RUN_IOT_TEST_TSENSOR(0);
     RUN_IOT_TEST_BATTERY();
     /* FWPLATFORM-1096  Power tests fail.
        temporarilly call tests individually to skip over tests that
@@ -544,7 +555,7 @@ void RunIotTests(int testIndex, int testCaseIndex)
             RUN_TEST_IOT_I2C();
             break;
         case 12:
-            RUN_IOT_TEST_TSENSOR();
+            RUN_IOT_TEST_TSENSOR(testCaseIndex);
             break;
         case 13:
             RUN_IOT_TEST_POWER(testCaseIndex);

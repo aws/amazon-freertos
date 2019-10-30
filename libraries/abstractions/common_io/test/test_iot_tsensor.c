@@ -43,6 +43,7 @@
 #define testIotTSENSOR_ROOM_TEMP_DELTA  ( 12000 )
 #define testIotTSENSOR_TEMP_DELTA       ( 5000 )
 #define testIotTSENSOR_INVALID_INPUT ( 99 )
+#define TSENSOR_TEMP_ABSOLUTE_ZERO      ( -273150 )
 
 uint8_t uctestIotTsensorInstance = 0;
 
@@ -653,6 +654,33 @@ TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorTriggerMaxThreshold)
 
     lRetVal = iot_tsensor_close(xTsensorHandle);
     TEST_ASSERT_EQUAL(IOT_TSENSOR_SUCCESS, lRetVal);
+}
+
+/*-----------------------------------------------------------*/
+
+/**
+ * @brief Test Function to print tsensor temp for assisted test.
+ *
+ */
+TEST( TEST_IOT_TSENSOR, AFQP_IotTsensorTemp)
+{
+    IotTsensorHandle_t xTsensorHandle;
+    int32_t lRetVal;
+    int32_t temp;
+
+    xTsensorHandle = iot_tsensor_open(uctestIotTsensorInstance);
+    TEST_ASSERT_NOT_EQUAL(NULL, xTsensorHandle);
+
+    lRetVal = iot_tsensor_enable(xTsensorHandle);
+    TEST_ASSERT_EQUAL(IOT_TSENSOR_SUCCESS, lRetVal);
+
+    lRetVal = iot_tsensor_get_temp(xTsensorHandle, &temp);
+    TEST_ASSERT_EQUAL(IOT_TSENSOR_SUCCESS, lRetVal);
+
+    lRetVal = iot_tsensor_close(xTsensorHandle);
+    TEST_ASSERT_EQUAL(IOT_TSENSOR_SUCCESS, lRetVal);
+    /*Print temperature to console.*/
+    TEST_ASSERT_LESS_THAN(TSENSOR_TEMP_ABSOLUTE_ZERO, temp);
 }
 
 /*-----------------------------------------------------------*/
