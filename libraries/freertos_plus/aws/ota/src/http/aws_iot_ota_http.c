@@ -94,16 +94,16 @@
 "-----END CERTIFICATE-----\n"
 
 /* Buffer size for HTTP connection context. This is the minimum size from HTTP library, we cannot
- * use it directly because it's only availble at runtime. */
+ * use it directly because it's only available at runtime. */
 #define HTTPS_CONNECTION_USER_BUFFER_SIZE           256
 
 /* Buffer size for HTTP request context and header.*/
 #define HTTPS_REQUEST_USER_BUFFER_SIZE              2048
 
-/* Buffer size for HTTP reponse context and header.*/
+/* Buffer size for HTTP response context and header.*/
 #define HTTPS_RESPONSE_USER_BUFFER_SIZE             1024
 
-/* Buffer size for HTTP reponse body.*/
+/* Buffer size for HTTP response body.*/
 #define HTTPS_RESPONSE_BODY_BUFFER_SIZE             OTA_FILE_BLOCK_SIZE
 
 /* Default timeout for HTTP synchronous request. */
@@ -157,8 +157,8 @@ typedef struct
 /* Struct for HTTP download information. */
 typedef struct
 {
-    const char * pPath;         /* Resrouce path to the firmware in HTTP URL. */
-    size_t pathLength;          /* Length of the resrouce path. */
+    const char * pPath;         /* Resource path to the firmware in HTTP URL. */
+    size_t pathLength;          /* Length of the resource path. */
     const char * pAddress;      /* Address to the server in HTTP URL. */
     size_t addressLength;       /* Length of the address. */
 } _httpUrlInfo_t;
@@ -828,7 +828,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
         OTA_GOTO_CLEANUP();
     }
 
-    /* Re-initialize the request handle as it could be changed when handling last reponse. */
+    /* Re-initialize the request handle as it could be changed when handling last response. */
     httpsStatus = IotHttpsClient_InitializeRequest( &pRequest->requestHandle, &pRequest->requestConfig );
     if( httpsStatus != IOT_HTTPS_OK )
     {
