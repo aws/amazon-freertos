@@ -1,0 +1,5 @@
+.vs/
+Debug/
+FreeRTOS_P11_Certificate.dat
+FreeRTOS_P11_Key.dat
+aws_demos.vcxproj.user

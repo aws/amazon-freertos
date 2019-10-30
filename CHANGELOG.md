@@ -1,7 +1,14 @@
 # Change Log for Amazon FreeRTOS
 
-## Upcoming Release 
+## 201910.00 10/29/2019
+
 ### New Features
+#### New Board: Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
+- The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
+
+#### New Board: Microchip ATECC608A with Windows Simulator
+- The Microchip ATECC608A secure element with Windows Simulator is now qualified for Amazon FreeRTOS.
+
 #### Defender Client Library V3.0.0
 - Defender Library API change to shared MQTT connection.
 - Demonstration code for Defender Library updated to show use of shared connection.
@@ -14,10 +21,13 @@
 - A port for SoftHSMv2, a third-party open-source implementation of PKCS #11, has been provided for use with the Windows Simulator project for Amazon FreeRTOS.
 - The purpose of the SoftHSMv2 port is to allow ad hoc interoperability testing with an independent implementation of the PKCS #11 standard.
 
-#### New Board:Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X
-- The Infineon XMC4800 IoT Connectivity Kit with OPTIGA Trust X secure element is now qualified for Amazon FreeRTOS.
+#### CMake Builds
+- CMake build is now supported for Nordic nRF52840 DK Development kit.
 
 ### Updates
+#### FreeRTOS Kernel
+- FreeRTOS kernel is now a submodule from https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+
 #### HTTP Parser
 - Add nodejs/http_parser as a submodule in place of copied-over files.
 
@@ -26,14 +36,20 @@
 
 #### PKCS #11
 - Update the PKCS #11 third-party headers to be the latest from OASIS (version 2.40 Plus Errata 01).
+- Add PKCS #11 as a submodule.
 
 #### Bluetooth Low Energy
 - ESP32 board supports NIMBLE as the default underlying stack for Bluetooth Low Energy.
 - Contains bug fixes and enhancements in ESP NIMBLE stack.
 - Contains bug fixes in ESP Bluedroid stack.
 
-#### Enable lwIP full duplex feature
-- The same socket may be used by multiple tasks concurrently.
+#### Marvell SDK Update
+- Marvell SDK now updated to R8 P2 (v1.2.r8.p2)
+
+#### Bluetooth Low Energy
+- ESP32 board supports NIMBLE as the default underlying stack for Bluetooth Low Energy.
+- Contains bug fixes and enhancements in ESP NIMBLE stack.
+- Contains bug fixes in ESP Bluedroid stack.
 
 ## 201908.00 08/26/2019
 

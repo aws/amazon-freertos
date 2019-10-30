@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 V2.0.0
+ * Amazon FreeRTOS PKCS #11 V2.0.1
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -322,7 +322,6 @@ TEST_GROUP_RUNNER( Full_PKCS11_EC )
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_GetAttributeValueMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_FindObjectMultiThread );
         RUN_TEST_CASE( Full_PKCS11_EC, AFQP_SignVerifyMultiThread );
-
 
         prvAfterRunningTests_Object();
     #endif /* if ( pkcs11testEC_KEY_SUPPORT == 1 ) */

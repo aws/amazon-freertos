@@ -398,7 +398,7 @@ int ble_store_config_persist_peer_secs()
 
         /* NVS db count less than RAM count, write operation */
         ESP_LOGD(TAG, "Persisting peer sec value in NVS...");
-        val.sec = ble_store_config_our_secs[ble_store_config_num_peer_secs - 1];
+        val.sec = ble_store_config_peer_secs[ble_store_config_num_peer_secs - 1];
         return ble_store_nvs_write(BLE_STORE_OBJ_TYPE_PEER_SEC, &val);
     } else if (nvs_count > ble_store_config_num_peer_secs) {
         /* NVS db count more than RAM count, delete operation */

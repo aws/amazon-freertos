@@ -58,6 +58,7 @@
 #include "iot_logging_setup.h"
 
 #define iot_ble_hal_gapADVERTISING_BUFFER_SIZE    31
+#define iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE  2
 
 BTBleAdapterCallbacks_t xBTBleAdapterCallbacks;
 uint16_t usConnHandle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
@@ -736,6 +737,8 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
     prvBTFreeAdvData( xAdvData );
     ret_code_t xErrCode = NRF_SUCCESS;
 
+    uint16_t companyId = 0;
+
     ble_advdata_uuid_list_t xCompleteUUIDS;
 
     memset( &xCompleteUUIDS, 0, sizeof( xCompleteUUIDS ) );
@@ -823,7 +826,8 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
         xAdvData->p_slave_conn_int->max_conn_interval = pxParams->ulMaxInterval;
         xAdvData->p_slave_conn_int->min_conn_interval = pxParams->ulMinInterval;
 
-        if( ( pcManufacturerData != NULL ) && ( usManufacturerLen != 0 ) )
+        /* Set manufacturer specific data only when its length is atleast equal to iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE */
+        if( ( pcManufacturerData != NULL ) && ( usManufacturerLen >= iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE ) )
         {
             xAdvData->p_manuf_specific_data = IotBle_Malloc( sizeof( ble_advdata_manuf_data_t ) );
 
@@ -833,16 +837,25 @@ ret_code_t prvBTAdvDataConvert( ble_advdata_t * xAdvData,
             }
             else
             {
-                xAdvData->p_manuf_specific_data->data.p_data = IotBle_Malloc( usManufacturerLen );
+                /* extract company_identifier from input manufacturer data
+                because nordic sdk has separate field for company_identifier */
+                for (uint8_t i = 0; i < iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE; i++) {
+                  companyId = companyId | ((uint16_t) pcManufacturerData[i] << (i * 8));
+                }
+                xAdvData->p_manuf_specific_data->company_identifier = companyId;
 
-                if( xAdvData->p_manuf_specific_data->data.p_data )
+                /* allocate memory for rest of the data in pcManufacturerData i.e. (usManufacturerLen - first 2 octets) */
+                xAdvData->p_manuf_specific_data->data.p_data = IotBle_Malloc( usManufacturerLen - iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE);
+
+                if( xAdvData->p_manuf_specific_data->data.p_data == NULL )
                 {
                     xErrCode = NRF_ERROR_NO_MEM;
                 }
                 else
                 {
-                    memcpy( xAdvData->p_manuf_specific_data->data.p_data, pcManufacturerData, usManufacturerLen );
-                    xAdvData->p_manuf_specific_data->data.size = usManufacturerLen;
+                    /* copy data left after extracting company_identifier (first 2 octets) */
+                    memcpy( xAdvData->p_manuf_specific_data->data.p_data, pcManufacturerData + iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE, usManufacturerLen );
+                    xAdvData->p_manuf_specific_data->data.size = usManufacturerLen - iot_ble_hal_gapADVERTISING_COMPANY_ID_SIZE;
                 }
             }
         }

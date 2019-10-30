@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS OTA V1.0.3
+ * Amazon FreeRTOS OTA V1.0.4
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -34,7 +34,7 @@
 #define OTA_SECONDARY_DATA_PROTOCOL  "HTTP"
 
 #define OTA_DATA_OVER_MQTT
-//#define OTA_DATA_OVER_HTTP 
+//#define OTA_DATA_OVER_HTTP
 
 typedef struct
 {

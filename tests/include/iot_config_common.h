@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201908.00
+ * Amazon FreeRTOS V201910.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -32,8 +32,8 @@
 #include "FreeRTOS.h"
 
 /* Credentials include. */
-#include "aws_clientcredential.h"
-#include "aws_clientcredential_keys.h"
+#include <aws_clientcredential.h>
+#include <aws_clientcredential_keys.h>
 
 /* Unity framework includes. */
 #include "unity.h"
@@ -250,7 +250,13 @@ extern const struct IotNetworkInterface * IotTestNetwork_GetNetworkInterface( vo
 /* Allow the network serializer to be chosen by at runtime. */
 struct IotMqttSerializer;
 extern const struct IotMqttSerializer * IotTestNetwork_GetSerializer( void );
-#define IOT_TEST_MQTT_SERIALIZER    IotTestNetwork_GetSerializer()
+#define IOT_TEST_MQTT_SERIALIZER             IotTestNetwork_GetSerializer()
+
+/* Retry the MQTT Connections in the MQTT System unit tests for all hardware
+ * platforms supported in Amazon FreeRTOS.
+ * Set this to the number of connection attempts for the MQTT tests.
+ * If undefined, it should default to 1. */
+#define IOT_TEST_MQTT_CONNECT_RETRY_COUNT    3
 
 /* Forward declarations of network types used in the tests. */
 typedef struct IotNetworkConnection    IotTestNetworkConnection_t;

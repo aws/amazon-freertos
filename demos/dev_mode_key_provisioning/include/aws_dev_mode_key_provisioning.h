@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201908.00
+ * Amazon FreeRTOS V201910.00
  * Copyright (C) 2019 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -38,6 +38,8 @@
 
 #ifndef _AWS_DEV_MODE_KEY_PROVISIONING_H_
 #define _AWS_DEV_MODE_KEY_PROVISIONING_H_
+
+#include "iot_pkcs11_config.h"
 #include "iot_pkcs11.h"
 
 typedef struct ProvisioningParams_t
