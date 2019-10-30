@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS V201906.00 Major
+ * Amazon FreeRTOS V201910.00
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -43,8 +43,8 @@
 #include "semphr.h"
 
 /* PKCS#11 includes. */
-#include "iot_pkcs11.h"
 #include "iot_pkcs11_config.h"
+#include "iot_pkcs11.h"
 
 /* Client credential includes. */
 #include "aws_clientcredential.h"
@@ -105,6 +105,9 @@ typedef struct ProvisionedState_t
     CK_OBJECT_HANDLE xPublicKey;
     uint8_t * pucDerPublicKey;
     uint32_t ulDerPublicKeyLength;
+    char * pcIdentifier; /* The token label. On some devices, a unique device
+                          * ID might be stored here which can be used as a field
+                          * in the subject of the device certificate. */
 } ProvisionedState_t;
 
 /* This function can be found in libraries/3rdparty/mbedtls/utils/mbedtls_utils.c. */
@@ -633,6 +636,15 @@ CK_RV xProvisionCertificate( CK_SESSION_HANDLE xSession,
         xCertificateTemplate.xValue.ulValueLen = xDerLen;
     }
 
+    /* Best effort clean-up of the existing object, if it exists. */
+    if( xResult == CKR_OK )
+    {
+        xDestroyProvidedObjects( xSession,
+                                 &pucLabel,
+                                 &xCertificateClass,
+                                 1 );
+    }
+
     /* Create an object using the encoded client certificate. */
     if( xResult == CKR_OK )
     {
@@ -838,6 +850,10 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
 {
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR pxFunctionList;
+    CK_SLOT_ID_PTR pxSlotId = NULL;
+    CK_ULONG ulSlotCount = 0;
+    CK_TOKEN_INFO xTokenInfo = { 0 };
+    int i = 0;
 
     xResult = C_GetFunctionList( &pxFunctionList );
 
@@ -877,6 +893,48 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
                                                 &pxProvisionedState->xClientCertificate );
     }
 
+    /* Check for a crypto element identifier. */
+    if( CKR_OK == xResult )
+    {
+        xResult = xGetSlotList( &pxSlotId, &ulSlotCount );
+    }
+
+    if( CKR_OK == xResult )
+    {
+        xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], &xTokenInfo );
+    }
+
+    if( ( CKR_OK == xResult ) && ( '\0' != xTokenInfo.label[ 0 ] ) && ( ' ' != xTokenInfo.label[ 0 ] ) )
+    {
+        /* PKCS #11 requires that token info fields are padded out with space
+         * characters. However, a NULL terminated copy will be more useful to the
+         * caller. */
+        for( i = 0; i < sizeof( xTokenInfo.label ); i++ )
+        {
+            if( xTokenInfo.label[ i ] == ' ' )
+            {
+                break;
+            }
+        }
+
+        if( 0 != i )
+        {
+            pxProvisionedState->pcIdentifier = ( char * ) pvPortMalloc( 1 + i * sizeof( xTokenInfo.label[ 0 ] ) );
+
+            if( NULL != pxProvisionedState->pcIdentifier )
+            {
+                memcpy( pxProvisionedState->pcIdentifier,
+                        xTokenInfo.label,
+                        i );
+                pxProvisionedState->pcIdentifier[ i ] = '\0';
+            }
+            else
+            {
+                xResult = CKR_HOST_MEMORY;
+            }
+        }
+    }
+
     return xResult;
 }
 
@@ -885,8 +943,7 @@ static CK_RV prvGetProvisionedState( CK_SESSION_HANDLE xSession,
 /* Write the ASN.1 encoded bytes of the device public key to the console.
  * This is for debugging purposes as well as to faciliate developer-driven
  * certificate enrollment for onboard crypto hardware (i.e. if available). */
-static void prvWriteHexBytesToConsole( CK_SESSION_HANDLE xSession,
-                                       char * pcLabel,
+static void prvWriteHexBytesToConsole( char * pcDescription,
                                        uint8_t * pucData,
                                        uint32_t ulDataLength )
 {
@@ -897,7 +954,7 @@ static void prvWriteHexBytesToConsole( CK_SESSION_HANDLE xSession,
     uint8_t ucByteValue = 0;
 
     /* Write help text to the console. */
-    configPRINTF( ( "%s, %d bytes:\r\n", pcLabel, ulDataLength ) );
+    configPRINTF( ( "%s, %d bytes:\r\n", pcDescription, ulDataLength ) );
 
     /* Iterate over the bytes of the encoded public key. */
     for( ; ulIndex < ulDataLength; ulIndex++ )
@@ -1098,6 +1155,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
           ( CK_TRUE == xKeyPairGenerationMode ) ) &&
         ( CK_FALSE == xImportedPrivateKey ) )
     {
+<<<<<<< HEAD
         configPRINTF( ( "Warning: no client certificate is available. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
         prvWriteHexBytesToConsole( xSession,
                                    "Device public key",
@@ -1144,50 +1202,34 @@ CK_RV xInitializePkcs11Token()
     {
         xResult = xGetSlotList( &pxSlotId, &xSlotCount );
     }
+=======
+        configPRINTF( ( "Warning: the client certificate should be updated. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
+>>>>>>> release
 
-    if( ( xResult == CKR_OK ) &&
-        ( NULL != pxFunctionList->C_GetTokenInfo ) &&
-        ( NULL != pxFunctionList->C_InitToken ) )
-    {
-        /* Check if the token requires further initialization. */
-        pxTokenInfo = pvPortMalloc( sizeof( CK_TOKEN_INFO ) );
-
-        if( pxTokenInfo != NULL )
+        if( NULL != xProvisionedState.pcIdentifier )
         {
-            /* We will take the first slot available. If your application
-             * has multiple slots, insert logic for selecting an appropriate
-             * slot here.
-             */
-            xResult = pxFunctionList->C_GetTokenInfo( pxSlotId[ 0 ], pxTokenInfo );
-        }
-        else
-        {
-            xResult = CKR_HOST_MEMORY;
+            configPRINTF( ( "Recommended certificate subject name: CN=%s\r\n", xProvisionedState.pcIdentifier ) );
         }
 
-        if( CKR_OK == xResult )
-        {
-            xTokenFlags = pxTokenInfo->flags;
-        }
+        prvWriteHexBytesToConsole( "Device public key",
+                                   xProvisionedState.pucDerPublicKey,
+                                   xProvisionedState.ulDerPublicKeyLength );
 
-        if( ( CKR_OK == xResult ) && !( CKF_TOKEN_INITIALIZED & xTokenFlags ) )
-        {
-            /* Initialize the token if it is not already. */
-            xResult = pxFunctionList->C_InitToken( pxSlotId[ 0 ],
-                                                   ( CK_UTF8CHAR_PTR ) configPKCS11_DEFAULT_USER_PIN,
-                                                   sizeof( configPKCS11_DEFAULT_USER_PIN ) - 1,
-                                                   ( CK_UTF8CHAR_PTR ) "FreeRTOS" );
-        }
+        /* Delay since the downstream demo code is likely to fail quickly if
+         * provisioning isn't complete, and device certificate creation in the
+         * lab may depend on the developer obtaining the public key. */
+        /*vTaskDelay( pdMS_TO_TICKS( 100 ) ); */
     }
 
-    if( pxTokenInfo != NULL )
+    /* Free memory. */
+    if( NULL != xProvisionedState.pucDerPublicKey )
     {
-        vPortFree( pxTokenInfo );
+        vPortFree( xProvisionedState.pucDerPublicKey );
     }
 
-    if( pxSlotId != NULL )
+    if( NULL != xProvisionedState.pcIdentifier )
     {
-        vPortFree( pxSlotId );
+        vPortFree( xProvisionedState.pcIdentifier );
     }
 
     return xResult;

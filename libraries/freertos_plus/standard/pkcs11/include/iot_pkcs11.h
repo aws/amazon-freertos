@@ -1,5 +1,5 @@
 /*
- * Amazon FreeRTOS PKCS #11 V1.0.0
+ * Amazon FreeRTOS PKCS #11 V1.0.1
  * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -198,6 +198,14 @@ CK_RV xGetSlotList( CK_SLOT_ID ** ppxSlotId,
  *          Note that PKCS #11 error codes are positive.
  */
 CK_RV xInitializePkcs11Session( CK_SESSION_HANDLE * pxSession );
+
+/**
+ *  \brief Initializes a PKCS #11 module and token.
+ *
+ *  \return CKR_OK upon success.  PKCS #11 error code on failure.
+ *          Note that PKCS #11 error codes are positive.
+ */
+CK_RV xInitializePkcs11Token( void );
 
 /**
  * \brief Searches for an object with a matching label and class provided.
