@@ -1155,56 +1155,7 @@ CK_RV xProvisionDevice( CK_SESSION_HANDLE xSession,
           ( CK_TRUE == xKeyPairGenerationMode ) ) &&
         ( CK_FALSE == xImportedPrivateKey ) )
     {
-<<<<<<< HEAD
-        configPRINTF( ( "Warning: no client certificate is available. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
-        prvWriteHexBytesToConsole( xSession,
-                                   "Device public key",
-                                   xProvisionedState.pucDerPublicKey,
-                                   xProvisionedState.ulDerPublicKeyLength );
-
-        /* Delay since the downstream demo code is likely to fail quickly if
-         * provisioning isn't complete, and device certificate creation in the
-         * lab may depend on the developer obtaining the public key. */
-        vTaskDelay( pdMS_TO_TICKS( 100 ) );
-    }
-
-    /* Free memory. */
-    if( NULL != xProvisionedState.pucDerPublicKey )
-    {
-        vPortFree( xProvisionedState.pucDerPublicKey );
-    }
-
-    return xResult;
-}
-
-/*-----------------------------------------------------------*/
-
-/* Perform common token initialization as per the PKCS #11 standard. For
- * compatibility reasons, this may include authentication with a static PIN. */
-CK_RV xInitializePkcs11Token()
-{
-    CK_RV xResult;
-
-    CK_FUNCTION_LIST_PTR pxFunctionList;
-    CK_SLOT_ID * pxSlotId = NULL;
-    CK_ULONG xSlotCount;
-    CK_FLAGS xTokenFlags = 0;
-    CK_TOKEN_INFO_PTR pxTokenInfo = NULL;
-
-    xResult = C_GetFunctionList( &pxFunctionList );
-
-    if( xResult == CKR_OK )
-    {
-        xResult = xInitializePKCS11();
-    }
-
-    if( ( xResult == CKR_OK ) || ( xResult == CKR_CRYPTOKI_ALREADY_INITIALIZED ) )
-    {
-        xResult = xGetSlotList( &pxSlotId, &xSlotCount );
-    }
-=======
         configPRINTF( ( "Warning: the client certificate should be updated. Please see https://aws.amazon.com/freertos/getting-started/.\r\n" ) );
->>>>>>> release
 
         if( NULL != xProvisionedState.pcIdentifier )
         {
