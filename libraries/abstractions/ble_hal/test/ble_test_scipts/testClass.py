@@ -149,12 +149,9 @@ class runTest:
     @staticmethod
     def notificationMTUCb(uuid, value, flag):
         notification = runTest.notificationMTU2(uuid, value, flag)
-        if notification == runTest.DUT_FAIL_STRING:
-            runTest.mainloop.quit()
-            runTest.isNotificationDeclinedSuccessFull = True
         if notification == runTest.DUT_MTU_2_STRING:
             runTest.mainloop.quit()
-            runTest.isNotificationDeclinedSuccessFull = False
+            runTest.isNotificationDeclinedSuccessFull = True
 
     @staticmethod
     def errorConnectCb():
@@ -717,6 +714,12 @@ class runTest:
         runTest.stopAdvertisement(scan_filter)
         isTestSuccessFull_discover = runTest.discoverPrimaryServices()
         bleAdapter.gatt.updateLocalAttributeTable()
+
+        time.sleep(2)  # wait for connection parameters update
+
+        # Check device not present. After discovery of services, advertisement
+        # should have stopped.
+        runTest.stopAdvertisement(scan_filter)
 
         bleAdapter.setNotificationCallBack(runTest.notificationMTUCb)
         bleAdapter.subscribeForNotification(

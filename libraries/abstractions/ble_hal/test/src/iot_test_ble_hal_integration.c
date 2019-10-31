@@ -398,50 +398,24 @@ TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent
     IotTestBleHal_DeleteService( &_xSrvcB );
 }
 
-/* If data size is > MTU - 3 then BT stack can truncate it to MTU - 3 and keep trying to send it over to other peer.
- * Make sure calling pxSendIndication() with xLen > MTU - 3 and HAL returns failure.*/
-/* 2 chars has the same descriptor uuid which can cause read/write the descriptors of chars to return wrong values. */
 TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
     uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
-    uint8_t cccdFValue;
 
-    /* Create a data payload whose length = MTU + 1. */
-    static char bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 2 ];
-
-    memset( bletests_MTU_2_CHAR_VALUE, 'a', ( bletestsMTU_SIZE1 + 1 ) * sizeof( char ) );
-    bletests_MTU_2_CHAR_VALUE[ bletestsMTU_SIZE1 + 1 ] = '\0';
-
-    cccdFValue = ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[ 0 ];
-    /* check the value of cccd E is changed from 0 to 1. */
     IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
-    /* check the value of cccd F does not change */
-    TEST_ASSERT_EQUAL( ucRespBuffer[ bletestATTR_SRVCB_CCCD_F ].ucBuffer[ 0 ], cccdFValue );
 
-    memcpy( ucLargeBuffer, bletests_MTU_2_CHAR_VALUE, bletestsMTU_SIZE1 + 1 );
+    memset( ucLargeBuffer, 'a', ( bletestsMTU_SIZE1 + 2 ) * sizeof( char ) );
 
-    /* Expect to return failure here. */
     xStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
                                                         usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
                                                         _usBLEConnId,
-                                                        bletestsMTU_SIZE1 + 1,
+                                                        bletestsMTU_SIZE1 + 2,
                                                         ucLargeBuffer,
                                                         false );
-    TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
-    if( xStatus != eBTStatusSuccess )
-    {
-        /* Notify RPI failure here. Expect to receive "fail" message. */
-        memcpy( ucLargeBuffer, bletestsFAIL_CHAR_VALUE, sizeof( bletestsFAIL_CHAR_VALUE ) - 1 );
-        xfStatus = _pxGattServerInterface->pxSendIndication( _ucBLEServerIf,
-                                                             usHandlesBufferB[ bletestATTR_SRVCB_CHAR_E ],
-                                                             _usBLEConnId,
-                                                             sizeof( bletestsFAIL_CHAR_VALUE ) - 1,
-                                                             ucLargeBuffer,
-                                                             false );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xfStatus );
-    }
+    IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, false );
 }
 
 TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconnected )
