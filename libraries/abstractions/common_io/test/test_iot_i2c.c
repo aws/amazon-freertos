@@ -176,7 +176,6 @@ TEST_GROUP_RUNNER( TEST_IOT_I2C )
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2COpenCloseFailUnsupportInst );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationSuccess );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CSetGetConfigurationFail );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CGetBusStateSuccess );
 
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteSyncSuccess );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteSyncFail );
@@ -184,14 +183,15 @@ TEST_GROUP_RUNNER( TEST_IOT_I2C )
 
     /* If it supports not sending stop condition. */
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_SEND_NO_STOP == 1 )
+        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CGetBusStateSuccess );
         RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteThenReadSyncSuccess );
+        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl );
+        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice );
     #endif
 
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncSuccess );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailIoctl );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CWriteAsyncFailWriteTwice );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl );
-    RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice );
     RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailSetAddr );
 
     /* If it supports not sending stop condition. */
@@ -202,7 +202,9 @@ TEST_GROUP_RUNNER( TEST_IOT_I2C )
 
     /* If it supports cancel the current operation. */
     #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_CANCEL == 1 )
-        RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CCancelReadSuccess );
+        #if ( IOT_TEST_COMMON_IO_I2C_SUPPORTED_SEND_NO_STOP == 1 )
+            RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CCancelReadSuccess );
+        #endif
         RUN_TEST_CASE( TEST_IOT_I2C, AFQP_IotI2CCancelFail );
     #endif
 
@@ -543,6 +545,10 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailIoctl )
         lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
+        /* Set i2c configuration */
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
+        
         /* write the device register address. */
         lRetVal = iot_i2c_write_sync( xI2CHandle, &xtestIotI2CDeviceRegister, sizeof( xtestIotI2CDeviceRegister ) );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
@@ -601,6 +607,10 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
         lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
+        /* Set i2c configuration */
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
+        
         /* write the device register address. */
         lRetVal = iot_i2c_write_sync( xI2CHandle, &xtestIotI2CDeviceRegister, sizeof( xtestIotI2CDeviceRegister ) );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
@@ -690,6 +700,10 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CCancelReadSuccess )
         lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
+        /* Set i2c configuration */
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
+        
         /* write the device register address. */
         lRetVal = iot_i2c_write_sync( xI2CHandle, &xtestIotI2CDeviceRegister, sizeof( xtestIotI2CDeviceRegister ) );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
@@ -1171,6 +1185,10 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CGetBusStateSuccess )
 
         /* Set i2c slave address */
         lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
+
+        /* Set i2c configuration */
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
         /* write the device register address. */
