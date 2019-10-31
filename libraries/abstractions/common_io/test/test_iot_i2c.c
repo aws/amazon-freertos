@@ -619,6 +619,10 @@ TEST( TEST_IOT_I2C, AFQP_IotI2CReadAsyncFailReadTwice )
         lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSetSlaveAddr, &uctestIotI2CSlaveAddr );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
 
+        /* Set i2c configuration */
+        lRetVal = iot_i2c_ioctl( xI2CHandle, eI2CSendNoStopFlag, NULL );
+        TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
+
         /* read from i2c device */
         lRetVal = iot_i2c_read_async( xI2CHandle, ucBuffer, sizeof( ucBuffer ) );
         TEST_ASSERT_EQUAL( IOT_I2C_SUCCESS, lRetVal );
