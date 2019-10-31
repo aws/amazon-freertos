@@ -69,7 +69,7 @@
 /*
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
  */
-#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          0
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          1
 
 /**
  * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.
