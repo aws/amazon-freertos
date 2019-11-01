@@ -166,22 +166,31 @@ typedef struct
 /* Struct to keep track of the internal HTTP downloader state. */
 typedef enum
 {
-    OTA_HTTP_OK = 0,
-    OTA_HTTP_GENERIC_ERR = 101,
-    OTA_HTTP_NEED_RECONNECT = 102,
-    OTA_HTTP_URL_EXPIRED = 103,
+    OTA_HTTP_ERR_NONE = 0,
+    OTA_HTTP_ERR_GENERIC = 101,
+    OTA_HTTP_ERR_CANCELED = 102,
+    OTA_HTTP_ERR_NEED_RECONNECT = 103,
+    OTA_HTTP_ERR_URL_EXPIRED = 104
+} _httpErr;
+
+typedef enum
+{
+    OTA_HTTP_IDLE = 0,
+    OTA_HTTP_SENDING_REQUEST,
+    OTA_HTTP_WAITING_RESPONSE,
+    OTA_HTTP_PROCESSING_RESPONSE
 } _httpState;
 
 /* Struct for OTA HTTP downloader. */
 typedef struct
 {
     _httpState state;                           /* HTTP downloader state. */
+    _httpErr err;                               /* HTTP downloader error status. */
     _httpUrlInfo_t httpUrlInfo;                 /* HTTP url of the file to download. */
     _httpConnection_t httpConnection;           /* HTTP connection data. */
     _httpRequest_t httpRequest;                 /* HTTP request data. */
     _httpResponse_t httpResponse;               /* HTTP response data. */
     _httpCallbackData_t httpCallbackData;       /* Data used in the HTTP callback. */
-    bool isDownloading;                         /* Flag to keep track of the status. */
     uint32_t currBlock;                         /* Current requesting block in bitmap. */
     uint32_t currBlockSize;                     /* Size of current requesting block. */
     OTA_AgentContext_t * pAgentCtx;             /* OTA agent context. */
@@ -244,12 +253,35 @@ static void _httpErrorHandler( uint16_t httpResponseCode )
     if( httpResponseCode == IOT_HTTPS_STATUS_FORBIDDEN )
     {
         IotLogInfo( "Pre-signed URL may have expired, requesting new job document." );
-        _httpDownloader.state = OTA_HTTP_URL_EXPIRED;
+        _httpDownloader.err = OTA_HTTP_ERR_URL_EXPIRED;
     }
     else
     {
-        _httpDownloader.state = OTA_HTTP_GENERIC_ERR;
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
     }
+}
+
+/* Helper function to reconnect to the HTTP server. */
+static IotHttpsReturnCode_t _httpReconnect()
+{
+    /* HTTP API return status. */
+    IotHttpsReturnCode_t httpsStatus = IotHttpsClient_Connect(
+        &_httpDownloader.httpConnection.connectionHandle,
+        &_httpDownloader.httpConnection.connectionConfig );
+
+    if( httpsStatus != IOT_HTTPS_OK )
+    {
+        IotLogError( "Failed to reconnect to the HTTP server. Error code: %d.", httpsStatus );
+        _httpDownloader.err = OTA_HTTP_ERR_NEED_RECONNECT;
+    }
+    else
+    {
+        IotLogInfo( "Successfully reconnected to %.*s",
+                    _httpDownloader.httpUrlInfo.addressLength,
+                    _httpDownloader.httpUrlInfo.pAddress );
+    }
+
+    return httpsStatus;
 }
 
 /* HTTP async callback for adding header to HTTP request, called after IotHttpsClient_SendAsync. */
@@ -267,11 +299,19 @@ static void _httpAppendHeaderCallback( void * pPrivateData,
                                                             sizeof( "Range" ) - 1,
                                                             pRangeValueStr,
                                                             strlen( pRangeValueStr ) );
+    /* If case of error, the request will be canceled, then _httpErrorCallback will be invoked,
+     * followed by _httpResponseCompleteCallback. */
     if( status != IOT_HTTPS_OK )
     {
         IotLogError( "Failed to add HTTP header. Error code: %d. Canceling current request.", status );
         IotHttpsClient_CancelRequestAsync( requestHandle );
-        _httpDownloader.state = OTA_HTTP_GENERIC_ERR;
+        _httpDownloader.err = OTA_HTTP_ERR_CANCELED;
+    }
+    else
+    {
+        /* We've successfully sent the request, now waiting for a response, _httpReadReadyCallback
+         * is expected to be invoked next upon receiving a response from the server. */
+        _httpDownloader.state = OTA_HTTP_WAITING_RESPONSE;
     }
 }
 
@@ -300,6 +340,9 @@ static void _httpReadReadyCallback( void * pPrivateData,
     /* Buffer to read the "Connection" field in HTTP header. */
     char connectionValueStr[ HTTP_HEADER_CONNECTION_VALUE_MAX_LEN ] = { 0 };
 
+    /* A response is received from the server, setting the state to processing response. */
+    _httpDownloader.state = OTA_HTTP_PROCESSING_RESPONSE;
+
     /* The HTTP response should be partial content with response code 206. */
     if( responseStatus != IOT_HTTPS_STATUS_PARTIAL_CONTENT )
     {
@@ -313,7 +356,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     if( ( httpsStatus != IOT_HTTPS_OK ) || ( contentLength == 0 ) )
     {
         IotLogError( "Failed to retrieve the Content-Length from the response. " );
-        _httpDownloader.state = OTA_HTTP_GENERIC_ERR;
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -321,7 +364,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     if( contentLength != _httpDownloader.currBlockSize )
     {
         IotLogError( "Content-Length value in HTTP header does not match what we requested. " );
-        _httpDownloader.state = OTA_HTTP_GENERIC_ERR;
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -333,7 +376,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Failed to read the response body. Error code: %d.", httpsStatus );
-        _httpDownloader.state = OTA_HTTP_GENERIC_ERR;
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -350,27 +393,23 @@ static void _httpReadReadyCallback( void * pPrivateData,
     if( ( httpsStatus != IOT_HTTPS_OK ) && ( httpsStatus != IOT_HTTPS_NOT_FOUND ) )
     {
         IotLogError( "Failed to read header Connection. Error code: %d.", httpsStatus );
-        _httpDownloader.state = OTA_HTTP_GENERIC_ERR;
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
     /* Check if the server returns a response with connection field set to "close". */
     if( strncmp( "close", connectionValueStr, sizeof( "close" ) ) == 0 )
     {
-        /* Reconnect. */
-        httpsStatus = IotHttpsClient_Connect( &pConnection->connectionHandle, &pConnection->connectionConfig );
-
-        if( httpsStatus != IOT_HTTPS_OK )
-        {
-            IotLogError( "Failed to reconnect to the S3 server. Error code: %d.", httpsStatus );
-            _httpDownloader.state = OTA_HTTP_NEED_RECONNECT;
-            OTA_GOTO_CLEANUP();
-        }
+        _httpReconnect();
     }
 
     OTA_FUNCTION_CLEANUP_BEGIN();
 
-    if( _httpDownloader.state != OTA_HTTP_OK )
+    /* Cancel receiving the response in case of error, _httpErrorCallback will be invoked next.
+     * If the HTTP error is IOT_HTTPS_NETWORK_ERROR, the connection will then be closed by the HTTP
+     * client, followed by invoking _httpConnectionClosedCallback and _httpResponseCompleteCallback.
+     * In other cases, only _httpResponseCompleteCallback will be invoked. */
+    if( _httpDownloader.err != OTA_HTTP_ERR_NONE )
     {
         IotHttpsClient_CancelResponseAsync( responseHandle );
     }
@@ -391,30 +430,38 @@ static void _httpResponseCompleteCallback( void * pPrivateData,
     /* OTA Event. */
     OTAEventMsg_t eventMsg = { 0 };
 
-    if( _httpDownloader.state == OTA_HTTP_GENERIC_ERR )
+    if( _httpDownloader.err == OTA_HTTP_ERR_NONE )
     {
-        IotLogError( "Fail to download block %d. ", _httpDownloader.currBlock );
-        OTA_GOTO_CLEANUP();
+        _httpProcessResponseBody( _httpDownloader.pAgentCtx, pResponseBodyBuffer, _httpDownloader.currBlockSize );
     }
-    if( _httpDownloader.state == OTA_HTTP_NEED_RECONNECT )
+    else
     {
-        eventMsg.xEventId = eOTA_AgentEvent_StartFileTransfer;
-        IotLogInfo( "Reconnection required for HTTP, going back to init file transfer." );
-        OTA_SignalEvent( &eventMsg );
-        OTA_GOTO_CLEANUP();
-    }
-    if( _httpDownloader.state == OTA_HTTP_URL_EXPIRED )
-    {
-        eventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
-        IotLogInfo( "Requesting a new job document." );
-        OTA_SignalEvent( &eventMsg );
-        OTA_GOTO_CLEANUP();
-    }
+        /* Reset the state to idle when current download fails. */
+        _httpDownloader.state = OTA_HTTP_IDLE;
 
-    /* Process the HTTP response body. */
-    _httpProcessResponseBody( _httpDownloader.pAgentCtx, pResponseBodyBuffer, _httpDownloader.currBlockSize );
-
-    OTA_FUNCTION_NO_CLEANUP();
+        switch( _httpDownloader.err )
+        {
+        case OTA_HTTP_ERR_NEED_RECONNECT:
+            IotLogInfo( "HTTP connection is closed, will reconnection in next request." );
+            break;
+        case OTA_HTTP_ERR_URL_EXPIRED:
+            eventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
+            IotLogInfo( "URL has expired, requesting a new job document." );
+            OTA_SignalEvent( &eventMsg );
+            break;
+        case OTA_HTTP_ERR_CANCELED:
+            IotLogError( "Request to download block %d has been canceled.", _httpDownloader.currBlock );
+            break;
+        case OTA_HTTP_ERR_GENERIC:
+            IotLogError( "Fail to download block %d.", _httpDownloader.currBlock );
+            break;
+        default:
+            IotLogError( "Unhandled OTA HTTP state %d, aborting OTA.", _httpDownloader.state );
+            eventMsg.xEventId = eOTA_AgentEvent_UserAbort;
+            OTA_SignalEvent( &eventMsg );
+            break;
+        }
+    }
 }
 
 static void _httpErrorCallback( void * pPrivateData,
@@ -432,22 +479,12 @@ static void _httpConnectionClosedCallback( void * pPrivateData,
 {
     IotLogDebug( "Invoking _httpConnectionClosedCallback." );
 
-    /* HTTP API return status. */
-    IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
-
     /* HTTP callback data is not used. */
     ( void ) pPrivateData;
 
     IotLogInfo( "Connection has been closed by the HTTP client due to an error, reconnecting to server..." );
 
-    httpsStatus = IotHttpsClient_Connect( &connectionHandle, &_httpDownloader.httpConnection.connectionConfig );
-
-    if( httpsStatus != IOT_HTTPS_OK )
-    {
-        IotLogError( "Failed to reconnect to the S3 server. Error code: %d.", httpsStatus );
-        _httpDownloader.state = OTA_HTTP_NEED_RECONNECT;
-    }
-
+    _httpReconnect();
 }
 
 static IotHttpsReturnCode_t _httpConnect( const char * pURL,
@@ -785,16 +822,25 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* File context from OTA agent. */
     OTA_FileContext_t* fileContext = pAgentCtx->pxOTA_Files;
 
-    if( _httpDownloader.isDownloading )
+    /* Reconnect to the HTTP server if we did not receive any response within OTA agent request data
+     * timeout or we detect an error during processing the response and a reconnect is needed. */
+    if( _httpDownloader.state == OTA_HTTP_WAITING_RESPONSE || _httpDownloader.err == OTA_HTTP_ERR_NEED_RECONNECT )
+    {
+        if( _httpReconnect() != IOT_HTTPS_OK )
+        {
+            OTA_GOTO_CLEANUP();
+        }
+    }
+    /* Otherwise exit if not in idle state, this means we're still sending the request or processing
+     * a response. */
+    else if( _httpDownloader.state != OTA_HTTP_IDLE )
     {
         IotLogInfo( "Current download is not finished, skipping the request." );
         OTA_GOTO_CLEANUP();
     }
-    else
-    {
-        _httpDownloader.isDownloading = true;
-        _httpDownloader.state = OTA_HTTP_OK;
-    }
+
+    _httpDownloader.state = OTA_HTTP_SENDING_REQUEST;
+    _httpDownloader.err = OTA_HTTP_ERR_NONE;
 
     if( fileContext == NULL )
     {
@@ -853,10 +899,10 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
 
     OTA_FUNCTION_CLEANUP_BEGIN();
 
-    /* Reset the isDownloading flag if there's any error occurred, i.e. the request is not sent. */
+    /* Reset the state to idle if there's any error occurred, i.e. the request is not sent. */
     if( status != kOTA_Err_None)
     {
-        _httpDownloader.isDownloading = false;
+        _httpDownloader.state = OTA_HTTP_IDLE;
     }
 
     OTA_FUNCTION_CLEANUP_END();
@@ -881,9 +927,8 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
     *pBlockSize = _httpDownloader.currBlockSize;
     *pPayloadSize = _httpDownloader.currBlockSize;
 
-    /* Reset the isDownloading flag. */
-    _httpDownloader.isDownloading = false;
-    /* Current block is processed, Set the file block to next one. */
+    /* Current block is processed, set the file block to next one and the state to idle. */
+    _httpDownloader.state = OTA_HTTP_IDLE;
     _httpDownloader.currBlock += 1;
 
     return kOTA_Err_None;
