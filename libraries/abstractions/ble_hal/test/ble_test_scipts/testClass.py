@@ -408,14 +408,7 @@ class runTest:
 
     @staticmethod
     def discoverPrimaryServices():
-        retries = 5
-        for x in range(retries):
-            status = bleAdapter.getPropertie(runTest.testDevice, "ServicesResolved")
-            if status == True:
-                return True
-            time.sleep(1)
-            print("Retrying....")
-        return False
+        return bleAdapter.isServicesResolved(timeout=runTest.GENERIC_TEST_TIMEOUT)
 
     @staticmethod
     def checkProperties(gatt):

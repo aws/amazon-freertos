@@ -41,8 +41,6 @@ except ImportError:
 pairingEvent = Queue.Queue()
 connectEvent = Queue.Queue()
 disconnectEvent = Queue.Queue()
-isDisconnected = threading.Event()
-isPaired = threading.Event()
 attributeAccessEvent = Queue.Queue()
 mainloop = GObject.MainLoop()
 
@@ -50,16 +48,16 @@ class bleAdapter:
     DBUS_HANDLER_GENERIC_TIMEOUT = 3000  # 3 seconds timeout
     adapter = None
     discoveryEventCb = None
-    serviceResolvedEventCb = None
     discoverAllPrimaryServicesEvent = False
     notificationCb = None
     remoteDevice = None
+    propertyName = None
+    propertyDesiredValue = None
 
     gatt = gattClient()
 
     @staticmethod
     def init():
-        isDisconnected.set()
         bleAdapter.adapter = testutils.find_adapter()
         bus = dbus.SystemBus()
         bus.add_signal_receiver(
@@ -138,27 +136,38 @@ class bleAdapter:
         return isSuccessfull
 
     @staticmethod
+    def waitForDevicePropertyChange(propertyName, desiredPropertyValue, timeout=None):
+
+        value = bleAdapter.getPropertie(bleAdapter.remoteDevice, propertyName)
+
+        if value == desiredPropertyValue or timeout == None:
+            return value
+        else:
+            bleAdapter.propertyName = propertyName
+            bleAdapter.propertyDesiredValue = desiredPropertyValue
+            GObject.timeout_add(timeout*1000, timeoutHandler)
+            mainloop.run()
+            bleAdapter.propertyName = None
+            return bleAdapter.getPropertie(bleAdapter.remoteDevice, propertyName)
+
+    @staticmethod
     def isDisconnected(timeout=None):
-        isSuccessfull = False
+        ret = False
         try:
-            if timeout is None:
-                isSuccessfull = isDisconnected.is_set()
-            else:
-                isSuccessfull = isDisconnected.wait(timeout=timeout)
-        except exception as ex:
+            value = bleAdapter.waitForDevicePropertyChange("Connected", 0, timeout)
+            ret = (value == 0)
+        except Exception as ex:
             print("Caught exception while waiting for disconnect event " + str(ex))
             pass
-        return isSuccessfull
+        return ret
 
     @staticmethod
     def isPaired(timeout=None):
         ret = False
         try:
-            if timeout is None:
-                ret = isPaired.is_set()
-            else:
-                ret = isPaired.wait(timeout=timeout)
-        except exception as ex:
+            value = bleAdapter.waitForDevicePropertyChange("Paired", 1, timeout)
+            ret = (value == 1)
+        except Exception as ex:
             print("Caught exception while waiting for paired event" + str(ex))
             pass
 
@@ -193,28 +202,19 @@ class bleAdapter:
         bus = dbus.SystemBus()
         obj = bus.get_object(testutils.SERVICE_NAME, path)
 
-        connected = bleAdapter.getPropertie(obj, "Connected")
-        if connected == 1:
-            isDisconnected.clear()
-        elif connected == 0:
-            isDisconnected.set()
-
-        #print("Connected = "+ str(not isDisconnected.is_set()))
-
-        paired = bleAdapter.getPropertie(obj, "Paired")
-        if paired == True:
-            isPaired.set()
-        else:
-            isPaired.clear()
+        if bleAdapter.propertyName is not None:
+            propertyValue = bleAdapter.getPropertie(obj, bleAdapter.propertyName)
+            if propertyValue == bleAdapter.propertyDesiredValue:
+                mainloop.quit()
 
         if bleAdapter.discoveryEventCb is not None:
             bleAdapter.discoveryEventCb.im_func(obj)
 
         if bleAdapter.discoverAllPrimaryServicesEvent:
-            isServicesResolved = bleAdapter.getPropertie(
-                obj, "ServicesResolved")
+            servicesResolved = bleAdapter.getPropertie(
+                            obj, "ServicesResolved")
 
-            if isServicesResolved:
+            if servicesResolved:
                 mainloop.quit()
                 bleAdapter.discoverAllPrimaryServicesEvent = False
 
@@ -303,6 +303,18 @@ class bleAdapter:
             sys.stdout.flush()
             isSuccessfull = False
         return isSuccessfull
+
+    @staticmethod
+    def isServicesResolved(timeout=None):
+        ret = False
+        try:
+            value = bleAdapter.waitForDevicePropertyChange("ServicesResolved", 1, timeout)
+            ret = ( value == 1 )
+        except exception as ex:
+            print("Caught exception while waiting for resolved services " + str(ex))
+            pass
+
+        return ret
 
     @staticmethod
     def _readAttribute(objInterface, uuid):
@@ -496,6 +508,9 @@ def disconnectSuccess():
     disconnectEvent.put(True)
     mainloop.quit()
 
+def timeoutHandler():
+    print("Timedout Waiting for device property change")
+    mainloop.quit()
 
 def disconnectError(error):
     print("Error in connect: %s" % (error))
