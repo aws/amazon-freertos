@@ -255,6 +255,9 @@ static void RUN_TEST_IOT_PWM(int testCaseIndex)
             case 2:
                 RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwmAccuracy );
                 break;
+            case 3:
+                RUN_TEST_CASE( TEST_IOT_PWM, AFQP_IotPwmAccuracyAssisted );
+                break;
             default:
                 printf("Invalid reset test case\n");
                 return;
