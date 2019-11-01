@@ -892,13 +892,33 @@ BaseType_t SOCKETS_Init( void )
 static CK_SESSION_HANDLE xPkcs11Session = 0;
 static CK_FUNCTION_LIST_PTR pxPkcs11FunctionList = NULL;
 
-uint32_t ulRand( void )
+//uint32_t ulRand( void ) __attribute__ ((deprecated))
+#if 0
+    uint32_t ulRand( void )
+    {
+        uint32_t ulNumber = 0uL;
+        BaseType_t xResult = xApplicationGetRandomNumber( &( ulNumber ) );
+
+        if( xResult == pdFALSE )
+        {
+            ulNumber = 0uL;
+        }
+        else
+        {
+            /* Function succeeded, a random number will be returned. */
+        }
+        return ulNumber;
+    }
+#endif/* 0 */
+
+BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber )
 {
     CK_RV xResult = 0;
     CK_C_GetFunctionList pxCkGetFunctionList = NULL;
     CK_ULONG ulCount = 1;
     uint32_t ulRandomValue = 0;
     CK_SLOT_ID xSlotId = 0;
+    BaseType_t xReturn;
 
     portENTER_CRITICAL();
 
@@ -951,11 +971,17 @@ uint32_t ulRand( void )
     portEXIT_CRITICAL();
 
     /* Check if any of the API calls failed. */
-    if( 0 != xResult )
+    if( 0 == xResult )
     {
-        ulRandomValue = 0;
+        xReturn = pdTRUE;
+        *( pulNumber ) = ulRandomValue;
+    }
+    else
+    {
+        xReturn = pdFALSE;
+        *( pulNumber ) = 0uL;
     }
 
-    return ulRandomValue;
+    return xReturn;
 }
 /*-----------------------------------------------------------*/

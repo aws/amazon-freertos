@@ -275,6 +275,15 @@ void FreeRTOS_ClearARP( void );
 #endif /* ipconfigDHCP_REGISTER_HOSTNAME */
 
 
+/* This xApplicationGetRandomNumber() will set *pulNumber to a random number,
+and return pdTRUE. When the random number generator is broken, it shall return
+pdFALSE.
+The function is defined in 'iot_secure_sockets.c'.
+If that module is not included in the project, the application must provide an
+implementation of it.
+The macro's ipconfigRAND32() and configRAND32() are not in use anymore. */
+BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber );
+
 /* For backward compatibility define old structure names to the newer equivalent
 structure name. */
 #ifndef ipconfigENABLE_BACKWARD_COMPATIBILITY

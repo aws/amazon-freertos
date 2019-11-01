@@ -1654,7 +1654,6 @@ const uint16_t usEphemeralPortCount =
 uint16_t usIterations = usEphemeralPortCount;
 uint32_t ulRandomSeed = 0;
 uint16_t usResult = 0;
-BaseType_t xGotZeroOnce = pdFALSE;
 const List_t *pxList;
 
 #if ipconfigUSE_TCP == 1
@@ -1675,21 +1674,10 @@ const List_t *pxList;
 	point. */
 	do
 	{
-		/* Generate a random seed. */
-		ulRandomSeed = ipconfigRAND32( );
-
 		/* Only proceed if the random number generator succeeded. */
-		if( 0 == ulRandomSeed )
+		if( xApplicationGetRandomNumber( &( ulRandomSeed ) ) == pdFALSE )
 		{
-			if( pdFALSE == xGotZeroOnce )
-			{
-				xGotZeroOnce = pdTRUE;
-				continue;
-			}
-			else
-			{
-				break;
-			}
+			break;
 		}
 
 		/* Map the random to a candidate port. */
