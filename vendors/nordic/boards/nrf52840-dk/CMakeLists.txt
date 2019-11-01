@@ -491,6 +491,10 @@ if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
        "${AFR_COMPILER_DIR}/../../../lib/libvfscanf_v7em_fpv4_sp_d16_hard_t_le_eabi.o"
     )
 
+    if(AFR_METADATA_MODE)
+        return()
+    endif()
+
     # -------------------------------------------------------------------------------------------------
     # Additional build configurations
     # -------------------------------------------------------------------------------------------------
