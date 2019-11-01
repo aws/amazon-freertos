@@ -392,7 +392,7 @@ BTStatus_t prvBTDisconnect( uint8_t ucAdapterIf,
 {
     BTStatus_t xStatus = eBTStatusSuccess;
 
-    if( ble_gap_terminate( usConnId, BLE_ERR_CONN_TERM_LOCAL ) != 0 )
+    if( ble_gap_terminate( usConnId, BLE_ERR_REM_USER_CONN_TERM ) != 0 )
     {
         xStatus = eBTStatusFail;
     }
