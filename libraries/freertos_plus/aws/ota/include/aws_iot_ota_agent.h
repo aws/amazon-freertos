@@ -163,6 +163,8 @@ typedef uint32_t OTA_Err_t;
 #define kOTA_Err_BadImageState           0x09000000UL     /*!< The specified OTA image state was out of range. */
 #define kOTA_Err_NoActiveJob             0x0a000000UL     /*!< Attempt to set final image state without an active job. */
 #define kOTA_Err_NoFreeContext           0x0b000000UL     /*!< There wasn't an OTA file context available for processing. */
+#define kOTA_Err_HTTPInitFailed          0x0c000000UL     /*!< Error initializing the HTTP connection. */
+#define kOTA_Err_HTTPRequestFailed       0x0d000000UL     /*!< Error sending the HTTP request. */
 #define kOTA_Err_FileAbort               0x10000000UL     /*!< Error in low level file abort. */
 #define kOTA_Err_FileClose               0x11000000UL     /*!< Error in low level file close. */
 #define kOTA_Err_RxFileCreateFailed      0x12000000UL     /*!< The PAL failed to create the OTA receive file. */

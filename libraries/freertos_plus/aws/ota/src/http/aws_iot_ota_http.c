@@ -758,7 +758,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to initialize HTTP library." );
-        status = kOTA_Err_Panic;
+        status = kOTA_Err_HTTPInitFailed;
         OTA_GOTO_CLEANUP();
     }
 
@@ -768,7 +768,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "Failed to connect to %.*s. Error code: %d", _httpDownloader.httpUrlInfo.addressLength,
                      _httpDownloader.httpUrlInfo.pAddress, httpsStatus );
-        status = kOTA_Err_Panic;
+        status = kOTA_Err_HTTPInitFailed;
         OTA_GOTO_CLEANUP();
     }
     IotLogInfo( "Successfully connected to %.*s", _httpDownloader.httpUrlInfo.addressLength, _httpDownloader.httpUrlInfo.pAddress );
@@ -777,7 +777,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     if( _httpGetFileSize( &httpFileSize ) )
     {
         IotLogError( "Cannot retrieve the file size from HTTP server." );
-        status = kOTA_Err_Panic;
+        status = kOTA_Err_HTTPInitFailed;
         OTA_GOTO_CLEANUP();
     }
     if( httpFileSize != otaFileSize )
@@ -786,7 +786,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
                      "job document (%u bytes).",
                      ( unsigned int ) httpFileSize,
                      ( unsigned int ) otaFileSize);
-        status = kOTA_Err_Panic;
+        status = kOTA_Err_HTTPInitFailed;
         OTA_GOTO_CLEANUP();
     }
     IotLogInfo( "Start requesting %u bytes from HTTP server.", ( unsigned int ) httpFileSize );
@@ -870,7 +870,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     if( numWritten < 0 || numWritten >= HTTP_HEADER_RANGE_VALUE_MAX_LEN )
     {
         IotLogError( "Fail to write the \"Range\" value for HTTP header." );
-        status = kOTA_Err_Panic;
+        status = kOTA_Err_HTTPRequestFailed;
         OTA_GOTO_CLEANUP();
     }
 
@@ -879,7 +879,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to initialize the HTTP request. Error code: %d.", httpsStatus );
-        status = kOTA_Err_Panic;
+        status = kOTA_Err_HTTPRequestFailed;
         OTA_GOTO_CLEANUP();
     }
 
@@ -893,7 +893,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to send the HTTP request asynchronously. Error code: %d.", httpsStatus );
-        status = kOTA_Err_Panic;
+        status = kOTA_Err_HTTPRequestFailed;
         OTA_GOTO_CLEANUP();
     }
 
