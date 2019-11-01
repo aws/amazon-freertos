@@ -400,6 +400,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     /* Check if the server returns a response with connection field set to "close". */
     if( strncmp( "close", connectionValueStr, sizeof( "close" ) ) == 0 )
     {
+        IotLogInfo( "Connection has been closed by the HTTP server, reconnecting to the server..." );
         _httpReconnect();
     }
 
@@ -482,8 +483,7 @@ static void _httpConnectionClosedCallback( void * pPrivateData,
     /* HTTP callback data is not used. */
     ( void ) pPrivateData;
 
-    IotLogInfo( "Connection has been closed by the HTTP client due to an error, reconnecting to server..." );
-
+    IotLogInfo( "Connection has been closed by the HTTP client due to an error, reconnecting to the server..." );
     _httpReconnect();
 }
 
@@ -824,18 +824,28 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
 
     /* Reconnect to the HTTP server if we did not receive any response within OTA agent request data
      * timeout or we detect an error during processing the response and a reconnect is needed. */
-    if( _httpDownloader.state == OTA_HTTP_WAITING_RESPONSE || _httpDownloader.err == OTA_HTTP_ERR_NEED_RECONNECT )
+    if( _httpDownloader.err == OTA_HTTP_ERR_NEED_RECONNECT )
     {
-        if( _httpReconnect() != IOT_HTTPS_OK )
-        {
-            OTA_GOTO_CLEANUP();
-        }
+        IotLogInfo( "" );
+        httpsStatus = _httpReconnect();
+    }
+    else if( _httpDownloader.state == OTA_HTTP_WAITING_RESPONSE )
+    {
+        IotLogInfo( "Still waiting for a response from the server after request timeout. Assuming "
+                    "the connection is closed by the server, reconnecting..." );
+        httpsStatus = _httpReconnect();
     }
     /* Otherwise exit if not in idle state, this means we're still sending the request or processing
      * a response. */
     else if( _httpDownloader.state != OTA_HTTP_IDLE )
     {
         IotLogInfo( "Current download is not finished, skipping the request." );
+        httpsStatus = IOT_HTTPS_BUSY;
+    }
+
+    /* Exit if we're still busy downloading or reconnect is required but failed. */
+    if( httpsStatus != IOT_HTTPS_OK )
+    {
         OTA_GOTO_CLEANUP();
     }
 
