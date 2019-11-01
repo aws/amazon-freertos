@@ -990,7 +990,7 @@
 				<targetPluginBoard/>
 				<platformTool>ICD4Tool</platformTool>
 				<languageToolchain>XC32</languageToolchain>
-				<languageToolchainVersion>2.05</languageToolchainVersion>
+				<languageToolchainVersion>2.10</languageToolchainVersion>
 				<platform>3</platform>
 			</toolsSet>
 			<packs>
@@ -1021,7 +1021,7 @@
 				<makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
 			</makeCustomizationType>
 			<C32>
-				<property key="additional-warnings" value="true"/>
+				<property key="additional-warnings" value="false"/>
 				<property key="addresss-attribute-use" value="false"/>
 				<property key="enable-app-io" value="false"/>
 				<property key="enable-omit-frame-pointer" value="false"/>
@@ -1070,12 +1070,8 @@
 				<property key="preprocessor-macros" value=""/>
 				<property key="warning-level" value=""/>
 			</C32-AS>
-			<C32-CO>
-				<property key="coverage-enable" value=""/>
-			</C32-CO>
 			<C32-LD>
 				<property key="additional-options-use-response-files" value="false"/>
-				<property key="additional-options-write-sla" value="false"/>
 				<property key="allocate-dinit" value="false"/>
 				<property key="code-dinit" value="false"/>
 				<property key="ebase-addr" value=""/>
@@ -1154,9 +1150,6 @@
 				<property key="save-temps" value="false"/>
 				<property key="wpo-lto" value="false"/>
 			</C32Global>
-			<ICD3PlatformTool>
-				<property key="firmware.download.all" value="false"/>
-			</ICD3PlatformTool>
 			<ICD4Tool>
 				<property key="ADC" value="true"/>
 				<property key="AutoSelectMemRanges" value="auto"/>
@@ -1235,7 +1228,6 @@
 				<property key="memories.configurationmemory2" value="true"/>
 				<property key="memories.dataflash" value="true"/>
 				<property key="memories.eeprom" value="true"/>
-				<property key="memories.exclude.configurationmemory" value="true"/>
 				<property key="memories.flashdata" value="true"/>
 				<property key="memories.id" value="true"/>
 				<property key="memories.instruction.ram.ranges" value="${memories.instruction.ram.ranges}"/>
