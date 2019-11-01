@@ -127,20 +127,20 @@
 #define HTTP_HEADER_CONNECTION_VALUE_MAX_LEN        ( sizeof( "keep-alive" ) )
 
 /* Struct for HTTP callback data. */
-typedef struct
+typedef struct _httpCallbackData
 {
     char pRangeValueStr[ HTTP_HEADER_RANGE_VALUE_MAX_LEN ]; /* Buffer to write the HTTP "range" header value string. */
 } _httpCallbackData_t;
 
 /* Struct for HTTP connection configuration and handle. */
-typedef struct
+typedef struct _httpConnection
 {
     IotHttpsConnectionInfo_t connectionConfig;      /* Configurations for the HTTPS connection. */
     IotHttpsConnectionHandle_t connectionHandle;    /* Handle identifying the HTTPS connection. */
 } _httpConnection_t;
 
 /* Struct for HTTP request configuration and handle. */
-typedef struct
+typedef struct _httpRequest
 {
     IotHttpsAsyncInfo_t asyncInfo;                      /* Asynchronous request configurations. */
     IotHttpsRequestInfo_t requestConfig;                /* Configurations for the HTTPS request. */
@@ -148,14 +148,14 @@ typedef struct
 } _httpRequest_t;
 
 /* Struct for HTTP response configuration and handle. */
-typedef struct
+typedef struct _httpResponse
 {
     IotHttpsResponseInfo_t responseConfig;              /* Configurations for the HTTPS response. */
     IotHttpsResponseHandle_t responseHandle;            /* Handle identifying the HTTP response. */
 } _httpResponse_t;
 
 /* Struct for HTTP download information. */
-typedef struct
+typedef struct _httpUrlInfo
 {
     const char * pPath;         /* Resource path to the firmware in HTTP URL. */
     size_t pathLength;          /* Length of the resource path. */
@@ -182,7 +182,7 @@ typedef enum
 } _httpState;
 
 /* Struct for OTA HTTP downloader. */
-typedef struct
+typedef struct _httpDownloader
 {
     _httpState state;                           /* HTTP downloader state. */
     _httpErr err;                               /* HTTP downloader error status. */
