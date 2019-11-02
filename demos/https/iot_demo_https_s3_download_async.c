@@ -412,9 +412,12 @@ static void _freeRequestIndex( int i )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Free all requests in the pool that have been marked as scheduled.
+ * @brief Free all requests in the pool that have been marked as scheduled, except
+ * for the exception index.
+ * 
+ * @param[in] exception Request index to not free. This is -1 for no exceptions.
  */
-static void _freeAllScheduledRequests( void )
+static void _freeAllScheduledRequests( int exception )
 {
     /* Index into the request pool. */
     int i = 0;
@@ -423,7 +426,8 @@ static void _freeAllScheduledRequests( void )
 
     for( i = 0; i < IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS; i++ )
     {
-        if( _requestPool.pRequestDatas[ i ].scheduled == true )
+        if( ( i != exception ) && 
+            (_requestPool.pRequestDatas[ i ].scheduled == true ) )
         {
             _pInUseRequests[ i ] = false;
             _clearRequestData( i );
@@ -524,7 +528,7 @@ static bool _getNextIncompleteRange( uint32_t * currentRange )
 
     /* A count from 0 to check if the total ranges is reached because, in the logic below, currentRange will wrap
      * around to check the start of the bitmap. */
-    int32_t rangeCheckCount = 0;
+    uint32_t rangeCheckCount = 0;
 
     do
     {
@@ -775,8 +779,11 @@ static void _readReadyCallback( void * pPrivData,
             else
             {
                 /* For all requests from the pool that have been scheduled. We want to free them so they will get
-                 * rescheduled by the main application. */
-                _freeAllScheduledRequests();
+                 * rescheduled by the main application. When a request from the pool is set to unused its associated
+                 * response is also set to unused. This current response is not set to unused so that it's reponse
+                 * handle memory is not overwritten. The response cannot be reused until the responseCompleteCallback
+                 * is finished. */
+                _freeAllScheduledRequests( pRequestData->reqNum );
 
                 /* For each of the scheduled ranges mark them as unscheduled so that the main application will assign
                  * them to a free request. This current requests's range will not be rescheduled because earlier in this
@@ -888,6 +895,8 @@ static void _errorCallback( void * pPrivData,
                             IotHttpsReturnCode_t rc )
 {
     ( void ) reqHandle;
+    ( void )respHandle;
+
     char * pRangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->pRangeValueStr;
     IotLogError( "An error occurred during asynchronous operation with code: %d", pRangeValueStr, rc );
 }
@@ -965,12 +974,13 @@ static int _scheduleAsyncRequest( int reqIndex,
 
     /* Send the request and receive the response asynchronously. This will schedule the async request. This function
      * will return immediately after scheduling. */
+    IotLogDebug( "Sending asynchronously %s, req num: %d", _requestPool.pRequestDatas[reqIndex].pRangeValueStr, _requestPool.pReqHandles[reqIndex] );
     httpsClientStatus = IotHttpsClient_SendAsync( _connHandle,
                                                   _requestPool.pReqHandles[ reqIndex ],
                                                   &( _requestPool.pRespHandles[ reqIndex ] ),
                                                   &( _requestPool.pRespConfigs[ reqIndex ] ) );
     _fileDownloadInfo.scheduledBitmap[ BYTE_OFFSET( currentRange ) ] |= BITMASK( currentRange );
-    _requestPool.pRequestDatas->scheduled = true;
+    _requestPool.pRequestDatas[ reqIndex ].scheduled = true;
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {

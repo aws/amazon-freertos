@@ -236,6 +236,8 @@ static void _responseCompleteCallback( void * pPrivData,
                                        IotHttpsReturnCode_t rc,
                                        uint16_t status )
 {
+    ( void )rc;
+
     bool * pUploadSuccess = ( bool * ) pPrivData;
 
     /* When the remote server response with 200 OK, the file was successfully uploaded. */
