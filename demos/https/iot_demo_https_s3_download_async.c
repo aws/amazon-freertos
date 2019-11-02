@@ -210,7 +210,7 @@ typedef struct _requestData
     IotHttpsConnectionHandle_t * pConnHandle;      /**< @brief The connection handle for the request/response. */
     IotHttpsConnectionInfo_t * pConnConfig;        /**< @brief Pointer to the connection handle for the request/response. */
     bool scheduled;                                /**< @brief This is set to true when the request has been scheduled */
-} _requestData_t;
+} _requestContext_t;
 
 /**
  * @brief This structure defines information related to the file we wish to download.
@@ -273,7 +273,7 @@ typedef struct _requestPool
     /**
      * @brief The pool of data kept track of and used in the callback context for each request.
      */
-    _requestData_t pRequestDatas[ IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS ];
+    _requestContext_t pRequestContexts[ IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS ];
 } _requestPool_t;
 
 /*-----------------------------------------------------------*/
@@ -389,7 +389,7 @@ static int _getFreeRequestIndex( void )
  */
 static void _clearRequestData( int i )
 {
-    memset( &_requestPool.pRequestDatas[ i ], 0, sizeof( _requestData_t ) );
+    memset( &_requestPool.pRequestContexts[ i ], 0, sizeof( _requestContext_t ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -427,7 +427,7 @@ static void _freeAllScheduledRequests( int exception )
     for( i = 0; i < IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS; i++ )
     {
         if( ( i != exception ) &&
-            ( _requestPool.pRequestDatas[ i ].scheduled == true ) )
+            ( _requestPool.pRequestContexts[ i ].scheduled == true ) )
         {
             _pInUseRequests[ i ] = false;
             _clearRequestData( i );
@@ -602,7 +602,7 @@ static void _appendHeaderCallback( void * pPrivData,
 {
     /* The range value string, of the increment of file to download, from the user private data will be referenced with
      * this variable. */
-    char * pRangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->pRangeValueStr;
+    char * pRangeValueStr = ( ( _requestContext_t * ) ( pPrivData ) )->pRangeValueStr;
 
     IotLogInfo( "Inside of the append header callback for part %s", pRangeValueStr );
     /* The length of the range value string. */
@@ -644,7 +644,7 @@ static void _readReadyCallback( void * pPrivData,
     /* The HTTP Client Library return code. */
     IotHttpsReturnCode_t returnStatus;
     /* The user private data dereferenced. */
-    _requestData_t * pRequestData = ( _requestData_t * ) ( pPrivData );
+    _requestContext_t * pRequestContext = ( _requestContext_t * ) ( pPrivData );
     /* The content length of this HTTP response. */
     uint32_t contentLength = 0;
 
@@ -652,11 +652,11 @@ static void _readReadyCallback( void * pPrivData,
      * is the length of the longest string, "keep-alive" plus a NULL terminator. */
     char connectionValueStr[ CONNECTION_KEEP_ALIVE_HEADER_VALUE_LENGTH + 1 ] = { 0 };
 
-    IotLogInfo( "Inside of the read ready callback for part %s with network return code: %d", pRequestData->pRangeValueStr, rc );
+    IotLogInfo( "Inside of the read ready callback for part %s with network return code: %d", pRequestContext->pRangeValueStr, rc );
 
     /* If this function is invoked multiple times, we may only want to read the Content-Length header and check the
      * HTTP response status once. */
-    if( pRequestData->currDownloaded == 0 )
+    if( pRequestContext->currDownloaded == 0 )
     {
         /* If this response is not a successful partial content delivery, as indicated on the HTTP response code 206,
          * then cancel this request. In this demo cancelling the request is an error condition that ends the demo.*/
@@ -679,11 +679,11 @@ static void _readReadyCallback( void * pPrivData,
 
         /* If the content length of the message is not equal to the size of the byte range we want to download then
          * cancel the request. In this demo cancelling the request is an error condition that ends the demo. */
-        if( contentLength != pRequestData->numReqBytes )
+        if( contentLength != pRequestContext->numReqBytes )
         {
             IotLogError( "The Content-Length found in this file does not equal the number of bytes requested. So we may ",
                          "not have download the file completely. The content length is %d and the requested number of bytes for ",
-                         "this request is %d", contentLength, pRequestData->numReqBytes );
+                         "this request is %d", contentLength, pRequestContext->numReqBytes );
             IotHttpsClient_CancelResponseAsync( respHandle );
             return;
         }
@@ -704,19 +704,19 @@ static void _readReadyCallback( void * pPrivData,
     }
 
     /* Process the response body here. */
-    pRangeValueStr = pRequestData->pRangeValueStr;
+    pRangeValueStr = pRequestContext->pRangeValueStr;
     IotLogInfo( "Response return code: %d for %s", status, pRangeValueStr );
     IotLogInfo( "Response Body for %s:\r\n%.*s", pRangeValueStr, readLen, _pRespBodyBuffer );
 
     /* This callback could be invoked again if there is still more data on the network to be read for this response, so
      * the current amount downloaded is incremented. */
-    pRequestData->currDownloaded += readLen;
+    pRequestContext->currDownloaded += readLen;
 
-    if( pRequestData->currDownloaded > pRequestData->numReqBytes )
+    if( pRequestContext->currDownloaded > pRequestContext->numReqBytes )
     {
         IotLogError( "There is more data received on this response than expected. Received %d data, but requested %d.",
-                     pRequestData->currDownloaded,
-                     pRequestData->numReqBytes );
+                     pRequestContext->currDownloaded,
+                     pRequestContext->numReqBytes );
         IotHttpsClient_CancelResponseAsync( respHandle );
         return;
     }
@@ -725,18 +725,18 @@ static void _readReadyCallback( void * pPrivData,
      * as downloaded. Also, it makes sense only in the non-error case to check if the server closed the connection.
      * Error cases, such as the response body not having the number of requested bytes in the range, will stop the
      * demo. */
-    if( pRequestData->currDownloaded == pRequestData->numReqBytes )
+    if( pRequestContext->currDownloaded == pRequestContext->numReqBytes )
     {
         /* Defensive check for overflow. */
         if( _fileDownloadInfo.rangesRemaining == 0 )
         {
-            IotLogError( "An extra range was downloaded; Range: %s.", pRequestData->pRangeValueStr );
+            IotLogError( "An extra range was downloaded; Range: %s.", pRequestContext->pRangeValueStr );
             IotHttpsClient_CancelResponseAsync( respHandle );
             return;
         }
 
         _fileDownloadInfo.rangesRemaining--;
-        _fileDownloadInfo.downloadedBitmap[ BYTE_OFFSET( pRequestData->currRange ) ] |= BITMASK( pRequestData->currRange );
+        _fileDownloadInfo.downloadedBitmap[ BYTE_OFFSET( pRequestContext->currRange ) ] |= BITMASK( pRequestContext->currRange );
 
         /* Check if the server closed the connection. This done in the readReadyCallback() because a possible pending
          * request could be sent right after this response's body is finished being read. This means the
@@ -769,7 +769,7 @@ static void _readReadyCallback( void * pPrivData,
              * a connection that is in the open state, then connects to the server configured. When the connection is
              * disconnected it's queue of pending requests is cleared. Since this affects the state of what is
              * scheduled, this action is performed within the _requestSchedulingMutex. */
-            returnStatus = IotHttpsClient_Connect( pRequestData->pConnHandle, pRequestData->pConnConfig );
+            returnStatus = IotHttpsClient_Connect( pRequestContext->pConnHandle, pRequestContext->pConnConfig );
 
             if( returnStatus != IOT_HTTPS_OK )
             {
@@ -783,7 +783,7 @@ static void _readReadyCallback( void * pPrivData,
                  * response is also set to unused. This current response is not set to unused so that it's reponse
                  * handle memory is not overwritten. The response cannot be reused until the responseCompleteCallback
                  * is finished. */
-                _freeAllScheduledRequests( pRequestData->reqNum );
+                _freeAllScheduledRequests( pRequestContext->reqNum );
 
                 /* For each of the scheduled ranges mark them as unscheduled so that the main application will assign
                  * them to a free request. This current requests's range will not be rescheduled because earlier in this
@@ -811,12 +811,12 @@ static void _responseCompleteCallback( void * pPrivData,
                                        IotHttpsReturnCode_t rc,
                                        uint16_t status )
 {
-    _requestData_t * pRequestData = ( _requestData_t * ) ( pPrivData );
+    _requestContext_t * pRequestContext = ( _requestContext_t * ) ( pPrivData );
 
     ( void ) respHandle;
     ( void ) status;
 
-    IotLogInfo( "Part %s has been fully processed.", pRequestData->pRangeValueStr );
+    IotLogInfo( "Part %s has been fully processed.", pRequestContext->pRangeValueStr );
 
     /* If there is was an error anywhere in the request response processing, including a cancellation, then that will
      * end the demo. */
@@ -825,13 +825,13 @@ static void _responseCompleteCallback( void * pPrivData,
         IotLogError( "There was a problem with the current response %d. Error code: %d. ", respHandle, rc );
         IotSemaphore_Post( &( _fileFinishedSem ) );
     }
-    else if( pRequestData->currDownloaded != pRequestData->numReqBytes )
+    else if( pRequestContext->currDownloaded != pRequestContext->numReqBytes )
     {
         /* If in this response the total amount read does not equal the number of bytes we requested, then something
          * went wrong. */
         IotLogError( "There was a problem downloading the range of the file. We downloaded %d. but wanted %d.",
-                     pRequestData->currDownloaded,
-                     pRequestData->numReqBytes );
+                     pRequestContext->currDownloaded,
+                     pRequestContext->numReqBytes );
         IotSemaphore_Post( &( _fileFinishedSem ) );
     }
     else
@@ -847,10 +847,10 @@ static void _responseCompleteCallback( void * pPrivData,
         }
     }
 
-    /* Free up this request from the request pool. This is done last to ensure that the requestData is not
+    /* Free up this request from the request pool. This is done last to ensure that the request context is not
      * overwritten by a new request. */
-    _freeRequestIndex( pRequestData->reqNum );
-    _fileDownloadInfo.scheduledBitmap[ BYTE_OFFSET( pRequestData->currRange ) ] &= ~( BITMASK( pRequestData->currRange ) );
+    _freeRequestIndex( pRequestContext->reqNum );
+    _fileDownloadInfo.scheduledBitmap[ BYTE_OFFSET( pRequestContext->currRange ) ] &= ~( BITMASK( pRequestContext->currRange ) );
 }
 
 /*-----------------------------------------------------------*/
@@ -897,7 +897,7 @@ static void _errorCallback( void * pPrivData,
     ( void ) reqHandle;
     ( void ) respHandle;
 
-    char * pRangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->pRangeValueStr;
+    char * pRangeValueStr = ( ( _requestContext_t * ) ( pPrivData ) )->pRangeValueStr;
     IotLogError( "An error occurred during asynchronous operation with code: %d", pRangeValueStr, rc );
 }
 
@@ -937,13 +937,13 @@ static int _scheduleAsyncRequest( int reqIndex,
     }
 
     /* Generate the "Range" header's value string of the form "bytes=N-M". */
-    int numWritten = snprintf( _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr,
-                               sizeof( _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr ),
+    int numWritten = snprintf( _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr,
+                               sizeof( _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr ),
                                "bytes=%u-%u",
                                ( unsigned int ) curByte,
                                ( unsigned int ) ( curByte + numReqBytes - 1 ) );
 
-    if( ( numWritten < 0 ) || ( numWritten >= sizeof( _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr ) ) )
+    if( ( numWritten < 0 ) || ( numWritten >= sizeof( _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr ) ) )
     {
         IotLogError( "Failed to write the header value: \"bytes=%d-%d\" . Error code: %d",
                      curByte,
@@ -953,12 +953,12 @@ static int _scheduleAsyncRequest( int reqIndex,
     }
 
     /* Set the user private data to use in the asynchronous callback context. */
-    _requestPool.pRequestDatas[ reqIndex ].pConnHandle = &_connHandle;
-    _requestPool.pRequestDatas[ reqIndex ].pConnConfig = &_connConfig;
-    _requestPool.pRequestDatas[ reqIndex ].reqNum = reqIndex;
-    _requestPool.pRequestDatas[ reqIndex ].currRange = currentRange;
-    _requestPool.pRequestDatas[ reqIndex ].currDownloaded = 0;
-    _requestPool.pRequestDatas[ reqIndex ].numReqBytes = numReqBytes;
+    _requestPool.pRequestContexts[ reqIndex ].pConnHandle = &_connHandle;
+    _requestPool.pRequestContexts[ reqIndex ].pConnConfig = &_connConfig;
+    _requestPool.pRequestContexts[ reqIndex ].reqNum = reqIndex;
+    _requestPool.pRequestContexts[ reqIndex ].currRange = currentRange;
+    _requestPool.pRequestContexts[ reqIndex ].currDownloaded = 0;
+    _requestPool.pRequestContexts[ reqIndex ].numReqBytes = numReqBytes;
 
     /* Re-initialize the request to reuse the request. If we do not reinitialize, then data from the last response
      * associated with a different request will linger. */
@@ -974,13 +974,13 @@ static int _scheduleAsyncRequest( int reqIndex,
 
     /* Send the request and receive the response asynchronously. This will schedule the async request. This function
      * will return immediately after scheduling. */
-    IotLogDebug( "Sending asynchronously %s, req num: %d", _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr, _requestPool.pReqHandles[ reqIndex ] );
+    IotLogDebug( "Sending asynchronously %s, req num: %d", _requestPool.pRequestContexts[ reqIndex ].pRangeValueStr, _requestPool.pReqHandles[ reqIndex ] );
     httpsClientStatus = IotHttpsClient_SendAsync( _connHandle,
                                                   _requestPool.pReqHandles[ reqIndex ],
                                                   &( _requestPool.pRespHandles[ reqIndex ] ),
                                                   &( _requestPool.pRespConfigs[ reqIndex ] ) );
     _fileDownloadInfo.scheduledBitmap[ BYTE_OFFSET( currentRange ) ] |= BITMASK( currentRange );
-    _requestPool.pRequestDatas[ reqIndex ].scheduled = true;
+    _requestPool.pRequestContexts[ reqIndex ].scheduled = true;
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
@@ -1108,7 +1108,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
         _requestPool.pAsyncInfos[ reqIndex ].callbacks.responseCompleteCallback = _responseCompleteCallback;
         _requestPool.pAsyncInfos[ reqIndex ].callbacks.connectionClosedCallback = _connectionClosedCallback;
         _requestPool.pAsyncInfos[ reqIndex ].callbacks.errorCallback = _errorCallback;
-        _requestPool.pAsyncInfos[ reqIndex ].pPrivData = ( void * ) ( &( _requestPool.pRequestDatas[ reqIndex ] ) );
+        _requestPool.pAsyncInfos[ reqIndex ].pPrivData = ( void * ) ( &( _requestPool.pRequestContexts[ reqIndex ] ) );
         _requestPool.pReqConfigs[ reqIndex ].u.pAsyncInfo = &( _requestPool.pAsyncInfos[ reqIndex ] );
     }
 
