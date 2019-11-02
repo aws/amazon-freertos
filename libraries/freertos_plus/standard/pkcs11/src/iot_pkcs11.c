@@ -351,7 +351,7 @@ CK_RV vAppendSHA256AlgorithmIdentifierSequence( uint8_t * x32ByteHashedMessage,
         xResult = CKR_ARGUMENTS_BAD;
     }
 
-    if( xResult == CKR_OK)
+    if( xResult == CKR_OK )
     {
         memcpy( x51ByteHashOidBuffer, xOidSequence, sizeof( xOidSequence ) );
         memcpy( &x51ByteHashOidBuffer[ sizeof( xOidSequence ) ], x32ByteHashedMessage, 32 );
