@@ -48,18 +48,6 @@
 #define LIBRARY_LOG_NAME                    ( "OTA" )
 #include "iot_logging_setup.h"
 
-/* Jump to cleanup section. */
-#define OTA_GOTO_CLEANUP()                  IOT_GOTO_CLEANUP()
-
-/* Start of the cleanup section. */
-#define OTA_FUNCTION_CLEANUP_BEGIN()        IOT_FUNCTION_CLEANUP_BEGIN()
-
-/* End of the cleanup section. */
-#define OTA_FUNCTION_CLEANUP_END()
-
-/* Empty cleanup section. */
-#define OTA_FUNCTION_NO_CLEANUP()           OTA_FUNCTION_CLEANUP_BEGIN(); OTA_FUNCTION_CLEANUP_END()
-
 /* Maximum OTA file size string in byte. */
 #define OTA_MAX_FILE_SIZE_STR               "16777216"
 
@@ -221,7 +209,7 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
     {
         IotLogWarn( "Event queue for OTA agent task is NULL." );
         pAgentCtx->xStatistics.ulOTA_PacketsDropped++;
-        OTA_GOTO_CLEANUP();
+        return;
     }
 
     pAgentCtx->xStatistics.ulOTA_PacketsReceived++;
@@ -243,8 +231,6 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
         /* Send job document received event. */
         OTA_SignalEvent( &eventMsg );
     }
-
-    OTA_FUNCTION_NO_CLEANUP();
 }
 
 /* Error handler for HTTP response code. */
@@ -348,7 +334,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     {
         IotLogError( "Expect a HTTP partial response, but received code %d", responseStatus );
         _httpErrorHandler( responseStatus );
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Read the "Content-Length" field from HTTP header. */
@@ -357,7 +343,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     {
         IotLogError( "Failed to retrieve the Content-Length from the response. " );
         _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Check if the value of "Content-Length" matches what we have requested. */
@@ -365,7 +351,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     {
         IotLogError( "Content-Length value in HTTP header does not match what we requested. " );
         _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Read the data from the network. */
@@ -377,7 +363,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     {
         IotLogError( "Failed to read the response body. Error code: %d.", httpsStatus );
         _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* The connection could be closed by S3 after 100 requests, so we need to check the value
@@ -394,7 +380,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     {
         IotLogError( "Failed to read header Connection. Error code: %d.", httpsStatus );
         _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Check if the server returns a response with connection field set to "close". */
@@ -404,8 +390,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
         _httpReconnect();
     }
 
-    OTA_FUNCTION_CLEANUP_BEGIN();
-
+cleanup:
     /* Cancel receiving the response in case of error, _httpErrorCallback will be invoked next.
      * If the HTTP error is IOT_HTTPS_NETWORK_ERROR, the connection will then be closed by the HTTP
      * client, followed by invoking _httpConnectionClosedCallback and _httpResponseCompleteCallback.
@@ -414,8 +399,6 @@ static void _httpReadReadyCallback( void * pPrivateData,
     {
         IotHttpsClient_CancelResponseAsync( responseHandle );
     }
-
-    OTA_FUNCTION_CLEANUP_END();
 }
 
 static void _httpResponseCompleteCallback( void * pPrivateData,
@@ -517,7 +500,7 @@ static IotHttpsReturnCode_t _httpConnect( const char * pURL,
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to parse the resource path from given HTTP URL. Error code: %d.", httpsStatus );
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
     /* pathLength is set to the length of path component, but we also need the query part that
      * comes after that. */
@@ -531,7 +514,7 @@ static IotHttpsReturnCode_t _httpConnect( const char * pURL,
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to parse the server address from given HTTP URL. Error code: %d.", httpsStatus );
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Set the connection configurations. */
@@ -575,8 +558,7 @@ static IotHttpsReturnCode_t _httpConnect( const char * pURL,
 
     httpsStatus = IotHttpsClient_Connect( &pConnection->connectionHandle, pConnectionConfig );
 
-    OTA_FUNCTION_NO_CLEANUP();
-
+cleanup:
     return httpsStatus;
 }
 
@@ -638,7 +620,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Fail to initialize the HTTP request context. Error code: %d.", httpsStatus );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Set the "Range" field in HTTP header to "bytes=0-0" since we just want the file size. */
@@ -651,7 +633,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Fail to populate the HTTP header for request. Error code: %d", httpsStatus );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Send the request synchronously. */
@@ -664,7 +646,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Fail to send the HTTP request synchronously. Error code: %d", httpsStatus );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     httpsStatus = IotHttpsClient_ReadResponseStatus( responseHandle, &responseStatus );
@@ -672,13 +654,13 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Fail to read the HTTP response status. Error code: %d", httpsStatus );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
     if( responseStatus != IOT_HTTPS_STATUS_PARTIAL_CONTENT )
     {
         IotLogError( "Fail to get the object size from HTTP server, HTTP response code from server: %d", responseStatus );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Parse the HTTP header and retrieve the file size. */
@@ -691,7 +673,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Fail to read the \"Content-Range\" field from HTTP header. Error code: %d", httpsStatus );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     pFileSizeStr = strstr( pContentRange, "/" );
@@ -699,7 +681,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Could not find '/' from \"Content-Range\" field: %s", pContentRange );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
     else
     {
@@ -711,11 +693,10 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Failed to convert \"Content-Range\" value %s to integer. strtoul returned %d", pFileSizeStr, *pFileSize );
         status = EXIT_FAILURE;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
-    OTA_FUNCTION_NO_CLEANUP();
-
+cleanup:
     return status;
 }
 
@@ -749,7 +730,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "File context from OTA agent is NULL." );
         status = kOTA_Err_Panic;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
     otaFileSize = fileContext->ulFileSize;
 
@@ -759,7 +740,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "Fail to initialize HTTP library." );
         status = kOTA_Err_HTTPInitFailed;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Connect to the HTTP server and initialize download information. */
@@ -769,7 +750,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
         IotLogError( "Failed to connect to %.*s. Error code: %d", _httpDownloader.httpUrlInfo.addressLength,
                      _httpDownloader.httpUrlInfo.pAddress, httpsStatus );
         status = kOTA_Err_HTTPInitFailed;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
     IotLogInfo( "Successfully connected to %.*s", _httpDownloader.httpUrlInfo.addressLength, _httpDownloader.httpUrlInfo.pAddress );
 
@@ -778,7 +759,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "Cannot retrieve the file size from HTTP server." );
         status = kOTA_Err_HTTPInitFailed;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
     if( httpFileSize != otaFileSize )
     {
@@ -787,12 +768,11 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
                      ( unsigned int ) httpFileSize,
                      ( unsigned int ) otaFileSize);
         status = kOTA_Err_HTTPInitFailed;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
     IotLogInfo( "Start requesting %u bytes from HTTP server.", ( unsigned int ) httpFileSize );
 
-    OTA_FUNCTION_NO_CLEANUP();
-
+cleanup:
     return status;
 }
 
@@ -846,7 +826,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* Exit if we're still busy downloading or reconnect is required but failed. */
     if( httpsStatus != IOT_HTTPS_OK )
     {
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     _httpDownloader.state = OTA_HTTP_SENDING_REQUEST;
@@ -856,7 +836,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "File context from OTA agent is NULL." );
         status = kOTA_Err_Panic;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Calculate ranges. */
@@ -881,7 +861,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "Fail to write the \"Range\" value for HTTP header." );
         status = kOTA_Err_HTTPRequestFailed;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Re-initialize the request handle as it could be changed when handling last response. */
@@ -890,7 +870,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "Fail to initialize the HTTP request. Error code: %d.", httpsStatus );
         status = kOTA_Err_HTTPRequestFailed;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
     /* Send the request asynchronously. Receiving is handled in a callback. */
@@ -904,18 +884,15 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "Fail to send the HTTP request asynchronously. Error code: %d.", httpsStatus );
         status = kOTA_Err_HTTPRequestFailed;
-        OTA_GOTO_CLEANUP();
+        goto cleanup;
     }
 
-    OTA_FUNCTION_CLEANUP_BEGIN();
-
+cleanup:
     /* Reset the state to idle if there's any error occurred, i.e. the request is not sent. */
     if( status != kOTA_Err_None)
     {
         _httpDownloader.state = OTA_HTTP_IDLE;
     }
-
-    OTA_FUNCTION_CLEANUP_END();
 
     return status;
 }
