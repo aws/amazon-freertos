@@ -236,7 +236,7 @@ static void _responseCompleteCallback( void * pPrivData,
                                        IotHttpsReturnCode_t rc,
                                        uint16_t status )
 {
-    ( void )rc;
+    ( void ) rc;
 
     bool * pUploadSuccess = ( bool * ) pPrivData;
 

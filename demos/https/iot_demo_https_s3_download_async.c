@@ -414,7 +414,7 @@ static void _freeRequestIndex( int i )
 /**
  * @brief Free all requests in the pool that have been marked as scheduled, except
  * for the exception index.
- * 
+ *
  * @param[in] exception Request index to not free. This is -1 for no exceptions.
  */
 static void _freeAllScheduledRequests( int exception )
@@ -426,8 +426,8 @@ static void _freeAllScheduledRequests( int exception )
 
     for( i = 0; i < IOT_HTTPS_DEMO_MAX_ASYNC_REQUESTS; i++ )
     {
-        if( ( i != exception ) && 
-            (_requestPool.pRequestDatas[ i ].scheduled == true ) )
+        if( ( i != exception ) &&
+            ( _requestPool.pRequestDatas[ i ].scheduled == true ) )
         {
             _pInUseRequests[ i ] = false;
             _clearRequestData( i );
@@ -895,7 +895,7 @@ static void _errorCallback( void * pPrivData,
                             IotHttpsReturnCode_t rc )
 {
     ( void ) reqHandle;
-    ( void )respHandle;
+    ( void ) respHandle;
 
     char * pRangeValueStr = ( ( _requestData_t * ) ( pPrivData ) )->pRangeValueStr;
     IotLogError( "An error occurred during asynchronous operation with code: %d", pRangeValueStr, rc );
@@ -974,7 +974,7 @@ static int _scheduleAsyncRequest( int reqIndex,
 
     /* Send the request and receive the response asynchronously. This will schedule the async request. This function
      * will return immediately after scheduling. */
-    IotLogDebug( "Sending asynchronously %s, req num: %d", _requestPool.pRequestDatas[reqIndex].pRangeValueStr, _requestPool.pReqHandles[reqIndex] );
+    IotLogDebug( "Sending asynchronously %s, req num: %d", _requestPool.pRequestDatas[ reqIndex ].pRangeValueStr, _requestPool.pReqHandles[ reqIndex ] );
     httpsClientStatus = IotHttpsClient_SendAsync( _connHandle,
                                                   _requestPool.pReqHandles[ reqIndex ],
                                                   &( _requestPool.pRespHandles[ reqIndex ] ),
