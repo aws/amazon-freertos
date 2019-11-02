@@ -233,6 +233,18 @@ int prvGAPeventHandler( struct ble_gap_event * event,
             ESP_LOGD( TAG, "advertise complete; reason=%d",
                       event->adv_complete.reason );
 
+            if( xBTBleAdapterCallbacks.pxAdvStatusCb != NULL )
+            {
+                if( ( event->adv_complete.reason == 0 ) || ( event->adv_complete.reason == BLE_HS_ETIMEOUT ) )
+                {
+                    xStatus = eBTStatusSuccess;
+                }
+                else
+                {
+                    xStatus = eBTStatusFail;
+                }
+                xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
+            }
             return 0;
 
         case BLE_GAP_EVENT_PAIRING_REQUEST:
