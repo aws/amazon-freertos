@@ -39,10 +39,10 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 
-#define testIotTSENSOR_ROOM_TEMP        ( 25000 )
-#define testIotTSENSOR_ROOM_TEMP_DELTA  ( 12000 )
+#define testIotTSENSOR_ROOM_TEMP        ( 30000 )
+#define testIotTSENSOR_ROOM_TEMP_DELTA  ( 15000 )
 #define testIotTSENSOR_TEMP_DELTA       ( 5000 )
-#define testIotTSENSOR_INVALID_INPUT ( 99 )
+#define testIotTSENSOR_INVALID_INPUT    ( 99 )
 #define TSENSOR_TEMP_ABSOLUTE_ZERO      ( -273150 )
 
 uint8_t uctestIotTsensorInstance = 0;
