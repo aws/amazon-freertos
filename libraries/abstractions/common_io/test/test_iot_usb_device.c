@@ -394,7 +394,7 @@ static int32_t USB_DeviceCh9GetStatus(USBDeviceCommonClassStruct_t *classHandle,
                                            uint8_t **buffer,
                                            uint32_t *length)
 {
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
 
     error = iot_usb_device_ioctl(classHandle->xHandle, eUSBDeviceGetState, &state);
@@ -464,7 +464,7 @@ static int32_t USB_DeviceCh9SetClearFeature(USBDeviceCommonClassStruct_t *classH
                                                  uint8_t **buffer,
                                                  uint32_t *length)
 {
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
     uint8_t isSet = 0U;
 
@@ -558,7 +558,7 @@ static int32_t USB_DeviceCh9SetAddress(USBDeviceCommonClassStruct_t *classHandle
                                             uint8_t **buffer,
                                             uint32_t *length)
 {
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
 
     error = iot_usb_device_ioctl(classHandle->xHandle, eUSBDeviceGetState, &state);
@@ -601,7 +601,7 @@ static int32_t USB_DeviceCh9GetDescriptor(USBDeviceCommonClassStruct_t *classHan
                                                uint32_t *length)
 {
     USBDeviceGetDescriptorCommonUnion_t commonDescriptor;
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
     uint8_t descriptorType = (uint8_t)((setup->wValue & 0xFF00U) >> 8U);
     uint8_t descriptorIndex = (uint8_t)((setup->wValue & 0x00FFU));
@@ -696,7 +696,7 @@ static int32_t USB_DeviceCh9GetConfiguration(USBDeviceCommonClassStruct_t *class
     TEST_ASSERT_EQUAL( error, IOT_USB_DEVICE_SUCCESS);
     if ((eUsbDeviceStateAddress != state) && ((eUsbDeviceStateConfigured != state)))
     {
-        return IOT_USB_DEVICE_INVALID_REQUEST;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
 
     *length = testIotUsbDevice_CONFIGURE_SIZE;
@@ -717,7 +717,7 @@ static int32_t USB_DeviceCh9SetConfiguration(USBDeviceCommonClassStruct_t *class
     TEST_ASSERT_EQUAL( error, IOT_USB_DEVICE_SUCCESS);
     if ((eUsbDeviceStateAddress != state) && (eUsbDeviceStateConfigured != state))
     {
-        return IOT_USB_DEVICE_INVALID_REQUEST;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
 
     /* The device state is changed to eUSBDeviceStateConfigured */
@@ -743,7 +743,7 @@ static int32_t USB_DeviceCh9GetInterface(USBDeviceCommonClassStruct_t *classHand
                                               uint8_t **buffer,
                                               uint32_t *length)
 {
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
 
     error = iot_usb_device_ioctl(classHandle->xHandle, eUSBDeviceGetState, &state);
@@ -768,14 +768,14 @@ static int32_t USB_DeviceCh9SetInterface(USBDeviceCommonClassStruct_t *classHand
                                               uint8_t **buffer,
                                               uint32_t *length)
 {
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
 
     error = iot_usb_device_ioctl(classHandle->xHandle, eUSBDeviceGetState, &state);
     TEST_ASSERT_EQUAL( error, IOT_USB_DEVICE_SUCCESS);
     if (state != eUsbDeviceStateConfigured)
     {
-        return IOT_USB_DEVICE_INVALID_REQUEST;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     classHandle->usStandardTranscationBuffer = ((setup->wIndex & 0xFFU) << 8U) | (setup->wValue & 0xFFU);
     /* Notify the class driver the alternate setting of the interface is changed. */
@@ -793,7 +793,7 @@ static int32_t USB_DeviceCh9SynchFrame(USBDeviceCommonClassStruct_t *classHandle
                                             uint8_t **buffer,
                                             uint32_t *length)
 {
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
 
     error = iot_usb_device_ioctl(classHandle->xHandle, eUSBDeviceGetState, &state);
@@ -824,7 +824,7 @@ static int32_t USB_DeviceControlCallbackFeedback(IotUsbDeviceHandle_t handle,
     int32_t errorCode = IOT_USB_DEVICE_ERROR;
     uint8_t direction = eUSBTransferDirectionIn;
 
-    if (IOT_USB_DEVICE_INVALID_REQUEST == error)
+    if (IOT_USB_DEVICE_INVALID_VALUE == error)
     {
         /* Stall the control pipe when the request is unsupported. */
         if ((!((setup->bmRequestType & USB_REQUEST_TYPE_TYPE_MASK) == USB_REQUEST_TYPE_TYPE_STANDARD)) &&
@@ -880,7 +880,7 @@ static int32_t USB_DeviceControlCallback(IotUsbDeviceOperationStatus_t xStatus,
     USBDeviceEndpointCallbackInformation_t message;
     uint8_t *buffer = (uint8_t *)NULL;
     uint32_t length = 0U;
-    int32_t error = IOT_USB_DEVICE_INVALID_REQUEST;
+    int32_t error = IOT_USB_DEVICE_INVALID_VALUE;
     uint8_t state;
 
     if (NULL == callbackParam)
@@ -1268,11 +1268,11 @@ static int32_t usb_device_class_event(IotUsbDeviceHandle_t handle, USBDeviceClas
                 /* Call class event callback of supported class */
                 errorReturn = s_UsbDeviceClassInterfaceMap[mapIndex].xClassEventCallback(
                     (void *)classHandle->pxConfigList->pxConfig[classIndex].xClassHandle, event, param);
-                /* Return the error code IOT_USB_DEVICE_INVALID_REQUEST immediately, when a class returns
-                 * IOT_USB_DEVICE_INVALID_REQUEST. */
-                if (IOT_USB_DEVICE_INVALID_REQUEST == errorReturn)
+                /* Return the error code IOT_USB_DEVICE_INVALID_VALUE immediately, when a class returns
+                 * IOT_USB_DEVICE_INVALID_VALUE. */
+                if (IOT_USB_DEVICE_INVALID_VALUE == errorReturn)
                 {
-                    return IOT_USB_DEVICE_INVALID_REQUEST;
+                    return IOT_USB_DEVICE_INVALID_VALUE;
                 }
                 /* For composite device, it should return IOT_USB_DEVICE_SUCCESS once a valid request has been handled */
                 if (IOT_USB_DEVICE_SUCCESS == errorReturn)
@@ -1546,7 +1546,7 @@ static int32_t USB_DeviceHidInterruptIn(IotUsbDeviceOperationStatus_t xStatus,
 
     if (!hidHandle)
     {
-        return IOT_USB_DEVICE_INVALID_HANDLE;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     hidHandle->ucInterruptInPipeBusy = 0U;
     message.pucBuffer = hidHandle->pucBuffer;
@@ -1575,7 +1575,7 @@ static int32_t USB_DeviceHidInterruptOut(IotUsbDeviceOperationStatus_t xStatus,
 
     if (!hidHandle)
     {
-        return IOT_USB_DEVICE_INVALID_HANDLE;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     hidHandle->ucInterruptOutPipeBusy = 0U;
     message.pucBuffer = hidHandle->pucBuffer;
@@ -1707,7 +1707,7 @@ static int32_t usb_device_hid_event(void *handle, uint32_t event, void *param)
 
     if ((!param) || (!handle))
     {
-        return IOT_USB_DEVICE_INVALID_HANDLE;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
 
     /* Get the hid class handle. */
@@ -1951,7 +1951,7 @@ static int32_t usb_device_hid_event(void *handle, uint32_t event, void *param)
                         }
                         break;
                     default:
-                        error = IOT_USB_DEVICE_INVALID_REQUEST;
+                        error = IOT_USB_DEVICE_INVALID_VALUE;
                         break;
                 }
             }
@@ -1985,7 +1985,7 @@ static int32_t usb_device_hid_init(uint8_t controllerId, USBDeviceClassConfigStr
 
     if (!hidHandle->pxHandle)
     {
-        return IOT_USB_DEVICE_INVALID_HANDLE;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     /* Save the configuration of the class. */
     hidHandle->pxConfigStruct = config;
@@ -2006,7 +2006,7 @@ static int32_t usb_device_hid_deinit(class_handle_t handle)
 
     if (!hidHandle)
     {
-        return IOT_USB_DEVICE_INVALID_HANDLE;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     /* De-initialzie the endpoints. */
     error = USB_DeviceHidEndpointsDeinit(hidHandle);
@@ -2022,7 +2022,7 @@ static int32_t usb_device_hid_send(class_handle_t handle, uint8_t ep, uint8_t *b
 
     if (!handle)
     {
-        return IOT_USB_DEVICE_INVALID_HANDLE;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     hidHandle = (USBDeviceHidStruct_t *)handle;
 
@@ -2054,7 +2054,7 @@ static int32_t usb_device_hid_recv(class_handle_t handle, uint8_t ep, uint8_t *b
 
     if (!handle)
     {
-        return IOT_USB_DEVICE_INVALID_HANDLE;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     hidHandle = (USBDeviceHidStruct_t *)handle;
 
@@ -2425,7 +2425,7 @@ static int32_t USB_DeviceGetConfigurationDescriptor(
         configurationDescriptor->ulLength = testIotUsbDevice_DESCRIPTOR_LENGTH_CONFIGURATION_ALL;
         return IOT_USB_DEVICE_SUCCESS;
     }
-    return IOT_USB_DEVICE_INVALID_REQUEST;
+    return IOT_USB_DEVICE_INVALID_VALUE;
 }
 
 /* Get device string descriptor request */
@@ -2455,7 +2455,7 @@ static int32_t USB_DeviceGetStringDescriptor(IotUsbDeviceHandle_t handle,
         }
         if (testIotUsbDevice_STRING_COUNT == languageIndex)
         {
-            return IOT_USB_DEVICE_INVALID_REQUEST;
+            return IOT_USB_DEVICE_INVALID_VALUE;
         }
         stringDescriptor->pucBuffer = (uint8_t *)g_UsbDeviceLanguageList.languageList[languageId].string[languageIndex];
         stringDescriptor->ulLength = g_UsbDeviceLanguageList.languageList[languageId].length[languageIndex];
@@ -2475,7 +2475,7 @@ static int32_t USB_DeviceGetHidDescriptor(IotUsbDeviceHandle_t handle, USBDevice
     }
     else
     {
-        return IOT_USB_DEVICE_INVALID_REQUEST;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     return IOT_USB_DEVICE_SUCCESS;
 }
@@ -2490,7 +2490,7 @@ static int32_t USB_DeviceGetHidReportDescriptor(IotUsbDeviceHandle_t handle,
     }
     else
     {
-        return IOT_USB_DEVICE_INVALID_REQUEST;
+        return IOT_USB_DEVICE_INVALID_VALUE;
     }
     return IOT_USB_DEVICE_SUCCESS;
 }
@@ -2499,7 +2499,7 @@ static int32_t USB_DeviceGetHidReportDescriptor(IotUsbDeviceHandle_t handle,
 static int32_t USB_DeviceGetHidPhysicalDescriptor(IotUsbDeviceHandle_t handle,
                                                 USBDeviceGetHidPhysicalDescriptorStruct_t *hidPhysicalDescriptor)
 {
-    return IOT_USB_DEVICE_INVALID_REQUEST;
+    return IOT_USB_DEVICE_INVALID_VALUE;
 }
 
 static int32_t USB_DeviceSetSpeed(IotUsbDeviceHandle_t handle, uint8_t speed)
@@ -2758,11 +2758,11 @@ static int32_t USB_DeviceHidGenericCallback(class_handle_t handle, uint32_t even
             xSemaphoreGiveFromISR(xtestIotUsbDeviceSemaphore, &xHigherPriorityTaskWoken);
             break;
         case eUSBDeviceHidEventGetReport:
-            error = IOT_USB_DEVICE_INVALID_REQUEST;
+            error = IOT_USB_DEVICE_INVALID_VALUE;
             break;
         case eUSBDeviceHidEventSetReport:
         case eUSBDeviceHidEventRequestReportBuffer:
-            error = IOT_USB_DEVICE_INVALID_REQUEST;
+            error = IOT_USB_DEVICE_INVALID_VALUE;
             break;
         case eUSBDeviceHidEventGetIdle:
         case eUSBDeviceHidEventGetProtocol:
@@ -2813,7 +2813,7 @@ static int32_t USB_DeviceCallback(IotUsbDeviceHandle_t handle, uint32_t event, v
             }
             else
             {
-                error = IOT_USB_DEVICE_INVALID_REQUEST;
+                error = IOT_USB_DEVICE_INVALID_VALUE;
             }
             break;
         case eUSBDeviceSetInterfaceEvent:
@@ -2848,7 +2848,7 @@ static int32_t USB_DeviceCallback(IotUsbDeviceHandle_t handle, uint32_t event, v
                 }
                 else
                 {
-                    error = IOT_USB_DEVICE_INVALID_REQUEST;
+                    error = IOT_USB_DEVICE_INVALID_VALUE;
                 }
             }
             break;
