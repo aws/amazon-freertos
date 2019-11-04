@@ -188,10 +188,10 @@ typedef struct _httpDownloader
 static _httpDownloader_t _httpDownloader = { 0 };
 
 /* Buffers for HTTP library. */
-uint8_t pConnectionUserBuffer[ HTTPS_CONNECTION_USER_BUFFER_SIZE ];     /* Buffer to store the HTTP connection context. */
-uint8_t pRequestUserBuffer[ HTTPS_REQUEST_USER_BUFFER_SIZE ];           /* Buffer to store the HTTP request context and header. */
-uint8_t pResponseUserBuffer[ HTTPS_RESPONSE_USER_BUFFER_SIZE ];         /* Buffer to store the HTTP response context and header. */
-uint8_t pResponseBodyBuffer[ HTTPS_RESPONSE_BODY_BUFFER_SIZE ];         /* Buffer to store the HTTP response body. */
+uint8_t * pConnectionUserBuffer = NULL;           /* Buffer to store the HTTP connection context. */
+uint8_t * pRequestUserBuffer = NULL;              /* Buffer to store the HTTP request context and header. */
+uint8_t * pResponseUserBuffer = NULL;             /* Buffer to store the HTTP response context and header. */
+uint8_t * pResponseBodyBuffer = NULL;             /* Buffer to store the HTTP response body. */
 
 
 /*-----------------------------------------------------------*/
@@ -741,7 +741,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "File context from OTA agent is NULL." );
         status = kOTA_Err_Panic;
-        goto cleanup;
+        goto noCleanup;
     }
     otaFileSize = fileContext->ulFileSize;
 
@@ -751,7 +751,36 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     {
         IotLogError( "Fail to initialize HTTP library." );
         status = kOTA_Err_HTTPInitFailed;
-        goto cleanup;
+        goto noCleanup;
+    }
+
+    /* Allocate buffers for HTTP library. */
+    pConnectionUserBuffer = pvPortMalloc( HTTPS_CONNECTION_USER_BUFFER_SIZE );
+    if( pConnectionUserBuffer == NULL )
+    {
+        IotLogError( "Failed to allocate memory for HTTP connection user buffer." );
+        goto noCleanup;
+    }
+
+    pRequestUserBuffer = pvPortMalloc( HTTPS_REQUEST_USER_BUFFER_SIZE );
+    if( pRequestUserBuffer == NULL )
+    {
+        IotLogError( "Failed to allocate memory for HTTP request user buffer." );
+        goto requestUserBufferFail;
+    }
+
+    pResponseUserBuffer = pvPortMalloc( HTTPS_RESPONSE_USER_BUFFER_SIZE );
+    if( pResponseUserBuffer == NULL )
+    {
+        IotLogError( "Failed to allocate memory for HTTP response user buffer." );
+        goto responseUserBufferFail;
+    }
+
+    pResponseBodyBuffer = pvPortMalloc( HTTPS_RESPONSE_BODY_BUFFER_SIZE );
+    if( pResponseBodyBuffer == NULL )
+    {
+        IotLogError( "Failed to allocate memory for HTTP response body buffer." );
+        goto responseBodyBufferFail;
     }
 
     /* Connect to the HTTP server and initialize download information. */
@@ -781,9 +810,24 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
         status = kOTA_Err_HTTPInitFailed;
         goto cleanup;
     }
+
+    /* Exit directly if everything succeed. */
     IotLogInfo( "Start requesting %u bytes from HTTP server.", ( unsigned int ) httpFileSize );
+    goto noCleanup;
 
 cleanup:
+    vPortFree( pResponseBodyBuffer );
+
+responseBodyBufferFail:
+    vPortFree( pResponseUserBuffer );
+
+responseUserBufferFail:
+    vPortFree( pRequestUserBuffer );
+
+requestUserBufferFail:
+    vPortFree( pConnectionUserBuffer );
+
+noCleanup:
     return status;
 }
 
@@ -936,5 +980,11 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
 OTA_Err_t _AwsIotOTA_Cleanup_HTTP( OTA_AgentContext_t * pAgentCtx )
 {
     memset( &_httpDownloader, 0, sizeof( _httpDownloader_t ) );
+
+    vPortFree( pResponseBodyBuffer );
+    vPortFree( pResponseUserBuffer );
+    vPortFree( pRequestUserBuffer );
+    vPortFree( pConnectionUserBuffer );
+
     return kOTA_Err_None;
 }
