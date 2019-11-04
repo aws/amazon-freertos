@@ -325,9 +325,6 @@ static void _httpReadReadyCallback( void * pPrivateData,
     /* HTTP return status. */
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
 
-    /* HTTP connection data. */
-    _httpConnection_t * pConnection = &_httpDownloader.httpConnection;
-
     /* The content length of this HTTP response. */
     uint32_t contentLength = 0;
 
