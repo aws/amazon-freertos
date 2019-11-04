@@ -570,6 +570,10 @@ cleanup:
     return httpsStatus;
 }
 
+ /* Ideally we could use a HEAD request to get the file size. However, performing a HEAD request
+  * with S3 requires generating a Sigv4 signature in an authorization header field. So here we use
+  * a GET request with range set to 0, then extract the file size from the "Content-Range" field in
+  * the HTTP response. */
 static int _httpGetFileSize( uint32_t * pFileSize )
 {
     /* Return status. */
