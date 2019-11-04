@@ -48,7 +48,7 @@
 #define LIBRARY_LOG_NAME                    ( "OTA" )
 #include "iot_logging_setup.h"
 
-/* Maximum OTA file size string in byte. */
+/* Maximum OTA file size string in byte. The OTA service current limits the file size to 16 MB.*/
 #define OTA_MAX_FILE_SIZE_STR               "16777216"
 
 /* String length of the maximum OTA file size string, not including the null character. */
@@ -204,13 +204,6 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
 
     OTAEventData_t * pMessage;
     OTAEventMsg_t eventMsg = { 0 };
-
-    if( pAgentCtx->xOTA_EventQueue == NULL )
-    {
-        IotLogWarn( "Event queue for OTA agent task is NULL." );
-        pAgentCtx->xStatistics.ulOTA_PacketsDropped++;
-        return;
-    }
 
     pAgentCtx->xStatistics.ulOTA_PacketsReceived++;
 
