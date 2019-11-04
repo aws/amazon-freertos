@@ -10,6 +10,12 @@ config FREERTOS_UNICORE
         This is needed when e.g. another process needs complete control
         over the second core.
 
+            # This invisible config value sets the value of tskNO_AFFINITY in task.h.
+            # Intended to be used as a constant from other Kconfig files.
+            # Value is (32-bit) INT_MAX.
+    config FREERTOS_NO_AFFINITY
+        hex
+        default 0x7FFFFFFF
 
 choice FREERTOS_CORETIMER
     prompt "Xtensa timer to use as the FreeRTOS tick source"
@@ -146,11 +152,11 @@ endchoice
 config FREERTOS_IDLE_TASK_STACKSIZE
     int "Idle Task stack size"
     range 768 32768
-    default 1024
+    default 1536
     help
-        The idle task has its own stack, sized in bytes. The default size is enough for most uses. Size can be reduced
-        to 768 bytes if no (or simple) FreeRTOS idle hooks are used. The stack size may need to be increased above the
-        default if the app installs idle hooks that use a lot of stack memory.
+        The idle task has its own stack, sized in bytes. The default size is enough for most uses. Size can be
+        reduced to 768 bytes if no (or simple) FreeRTOS idle hooks are used and pthread local storage or FreeRTOS
+        local storage cleanup callbacks are not used.
 
 config FREERTOS_ISR_STACKSIZE
     int "ISR stack size"
@@ -295,7 +301,7 @@ config FREERTOS_USE_TRACE_FACILITY
 
 config FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
     bool "Enable FreeRTOS stats formatting functions"
-    depends on FREERTOS_USE_TRACE_FACILITY || FREERTOS_GENERATE_RUN_TIME_STATS
+    depends on FREERTOS_USE_TRACE_FACILITY
     default n
     help
         If enabled, configUSE_STATS_FORMATTING_FUNCTIONS will be defined as 1 in
@@ -305,6 +311,8 @@ config FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
 config FREERTOS_GENERATE_RUN_TIME_STATS
     bool "Enable FreeRTOS to collect run time stats"
     default n
+    select FREERTOS_USE_TRACE_FACILITY
+    select FREERTOS_USE_STATS_FORMATTING_FUNCTIONS
     help
         If enabled, configGENERATE_RUN_TIME_STATS will be defined as 1 in 
         FreeRTOS. This will allow FreeRTOS to collect information regarding the 

@@ -152,7 +152,6 @@ typedef struct {
     tBTM_START_ADV_CMPL_CBACK *p_adv_cb;
     tBTM_START_STOP_ADV_CMPL_CBACK *p_stop_adv_cb;
     tBLE_ADDR_TYPE adv_addr_type;
-    BOOLEAN adv_callback_twice;
     UINT8 evt_type;
     UINT8 adv_mode;
     tBLE_BD_ADDR direct_bda;
@@ -181,9 +180,15 @@ typedef void (tBTM_BLE_RESOLVE_CBACK) (void *match_rec, void *p);
 
 typedef void (tBTM_BLE_ADDR_CBACK) (BD_ADDR_PTR static_random, void *p);
 
+#define BTM_BLE_GAP_ADDR_BIT_RANDOM      (1<<0)
+#define BTM_BLE_GAP_ADDR_BIT_RESOLVABLE  (1<<1)
+
 /* random address management control block */
 typedef struct {
     tBLE_ADDR_TYPE              own_addr_type;         /* local device LE address type */
+    UINT8                       exist_addr_bit;
+    BD_ADDR                     static_rand_addr;
+    BD_ADDR                     resolvale_addr;
     BD_ADDR                     private_addr;
     BD_ADDR                     random_bda;
     BOOLEAN                     busy;
@@ -274,6 +279,12 @@ typedef UINT16 tBTM_BLE_STATE_MASK;
 #define BTM_LE_RESOLVING_LIST_MAX     0x20
 #endif
 
+#define BTM_DUPLICATE_SCAN_EXCEPTIONAL_INFO_ADV_ADDR             0
+#define BTM_DUPLICATE_SCAN_EXCEPTIONAL_INFO_MESH_LINK_ID         1
+#define BTM_DUPLICATE_SCAN_EXCEPTIONAL_INFO_MESH_BEACON_TYPE     2
+#define BTM_DUPLICATE_SCAN_EXCEPTIONAL_INFO_MESH_PROV_SRV_ADV    3
+#define BTM_DUPLICATE_SCAN_EXCEPTIONAL_INFO_MESH_PROXY_SRV_ADV   4
+
 typedef struct {
     BD_ADDR         *resolve_q_random_pseudo;
     UINT8           *resolve_q_action;
@@ -352,6 +363,7 @@ typedef struct {
     /* current BLE link state */
     tBTM_BLE_STATE_MASK cur_states; /* bit mask of tBTM_BLE_STATE */
     UINT8 link_count[2]; /* total link count master and slave*/
+    tBTM_UPDATE_DUPLICATE_EXCEPTIONAL_LIST_CMPL_CBACK *update_exceptional_list_cmp_cb;
 } tBTM_BLE_CB;
 
 #ifdef __cplusplus

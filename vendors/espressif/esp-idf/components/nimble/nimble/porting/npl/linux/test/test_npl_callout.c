@@ -56,7 +56,7 @@ void on_callout(struct ble_npl_event *ev)
  * ble_npl_callout_init(struct ble_npl_callout *c, struct ble_npl_eventq *evq,
  *                 ble_npl_event_fn *ev_cb, void *ev_arg)
  */
-int test_init()
+int test_init(void)
 {
     ble_npl_callout_init(&s_callout,
 		    &s_eventq,
@@ -65,19 +65,19 @@ int test_init()
     return PASS;
 }
 
-int test_queued()
+int test_queued(void)
 {
   //VerifyOrQuit(ble_npl_callout_queued(&s_callout),
   //	 "callout: not queued when expected");
     return PASS;
 }
 
-int test_reset()
+int test_reset(void)
 {
     return ble_npl_callout_reset(&s_callout, TEST_INTERVAL);
 }
 
-int test_stop()
+int test_stop(void)
 {
     return PASS;
 }

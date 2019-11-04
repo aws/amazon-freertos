@@ -28,6 +28,7 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "soc/rtc_cntl_reg.h"
+#include "soc/rtc_wdt.h"
 #include "aws_ota_codesigner_certificate.h"
 
 #include "esp_partition.h"
@@ -614,11 +615,7 @@ OTA_PAL_ImageState_t prvPAL_GetPlatformImageState()
 static void disable_rtc_wdt()
 {
     ESP_LOGI( TAG, "Disabling RTC hardware watchdog timer" );
-    WRITE_PERI_REG( RTC_CNTL_WDTWPROTECT_REG, RTC_CNTL_WDT_WKEY_VALUE );
-    WRITE_PERI_REG( RTC_CNTL_WDTFEED_REG, 1 );
-    REG_SET_FIELD( RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_STG0, RTC_WDT_STG_SEL_OFF );
-    REG_CLR_BIT( RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_EN );
-    WRITE_PERI_REG( RTC_CNTL_WDTWPROTECT_REG, 0 );
+    rtc_wdt_disable();
 }
 
 OTA_Err_t prvPAL_SetPlatformImageState( OTA_ImageState_t eState )

@@ -42,9 +42,6 @@ $(OUTPUT_DIR):
 test: $(TEST_PROGRAM)
 	./$(TEST_PROGRAM) -d yes exclude:[long]
 
-test_mp_blob_support: CPPFLAGS += -DCONFIG_MP_BLOB_SUPPORT
-test_mp_blob_support: test
-
 long-test: $(TEST_PROGRAM)
 	./$(TEST_PROGRAM) -d yes
 
@@ -64,5 +61,10 @@ clean:
 	rm -f $(COVERAGE_FILES) *.gcov
 	rm -rf coverage_report/
 	rm -f coverage.info
+	rm ../nvs_partition_generator/partition_single_page.bin
+	rm ../nvs_partition_generator/partition_multipage_blob.bin
+	rm ../nvs_partition_generator/partition_encrypted.bin
+	rm ../nvs_partition_generator/partition_encrypted_using_keygen.bin
+	rm ../nvs_partition_generator/partition_encrypted_using_keyfile.bin
 
 .PHONY: clean all test long-test

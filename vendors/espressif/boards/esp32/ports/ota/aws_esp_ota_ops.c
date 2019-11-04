@@ -36,6 +36,9 @@
 #include "rom/crc.h"
 #include "soc/dport_reg.h"
 #include "esp_log.h"
+#include "esp_flash_data_types.h"
+#include "esp_efuse.h"
+#include "bootloader_common.h"
 
 #define OTA_MAX(a,b) ((a) >= (b) ? (a) : (b)) 
 #define OTA_MIN(a,b) ((a) <= (b) ? (a) : (b)) 
@@ -49,14 +52,7 @@ typedef struct ota_ops_entry_ {
     LIST_ENTRY(ota_ops_entry_) entries;
 } ota_ops_entry_t;
 
-/* OTA selection structure (two copies in the OTA data partition.)
-   Size of 32 bytes is friendly to flash encryption */
-typedef struct {
-    uint32_t ota_seq;
-    uint8_t  seq_label[20];
-    uint32_t ota_flags;          /* Reserved 4 bytes for ota flags - rollback feature */
-    uint32_t crc;                /* CRC32 of ota_seq field only */
-} ota_select;
+typedef esp_ota_select_entry_t ota_select;
 
 static LIST_HEAD(ota_ops_entries_head, ota_ops_entry_) s_ota_ops_entries_head =
     LIST_HEAD_INITIALIZER(s_ota_ops_entries_head);
@@ -191,7 +187,7 @@ esp_err_t aws_esp_ota_end(esp_ota_handle_t handle)
       .size = it->part->size,
     };
 
-    if (esp_image_load(ESP_IMAGE_VERIFY, &part_pos, &data) != ESP_OK) {
+    if (esp_image_verify(ESP_IMAGE_VERIFY, &part_pos, &data) != ESP_OK) {
         ret = ESP_ERR_OTA_VALIDATE_FAILED;
         goto cleanup;
     }
@@ -204,12 +200,12 @@ esp_err_t aws_esp_ota_end(esp_ota_handle_t handle)
 
 static uint32_t ota_select_crc(const ota_select *s)
 {
-    return crc32_le(UINT32_MAX, (uint8_t *)&s->ota_seq, 4);
+    return bootloader_common_ota_select_crc(s);
 }
 
 static bool ota_select_valid(const ota_select *s)
 {
-    return s->ota_seq != UINT32_MAX && s->crc == ota_select_crc(s);
+    return bootloader_common_ota_select_valid(s);
 }
 
 static esp_err_t rewrite_ota_seq(uint32_t seq, uint8_t sec_id, const esp_partition_t *ota_data_partition)
@@ -217,7 +213,7 @@ static esp_err_t rewrite_ota_seq(uint32_t seq, uint8_t sec_id, const esp_partiti
     esp_err_t ret;
 
     if (sec_id == 0 || sec_id == 1) {
-        s_ota_select[sec_id].ota_flags = ESP_OTA_IMG_NEW;
+        s_ota_select[sec_id].ota_state = ESP_OTA_IMG_NEW;
         s_ota_select[sec_id].ota_seq = seq;
         s_ota_select[sec_id].crc = ota_select_crc(&s_ota_select[sec_id]);
         ret = esp_partition_erase_range(ota_data_partition, sec_id * SPI_FLASH_SEC_SIZE, SPI_FLASH_SEC_SIZE);
@@ -329,7 +325,7 @@ esp_err_t aws_esp_ota_set_boot_partition(const esp_partition_t *partition)
         .offset = partition->address,
         .size = partition->size,
     };
-    if (esp_image_load(ESP_IMAGE_VERIFY, &part_pos, &data) != ESP_OK) {
+    if (esp_image_verify(ESP_IMAGE_VERIFY, &part_pos, &data) != ESP_OK) {
         return ESP_ERR_OTA_VALIDATE_FAILED;
     }
 
@@ -342,6 +338,22 @@ esp_err_t aws_esp_ota_set_boot_partition(const esp_partition_t *partition)
             // try to find this partition in flash,if not find it ,return error
             find_partition = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_OTA, NULL);
             if (find_partition != NULL) {
+#ifdef CONFIG_APP_ANTI_ROLLBACK
+                esp_app_desc_t partition_app_desc;
+                esp_err_t err = esp_ota_get_partition_description(partition, &partition_app_desc);
+                if (err != ESP_OK) {
+                    return err;
+                }
+
+                if (esp_efuse_check_secure_version(partition_app_desc.secure_version) == false) {
+                    ESP_LOGE(TAG, "This a new partition can not be booted due to a secure version is lower than stored in efuse. Partition will be erased.");
+                    esp_err_t err = esp_partition_erase_range(partition, 0, partition->size);
+                    if (err != ESP_OK) {
+                        return err;
+                    }
+                    return ESP_ERR_OTA_SMALL_SEC_VER;
+                }
+#endif
                 return esp_rewrite_ota_data(partition->subtype);
             } else {
                 return ESP_ERR_NOT_FOUND;
@@ -403,7 +415,7 @@ static const esp_partition_t *_esp_get_otadata_partition(uint32_t *offset, ota_s
 {
     esp_err_t ret;
     const esp_partition_t *find_partition = NULL;
-    static spi_flash_mmap_memory_t ota_data_map;
+    spi_flash_mmap_memory_t ota_data_map;
     const void *result = NULL;
     ota_select s_ota_select[2];
 
@@ -428,18 +440,25 @@ static const esp_partition_t *_esp_get_otadata_partition(uint32_t *offset, ota_s
             memcpy(entry, &s_ota_select[0], sizeof(ota_select));
             *offset = 0;
             ESP_LOGI(TAG, "[0] aflags/seq:0x%x/0x%x, pflags/seq:0x%x/0x%x",
-                            s_ota_select[0].ota_flags, gen_0_seq, s_ota_select[1].ota_flags, gen_1_seq);
+                            s_ota_select[0].ota_state, gen_0_seq, s_ota_select[1].ota_state, gen_1_seq);
         } else {
             memcpy(entry, &s_ota_select[1], sizeof(ota_select));
             *offset = SPI_FLASH_SEC_SIZE;
             ESP_LOGI(TAG, "[1] aflags/seq:0x%x/0x%x, pflags/seq:0x%x/0x%x",
-                            s_ota_select[1].ota_flags, gen_1_seq, s_ota_select[0].ota_flags, gen_0_seq);
+                            s_ota_select[1].ota_state, gen_1_seq, s_ota_select[0].ota_state, gen_0_seq);
         }
     } else {
         ESP_LOGE(TAG, "no otadata partition found");
     }
     return find_partition;
 }
+
+#ifdef CONFIG_APP_ANTI_ROLLBACK
+static esp_err_t esp_ota_set_anti_rollback(void) {
+    const esp_app_desc_t *app_desc = esp_ota_get_app_description();
+    return esp_efuse_update_secure_version(app_desc->secure_version);
+}
+#endif
 
 esp_err_t aws_esp_ota_set_boot_flags(uint32_t flags, bool active_part)
 {
@@ -452,13 +471,23 @@ esp_err_t aws_esp_ota_set_boot_flags(uint32_t flags, bool active_part)
     if (part == NULL) {
         return ESP_FAIL;
     }
-    entry.ota_flags = flags;
+    entry.ota_state = flags;
     esp_err_t ret = esp_partition_erase_range(part, offset, SPI_FLASH_SEC_SIZE);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "failed to erase partition %d", offset);
+        ESP_LOGE(TAG, "failed to erase partition %d %d", offset, ret);
         return ret;
     }
-    return esp_partition_write(part, offset, &entry, sizeof(ota_select));
+    ret = esp_partition_write(part, offset, &entry, sizeof(ota_select));
+    if (ret != ESP_OK) {
+        ESP_LOGE(TAG, "failed to write partition %d %d", offset, ret);
+        return ret;
+    }
+#ifdef CONFIG_APP_ANTI_ROLLBACK
+    if (flags == ESP_OTA_IMG_VALID) {
+        return esp_ota_set_anti_rollback();
+    }
+#endif
+    return ret;
 }
 
 esp_err_t aws_esp_ota_get_boot_flags(uint32_t *flags, bool active_part)
@@ -473,6 +502,6 @@ esp_err_t aws_esp_ota_get_boot_flags(uint32_t *flags, bool active_part)
     if (part == NULL) {
         return ESP_FAIL;
     }
-    *flags = entry.ota_flags;
+    *flags = entry.ota_state;
     return ESP_OK;
 }

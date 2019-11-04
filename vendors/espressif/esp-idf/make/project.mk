@@ -13,7 +13,7 @@
 .PHONY: build-components menuconfig defconfig all build clean all_binaries check-submodules size size-components size-files size-symbols list-components
 
 MAKECMDGOALS ?= all
-all: all_binaries
+all: all_binaries | check_python_dependencies
 # see below for recipe of 'all' target
 #
 # # other components will add dependencies to 'all_binaries'. The
@@ -34,6 +34,8 @@ help:
 	@echo "make size-components, size-files - Finer-grained memory footprints"
 	@echo "make size-symbols - Per symbol memory footprint. Requires COMPONENT=<component>"
 	@echo "make erase_flash - Erase entire flash contents"
+	@echo "make erase_otadata - Erase ota_data partition; First bootable partition (factory or OTAx) will be used on next boot."
+	@echo "                     This assumes this project's partition table is the one flashed on the device."
 	@echo "make monitor - Run idf_monitor tool to monitor serial output from app"
 	@echo "make simple_monitor - Monitor serial output on terminal console"
 	@echo "make list-components - List all components in the project"
@@ -42,12 +44,13 @@ help:
 	@echo "make app-flash - Flash just the app"
 	@echo "make app-clean - Clean just the app"
 	@echo "make print_flash_cmd - Print the arguments for esptool when flash"
+	@echo "make check_python_dependencies - Check that the required python packages are installed"
 	@echo ""
 	@echo "See also 'make bootloader', 'make bootloader-flash', 'make bootloader-clean', "
 	@echo "'make partition_table', etc, etc."
 
 # Non-interactive targets. Mostly, those for which you do not need to build a binary
-NON_INTERACTIVE_TARGET += defconfig clean% %clean help list-components print_flash_cmd
+NON_INTERACTIVE_TARGET += defconfig clean% %clean help list-components print_flash_cmd check_python_dependencies
 
 # dependency checks
 ifndef MAKE_RESTARTS
@@ -202,12 +205,13 @@ COMPONENT_PATHS := $(foreach comp,$(COMPONENTS),\
 export COMPONENT_PATHS
 
 TEST_COMPONENTS ?=
+TEST_EXCLUDE_COMPONENTS ?=
 TESTS_ALL ?=
 
 # If TESTS_ALL set to 1, set TEST_COMPONENTS_LIST to all components.
 # Otherwise, use the list supplied in TEST_COMPONENTS.
 ifeq ($(TESTS_ALL),1)
-TEST_COMPONENTS_LIST := $(COMPONENTS)
+TEST_COMPONENTS_LIST := $(filter-out $(TEST_EXCLUDE_COMPONENTS), $(COMPONENTS))
 else
 TEST_COMPONENTS_LIST := $(TEST_COMPONENTS)
 endif
@@ -226,6 +230,7 @@ COMPONENT_INCLUDES :=
 COMPONENT_LDFLAGS :=
 COMPONENT_SUBMODULES :=
 COMPONENT_LIBRARIES :=
+COMPONENT_LDFRAGMENTS :=
 
 # COMPONENT_PROJECT_VARS is the list of component_project_vars.mk generated makefiles
 # for each component.
@@ -265,10 +270,11 @@ endif
 
 # If we have `version.txt` then prefer that for extracting IDF version
 ifeq ("$(wildcard ${IDF_PATH}/version.txt)","")
-IDF_VER := $(shell cd ${IDF_PATH} && git describe --always --tags --dirty)
+IDF_VER_T := $(shell cd ${IDF_PATH} && git describe --always --tags --dirty)
 else
 IDF_VER := $(shell cat ${IDF_PATH}/version.txt)
 endif
+IDF_VER := $(shell echo "$(IDF_VER_T)"  | cut -c 1-31)
 
 # Set default LDFLAGS
 EXTRA_LDFLAGS ?=
@@ -298,6 +304,10 @@ LDFLAGS ?= -nostdlib \
 CPPFLAGS ?=
 EXTRA_CPPFLAGS ?=
 CPPFLAGS := -DESP_PLATFORM -D IDF_VER=\"$(IDF_VER)\" -MMD -MP $(CPPFLAGS) $(EXTRA_CPPFLAGS)
+PROJECT_VER ?=
+export IDF_VER
+export PROJECT_NAME
+export PROJECT_VER
 
 # Warnings-related flags relevant both for C and C++
 COMMON_WARNING_FLAGS = -Wall -Werror=all \
@@ -307,6 +317,22 @@ COMMON_WARNING_FLAGS = -Wall -Werror=all \
 	-Wno-error=deprecated-declarations \
 	-Wextra \
 	-Wno-unused-parameter -Wno-sign-compare
+
+ifdef CONFIG_DISABLE_GCC8_WARNINGS
+COMMON_WARNING_FLAGS += -Wno-parentheses \
+	-Wno-sizeof-pointer-memaccess \
+	-Wno-clobbered \
+	-Wno-format-overflow \
+	-Wno-stringop-truncation \
+	-Wno-misleading-indentation \
+	-Wno-cast-function-type \
+	-Wno-implicit-fallthrough \
+	-Wno-unused-const-variable \
+	-Wno-switch-unreachable \
+	-Wno-format-truncation \
+	-Wno-memset-elt-size \
+	-Wno-int-in-bool-context
+endif
 
 ifdef CONFIG_WARN_WRITE_STRINGS
 COMMON_WARNING_FLAGS += -Wwrite-strings
@@ -378,13 +404,16 @@ else
 CXXFLAGS += -fno-exceptions
 endif
 
-export CFLAGS CPPFLAGS CXXFLAGS
+ARFLAGS := cru
+
+export CFLAGS CPPFLAGS CXXFLAGS ARFLAGS
 
 # Set default values that were not previously defined
 CC ?= gcc
 LD ?= ld
 AR ?= ar
 OBJCOPY ?= objcopy
+OBJDUMP ?= objdump
 SIZE ?= size
 
 # Set host compiler and binutils
@@ -402,15 +431,35 @@ CXX := $(call dequote,$(CONFIG_TOOLPREFIX))c++
 LD := $(call dequote,$(CONFIG_TOOLPREFIX))ld
 AR := $(call dequote,$(CONFIG_TOOLPREFIX))ar
 OBJCOPY := $(call dequote,$(CONFIG_TOOLPREFIX))objcopy
+OBJDUMP := $(call dequote,$(CONFIG_TOOLPREFIX))objdump
 SIZE := $(call dequote,$(CONFIG_TOOLPREFIX))size
-export CC CXX LD AR OBJCOPY SIZE
+export CC CXX LD AR OBJCOPY OBJDUMP SIZE
 
-PYTHON=$(call dequote,$(CONFIG_PYTHON))
+COMPILER_VERSION_STR := $(shell $(CC) -dumpversion)
+COMPILER_VERSION_NUM := $(subst .,,$(COMPILER_VERSION_STR))
+GCC_NOT_5_2_0 := $(shell expr $(COMPILER_VERSION_STR) != "5.2.0")
+export COMPILER_VERSION_STR COMPILER_VERSION_NUM GCC_NOT_5_2_0
+
+CPPFLAGS += -DGCC_NOT_5_2_0=$(GCC_NOT_5_2_0)
+export CPPFLAGS
+
 
 # the app is the main executable built by the project
 APP_ELF:=$(BUILD_DIR_BASE)/$(PROJECT_NAME).elf
 APP_MAP:=$(APP_ELF:.elf=.map)
 APP_BIN:=$(APP_ELF:.elf=.bin)
+
+# once we know component paths, we can include the config generation targets
+#
+# (bootloader build doesn't need this, config is exported from top-level)
+ifndef IS_BOOTLOADER_BUILD
+include $(IDF_PATH)/make/project_config.mk
+endif
+
+# include linker script generation utils makefile
+include $(IDF_PATH)/make/ldgen.mk
+
+$(eval $(call ldgen_create_commands))
 
 # Include any Makefile.projbuild file letting components add
 # configuration at the project level
@@ -422,13 +471,6 @@ endef
 $(foreach componentpath,$(COMPONENT_PATHS), \
 	$(if $(wildcard $(componentpath)/Makefile.projbuild), \
 		$(eval $(call includeProjBuildMakefile,$(componentpath)))))
-
-# once we know component paths, we can include the config generation targets
-#
-# (bootloader build doesn't need this, config is exported from top-level)
-ifndef IS_BOOTLOADER_BUILD
-include $(IDF_PATH)/make/project_config.mk
-endif
 
 # ELF depends on the library archive files for COMPONENT_LIBRARIES
 # the rules to build these are emitted as part of GenerateComponentTarget below
@@ -449,6 +491,14 @@ ifeq ("$(CONFIG_SECURE_BOOT_ENABLED)$(CONFIG_SECURE_BOOT_BUILD_SIGNED_BINARIES)"
 else
 	@echo "App built. Default flash app command is:"
 	@echo $(ESPTOOLPY_WRITE_FLASH) $(APP_OFFSET) $(APP_BIN)
+endif
+
+.PHONY: check_python_dependencies
+
+# Notify users when some of the required python packages are not installed
+check_python_dependencies:
+ifndef IS_BOOTLOADER_BUILD
+	$(PYTHON) $(IDF_PATH)/tools/check_python_dependencies.py
 endif
 
 all_binaries: $(APP_BIN)
@@ -506,16 +556,16 @@ app-clean: $(addprefix component-,$(addsuffix -clean,$(notdir $(COMPONENT_PATHS)
 	$(summary) RM $(APP_ELF)
 	rm -f $(APP_ELF) $(APP_BIN) $(APP_MAP)
 
-size: $(APP_ELF)
+size: $(APP_ELF) | check_python_dependencies
 	$(PYTHON) $(IDF_PATH)/tools/idf_size.py $(APP_MAP)
 
-size-files: $(APP_ELF)
+size-files: $(APP_ELF) | check_python_dependencies
 	$(PYTHON) $(IDF_PATH)/tools/idf_size.py --files $(APP_MAP)
 
-size-components: $(APP_ELF)
+size-components: $(APP_ELF) | check_python_dependencies
 	$(PYTHON) $(IDF_PATH)/tools/idf_size.py --archives $(APP_MAP)
 
-size-symbols: $(APP_ELF)
+size-symbols: $(APP_ELF) | check_python_dependencies
 ifndef COMPONENT
 	$(error "ERROR: Please enter the component to look symbols for, e.g. COMPONENT=heap")
 else
@@ -526,7 +576,7 @@ endif
 # _config-clean), so config remains valid during all component clean
 # targets
 config-clean: app-clean bootloader-clean
-clean: app-clean bootloader-clean config-clean
+clean: app-clean bootloader-clean config-clean ldgen-clean
 
 # phony target to check if any git submodule listed in COMPONENT_SUBMODULES are missing
 # or out of date, and exit if so. Components can add paths to this variable.
@@ -545,8 +595,8 @@ define GenerateSubmoduleCheckTarget
 check-submodules: $(IDF_PATH)/$(1)/.git
 $(IDF_PATH)/$(1)/.git:
 	@echo "WARNING: Missing submodule $(1)..."
-	[ -e ${IDF_PATH}/.git ] || ( echo "ERROR: esp-idf must be cloned from git to work."; exit 1)
-	[ -x "$(shell which git)" ] || ( echo "ERROR: Need to run 'git submodule init $(1)' in esp-idf root directory."; exit 1)
+	[ -e ${IDF_PATH}/.git ] || { echo "ERROR: esp-idf must be cloned from git to work."; exit 1; }
+	[ -x "$(shell which git)" ] || { echo "ERROR: Need to run 'git submodule init $(1)' in esp-idf root directory."; exit 1; }
 	@echo "Attempting 'git submodule update --init $(1)' in esp-idf root directory..."
 	cd ${IDF_PATH} && git submodule update --init $(1)
 
@@ -568,43 +618,56 @@ list-components:
 	$(info COMPONENT_DIRS (components searched for here))
 	$(foreach cd,$(COMPONENT_DIRS),$(info $(cd)))
 	$(info $(call dequote,$(SEPARATOR)))
-	$(info COMPONENTS (list of component names))
-	$(info $(COMPONENTS))
+	$(info TEST_COMPONENTS (list of test component names))
+	$(info $(TEST_COMPONENTS_LIST))
 	$(info $(call dequote,$(SEPARATOR)))
-	$(info EXCLUDE_COMPONENTS (list of excluded names))
-	$(info $(if $(EXCLUDE_COMPONENTS),$(EXCLUDE_COMPONENTS),(none provided)))	
+	$(info TEST_EXCLUDE_COMPONENTS (list of test excluded names))
+	$(info $(if $(EXCLUDE_COMPONENTS) || $(TEST_EXCLUDE_COMPONENTS),$(EXCLUDE_COMPONENTS) $(TEST_EXCLUDE_COMPONENTS),(none provided)))
 	$(info $(call dequote,$(SEPARATOR)))
 	$(info COMPONENT_PATHS (paths to all components):)
 	$(foreach cp,$(COMPONENT_PATHS),$(info $(cp)))
 
 # print flash command, so users can dump this to config files and download somewhere without idf
-print_flash_cmd: partition_table_get_info
+print_flash_cmd: partition_table_get_info blank_ota_data
 	echo $(ESPTOOL_WRITE_FLASH_OPTIONS) $(ESPTOOL_ALL_FLASH_ARGS) | sed -e 's:'$(PWD)/build/'::g'
 
 # Check toolchain version using the output of xtensa-esp32-elf-gcc --version command.
 # The output normally looks as follows
-#     xtensa-esp32-elf-gcc (crosstool-NG crosstool-ng-1.22.0-59-ga194053) 4.8.5
-# The part in brackets is extracted into TOOLCHAIN_COMMIT_DESC variable,
-# the part after the brackets is extracted into TOOLCHAIN_GCC_VER.
+#     xtensa-esp32-elf-gcc (crosstool-NG crosstool-ng-1.22.0-80-g6c4433a) 5.2.0
+# The part in brackets is extracted into TOOLCHAIN_COMMIT_DESC variable
 ifdef CONFIG_TOOLPREFIX
 ifndef MAKE_RESTARTS
-TOOLCHAIN_COMMIT_DESC := $(shell $(CC) --version | sed -E -n 's|.*crosstool-ng-([0-9]+).([0-9]+).([0-9]+)-([0-9]+)-g([0-9a-f]{7}).*|\1.\2.\3-\4-g\5|gp')
-TOOLCHAIN_GCC_VER := $(shell $(CC) --version | sed -E -n 's|xtensa-esp32-elf-gcc.*\ \(.*\)\ (.*)|\1|gp')
+
+TOOLCHAIN_HEADER := $(shell $(CC) --version | head -1)
+TOOLCHAIN_PATH := $(shell which $(CC))
+TOOLCHAIN_COMMIT_DESC := $(shell $(CC) --version | sed -E -n 's|.*\(crosstool-NG (.*)\).*|\1|gp')
+TOOLCHAIN_GCC_VER := $(COMPILER_VERSION_STR)
 
 # Officially supported version(s)
-SUPPORTED_TOOLCHAIN_COMMIT_DESC := 1.22.0-80-g6c4433a
-SUPPORTED_TOOLCHAIN_GCC_VERSIONS := 5.2.0
+include $(IDF_PATH)/tools/toolchain_versions.mk
+
+ifndef IS_BOOTLOADER_BUILD
+$(info Toolchain path: $(TOOLCHAIN_PATH))
+endif
 
 ifdef TOOLCHAIN_COMMIT_DESC
-ifneq ($(TOOLCHAIN_COMMIT_DESC), $(SUPPORTED_TOOLCHAIN_COMMIT_DESC))
+ifeq (,$(findstring $(SUPPORTED_TOOLCHAIN_COMMIT_DESC),$(TOOLCHAIN_COMMIT_DESC)))
 $(info WARNING: Toolchain version is not supported: $(TOOLCHAIN_COMMIT_DESC))
 $(info Expected to see version: $(SUPPORTED_TOOLCHAIN_COMMIT_DESC))
 $(info Please check ESP-IDF setup instructions and update the toolchain, or proceed at your own risk.)
+else
+ifndef IS_BOOTLOADER_BUILD
+$(info Toolchain version: $(TOOLCHAIN_COMMIT_DESC))
+endif
 endif
 ifeq (,$(findstring $(TOOLCHAIN_GCC_VER), $(SUPPORTED_TOOLCHAIN_GCC_VERSIONS)))
 $(info WARNING: Compiler version is not supported: $(TOOLCHAIN_GCC_VER))
 $(info Expected to see version(s): $(SUPPORTED_TOOLCHAIN_GCC_VERSIONS))
 $(info Please check ESP-IDF setup instructions and update the toolchain, or proceed at your own risk.)
+else
+ifndef IS_BOOTLOADER_BUILD
+$(info Compiler version: $(TOOLCHAIN_GCC_VER))
+endif
 endif
 else
 $(info WARNING: Failed to find Xtensa toolchain, may need to alter PATH or set one in the configuration menu)

@@ -37,6 +37,7 @@
 #include "soc/rtc_cntl_reg.h"
 #include "soc/timer_group_reg.h"
 #include "soc/gpio_periph.h"
+#include "soc/rtc_wdt.h"
 
 #include "sdkconfig.h"
 #include "esp_image_format.h"
@@ -62,7 +63,6 @@ static const char* TAG = "boot";
 static esp_err_t bootloader_main();
 static void print_flash_info(const esp_image_header_t* pfhdr);
 static void update_flash_config(const esp_image_header_t* pfhdr);
-static void vddsdio_configure();
 static void bootloader_init_flash_configure(const esp_image_header_t* pfhdr);
 static void uart_console_configure(void);
 static void wdt_reset_check(void);
@@ -118,7 +118,7 @@ esp_err_t bootloader_init()
 
 static esp_err_t bootloader_main()
 {
-    vddsdio_configure();
+    bootloader_common_vddsdio_configure();
     /* Read and keep flash ID, for further use. */
     g_rom_flashchip.device_id = bootloader_read_flash_id();
     esp_image_header_t fhdr;
@@ -126,6 +126,14 @@ static esp_err_t bootloader_main()
         ESP_LOGE(TAG, "failed to load bootloader header!");
         return ESP_FAIL;
     }
+
+    /* Check chip ID and minimum chip revision that supported by this image */
+    uint8_t revision = bootloader_common_get_chip_revision();
+    ESP_LOGI(TAG, "Chip Revision: %d", revision);
+    if (bootloader_common_check_chip_validity(&fhdr, ESP_IMAGE_BOOTLOADER) != ESP_OK) {
+        return ESP_FAIL;
+    }
+
     bootloader_init_flash_configure(&fhdr);
 #if (CONFIG_ESP32_DEFAULT_CPU_FREQ_MHZ == 240)
     //Check if ESP32 is rated for a CPU frequency of 160MHz only
@@ -143,8 +151,21 @@ static esp_err_t bootloader_main()
     ESP_LOGI(TAG, "compile time " __TIME__ );
     ets_set_appcpu_boot_addr(0);
 
+#ifdef CONFIG_BOOTLOADER_WDT_ENABLE
+    ESP_LOGD(TAG, "Enabling RTCWDT(%d ms)", CONFIG_BOOTLOADER_WDT_TIME_MS);
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
+    rtc_wdt_set_length_of_reset_signal(RTC_WDT_SYS_RESET_SIG, RTC_WDT_LENGTH_3_2us);
+    rtc_wdt_set_length_of_reset_signal(RTC_WDT_CPU_RESET_SIG, RTC_WDT_LENGTH_3_2us);
+    rtc_wdt_set_stage(RTC_WDT_STAGE0, RTC_WDT_STAGE_ACTION_RESET_RTC);
+    rtc_wdt_set_time(RTC_WDT_STAGE0, CONFIG_BOOTLOADER_WDT_TIME_MS);
+    rtc_wdt_enable();
+    rtc_wdt_protect_on();
+#else
     /* disable watch dog here */
-    REG_CLR_BIT( RTC_CNTL_WDTCONFIG0_REG, RTC_CNTL_WDT_FLASHBOOT_MOD_EN );
+    rtc_wdt_disable();
+#endif
+    REG_SET_FIELD(TIMG_WDTWPROTECT_REG(0), TIMG_WDT_WKEY,  TIMG_WDT_WKEY_VALUE);
     REG_CLR_BIT( TIMG_WDTCONFIG0_REG(0), TIMG_WDT_FLASHBOOT_MOD_EN );
 
 #ifndef CONFIG_SPI_FLASH_ROM_DRIVER_PATCH
@@ -271,21 +292,6 @@ static void print_flash_info(const esp_image_header_t* phdr)
     }
     ESP_LOGI(TAG, "SPI Flash Size : %s", str );
 #endif
-}
-
-static void vddsdio_configure()
-{
-#if CONFIG_BOOTLOADER_VDDSDIO_BOOST_1_9V
-    rtc_vddsdio_config_t cfg = rtc_vddsdio_get_config();
-    if (cfg.enable == 1 && cfg.tieh == RTC_VDDSDIO_TIEH_1_8V) {    // VDDSDIO regulator is enabled @ 1.8V
-        cfg.drefh = 3;
-        cfg.drefm = 3;
-        cfg.drefl = 3;
-        cfg.force = 1;
-        rtc_vddsdio_set_config(cfg);
-        ets_delay_us(10); // wait for regulator to become stable
-    }
-#endif // CONFIG_BOOTLOADER_VDDSDIO_BOOST
 }
 
 /*
@@ -432,5 +438,16 @@ static void wdt_reset_check(void)
 void __assert_func(const char *file, int line, const char *func, const char *expr)
 {
     ESP_LOGE(TAG, "Assert failed in %s, %s:%d (%s)", func, file, line, expr);
+    while(1) {}
+}
+
+void abort()
+{
+#if !CONFIG_ESP32_PANIC_SILENT_REBOOT
+    ets_printf("abort() was called at PC 0x%08x\r\n", (intptr_t)__builtin_return_address(0) - 3);
+#endif
+    if (esp_cpu_in_ocd_debug_mode()) {
+        __asm__ ("break 0,0");
+    }
     while(1) {}
 }
