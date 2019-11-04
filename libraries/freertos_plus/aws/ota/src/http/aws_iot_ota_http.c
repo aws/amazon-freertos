@@ -234,12 +234,23 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
 }
 
 /* Error handler for HTTP response code. */
-static void _httpErrorHandler( uint16_t httpResponseCode )
+static void _httpErrorHandler( uint16_t responseCode, uint32_t responseBodyLength)
 {
-    if( httpResponseCode == IOT_HTTPS_STATUS_FORBIDDEN )
+    IotLogInfo( "HTTP response body: %.*s", responseBodyLength, pResponseBodyBuffer );
+
+    if( responseCode == IOT_HTTPS_STATUS_FORBIDDEN )
     {
-        IotLogInfo( "Pre-signed URL may have expired, requesting new job document." );
-        _httpDownloader.err = OTA_HTTP_ERR_URL_EXPIRED;
+        /* Make the body NULL terminated. */
+        pResponseBodyBuffer[ HTTPS_RESPONSE_BODY_BUFFER_SIZE - 1 ] = '\0';
+        if( NULL != strstr( ( const char * ) pResponseBodyBuffer, "Request has expired") )
+        {
+            IotLogInfo( "Pre-signed URL have expired, requesting new job document." );
+            _httpDownloader.err = OTA_HTTP_ERR_URL_EXPIRED;
+        }
+        else
+        {
+            _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
+        }
     }
     else
     {
@@ -329,11 +340,23 @@ static void _httpReadReadyCallback( void * pPrivateData,
     /* A response is received from the server, setting the state to processing response. */
     _httpDownloader.state = OTA_HTTP_PROCESSING_RESPONSE;
 
+    /* Read the data from the network. */
+    responseBodyLength = HTTPS_RESPONSE_BODY_BUFFER_SIZE;
+    httpsStatus = IotHttpsClient_ReadResponseBody( responseHandle,
+                                                   pResponseBodyBuffer,
+                                                   &responseBodyLength );
+    if( httpsStatus != IOT_HTTPS_OK )
+    {
+        IotLogError( "Failed to read the response body. Error code: %d.", httpsStatus );
+        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
+        goto cleanup;
+    }
+
     /* The HTTP response should be partial content with response code 206. */
     if( responseStatus != IOT_HTTPS_STATUS_PARTIAL_CONTENT )
     {
         IotLogError( "Expect a HTTP partial response, but received code %d", responseStatus );
-        _httpErrorHandler( responseStatus );
+        _httpErrorHandler( responseStatus, responseBodyLength );
         goto cleanup;
     }
 
@@ -350,18 +373,6 @@ static void _httpReadReadyCallback( void * pPrivateData,
     if( contentLength != _httpDownloader.currBlockSize )
     {
         IotLogError( "Content-Length value in HTTP header does not match what we requested. " );
-        _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
-        goto cleanup;
-    }
-
-    /* Read the data from the network. */
-    responseBodyLength = sizeof( pResponseBodyBuffer );
-    httpsStatus = IotHttpsClient_ReadResponseBody( responseHandle,
-                                                   pResponseBodyBuffer,
-                                                   &responseBodyLength );
-    if( httpsStatus != IOT_HTTPS_OK )
-    {
-        IotLogError( "Failed to read the response body. Error code: %d.", httpsStatus );
         _httpDownloader.err = OTA_HTTP_ERR_GENERIC;
         goto cleanup;
     }
@@ -524,7 +535,7 @@ static IotHttpsReturnCode_t _httpConnect( const char * pURL,
     pConnectionConfig->pCaCert = HTTPS_TRUSTED_ROOT_CA;
     pConnectionConfig->caCertLen = sizeof( HTTPS_TRUSTED_ROOT_CA );
     pConnectionConfig->userBuffer.pBuffer = pConnectionUserBuffer;
-    pConnectionConfig->userBuffer.bufferLen = sizeof( pConnectionUserBuffer );
+    pConnectionConfig->userBuffer.bufferLen = HTTPS_CONNECTION_USER_BUFFER_SIZE;
     pConnectionConfig->pClientCert = pNetworkCredentials->pClientCert;
     pConnectionConfig->clientCertLen = pNetworkCredentials->clientCertSize;
     pConnectionConfig->pPrivateKey = pNetworkCredentials->pPrivateKey;
@@ -538,13 +549,13 @@ static IotHttpsReturnCode_t _httpConnect( const char * pURL,
     pRequest->requestConfig.hostLen = pUrlInfo->addressLength;
     pRequest->requestConfig.method = IOT_HTTPS_METHOD_GET;
     pRequest->requestConfig.userBuffer.pBuffer = pRequestUserBuffer;
-    pRequest->requestConfig.userBuffer.bufferLen = sizeof( pRequestUserBuffer );
+    pRequest->requestConfig.userBuffer.bufferLen = HTTPS_REQUEST_USER_BUFFER_SIZE;
     pRequest->requestConfig.isAsync = true;
     pRequest->requestConfig.u.pAsyncInfo = &pRequest->asyncInfo;
 
     /* Initialize HTTP response configuration. */
     pResponse->responseConfig.userBuffer.pBuffer = pResponseUserBuffer;
-    pResponse->responseConfig.userBuffer.bufferLen = sizeof( pResponseUserBuffer );
+    pResponse->responseConfig.userBuffer.bufferLen = HTTPS_RESPONSE_USER_BUFFER_SIZE;
     pResponse->responseConfig.pSyncInfo = NULL;
 
     /* Initialize HTTP asynchronous configuration. */
@@ -605,13 +616,13 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     requestConfig.hostLen = pUrlInfo->addressLength;
     requestConfig.method = IOT_HTTPS_METHOD_GET;
     requestConfig.userBuffer.pBuffer = pRequestUserBuffer;
-    requestConfig.userBuffer.bufferLen = sizeof( pRequestUserBuffer );
+    requestConfig.userBuffer.bufferLen = HTTPS_REQUEST_USER_BUFFER_SIZE;
     requestConfig.isAsync = false;
     requestConfig.u.pSyncInfo = &requestSyncInfo;
 
     /* Set the response configurations. */
     responseConfig.userBuffer.pBuffer = pResponseUserBuffer;
-    responseConfig.userBuffer.bufferLen = sizeof( pResponseUserBuffer );
+    responseConfig.userBuffer.bufferLen = HTTPS_RESPONSE_USER_BUFFER_SIZE;
     responseConfig.pSyncInfo = &responseSyncInfo;
 
     /* Initialize the request to retrieve a request handle. */
