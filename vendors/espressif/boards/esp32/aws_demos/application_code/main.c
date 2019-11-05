@@ -185,11 +185,6 @@ static void prvMiscInitialization( void )
 
             xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BLE );
 
-            if( xRet == ESP_OK )
-            {
-                xRet = esp_bt_controller_mem_release( ESP_BT_MODE_BTDM );
-            }
-
             return xRet;
         }
 

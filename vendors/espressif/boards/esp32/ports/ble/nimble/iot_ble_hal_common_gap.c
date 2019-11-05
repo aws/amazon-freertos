@@ -411,7 +411,7 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                 }
             }
 
-            if( event->subscribe.attr_handle > gattOffset )
+            if( ( event->subscribe.reason != BLE_GAP_SUBSCRIBE_REASON_TERM ) && ( event->subscribe.attr_handle > gattOffset ) )
             {
                 if( xGattServerCb.pxRequestWriteCb != NULL )
                 {

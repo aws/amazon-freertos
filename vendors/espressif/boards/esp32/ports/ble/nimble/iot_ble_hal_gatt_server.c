@@ -47,11 +47,19 @@ static struct ble_gatt_svc_def espServices[ MAX_SERVICES + 1 ];
 static BTService_t * afrServices[ MAX_SERVICES ];
 static uint16_t serviceCnt = 0;
 static SemaphoreHandle_t xSem;
+static bool xSemLock;
 uint16_t gattOffset = 0;
 
 void prvGattGetSemaphore()
 {
+    xSemLock = 1;
     xSemaphoreTake( xSem, portMAX_DELAY );
+}
+
+void prvGattGiveSemaphore()
+{
+    xSemaphoreGive( xSem );
+    xSemLock = 0;
 }
 
 void * pvPortCalloc( size_t xNum,
@@ -624,7 +632,7 @@ BTStatus_t prvBTSendIndication( uint8_t ucServerIf,
 
 static bool prvValidGattRequest()
 {
-    if( uxSemaphoreGetCount( xSem ) == 0 )
+    if( xSemLock )
     {
         return true;
     }
@@ -652,12 +660,11 @@ BTStatus_t prvBTSendResponse( uint16_t usConnId,
                 xReturnStatus = eBTStatusFail;
             }
         }
-        xSemaphoreGive( xSem );
+        prvGattGiveSemaphore();
     }
     else
     {
         xStatus = eBTStatusFail;
-        xReturnStatus = eBTStatusFail;
     }
 
     if( xGattServerCb.pxResponseConfirmationCb != NULL )
