@@ -59,6 +59,8 @@ extern BTUuid_t xServerUUID;
 extern BTUuid_t xAppUUID;
 extern bool CharAddedComplete;
 
+static uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
+
 TEST_GROUP( Full_BLE_Integration_Test );
 
 TEST_SETUP( Full_BLE_Integration_Test )
@@ -401,7 +403,6 @@ TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent
 TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
-    uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
 
     IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
 

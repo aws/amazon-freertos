@@ -47,6 +47,8 @@ extern BTCallbacks_t _xBTManagerCb;
 extern BTBleAdapterCallbacks_t _xBTBleAdapterCb;
 extern BTGattServerCallbacks_t _xBTGattServerCb;
 
+static uint8_t LongReadBuffer[ bletests_LONG_READ_LEN ];
+
 const uint32_t bletestWAIT_MODE1_LEVEL2_QUERY = 10000; /* Wait 10s max */
 
 #if LIBRARY_LOG_LEVEL > IOT_LOG_NONE
@@ -660,9 +662,8 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     BTGattResponse_t xGattResponse;
     BLETESTconfirmCallback_t xConfirmEvent;
     BTStatus_t xStatus;
-    uint8_t LongReadBuffer[ bletests_LONG_WRITE_LEN ];
 
-    memset( LongReadBuffer, 49, bletests_LONG_WRITE_LEN * sizeof( uint8_t ) );
+    memset( LongReadBuffer, 49, bletests_LONG_READ_LEN * sizeof( uint8_t ) );
 
     /* Read transaction */
     xReadEvent = IotTestBleHal_ReadReceive( bletestATTR_SRVCB_CHAR_A );
@@ -670,7 +671,7 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     xGattResponse.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usOffset = xReadEvent.usOffset;
-    xGattResponse.xAttrValue.xLen = bletests_LONG_WRITE_LEN;
+    xGattResponse.xAttrValue.xLen = bletests_LONG_READ_LEN;
     xGattResponse.xAttrValue.pucValue = LongReadBuffer;
     _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
 
@@ -683,7 +684,7 @@ TEST( Full_BLE, BLE_Property_ReadLongCharacteristic )
     xGattResponse.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usHandle = xReadEvent.usAttrHandle;
     xGattResponse.xAttrValue.usOffset = xReadEvent.usOffset;
-    xGattResponse.xAttrValue.xLen = bletests_LONG_WRITE_LEN - xReadEvent.usOffset;
+    xGattResponse.xAttrValue.xLen = bletests_LONG_READ_LEN - xReadEvent.usOffset;
     xGattResponse.xAttrValue.pucValue = LongReadBuffer + xReadEvent.usOffset;
     _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
 
