@@ -157,6 +157,7 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteAsyncReadAsyncLoopback )
     uint8_t ucRxbuf[ testIotI2S_BUF_SIZE ] = {0};
     uint8_t ucTxbuf[ testIotI2S_BUF_SIZE ] = {0};
     int i;
+    uint32_t ulRxTxBytes;
 
     for(i=0; i<testIotI2S_BUF_SIZE; i++) {
        ucTxbuf[i] = i& 0xff;
@@ -185,6 +186,19 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteAsyncReadAsyncLoopback )
        lRetVal = xSemaphoreTake(xtestIotI2SReadSemaphore, portMAX_DELAY);
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
 
+       /* Get Tx Num bytes */
+       ulRxTxBytes = 0;
+       lRetVal = iot_i2s_ioctl( xI2SSpkrHandle, eI2SGetTxNoOfbytes, &ulRxTxBytes);
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+       TEST_ASSERT_EQUAL( testIotI2S_BUF_SIZE, ulRxTxBytes );
+
+       /* Get Rx Num bytes */
+       ulRxTxBytes = 0;
+       lRetVal = iot_i2s_ioctl( xI2SMicHandle, eI2SGetRxNoOfbytes, &ulRxTxBytes);
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+       TEST_ASSERT_EQUAL( testIotI2S_BUF_SIZE, ulRxTxBytes );
+
+
        /* Validate data was read correctly */
        for(i=testIotI2S_LOOPBACK_OVERHEAD; i<testIotI2S_BUF_SIZE-testIotI2S_LOOPBACK_OVERHEAD; i++) {
           TEST_ASSERT_EQUAL( (ucRxbuf[i]+1)&0xff, ucRxbuf[i+1] );
@@ -209,6 +223,7 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteSyncReadAsyncLoopback )
     uint8_t ucRxbuf[ testIotI2S_BUF_SIZE ] = {0};
     uint8_t ucTxbuf[ testIotI2S_BUF_SIZE ] = {0};
     int i;
+    uint32_t ulRxTxBytes;
 
     for(i=0; i<testIotI2S_BUF_SIZE; i++) {
        ucTxbuf[i] = i& 0xff;
@@ -232,6 +247,12 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteSyncReadAsyncLoopback )
 
        lRetVal = xSemaphoreTake(xtestIotI2SReadSemaphore, portMAX_DELAY);
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+
+       /* Get Rx Num bytes */
+       ulRxTxBytes = 0;
+       lRetVal = iot_i2s_ioctl( xI2SMicHandle, eI2SGetRxNoOfbytes, &ulRxTxBytes);
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+       TEST_ASSERT_EQUAL( testIotI2S_BUF_SIZE, ulRxTxBytes );
 
        /* Validate data was read correctly */
        for(i=testIotI2S_LOOPBACK_OVERHEAD; i<testIotI2S_BUF_SIZE-testIotI2S_LOOPBACK_OVERHEAD; i++) {
@@ -257,6 +278,7 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteAsyncReadSyncLoopback )
     uint8_t ucRxbuf[ testIotI2S_BUF_SIZE ] = {0};
     uint8_t ucTxbuf[ testIotI2S_BUF_SIZE ] = {0};
     int i;
+    uint32_t ulRxTxBytes;
 
     for(i=0; i<testIotI2S_BUF_SIZE; i++) {
        ucTxbuf[i] = i& 0xff;
@@ -274,6 +296,12 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteAsyncReadSyncLoopback )
 
        lRetVal = iot_i2s_read_sync( xI2SMicHandle, ucRxbuf, testIotI2S_BUF_SIZE );
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+
+       /* Get Tx Num bytes */
+       ulRxTxBytes = 0;
+       lRetVal = iot_i2s_ioctl( xI2SMicHandle, eI2SGetTxNoOfbytes, &ulRxTxBytes);
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+       TEST_ASSERT_EQUAL( testIotI2S_BUF_SIZE, ulRxTxBytes );
 
        /* Validate data was read correctly */
        for(i=testIotI2S_LOOPBACK_OVERHEAD; i<testIotI2S_BUF_SIZE-testIotI2S_LOOPBACK_OVERHEAD; i++) {
@@ -397,6 +425,7 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SReadAsync )
     int32_t lRetVal;
     uint8_t ucRxbuf[ testIotI2S_BUF_SIZE ] = {0};
     int i;
+    uint32_t ulRxTxBytes;
 
     /* Open i2s to initialize hardware */
     xI2SMicHandle = iot_i2s_open( ltestIotI2sInputInstance );
@@ -410,6 +439,12 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SReadAsync )
 
        lRetVal = xSemaphoreTake(xtestIotI2SReadSemaphore, portMAX_DELAY);
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+
+       /* Get Rx Num bytes */
+       ulRxTxBytes = 0;
+       lRetVal = iot_i2s_ioctl( xI2SMicHandle, eI2SGetTxNoOfbytes, &ulRxTxBytes);
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+       TEST_ASSERT_EQUAL( testIotI2S_BUF_SIZE, ulRxTxBytes );
 
        /* Validate data was read correctly */
        for(i=0; i<ltestIotI2SReadSize; i++) {
@@ -432,6 +467,7 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteAsync )
     int32_t lRetVal;
     uint8_t ucTxbuf[ testIotI2S_BUF_SIZE ] = {0};
     int i;
+    uint32_t ulRxTxBytes;
 
     for(i=0; i<testIotI2S_BUF_SIZE; i++) {
        ucTxbuf[i] = i& 0xff;
@@ -450,6 +486,12 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SWriteAsync )
 
        lRetVal = xSemaphoreTake(xtestIotI2SWriteSemaphore, portMAX_DELAY);
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+
+       /* Get Rx Num bytes */
+       ulRxTxBytes = 0;
+       lRetVal = iot_i2s_ioctl( xI2SSpkrHandle, eI2SGetTxNoOfbytes, &ulRxTxBytes);
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+       TEST_ASSERT_EQUAL( testIotI2S_BUF_SIZE, ulRxTxBytes );
     }
 
     /* Close instance */
@@ -469,6 +511,7 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SIoctl )
     IotI2SChannel_t xChannel;
     IotI2SClkPolarity_t xPolarity;
     uint32_t ulBusState;
+    uint32_t ulRxTxBytes;
 
     /* Open i2s to initialize hardware */
     xI2SHandle = iot_i2s_open( ltestIotI2sInputInstance );
@@ -561,6 +604,14 @@ TEST( TEST_IOT_I2S, AFQP_IotI2SIoctl )
 
        /* Get bus state */
        lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetBusState, &ulBusState );
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+
+       /* Get Tx Num bytes */
+       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetTxNoOfbytes, &ulRxTxBytes);
+       TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
+
+       /* Get Rx Num bytes */
+       lRetVal = iot_i2s_ioctl( xI2SHandle, eI2SGetRxNoOfbytes, &ulRxTxBytes);
        TEST_ASSERT_EQUAL( IOT_I2S_SUCCESS, lRetVal );
 
     } else {

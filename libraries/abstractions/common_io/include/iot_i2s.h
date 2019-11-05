@@ -72,6 +72,8 @@ typedef enum
     eI2SSetConfig,      /*!< Set I2S configuration taking the struct IotI2SIoctlConfig_t */
     eI2SGetConfig,      /*!< Get I2S configuration returning the struct IotI2SIoctlConfig_t */
     eI2SGetBusState,    /*!< Get the State of the I2S Bus returning the struct IotI2SBusStatus_t */
+    eI2SGetTxNoOfbytes, /*!< Get the number of bytes sent in write operation. Returns uint32_t type. */
+    eI2SGetRxNoOfbytes, /*!< Get the number of bytes received in read operation. Returns uint32_t type. */
 } IotI2SIoctlRequest_t;
 
 /**
@@ -267,6 +269,19 @@ int32_t iot_i2s_close( IotI2SHandle_t const pxI2SPeripheral);
  * @param[in]   pxI2SPeripheral The I2S handle returned in open() call.
  * @param[in]   lRequest    Should be one of I2S_Ioctl_Request_t.
  * @param[in]   pvBuffer    The configuration values for the IOCTL request.
+ *
+ * @note eI2SGetTxNoOfbytes returns the number of written bytes in last operation.
+ * This is supposed to be called in the caller task or application callback, right after last operation completes.
+ * This request expects 4 bytes buffer (uint32_t).
+ *
+ * - If the last operation only did read, this returns 0.
+ *
+ * @note eI2SGetRxNoOfbytes returns the number of read bytes in last operation.
+ * This is supposed to be called in the caller task or application callback, right after last operation completes.
+ * This request expects 4 bytes buffer (uint32_t).
+ *
+ * - If the last operation was a read, this returns the actual number of read bytes which might be smaller than the requested number (partial read).
+ * - If the last operation was a write, this returns 0.
  *
  * @return
  *   - IOT_I2S_SUCCESS on success
