@@ -229,8 +229,6 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
 /* Error handler for HTTP response code. */
 static void _httpErrorHandler( uint16_t responseCode, uint32_t responseBodyLength)
 {
-    IotLogInfo( "HTTP response body: %.*s", responseBodyLength, pResponseBodyBuffer );
-
     if( responseCode == IOT_HTTPS_STATUS_FORBIDDEN )
     {
         /* Make the body NULL terminated. */
@@ -471,8 +469,44 @@ static void _httpConnectionClosedCallback( void * pPrivateData,
     _httpReconnect();
 }
 
-static IotHttpsReturnCode_t _httpConnect( const char * pURL,
-                                          const IotNetworkInterface_t * pNetworkInterface,
+static IotHttpsReturnCode_t _httpInitUrl(const char * pURL)
+{
+    /* HTTP API return status. */
+    IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
+
+    /* HTTP URL information. */
+    _httpUrlInfo_t * pUrlInfo = &_httpDownloader.httpUrlInfo;
+
+    /* Retrieve the resource path from the HTTP URL. pPath will point to the start of this part. */
+    httpsStatus = IotHttpsClient_GetUrlPath( pURL,
+                                             strlen( pURL ),
+                                             &pUrlInfo->pPath,
+                                             &pUrlInfo->pathLength );
+    if( httpsStatus == IOT_HTTPS_OK )
+    {
+        /* pathLength is set to the length of path component, but we also need the query part that
+        * comes after that. */
+        pUrlInfo->pathLength = strlen(pUrlInfo->pPath);
+
+        /* Retrieve the authority part and length from the HTTP URL. */
+        httpsStatus = IotHttpsClient_GetUrlAddress( pURL,
+                                                    strlen( pURL ),
+                                                    &pUrlInfo->pAddress,
+                                                    &pUrlInfo->addressLength );
+        if( httpsStatus != IOT_HTTPS_OK )
+        {
+            IotLogError( "Fail to parse the server address from given HTTP URL. Error code: %d.", httpsStatus );
+        }
+    }
+    else
+    {
+        IotLogError( "Fail to parse the resource path from given HTTP URL. Error code: %d.", httpsStatus );
+    }
+
+    return httpsStatus;
+}
+
+static IotHttpsReturnCode_t _httpConnect( const IotNetworkInterface_t * pNetworkInterface,
                                           IotNetworkCredentials_t * pNetworkCredentials )
 {
     /* HTTP API return status. */
@@ -492,31 +526,6 @@ static IotHttpsReturnCode_t _httpConnect( const char * pURL,
 
     /* HTTP URL information. */
     _httpUrlInfo_t * pUrlInfo = &_httpDownloader.httpUrlInfo;
-
-    /* Retrieve the resource path from the HTTP URL. pPath will point to the start of this part. */
-    httpsStatus = IotHttpsClient_GetUrlPath( pURL,
-                                             strlen( pURL ),
-                                             &pUrlInfo->pPath,
-                                             &pUrlInfo->pathLength );
-    if( httpsStatus != IOT_HTTPS_OK )
-    {
-        IotLogError( "Fail to parse the resource path from given HTTP URL. Error code: %d.", httpsStatus );
-        goto cleanup;
-    }
-    /* pathLength is set to the length of path component, but we also need the query part that
-     * comes after that. */
-    pUrlInfo->pathLength = strlen(pUrlInfo->pPath);
-
-    /* Retrieve the authority part and length from the HTTP URL. */
-    httpsStatus = IotHttpsClient_GetUrlAddress( pURL,
-                                                strlen( pURL ),
-                                                &pUrlInfo->pAddress,
-                                                &pUrlInfo->addressLength );
-    if( httpsStatus != IOT_HTTPS_OK )
-    {
-        IotLogError( "Fail to parse the server address from given HTTP URL. Error code: %d.", httpsStatus );
-        goto cleanup;
-    }
 
     /* Set the connection configurations. */
     pConnectionConfig->pAddress = pUrlInfo->pAddress;
@@ -554,12 +563,10 @@ static IotHttpsReturnCode_t _httpConnect( const char * pURL,
     pRequest->asyncInfo.callbacks.responseCompleteCallback = _httpResponseCompleteCallback;
     pRequest->asyncInfo.callbacks.errorCallback = _httpErrorCallback;
     pRequest->asyncInfo.callbacks.connectionClosedCallback = _httpConnectionClosedCallback;
-    // NOT USED, pRequest->asyncInfo.callbacks.writeCallback;
     pRequest->asyncInfo.pPrivData = ( void * ) ( &_httpDownloader.httpCallbackData );
 
     httpsStatus = IotHttpsClient_Connect( &pConnection->connectionHandle, pConnectionConfig );
 
-cleanup:
     return httpsStatus;
 }
 
@@ -743,7 +750,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     httpsStatus = IotHttpsClient_Init();
     if( httpsStatus != IOT_HTTPS_OK )
     {
-        IotLogError( "Fail to initialize HTTP library." );
+        IotLogError( "Fail to initialize HTTP library. Error code: %d", httpsStatus );
         status = kOTA_Err_HTTPInitFailed;
         goto noCleanup;
     }
@@ -778,7 +785,14 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     }
 
     /* Connect to the HTTP server and initialize download information. */
-    httpsStatus = _httpConnect( pURL, pNetworkInterface, pNetworkCredentials );
+    httpsStatus = _httpInitUrl( pURL );
+    if( httpsStatus != IOT_HTTPS_OK )
+    {
+        IotLogError( "Failed to parse the HTTP Url. Error code: %d", httpsStatus );
+        status = kOTA_Err_HTTPInitFailed;
+        goto cleanup;
+    }
+    httpsStatus = _httpConnect( pNetworkInterface, pNetworkCredentials );
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Failed to connect to %.*s. Error code: %d", _httpDownloader.httpUrlInfo.addressLength,
