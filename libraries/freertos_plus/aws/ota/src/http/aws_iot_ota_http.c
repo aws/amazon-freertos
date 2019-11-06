@@ -726,6 +726,45 @@ OTA_FUNCTION_NO_CLEANUP();
     return status;
 }
 
+/* Performs some pre-checks before requesting a new block. */
+static _httpErr _requestDataBlockPreCheck()
+{
+    _httpErr status = OTA_HTTP_ERR_GENERIC;
+
+    /* Reconnect to the HTTP server if we detect an error when processing the response and a reconnect
+     * is needed or we did not receive any response within OTA agent request data timeout. */
+    if( _httpDownloader.err == OTA_HTTP_ERR_NEED_RECONNECT )
+    {
+        IotLogInfo( "Error happened during last request requires reconnecting." );
+        if( _httpReconnect() != IOT_HTTPS_OK)
+        {
+            status = OTA_HTTP_ERR_NEED_RECONNECT;
+        }
+    }
+    else if( _httpDownloader.state == OTA_HTTP_WAITING_RESPONSE )
+    {
+        IotLogInfo( "Still waiting for a response from the server after request timeout. Assuming "
+                    "the connection is closed by the server, reconnecting..." );
+        if( _httpReconnect() != IOT_HTTPS_OK)
+        {
+            status = OTA_HTTP_ERR_NEED_RECONNECT;
+        }
+    }
+    /* Otherwise exit if not in idle state, this means we're still sending the request or processing
+     * a response. */
+    else if( _httpDownloader.state != OTA_HTTP_IDLE )
+    {
+        IotLogInfo( "Current download is not finished, skipping the request." );
+        status = OTA_HTTP_ERR_GENERIC;
+    }
+    else
+    {
+        status = OTA_HTTP_ERR_NONE;
+    }
+
+    return status;
+}
+
 OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
 {
     /* Return status. */
@@ -878,7 +917,6 @@ OTA_FUNCTION_CLEANUP_END();
     return status;
 }
 
-
 OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
 {
     IotLogDebug( "Invoking _AwsIotOTA_RequestDataBlock_HTTP" );
@@ -904,29 +942,8 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* File context from OTA agent. */
     OTA_FileContext_t* fileContext = pAgentCtx->pxOTA_Files;
 
-    /* Reconnect to the HTTP server if we did not receive any response within OTA agent request data
-     * timeout or we detect an error during processing the response and a reconnect is needed. */
-    if( _httpDownloader.err == OTA_HTTP_ERR_NEED_RECONNECT )
-    {
-        IotLogInfo( "" );
-        httpsStatus = _httpReconnect();
-    }
-    else if( _httpDownloader.state == OTA_HTTP_WAITING_RESPONSE )
-    {
-        IotLogInfo( "Still waiting for a response from the server after request timeout. Assuming "
-                    "the connection is closed by the server, reconnecting..." );
-        httpsStatus = _httpReconnect();
-    }
-    /* Otherwise exit if not in idle state, this means we're still sending the request or processing
-     * a response. */
-    else if( _httpDownloader.state != OTA_HTTP_IDLE )
-    {
-        IotLogInfo( "Current download is not finished, skipping the request." );
-        httpsStatus = IOT_HTTPS_BUSY;
-    }
-
     /* Exit if we're still busy downloading or reconnect is required but failed. */
-    if( httpsStatus != IOT_HTTPS_OK )
+    if( _requestDataBlockPreCheck() != OTA_HTTP_ERR_NONE )
     {
         OTA_GOTO_CLEANUP();
     }
