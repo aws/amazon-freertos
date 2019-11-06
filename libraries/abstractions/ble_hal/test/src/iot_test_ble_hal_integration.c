@@ -459,6 +459,10 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Send_Data_After_Disconnected )
     IotTestBleHal_ReadResponse( bletestATTR_SRVCB_CHAR_A, xReadEvent, true );
     IotTestBleHal_CheckIndicationNotification( false, true );
     IotTestBleHal_CheckIndicationNotification( true, true );
+
+    /* unsubscribe notification&indication */
+    IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, false );
+    IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_F, false );
 }
 
 /* trigger Adv Stop callback AdvStartCB(with start=false) when Adv timeout. */
