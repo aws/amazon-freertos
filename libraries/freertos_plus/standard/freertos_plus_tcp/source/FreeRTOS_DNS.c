@@ -471,6 +471,7 @@ typedef struct xDNSAnswerRecord DNSAnswerRecord_t;
 uint32_t ulIPAddress = 0uL;
 TickType_t uxReadTimeOut_ticks = ipconfigDNS_RECEIVE_BLOCK_TIME_TICKS;
 TickType_t uxIdentifier = 0u;
+BaseType_t xHasRandom = pdFALSE;
 
 	if( pcHostName != NULL )
 	{
@@ -505,8 +506,11 @@ TickType_t uxIdentifier = 0u;
 		/* Generate a unique identifier. */
 		if( ulIPAddress == 0uL )
 		{
+		uint32_t ulNumber;
+
+			xHasRandom = xApplicationGetRandomNumber( &( ulNumber ) );
 			/* DNS identifiers are 16-bit. */
-			uxIdentifier = ( TickType_t ) ( ipconfigRAND32() & 0xffffu );
+			uxIdentifier = ( TickType_t ) ( ulNumber & 0xffffu );
 			/* ipconfigRAND32() may not return a non-zero value. */
 		}
 
@@ -517,10 +521,10 @@ TickType_t uxIdentifier = 0u;
 				if( ulIPAddress == 0uL )
 				{
 					/* The user has provided a callback function, so do not block on recvfrom() */
-					if( uxIdentifier != ( TickType_t ) 0u )
+					if( xHasRandom != pdFALSE )
 					{
 						uxReadTimeOut_ticks = 0u;
-						vDNSSetCallBack( pcHostName, pvSearchID, pCallback, uxTimeout, ( TickType_t ) uxIdentifier );
+						vDNSSetCallBack( pcHostName, pvSearchID, pCallback, uxTimeout, uxIdentifier );
 					}
 				}
 				else
@@ -532,7 +536,7 @@ TickType_t uxIdentifier = 0u;
 		}
 		#endif /* if ( ipconfigDNS_USE_CALLBACKS == 1 ) */
 
-		if( ( ulIPAddress == 0uL ) && ( uxIdentifier != ( TickType_t ) 0u ) )
+		if( ( ulIPAddress == 0uL ) && ( xHasRandom != pdFALSE ) )
 		{
 			ulIPAddress = prvGetHostByName( pcHostName, uxIdentifier, uxReadTimeOut_ticks );
 		}
