@@ -64,7 +64,7 @@
 #define OTA_MAX_FILE_SIZE_STR               "16777216"
 
 /* String length of the maximum OTA file size string, not including the null character. */
-#define OTA_MAX_FILE_SIZE_STR_LEN           sizeof( OTA_MAX_FILE_SIZE_STR ) - 1
+#define OTA_MAX_FILE_SIZE_STR_LEN           ( sizeof( OTA_MAX_FILE_SIZE_STR ) - 1 )
 
 /* TLS port for HTTPS. */
 #define HTTPS_PORT                          ( ( uint16_t ) 443 )
@@ -241,6 +241,9 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
 /* Error handler for HTTP response code. */
 static void _httpErrorHandler( uint16_t responseCode, uint32_t responseBodyLength)
 {
+    /* Unused parameters. */
+    ( void ) responseBodyLength;
+
     if( responseCode == IOT_HTTPS_STATUS_FORBIDDEN )
     {
         /* Make the body NULL terminated. */
@@ -322,8 +325,9 @@ static void _httpReadReadyCallback( void * pPrivateData,
 {
     IotLogDebug( "Invoking _httpReadReadyCallback." );
 
-    /* HTTP callback data is not used. */
+    /* Unused parameters. */
     ( void ) pPrivateData;
+    ( void ) returnCode;
 
     /* HTTP return status. */
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
@@ -420,8 +424,11 @@ static void _httpResponseCompleteCallback( void * pPrivateData,
 {
     IotLogDebug( "Invoking _httpResponseCompleteCallback." );
 
-    /* HTTP callback data is not used. */
+    /* Unused parameters. */
     ( void ) pPrivateData;
+    ( void ) responseHandle;
+    ( void ) returnCode;
+    ( void ) responseStatus;
 
     /* OTA Event. */
     OTAEventMsg_t eventMsg = { 0 };
@@ -466,6 +473,13 @@ static void _httpErrorCallback( void * pPrivateData,
                                 IotHttpsReturnCode_t returnCode )
 {
     IotLogDebug( "Invoking _httpErrorCallback." );
+
+    /* Unused parameters. */
+    ( void ) pPrivateData;
+    ( void ) requestHandle;
+    ( void ) responseHandle;
+    ( void ) returnCode;
+
     IotLogError( "An error occurred for HTTP async request: %d", returnCode );
 }
 
@@ -475,8 +489,10 @@ static void _httpConnectionClosedCallback( void * pPrivateData,
 {
     IotLogDebug( "Invoking _httpConnectionClosedCallback." );
 
-    /* HTTP callback data is not used. */
+    /* Unused parameters. */
     ( void ) pPrivateData;
+    ( void ) connectionHandle;
+    ( void ) returnCode;
 
     IotLogInfo( "Connection has been closed by the HTTP client due to an error, reconnecting to the server..." );
     _httpReconnect();
@@ -1026,7 +1042,7 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
                                            size_t * pPayloadSize)
 {
     /* Unused parameters. */
-    (void) messageSize;
+    ( void ) messageSize;
 
     *pPayload = pMessageBuffer;
     *pFileId = 0;
@@ -1044,6 +1060,9 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
 
 OTA_Err_t _AwsIotOTA_Cleanup_HTTP( OTA_AgentContext_t * pAgentCtx )
 {
+    /* Unused parameters. */
+    ( void ) pAgentCtx;
+
     memset( &_httpDownloader, 0, sizeof( _httpDownloader_t ) );
 
     vPortFree( pResponseBodyBuffer );
