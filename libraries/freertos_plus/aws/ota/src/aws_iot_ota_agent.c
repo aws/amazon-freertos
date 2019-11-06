@@ -181,7 +181,7 @@ static void prvSelfTestTimer_Callback( TimerHandle_t T );
 
 
 static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
-                                          const char * pcRawMsg,
+                                          uint8_t * pcRawMsg,
                                           uint32_t ulMsgSize,
                                           OTA_Err_t * pxCloseResult );
 
@@ -1081,7 +1081,7 @@ static OTA_Err_t prvProcessDataHandler( OTAEventData_t * pxEventData )
 
     /* Ingest data blocks received. */
     IngestResult_t xResult = prvIngestDataBlock( pxFileContext,
-                                                 ( const char * ) pxEventData->ucData,
+                                                 pxEventData->ucData,
                                                  pxEventData->ulDataLength,
                                                  &xCloseResult );
 
@@ -2167,7 +2167,7 @@ static OTA_FileContext_t * prvGetFileContextFromJob( const char * pcRawMsg,
  * the file transfer and return the result and any available details to the caller.
  */
 static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
-                                          const char * pcRawMsg,
+                                          uint8_t * pcRawMsg,
                                           uint32_t ulMsgSize,
                                           OTA_Err_t * pxCloseResult )
 {
@@ -2200,7 +2200,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                         ( int32_t * ) &ulBlockIndex,
                         ( int32_t * ) &ulBlockSize,
                         &pucPayload,
-                        ( size_t * ) &xPayloadSize ) )
+                        &xPayloadSize ) )
                 {
                     eIngestResult = eIngest_Result_BadData;
                 }
@@ -2212,8 +2212,8 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                     /* If the block ID is out of range, that's an error so abort. */
                     uint32_t iLastBlock = ( ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE ) - 1U;
 
-                    if( ( ( ( uint32_t ) ulBlockIndex < iLastBlock ) && ( ulBlockSize == OTA_FILE_BLOCK_SIZE ) ) ||
-                        ( ( ( uint32_t ) ulBlockIndex == iLastBlock ) && ( ( uint32_t ) ulBlockSize == ( C->ulFileSize - ( iLastBlock * OTA_FILE_BLOCK_SIZE ) ) ) ) )
+                    if( ( ( ulBlockIndex < iLastBlock ) && ( ulBlockSize == OTA_FILE_BLOCK_SIZE ) ) ||
+                        ( ( ulBlockIndex == iLastBlock ) && ( ulBlockSize == ( C->ulFileSize - ( iLastBlock * OTA_FILE_BLOCK_SIZE ) ) ) ) )
                     {
                         OTA_LOG_L1( "[%s] Received file block %u, size %u\r\n", OTA_METHOD_NAME, ulBlockIndex, ulBlockSize );
 
@@ -2234,7 +2234,7 @@ static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                         {
                             if( C->pucFile != NULL )
                             {
-                                int32_t iBytesWritten = xOTA_Agent.xPALCallbacks.xWriteBlock( C, ( ulBlockIndex * OTA_FILE_BLOCK_SIZE ), pucPayload, ( uint32_t ) ulBlockSize );
+                                int32_t iBytesWritten = xOTA_Agent.xPALCallbacks.xWriteBlock( C, ( ulBlockIndex * OTA_FILE_BLOCK_SIZE ), pucPayload, ulBlockSize );
 
                                 if( iBytesWritten < 0 )
                                 {

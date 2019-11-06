@@ -38,7 +38,7 @@
 #include "aws_iot_ota_agent_internal.h"
 
 IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,
-                                            const char * pacRawMsg,
+                                            uint8_t * pcRawMsg,
                                             u32 iMsgSize,
                                             OTA_Err_t * pxCloseResult );
 

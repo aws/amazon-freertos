@@ -129,7 +129,7 @@ static void prvUnSubscribeFromJobNotificationTopic( OTA_AgentContext_t * pxAgent
 static IotMqttError_t prvPublishMessage( OTA_AgentContext_t * pxAgentCtx,
                                          const char * const pacTopic,
                                          uint16_t usTopicLen,
-                                         char * pcMsg,
+                                         const char * pcMsg,
                                          uint32_t ulMsgSize,
                                          IotMqttQos_t eQOS );
 
@@ -320,14 +320,14 @@ static void prvUnSubscribeFromJobNotificationTopic( OTA_AgentContext_t * pxAgent
 static IotMqttError_t prvPublishMessage( OTA_AgentContext_t * pxAgentCtx,
                                          const char * const pacTopic,
                                          uint16_t usTopicLen,
-                                         char * pcMsg,
+                                         const char * pcMsg,
                                          uint32_t ulMsgSize,
                                          IotMqttQos_t eQOS )
 {
     IotMqttError_t eResult;
     IotMqttPublishInfo_t xPublishParams;
 
-    xPublishParams.pTopicName = ( const char * ) pacTopic;
+    xPublishParams.pTopicName = pacTopic;
     xPublishParams.topicNameLength = usTopicLen;
     xPublishParams.qos = eQOS;
     xPublishParams.pPayload = pcMsg;
@@ -820,7 +820,7 @@ OTA_Err_t prvRequestFileBlock_Mqtt(OTA_AgentContext_t* pxAgentCtx)
 
 /* Request file block by publishing to the get stream topic. */
 
-OTA_Err_t prvDecodeFileBlock_Mqtt(const uint8_t* pucMessageBuffer,
+OTA_Err_t prvDecodeFileBlock_Mqtt(uint8_t* pucMessageBuffer,
 	size_t xMessageSize,
 	int32_t* plFileId,
 	int32_t* plBlockId,
@@ -833,7 +833,7 @@ OTA_Err_t prvDecodeFileBlock_Mqtt(const uint8_t* pucMessageBuffer,
 
 	/* Decode the CBOR content. */
 	if (pdFALSE == OTA_CBOR_Decode_GetStreamResponseMessage(
-		(const uint8_t*)pucMessageBuffer,
+		pucMessageBuffer,
 		xMessageSize,
 		plFileId,
 		plBlockId,    /*lint !e9087 CBOR requires pointer to int and our block index's never exceed 31 bits. */
@@ -846,7 +846,7 @@ OTA_Err_t prvDecodeFileBlock_Mqtt(const uint8_t* pucMessageBuffer,
 	else
 	{
 
-		memcpy(pucMessageBuffer, (uint8_t*)(*ppucPayload), *pxPayloadSize);
+		memcpy(pucMessageBuffer, *ppucPayload, *pxPayloadSize);
 
 		vPortFree(*ppucPayload);
 
