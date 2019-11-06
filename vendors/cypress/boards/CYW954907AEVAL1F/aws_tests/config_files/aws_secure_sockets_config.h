@@ -54,6 +54,16 @@
 #define socketsconfigDEFAULT_MAX_NUM_SECURE_SOCKETS     5
 
 /**
+ * @brief Stack depth for the task that runs the receive callback function
+ *
+ * When SOCKETS_SetSockOpt() is called with SOCKETS_SO_WAKEUP_CALLBACK and
+ * a function pointer, a task is created to run the callback each time the
+ * socket becomes ready.  This is the number of words (not bytes!) to allocate
+ * for use as the task’s stack.
+ */
+#define socketsconfigRECEIVE_CALLBACK_TASK_STACK_DEPTH      512u
+
+/**
  * @brief Enable metrics of secure socket.
  */
 #define AWS_IOT_SECURE_SOCKETS_METRICS_ENABLED    ( 1 )
