@@ -2023,7 +2023,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 {
                     xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
                     C->pucJobName = NULL;
-					xOTA_Interface.xControlInterface.prvUpdateJobStatus( NULL, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, 0 );
+                    xOTA_Interface.xControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_Succeeded, ( int32_t ) eJobReason_Accepted, 0 );
                     /* We don't need the job name memory anymore since we're done with this job. */
                     vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
                     xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
@@ -2056,7 +2056,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
                 /* Assume control of the job name from the context. */
                 xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
                 C->pucJobName = NULL;
-				xOTA_Interface.xControlInterface.prvUpdateJobStatus( NULL, eJobStatus_FailedWithVal, ( int32_t ) kOTA_Err_JobParserError, ( int32_t ) eErr );
+                xOTA_Interface.xControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_FailedWithVal, ( int32_t ) kOTA_Err_JobParserError, ( int32_t ) eErr );
                 /* We don't need the job name memory anymore since we're done with this job. */
                 vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
                 xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
