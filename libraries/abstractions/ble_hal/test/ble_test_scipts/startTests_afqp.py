@@ -32,7 +32,6 @@ import time
 from testClass import runTest
 from bleAdapter import bleAdapter
 
-
 def main():
     scan_filter = dict()
 
@@ -144,9 +143,11 @@ def main():
     bleAdapter.stopDiscovery()
     runTest.reconnectWhileBonded()
 
+    #Test to wait for a disconnect from DUT.
+    runTest.waitForDisconnect()
+
     # reconnect while not bonded. Pairing should fail since Just works is not
     # accepted
-    bleAdapter.disconnect()
     bleAdapter.removeBondedDevices()
     time.sleep(2)  # wait for bonded devices to be deleted
     bleAdapter.setDiscoveryFilter(scan_filter)

@@ -134,7 +134,7 @@ TEST_GROUP_RUNNER( Full_BLE )
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_Disconnect );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_BondedReconnectAndPair );
-    RUN_TEST_CASE( Full_BLE, BLE_Connection_Disconnect );
+    RUN_TEST_CASE( Full_BLE, BLE_Connection_Disconnect_From_Peripheral );
 
     RUN_TEST_CASE( Full_BLE, BLE_Connection_CheckBonding );
     RUN_TEST_CASE( Full_BLE, BLE_Connection_RemoveBonding );
@@ -295,6 +295,22 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 TEST( Full_BLE, BLE_Connection_Disconnect )
 {
     IotTestBleHal_WaitConnection( false );
+}
+
+TEST( Full_BLE, BLE_Connection_Disconnect_From_Peripheral )
+{
+    BTStatus_t xStatus;
+    BLETESTConnectionCallback_t xConnectionEvent;
+
+    xStatus = _pxBTLeAdapterInterface->pxDisconnect( _ucBLEAdapterIf, &_xAddressConnectedDevice, _usBLEConnId );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( false, xConnectionEvent.bConnected );
+    TEST_ASSERT_EQUAL( _ucBLEServerIf, xConnectionEvent.ucServerIf );
+    TEST_ASSERT_EQUAL( 0, memcmp( &xConnectionEvent.pxBda, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xConnectionEvent.xStatus );
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr )
