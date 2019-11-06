@@ -133,8 +133,8 @@ uint32_t ulRand( void )
 }
 /*-----------------------------------------------------------*/
 
-BaseType_t xApplicationGetRandomNumber( uint32_t *pulNumber )
+BaseType_t xApplicationGetRandomNumber( uint32_t * pulNumber )
 {
-	*( pulNumber ) = 0uL;
-	return pdFALSE;
+    *( pulNumber ) = 0uL;
+    return pdFALSE;
 }
