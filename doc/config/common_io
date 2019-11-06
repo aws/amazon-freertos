@@ -16,9 +16,8 @@ GENERATE_TAGFILE = doc/output/common_io.tag
 INPUT = doc/lib/ \
         libraries/abstractions/common_io/include
 
-
 # Library file names.
-FILE_PATTERNS = iot_i2c.h iot_uart.h
+FILE_PATTERNS = iot_*.h
 
 # External tag files required by this library.
 TAGFILES = doc/output/main.tag=../main
