@@ -1754,7 +1754,7 @@ TEST( Full_TCP, AFQP_SOCKETS_Socket_InvalidInputParams )
  * number of sockets can be created concurrently.
  */
 #ifdef integrationtestportableMAX_NUM_UNSECURE_SOCKETS
-    #define MAX_NUM_SOCKETS    integrationtestportableMAX_NUM_UNSECURE_SOCKETS;
+    #define MAX_NUM_SOCKETS    integrationtestportableMAX_NUM_UNSECURE_SOCKETS
 #else
     #define MAX_NUM_SOCKETS    5u
 #endif
