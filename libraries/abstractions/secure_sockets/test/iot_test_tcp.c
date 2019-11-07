@@ -1753,16 +1753,15 @@ TEST( Full_TCP, AFQP_SOCKETS_Socket_InvalidInputParams )
  * by free memory. For these ports, check that a reasonable
  * number of sockets can be created concurrently.
  */
+#ifdef integrationtestportableMAX_NUM_UNSECURE_SOCKETS
+    #define MAX_NUM_SOCKETS    integrationtestportableMAX_NUM_UNSECURE_SOCKETS;
+#else
+    #define MAX_NUM_SOCKETS    5u
+#endif
 static void prvSOCKETS_Socket_ConcurrentCount( Server_t xConn )
 {
     BaseType_t xResult = pdFAIL;
-
-    #ifdef integrationtestportableMAX_NUM_UNSECURE_SOCKETS
-        BaseType_t xMaxCount = integrationtestportableMAX_NUM_UNSECURE_SOCKETS;
-    #else
-        BaseType_t xMaxCount = 5u;
-    #endif
-    Socket_t xCreatedSockets[ xMaxCount ];
+    Socket_t xCreatedSockets[ MAX_NUM_SOCKETS ];
     BaseType_t xSocketsCreated;
     Socket_t xSocket;
 
@@ -1770,7 +1769,7 @@ static void prvSOCKETS_Socket_ConcurrentCount( Server_t xConn )
 
     xResult = pdPASS;
 
-    for( xSocketsCreated = 0; xSocketsCreated < xMaxCount; xSocketsCreated++ )
+    for( xSocketsCreated = 0; xSocketsCreated < MAX_NUM_SOCKETS; xSocketsCreated++ )
     {
         xSocket = SOCKETS_Socket( SOCKETS_AF_INET, SOCKETS_SOCK_STREAM, SOCKETS_IPPROTO_TCP );
 
@@ -1796,7 +1795,7 @@ static void prvSOCKETS_Socket_ConcurrentCount( Server_t xConn )
                 SOCKETS_Close( xSocket );
                 tcptestPRINTF( ( "%s exceeded maximum number of sockets (%d > %d); is the value of " \
                                  "integrationtestportableMAX_NUM_UNSECURE_SOCKETS correct?\r\n", __FUNCTION__,
-                                 ( xMaxCount + 1 ), xMaxCount ) );
+                                 ( MAX_NUM_SOCKETS + 1 ), MAX_NUM_SOCKETS ) );
             }
         }
     #endif /* ifdef integrationtestportableMAX_NUM_UNSECURE_SOCKETS */
