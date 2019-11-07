@@ -416,8 +416,10 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                 if( xGattServerCb.pxRequestWriteCb != NULL )
                 {
                     ctxt.op = BLE_GATT_ACCESS_OP_WRITE_DSC;
+                    xSemLock = 1;
                     xGattServerCb.pxRequestWriteCb( event->subscribe.conn_handle, ( uint32_t ) &ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, event->subscribe.attr_handle - gattOffset + 1, 0, sizeof( ccc_val ), 1, 0, ( uint8_t * ) &ccc_val );
                     prvGattGetSemaphore();
+                    xSemLock = 0;
                 }
             }
 

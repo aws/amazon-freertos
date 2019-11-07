@@ -52,6 +52,7 @@ extern BTProperties_t xProperties;
 extern BTGattServerCallbacks_t xGattServerCb;
 extern uint16_t usGattConnHandle;
 extern uint16_t gattOffset;
+extern bool xSemLock;
 
 const void * prvBTGetGattServerInterface();
 const void * prvGetLeAdapter();

@@ -47,19 +47,17 @@ static struct ble_gatt_svc_def espServices[ MAX_SERVICES + 1 ];
 static BTService_t * afrServices[ MAX_SERVICES ];
 static uint16_t serviceCnt = 0;
 static SemaphoreHandle_t xSem;
-static bool xSemLock;
+bool xSemLock = 0;
 uint16_t gattOffset = 0;
 
 void prvGattGetSemaphore()
 {
-    xSemLock = 1;
     xSemaphoreTake( xSem, portMAX_DELAY );
 }
 
 void prvGattGiveSemaphore()
 {
     xSemaphoreGive( xSem );
-    xSemLock = 0;
 }
 
 void * pvPortCalloc( size_t xNum,
@@ -362,8 +360,10 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
 
             if( xGattServerCb.pxRequestReadCb != NULL )
             {
+                xSemLock = 1;
                 xGattServerCb.pxRequestReadCb( conn_handle, ( uint32_t ) ctxt, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0 );
                 prvGattGetSemaphore();
+                xSemLock = 0;
             }
 
             break;
@@ -386,15 +386,17 @@ static int prvGATTCharAccessCb( uint16_t conn_handle,
                     need_rsp = 0;
                     trans_id = 0;
                 }
-
-                if( xGattServerCb.pxRequestWriteCb != NULL )
+                else
                 {
-                    xGattServerCb.pxRequestWriteCb( conn_handle, trans_id, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0, out_len, need_rsp, 0, dst_buf );
+                    xSemLock = 1;
                 }
+
+                xGattServerCb.pxRequestWriteCb( conn_handle, trans_id, ( BTBdaddr_t * ) desc.peer_id_addr.val, attr_handle - gattOffset, 0, out_len, need_rsp, 0, dst_buf );
 
                 if( need_rsp )
                 {
                     prvGattGetSemaphore();
+                    xSemLock = 0;
                 }
             }
 
