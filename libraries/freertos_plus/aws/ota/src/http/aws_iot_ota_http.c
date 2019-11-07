@@ -603,10 +603,10 @@ static IotHttpsReturnCode_t _httpConnect( const IotNetworkInterface_t * pNetwork
   * with S3 requires generating a Sigv4 signature in an authorization header field. So here we use
   * a GET request with range set to 0, then extract the file size from the "Content-Range" field in
   * the HTTP response. */
-static int _httpGetFileSize( uint32_t * pFileSize )
+static _httpErr _httpGetFileSize( uint32_t * pFileSize )
 {
     /* Return status. */
-    int status = EXIT_SUCCESS;
+    int status = OTA_HTTP_ERR_NONE;
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
     uint16_t responseStatus = IOT_HTTPS_STATUS_OK;
 
@@ -660,7 +660,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to initialize the HTTP request context. Error code: %d.", httpsStatus );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -673,7 +673,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to populate the HTTP header for request. Error code: %d", httpsStatus );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -686,7 +686,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to send the HTTP request synchronously. Error code: %d", httpsStatus );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -694,13 +694,13 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to read the HTTP response status. Error code: %d", httpsStatus );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
     if( responseStatus != IOT_HTTPS_STATUS_PARTIAL_CONTENT )
     {
         IotLogError( "Fail to get the object size from HTTP server, HTTP response code from server: %d", responseStatus );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -713,7 +713,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     if( httpsStatus != IOT_HTTPS_OK )
     {
         IotLogError( "Fail to read the \"Content-Range\" field from HTTP header. Error code: %d", httpsStatus );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -721,7 +721,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     if( pFileSizeStr == NULL )
     {
         IotLogError( "Could not find '/' from \"Content-Range\" field: %s", pContentRange );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
     else
@@ -733,7 +733,7 @@ static int _httpGetFileSize( uint32_t * pFileSize )
     if( ( *pFileSize == 0 ) || ( *pFileSize == UINT32_MAX ) )
     {
         IotLogError( "Failed to convert \"Content-Range\" value %s to integer. strtoul returned %d", pFileSizeStr, *pFileSize );
-        status = EXIT_FAILURE;
+        status = OTA_HTTP_ERR_GENERIC;
         OTA_GOTO_CLEANUP();
     }
 
@@ -880,7 +880,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     IotLogInfo( "Successfully connected to %.*s", _httpDownloader.httpUrlInfo.addressLength, _httpDownloader.httpUrlInfo.pAddress );
 
     /* Check if the file size from HTTP server matches the file size from OTA job document. */
-    if( _httpGetFileSize( &httpFileSize ) )
+    if( _httpGetFileSize( &httpFileSize ) != OTA_HTTP_ERR_NONE )
     {
         IotLogError( "Cannot retrieve the file size from HTTP server." );
         status = kOTA_Err_HTTPInitFailed;
