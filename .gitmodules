@@ -5,7 +5,7 @@
 [submodule "unity"]
 	path = libraries/3rdparty/unity
 	url = https://github.com/ThrowTheSwitch/Unity.git
-	branch = v2.4.3
+	branch = v2.5.0
 [submodule "freertos_kernel"]
 	path = freertos_kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
