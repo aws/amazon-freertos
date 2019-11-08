@@ -745,7 +745,7 @@ OTA_FUNCTION_NO_CLEANUP();
 /* Performs some pre-checks before requesting a new block. */
 static _httpErr _requestDataBlockPreCheck()
 {
-    _httpErr status = OTA_HTTP_ERR_GENERIC;
+    _httpErr status = OTA_HTTP_ERR_NONE;
 
     /* Reconnect to the HTTP server if we detect an error when processing the response and a reconnect
      * is needed or we did not receive any response within OTA agent request data timeout. */
