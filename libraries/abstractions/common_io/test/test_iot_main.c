@@ -440,6 +440,21 @@ static void RUN_IOT_TEST_USB_DEVICE(testCaseIndex)
             case 10:
                 RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceIoctl);
                 break;
+            case 11:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceHidAttachAssisted );
+                break;
+            case 12:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteAsyncAssisted );
+                break;
+            case 13:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadAsyncAssisted );
+                break;
+            case 14:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteSyncAssisted );
+                break;
+            case 15:
+                RUN_TEST_CASE( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadSyncAssisted );
+                break;
             default:
                 printf("Invalid usb device test case\n");
                 return;
