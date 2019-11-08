@@ -136,21 +136,6 @@ target_include_directories(
         "${board_dir}/config_files"
 )
 
-# WiFi
-afr_mcu_port(wifi)
-target_sources(
-    AFR::wifi::mcu_port
-    INTERFACE 
-        "${afr_ports_dir}/wifi/iot_wifi.c"
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
-)
-
-target_include_directories(
-    AFR::wifi::mcu_port
-    INTERFACE
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
-)
-
 # PKCS11
 afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
@@ -159,47 +144,66 @@ target_sources(
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
 
-# FreeRTOS Plus TCP
-afr_mcu_port(freertos_plus_tcp)
-target_sources(
-    AFR::freertos_plus_tcp::mcu_port
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/m480_eth.c"
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/NetworkInterface.c"
-)
-
-target_include_directories(
-    AFR::freertos_plus_tcp::mcu_port
-    INTERFACE
-        "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487"
-        "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
-)
 
 if(AFR_ENABLE_ETH)
-# Secure sockets for ETH
-afr_mcu_port(secure_sockets)
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE AFR::secure_sockets_freertos_plus_tcp
-)
+
+    # FreeRTOS Plus TCP
+    afr_mcu_port(freertos_plus_tcp)
+    target_sources(
+        AFR::freertos_plus_tcp::mcu_port
+        INTERFACE
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/BufferManagement/BufferAllocation_1.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/m480_eth.c"
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487/NetworkInterface.c"
+    )
+
+    target_include_directories(
+        AFR::freertos_plus_tcp::mcu_port
+        INTERFACE
+            "${AFR_MODULES_FREERTOS_PLUS_DIR}/standard/freertos_plus_tcp/source/portable/NetworkInterface/M487"
+            "${AFR_VENDORS_DIR}/nuvoton/sdk/StdDriver/inc"
+    )
+
+    # Secure sockets for ETH
+    afr_mcu_port(secure_sockets)
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE AFR::secure_sockets_freertos_plus_tcp
+    )
+
 else()
-# Secure sockets for WiFi
-afr_mcu_port(secure_sockets)
 
-target_sources(
-    AFR::secure_sockets::mcu_port
-    INTERFACE 
-        "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
-)
+    # WiFi
+    afr_mcu_port(wifi)
+    target_sources(
+        AFR::wifi::mcu_port
+        INTERFACE 
+            "${afr_ports_dir}/wifi/iot_wifi.c"
+            "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266/esp8266_wifi.c"
+    )
+
+    target_include_directories(
+        AFR::wifi::mcu_port
+        INTERFACE
+            "${AFR_VENDORS_DIR}/nuvoton/sdk/middleware/wifi_esp8266"        
+    )
+
+    # Secure sockets for WiFi
+    afr_mcu_port(secure_sockets)
+
+    target_sources(
+        AFR::secure_sockets::mcu_port
+        INTERFACE 
+            "${afr_ports_dir}/secure_sockets/iot_secure_sockets.c"
+    )
+
+    target_link_libraries(
+        AFR::secure_sockets::mcu_port
+        INTERFACE
+            AFR::tls
+            AFR::wifi
+    )
 endif()
-
-target_link_libraries(
-    AFR::secure_sockets::mcu_port
-    INTERFACE
-        AFR::tls
-        AFR::wifi
-)
 
 
 # -------------------------------------------------------------------------------------------------
