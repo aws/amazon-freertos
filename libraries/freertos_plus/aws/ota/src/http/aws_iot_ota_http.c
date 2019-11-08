@@ -961,6 +961,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* Exit if we're still busy downloading or reconnect is required but failed. */
     if( _requestDataBlockPreCheck() != OTA_HTTP_ERR_NONE )
     {
+        status = kOTA_Err_HTTPRequestFailed;
         OTA_GOTO_CLEANUP();
     }
 
