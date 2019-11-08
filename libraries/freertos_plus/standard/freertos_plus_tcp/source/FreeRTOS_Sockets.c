@@ -833,7 +833,8 @@ FreeRTOS_Socket_t *pxSocket;
 
 			if( pxNetworkBuffer != NULL )
 			{
-				pxNetworkBuffer->xDataLength = xTotalDataLength;
+				/* xDataLength is the size of the total packet, including the Ethernet header. */
+				pxNetworkBuffer->xDataLength = xTotalDataLength + sizeof( UDPPacket_t );
 				pxNetworkBuffer->usPort = pxDestinationAddress->sin_port;
 				pxNetworkBuffer->usBoundPort = ( uint16_t ) socketGET_SOCKET_PORT( pxSocket );
 				pxNetworkBuffer->ulIPAddress = pxDestinationAddress->sin_addr;

@@ -1122,7 +1122,8 @@ void FreeRTOS_SetAddressConfiguration( const uint32_t *pulIPAddress, const uint3
 				pxNetworkBuffer->pucEthernetBuffer[ ipSOCKET_OPTIONS_OFFSET ] = FREERTOS_SO_UDPCKSUM_OUT;
 				pxNetworkBuffer->ulIPAddress = ulIPAddress;
 				pxNetworkBuffer->usPort = ipPACKET_CONTAINS_ICMP_DATA;
-				pxNetworkBuffer->xDataLength = xNumberOfBytesToSend + sizeof( ICMPHeader_t );
+				/* xDataLength is the size of the total packet, including the Ethernet header. */
+				pxNetworkBuffer->xDataLength = xNumberOfBytesToSend + sizeof( ICMPPacket_t );
 
 				/* Send to the stack. */
 				xStackTxEvent.pvData = pxNetworkBuffer;

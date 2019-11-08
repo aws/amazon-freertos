@@ -78,9 +78,21 @@ UDPPacket_t *pxUDPPacket;
 IPHeader_t *pxIPHeader;
 eARPLookupResult_t eReturned;
 uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
+size_t uxPayloadSize;
 
 	/* Map the UDP packet onto the start of the frame. */
 	pxUDPPacket = ( UDPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
+
+#if ipconfigSUPPORT_OUTGOING_PINGS == 1
+	if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )
+	{
+		uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( ICMPPacket_t );
+	}
+	else
+#endif
+	{
+		uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+	}
 
 	/* Determine the ARP cache status for the requested IP address. */
 	eReturned = eARPGetCacheEntry( &( ulIPAddress ), &( pxUDPPacket->xEthernetHeader.xDestinationAddress ) );
@@ -109,7 +121,7 @@ uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
 
 				pxUDPHeader->usDestinationPort = pxNetworkBuffer->usPort;
 				pxUDPHeader->usSourcePort = pxNetworkBuffer->usBoundPort;
-				pxUDPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( UDPHeader_t ) );
+				pxUDPHeader->usLength = ( uint16_t ) ( uxPayloadSize + sizeof( UDPHeader_t ) );
 				pxUDPHeader->usLength = FreeRTOS_htons( pxUDPHeader->usLength );
 				pxUDPHeader->usChecksum = 0u;
 			}
@@ -143,16 +155,14 @@ uint32_t ulIPAddress = pxNetworkBuffer->ulIPAddress;
 			if( pxNetworkBuffer->usPort == ipPACKET_CONTAINS_ICMP_DATA )
 			{
 				pxIPHeader->ucProtocol = ipPROTOCOL_ICMP;
-				pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) );
+				pxIPHeader->usLength = ( uint16_t ) ( uxPayloadSize + sizeof( IPHeader_t ) + sizeof( ICMPHeader_t ) );
 			}
 			else
 		#endif /* ipconfigSUPPORT_OUTGOING_PINGS */
 			{
-				pxIPHeader->usLength = ( uint16_t ) ( pxNetworkBuffer->xDataLength + sizeof( IPHeader_t ) + sizeof( UDPHeader_t ) );
+				pxIPHeader->usLength = ( uint16_t ) ( uxPayloadSize + sizeof( IPHeader_t ) + sizeof( UDPHeader_t ) );
 			}
 
-			/* The total transmit size adds on the Ethernet header. */
-			pxNetworkBuffer->xDataLength = pxIPHeader->usLength + sizeof( EthernetHeader_t );
 			pxIPHeader->usLength = FreeRTOS_htons( pxIPHeader->usLength );
 			/* HT:endian: changed back to network endian */
 			pxIPHeader->ulDestinationIPAddress = pxNetworkBuffer->ulIPAddress;
