@@ -3071,6 +3071,18 @@ TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceHidAttach)
 
 /*-----------------------------------------------------------*/
 /**
+ * @brief Function to test hid class.
+ */
+TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceHidAttachAssisted)
+{
+    char cMsg[50]={0};
+    USB_DeviceHidAppInit();
+    sprintf(cMsg, "vid:%x%x, pid:%x%x", g_UsbDeviceDescriptor[9], g_UsbDeviceDescriptor[8], g_UsbDeviceDescriptor[11], g_UsbDeviceDescriptor[10]);
+    TEST_ASSERT_MESSAGE(0, cMsg)
+}
+
+/*-----------------------------------------------------------*/
+/**
  * @brief Function to detach device from host
  */
 static void USB_DeviceHidAppDetach(void)
@@ -3132,6 +3144,38 @@ TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteAsync)
 
 /*-----------------------------------------------------------*/
 /**
+ * @brief Assist function to test write and read async.
+ */
+
+TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteAsyncAssisted )
+{
+    uint8_t ucTxBuf[16] = {0};
+    char cMsg[50] = {0};
+
+    srand(xTaskGetTickCount());
+
+    /* Generate random tx bytes and load them to a string to print later. */
+    for(int i=0, j=0, len=sizeof(ucTxBuf); i<len; i++){
+        ucTxBuf[i]=(uint8_t)rand();
+        cMsg[j++]=',';
+        uint8_t upp=ucTxBuf[i]>>4, low=ucTxBuf[i]&0xF;
+        cMsg[j++]=upp+(upp>9?'A'-10:'0');
+        cMsg[j++]=low+(low>9?'A'-10:'0');
+    }
+
+    int32_t error = IOT_USB_DEVICE_ERROR;
+    int32_t lRetVal;
+    /* write a big string to host and check if write complete.*/
+    error = iot_usb_device_write_async(g_UsbDeviceHidGeneric.deviceHandle, testIotUsbDevice_HID_GENERIC_ENDPOINT_IN, ucTxBuf, sizeof(ucTxBuf));
+    TEST_ASSERT_EQUAL( error, IOT_USB_DEVICE_SUCCESS );
+    lRetVal = xSemaphoreTake( xtestIotUsbDeviceSemaphore, testIotUSBDevice_TEST_WAIT_TIME);
+    TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
+
+    TEST_IGNORE_MESSAGE(cMsg);
+}
+
+/*-----------------------------------------------------------*/
+/**
  * @brief Function to test read async.
  */
 TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadAsync)
@@ -3141,6 +3185,31 @@ TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadAsync)
     USB_DeviceReadAsyncTest();
     /* detach for next test */
     USB_DeviceHidAppDetach();
+}
+
+/*-----------------------------------------------------------*/
+/**
+ * @brief Assist function to test read async.
+ */
+TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadAsyncAssisted)
+{
+    uint8_t ucRxBuf[16] = {0};
+    char cMsg[50]={0};
+    int32_t error = IOT_USB_DEVICE_ERROR;
+    int32_t lRetVal;
+    error = iot_usb_device_read_async(g_UsbDeviceHidGeneric.deviceHandle, testIotUsbDevice_HID_GENERIC_ENDPOINT_OUT, ucRxBuf, sizeof(ucRxBuf));
+    lRetVal = xSemaphoreTake( xtestIotUsbDeviceSemaphore, portMAX_DELAY);
+    TEST_ASSERT_EQUAL( pdTRUE, lRetVal );
+
+    /* Create a string with read bytes and print it to console. */
+    for(int i=0, j=0, len=sizeof(ucRxBuf); i<len; i++){
+        cMsg[j++]=',';
+        uint8_t upp=ucRxBuf[i]>>4, low=ucRxBuf[i]&0xF;
+        cMsg[j++]=upp+(upp>9?'A'-10:'0');
+        cMsg[j++]=low+(low>9?'A'-10:'0');
+    }
+
+    TEST_IGNORE_MESSAGE(cMsg);
 }
 
 /*-----------------------------------------------------------*/
@@ -3160,6 +3229,34 @@ TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteSync)
 
 /*-----------------------------------------------------------*/
 /**
+ * @brief Assist function to test write sync.
+ */
+
+TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceWriteSyncAssisted)
+{
+    uint8_t ucTxBuf[16] = {0};
+    char cMsg[50] = {0};
+
+    srand(xTaskGetTickCount());
+
+    /* Generate random tx bytes and load them to a string to print later. */
+    for(int i=0, j=0, len=sizeof(ucTxBuf); i<len; i++){
+        ucTxBuf[i]=(uint8_t)rand();
+        cMsg[j++]=',';
+        uint8_t upp=ucTxBuf[i]>>4, low=ucTxBuf[i]&0xF;
+        cMsg[j++]=upp+(upp>9?'A'-10:'0');
+        cMsg[j++]=low+(low>9?'A'-10:'0');
+    }
+
+    int32_t error = IOT_USB_DEVICE_ERROR;
+    error = iot_usb_device_write_sync(g_UsbDeviceHidGeneric.deviceHandle, testIotUsbDevice_HID_GENERIC_ENDPOINT_IN, ucTxBuf, sizeof(ucTxBuf));
+    TEST_ASSERT_EQUAL( error, IOT_USB_DEVICE_SUCCESS);
+
+    TEST_IGNORE_MESSAGE(cMsg);
+}
+
+/*-----------------------------------------------------------*/
+/**
  * @brief Function to test read sync.
  */
 
@@ -3171,6 +3268,31 @@ TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadSync)
     vTaskDelay(testIotUSBDevice_TEST_WAIT_TIME);
     /* detach for next test */
     USB_DeviceHidAppDetach();
+}
+
+/*-----------------------------------------------------------*/
+/**
+ * @brief Assist function to test read sync.
+ */
+
+TEST( TEST_IOT_USB_DEVICE, AFQP_IotUsbDeviceReadSyncAssisted)
+{
+    uint8_t ucRxBuf[16] = {0};
+    char cMsg[50]={0};
+
+    int32_t error = IOT_USB_DEVICE_ERROR;
+    error = iot_usb_device_read_sync(g_UsbDeviceHidGeneric.deviceHandle, testIotUsbDevice_HID_GENERIC_ENDPOINT_OUT, ucRxBuf, sizeof(ucRxBuf));
+    TEST_ASSERT_EQUAL( error, IOT_USB_DEVICE_SUCCESS);
+
+    /* Create a string with read bytes and print it to console. */
+    for(int i=0, j=0, len=sizeof(ucRxBuf); i<len; i++){
+        cMsg[j++]=',';
+        uint8_t upp=ucRxBuf[i]>>4, low=ucRxBuf[i]&0xF;
+        cMsg[j++]=upp+(upp>9?'A'-10:'0');
+        cMsg[j++]=low+(low>9?'A'-10:'0');
+    }
+
+    TEST_IGNORE_MESSAGE(cMsg);
 }
 
 /*-----------------------------------------------------------*/
