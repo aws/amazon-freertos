@@ -466,6 +466,7 @@ BTStatus_t prvBTGattServerInit( const BTGattServerCallbacks_t * pxCallbacks )
     BTStatus_t xStatus = eBTStatusSuccess;
 
     ble_hs_cfg.gatts_register_cb = prvGATTRegisterCb;
+    serviceCnt = 0;
 
     memset( espServices, 0, sizeof( struct ble_gatt_svc_def ) * ( MAX_SERVICES + 1 ) );
 
