@@ -38,7 +38,7 @@
 //#include "syslog.h"
 
 /* FreeRTOS lwipopts.h */
-#include "arch/lwipopts_freertos.h"
+#include "lwipopts_freertos.h"
 
 #if defined(MTK_MDNS_ENABLE)
 #define LWIP_IPV6                       1
