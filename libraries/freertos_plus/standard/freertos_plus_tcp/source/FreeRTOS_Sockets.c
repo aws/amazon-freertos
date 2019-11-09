@@ -704,7 +704,7 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 
 		/* The returned value is the data length, which may have been capped to
 		the receive buffer size. */
-		lReturn = ( int32_t ) pxNetworkBuffer->xDataLength;
+		lReturn = ( int32_t ) pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
 
 		if( pxSourceAddress != NULL )
 		{

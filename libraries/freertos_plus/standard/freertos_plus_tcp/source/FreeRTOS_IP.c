@@ -1612,8 +1612,9 @@ uint8_t ucProtocol;
 
 					/* Only proceed if the payload length indicated in the header
 					appears to be valid. */
-					if ( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) )
+					if ( ( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) ) && ( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) >= sizeof( UDPHeader_t ) ) )
 					{
+					size_t uxPayloadSize_1, uxPayloadSize_2;
 						/* Ensure that downstream UDP packet handling has the lesser
 						 * of: the actual network buffer Ethernet frame length, or
 						 * the sender's UDP packet header payload length, minus the
@@ -1624,11 +1625,11 @@ uint8_t ucProtocol;
 						 * the IP header, and the size of the UDP header.
 						 */
 
-						pxNetworkBuffer->xDataLength -= sizeof( UDPPacket_t );
-						if( ( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) - sizeof( UDPHeader_t ) ) <
-								pxNetworkBuffer->xDataLength )
+						uxPayloadSize_1 = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
+						uxPayloadSize_2 = FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) - sizeof( UDPHeader_t );
+						if( uxPayloadSize_1 > uxPayloadSize_2 )
 						{
-							pxNetworkBuffer->xDataLength = FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) - sizeof( UDPHeader_t );
+							pxNetworkBuffer->xDataLength = uxPayloadSize_2 + sizeof( UDPPacket_t );
 						}
 
 						/* Fields in pxNetworkBuffer (usPort, ulIPAddress) are network order. */

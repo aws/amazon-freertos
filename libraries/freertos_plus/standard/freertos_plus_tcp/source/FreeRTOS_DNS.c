@@ -912,15 +912,16 @@ for testing purposes, by the module iot_test_freertos_tcp.c
 uint32_t ulDNSHandlePacket( NetworkBufferDescriptor_t *pxNetworkBuffer )
 {
 DNSMessage_t *pxDNSMessageHeader;
+size_t uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
 
-	if( pxNetworkBuffer->xDataLength >= sizeof( DNSMessage_t ) )
+	if( uxPayloadSize >= sizeof( DNSMessage_t ) )
 	{
 		pxDNSMessageHeader =
 			( DNSMessage_t * ) ( pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t ) );
 
 		/* The parameter pdFALSE indicates that the reply was not expected. */
 		prvParseDNSReply( ( uint8_t * ) pxDNSMessageHeader,
-						  pxNetworkBuffer->xDataLength,
+						  uxPayloadSize,
 						  pdFALSE );
 	}
 
@@ -935,11 +936,12 @@ DNSMessage_t *pxDNSMessageHeader;
 	{
 	UDPPacket_t *pxUDPPacket = ( UDPPacket_t * ) pxNetworkBuffer->pucEthernetBuffer;
 	uint8_t *pucUDPPayloadBuffer = pxNetworkBuffer->pucEthernetBuffer + sizeof( UDPPacket_t );
+	size_t uxPayloadSize = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
 
 		/* The network buffer data length has already been set to the
 		length of the UDP payload. */
 		prvTreatNBNS( pucUDPPayloadBuffer,
-					  pxNetworkBuffer->xDataLength,
+					  uxPayloadSize,
 					  pxUDPPacket->xIPHeader.ulSourceIPAddress );
 
 		/* The packet was not consumed. */
@@ -1168,9 +1170,7 @@ BaseType_t xDoStore = xExpected;
 				{
 				BaseType_t xDataLength = uxBufferLength + sizeof( UDPHeader_t ) + sizeof( EthernetHeader_t ) + sizeof( IPHeader_t );
 
-					/* The field xDataLength was set to the length of the UDP payload.
-					The answer (reply) will be longer than the request, so the packet
-					must be duplicaed into a bigger buffer */
+					/* Set the size of the outgoing packet. */
 					pxNetworkBuffer->xDataLength = xDataLength;
 					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, xDataLength + 16 );
 
@@ -1326,14 +1326,10 @@ BaseType_t xDoStore = xExpected;
 				if( ( xBufferAllocFixedSize == pdFALSE ) && ( pxNetworkBuffer != NULL ) )
 				{
 				NetworkBufferDescriptor_t *pxNewBuffer;
-				BaseType_t xDataLength = pxNetworkBuffer->xDataLength + sizeof( UDPHeader_t ) +
-										 sizeof( EthernetHeader_t ) + sizeof( IPHeader_t );
 
-					/* The field xDataLength was set to the length of the UDP payload.
-					The answer (reply) will be longer than the request, so the packet
-					must be duplicated into a bigger buffer */
-					pxNetworkBuffer->xDataLength = xDataLength;
-					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, xDataLength + 16 );
+					/* The field xDataLength was set to the total length of the UDP packet,
+					i.e. the payload size plus sizeof( UDPPacket_t ). */
+					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, pxNetworkBuffer->xDataLength + 16 );
 
 					if( pxNewBuffer != NULL )
 					{
