@@ -97,8 +97,8 @@ typedef struct
     BTGattAdvName_t ucName;
     bool bSetScanRsp;
     uint32_t ulAppearance;
-    uint32_t ulMinInterval; /* Min connection interval, set to 0 to ignore. */
-    uint32_t ulMaxInterval; /* Max connection interval, set to 0 to ignore. */
+    uint32_t ulMinInterval; /**< Minimum Connection Interval. If set to 0, HAL implementation shall use vendor specific default values. */
+    uint32_t ulMaxInterval; /**< Maximum Connection Interval. If set to 0, HAL implementation shall use vendor specific default values. */
     uint8_t ucChannelMap;
     uint8_t ucTxPower;
     uint8_t ucTimeout;
