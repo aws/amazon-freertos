@@ -54,7 +54,7 @@
  * The wait timer is reset whenever a data block is received from the OTA service so we will only send
  * the request message after being idle for this amount of time.
  */
-#define otaconfigFILE_REQUEST_WAIT_MS           2500U
+#define otaconfigFILE_REQUEST_WAIT_MS           10000U
 
 /**
  * @brief The OTA agent task priority. Normally it runs at a low priority.
@@ -83,7 +83,7 @@
  *  Please note that this must be set larger than zero.
  *
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST         128U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST         8U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
@@ -93,5 +93,34 @@
  *
  */
 #define otaconfigMAX_NUM_REQUEST_MOMENTUM       32U
+
+/**
+ * @brief The number of data buffers reserved by the OTA agent.
+ *
+ * This configurations parameter sets the maximum number of static data buffers used by
+ * the OTA agent for job and file data blocks received.
+ */
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       2U
+
+/**
+ * @brief The protocol selected for OTA control operations.
+
+ * This configurations parameter sets the default protocol for all the OTA control
+ * operations like requesting OTA job, updating the job status etc.
+ *
+ * Note - Only MQTT is supported at this time for control operations.
+ */
+#define configENABLED_CONTROL_PROTOCOL       ( OTA_CONTROL_OVER_MQTT )
+
+/**
+ * @brief The protocol selected for OTA data operations.
+
+ * This configurations parameter sets the protocols selected for the data operations
+ * like requesting file blocks from the service.
+ *
+ * Note - For MQTT and HTTP is supported for data transfer. This configuration parameter
+ * can be set to MQTT, HTTP or MQTT & HTTP
+ */
+#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT )
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */
