@@ -40,13 +40,6 @@
 #define OTA_DATA_OVER_HTTP     0x00000002
 #define OTA_DATA_OVER_ALL      ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
 
- /* 
-  * Primary data protocol will be the protocol selected if more than 
-  * one protocol is selected while creating OTA job. Default primary data 
-  * protocol is MQTT and update here to switch to HTTP as primary.
-  */
-#define OTA_PRIMARY_DATA_PROTOCOL    ( "MQTT" )
-#define OTA_SECONDARY_DATA_PROTOCOL  ( "HTTP" )
 
 /**
   * @brief Represents the OTA control interface functions.

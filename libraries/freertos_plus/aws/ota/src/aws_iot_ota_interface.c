@@ -44,6 +44,16 @@
     #include "http/aws_iot_ota_http.h"
 #endif
 
+ /*
+  * Primary data protocol will be the protocol used for file download if more 
+  * than one protocol is selected while creating OTA job. 
+  */
+#if ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_MQTT )
+uint8_t aucDataProtocol[] = "MQTT";
+# elif ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_HTTP )
+uint8_t aucDataProtocol[] = "HTTP";
+#endif
+
 
 void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface )
 {
@@ -61,7 +71,7 @@ void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *
 {
 
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
-   if(NULL != strstr((const char*)pucProtocol, OTA_PRIMARY_DATA_PROTOCOL ))
+   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
    {
 	   pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
 	   pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
@@ -71,7 +81,7 @@ void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *
 #endif
 
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
-   else if(NULL != strstr((const char*)pucProtocol, OTA_SECONDARY_DATA_PROTOCOL))
+   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
    {
        pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
        pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Http;

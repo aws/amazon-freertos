@@ -346,8 +346,8 @@ static OTA_AgentContext_t xOTA_Agent =
     .eState                        = eOTA_AgentState_Stopped,
     .pcThingName                   = { 0 },
     .pvClient                      = NULL,
-    .pNetworkInterface             = NULL,
-    .pNetworkCredentialInfo        = NULL,
+    .pxNetworkInterface            = NULL,
+    .pvNetworkCredentials          = NULL,
     .pxOTA_Files                   = { { 0 } }, /*lint !e910 !e9080 Zero initialization of all members of the single file context structure.*/
     .ulServerFileID                = 0,
     .pcOTA_Singleton_ActiveJobName = NULL,
@@ -366,17 +366,17 @@ static OTA_AgentContext_t xOTA_Agent =
 OTAStateTableEntry_t OTATransitionTable[] =
 {
 	/*STATE ,                                EVENT ,                                COND ,    ACTION ,                    NEXT STATE                           */
-	{ eOTA_AgentState_Ready ,                eOTA_AgentEvent_Start ,                NULL ,    prvStartHandler ,           eOTA_AgentState_RequestingJob      }  ,
-	{ eOTA_AgentState_RequestingJob ,        eOTA_AgentEvent_RequestJobDocument ,   NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob      }  ,
-	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_ReceivedJobDocument ,  NULL ,    prvProcessJobHandler ,      eOTA_AgentState_CreatingFile       }  ,
-	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_RequestTimer ,         NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob      }  ,
-	{ eOTA_AgentState_CreatingFile  ,        eOTA_AgentEvent_StartSelfTest ,        NULL ,    prvInSelfTestHandler ,      eOTA_AgentState_WaitingForJob      }  ,
-	{ eOTA_AgentState_CreatingFile  ,        eOTA_AgentEvent_CreateFile ,           NULL ,    prvInitFileHandler ,        eOTA_AgentState_RequestingFileBlock}  ,
-    { eOTA_AgentState_RequestingFileBlock ,  eOTA_AgentEvent_RequestFileBlock ,     NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock      }  ,
-	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_ReceivedFileBlock ,    NULL ,    prvProcessDataHandler ,     eOTA_AgentState_WaitingForFileBlock      }  ,
-	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestTimer ,         NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock      }  ,
-	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestFileBlock ,     NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock      }  ,
-	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestJobDocument ,   NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob      }  ,
+	{ eOTA_AgentState_Ready ,                eOTA_AgentEvent_Start ,                NULL ,    prvStartHandler ,           eOTA_AgentState_RequestingJob       }  ,
+	{ eOTA_AgentState_RequestingJob ,        eOTA_AgentEvent_RequestJobDocument ,   NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob       }  ,
+	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_ReceivedJobDocument ,  NULL ,    prvProcessJobHandler ,      eOTA_AgentState_CreatingFile        }  ,
+	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_RequestTimer ,         NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob       }  ,
+	{ eOTA_AgentState_CreatingFile  ,        eOTA_AgentEvent_StartSelfTest ,        NULL ,    prvInSelfTestHandler ,      eOTA_AgentState_WaitingForJob       }  ,
+	{ eOTA_AgentState_CreatingFile  ,        eOTA_AgentEvent_CreateFile ,           NULL ,    prvInitFileHandler ,        eOTA_AgentState_RequestingFileBlock }  ,
+    { eOTA_AgentState_RequestingFileBlock ,  eOTA_AgentEvent_RequestFileBlock ,     NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock }  ,
+	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_ReceivedFileBlock ,    NULL ,    prvProcessDataHandler ,     eOTA_AgentState_WaitingForFileBlock }  ,
+	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestTimer ,         NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock }  ,
+	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestFileBlock ,     NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock }  ,
+	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestJobDocument ,   NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob       }  ,
 };
 
 /*
@@ -1889,7 +1889,6 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
     OTA_FileContext_t * pxFinalFile = NULL;
 	OTA_FileContext_t xFileContext = { 0 };
 	OTA_FileContext_t* C = &xFileContext;
-	BaseType_t xUpdateJob = pdFALSE;
 
 	OTA_LOG_L1("[%s] Size of OTA_FileContext_t [%d]\r\n", OTA_METHOD_NAME , sizeof(xFileContext));
 
@@ -2730,8 +2729,8 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
 			 */
 			pxConnectionCtx = (OTAConnectionContext_t*) pvClient;
 			xOTA_Agent.pvClient = pxConnectionCtx->pvControlClient;
-            xOTA_Agent.pNetworkInterface = pxConnectionCtx->pxNetworkInterface;
-            xOTA_Agent.pNetworkCredentialInfo = pxConnectionCtx->pvNetworkCredentials;
+            xOTA_Agent.pxNetworkInterface = pxConnectionCtx->pxNetworkInterface;
+            xOTA_Agent.pvNetworkCredentials= pxConnectionCtx->pvNetworkCredentials;
 
             /*
 			 * Create the queue used to pass event messages to the OTA task.

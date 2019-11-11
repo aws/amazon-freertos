@@ -118,9 +118,24 @@
  * This configurations parameter sets the protocols selected for the data operations 
  * like requesting file blocks from the service.
  * 
- * Note - For MQTT and HTTP is supported for data transfer. This configuration parameter
- * can be set to MQTT, HTTP or MQTT & HTTP
+ * Note - Both MQTT and HTTP is supported for data transfer. This configuration parameter
+ * can be set to following - 
+ * Enable data over MQTT - ( OTA_DATA_OVER_MQTT )
+ * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
+ * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
  */
 #define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT )
+
+ /**
+  * @brief The preferred protocol selected for OTA data operations.
+  * 
+  * Primary data protocol will be the protocol used for downloading file if more than
+  * one protocol is selected while creating OTA job. Default primary data protocol is MQTT 
+  * and following update here to switch to HTTP as primary.
+  *
+  * Note - use OTA_DATA_OVER_HTTP for HTTP as primary data protocol. 
+  */
+
+#define configOTA_PRIMARY_DATA_PROTOCOL     ( OTA_DATA_OVER_MQTT )
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */

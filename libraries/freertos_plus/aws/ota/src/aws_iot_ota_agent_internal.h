@@ -235,11 +235,11 @@ typedef struct ota_agent_context
 {
     OTA_State_t eState;                                     /* State of the OTA agent. */
     uint8_t pcThingName[ otaconfigMAX_THINGNAME_LEN + 1U ]; /* Thing name + zero terminator. */
-    void * pvClient;                                        /* The current control connection client context (use is determined by the client). */
-    const IotNetworkInterface_t * pNetworkInterface;
-    void * pNetworkCredentialInfo;
+	void* pvClient;
+	const IotNetworkInterface_t* pxNetworkInterface;
+	void* pvNetworkCredentials;
     OTA_FileContext_t pxOTA_Files[ OTA_MAX_FILES ];         /* Static array of OTA file structures. */
-	uint32_t ulFileIndex;
+	uint32_t ulFileIndex;                                   /* Static array of OTA file structures. */
     uint32_t ulServerFileID;                                /* Variable to store current file ID passed down */
     uint8_t * pcOTA_Singleton_ActiveJobName;                /* The currently active job name. We only allow one at a time. */
     uint8_t * pcClientTokenFromJob;                         /* The clientToken field from the latest update job. */
@@ -252,7 +252,6 @@ typedef struct ota_agent_context
     OTA_AgentStatistics_t xStatistics;                      /* The OTA agent statistics block. */
     SemaphoreHandle_t xOTA_ThreadSafetyMutex;               /* Mutex used to ensure thread safety will managing data buffers. */
     uint32_t ulRequestMomentum;                             /* The number of requests sent before a response was received. */
-
 } OTA_AgentContext_t;
 
 /* The OTA Agent event and data structures. */
