@@ -73,7 +73,7 @@ typedef struct
 {
 	OTA_Err_t ( *prvInitFileTransfer )( const OTA_AgentContext_t * pAgentCtx );
 	OTA_Err_t ( *prvRequestFileBlock )( const OTA_AgentContext_t * pAgentCtx );
-	OTA_Err_t ( *prvDecodeFileBlock )( const uint8_t* pucMessageBuffer,
+	OTA_Err_t ( *prvDecodeFileBlock )( uint8_t* pucMessageBuffer,
 		size_t xMessageSize,
 		int32_t* plFileId,
 		int32_t* plBlockId,

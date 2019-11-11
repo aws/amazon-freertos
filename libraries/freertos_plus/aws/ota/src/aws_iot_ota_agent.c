@@ -884,30 +884,6 @@ static OTA_Err_t prvRequestJobHandler( OTAEventData_t * pxEventData )
     return xReturn;
 }
 
-static OTA_Err_t prvProcessRequestTimer( OTAEventData_t* pxEventData )
-{
-	DEFINE_OTA_METHOD_NAME("prvProcessRequestTimer");
-
-	OTAEventMsg_t xEventMsg = { 0 };
-
-	switch ( xOTA_Agent.eState )
-	{
-	case eOTA_AgentState_WaitingForJob :
-		xEventMsg.xEventId = eOTA_AgentEvent_RequestJobDocument;
-		break;
-
-	case eOTA_AgentState_WaitingForFileBlock:
-		xEventMsg.xEventId = eOTA_AgentEvent_RequestFileBlock;
-		break;
-
-	default:
-		OTA_LOG_L1("[%s]Invalid OTA agent state.\r\n", OTA_METHOD_NAME);
-
-	}
-
-	OTA_SignalEvent(&xEventMsg);
-}
-
 static OTA_Err_t prvProcessJobHandler( OTAEventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvProcessJobHandler" );
@@ -959,6 +935,8 @@ static OTA_Err_t prvProcessJobHandler( OTAEventData_t * pxEventData )
 		/* Init data interface routines */
 		prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[xOTA_Agent.ulServerFileID].pucProtocols);
 
+		OTA_LOG_L1("[%s] Setting OTA data inerface.\r\n", OTA_METHOD_NAME);
+
         /* Received a valid context so send event to request file blocks. */
         xEventMsg.xEventId = eOTA_AgentEvent_CreateFile;
 
@@ -976,7 +954,7 @@ static OTA_Err_t prvProcessJobHandler( OTAEventData_t * pxEventData )
 
 static OTA_Err_t prvInitFileHandler( OTAEventData_t * pxEventData )
 {
-    DEFINE_OTA_METHOD_NAME( "prvErrorHandler" );
+
 	(void)pxEventData;
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTAEventMsg_t xEventMsg = { 0 };
@@ -1020,7 +998,6 @@ static OTA_Err_t prvInitFileHandler( OTAEventData_t * pxEventData )
 
 static OTA_Err_t prvRequestDataHandler( OTAEventData_t * pxEventData )
 {
-    DEFINE_OTA_METHOD_NAME( "prvRequestTimerHandler" );
 	(void)pxEventData;
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTAEventMsg_t xEventMsg = { 0 };
@@ -1170,7 +1147,6 @@ static OTA_Err_t prvProcessDataHandler( OTAEventData_t * pxEventData )
 
 static OTA_Err_t prvUserAbortHandler( OTAEventData_t * pxEventData )
 {
-    DEFINE_OTA_METHOD_NAME( "prvUserAbortHandler" );
 
     ( void ) pxEventData;
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
@@ -1190,7 +1166,6 @@ static OTA_Err_t prvUserAbortHandler( OTAEventData_t * pxEventData )
 
 static OTA_Err_t prvShutdownHandler( OTAEventData_t * pxEventData )
 {
-    DEFINE_OTA_METHOD_NAME( "prvShutdownHandler" );
 
     ( void ) pxEventData;
 

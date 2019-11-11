@@ -88,7 +88,7 @@ OTA_Err_t prvRequestFileBlock_Mqtt( const OTA_AgentContext_t * pxAgentCtx );
  * error codes information in aws_iot_ota_agent.h.
  */
 
-OTA_Err_t prvDecodeFileBlock_Mqtt( const uint8_t* pucMessageBuffer,
+OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t* pucMessageBuffer,
 	size_t xMessageSize,
 	int32_t* plFileId,
 	int32_t* plBlockId,

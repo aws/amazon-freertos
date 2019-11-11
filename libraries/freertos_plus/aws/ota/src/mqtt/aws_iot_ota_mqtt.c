@@ -837,7 +837,7 @@ OTA_Err_t prvRequestFileBlock_Mqtt( const OTA_AgentContext_t * pxAgentCtx)
 /*
  * Decode a cbor encoded fileblock received from streaming service.
  */
-OTA_Err_t prvDecodeFileBlock_Mqtt(uint8_t* pucMessageBuffer,
+OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t* pucMessageBuffer,
 	size_t xMessageSize,
 	int32_t* plFileId,
 	int32_t* plBlockId,
