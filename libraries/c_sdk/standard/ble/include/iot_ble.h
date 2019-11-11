@@ -50,8 +50,8 @@
 typedef struct
 {
     uint32_t appearance;      /**< Appearance. */
-    uint32_t minInterval;     /**< Minimum connection interval. */
-    uint32_t maxInterval;     /**< Maximum connection interval. */
+    uint32_t minInterval;     /**< Minimum connection interval. Set this to 0, to use BLE stack specific default values. */
+    uint32_t maxInterval;     /**< Maximum connection interval. Set this to 0, to use BLE stack specific default values. */
     char * pManufacturerData; /**< Manufacturer data */
     char * pServiceData;      /**< Service data */
     BTUuid_t * pUUID1;        /**< First UUID to advertise. */
