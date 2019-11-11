@@ -45,40 +45,39 @@
 #endif
 
 
-void prvSetControlInterface( OTA_ControlInterface_t* pxInterface )
+void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface )
 {
 
 #if ( configENABLED_CONTROL_PROTOCOL == OTA_CONTROL_OVER_MQTT )
-	pxInterface->prvRequestJob = prvRequestJob_Mqtt;
-	pxInterface->prvUpdateJobStatus = prvUpdateJobStatus_Mqtt;
+	pxControlInterface->prvRequestJob = prvRequestJob_Mqtt;
+	pxControlInterface->prvUpdateJobStatus = prvUpdateJobStatus_Mqtt;
 #else
     #error "Enable MQTT control as control operations are only supported over MQTT."
 #endif
 
 }
 
-void prvSetDataInterface( OTA_DataInterface_t* pxInterface, uint8_t *  pucProtocol )
+void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *  pucProtocol )
 {
 
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
    if(NULL != strstr((const char*)pucProtocol, OTA_PRIMARY_DATA_PROTOCOL ))
    {
-
-	   pxInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
-	   pxInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
-	   pxInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
-	   pxInterface->prvCleanup = prvCleanup_Mqtt;
+	   pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
+	   pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
+	   pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
+	   pxDataInterface->prvCleanup = prvCleanup_Mqtt;
    }
 #elif ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
    else if(NULL != strstr((const char*)pucProtocol, OTA_SECONDARY_DATA_PROTOCOL))
    {
-	   pxInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
-	   pxInterface->prvRequestFileBlock = prvRequestFileBlock_Http;
-	   pxInterface->prvDecodeFileBlock = prvDecodeFileBlock_Http;
-	   pxInterface->prvCleanup = prvCleanup_Http;
+       pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
+       pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Http;
+       pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Http;
+       pxDataInterface->prvCleanup = prvCleanup_Http;
    }
 #else
-    #error "Enable atleast one protocol for data."
+    #error "Enable atleast one protocol for data operations."
 #endif
 
 }
