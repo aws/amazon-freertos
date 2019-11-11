@@ -35,42 +35,50 @@
 #include "aws_iot_ota_interface.h"
 
 /* OTA transport inteface includes. */
-#ifdef OTA_DATA_OVER_MQTT
-#include "mqtt/aws_iot_ota_mqtt.h"
+
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
+    #include "mqtt/aws_iot_ota_mqtt.h"
 #endif
 
-#ifdef OTA_DATA_OVER_HTTP
-#include "http/aws_iot_ota_http.h"
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
+    #include "http/aws_iot_ota_http.h"
 #endif
 
 
-void prvSetControlInterface(OTA_Interface_t * pxInterface)
+void prvSetControlInterface( OTA_ControlInterface_t* pxInterface )
 {
 
-	pxInterface->xControlInterface.prvRequestJob = prvRequestJob_Mqtt;
-	pxInterface->xControlInterface.prvUpdateJobStatus = prvUpdateJobStatus_Mqtt;
+#if ( configENABLED_CONTROL_PROTOCOL == OTA_CONTROL_OVER_MQTT )
+	pxInterface->prvRequestJob = prvRequestJob_Mqtt;
+	pxInterface->prvUpdateJobStatus = prvUpdateJobStatus_Mqtt;
+#else
+    #error "Enable MQTT control as control operations are only supported over MQTT."
+#endif
 
 }
 
-void prvSetDataInterface(OTA_Interface_t * pxInterface, uint8_t *  pucProtocol)
+void prvSetDataInterface( OTA_DataInterface_t* pxInterface, uint8_t *  pucProtocol )
 {
 
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
    if(NULL != strstr((const char*)pucProtocol, OTA_PRIMARY_DATA_PROTOCOL ))
    {
 
-	   pxInterface->xDataInterface.prvInitFileTransfer = prvInitFileTransfer_Mqtt;
-	   pxInterface->xDataInterface.prvRequestFileBlock = prvRequestFileBlock_Mqtt;
-	   pxInterface->xDataInterface.prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
-	   pxInterface->xDataInterface.prvCleanup = prvCleanup_Mqtt;
+	   pxInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
+	   pxInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
+	   pxInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
+	   pxInterface->prvCleanup = prvCleanup_Mqtt;
    }
-#ifdef OTA_DATA_OVER_HTTP
+#elif ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
    else if(NULL != strstr((const char*)pucProtocol, OTA_SECONDARY_DATA_PROTOCOL))
    {
-	   pxInterface->xDataInterface.prvInitFileTransfer = prvInitFileTransfer_Http;
-	   pxInterface->xDataInterface.prvRequestFileBlock = prvRequestFileBlock_Http;
-	   pxInterface->xDataInterface.prvDecodeFileBlock = prvDecodeFileBlock_Http;
-       pxInterface->xDataInterface.prvCleanup = prvCleanup_Http;
+	   pxInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
+	   pxInterface->prvRequestFileBlock = prvRequestFileBlock_Http;
+	   pxInterface->prvDecodeFileBlock = prvDecodeFileBlock_Http;
+	   pxInterface->prvCleanup = prvCleanup_Http;
    }
+#else
+    #error "Enable atleast one protocol for data."
 #endif
 
 }

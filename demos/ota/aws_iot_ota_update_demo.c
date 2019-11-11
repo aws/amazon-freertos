@@ -48,8 +48,6 @@
 #include "task.h"
 #include "semphr.h"
 
-
-
 /* Demo network handling */
 #include "aws_iot_demo_network.h"
 
@@ -87,12 +85,6 @@ static void prvNetworkStateChangeCallback( uint32_t ulNetworkType,
 
 #define otaDemoNETWORK_TYPES              ( AWSIOT_NETWORK_TYPE_ALL )
 
-typedef struct
-{
-    IotMqttConnection_t mqttConnection;
-    const IotNetworkInterface_t * pNetworkInterface;
-    void * pNetworkCredentials;
-} OTAConnectionContext_t;
 
 /**
  * @brief Structure which holds the context for an MQTT connection within Demo.
@@ -105,6 +97,13 @@ static MqttConnectionContext_t xConnection =
     .xMqttConnection     = IOT_MQTT_CONNECTION_INITIALIZER,
     .xDisconnectCallback = prvNetworkDisconnectCallback
 };
+
+typedef struct
+{
+	void* pvControlClient;
+	const IotNetworkInterface_t* pxNetworkInterface;
+	void* pvNetworkCredentials;
+} OTAConnectionContext_t;
 
 /**
  * @brief Network manager subscription callback.
@@ -215,7 +214,7 @@ void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
 {
     IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
-    OTAConnectionContext_t otaConnectionCtx = { 0 };
+    OTAConnectionContext_t xOTAConnectionCtx = { 0 };
 
     configPRINTF( ( "OTA demo version %u.%u.%u\r\n",
                     xAppFirmwareVersion.u.x.ucMajor,
@@ -255,10 +254,11 @@ void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
                                  otaDemoCONN_TIMEOUT_MS, &( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
-                otaConnectionCtx.mqttConnection = xConnection.xMqttConnection;
-                otaConnectionCtx.pNetworkInterface = pNetworkInterface;
-                otaConnectionCtx.pNetworkCredentials = pNetworkCredentialInfo;
-                OTA_AgentInit( ( void * ) ( &otaConnectionCtx ), ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
+				xOTAConnectionCtx.pvControlClient = xConnection.xMqttConnection;
+				xOTAConnectionCtx.pxNetworkInterface = pNetworkInterface;
+				xOTAConnectionCtx.pvNetworkCredentials = pNetworkCredentialInfo;
+
+                OTA_AgentInit( ( void * ) ( &xOTAConnectionCtx ), ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
 
                 while( ( eState = OTA_GetAgentState() ) != eOTA_AgentState_Stopped )
                 {

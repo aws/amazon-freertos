@@ -41,7 +41,7 @@
  *
  * 10 bits yields a data block size of 1KB.
  */
-#define otaconfigLOG2_FILE_BLOCK_SIZE           10UL
+#define otaconfigLOG2_FILE_BLOCK_SIZE           12UL
 
 /**
  * @brief Milliseconds to wait for the self test phase to succeed before we force reset.
@@ -54,7 +54,7 @@
  * The wait timer is reset whenever a data block is received from the OTA service so we will only send
  * the request message after being idle for this amount of time.
  */
-#define otaconfigFILE_REQUEST_WAIT_MS           2500U
+#define otaconfigFILE_REQUEST_WAIT_MS           1000U
 
 /**
  * @brief The OTA agents task priority. Normally it runs at a low priority.
@@ -84,7 +84,7 @@
   *  Please note that this must be set larger than zero.
   *
   */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST        1U
+#define otaconfigMAX_NUM_BLOCKS_REQUEST        32U
 
 /**
  * @brief The maximum number of requests allowed to send without a response before we abort.
@@ -94,5 +94,24 @@
  *
  */
 #define otaconfigMAX_NUM_REQUEST_MOMENTUM       32U
+
+ /**
+  * @brief
+  *
+  */
+#define otaconfigMAX_NUM_OTA_DATA_BUFFERS       4U
+
+  /**
+   * @brief 
+   *
+   */
+#define configENABLED_CONTROL_PROTOCOL       ( OTA_CONTROL_OVER_MQTT )
+
+   /**
+	* @brief
+	*
+	*/
+#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT )
+
 
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */

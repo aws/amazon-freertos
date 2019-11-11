@@ -30,45 +30,42 @@
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_agent_internal.h"
 
-#define OTA_PRIMARY_DATA_PROTOCOL    "MQTT"
-#define OTA_SECONDARY_DATA_PROTOCOL  "HTTP"
+#define OTA_CONTROL_OVER_MQTT  0x00000001
 
-#define OTA_DATA_OVER_MQTT
-//#define OTA_DATA_OVER_HTTP
+#define OTA_DATA_OVER_MQTT     0x00000001
+#define OTA_DATA_OVER_HTTP     0x00000002
+#define OTA_DATA_OVER_ALL      ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+
+#define OTA_PRIMARY_DATA_PROTOCOL    ( "MQTT" )
+#define OTA_SECONDARY_DATA_PROTOCOL  ( "HTTP" )
 
 typedef struct
 {
-	OTA_Err_t(*prvRequestJob)(OTA_AgentContext_t* pAgentCtx);
-	OTA_Err_t(*prvUpdateJobStatus)(OTA_AgentContext_t* pxAgentCtx,
+	OTA_Err_t ( *prvRequestJob )( OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t( *prvUpdateJobStatus )( OTA_AgentContext_t * pxAgentCtx,
 		OTA_JobStatus_t eStatus,
 		int32_t lReason,
-		int32_t lSubReason);
+		int32_t lSubReason );
 
 } OTA_ControlInterface_t;
 
 typedef struct
 {
-	OTA_Err_t(*prvInitFileTransfer)(OTA_AgentContext_t* pAgentCtx);
-	OTA_Err_t(*prvRequestFileBlock)(OTA_AgentContext_t* pAgentCtx);
-	OTA_Err_t(*prvDecodeFileBlock)( uint8_t* pucMessageBuffer,
+	OTA_Err_t( *prvInitFileTransfer )( OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t( *prvRequestFileBlock )( OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t( *prvDecodeFileBlock )( uint8_t* pucMessageBuffer,
 		size_t xMessageSize,
 		int32_t* plFileId,
 		int32_t* plBlockId,
 		int32_t* plBlockSize,
 		uint8_t** ppucPayload,
-		size_t* pxPayloadSize);
-	OTA_Err_t(*prvCleanup)(OTA_AgentContext_t* pAgentCtx);
+		size_t* pxPayloadSize );
+	OTA_Err_t( *prvCleanup )( OTA_AgentContext_t* pAgentCtx );
 
 } OTA_DataInterface_t;
 
-typedef struct
-{
-	OTA_ControlInterface_t xControlInterface;
-	OTA_DataInterface_t xDataInterface;
-} OTA_Interface_t;
+void prvSetControlInterface( OTA_ControlInterface_t * pxInterface );
 
-void prvSetControlInterface(OTA_Interface_t* pxInterface);
-
-void prvSetDataInterface(OTA_Interface_t* pxInterface, uint8_t* pucProtocol);
+void prvSetDataInterface(OTA_DataInterface_t * pxInterface, uint8_t * pucProtocol);
 
 #endif
