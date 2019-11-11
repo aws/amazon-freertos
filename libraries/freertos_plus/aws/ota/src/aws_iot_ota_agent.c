@@ -2455,6 +2455,7 @@ static void prvOTAAgentTask( void* pUnused )
 
 	OTAEventMsg_t xEventMsg = { 0 };
 	OTA_Err_t xErr = kOTA_Err_Uninitialized;
+	uint32_t i;
 
 	/*
 	 * OTA Agent is ready to receive and process events so update the state to ready.
@@ -2468,7 +2469,7 @@ static void prvOTAAgentTask( void* pUnused )
 		 */
 		if ( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, portMAX_DELAY ) == pdTRUE )
 		{
-			for ( int i = 0; i < ( sizeof( OTATransitionTable) / sizeof(OTATransitionTable[0] ) ); i++ )
+			for ( i = 0; i < ( sizeof( OTATransitionTable) / sizeof(OTATransitionTable[0] ) ); i++ )
 			{
 				if ( OTATransitionTable[i].xCurrentState == xOTA_Agent.eState )
 				{
