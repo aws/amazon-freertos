@@ -403,6 +403,7 @@ TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent
 TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
     BTStatus_t xStatus, xfStatus;
+    BLETESTindicateCallback_t xIndicateEvent;
 
     IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
 
@@ -415,6 +416,8 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_
                                                         ucLargeBuffer,
                                                         false );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
 
     IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, false );
 }
