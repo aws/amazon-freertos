@@ -68,7 +68,9 @@ void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *
 	   pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
 	   pxDataInterface->prvCleanup = prvCleanup_Mqtt;
    }
-#elif ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
+#endif
+
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
    else if(NULL != strstr((const char*)pucProtocol, OTA_SECONDARY_DATA_PROTOCOL))
    {
        pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
@@ -76,8 +78,5 @@ void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *
        pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Http;
        pxDataInterface->prvCleanup = prvCleanup_Http;
    }
-#else
-    #error "Enable atleast one protocol for data operations."
 #endif
-
 }
