@@ -30,45 +30,73 @@
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_agent_internal.h"
 
-#define OTA_PRIMARY_DATA_PROTOCOL    "MQTT"
-#define OTA_SECONDARY_DATA_PROTOCOL  "HTTP"
+/* General Constants. */
 
-#define OTA_DATA_OVER_MQTT
-#define OTA_DATA_OVER_HTTP
+/* OTA control protocol constants. */
+#define OTA_CONTROL_OVER_MQTT  0x00000001
 
+/* OTA data protocol constants. */
+#define OTA_DATA_OVER_MQTT     0x00000001
+#define OTA_DATA_OVER_HTTP     0x00000002
+#define OTA_DATA_OVER_ALL      ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+
+
+/**
+  * @brief Represents the OTA control interface functions.
+  *
+  * The functions in this structure are used for the control operations
+  * during over the air updates like OTA job status updates.
+  */
 typedef struct
 {
-	OTA_Err_t(*prvRequestJob)(OTA_AgentContext_t* pAgentCtx);
-	OTA_Err_t(*prvUpdateJobStatus)(OTA_AgentContext_t* pxAgentCtx,
-		OTA_JobStatus_t eStatus,
-		int32_t lReason,
-		int32_t lSubReason);
-
+	OTA_Err_t ( *prvRequestJob )( const OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t ( *prvUpdateJobStatus )( const OTA_AgentContext_t * pxAgentCtx,
+		        OTA_JobStatus_t eStatus,
+		        int32_t lReason,
+		        int32_t lSubReason );
 } OTA_ControlInterface_t;
 
+/**
+  * @brief Represents the OTA data interface functions.
+  *
+  * The functions in this structure are used for the data operations
+  * during over the air updates like requesting file blocks.
+  */
 typedef struct
 {
-	OTA_Err_t(*prvInitFileTransfer)(OTA_AgentContext_t* pAgentCtx);
-	OTA_Err_t(*prvRequestFileBlock)(OTA_AgentContext_t* pAgentCtx);
-	OTA_Err_t(*prvDecodeFileBlock)( uint8_t* pucMessageBuffer,
+	OTA_Err_t ( *prvInitFileTransfer )( const OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t ( *prvRequestFileBlock )( const OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t ( *prvDecodeFileBlock )( uint8_t* pucMessageBuffer,
 		size_t xMessageSize,
 		int32_t* plFileId,
 		int32_t* plBlockId,
 		int32_t* plBlockSize,
 		uint8_t** ppucPayload,
-		size_t* pxPayloadSize);
-	OTA_Err_t(*prvCleanup)(OTA_AgentContext_t* pAgentCtx);
-
+		size_t* pxPayloadSize );
+	OTA_Err_t( *prvCleanup )( const OTA_AgentContext_t* pAgentCtx );
 } OTA_DataInterface_t;
 
-typedef struct
-{
-	OTA_ControlInterface_t xControlInterface;
-	OTA_DataInterface_t xDataInterface;
-} OTA_Interface_t;
+/**
+ * @brief Set control interface for OTA operations.
+ *
+ * This function updates the OTA control operation functions as per the config
+ * options selected.
+ *
+ * @param[out] pxControlInterface OTA Control interface.
+ *
+ */
+void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface );
 
-void prvSetControlInterface(OTA_Interface_t* pxInterface);
+/**
+ * @brief Set data interface for OTA operations.
+ *
+ * This function updates the OTA data operation functions as per the config
+ * options selected.
+ *
+ * @param[out] pxDataInterface OTA data interface.
+ *
+ */
 
-void prvSetDataInterface(OTA_Interface_t* pxInterface, uint8_t* pucProtocol);
+void prvSetDataInterface(OTA_DataInterface_t * pxDataInterface, const uint8_t * pucProtocol);
 
 #endif

@@ -41,7 +41,7 @@
  * @return The OTA error code. See OTA Agent error codes information in aws_iot_ota_agent.h.
  */
 
-OTA_Err_t prvRequestJob_Mqtt( OTA_AgentContext_t * pxAgentCtx );
+OTA_Err_t prvRequestJob_Mqtt( const OTA_AgentContext_t * pxAgentCtx );
 
 /**
  * @brief Initialize file transfer over MQTT.
@@ -54,13 +54,13 @@ OTA_Err_t prvRequestJob_Mqtt( OTA_AgentContext_t * pxAgentCtx );
  * @return The OTA error code. See OTA Agent error codes information in aws_iot_ota_agent.h.
  */
 
-OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx );
+OTA_Err_t prvInitFileTransfer_Mqtt( const OTA_AgentContext_t * pxAgentCtx );
 
 /**
  * @brief Request File block over MQTT.
  *
  * This function is used for requesting a file block over MQTT using the
- * file context from the OTA agent context.
+ * file context.
  *
  * @param[in] pxAgentCtx The OTA agent context.
  *
@@ -68,7 +68,7 @@ OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx );
  * error codes information in aws_iot_ota_agent.h.
  */
 
-OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx );
+OTA_Err_t prvRequestFileBlock_Mqtt( const OTA_AgentContext_t * pxAgentCtx );
 
 /**
  * @brief Decode a cbor encoded fileblock.
@@ -100,14 +100,14 @@ OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t* pucMessageBuffer,
  * @brief Cleanup related to OTA over MQTT.
  *
  * This function perfroms cleanup by unsubscribing from any topics that were
- * subscribed for OTA over MQTT.
+ * subscribed for performing OTA over MQTT.
  *
  * @param[in] pxAgentCtx The OTA agent context.
  *
  * @return The OTA error code. See OTA Agent error codes information in aws_iot_ota_agent.h.
  */
 
-OTA_Err_t prvCleanup_Mqtt( OTA_AgentContext_t * pxAgentCtx );
+OTA_Err_t prvCleanup_Mqtt( const OTA_AgentContext_t * pxAgentCtx );
 
 /**
  * @brief Update job status over MQTT.

@@ -83,14 +83,16 @@ extern const char cOTA_JSON_FileSignatureKey[ OTA_FILE_SIG_KEY_STR_MAX_LENGTH ];
  */
 typedef enum
 {
-    eOTA_AgentState_Init = -1 ,
-    eOTA_AgentState_Ready = 0 ,
-    eOTA_AgentState_InSelfTest,
+	eOTA_AgentState_NoTransition = -1,
+    eOTA_AgentState_Init = 0 ,
+    eOTA_AgentState_Ready,
     eOTA_AgentState_RequestingJob,
-    eOTA_AgentState_ProcessingJob,
-    eOTA_AgentState_InitFileTransfer,
-    eOTA_AgentState_ReceivingFile,
-    eOTA_AgentState_CloseFile,
+	eOTA_AgentState_WaitingForJob,
+    eOTA_AgentState_CreatingFile,
+	eOTA_AgentState_RequestingFileBlock,
+	eOTA_AgentState_WaitingForFileBlock,
+	eOTA_AgentState_InSelfTest,
+    eOTA_AgentState_ClosingFile,
     eOTA_AgentState_ShuttingDown,
     eOTA_AgentState_Stopped,
     eOTA_AgentState_Max
@@ -107,9 +109,10 @@ typedef enum
     eOTA_AgentEvent_StartSelfTest,
     eOTA_AgentEvent_RequestJobDocument,
     eOTA_AgentEvent_ReceivedJobDocument,
-    eOTA_AgentEvent_StartFileTransfer,
+    eOTA_AgentEvent_CreateFile,
     eOTA_AgentEvent_RequestFileBlock,
     eOTA_AgentEvent_ReceivedFileBlock,
+	eOTA_AgentEvent_RequestTimer,
     eOTA_AgentEvent_CloseFile,
     eOTA_AgentEvent_UserAbort,
     eOTA_AgentEvent_Shutdown,
@@ -321,7 +324,7 @@ typedef enum
     eOTA_JobParseErr_None = 0,            /* Signifies no error has occurred. */
     eOTA_JobParseErr_BusyWithExistingJob, /* We're busy with a job but received a new job document. */
     eOTA_JobParseErr_NullJob,             /* A null job was reported (no job ID). */
-    eOTA_JobParseErr_BusyWithSameJob,     /* We're already busy with the reported job ID. */
+    eOTA_JobParseErr_UpdateCurrentJob,    /* We're already busy with the reported job ID. */
     eOTA_JobParseErr_ZeroFileSize,        /* Job document specified a zero sized file. This is not allowed. */
     eOTA_JobParseErr_NonConformingJobDoc, /* The job document failed to fulfill the model requirements. */
     eOTA_JobParseErr_BadModelInitParams,  /* There was an invalid initialization parameter used in the document model. */

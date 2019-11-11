@@ -35,42 +35,58 @@
 #include "aws_iot_ota_interface.h"
 
 /* OTA transport inteface includes. */
-#ifdef OTA_DATA_OVER_MQTT
-#include "mqtt/aws_iot_ota_mqtt.h"
+
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
+    #include "mqtt/aws_iot_ota_mqtt.h"
 #endif
 
-#ifdef OTA_DATA_OVER_HTTP
-#include "http/aws_iot_ota_http.h"
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
+    #include "http/aws_iot_ota_http.h"
+#endif
+
+ /*
+  * Primary data protocol will be the protocol used for file download if more
+  * than one protocol is selected while creating OTA job.
+  */
+#if ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_MQTT )
+uint8_t aucDataProtocol[] = "MQTT";
+# elif ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_HTTP )
+uint8_t aucDataProtocol[] = "HTTP";
 #endif
 
 
-void prvSetControlInterface(OTA_Interface_t * pxInterface)
+void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface )
 {
 
-	pxInterface->xControlInterface.prvRequestJob = prvRequestJob_Mqtt;
-	pxInterface->xControlInterface.prvUpdateJobStatus = prvUpdateJobStatus_Mqtt;
+#if ( configENABLED_CONTROL_PROTOCOL == OTA_CONTROL_OVER_MQTT )
+	pxControlInterface->prvRequestJob = prvRequestJob_Mqtt;
+	pxControlInterface->prvUpdateJobStatus = prvUpdateJobStatus_Mqtt;
+#else
+    #error "Enable MQTT control as control operations are only supported over MQTT."
+#endif
 
 }
 
-void prvSetDataInterface(OTA_Interface_t * pxInterface, uint8_t *  pucProtocol)
+void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *  pucProtocol )
 {
 
-   if(NULL != strstr((const char*)pucProtocol, OTA_PRIMARY_DATA_PROTOCOL ))
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
+   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
    {
-
-	   pxInterface->xDataInterface.prvInitFileTransfer = prvInitFileTransfer_Mqtt;
-	   pxInterface->xDataInterface.prvRequestFileBlock = prvRequestFileBlock_Mqtt;
-	   pxInterface->xDataInterface.prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
-	   pxInterface->xDataInterface.prvCleanup = prvCleanup_Mqtt;
-   }
-#ifdef OTA_DATA_OVER_HTTP
-   else if(NULL != strstr((const char*)pucProtocol, OTA_SECONDARY_DATA_PROTOCOL))
-   {
-	   pxInterface->xDataInterface.prvInitFileTransfer = _AwsIotOTA_InitFileTransfer_HTTP;
-	   pxInterface->xDataInterface.prvRequestFileBlock = _AwsIotOTA_RequestDataBlock_HTTP;
-	   pxInterface->xDataInterface.prvDecodeFileBlock = _AwsIotOTA_DecodeFileBlock_HTTP;
-       pxInterface->xDataInterface.prvCleanup = _AwsIotOTA_Cleanup_HTTP;
+	   pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
+	   pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
+	   pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
+	   pxDataInterface->prvCleanup = prvCleanup_Mqtt;
    }
 #endif
 
+#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
+   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
+   {
+	   pxDataInterface->prvInitFileTransfer = _AwsIotOTA_InitFileTransfer_HTTP;
+	   pxDataInterface->prvRequestFileBlock = _AwsIotOTA_RequestDataBlock_HTTP;
+	   pxDataInterface->prvDecodeFileBlock = _AwsIotOTA_DecodeFileBlock_HTTP;
+       pxDataInterface->prvCleanup = _AwsIotOTA_Cleanup_HTTP;
+   }
+#endif
 }
