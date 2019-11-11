@@ -795,7 +795,7 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     const IotNetworkInterface_t * pNetworkInterface = pAgentCtx->pNetworkInterface;
 
     /* Get pre-signed URL from pAgentCtx. */
-    const char * pURL = ( const char * )( pAgentCtx->pxOTA_Files[ pAgentCtx->ulServerFileID ].pucUpdateUrlPath );
+    const char * pURL = ( const char * )( pAgentCtx->pxOTA_Files[ pAgentCtx->ulFileIndex ].pucUpdateUrlPath );
 
     /* File context from OTA agent. */
     OTA_FileContext_t* fileContext = pAgentCtx->pxOTA_Files;
