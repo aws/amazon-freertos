@@ -33,7 +33,7 @@
  * get free station list APIs in application side. Other APIs are used in esp-idf internal,
  * otherwise the state maybe wrong.
  *
- * TODO: ipv6 support will be added, use menuconfig to disable CONFIG_TCPIP_LWIP
+ * TODO: ipv6 support will be added
  */
 
 #include <stdint.h>
@@ -43,10 +43,11 @@
 #include "list.h"
 #include "FreeRTOS_IP.h"
 
-#define CONFIG_TCPIP_LWIP 1
 #define CONFIG_DHCP_STA_LIST 1
 
-#if CONFIG_TCPIP_LWIP
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct ip4_addr {
     uint32_t addr;
@@ -92,10 +93,6 @@ typedef struct {
 #define IP6_ADDR_BLOCK7(ip6addr) ((u16_t)(FreeRTOS_htonl((ip6addr)->addr[3]) >> 16) & 0xffff)
 #define IP6_ADDR_BLOCK8(ip6addr) ((u16_t)(FreeRTOS_htonl((ip6addr)->addr[3])) & 0xffff)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define IP2STR(ipaddr) ip4_addr1_16(ipaddr), \
     ip4_addr2_16(ipaddr), \
     ip4_addr3_16(ipaddr), \
@@ -138,19 +135,15 @@ typedef struct {
 } tcpip_adapter_sta_list_t;
 #endif
 
-#endif
+#define ESP_ERR_TCPIP_ADAPTER_BASE                  0x5000
+#define ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS        ESP_ERR_TCPIP_ADAPTER_BASE + 0x01
+#define ESP_ERR_TCPIP_ADAPTER_IF_NOT_READY          ESP_ERR_TCPIP_ADAPTER_BASE + 0x02
+#define ESP_ERR_TCPIP_ADAPTER_DHCPC_START_FAILED    ESP_ERR_TCPIP_ADAPTER_BASE + 0x03
+#define ESP_ERR_TCPIP_ADAPTER_DHCP_ALREADY_STARTED  ESP_ERR_TCPIP_ADAPTER_BASE + 0x04
+#define ESP_ERR_TCPIP_ADAPTER_DHCP_ALREADY_STOPPED  ESP_ERR_TCPIP_ADAPTER_BASE + 0x05
+#define ESP_ERR_TCPIP_ADAPTER_NO_MEM                ESP_ERR_TCPIP_ADAPTER_BASE + 0x06
+#define ESP_ERR_TCPIP_ADAPTER_DHCP_NOT_STOPPED      ESP_ERR_TCPIP_ADAPTER_BASE + 0x07
 
-#define ESP_ERR_TCPIP_ADAPTER_BASE      0x5000      // TODO: move base address to esp_err.h
-
-#define ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS        ESP_ERR_TCPIP_ADAPTER_BASE + 0x00
-#define ESP_ERR_TCPIP_ADAPTER_IF_NOT_READY          ESP_ERR_TCPIP_ADAPTER_BASE + 0x01
-#define ESP_ERR_TCPIP_ADAPTER_DHCPC_START_FAILED    ESP_ERR_TCPIP_ADAPTER_BASE + 0x02
-#define ESP_ERR_TCPIP_ADAPTER_DHCP_ALREADY_STARTED  ESP_ERR_TCPIP_ADAPTER_BASE + 0x03
-#define ESP_ERR_TCPIP_ADAPTER_DHCP_ALREADY_STOPPED  ESP_ERR_TCPIP_ADAPTER_BASE + 0x04
-#define ESP_ERR_TCPIP_ADAPTER_NO_MEM                ESP_ERR_TCPIP_ADAPTER_BASE + 0x05
-#define ESP_ERR_TCPIP_ADAPTER_DHCP_NOT_STOPPED      ESP_ERR_TCPIP_ADAPTER_BASE + 0x06
-
-/* TODO: add Ethernet interface */
 typedef enum {
     TCPIP_ADAPTER_IF_STA = 0,     /**< ESP32 station interface */
     TCPIP_ADAPTER_IF_AP,          /**< ESP32 soft-AP interface */
@@ -567,8 +560,17 @@ esp_err_t tcpip_adapter_dhcpc_start(tcpip_adapter_if_t tcpip_if);
  */
 esp_err_t tcpip_adapter_dhcpc_stop(tcpip_adapter_if_t tcpip_if);
 
-
-
+/**
+ * @brief  Get data from ethernet interface
+ *
+ * This function should be installed by esp_eth_init, so Ethernet packets will be forward to TCPIP stack.
+ *
+ * @param[in]  void *buffer: the received data point
+ * @param[in]  uint16_t len: the received data length
+ * @param[in]  void *eb: parameter
+ *
+ * @return ESP_OK
+ */
 esp_err_t tcpip_adapter_eth_input(void *buffer, uint16_t len, void *eb);
 
 /**
@@ -606,7 +608,7 @@ esp_err_t tcpip_adapter_ap_input(void *buffer, uint16_t len, void *eb);
  *
  * @return ESP_IF_WIFI_STA
  *         ESP_IF_WIFI_AP
-           ESP_IF_ETH
+ *         ESP_IF_ETH
  *         ESP_IF_MAX
  */
 esp_interface_t tcpip_adapter_get_esp_if(void *dev);
@@ -659,6 +661,16 @@ esp_err_t tcpip_adapter_get_hostname(tcpip_adapter_if_t tcpip_if, const char **h
  *         ESP_ERR_TCPIP_ADAPTER_INVALID_PARAMS:parameter error
  */
 esp_err_t tcpip_adapter_get_netif(tcpip_adapter_if_t tcpip_if, void ** netif);
+
+/**
+ * @brief  Test if supplied interface is up or down
+ *
+ * @param[in]   tcpip_if: the interface which we will get the hostname
+ *
+ * @return  true:  tcpip_if is UP
+ *          false: tcpip_if id DOWN
+ */
+bool tcpip_adapter_is_netif_up(tcpip_adapter_if_t tcpip_if);
 
 #ifdef __cplusplus
 }
