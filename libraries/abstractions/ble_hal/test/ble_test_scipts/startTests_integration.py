@@ -73,6 +73,12 @@ def main():
         isTestSuccessFull,
         runTest.Send_Data_After_Disconnected)
 
+    isTestSuccessFull = runTest.Check_Bond_State(
+        scan_filter=scan_filter, bleAdapter=bleAdapter)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.Check_Bond_State)
+
     time.sleep(2)  # wait for connection parameters update
     runTest.submitTestResult(isTestSuccessFull, runTest.disconnect)
     runTest.printTestsSummary()

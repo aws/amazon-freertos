@@ -331,33 +331,7 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar )
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4 )
 {
-    BTStatus_t xStatus;
-    BLETESTsspRequestCallback_t xSSPrequestEvent;
-    BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
-
-    /* Wait secure connection. Secure connection is triggered by writting to bletestsCHARB. */
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
-    TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
-
-    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestConfirmationCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
-    TEST_ASSERT_EQUAL( eBTsspVariantPasskeyConfirmation, xSSPrequestEvent.xPairingVariant );
-
-    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantPasskeyConfirmation, true, 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus );
-    TEST_ASSERT_EQUAL( eBTbondStateBonded, xPairingStateChangedEvent.xBondState );
-    TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
-    TEST_ASSERT_EQUAL( eBTSecLevelSecureConnect, xPairingStateChangedEvent.xSecurityLevel );
+    IotTestBleHal_CreateSecureConnection_Model1Level4( true );
 
     prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
                               true,
@@ -389,6 +363,7 @@ void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
 
     if( bNeedRsp )
     {
+        memset( &xGattResponse, 0, sizeof( BTGattResponse_t ) );
         xGattResponse.usHandle = usHandlesBufferB[ xAttribute ];
         xGattResponse.xAttrValue.usHandle = usHandlesBufferB[ xAttribute ];
         /* /TODO: check & save long write value */

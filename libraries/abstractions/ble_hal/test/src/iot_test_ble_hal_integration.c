@@ -174,6 +174,9 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE
         RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Init_Enable_Twice );
     #endif
+    #if ENABLE_TC_INTEGRATION_CHECK_BOND_STATE
+        RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Check_Bond_State );
+    #endif
 
     /*TODO: Test sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
     /* RUN_TEST_CASE( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data ); */
@@ -181,9 +184,26 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
 
+TEST( Full_BLE_Integration_Test_Advertisement, BLE_Check_Bond_State )
+{
+    BTStatus_t xStatus;
+    BLETESTsspRequestCallback_t xSSPrequestEvent;
+    BLETESTPairingStateChangedCallback_t xPairingStateChangedEvent;
+
+    IotTestBleHal_SetAdvProperty();
+    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+    IotTestBleHal_StartAdvertisement();
+    IotTestBleHal_WaitConnection( true );
+
+    IotTestBleHal_CreateSecureConnection_Model1Level4( false );
+
+    IotTestBleHal_WaitConnection( false );
+}
+
 TEST( Full_BLE_Integration_Test_common_GATT, BLE_Add_Characteristic_In_Callback )
 {
     BTStatus_t xStatus;
+    CharAddedComplete = false;
 
     IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
     IotTestBleHal_BLEGATTInit( &_xBTGattServer_Nested_Cb, true );
@@ -241,6 +261,7 @@ TEST( Full_BLE_Integration_Test, BLE_Callback_NULL_Check )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    IotTestBleHal_ClearEventQueue();
 }
 
 /* Advertisement should work without initializing optional properties (device's name) */
@@ -402,7 +423,7 @@ TEST( Full_BLE_Integration_Test_Advertisement, BLE_Advertise_Interval_Consistent
 
 TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
 {
-    BTStatus_t xStatus, xfStatus;
+    BTStatus_t xStatus;
     BLETESTindicateCallback_t xIndicateEvent;
 
     IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, true );
@@ -418,6 +439,9 @@ TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventIndicateCb, NO_HANDLE, ( void * ) &xIndicateEvent, sizeof( BLETESTindicateCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    TEST_ASSERT_EQUAL( _usBLEConnId, xIndicateEvent.usConnId );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xIndicateEvent.xStatus );
 
     IotTestBleHal_checkNotificationIndication( bletestATTR_SRVCB_CCCD_E, false );
 }
@@ -764,6 +788,8 @@ void GAP_common_teardown()
     /* Deinit */
     xStatus = _pxBTInterface->pxBtManagerCleanup();
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+    IotTestBleHal_ClearEventQueue();
 }
 /*-----------------------------------------------------------*/
 

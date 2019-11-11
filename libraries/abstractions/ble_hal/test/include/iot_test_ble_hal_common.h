@@ -518,6 +518,7 @@ void IotTestBleHal_CreateServiceB_Nested( void );
 void IotTestBleHal_WaitConnection( bool bConnected );
 void IotTestBleHal_StopService( BTService_t * xRefSrvc );
 void IotTestBleHal_DeleteService( BTService_t * xRefSrvc );
+void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc );
 void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
                                                 bool enable );
 void IotTestBleHal_BTUnregister( void );

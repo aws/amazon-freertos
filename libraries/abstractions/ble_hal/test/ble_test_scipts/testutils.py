@@ -35,6 +35,7 @@ DESCRIPTOR_INTERFACE = SERVICE_NAME + ".GattDescriptor1"
 AGENT_INTERFACE = SERVICE_NAME + ".Agent1"
 AGENT_MANAGER_INTERFACE = SERVICE_NAME + ".AgentManager1"
 
+ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE = 0
 
 def get_managed_objects():
     bus = dbus.SystemBus()
@@ -137,6 +138,10 @@ def find_gatt_service_in_objects(services, characteristics, descriptors):
         if ifaces.get(SERVICE_INTERFACE) is not None:
             uuid = str(objInterface.Get(SERVICE_INTERFACE, "UUID"))
             primary = objInterface.Get(SERVICE_INTERFACE, "Primary")
+            if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE == 1:
+                if uuid == "8a7f1168-48af-4efb-83b5-e679f9320001":
+                    included_service = objInterface.Get(SERVICE_INTERFACE, "Includes")
+                    print(included_service)
 
             services[uuid] = {}
             services[uuid]["obj"] = obj

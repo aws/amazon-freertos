@@ -181,6 +181,28 @@ class bleAdapter:
             interface=testutils.ADAPTER_INTERFACE)
 
     @staticmethod
+    def pair_cancelpairing():
+        isSuccessfull = True
+        try:
+            bleAdapter.getDeviceInterface(
+                bleAdapter.remoteDevice).Pair(
+                reply_handler=pairingSuccess,
+                error_handler=pairingError,
+                timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
+            bleAdapter.getDeviceInterface(
+                bleAdapter.remoteDevice).CancelPairing(
+                reply_handler=pairingSuccess,
+                error_handler=pairingError,
+                timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
+            mainloop.run()
+            isSuccessfull = not (pairingEvent.get())
+        except Exception as e:
+            print("BLE ADAPTER: Unable to pair, error: " + str(e))
+            sys.stdout.flush()
+            isSuccessfull = False
+        return isSuccessfull
+
+    @staticmethod
     def pair():
         isSuccessfull = True
         try:
