@@ -1615,14 +1615,14 @@ uint8_t ucProtocol;
 					if ( ( pxNetworkBuffer->xDataLength >= sizeof( UDPPacket_t ) ) && ( FreeRTOS_ntohs( pxUDPPacket->xUDPHeader.usLength ) >= sizeof( UDPHeader_t ) ) )
 					{
 					size_t uxPayloadSize_1, uxPayloadSize_2;
-						/* Ensure that downstream UDP packet handling has the lesser
-						 * of: the actual network buffer Ethernet frame length, or
-						 * the sender's UDP packet header payload length, minus the
-						 * size of the UDP header.
-						 *
-						 * The size of the UDP packet structure in this implementation
-						 * includes the size of the Ethernet header, the size of
-						 * the IP header, and the size of the UDP header.
+						/* The UDP payload size can be calculated by subtracting the
+						 * header size from `xDataLength`.
+						 * However, the `xDataLength` may be longer that expected,
+						 * e.g. when a small packet is padded with zero's.
+						 * The UDP header contains a field `usLength` reflecting
+						 * the payload size plus the UDP header ( 8 bytes ).
+						 * Set `xDataLength` to the size of the headers,
+						 * plus the lower of the two calculated payload sizes.
 						 */
 
 						uxPayloadSize_1 = pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t );
