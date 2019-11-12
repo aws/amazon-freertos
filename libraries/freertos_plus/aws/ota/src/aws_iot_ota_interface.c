@@ -93,7 +93,7 @@ OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint
 		if (NULL != strstr((const char*)pucProtocol, pcProtocolPriority[i]))
 		{
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
-			if ( strcmp( pcProtocolPriority[i], "MQTT" ) )
+			if ( strcmp( pcProtocolPriority[i], "MQTT" ) == 0 )
 			{
 				pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
 				pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
@@ -108,7 +108,7 @@ OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint
 #endif
 
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
-			if ( strcmp(pcProtocolPriority[i], "HTTP" )
+			if ( strcmp(pcProtocolPriority[i], "HTTP") == 0 )
 			{
 				pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
 				pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Http;
