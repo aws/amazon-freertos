@@ -49,9 +49,17 @@
   * than one protocol is selected while creating OTA job. 
   */
 #if ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_MQTT )
-uint8_t aucDataProtocol[] = "MQTT";
+    const char* pcProtocolPriority[ OTA_DATA_NUM_PROTOCOLS ] =
+    {
+	    "MQTT",
+	    "HTTP"
+    };
 # elif ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_HTTP )
-uint8_t aucDataProtocol[] = "HTTP";
+    const char* pcProtocolPriority[ OTA_DATA_NUM_PROTOCOLS ] =
+    {
+	    "HTTP",
+	    "MQTT"
+	};
 #endif
 
 
@@ -67,26 +75,43 @@ void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface )
 
 }
 
-void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *  pucProtocol )
+OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *  pucProtocol )
 {
+	OTA_Err_t xErr = kOTA_Err_Uninitialized;
+	uint32_t i;
 
+	for (i = 0; i < OTA_DATA_NUM_PROTOCOLS; i++)
+	{
+		if (NULL != strstr((const char*)pucProtocol, pcProtocolPriority[i]))
+		{
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
-   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
-   {
-	   pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
-	   pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
-	   pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
-	   pxDataInterface->prvCleanup = prvCleanup_Mqtt;
-   }
+			if ( strcmp( pcProtocolPriority[i], "MQTT" ) )
+			{
+				pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
+				pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
+				pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
+				pxDataInterface->prvCleanup = prvCleanup_Mqtt;
+
+				xErr = kOTA_Err_None;
+				break;
+			}
 #endif
 
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
-   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
-   {
-       pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
-       pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Http;
-       pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Http;
-       pxDataInterface->prvCleanup = prvCleanup_Http;
-   }
+			if ( strcmp(pcProtocolPriority[i], "HTTP" )
+			{
+				pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Http;
+				pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Http;
+				pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Http;
+				pxDataInterface->prvCleanup = prvCleanup_Http;
+
+				xErr = kOTA_Err_None;
+				break;
+			}
 #endif
+
+		}
+	}
+
+	return xErr;
 }
