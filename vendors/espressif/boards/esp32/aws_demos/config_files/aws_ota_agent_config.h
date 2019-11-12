@@ -123,7 +123,7 @@
  * Enable data over HTTP - ( OTA_DATA_OVER_HTTP)
  * Enable data over both MQTT & HTTP ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
  */
-#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT )
+#define configENABLED_DATA_PROTOCOLS         ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
 
  /**
   * @brief The preferred protocol selected for OTA data operations.
