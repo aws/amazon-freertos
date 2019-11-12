@@ -123,13 +123,6 @@ typedef union MultiParmPtr
     void ** ppvPtr;
 } MultiParmPtr_t;
 
-typedef struct
-{
-	void* pvControlClient;
-	const IotNetworkInterface_t* pxNetworkInterface;
-	void* pvNetworkCredentials;
-} OTAConnectionContext_t;
-
 /*
  *  Function pointer definition for the event handlers.
  */
@@ -345,9 +338,7 @@ static OTA_AgentContext_t xOTA_Agent =
 {
     .eState                        = eOTA_AgentState_Stopped,
     .pcThingName                   = { 0 },
-    .pvClient                      = NULL,
-    .pxNetworkInterface            = NULL,
-    .pvNetworkCredentials          = NULL,
+    .pvConnectionContext           = NULL,
     .pxOTA_Files                   = { { 0 } }, /*lint !e910 !e9080 Zero initialization of all members of the single file context structure.*/
     .ulServerFileID                = 0,
     .pcOTA_Singleton_ActiveJobName = NULL,
@@ -2559,7 +2550,7 @@ BaseType_t OTA_SignalEvent( const OTAEventMsg_t * const pxEventMsg )
  * modify the existing OTA agent context. You must first call OTA_AgentShutdown()
  * successfully.
  */
-OTA_State_t OTA_AgentInit( void * pvClient,
+OTA_State_t OTA_AgentInit( void * pvConnectionContext,
                            const uint8_t * pcThingName,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait )
@@ -2578,12 +2569,12 @@ OTA_State_t OTA_AgentInit( void * pvClient,
      */
     xDefaultCallbacks.xCompleteCallback = xFunc;
 
-    xState = OTA_AgentInit_internal( pvClient, pcThingName, &xDefaultCallbacks, xTicksToWait );
+    xState = OTA_AgentInit_internal( pvConnectionContext, pcThingName, &xDefaultCallbacks, xTicksToWait );
 
     return xState;
 }
 
-OTA_State_t OTA_AgentInit_internal( void * pvClient,
+OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
                                     const uint8_t * pcThingName,
                                     OTA_PAL_Callbacks_t * xCallbacks,
                                     TickType_t xTicksToWait )
@@ -2594,7 +2585,6 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
     uint32_t ulIndex;
     BaseType_t xReturn = 0;
     OTAEventMsg_t xEventMsg = { 0 };
-	OTAConnectionContext_t* pxConnectionCtx;
 
     /*
 	 * The actual OTA queue control structure. Only created once.
@@ -2740,12 +2730,9 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
             xOTA_Agent.eImageState = eOTA_ImageState_Unknown;
 
 			/*
-			 * Save the current connection client as specified by the user.
+			 * Save the current connection context provided by the user.
 			 */
-			pxConnectionCtx = (OTAConnectionContext_t*) pvClient;
-			xOTA_Agent.pvClient = pxConnectionCtx->pvControlClient;
-            xOTA_Agent.pxNetworkInterface = pxConnectionCtx->pxNetworkInterface;
-            xOTA_Agent.pvNetworkCredentials= pxConnectionCtx->pvNetworkCredentials;
+			xOTA_Agent.pvConnectionContext = pvConnectionContext;
 
             /*
 			 * Create the queue used to pass event messages to the OTA task.

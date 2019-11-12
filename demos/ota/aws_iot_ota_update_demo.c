@@ -98,13 +98,6 @@ static MqttConnectionContext_t xConnection =
     .xDisconnectCallback = prvNetworkDisconnectCallback
 };
 
-typedef struct
-{
-	void* pvControlClient;
-	const IotNetworkInterface_t* pxNetworkInterface;
-	void* pvNetworkCredentials;
-} OTAConnectionContext_t;
-
 /**
  * @brief Network manager subscription callback.
  */
@@ -214,7 +207,7 @@ void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
 {
     IotMqttConnectInfo_t xConnectInfo = IOT_MQTT_CONNECT_INFO_INITIALIZER;
     OTA_State_t eState;
-    OTAConnectionContext_t xOTAConnectionCtx = { 0 };
+    OTA_ConnectionContext_t xOTAConnectionCtx = { 0 };
 
     configPRINTF( ( "OTA demo version %u.%u.%u\r\n",
                     xAppFirmwareVersion.u.x.ucMajor,
@@ -254,9 +247,9 @@ void vRunOTAUpdateDemo( const IotNetworkInterface_t * pNetworkInterface,
                                  otaDemoCONN_TIMEOUT_MS, &( xConnection.xMqttConnection ) ) == IOT_MQTT_SUCCESS )
             {
                 configPRINTF( ( "Connected to broker.\r\n" ) );
-				xOTAConnectionCtx.pvControlClient = xConnection.xMqttConnection;
-				xOTAConnectionCtx.pxNetworkInterface = pNetworkInterface;
-				xOTAConnectionCtx.pvNetworkCredentials = pNetworkCredentialInfo;
+                xOTAConnectionCtx.pvControlClient = xConnection.xMqttConnection;
+                xOTAConnectionCtx.pxNetworkInterface = ( void * ) pNetworkInterface;
+                xOTAConnectionCtx.pvNetworkCredentials = pNetworkCredentialInfo;
 
                 OTA_AgentInit( ( void * ) ( &xOTAConnectionCtx ), ( const uint8_t * ) ( clientcredentialIOT_THING_NAME ), App_OTACompleteCallback, ( TickType_t ) ~0 );
 

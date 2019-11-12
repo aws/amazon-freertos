@@ -137,7 +137,7 @@ typedef uint32_t OTA_Err_t;
 /**
  * @defgroup OTA Error code operation helpers.
  * @brief Helper constanteiis for extracting the error code from the OTA error returned.
- * 
+ *
  * OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
  * merged with a platform specific code in the lower 24 bits. You must refer to the platform PAL
  * layer in use to determine the meaning of the lower 24 bits.
@@ -149,7 +149,7 @@ typedef uint32_t OTA_Err_t;
 /**
  * @defgroup OTA Agent error codes.
  * @brief Error codes returned by OTA agent API.
- * 
+ *
  * @note OTA agent error codes are in the upper 8 bits of the 32 bit OTA error word, OTA_Err_t.
  */
 #define kOTA_Err_Panic                   0xfe000000UL     /*!< Unrecoverable FW error. Probably should log error and reboot. */
@@ -271,6 +271,18 @@ typedef struct
     bool_t xIsInSelfTest;       /*!< True if the job is in self test mode. */
 	uint8_t * pucProtocols;     /*!< Authorization scheme. */
 } OTA_FileContext_t;
+
+/**
+ * @brief OTA Connection context.
+ *
+ * Connection information that user provides to initialize control and data transfer for OTA.
+ */
+typedef struct
+{
+    void * pvControlClient;
+    const void * pxNetworkInterface;
+    void * pvNetworkCredentials;
+} OTA_ConnectionContext_t;
 
 
 /**

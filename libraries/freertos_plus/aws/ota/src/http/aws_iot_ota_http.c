@@ -35,6 +35,9 @@
 #include "iot_https_client.h"
 #include "iot_https_utils.h"
 
+/* Network manager. */
+#include "platform/iot_network.h"
+
 /* OTA includes. */
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_agent_internal.h"
@@ -792,8 +795,9 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     bool cleanupRequired = false;
 
     /* Network interface and credentials from OTA agent. */
-    IotNetworkCredentials_t * pNetworkCredentials = ( IotNetworkCredentials_t * ) ( pAgentCtx->pvNetworkCredentials );
-    const IotNetworkInterface_t * pNetworkInterface = pAgentCtx->pxNetworkInterface;
+    OTA_ConnectionContext_t * connContext = pAgentCtx->pvConnectionContext;
+    const IotNetworkInterface_t * pNetworkInterface = connContext->pxNetworkInterface;
+    IotNetworkCredentials_t * pNetworkCredentials = connContext->pvNetworkCredentials;
 
     /* Get pre-signed URL from pAgentCtx. */
     const char * pURL = ( const char * )( pAgentCtx->pxOTA_Files[ pAgentCtx->ulFileIndex ].pucUpdateUrlPath );

@@ -41,9 +41,6 @@
 #include "queue.h"
 #include "semphr.h"
 
-/* Network manager. */
-#include "platform/iot_network.h"
-
 /* Type definitions for OTA Agent */
 #include "aws_iot_ota_types.h"
 
@@ -240,9 +237,7 @@ typedef struct ota_agent_context
 {
     OTA_State_t eState;                                     /* State of the OTA agent. */
     uint8_t pcThingName[ otaconfigMAX_THINGNAME_LEN + 1U ]; /* Thing name + zero terminator. */
-	void* pvClient;
-	const IotNetworkInterface_t* pxNetworkInterface;
-	void* pvNetworkCredentials;
+	void* pvConnectionContext;                              /* Connection context for control and data plane. */
     OTA_FileContext_t pxOTA_Files[ OTA_MAX_FILES ];         /* Static array of OTA file structures. */
 	uint32_t ulFileIndex;                                   /* Static array of OTA file structures. */
     uint32_t ulServerFileID;                                /* Variable to store current file ID passed down */
