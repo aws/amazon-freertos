@@ -343,7 +343,7 @@ void runDemoTask( void * pArgument )
             xAfterDemoHeapSize = democonfigMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
             IotLogInfo( "memory_metrics:freertos_heap:before:bytes:%u", xBeforeDemoHeapSize );
             IotLogInfo( "memory_metrics:freertos_heap:after:bytes:%u", xAfterDemoHeapSize );
-    
+
             xAfterDemoTaskWaterMark = democonfigMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
             IotLogInfo( "memory_metrics:demo_task_stack:before:bytes:%u", xBeforeDemoTaskWaterMark );
             IotLogInfo( "memory_metrics:demo_task_stack:after:bytes:%u", xAfterDemoTaskWaterMark );
