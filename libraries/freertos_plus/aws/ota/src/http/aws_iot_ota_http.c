@@ -38,6 +38,7 @@
 /* OTA includes. */
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_agent_internal.h"
+#include "aws_iot_ota_http.h"
 
 /* Logging includes. */
 #ifdef IOT_LOG_LEVEL_GLOBAL
