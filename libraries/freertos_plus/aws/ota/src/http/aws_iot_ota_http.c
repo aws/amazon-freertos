@@ -791,8 +791,8 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     bool cleanupRequired = false;
 
     /* Network interface and credentials from OTA agent. */
-    IotNetworkCredentials_t * pNetworkCredentials = ( IotNetworkCredentials_t * ) ( pAgentCtx->pNetworkCredentialInfo );
-    const IotNetworkInterface_t * pNetworkInterface = pAgentCtx->pNetworkInterface;
+    IotNetworkCredentials_t * pNetworkCredentials = ( IotNetworkCredentials_t * ) ( pAgentCtx->pvNetworkCredentials );
+    const IotNetworkInterface_t * pNetworkInterface = pAgentCtx->pxNetworkInterface;
 
     /* Get pre-signed URL from pAgentCtx. */
     const char * pURL = ( const char * )( pAgentCtx->pxOTA_Files[ pAgentCtx->ulFileIndex ].pucUpdateUrlPath );

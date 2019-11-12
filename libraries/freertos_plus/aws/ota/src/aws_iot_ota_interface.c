@@ -108,7 +108,7 @@ OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint
 #endif
 
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
-			if ( strcmp(pcProtocolPriority[i], "HTTP" )
+			if ( strcmp(pcProtocolPriority[i], "HTTP" ) )
 			{
 				pxDataInterface->prvInitFileTransfer = _AwsIotOTA_InitFileTransfer_HTTP;
 				pxDataInterface->prvRequestFileBlock = _AwsIotOTA_RequestDataBlock_HTTP;
