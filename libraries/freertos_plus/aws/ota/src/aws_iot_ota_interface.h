@@ -49,8 +49,8 @@
   */
 typedef struct
 {
-	OTA_Err_t ( *prvRequestJob )( const OTA_AgentContext_t * pAgentCtx );
-	OTA_Err_t ( *prvUpdateJobStatus )( const OTA_AgentContext_t * pxAgentCtx,
+	OTA_Err_t ( *prvRequestJob )( OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t ( *prvUpdateJobStatus )( OTA_AgentContext_t * pxAgentCtx,
 		        OTA_JobStatus_t eStatus,
 		        int32_t lReason,
 		        int32_t lSubReason );
@@ -64,8 +64,8 @@ typedef struct
   */
 typedef struct
 {
-	OTA_Err_t ( *prvInitFileTransfer )( const OTA_AgentContext_t * pAgentCtx );
-	OTA_Err_t ( *prvRequestFileBlock )( const OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t ( *prvInitFileTransfer )( OTA_AgentContext_t * pAgentCtx );
+	OTA_Err_t ( *prvRequestFileBlock )( OTA_AgentContext_t * pAgentCtx );
 	OTA_Err_t ( *prvDecodeFileBlock )( uint8_t* pucMessageBuffer,
 		size_t xMessageSize,
 		int32_t* plFileId,
@@ -73,7 +73,7 @@ typedef struct
 		int32_t* plBlockSize,
 		uint8_t** ppucPayload,
 		size_t* pxPayloadSize );
-	OTA_Err_t( *prvCleanup )( const OTA_AgentContext_t* pAgentCtx );
+	OTA_Err_t( *prvCleanup )( OTA_AgentContext_t* pAgentCtx );
 } OTA_DataInterface_t;
 
 /**
