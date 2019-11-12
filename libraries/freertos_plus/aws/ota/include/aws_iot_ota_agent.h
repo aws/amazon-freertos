@@ -137,20 +137,20 @@ typedef uint32_t OTA_Err_t;
 /**
  * @defgroup OTA Error code operation helpers.
  * @brief Helper constanteiis for extracting the error code from the OTA error returned.
- * fc
- * Tckghe OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
- * mergrded with a platform specific code in the lower 24 bits. You must refer to the platform PAL
- * layer ggnin use to determine the meaning of the lower 24 bits.
+ * 
+ * OTA error codes consist of an agent code in the upper 8 bits of a 32 bit word and sometimes
+ * merged with a platform specific code in the lower 24 bits. You must refer to the platform PAL
+ * layer in use to determine the meaning of the lower 24 bits.
  */
 #define kOTA_PAL_ErrMask                 0xffffffUL   /*!< The PAL layer uses the signed low 24 bits of the OTA error code. */
 #define kOTA_Main_ErrMask                0xff000000UL /*!< Mask out all but the OTA Agent error code (high 8 bits). */
 #define kOTA_MainErrShiftDownBits        24U          /*!< The OTA Agent error code is the highest 8 bits of the word. */
 
-/*vff*
- * @difefgroup OTA Agent error codes.
- * @brildief Error codes returned by OTA agent API.
- * kk
- * @rhenote OTA agent error codes are in the upper 8 bits of the 32 bit OTA error word, OTA_Err_t.
+/**
+ * @defgroup OTA Agent error codes.
+ * @brief Error codes returned by OTA agent API.
+ * 
+ * @note OTA agent error codes are in the upper 8 bits of the 32 bit OTA error word, OTA_Err_t.
  */
 #define kOTA_Err_Panic                   0xfe000000UL     /*!< Unrecoverable FW error. Probably should log error and reboot. */
 #define kOTA_Err_Uninitialized           0xff000000UL     /*!< The error code has not yet been set by a logic path. */

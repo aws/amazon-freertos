@@ -452,7 +452,7 @@ static void prvDataPublishCallback( void * pvCallbackContext,
  * a "get next job" message to the job service.
  */
 
-OTA_Err_t prvRequestJob_Mqtt( const OTA_AgentContext_t* pxAgentCtx)
+OTA_Err_t prvRequestJob_Mqtt( OTA_AgentContext_t* pxAgentCtx)
 {
 	DEFINE_OTA_METHOD_NAME("prvRequestJob_Mqtt");
 
@@ -518,10 +518,10 @@ OTA_Err_t prvRequestJob_Mqtt( const OTA_AgentContext_t* pxAgentCtx)
 /*
  * Update the job status on the service side with progress or completion info.
  */
-void prvUpdateJobStatus_Mqtt( const OTA_AgentContext_t * pxAgentCtx,
-                              OTA_JobStatus_t eStatus,
-                              int32_t lReason,
-                              int32_t lSubReason )
+OTA_Err_t prvUpdateJobStatus_Mqtt( OTA_AgentContext_t * pxAgentCtx,
+                                   OTA_JobStatus_t eStatus,
+                                   int32_t lReason,
+                                   int32_t lSubReason )
 {
     DEFINE_OTA_METHOD_NAME( "prvUpdateJobStatus_Mqtt" );
 
@@ -690,12 +690,14 @@ void prvUpdateJobStatus_Mqtt( const OTA_AgentContext_t * pxAgentCtx,
     {
         /* Just ignore the zero length message. */
     }
+
+    return kOTA_Err_None;
 }
 
 /*
  * Init file transfer by subscribing to the OTA data stream topic.
  */
-OTA_Err_t prvInitFileTransfer_Mqtt( const OTA_AgentContext_t * pxAgentCtx )
+OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 {
     DEFINE_OTA_METHOD_NAME( "prvInitFileTransfer_Mqtt" );
 
@@ -741,7 +743,7 @@ OTA_Err_t prvInitFileTransfer_Mqtt( const OTA_AgentContext_t * pxAgentCtx )
 /*
  * Request file block by publishing to the get stream topic.
  */
-OTA_Err_t prvRequestFileBlock_Mqtt( const OTA_AgentContext_t * pxAgentCtx)
+OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx)
 {
 	DEFINE_OTA_METHOD_NAME("prvRequestFileBlock_Mqtt");
 
@@ -879,7 +881,7 @@ OTA_Err_t prvDecodeFileBlock_Mqtt( uint8_t* pucMessageBuffer,
  * Perform any cleanup operations required like unsubscribing from
  * job topics.
  */
-OTA_Err_t prvCleanup_Mqtt( const OTA_AgentContext_t* pxAgentCtx )
+OTA_Err_t prvCleanup_Mqtt( OTA_AgentContext_t* pxAgentCtx )
 {
 	DEFINE_OTA_METHOD_NAME("prvCleanup_Mqtt");
 
