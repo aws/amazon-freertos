@@ -36,38 +36,38 @@
 #include "FreeRTOSConfig.h"
 
 /* tcpip_thread should run on HIGH priority */
-#define TCPIP_THREAD_NAME              "lwIP"
-#define TCPIP_THREAD_STACKSIZE         (512 * 4)
-#define TCPIP_THREAD_PRIO              tskIDLE_PRIORITY + 5
+#define TCPIP_THREAD_NAME             "lwIP"
+#define TCPIP_THREAD_STACKSIZE        ( 512 * 4 )
+#define TCPIP_THREAD_PRIO             tskIDLE_PRIORITY + 5
 
 
-#define TCPIP_MBOX_SIZE                 16
-#define DEFAULT_RAW_RECVMBOX_SIZE       16
-#define DEFAULT_UDP_RECVMBOX_SIZE       16
-#define DEFAULT_TCP_RECVMBOX_SIZE       16
-#define DEFAULT_ACCEPTMBOX_SIZE         16
+#define TCPIP_MBOX_SIZE               16
+#define DEFAULT_RAW_RECVMBOX_SIZE     16
+#define DEFAULT_UDP_RECVMBOX_SIZE     16
+#define DEFAULT_TCP_RECVMBOX_SIZE     16
+#define DEFAULT_ACCEPTMBOX_SIZE       16
 
-//fix http IOT issue
-#define LWIP_WND_SCALE                  1
-#define TCP_RCV_SCALE                   1
-#define MEMP_NUM_NETDB                  4
+/*fix http IOT issue */
+#define LWIP_WND_SCALE                1
+#define TCP_RCV_SCALE                 1
+#define MEMP_NUM_NETDB                4
 
 /*
  *-----------------------------
  * Socket options
  * ----------------------------
  */
-#define LWIP_NETBUF_RECVINFO            1
-#define LWIP_SOCKET                     1
+#define LWIP_NETBUF_RECVINFO          1
+#define LWIP_SOCKET                   1
 
-//fix reuse address issue
-#define SO_REUSE                        1
-#define LWIP_SO_SNDTIMEO                1
-#define LWIP_SO_RCVTIMEO                1
-//for ip display
-#define LWIP_NETIF_STATUS_CALLBACK      1
+/*fix reuse address issue */
+#define SO_REUSE                      1
+#define LWIP_SO_SNDTIMEO              1
+#define LWIP_SO_RCVTIMEO              1
+/*for ip display */
+#define LWIP_NETIF_STATUS_CALLBACK    1
 
-#define ETH_PAD_SIZE                    0
+#define ETH_PAD_SIZE                  0
 
 
 /**
@@ -77,86 +77,86 @@
  *     LWIP_CALLBACK_API==1: The PCB callback function is called directly
  *         for the event. This is the default.
  */
-#define LWIP_EVENT_API                  0
-#define LWIP_CALLBACK_API               1
+#define LWIP_EVENT_API       0
+#define LWIP_CALLBACK_API    1
 
 /*
-   ------------------------------------
-   ---------- Memory options ----------
-   ------------------------------------
+ * ------------------------------------
+ * ---------- Memory options ----------
+ * ------------------------------------
  */
 
 /**
  * MEM_SIZE: the size of the heap memory. If the application will send
  * a lot of data that needs to be copied, this should be set high.
  */
-#define MEM_SIZE                        (10 * 1024)
+#define MEM_SIZE    ( 10 * 1024 )
 
 /*
-   ------------------------------------------------
-   ---------- Internal Memory Pool Sizes ----------
-   ------------------------------------------------
-*/
+ * ------------------------------------------------
+ * ---------- Internal Memory Pool Sizes ----------
+ * ------------------------------------------------
+ */
 
 /* MEMP_NUM_UDP_PCB: the number of UDP protocol control blocks. One
-   per active UDP "connection". */
-#define MEMP_NUM_UDP_PCB        8
+ * per active UDP "connection". */
+#define MEMP_NUM_UDP_PCB           8
 
 /* MEMP_NUM_TCP_PCB: the number of simulatenously active TCP
-   connections. */
-#define MEMP_NUM_TCP_PCB        32
+ * connections. */
+#define MEMP_NUM_TCP_PCB           32
 
 /* MEMP_NUM_TCP_PCB_LISTEN: the number of listening TCP
-   connections. */
-#define MEMP_NUM_TCP_PCB_LISTEN 32  //16 original
+ * connections. */
+#define MEMP_NUM_TCP_PCB_LISTEN    32 /*16 original */
 
 /* MEMP_NUM_TCP_SEG: the number of simultaneously queued TCP
-   segments. */
-#define MEMP_NUM_TCP_SEG        255
+ * segments. */
+#define MEMP_NUM_TCP_SEG           255
 
 /* MEMP_NUM_ARP_QUEUE: the number of simulateously queued outgoing
-   packets (pbufs) that are waiting for an ARP request (to resolve
-   their destination address) to finish. (requires the ARP_QUEUEING option) */
-#define MEMP_NUM_ARP_QUEUE      8
+ * packets (pbufs) that are waiting for an ARP request (to resolve
+ * their destination address) to finish. (requires the ARP_QUEUEING option) */
+#define MEMP_NUM_ARP_QUEUE         8
 
 /**
  * MEMP_NUM_NETCONN: the number of struct netconns.
  * (only needed if you use the sequential API, like api_lib.c)
  */
-#define MEMP_NUM_NETCONN        32
+#define MEMP_NUM_NETCONN           32
 
 
 /*
-   ----------------------------------
-   ---------- Pbuf options ----------
-   ----------------------------------
+ * ----------------------------------
+ * ---------- Pbuf options ----------
+ * ----------------------------------
  */
 
 
 /* PBUF_POOL_BUFSIZE: the size of each pbuf in the pbuf pool.
-   MT7687 packets have extra TXD header and packet offset. */
-#define PBUF_POOL_BUFSIZE       (1536 + 128)
+ * MT7687 packets have extra TXD header and packet offset. */
+#define PBUF_POOL_BUFSIZE    ( 1536 + 128 )
 
 /*
-   ---------------------------------
-   ---------- TCP options ----------
-   ---------------------------------
+ * ---------------------------------
+ * ---------- TCP options ----------
+ * ---------------------------------
  */
 
 
 /* TCP Maximum segment size. */
-#define TCP_MSS                 1476
+#define TCP_MSS        1476
 
 /* TCP sender buffer space (bytes). */
-#define TCP_SND_BUF             (24 * 1024) //(12 * 1024)
+#define TCP_SND_BUF    ( 24 * 1024 )        /*(12 * 1024) */
 
 /* TCP receive window. */
-#define TCP_WND                 (24 * 1024)
+#define TCP_WND        ( 24 * 1024 )
 
 /*
-   ---------------------------------
-   ---------- ARP options ----------
-   ---------------------------------
+ * ---------------------------------
+ * ---------- ARP options ----------
+ * ---------------------------------
  */
 
 
@@ -167,43 +167,43 @@
  * startup time. Set this to 1 if you know your application sends more than one
  * packet in a row to an IP address that is not in the ARP cache.
  */
-#define ARP_QUEUEING            1
+#define ARP_QUEUEING    1
 
 
 /*
-   ---------------------------------
-   ---------- DHCP options ---------
-   ---------------------------------
+ * ---------------------------------
+ * ---------- DHCP options ---------
+ * ---------------------------------
  */
 
 
 /* Define LWIP_DHCP to 1 if you want DHCP configuration of
-   interfaces. */
-#define LWIP_DHCP               1
+ * interfaces. */
+#define LWIP_DHCP    1
 
 /* 1 if you want to do an ARP check on the offered address
-   (recommended). */
+ * (recommended). */
 
 /**
  * DHCP_DOES_ARP_CHECK==1: Do an ARP check on the offered address.
  */
-#define DHCP_DOES_ARP_CHECK     0
+#define DHCP_DOES_ARP_CHECK    0
 
 
 /*
-   ----------------------------------
-   ---------- DNS options -----------
-   ----------------------------------
-*/
+ * ----------------------------------
+ * ---------- DNS options -----------
+ * ----------------------------------
+ */
 
 
-#define LWIP_DNS               1
+#define LWIP_DNS    1
 
 
 /*
-   ------------------------------------------------
-   ---------- Network Interfaces options ----------
-   ------------------------------------------------
+ * ------------------------------------------------
+ * ---------- Network Interfaces options ----------
+ * ------------------------------------------------
  */
 
 
@@ -211,21 +211,21 @@
  * LWIP_NETIF_LOOPBACK==1: Support sending packets with a destination IP
  * address equal to the netif IP address, looping them back up the stack.
  */
-#define LWIP_NETIF_LOOPBACK     1
+#define LWIP_NETIF_LOOPBACK    1
 
 
 /**
  * LWIP_LOOPBACK_MAX_PBUFS: Maximum number of pbufs on queue for loopback
  * sending for each netif (0 = disabled)
  */
-#define LWIP_LOOPBACK_MAX_PBUFS 12
+#define LWIP_LOOPBACK_MAX_PBUFS    12
 
 
 /** LWIP_NETCONN_SEM_PER_THREAD==1: Use one (thread-local) semaphore per
  * thread calling socket/netconn functions instead of allocating one
  * semaphore per netconn (and per select etc.)
  */
-#define LWIP_NETCONN_SEM_PER_THREAD     1
+#define LWIP_NETCONN_SEM_PER_THREAD    1
 
 /** LWIP_NETCONN_FULLDUPLEX==1: Enable code that allows reading from one thread,
  * writing from a 2nd thread and closing from a 3rd thread at the same time.
@@ -235,33 +235,34 @@
  * - sys_mbox_free() has to unblock receive tasks waiting on recvmbox/acceptmbox
  *   and prevent a task pending on this during/after deletion
  */
-#define LWIP_NETCONN_FULLDUPLEX         1
+#define LWIP_NETCONN_FULLDUPLEX        1
 
 
 /*
-   ------------------------------------
-   ----------- Debug options ----------
-   ------------------------------------
+ * ------------------------------------
+ * ----------- Debug options ----------
+ * ------------------------------------
  */
 
-//#define LWIP_DEBUG
-//#define UDP_DEBUG LWIP_DBG_ON
-//#define SOCKETS_DEBUG LWIP_DBG_ON
-#define NETIF_DEBUG LWIP_DBG_ON
-//#define ETHARP_DEBUG LWIP_DBG_ON
-//#define DHCP_DEBUG LWIP_DBG_ON
-//#define IP_DEBUG LWIP_DBG_ON
+/*#define LWIP_DEBUG */
+/*#define UDP_DEBUG LWIP_DBG_ON */
+/*#define SOCKETS_DEBUG LWIP_DBG_ON */
+#define NETIF_DEBUG    LWIP_DBG_ON
+/*#define ETHARP_DEBUG LWIP_DBG_ON */
+/*#define DHCP_DEBUG LWIP_DBG_ON */
+/*#define IP_DEBUG LWIP_DBG_ON */
 
 
 /*
  * Use the errno.h mechanism from FreeRTOS.
  */
 #if ( configUSE_POSIX_ERRNO == 1 )
-    /**
-     * @brief System error variable, errno.
-     */
+
+/**
+ * @brief System error variable, errno.
+ */
     extern int FreeRTOS_errno;
-    #define errno FreeRTOS_errno
+    #define errno    FreeRTOS_errno
 #endif
 
 #endif /* __LWIPOPTS_FREERTOS_H__ */
