@@ -32,6 +32,7 @@ import time
 from testClass import runTest
 from bleAdapter import bleAdapter
 
+
 def main():
     scan_filter = dict()
 
@@ -79,7 +80,9 @@ def main():
 
     # CHeck long write
     isTestSuccessFull = runTest.writereadLongCharacteristic()
-    runTest.submitTestResult(isTestSuccessFull, runTest.writereadLongCharacteristic)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.writereadLongCharacteristic)
 
     # Check read/write, simple connection
     isTestSuccessFull = runTest.readWriteSimpleConnection()
@@ -143,7 +146,7 @@ def main():
     bleAdapter.stopDiscovery()
     runTest.reconnectWhileBonded()
 
-    #Test to wait for a disconnect from DUT.
+    # Test to wait for a disconnect from DUT.
     runTest.waitForDisconnect()
 
     # reconnect while not bonded. Pairing should fail since Just works is not

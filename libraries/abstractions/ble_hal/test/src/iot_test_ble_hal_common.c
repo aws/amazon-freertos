@@ -805,9 +805,9 @@ void IotTestBleHal_CreateServiceC()
 #endif
 
 void IotTestBleHal_WriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                               bool bNeedRsp,
-                               bool IsPrep,
-                               uint16_t usOffset )
+                                          bool bNeedRsp,
+                                          bool IsPrep,
+                                          uint16_t usOffset )
 {
     BLETESTwriteAttrCallback_t xWriteEvent;
 

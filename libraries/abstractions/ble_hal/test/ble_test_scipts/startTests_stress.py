@@ -39,19 +39,19 @@ def main():
     STRESS_TIER = 1
 
     if (STRESS_TIER == 0):
-        STRESS_TEST_INIT_REPETITION   = 1
+        STRESS_TEST_INIT_REPETITION = 1
         STRESS_TEST_ENABLE_REPETITION = 1
         STRESS_TEST_MODULE_REPETITION = 1
     elif (STRESS_TIER == 1):
-        STRESS_TEST_INIT_REPETITION   = 1
+        STRESS_TEST_INIT_REPETITION = 1
         STRESS_TEST_ENABLE_REPETITION = 1
         STRESS_TEST_MODULE_REPETITION = 10
     elif (STRESS_TIER == 2):
-        STRESS_TEST_INIT_REPETITION   = 2
+        STRESS_TEST_INIT_REPETITION = 2
         STRESS_TEST_ENABLE_REPETITION = 10
         STRESS_TEST_MODULE_REPETITION = 100
     elif (STRESS_TIER == 3):
-        STRESS_TEST_INIT_REPETITION   = 3
+        STRESS_TEST_INIT_REPETITION = 3
         STRESS_TEST_ENABLE_REPETITION = 100
         STRESS_TEST_MODULE_REPETITION = 1000
 
@@ -64,7 +64,9 @@ def main():
 
     scan_filter.update({"UUIDs": [runTest.DUT_UUID_128]})
 
-    for i in range(STRESS_TEST_INIT_REPETITION * STRESS_TEST_ENABLE_REPETITION):
+    for i in range(
+            STRESS_TEST_INIT_REPETITION *
+            STRESS_TEST_ENABLE_REPETITION):
         bleAdapter.setDiscoveryFilter(scan_filter)
         for j in range(STRESS_TEST_MODULE_REPETITION):
             if i == 0 and j == 0:
@@ -97,7 +99,7 @@ def main():
         # Check attribute table properties
         isTestSuccessFull &= runTest.checkProperties(bleAdapter.gatt)
 
-            # Check read/write, simple connection
+        # Check read/write, simple connection
         for i in range(STRESS_TEST_MODULE_REPETITION):
             isTestSuccessFull &= runTest.readWriteSimpleConnection()
             runTest.submitTestResult(

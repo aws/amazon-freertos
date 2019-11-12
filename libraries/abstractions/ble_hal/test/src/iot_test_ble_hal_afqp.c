@@ -284,9 +284,9 @@ TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
     IotTestBleHal_WaitConnection( true );
 
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
-                              true,
-                              false,
-                              0 );
+                                         true,
+                                         false,
+                                         0 );
 }
 
 
@@ -314,17 +314,17 @@ TEST( Full_BLE, BLE_Connection_Disconnect_From_Peripheral )
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr )
 {
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_B,
-                              true,
-                              false,
-                              0 );
+                                         true,
+                                         false,
+                                         0 );
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar )
 {
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
-                              true,
-                              false,
-                              0 );
+                                         true,
+                                         false,
+                                         0 );
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4 )
@@ -332,9 +332,9 @@ TEST( Full_BLE, BLE_Connection_Mode1Level4 )
     IotTestBleHal_CreateSecureConnection_Model1Level4( true );
 
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
-                              true,
-                              false,
-                              0 );
+                                         true,
+                                         false,
+                                         0 );
 }
 
 /* TODO: to confirm ExecuteWrite doesn't need Resp */
@@ -504,9 +504,9 @@ TEST( Full_BLE, BLE_Property_Notification )
 TEST( Full_BLE, BLE_Property_WriteNoResponse )
 {
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_D,
-                              false,
-                              false,
-                              0 );
+                                         false,
+                                         false,
+                                         0 );
 }
 
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute )
@@ -574,17 +574,17 @@ TEST( Full_BLE, BLE_Property_ReadCharacteristic )
 TEST( Full_BLE, BLE_Property_WriteDescriptor )
 {
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_A,
-                              true,
-                              false,
-                              0 );
+                                         true,
+                                         false,
+                                         0 );
 }
 
 TEST( Full_BLE, BLE_Property_WriteCharacteristic )
 {
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                              true,
-                              false,
-                              0 );
+                                         true,
+                                         false,
+                                         0 );
 }
 
 /**
@@ -613,9 +613,9 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
         }
 
         IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                                  true,
-                                  true,
-                                  bletestsMTU_SIZE1 - 5 );
+                                             true,
+                                             true,
+                                             bletestsMTU_SIZE1 - 5 );
         prvExecuteWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
                                          true );
     }

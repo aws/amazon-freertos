@@ -80,25 +80,33 @@ TEST_GROUP_RUNNER( Full_BLE_Stress_Test )
             }
 
             RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Service_Create );
+
             for( uint16_t loop = 0; loop < STRESS_TEST_MODULE_REPETITION; loop++ )
             {
                 RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Service_Restart );
             }
+
             RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Start_Connection );
+
             for( uint16_t loop = 0; loop < STRESS_TEST_MODULE_REPETITION; loop++ )
             {
                 RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_ReadCharacteristicsDescriptor );
             }
+
             RUN_TEST_CASE( Full_BLE, BLE_Property_Enable_Indication_Notification );
+
             for( uint16_t loop = 0; loop < STRESS_TEST_MODULE_REPETITION; loop++ )
             {
                 RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_NotificationIndication );
             }
+
             RUN_TEST_CASE( Full_BLE, BLE_Property_Disable_Indication_Notification );
             RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Teardown );
         }
+
         RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_Memory_Cleanup );
     }
+
     RUN_TEST_CASE( Full_BLE, BLE_Free );
 }
 
@@ -116,13 +124,13 @@ TEST( Full_BLE_Stress_Test, BLE_NotificationIndication )
 TEST( Full_BLE_Stress_Test, BLE_ReadCharacteristicsDescriptor )
 {
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                          true,
-                          false,
-                          0 );
+                                         true,
+                                         false,
+                                         0 );
     IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_A,
-                          true,
-                          false,
-                          0 );
+                                         true,
+                                         false,
+                                         0 );
     prvReadCheckAndResponse( bletestATTR_SRVCB_CHAR_A );
     prvReadCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_A );
 }

@@ -534,9 +534,9 @@ void IotTestBleHal_SetAdvData( BTuuidType_t Type,
 void prvSendNotification( bletestAttSrvB_t xAttribute,
                           bool bConfirm );
 void IotTestBleHal_WriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                               bool bNeedRsp,
-                               bool IsPrep,
-                               uint16_t usOffset );
+                                          bool bNeedRsp,
+                                          bool IsPrep,
+                                          uint16_t usOffset );
 void IotTestBleHal_CheckIndicationNotification( bool IsIndication,
                                                 bool IsConnected );
 BLETESTreadAttrCallback_t IotTestBleHal_ReadReceive( bletestAttSrvB_t xAttribute );
