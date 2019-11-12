@@ -1090,8 +1090,9 @@ void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc )
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
     if( IsBondSucc == true )
-    {    
+    {
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus );
         TEST_ASSERT_EQUAL( eBTbondStateBonded, xPairingStateChangedEvent.xBondState );
         TEST_ASSERT_EQUAL( 0, memcmp( &xPairingStateChangedEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
@@ -1102,7 +1103,6 @@ void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc )
         TEST_ASSERT_NOT_EQUAL( eBTStatusSuccess, xPairingStateChangedEvent.xStatus );
         TEST_ASSERT_EQUAL( eBTbondStateNone, xPairingStateChangedEvent.xBondState );
     }
-    
 }
 
 void prvRegisterBleAdapterCb( BTStatus_t xStatus,
