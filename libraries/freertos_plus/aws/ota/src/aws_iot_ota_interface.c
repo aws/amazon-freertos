@@ -44,14 +44,28 @@
     #include "http/aws_iot_ota_http.h"
 #endif
 
+/* Check if primary protocol is enabled in aws_iot_ota_agent_config.h. */
+
+#if !( configENABLED_DATA_PROTOCOLS & configOTA_PRIMARY_DATA_PROTOCOL )
+    #error "Primary data protocol must be enabled in aws_iot_ota_agent_config.h"
+#endif
+
  /*
   * Primary data protocol will be the protocol used for file download if more
   * than one protocol is selected while creating OTA job.
   */
 #if ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_MQTT )
-uint8_t aucDataProtocol[] = "MQTT";
+    const char* pcProtocolPriority[ OTA_DATA_NUM_PROTOCOLS ] =
+    {
+	    "MQTT",
+	    "HTTP"
+    };
 # elif ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_HTTP )
-uint8_t aucDataProtocol[] = "HTTP";
+    const char* pcProtocolPriority[ OTA_DATA_NUM_PROTOCOLS ] =
+    {
+	    "HTTP",
+	    "MQTT"
+	};
 #endif
 
 
@@ -67,26 +81,49 @@ void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface )
 
 }
 
-void prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *  pucProtocol )
+OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *  pucProtocol )
 {
+	DEFINE_OTA_METHOD_NAME( "prvSetDataInterface" );
 
+	OTA_Err_t xErr = kOTA_Err_Uninitialized;
+	uint32_t i;
+
+	for ( i = 0; i < OTA_DATA_NUM_PROTOCOLS; i++ )
+	{
+		if (NULL != strstr((const char*)pucProtocol, pcProtocolPriority[i]))
+		{
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_MQTT )
-   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
-   {
-	   pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
-	   pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
-	   pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
-	   pxDataInterface->prvCleanup = prvCleanup_Mqtt;
-   }
+			if ( strcmp( pcProtocolPriority[i], "MQTT" ) )
+			{
+				pxDataInterface->prvInitFileTransfer = prvInitFileTransfer_Mqtt;
+				pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
+				pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
+				pxDataInterface->prvCleanup = prvCleanup_Mqtt;
+
+				OTA_LOG_L1("[%s] Data interface is set to MQTT.\r\n", OTA_METHOD_NAME );
+
+				xErr = kOTA_Err_None;
+				break;
+			}
 #endif
 
 #if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
-   if(NULL != strstr((const char*)pucProtocol, aucDataProtocol ) )
-   {
-	   pxDataInterface->prvInitFileTransfer = _AwsIotOTA_InitFileTransfer_HTTP;
-	   pxDataInterface->prvRequestFileBlock = _AwsIotOTA_RequestDataBlock_HTTP;
-	   pxDataInterface->prvDecodeFileBlock = _AwsIotOTA_DecodeFileBlock_HTTP;
-       pxDataInterface->prvCleanup = _AwsIotOTA_Cleanup_HTTP;
-   }
+			if ( strcmp(pcProtocolPriority[i], "HTTP" )
+			{
+				pxDataInterface->prvInitFileTransfer = _AwsIotOTA_InitFileTransfer_HTTP;
+				pxDataInterface->prvRequestFileBlock = _AwsIotOTA_RequestDataBlock_HTTP;
+				pxDataInterface->prvDecodeFileBlock = _AwsIotOTA_DecodeFileBlock_HTTP;
+				pxDataInterface->prvCleanup = _AwsIotOTA_Cleanup_HTTP;
+
+				OTA_LOG_L1("[%s] Data interface is set to HTTP.\r\n", OTA_METHOD_NAME);
+
+				xErr = kOTA_Err_None;
+				break;
+			}
 #endif
+
+		}
+	}
+
+	return xErr;
 }

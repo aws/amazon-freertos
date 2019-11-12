@@ -933,15 +933,29 @@ static OTA_Err_t prvProcessJobHandler( OTAEventData_t * pxEventData )
     else
     {
 		/* Init data interface routines */
-		prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[xOTA_Agent.ulServerFileID].pucProtocols);
+		xReturn = prvSetDataInterface( &xOTA_DataInterface, xOTA_Agent.pxOTA_Files[xOTA_Agent.ulServerFileID].pucProtocols );
 
-		OTA_LOG_L1("[%s] Setting OTA data inerface.\r\n", OTA_METHOD_NAME);
+		if (xReturn == kOTA_Err_None)
+		{
+			OTA_LOG_L1("[%s] Setting OTA data inerface.\r\n", OTA_METHOD_NAME);
 
-        /* Received a valid context so send event to request file blocks. */
-        xEventMsg.xEventId = eOTA_AgentEvent_CreateFile;
+			/* Received a valid context so send event to request file blocks. */
+			xEventMsg.xEventId = eOTA_AgentEvent_CreateFile;
 
-        /*Send the event to OTA Agent task. */
-        OTA_SignalEvent( &xEventMsg );
+			/*Send the event to OTA Agent task. */
+			OTA_SignalEvent(&xEventMsg);
+		}
+		else
+		{
+			/*
+			 * Failed to set the data interface so abort the OTA.If there is a valid job id, 
+			 * then a job status update will be sent.
+			 */
+			(void)prvSetImageStateWithReason(eOTA_ImageState_Aborted, kOTA_Err_JobParserError);
+
+			xReturn = kOTA_Err_JobParserError;
+		}
+		
 
 		xReturn = kOTA_Err_None;
     }
@@ -2455,6 +2469,7 @@ static void prvOTAAgentTask( void* pUnused )
 
 	OTAEventMsg_t xEventMsg = { 0 };
 	OTA_Err_t xErr = kOTA_Err_Uninitialized;
+	uint32_t i;
 
 	/*
 	 * OTA Agent is ready to receive and process events so update the state to ready.
@@ -2468,7 +2483,7 @@ static void prvOTAAgentTask( void* pUnused )
 		 */
 		if ( xQueueReceive( xOTA_Agent.xOTA_EventQueue, &xEventMsg, portMAX_DELAY ) == pdTRUE )
 		{
-			for ( int i = 0; i < ( sizeof( OTATransitionTable) / sizeof(OTATransitionTable[0] ) ); i++ )
+			for ( i = 0; i < ( sizeof( OTATransitionTable) / sizeof(OTATransitionTable[0] ) ); i++ )
 			{
 				if ( OTATransitionTable[i].xCurrentState == xOTA_Agent.eState )
 				{

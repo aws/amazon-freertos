@@ -33,12 +33,12 @@
 /* General Constants. */
 
 /* OTA control protocol constants. */
-#define OTA_CONTROL_OVER_MQTT  0x00000001
+#define OTA_CONTROL_OVER_MQTT      0x00000001
 
 /* OTA data protocol constants. */
-#define OTA_DATA_OVER_MQTT     0x00000001
-#define OTA_DATA_OVER_HTTP     0x00000002
-#define OTA_DATA_OVER_ALL      ( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )
+#define OTA_DATA_OVER_MQTT         0x00000001
+#define OTA_DATA_OVER_HTTP         0x00000002
+#define OTA_DATA_NUM_PROTOCOLS     ( 2U )
 
 
 /**
@@ -97,6 +97,6 @@ void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface );
  *
  */
 
-void prvSetDataInterface(OTA_DataInterface_t * pxDataInterface, const uint8_t * pucProtocol);
+OTA_Err_t  prvSetDataInterface(OTA_DataInterface_t * pxDataInterface, const uint8_t * pucProtocol);
 
 #endif
