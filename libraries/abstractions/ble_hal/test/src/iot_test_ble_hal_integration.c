@@ -563,7 +563,7 @@ void prvCreateAndStartServiceB()
 
     if( xStatus == eBTStatusUnsupported )
     {
-        IotTestBleHal_CreateServiceB();
+        prvCreateAndStartServiceB();
         IotTestBleHal_StartService( &_xSrvcB );
     }
     else
@@ -575,8 +575,6 @@ void prvCreateAndStartServiceB()
 #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
     void prvInitWithNULLCb( void )
     {
-        BTStatus_t xStatus = eBTStatusSuccess;
-
         /* GAP common setup with NULL Cb */
         IotTestBleHal_BLEManagerInit( &_xBTManager_NULL_Cb );
 
@@ -857,7 +855,7 @@ void Advertisement_teardown()
 void Advertisement_setup()
 {
     GATT_setup();
-    prvCreateAndStartServiceB();
+    IotTestBleHal_CreateServiceB();
     IotTestBleHal_SetAdvProperty();
     IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
 

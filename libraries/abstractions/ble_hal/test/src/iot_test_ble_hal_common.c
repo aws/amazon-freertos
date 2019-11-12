@@ -804,6 +804,21 @@ void IotTestBleHal_CreateServiceC()
     }
 #endif
 
+void IotTestBleHal_WriteCheckAndResponse( bletestAttSrvB_t xAttribute,
+                               bool bNeedRsp,
+                               bool IsPrep,
+                               uint16_t usOffset )
+{
+    BLETESTwriteAttrCallback_t xWriteEvent;
+
+    xWriteEvent = IotTestBleHal_WriteReceive( xAttribute, bNeedRsp, IsPrep, usOffset );
+
+    if( xWriteEvent.bNeedRsp == true ) /* this flag is different depending on different stack implementation */
+    {
+        IotTestBleHal_WriteResponse( xAttribute, xWriteEvent, true );
+    }
+}
+
 static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                                  uint16_t usServiceDataLen,
                                  char * pcServiceData,
