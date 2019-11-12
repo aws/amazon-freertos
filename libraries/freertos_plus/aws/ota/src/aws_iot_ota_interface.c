@@ -44,11 +44,17 @@
     #include "http/aws_iot_ota_http.h"
 #endif
 
+/* Check if primary protocol is enabled in aws_iot_ota_agent_config.h. */
+
+#if !( configENABLED_DATA_PROTOCOLS & configOTA_PRIMARY_DATA_PROTOCOL )
+    #error "Primary data protocol must be enabled in aws_iot_ota_agent_config.h"
+#endif
+
  /*
   * Primary data protocol will be the protocol used for file download if more 
   * than one protocol is selected while creating OTA job. 
   */
-#if ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_MQTT )
+#if ( configOTA_PRIMARY_DATA_PROTOCOL == OTA_DATA_OVER_MQTT ) 
     const char* pcProtocolPriority[ OTA_DATA_NUM_PROTOCOLS ] =
     {
 	    "MQTT",
@@ -77,10 +83,12 @@ void prvSetControlInterface( OTA_ControlInterface_t * pxControlInterface )
 
 OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint8_t *  pucProtocol )
 {
+	DEFINE_OTA_METHOD_NAME( "prvSetDataInterface" );
+
 	OTA_Err_t xErr = kOTA_Err_Uninitialized;
 	uint32_t i;
 
-	for (i = 0; i < OTA_DATA_NUM_PROTOCOLS; i++)
+	for ( i = 0; i < OTA_DATA_NUM_PROTOCOLS; i++ )
 	{
 		if (NULL != strstr((const char*)pucProtocol, pcProtocolPriority[i]))
 		{
@@ -91,6 +99,8 @@ OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint
 				pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Mqtt;
 				pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Mqtt;
 				pxDataInterface->prvCleanup = prvCleanup_Mqtt;
+
+				OTA_LOG_L1("[%s] Data interface is set to MQTT.\r\n", OTA_METHOD_NAME );
 
 				xErr = kOTA_Err_None;
 				break;
@@ -104,6 +114,8 @@ OTA_Err_t prvSetDataInterface( OTA_DataInterface_t * pxDataInterface, const uint
 				pxDataInterface->prvRequestFileBlock = prvRequestFileBlock_Http;
 				pxDataInterface->prvDecodeFileBlock = prvDecodeFileBlock_Http;
 				pxDataInterface->prvCleanup = prvCleanup_Http;
+
+				OTA_LOG_L1("[%s] Data interface is set to HTTP.\r\n", OTA_METHOD_NAME);
 
 				xErr = kOTA_Err_None;
 				break;
