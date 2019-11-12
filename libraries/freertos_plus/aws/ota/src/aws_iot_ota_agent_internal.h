@@ -52,12 +52,7 @@
 #define OTA_MAX_BLOCK_BITMAP_SIZE      128U                                            /* Max allowed number of bytes to track all blocks of an OTA file. Adjust block size if more range is needed. */
 #define OTA_REQUEST_MSG_MAX_SIZE       ( 3U * OTA_MAX_BLOCK_BITMAP_SIZE )
 #define OTA_REQUEST_URL_MAX_SIZE       ( 1500 )
-
-#if ( configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP )
-    #define OTA_DATA_BLOCK_SIZE            ( ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE ) + OTA_REQUEST_URL_MAX_SIZE + 30) /* header is 19 bytes .*/
-#else
-    #define OTA_DATA_BLOCK_SIZE            ( ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE ) + 30)
-#endif
+#define OTA_DATA_BLOCK_SIZE            ( ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE ) + OTA_REQUEST_URL_MAX_SIZE + 30 ) /* header is 19 bytes .*/
 
 /* OTA Agent task event flags. */
 #define OTA_EVT_MASK_JOB_MSG_READY     0x00000001UL     /* Event flag for OTA Job message ready. */
