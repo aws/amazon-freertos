@@ -1172,7 +1172,7 @@ BaseType_t xDoStore = xExpected;
 
 					/* Set the size of the outgoing packet. */
 					pxNetworkBuffer->xDataLength = xDataLength;
-					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, xDataLength + 16 );
+					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, xDataLength + sizeof( LLMNRAnswer_t ) );
 
 					if( pxNewBuffer != NULL )
 					{
@@ -1329,7 +1329,7 @@ BaseType_t xDoStore = xExpected;
 
 					/* The field xDataLength was set to the total length of the UDP packet,
 					i.e. the payload size plus sizeof( UDPPacket_t ). */
-					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, pxNetworkBuffer->xDataLength + 16 );
+					pxNewBuffer = pxDuplicateNetworkBufferWithDescriptor( pxNetworkBuffer, pxNetworkBuffer->xDataLength + sizeof( NBNSAnswer_t ) );
 
 					if( pxNewBuffer != NULL )
 					{
