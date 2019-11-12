@@ -518,10 +518,10 @@ OTA_Err_t prvRequestJob_Mqtt( const OTA_AgentContext_t* pxAgentCtx)
 /*
  * Update the job status on the service side with progress or completion info.
  */
-void prvUpdateJobStatus_Mqtt( const OTA_AgentContext_t * pxAgentCtx,
-                              OTA_JobStatus_t eStatus,
-                              int32_t lReason,
-                              int32_t lSubReason )
+OTA_Err_t prvUpdateJobStatus_Mqtt( const OTA_AgentContext_t * pxAgentCtx,
+                                   OTA_JobStatus_t eStatus,
+                                   int32_t lReason,
+                                   int32_t lSubReason )
 {
     DEFINE_OTA_METHOD_NAME( "prvUpdateJobStatus_Mqtt" );
 
@@ -690,6 +690,8 @@ void prvUpdateJobStatus_Mqtt( const OTA_AgentContext_t * pxAgentCtx,
     {
         /* Just ignore the zero length message. */
     }
+
+    return kOTA_Err_None;
 }
 
 /*
