@@ -787,6 +787,8 @@ static _httpErr _requestDataBlockPreCheck()
 
 OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
 {
+    IotLogDebug( "Invoking _AwsIotOTA_InitFileTransfer_HTTP" );
+
     /* Return status. */
     OTA_Err_t status = kOTA_Err_None;
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
@@ -1055,6 +1057,8 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
                                            uint8_t ** pPayload,
                                            size_t * pPayloadSize)
 {
+    IotLogDebug( "Invoking _AwsIotOTA_DecodeFileBlock_HTTP" );
+
     /* Unused parameters. */
     ( void ) messageSize;
 
@@ -1074,6 +1078,8 @@ OTA_Err_t _AwsIotOTA_DecodeFileBlock_HTTP( uint8_t * pMessageBuffer,
 
 OTA_Err_t _AwsIotOTA_Cleanup_HTTP( OTA_AgentContext_t * pAgentCtx )
 {
+    IotLogDebug( "Invoking _AwsIotOTA_Cleanup_HTTP" );
+
     /* Unused parameters. */
     ( void ) pAgentCtx;
 
