@@ -52,7 +52,18 @@
 #define OTA_MAX_BLOCK_BITMAP_SIZE      128U                                            /* Max allowed number of bytes to track all blocks of an OTA file. Adjust block size if more range is needed. */
 #define OTA_REQUEST_MSG_MAX_SIZE       ( 3U * OTA_MAX_BLOCK_BITMAP_SIZE )
 #define OTA_REQUEST_URL_MAX_SIZE       ( 1500 )
-#define OTA_DATA_BLOCK_SIZE            ( ( 1UL << otaconfigLOG2_FILE_BLOCK_SIZE ) + OTA_REQUEST_URL_MAX_SIZE + 30 ) /* header is 19 bytes .*/
+#define OTA_ERASED_BLOCKS_VAL          0xffU               /* The starting state of a group of erased blocks in the Rx block bitmap. */
+#define OTA_NUM_MSG_Q_ENTRIES          20U                 /* Maximum number of entries in the OTA event message queue. */
+
+/* Job document parser constants. */
+#define OTA_MAX_JSON_TOKENS         64U                    /* Number of JSON tokens supported in a single parser call. */
+#define OTA_MAX_JSON_STR_LEN        256U                   /* Limit our JSON string compares to something small to avoid going into the weeds. */
+#define OTA_DOC_MODEL_MAX_PARAMS    32U                    /* The parameter list is backed by a 32 bit longword bitmap by design. */
+#define OTA_JOB_PARAM_REQUIRED      ( ( bool_t ) pdTRUE )  /* Used to denote a required document model parameter. */
+#define OTA_JOB_PARAM_OPTIONAL      ( ( bool_t ) pdFALSE ) /* Used to denote an optional document model parameter. */
+#define OTA_DONT_STORE_PARAM        0xffffffffUL           /* If ulDestOffset in the model is 0xffffffff, do not store the value. */
+#define OTA_DATA_BLOCK_SIZE         ( ( 1U << otaconfigLOG2_FILE_BLOCK_SIZE ) + OTA_REQUEST_URL_MAX_SIZE + 30) /* Header is 19 bytes.*/
+
 
 /* OTA Agent task event flags. */
 #define OTA_EVT_MASK_JOB_MSG_READY     0x00000001UL     /* Event flag for OTA Job message ready. */
@@ -256,23 +267,23 @@ typedef struct
     uint8_t ucData[ OTA_DATA_BLOCK_SIZE ];
     uint32_t ulDataLength;
     bool_t bBufferUsed;
-} OTAEventData_t;
+} OTA_EventData_t;
 
 typedef struct
 {
     OTA_Event_t xEventId;
-    OTAEventData_t * pxEventData;
-} OTAEventMsg_t;
+    OTA_EventData_t * pxEventData;
+} OTA_EventMsg_t;
 
 /*
  * Get buffer available from static pool of OTA buffers.
  */
-OTAEventData_t * prvOTAEventBufferGet( void );
+OTA_EventData_t * prvOTAEventBufferGet( void );
 
 /*
  * Free OTA buffer.
  */
-void prvOTAEventBufferFree( OTAEventData_t * const pxBuffer );
+void prvOTAEventBufferFree( OTA_EventData_t * const pxBuffer );
 
 /*
  * Signal event to the OTA Agent task.
@@ -280,6 +291,6 @@ void prvOTAEventBufferFree( OTAEventData_t * const pxBuffer );
  * This function adds the event to the back of event queue and used
  * by internal OTA modules to signal agent task.
  */
-BaseType_t OTA_SignalEvent( const OTAEventMsg_t * const pxEvent );
+BaseType_t OTA_SignalEvent( const OTA_EventMsg_t * const pxEvent );
 
 #endif /* ifndef _AWS_IOT_OTA_AGENT_INTERNAL_H_ */

@@ -354,9 +354,9 @@ static void prvJobPublishCallback( void * pvCallbackContext,
                                    IotMqttCallbackParam_t * const pxPublishData )
 {
     DEFINE_OTA_METHOD_NAME( "prvJobPublishCallback" );
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
     BaseType_t xErr = pdFALSE;
-    OTAEventData_t * pxData;
+    OTA_EventData_t * pxData;
 
     /* Get the OTA agent context. */
     OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
@@ -407,8 +407,8 @@ static void prvDataPublishCallback( void * pvCallbackContext,
     DEFINE_OTA_METHOD_NAME( "prvDataPublishCallback" );
 
     BaseType_t xErr = pdFALSE;
-    OTAEventMsg_t xEventMsg = { 0 };
-    OTAEventData_t * pxData = NULL;
+    OTA_EventMsg_t xEventMsg = { 0 };
+    OTA_EventData_t * pxData = NULL;
 
     /* Get the OTA agent context. */
     OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
@@ -761,7 +761,7 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx)
 	/*
      * Get the current file context.
      */
-	OTA_FileContext_t* C = &( pxAgentCtx->pxOTA_Files[pxAgentCtx->ulFileIndex] );
+	OTA_FileContext_t* C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
 	if ( C != NULL )
 	{
