@@ -799,11 +799,11 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     const IotNetworkInterface_t * pNetworkInterface = connContext->pxNetworkInterface;
     IotNetworkCredentials_t * pNetworkCredentials = connContext->pvNetworkCredentials;
 
-    /* Get pre-signed URL from pAgentCtx. */
-    const char * pURL = ( const char * )( pAgentCtx->pxOTA_Files[ pAgentCtx->ulFileIndex ].pucUpdateUrlPath );
+    /* Pre-signed URL. */
+    const char * pURL = NULL;
 
     /* File context from OTA agent. */
-    OTA_FileContext_t* fileContext = pAgentCtx->pxOTA_Files;
+    OTA_FileContext_t* fileContext = &(pAgentCtx->pxOTA_Files[ pAgentCtx->ulFileIndex ]);
 
     /* OTA download file size from OTA agent (parsed from job document). */
     uint32_t otaFileSize = 0;
@@ -814,14 +814,19 @@ OTA_Err_t _AwsIotOTA_InitFileTransfer_HTTP( OTA_AgentContext_t * pAgentCtx )
     /* Store the OTA agent for later access. */
     _httpDownloader.pAgentCtx = pAgentCtx;
 
-    /* Get the file size from OTA agent (parsed from job document). */
     if( fileContext == NULL )
     {
         IotLogError( "File context from OTA agent is NULL." );
         status = kOTA_Err_Panic;
         OTA_GOTO_CLEANUP();
     }
+
+    /* Get the file size from OTA agent (parsed from job document). */
     otaFileSize = fileContext->ulFileSize;
+
+    /* Get pre-signed URL from pAgentCtx. */
+    pURL = ( const char * )( fileContext->pucUpdateUrlPath );
+    IotLogInfo( "Pre-signed URL size: %d.", strlen( pURL ) );
 
     /* Initialize the HTTPS library. */
     httpsStatus = IotHttpsClient_Init();
@@ -961,7 +966,7 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
     int numWritten = 0;
 
     /* File context from OTA agent. */
-    OTA_FileContext_t* fileContext = pAgentCtx->pxOTA_Files;
+    OTA_FileContext_t* fileContext = &(pAgentCtx->pxOTA_Files[ pAgentCtx->ulFileIndex ]);
 
     /* Exit if we're still busy downloading or reconnect is required but failed. */
     if( _requestDataBlockPreCheck() != OTA_HTTP_ERR_NONE )
