@@ -270,6 +270,17 @@ typedef struct
 	uint8_t * pucProtocols;     /*!< Authorization scheme. */
 } OTA_FileContext_t;
 
+/**
+ * @brief OTA Connection context.
+ *
+ * Connection information that user provides to initialize control and data transfer for OTA.
+ */
+typedef struct
+{
+	void* pvControlClient;
+	const void* pxNetworkInterface;
+	void* pvNetworkCredentials;
+} OTA_ConnectionContext_t;
 
 /**
  * @brief OTA update complete callback function typedef.

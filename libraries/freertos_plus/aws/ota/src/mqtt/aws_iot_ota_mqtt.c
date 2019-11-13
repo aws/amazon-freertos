@@ -142,6 +142,7 @@ static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * px
     bool_t bResult = pdFALSE;
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
     IotMqttSubscription_t stJobsSubscription;
+	OTA_ConnectionContext_t* pvConnContext = pxAgentCtx->pvConnectionContext;
 
     /* Clear subscription struct and set common parameters for job topics used by OTA. */
     memset( &stJobsSubscription, 0, sizeof( stJobsSubscription ) );
@@ -157,7 +158,7 @@ static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * px
     if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
         /* Subscribe to the first of two jobs topics. */
-        if( IotMqtt_TimedSubscribe( pxAgentCtx->pvClient,
+        if( IotMqtt_TimedSubscribe( pvConnContext->pvControlClient,
                                     &stJobsSubscription,
                                     1, /* Subscriptions count */
                                     0, /* flags */
@@ -176,7 +177,7 @@ static bool_t prvSubscribeToJobNotificationTopics( const OTA_AgentContext_t * px
             if( ( stJobsSubscription.topicFilterLength > 0U ) && ( stJobsSubscription.topicFilterLength < sizeof( pcJobTopic ) ) )
             {
                 /* Subscribe to the second of two jobs topics. */
-                if( IotMqtt_TimedSubscribe( pxAgentCtx->pvClient,
+                if( IotMqtt_TimedSubscribe( pvConnContext->pvControlClient,
                                             &stJobsSubscription,
                                             1, /* Subscriptions count */
                                             0, /* flags */
@@ -224,7 +225,7 @@ static bool_t prvUnSubscribeFromDataStream( const OTA_AgentContext_t * pxAgentCt
         {
 			xUnSub.pTopicFilter = ( const char * ) pcOTA_RxStreamTopic;
 
-            if( IotMqtt_TimedUnsubscribe( pxAgentCtx->pvClient,
+            if( IotMqtt_TimedUnsubscribe( ( ( OTA_ConnectionContext_t* )pxAgentCtx->pvConnectionContext )->pvControlClient,
                                           &xUnSub,
                                           1, /* Subscriptions count */
                                           0, /* flags */
@@ -257,6 +258,7 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
     IotMqttSubscription_t xUnSub;
     IotMqttOperation_t paUnubscribeOperation[ 2 ] = { NULL };
     char pcJobTopic[ OTA_MAX_TOPIC_LEN ];
+	OTA_ConnectionContext_t* pvConnContext = pxAgentCtx->pvConnectionContext;
 
     /* Try to unsubscribe from the first of two job topics. */
 	xUnSub.qos = IOT_MQTT_QOS_0;
@@ -268,7 +270,7 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
 
     if( ( xUnSub.topicFilterLength > 0U ) && ( xUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( IotMqtt_Unsubscribe( pxAgentCtx->pvClient,
+        if( IotMqtt_Unsubscribe(pvConnContext->pvControlClient,
                                  &xUnSub,
                                  1,                      /* Subscriptions count */
                                  IOT_MQTT_FLAG_WAITABLE, /* flags */
@@ -291,7 +293,7 @@ static void prvUnSubscribeFromJobNotificationTopic( const OTA_AgentContext_t * p
 
     if( ( xUnSub.topicFilterLength > 0U ) && ( xUnSub.topicFilterLength < sizeof( pcJobTopic ) ) )
     {
-        if( IotMqtt_Unsubscribe( pxAgentCtx->pvClient,
+        if( IotMqtt_Unsubscribe(pvConnContext->pvControlClient,
                                  &xUnSub,
                                  1,                      /* Subscriptions count */
                                  IOT_MQTT_FLAG_WAITABLE, /* flags */
@@ -329,6 +331,7 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
 {
     IotMqttError_t eResult;
     IotMqttPublishInfo_t xPublishParams;
+	OTA_ConnectionContext_t* pvConnContext = pxAgentCtx->pvConnectionContext;
 
     xPublishParams.pTopicName = pacTopic;
     xPublishParams.topicNameLength = usTopicLen;
@@ -339,7 +342,7 @@ static IotMqttError_t prvPublishMessage( const OTA_AgentContext_t * pxAgentCtx,
     xPublishParams.retryMs = OTA_RETRY_DELAY_MS;
     xPublishParams.retain = false;
 
-    eResult = IotMqtt_TimedPublish( pxAgentCtx->pvClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
+    eResult = IotMqtt_TimedPublish( pvConnContext->pvControlClient, &xPublishParams, 0, OTA_PUBLISH_WAIT_MS );
 
     return eResult;
 }
@@ -351,9 +354,9 @@ static void prvJobPublishCallback( void * pvCallbackContext,
                                    IotMqttCallbackParam_t * const pxPublishData )
 {
     DEFINE_OTA_METHOD_NAME( "prvJobPublishCallback" );
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
     BaseType_t xErr = pdFALSE;
-    OTAEventData_t * pxData;
+    OTA_EventData_t * pxData;
 
     /* Get the OTA agent context. */
     OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
@@ -404,8 +407,8 @@ static void prvDataPublishCallback( void * pvCallbackContext,
     DEFINE_OTA_METHOD_NAME( "prvDataPublishCallback" );
 
     BaseType_t xErr = pdFALSE;
-    OTAEventMsg_t xEventMsg = { 0 };
-    OTAEventData_t * pxData = NULL;
+    OTA_EventMsg_t xEventMsg = { 0 };
+    OTA_EventData_t * pxData = NULL;
 
     /* Get the OTA agent context. */
     OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
@@ -718,7 +721,7 @@ OTA_Err_t prvInitFileTransfer_Mqtt( OTA_AgentContext_t * pxAgentCtx )
 
     if( ( xOTAUpdateDataSubscription.topicFilterLength > 0U ) && ( xOTAUpdateDataSubscription.topicFilterLength < sizeof( pcOTA_RxStreamTopic ) ) )
     {
-        if( IotMqtt_TimedSubscribe( pxAgentCtx->pvClient,
+        if( IotMqtt_TimedSubscribe(((OTA_ConnectionContext_t*)pxAgentCtx->pvConnectionContext)->pvControlClient,
                                     &xOTAUpdateDataSubscription,
                                     1, /* Subscriptions count */
                                     0, /* flags */
@@ -758,7 +761,7 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx)
 	/*
      * Get the current file context.
      */
-	OTA_FileContext_t* C = &( pxAgentCtx->pxOTA_Files[pxAgentCtx->ulFileIndex] );
+	OTA_FileContext_t* C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
 	if ( C != NULL )
 	{

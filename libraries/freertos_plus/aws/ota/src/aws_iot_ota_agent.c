@@ -57,17 +57,24 @@
 /* OTA interface includes. */
 #include "aws_iot_ota_interface.h"
 
-/* General constants. */
-#define OTA_ERASED_BLOCKS_VAL       0xffU               /* The starting state of a group of erased blocks in the Rx block bitmap. */
-#define OTA_NUM_MSG_Q_ENTRIES       20U                 /* Maximum number of entries in the OTA event message queue. */
+/* OTA event handler definiton. */
 
-/* Job document parser constants. */
-#define OTA_MAX_JSON_TOKENS         64U                    /* Number of JSON tokens supported in a single parser call. */
-#define OTA_MAX_JSON_STR_LEN        256U                   /* Limit our JSON string compares to something small to avoid going into the weeds. */
-#define OTA_DOC_MODEL_MAX_PARAMS    32U                    /* The parameter list is backed by a 32 bit longword bitmap by design. */
-#define OTA_JOB_PARAM_REQUIRED      ( ( bool_t ) pdTRUE )  /* Used to denote a required document model parameter. */
-#define OTA_JOB_PARAM_OPTIONAL      ( ( bool_t ) pdFALSE ) /* Used to denote an optional document model parameter. */
-#define OTA_DONT_STORE_PARAM        0xffffffffUL           /* If ulDestOffset in the model is 0xffffffff, do not store the value. */
+typedef OTA_Err_t ( * OTAEventHandler_t )( OTA_EventData_t * pxEventMsg );
+
+ /* OTA Agent transition check. */
+
+typedef  bool ( * OTATransitionCheck )( void );
+
+/* OTA Agent state table entry. */
+
+typedef struct OTAStateTableEntry
+{
+	OTA_State_t xCurrentState;
+	OTA_Event_t xEventId;
+	OTATransitionCheck xCheck;
+    OTAEventHandler_t xHandler;
+	OTA_State_t xNextState;
+} OTAStateTableEntry_t;
 
 /*
  * Returns the byte offset of the element 'e' in the typedef structure 't'.
@@ -75,97 +82,46 @@
  * us to do the same thing as a zero offset without the lint warnings of using a
  * null pointer. No structure is anywhere near 64K in size.
  */
-/*lint -emacro((923,9078),OFFSET_OF) Intentionally cast pointer to uint32_t because we are using it as an offset. */
+ /*lint -emacro((923,9078),OFFSET_OF) Intentionally cast pointer to uint32_t because we are using it as an offset. */
+
 #define OFFSET_OF( t, e )    ( ( uint32_t ) ( &( ( t * ) 0x10000UL )->e ) & 0xffffUL )
 
-/* OTA Agent state strings correpsonding to OTA_State_t. */
-const char * pcOTA_AgentState_Strings[ eOTA_AgentState_Max ] =
-{
-	"Init",
-    "Ready",
-    "RequestingJob",
-    "WaitingForJob",
-    "CreatingFile",
-    "RequestingFileBlock",
-	"WaitingForFileBlock",
-    "InSelfTest",
-    "ClosingFile",
-    "ShuttingDown",
-    "Stopped"
-};
+/*
+ * This union allows us to access document model parameter addresses as their
+ * actual type without casting every time we access a parameter.
+ */
 
-/* OTA event strings correpsonding to OTA_Event_t. */
-const char * pcOTA_Event_Strings[ eOTA_AgentEvent_Max ] =
-{
-    "Start",
-    "StartSelfTest",
-    "RequestJobDocument",
-    "ReceivedJobDocument",
-	"CreateFile",
-    "RequestFileBlock",
-    "ReceivedFileBlock",
-	"RequestTimer",
-    "CloseFile",
-    "UserAbort",
-    "Shutdown"
-};
-
-/* This union allows us to access document model parameter addresses as their
- * actual type without casting every time we access a parameter. */
 typedef union MultiParmPtr
 {
-    char ** ppcPtr;
-    const char ** ppccPtr;
-    uint32_t * pulPtr;
-    uint32_t ulVal;
-    bool_t * pxBoolPtr;
-    Sig256_t ** ppxSig256Ptr;
-    void ** ppvPtr;
+	char** ppcPtr;
+	const char** ppccPtr;
+	uint32_t* pulPtr;
+	uint32_t ulVal;
+	bool_t* pxBoolPtr;
+	Sig256_t** ppxSig256Ptr;
+	void** ppvPtr;
 } MultiParmPtr_t;
 
-typedef struct
-{
-	void* pvControlClient;
-	const IotNetworkInterface_t* pxNetworkInterface;
-	void* pvNetworkCredentials;
-} OTAConnectionContext_t;
+/* Array containing pointer to the OTA event structures used to send events to the OTA task. */
 
-/*
- *  Function pointer definition for the event handlers.
- */
-typedef OTA_Err_t (* OTAEventHandler_t)( OTAEventData_t * pxEventMsg );
+static OTA_EventMsg_t xQueueData[ OTA_NUM_MSG_Q_ENTRIES ];
 
-/*
- * Fix me
- */
-typedef  bool ( *transitionCondition_t )( );
+/* Buffers used to push event data. */
 
-/*
- *  OTA Agent states lookup table entry.
- */
-typedef struct OTAStateTableEntry
-{
-	OTA_State_t xCurrentState;
-	OTA_Event_t xEventId;
-	transitionCondition_t xCondition;
-    OTAEventHandler_t xHandler;
-	OTA_State_t xNextState;
-} OTAStateTableEntry_t;
-
-/* Array containing pointer to the OTA event structures used to sens events to OTA task. */
-static OTAEventMsg_t xQueueData[ OTA_NUM_MSG_Q_ENTRIES ];
-
-/* Buffer used to push data. */
-static OTAEventData_t xEventBuffer[ otaconfigMAX_NUM_OTA_DATA_BUFFERS ];
+static OTA_EventData_t xEventBuffer[ otaconfigMAX_NUM_OTA_DATA_BUFFERS ];
 
 /* OTA control interface. */
+
 static OTA_ControlInterface_t xOTA_ControlInterface;
 
 /* OTA data interface. */
+
 static OTA_DataInterface_t xOTA_DataInterface;
 
-/* Test a null terminated string against a JSON string of known length and return whether
- * it is the same or not. */
+/* 
+ * Test a null terminated string against a JSON string of known length and return whether
+ * it is the same or not. 
+ */
 
 bool_t JSON_IsCStringEqual( const char * pcJSONString,
                             uint32_t ulLen,
@@ -202,8 +158,6 @@ static void prvStopSelfTestTimer( void );
 static void prvSelfTestTimer_Callback( TimerHandle_t T );
 
 /* Called when the OTA agent receives a file data block message. */
-
-
 
 static IngestResult_t prvIngestDataBlock( OTA_FileContext_t * C,
                                           uint8_t * pcRawMsg,
@@ -278,8 +232,10 @@ static DocParseErr_t prvSearchModelForTokenKey( JSON_DocModel_t * pxDocModel,
                                                 uint32_t ulStrLen,
                                                 uint16_t * pulMatchingIndexResult );
 
-/* Prepare the document model for use by sanity checking the initialization parameters
- * and detecting all required parameters. */
+/* 
+ * Prepare the document model for use by sanity checking the initialization parameters
+ * and detecting all required parameters. 
+ */
 
 static DocParseErr_t prvInitDocModel( JSON_DocModel_t * pxDocModel,
                                       const JSON_DocParam_t * pxBodyDef,
@@ -295,35 +251,17 @@ static OTA_Err_t prvResetDevice( void );
 
 static bool_t prvInSelftest( void );
 
-/* OTA Agent state handler fucntions . */
+/* OTA state event handler functions. */
 
-static OTA_Err_t prvStartHandler( OTAEventData_t * pxEventData );
+static OTA_Err_t prvStartHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvRequestJobHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvProcessJobHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvInSelfTestHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvInitFileHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvProcessDataHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvRequestDataHandler(OTA_EventData_t* pxEventData);
 
-static OTA_Err_t prvStartSelfTestTimer( void );
-
-static OTA_Err_t prvInSelfTestHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvRequestJobHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvProcessJobHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvRequestDataHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvProcessDataHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvUserAbortHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvCloseFileHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvShutdownHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvErrorHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvIdleHandler( OTAEventData_t * pxEventMsg );
-
-static OTA_Err_t prvInitFileHandler( OTAEventData_t * pxEventData );
-
-
+/* OTA default callback initializer. */
 
 #define OTA_JOB_CALLBACK_DEFAULT_INITIALIZER                           \
     {                                                                  \
@@ -345,9 +283,7 @@ static OTA_AgentContext_t xOTA_Agent =
 {
     .eState                        = eOTA_AgentState_Stopped,
     .pcThingName                   = { 0 },
-    .pvClient                      = NULL,
-    .pxNetworkInterface            = NULL,
-    .pvNetworkCredentials          = NULL,
+    .pvConnectionContext           = NULL,
     .pxOTA_Files                   = { { 0 } }, /*lint !e910 !e9080 Zero initialization of all members of the single file context structure.*/
     .ulServerFileID                = 0,
     .pcOTA_Singleton_ActiveJobName = NULL,
@@ -365,7 +301,7 @@ static OTA_AgentContext_t xOTA_Agent =
 
 OTAStateTableEntry_t OTATransitionTable[] =
 {
-	/*STATE ,                                EVENT ,                                COND ,    ACTION ,                    NEXT STATE                           */
+	/*STATE ,                                EVENT ,                                CHECK,    ACTION ,                    NEXT STATE                           */
 	{ eOTA_AgentState_Ready ,                eOTA_AgentEvent_Start ,                NULL ,    prvStartHandler ,           eOTA_AgentState_RequestingJob       }  ,
 	{ eOTA_AgentState_RequestingJob ,        eOTA_AgentEvent_RequestJobDocument ,   NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob       }  ,
 	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_ReceivedJobDocument ,  NULL ,    prvProcessJobHandler ,      eOTA_AgentState_CreatingFile        }  ,
@@ -377,6 +313,36 @@ OTAStateTableEntry_t OTATransitionTable[] =
 	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestTimer ,         NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock }  ,
 	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestFileBlock ,     NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock }  ,
 	{ eOTA_AgentState_WaitingForFileBlock ,  eOTA_AgentEvent_RequestJobDocument ,   NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob       }  ,
+};
+
+const char* pcOTA_AgentState_Strings[eOTA_AgentState_Max] =
+{
+	"Init",
+	"Ready",
+	"RequestingJob",
+	"WaitingForJob",
+	"CreatingFile",
+	"RequestingFileBlock",
+	"WaitingForFileBlock",
+	"InSelfTest",
+	"ClosingFile",
+	"ShuttingDown",
+	"Stopped"
+};
+
+const char* pcOTA_Event_Strings[eOTA_AgentEvent_Max] =
+{
+	"Start",
+	"StartSelfTest",
+	"RequestJobDocument",
+	"ReceivedJobDocument",
+	"CreateFile",
+	"RequestFileBlock",
+	"ReceivedFileBlock",
+	"RequestTimer",
+	"CloseFile",
+	"UserAbort",
+	"Shutdown"
 };
 
 /*
@@ -526,7 +492,7 @@ static void prvStopSelfTestTimer( void )
 static void prvRequestTimer_Callback( TimerHandle_t T )
 {
     ( void ) T;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
 	/*
 	 * Send event to OTA agent task.
@@ -786,13 +752,13 @@ static OTA_JobParseErr_t prvDefaultCustomJobCallback( const char * pcJSON,
     return eOTA_JobParseErr_NonConformingJobDoc;
 }
 
-static OTA_Err_t prvStartHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvStartHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvStartHandler" );
 
     ( void ) pxEventData;
     OTA_Err_t xReturn = kOTA_Err_None;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
 
     /* Send event to OTA task to get job document. */
@@ -806,7 +772,7 @@ static OTA_Err_t prvStartHandler( OTAEventData_t * pxEventData )
     return xReturn;
 }
 
-static OTA_Err_t prvInSelfTestHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvInSelfTestHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvInSelfTestHandler" );
 
@@ -833,13 +799,13 @@ static OTA_Err_t prvInSelfTestHandler( OTAEventData_t * pxEventData )
     return kOTA_Err_None;
 }
 
-static OTA_Err_t prvRequestJobHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvRequestJobHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvRequestJobHandler" );
 
     ( void ) pxEventData;
     OTA_Err_t xReturn = kOTA_Err_Uninitialized;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     /*
 	 * Check if any pending jobs are available from job service.
@@ -884,13 +850,13 @@ static OTA_Err_t prvRequestJobHandler( OTAEventData_t * pxEventData )
     return xReturn;
 }
 
-static OTA_Err_t prvProcessJobHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvProcessJobHandler" );
 
 	OTA_Err_t xReturn = kOTA_Err_Uninitialized;
     OTA_FileContext_t * xOTAFileContext = NULL;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     /*
 	 * Parse the job document and update file information in the file context.
@@ -966,12 +932,12 @@ static OTA_Err_t prvProcessJobHandler( OTAEventData_t * pxEventData )
     return xReturn;
 }
 
-static OTA_Err_t prvInitFileHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvInitFileHandler( OTA_EventData_t * pxEventData )
 {
 
 	(void)pxEventData;
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     xErr = xOTA_DataInterface.prvInitFileTransfer( &xOTA_Agent );
 
@@ -1010,11 +976,11 @@ static OTA_Err_t prvInitFileHandler( OTAEventData_t * pxEventData )
     return xErr;
 }
 
-static OTA_Err_t prvRequestDataHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData )
 {
 	(void)pxEventData;
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     if( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ].ulBlocksRemaining > 0U )
     {
@@ -1065,13 +1031,13 @@ static OTA_Err_t prvRequestDataHandler( OTAEventData_t * pxEventData )
     return xErr;
 }
 
-static OTA_Err_t prvProcessDataHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvProcessDataMessage" );
 
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
     OTA_Err_t xCloseResult = kOTA_Err_Uninitialized;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     /* Get the file context. */
     OTA_FileContext_t * pxFileContext = &xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ];
@@ -1159,7 +1125,7 @@ static OTA_Err_t prvProcessDataHandler( OTAEventData_t * pxEventData )
     return kOTA_Err_None;
 }
 
-static OTA_Err_t prvUserAbortHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvUserAbortHandler( OTA_EventData_t * pxEventData )
 {
 
     ( void ) pxEventData;
@@ -1178,7 +1144,7 @@ static OTA_Err_t prvUserAbortHandler( OTAEventData_t * pxEventData )
     return xErr;
 }
 
-static OTA_Err_t prvShutdownHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvShutdownHandler( OTA_EventData_t * pxEventData )
 {
 
     ( void ) pxEventData;
@@ -1197,7 +1163,7 @@ static OTA_Err_t prvShutdownHandler( OTAEventData_t * pxEventData )
     return kOTA_Err_None;
 }
 
-static OTA_Err_t prvCloseFileHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvCloseFileHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvCloseFileHandler" );
 
@@ -1212,7 +1178,7 @@ static OTA_Err_t prvCloseFileHandler( OTAEventData_t * pxEventData )
     return xErr;
 }
 
-static OTA_Err_t prvErrorHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvErrorHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvErrorHandler" );
 	(void)pxEventData;
@@ -1222,7 +1188,7 @@ static OTA_Err_t prvErrorHandler( OTAEventData_t * pxEventData )
     return kOTA_Err_None;
 }
 
-static OTA_Err_t prvIdleHandler( OTAEventData_t * pxEventData )
+static OTA_Err_t prvIdleHandler( OTA_EventData_t * pxEventData )
 {
     DEFINE_OTA_METHOD_NAME( "prvIdleHandler" );
 	(void)pxEventData;
@@ -1258,7 +1224,7 @@ static OTA_Err_t prvResetDevice( void )
     return xErr;
 }
 
-void prvOTAEventBufferFree( OTAEventData_t * const pxBuffer )
+void prvOTAEventBufferFree( OTA_EventData_t * const pxBuffer )
 {
     if( xSemaphoreTake( xOTA_Agent.xOTA_ThreadSafetyMutex, portMAX_DELAY ) == pdPASS )
     {
@@ -1271,10 +1237,10 @@ void prvOTAEventBufferFree( OTAEventData_t * const pxBuffer )
     }
 }
 
-OTAEventData_t * prvOTAEventBufferGet( void )
+OTA_EventData_t * prvOTAEventBufferGet( void )
 {
     uint32_t ulIndex = 0;
-    OTAEventData_t * pxOTAFreeMsg = NULL;
+    OTA_EventData_t * pxOTAFreeMsg = NULL;
 
     /* Wait at most 1 task switch for a buffer so as not to block the callback. */
     if( xSemaphoreTake( xOTA_Agent.xOTA_ThreadSafetyMutex, 1 ) == pdPASS )
@@ -2467,7 +2433,7 @@ static void prvOTAAgentTask( void* pUnused )
 
 	(void)pUnused;
 
-	OTAEventMsg_t xEventMsg = { 0 };
+	OTA_EventMsg_t xEventMsg = { 0 };
 	OTA_Err_t xErr = kOTA_Err_Uninitialized;
 	uint32_t i;
 
@@ -2527,7 +2493,7 @@ static void prvOTAAgentTask( void* pUnused )
 	}
 }
 
-BaseType_t OTA_SignalEvent( const OTAEventMsg_t * const pxEventMsg )
+BaseType_t OTA_SignalEvent( const OTA_EventMsg_t * const pxEventMsg )
 {
     BaseType_t xErr = pdFALSE;
 
@@ -2559,7 +2525,7 @@ BaseType_t OTA_SignalEvent( const OTAEventMsg_t * const pxEventMsg )
  * modify the existing OTA agent context. You must first call OTA_AgentShutdown()
  * successfully.
  */
-OTA_State_t OTA_AgentInit( void * pvClient,
+OTA_State_t OTA_AgentInit( void * pvConnectionContext,
                            const uint8_t * pcThingName,
                            pxOTACompleteCallback_t xFunc,
                            TickType_t xTicksToWait )
@@ -2578,12 +2544,12 @@ OTA_State_t OTA_AgentInit( void * pvClient,
      */
     xDefaultCallbacks.xCompleteCallback = xFunc;
 
-    xState = OTA_AgentInit_internal( pvClient, pcThingName, &xDefaultCallbacks, xTicksToWait );
+    xState = OTA_AgentInit_internal( pvConnectionContext, pcThingName, &xDefaultCallbacks, xTicksToWait );
 
     return xState;
 }
 
-OTA_State_t OTA_AgentInit_internal( void * pvClient,
+OTA_State_t OTA_AgentInit_internal( void * pvConnectionContext,
                                     const uint8_t * pcThingName,
                                     OTA_PAL_Callbacks_t * xCallbacks,
                                     TickType_t xTicksToWait )
@@ -2593,8 +2559,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
     static TaskHandle_t pxOTA_TaskHandle;
     uint32_t ulIndex;
     BaseType_t xReturn = 0;
-    OTAEventMsg_t xEventMsg = { 0 };
-	OTAConnectionContext_t* pxConnectionCtx;
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     /*
 	 * The actual OTA queue control structure. Only created once.
@@ -2706,7 +2671,7 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
 
 	/*
 	 * Initialize the OTA control interface based on the application protocol
-	 * selected - todo
+	 * selected.
 	 */
 	prvSetControlInterface( &xOTA_ControlInterface );
 
@@ -2742,15 +2707,12 @@ OTA_State_t OTA_AgentInit_internal( void * pvClient,
 			/*
 			 * Save the current connection client as specified by the user.
 			 */
-			pxConnectionCtx = (OTAConnectionContext_t*) pvClient;
-			xOTA_Agent.pvClient = pxConnectionCtx->pvControlClient;
-            xOTA_Agent.pxNetworkInterface = pxConnectionCtx->pxNetworkInterface;
-            xOTA_Agent.pvNetworkCredentials= pxConnectionCtx->pvNetworkCredentials;
+			xOTA_Agent.pvConnectionContext = pvConnectionContext;
 
             /*
 			 * Create the queue used to pass event messages to the OTA task.
 			 */
-            xOTA_Agent.xOTA_EventQueue = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTAEventMsg_t ), ( uint8_t * ) xQueueData, &xStaticQueue );
+            xOTA_Agent.xOTA_EventQueue = xQueueCreateStatic( ( UBaseType_t ) OTA_NUM_MSG_Q_ENTRIES, ( UBaseType_t ) sizeof( OTA_EventMsg_t ), ( uint8_t * ) xQueueData, &xStaticQueue );
             configASSERT( xOTA_Agent.xOTA_EventQueue );
 
 			/*
@@ -2835,7 +2797,7 @@ OTA_State_t OTA_AgentShutdown( TickType_t xTicksToWait )
 {
     DEFINE_OTA_METHOD_NAME( "OTA_AgentShutdown" );
 
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     OTA_LOG_L2( "[%s] Start: %u ticks\r\n", OTA_METHOD_NAME, xTicksToWait );
 
@@ -2910,7 +2872,7 @@ OTA_Err_t OTA_CheckForUpdate( void )
 {
     DEFINE_OTA_METHOD_NAME( "OTA_CheckForUpdate" );
 
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     OTA_LOG_L1( "[%s] Sending event to check for update.\r\n", OTA_METHOD_NAME );
 
@@ -2970,7 +2932,7 @@ OTA_Err_t OTA_SetImageState( OTA_ImageState_t eState )
     DEFINE_OTA_METHOD_NAME( "OTA_SetImageState" );
 
     OTA_Err_t xErr = kOTA_Err_Uninitialized;
-    OTAEventMsg_t xEventMsg = { 0 };
+    OTA_EventMsg_t xEventMsg = { 0 };
 
     switch( eState )
     {
