@@ -93,7 +93,7 @@ The **sdkconfig** file will be modified after the above steps.
    For ESP32-SOLO-1 go to the corresponding directory and run:
   `openocd.exe -f esp32_devkitj_v1.cfg -f esp-solo-1.cfg` 
   
-   Leave this terminal open.  
+   Leave this terminal open. For this step use Espressif's OpenOCD implementation 
   
 2. Open mingw32.exe Windows GNU terminal and run:  
   `make flash monitor`  
