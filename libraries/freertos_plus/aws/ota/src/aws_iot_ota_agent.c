@@ -293,7 +293,7 @@ static OTA_AgentContext_t xOTA_Agent =
     .xOTA_EventQueue               = NULL,
     .eImageState                   = eOTA_ImageState_Unknown,
     .xPALCallbacks                 = OTA_JOB_CALLBACK_DEFAULT_INITIALIZER,
-    .ulNumOfBlocksToReceive        = otaconfigMAX_NUM_BLOCKS_REQUEST,
+    .ulNumOfBlocksToReceive        = 1,
     .xStatistics                   = { 0 },
     .xOTA_ThreadSafetyMutex        = NULL,
     .ulRequestMomentum             = otaconfigMAX_NUM_REQUEST_MOMENTUM
@@ -984,9 +984,6 @@ static OTA_Err_t prvRequestDataHandler( OTA_EventData_t * pxEventData )
 
     if( xOTA_Agent.pxOTA_Files[ xOTA_Agent.ulServerFileID ].ulBlocksRemaining > 0U )
     {
-        /* Reset number of blocks requested. */
-        xOTA_Agent.ulNumOfBlocksToReceive = otaconfigMAX_NUM_BLOCKS_REQUEST;
-
         /* Start the request timer. */
         prvStartRequestTimer( otaconfigFILE_REQUEST_WAIT_MS );
 

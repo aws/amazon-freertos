@@ -763,6 +763,9 @@ OTA_Err_t prvRequestFileBlock_Mqtt( OTA_AgentContext_t * pxAgentCtx)
      */
 	OTA_FileContext_t* C = &( pxAgentCtx->pxOTA_Files[ pxAgentCtx->ulFileIndex ] );
 
+    /* Reset number of blocks requested. */
+    pxAgentCtx->ulNumOfBlocksToReceive = otaconfigMAX_NUM_BLOCKS_REQUEST;
+
 	if ( C != NULL )
 	{
 		ulNumBlocks = ( C->ulFileSize + ( OTA_FILE_BLOCK_SIZE - 1U ) ) >> otaconfigLOG2_FILE_BLOCK_SIZE;

@@ -980,6 +980,9 @@ OTA_Err_t _AwsIotOTA_RequestDataBlock_HTTP( OTA_AgentContext_t * pAgentCtx )
         OTA_GOTO_CLEANUP();
     }
 
+    /* Set number of blocks to request to 1. */
+    pAgentCtx->ulNumOfBlocksToReceive = 1;
+
     /* Calculate ranges. */
     rangeStart = _httpDownloader.currBlock * OTA_FILE_BLOCK_SIZE;
     if( fileContext->ulBlocksRemaining == 1)
