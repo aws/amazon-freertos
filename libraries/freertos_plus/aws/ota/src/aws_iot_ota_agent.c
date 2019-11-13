@@ -1106,7 +1106,7 @@ static OTA_Err_t prvProcessDataHandler( OTA_EventData_t * pxEventData )
 			xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_InProgress, ( int32_t ) eJobReason_Receiving, ( int32_t ) NULL );
         }
 
-		if ( xOTA_Agent.ulNumOfBlocksToReceive >1)
+		if ( xOTA_Agent.ulNumOfBlocksToReceive >1 )
 		{
 			xOTA_Agent.ulNumOfBlocksToReceive--;
 		}
