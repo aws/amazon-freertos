@@ -39,6 +39,7 @@ except ImportError:
     import gobject as GObject
 
 pairingEvent = Queue.Queue()
+cancelpairingEvent = Queue.Queue()
 connectEvent = Queue.Queue()
 disconnectEvent = Queue.Queue()
 attributeAccessEvent = Queue.Queue()
@@ -191,11 +192,13 @@ class bleAdapter:
                 timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
             bleAdapter.getDeviceInterface(
                 bleAdapter.remoteDevice).CancelPairing(
-                reply_handler=pairingSuccess,
-                error_handler=pairingError,
+                reply_handler=cancelpairingSuccess,
+                error_handler=cancelpairingError,
                 timeout=bleAdapter.DBUS_HANDLER_GENERIC_TIMEOUT)
             mainloop.run()
             isSuccessfull = not (pairingEvent.get())
+            mainloop.run()
+            isSuccessfull &= cancelpairingEvent.get()
         except Exception as e:
             print("BLE ADAPTER: Unable to pair, error: " + str(e))
             sys.stdout.flush()
@@ -511,6 +514,18 @@ def pairingError(error):
     print("Error in pairing: %s" % (error))
     sys.stdout.flush()
     pairingEvent.put(False)
+    mainloop.quit()
+
+
+def cancelpairingSuccess():
+    cancelpairingEvent.put(True)
+    mainloop.quit()
+
+
+def cancelpairingError(error):
+    print("Error in cancel pairing: %s" % (error))
+    sys.stdout.flush()
+    cancelpairingEvent.put(False)
     mainloop.quit()
 
 

@@ -57,7 +57,7 @@ extern BTGattAdvertismentParams_t xAdvertisementConfigA;
 extern BTGattAdvertismentParams_t xAdvertisementConfigB;
 extern BTUuid_t xServerUUID;
 extern BTUuid_t xAppUUID;
-extern bool CharAddedComplete;
+extern bool bCharAddedComplete;
 
 static uint8_t ucLargeBuffer[ bletestsMTU_SIZE1 + 2 ];
 
@@ -207,7 +207,7 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     {
         BTStatus_t xStatus;
 
-        CharAddedComplete = false;
+        bCharAddedComplete = false;
 
         IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
         IotTestBleHal_BLEGATTInit( &_xBTGattServer_Nested_Cb, true );

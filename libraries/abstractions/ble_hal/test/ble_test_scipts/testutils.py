@@ -141,7 +141,8 @@ def find_gatt_service_in_objects(services, characteristics, descriptors):
             if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE == 1:
                 if uuid == "8a7f1168-48af-4efb-83b5-e679f9320001":
                     included_service = objInterface.Get(SERVICE_INTERFACE, "Includes")
-                    print(included_service)
+                    services[uuid]["Includes"] = included_service
+                    print("Included service: " + str(included_service))
 
             services[uuid] = {}
             services[uuid]["obj"] = obj

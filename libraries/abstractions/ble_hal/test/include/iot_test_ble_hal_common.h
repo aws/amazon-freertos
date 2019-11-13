@@ -523,9 +523,9 @@ void IotTestBleHal_checkNotificationIndication( bletestAttSrvB_t xAttribute,
                                                 bool enable );
 void IotTestBleHal_BTUnregister( void );
 void IotTestBleHal_BLEGAPInit( BTBleAdapterCallbacks_t * pBTBleAdapterCb,
-                               bool EnableCb );
+                               bool bEnableCb );
 void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
-                                bool EnableCb );
+                                bool bEnableCb );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
                                uint16_t usManufacturerLen,
