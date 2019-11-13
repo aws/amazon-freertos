@@ -218,8 +218,8 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
 {
     IotLogDebug( "Invoking _httpProcessResponseBody" );
 
-    OTAEventData_t * pMessage;
-    OTAEventMsg_t eventMsg = { 0 };
+    OTA_EventData_t * pMessage;
+    OTA_EventMsg_t eventMsg = { 0 };
 
     pAgentCtx->xStatistics.ulOTA_PacketsReceived++;
 
@@ -435,7 +435,7 @@ static void _httpResponseCompleteCallback( void * pPrivateData,
     ( void ) responseStatus;
 
     /* OTA Event. */
-    OTAEventMsg_t eventMsg = { 0 };
+    OTA_EventMsg_t eventMsg = { 0 };
 
     if( _httpDownloader.err == OTA_HTTP_ERR_NONE )
     {
