@@ -85,9 +85,15 @@ The **sdkconfig** file will be modified after the above steps.
 
 ## Debugging Instruction:
 
-1. From any terminal, navigate to this current directory (espressif/esp32_devkitc_esp_wrover_kit/make) and run:  
+1. From any terminal, navigate to the current directory and follow instructions below:
+
+   For ESP32-WROOM-32 and ESP32-WROVER go to espressif/esp32_devkitc_esp_wrover_kit/make and run:
   `openocd.exe -f esp32_devkitj_v1.cfg -f esp-wroom-32.cfg`  
-  Leave this terminal open.  
+   
+   For ESP32-SOLO-1 go to the corresponding directory and run:
+  `openocd.exe -f esp32_devkitj_v1.cfg -f esp-solo-1.cfg` 
+  
+   Leave this terminal open.  
   
 2. Open mingw32.exe Windows GNU terminal and run:  
   `make flash monitor`  
