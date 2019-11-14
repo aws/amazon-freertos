@@ -836,6 +836,28 @@ class runTest:
         return isTestSuccessFull
 
     @staticmethod
+    def Check_Bond_State(scan_filter, bleAdapter):
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
+        runTest._simple_connect()
+
+        isTestSuccessFull = runTest.discoverPrimaryServices()
+        runTest.submitTestResult(
+            isTestSuccessFull,
+            runTest.discoverPrimaryServices)
+
+        bleAdapter.gatt.updateLocalAttributeTable()
+
+        isTestSuccessFull &= bleAdapter.pair_cancelpairing()
+
+        time.sleep(2)
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
     def advertisement_16bit(testDevice):
         return runTest.advertisement(
             testDevice, DUT_UUID=runTest.UUID_16to128(
