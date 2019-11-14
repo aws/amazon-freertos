@@ -824,7 +824,7 @@ void IotTestBleHal_CreateServiceA()
 void IotTestBleHal_CreateServiceB( bool bEnableIncludedSrvice )
 {
     prvCreateService( &_xSrvcB );
-    
+
     if( bEnableIncludedSrvice )
     {
         #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE

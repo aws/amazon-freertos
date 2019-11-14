@@ -412,7 +412,7 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
         TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
         TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
     }
-#endif
+#endif /* if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE */
 
 /*Advertisement interval measured OTA can be out the range set by app, after reset BT stack, adv interval can change to 1.28s.
  * Make sure KPI is consistent after reset BT.*/
@@ -451,15 +451,15 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
 
         /* Result is on RPI. Write it back to device. */
         prvGetResult( bletestATTR_SRVCB_CHAR_D,
-                    false,
-                    0 );
+                      false,
+                      0 );
 
         /* Disconnect */
         IotTestBleHal_WaitConnection( false );
         IotTestBleHal_StopService( &_xSrvcB );
         IotTestBleHal_DeleteService( &_xSrvcB );
     }
-#endif
+#endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET */
 
 #if ENABLE_TC_INTEGRATION_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3
     TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
