@@ -764,6 +764,57 @@ void prvCreateIncludedService( BTService_t * xSrvc,
     xSrvc->pusHandlesBuffer[ xAttribute ] = xBLETESTIncludedSvcCb.usAttrHandle;
 }
 
+void IotTestBleHal_CreateStartServiceA()
+{
+    BTStatus_t xStatus;
+
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
+
+    if( xStatus == eBTStatusUnsupported )
+    {
+        /* Create service A */
+        IotTestBleHal_CreateServiceA();
+        /* Start service A */
+        IotTestBleHal_StartService( &_xSrvcA );
+    }
+}
+
+void IotTestBleHal_CreateStartServiceB()
+{
+    BTStatus_t xStatus;
+
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
+
+    if( xStatus == eBTStatusUnsupported )
+    {
+        /* Create service B */
+        IotTestBleHal_CreateServiceB();
+        /* Start service B */
+        IotTestBleHal_StartService( &_xSrvcB );
+    }
+}
+
+void IotTestBleHal_CreateStartServiceC()
+{
+    BTStatus_t xStatus;
+
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcC );
+
+    if( xStatus == eBTStatusUnsupported )
+    {
+        /* Create service C */
+        IotTestBleHal_CreateServiceC();
+        /* Start service C */
+        IotTestBleHal_StartService( &_xSrvcC );
+    }
+}
+
 void IotTestBleHal_CreateServiceA()
 {
     prvCreateService( &_xSrvcA );

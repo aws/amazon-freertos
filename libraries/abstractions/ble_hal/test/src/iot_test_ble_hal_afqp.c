@@ -735,44 +735,11 @@ TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
 
 TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 {
-    BTStatus_t xStatus;
-
-    /* Try to create using blob service API first.
-     * If blob is not supported then try legacy APIs. */
-    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
-
-    if( xStatus != eBTStatusUnsupported )
-    {
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
-            xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcC );
-            TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        #endif
-    }
-    else
-    {
-        /* Create service A */
-        IotTestBleHal_CreateServiceA();
-
-        /* Create service B */
-        IotTestBleHal_CreateServiceB();
-
-        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
-            /* Create service C */
-            IotTestBleHal_CreateServiceC();
-        #endif
-
-        /* Start service A */
-        IotTestBleHal_StartService( &_xSrvcA );
-        /* Start service B */
-        IotTestBleHal_StartService( &_xSrvcB );
-        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
-            /* Start service C */
-            IotTestBleHal_StartService( &_xSrvcC );
-        #endif
-    }
+    IotTestBleHal_CreateStartServiceA();
+    IotTestBleHal_CreateStartServiceB();
+    #if ENABLE_TC_AFQP_SECONDARY_SERVICE
+        IotTestBleHal_CreateStartServiceC();
+    #endif
 }
 
 

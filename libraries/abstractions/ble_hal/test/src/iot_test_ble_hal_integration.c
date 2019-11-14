@@ -115,7 +115,7 @@ TEST_SETUP( Full_BLE_Integration_Test_Connection )
 {
     /* Initialize */
     GATT_setup();
-    prvCreateAndStartServiceB();
+    IotTestBleHal_CreateStartServiceB();
 
     /* Advertise and Connect */
     IotTestBleHal_SetAdvProperty();
@@ -176,6 +176,9 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #endif
     #if ENABLE_TC_INTEGRATION_CHECK_BOND_STATE
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Check_Bond_State );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE
+        RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Enable_Disable_BT_Module );
     #endif
 
     /*TODO: Test sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
@@ -367,14 +370,9 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
     {
         BTStatus_t xStatus = eBTStatusSuccess;
-        clock_t returnTime, cbRecvTime;
 
         IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
-        returnTime = clock();
         IotTestBleHal_BLEEnable( true );
-        cbRecvTime = clock();
-
-        TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
 
         /* First time disable */
         IotTestBleHal_BLEEnable( false );
@@ -390,6 +388,31 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
         GAP_common_teardown();
     }
 #endif /* if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE */
+
+/* pxEnable/pxDisable can only return current. Make sure pxEnalbe/pxDisable works.
+ * Make sure stack state is enable (callback received) no later than 2.5 seconds after pxEnable returns*/
+#if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE
+    TEST( Full_BLE_Integration_Test_common_GATT, BLE_Enable_Disable_BT_Module )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+        BLETESTInitDeinitCallback_t xInitDeinitCb;
+        clock_t returnTime, cbRecvTime;
+
+        /* disable */
+        IotTestBleHal_BLEEnable( false );
+
+        /* enable */
+        xStatus = _pxBTInterface->pxEnable( 0 );
+        returnTime = clock();
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
+        cbRecvTime = clock();
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
+        TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
+    }
+#endif
 
 /*Advertisement interval measured OTA can be out the range set by app, after reset BT stack, adv interval can change to 1.28s.
  * Make sure KPI is consistent after reset BT.*/
@@ -417,7 +440,7 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
         IotTestBleHal_BLEEnable( true );
         IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
         IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
-        prvCreateAndStartServiceB();
+        IotTestBleHal_CreateStartServiceB();
         IotTestBleHal_SetAdvProperty();
         IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
 
@@ -519,7 +542,7 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     {
         /* Advertise and Connect */
         IotTestBleHal_SetAdvProperty();
-        IotTestBleHal_SetAdvData( eBTuuidType32, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         prvShortWaitConnection();
     }
@@ -554,23 +577,6 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
         IotTestBleHal_StartStopAdvCheck( false );
     }
 #endif /* if ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT */
-
-void prvCreateAndStartServiceB()
-{
-    BTStatus_t xStatus;
-
-    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
-
-    if( xStatus == eBTStatusUnsupported )
-    {
-        prvCreateAndStartServiceB();
-        IotTestBleHal_StartService( &_xSrvcB );
-    }
-    else
-    {
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    }
-}
 
 #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
     void prvInitWithNULLCb( void )

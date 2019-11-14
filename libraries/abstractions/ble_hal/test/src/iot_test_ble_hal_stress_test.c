@@ -90,14 +90,18 @@ TEST_GROUP_RUNNER( Full_BLE_Stress_Test )
 
             for( uint16_t loop = 0; loop < STRESS_TEST_MODULE_REPETITION; loop++ )
             {
-                RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_ReadCharacteristicsDescriptor );
+                RUN_TEST_CASE( Full_BLE, BLE_Property_WriteCharacteristic );
+                RUN_TEST_CASE( Full_BLE, BLE_Property_WriteDescriptor );
+                RUN_TEST_CASE( Full_BLE, BLE_Property_ReadCharacteristic );
+                RUN_TEST_CASE( Full_BLE, BLE_Property_ReadDescriptor );
             }
 
             RUN_TEST_CASE( Full_BLE, BLE_Property_Enable_Indication_Notification );
 
             for( uint16_t loop = 0; loop < STRESS_TEST_MODULE_REPETITION; loop++ )
             {
-                RUN_TEST_CASE( Full_BLE_Stress_Test, BLE_NotificationIndication );
+                RUN_TEST_CASE( Full_BLE, BLE_Property_Notification );
+                RUN_TEST_CASE( Full_BLE, BLE_Property_Indication );
             }
 
             RUN_TEST_CASE( Full_BLE, BLE_Property_Disable_Indication_Notification );
@@ -113,26 +117,6 @@ TEST_GROUP_RUNNER( Full_BLE_Stress_Test )
 TEST( Full_BLE_Stress_Test, Initialize_common_GAP )
 {
     IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
-}
-
-TEST( Full_BLE_Stress_Test, BLE_NotificationIndication )
-{
-    IotTestBleHal_CheckIndicationNotification( false, true );
-    IotTestBleHal_CheckIndicationNotification( true, true );
-}
-
-TEST( Full_BLE_Stress_Test, BLE_ReadCharacteristicsDescriptor )
-{
-    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                                         true,
-                                         false,
-                                         0 );
-    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_A,
-                                         true,
-                                         false,
-                                         0 );
-    prvReadCheckAndResponse( bletestATTR_SRVCB_CHAR_A );
-    prvReadCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_A );
 }
 
 TEST( Full_BLE_Stress_Test, BLE_Start_Connection )

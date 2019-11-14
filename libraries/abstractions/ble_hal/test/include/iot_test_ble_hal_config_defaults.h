@@ -48,6 +48,10 @@
 #define ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT                              ( 1 )
 #define ENABLE_TC_INTEGRATION_SEND_DATA_AFTER_DISCONNECTED                    ( 1 )
 #define ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE                               ( 1 )
+<<<<<<< c4a2ed516079fe6b757541dbc2ec0e100e9dda98
 #define ENABLE_TC_INTEGRATION_CHECK_BOND_STATE                                ( 1 )
+=======
+#define ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE                        ( 1 )
+>>>>>>> addtional changes on CreateService and Integration Test
 
 #endif /* ifndef _IOT_TEST_BLE_HAL_CONFIG_DEFAULTS_H */
