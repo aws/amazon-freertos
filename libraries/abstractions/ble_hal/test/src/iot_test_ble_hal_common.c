@@ -1073,26 +1073,34 @@ void IotTestBleHal_CreateSecureConnection_Model1Level4( bool IsBondSucc )
 
     /* Wait secure connection. Secure connection is triggered by writting to bletestsCHARB. */
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
     if( IsBondSucc == true )
     {
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
         TEST_ASSERT_EQUAL( eBTsspVariantConsent, xSSPrequestEvent.xPairingVariant );
     }
 
-    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    if( xStatus == eBTStatusSuccess )
+    {
+        xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantConsent, true, 0 );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventSSPrequestConfirmationCb, NO_HANDLE, ( void * ) &xSSPrequestEvent, sizeof( BLETESTsspRequestCallback_t ), BLE_TESTS_WAIT );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
     if( IsBondSucc == true )
     {
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         TEST_ASSERT_EQUAL( 0, memcmp( &xSSPrequestEvent.xRemoteBdAddr, &_xAddressConnectedDevice, sizeof( BTBdaddr_t ) ) );
         TEST_ASSERT_EQUAL( eBTsspVariantPasskeyConfirmation, xSSPrequestEvent.xPairingVariant );
     }
 
-    xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantPasskeyConfirmation, true, 0 );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    if( xStatus == eBTStatusSuccess )
+    {
+        xStatus = _pxBTInterface->pxSspReply( &xSSPrequestEvent.xRemoteBdAddr, eBTsspVariantPasskeyConfirmation, true, 0 );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+    }
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventPairingStateChangedCb, NO_HANDLE, ( void * ) &xPairingStateChangedEvent, sizeof( BLETESTPairingStateChangedCallback_t ), BLE_TESTS_WAIT );
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
