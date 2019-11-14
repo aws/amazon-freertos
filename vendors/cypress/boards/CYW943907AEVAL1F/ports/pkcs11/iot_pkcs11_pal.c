@@ -98,7 +98,7 @@ void prvLabelToFilenameHandle( uint8_t * pcLabel,
                               sizeof( pkcs11configLABEL_CODE_VERIFICATION_KEY ) ) )
         {
             *pcFileName = pkcs11palFILE_CODE_SIGN_PUBLIC_KEY;
-            *pHandle = eAwsCodeSigningKey;
+            *pHandle = eInvalidHandle; /* OTA & Code Signing Keys are not supported on this platform. */
         }
         else
         {
