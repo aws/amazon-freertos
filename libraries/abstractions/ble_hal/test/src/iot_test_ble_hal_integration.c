@@ -115,7 +115,7 @@ TEST_SETUP( Full_BLE_Integration_Test_Connection )
 {
     /* Initialize */
     GATT_setup();
-    IotTestBleHal_CreateStartServiceB();
+    IotTestBleHal_CreateStartServiceB( false );
 
     /* Advertise and Connect */
     IotTestBleHal_SetAdvProperty();
@@ -440,7 +440,7 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
         IotTestBleHal_BLEEnable( true );
         IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
         IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
-        IotTestBleHal_CreateStartServiceB();
+        IotTestBleHal_CreateStartServiceB( false );
         IotTestBleHal_SetAdvProperty();
         IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
 
@@ -451,15 +451,15 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
 
         /* Result is on RPI. Write it back to device. */
         prvGetResult( bletestATTR_SRVCB_CHAR_D,
-                      false,
-                      0 );
+                    false,
+                    0 );
 
         /* Disconnect */
         IotTestBleHal_WaitConnection( false );
         IotTestBleHal_StopService( &_xSrvcB );
         IotTestBleHal_DeleteService( &_xSrvcB );
     }
-#endif /* if ENABLE_TC_INTEGRATION_ADVERTISE_INTERVAL_CONSISTENT_AFTER_BT_RESET */
+#endif
 
 #if ENABLE_TC_INTEGRATION_WRITE_NOTIFICATION_SIZE_GREATER_THAN_MTU_3
     TEST( Full_BLE_Integration_Test_Connection, BLE_Write_Notification_Size_Greater_Than_MTU_3 )
@@ -613,7 +613,7 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
             IotTestBleHal_CreateServiceA();
 
             /* Create service B */
-            IotTestBleHal_CreateServiceB();
+            IotTestBleHal_CreateServiceB( false );
 
             /* Start service A */
             prvStartServiceWithNULLCb( &_xSrvcA );
@@ -850,21 +850,4 @@ void GATT_setup()
     GAP_common_setup();
     IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
     IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
-}
-
-void Advertisement_teardown()
-{
-    GATT_teardown();
-}
-/*-----------------------------------------------------------*/
-
-void Advertisement_setup()
-{
-    GATT_setup();
-    IotTestBleHal_CreateServiceB();
-    IotTestBleHal_SetAdvProperty();
-    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
-
-    /* Second time connection begins. Got second KPI. */
-    IotTestBleHal_StartAdvertisement();
 }

@@ -736,7 +736,7 @@ TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
 TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 {
     IotTestBleHal_CreateStartServiceA();
-    IotTestBleHal_CreateStartServiceB();
+    IotTestBleHal_CreateStartServiceB( true );
     #if ENABLE_TC_AFQP_SECONDARY_SERVICE
         IotTestBleHal_CreateStartServiceC();
     #endif

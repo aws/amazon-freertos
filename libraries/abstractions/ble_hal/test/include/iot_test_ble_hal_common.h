@@ -512,10 +512,10 @@ void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
                                    bool bIsSet );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
 void IotTestBleHal_CreateServiceA( void );
-void IotTestBleHal_CreateServiceB( void );
+void IotTestBleHal_CreateServiceB( bool bEnableIncludedSrvice );
 void IotTestBleHal_CreateServiceC( void );
 void IotTestBleHal_CreateStartServiceA();
-void IotTestBleHal_CreateStartServiceB();
+void IotTestBleHal_CreateStartServiceB( bool bEnableIncludedSrvice );
 void IotTestBleHal_CreateStartServiceC();
 void IotTestBleHal_CreateServiceB_Nested( void );
 void IotTestBleHal_WaitConnection( bool bConnected );

@@ -781,7 +781,7 @@ void IotTestBleHal_CreateStartServiceA()
     }
 }
 
-void IotTestBleHal_CreateStartServiceB()
+void IotTestBleHal_CreateStartServiceB( bool bEnableIncludedSrvice )
 {
     BTStatus_t xStatus;
 
@@ -792,7 +792,7 @@ void IotTestBleHal_CreateStartServiceB()
     if( xStatus == eBTStatusUnsupported )
     {
         /* Create service B */
-        IotTestBleHal_CreateServiceB();
+        IotTestBleHal_CreateServiceB( bEnableIncludedSrvice );
         /* Start service B */
         IotTestBleHal_StartService( &_xSrvcB );
     }
@@ -821,12 +821,17 @@ void IotTestBleHal_CreateServiceA()
     prvCreateCharacteristic( &_xSrvcA, bletestATTR_SRVCA_CHAR_A, true );
 }
 
-void IotTestBleHal_CreateServiceB()
+void IotTestBleHal_CreateServiceB( bool bEnableIncludedSrvice )
 {
     prvCreateService( &_xSrvcB );
-    #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
-        prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
-    #endif
+    
+    if( bEnableIncludedSrvice )
+    {
+        #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
+            prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
+        #endif
+    }
+
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A, true );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_B, true );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_C, true );

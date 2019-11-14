@@ -173,7 +173,7 @@ TEST( Full_BLE_Stress_Test, BLE_Service_Create )
     {
         /* Create service A&B */
         IotTestBleHal_CreateServiceA();
-        IotTestBleHal_CreateServiceB();
+        IotTestBleHal_CreateServiceB( false );
 
         /* Start service A&B */
         IotTestBleHal_StartService( &_xSrvcA );
