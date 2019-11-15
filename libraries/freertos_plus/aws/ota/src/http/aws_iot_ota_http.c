@@ -243,16 +243,29 @@ static void _httpProcessResponseBody( OTA_AgentContext_t * pAgentCtx, uint8_t * 
 }
 
 /* Error handler for HTTP response code. */
-static void _httpErrorHandler( uint16_t responseCode, uint32_t responseBodyLength)
+static void _httpErrorHandler( uint16_t responseCode )
 {
-    /* Unused parameters. */
-    ( void ) responseBodyLength;
+    const char * pResponseBody = ( const char * ) pResponseBodyBuffer;
+    char * endPos = NULL;
+
+    /* Force the response body to be NULL terminated. */
+    pResponseBodyBuffer[ HTTPS_RESPONSE_BODY_BUFFER_SIZE - 1 ] = '\0';
+
+    /* Search the </Error> tag, if found, set the NULL terminator at the end of this tag. */
+    endPos = strstr( pResponseBody, "</Error>" );
+    if(NULL != endPos)
+    {
+        endPos += sizeof("</Error>") - 1;
+        *endPos = '\0';
+    }
+
+    IotLogInfo( "HTTP message body:" );
+    vLoggingPrint( pResponseBody );
+    vLoggingPrint( "\n" );
 
     if( responseCode == IOT_HTTPS_STATUS_FORBIDDEN )
     {
-        /* Make the body NULL terminated. */
-        pResponseBodyBuffer[ HTTPS_RESPONSE_BODY_BUFFER_SIZE - 1 ] = '\0';
-        if( NULL != strstr( ( const char * ) pResponseBodyBuffer, "Request has expired") )
+        if( NULL != strstr( pResponseBody, "Request has expired") )
         {
             IotLogInfo( "Pre-signed URL have expired, requesting new job document." );
             _httpDownloader.err = OTA_HTTP_ERR_URL_EXPIRED;
@@ -364,7 +377,7 @@ static void _httpReadReadyCallback( void * pPrivateData,
     if( responseStatus != IOT_HTTPS_STATUS_PARTIAL_CONTENT )
     {
         IotLogError( "Expect a HTTP partial response, but received code %d", responseStatus );
-        _httpErrorHandler( responseStatus, responseBodyLength );
+        _httpErrorHandler( responseStatus );
         OTA_GOTO_CLEANUP();
     }
 
@@ -612,6 +625,8 @@ static _httpErr _httpGetFileSize( uint32_t * pFileSize )
     /* Return status. */
     int status = OTA_HTTP_ERR_NONE;
     IotHttpsReturnCode_t httpsStatus = IOT_HTTPS_OK;
+
+    /* HTTP response code. */
     uint16_t responseStatus = IOT_HTTPS_STATUS_OK;
 
     /* HTTP request and response configurations. We're creating local variables here because this is
@@ -639,9 +654,10 @@ static _httpErr _httpGetFileSize( uint32_t * pFileSize )
     /* There's no message body in this GET request. */
     requestSyncInfo.pBody = NULL;
     requestSyncInfo.bodyLen = 0;
-    /* No need to store the response body since we only need the file size in HTTP response header. */
-    responseSyncInfo.pBody = NULL;
-    responseSyncInfo.bodyLen = 0;
+
+    /* Store the response body in case there's any failure. */
+    responseSyncInfo.pBody = pResponseBodyBuffer;
+    responseSyncInfo.bodyLen = HTTPS_RESPONSE_BODY_BUFFER_SIZE;
 
     /* Set the request configurations. */
     requestConfig.pPath = pUrlInfo->pPath;
@@ -705,6 +721,7 @@ static _httpErr _httpGetFileSize( uint32_t * pFileSize )
     {
         IotLogError( "Fail to get the object size from HTTP server, HTTP response code from server: %d", responseStatus );
         status = OTA_HTTP_ERR_GENERIC;
+        _httpErrorHandler( responseStatus );
         OTA_GOTO_CLEANUP();
     }
 
