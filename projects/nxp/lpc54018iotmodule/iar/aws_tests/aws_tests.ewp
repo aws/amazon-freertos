@@ -215,15 +215,17 @@
 					<state>XIP_IMAGE</state>
 					<state>CPU_LPC54018</state>
 					<state>SDK_DEBUGCONSOLE=1</state>
+					<state>BOARD_USE_VIRTUALCOM</state>
 					<state>USB_STACK_FREERTOS</state>
 					<state>USB_STACK_USE_DEDICATED_RAM=1</state>
+					<state>BOARD_DEBUG_UART_TYPE=DEBUG_CONSOLE_DEVICE_TYPE_USBCDC</state>
 					<state>CPU_LPC54018JET180=1</state>
 					<state>USE_RTOS=1</state>
 					<state>FSL_RTOS_FREE_RTOS</state>
 					<state>A_LITTLE_ENDIAN</state>
+					<state>_DLIB_FILE_DESCRIPTOR=1</state>
 					<state>AMAZON_FREERTOS_ENABLE_UNIT_TESTS</state>
 					<state>UNITY_INCLUDE_CONFIG_H</state>
-					<state>_DLIB_FILE_DESCRIPTOR=1</state>
 				</option>
 				<option>
 					<name>CCPreprocFile</name>
@@ -990,7 +992,7 @@
 				</option>
 				<option>
 					<name>IlinkOptInline</name>
-					<state>1</state>
+					<state>0</state>
 				</option>
 				<option>
 					<name>IlinkOptExceptionsAllow</name>
@@ -1006,7 +1008,7 @@
 				</option>
 				<option>
 					<name>IlinkOptMergeDuplSections</name>
-					<state>1</state>
+					<state>0</state>
 				</option>
 				<option>
 					<name>IlinkOptUseVfe</name>
