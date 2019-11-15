@@ -23,6 +23,10 @@
 #include <string.h>
 #include "aws_iot_ota_agent.h"
 #include "aws_iot_ota_pal.h"
+#include "aws_iot_ota_interface.h"
+#include "aws_ota_agent_config.h"
+#include "types/iot_network_types.h"
+#include "aws_iot_network_config.h"
 #include "iot_crypto.h"
 #include "iot_pkcs11.h"
 #include "esp_system.h"
@@ -41,6 +45,10 @@
 
 #define kOTA_HalfSecondDelay    pdMS_TO_TICKS( 500UL )
 #define ECDSA_INTEGER_LEN       32
+
+#if (configENABLED_DATA_PROTOCOLS & OTA_DATA_OVER_HTTP) && (configENABLED_NETWORKS & AWSIOT_NETWORK_TYPE_BLE)
+    #error "Cannot enable OTA data over HTTP together with BLE because of not enough heap."
+#endif
 
 /*
  * Includes 4 bytes of version field, followed by 64 bytes of signature
