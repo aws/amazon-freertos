@@ -363,16 +363,24 @@ static CK_RV prvDestroyTestCredentials( void )
     CK_BYTE * pxPkcsLabels[] =
     {
         ( CK_BYTE * ) pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS,
-        ( CK_BYTE * ) pkcs11testLABEL_CODE_VERIFICATION_KEY,
         ( CK_BYTE * ) pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS,
-        ( CK_BYTE * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+        ( CK_BYTE * ) pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS,
+        #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
+            ( CK_BYTE * ) pkcs11testLABEL_CODE_VERIFICATION_KEY,
+            ( CK_BYTE * ) pkcs11testLABEL_JITP_CERTIFICATE,
+            ( CK_BYTE * ) pkcs11testLABEL_ROOT_CERTIFICATE
+        #endif
     };
     CK_OBJECT_CLASS xClass[] =
     {
         CKO_CERTIFICATE,
-        CKO_PUBLIC_KEY,
         CKO_PRIVATE_KEY,
-        CKO_PUBLIC_KEY
+        CKO_PUBLIC_KEY,
+        #if ( pkcs11configJITP_CODEVERIFY_ROOT_CERT_SUPPORTED == 1 )
+            CKO_PUBLIC_KEY,
+            CKO_CERTIFICATE,
+            CKO_CERTIFICATE
+        #endif
     };
 
     xResult = xDestroyProvidedObjects( xGlobalSession,
