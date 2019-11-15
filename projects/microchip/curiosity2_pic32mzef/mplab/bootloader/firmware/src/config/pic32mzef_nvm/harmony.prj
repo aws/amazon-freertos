@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Configuration>
+  <Configurator>
+    <Name dnOrder="0" value="pic32mzef_nvm"/>
+    <Processor dnOrder="1" value="PIC32MZ2048EFM144"/>
+    <Harmony dnOrder="2" path="../../../../../.."/>
+    <Manifest dnOrder="3">
+      <Files dnOrder="0">
+        <File dnOrder="0">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">bsp.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/bsp/</LogicalPath>
+          <PhysicalPath dnOrder="3">/bsp/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">82184E6E6BF21D7C0E91DE0BD7609E90</GeneratedChecksum>
+          <UserChecksum dnOrder="5">82184E6E6BF21D7C0E91DE0BD7609E90</UserChecksum>
+        </File>
+        <File dnOrder="1">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">exceptions.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/</LogicalPath>
+          <PhysicalPath dnOrder="3">/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">3477C6F788508451FADB8F17D7E78273</GeneratedChecksum>
+          <UserChecksum dnOrder="5">3477C6F788508451FADB8F17D7E78273</UserChecksum>
+        </File>
+        <File dnOrder="2">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">initialization.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/</LogicalPath>
+          <PhysicalPath dnOrder="3">/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">AC8867252A7D8AC4701AA8E56947BB2C</GeneratedChecksum>
+          <UserChecksum dnOrder="5">AC8867252A7D8AC4701AA8E56947BB2C</UserChecksum>
+        </File>
+        <File dnOrder="3">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">interrupts.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/</LogicalPath>
+          <PhysicalPath dnOrder="3">/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">E942F798BFC3435AECB4DB2CBC8DE533</GeneratedChecksum>
+          <UserChecksum dnOrder="5">E942F798BFC3435AECB4DB2CBC8DE533</UserChecksum>
+        </File>
+        <File dnOrder="4">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">main.c</Name>
+          <LogicalPath dnOrder="2"/>
+          <PhysicalPath dnOrder="3">/../../</PhysicalPath>
+          <GeneratedChecksum dnOrder="4"/>
+          <UserChecksum dnOrder="5"/>
+        </File>
+        <File dnOrder="5">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">plib_clk.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/clk/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/clk/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">0968973C51EE7ED03169F578C2BCB2EC</GeneratedChecksum>
+          <UserChecksum dnOrder="5">0968973C51EE7ED03169F578C2BCB2EC</UserChecksum>
+        </File>
+        <File dnOrder="6">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">plib_evic.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/evic/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/evic/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">AC4696C0BF785F09454055FD7A382781</GeneratedChecksum>
+          <UserChecksum dnOrder="5">AC4696C0BF785F09454055FD7A382781</UserChecksum>
+        </File>
+        <File dnOrder="7">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">plib_gpio.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/gpio/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/gpio/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">70E52CCDF5753FB067EAB4A7F813C22A</GeneratedChecksum>
+          <UserChecksum dnOrder="5">70E52CCDF5753FB067EAB4A7F813C22A</UserChecksum>
+        </File>
+        <File dnOrder="8">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">plib_nvm.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/nvm/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/nvm/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">86983E5037598AB3B7DC03C947CE1249</GeneratedChecksum>
+          <UserChecksum dnOrder="5">86983E5037598AB3B7DC03C947CE1249</UserChecksum>
+        </File>
+        <File dnOrder="9">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">plib_uart1.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/uart/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/uart/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">89399D811024A185CCFE3B8732984CBB</GeneratedChecksum>
+          <UserChecksum dnOrder="5">89399D811024A185CCFE3B8732984CBB</UserChecksum>
+        </File>
+        <File dnOrder="10">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">sys_int.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/system/int/</LogicalPath>
+          <PhysicalPath dnOrder="3">/system/int/src/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">640A4B35B8CDB53BD8EA5077D81386BE</GeneratedChecksum>
+          <UserChecksum dnOrder="5">640A4B35B8CDB53BD8EA5077D81386BE</UserChecksum>
+        </File>
+        <File dnOrder="11">
+          <Type dnOrder="0">SOURCE</Type>
+          <Name dnOrder="1">xc32_monitor.c</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/stdio/</LogicalPath>
+          <PhysicalPath dnOrder="3">/stdio/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">27ED4A8201F7698EF759E2EFCEAA2198</GeneratedChecksum>
+          <UserChecksum dnOrder="5">27ED4A8201F7698EF759E2EFCEAA2198</UserChecksum>
+        </File>
+        <File dnOrder="12">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">bsp.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/bsp/</LogicalPath>
+          <PhysicalPath dnOrder="3">/bsp/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">3A3D90BBDFDB486B57C8FED3BA7D4135</GeneratedChecksum>
+          <UserChecksum dnOrder="5">3A3D90BBDFDB486B57C8FED3BA7D4135</UserChecksum>
+        </File>
+        <File dnOrder="13">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">definitions.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/</LogicalPath>
+          <PhysicalPath dnOrder="3">/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">B854E2ADC62D967BFAC0C316F31871D7</GeneratedChecksum>
+          <UserChecksum dnOrder="5">B854E2ADC62D967BFAC0C316F31871D7</UserChecksum>
+        </File>
+        <File dnOrder="14">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">device.h</Name>
+          <LogicalPath dnOrder="2">packs/PIC32MZ2048EFM144_DFP/</LogicalPath>
+          <PhysicalPath dnOrder="3">/../../packs/PIC32MZ2048EFM144_DFP/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">5D5C52527AB1435153DB9B50ADE6B79D</GeneratedChecksum>
+          <UserChecksum dnOrder="5">5D5C52527AB1435153DB9B50ADE6B79D</UserChecksum>
+        </File>
+        <File dnOrder="15">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">plib_clk.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/clk/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/clk/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">7066CC390335CF75126E2A50C46E3BDD</GeneratedChecksum>
+          <UserChecksum dnOrder="5">7066CC390335CF75126E2A50C46E3BDD</UserChecksum>
+        </File>
+        <File dnOrder="16">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">plib_evic.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/evic/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/evic/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">B38028A617FDD4D90B80660771629645</GeneratedChecksum>
+          <UserChecksum dnOrder="5">B38028A617FDD4D90B80660771629645</UserChecksum>
+        </File>
+        <File dnOrder="17">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">plib_gpio.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/gpio/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/gpio/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">C3EB5D6856249F16760FC8D1DA99FE36</GeneratedChecksum>
+          <UserChecksum dnOrder="5">C3EB5D6856249F16760FC8D1DA99FE36</UserChecksum>
+        </File>
+        <File dnOrder="18">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">plib_nvm.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/nvm/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/nvm/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">7EE45BA86AD63F52C607BE4D1927C202</GeneratedChecksum>
+          <UserChecksum dnOrder="5">7EE45BA86AD63F52C607BE4D1927C202</UserChecksum>
+        </File>
+        <File dnOrder="19">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">plib_uart1.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/uart/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/uart/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">E1D3F2D86FA79C30CC442558A14E4737</GeneratedChecksum>
+          <UserChecksum dnOrder="5">E1D3F2D86FA79C30CC442558A14E4737</UserChecksum>
+        </File>
+        <File dnOrder="20">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">plib_uart_common.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/peripheral/uart/</LogicalPath>
+          <PhysicalPath dnOrder="3">/peripheral/uart/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">A5B40F859F555A11C166EBEE10E8B5CD</GeneratedChecksum>
+          <UserChecksum dnOrder="5">A5B40F859F555A11C166EBEE10E8B5CD</UserChecksum>
+        </File>
+        <File dnOrder="21">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">sys_int.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/system/int/</LogicalPath>
+          <PhysicalPath dnOrder="3">/system/int/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">47330C2D8F204B2B69F8A86240A564B6</GeneratedChecksum>
+          <UserChecksum dnOrder="5">47330C2D8F204B2B69F8A86240A564B6</UserChecksum>
+        </File>
+        <File dnOrder="22">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">sys_int_mapping.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/system/int/</LogicalPath>
+          <PhysicalPath dnOrder="3">/system/int/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">FC7B55936A09E0CA1395AE4DFB1A188F</GeneratedChecksum>
+          <UserChecksum dnOrder="5">FC7B55936A09E0CA1395AE4DFB1A188F</UserChecksum>
+        </File>
+        <File dnOrder="23">
+          <Type dnOrder="0">HEADER</Type>
+          <Name dnOrder="1">toolchain_specifics.h</Name>
+          <LogicalPath dnOrder="2">config/pic32mzef_nvm/</LogicalPath>
+          <PhysicalPath dnOrder="3">/</PhysicalPath>
+          <GeneratedChecksum dnOrder="4">F7924D60AC5CC08996AB2DAEC62D3C54</GeneratedChecksum>
+          <UserChecksum dnOrder="5">F7924D60AC5CC08996AB2DAEC62D3C54</UserChecksum>
+        </File>
+      </Files>
+      <Settings dnOrder="1">
+        <Setting append="true" category="C32" delimiter=";" dnOrder="0" key="extra-include-directories" value="../src;../src/config/pic32mzef_nvm;../src/packs/PIC32MZ2048EFM144_DFP;;../src/mips"/>
+        <Setting category="C32-LD" dnOrder="1" key="heap-size" value="512"/>
+        <Setting category="C32-LD" dnOrder="2" key="no-device-startup-code" value="true"/>
+        <Setting category="C32-LD" dnOrder="3" key="preprocessor-macros" value=""/>
+      </Settings>
+    </Manifest>
+    <Settings dnOrder="4">
+      <Setting dnOrder="0" key="CMSISPath" value=".\dev_packs\arm\CMSIS\5.5.1"/>
+      <Setting dnOrder="1" key="DFPPath" value=".\dev_packs\Microchip\PIC32MZ_EF_DFP\1.0.39\atdf\PIC32MZ2048EFM144.atdf"/>
+      <Setting dnOrder="2" key="FORCE_OPTIMIZATION" value="false"/>
+      <Setting dnOrder="3" key="GENERATE_BACKUP" value="true"/>
+      <Setting dnOrder="4" key="MERGE_STRATEGY" value="USER_ALL"/>
+      <Setting dnOrder="5" key="PackageFilter" value="aws_cloud;bsp;core;crypto;csp;net;"/>
+    </Settings>
+  </Configurator>
+</Configuration>

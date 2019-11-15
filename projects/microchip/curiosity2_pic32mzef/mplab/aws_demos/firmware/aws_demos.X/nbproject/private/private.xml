@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/E:/MT/aws_cloud/amazon-freertos/vendors/microchip/boards/curiosity2_pic32mzef/aws_demos/config_files/FreeRTOSConfig.h</file>
+            <file>file:/E:/MT/aws_cloud/amazon-freertos/libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</file>
+            <file>file:/E:/MT/aws_cloud/amazon-freertos/libraries/c_sdk/aws/shadow/src/aws_shadow.c</file>
+            <file>file:/E:/MT/aws_cloud/amazon-freertos/vendors/microchip/boards/curiosity2_pic32mzef/aws_demos/config_files/aws_demo_config.h</file>
+            <file>file:/E:/MT/aws_cloud/amazon-freertos/demos/shadow/aws_iot_demo_shadow.c</file>
+        </group>
+    </open-files>
+</project-private>
