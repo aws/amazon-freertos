@@ -1,0 +1,1497 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="65">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <logicalFolder name="f1" displayName="config" projectFiles="true">
+        <logicalFolder name="f1" displayName="pic32mzef_nvm" projectFiles="true">
+          <logicalFolder name="f3" displayName="driver" projectFiles="true">
+            <logicalFolder name="f1" displayName="ethmac" projectFiles="true">
+              <logicalFolder name="f1" displayName="src" projectFiles="true">
+                <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/src/dynamic/_eth_dcpt_lists.h</itemPath>
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/src/dynamic/drv_ethmac_lib.h</itemPath>
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/src/dynamic/drv_eth_pic32_lib.h</itemPath>
+                </logicalFolder>
+                <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/src/drv_ethmac_local.h</itemPath>
+              </logicalFolder>
+              <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/drv_ethmac.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="ethphy" projectFiles="true">
+              <logicalFolder name="f1" displayName="src" projectFiles="true">
+                <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethphy/src/dynamic/drv_extphy_regs.h</itemPath>
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethphy/src/dynamic/drv_extphy_smsc8740.h</itemPath>
+                </logicalFolder>
+                <itemPath>../src/config/pic32mzef_nvm/driver/ethphy/src/drv_ethphy_local.h</itemPath>
+              </logicalFolder>
+              <itemPath>../src/config/pic32mzef_nvm/driver/ethphy/drv_ethphy.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="miim" projectFiles="true">
+              <logicalFolder name="f1" displayName="config" projectFiles="true">
+                <itemPath>../src/config/pic32mzef_nvm/driver/miim/config/drv_miim_config.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="src" projectFiles="true">
+                <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
+                  <itemPath>../src/config/pic32mzef_nvm/driver/miim/src/dynamic/drv_miim_mapping.h</itemPath>
+                </logicalFolder>
+                <itemPath>../src/config/pic32mzef_nvm/driver/miim/src/drv_miim_local.h</itemPath>
+              </logicalFolder>
+              <itemPath>../src/config/pic32mzef_nvm/driver/miim/drv_miim.h</itemPath>
+            </logicalFolder>
+            <itemPath>../src/config/pic32mzef_nvm/driver/driver.h</itemPath>
+            <itemPath>../src/config/pic32mzef_nvm/driver/driver_common.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="peripheral" projectFiles="true">
+            <logicalFolder name="f1" displayName="clk" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/clk/plib_clk.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f5" displayName="coretimer" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/coretimer/plib_coretimer.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="evic" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/evic/plib_evic.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="gpio" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/gpio/plib_gpio.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f4" displayName="nvm" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/nvm/plib_nvm.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f7" displayName="rng" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/rng/plib_rng.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f6" displayName="uart" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/uart/plib_uart_common.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/uart/plib_uart4.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/uart/plib_uart1.h</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f1" displayName="system" projectFiles="true">
+            <logicalFolder name="f1" displayName="command" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/command/sys_command.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f4" displayName="console" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/console/sys_console.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="debug" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/debug/sys_debug.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f5" displayName="int" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/int/sys_int.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/int/sys_int_mapping.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="time" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/time/sys_time.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/time/sys_time_definitions.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/time/src/sys_time_local.h</itemPath>
+            </logicalFolder>
+            <itemPath>../src/config/pic32mzef_nvm/system/system.h</itemPath>
+            <itemPath>../src/config/pic32mzef_nvm/system/system_common.h</itemPath>
+            <itemPath>../src/config/pic32mzef_nvm/system/system_module.h</itemPath>
+          </logicalFolder>
+          <itemPath>../src/config/pic32mzef_nvm/toolchain_specifics.h</itemPath>
+          <itemPath>../src/config/pic32mzef_nvm/definitions.h</itemPath>
+          <itemPath>../src/config/pic32mzef_nvm/user.h</itemPath>
+          <itemPath>../src/config/pic32mzef_nvm/configuration.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="osal" projectFiles="true">
+        <itemPath>../src/config/pic32mzef_nvm/osal/osal.h</itemPath>
+        <itemPath>../src/config/pic32mzef_nvm/osal/osal_definitions.h</itemPath>
+        <itemPath>../src/config/pic32mzef_nvm/osal/osal_freertos.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="packs" projectFiles="true">
+        <logicalFolder name="f1"
+                       displayName="PIC32MZ2048EFM144_DFP"
+                       projectFiles="true">
+          <itemPath>../src/packs/PIC32MZ2048EFM144_DFP/device.h</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <itemPath>../src/app.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="LinkerScript"
+                   displayName="Linker Files"
+                   projectFiles="true">
+      <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/linker_script/app_mz.ld</itemPath>
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <logicalFolder name="f2" displayName="amazon-freertos" projectFiles="true">
+        <logicalFolder name="f1" displayName="demos" projectFiles="true">
+          <logicalFolder name="f1"
+                         displayName="dev_mode_key_provisioning"
+                         projectFiles="true">
+            <logicalFolder name="f1" displayName="include" projectFiles="true">
+              <itemPath>../../../../../../../demos/dev_mode_key_provisioning/include/aws_dev_mode_key_provisioning.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="src" projectFiles="true">
+              <itemPath>../../../../../../../demos/dev_mode_key_provisioning/src/aws_dev_mode_key_provisioning.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="include" projectFiles="true">
+            <itemPath>../../../../../../../demos/include/aws_application_version.h</itemPath>
+            <itemPath>../../../../../../../demos/include/aws_ble_gatt_server_demo.h</itemPath>
+            <itemPath>../../../../../../../demos/include/aws_clientcredential.h</itemPath>
+            <itemPath>../../../../../../../demos/include/aws_clientcredential_keys.h</itemPath>
+            <itemPath>../../../../../../../demos/include/aws_demo.h</itemPath>
+            <itemPath>../../../../../../../demos/include/aws_iot_demo_network.h</itemPath>
+            <itemPath>../../../../../../../demos/include/aws_ota_codesigner_certificate.h</itemPath>
+            <itemPath>../../../../../../../demos/include/aws_wifi_connect_task.h</itemPath>
+            <itemPath>../../../../../../../demos/include/iot_ble_numericComparison.h</itemPath>
+            <itemPath>../../../../../../../demos/include/iot_config_common.h</itemPath>
+            <itemPath>../../../../../../../demos/include/iot_demo_logging.h</itemPath>
+            <itemPath>../../../../../../../demos/include/iot_demo_runner.h</itemPath>
+          </logicalFolder>
+        </logicalFolder>
+        <logicalFolder name="f2" displayName="freertos_kernel" projectFiles="true">
+          <logicalFolder name="f1" displayName="include" projectFiles="true">
+            <itemPath>../../../../../../../freertos_kernel/include/atomic.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/deprecated_definitions.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/event_groups.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/FreeRTOS.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/list.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/message_buffer.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/mpu_prototypes.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/mpu_wrappers.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/portable.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/projdefs.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/queue.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/semphr.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/stack_macros.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/stream_buffer.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/task.h</itemPath>
+            <itemPath>../../../../../../../freertos_kernel/include/timers.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="portable" projectFiles="true">
+            <logicalFolder name="f1" displayName="MemMang" projectFiles="true">
+              <itemPath>../../../../../../../freertos_kernel/portable/MemMang/heap_4.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="MPLAB" projectFiles="true">
+              <logicalFolder name="f1" displayName="PIC32MZ" projectFiles="true">
+                <itemPath>../../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ/ISR_Support.h</itemPath>
+                <itemPath>../../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ/port.c</itemPath>
+                <itemPath>../../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ/portmacro.h</itemPath>
+                <itemPath>../../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ/port_asm.S</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <itemPath>../../../../../../../freertos_kernel/event_groups.c</itemPath>
+          <itemPath>../../../../../../../freertos_kernel/list.c</itemPath>
+          <itemPath>../../../../../../../freertos_kernel/queue.c</itemPath>
+          <itemPath>../../../../../../../freertos_kernel/stream_buffer.c</itemPath>
+          <itemPath>../../../../../../../freertos_kernel/tasks.c</itemPath>
+          <itemPath>../../../../../../../freertos_kernel/timers.c</itemPath>
+        </logicalFolder>
+        <logicalFolder name="f3" displayName="libraries" projectFiles="true">
+          <logicalFolder name="f1" displayName="3rdparty" projectFiles="true">
+            <logicalFolder name="f1" displayName="http-parser" projectFiles="true">
+              <itemPath>../../../../../../../libraries/3rdparty/http-parser/http_parser.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/http-parser/http_parser.h</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/http-parser/LICENSE-MIT</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="jsmn" projectFiles="true">
+              <itemPath>../../../../../../../libraries/3rdparty/jsmn/jsmn.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/jsmn/jsmn.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="mbedtls" projectFiles="true">
+              <logicalFolder name="f1" displayName="include" projectFiles="true">
+                <logicalFolder name="f1" displayName="mbedtls" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/aes.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/aesni.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/arc4.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/asn1.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/asn1write.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/base64.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/bignum.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/blowfish.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/bn_mul.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/camellia.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ccm.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/certs.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/check_config.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/cipher.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/cipher_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/cmac.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/compat-1.3.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/config.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ctr_drbg.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/debug.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/des.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/dhm.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ecdh.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ecdsa.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ecjpake.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ecp.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ecp_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/entropy.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/entropy_poll.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/error.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/gcm.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/havege.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/hmac_drbg.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/md.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/md2.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/md4.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/md5.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/md_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/memory_buffer_alloc.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/net.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/net_sockets.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/oid.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/padlock.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pem.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pk.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pkcs12.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pkcs5.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/pk_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/platform.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/platform_time.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/platform_util.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ripemd160.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/rsa.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/rsa_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/sha1.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/sha256.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/sha512.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ssl.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ssl_cache.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ssl_ciphersuites.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ssl_cookie.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ssl_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/ssl_ticket.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/threading.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/timing.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/version.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/x509.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/x509_crl.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/x509_crt.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/x509_csr.h</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls/xtea.h</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="library" projectFiles="true">
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/aes.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/aesni.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/arc4.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/asn1parse.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/asn1write.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/base64.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/bignum.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/blowfish.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/camellia.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ccm.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/certs.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/cipher.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/cipher_wrap.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/cmac.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ctr_drbg.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/debug.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/des.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/dhm.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ecdh.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ecdsa.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ecjpake.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ecp.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ecp_curves.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/entropy.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/entropy_poll.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/error.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/gcm.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/havege.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/hmac_drbg.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/md.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/md2.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/md4.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/md5.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/md_wrap.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/memory_buffer_alloc.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/net_sockets.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/oid.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/padlock.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/pem.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/pk.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/pkcs12.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/pkcs5.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/pkparse.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/pkwrite.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/pk_wrap.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/platform.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/platform_util.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ripemd160.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/rsa.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/rsa_internal.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/sha1.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/sha256.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/sha512.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ssl_cache.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ssl_ciphersuites.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ssl_cli.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ssl_cookie.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ssl_srv.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ssl_ticket.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/ssl_tls.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/threading.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/timing.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/version.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/version_features.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/x509.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/x509write_crt.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/x509write_csr.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/x509_create.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/x509_crl.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/x509_crt.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/x509_csr.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/library/xtea.c</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f3" displayName="utils" projectFiles="true">
+                <itemPath>../../../../../../../libraries/3rdparty/mbedtls/utils/mbedtls_utils.c</itemPath>
+              </logicalFolder>
+              <itemPath>../../../../../../../libraries/3rdparty/mbedtls/LICENSE</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f4" displayName="pkcs11" projectFiles="true">
+              <itemPath>../../../../../../../libraries/3rdparty/pkcs11/pkcs11.h</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/pkcs11/pkcs11f.h</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/pkcs11/pkcs11t.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f5" displayName="tinycbor" projectFiles="true">
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cbor.h</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborencoder.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborencoder_close_container_checked.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborerrorstrings.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborinternal_p.h</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborparser.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborparser_dup_string.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborpretty.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborpretty_stdio.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/cborvalidation.c</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/compilersupport_p.h</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/LICENSE</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/README.md</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/tinycbor-version.h</itemPath>
+              <itemPath>../../../../../../../libraries/3rdparty/tinycbor/utf8_p.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f6" displayName="tinycrypt" projectFiles="true">
+              <logicalFolder name="f1" displayName="asn1" projectFiles="true">
+                <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/asn1/asn1.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="lib" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <logicalFolder name="f1" displayName="tinycrypt" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/aes.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/cbc_mode.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/ccm_mode.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/cmac_mode.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/constants.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/ctr_mode.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/ctr_prng.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/ecc.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/ecc_dh.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/ecc_dsa.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/ecc_platform_specific.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/hmac.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/hmac_prng.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/sha256.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/include/tinycrypt/utils.h</itemPath>
+                  </logicalFolder>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="source" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/aes_decrypt.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/aes_encrypt.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/cbc_mode.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/ccm_mode.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/cmac_mode.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/ctr_mode.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/ctr_prng.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc_dh.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc_dsa.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/ecc_platform_specific.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/hmac.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/hmac_prng.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/sha256.c</itemPath>
+                  <itemPath>../../../../../../../libraries/3rdparty/tinycrypt/lib/source/utils.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f7" displayName="unity" projectFiles="true">
+              <logicalFolder name="f1" displayName="extras" projectFiles="true">
+                <logicalFolder name="f1" displayName="eclipse" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/3rdparty/unity/extras/eclipse/error_parsers.txt</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="fixture" projectFiles="true">
+                  <logicalFolder name="f1" displayName="src" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/3rdparty/unity/extras/fixture/src/unity_fixture.c</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/unity/extras/fixture/src/unity_fixture.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/unity/extras/fixture/src/unity_fixture_internals.h</itemPath>
+                    <itemPath>../../../../../../../libraries/3rdparty/unity/extras/fixture/src/unity_fixture_malloc_overrides.h</itemPath>
+                  </logicalFolder>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="src" projectFiles="true">
+                <itemPath>../../../../../../../libraries/3rdparty/unity/src/unity.c</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/unity/src/unity.h</itemPath>
+                <itemPath>../../../../../../../libraries/3rdparty/unity/src/unity_internals.h</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="abstractions" projectFiles="true">
+            <logicalFolder name="f1" displayName="pkcs11" projectFiles="true">
+              <logicalFolder name="f1" displayName="include" projectFiles="true">
+                <itemPath>../../../../../../../libraries/abstractions/pkcs11/include/iot_pkcs11_pal.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="mbedtls" projectFiles="true">
+                <itemPath>../../../../../../../libraries/abstractions/pkcs11/mbedtls/iot_pkcs11_mbedtls.c</itemPath>
+                <itemPath>../../../../../../../libraries/abstractions/pkcs11/mbedtls/threading_alt.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f3" displayName="test" projectFiles="true">
+                <itemPath>../../../../../../../libraries/abstractions/pkcs11/test/iot_test_pkcs11.c</itemPath>
+              </logicalFolder>
+              <itemPath>../../../../../../../libraries/abstractions/pkcs11/ReadMe.md</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="platform" projectFiles="true">
+              <logicalFolder name="f1" displayName="freertos" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <logicalFolder name="f1" displayName="platform" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_ble.h</itemPath>
+                    <itemPath>../../../../../../../libraries/abstractions/platform/freertos/include/platform/iot_network_freertos.h</itemPath>
+                    <itemPath>../../../../../../../libraries/abstractions/platform/freertos/include/platform/iot_platform_types_freertos.h</itemPath>
+                  </logicalFolder>
+                </logicalFolder>
+                <itemPath>../../../../../../../libraries/abstractions/platform/freertos/iot_clock_freertos.c</itemPath>
+                <itemPath>../../../../../../../libraries/abstractions/platform/freertos/iot_metrics.c</itemPath>
+                <itemPath>../../../../../../../libraries/abstractions/platform/freertos/iot_network_freertos.c</itemPath>
+                <itemPath>../../../../../../../libraries/abstractions/platform/freertos/iot_threads_freertos.c</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="include" projectFiles="true">
+                <logicalFolder name="f1" displayName="platform" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/abstractions/platform/include/platform/iot_clock.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/platform/include/platform/iot_metrics.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/platform/include/platform/iot_network.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/platform/include/platform/iot_threads.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="types" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/abstractions/platform/include/types/iot_platform_types.h</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f3" displayName="test" projectFiles="true">
+                <itemPath>../../../../../../../libraries/abstractions/platform/test/iot_test_platform_clock.c</itemPath>
+                <itemPath>../../../../../../../libraries/abstractions/platform/test/iot_test_platform_threads.c</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="posix" projectFiles="true">
+              <logicalFolder name="f1" displayName="include" projectFiles="true">
+                <logicalFolder name="f1" displayName="FreeRTOS_POSIX" projectFiles="true">
+                  <logicalFolder name="f1" displayName="sys" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/sys/types.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/errno.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/fcntl.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/mqueue.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/pthread.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/sched.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/semaphore.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/signal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/time.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/unistd.h</itemPath>
+                  <itemPath>../../../../../../../libraries/abstractions/posix/include/FreeRTOS_POSIX/utils.h</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f4" displayName="secure_sockets" projectFiles="true">
+              <logicalFolder name="f1" displayName="freertos_plus_tcp" projectFiles="true">
+                <itemPath>../../../../../../../libraries/abstractions/secure_sockets/freertos_plus_tcp/iot_secure_sockets.c</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="include" projectFiles="true">
+                <itemPath>../../../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets.h</itemPath>
+                <itemPath>../../../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_config_defaults.h</itemPath>
+                <itemPath>../../../../../../../libraries/abstractions/secure_sockets/include/iot_secure_sockets_wrapper_metrics.h</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f3" displayName="test" projectFiles="true">
+                <itemPath>../../../../../../../libraries/abstractions/secure_sockets/test/iot_test_tcp.c</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f3" displayName="c_sdk" projectFiles="true">
+            <logicalFolder name="f1" displayName="aws" projectFiles="true">
+              <logicalFolder name="f1" displayName="defender" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/defender/include/aws_defender.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/defender/include/aws_iot_defender.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <logicalFolder name="f1" displayName="private" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/aws/defender/src/private/aws_iot_defender_internal.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_api.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_collector.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_mqtt.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/defender/src/aws_iot_defender_v1.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/defender/test/aws_iot_tests_defender_api.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="shadow" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <logicalFolder name="f1" displayName="types" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/include/types/aws_iot_shadow_types.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/include/aws_iot_shadow.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/include/aws_shadow.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <logicalFolder name="f1" displayName="private" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/private/aws_iot_shadow_internal.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_api.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_operation.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_parser.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_static_memory.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/aws_iot_shadow_subscription.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/src/aws_shadow_config_defaults.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <logicalFolder name="f1" displayName="system" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/test/system/aws_iot_tests_shadow_system.c</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="f2" displayName="unit" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_api.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/test/unit/aws_iot_tests_shadow_parser.c</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/aws/shadow/test/aws_test_shadow.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="standard" projectFiles="true">
+              <logicalFolder name="f1" displayName="common" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <logicalFolder name="f1" displayName="private" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/private/iot_default_root_certificates.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/private/iot_doubly_linked_list.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/private/iot_error.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/private/iot_lib_init.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/private/iot_logging.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/private/iot_static_memory.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/private/iot_taskpool_internal.h</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="f2" displayName="types" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/types/iot_network_types.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/types/iot_taskpool_types.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/iot_appversion32.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/iot_atomic.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/iot_init.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/iot_linear_containers.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/iot_logging_setup.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/iot_logging_task.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/include/iot_taskpool.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="logging" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/logging/iot_logging.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/logging/iot_logging_task_dynamic_buffers.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="taskpool" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/taskpool/iot_taskpool_static_memory.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f4" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/test/iot_memory_leak.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/common/test/iot_tests_taskpool.c</itemPath>
+                </logicalFolder>
+                <itemPath>../../../../../../../libraries/c_sdk/standard/common/iot_device_metrics.c</itemPath>
+                <itemPath>../../../../../../../libraries/c_sdk/standard/common/iot_init.c</itemPath>
+                <itemPath>../../../../../../../libraries/c_sdk/standard/common/iot_static_memory_common.c</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="https" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <logicalFolder name="f1" displayName="types" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/include/types/iot_https_types.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/https/include/iot_https_client.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/https/include/iot_https_utils.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <logicalFolder name="f1" displayName="private" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/src/private/iot_https_internal.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/https/src/iot_https_client.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/https/src/iot_https_utils.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <logicalFolder name="f1" displayName="system" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/test/system/iot_tests_https_system.c</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="f2" displayName="unit" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_async.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_client.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_common.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_common.h</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_sync.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/https/test/unit/iot_tests_https_utils.c</itemPath>
+                  </logicalFolder>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f3" displayName="mqtt" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <logicalFolder name="f1" displayName="types" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/include/types/iot_mqtt_types.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_agent_config_defaults.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_config_defaults.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/include/iot_mqtt_lib.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <logicalFolder name="f1" displayName="private" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/private/iot_mqtt_internal.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_agent.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_api.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_network.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_operation.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_static_memory.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_subscription.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_validate.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/src/iot_mqtt_serialize.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <logicalFolder name="f1" displayName="system" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/test/system/iot_tests_mqtt_system.c</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="f2" displayName="unit" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_api.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_metrics.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_receive.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_subscription.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/test/unit/iot_tests_mqtt_validate.c</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/mqtt/test/iot_test_mqtt_agent.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f4" displayName="serializer" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/include/iot_json_utils.h</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/include/iot_serializer.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <logicalFolder name="f1" displayName="cbor" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_decoder.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/src/cbor/iot_serializer_tinycbor_encoder.c</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="f2" displayName="json" projectFiles="true">
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_decoder.c</itemPath>
+                    <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/src/json/iot_serializer_json_encoder.c</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/src/iot_json_utils.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/src/iot_serializer_static_memory.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_deserializer_json.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_cbor.c</itemPath>
+                  <itemPath>../../../../../../../libraries/c_sdk/standard/serializer/test/iot_tests_serializer_json.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f4" displayName="freertos_plus" projectFiles="true">
+            <logicalFolder name="f1" displayName="aws" projectFiles="true">
+              <logicalFolder name="f1" displayName="greengrass" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/include/aws_ggd_config_defaults.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/include/aws_greengrass_discovery.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/src/aws_greengrass_discovery.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/src/aws_helper_secure_connect.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/test/aws_greengrass_discovery_test_access_declare.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/test/aws_greengrass_discovery_test_access_define.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/test/aws_test_greengrass_discovery.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/greengrass/test/aws_test_helper_secure_connect.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="ota" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/include/aws_iot_ota_agent.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_agent.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/include/aws_ota_types.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/src/aws_iot_ota_agent.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/src/aws_ota_agent_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/src/aws_ota_cbor.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/src/aws_ota_cbor.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/src/aws_ota_cbor_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/src/aws_ota_pal.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/test/aws_test_ota_agent.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/test/aws_test_ota_pal.c</itemPath>
+                </logicalFolder>
+                <itemPath>../../../../../../../libraries/freertos_plus/aws/ota/README.md</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="standard" projectFiles="true">
+              <logicalFolder name="f1" displayName="crypto" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/crypto/include/iot_crypto.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/crypto/src/iot_crypto.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/crypto/test/iot_test_crypto.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f2" displayName="freertos_plus_posix" projectFiles="true">
+                <logicalFolder name="f1" displayName="doc" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/doc/Doxyfile</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/doc/DoxygenLayout.xml</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/doc/mainpage.txt</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_internal.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_portable_default.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include/FreeRTOS_POSIX_types.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="source" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_clock.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_mqueue.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_barrier.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_cond.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_pthread_mutex.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_sched.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_semaphore.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_timer.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_unistd.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/source/FreeRTOS_POSIX_utils.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f4" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_clock.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_mqueue.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_pthread.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_semaphore.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_stress.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_timer.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_unistd.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/test/iot_test_posix_utils.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f3" displayName="freertos_plus_tcp" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOSIPConfigDefaults.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_ARP.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DHCP.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_DNS.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_errno_TCP.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_IP_Private.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_Sockets.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_Stream_Buffer.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_IP.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_TCP_WIN.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/FreeRTOS_UDP_IP.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/IPTraceMacroDefaults.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkBufferManagement.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include/NetworkInterface.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="source" projectFiles="true">
+                  <logicalFolder name="f1" displayName="portable" projectFiles="true">
+                    <logicalFolder name="f1" displayName="Compiler" projectFiles="true">
+                      <logicalFolder name="f1" displayName="GCC" projectFiles="true">
+                        <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC/pack_struct_end.h</itemPath>
+                        <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC/pack_struct_start.h</itemPath>
+                      </logicalFolder>
+                    </logicalFolder>
+                    <logicalFolder name="f2" displayName="NetworkInterface" projectFiles="true">
+                      <logicalFolder name="f1" displayName="pic32mzef_h3" projectFiles="true">
+                        <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef_h3/BufferAllocation_2.c</itemPath>
+                        <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/NetworkInterface/pic32mzef_h3/NetworkInterface_eth.c</itemPath>
+                      </logicalFolder>
+                    </logicalFolder>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_ARP.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DHCP.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_DNS.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_IP.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Sockets.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_Stream_Buffer.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_IP.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_TCP_WIN.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/FreeRTOS_UDP_IP.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_declare.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_dns_define.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_freertos_tcp_test_access_tcp_define.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test/iot_test_freertos_tcp.c</itemPath>
+                </logicalFolder>
+                <itemPath>../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/uncrustify.cfg</itemPath>
+              </logicalFolder>
+              <logicalFolder name="f4" displayName="pkcs11" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/pkcs11/include/iot_pkcs11.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/pkcs11/src/iot_pkcs11.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f5" displayName="tls" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/tls/include/iot_tls.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/tls/src/iot_tls.c</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f3" displayName="test" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/tls/test/iot_test_tls.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/tls/test/iot_test_tls.h</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+              <logicalFolder name="f6" displayName="utils" projectFiles="true">
+                <logicalFolder name="f1" displayName="include" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/utils/include/iot_pki_utils.h</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/utils/include/iot_system_init.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="src" projectFiles="true">
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/utils/src/iot_pki_utils.c</itemPath>
+                  <itemPath>../../../../../../../libraries/freertos_plus/standard/utils/src/iot_system_init.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+        </logicalFolder>
+        <logicalFolder name="f4" displayName="tests" projectFiles="true">
+          <logicalFolder name="f1" displayName="common" projectFiles="true">
+            <itemPath>../../../../../../../tests/common/aws_test.c</itemPath>
+            <itemPath>../../../../../../../tests/common/aws_test_framework.c</itemPath>
+            <itemPath>../../../../../../../tests/common/aws_test_runner.c</itemPath>
+            <itemPath>../../../../../../../tests/common/iot_tests_network.c</itemPath>
+            <itemPath>../../../../../../../tests/common/iot_test_freertos.c</itemPath>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="include" projectFiles="true">
+            <itemPath>../../../../../../../tests/include/aws_application_version.h</itemPath>
+            <itemPath>../../../../../../../tests/include/aws_clientcredential.h</itemPath>
+            <itemPath>../../../../../../../tests/include/aws_clientcredential_keys.h</itemPath>
+            <itemPath>../../../../../../../tests/include/aws_test_framework.h</itemPath>
+            <itemPath>../../../../../../../tests/include/aws_test_runner.h</itemPath>
+            <itemPath>../../../../../../../tests/include/aws_test_tcp.h</itemPath>
+            <itemPath>../../../../../../../tests/include/aws_test_utils.h</itemPath>
+            <itemPath>../../../../../../../tests/include/aws_unity_config.h</itemPath>
+            <itemPath>../../../../../../../tests/include/iot_config_common.h</itemPath>
+          </logicalFolder>
+        </logicalFolder>
+        <logicalFolder name="f5" displayName="vendors" projectFiles="true">
+          <logicalFolder name="f1" displayName="microchip" projectFiles="true">
+            <logicalFolder name="f1" displayName="boards" projectFiles="true">
+              <logicalFolder name="f1" displayName="curiosity2_pic32mzef" projectFiles="true">
+                <logicalFolder name="f1" displayName="aws_tests" projectFiles="true">
+                  <logicalFolder name="f1" displayName="config_files" projectFiles="true">
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_bufferpool_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_demo_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_ggd_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_iot_network_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_mqtt_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_ota_agent_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_secure_sockets_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_shadow_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_test_ota_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_test_runner_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_test_tcp_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_test_wifi_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/aws_wifi_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/FreeRTOSConfig.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/FreeRTOSIPConfig.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/iot_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/iot_mqtt_agent_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/iot_pkcs11_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/iot_test_pkcs11_config.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/NetworkConfig.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files/unity_config.h</itemPath>
+                  </logicalFolder>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="ports" projectFiles="true">
+                  <logicalFolder name="f1" displayName="ota" projectFiles="true">
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/ota/aws_ota_pal.c</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="f2" displayName="pkcs11" projectFiles="true">
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/pkcs11/iot_pkcs11_pal.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/pkcs11/pkcs11_nvm.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/pkcs11/pkcs11_nvm.h</itemPath>
+                  </logicalFolder>
+                  <logicalFolder name="f3" displayName="posix" projectFiles="true">
+                    <itemPath>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/posix/FreeRTOS_POSIX_portable.h</itemPath>
+                  </logicalFolder>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="harmony3" projectFiles="true">
+              <logicalFolder name="f1" displayName="afr" projectFiles="true">
+                <logicalFolder name="f1" displayName="system" projectFiles="true">
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/system/sys_time_h2_adapter.c</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/system/sys_time_h2_adapter.h</itemPath>
+                </logicalFolder>
+                <logicalFolder name="f2" displayName="tcpip" projectFiles="true">
+                  <logicalFolder name="f1" displayName="src" projectFiles="true">
+                    <logicalFolder name="f1" displayName="common" projectFiles="true">
+                      <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/common/helpers.h</itemPath>
+                      <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/common/sys_fs_wrapper.h</itemPath>
+                    </logicalFolder>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/hash_fnv.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/hash_fnv.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/helpers.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/link_list.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/lldp_manager.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/oahash.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/oahash.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_heap_alloc.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_heap_alloc.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_heap_external.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_heap_internal.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_helpers.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_helper_c32.S</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_helpers_private.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_manager_control.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_module_manager.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_notify.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_notify.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_packet.c</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_packet.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_private.h</itemPath>
+                    <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/tcpip_types.h</itemPath>
+                  </logicalFolder>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/ipv4.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/ipv6.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/lldp.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip_common_ports.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip_ethernet.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip_heap.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip_helpers.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip_mac.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip_mac_object.h</itemPath>
+                  <itemPath>../../../../../../../vendors/microchip/harmony3/afr/tcpip/tcpip_manager.h</itemPath>
+                </logicalFolder>
+                <itemPath>../../../../../../../vendors/microchip/harmony3/afr/afr.h</itemPath>
+                <itemPath>../../../../../../../vendors/microchip/harmony3/afr/system_config.h</itemPath>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="config" projectFiles="true">
+        <logicalFolder name="f1" displayName="pic32mzef_nvm" projectFiles="true">
+          <logicalFolder name="f4" displayName="driver" projectFiles="true">
+            <logicalFolder name="f1" displayName="ethmac" projectFiles="true">
+              <logicalFolder name="f1" displayName="src" projectFiles="true">
+                <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/src/dynamic/drv_ethmac.c</itemPath>
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/src/dynamic/drv_ethmac_lib.c</itemPath>
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethmac/src/dynamic/drv_eth_pic32_lib.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="ethphy" projectFiles="true">
+              <logicalFolder name="f1" displayName="src" projectFiles="true">
+                <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethphy/src/dynamic/drv_ethphy.c</itemPath>
+                  <itemPath>../src/config/pic32mzef_nvm/driver/ethphy/src/dynamic/drv_extphy_smsc8740.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="miim" projectFiles="true">
+              <logicalFolder name="f1" displayName="src" projectFiles="true">
+                <logicalFolder name="f1" displayName="dynamic" projectFiles="true">
+                  <itemPath>../src/config/pic32mzef_nvm/driver/miim/src/dynamic/drv_miim.c</itemPath>
+                </logicalFolder>
+              </logicalFolder>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f3" displayName="peripheral" projectFiles="true">
+            <logicalFolder name="f1" displayName="clk" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/clk/plib_clk.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f5" displayName="coretimer" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/coretimer/plib_coretimer.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="evic" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/evic/plib_evic.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="gpio" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/gpio/plib_gpio.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f4" displayName="nvm" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/nvm/plib_nvm.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f7" displayName="rng" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/rng/plib_rng.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f6" displayName="uart" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/uart/plib_uart4.c</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/peripheral/uart/plib_uart1.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <logicalFolder name="f2" displayName="stdio" projectFiles="true">
+            <itemPath>../src/config/pic32mzef_nvm/stdio/xc32_monitor.c</itemPath>
+          </logicalFolder>
+          <logicalFolder name="f1" displayName="system" projectFiles="true">
+            <logicalFolder name="f1" displayName="command" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/command/src/sys_command.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f4" displayName="console" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/console/src/sys_console_local.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/console/src/sys_console.c</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/console/src/sys_console_uart.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/console/src/sys_console_uart_definitions.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/console/src/sys_console_uart.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f2" displayName="debug" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/debug/src/sys_debug_local.h</itemPath>
+              <itemPath>../src/config/pic32mzef_nvm/system/debug/src/sys_debug.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f5" displayName="int" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/int/src/sys_int.c</itemPath>
+            </logicalFolder>
+            <logicalFolder name="f3" displayName="time" projectFiles="true">
+              <itemPath>../src/config/pic32mzef_nvm/system/time/src/sys_time.c</itemPath>
+            </logicalFolder>
+          </logicalFolder>
+          <itemPath>../src/config/pic32mzef_nvm/initialization.c</itemPath>
+          <itemPath>../src/config/pic32mzef_nvm/interrupts.c</itemPath>
+          <itemPath>../src/config/pic32mzef_nvm/interrupts_a.S</itemPath>
+          <itemPath>../src/config/pic32mzef_nvm/exceptions.c</itemPath>
+          <itemPath>../src/config/pic32mzef_nvm/tasks.c</itemPath>
+        </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="osal" projectFiles="true">
+        <itemPath>../src/config/pic32mzef_nvm/osal/osal_freertos.c</itemPath>
+      </logicalFolder>
+      <itemPath>../src/main.c</itemPath>
+      <itemPath>../src/app.c</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>../src</Elem>
+    <Elem>../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/linker_script</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="pic32mzef_nvm" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <targetDevice>PIC32MZ2048EFM144</targetDevice>
+        <targetHeader></targetHeader>
+        <targetPluginBoard></targetPluginBoard>
+        <platformTool>pkob4hybrid</platformTool>
+        <languageToolchain>XC32</languageToolchain>
+        <languageToolchainVersion>2.20</languageToolchainVersion>
+        <platform>3</platform>
+      </toolsSet>
+      <packs>
+        <pack name="PIC32MZ-EF_DFP" vendor="Microchip" version="1.0.20"/>
+      </packs>
+      <compileType>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+        <archiverTool>
+        </archiverTool>
+        <loading>
+          <makeArtifact PL="../../../bootloader/firmware/bootloader.X"
+                        CT="1"
+                        CN="pic32mzef_nvm"
+                        AC="true"
+                        BL="true"
+                        WD="../../../bootloader/firmware/bootloader.X"
+                        BC="${MAKE}  -f Makefile CONF=pic32mzef_nvm"
+                        DBC="${MAKE}  -f Makefile CONF=pic32mzef_nvm TYPE_IMAGE=DEBUG_RUN"
+                        CC="rm -rf &quot;build/pic32mzef_nvm&quot; &quot;dist/pic32mzef_nvm&quot;"
+                        OP="dist/pic32mzef_nvm/production/bootloader.X.production.hex"
+                        DOP="dist/pic32mzef_nvm/debug/bootloader.X.debug.elf"
+                        FL="dist/pic32mzef_nvm/production/bootloader.X.production.hex"
+                        PD="dist/pic32mzef_nvm/production/bootloader.X.production.elf"
+                        DD="dist/pic32mzef_nvm/debug/bootloader.X.debug.elf">
+          </makeArtifact>
+          <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
+          <alternateLoadableFile></alternateLoadableFile>
+        </loading>
+        <subordinates>
+        </subordinates>
+      </compileType>
+      <makeCustomizationType>
+        <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
+        <makeCustomizationPreStep></makeCustomizationPreStep>
+        <makeCustomizationPostStepEnabled>true</makeCustomizationPostStepEnabled>
+        <makeCustomizationPostStep>python ..\..\..\..\..\..\..\vendors\microchip\boards\curiosity2_pic32mzef\bootloader\bootloader\utility\binary_image_generator.py -d ${MP_CC_DIR} -b xc32-objcopy -p "-I ihex ${ImagePath} -O binary ${ImageDir}\mplab.${IMAGE_TYPE}.bin" &amp;&amp; python ..\..\..\..\..\..\..\vendors\microchip\boards\curiosity2_pic32mzef\bootloader\bootloader\utility\ota_image_generator.py -b ${ImageDir}\mplab.${IMAGE_TYPE}.bin -p MCHP-Curiosity-PIC32MZEF</makeCustomizationPostStep>
+        <makeCustomizationPutChecksumInUserID>false</makeCustomizationPutChecksumInUserID>
+        <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
+        <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
+      </makeCustomizationType>
+      <C32>
+        <property key="additional-warnings" value="false"/>
+        <property key="addresss-attribute-use" value="false"/>
+        <property key="enable-app-io" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="exclude-floating-point" value="false"/>
+        <property key="extra-include-directories"
+                  value="../../../../../../../libraries/abstractions/wifi/include;../../../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../../../libraries/abstractions/wifi/include;../../../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files;../../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/pkcs11;../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/posix;../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/common;../../../../../../../vendors/microchip/harmony3/afr;../../../../../../../freertos_kernel/include;../../../../../../../libraries/c_sdk/standard/common/include;../../../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../../../libraries/freertos_plus/standard/tls/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../../../libraries/abstractions/pkcs11/include;../../../../../../../tests/include;../../../../../../../libraries/c_sdk/standard/common/include/private;../../../../../../../libraries/abstractions/platform/include;../../../../../../../libraries/abstractions/platform/freertos/include;../../../../../../../libraries/abstractions/secure_sockets/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../../../libraries/freertos_plus/aws/ota/test;../../../../../../../libraries/freertos_plus/standard/utils/include;../../../../../../../demos/dev_mode_key_provisioning/include;../../../../../../../libraries/c_sdk/aws/defender/include;../../../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../../../libraries/c_sdk/standard/serializer/include;../../../../../../../libraries/c_sdk/aws/shadow/include;../../../../../../../libraries/c_sdk/aws/shadow/src;../../../../../../../libraries/c_sdk/standard/https/test/access;../../../../../../../libraries/c_sdk/standard/https/include;../../../../../../../libraries/c_sdk/standard/https/src;../../../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../../../libraries/freertos_plus/aws/ota/src;../../../../../../../libraries/freertos_plus/aws/ota/include;../../../../../../../libraries/3rdparty/mbedtls/include;../../../../../../../libraries/abstractions/posix/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../../../libraries/3rdparty/jsmn;../../../../../../../libraries/3rdparty/pkcs11;../../../../../../../libraries/3rdparty/tinycbor;../../../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../../../libraries/3rdparty/unity/src;../../../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../../../libraries/3rdparty/http-parser;../src;../src/config/pic32mzef_nvm;../src/packs/PIC32MZ2048EFM144_DFP;../src/mips"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="isolate-each-function" value="false"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="optimization-level" value="-O1"/>
+        <property key="place-data-into-section" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros"
+                  value="PIC32_USE_ETHERNET;UNITY_INCLUDE_CONFIG_H;AMAZON_FREERTOS_ENABLE_UNIT_TESTS;__free_rtos__"/>
+        <property key="strict-ansi" value="false"/>
+        <property key="support-ansi" value="false"/>
+        <property key="toplevel-reordering" value=""/>
+        <property key="unaligned-access" value=""/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+        <property key="use-indirect-calls" value="false"/>
+        <appendMe value="-mnewlib-libc -std=gnu99 -fgnu89-inline"/>
+      </C32>
+      <C32-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C32-AR>
+      <C32-AS>
+        <property key="assembler-symbols" value=""/>
+        <property key="enable-symbols" value="true"/>
+        <property key="exclude-floating-point-library" value="false"/>
+        <property key="expand-macros" value="false"/>
+        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-preprocessor"
+                  value="../../../../../../../libraries/abstractions/wifi/include;../../../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../../../libraries/abstractions/wifi/include;../../../../../../../vendors/microchip/boards/curiosity_pic32mzef/ports/posix;../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/aws_tests/config_files;../../../../../../../freertos_kernel/portable/MPLAB/PIC32MZ;../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/pkcs11;../../../../../../../vendors/microchip/boards/curiosity2_pic32mzef/ports/posix;../../../../../../../vendors/microchip/harmony3/afr/tcpip/src/common;../../../../../../../vendors/microchip/harmony3/afr;../../../../../../../freertos_kernel/include;../../../../../../../libraries/c_sdk/standard/common/include;../../../../../../../libraries/freertos_plus/standard/crypto/include;../../../../../../../libraries/freertos_plus/standard/tls/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/source/portable/Compiler/GCC;../../../../../../../libraries/abstractions/pkcs11/include;../../../../../../../tests/include;../../../../../../../libraries/c_sdk/standard/common/include/private;../../../../../../../libraries/abstractions/platform/include;../../../../../../../libraries/abstractions/platform/freertos/include;../../../../../../../libraries/abstractions/secure_sockets/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_tcp/test;../../../../../../../libraries/freertos_plus/standard/pkcs11/include;../../../../../../../libraries/freertos_plus/aws/ota/test;../../../../../../../libraries/freertos_plus/standard/utils/include;../../../../../../../demos/dev_mode_key_provisioning/include;../../../../../../../libraries/c_sdk/aws/defender/include;../../../../../../../libraries/c_sdk/standard/mqtt/test/access;../../../../../../../libraries/c_sdk/standard/mqtt/include;../../../../../../../libraries/c_sdk/standard/mqtt/src;../../../../../../../libraries/c_sdk/standard/serializer/include;../../../../../../../libraries/c_sdk/aws/shadow/include;../../../../../../../libraries/c_sdk/aws/shadow/src;../../../../../../../libraries/c_sdk/standard/https/test/access;../../../../../../../libraries/c_sdk/standard/https/include;../../../../../../../libraries/c_sdk/standard/https/src;../../../../../../../libraries/freertos_plus/aws/greengrass/test;../../../../../../../libraries/freertos_plus/aws/greengrass/include;../../../../../../../libraries/freertos_plus/aws/greengrass/src;../../../../../../../libraries/freertos_plus/aws/ota/src;../../../../../../../libraries/freertos_plus/aws/ota/include;../../../../../../../libraries/3rdparty/mbedtls/include;../../../../../../../libraries/abstractions/posix/include;../../../../../../../libraries/freertos_plus/standard/freertos_plus_posix/include;../../../../../../../libraries/c_sdk/aws/defender/src/private;../../../../../../../libraries/3rdparty/jsmn;../../../../../../../libraries/3rdparty/pkcs11;../../../../../../../libraries/3rdparty/tinycbor;../../../../../../../libraries/3rdparty/tinycrypt/asn1;../../../../../../../libraries/3rdparty/tinycrypt/lib/include;../../../../../../../libraries/3rdparty/mbedtls/include/mbedtls;../../../../../../../libraries/abstractions/pkcs11/mbedtls;../../../../../../../libraries/3rdparty/unity/src;../../../../../../../libraries/3rdparty/unity/extras/fixture/src;../../../../../../../libraries/3rdparty/http-parser"/>
+        <property key="false-conditionals" value="false"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="keep-locals" value="false"/>
+        <property key="list-assembly" value="false"/>
+        <property key="list-source" value="false"/>
+        <property key="list-symbols" value="false"/>
+        <property key="oXC32asm-list-to-file" value="false"/>
+        <property key="omit-debug-dirs" value="false"/>
+        <property key="omit-forms" value="false"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="warning-level" value=""/>
+      </C32-AS>
+      <C32-CO>
+        <property key="coverage-enable" value="false"/>
+      </C32-CO>
+      <C32-LD>
+        <property key="additional-options-use-response-files" value="false"/>
+        <property key="additional-options-write-sla" value="false"/>
+        <property key="allocate-dinit" value="false"/>
+        <property key="code-dinit" value="false"/>
+        <property key="ebase-addr" value=""/>
+        <property key="enable-check-sections" value="false"/>
+        <property key="exclude-floating-point-library" value="false"/>
+        <property key="exclude-standard-libraries" value="false"/>
+        <property key="extra-lib-directories" value=""/>
+        <property key="fill-flash-options-addr" value=""/>
+        <property key="fill-flash-options-const" value=""/>
+        <property key="fill-flash-options-how" value="0"/>
+        <property key="fill-flash-options-inc-const" value="1"/>
+        <property key="fill-flash-options-increment" value=""/>
+        <property key="fill-flash-options-seq" value=""/>
+        <property key="fill-flash-options-what" value="0"/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-cross-reference-file" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="heap-size" value="512"/>
+        <property key="input-libraries" value=""/>
+        <property key="kseg-length" value=""/>
+        <property key="kseg-origin" value=""/>
+        <property key="linker-symbols" value=""/>
+        <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
+        <property key="no-device-startup-code" value="true"/>
+        <property key="no-startup-files" value="false"/>
+        <property key="oXC32ld-extra-opts" value="-mnewlib-libc"/>
+        <property key="optimization-level" value=""/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="remove-unused-sections" value="true"/>
+        <property key="report-memory-usage" value="false"/>
+        <property key="serial-length" value=""/>
+        <property key="serial-origin" value=""/>
+        <property key="stack-size" value=""/>
+        <property key="symbol-stripping" value=""/>
+        <property key="trace-symbols" value=""/>
+        <property key="warn-section-align" value="false"/>
+      </C32-LD>
+      <C32CPP>
+        <property key="additional-warnings" value="false"/>
+        <property key="addresss-attribute-use" value="false"/>
+        <property key="check-new" value="false"/>
+        <property key="eh-specs" value="true"/>
+        <property key="enable-app-io" value="false"/>
+        <property key="enable-omit-frame-pointer" value="false"/>
+        <property key="enable-symbols" value="true"/>
+        <property key="enable-unroll-loops" value="false"/>
+        <property key="exceptions" value="true"/>
+        <property key="exclude-floating-point" value="false"/>
+        <property key="extra-include-directories" value=""/>
+        <property key="generate-16-bit-code" value="false"/>
+        <property key="generate-micro-compressed-code" value="false"/>
+        <property key="isolate-each-function" value="true"/>
+        <property key="make-warnings-into-errors" value="false"/>
+        <property key="optimization-level" value="-O1"/>
+        <property key="place-data-into-section" value="false"/>
+        <property key="post-instruction-scheduling" value="default"/>
+        <property key="pre-instruction-scheduling" value="default"/>
+        <property key="preprocessor-macros" value=""/>
+        <property key="rtti" value="true"/>
+        <property key="strict-ansi" value="false"/>
+        <property key="toplevel-reordering" value=""/>
+        <property key="unaligned-access" value=""/>
+        <property key="use-cci" value="false"/>
+        <property key="use-iar" value="false"/>
+        <property key="use-indirect-calls" value="false"/>
+      </C32CPP>
+      <C32Global>
+        <property key="common-include-directories" value=""/>
+        <property key="gp-relative-option" value=""/>
+        <property key="legacy-libc" value="false"/>
+        <property key="mdtcm" value=""/>
+        <property key="mitcm" value=""/>
+        <property key="mstacktcm" value="false"/>
+        <property key="relaxed-math" value="false"/>
+        <property key="save-temps" value="false"/>
+        <property key="wpo-lto" value="false"/>
+      </C32Global>
+      <PICkit3PlatformTool>
+        <property key="ADC" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CAN1" value="true"/>
+        <property key="CAN2" value="true"/>
+        <property key="CHANGE NOTICE A" value="true"/>
+        <property key="CHANGE NOTICE B" value="true"/>
+        <property key="CHANGE NOTICE C" value="true"/>
+        <property key="CHANGE NOTICE D" value="true"/>
+        <property key="CHANGE NOTICE E" value="true"/>
+        <property key="CHANGE NOTICE F" value="true"/>
+        <property key="CHANGE NOTICE G" value="true"/>
+        <property key="CHANGE NOTICE H" value="true"/>
+        <property key="CHANGE NOTICE J" value="true"/>
+        <property key="CHANGE NOTICE K" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="DMA" value="true"/>
+        <property key="ETHERNET CONTROLLER" value="true"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="I2C 1" value="true"/>
+        <property key="I2C 2" value="true"/>
+        <property key="I2C 3" value="true"/>
+        <property key="I2C 4" value="true"/>
+        <property key="I2C 5" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="INTERRUPT CONTROL" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="REAL TIME CLOCK" value="true"/>
+        <property key="REFERENCE CLOCK1" value="true"/>
+        <property key="REFERENCE CLOCK2" value="true"/>
+        <property key="REFERENCE CLOCK3" value="true"/>
+        <property key="REFERENCE CLOCK4" value="true"/>
+        <property key="SPI/I2S 1" value="true"/>
+        <property key="SPI/I2S 2" value="true"/>
+        <property key="SPI/I2S 3" value="true"/>
+        <property key="SPI/I2S 4" value="true"/>
+        <property key="SPI/I2S 5" value="true"/>
+        <property key="SPI/I2S 6" value="true"/>
+        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="TIMER6" value="true"/>
+        <property key="TIMER7" value="true"/>
+        <property key="TIMER8" value="true"/>
+        <property key="TIMER9" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
+        <property key="UART1" value="true"/>
+        <property key="UART2" value="true"/>
+        <property key="UART3" value="true"/>
+        <property key="UART4" value="true"/>
+        <property key="UART5" value="true"/>
+        <property key="UART6" value="true"/>
+        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="hwtoolclock.frcindebug" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram" value="true"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.ranges" value="1d000000-1d003fff"/>
+        <property key="poweroptions.powerenable" value="false"/>
+        <property key="programmertogo.imagename" value=""/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmspeed" value="2"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preservedataflash.ranges"
+                  value="${programoptions.preservedataflash.ranges}"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value=""/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VPPFirst"/>
+        <property key="programoptions.usehighvoltageonmclr" value="false"/>
+        <property key="programoptions.uselvpprogramming" value="false"/>
+        <property key="voltagevalue" value="3.25"/>
+      </PICkit3PlatformTool>
+      <pkob4hybrid>
+        <property key="ADC" value="true"/>
+        <property key="AutoSelectMemRanges" value="auto"/>
+        <property key="CAN1" value="true"/>
+        <property key="CAN2" value="true"/>
+        <property key="CHANGE NOTICE A" value="true"/>
+        <property key="CHANGE NOTICE B" value="true"/>
+        <property key="CHANGE NOTICE C" value="true"/>
+        <property key="CHANGE NOTICE D" value="true"/>
+        <property key="CHANGE NOTICE E" value="true"/>
+        <property key="CHANGE NOTICE F" value="true"/>
+        <property key="CHANGE NOTICE G" value="true"/>
+        <property key="CHANGE NOTICE H" value="true"/>
+        <property key="CHANGE NOTICE J" value="true"/>
+        <property key="CHANGE NOTICE K" value="true"/>
+        <property key="COMPARATOR" value="true"/>
+        <property key="DMA" value="true"/>
+        <property key="ETHERNET CONTROLLER" value="true"/>
+        <property key="Freeze All Other Peripherals" value="true"/>
+        <property key="I2C 1" value="true"/>
+        <property key="I2C 2" value="true"/>
+        <property key="I2C 3" value="true"/>
+        <property key="I2C 4" value="true"/>
+        <property key="I2C 5" value="true"/>
+        <property key="INPUT CAPTURE 1" value="true"/>
+        <property key="INPUT CAPTURE 2" value="true"/>
+        <property key="INPUT CAPTURE 3" value="true"/>
+        <property key="INPUT CAPTURE 4" value="true"/>
+        <property key="INPUT CAPTURE 5" value="true"/>
+        <property key="INPUT CAPTURE 6" value="true"/>
+        <property key="INPUT CAPTURE 7" value="true"/>
+        <property key="INPUT CAPTURE 8" value="true"/>
+        <property key="INPUT CAPTURE 9" value="true"/>
+        <property key="INTERRUPT CONTROL" value="true"/>
+        <property key="OUTPUT COMPARE 1" value="true"/>
+        <property key="OUTPUT COMPARE 2" value="true"/>
+        <property key="OUTPUT COMPARE 3" value="true"/>
+        <property key="OUTPUT COMPARE 4" value="true"/>
+        <property key="OUTPUT COMPARE 5" value="true"/>
+        <property key="OUTPUT COMPARE 6" value="true"/>
+        <property key="OUTPUT COMPARE 7" value="true"/>
+        <property key="OUTPUT COMPARE 8" value="true"/>
+        <property key="OUTPUT COMPARE 9" value="true"/>
+        <property key="PARALLEL MASTER/SLAVE PORT" value="true"/>
+        <property key="REAL TIME CLOCK" value="true"/>
+        <property key="REFERENCE CLOCK1" value="true"/>
+        <property key="REFERENCE CLOCK2" value="true"/>
+        <property key="REFERENCE CLOCK3" value="true"/>
+        <property key="REFERENCE CLOCK4" value="true"/>
+        <property key="SPI/I2S 1" value="true"/>
+        <property key="SPI/I2S 2" value="true"/>
+        <property key="SPI/I2S 3" value="true"/>
+        <property key="SPI/I2S 4" value="true"/>
+        <property key="SPI/I2S 5" value="true"/>
+        <property key="SPI/I2S 6" value="true"/>
+        <property key="TIMER1" value="true"/>
+        <property key="TIMER2" value="true"/>
+        <property key="TIMER3" value="true"/>
+        <property key="TIMER4" value="true"/>
+        <property key="TIMER5" value="true"/>
+        <property key="TIMER6" value="true"/>
+        <property key="TIMER7" value="true"/>
+        <property key="TIMER8" value="true"/>
+        <property key="TIMER9" value="true"/>
+        <property key="ToolFirmwareFilePath"
+                  value="Press to browse for a specific firmware version"/>
+        <property key="ToolFirmwareOption.UpdateOptions"
+                  value="ToolFirmwareOption.UseLatest"/>
+        <property key="UART1" value="true"/>
+        <property key="UART2" value="true"/>
+        <property key="UART3" value="true"/>
+        <property key="UART4" value="true"/>
+        <property key="UART5" value="true"/>
+        <property key="UART6" value="true"/>
+        <property key="communication.interface" value=""/>
+        <property key="communication.speed" value="${communication.speed.default}"/>
+        <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="memories.aux" value="false"/>
+        <property key="memories.bootflash" value="true"/>
+        <property key="memories.configurationmemory" value="true"/>
+        <property key="memories.configurationmemory2" value="true"/>
+        <property key="memories.dataflash" value="true"/>
+        <property key="memories.eeprom" value="true"/>
+        <property key="memories.exclude.configurationmemory" value="true"/>
+        <property key="memories.flashdata" value="true"/>
+        <property key="memories.id" value="true"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
+        <property key="memories.programmemory" value="true"/>
+        <property key="memories.programmemory.ranges" value="1d000000-1d1fffff"/>
+        <property key="programoptions.donoteraseauxmem" value="false"/>
+        <property key="programoptions.eraseb4program" value="true"/>
+        <property key="programoptions.pgmentry.voltage" value="low"/>
+        <property key="programoptions.pgmspeed" value="Med"/>
+        <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value="1d000000-1d1fffff"/>
+        <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveuserid" value="false"/>
+        <property key="programoptions.programcalmem" value="false"/>
+        <property key="programoptions.programuserotp" value="false"/>
+        <property key="programoptions.testmodeentrymethod" value="VDDFirst"/>
+      </pkob4hybrid>
+    </conf>
+  </confs>
+</configurationDescriptor>

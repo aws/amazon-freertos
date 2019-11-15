@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="65">
+  <projectmakefile>Makefile</projectmakefile>
+  <defaultConf>0</defaultConf>
+  <confs>
+    <conf name="curiosity2_pic32mzef_nvm" type="2">
+      <platformToolSN>:=MPLABComm-USB-Microchip:=&lt;vid>04D8:=&lt;pid>8109:=&lt;rev>0100:=&lt;man>Microchip Technology Incorporated:=&lt;prod>MPLAB PKoB 4:=&lt;sn>MTI000000008:=&lt;drv>x:=&lt;xpt>b:=end</platformToolSN>
+      <languageToolchainDir>C:\Program Files (x86)\Microchip\xc32\v2.30\bin</languageToolchainDir>
+      <mdbdebugger version="1">
+        <placeholder1>place holder 1</placeholder1>
+        <placeholder2>place holder 2</placeholder2>
+      </mdbdebugger>
+      <runprofile version="6">
+        <args></args>
+        <rundir></rundir>
+        <buildfirst>true</buildfirst>
+        <console-type>0</console-type>
+        <terminal-type>0</terminal-type>
+        <remove-instrumentation>0</remove-instrumentation>
+        <environment>
+        </environment>
+      </runprofile>
+    </conf>
+  </confs>
+</configurationDescriptor>
