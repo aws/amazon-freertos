@@ -92,7 +92,7 @@
  * the selected communication channel before aborting and returning error.
  *
  */
-#define otaconfigMAX_NUM_BLOCKS_REQUEST        32U
+#define otaconfigMAX_NUM_REQUEST_MOMENTUM        32U
 
  /**
  * @brief The maximum number of requests allowed to send without a response before we abort.

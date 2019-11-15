@@ -211,6 +211,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     OTA_State_t eOtaStatus;
     OTA_FileContext_t * pxUpdateFile = NULL;
     uint32_t ulLoopIndex;
+    bool bUpdateJob = false;
 
     /* Initialize the OTA agent. Some tests don't use an initialized OTA Agent,
      * so this isn't done in SETUP.  This is done outside of TEST_PROTECT so that
@@ -235,7 +236,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 
         for( ulLoopIndex = 0; ulLoopIndex < otatestMAX_LOOP_MEM_LEAK_CHECK; ulLoopIndex++ )
         {
-            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ), &bUpdateJob );
             TEST_ASSERT_TRUE( pxUpdateFile != NULL );
 
             /* Check the various document field conversions. */
@@ -272,7 +273,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     {
         if( TEST_PROTECT() )
         {
-            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ) );
+            pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestBAD_LASER_JSON, sizeof( otatestBAD_LASER_JSON ), &bUpdateJob );
             TEST_ASSERT_TRUE( pxUpdateFile == NULL );
         }
 
@@ -288,21 +289,21 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     /* Test that null is returned if JSON file with incorrect length is passed in parameter.
      * Start test.
      */
-    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2 );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) / 2, &bUpdateJob );
     TEST_ASSERT_TRUE( pxUpdateFile == NULL );
     /* End test. */
 
     /* Test that null is returned if corrupted JSON file is passed in parameter.
      * Start test.
      */
-    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ) );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestGARBAGE_JSON, sizeof( otatestGARBAGE_JSON ), &bUpdateJob );
     TEST_ASSERT_TRUE( pxUpdateFile == NULL );
     /* End test. */
 
     /* Test that prvOTA_Close doesn't try to free already freed memory.
      * Start test.
      */
-    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ) );
+    pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ), &bUpdateJob );
 
     if( pxUpdateFile != NULL )
     {
@@ -328,6 +329,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
 {
     JSON_DocModel_t xDocModel = { 0 };
     JSON_DocParam_t xDocParam = { 0 };
+    bool bUpdateJob = false;
 
     /* Initialize the OTA Agent for the following tests. */
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
@@ -366,18 +368,21 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
 
     /* Ensure that a JSON document containing duplicate keys is rejected. */
     TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_DUPLICATE,
-                                                      sizeof( otatestLASER_JSON_WITH_DUPLICATE ) ) );
+                                                      sizeof( otatestLASER_JSON_WITH_DUPLICATE ),
+                                                      &bUpdateJob ) );
 
     /* Ensure that a JSON document containing a mismatched field is rejected. */
     TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_FIELD_MISMATCH,
-                                                      sizeof( otatestLASER_JSON_WITH_FIELD_MISMATCH ) ) );
+                                                      sizeof( otatestLASER_JSON_WITH_FIELD_MISMATCH ),
+                                                      &bUpdateJob ) );
 
     /* The OTA Agent must be shut down if these tests fail, so a TEST_PROTECT is necessary. */
     if( TEST_PROTECT() )
     {
         /* Ensure that a JSON document containing bad base64 character is rejected. */
         TEST_ASSERT_EQUAL( NULL, TEST_OTA_prvParseJobDoc( otatestLASER_JSON_WITH_BAD_BASE64,
-                                                          sizeof( otatestLASER_JSON_WITH_BAD_BASE64 ) ) );
+                                                          sizeof( otatestLASER_JSON_WITH_BAD_BASE64 ),
+                                                          &bUpdateJob ) );
     }
 
     /* Shut down the OTA Agent. */
