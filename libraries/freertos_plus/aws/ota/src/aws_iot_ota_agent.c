@@ -261,6 +261,7 @@ static OTA_Err_t prvInSelfTestHandler(OTA_EventData_t* pxEventData);
 static OTA_Err_t prvInitFileHandler(OTA_EventData_t* pxEventData);
 static OTA_Err_t prvProcessDataHandler(OTA_EventData_t* pxEventData);
 static OTA_Err_t prvRequestDataHandler(OTA_EventData_t* pxEventData);
+static OTA_Err_t prvShutdownHandler( OTA_EventData_t* pxEventData );
 
 /* OTA default callback initializer. */
 
@@ -307,6 +308,7 @@ OTAStateTableEntry_t OTATransitionTable[] =
 	{ eOTA_AgentState_RequestingJob ,        eOTA_AgentEvent_RequestJobDocument ,   NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob       }  ,
 	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_ReceivedJobDocument ,  NULL ,    prvProcessJobHandler ,      eOTA_AgentState_CreatingFile        }  ,
 	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_RequestTimer ,         NULL ,    prvRequestJobHandler ,      eOTA_AgentState_WaitingForJob       }  ,
+	{ eOTA_AgentState_WaitingForJob ,        eOTA_AgentEvent_Shutdown ,             NULL ,    prvShutdownHandler ,        eOTA_AgentState_ShuttingDown        }  ,
 	{ eOTA_AgentState_CreatingFile  ,        eOTA_AgentEvent_StartSelfTest ,        NULL ,    prvInSelfTestHandler ,      eOTA_AgentState_WaitingForJob       }  ,
 	{ eOTA_AgentState_CreatingFile  ,        eOTA_AgentEvent_CreateFile ,           NULL ,    prvInitFileHandler ,        eOTA_AgentState_RequestingFileBlock }  ,
     { eOTA_AgentState_RequestingFileBlock ,  eOTA_AgentEvent_RequestFileBlock ,     NULL ,    prvRequestDataHandler ,     eOTA_AgentState_WaitingForFileBlock }  ,
@@ -2390,7 +2392,10 @@ static void prvAgentShutdownCleanup( void )
     }
 
     /* Cleanup related to selected protocol. */
-	xOTA_DataInterface.prvCleanup( &xOTA_Agent );
+    if(xOTA_DataInterface.prvCleanup != NULL)
+    {
+	    xOTA_DataInterface.prvCleanup( &xOTA_Agent );
+    }
 
     /*
 	 * Close any open OTA transfers.
