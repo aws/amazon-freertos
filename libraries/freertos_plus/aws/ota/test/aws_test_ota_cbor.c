@@ -239,7 +239,7 @@ TEST_GROUP_RUNNER( Quarantine_OTA_CBOR )
     RUN_TEST_CASE( Quarantine_OTA_CBOR, CborOtaServerFiles );
 }
 
-#define CBOR_TEST_MESSAGE_BUFFER_SIZE                     2048
+#define CBOR_TEST_MESSAGE_BUFFER_SIZE                     ( OTA_FILE_BLOCK_SIZE * 2 )
 #define CBOR_TEST_SERVER_CHUNK_COUNT                      16
 #define CBOR_TEST_BITMAP_VALUE                            0xAAAAAAAA
 #define CBOR_TEST_GETSTREAMRESPONSE_MESSAGE_ITEM_COUNT    4

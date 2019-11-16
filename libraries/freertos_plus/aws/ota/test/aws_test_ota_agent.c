@@ -86,12 +86,12 @@ static const uint8_t ucOtatestSIGNATURE[] =
 /**
  * @brief Job document, with all required fields, that is expected to parse.
  */
-#define otatestLASER_JSON                        "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestLASER_JSON                        "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"protocols\":[\"MQTT\"],\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
 
 /**
  * @brief Job document that is missing a required field.
  */
-#define otatestBAD_LASER_JSON                    "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestINVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
+#define otatestBAD_LASER_JSON                    "{\"clientToken\":\"mytoken\",\"timestamp\":1508445004,\"execution\":{\"jobId\":\"15\",\"status\":\"QUEUED\",\"queuedAt\":1507697924,\"lastUpdatedAt\":1507697924,\"versionNumber\":1,\"executionNumber\":1,\"jobDocument\":{\"afr_ota\": {\"protocols\":[\"MQTT\"],\"streamname\": \"1\",\"files\": [{\"filepath\": \"payload.bin\",\"version\":\"1.0.0.0\",\"filesize\": 90860,\"fileid\": 0,\"attr\": 3,\"certfile\":\"rsasigner.crt\", \"" otatestINVALID_SIG_METHOD "\":\"OHj5sNjxqMNK3WNEwbyfs/PeSSS1kzLkAQ4MSu0yKNFoGxJrUKuIWhjQbQiPlXcDtXlSXE8ydAwoxnnw5lcwpJsbXxD1K1PwZJoc/3mv5XHXbvvEoFr4yA0rhY4tyrMDBesEtOVrW0yI4mM4Lde5OtdIxo8sjTSPGXo2Ejuhn+LDRD3gKdb1gtPpoJ/YBQmYKXHFQ5QW58GOSlB9prq5v+MloVCATjmzb9tu4msScXYYy41ikEhK2eyfl7/vpc2vMNX6uhyyeZhku9namI4OZmsp72tLL4D4pFt4/nDWYSAo8sQAwns1RNY+j52KfvgvKKN3u6G3suFyVQoxWJu3aA==\"}]}}}}"
 
 /**
  * @brief Has a duplicate JSON field, but otherwise valid.
@@ -117,6 +117,11 @@ static const uint8_t ucOtatestSIGNATURE[] =
  * @brief Shared MQTT client handle, used across setup, tests, and teardown.
  * But only used by one test at a time. */
 static IotMqttConnection_t xMQTTClientHandle = NULL;
+
+/**
+ * @brief Connection context for OTA agent.
+ */
+static OTA_ConnectionContext_t xOTAConnContext = { NULL, NULL, NULL };
 
 /**
  * @brief Application-defined callback for the OTA agent.
@@ -163,6 +168,8 @@ TEST_SETUP( Full_OTA_AGENT )
     TEST_ASSERT_EQUAL_INT_MESSAGE( IOT_MQTT_SUCCESS, connectStatus,
                                    "Failed to connect to the MQTT broker during "
                                    "TEST_SETUP." );
+
+    xOTAConnContext.pvControlClient = xMQTTClientHandle;
 }
 
 /**
@@ -208,16 +215,16 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
 
 TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
 {
-    OTA_State_t eOtaStatus;
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
     OTA_FileContext_t * pxUpdateFile = NULL;
-    uint32_t ulLoopIndex;
+    uint32_t ulLoopIndex = 0;
     bool bUpdateJob = false;
 
     /* Initialize the OTA agent. Some tests don't use an initialized OTA Agent,
      * so this isn't done in SETUP.  This is done outside of TEST_PROTECT so that
      * this test exits if OTA_AgentInit fails. */
     eOtaStatus = OTA_AgentInit(
-        xMQTTClientHandle,
+        &xOTAConnContext,
         ( const uint8_t * ) clientcredentialIOT_THING_NAME,
         vOTACompleteCallback,
         pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
@@ -333,7 +340,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
 
     /* Initialize the OTA Agent for the following tests. */
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
-                               xMQTTClientHandle,
+                               &xOTAConnContext,
                                ( const uint8_t * ) clientcredentialIOT_THING_NAME,
                                vOTACompleteCallback,
                                pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
