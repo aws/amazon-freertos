@@ -218,7 +218,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     OTA_State_t eOtaStatus = eOTA_AgentState_Init;
     OTA_FileContext_t * pxUpdateFile = NULL;
     uint32_t ulLoopIndex = 0;
-    bool bUpdateJob = false;
+    bool_t bUpdateJob = false;
 
     /* Initialize the OTA agent. Some tests don't use an initialized OTA Agent,
      * so this isn't done in SETUP.  This is done outside of TEST_PROTECT so that
@@ -336,7 +336,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
 {
     JSON_DocModel_t xDocModel = { 0 };
     JSON_DocParam_t xDocParam = { 0 };
-    bool bUpdateJob = false;
+    bool_t bUpdateJob = false;
 
     /* Initialize the OTA Agent for the following tests. */
     TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(

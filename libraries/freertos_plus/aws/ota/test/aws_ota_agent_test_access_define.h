@@ -48,7 +48,7 @@ IngestResult_t TEST_OTA_prvIngestDataBlock( OTA_FileContext_t * C,
 
 OTA_FileContext_t * TEST_OTA_prvParseJobDoc( const char * pacRawMsg,
                                              u32 iMsgLen,
-                                             bool * pbUpdateJob )
+                                             bool_t * pbUpdateJob )
 {
     return prvParseJobDoc( pacRawMsg, iMsgLen, pbUpdateJob );
 }
