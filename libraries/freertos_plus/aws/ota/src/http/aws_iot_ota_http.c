@@ -450,6 +450,12 @@ static void _httpResponseCompleteCallback( void * pPrivateData,
     /* OTA Event. */
     OTA_EventMsg_t eventMsg = { 0 };
 
+    /* Bail out if this callback is invoked after the OTA agent is stopped. */
+    if( _httpDownloader.pAgentCtx->eState == eOTA_AgentState_Stopped )
+    {
+        return;
+    }
+
     if( _httpDownloader.err == OTA_HTTP_ERR_NONE )
     {
         _httpProcessResponseBody( _httpDownloader.pAgentCtx, pResponseBodyBuffer, _httpDownloader.currBlockSize );

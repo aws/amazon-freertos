@@ -131,6 +131,38 @@ static void vOTACompleteCallback( OTA_JobEvent_t eResult )
 }
 
 /**
+ * @brief Initialize OTA agent. Some tests don't use an initialized OTA Agent, so this isn't done in SETUP.
+ */
+static OTA_State_t prvOTAAgentInit()
+{
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
+    TickType_t xTicksToWait = pdMS_TO_TICKS( otatestAGENT_INIT_WAIT );
+
+    eOtaStatus = OTA_AgentInit(
+        &xOTAConnContext,
+        ( const uint8_t * ) clientcredentialIOT_THING_NAME,
+        vOTACompleteCallback,
+        pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
+
+    if( eOtaStatus != eOTA_AgentState_Ready )
+    {
+        configPRINTF( ( "Failed to initialize OTA agent" ) );
+    }
+    else
+    {
+        /* Wait for OTA agent to transit to eOTA_AgentState_WaitingForJob state.*/
+        while( ( xTicksToWait > 0U ) && ( eOtaStatus != eOTA_AgentState_WaitingForJob ) )
+        {
+            eOtaStatus = OTA_GetAgentState();
+            vTaskDelay( 1 );
+            xTicksToWait--;
+        }
+    }
+
+    return eOtaStatus;
+}
+
+/**
  * @brief Test group definition.
  */
 TEST_GROUP( Full_OTA_AGENT );
@@ -220,15 +252,8 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     uint32_t ulLoopIndex = 0;
     bool_t bUpdateJob = false;
 
-    /* Initialize the OTA agent. Some tests don't use an initialized OTA Agent,
-     * so this isn't done in SETUP.  This is done outside of TEST_PROTECT so that
-     * this test exits if OTA_AgentInit fails. */
-    eOtaStatus = OTA_AgentInit(
-        &xOTAConnContext,
-        ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-        vOTACompleteCallback,
-        pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
+    eOtaStatus = prvOTAAgentInit();
+    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_WaitingForJob, eOtaStatus );
 
     /* Test:
      * 1. That in ideal scenario, the JSON gets correctly processed.
@@ -237,10 +262,6 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
      */
     if( TEST_PROTECT() )
     {
-        /* Check OTA agent status. */
-        eOtaStatus = OTA_GetAgentState();
-        TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, eOtaStatus );
-
         for( ulLoopIndex = 0; ulLoopIndex < otatestMAX_LOOP_MEM_LEAK_CHECK; ulLoopIndex++ )
         {
             pxUpdateFile = TEST_OTA_prvParseJobDoc( otatestLASER_JSON, sizeof( otatestLASER_JSON ), &bUpdateJob );
@@ -339,11 +360,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     bool_t bUpdateJob = false;
 
     /* Initialize the OTA Agent for the following tests. */
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Ready, OTA_AgentInit(
-                               &xOTAConnContext,
-                               ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-                               vOTACompleteCallback,
-                               pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) ) );
+    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
 
     /* Ensure that NULL parameters are rejected. */
     TEST_ASSERT_EQUAL( eDocParseErr_NullModelPointer,

@@ -361,6 +361,12 @@ static void prvJobPublishCallback( void * pvCallbackContext,
     /* Get the OTA agent context. */
     OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
 
+    /* Bail out if this callback is invoked after the OTA agent is stopped. */
+    if( pxAgentCtx->eState == eOTA_AgentState_Stopped )
+    {
+        return;
+    }
+
     if( pxPublishData->u.message.info.payloadLength <= OTA_DATA_BLOCK_SIZE )
     {
         /* Try to get OTA data buffer. */
@@ -412,6 +418,12 @@ static void prvDataPublishCallback( void * pvCallbackContext,
 
     /* Get the OTA agent context. */
     OTA_AgentContext_t * pxAgentCtx = ( OTA_AgentContext_t * ) pvCallbackContext;
+
+    /* Bail out if this callback is invoked after the OTA agent is stopped. */
+    if( pxAgentCtx->eState == eOTA_AgentState_Stopped )
+    {
+        return;
+    }
 
     if( pxPublishData->u.message.info.payloadLength <= OTA_DATA_BLOCK_SIZE )
     {
