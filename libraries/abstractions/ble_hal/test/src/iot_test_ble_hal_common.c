@@ -415,7 +415,7 @@ BTBleAdapterCallbacks_t _xBTBleAdapter_NULL_Cb =
 
 BTGattServerCallbacks_t _xBTGattServer_NULL_Cb =
 {
-    .pxRegisterServerCb       = NULL,
+    .pxRegisterServerCb       = prvBTRegisterServerCb,
     .pxUnregisterServerCb     = NULL,
     .pxConnectionCb           = NULL,
     .pxServiceAddedCb         = prvServiceAddedCb,
@@ -545,40 +545,6 @@ void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xInitDeinitCb.xStatus );
     }
-}
-
-void IotTestBleHal_InitWithNULLCb( void )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    /* GAP common setup with NULL Cb */
-    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
-
-    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManager_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    IotTestBleHal_BLEEnable( true );
-
-    /* BLEGAPInit with NULL Cb */
-    _pxBTLeAdapterInterface = ( BTBleAdapter_t * ) _pxBTInterface->pxGetLeAdapter();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTLeAdapterInterface );
-
-    xStatus = _pxBTLeAdapterInterface->pxBleAdapterInit( &_xBTBleAdapter_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = _pxBTLeAdapterInterface->pxRegisterBleApp( &xAppUUID );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    /* BLEGATTInit with NULL Cb */
-    _pxGattServerInterface = ( BTGattServerInterface_t * ) _pxBTLeAdapterInterface->ppvGetGattServerInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxGattServerInterface );
-
-    _pxGattServerInterface->pxGattServerInit( &_xBTGattServer_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = _pxGattServerInterface->pxRegisterServer( &xServerUUID );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 void IotTestBleHal_StartAdvertisement( void )
