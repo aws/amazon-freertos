@@ -1,5 +1,14 @@
 # Change Log for Amazon FreeRTOS
 
+## Upcoming release
+
+### New Features
+### Updates
+#### lwIP
+- Enable lwIP full duplex feature	
+    - The same socket may be used by multiple tasks concurrently
+- lwIP is now a submodule from https://github.com/lwip-tcpip/lwip.git
+
 ## 201910.00 10/29/2019
 
 ### New Features
