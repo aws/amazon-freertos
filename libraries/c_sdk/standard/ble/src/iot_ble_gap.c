@@ -92,11 +92,11 @@ static IotBleAdvertisementParams_t _scanRespParams =
 static IotBleAdvertisementParams_t _advParams =
 {
     .includeTxPower    = true,
-    .name              = { BTGattAdvNameShort,          IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE},
+    .name              = { BTGattAdvNameShort,                 IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE},
     .setScanRsp        = false,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
-    .minInterval       = 0,
-    .maxInterval       = 0,
+    .minInterval       = IOT_BLE_ADVERTISING_CONN_INTERVAL_MIN,
+    .maxInterval       = IOT_BLE_ADVERTISING_CONN_INTERVAL_MAX,
     .serviceDataLen    = 0,
     .pServiceData      = NULL,
     .manufacturerLen   = 0,
