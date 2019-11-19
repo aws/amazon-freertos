@@ -65,22 +65,45 @@ Includes   <System Includes> , "Project Includes"
 #endif
 #endif
 
+#ifndef PHY_LS_HIGH_CHECK_TIME_MS
+    /* Check if the LinkSStatus in the PHY is still high after 2 seconds of not
+    receiving packets. */
+    #define PHY_LS_HIGH_CHECK_TIME_MS   2000
+#endif
+
+#ifndef PHY_LS_LOW_CHECK_TIME_MS
+    /* Check if the LinkSStatus in the PHY is still low every second. */
+    #define PHY_LS_LOW_CHECK_TIME_MS    1000
+#endif
+
 /***********************************************************************************************************************
  Private global variables and functions
  **********************************************************************************************************************/
+typedef enum
+{
+    eMACInit,                               /* Must initialise MAC. */
+    eMACPass,                               /* Initialisation was successful. */
+    eMACFailed,                             /* Initialisation failed. */
+} eMAC_INIT_STATUS_TYPE;
+
 static TaskHandle_t ether_receive_check_task_handle = 0;
 static TaskHandle_t ether_link_check_task_handle = 0;
 static TaskHandle_t xTaskToNotify = NULL;
+static BaseType_t xPHYLinkStatus;
+static BaseType_t xReportedStatus;
+static eMAC_INIT_STATUS_TYPE xMacInitStatus = eMACInit;
 
 static int16_t SendData( uint8_t *pucBuffer, size_t length );
 static int InitializeNetwork(void);
-static void check_ether_link(void * pvParameters);
 static void prvEMACDeferredInterruptHandlerTask( void *pvParameters );
 static void clear_all_ether_rx_discriptors(uint32_t event);
 
 int32_t callback_ether_regist(void);
 void EINT_Trig_isr(void *);
 void get_random_number(uint8_t *data, uint32_t len);
+
+void prvLinkStatusChange( BaseType_t xStatus );
+static void prvMonitorResources(void);
 
 /***********************************************************************************************************************
  * Function Name: xNetworkInterfaceInitialise ()
@@ -92,20 +115,36 @@ BaseType_t xNetworkInterfaceInitialise( void )
 {
     BaseType_t xReturn;
 
-    /*
-     * Perform the hardware specific network initialization here using the Ethernet driver library to initialize the
-     * Ethernet hardware, initialize DMA descriptors, and perform a PHY auto-negotiation to obtain a network link.
-     *
-     * InitialiseNetwork() uses Ethernet peripheral driver library function, and returns 0 if the initialization fails.
-     */
-    if( InitializeNetwork() == pdFALSE )
+    if( xMacInitStatus == eMACInit )
     {
-        xReturn = pdFAIL;
+        /*
+         * Perform the hardware specific network initialization here using the Ethernet driver library to initialize the
+         * Ethernet hardware, initialize DMA descriptors, and perform a PHY auto-negotiation to obtain a network link.
+         *
+         * InitialiseNetwork() uses Ethernet peripheral driver library function, and returns 0 if the initialization fails.
+         */
+        if( InitializeNetwork() == pdFALSE )
+        {
+            xMacInitStatus = eMACFailed;
+        }
+        else
+        {
+            /* Indicate that the MAC initialisation succeeded. */
+            xMacInitStatus = eMACPass;
+        }
+        configPRINTF( ( "InitializeNetwork returns %s\n", ( xMacInitStatus == eMACPass ) ? "OK" : " Fail" ) );
+    }
+
+    if( xMacInitStatus == eMACPass )
+    {
+        xReturn = xPHYLinkStatus;
     }
     else
     {
-        xReturn = pdPASS;
+        xReturn = pdFAIL;
     }
+
+    configPRINTF( ( "xNetworkInterfaceInitialise returns %d\n", xReturn ) );
 
     return xReturn;
 } /* End of function xNetworkInterfaceInitialise() */
@@ -119,6 +158,8 @@ BaseType_t xNetworkInterfaceInitialise( void )
  **********************************************************************************************************************/
 BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescriptor, BaseType_t xReleaseAfterSend )
 {
+    BaseType_t xReturn = pdFALSE;
+
     /* Simple network interfaces (as opposed to more efficient zero copy network
     interfaces) just use Ethernet peripheral driver library functions to copy
     data from the FreeRTOS+TCP buffer into the peripheral driver's own buffer.
@@ -127,14 +168,19 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescript
     data to be sent as two separate parameters.  The start of the data is located
     by pxDescriptor->pucEthernetBuffer.  The length of the data is located
     by pxDescriptor->xDataLength. */
-    if(0  > SendData( pxDescriptor->pucEthernetBuffer, pxDescriptor->xDataLength ))
+    if( xPHYLinkStatus != 0 )
     {
-        vReleaseNetworkBufferAndDescriptor( pxDescriptor );
-        return pdFALSE;
+        if(SendData( pxDescriptor->pucEthernetBuffer, pxDescriptor->xDataLength ) >= 0)
+        {
+            xReturn = pdTRUE;
+            /* Call the standard trace macro to log the send event. */
+            iptraceNETWORK_INTERFACE_TRANSMIT();
+        }
     }
-
-    /* Call the standard trace macro to log the send event. */
-    iptraceNETWORK_INTERFACE_TRANSMIT();
+    else
+    {
+        /* As the PHY Link Status is low, it makes no sense trying to deliver a packet. */
+    }
 
     if( xReleaseAfterSend != pdFALSE )
     {
@@ -144,9 +190,56 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescript
         vReleaseNetworkBufferAndDescriptor( pxDescriptor );
     }
 
-    return pdTRUE;
+    return xReturn;
 } /* End of function xNetworkInterfaceOutput() */
 
+
+static void prvMonitorResources()
+{
+    static UBaseType_t uxLastMinBufferCount = 0u;
+    static UBaseType_t uxCurrentBufferCount = 0u;
+    static size_t uxMinLastSize = 0uL;
+    static size_t uxCurLastSize = 0uL;
+    size_t uxMinSize;
+    size_t uxCurSize;
+
+    uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
+    if( uxLastMinBufferCount != uxCurrentBufferCount )
+    {
+        /* The logging produced below may be helpful
+        while tuning +TCP: see how many buffers are in use. */
+        uxLastMinBufferCount = uxCurrentBufferCount;
+        FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
+            uxGetNumberOfFreeNetworkBuffers(), uxCurrentBufferCount ) );
+    }
+
+    uxMinSize = xPortGetMinimumEverFreeHeapSize();
+    uxCurSize = xPortGetFreeHeapSize();
+
+//      if( ( uxCurLastSize != uxCurSize ) || ( uxMinLastSize != uxMinSize ) )
+    if( uxMinLastSize != uxMinSize )
+    {
+        uxCurLastSize = uxCurSize;
+        uxMinLastSize = uxMinSize;
+        FreeRTOS_printf( ( "Heap: current %lu lowest %lu\n", uxCurSize, uxMinSize ) );
+    }
+
+    #if( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
+    {
+    static UBaseType_t uxLastMinQueueSpace = 0;
+    UBaseType_t uxCurrentCount = 0u;
+
+        uxCurrentCount = uxGetMinimumIPQueueSpace();
+        if( uxLastMinQueueSpace != uxCurrentCount )
+        {
+            /* The logging produced below may be helpful
+            while tuning +TCP: see how many buffers are in use. */
+            uxLastMinQueueSpace = uxCurrentCount;
+            FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
+        }
+    }
+    #endif /* ipconfigCHECK_IP_QUEUE_SPACE */
+}
 
 /***********************************************************************************************************************
  * Function Name: prvEMACDeferredInterruptHandlerTask ()
@@ -157,7 +250,7 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescript
 static void prvEMACDeferredInterruptHandlerTask( void *pvParameters )
 {
     NetworkBufferDescriptor_t *pxBufferDescriptor;
-    int32_t xBytesReceived;
+    int32_t xBytesReceived = 0;
 
     /* Avoid compiler warning about unreferenced parameter. */
     ( void ) pvParameters;
@@ -168,20 +261,35 @@ static void prvEMACDeferredInterruptHandlerTask( void *pvParameters )
 
     uint8_t *buffer_pointer;
 
+    /* Some variables related to monitoring the PHY. */
+    TimeOut_t xPhyTime;
+    TickType_t xPhyRemTime;
+    const TickType_t ulMaxBlockTime = pdMS_TO_TICKS( 100UL );
+
+    vTaskSetTimeOutState( &xPhyTime );
+    xPhyRemTime = pdMS_TO_TICKS( PHY_LS_LOW_CHECK_TIME_MS );
+
+    configPRINTF( ( "Deferred Interrupt Handler Task started\n" ) );
+    xTaskToNotify = ether_receive_check_task_handle;
+
     for( ;; )
     {
-        xTaskToNotify = ether_receive_check_task_handle;
+        prvMonitorResources();
 
         /* Wait for the Ethernet MAC interrupt to indicate that another packet
         has been received.  */
-        ulTaskNotifyTake( pdFALSE, portMAX_DELAY );
+        if( xBytesReceived <= 0 )
+        {
+            ulTaskNotifyTake( pdFALSE, ulMaxBlockTime );
+        }
 
         /* See how much data was received.  */
         xBytesReceived = R_ETHER_Read_ZC2(ETHER_CHANNEL_0, (void **)&buffer_pointer);
 
         if( xBytesReceived < 0 )
         {
-            /* This is an error. Ignored. */
+            /* This is an error. Logged. */
+            configPRINTF( ( "R_ETHER_Read_ZC2: rc = %d\n", xBytesReceived ) );
         }
         else if( xBytesReceived > 0 )
         {
@@ -252,6 +360,42 @@ static void prvEMACDeferredInterruptHandlerTask( void *pvParameters )
                 Call the standard trace macro to log the occurrence. */
                 iptraceETHERNET_RX_EVENT_LOST();
                 clear_all_ether_rx_discriptors(1);
+                configPRINTF( ( "R_ETHER_Read_ZC2: Cleared descriptors\n" ) );
+            }
+        }
+
+        if( xBytesReceived > 0 )
+        {
+            /* A packet was received. No need to check for the PHY status now,
+            but set a timer to check it later on. */
+            vTaskSetTimeOutState( &xPhyTime );
+            xPhyRemTime = pdMS_TO_TICKS( PHY_LS_HIGH_CHECK_TIME_MS );
+            /* Indicate that the Link Status is high, so that
+            xNetworkInterfaceOutput() can send packets. */
+            if( xPHYLinkStatus == 0 )
+            {
+                xPHYLinkStatus = 1;
+                FreeRTOS_printf( ( "prvEMACHandlerTask: PHY LS assume %d\n", xPHYLinkStatus ) );
+            }
+        }
+        else if( ( xTaskCheckForTimeOut( &xPhyTime, &xPhyRemTime ) != pdFALSE ) || ( FreeRTOS_IsNetworkUp() == pdFALSE ) )
+        {
+            R_ETHER_LinkProcess(0);
+
+            if( xPHYLinkStatus != xReportedStatus )
+            {
+                xPHYLinkStatus = xReportedStatus;
+                FreeRTOS_printf( ( "prvEMACHandlerTask: PHY LS now %d\n", xPHYLinkStatus ) );
+            }
+
+            vTaskSetTimeOutState( &xPhyTime );
+            if( xPHYLinkStatus != 0 )
+            {
+                xPhyRemTime = pdMS_TO_TICKS( PHY_LS_HIGH_CHECK_TIME_MS );
+            }
+            else
+            {
+                xPhyRemTime = pdMS_TO_TICKS( PHY_LS_LOW_CHECK_TIME_MS );
             }
         }
     }
@@ -290,6 +434,21 @@ void vNetworkInterfaceAllocateRAMToBuffers( NetworkBufferDescriptor_t pxNetworkB
     }
 }  /* End of function vNetworkInterfaceAllocateRAMToBuffers() */
 
+
+/***********************************************************************************************************************
+ * Function Name: prvLinkStatusChange ()
+ * Description  : Function will be called when the Link Status of the phy has changed ( see ether_callback.c )
+ * Arguments    : xStatus : true when statyus has become high
+ * Return Value : void
+ **********************************************************************************************************************/
+void prvLinkStatusChange( BaseType_t xStatus )
+{
+    if( xReportedStatus != xStatus )
+    {
+        configPRINTF( ( "prvLinkStatusChange( %d )\n", xStatus ) );
+        xReportedStatus = xStatus;
+    }
+}
 
 /***********************************************************************************************************************
  * Function Name: InitializeNetwork ()
@@ -331,30 +490,13 @@ static int InitializeNetwork(void)
         return pdFALSE;
     }
 
-    do //TODO allow for timeout
-    {
-        eth_ret = R_ETHER_CheckLink_ZC(0);
-    }
-    while(ETHER_SUCCESS != eth_ret);
-
     return_code = xTaskCreate(prvEMACDeferredInterruptHandlerTask,
                               "ETHER_RECEIVE_CHECK_TASK",
-                              100,
+                              512u,
                               0,
-                              configMAX_PRIORITIES,
+                              configMAX_PRIORITIES - 1,
                               &ether_receive_check_task_handle);
 
-    if (pdFALSE == return_code)
-    {
-        return pdFALSE;
-    }
-
-    return_code = xTaskCreate(check_ether_link,
-                              "CHECK_ETHER_LINK_TIMER",
-                              100,
-                              0,
-                              configMAX_PRIORITIES,
-                              &ether_link_check_task_handle);
     if (pdFALSE == return_code)
     {
         return pdFALSE;
@@ -434,23 +576,6 @@ void EINT_Trig_isr(void *ectrl)
     }
 } /* End of function EINT_Trig_isr() */
 
-
-/***********************************************************************************************************************
- * Function Name: check_ether_link ()
- * Description  : Checks status of Ethernet link channel 0. Should be executed on a periodic basis.
- * Arguments    : none
- * Return Value : none
- **********************************************************************************************************************/
-static void check_ether_link(void * pvParameters)
-{
-    R_INTERNAL_NOT_USED(pvParameters);
-
-    while(1)
-    {
-        vTaskDelay(1000);
-        R_ETHER_LinkProcess(0);
-    }
-} /* End of function check_ether_link() */
 
 static void clear_all_ether_rx_discriptors(uint32_t event)
 {
