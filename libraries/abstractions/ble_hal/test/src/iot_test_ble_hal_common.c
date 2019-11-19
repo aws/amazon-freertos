@@ -371,7 +371,7 @@ BTGattServerCallbacks_t _xBTGattServerCb =
 
 BTCallbacks_t _xBTManager_NULL_Cb =
 {
-    .pxDeviceStateChangedCb     = prvDeviceStateChangedCb,
+    .pxDeviceStateChangedCb     = NULL,
     .pxAdapterPropertiesCb      = prvAdapterPropertiesCb,
     .pxRemoteDevicePropertiesCb = NULL,
     .pxSspRequestCb             = NULL,
@@ -417,7 +417,7 @@ BTGattServerCallbacks_t _xBTGattServer_NULL_Cb =
 {
     .pxRegisterServerCb       = prvBTRegisterServerCb,
     .pxUnregisterServerCb     = NULL,
-    .pxConnectionCb           = NULL,
+    .pxConnectionCb           = prvConnectionCb,
     .pxServiceAddedCb         = prvServiceAddedCb,
     .pxIncludedServiceAddedCb = prvIncludedServiceAddedCb,
     .pxCharacteristicAddedCb  = prvCharacteristicAddedCb,

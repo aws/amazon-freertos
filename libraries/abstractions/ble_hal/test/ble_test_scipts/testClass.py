@@ -433,7 +433,7 @@ class runTest:
         return isTestSuccessfull
 
     @staticmethod
-    def checkUUIDs(gatt):
+    def checkUUIDs(gatt, bEnableSecondaryService):
         isTestSuccessfull = True
         if runTest.DUT_SERVICEB_UUID not in gatt.services.keys():
             print(
@@ -446,8 +446,8 @@ class runTest:
                 runTest.DUT_SERVICEC_UUID)
             isTestSuccessfull = False
 
-        # Check secondary service UUID
-        if (ENABLE_TC_AFQP_SECONDARY_SERVICE == 1):
+        #Check secondary service UUID
+        if bEnableSecondaryService == True and ENABLE_TC_AFQP_SECONDARY_SERVICE == 1 :
             if runTest.DUT_SERVICEC_UUID not in gatt.services.keys():
                 print(
                     "checkUUIDs test: missing secondary service UUID: " +
@@ -691,7 +691,7 @@ class runTest:
         runTest._simple_connect()
 
         isTestSuccessFull = runTest.discoverPrimaryServices()
-        bleAdapter.gatt.updateLocalAttributeTable()
+        bleAdapter.gatt.updateLocalAttributeTable( False )
 
         time.sleep(2)  # wait for connection parameters update
         # Second time disconnect
@@ -707,7 +707,7 @@ class runTest:
 
         # write result back to server
         isTestSuccessFull = runTest.discoverPrimaryServices()
-        bleAdapter.gatt.updateLocalAttributeTable()
+        bleAdapter.gatt.updateLocalAttributeTable( False )
 
         isTestSuccessFull &= runTest.writeResultWithoutResponse(
             chr(isTestSuccessFull + 48))
@@ -730,7 +730,7 @@ class runTest:
 
         runTest.stopAdvertisement(scan_filter)
         isTestSuccessFull_discover = runTest.discoverPrimaryServices()
-        bleAdapter.gatt.updateLocalAttributeTable()
+        bleAdapter.gatt.updateLocalAttributeTable( False )
 
         time.sleep(2)  # wait for connection parameters update
 
@@ -777,7 +777,7 @@ class runTest:
             isTestSuccessFull,
             runTest.discoverPrimaryServices)
 
-        bleAdapter.gatt.updateLocalAttributeTable()
+        bleAdapter.gatt.updateLocalAttributeTable( False )
 
         # Check device not present. After discovery of services, advertisement
         # should have stopped.
@@ -865,11 +865,33 @@ class runTest:
             isTestSuccessFull,
             runTest.discoverPrimaryServices)
 
-        bleAdapter.gatt.updateLocalAttributeTable()
+        bleAdapter.gatt.updateLocalAttributeTable( False )
 
         isTestSuccessFull &= bleAdapter.pair_cancelpairing()
 
         time.sleep(2)
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
+    def Callback_NULL_check(scan_filter, bleAdapter):
+        runTest._advertisement_start(scan_filter=scan_filter,
+                                     UUID=runTest.DUT_UUID_128,
+                                     discoveryEvent_Cb=runTest.discoveryEventCb,
+                                     bleAdapter=bleAdapter)
+        runTest._simple_connect()
+
+        isTestSuccessFull = runTest.discoverPrimaryServices()
+        runTest.submitTestResult(
+            isTestSuccessFull,
+            runTest.discoverPrimaryServices)
+
+        bleAdapter.gatt.updateLocalAttributeTable( False )
+        isTestSuccessFull &= runTest.checkUUIDs(bleAdapter.gatt, False)
+        time.sleep(5)
+
+        isTestSuccessFull &= bleAdapter.disconnect()
         testutils.removeBondedDevices()
 
         return isTestSuccessFull

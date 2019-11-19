@@ -557,7 +557,8 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
         /* GAP common setup with NULL Cb */
         IotTestBleHal_BLEManagerInit( &_xBTManager_NULL_Cb );
 
-        IotTestBleHal_BLEEnable( true );
+        xStatus = _pxBTInterface->pxEnable( 0 );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
         /* BLEGAPInit with NULL Cb */
         IotTestBleHal_BLEGAPInit( &_xBTBleAdapter_NULL_Cb, false );
@@ -743,13 +744,22 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
 
     void prvStartStopAdvertisementWithNULLCb( void )
     {
+        BLETESTConnectionCallback_t xConnectionEvent;
         BTStatus_t xStatus = eBTStatusSuccess;
 
         xStatus = _pxBTLeAdapterInterface->pxStartAdv( _ucBLEAdapterIf );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( true, xConnectionEvent.bConnected );
+
         xStatus = _pxBTLeAdapterInterface->pxStopAdv( _ucBLEAdapterIf );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConnectionCb, NO_HANDLE, ( void * ) &xConnectionEvent, sizeof( BLETESTConnectionCallback_t ), BLE_TESTS_WAIT );
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( false, xConnectionEvent.bConnected );
     }
 
     void prvStopServiceWithNULLCb( BTService_t * xRefSrvc )

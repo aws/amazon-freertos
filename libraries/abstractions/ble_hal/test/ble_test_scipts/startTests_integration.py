@@ -74,6 +74,12 @@ def main():
         isTestSuccessFull,
         runTest.Send_Data_After_Disconnected)
 
+    isTestSuccessFull = runTest.Callback_NULL_check(
+        scan_filter=scan_filter, bleAdapter=bleAdapter)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.Callback_NULL_check)
+
     isTestSuccessFull = runTest.Check_Bond_State(
         scan_filter=scan_filter, bleAdapter=bleAdapter)
     runTest.submitTestResult(

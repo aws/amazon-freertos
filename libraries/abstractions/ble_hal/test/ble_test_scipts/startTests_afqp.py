@@ -60,7 +60,7 @@ def main():
         isTestSuccessFull,
         runTest.discoverPrimaryServices)
 
-    bleAdapter.gatt.updateLocalAttributeTable()
+    bleAdapter.gatt.updateLocalAttributeTable( True )
 
     # Check device not present. After discovery of services, advertisement
     # should have stopped.
@@ -70,8 +70,8 @@ def main():
     # bleAdapter.readLocalMTU()
 
     # Check attribute table UUIDs
-    bleAdapter.gatt.updateLocalAttributeTable()
-    isTestSuccessFull = runTest.checkUUIDs(bleAdapter.gatt)
+    bleAdapter.gatt.updateLocalAttributeTable( True )
+    isTestSuccessFull = runTest.checkUUIDs(bleAdapter.gatt, True)
     runTest.submitTestResult(isTestSuccessFull, runTest.checkUUIDs)
 
     # Check attribute table properties
