@@ -36,8 +36,8 @@
 #include "iot_secure_sockets.h"
 
 
-#include "sockets.h"
-#include "netdb.h"
+#include "lwip/sockets.h"
+#include "lwip/netdb.h"
 
 #include "iot_wifi.h"
 
