@@ -108,7 +108,9 @@ void get_random_number( uint8_t * data,
                         uint32_t len );
 
 void prvLinkStatusChange( BaseType_t xStatus );
-static void prvMonitorResources( void );
+#if ( ipconfigHAS_PRINTF != 0 )
+    static void prvMonitorResources( void );
+#endif
 
 /***********************************************************************************************************************
  * Function Name: xNetworkInterfaceInitialise ()
@@ -201,53 +203,55 @@ BaseType_t xNetworkInterfaceOutput( NetworkBufferDescriptor_t * const pxDescript
 } /* End of function xNetworkInterfaceOutput() */
 
 
-static void prvMonitorResources()
-{
-    static UBaseType_t uxLastMinBufferCount = 0u;
-    static UBaseType_t uxCurrentBufferCount = 0u;
-    static size_t uxMinLastSize = 0uL;
-    static size_t uxCurLastSize = 0uL;
-    size_t uxMinSize;
-    size_t uxCurSize;
-
-    uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
-
-    if( uxLastMinBufferCount != uxCurrentBufferCount )
+#if ( ipconfigHAS_PRINTF != 0 )
+    static void prvMonitorResources()
     {
-        /* The logging produced below may be helpful
-         * while tuning +TCP: see how many buffers are in use. */
-        uxLastMinBufferCount = uxCurrentBufferCount;
-        FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
-                           uxGetNumberOfFreeNetworkBuffers(), uxCurrentBufferCount ) );
-    }
+        static UBaseType_t uxLastMinBufferCount = 0u;
+        static UBaseType_t uxCurrentBufferCount = 0u;
+        static size_t uxMinLastSize = 0uL;
+        static size_t uxCurLastSize = 0uL;
+        size_t uxMinSize;
+        size_t uxCurSize;
 
-    uxMinSize = xPortGetMinimumEverFreeHeapSize();
-    uxCurSize = xPortGetFreeHeapSize();
+        uxCurrentBufferCount = uxGetMinimumFreeNetworkBuffers();
 
-    if( uxMinLastSize != uxMinSize )
-    {
-        uxCurLastSize = uxCurSize;
-        uxMinLastSize = uxMinSize;
-        FreeRTOS_printf( ( "Heap: current %lu lowest %lu\n", uxCurSize, uxMinSize ) );
-    }
-
-    #if ( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
+        if( uxLastMinBufferCount != uxCurrentBufferCount )
         {
-            static UBaseType_t uxLastMinQueueSpace = 0;
-            UBaseType_t uxCurrentCount = 0u;
-
-            uxCurrentCount = uxGetMinimumIPQueueSpace();
-
-            if( uxLastMinQueueSpace != uxCurrentCount )
-            {
-                /* The logging produced below may be helpful
-                 * while tuning +TCP: see how many buffers are in use. */
-                uxLastMinQueueSpace = uxCurrentCount;
-                FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
-            }
+            /* The logging produced below may be helpful
+             * while tuning +TCP: see how many buffers are in use. */
+            uxLastMinBufferCount = uxCurrentBufferCount;
+            FreeRTOS_printf( ( "Network buffers: %lu lowest %lu\n",
+                               uxGetNumberOfFreeNetworkBuffers(), uxCurrentBufferCount ) );
         }
-    #endif /* ipconfigCHECK_IP_QUEUE_SPACE */
-}
+
+        uxMinSize = xPortGetMinimumEverFreeHeapSize();
+        uxCurSize = xPortGetFreeHeapSize();
+
+        if( uxMinLastSize != uxMinSize )
+        {
+            uxCurLastSize = uxCurSize;
+            uxMinLastSize = uxMinSize;
+            FreeRTOS_printf( ( "Heap: current %lu lowest %lu\n", uxCurSize, uxMinSize ) );
+        }
+
+        #if ( ipconfigCHECK_IP_QUEUE_SPACE != 0 )
+            {
+                static UBaseType_t uxLastMinQueueSpace = 0;
+                UBaseType_t uxCurrentCount = 0u;
+
+                uxCurrentCount = uxGetMinimumIPQueueSpace();
+
+                if( uxLastMinQueueSpace != uxCurrentCount )
+                {
+                    /* The logging produced below may be helpful
+                     * while tuning +TCP: see how many buffers are in use. */
+                    uxLastMinQueueSpace = uxCurrentCount;
+                    FreeRTOS_printf( ( "Queue space: lowest %lu\n", uxCurrentCount ) );
+                }
+            }
+        #endif /* ipconfigCHECK_IP_QUEUE_SPACE */
+    }
+#endif /* ( ipconfigHAS_PRINTF != 0 ) */
 
 /***********************************************************************************************************************
  * Function Name: prvEMACDeferredInterruptHandlerTask ()
@@ -282,7 +286,11 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
 
     for( ; ; )
     {
-        prvMonitorResources();
+        #if ( ipconfigHAS_PRINTF != 0 )
+            {
+                prvMonitorResources();
+            }
+        #endif /* ipconfigHAS_PRINTF != 0 ) */
 
         /* Wait for the Ethernet MAC interrupt to indicate that another packet
          * has been received.  */
@@ -326,9 +334,9 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
                 R_ETHER_Read_ZC2_BufRelease( ETHER_CHANNEL_0 );
 
                 /* See if the data contained in the received Ethernet frame needs
-                 * to be processed.  NOTE! It is preferable to do this in
-                 * the interrupt service routine itself, which would remove the need
-                 * to unblock this task for packets that don't need processing. */
+                * to be processed.  NOTE! It is preferable to do this in
+                * the interrupt service routine itself, which would remove the need
+                * to unblock this task for packets that don't need processing. */
                 if( eConsiderFrameForProcessing( pxBufferDescriptor->pucEthernetBuffer ) == eProcessBuffer )
                 {
                     /* The event about to be sent to the TCP/IP is an Rx event. */
@@ -351,7 +359,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
                     else
                     {
                         /* The message was successfully sent to the TCP/IP stack.
-                         * Call the standard trace macro to log the occurrence. */
+                        * Call the standard trace macro to log the occurrence. */
                         iptraceNETWORK_INTERFACE_RECEIVE();
                         R_NOP();
                     }
@@ -512,7 +520,7 @@ static int InitializeNetwork( void )
  * Return Value : 0 success, negative fail
  **********************************************************************************************************************/
 static int16_t SendData( uint8_t * pucBuffer,
-                         size_t length )                    /*TODO complete stub function */
+                         size_t length ) /*TODO complete stub function */
 {
     ether_return_t ret;
     uint8_t * pwrite_buffer;
