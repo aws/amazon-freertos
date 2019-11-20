@@ -31,10 +31,8 @@ from .aws_ota_test_result import OtaTestResult
 class OtaTestDummyTest( OtaTestCase ):
     """This test is for debugging code changes without waiting for projects to build.
     """
-    NAME = 'OtaTestDummyTest'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestDummyTest, self).__init__(
-            OtaTestDummyTest.NAME,
             False,
             boardConfig,
             otaProject,

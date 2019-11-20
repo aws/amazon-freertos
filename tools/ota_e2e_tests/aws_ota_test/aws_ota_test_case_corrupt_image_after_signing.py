@@ -28,10 +28,8 @@ from .aws_ota_aws_agent import *
 import json
 
 class OtaTestCorruptImageAfterSigning( OtaTestCase ):
-    NAME = 'OtaTestCorruptImageAfterSigning'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestCorruptImageAfterSigning, self).__init__(
-            OtaTestCorruptImageAfterSigning.NAME,
             False,
             boardConfig,
             otaProject,

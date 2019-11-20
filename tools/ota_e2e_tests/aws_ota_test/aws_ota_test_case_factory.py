@@ -38,29 +38,9 @@ from .aws_ota_test_case_back_to_back_downloads import OtaTestBackToBackDownloads
 from .aws_ota_test_case_incorrect_wifi_password import OtaTestIncorrectWifiPassword
 from .aws_ota_test_case_dummy_test import OtaTestDummyTest
 
-"""
-All OTA test cases in the system.
-"""
-AllOtaTestCases = {
-    OtaTestGreaterVersion.NAME : OtaTestGreaterVersion,
-    OtaTestUnsignedImage.NAME : OtaTestUnsignedImage,
-    OtaTestSameVersion.NAME: OtaTestSameVersion,
-    OtaTestUntrustedCertificate.NAME : OtaTestUntrustedCertificate,
-    OtaTestCorruptImageBeforeSigning.NAME : OtaTestCorruptImageBeforeSigning,
-    OtaTestPreviousVersion.NAME : OtaTestPreviousVersion,
-    OtaTestCorruptImageAfterSigning.NAME : OtaTestCorruptImageAfterSigning,
-    OtaTestCorruptSignature.NAME : OtaTestCorruptSignature,
-    OtaTestIncorrectPlatform.NAME : OtaTestIncorrectPlatform,
-    OtaTestSingleByteImage.NAME : OtaTestSingleByteImage,
-    OtaTestMissingFilename.NAME : OtaTestMissingFilename,
-    OtaTestBackToBackDownloads.NAME : OtaTestBackToBackDownloads,
-    OtaTestIncorrectWifiPassword.NAME : OtaTestIncorrectWifiPassword,
-    OtaTestDummyTest.NAME : OtaTestDummyTest
-}
-
 class OtaTestCaseFactory( object ):
     """Return OTA test case objects based on the test name.
     """
-    def createTestCase(test, boardConfig, otaProject, otaAwsAgent, flashComm):
-        return AllOtaTestCases[test](boardConfig, otaProject, otaAwsAgent, flashComm)
-    createTestCase = staticmethod(createTestCase)
+    @staticmethod
+    def createTestCases(test_name, boardConfig, otaProject, otaAwsAgent, flashComm):
+        return globals()[test_name].generate_test_cases(boardConfig, otaProject, otaAwsAgent, flashComm)

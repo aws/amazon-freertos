@@ -23,8 +23,7 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from abc import abstractmethod
-from collections import namedtuple
+from abc import ABC, abstractmethod
 import os
 import time
 import errno
@@ -32,7 +31,8 @@ import traceback
 
 from .aws_ota_test_result import OtaTestResult
 
-class OtaTestCase( object ):
+
+class OtaTestCase(ABC):
     """OTA Test Case abstract class.
     Attributes:
         _name(str): Name of the testcase.
@@ -49,17 +49,42 @@ class OtaTestCase( object ):
         runTest()
         getTestResultAfterOtaUpdateCompletion()
     """
-    TestCaseResult = namedtuple('TestCaseResult', 'result reason')
-    def __init__(self, name, positive, boardConfig, otaProject, otaAwsAgent, flashComm):
-        self._name = name
+    def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):
+        self._name = self.__class__.__name__
         self._positive = positive
         self._boardConfig = boardConfig
         self._otaConfig = boardConfig['ota_config']
         self._otaProject = otaProject
         self._otaAwsAgent = otaAwsAgent
         self._flashComm = flashComm
+        self._protocol = protocol
 
-        self._logFilePath = os.path.join('logs', self._otaAwsAgent._boardName, self._otaAwsAgent._boardName + '.' + self._name + '.txt')
+        self._logFilePath = os.path.join(
+            'logs',
+            self._otaAwsAgent._boardName,
+            self._otaAwsAgent._boardName + '.' +
+            self._name + '.' +
+            self._protocol + '.txt'
+        )
+
+    @staticmethod
+    def supported_protocols():
+        """Which protocols are supported in this test case, default is both MQTT and HTTP, can be
+        overridden by subclass.
+        """
+        return ['MQTT', 'HTTP']
+
+    @classmethod
+    def generate_test_cases(cls, boardConfig, otaProject, otaAwsAgent, flashComm):
+        """Generate test cases based on configurations, can be overridden by subclass
+        """
+        enabled_protocols = boardConfig['ota_config']['data_protocols']
+        test_cases = []
+        for protocol in enabled_protocols:
+            if protocol in cls.supported_protocols():
+                test_cases.append(cls(cls.is_positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol))
+
+        return test_cases
 
     def getName(self):
         """Return the name of this test case.
@@ -73,6 +98,8 @@ class OtaTestCase( object ):
         transportation = self._otaConfig.get('transportation')
         if transportation == 'ble':
             self._otaProject.setBleConfig()
+        if 'HTTP' in self._protocol:
+            self._otaProject.setHTTPConfig()
         self._otaProject.setApplicationVersion(0, 9, 0)
         buildReturnCode = self._otaProject.buildProject()
         flashReturnCode = self._flashComm.flashAndRead()
@@ -89,7 +116,7 @@ class OtaTestCase( object ):
         """Run this OTA test case.
         """
         start = time.time()
-        print('---------- Running '+ self._boardConfig['name'] + ' : ' + self._name + ' ----------')
+        print(f'---------- Running {self._boardConfig["name"]} : {self._name}.{self._protocol} ----------')
 
         # Run the implemented runTest function
         logAppendage = ''

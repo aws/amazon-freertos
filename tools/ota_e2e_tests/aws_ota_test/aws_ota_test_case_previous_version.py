@@ -27,10 +27,8 @@ from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
 
 class OtaTestPreviousVersion( OtaTestCase ):
-    NAME = 'OtaTestPreviousVersion'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestPreviousVersion, self).__init__(
-            OtaTestPreviousVersion.NAME,
             False,
             boardConfig,
             otaProject,

@@ -27,10 +27,8 @@ from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
 
 class OtaTestSameVersion( OtaTestCase ):
-    NAME = 'OtaTestSameVersion'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestSameVersion, self).__init__(
-            OtaTestSameVersion.NAME,
             False,
             boardConfig,
             otaProject,

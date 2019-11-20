@@ -27,10 +27,8 @@ from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
 
 class OtaTestUnsignedImage( OtaTestCase ):
-    NAME = 'OtaTestUnsignedImage'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestUnsignedImage, self).__init__(
-            OtaTestUnsignedImage.NAME,
             False,
             boardConfig,
             otaProject,

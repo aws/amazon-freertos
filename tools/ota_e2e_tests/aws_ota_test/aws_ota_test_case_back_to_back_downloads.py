@@ -28,10 +28,8 @@ from .aws_ota_aws_agent import *
 from .aws_ota_test_result import OtaTestResult
 
 class OtaTestBackToBackDownloads( OtaTestCase ):
-    NAME = 'OtaTestBackToBackDownloads'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestBackToBackDownloads, self).__init__(
-            OtaTestBackToBackDownloads.NAME,
             True,
             boardConfig,
             otaProject,

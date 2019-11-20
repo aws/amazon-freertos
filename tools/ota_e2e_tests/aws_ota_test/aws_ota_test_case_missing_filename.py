@@ -27,10 +27,8 @@ from .aws_ota_test_case import *
 from .aws_ota_aws_agent import *
 
 class OtaTestMissingFilename( OtaTestCase ):
-    NAME = 'OtaTestMissingFilename'
     def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
         super(OtaTestMissingFilename, self).__init__(
-            OtaTestMissingFilename.NAME,
             False,
             boardConfig,
             otaProject,

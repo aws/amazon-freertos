@@ -66,7 +66,7 @@ class OtaTestRunner:
         self._stageParams = stageParams
         self._otaConfig = boardConfig['ota_config']
         self._otaProject = OtaAfrProject(boardConfig)
-        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig['aws_ota_update_role_arn'], self._otaConfig['aws_s3_bucket_name'], stageParams, True)
+        self._otaAwsAgent = OtaAwsAgent(self._boardConfig['name'], self._otaConfig, stageParams, True)
         # FlashSerialComm opens a thread. If there is an exception in OtaAwsAgent we want to exit the program, so this is initialized last.
         self._flashComm = FlashSerialComm(boardConfig['flash_config'], boardConfig['flash_config']['output'], self._otaConfig['device_firmware_file_name'])
 
@@ -89,13 +89,10 @@ class OtaTestRunner:
             if self._otaConfig.get('compile_codesigner_certificate', False):
                 self._otaProject.setCodesignerCertificate(self._otaAwsAgent.getCodeSignerCertificateFromArn(self._otaConfig['aws_signer_certificate_arn']))
             if self._stageParams:
-                self._otaProject.setOtaDemoRunnerForSNIDisabled()
                 # Currently 12/13/2018 only the TI CC3220SF LaunchpadXL needs the Root CA to connect to other internal Amazon development stage endpoints.
                 if 'cc3220' in self._boardConfig['name']:
                     self._otaProject.setOtaUpdateDemoForRootCA()
                     self._otaProject.addRootCAToClientCredentialKeys(self._stageParams['certificate'])
-                else:
-                    self._otaProject.setOtaUpdateDemoForNullCertificate()
         except Exception as e:
             print(e)
             self.__cleanup()
@@ -110,22 +107,20 @@ class OtaTestRunner:
         otaTestCases = []
         try:
             for test in _otaConfig['supported_tests']:
-                otaTestCases.append(
-                    OtaTestCaseFactory.createTestCase(
-                        test,
-                        self._boardConfig,
-                        self._otaProject,
-                        self._otaAwsAgent,
-                        self._flashComm
-                    )
-                )
+                otaTestCases.extend(OtaTestCaseFactory.createTestCases(
+                    test,
+                    self._boardConfig,
+                    self._otaProject,
+                    self._otaAwsAgent,
+                    self._flashComm
+                ))
         except Exception as e:
             print(e)
             self.__cleanup()
             raise
 
         if not otaTestCases:
-            print("Test Case Not Found")
+            raise Exception("Test Case Not Found")
 
         return otaTestCases
 
