@@ -341,33 +341,44 @@ int slave_transfer_sync_test(int);
 static void RUN_IOT_TEST_SPI(int testCaseIndex)
 {
     int rc = 0;
+    int i;
+    for(i = 0; i < SPI_TEST_SET; i++)
+    {
 
-    SET_TEST_IOT_SPI_CONFIG(0);
+        SET_TEST_IOT_SPI_CONFIG(i);
 
-    switch (testCaseIndex) {
-       /* Assisted tests assume a connection with 2 Devices.  One acting as Master
-          the other acting as Slave. This means that MOSI, MISO, CLK, and CS lines
-          are connecting the two devices together.  Once this is done the setup is
-          to run the Slave code first, and then the corresponding Master.
-          The slave operations are defined as 0 = Read, 1 = Write, and 2 = Transfer.
-          ex:  Calling iot_tests test 16 11    to start the Slave to Write and then
-               Calling iot_tests test 16 1     to have the Master perform the Read.
-       */
-       case 0:    RUN_TEST_GROUP( TEST_IOT_SPI );                           break;
-       case 1:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadSync );      break;
-       case 2:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteSync );     break;
-       case 3:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferSync );  break;
-       case 4:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadAsync );      break;
-       case 5:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteAsync );     break;
-       case 6:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferAsync );  break;
+        switch (testCaseIndex)
+        {
+            /* Assisted tests assume a connection with 2 Devices.  One acting as Master
+            the other acting as Slave. This means that MOSI, MISO, CLK, and CS lines
+            are connecting the two devices together.  Once this is done the setup is
+            to run the Slave code first, and then the corresponding Master.
+            The slave operations are defined as 0 = Read, 1 = Write, and 2 = Transfer.
+            ex:  Calling iot_tests test 16 11    to start the Slave to Write and then
+            Calling iot_tests test 16 1     to have the Master perform the Read.
+            */
+            case 0:    RUN_TEST_GROUP( TEST_IOT_SPI );                           break;
+            case 1:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadSync );      break;
+            case 2:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteSync );     break;
+            case 3:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferSync );  break;
+            case 4:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadAsync );     break;
+            case 5:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteAsync );    break;
+            case 6:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferAsync ); break;
+            case 7:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted );       break;
+            case 8:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted );      break;
+            case 9:    RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted );      break;
+            case 13:   RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted );     break;
+            case 14:   RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted );   break;
+            case 15:   RUN_TEST_CASE( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted );  break;
 #ifdef BOARD_STARLITE
-       case 10:    rc = slave_transfer_sync_test(0);                         break;
-       case 11:    rc = slave_transfer_sync_test(1);                         break;
-       case 12:    rc = slave_transfer_sync_test(2);                         break;
+            case 10:   rc = slave_transfer_sync_test(0);                        break;
+            case 11:   rc = slave_transfer_sync_test(1);                        break;
+            case 12:   rc = slave_transfer_sync_test(2);                        break;
 #endif
-       default:   rc = -1;
-    }
+            default:   rc = -1;                                                  break;
+        }
     TEST_ASSERT_EQUAL( rc, 0 );
+    }
 }
 
 /* Currently this test only run on Starlite by enable uart console and run cmd from CLI.

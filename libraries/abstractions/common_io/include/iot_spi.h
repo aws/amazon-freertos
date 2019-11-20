@@ -418,6 +418,18 @@ int32_t iot_spi_close( IotSPIHandle_t const pxSPIPeripheral );
 int32_t iot_spi_cancel( IotSPIHandle_t const pxSPIPeripheral );
 
 /**
+ * @brief This function is used to select spi slave.
+ *
+ * @param[in] lSPIInstance The instance of the SPI driver to initialize.
+ * @param[in] lSPISlave Slave select number.
+ *
+ * @return
+ * - IOT_SPI_SUCCESS, on success
+ * - IOT_SPI_INVALID_VALUE, if
+ *     - lSPISlave is invalid
+ */
+int32_t iot_spi_select_slave( int32_t lSPIInstance, int32_t lSPISlave );
+/**
  * @}
  */
 /* end of group iot_spi */
