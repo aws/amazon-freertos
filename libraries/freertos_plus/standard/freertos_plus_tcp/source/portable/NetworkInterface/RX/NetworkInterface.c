@@ -138,7 +138,7 @@ BaseType_t xNetworkInterfaceInitialise( void )
             xMacInitStatus = eMACPass;
         }
 
-        configPRINTF( ( "InitializeNetwork returns %s\n", ( xMacInitStatus == eMACPass ) ? "OK" : " Fail" ) );
+        FreeRTOS_printf( ( "InitializeNetwork returns %s\n", ( xMacInitStatus == eMACPass ) ? "OK" : " Fail" ) );
     }
 
     if( xMacInitStatus == eMACPass )
@@ -150,7 +150,7 @@ BaseType_t xNetworkInterfaceInitialise( void )
         xReturn = pdFAIL;
     }
 
-    configPRINTF( ( "xNetworkInterfaceInitialise returns %d\n", xReturn ) );
+    FreeRTOS_printf( ( "xNetworkInterfaceInitialise returns %d\n", xReturn ) );
 
     return xReturn;
 } /* End of function xNetworkInterfaceInitialise() */
@@ -277,7 +277,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
     vTaskSetTimeOutState( &xPhyTime );
     xPhyRemTime = pdMS_TO_TICKS( PHY_LS_LOW_CHECK_TIME_MS );
 
-    configPRINTF( ( "Deferred Interrupt Handler Task started\n" ) );
+    FreeRTOS_printf( ( "Deferred Interrupt Handler Task started\n" ) );
     xTaskToNotify = ether_receive_check_task_handle;
 
     for( ; ; )
@@ -297,7 +297,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
         if( xBytesReceived < 0 )
         {
             /* This is an error. Logged. */
-            configPRINTF( ( "R_ETHER_Read_ZC2: rc = %d\n", xBytesReceived ) );
+            FreeRTOS_printf( ( "R_ETHER_Read_ZC2: rc = %d\n", xBytesReceived ) );
         }
         else if( xBytesReceived > 0 )
         {
@@ -368,7 +368,7 @@ static void prvEMACDeferredInterruptHandlerTask( void * pvParameters )
                  * Call the standard trace macro to log the occurrence. */
                 iptraceETHERNET_RX_EVENT_LOST();
                 clear_all_ether_rx_discriptors( 1 );
-                configPRINTF( ( "R_ETHER_Read_ZC2: Cleared descriptors\n" ) );
+                FreeRTOS_printf( ( "R_ETHER_Read_ZC2: Cleared descriptors\n" ) );
             }
         }
 
@@ -444,7 +444,7 @@ void prvLinkStatusChange( BaseType_t xStatus )
 {
     if( xReportedStatus != xStatus )
     {
-        configPRINTF( ( "prvLinkStatusChange( %d )\n", xStatus ) );
+        FreeRTOS_printf( ( "prvLinkStatusChange( %d )\n", xStatus ) );
         xReportedStatus = xStatus;
     }
 }

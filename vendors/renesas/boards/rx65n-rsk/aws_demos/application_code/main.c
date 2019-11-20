@@ -153,7 +153,7 @@ void vApplicationDaemonTaskStartupHook( void )
         {
             vTaskDelay(300);
         }
-		configPRINTF( ( "The network is up and running\n" ) );
+		FreeRTOS_printf( ( "The network is up and running\n" ) );
 
         /* Provision the device with AWS certificate and private key. */
         vDevModeKeyProvisioning();
