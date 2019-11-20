@@ -37,7 +37,7 @@
 #include <string.h>
 #include <stdlib.h> /* abort */
 /*#include <errno.h> */
-#if ( !defined( __CC_ARM ) ) && ( !defined( __ICCARM__ ) )
+#if ( !defined( __CC_ARM ) ) && ( !defined( __ICCARM__ ) ) && ( !defined( __ARMCC_VERSION ) )
     #include <sys/time.h>
 #endif
 
@@ -59,7 +59,9 @@
     #pragma warning (disable: 4103) /* structure packing changed by including file */
 #endif
 
-#define LWIP_PROVIDE_ERRNO
+#if !defined( LWIP_PROVIDE_ERRNO ) && !defined( LWIP_ERRNO_INCLUDE ) && !defined( LWIP_ERRNO_STDINCLUDE )
+    #define LWIP_PROVIDE_ERRNO
+#endif
 
 /* Define generic types used in lwIP */
 #define LWIP_NO_STDINT_H    1
@@ -85,6 +87,7 @@ typedef u32_t            sys_prot_t;
 
 /* Compiler hints for packing structures */
 #if defined( __ICCARM__ )
+    #define PACK_STRUCT_BEGIN     __packed
     #define PACK_STRUCT_STRUCT    __packed
 #else
     #define PACK_STRUCT_STRUCT    __attribute__( ( packed ) )
