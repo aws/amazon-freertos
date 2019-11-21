@@ -29,8 +29,6 @@
  */
 
 
-#include <time.h>
-
 
 #include "iot_test_ble_hal_integration.h"
 extern BTCallbacks_t _xBTManagerCb;
@@ -341,31 +339,6 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
-/* pxEnable/pxDisable can only return current. Make sure pxEnalbe/pxDisable works.
- * Make sure stack state is enable (callback received) no later than 2.5 seconds after pxEnable returns*/
-TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-    BLETESTInitDeinitCallback_t xInitDeinitCb;
-    clock_t returnTime, cbRecvTime;
-
-    GAP_common_setup();
-
-    /* disable */
-    IotTestBleHal_BLEEnable( false );
-
-    /* enable */
-    xStatus = _pxBTInterface->pxEnable( 0 );
-    returnTime = clock();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-    cbRecvTime = clock();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-    TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
-}
-
 #if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE
     TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
     {
@@ -389,28 +362,27 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     }
 #endif /* if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE */
 
-/* pxEnable/pxDisable can only return current. Make sure pxEnalbe/pxDisable works.
+/* pxEnable/pxDisable can only return current. Make sure pxEnable/pxDisable works.
  * Make sure stack state is enable (callback received) no later than 2.5 seconds after pxEnable returns*/
 #if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE
     TEST( Full_BLE_Integration_Test_common_GATT, BLE_Enable_Disable_BT_Module )
     {
         BTStatus_t xStatus = eBTStatusSuccess;
         BLETESTInitDeinitCallback_t xInitDeinitCb;
-        clock_t returnTime, cbRecvTime;
-
+        uint64_t xReturnTime, xCbRecvTime;
         /* disable */
         IotTestBleHal_BLEEnable( false );
 
         /* enable */
         xStatus = _pxBTInterface->pxEnable( 0 );
-        returnTime = clock();
+        xReturnTime = IotClock_GetTimeMs();
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
         xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-        cbRecvTime = clock();
+        xCbRecvTime = IotClock_GetTimeMs();
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-        TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
+        TEST_ASSERT_LESS_THAN( BLE_TIME_LIMIT, xCbRecvTime - xReturnTime );
     }
 #endif /* if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE */
 

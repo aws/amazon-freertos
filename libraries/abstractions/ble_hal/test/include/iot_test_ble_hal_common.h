@@ -37,6 +37,7 @@
 #include <string.h>
 #include IOT_LINEAR_CONTAINERS
 #include IOT_THREADS
+#include IOT_CLOCK
 #include IOT_PLATFORM_TYPES
 #include IOT_BT_HAL_MANAGER_ADAPTER_BLE
 #include IOT_BT_HAL_MANAGER_ADAPTER
@@ -195,6 +196,8 @@ typedef struct
 
 #define BLE_TESTS_WAIT                        60000                 /* Wait 60s max */
 #define BLE_TESTS_SHORT_WAIT                  4000                  /* Wait 4s max */
+
+#define BLE_TIME_LIMIT                        2500                  /* Set time limit to 2.5s */
 
 typedef enum
 {
