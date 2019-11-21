@@ -659,7 +659,7 @@ BTStatus_t prvGetBondableDeviceList( void )
                 memcpy( &( ( BTBdaddr_t * ) xBondedDevices.pvVal )[ usIndex ], &pxESPDevlist[ usIndex ].bd_addr, sizeof( BTBdaddr_t ) );
             }
 
-            xBondedDevices.xLen = usNbDevices;
+            xBondedDevices.xLen = usNbDevices * sizeof( BTBdaddr_t );
             xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
 
             xBTCallbacks.pxAdapterPropertiesCb( eBTStatusSuccess, 1, &xBondedDevices );

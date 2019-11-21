@@ -683,7 +683,7 @@ BTStatus_t prvGetBondableDeviceList( void )
         xStatus = eBTStatusFail;
     }
 
-    xBondedDevices.xLen = usNbDevices;
+    xBondedDevices.xLen = usNbDevices * sizeof( BTBdaddr_t );
     xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
 
     if( xBTCallbacks.pxAdapterPropertiesCb != NULL )

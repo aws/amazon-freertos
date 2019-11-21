@@ -171,24 +171,27 @@ TEST( Full_BLE, BLE_Free )
 
 TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
 {
-    BTProperty_t pxProperty;
-    uint16_t usIndex;
+    BTProperty_t xProperty;
+    size_t xIndex, xNumElements;
 
     /* Set the name */
-    pxProperty.xType = eBTpropertyAdapterBondedDevices;
+    xProperty.xType = eBTpropertyAdapterBondedDevices;
 
     /* Get bonded devices */
-    IotTestBleHal_SetGetProperty( &pxProperty, false );
+    IotTestBleHal_SetGetProperty( &xProperty, false );
 
-    for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
+    xNumElements = ( xProperty.xLen ) / ( sizeof( BTBdaddr_t ) );
+
+    for( xIndex = 0; xIndex < xNumElements; xIndex++ )
     {
-        prvRemoveBond( &( ( BTBdaddr_t * ) pxProperty.pvVal )[ usIndex ] );
+        prvRemoveBond( &( ( BTBdaddr_t * ) xProperty.pvVal )[ xIndex ] );
     }
 
     /* Get bonded devices. */
-    IotTestBleHal_SetGetProperty( &pxProperty, false );
+    IotTestBleHal_SetGetProperty( &xProperty, false );
+
     /* Check none are left. */
-    TEST_ASSERT_EQUAL( 0, pxProperty.xLen );
+    TEST_ASSERT_EQUAL( 0, xProperty.xLen );
 }
 
 bool prvGetCheckDeviceBonded( BTBdaddr_t * pxDeviceAddress )
