@@ -75,7 +75,7 @@ class TestTsensorAssisted(test_template):
             # Extract temperature readings from all of on board sensors.
             for x in res.split('\\n\\r'):
                 # Look for the line with ADC reading.
-                if x.find('TEST(TEST_IOT_TSENSOR, AFQP_IotTsensorPrintTemp)') != -1:
+                if x.find('TEST(TEST_IOT_TSENSOR, AFQP_IotTsensorTemp)') != -1:
                     for s in x.split():
                         if s.isdigit():
                             temp.append(int(s))
