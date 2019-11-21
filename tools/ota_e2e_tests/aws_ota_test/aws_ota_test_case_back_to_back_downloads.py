@@ -23,19 +23,12 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 from .aws_ota_test_result import OtaTestResult
 
-class OtaTestBackToBackDownloads( OtaTestCase ):
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestBackToBackDownloads, self).__init__(
-            True,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+
+class OtaTestBackToBackDownloads(OtaTestCase):
+    is_positive = True
 
     def __buildAndOtaInputVersion(self, x, y, z):
         # Build x.y.z for download
@@ -43,7 +36,7 @@ class OtaTestBackToBackDownloads( OtaTestCase ):
         # Build the OTA image.
         self._otaProject.buildProject()
         # Start an OTA Update.
-        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig)
+        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
         # Poll on completion
         jobStatus, summary = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
         return jobStatus, summary

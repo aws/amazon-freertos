@@ -23,18 +23,12 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
+import os
 
-class OtaTestUnsignedImage( OtaTestCase ):
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestUnsignedImage, self).__init__(
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+
+class OtaTestUnsignedImage(OtaTestCase):
+    is_positive = False
 
     def run(self):
         # Increase the version of the OTA image.
@@ -55,12 +49,13 @@ class OtaTestUnsignedImage( OtaTestCase ):
 
         # Create a job.
         otaUpdateId = self._otaAwsAgent.createOtaUpdate(
-            deploymentFiles = [
+            protocols=[self._protocol],
+            deploymentFiles=[
                 {
                     'fileName': self._otaConfig['device_firmware_file_name'],
                     'fileVersion': '1',
                     'fileLocation': {
-                        'stream':{
+                        'stream': {
                             'streamId': streamId,
                             'fileId': 0
                         },

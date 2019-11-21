@@ -215,7 +215,7 @@ class OtaAwsAgent:
         AWS_SIGNER_TIMEOUT = 30
 
         if not profileName:
-            profileName = "%s%s"%(self.getThingName()[-8:], self._boardName[:10])
+            profileName = f'{self.getThingName()[-8:]}{self._boardName[:10]}'
 
         # Get the object.
         firmwareObject = self._s3Bucket.get_s3_object(firmwareFileName)
@@ -453,7 +453,7 @@ class OtaAwsAgent:
             os.path.basename(otaConfig['ota_firmware_file_path'])
         )
 
-        signingProfile = "%s%s"%(self.getThingName()[-8:], self._boardName[:10])
+        signingProfile = f'{self.getThingName()[-8:]}{self._boardName[:10]}'
         otaUpdateId = self.createOtaUpdate(
             protocols=protocols,
             deploymentFiles=[

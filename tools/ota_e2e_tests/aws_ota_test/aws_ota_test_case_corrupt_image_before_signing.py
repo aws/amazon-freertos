@@ -23,31 +23,26 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 
-class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
+
+class OtaTestCorruptImageBeforeSigning(OtaTestCase):
     """This test uploads and OTA's a non-runnable image before code signing.
     """
-    NAME = "OtaTestCorruptImageBeforeSigning"
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestCorruptImageBeforeSigning, self).__init__(
-            OtaTestCorruptImageBeforeSigning.NAME,
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+    is_positive = False
 
+    def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):
         # Create a large-ish file that is not a working binary image.
         self.bad_image_fn = 'broken_demo.bin'
         self.bad_image_path = self.bad_image_fn
         outfile = open(self.bad_image_path, 'wb')
         oroboros = "the end is never "
-        for i in range(0, 2500):
-          outfile.write(oroboros.encode())
+        for _ in range(0, 2500):
+            outfile.write(oroboros.encode())
         outfile.close()
+
+        # Call base constructor.
+        super().__init__(positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol)
 
     def run(self):
         # Upload the bad image to s3.
@@ -58,7 +53,8 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
         if self._otaAwsAgent._stageParams:
             # Create a job.
             otaUpdateId = self._otaAwsAgent.createOtaUpdate(
-                deploymentFiles = [
+                protocols=[self._protocol],
+                deploymentFiles=[
                     {
                         'fileName': self._otaConfig['device_firmware_file_name'],
                         'fileVersion': '1',
@@ -71,7 +67,7 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
                         },
                         'codeSigning': {
                             "startSigningJobParameter": {
-                                'signingProfileName': "%s%s"%(self._otaConfig['aws_signer_certificate_arn'][-10:], self._otaAwsAgent._boardName[:10]),
+                                'signingProfileName': f"{self._otaConfig['aws_signer_certificate_arn'][-10:]}{self._otaAwsAgent._boardName[:10]}",
                                 'signingProfileParameter': {
                                     'platform': self._otaConfig['aws_signer_platform'],
                                     'certificateArn': self._otaConfig['aws_signer_certificate_arn'],
@@ -97,12 +93,13 @@ class OtaTestCorruptImageBeforeSigning( OtaTestCase ):
             )
             # Create the OTA update job.
             otaUpdateId = self._otaAwsAgent.createOtaUpdate(
-                deploymentFiles = [
+                protocols=[self._protocol],
+                deploymentFiles=[
                     {
                         'fileName': self._otaConfig['device_firmware_file_name'],
                         'fileVersion': '1',
                         'fileLocation': {
-                            'stream':{
+                            'stream': {
                                 'streamId': streamId,
                                 'fileId': 0
                             },

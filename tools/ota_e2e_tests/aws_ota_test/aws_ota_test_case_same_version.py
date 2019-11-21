@@ -23,18 +23,11 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 
-class OtaTestSameVersion( OtaTestCase ):
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestSameVersion, self).__init__(
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+
+class OtaTestSameVersion(OtaTestCase):
+    is_positive = False
 
     def run(self):
         # Keep the same version of the image from setup() called in the superclass.
@@ -42,5 +35,5 @@ class OtaTestSameVersion( OtaTestCase ):
         # Build the OTA image.
         self._otaProject.buildProject()
         # Start an OTA Update.
-        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig)
+        otaUpdateId = self._otaAwsAgent.quickCreateOtaUpdate(self._otaConfig, [self._protocol])
         return self.getTestResultAfterOtaUpdateCompletion(otaUpdateId)

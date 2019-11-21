@@ -23,26 +23,22 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 import os
 
-class OtaTestUntrustedCertificate( OtaTestCase ):
-    NAME = "OtaTestUntrustedCertificate"
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestUntrustedCertificate, self).__init__(
-            OtaTestUntrustedCertificate.NAME,
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+
+class OtaTestUntrustedCertificate(OtaTestCase):
+    is_positive = False
+
+    def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):
         # Define invalid/valid signing certificates for later use.
-        self._validSignerArn = "%s"%self._otaConfig['aws_signer_certificate_arn']
-        self._bogusSignerArn = "%s"%self._otaConfig['aws_untrusted_signer_certificate_arn']
+        self._validSignerArn = self._otaConfig['aws_signer_certificate_arn']
+        self._bogusSignerArn = self._otaConfig['aws_untrusted_signer_certificate_arn']
         # Set a semi-unique 'signing type' name based on the invalid certificate's ARN to avoid conflicts.
-        self._signingProfileName = "%s%s"%(self._bogusSignerArn[-10:], self._otaAwsAgent._boardName[:10])
+        self._signingProfileName = f'{self._bogusSignerArn[-10:]}{self._otaAwsAgent._boardName[:10]}'
+
+        # Call base constructor.
+        super().__init__(positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol)
 
     def run(self):
         # Increase the version of the OTA image.
@@ -61,7 +57,8 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
         # Create a job.
         if self._otaAwsAgent._stageParams:
             otaUpdateId = self._otaAwsAgent.createOtaUpdate(
-                deploymentFiles = [
+                protocols=[self._protocol],
+                deploymentFiles=[
                     {
                         'fileName': os.path.basename(self._otaConfig['ota_firmware_file_path']),
                         'fileVersion': '1',
@@ -101,12 +98,13 @@ class OtaTestUntrustedCertificate( OtaTestCase ):
             )
             # Create the OTA update job.
             otaUpdateId = self._otaAwsAgent.createOtaUpdate(
-                deploymentFiles = [
+                protocols=[self._protocol],
+                deploymentFiles=[
                     {
                         'fileName': self._otaConfig['device_firmware_file_name'],
                         'fileVersion': '1',
                         'fileLocation': {
-                            'stream':{
+                            'stream': {
                                 'streamId': streamId,
                                 'fileId': 0
                             },

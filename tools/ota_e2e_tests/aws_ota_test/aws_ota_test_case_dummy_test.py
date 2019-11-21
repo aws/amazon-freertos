@@ -24,21 +24,14 @@ http://www.FreeRTOS.org
 
 """
 
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 from .aws_ota_test_result import OtaTestResult
 
-class OtaTestDummyTest( OtaTestCase ):
+
+class OtaTestDummyTest(OtaTestCase):
     """This test is for debugging code changes without waiting for projects to build.
     """
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestDummyTest, self).__init__(
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+    is_positive = False
 
     def setup(self):
         print('Ran OtaTestDummyTest::setup.')

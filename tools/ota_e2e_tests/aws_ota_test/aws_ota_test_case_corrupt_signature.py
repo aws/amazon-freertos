@@ -23,21 +23,13 @@ http://aws.amazon.com/freertos
 http://www.FreeRTOS.org
 
 """
-from .aws_ota_test_case import *
-from .aws_ota_aws_agent import *
+from .aws_ota_test_case import OtaTestCase
 import json
+import os
 
-class OtaTestCorruptSignature( OtaTestCase ):
-    NAME = 'OtaTestCorruptSignature'
-    def __init__(self, boardConfig, otaProject, otaAwsAgent, flashComm):
-        super(OtaTestCorruptSignature, self).__init__(
-            OtaTestCorruptSignature.NAME,
-            False,
-            boardConfig,
-            otaProject,
-            otaAwsAgent,
-            flashComm
-        )
+
+class OtaTestCorruptSignature(OtaTestCase):
+    is_positive = False
 
     def run(self):
         fileName = "temp_signed_signature_to_corrupt.json"
@@ -68,7 +60,6 @@ class OtaTestCorruptSignature( OtaTestCase ):
         )
 
         # The signed image is a JSON so we can load it then corrupt it.
-        signedImage = {}
         with open(fileName, 'r+') as signedImageFile:
             signedImageJson = json.load(signedImageFile)
             for i in range(0, 13):
@@ -91,12 +82,13 @@ class OtaTestCorruptSignature( OtaTestCase ):
 
         # Create a job.
         otaUpdateId = self._otaAwsAgent.createOtaUpdate(
-            deploymentFiles = [
+            protocols=[self._protocol],
+            deploymentFiles=[
                 {
                     'fileName': self._otaConfig['device_firmware_file_name'],
                     'fileVersion': '1',
                     'fileLocation': {
-                        'stream':{
+                        'stream': {
                             'streamId': streamId,
                             'fileId': 0
                         },
