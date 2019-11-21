@@ -129,7 +129,7 @@ class OtaTestRunner:
         - Build the code with the version desired.
         - Flash the code built.
         """
-        testResult = OtaTestResult(testName=otaTestCase.getName, result=OtaTestResult.ERROR, summary='Can not collect test result. Please check logs.')
+        testResult = OtaTestResult(testName=otaTestCase.getName(), result=OtaTestResult.ERROR, summary='Can not collect test result. Please check logs.')
         testResult = otaTestCase.runTest()
 
         testResult.board = self._boardConfig['name']

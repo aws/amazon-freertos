@@ -89,7 +89,7 @@ class OtaTestCase(ABC):
     def getName(self):
         """Return the name of this test case.
         """
-        return self._name
+        return f'{self._name}_{self._protocol}'
 
     def setup(self):
         """Setup the OTA test.
@@ -116,7 +116,7 @@ class OtaTestCase(ABC):
         """Run this OTA test case.
         """
         start = time.time()
-        print(f'---------- Running {self._boardConfig["name"]} : {self._name}.{self._protocol} ----------')
+        print(f'---------- Running {self._boardConfig["name"]} : {self.getName()} ----------')
 
         # Run the implemented runTest function
         logAppendage = ''
@@ -128,11 +128,11 @@ class OtaTestCase(ABC):
             if all(p == 0 for p in returnCodes):
                 testResult = self.run()
             else:
-                testResult = OtaTestResult(testName=self._name, result=OtaTestResult.ERROR, summary='Building or flashing failed. Please check logs.')
+                testResult = OtaTestResult(testName=self.getName(), result=OtaTestResult.ERROR, summary='Building or flashing failed. Please check logs.')
         except Exception:
             logAppendage = traceback.format_exc()
             print(logAppendage)
-            testResult = OtaTestResult(testName=self._name, result=OtaTestResult.ERROR, summary='Exception found during test execution. Please check logs.')
+            testResult = OtaTestResult(testName=self.getName(), result=OtaTestResult.ERROR, summary='Exception found during test execution. Please check logs.')
 
         # The test is finished save the log to the board's folder
         self.createTestLog(logAppendage)
@@ -140,7 +140,7 @@ class OtaTestCase(ABC):
         # Clean up
         self.teardown()
 
-        print('---------- Finished '+ self._boardConfig['name'] + ' : ' + self._name + ' ----------')
+        print(f'---------- Finished {self._boardConfig["name"]} : {self.getName()} ----------')
         end = time.time()
 
         time.sleep(3) # Wait for the device log flashes completely.
@@ -175,4 +175,4 @@ class OtaTestCase(ABC):
             otaUpdateId(str): AWS IoT OTA Update ID to poll for completion status.
         """
         jobStatus, summary = self._otaAwsAgent.pollOtaUpdateCompletion(otaUpdateId, self._otaConfig['ota_timeout_sec'])
-        return OtaTestResult.testResultFromJobStatus(self._name, jobStatus, self._positive, summary)
+        return OtaTestResult.testResultFromJobStatus(self.getName(), jobStatus, self._positive, summary)
