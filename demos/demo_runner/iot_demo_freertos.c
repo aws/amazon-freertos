@@ -57,10 +57,6 @@ static IotSemaphore_t demoNetworkSemaphore;
 /* Variable used to indicate the connected network. */
 static uint32_t demoConnectedNetwork = AWSIOT_NETWORK_TYPE_NONE;
 
-#ifdef democonfigMEMORY_ANALYSIS
-    extern demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xDemoStackSize;
-#endif
-
 #if defined( MQTT_DEMO_TYPE_ENABLED )
     #if BLE_ENABLED
         extern const IotMqttSerializer_t IotBleMqttSerializer;
@@ -312,11 +308,11 @@ void runDemoTask( void * pArgument )
     #endif /* INSERT_DELAY_BEFORE_DEMO */
 
     #ifdef democonfigMEMORY_ANALYSIS
-        demoMEMORY_ANALYSIS_STACK_DEPTH_TYPE xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark = 0;
-        xBeforeDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+        democonfigMEMORY_ANALYSIS_STACK_DEPTH_TYPE xBeforeDemoTaskWaterMark, xAfterDemoTaskWaterMark = 0;
+        xBeforeDemoTaskWaterMark = democonfigMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
 
         size_t xBeforeDemoHeapSize, xAfterDemoHeapSize = 0;
-        xBeforeDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
+        xBeforeDemoHeapSize = democonfigMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
     #endif /* democonfigMEMORY_ANALYSIS */
 
 
@@ -342,16 +338,15 @@ void runDemoTask( void * pArgument )
                                          pNetworkInterface );
 
         #ifdef democonfigMEMORY_ANALYSIS
-            /* If memory anaalysis is enabled metrics regarding the heap and stack usage of the demo will print. */
+            /* If memory analysis is enabled metrics regarding the heap and stack usage of the demo will print. */
             /* This format is used for easier parsing and creates an avenue for future metrics to be added. */
-            xAfterDemoHeapSize = demoMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
-            IotLogInfo( "memory_metrics:freertos_heap:total:bytes:%u", demoMEMORY_ANALYSIS_HEAP_SIZE );
+            xAfterDemoHeapSize = democonfigMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
             IotLogInfo( "memory_metrics:freertos_heap:before:bytes:%u", xBeforeDemoHeapSize );
             IotLogInfo( "memory_metrics:freertos_heap:after:bytes:%u", xAfterDemoHeapSize );
-            xAfterDemoTaskWaterMark = demoMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
-            IotLogInfo( "memory_metrics:demo_task_stack:total:stack_words:%u", xDemoStackSize );
-            IotLogInfo( "memory_metrics:demo_task_stack:before:stack_words:%u", xBeforeDemoTaskWaterMark );
-            IotLogInfo( "memory_metrics:demo_task_stack:after:stack_words:%u", xAfterDemoTaskWaterMark );
+
+            xAfterDemoTaskWaterMark = democonfigMEMORY_ANALYSIS_STACK_WATERMARK( NULL );
+            IotLogInfo( "memory_metrics:demo_task_stack:before:bytes:%u", xBeforeDemoTaskWaterMark );
+            IotLogInfo( "memory_metrics:demo_task_stack:after:bytes:%u", xAfterDemoTaskWaterMark );
         #endif /* democonfigMEMORY_ANALYSIS */
 
         /* Log the demo status. */
