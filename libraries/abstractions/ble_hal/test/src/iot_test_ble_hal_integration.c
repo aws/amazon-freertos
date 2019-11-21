@@ -370,6 +370,7 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
         BTStatus_t xStatus = eBTStatusSuccess;
         BLETESTInitDeinitCallback_t xInitDeinitCb;
         uint64_t xReturnTime, xCbRecvTime;
+
         /* disable */
         IotTestBleHal_BLEEnable( false );
 
