@@ -355,13 +355,20 @@ class OtaAfrProject:
     def setHTTPConfig(self):
         """Set necessary configs for enabling OTA over HTTP
         """
-        # This is to disable BLE as we don't have enough memory.
         if 'esp32' in self._board_name:
+            # This is to disable BLE as we don't have enough memory.
             self.__setIdentifierInFile(
                 {
                     '#define configENABLED_NETWORKS': '( AWSIOT_NETWORK_TYPE_WIFI )'
                 },
                 os.path.join(self._projectRootDir, OtaAfrProject.IOT_NETWORK_PATH)
+            )
+            # Then turn on HTTP in OTA.
+            self.__setIdentifierInFile(
+                {
+                    '#define configENABLED_DATA_PROTOCOLS': '( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )'
+                },
+                os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
             )
 
     def setCodesignerCertificate(self, certificate):
