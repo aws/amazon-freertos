@@ -338,7 +338,7 @@ void runDemoTask( void * pArgument )
                                          pNetworkInterface );
 
         #ifdef democonfigMEMORY_ANALYSIS
-            /* If memory anaalysis is enabled metrics regarding the heap and stack usage of the demo will print. */
+            /* If memory analysis is enabled metrics regarding the heap and stack usage of the demo will print. */
             /* This format is used for easier parsing and creates an avenue for future metrics to be added. */
             xAfterDemoHeapSize = democonfigMEMORY_ANALYSIS_MIN_EVER_HEAP_SIZE();
             IotLogInfo( "memory_metrics:freertos_heap:before:bytes:%u", xBeforeDemoHeapSize );
