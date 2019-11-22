@@ -49,16 +49,17 @@
 #define testIotUART_BUFFER_STRING                      ( "Test for UART read-write\n" )
 #define testIotUART_BUFFER_LENGTH                      ( sizeof( testIotUART_BUFFER_STRING ) - 1 )
 
-#define testIotUART_BAUD_RATE_FAST             ( 115200 )
-#define testIotUART_BAUD_RATE_SLOW             ( 9600 )
-#define testIotUARTBUFFERSIZE                  ( 32 )
-#define testIotUART_BUFFER_LENGTH_LARGE        ( 200 )
-#define testIotUART_DELAY                      ( 1000 )
-#define testIotUART_7BIT_WORD_LENGTH           ( 0 )
-#define testIotUART_8BIT_WORD_LENGTH           ( 1 )
+#define testIotUART_BAUD_RATE_FAST                     ( 115200 )
+#define testIotUART_BAUD_RATE_SLOW                     ( 9600 )
+#define testIotUARTBUFFERSIZE                          ( 32 )
+#define testIotUART_BUFFER_LENGTH_LARGE                ( 200 )
+#define testIotUART_DELAY                              ( 1000 )
+#define testIotUART_7BIT_WORD_LENGTH                   ( 0 )
+#define testIotUART_8BIT_WORD_LENGTH                   ( 1 )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /* Globals values which can be overwritten by the test
  * framework invoking these tests */
 /*-----------------------------------------------------------*/
@@ -74,21 +75,23 @@ uint32_t ultestIotUartStopBits = 0;
 static SemaphoreHandle_t xtestIotUARTSemaphore = NULL;
 static StaticSemaphore_t xtestIotUARTCompleted;
 
-// note:  config1 is different in each field from config2
-static IotUARTConfig_t xSampleConfig1 = {
+/* note:  config1 is different in each field from config2 */
+static IotUARTConfig_t xSampleConfig1 =
+{
     testIotUART_BAUD_RATE_FAST,
-    false,                          // no flow control
+    false, /* no flow control */
     eUartParityNone,
     eUartStopBitsOne,
     testIotUART_7BIT_WORD_LENGTH,
-    };
-static IotUARTConfig_t xSampleConfig2 = {
+};
+static IotUARTConfig_t xSampleConfig2 =
+{
     testIotUART_BAUD_RATE_SLOW,
-    true,                           // yes flow control
+    true, /* yes flow control */
     eUartParityOdd,
     eUartStopBitsTwo,
     testIotUART_8BIT_WORD_LENGTH,
-    };
+};
 
 
 /**
@@ -101,7 +104,7 @@ static void prvReadWriteCallback( IotUARTOperationStatus_t xOpStatus,
 {
     BaseType_t xHigherPriorityTaskWoken;
 
-    TEST_ASSERT_EQUAL( (xOpStatus), eUartCompleted );
+    TEST_ASSERT_EQUAL( ( xOpStatus ), eUartCompleted );
     TEST_ASSERT_EQUAL( pvParams, NULL );
     xSemaphoreGiveFromISR( xtestIotUARTSemaphore, &xHigherPriorityTaskWoken );
     portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
@@ -122,7 +125,6 @@ TEST_SETUP( TEST_IOT_UART )
 {
     xtestIotUARTSemaphore = xSemaphoreCreateCountingStatic( 10, 0, &xtestIotUARTCompleted );
     TEST_ASSERT_NOT_EQUAL( NULL, xtestIotUARTSemaphore );
-
 }
 
 /*-----------------------------------------------------------*/
@@ -135,12 +137,12 @@ TEST_TEAR_DOWN( TEST_IOT_UART )
 }
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Function to define which tests to execute as part of this group.
  */
 TEST_GROUP_RUNNER( TEST_IOT_UART )
 {
-
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing );
     RUN_TEST_CASE( TEST_IOT_UART, AFQP_IotUARTReadSyncFuzzing );
@@ -190,6 +192,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteReadSync )
 }
 /*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to check UART Ioctl API specifications.
  */
@@ -204,13 +207,12 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
 
     if( TEST_PROTECT() )
     {
-
         /* Save original UART config */
         lIoctl = iot_uart_ioctl( xUartHandle, eUartGetConfig, &xOriginalConfig );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
 
         /* Initialze to a known value, then one by one change, and make sure it changes */
-        memcpy( &xConfigBuffer, &xSampleConfig1, sizeof(IotUARTConfig_t) );
+        memcpy( &xConfigBuffer, &xSampleConfig1, sizeof( IotUARTConfig_t ) );
         lIoctl = iot_uart_ioctl( xUartHandle, eUartSetConfig, &xConfigBuffer );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
 
@@ -275,12 +277,13 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to check if UART can be configured to a different baudrate.
  *  Works by signal external device to change to a new baudrate. Sending and recieving a message.
  *  Then signals to return back to default baudrate.
  *-----------------------------------------------------------*/
- TEST( TEST_IOT_UART, AFQP_AssistedIotUARTBaudChange )
+TEST( TEST_IOT_UART, AFQP_AssistedIotUARTBaudChange )
 {
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lWrite, lRead, lClose;
@@ -355,6 +358,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlGetSet )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test function to test the asynchronous read/write with UART by doing a
  * hardware loopback. The Tx and Rx pin on the vendor board are shorted with a
@@ -371,7 +375,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
     uint8_t cpBufferRead[ testIotUART_BUFFER_LENGTH + 1 ] = { 0 };
     uint8_t uStringCompare = 1;
 
-    strncpy( (char*)cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
+    strncpy( ( char * ) cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
 
     xUartHandle = iot_uart_open( ustestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
@@ -383,22 +387,24 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncReadAsyncLoopbackTest )
 
         lIoctl = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_GREATER_THAN( 0, lTransferAmount  );
+        TEST_ASSERT_GREATER_THAN( 0, lTransferAmount );
 
         lRead = iot_uart_read_async( xUartHandle, cpBufferRead, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lRead );
 
         /* Delay for 1 sec. */
-        vTaskDelay(testIotUART_DELAY);
+        vTaskDelay( testIotUART_DELAY );
 
         uStringCompare = memcmp( cpBuffer, cpBufferRead, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( 0, uStringCompare );
     }
+
     lClose = iot_uart_close( xUartHandle );
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
+
 /**
  * This is Assisted Test function to test the asynchronous read/write with UART by doing a
  * loopback with RPI3. The Tx and Rx pin on the vendor board are connected to RX and TX of
@@ -415,9 +421,9 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
     uint8_t cpBufferRead[ testIotUART_BUFFER_LENGTH_LARGE + 1 ] = { 0 };
     uint8_t uStringCompare = 1;
 
-    for (i = 0; i < testIotUART_BUFFER_LENGTH_LARGE; i++)
+    for( i = 0; i < testIotUART_BUFFER_LENGTH_LARGE; i++ )
     {
-        cpBufferLarge[i] = 0xAA;
+        cpBufferLarge[ i ] = 0xAA;
     }
 
     xUartHandle = iot_uart_open( ustestIotUartPort );
@@ -430,17 +436,17 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
 
         lIoctl = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount_1 );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_GREATER_THAN( 0, lTransferAmount_1  );
+        TEST_ASSERT_GREATER_THAN( 0, lTransferAmount_1 );
 
         /* Delay for 1 sec. */
-        vTaskDelay(testIotUART_DELAY);
+        vTaskDelay( testIotUART_DELAY );
 
         lIoctl = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount_2 );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lIoctl );
-        TEST_ASSERT_GREATER_THAN( lTransferAmount_1, lTransferAmount_2  );
+        TEST_ASSERT_GREATER_THAN( lTransferAmount_1, lTransferAmount_2 );
 
         /* Delay for 1 sec. */
-        vTaskDelay(testIotUART_DELAY);
+        vTaskDelay( testIotUART_DELAY );
     }
 
     lClose = iot_uart_close( xUartHandle );
@@ -448,6 +454,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
 }
 /*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test function to test the asynchronous read/write with UART by doing a
  * hardware loopback. The Tx and Rx pin on the vendor board are shorted with a
@@ -465,14 +472,13 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncReadAsyncLoopbackTest )
     uint8_t cpBufferRead[ testIotUART_BUFFER_LENGTH + 1 ] = { 0 };
     uint8_t uStringCompare = 1;
 
-    strncpy( (char*)cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
+    strncpy( ( char * ) cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
 
     xUartHandle = iot_uart_open( ustestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
 
     if( TEST_PROTECT() )
     {
-
         lWrite = iot_uart_write_sync( xUartHandle, cpBuffer, testIotUART_BUFFER_LENGTH );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
@@ -541,10 +547,11 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteReadAsyncWithCallback )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to test iot_uart_cancel
  *
-*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
 {
     IotUARTHandle_t xUartHandle;
@@ -553,9 +560,9 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
 
     uint8_t cSmallBuf[ 2 ] = { 'H', 'I' };
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };
-    uint8_t uSmallBuflen = sizeof ( cSmallBuf ) / sizeof ( uint8_t );
+    uint8_t uSmallBuflen = sizeof( cSmallBuf ) / sizeof( uint8_t );
 
-    strncpy( (char*)cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
+    strncpy( ( char * ) cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
 
     xUartHandle = iot_uart_open( ustestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
@@ -594,9 +601,10 @@ TEST( TEST_IOT_UART, AFQP_IotUARTCancel )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to fuzz iot_uart_write_async
-*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
@@ -604,7 +612,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncFuzzing )
 
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };
 
-    strncpy( (char*)cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
+    strncpy( ( char * ) cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
 
     lWrite = iot_uart_write_async( NULL, cpBuffer, testIotUART_BUFFER_LENGTH );
     TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lWrite );
@@ -627,9 +635,10 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteAsyncFuzzing )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to fuzz iot_uart_write_sync
-*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
@@ -637,7 +646,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
 
     uint8_t cpBuffer[ testIotUARTBUFFERSIZE ] = { 0 };
 
-    strncpy( (char*)cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
+    strncpy( ( char * ) cpBuffer, testIotUART_BUFFER_STRING, testIotUART_BUFFER_LENGTH );
 
     lWrite = iot_uart_write_sync( NULL, cpBuffer, testIotUART_BUFFER_LENGTH );
     TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lWrite );
@@ -658,9 +667,10 @@ TEST( TEST_IOT_UART, AFQP_IotUARTWriteSyncFuzzing )
     TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lClose );
 }
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to fuzz iot_uart_read_async
-*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUARTReadAsyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
@@ -689,9 +699,10 @@ TEST( TEST_IOT_UART, AFQP_IotUARTReadAsyncFuzzing )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
+
 /**
  * @brief Test Function to fuzz iot_uart_read_sync
-*-----------------------------------------------------------*/
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUARTReadSyncFuzzing )
 {
     IotUARTHandle_t xUartHandle;
@@ -720,8 +731,9 @@ TEST( TEST_IOT_UART, AFQP_IotUARTReadSyncFuzzing )
 /*-----------------------------------------------------------*/
 
 /*-----------------------------------------------------------*/
- /* @brief Test Function to fuzz iot_uart_ioctl
-*-----------------------------------------------------------*/
+
+/* @brief Test Function to fuzz iot_uart_ioctl
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
 {
     IotUARTHandle_t xUartHandle;
@@ -729,7 +741,7 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlFuzzing )
     IotUARTConfig_t xUartConfigTest;
 
     /* Call iot_uart_ioctl with NULL handle. Expect IOT_UART_INVALID_VALUE */
-    lIoctl = iot_uart_ioctl( NULL, eUartSetConfig, &xUartConfigTest);
+    lIoctl = iot_uart_ioctl( NULL, eUartSetConfig, &xUartConfigTest );
     TEST_ASSERT_EQUAL( IOT_UART_INVALID_VALUE, lIoctl );
 
     xUartHandle = iot_uart_open( ustestIotUartPort );
@@ -795,8 +807,9 @@ TEST( TEST_IOT_UART, AFQP_IotUARTIoctlWhenBusy )
 }
 /*-----------------------------------------------------------*/
 /*-----------------------------------------------------------*/
- /* @brief Test Function to fuzz iot_uart_open and iot_uart_close
-*-----------------------------------------------------------*/
+
+/* @brief Test Function to fuzz iot_uart_open and iot_uart_close
+ *-----------------------------------------------------------*/
 TEST( TEST_IOT_UART, AFQP_IotUARTOpenCloseCancelFuzzing )
 {
     IotUARTHandle_t xUartHandle_1, xUartHandle_2, xUartHandle_3;

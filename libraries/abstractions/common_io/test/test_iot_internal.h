@@ -11,6 +11,7 @@
  * IMPLIED, OR STATUTORY, INCLUDING THE IMPLIED WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
  */
+
 /*******************************************************************************
  * IOT On-Target Unit Test
  * @File: test_iot_internal.h
@@ -27,7 +28,7 @@
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_UART_CONFIG(int testSet);
+void SET_TEST_IOT_UART_CONFIG( int testSet );
 
 /**
  * Board specific Flash config set
@@ -35,7 +36,7 @@ void SET_TEST_IOT_UART_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_FLASH_CONFIG(int testSet);
+void SET_TEST_IOT_FLASH_CONFIG( int testSet );
 
 /**
  * Board specific Watchdog config set
@@ -43,7 +44,7 @@ void SET_TEST_IOT_FLASH_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_WATCHDOG_CONFIG(int testSet);
+void SET_TEST_IOT_WATCHDOG_CONFIG( int testSet );
 
 /**
  * Board specific RTC config set
@@ -51,7 +52,7 @@ void SET_TEST_IOT_WATCHDOG_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_RTC_CONFIG(int testSet);
+void SET_TEST_IOT_RTC_CONFIG( int testSet );
 
 /**
  * Board specific GPIO config set
@@ -59,7 +60,7 @@ void SET_TEST_IOT_RTC_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_GPIO_CONFIG(int testSet);
+void SET_TEST_IOT_GPIO_CONFIG( int testSet );
 
 /**
  * Board specific Timer config set
@@ -67,7 +68,7 @@ void SET_TEST_IOT_GPIO_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_TIMER_CONFIG(int testSet);
+void SET_TEST_IOT_TIMER_CONFIG( int testSet );
 
 /**
  * Board specific ADC config set
@@ -75,7 +76,7 @@ void SET_TEST_IOT_TIMER_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_ADC_CONFIG(int testSet);
+void SET_TEST_IOT_ADC_CONFIG( int testSet );
 
 /**
  * Board specific Reset config set
@@ -83,7 +84,7 @@ void SET_TEST_IOT_ADC_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_RESET_CONFIG(int testSet);
+void SET_TEST_IOT_RESET_CONFIG( int testSet );
 
 /**
  * Board specific Performance Counter config set
@@ -91,7 +92,7 @@ void SET_TEST_IOT_RESET_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_PERFCOUNTER_CONFIG(int testSet);
+void SET_TEST_IOT_PERFCOUNTER_CONFIG( int testSet );
 
 /**
  * Board specific PWM config set
@@ -99,7 +100,7 @@ void SET_TEST_IOT_PERFCOUNTER_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_PWM_CONFIG(int testSet);
+void SET_TEST_IOT_PWM_CONFIG( int testSet );
 
 /**
  * Board specific I2C config set
@@ -107,7 +108,7 @@ void SET_TEST_IOT_PWM_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_I2C_CONFIG(int testSet);
+void SET_TEST_IOT_I2C_CONFIG( int testSet );
 
 /**
  * Board specific SPI config set
@@ -115,7 +116,7 @@ void SET_TEST_IOT_I2C_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_SPI_CONFIG(int testSet);
+void SET_TEST_IOT_SPI_CONFIG( int testSet );
 
 /**
  * Board specific Power config set
@@ -123,7 +124,7 @@ void SET_TEST_IOT_SPI_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_POWER_CONFIG(int testSet);
+void SET_TEST_IOT_POWER_CONFIG( int testSet );
 
 /**
  * Board specific SDIO config set
@@ -131,7 +132,7 @@ void SET_TEST_IOT_POWER_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_SDIO_CONFIG(int testSet);
+void SET_TEST_IOT_SDIO_CONFIG( int testSet );
 
 /**
  * Board specific Temp Sensor config set
@@ -139,7 +140,7 @@ void SET_TEST_IOT_SDIO_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_TEMP_SENSOR_CONFIG(int testSet);
+void SET_TEST_IOT_TEMP_SENSOR_CONFIG( int testSet );
 
 /**
  * Board specific I2S config set
@@ -147,4 +148,4 @@ void SET_TEST_IOT_TEMP_SENSOR_CONFIG(int testSet);
  * @param: testSet: number of config set to be test
  * @return None
  */
-void SET_TEST_IOT_I2S_CONFIG(int testSet);
+void SET_TEST_IOT_I2S_CONFIG( int testSet );
