@@ -103,7 +103,7 @@ static IotBleAdvertisementParams_t _scanRespParams =
 /**
  * @brief Contains parameters to be set in the advertisement data.
  *
- * Note that total available data size in scan response
+ * Note that total available data size in advertisement
  * is 31 bytes. Parameters are chosen below such that overall size
  * does not exceed 31 bytes.
  */
