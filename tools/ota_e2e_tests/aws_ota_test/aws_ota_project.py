@@ -27,6 +27,7 @@ import fileinput
 import sys
 import subprocess
 import os
+import math
 from time import sleep
 
 
@@ -300,10 +301,27 @@ class OtaAfrProject:
         )
 
     def setOtaBlockSize(self, blockSize):
-        """Set aws_application_version.h with the input version.
+        """Set size of data block for OTA in aws_ota_agent_config.h.
+        """
+        log2size = int(round(math.log2(blockSize)))
+        self.__setIdentifierInFile(
+            {'#define otaconfigLOG2_FILE_BLOCK_SIZE': str(log2size) + 'UL'},
+            os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
+        )
+
+    def setOtaBlockNumber(self, blockNum):
+        """Set number of data block for OTA streaming service in aws_ota_agent_config.h.
         """
         self.__setIdentifierInFile(
-            {'#define otaconfigMAX_NUM_BLOCKS_REQUEST': str(blockSize) + 'U'},
+            {'#define otaconfigMAX_NUM_BLOCKS_REQUEST': str(blockNum) + 'U'},
+            os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
+        )
+
+    def setOTAPrimaryDataProtocol(self, protocol):
+        """Set primary data protocol in aws_ota_agent_config.h.
+        """
+        self.__setIdentifierInFile(
+            {'#define configOTA_PRIMARY_DATA_PROTOCOL': f'OTA_DATA_OVER_{protocol.upper()}'},
             os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
         )
 
@@ -355,21 +373,22 @@ class OtaAfrProject:
     def setHTTPConfig(self):
         """Set necessary configs for enabling OTA over HTTP
         """
+        # Disable BLE as we don't have enough memory.
         if 'esp32' in self._board_name:
-            # This is to disable BLE as we don't have enough memory.
             self.__setIdentifierInFile(
                 {
                     '#define configENABLED_NETWORKS': '( AWSIOT_NETWORK_TYPE_WIFI )'
                 },
                 os.path.join(self._projectRootDir, OtaAfrProject.IOT_NETWORK_PATH)
             )
-            # Then turn on HTTP in OTA.
-            self.__setIdentifierInFile(
-                {
-                    '#define configENABLED_DATA_PROTOCOLS': '( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )'
-                },
-                os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
-            )
+
+        # Turn on HTTP in OTA.
+        self.__setIdentifierInFile(
+            {
+                '#define configENABLED_DATA_PROTOCOLS': '( OTA_DATA_OVER_MQTT | OTA_DATA_OVER_HTTP )'
+            },
+            os.path.join(self._projectRootDir, OtaAfrProject.OTA_CONFIG_PATH)
+        )
 
     def setCodesignerCertificate(self, certificate):
         """Set aws_ota_codesigner_certificate.h with the certificate specified.

@@ -354,7 +354,7 @@ class OtaAwsAgent:
 
         return createStreamResponse['streamId']
 
-    def createOtaUpdate(self, protocols, deploymentFiles, roleArn=None):
+    def createOtaUpdate(self, protocols, deploymentFiles, roleArn=None, urlExpired=3600):
         """Create an OTA update job.
         Returns the AWS IoT OTA Update ID.
         Args:
@@ -382,7 +382,9 @@ class OtaAwsAgent:
                 '--role-arn ' + \
                 self._otaRoleArn + ' ' + \
                 '--protocols ' + \
-                ' '.join(protocols),
+                ' '.join(protocols) + ' ' + \
+                '--aws-job-presigned-url-config ' + \
+                'expiresInSec=' + urlExpired,
                 self._stageParams
             )
         else:
@@ -394,7 +396,10 @@ class OtaAwsAgent:
                 targetSelection='SNAPSHOT',
                 roleArn=self._otaRoleArn,
                 files=deploymentFiles,
-                protocols=protocols
+                protocols=protocols,
+                awsJobPresignedUrlConfig={
+                    'expiresInSec': urlExpired
+                }
             )
 
         # Confirm that the OTA update job is ready.
@@ -432,7 +437,7 @@ class OtaAwsAgent:
 
         return otaGetStatusResponse['otaUpdateInfo']['otaUpdateId']
 
-    def quickCreateOtaUpdate(self, otaConfig, protocols):
+    def quickCreateOtaUpdate(self, otaConfig, protocols, urlExpired=3600):
         """Create an OTA update in AWS IoT by using the otaConfig.
         We follow the path of:
             1. Upload unsigned image to the unsigned s3 bucket.
@@ -456,6 +461,7 @@ class OtaAwsAgent:
         signingProfile = f'{self.getThingName()[-8:]}{self._boardName[:10]}'
         otaUpdateId = self.createOtaUpdate(
             protocols=protocols,
+            urlExpired=urlExpired,
             deploymentFiles=[
                 {
                     'fileName': otaConfig['device_firmware_file_name'],

@@ -24,6 +24,9 @@ http://www.FreeRTOS.org
 
 """
 from .aws_ota_test_case_greater_version import OtaTestGreaterVersion
+from .aws_ota_test_case_back_to_back_switch_protocol import OtaTestBackToBackSwitchProtocol
+from .aws_ota_test_case_default_data_protocol import OtaTestDefaultDataProtocol
+from .aws_ota_test_case_presigned_url_expired import OtaTestPresignedUrlExpired
 from .aws_ota_test_case_unsigned_image import OtaTestUnsignedImage
 from .aws_ota_test_case_same_version import OtaTestSameVersion
 from .aws_ota_test_case_untrusted_certificate import OtaTestUntrustedCertificate
@@ -33,9 +36,12 @@ from .aws_ota_test_case_missing_filename import OtaTestMissingFilename
 from .aws_ota_test_case_incorrect_platform import OtaTestIncorrectPlatform
 from .aws_ota_test_case_back_to_back_downloads import OtaTestBackToBackDownloads
 from .aws_ota_test_case_incorrect_wifi_password import OtaTestIncorrectWifiPassword
+from .aws_ota_test_case_greater_version_min_block_config import OtaTestGreaterVersionMinBlockConfig
+from .aws_ota_test_case_greater_version_max_block_config import OtaTestGreaterVersionMaxBlockConfig
 from .aws_ota_test_case_dummy_test import OtaTestDummyTest
 
-class OtaTestCaseFactory( object ):
+
+class OtaTestCaseFactory:
     """Return OTA test case objects based on the test name.
     """
     @staticmethod
