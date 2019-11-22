@@ -504,6 +504,7 @@ static void RUN_TEST_IOT_ALL_GROUP(void){
       RUN_TEST_IOT_UART();
     */
     RUN_IOT_TEST_EFUSE();
+    RUN_IOT_TEST_SPI(0);
     /* ACE-9604 */
     //RUN_TEST_IOT_FLASH();
     RUN_TEST_IOT_RTC();
@@ -532,7 +533,6 @@ static void RUN_TEST_IOT_ALL_GROUP(void){
     RUN_TEST_CASE( TEST_IOT_POWER, AFQP_IotPower_IoctlFuzzing );
     RUN_TEST_CASE( TEST_IOT_POWER, AFQP_IotPower_GetModeFuzzing );
     RUN_TEST_CASE( TEST_IOT_POWER, AFQP_IotPower_CloseFuzzing );
-    RUN_IOT_TEST_SPI(0);
 }
 
 void RunIotTests(int testIndex, int testCaseIndex)
