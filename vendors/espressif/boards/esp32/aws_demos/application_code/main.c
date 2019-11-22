@@ -40,8 +40,10 @@
 #include "iot_logging_task.h"
 
 #include "nvs_flash.h"
-
+#if !AFR_ESP_LWIP
+#include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#endif
 
 #include "esp_system.h"
 #include "esp_wifi.h"
@@ -56,6 +58,7 @@
 
 #include "driver/uart.h"
 #include "aws_application_version.h"
+#include "tcpip_adapter.h"
 
 #include "iot_network_manager_private.h"
 
@@ -165,7 +168,13 @@ static void prvMiscInitialization( void )
                             tskIDLE_PRIORITY + 5,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
+#if AFR_ESP_LWIP
+    configPRINTF( ("Initializing lwIP TCP stack\r\n") );
+    tcpip_adapter_init();
+#else
+    configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     vApplicationIPInit();
+#endif
 }
 
 /*-----------------------------------------------------------*/
@@ -323,8 +332,8 @@ void vApplicationDaemonTaskStartupHook( void )
 {
 }
 
+#if !AFR_ESP_LWIP
 /*-----------------------------------------------------------*/
-
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
     uint32_t ulIPAddress, ulNetMask, ulGatewayAddress, ulDNSServerAddress;
@@ -348,3 +357,4 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send( &evt );
     }
 }
+#endif

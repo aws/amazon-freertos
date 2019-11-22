@@ -38,8 +38,11 @@
 #include "aws_clientcredential.h"
 #include "aws_dev_mode_key_provisioning.h"
 #include "nvs_flash.h"
+#if !AFR_ESP_LWIP
 #include "FreeRTOS_IP.h"
 #include "FreeRTOS_Sockets.h"
+#endif
+#include "tcpip_adapter.h"
 #include "aws_test_utils.h"
 #include "esp_bt.h"
 #include "esp_system.h"
@@ -151,11 +154,17 @@ int app_main( void )
                             tskIDLE_PRIORITY + 5,
                             mainLOGGING_MESSAGE_QUEUE_LENGTH );
 
+#if AFR_ESP_LWIP
+    configPRINTF( ("Initializing lwIP TCP stack\r\n") );
+    tcpip_adapter_init();
+#else /* AFR_ESP_LWIP */
+    configPRINTF( ("Initializing FreeRTOS TCP stack\r\n") );
     FreeRTOS_IPInit( ucIPAddress,
                      ucNetMask,
                      ucGatewayAddress,
                      ucDNSServerAddress,
                      ucMACAddress );
+#endif /* !AFR_ESP_LWIP */
 
     if( SYSTEM_Init() == pdPASS )
     {
@@ -297,6 +306,8 @@ void prvWifiConnect( void )
     }
 
 #endif /* if ( ipconfigUSE_LLMNR != 0 ) || ( ipconfigUSE_NBNS != 0 ) */
+
+#if !AFR_ESP_LWIP
 /*-----------------------------------------------------------*/
 void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
 {
@@ -321,6 +332,8 @@ void vApplicationIPNetworkEventHook( eIPCallbackEvent_t eNetworkEvent )
         esp_event_send( &evt );
     }
 }
+#endif /* !AFR_ESP_LWIP */
+
 #if CONFIG_NIMBLE_ENABLED == 1
     BTStatus_t bleStackInit( void )
     {
