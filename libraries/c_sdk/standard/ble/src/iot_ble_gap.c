@@ -55,7 +55,7 @@
 
 #if ( IOT_BLE_ADVERTISING_UUID_SIZE == 2 )
     #define BT_ADV_UUID_TYPE    eBTuuidType16
-#elif( IOT_BLE_ADVERTISING_UUID_SIZE == 4 )
+#elif ( IOT_BLE_ADVERTISING_UUID_SIZE == 4 )
     #define BT_ADV_UUID_TYPE    eBTuuidType32
 #else
     #define BT_ADV_UUID_TYPE    eBTuuidType128
@@ -106,13 +106,12 @@ static IotBleAdvertisementParams_t _scanRespParams =
  * Note that total available data size in scan response
  * is 31 bytes. Parameters are chosen below such that overall size
  * does not exceed 31 bytes.
- * .
  */
 
 static IotBleAdvertisementParams_t _advParams =
 {
     .includeTxPower    = true,
-    .name              = { BTGattAdvNameShort,                 IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE},
+    .name              = { BTGattAdvNameShort,          IOT_BLE_DEVICE_SHORT_LOCAL_NAME_SIZE},
     .setScanRsp        = false,
     .appearance        = IOT_BLE_ADVERTISING_APPEARANCE,
     .minInterval       = 0,
@@ -694,7 +693,6 @@ BTStatus_t IotBle_Init( void )
 
         status = _setAdvData( &_advParams );
         IotSemaphore_Wait( &_BTInterface.callbackSemaphore );
-
 
         if( status == eBTStatusSuccess )
         {
