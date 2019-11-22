@@ -243,8 +243,10 @@ int prvGAPeventHandler( struct ble_gap_event * event,
                 {
                     xStatus = eBTStatusFail;
                 }
+
                 xBTBleAdapterCallbacks.pxAdvStatusCb( xStatus, ulGattServerIFhandle, false );
             }
+
             return 0;
 
         case BLE_GAP_EVENT_PAIRING_REQUEST:
@@ -683,7 +685,7 @@ BTStatus_t prvGetBondableDeviceList( void )
         xStatus = eBTStatusFail;
     }
 
-    xBondedDevices.xLen = usNbDevices;
+    xBondedDevices.xLen = usNbDevices * sizeof( BTBdaddr_t );
     xBondedDevices.xType = eBTpropertyAdapterBondedDevices;
 
     if( xBTCallbacks.pxAdapterPropertiesCb != NULL )

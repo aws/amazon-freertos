@@ -169,42 +169,62 @@ TEST( Full_BLE, BLE_Free )
     IotTestBleHal_BLEFree();
 }
 
+size_t prvGetNumberOfBonds()
+{
+    BTProperty_t xProperty;
+    size_t xNumElements;
+
+    xProperty.xType = eBTpropertyAdapterBondedDevices;
+
+    /* Get bonded devices list */
+    IotTestBleHal_SetGetProperty( &xProperty, false );
+    xNumElements = ( xProperty.xLen ) / ( sizeof( BTBdaddr_t ) );
+
+    return xNumElements;
+}
+
+
 TEST( Full_BLE, BLE_Connection_RemoveAllBonds )
 {
-    BTProperty_t pxProperty;
-    uint16_t usIndex;
+    BTProperty_t xProperty;
+    size_t xIndex, xNumElements;
 
     /* Set the name */
-    pxProperty.xType = eBTpropertyAdapterBondedDevices;
+    xProperty.xType = eBTpropertyAdapterBondedDevices;
 
     /* Get bonded devices */
-    IotTestBleHal_SetGetProperty( &pxProperty, false );
+    IotTestBleHal_SetGetProperty( &xProperty, false );
 
-    for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
+    xNumElements = ( xProperty.xLen ) / ( sizeof( BTBdaddr_t ) );
+
+    for( xIndex = 0; xIndex < xNumElements; xIndex++ )
     {
-        prvRemoveBond( &( ( BTBdaddr_t * ) pxProperty.pvVal )[ usIndex ] );
+        prvRemoveBond( &( ( BTBdaddr_t * ) xProperty.pvVal )[ xIndex ] );
     }
 
     /* Get bonded devices. */
-    IotTestBleHal_SetGetProperty( &pxProperty, false );
+    xNumElements = prvGetNumberOfBonds();
+
     /* Check none are left. */
-    TEST_ASSERT_EQUAL( 0, pxProperty.xLen );
+    TEST_ASSERT_EQUAL( 0, xNumElements );
 }
 
 bool prvGetCheckDeviceBonded( BTBdaddr_t * pxDeviceAddress )
 {
-    BTProperty_t pxProperty;
-    uint16_t usIndex;
+    BTProperty_t xProperty;
+    size_t xIndex, xNumElements;
     bool bFoundRemoteDevice = false;
 
-    pxProperty.xType = eBTpropertyAdapterBondedDevices;
+    xProperty.xType = eBTpropertyAdapterBondedDevices;
 
     /* Set the name */
-    IotTestBleHal_SetGetProperty( &pxProperty, false );
+    IotTestBleHal_SetGetProperty( &xProperty, false );
 
-    for( usIndex = 0; usIndex < pxProperty.xLen; usIndex++ )
+    xNumElements = ( xProperty.xLen ) / ( sizeof( BTBdaddr_t ) );
+
+    for( xIndex = 0; xIndex < xNumElements; xIndex++ )
     {
-        if( 0 == memcmp( &( ( BTBdaddr_t * ) pxProperty.pvVal )[ usIndex ], pxDeviceAddress, sizeof( BTBdaddr_t ) ) )
+        if( 0 == memcmp( &( ( BTBdaddr_t * ) xProperty.pvVal )[ xIndex ], pxDeviceAddress, sizeof( BTBdaddr_t ) ) )
         {
             bFoundRemoteDevice = true;
             break;
@@ -260,8 +280,12 @@ TEST( Full_BLE, BLE_Connection_Mode1Level2 )
 TEST( Full_BLE, BLE_Connection_RemoveBonding )
 {
     bool bFoundRemoteDevice;
+    size_t xNumBonds;
 
     prvRemoveBond( &_xAddressConnectedDevice );
+
+    xNumBonds = prvGetNumberOfBonds();
+    TEST_ASSERT_EQUAL( 0, xNumBonds );
 
     bFoundRemoteDevice = prvGetCheckDeviceBonded( &_xAddressConnectedDevice );
     TEST_ASSERT_EQUAL( false, bFoundRemoteDevice );
@@ -271,6 +295,10 @@ TEST( Full_BLE, BLE_Connection_RemoveBonding )
 TEST( Full_BLE, BLE_Connection_CheckBonding )
 {
     bool bFoundRemoteDevice;
+    size_t xNumBonds;
+
+    xNumBonds = prvGetNumberOfBonds();
+    TEST_ASSERT_EQUAL( 1, xNumBonds );
 
     bFoundRemoteDevice = prvGetCheckDeviceBonded( &_xAddressConnectedDevice );
     TEST_ASSERT_EQUAL( true, bFoundRemoteDevice );
