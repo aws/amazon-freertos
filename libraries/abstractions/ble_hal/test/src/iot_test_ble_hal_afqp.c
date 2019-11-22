@@ -171,16 +171,16 @@ TEST( Full_BLE, BLE_Free )
 
 size_t prvGetNumberOfBonds()
 {
-	 BTProperty_t xProperty;
-	 size_t xNumElements;
+    BTProperty_t xProperty;
+    size_t xNumElements;
 
-	 xProperty.xType = eBTpropertyAdapterBondedDevices;
+    xProperty.xType = eBTpropertyAdapterBondedDevices;
 
-	 /* Get bonded devices list */
-	 IotTestBleHal_SetGetProperty( &xProperty, false );
-	 xNumElements = ( xProperty.xLen ) / ( sizeof( BTBdaddr_t ) );
+    /* Get bonded devices list */
+    IotTestBleHal_SetGetProperty( &xProperty, false );
+    xNumElements = ( xProperty.xLen ) / ( sizeof( BTBdaddr_t ) );
 
-	 return xNumElements;
+    return xNumElements;
 }
 
 
