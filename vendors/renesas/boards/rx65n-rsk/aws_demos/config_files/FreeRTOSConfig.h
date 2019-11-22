@@ -72,8 +72,8 @@
 
 #define configUSE_DAEMON_TASK_STARTUP_HOOK 1
 
-#define configCPU_CLOCK_HZ				( 96000000UL )
-#define configPERIPHERAL_CLOCK_HZ		( 48000000UL )
+#define configCPU_CLOCK_HZ				( 120000000UL )
+#define configPERIPHERAL_CLOCK_HZ		( 60000000UL )
 #define configUSE_QUEUE_SETS			1
 
 /* Hook function related definitions. */
