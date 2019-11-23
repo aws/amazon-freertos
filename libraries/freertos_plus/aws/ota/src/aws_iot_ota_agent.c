@@ -924,9 +924,6 @@ static OTA_Err_t prvProcessJobHandler( OTA_EventData_t * pxEventData )
 
 			xReturn = kOTA_Err_JobParserError;
 		}
-
-
-		xReturn = kOTA_Err_None;
     }
 
     /*Free the OTA event buffer. */
@@ -1594,24 +1591,12 @@ static DocParseErr_t prvParseJSONbyModel( const char * pcJSON,
                                         {
                                             /* Copy pointer to source string instead of duplicating the string. */
                                             const char * pcStringInDoc = &pcJSON[ pxValTok->start ];
-
-                                            if( pcStringInDoc != NULL ) /*lint !e774 This can result in NULL if offset rolls the address around. */
-                                            {
-                                                *xParamAddr.ppccPtr = pcStringInDoc;
-                                                ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
-                                                OTA_LOG_L1( "[%s] Extracted parameter [ %s: %.*s ]\r\n",
-                                                            OTA_METHOD_NAME,
-                                                            pxModelParam[ usModelParamIndex ].pcSrcKey,
-                                                            ulTokenLen, pcStringInDoc );
-                                            }
-                                            else
-                                            {
-                                                /* This should never happen unless there's a bug or memory is corrupted. */
-                                                OTA_LOG_L1( "[%s] Error! JSON token produced a null pointer for parameter [ %s ]\r\n",
-                                                            OTA_METHOD_NAME,
-                                                            pxModelParam[ usModelParamIndex ].pcSrcKey );
-                                                eErr = eDocParseErr_InvalidToken;
-                                            }
+                                            *xParamAddr.ppccPtr = pcStringInDoc;
+                                            ulTokenLen = ( uint32_t ) ( pxValTok->end ) - ( uint32_t ) ( pxValTok->start );
+                                            OTA_LOG_L1( "[%s] Extracted parameter [ %s: %.*s ]\r\n",
+                                                        OTA_METHOD_NAME,
+                                                        pxModelParam[ usModelParamIndex ].pcSrcKey,
+                                                        ulTokenLen, pcStringInDoc );
                                         }
                                         else if( eModelParamType_UInt32 == pxModelParam[ usModelParamIndex ].xModelParamType )
                                         {
@@ -2040,7 +2025,7 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
             {
                 /* Custom job was parsed by external callback successfully. Grab the job name from the file
                  *  context and save that in the ota agent */
-                if( ( C != NULL ) && ( C->pucJobName != NULL ) )
+                if( C->pucJobName != NULL )
                 {
                     xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
                     C->pucJobName = NULL;
@@ -2062,29 +2047,22 @@ static OTA_FileContext_t * prvParseJobDoc( const char * pcJSON,
 
     if( eErr != eOTA_JobParseErr_None )
     {
-        if( C == NULL )
+        /* If job parsing failed AND there's a job ID, update the job state to FAILED with
+            * a reason code.  Without a job ID, we can't update the status in the job service. */
+        if( C->pucJobName != NULL )
         {
-            OTA_LOG_L1( "[%s] Error! No job context available.\r\n", OTA_METHOD_NAME );
+            OTA_LOG_L1( "[%s] Rejecting job due to OTA_JobParseErr_t %d\r\n", OTA_METHOD_NAME, eErr );
+            /* Assume control of the job name from the context. */
+            xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
+            C->pucJobName = NULL;
+            xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_FailedWithVal, ( int32_t ) kOTA_Err_JobParserError, ( int32_t ) eErr );
+            /* We don't need the job name memory anymore since we're done with this job. */
+            vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
+            xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
         }
         else
         {
-            /* If job parsing failed AND there's a job ID, update the job state to FAILED with
-             * a reason code.  Without a job ID, we can't update the status in the job service. */
-            if( C->pucJobName != NULL )
-            {
-                OTA_LOG_L1( "[%s] Rejecting job due to OTA_JobParseErr_t %d\r\n", OTA_METHOD_NAME, eErr );
-                /* Assume control of the job name from the context. */
-                xOTA_Agent.pcOTA_Singleton_ActiveJobName = C->pucJobName;
-                C->pucJobName = NULL;
-                xOTA_ControlInterface.prvUpdateJobStatus( &xOTA_Agent, eJobStatus_FailedWithVal, ( int32_t ) kOTA_Err_JobParserError, ( int32_t ) eErr );
-                /* We don't need the job name memory anymore since we're done with this job. */
-                vPortFree( xOTA_Agent.pcOTA_Singleton_ActiveJobName );
-                xOTA_Agent.pcOTA_Singleton_ActiveJobName = NULL;
-            }
-            else
-            {
-                OTA_LOG_L1( "[%s] Ignoring job without ID.\r\n", OTA_METHOD_NAME );
-            }
+            OTA_LOG_L1( "[%s] Ignoring job without ID.\r\n", OTA_METHOD_NAME );
         }
     }
 

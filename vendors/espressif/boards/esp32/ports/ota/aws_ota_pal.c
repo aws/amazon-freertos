@@ -93,7 +93,8 @@ static OTA_Err_t asn1_to_raw_ecdsa( uint8_t * signature,
     int ret = 0;
     const unsigned char * end = signature + sig_len;
     size_t len;
-    mbedtls_mpi r, s;
+    mbedtls_mpi r = { 0 };
+    mbedtls_mpi s = { 0 };
 
     if( out_signature == NULL )
     {
@@ -268,7 +269,7 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
                                 uint32_t * pulDataSize )
 {
     /* Find the certificate */
-    CK_OBJECT_HANDLE xHandle;
+    CK_OBJECT_HANDLE xHandle = 0;
     CK_RV xResult;
     CK_FUNCTION_LIST_PTR xFunctionList;
     CK_SLOT_ID xSlotId;
