@@ -702,9 +702,11 @@ EventBits_t xEventBits = ( EventBits_t ) 0;
 		}
 		taskEXIT_CRITICAL();
 
-		/* The returned value is the data length, which may have been capped to
-		the receive buffer size. */
-		lReturn = ( int32_t ) pxNetworkBuffer->xDataLength;
+		/* The returned value is the length of the payload data, which is
+		calculated at the total packet size minus the headers.
+		The validity of `xDataLength` prvProcessIPPacket has been confirmed
+		in 'prvProcessIPPacket()'. */
+		lReturn = ( int32_t ) ( pxNetworkBuffer->xDataLength - sizeof( UDPPacket_t ) );
 
 		if( pxSourceAddress != NULL )
 		{
@@ -833,7 +835,8 @@ FreeRTOS_Socket_t *pxSocket;
 
 			if( pxNetworkBuffer != NULL )
 			{
-				pxNetworkBuffer->xDataLength = xTotalDataLength;
+				/* xDataLength is the size of the total packet, including the Ethernet header. */
+				pxNetworkBuffer->xDataLength = xTotalDataLength + sizeof( UDPPacket_t );
 				pxNetworkBuffer->usPort = pxDestinationAddress->sin_port;
 				pxNetworkBuffer->usBoundPort = ( uint16_t ) socketGET_SOCKET_PORT( pxSocket );
 				pxNetworkBuffer->ulIPAddress = pxDestinationAddress->sin_addr;
