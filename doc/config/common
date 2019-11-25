@@ -22,11 +22,11 @@ QUIET = YES
 # Define the following preprocessor constants when generating documentation.
 PREDEFINED = "DOXYGEN=1" \
              "IOT_STATIC_MEMORY_ONLY=1" \
-             "_LIBRARY_LOG_LEVEL=IOT_LOG_DEBUG" \
-             "_LIBRARY_LOG_NAME=\"DOXYGEN\""
+             "LIBRARY_LOG_LEVEL=IOT_LOG_DEBUG" \
+             "LIBRARY_LOG_NAME=\"DOXYGEN\""
 
 # Ignore the constants used for setting log levels and names.
-EXCLUDE_SYMBOLS = "_LIBRARY_LOG_*"
+EXCLUDE_SYMBOLS = "LIBRARY_LOG_*"
 
 # Configure Doxygen for C.
 OPTIMIZE_OUTPUT_FOR_C = YES
@@ -93,6 +93,7 @@ ALIASES += constants_brief{1}="@brief Defined constants of the \1.<br><br>Librar
 # Alias for starting a functions page.
 ALIASES += functions_page{2}="@page \1_functions Functions"
 ALIASES += functions_brief{1}="@brief Functions of the \1 library.<br><br>The \1 library consists of the following functions."
+ALIASES += functions_page{3}="@page \1_functions \3"
 
 # Alias for listing a single function on a functions page.
 ALIASES += function_name{1}="@subpage \1"

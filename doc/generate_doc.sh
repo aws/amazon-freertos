@@ -47,6 +47,7 @@ i=0; while [ $i -le 1 ]; do
 done
 
 echo "Documentation written to doc/output"
+echo "Doxygen warnings written to ./doxygen_warnings.txt"
 
 # Print any doxygen errors or warnings and exit with a nonzero value.
 if [ -s doxygen_warnings.txt ]; then
