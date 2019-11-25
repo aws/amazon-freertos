@@ -308,15 +308,13 @@ TEST( Full_BLE, BLE_Connection_CheckBonding )
 
 TEST( Full_BLE, BLE_Connection_BondedReconnectAndPair )
 {
-    BTStatus_t xStatus;
-
     IotTestBleHal_StartAdvertisement();
     IotTestBleHal_WaitConnection( true );
 
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
-                              true,
-                              false,
-                              0 );
+    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
+                                         true,
+                                         false,
+                                         0 );
 }
 
 
@@ -343,28 +341,28 @@ TEST( Full_BLE, BLE_Connection_Disconnect_From_Peripheral )
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteDescr )
 {
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_B,
-                              true,
-                              false,
-                              0 );
+    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_B,
+                                         true,
+                                         false,
+                                         0 );
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4_Property_WriteChar )
 {
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
-                              true,
-                              false,
-                              0 );
+    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
+                                         true,
+                                         false,
+                                         0 );
 }
 
 TEST( Full_BLE, BLE_Connection_Mode1Level4 )
 {
     IotTestBleHal_CreateSecureConnection_Model1Level4( true );
 
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
-                              true,
-                              false,
-                              0 );
+    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_B,
+                                         true,
+                                         false,
+                                         0 );
 }
 
 /* TODO: to confirm ExecuteWrite doesn't need Resp */
@@ -404,21 +402,6 @@ void prvExecuteWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
         xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xConfirmEvent.xStatus );
         /* TEST_ASSERT_EQUAL( usHandlesBufferB[ xAttribute ], xConfirmEvent.usAttrHandle ); */
-    }
-}
-
-void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                               bool bNeedRsp,
-                               bool IsPrep,
-                               uint16_t usOffset )
-{
-    BLETESTwriteAttrCallback_t xWriteEvent;
-
-    xWriteEvent = IotTestBleHal_WriteReceive( xAttribute, bNeedRsp, IsPrep, usOffset );
-
-    if( xWriteEvent.bNeedRsp == true ) /* this flag is different depending on different stack implementation */
-    {
-        IotTestBleHal_WriteResponse( xAttribute, xWriteEvent, true );
     }
 }
 
@@ -548,10 +531,10 @@ TEST( Full_BLE, BLE_Property_Notification )
 
 TEST( Full_BLE, BLE_Property_WriteNoResponse )
 {
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_D,
-                              false,
-                              false,
-                              0 );
+    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_D,
+                                         false,
+                                         false,
+                                         0 );
 }
 
 void prvReadCheckAndResponse( bletestAttSrvB_t xAttribute )
@@ -593,6 +576,7 @@ void IotTestBleHal_ReadResponse( bletestAttSrvB_t xAttribute,
     _pxGattServerInterface->pxSendResponse( xReadEvent.usConnId, xReadEvent.ulTransId, eBTStatusSuccess, &xGattResponse );
 
     xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventConfimCb, usHandlesBufferB[ xAttribute ], ( void * ) &xConfirmEvent, sizeof( BLETESTconfirmCallback_t ), BLE_TESTS_WAIT );
+    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 
     if( IsConnected == true )
     {
@@ -617,18 +601,18 @@ TEST( Full_BLE, BLE_Property_ReadCharacteristic )
 
 TEST( Full_BLE, BLE_Property_WriteDescriptor )
 {
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_A,
-                              true,
-                              false,
-                              0 );
+    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHARF_DESCR_A,
+                                         true,
+                                         false,
+                                         0 );
 }
 
 TEST( Full_BLE, BLE_Property_WriteCharacteristic )
 {
-    prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                              true,
-                              false,
-                              0 );
+    IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
+                                         true,
+                                         false,
+                                         0 );
 }
 
 /**
@@ -656,10 +640,10 @@ TEST( Full_BLE, BLE_Property_WriteLongCharacteristic )
             IotTestBleHal_WriteResponse( bletestATTR_SRVCB_CHAR_A, xWriteEvent, true );
         }
 
-        prvWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
-                                  true,
-                                  true,
-                                  bletestsMTU_SIZE1 - 5 );
+        IotTestBleHal_WriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
+                                             true,
+                                             true,
+                                             bletestsMTU_SIZE1 - 5 );
         prvExecuteWriteCheckAndResponse( bletestATTR_SRVCB_CHAR_A,
                                          true );
     }
@@ -779,46 +763,12 @@ TEST( Full_BLE, BLE_CreateAttTable_IncludedService )
 
 TEST( Full_BLE, BLE_CreateAttTable_CreateServices )
 {
-    BTStatus_t xStatus;
-
-    /* Try to create using blob service API first.
-     * If blob is not supported then try legacy APIs. */
-    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
-
-    if( xStatus != eBTStatusUnsupported )
-    {
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
-            xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcC );
-            TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-        #endif
-    }
-    else
-    {
-        /* Create service A */
-        IotTestBleHal_CreateServiceA();
-
-        /* Create service B */
-        IotTestBleHal_CreateServiceB();
-
-        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
-            /* Create service C */
-            IotTestBleHal_CreateServiceC();
-        #endif
-
-        /* Start service A */
-        IotTestBleHal_StartService( &_xSrvcA );
-        /* Start service B */
-        IotTestBleHal_StartService( &_xSrvcB );
-        #if ENABLE_TC_AFQP_SECONDARY_SERVICE
-            /* Start service C */
-            IotTestBleHal_StartService( &_xSrvcC );
-        #endif
-    }
+    IotTestBleHal_CreateStartServiceA();
+    IotTestBleHal_CreateStartServiceB( true );
+    #if ENABLE_TC_AFQP_SECONDARY_SERVICE
+        IotTestBleHal_CreateStartServiceC();
+    #endif
 }
-
 
 
 TEST( Full_BLE, BLE_Initialize_BLE_GATT )

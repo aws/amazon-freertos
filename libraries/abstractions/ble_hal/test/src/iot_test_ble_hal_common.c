@@ -415,7 +415,7 @@ BTBleAdapterCallbacks_t _xBTBleAdapter_NULL_Cb =
 
 BTGattServerCallbacks_t _xBTGattServer_NULL_Cb =
 {
-    .pxRegisterServerCb       = NULL,
+    .pxRegisterServerCb       = prvBTRegisterServerCb,
     .pxUnregisterServerCb     = NULL,
     .pxConnectionCb           = NULL,
     .pxServiceAddedCb         = prvServiceAddedCb,
@@ -545,40 +545,6 @@ void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
         TEST_ASSERT_EQUAL( eBTStatusSuccess, xInitDeinitCb.xStatus );
     }
-}
-
-void IotTestBleHal_InitWithNULLCb( void )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-
-    /* GAP common setup with NULL Cb */
-    _pxBTInterface = ( BTInterface_t * ) BTGetBluetoothInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTInterface );
-
-    xStatus = _pxBTInterface->pxBtManagerInit( &_xBTManager_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    IotTestBleHal_BLEEnable( true );
-
-    /* BLEGAPInit with NULL Cb */
-    _pxBTLeAdapterInterface = ( BTBleAdapter_t * ) _pxBTInterface->pxGetLeAdapter();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxBTLeAdapterInterface );
-
-    xStatus = _pxBTLeAdapterInterface->pxBleAdapterInit( &_xBTBleAdapter_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = _pxBTLeAdapterInterface->pxRegisterBleApp( &xAppUUID );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    /* BLEGATTInit with NULL Cb */
-    _pxGattServerInterface = ( BTGattServerInterface_t * ) _pxBTLeAdapterInterface->ppvGetGattServerInterface();
-    TEST_ASSERT_NOT_EQUAL( NULL, _pxGattServerInterface );
-
-    _pxGattServerInterface->pxGattServerInit( &_xBTGattServer_NULL_Cb );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = _pxGattServerInterface->pxRegisterServer( &xServerUUID );
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
 void IotTestBleHal_StartAdvertisement( void )
@@ -764,18 +730,74 @@ void prvCreateIncludedService( BTService_t * xSrvc,
     xSrvc->pusHandlesBuffer[ xAttribute ] = xBLETESTIncludedSvcCb.usAttrHandle;
 }
 
+void IotTestBleHal_CreateStartServiceA()
+{
+    BTStatus_t xStatus;
+
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcA );
+
+    if( xStatus == eBTStatusUnsupported )
+    {
+        /* Create service A */
+        IotTestBleHal_CreateServiceA();
+        /* Start service A */
+        IotTestBleHal_StartService( &_xSrvcA );
+    }
+}
+
+void IotTestBleHal_CreateStartServiceB( bool bEnableIncludedSrvice )
+{
+    BTStatus_t xStatus;
+
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
+
+    if( xStatus == eBTStatusUnsupported )
+    {
+        /* Create service B */
+        IotTestBleHal_CreateServiceB( bEnableIncludedSrvice );
+        /* Start service B */
+        IotTestBleHal_StartService( &_xSrvcB );
+    }
+}
+
+void IotTestBleHal_CreateStartServiceC()
+{
+    BTStatus_t xStatus;
+
+    /* Try to create using blob service API first.
+     * If blob is not supported then try legacy APIs. */
+    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcC );
+
+    if( xStatus == eBTStatusUnsupported )
+    {
+        /* Create service C */
+        IotTestBleHal_CreateServiceC();
+        /* Start service C */
+        IotTestBleHal_StartService( &_xSrvcC );
+    }
+}
+
 void IotTestBleHal_CreateServiceA()
 {
     prvCreateService( &_xSrvcA );
     prvCreateCharacteristic( &_xSrvcA, bletestATTR_SRVCA_CHAR_A, true );
 }
 
-void IotTestBleHal_CreateServiceB()
+void IotTestBleHal_CreateServiceB( bool bEnableIncludedSrvice )
 {
     prvCreateService( &_xSrvcB );
-    #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
-        prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
-    #endif
+
+    if( bEnableIncludedSrvice )
+    {
+        #if ENABLE_TC_AFQP_ADD_INCLUDED_SERVICE
+            prvCreateIncludedService( &_xSrvcB, bletestATTR_INCLUDED_SERVICE );
+        #endif
+    }
+
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_A, true );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_B, true );
     prvCreateCharacteristic( &_xSrvcB, bletestATTR_SRVCB_CHAR_C, true );
@@ -803,6 +825,21 @@ void IotTestBleHal_CreateServiceC()
         prvCreateCharacteristic( &_xSrvcB, ServiceB_CharArray[ ServiceB_Char++ ], false );
     }
 #endif
+
+void IotTestBleHal_WriteCheckAndResponse( bletestAttSrvB_t xAttribute,
+                                          bool bNeedRsp,
+                                          bool IsPrep,
+                                          uint16_t usOffset )
+{
+    BLETESTwriteAttrCallback_t xWriteEvent;
+
+    xWriteEvent = IotTestBleHal_WriteReceive( xAttribute, bNeedRsp, IsPrep, usOffset );
+
+    if( xWriteEvent.bNeedRsp == true ) /* this flag is different depending on different stack implementation */
+    {
+        IotTestBleHal_WriteResponse( xAttribute, xWriteEvent, true );
+    }
+}
 
 static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                                  uint16_t usServiceDataLen,

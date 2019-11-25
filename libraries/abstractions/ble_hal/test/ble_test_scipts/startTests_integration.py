@@ -33,6 +33,7 @@ import time
 from testClass import runTest
 from bleAdapter import bleAdapter
 
+
 def main():
     scan_filter = dict()
 
@@ -55,11 +56,11 @@ def main():
         isTestSuccessFull,
         runTest.Advertise_With_Manufacture_Data)
 
-
     isTestSuccessFull = runTest.Advertise_Interval_Consistent_After_BT_Reset(
         scan_filter=scan_filter, bleAdapter=bleAdapter)
-    runTest.submitTestResult(isTestSuccessFull,
-                             runTest.Advertise_Interval_Consistent_After_BT_Reset)
+    runTest.submitTestResult(
+        isTestSuccessFull,
+        runTest.Advertise_Interval_Consistent_After_BT_Reset)
 
     isTestSuccessFull = runTest.Write_Notification_Size_Greater_Than_MTU_3(
         scan_filter=scan_filter, bleAdapter=bleAdapter)

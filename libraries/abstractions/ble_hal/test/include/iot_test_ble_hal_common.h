@@ -37,6 +37,7 @@
 #include <string.h>
 #include IOT_LINEAR_CONTAINERS
 #include IOT_THREADS
+#include IOT_CLOCK
 #include IOT_PLATFORM_TYPES
 #include IOT_BT_HAL_MANAGER_ADAPTER_BLE
 #include IOT_BT_HAL_MANAGER_ADAPTER
@@ -195,6 +196,8 @@ typedef struct
 
 #define BLE_TESTS_WAIT                        60000                 /* Wait 60s max */
 #define BLE_TESTS_SHORT_WAIT                  4000                  /* Wait 4s max */
+
+#define BLE_TIME_LIMIT                        2500                  /* Set time limit to 2.5s */
 
 typedef enum
 {
@@ -512,8 +515,11 @@ void IotTestBleHal_SetGetProperty( BTProperty_t * pxProperty,
                                    bool bIsSet );
 void IotTestBleHal_StartService( BTService_t * xRefSrvc );
 void IotTestBleHal_CreateServiceA( void );
-void IotTestBleHal_CreateServiceB( void );
+void IotTestBleHal_CreateServiceB( bool bEnableIncludedSrvice );
 void IotTestBleHal_CreateServiceC( void );
+void IotTestBleHal_CreateStartServiceA();
+void IotTestBleHal_CreateStartServiceB( bool bEnableIncludedSrvice );
+void IotTestBleHal_CreateStartServiceC();
 void IotTestBleHal_CreateServiceB_Nested( void );
 void IotTestBleHal_WaitConnection( bool bConnected );
 void IotTestBleHal_StopService( BTService_t * xRefSrvc );
@@ -533,6 +539,10 @@ void IotTestBleHal_SetAdvData( BTuuidType_t Type,
 
 void prvSendNotification( bletestAttSrvB_t xAttribute,
                           bool bConfirm );
+void IotTestBleHal_WriteCheckAndResponse( bletestAttSrvB_t xAttribute,
+                                          bool bNeedRsp,
+                                          bool IsPrep,
+                                          uint16_t usOffset );
 void IotTestBleHal_CheckIndicationNotification( bool IsIndication,
                                                 bool IsConnected );
 BLETESTreadAttrCallback_t IotTestBleHal_ReadReceive( bletestAttSrvB_t xAttribute );

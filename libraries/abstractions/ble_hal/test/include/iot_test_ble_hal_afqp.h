@@ -33,10 +33,6 @@
 
 #include "iot_test_ble_hal_common.h"
 
-void prvWriteCheckAndResponse( bletestAttSrvB_t xAttribute,
-                               bool bNeedRsp,
-                               bool IsPrep,
-                               uint16_t usOffset );
 void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
                           uint16_t usServiceDataLen,
                           char * pcServiceData,

@@ -29,8 +29,6 @@
  */
 
 
-#include <time.h>
-
 
 #include "iot_test_ble_hal_integration.h"
 extern BTCallbacks_t _xBTManagerCb;
@@ -115,7 +113,7 @@ TEST_SETUP( Full_BLE_Integration_Test_Connection )
 {
     /* Initialize */
     GATT_setup();
-    prvCreateAndStartServiceB();
+    IotTestBleHal_CreateStartServiceB( false );
 
     /* Advertise and Connect */
     IotTestBleHal_SetAdvProperty();
@@ -176,6 +174,9 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
     #endif
     #if ENABLE_TC_INTEGRATION_CHECK_BOND_STATE
         RUN_TEST_CASE( Full_BLE_Integration_Test_Advertisement, BLE_Check_Bond_State );
+    #endif
+    #if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE
+        RUN_TEST_CASE( Full_BLE_Integration_Test_common_GATT, BLE_Enable_Disable_BT_Module );
     #endif
 
     /*TODO: Test sequence to back to pxSetAdvData, pxSetScanResponse, pxStartAdv()*/
@@ -338,43 +339,13 @@ TEST( Full_BLE_Integration_Test, BLE_Advertise_Before_Set_Data )
     TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
 }
 
-/* pxEnable/pxDisable can only return current. Make sure pxEnalbe/pxDisable works.
- * Make sure stack state is enable (callback received) no later than 2.5 seconds after pxEnable returns*/
-TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
-{
-    BTStatus_t xStatus = eBTStatusSuccess;
-    BLETESTInitDeinitCallback_t xInitDeinitCb;
-    clock_t returnTime, cbRecvTime;
-
-    GAP_common_setup();
-
-    /* disable */
-    IotTestBleHal_BLEEnable( false );
-
-    /* enable */
-    xStatus = _pxBTInterface->pxEnable( 0 );
-    returnTime = clock();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-
-    xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
-    cbRecvTime = clock();
-    TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
-    TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
-}
-
 #if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE
     TEST( Full_BLE_Integration_Test, BLE_Init_Enable_Twice )
     {
         BTStatus_t xStatus = eBTStatusSuccess;
-        clock_t returnTime, cbRecvTime;
 
         IotTestBleHal_BLEManagerInit( &_xBTManagerCb );
-        returnTime = clock();
         IotTestBleHal_BLEEnable( true );
-        cbRecvTime = clock();
-
-        TEST_ASSERT_LESS_THAN( CLOCKS_PER_SEC * 5, ( cbRecvTime - returnTime ) * 2 );
 
         /* First time disable */
         IotTestBleHal_BLEEnable( false );
@@ -390,6 +361,31 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
         GAP_common_teardown();
     }
 #endif /* if ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE */
+
+/* pxEnable/pxDisable can only return current. Make sure pxEnable/pxDisable works.
+ * Make sure stack state is enable (callback received) no later than 2.5 seconds after pxEnable returns*/
+#if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE
+    TEST( Full_BLE_Integration_Test_common_GATT, BLE_Enable_Disable_BT_Module )
+    {
+        BTStatus_t xStatus = eBTStatusSuccess;
+        BLETESTInitDeinitCallback_t xInitDeinitCb;
+        uint64_t xReturnTime, xCbRecvTime;
+
+        /* disable */
+        IotTestBleHal_BLEEnable( false );
+
+        /* enable */
+        xStatus = _pxBTInterface->pxEnable( 0 );
+        xReturnTime = IotClock_GetTimeMs();
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+
+        xStatus = IotTestBleHal_WaitEventFromQueue( eBLEHALEventEnableDisableCb, NO_HANDLE, ( void * ) &xInitDeinitCb, sizeof( BLETESTInitDeinitCallback_t ), BLE_TESTS_WAIT );
+        xCbRecvTime = IotClock_GetTimeMs();
+        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
+        TEST_ASSERT_EQUAL( eBTstateOn, xInitDeinitCb.xBLEState );
+        TEST_ASSERT_LESS_THAN( BLE_TIME_LIMIT, xCbRecvTime - xReturnTime );
+    }
+#endif /* if ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE */
 
 /*Advertisement interval measured OTA can be out the range set by app, after reset BT stack, adv interval can change to 1.28s.
  * Make sure KPI is consistent after reset BT.*/
@@ -417,7 +413,7 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
         IotTestBleHal_BLEEnable( true );
         IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
         IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
-        prvCreateAndStartServiceB();
+        IotTestBleHal_CreateStartServiceB( false );
         IotTestBleHal_SetAdvProperty();
         IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
 
@@ -519,7 +515,7 @@ TEST( Full_BLE_Integration_Test, BLE_Enable_Disable_Time_Limit )
     {
         /* Advertise and Connect */
         IotTestBleHal_SetAdvProperty();
-        IotTestBleHal_SetAdvData( eBTuuidType32, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         prvShortWaitConnection();
     }
@@ -555,28 +551,9 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
     }
 #endif /* if ENABLE_TC_INTEGRATION_CONNECTION_TIMEOUT */
 
-void prvCreateAndStartServiceB()
-{
-    BTStatus_t xStatus;
-
-    xStatus = _pxGattServerInterface->pxAddServiceBlob( _ucBLEServerIf, &_xSrvcB );
-
-    if( xStatus == eBTStatusUnsupported )
-    {
-        IotTestBleHal_CreateServiceB();
-        IotTestBleHal_StartService( &_xSrvcB );
-    }
-    else
-    {
-        TEST_ASSERT_EQUAL( eBTStatusSuccess, xStatus );
-    }
-}
-
 #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
     void prvInitWithNULLCb( void )
     {
-        BTStatus_t xStatus = eBTStatusSuccess;
-
         /* GAP common setup with NULL Cb */
         IotTestBleHal_BLEManagerInit( &_xBTManager_NULL_Cb );
 
@@ -609,7 +586,7 @@ void prvCreateAndStartServiceB()
             IotTestBleHal_CreateServiceA();
 
             /* Create service B */
-            IotTestBleHal_CreateServiceB();
+            IotTestBleHal_CreateServiceB( false );
 
             /* Start service A */
             prvStartServiceWithNULLCb( &_xSrvcA );
@@ -846,21 +823,4 @@ void GATT_setup()
     GAP_common_setup();
     IotTestBleHal_BLEGAPInit( &_xBTBleAdapterCb, true );
     IotTestBleHal_BLEGATTInit( &_xBTGattServerCb, true );
-}
-
-void Advertisement_teardown()
-{
-    GATT_teardown();
-}
-/*-----------------------------------------------------------*/
-
-void Advertisement_setup()
-{
-    GATT_setup();
-    prvCreateAndStartServiceB();
-    IotTestBleHal_SetAdvProperty();
-    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
-
-    /* Second time connection begins. Got second KPI. */
-    IotTestBleHal_StartAdvertisement();
 }

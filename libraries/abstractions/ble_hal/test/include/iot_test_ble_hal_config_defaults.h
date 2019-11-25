@@ -49,5 +49,6 @@
 #define ENABLE_TC_INTEGRATION_SEND_DATA_AFTER_DISCONNECTED                    ( 1 )
 #define ENABLE_TC_INTEGRATION_INIT_ENABLE_TWICE                               ( 1 )
 #define ENABLE_TC_INTEGRATION_CHECK_BOND_STATE                                ( 1 )
+#define ENABLE_TC_INTEGRATION_ENABLE_DISABLE_BT_MODULE                        ( 1 )
 
 #endif /* ifndef _IOT_TEST_BLE_HAL_CONFIG_DEFAULTS_H */
