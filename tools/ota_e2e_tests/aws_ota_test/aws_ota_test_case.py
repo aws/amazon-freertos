@@ -28,6 +28,7 @@ import os
 import time
 import errno
 import traceback
+import subprocess
 
 from .aws_ota_test_result import OtaTestResult
 
@@ -111,6 +112,12 @@ class OtaTestCase(ABC):
         All the necessary cleanup. Optional method, but do call super teardown if implementation is provided in sub-class.
         """
         self._flashComm.stopSerialRead()
+
+        # Call git to reset the source code.
+        try:
+          subprocess.run(['git', 'checkout', f'{self._boardConfig["afr_root"]}'])
+        except OSError as e:
+          print(f'Error reseting the source code: {e}')
 
     def runTest(self):
         """Run this OTA test case.
