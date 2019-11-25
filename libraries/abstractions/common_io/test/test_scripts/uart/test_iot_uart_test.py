@@ -174,7 +174,8 @@ class TestUartAssisted(test_template):
         pi_result = None
         dut_result = None
         dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTWriteAsync\W\sPASS")
-        pi_res_pattern = re.compile(r"\b(?:\\xaa){198}\b")
+        # 200 corresponds to the config testIotUART_BUFFER_LENGTH_LARGE on the DUT
+        pi_res_pattern = re.compile(r"\b(?:\\xaa){200}\b")
 
         t_shell = threading.Thread(target=self.run_shell_script,
                                    args=(" ".join([self.shell_script, self._ip, self._login, self._pwd, '3']),))
@@ -232,10 +233,10 @@ class TestUartAssisted(test_template):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-i', '--ip', nargs=1, default=['10.53.30.75'], help='ip address of rpi')
-    parser.add_argument('-l', '--login_name', nargs=1, default=['pi'], help='login name of rpi')
-    parser.add_argument('-s', '--password', nargs=1, default=['1'], help='password of rpi')
-    parser.add_argument('-p', '--port', nargs=1, default=['/dev/ttyACM1'], help='serial port of connected platform')
+    parser.add_argument('-i', '--ip', nargs=1, help='ip address of rpi')
+    parser.add_argument('-l', '--login_name', nargs=1, help='login name of rpi')
+    parser.add_argument('-s', '--password', nargs=1, help='password of rpi')
+    parser.add_argument('-p', '--port', nargs=1, help='serial port of connected platform')
 
     args = parser.parse_args()
 
