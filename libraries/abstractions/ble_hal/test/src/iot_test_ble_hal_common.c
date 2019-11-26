@@ -869,11 +869,11 @@ static void prvSetAdvertisement( BTGattAdvertismentParams_t * pxParams,
 
 
 void IotTestBleHal_SetAdvData( BTuuidType_t type,
+                               uint16_t usServiceDataLen,
+                               char * pcServiceData,
                                uint16_t usManufacturerLen,
                                char * pcManufacturerData )
 {
-    uint16_t usServiceDataLen;
-    char * pcServiceData;
     uint8_t serviceUUID_128[ bt128BIT_UUID_LEN ] = bletestsFREERTOS_SVC_UUID_128;
     /* To make sure stack creates their own pointers, use local variables */
     BTGattAdvertismentParams_t l_xAdvertisementConfigA;
@@ -900,8 +900,6 @@ void IotTestBleHal_SetAdvData( BTuuidType_t type,
             break;
     }
 
-    usServiceDataLen = 0;
-    pcServiceData = NULL;
     xNbServices = 1;
 
     l_xAdvertisementConfigA = xAdvertisementConfigA;

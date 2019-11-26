@@ -534,6 +534,8 @@ void IotTestBleHal_BLEGATTInit( BTGattServerCallbacks_t * pBTGattServerCb,
                                 bool bEnableCb );
 void IotTestBleHal_SetAdvProperty( void );
 void IotTestBleHal_SetAdvData( BTuuidType_t Type,
+                               uint16_t usServiceDataLen,
+                               char * pcServiceData,
                                uint16_t usManufacturerLen,
                                char * pcManufacturerData );
 

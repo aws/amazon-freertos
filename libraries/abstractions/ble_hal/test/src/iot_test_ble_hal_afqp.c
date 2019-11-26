@@ -736,7 +736,7 @@ TEST( Full_BLE, BLE_Advertising_StartAdvertisement )
 
 TEST( Full_BLE, BLE_Advertising_SetAvertisementData )
 {
-    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL );
+    IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, 0, NULL );
 }
 
 TEST( Full_BLE, BLE_Advertising_SetProperties )

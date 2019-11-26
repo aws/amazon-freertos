@@ -92,6 +92,12 @@ class runTest:
     COMPANY_ID = 741
     MANU_DATA = 5
 
+    # Service Data
+    # First 16 bit are Service UUID (randomly select 0xEF12 for test purpose)
+    # Next bytes are Data related to this Service (randomly select 0xD6 for test purpose)
+    SERV_UUID = "000012ef-0000-1000-8000-00805f9b34fb"
+    SERV_DATA = 214
+
     testDevice = []
 
     DUT_MTU_2_STRING = "a" * (MTU_SIZE - 3)
@@ -563,6 +569,25 @@ class runTest:
             return manufacture_data
 
     @staticmethod
+    def get_service_data(testDevice, DUT_UUID=None):
+        service_data_dict = bleAdapter.getPropertie(
+            testDevice, "ServiceData")
+
+        # If service data doesn't exist, return None
+        if(service_data_dict is None):
+            print("No Service Data")
+            sys.stdout.flush()
+            return None
+
+        # If service data exists, return service data
+        else:
+            print("Service Data: " +
+                  str(service_data_dict.items()))
+            sys.stdout.flush()
+            service_data = service_data_dict[runTest.SERV_UUID]
+            return service_data
+
+    @staticmethod
     def _advertisement_start(scan_filter, UUID, discoveryEvent_Cb, bleAdapter):
         scan_filter.update({"UUIDs": [UUID]})
         bleAdapter.setDiscoveryFilter(scan_filter)
@@ -609,52 +634,63 @@ class runTest:
         return True
 
     @staticmethod
-    def Advertise_With_Manufacture_Data(scan_filter,
+    def Check_ManufactureData_ServiceData(scan_filter,
+                                        bleAdapter,
+                                        bEnableManufactureData,
+                                        bEnableServiceData):
+        isTestSuccessFull = True
+
+        runTest._advertisement_start(
+            scan_filter=scan_filter,
+            UUID=runTest.DUT_UUID_128,
+            discoveryEvent_Cb=runTest.discoveryEventCb,
+            bleAdapter=bleAdapter)
+        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
+        service_data = runTest.get_service_data(runTest.testDevice)
+
+        if bEnableManufactureData == False:
+            if manufacture_data is not None:
+                print("MANU_DATA is not None")
+                isTestSuccessFull &= False
+        else:
+            for data in manufacture_data:
+                if data != runTest.MANU_DATA:
+                    print( "MANU_DATA is not correct. Data received: %d" %data)
+                    isTestSuccessFull &= False
+
+        if bEnableServiceData == False:
+            if service_data is not None:
+                print("SERV_DATA is not None")
+                isTestSuccessFull &= False
+        else:
+            for data in service_data:
+                if data != runTest.SERV_DATA:
+                    print( "SERV_DATA is not correct. Data received: %d" %data)
+                    isTestSuccessFull &= False
+        
+        runTest._simple_connect()
+        runTest.stopAdvertisement(scan_filter)
+        isTestSuccessFull &= bleAdapter.disconnect()
+        testutils.removeBondedDevices()
+
+        return isTestSuccessFull
+
+    @staticmethod
+    def Advertise_With_ManuData_ServData(scan_filter,
                                         bleAdapter):
         isTestSuccessFull = True
 
+        # Check when manufacture data length is 0, pointer is NULL
+        isTestSuccessFull &= runTest.Check_ManufactureData_ServiceData(scan_filter, bleAdapter, False, False)
+
         # Check when manufacture data length is 0, but pointer is valid
-        runTest._advertisement_start(
-            scan_filter=scan_filter,
-            UUID=runTest.DUT_UUID_128,
-            discoveryEvent_Cb=runTest.discoveryEventCb,
-            bleAdapter=bleAdapter)
-        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
-        if manufacture_data is not None:
-            isTestSuccessFull = False
-        runTest._simple_connect()
-        runTest.stopAdvertisement(scan_filter)
-        isTestSuccessFull &= bleAdapter.disconnect()
-        testutils.removeBondedDevices()
+        isTestSuccessFull &= runTest.Check_ManufactureData_ServiceData(scan_filter, bleAdapter, False, False)
 
         # Check when manufacture data pointer is NULL, but length is not 0
-        runTest._advertisement_start(
-            scan_filter=scan_filter,
-            UUID=runTest.DUT_UUID_128,
-            discoveryEvent_Cb=runTest.discoveryEventCb,
-            bleAdapter=bleAdapter)
-        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
-        if manufacture_data is not None:
-            isTestSuccessFull = False
-        runTest._simple_connect()
-        runTest.stopAdvertisement(scan_filter)
-        isTestSuccessFull &= bleAdapter.disconnect()
-        testutils.removeBondedDevices()
+        isTestSuccessFull &= runTest.Check_ManufactureData_ServiceData(scan_filter, bleAdapter, True, False)
 
         # Check when manufacture data length is not 0, and pointer is valid
-        runTest._advertisement_start(
-            scan_filter=scan_filter,
-            UUID=runTest.DUT_UUID_128,
-            discoveryEvent_Cb=runTest.discoveryEventCb,
-            bleAdapter=bleAdapter)
-        manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
-        for data in manufacture_data:
-            if data != runTest.MANU_DATA:
-                isTestSuccessFull = False
-        runTest._simple_connect()
-        runTest.stopAdvertisement(scan_filter)
-        isTestSuccessFull &= bleAdapter.disconnect()
-        testutils.removeBondedDevices()
+        isTestSuccessFull &= runTest.Check_ManufactureData_ServiceData(scan_filter, bleAdapter, False, True)
 
         return isTestSuccessFull
 
