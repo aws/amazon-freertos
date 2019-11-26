@@ -174,7 +174,7 @@ class TestUartAssisted(test_template):
         pi_result = None
         dut_result = None
         dut_res_pattern = re.compile(r"AFQP_AssistedIotUARTWriteAsync\W\sPASS")
-        # 200 corresponds to the config testIotUART_BUFFER_LENGTH_LARGE - 1 on the DUT
+        # 199 corresponds to the config testIotUART_BUFFER_LENGTH_LARGE - 1 on the DUT
         pi_res_pattern = re.compile(r"\b(?:\\xaa){199}\b")
 
         t_shell = threading.Thread(target=self.run_shell_script,
