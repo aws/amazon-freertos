@@ -319,7 +319,7 @@ int RunHttpsAsyncUploadDemo( bool awsIotMqttMode,
 
     IotLogInfo( "HTTPS Client Asynchronous S3 upload demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_PUT_URL );
 
-    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This fuction returns the length of the path
+    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This function returns the length of the path
      * without the query into pathLen. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
                                                    strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),

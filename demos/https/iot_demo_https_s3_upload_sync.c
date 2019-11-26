@@ -227,7 +227,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
      * IotHttpsClient_InitializeRequest(). */
     IotHttpsRequestHandle_t reqHandle = IOT_HTTPS_REQUEST_HANDLE_INITIALIZER;
 
-    /* Handle identifying the HTTP response. This is valid after the reponse has been received with
+    /* Handle identifying the HTTP response. This is valid after the response has been received with
      * IotHttpsClient_SendSync(). */
     IotHttpsResponseHandle_t respHandle = IOT_HTTPS_RESPONSE_HANDLE_INITIALIZER;
     /* Synchronous request specific configurations. */
@@ -250,7 +250,7 @@ int RunHttpsSyncUploadDemo( bool awsIotMqttMode,
 
     IotLogInfo( "HTTPS Client Synchronous S3 upload demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_PUT_URL );
 
-    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This fuction returns the length of the path
+    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This function returns the length of the path
      * without the query into pathLen. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL,
                                                    strlen( IOT_DEMO_HTTPS_PRESIGNED_PUT_URL ),

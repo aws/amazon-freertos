@@ -222,7 +222,7 @@ typedef struct _fileDownloadInfo
 {
     uint32_t fileSize;          /**< @brief The total size of the file to be downloaded. */
     uint32_t totalRanges;       /**< @brief the total number of ranges in the file size. */
-    uint8_t * downloadedBitmap; /**< @brief Bitmap to keep track of chunks downlaoded. */
+    uint8_t * downloadedBitmap; /**< @brief Bitmap to keep track of chunks downloaded. */
     uint8_t * scheduledBitmap;  /**< @brief Bitmap of ranges scheduled, but not completed. */
     uint32_t rangesRemaining;   /**< @brief The total number of ranges remaining to download. */
 } _fileDownloadInfo_t;
@@ -523,7 +523,7 @@ static bool _getNextIncompleteRange( uint32_t * currentRange )
     bool found = false;
     /* An intermediate bitMask calculation for checking if the currentRange is already downloaded or not. */
     uint32_t bitMask = 0;
-    /* An intermediate byteOffset into the downlaodedBitmap to check if the currentRange is already downloaded or not. */
+    /* An intermediate byteOffset into the downloadedBitmap to check if the currentRange is already downloaded or not. */
     uint32_t byteOffset = 0;
 
     /* A count from 0 to check if the total ranges is reached because, in the logic below, currentRange will wrap
@@ -667,7 +667,7 @@ static void _readReadyCallback( void * pPrivData,
             return;
         }
 
-        IotLogDebug("Reading the content length for reponse %d.", respHandle);
+        IotLogDebug("Reading the content length for response %d.", respHandle);
         returnStatus = IotHttpsClient_ReadContentLength( respHandle, &contentLength );
 
         if( ( returnStatus != IOT_HTTPS_OK ) || ( contentLength == 0 ) )
@@ -783,13 +783,13 @@ static void _readReadyCallback( void * pPrivData,
                 IotLogInfo( "Successfully reconnected to the S3 server." );
                 /* For all requests from the pool that have been scheduled. We want to free them so they will get
                  * rescheduled by the main application. When a request from the pool is set to unused its associated
-                 * response is also set to unused. This current response is not set to unused so that it's reponse
+                 * response is also set to unused. This current response is not set to unused so that it's response
                  * handle memory is not overwritten. The response cannot be reused until the responseCompleteCallback
                  * is finished. */
                 _freeAllScheduledRequests( pRequestContext->reqNum );
 
                 /* For each of the scheduled ranges mark them as unscheduled so that the main application will assign
-                 * them to a free request. This current requests's range will not be rescheduled because earlier in this
+                 * them to a free request. This current request's range will not be rescheduled because earlier in this
                  * function the downloadedBitmap was marked before this routine. */
                 _clearAllScheduledRanges();
             }
@@ -1049,7 +1049,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
 
     IotLogInfo( "HTTPS Client Asynchronous S3 download demo using pre-signed URL: %s", IOT_DEMO_HTTPS_PRESIGNED_GET_URL );
 
-    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This fuction returns the length of the path
+    /* Retrieve the path location from IOT_DEMO_HTTPS_PRESIGNED_GET_URL. This function returns the length of the path
      * without the query into pathLen. */
     httpsClientStatus = IotHttpsClient_GetUrlPath( IOT_DEMO_HTTPS_PRESIGNED_GET_URL, strlen( IOT_DEMO_HTTPS_PRESIGNED_GET_URL ), &pPath, &pathLen );
 
