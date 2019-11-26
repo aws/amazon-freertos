@@ -416,7 +416,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
     {
         cpBufferLarge[i] = 0xAA;
     }
-    cpBufferLarge[testIotUART_BUFFER_LENGTH_LARGE] = '\n';
+    cpBufferLarge[testIotUART_BUFFER_LENGTH_LARGE - 1] = '\n';
 
     xUartHandle = iot_uart_open( ustestIotUartPort );
     TEST_ASSERT_NOT_EQUAL( NULL, xUartHandle );
