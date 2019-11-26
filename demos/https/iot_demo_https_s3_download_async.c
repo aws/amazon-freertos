@@ -667,6 +667,7 @@ static void _readReadyCallback( void * pPrivData,
             return;
         }
 
+        IotLogDebug("Reading the content length for reponse %d.", respHandle);
         returnStatus = IotHttpsClient_ReadContentLength( respHandle, &contentLength );
 
         if( ( returnStatus != IOT_HTTPS_OK ) || ( contentLength == 0 ) )
@@ -745,6 +746,7 @@ static void _readReadyCallback( void * pPrivData,
          * at the same time a request is being sent, a reconnection needs to be made before the next request sends and
          * gets a network error ending the demo. Please see the design flow for more information:
          * https://docs.aws.amazon.com/freertos/latest/lib-ref/https/https_design.html#Asynchronous_Design */
+        IotLogDebug("Looking for the \"Connection\" header in response %d.", respHandle);
         returnStatus = IotHttpsClient_ReadHeader( respHandle,
                                                   CONNECTION_HEADER_FIELD,
                                                   CONNECTION_HEADER_FILED_LENGTH,
@@ -778,6 +780,7 @@ static void _readReadyCallback( void * pPrivData,
             }
             else
             {
+                IotLogInfo( "Successfully reconnected to the S3 server." );
                 /* For all requests from the pool that have been scheduled. We want to free them so they will get
                  * rescheduled by the main application. When a request from the pool is set to unused its associated
                  * response is also set to unused. This current response is not set to unused so that it's reponse
@@ -898,7 +901,7 @@ static void _errorCallback( void * pPrivData,
     ( void ) respHandle;
 
     char * pRangeValueStr = ( ( _requestContext_t * ) ( pPrivData ) )->pRangeValueStr;
-    IotLogError( "An error occurred during asynchronous operation with code: %d", pRangeValueStr, rc );
+    IotLogError( "An error occurred during range %s with code: %d", pRangeValueStr, rc );
 }
 
 /*-----------------------------------------------------------*/

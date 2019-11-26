@@ -958,8 +958,6 @@ static IotHttpsReturnCode_t _receiveHttpsBodyAsync( _httpsResponse_t * pHttpsRes
                  * the parser state and the networks status. */
                 break;
             }
-
-            IotLogDebug( "Invoking the readReadyCallback again." );
         } while( ( pHttpsResponse->parserState < PARSER_STATE_BODY_COMPLETE ) && ( pHttpsResponse->bodyRxStatus == IOT_HTTPS_OK ) );
 
         if( HTTPS_FAILED( pHttpsResponse->bodyRxStatus ) )
@@ -2081,6 +2079,7 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
         IotLogError( "Error sending the HTTPS headers with error code: %d", status );
         HTTPS_GOTO_CLEANUP();
     }
+    IotLogDebug("Sent HTTPS headers for request %d.", pHttpsRequest);
 
     if( ( pHttpsRequest->pBody != NULL ) && ( pHttpsRequest->bodyLength > 0 ) )
     {
@@ -2091,6 +2090,7 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
             IotLogError( "Error sending final HTTPS body. Return code: %d", status );
             HTTPS_GOTO_CLEANUP();
         }
+        IotLogDebug("Sent HTTPS body for request %d.", pHttpsRequest);
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -2378,6 +2378,7 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
     if( ( IotDeQueue_IsEmpty( &( pHttpsConnection->reqQ ) ) ) &&
         ( IotDeQueue_IsEmpty( &( pHttpsConnection->respQ ) ) ) )
     {
+        IotLogDebug("Both the request and response queue are empty, so schedule the request to run in the taskpool.");
         scheduleRequest = true;
     }
 
@@ -2638,6 +2639,7 @@ IotHttpsReturnCode_t IotHttpsClient_Disconnect( IotHttpsConnectionHandle_t connH
     if( pRespItem != NULL )
     {
         pHttpsResponse = IotLink_Container( _httpsResponse_t, pRespItem, link );
+        IotLogDebug( "Response %d found in the queue during disconnect.", pHttpsResponse );
 
         if( pHttpsResponse->reqFinishedSending == false )
         {
