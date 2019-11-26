@@ -410,7 +410,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
     IotUARTHandle_t xUartHandle;
     int32_t lIoctl, lWrite, lClose, lTransferAmount_1, lTransferAmount_2;
     uint8_t i;
-    uint8_t cpBufferLarge[ testIotUART_BUFFER_LENGTH_LARGE + 1 ] = { 0 };
+    uint8_t cpBufferLarge[ testIotUART_BUFFER_LENGTH_LARGE ] = { 0 };
 
     for (i = 0; i < testIotUART_BUFFER_LENGTH_LARGE; i++)
     {
@@ -423,7 +423,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
 
     if( TEST_PROTECT() )
     {
-        lWrite = iot_uart_write_async( xUartHandle, cpBufferLarge, testIotUART_BUFFER_LENGTH_LARGE + 1 );
+        lWrite = iot_uart_write_async( xUartHandle, cpBufferLarge, testIotUART_BUFFER_LENGTH_LARGE );
         TEST_ASSERT_EQUAL( IOT_UART_SUCCESS, lWrite );
 
         lIoctl = iot_uart_ioctl( xUartHandle, eGetTxNoOfbytes, &lTransferAmount_1 );
