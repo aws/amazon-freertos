@@ -11,6 +11,9 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
+if(AFR_METADATA_MODE)
+    set(PYTHON_DEPS_CHECKED 1)
+endif()
 
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 # Provides idf_import_components and idf_link_components
