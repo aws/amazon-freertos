@@ -200,7 +200,7 @@
 /**
  * @brief This structure defines data consumed and kept track of in the async callbacks per request.
  */
-typedef struct _requestData
+typedef struct _requestContext
 {
     char pRangeValueStr[ RANGE_VALUE_MAX_LENGTH ]; /**< @brief This string is generated outside of the callback context and used to set the request Range header within the callback context. */
     int reqNum;                                    /**< @brief This is the current request number in the static pool of request memory. */
@@ -383,11 +383,11 @@ static int _getFreeRequestIndex( void )
 /*-----------------------------------------------------------*/
 
 /**
- * @brief Clear data for the request in preparation for the next request to use.
+ * @brief Clear the request context in preparation for the next request to use.
  *
  * User buffers and body buffers are zeroed out by the HTTPS Client library.
  */
-static void _clearRequestData( int i )
+static void _clearRequestContext( int i )
 {
     memset( &_requestPool.pRequestContexts[ i ], 0, sizeof( _requestContext_t ) );
 }
@@ -405,7 +405,7 @@ static void _freeRequestIndex( int i )
 {
     IotMutex_Lock( &( _inUseRequestsMutex ) );
     _pInUseRequests[ i ] = false;
-    _clearRequestData( i );
+    _clearRequestContext( i );
     IotMutex_Unlock( &( _inUseRequestsMutex ) );
 }
 
@@ -415,9 +415,16 @@ static void _freeRequestIndex( int i )
  * @brief Free all requests in the pool that have been marked as scheduled, except
  * for the exception index.
  *
+ * This function is used during reconnection to free any possible requests that
+ * might still have been scheduled to the HTTPS Client library to run but have
+ * not been sent yet. Reconnection happens during the _readReadyCallback().
+ * The response's memory cannot be used until the _responseCompleteCallback() return,
+ * so during reconnection, we need to indicate that all memory except the current
+ * response is to be marked as free.
+ *
  * @param[in] exception Request index to not free. This is -1 for no exceptions.
  */
-static void _freeAllScheduledRequests( int exception )
+static void _freeScheduledRequests( int exception )
 {
     /* Index into the request pool. */
     int i = 0;
@@ -430,7 +437,7 @@ static void _freeAllScheduledRequests( int exception )
             ( _requestPool.pRequestContexts[ i ].scheduled == true ) )
         {
             _pInUseRequests[ i ] = false;
-            _clearRequestData( i );
+            _clearRequestContext( i );
         }
     }
 
@@ -523,7 +530,9 @@ static bool _getNextIncompleteRange( uint32_t * currentRange )
     bool found = false;
     /* An intermediate bitMask calculation for checking if the currentRange is already downloaded or not. */
     uint32_t bitMask = 0;
-    /* An intermediate byteOffset into the downloadedBitmap to check if the currentRange is already downloaded or not. */
+
+    /* An intermediate byteOffset into the downloadedBitmap and scheduledBitmap to check if the currentRange is
+     * already downloaded or already scheduled. */
     uint32_t byteOffset = 0;
 
     /* A count from 0 to check if the total ranges is reached because, in the logic below, currentRange will wrap
@@ -532,9 +541,13 @@ static bool _getNextIncompleteRange( uint32_t * currentRange )
 
     do
     {
+        /* Check if the current range in the file is already downloaded or is has already been scheduled. The
+         * bitmaps contains as many bits are there are blocks of byte ranges. The lines below help to index
+         * into the bitmaps and check if the bit representing that byte range is set. */
         bitMask = BITMASK( *currentRange );
         byteOffset = BYTE_OFFSET( *currentRange );
 
+        /* If this range has not been downloaded yet and has not been schedule, then return the current range. */
         if( ( ( _fileDownloadInfo.downloadedBitmap[ byteOffset ] & bitMask ) == ( ( uint8_t ) 0 ) ) &&
             ( ( _fileDownloadInfo.scheduledBitmap[ byteOffset ] & bitMask ) == ( ( uint8_t ) 0 ) ) )
         {
@@ -775,19 +788,19 @@ static void _readReadyCallback( void * pPrivData,
 
             if( returnStatus != IOT_HTTPS_OK )
             {
-                IotLogError( "Failed to reconnect to the S3 server. Error code: %d.", returnStatus );
+                IotLogError( "Failed to reconnect to the server. Error code: %d.", returnStatus );
                 IotHttpsClient_CancelResponseAsync( respHandle );
             }
             else
             {
-                IotLogInfo( "Successfully reconnected to the S3 server." );
+                IotLogInfo( "Successfully reconnected to the server." );
 
                 /* For all requests from the pool that have been scheduled. We want to free them so they will get
                  * rescheduled by the main application. When a request from the pool is set to unused its associated
                  * response is also set to unused. This current response is not set to unused so that it's response
-                 * handle memory is not overwritten. The response cannot be reused until the responseCompleteCallback
+                 * handle memory is not overwritten. This response cannot be reused until the responseCompleteCallback
                  * is finished. */
-                _freeAllScheduledRequests( pRequestContext->reqNum );
+                _freeScheduledRequests( pRequestContext->reqNum );
 
                 /* For each of the scheduled ranges mark them as unscheduled so that the main application will assign
                  * them to a free request. This current request's range will not be rescheduled because earlier in this
@@ -1173,7 +1186,7 @@ int RunHttpsAsyncDownloadDemo( bool awsIotMqttMode,
 
     if( httpsClientStatus != IOT_HTTPS_OK )
     {
-        IotLogError( "Failed to connect to the S3 server. Error code: %d.", httpsClientStatus );
+        IotLogError( "Failed to connect to the server. Error code: %d.", httpsClientStatus );
         IOT_SET_AND_GOTO_CLEANUP( EXIT_FAILURE );
     }
 
