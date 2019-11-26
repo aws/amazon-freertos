@@ -11,6 +11,8 @@ endif()
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
+# Mark the python dependencies as checked so that esp-idf does not check them since this is not
+# needed when we are only generating metadata and not building the project.
 if(AFR_METADATA_MODE)
     set(PYTHON_DEPS_CHECKED 1)
 endif()
