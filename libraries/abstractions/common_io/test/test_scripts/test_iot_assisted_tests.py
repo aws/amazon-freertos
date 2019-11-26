@@ -32,12 +32,14 @@ from gpio.test_iot_gpio_test import TestGpioAssisted
 from pwm.test_iot_pwm_test import TestPwmAssisted
 from adc.test_iot_adc_test import TestAdcAssisted
 from tsensor.test_iot_tsensor_test import TestTsensorAssisted
+from uart.test_iot_uart_test import TestUartAssisted
 import os
 
 test_class_list = [(TestGpioAssisted, "./gpio"),
                    (TestPwmAssisted, "./pwm"),
                    (TestAdcAssisted, "./adc"),
                    (TestTsensorAssisted, "./tsensor")
+                   (TestUartAssisted "./uart")
 ]
 
 if __name__ == "__main__":
