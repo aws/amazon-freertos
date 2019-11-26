@@ -37,7 +37,8 @@ set(cbmc_dir ${CMAKE_SOURCE_DIR}/tools/cbmc)
 set(cbmc_unwind 1)
 
 set(cbmc_objectid_bits 7)
-set(cbmc_max_object_size "(UINT32_MAX>>CBMC_OBJECTID_BITS)")
+# Must use +1 until https://github.com/diffblue/cbmc/issues/5096 is resolved.
+set(cbmc_max_object_size "UINT32_MAX>>(CBMC_OBJECTID_BITS+1)")
 
 
 # ______________________________________________________________________________
