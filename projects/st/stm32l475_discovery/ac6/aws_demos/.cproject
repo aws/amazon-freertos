@@ -66,6 +66,7 @@
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/wifi/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/freertos_plus/standard/utils/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../demos/dev_mode_key_provisioning/include"/>
+									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/abstractions/common_io/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/aws/defender/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/mqtt/include"/>
 									<listOptionValue builtIn="false" value="${ProjDirPath}/../../../../../libraries/c_sdk/standard/serializer/include"/>
