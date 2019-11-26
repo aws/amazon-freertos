@@ -424,6 +424,7 @@ TEST( TEST_IOT_UART, AFQP_AssistedIotUARTWriteAsync )
     {
         cpBufferLarge[ i ] = 0xAA;
     }
+    cpBufferLarge[testIotUART_BUFFER_LENGTH_LARGE - 1] = '\n';
 
     cpBufferLarge[ testIotUART_BUFFER_LENGTH_LARGE - 1 ] = '\n';
 
