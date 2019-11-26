@@ -770,7 +770,7 @@ static bool emac_link_check_timer_init(void)
                               (CONFIG_EMAC_CHECK_LINK_PERIOD_MS / portTICK_PERIOD_MS),
                               pdTRUE,
                               NULL,
-                              emac_link_check_func);
+                              (void(*) (TimerHandle_t)) emac_link_check_func);
     if (emac_timer == NULL) {
         return false;
     } else {

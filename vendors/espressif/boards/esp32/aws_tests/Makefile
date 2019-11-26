@@ -23,7 +23,7 @@ else
 CFLAGS += -DAFR_ESP_LWIP
 endif
 
-CFLAGS += -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS -DUNITY_INCLUDE_CONFIG_H
+CFLAGS += -DAMAZON_FREERTOS_ENABLE_UNIT_TESTS -DUNITY_INCLUDE_CONFIG_H -Wno-clobbered -Wno-unused-but-set-variable -Wno-unused-variable -Wno-unused-function
 
 include $(IDF_PATH)/make/project.mk
 
