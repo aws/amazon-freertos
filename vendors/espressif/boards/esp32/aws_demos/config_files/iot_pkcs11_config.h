@@ -36,6 +36,16 @@
 /* #define pkcs11configC_INITIALIZE_ALT */
 
 /**
+ * @brief ESP32 NVS Partition where PKCS #11 data is stored
+ */
+#define configPKCS11_STORAGE_PARTITION  "storage"
+
+/**
+ * @brief ESP32 NVS namespace for PKCS #11 data
+ */
+#define configPKCS11_STORAGE_NS         "creds"
+
+/**
  * @brief PKCS #11 default user PIN.
  *
  * The PKCS #11 standard specifies the presence of a user PIN. That feature is
