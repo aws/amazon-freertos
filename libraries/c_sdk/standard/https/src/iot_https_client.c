@@ -2079,7 +2079,8 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
         IotLogError( "Error sending the HTTPS headers with error code: %d", status );
         HTTPS_GOTO_CLEANUP();
     }
-    IotLogDebug("Sent HTTPS headers for request %d.", pHttpsRequest);
+
+    IotLogDebug( "Sent HTTPS headers for request %d.", pHttpsRequest );
 
     if( ( pHttpsRequest->pBody != NULL ) && ( pHttpsRequest->bodyLength > 0 ) )
     {
@@ -2090,7 +2091,8 @@ static IotHttpsReturnCode_t _sendHttpsHeadersAndBody( _httpsConnection_t * pHttp
             IotLogError( "Error sending final HTTPS body. Return code: %d", status );
             HTTPS_GOTO_CLEANUP();
         }
-        IotLogDebug("Sent HTTPS body for request %d.", pHttpsRequest);
+
+        IotLogDebug( "Sent HTTPS body for request %d.", pHttpsRequest );
     }
 
     HTTPS_FUNCTION_EXIT_NO_CLEANUP();
@@ -2378,7 +2380,7 @@ IotHttpsReturnCode_t _addRequestToConnectionReqQ( _httpsRequest_t * pHttpsReques
     if( ( IotDeQueue_IsEmpty( &( pHttpsConnection->reqQ ) ) ) &&
         ( IotDeQueue_IsEmpty( &( pHttpsConnection->respQ ) ) ) )
     {
-        IotLogDebug("Both the request and response queue are empty, so schedule the request to run in the taskpool.");
+        IotLogDebug( "Both the request and response queue are empty, so schedule the request to run in the taskpool." );
         scheduleRequest = true;
     }
 
