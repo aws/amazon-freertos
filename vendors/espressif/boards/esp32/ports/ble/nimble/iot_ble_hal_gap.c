@@ -620,8 +620,8 @@ BTStatus_t prvBTSetAdvData( uint8_t ucAdapterIf,
 
     if( usServiceDataLen && pcServiceData )
     {
-        fields.svc_data_uuid128 = ( uint8_t * ) pcServiceData;
-        fields.svc_data_uuid128_len = usServiceDataLen;
+        fields.svc_data_uuid16 = ( uint8_t * ) pcServiceData;
+        fields.svc_data_uuid16_len = usServiceDataLen;
     }
 
     if( pxServiceUuid != NULL )
