@@ -52,7 +52,7 @@
  * @brief   iot_perfcounter_open is used to Initialize the performance counter.
  *
  */
-void iot_perfcounter_open(void);
+void iot_perfcounter_open( void );
 
 /**
  * @brief   iot_perfcounter_get_value is used to get the current performance counter
@@ -60,7 +60,7 @@ void iot_perfcounter_open(void);
  *
  * @return  returns performance counter value as uint64 value.
  */
-uint64_t iot_perfcounter_get_value(void);
+uint64_t iot_perfcounter_get_value( void );
 
 /**
  * @brief   iot_perfcounter_get_frequency is used to get the current frequency
@@ -71,7 +71,7 @@ uint64_t iot_perfcounter_get_value(void);
  *          This can be used to deterime the period between perfcounter
  *          increments.
  */
-uint32_t iot_perfcounter_get_frequency(void);
+uint32_t iot_perfcounter_get_frequency( void );
 
 
 /**
@@ -79,10 +79,10 @@ uint32_t iot_perfcounter_get_frequency(void);
  *          It may reset the counter value in perfcounter.
  *
  */
-void iot_perfcounter_close(void);
+void iot_perfcounter_close( void );
 
 /**
  * @}
  */
 
-#endif
+#endif /* ifndef _IOT_PERFCOUNTER_H */

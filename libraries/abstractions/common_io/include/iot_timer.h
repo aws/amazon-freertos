@@ -62,7 +62,7 @@ struct                        IotTimerDescriptor;
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotTimerDescriptor   * IotTimerHandle_t;
+typedef struct IotTimerDescriptor * IotTimerHandle_t;
 
 /**
  * @brief   timer callback notification type. This callback is used for
@@ -167,7 +167,7 @@ int32_t iot_timer_get_value( IotTimerHandle_t const pxTimerHandle,
  * The callback function is called to signal when the timer reaches the count (delay)
  * set by the caller.
  * @code{c}
-
+ *
  * IotTimerHandle_t xTimerHandle;
  *
  * xTimerHandle = iot_timer_open( ltestIotTimerInstance);

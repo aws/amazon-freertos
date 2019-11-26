@@ -271,8 +271,8 @@ typedef struct IotAdcConfig_s
 
 typedef enum
 {
-    eChStateIdle,     /*!< ADC channel is idle. */
-    eChStateBusy,     /*!< ADC channel is busy. */
+    eChStateIdle, /*!< ADC channel is idle. */
+    eChStateBusy, /*!< ADC channel is busy. */
 } IotAdcChState_t;
 
 /**
@@ -280,8 +280,8 @@ typedef enum
  */
 typedef struct IotAdcChStatus_s
 {
-    uint8_t ucAdcChannel;           /*!< ADC Channel number */
-    IotAdcChState_t xAdcChState;    /*!< ADC Channel State */
+    uint8_t ucAdcChannel;        /*!< ADC Channel number */
+    IotAdcChState_t xAdcChState; /*!< ADC Channel State */
 } IotAdcChStatus_t;
 
 /**
@@ -297,9 +297,9 @@ typedef struct IotAdcChStatus_s
  */
 typedef struct IotAdcChBuffer_s
 {
-    uint8_t ucAdcChannel;    /*!< Adc Channel number */
-    void * pvBuffer;         /*!< Buffer to store adc results in */
-    uint8_t ucBufLen;        /*!< Max buffer length to write into pvBuffer */
+    uint8_t ucAdcChannel; /*!< Adc Channel number */
+    void * pvBuffer;      /*!< Buffer to store adc results in */
+    uint8_t ucBufLen;     /*!< Max buffer length to write into pvBuffer */
 } IotAdcChBuffer_t;
 
 /**
@@ -328,11 +328,11 @@ typedef struct IoTAdcChain_s
  */
 typedef enum IotAdcIoctlRequest_s
 {
-    eSetAdcConfig,     /*!< Set the ADC Configuration.  Takes IotAdcConfig_t parameter. */
-    eGetAdcConfig,     /*!< Get the ADC Configuration.  Returns results in IotAdcConfig_t parameter. */
-    eGetChStatus,      /*!< Get the Channel Status.  Returns results in IotAdcChStatus_t parameter. */
-    eSetChBuffer,      /*!< Set the buffer for ADC values to be stored in.  Takes IotAdcChBuffer_t parameter. */
-    eSetAdcChain,      /*!< ADC Chain for multiple ADC channels.  Takes IotAdcChain_t parameter. */
+    eSetAdcConfig, /*!< Set the ADC Configuration.  Takes IotAdcConfig_t parameter. */
+    eGetAdcConfig, /*!< Get the ADC Configuration.  Returns results in IotAdcConfig_t parameter. */
+    eGetChStatus,  /*!< Get the Channel Status.  Returns results in IotAdcChStatus_t parameter. */
+    eSetChBuffer,  /*!< Set the buffer for ADC values to be stored in.  Takes IotAdcChBuffer_t parameter. */
+    eSetAdcChain,  /*!< ADC Chain for multiple ADC channels.  Takes IotAdcChain_t parameter. */
 } IotAdcIoctlRequest_t;
 
 /**

@@ -53,11 +53,11 @@
  */
 typedef enum
 {
-    eFlashIdle,                 /*!< Flash is idle. */
-    eFlashCmdInProgress,        /*!< Flash command in progress. */
-    eFlashEraseFailed,          /*!< Flash erase failed. */
-    eFlashProgramSuspended,     /*!< Flash program operation suspended. */
-    eFlashEraseSuspended        /*<! Flash erase operation suspended. */
+    eFlashIdle,             /*!< Flash is idle. */
+    eFlashCmdInProgress,    /*!< Flash command in progress. */
+    eFlashEraseFailed,      /*!< Flash erase failed. */
+    eFlashProgramSuspended, /*!< Flash program operation suspended. */
+    eFlashEraseSuspended    /*<! Flash erase operation suspended. */
 } IotFlashStatus_t;
 
 /**
@@ -65,10 +65,10 @@ typedef enum
  */
 typedef enum
 {
-    eFlashCompleted = IOT_FLASH_SUCCESS,             /*!< Flash operation completed successfully. */
-    eFlashLastEraseFailed = IOT_FLASH_ERASE_FAILED,  /*!< Flash erase operation failed. */
-    eFlashLastReadFailed = IOT_FLASH_READ_FAILED,    /*!< Flash read operation failed. */
-    eFlashLastWriteFailed = IOT_FLASH_WRITE_FAILED,  /*!< Flash write operation failed. */
+    eFlashCompleted = IOT_FLASH_SUCCESS,            /*!< Flash operation completed successfully. */
+    eFlashLastEraseFailed = IOT_FLASH_ERASE_FAILED, /*!< Flash erase operation failed. */
+    eFlashLastReadFailed = IOT_FLASH_READ_FAILED,   /*!< Flash read operation failed. */
+    eFlashLastWriteFailed = IOT_FLASH_WRITE_FAILED, /*!< Flash write operation failed. */
 } IotFlashOperationStatus_t;
 
 /**
@@ -76,8 +76,8 @@ typedef enum
  */
 typedef enum
 {
-    eFlashReadWrite,       /*!< Flash write protect set to read/write */
-    eFlashReadOnly         /*!< Flash write protect set to read only */
+    eFlashReadWrite, /*!< Flash write protect set to read/write */
+    eFlashReadOnly   /*!< Flash write protect set to read only */
 } IotFlashWriteProtect_t;
 
 /**
@@ -134,7 +134,7 @@ struct                        IotFlashDescriptor;
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotFlashDescriptor   * IotFlashHandle_t;
+typedef struct IotFlashDescriptor * IotFlashHandle_t;
 
 /**
  * @brief   Flash notification callback type. This callback can be passed
@@ -148,7 +148,8 @@ typedef struct IotFlashDescriptor   * IotFlashHandle_t;
  *                          is provided by the caller when setting the callback, and is
  *                          passed back to the caller in the callback.
  */
-typedef void ( * IotFlashCallback_t)( IotFlashOperationStatus_t xStatus, void * pvUserContext );
+typedef void ( * IotFlashCallback_t)( IotFlashOperationStatus_t xStatus,
+                                      void * pvUserContext );
 
 /*!
  * @brief   iot_flash_open is used to initialize the flash device.

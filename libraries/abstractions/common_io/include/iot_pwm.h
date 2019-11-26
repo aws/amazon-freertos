@@ -53,8 +53,8 @@ typedef struct IotPwmConfig
     uint32_t ulPwmFrequency; /*!< PWM frequency */
     uint8_t ucPwmDutyCycle;  /*!< PWM duty cycle */
     uint8_t ucPwmChannel;    /*!< PWM output channel.  Depending on individual HW implementations,
-                                  each pwm controller may have one or more channels, where the
-                                  output signal can be directed.  */
+                              *   each pwm controller may have one or more channels, where the
+                              *   output signal can be directed.  */
 } IotPwmConfig_t;
 
 /**
@@ -67,14 +67,14 @@ struct                      IotPwmDescriptor;
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotPwmDescriptor   * IotPwmHandle_t;
+typedef struct IotPwmDescriptor * IotPwmHandle_t;
 
 /**
  * @brief   iot_pwm_open is used to initialize the PWM driver instance.
  *          this API will configure PWM and may reset the PWM hardware.
  *
  * @param[in]   lPwmInstance   The instance of the PWM to initialize.
-                                PWM is output only.
+ *                              PWM is output only.
  *
  * @return
  *   - Handle to PWM interface on success
@@ -150,7 +150,7 @@ int32_t iot_pwm_stop( IotPwmHandle_t const pxPwmHandle );
  *   - IOT_PWM_INVALID_VALUE if
  *      - pxPwmHandle == NULL
  *      - not in open state (already closed).
-
+ *
  */
 int32_t iot_pwm_close( IotPwmHandle_t const pxPwmHandle );
 

@@ -58,10 +58,10 @@
  */
 typedef enum
 {
-    eRtcTimerStopped,              /*!< RTC Timer status: stopped. */
-    eRtcTimerRunning,              /*!< RTC Timer status: running. */
-    eRtcTimerAlarmTriggered,       /*!< RTC Timer status: alarm triggered. */
-    eRtcTimerWakeupTriggered,      /*!< RTC Timer status: wakeup triggered. */
+    eRtcTimerStopped,         /*!< RTC Timer status: stopped. */
+    eRtcTimerRunning,         /*!< RTC Timer status: running. */
+    eRtcTimerAlarmTriggered,  /*!< RTC Timer status: alarm triggered. */
+    eRtcTimerWakeupTriggered, /*!< RTC Timer status: wakeup triggered. */
 } IotRtcStatus_t;
 
 /**
@@ -85,14 +85,14 @@ typedef struct IotRtcDatetime
  */
 typedef enum IotRtcIoctlRequest
 {
-    eSetRtcAlarm,       /*!< Set Alarm, date&time when Alarm need to occur. Takes input type IotRtcDatetime_t
-                          @warning time must be in the future.*/
-    eGetRtcAlarm,       /*!< Get Alarm, gives the date&time when Alarm will occur. Returns IotRtcDatetime_t */
-    eCancelRtcAlarm,    /*!< Cancel any scheduled Alarm */
-    eSetRtcWakeupTime,  /*!< Set Wakeup time  in miliseconds. Maximum number of miliseconds depend on the platform.  Value is uint32_t */
-    eGetRtcWakeupTime,  /*!< Get Wakeup time in milli-seconds */
-    eCancelRtcWakeup,   /*!< Cancel any scheduled wake-up */
-    eGetRtcStatus       /*!< Get the RTC timer status value. Returns IotRtcStatus_t type*/
+    eSetRtcAlarm,      /*!< Set Alarm, date&time when Alarm need to occur. Takes input type IotRtcDatetime_t
+                        * @warning time must be in the future.*/
+    eGetRtcAlarm,      /*!< Get Alarm, gives the date&time when Alarm will occur. Returns IotRtcDatetime_t */
+    eCancelRtcAlarm,   /*!< Cancel any scheduled Alarm */
+    eSetRtcWakeupTime, /*!< Set Wakeup time  in miliseconds. Maximum number of miliseconds depend on the platform.  Value is uint32_t */
+    eGetRtcWakeupTime, /*!< Get Wakeup time in milli-seconds */
+    eCancelRtcWakeup,  /*!< Cancel any scheduled wake-up */
+    eGetRtcStatus      /*!< Get the RTC timer status value. Returns IotRtcStatus_t type*/
 } IotRtcIoctlRequest_t;
 
 /**
@@ -105,7 +105,7 @@ struct                      IotRtcDescriptor_t;
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotRtcDescriptor_t   * IotRtcHandle_t;
+typedef struct IotRtcDescriptor_t * IotRtcHandle_t;
 
 /**
  * @brief   RTC notification callback type. This callback is passed
@@ -117,7 +117,8 @@ typedef struct IotRtcDescriptor_t   * IotRtcHandle_t;
  *                          This is not used by the driver, but just passed back to the user
  *                          in the callback.
  */
-typedef void ( * IotRtcCallback_t)( IotRtcStatus_t xStatus, void * pvUserContext );
+typedef void ( * IotRtcCallback_t)( IotRtcStatus_t xStatus,
+                                    void * pvUserContext );
 
 /**
  * @brief   iot_rtc_open is used to initialize the RTC timer.

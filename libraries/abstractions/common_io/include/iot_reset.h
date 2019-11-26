@@ -47,14 +47,14 @@
 
 typedef enum
 {
-    eResetPowerOnBoot,  /**< Normal power on Boot, when the power is applied to the device. */
-    eResetWarmBoot,     /**< Last reset triggered due to warm Reset. for ex: iot_reset_reboot(0) was called  to reset the device */
-    eResetColdBoot,     /**< Last reset triggered due to cold Reset. for ex: iot_reset_reboot(1) */
-    eResetWatchdog,     /**< Last reset triggered due to watchdog expiration */
-    eResetBusTimeout,   /**< Last reset triggered due to internal bus timeout on the SoC */
-    eResetPmic,         /**< Last reset caused by power management IC */
-    eResetBrownOut,     /**< Last reset caused by power brown out */
-    eResetOther,        /**< Last reset caused by other reasons specific to the underlying hardware */
+    eResetPowerOnBoot, /**< Normal power on Boot, when the power is applied to the device. */
+    eResetWarmBoot,    /**< Last reset triggered due to warm Reset. for ex: iot_reset_reboot(0) was called  to reset the device */
+    eResetColdBoot,    /**< Last reset triggered due to cold Reset. for ex: iot_reset_reboot(1) */
+    eResetWatchdog,    /**< Last reset triggered due to watchdog expiration */
+    eResetBusTimeout,  /**< Last reset triggered due to internal bus timeout on the SoC */
+    eResetPmic,        /**< Last reset caused by power management IC */
+    eResetBrownOut,    /**< Last reset caused by power brown out */
+    eResetOther,       /**< Last reset caused by other reasons specific to the underlying hardware */
 } IotResetReason_t;
 
 typedef enum
@@ -101,7 +101,7 @@ int32_t iot_reset_shutdown();
  *   - IOT_RESET_FUNCTION_NOT_SUPPORTED if not supported.
  *   - IOT_RESET_INVALID_VALUE if xREsetReason == NULL
  */
-int32_t iot_get_reset_reason(IotResetReason_t  * xResetReason);
+int32_t iot_get_reset_reason( IotResetReason_t * xResetReason );
 
 /**
  * @}

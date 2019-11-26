@@ -42,12 +42,12 @@
 /**
  * @brief Return values used by the driver.
  */
-#define IOT_POWER_SUCCESS                ( 0 )    /*!< Power operation completed successfully. */
-#define IOT_POWER_INVALID_VALUE          ( 1 )    /*!< At least one parameter is invalid. */
-#define IOT_POWER_NOT_INITIALIZED        ( 2 )    /*!< Power operation completed successfully. */
-#define IOT_POWER_GET_FAILED             ( 3 )    /*!< Power get operation failed. */
-#define IOT_POWER_SET_FAILED             ( 4 )    /*!< Power set operation failed. */
-#define IOT_POWER_FUNCTION_NOT_SUPPORTED ( 5 )    /*!< Power operation not supported. */
+#define IOT_POWER_SUCCESS                   ( 0 ) /*!< Power operation completed successfully. */
+#define IOT_POWER_INVALID_VALUE             ( 1 ) /*!< At least one parameter is invalid. */
+#define IOT_POWER_NOT_INITIALIZED           ( 2 ) /*!< Power operation completed successfully. */
+#define IOT_POWER_GET_FAILED                ( 3 ) /*!< Power get operation failed. */
+#define IOT_POWER_SET_FAILED                ( 4 ) /*!< Power set operation failed. */
+#define IOT_POWER_FUNCTION_NOT_SUPPORTED    ( 5 ) /*!< Power operation not supported. */
 
 /**
  * @brief   power descriptor type defined in the source file.
@@ -59,7 +59,7 @@ struct                        IotPowerDescriptor;
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotPowerDescriptor   * IotPowerHandle_t;
+typedef struct IotPowerDescriptor * IotPowerHandle_t;
 
 /**
  * @brief   Power modes supported by the driver.
@@ -79,13 +79,13 @@ typedef enum
  */
 typedef enum
 {
-    eIdleNoneMode,             /*!< No Idle mode entered. */
-    eIdlePCMode,               /*!< Normal Idle mode with core collapsed or clock gated. Actual
-                                 mode implementation may differ based on the underlying SoC support. */
-    eIdleClkSrcOffModeMode,    /*!< Source clock off in addition to core collapse. Actual
-                                 mode implementation may differ based on the underlying SoC support. */
-    eIdleVddOffMode            /*!< Vddcore off in addition to clock source and core collapse. Actual
-                                 mode implementation may differ based on the underlying SoC support. */
+    eIdleNoneMode,          /*!< No Idle mode entered. */
+    eIdlePCMode,            /*!< Normal Idle mode with core collapsed or clock gated. Actual
+                             * mode implementation may differ based on the underlying SoC support. */
+    eIdleClkSrcOffModeMode, /*!< Source clock off in addition to core collapse. Actual
+                             * mode implementation may differ based on the underlying SoC support. */
+    eIdleVddOffMode         /*!< Vddcore off in addition to clock source and core collapse. Actual
+                            *  mode implementation may differ based on the underlying SoC support. */
 } IotPowerIdleMode_t;
 
 /**
@@ -94,9 +94,8 @@ typedef enum
 typedef struct IotPowerWakeupSources
 {
     uint8_t * pucWakeupSources; /*!< Wakeup sources byte stream, where each bit in the bytes
-                                  may indicate a different wakeup source and is platform dependent */
+                                 * may indicate a different wakeup source and is platform dependent */
     uint16_t usLength;          /*!< Length of the Wakeup sources in number of bytes.*/
-
 } IotPowerWakeupSources_t;
 
 /**
@@ -104,31 +103,31 @@ typedef struct IotPowerWakeupSources
  */
 typedef enum IotPowerIoctlRequest
 {
-    eSetPCWakeThreshold,            /*!< IdlePCMode is entered when expected idle time provided by RTOS
-                                      is greater or equal to the PCWakeThreshold. For example - when
-                                      IdleTask runs, all the other tasks are delayed by a time at least
-                                      PCWakeThreshold and less than ClkSrcOffWakeThreshold then the
-                                      device would enter PCMode.  Threshold values are uint32_t in millisecond units.*/
-    eGetPCWakeThreshold,            /*!< Get Wakeup threshold time.  Threshold values are uint32_t in millisecond units.*/
-    eSetClkSrcOffWakeThreshold,     /*!< ClkSrcOffModeMode is entered when expected idle time provided
-                                      by RTOS is greater or equal to the ClkSrcOffWakeThreshold. For
-                                      example - when IdleTask runs, SOC clock sources will be gated for
-                                      the time you set to ClkSrcOffWakeThreshold then the device would
-                                      enter ClkSrcOffModeMode.  Threshold values are uint32_t in millisecond units.*/
-    eGetClkSrcOffWakeThreshold,     /*!< Get Clock off threshold time.  Threshold values are uint32_t in millisecond units.*/
-    eSetVddOfffWakeThreshold,       /*!< VddOffMode is entered when expected idle time provided by RTOS
-                                      is greater or equal to the VddOfffWakeThreshold. If all idleTask meet
-                                      this condition, core will shut off to enter VddOffMode.
-                                      Threshold values are uint32_t in millisecond units. */
-    eGetVddOfffWakeThreshold,       /*!< Get power off (vdd rails off - or lower input voltage etc..) threshold time.
-                                      Threshold values are uint32_t in millisecond units.  */
-    eSetWakeupSources,              /*!< Set wakeup sources that can wake-up the target from idle modes. Wakeup sources
-                                      may only be needed for specific idle modes based on the thresholds set above
-                                      and may are platform/SoC dependent. Takes input of type IotPowerWakeupSources_t */
-    eGetWakeupSources,              /*!< Get the current wakeup sources set to wakeup the target from idle mode. Returns the
-                                      wake-up sources as IotPowerWakeupSources_t type */
-    eGetLastIdleMode                /*!< Get the last Idle mode entered when the target was idle. Returns one of the modes
-                                      defined in IotPowerIdleMode_t */
+    eSetPCWakeThreshold,        /*!< IdlePCMode is entered when expected idle time provided by RTOS
+                                 * is greater or equal to the PCWakeThreshold. For example - when
+                                 * IdleTask runs, all the other tasks are delayed by a time at least
+                                 * PCWakeThreshold and less than ClkSrcOffWakeThreshold then the
+                                 * device would enter PCMode.  Threshold values are uint32_t in millisecond units.*/
+    eGetPCWakeThreshold,        /*!< Get Wakeup threshold time.  Threshold values are uint32_t in millisecond units.*/
+    eSetClkSrcOffWakeThreshold, /*!< ClkSrcOffModeMode is entered when expected idle time provided
+                                 * by RTOS is greater or equal to the ClkSrcOffWakeThreshold. For
+                                 * example - when IdleTask runs, SOC clock sources will be gated for
+                                 * the time you set to ClkSrcOffWakeThreshold then the device would
+                                 * enter ClkSrcOffModeMode.  Threshold values are uint32_t in millisecond units.*/
+    eGetClkSrcOffWakeThreshold, /*!< Get Clock off threshold time.  Threshold values are uint32_t in millisecond units.*/
+    eSetVddOfffWakeThreshold,   /*!< VddOffMode is entered when expected idle time provided by RTOS
+                                 * is greater or equal to the VddOfffWakeThreshold. If all idleTask meet
+                                 * this condition, core will shut off to enter VddOffMode.
+                                 * Threshold values are uint32_t in millisecond units. */
+    eGetVddOfffWakeThreshold,   /*!< Get power off (vdd rails off - or lower input voltage etc..) threshold time.
+                                 * Threshold values are uint32_t in millisecond units.  */
+    eSetWakeupSources,          /*!< Set wakeup sources that can wake-up the target from idle modes. Wakeup sources
+                                 * may only be needed for specific idle modes based on the thresholds set above
+                                 * and may are platform/SoC dependent. Takes input of type IotPowerWakeupSources_t */
+    eGetWakeupSources,          /*!< Get the current wakeup sources set to wakeup the target from idle mode. Returns the
+                                 * wake-up sources as IotPowerWakeupSources_t type */
+    eGetLastIdleMode            /*!< Get the last Idle mode entered when the target was idle. Returns one of the modes
+                                 * defined in IotPowerIdleMode_t */
 } IotPowerIoctlRequest_t;
 
 /**
@@ -144,7 +143,7 @@ typedef enum IotPowerIoctlRequest
  * @param[in] pvUserContext User Context passed when setting the callback.
  */
 typedef void ( * IotPowerCallback_t )( bool bIdleState,
-                                        void * pvUserContext );
+                                       void * pvUserContext );
 
 /**
  * @brief   iot_power_open is used to Initialize the CPU power management driver.
@@ -226,8 +225,8 @@ int32_t iot_power_reset_mode( IotPowerHandle_t const pxPowerHandle );
  * @param[in]   pvUserContext   The user context to be passed when callback is called.
  */
 void iot_power_set_callback( IotPowerHandle_t const pxPowerHandle,
-                                IotPowerCallback_t xCallback,
-                                void * pvUserContext );
+                             IotPowerCallback_t xCallback,
+                             void * pvUserContext );
 
 /**
  * @brief   iot_power_ioctl is used to set power configuration and
@@ -247,8 +246,9 @@ void iot_power_set_callback( IotPowerHandle_t const pxPowerHandle,
  * @note:  For any Set ioctl that is supported, the corresponding Get ioctl must also be supported.
  */
 int32_t iot_power_ioctl( IotPowerHandle_t const pxPowerHandle,
-                       IotPowerIoctlRequest_t xRequest,
-                       void * const pvBuffer );
+                         IotPowerIoctlRequest_t xRequest,
+                         void * const pvBuffer );
+
 /**
  * @brief   iot_power_get_mode is used to get the current power mode the target is in.
  *

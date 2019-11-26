@@ -45,22 +45,22 @@
 /**
  * @brief Control endpoint index.
  */
-#define IOT_USB_CONTROL_ENDPOINT (0U)
+#define IOT_USB_CONTROL_ENDPOINT                 ( 0U )
 
 /**
  * @brief The setup packet size of USB control transfer.
  */
-#define IOT_USB_SETUP_PACKET_SIZE (8U)
+#define IOT_USB_SETUP_PACKET_SIZE                ( 8U )
 
 /**
  * @brief  USB endpoint mask.
  */
-#define IOT_USB_ENDPOINT_NUMBER_MASK (0x0FU)
+#define IOT_USB_ENDPOINT_NUMBER_MASK             ( 0x0FU )
 
 /**
  * @brief Default invalid value or the endpoint callback length of cancelled transfer.
  */
-#define IOT_USB_UNINITIALIZED_VAL_32 (0xFFFFFFFFU)
+#define IOT_USB_UNINITIALIZED_VAL_32             ( 0xFFFFFFFFU )
 
 /**
  * @defgroup iot_usb_device usb device Abstraction APIs.
@@ -72,22 +72,22 @@
  */
 typedef enum
 {
-    eUSBDeviceBusResetEvent,           /*!< USB bus reset signal detected. Signal is initiated from USB Host. */
-    eUSBDeviceLPMState1Event,          /*!< USB LPM (link power management) state 1 event: for usb 2.0, correspond to L1 sleep, host initialize
-                                         LPM extended transaction; for usb 3.0, correspond to U1 standby, both device and host can initialize. */
-    eUSBDeviceLPMState2Event,          /*!< USB LPM state 2 event: for usb 2.0, correspond to L2 suspend, host nees to support to trigger it after
-                                            3ms of inactivity; for usb 3.0, correspond to U2 standby, both device and host can initialize. */
-    eUSBDeviceLPMState3Event,          /*!< USB LPM state 3 event: for usb 2.0, correspond to L3 off, disconnect or power off will trigger it;
-                                            for usb 3.0, correspond to U3 suspend, it can only be initialized by host. */
-    eUSBDeviceLPMState1ResumeEvent,    /*!< USB resume event from LPM state 1: for usb 2.0 and 3.0, both device and host can initialize
-                                            resume signaling. */
-    eUSBDeviceLPMState2ResumeEvent,    /*!< USB resume event from LPM state 2: for usb 2.0 and 3.0, both device and host can initialize
-                                            resume signaling. */
-    eUSBDeviceLPMState3ResumeEvent,    /*!< USB resume event from LPM state 3: for usb 2.0, L3 is off state, port needs reset or power on; for usb 3.0,
-                                            both device and host can initialize resume signaling.*/
-    eUSBDeviceErrorEvent,              /*!< An error is happened in the bus. */
-    eUSBDeviceDetachEvent,             /*!< USB device is disconnected from a host. */
-    eUSBDeviceAttachEvent,             /*!< USB device is connected to a host. */
+    eUSBDeviceBusResetEvent,        /*!< USB bus reset signal detected. Signal is initiated from USB Host. */
+    eUSBDeviceLPMState1Event,       /*!< USB LPM (link power management) state 1 event: for usb 2.0, correspond to L1 sleep, host initialize
+                                    *  LPM extended transaction; for usb 3.0, correspond to U1 standby, both device and host can initialize. */
+    eUSBDeviceLPMState2Event,       /*!< USB LPM state 2 event: for usb 2.0, correspond to L2 suspend, host nees to support to trigger it after
+                                     *   3ms of inactivity; for usb 3.0, correspond to U2 standby, both device and host can initialize. */
+    eUSBDeviceLPMState3Event,       /*!< USB LPM state 3 event: for usb 2.0, correspond to L3 off, disconnect or power off will trigger it;
+                                     *   for usb 3.0, correspond to U3 suspend, it can only be initialized by host. */
+    eUSBDeviceLPMState1ResumeEvent, /*!< USB resume event from LPM state 1: for usb 2.0 and 3.0, both device and host can initialize
+                                     *   resume signaling. */
+    eUSBDeviceLPMState2ResumeEvent, /*!< USB resume event from LPM state 2: for usb 2.0 and 3.0, both device and host can initialize
+                                     *   resume signaling. */
+    eUSBDeviceLPMState3ResumeEvent, /*!< USB resume event from LPM state 3: for usb 2.0, L3 is off state, port needs reset or power on; for usb 3.0,
+                                     *   both device and host can initialize resume signaling.*/
+    eUSBDeviceErrorEvent,           /*!< An error is happened in the bus. */
+    eUSBDeviceDetachEvent,          /*!< USB device is disconnected from a host. */
+    eUSBDeviceAttachEvent,          /*!< USB device is connected to a host. */
 } IotUsbDeviceEvent_t;
 
 /**
@@ -103,7 +103,7 @@ typedef enum
     eUSBDeviceGetStatus,         /*!< Get device status. Return uint16_t. */
     eUSBDeviceGetSyncFrame,      /*!< Get Sync frame. Returns the frame number of synchronization frame as uint16_t. */
     eUSBDeviceSetTestMode,       /*!< Set device in test mode.  For compliance testing defined in usb protocol.
-                                      @warning Device needs to power cycle to exit test mode.*/
+                                  *   @warning Device needs to power cycle to exit test mode.*/
     eUSBDeviceSetState,          /*!< Set device state. Take IotUsbDeviceState_t and set it*/
     eUSBDeviceLPMState1Suspend,  /*!< Suspend usb to LPM state 1: for usb 2.0, it is L1 state; for usb 3.0, it is U1 state. */
     eUSBDeviceLPMState1Resume,   /*!< Resume usb from LPM state 1: for usb 2.0, it is exit L1 state; for usb 3.0, it is exit U1 state. */
@@ -119,11 +119,11 @@ typedef enum
  */
 typedef enum
 {
-    eUsbDeviceStateConfigured,        /*!< Device state, usb device is configured and ready for use by host*/
-    eUsbDeviceStateAddress,           /*!< Device state, usb device Address assigned*/
-    eUsbDeviceStateDefault,           /*!< Device state, usb device is reset, but address not assigned yet*/
-    eUsbDeviceStateAddressing,        /*!< Device state, usb device is undergoing assigning address*/
-    eUsbDeviceStateTestMode,          /*!< Device state, usb device is in test mode*/
+    eUsbDeviceStateConfigured, /*!< Device state, usb device is configured and ready for use by host*/
+    eUsbDeviceStateAddress,    /*!< Device state, usb device Address assigned*/
+    eUsbDeviceStateDefault,    /*!< Device state, usb device is reset, but address not assigned yet*/
+    eUsbDeviceStateAddressing, /*!< Device state, usb device is undergoing assigning address*/
+    eUsbDeviceStateTestMode,   /*!< Device state, usb device is in test mode*/
 } IotUsbDeviceState_t;
 
 /**
@@ -131,10 +131,10 @@ typedef enum
  */
 typedef enum
 {
-    eUsbDeviceEndpointStateIdle,      /*!< Endpoint state, idle*/
-    eUsbDeviceEndpointStateStalled,   /*!< Endpoint state, stalled*/
-    eUsbDeviceEndpointStateBusy,      /*!< Endpoint state, busy*/
-    eUsbDeviceEndpointStateClosed,    /*!< Endpoint state, Closed, not configured*/
+    eUsbDeviceEndpointStateIdle,    /*!< Endpoint state, idle*/
+    eUsbDeviceEndpointStateStalled, /*!< Endpoint state, stalled*/
+    eUsbDeviceEndpointStateBusy,    /*!< Endpoint state, busy*/
+    eUsbDeviceEndpointStateClosed,  /*!< Endpoint state, Closed, not configured*/
 } IotUsbDeviceEndpointStatus_t;
 
 /**
@@ -142,10 +142,10 @@ typedef enum
  */
 typedef enum
 {
-    eUsbDeviceControllerOHCI,      /*!< Open Device Controller Interface */
-    eUsbDeviceControllerUHCI,      /*!< Universal Device Controller Interface */
-    eUsbDeviceControllerEHCI,      /*!< Enhanced Device Controller Interface */
-    eUsbDeviceControllerXHCI,      /*!< Extensible Device Controller Interface */
+    eUsbDeviceControllerOHCI, /*!< Open Device Controller Interface */
+    eUsbDeviceControllerUHCI, /*!< Universal Device Controller Interface */
+    eUsbDeviceControllerEHCI, /*!< Enhanced Device Controller Interface */
+    eUsbDeviceControllerXHCI, /*!< Extensible Device Controller Interface */
 } IotUsbHostController_t;
 
 /**
@@ -153,9 +153,9 @@ typedef enum
  */
 typedef enum
 {
-    eUsbDeviceCompleted = IOT_USB_DEVICE_SUCCESS,         /*!< Device operation completed successfully. */
-    eUsbDeviceReadFailed = IOT_USB_DEVICE_READ_FAILED,    /*!< Device read operation failed. */
-    eUsbDeviceWriteFailed = IOT_USB_DEVICE_WRITE_FAILED,  /*!< Device write operation failed. */
+    eUsbDeviceCompleted = IOT_USB_DEVICE_SUCCESS,        /*!< Device operation completed successfully. */
+    eUsbDeviceReadFailed = IOT_USB_DEVICE_READ_FAILED,   /*!< Device read operation failed. */
+    eUsbDeviceWriteFailed = IOT_USB_DEVICE_WRITE_FAILED, /*!< Device write operation failed. */
 } IotUsbDeviceOperationStatus_t;
 
 /**
@@ -186,7 +186,9 @@ typedef struct IotUsbDevice * IotUsbDeviceHandle_t;
  *                          passed back to the caller in the callback.
  *
  */
-typedef int32_t (*IotUsbDeviceCallback_t) ( IotUsbDeviceHandle_t const pxUsbDevice, uint32_t ulDeviceEvent, void * pvUserContext );
+typedef int32_t (* IotUsbDeviceCallback_t) ( IotUsbDeviceHandle_t const pxUsbDevice,
+                                             uint32_t ulDeviceEvent,
+                                             void * pvUserContext );
 
 /**
  * @brief The callback typedef for USB device endpoint. For each endpoint, it's passed when user
@@ -200,7 +202,8 @@ typedef int32_t (*IotUsbDeviceCallback_t) ( IotUsbDeviceHandle_t const pxUsbDevi
  *                          passed back to the caller in the callback.
  *
  */
-typedef int32_t (* IotUsbDeviceEndpointCallbackFn_t) ( IotUsbDeviceOperationStatus_t xStatus, void * pvUserContext );
+typedef int32_t (* IotUsbDeviceEndpointCallbackFn_t) ( IotUsbDeviceOperationStatus_t xStatus,
+                                                       void * pvUserContext );
 
 /**
  * @brief Endpoint configuration structure.
@@ -208,25 +211,25 @@ typedef int32_t (* IotUsbDeviceEndpointCallbackFn_t) ( IotUsbDeviceOperationStat
 typedef struct
 {
     uint16_t usMaxPacketSize;  /*!< Endpoint maximum packet size.  Depends on the USB controller
-                                    Control Transfer:
-                                        Full Speed: 8, 16, 32, 64
-                                        High Speed: 64
-                                        Low Speed:  8
-                                    Isochronous Transfer:
-                                        Full Speed: 1023
-                                        High Speed: 1024
-                                        Not supported for low speed device
-                                    Interrupt Transfer:
-                                        Full Speed: 64
-                                        High Speed: 1024
-                                        Low Speed:  8
-                                    Bulk Transfer:
-                                        Full Speed: 8, 16, 32, 64
-                                        High Speed: 512
-                                        Not supported for low speed device */
+                                *   Control Transfer:
+                                *       Full Speed: 8, 16, 32, 64
+                                *       High Speed: 64
+                                *       Low Speed:  8
+                                *   Isochronous Transfer:
+                                *       Full Speed: 1023
+                                *       High Speed: 1024
+                                *       Not supported for low speed device
+                                *   Interrupt Transfer:
+                                *       Full Speed: 64
+                                *       High Speed: 1024
+                                *       Low Speed:  8
+                                *   Bulk Transfer:
+                                *       Full Speed: 8, 16, 32, 64
+                                *       High Speed: 512
+                                *       Not supported for low speed device */
     uint8_t ucEndpointAddress; /*!< Endpoint address*/
     uint8_t ucTransferType;    /*!< Endpoint transfer type defined as: control EP is 0;
-                                     Isochronous EP is 1;  Bulk EP is 2; Interrupt EP is 3. */
+                                *    Isochronous EP is 1;  Bulk EP is 2; Interrupt EP is 3. */
     uint8_t ucZlt;             /*!< ZLT flag*/
     uint8_t ucInterval;        /*!< Endpoint polling interval of transfer*/
 } IotUsbDeviceEndpointConfig_t;
@@ -297,8 +300,8 @@ int32_t iot_usb_device_disconnect( IotUsbDeviceHandle_t const pxUsbDevice );
  * @param[in] pvUserContext The user context to be passed back when callback is called.
  */
 void iot_usb_device_set_device_callback( IotUsbDeviceHandle_t const pxUsbDevice,
-                           IotUsbDeviceCallback_t xCallback,
-                           void * pvUserContext );
+                                         IotUsbDeviceCallback_t xCallback,
+                                         void * pvUserContext );
 
 /**
  * @brief Initiates the usb device specific endpoint.
@@ -319,7 +322,7 @@ void iot_usb_device_set_device_callback( IotUsbDeviceHandle_t const pxUsbDevice,
  *   - IOT_USB_DEVICE_ERROR if an error occurred with the device
  */
 int32_t iot_usb_device_endpoint_open( IotUsbDeviceHandle_t const pxUsbDevice,
-                                      IotUsbDeviceEndpointConfig_t * pxEpConfig);
+                                      IotUsbDeviceEndpointConfig_t * pxEpConfig );
 
 /**
  * @brief Sets the endpoint callback to be called on endpoint transfer.
@@ -336,8 +339,9 @@ int32_t iot_usb_device_endpoint_open( IotUsbDeviceHandle_t const pxUsbDevice,
  * @param[in] pvUserContext The user context to be passed back when callback is called.
  */
 void iot_usb_device_set_endpoint_callback( IotUsbDeviceHandle_t const pxUsbDevice,
-                           uint8_t ucEndpointAddress, IotUsbDeviceEndpointCallbackFn_t xCallback,
-                           void * pvUserContext );
+                                           uint8_t ucEndpointAddress,
+                                           IotUsbDeviceEndpointCallbackFn_t xCallback,
+                                           void * pvUserContext );
 
 /**
  * @brief De-initializes the usb device specific endpoint.
@@ -352,7 +356,7 @@ void iot_usb_device_set_endpoint_callback( IotUsbDeviceHandle_t const pxUsbDevic
  *      - invalid ucEndpointAddress
  */
 int32_t iot_usb_device_endpoint_close( IotUsbDeviceHandle_t const pxUsbDevice,
-                                          uint8_t ucEndpointAddress );
+                                       uint8_t ucEndpointAddress );
 
 /**
  * @brief Stall the usb device specific endpoint.
@@ -380,7 +384,7 @@ int32_t iot_usb_device_endpoint_close( IotUsbDeviceHandle_t const pxUsbDevice,
  *      - invalid ucEndpointAddress
  */
 int32_t iot_usb_device_endpoint_stall( IotUsbDeviceHandle_t const pxUsbDevice,
-                                          uint8_t ucEndpointAddress );
+                                       uint8_t ucEndpointAddress );
 
 /**
  * @brief Unstall the usb device specific endpoint.
@@ -395,7 +399,7 @@ int32_t iot_usb_device_endpoint_stall( IotUsbDeviceHandle_t const pxUsbDevice,
  *      - invalid ucEndpointAddress
  */
 int32_t iot_usb_device_endpoint_unstall( IotUsbDeviceHandle_t const pxUsbDevice,
-                                          uint8_t ucEndpointAddress );
+                                         uint8_t ucEndpointAddress );
 
 /**
  * @brief Starts the USB device read operation in blocking mode.
@@ -418,9 +422,9 @@ int32_t iot_usb_device_endpoint_unstall( IotUsbDeviceHandle_t const pxUsbDevice,
  *   - IOT_USB_DEVICE_READ_FAILED if unable to complete the read operation
  */
 int32_t iot_usb_device_read_sync( IotUsbDeviceHandle_t const pxUsbDevice,
-                            uint8_t ucEndpointAddress,
-                            uint8_t * const pvBuffer,
-                            size_t xBytes );
+                                  uint8_t ucEndpointAddress,
+                                  uint8_t * const pvBuffer,
+                                  size_t xBytes );
 
 /**
  * @brief Starts the USB device write operation in blocking mode.
@@ -443,9 +447,9 @@ int32_t iot_usb_device_read_sync( IotUsbDeviceHandle_t const pxUsbDevice,
  *   - IOT_USB_DEVICE_WRITE_FAILED if unable to complete the write operation
  */
 int32_t iot_usb_device_write_sync( IotUsbDeviceHandle_t const pxUsbDevice,
-                            uint8_t ucEndpointAddress,
-                            uint8_t * const pvBuffer,
-                            size_t xBytes );
+                                   uint8_t ucEndpointAddress,
+                                   uint8_t * const pvBuffer,
+                                   size_t xBytes );
 
 /**
  * @brief Starts the USB device read operation in non-blocking mode.
@@ -470,9 +474,9 @@ int32_t iot_usb_device_write_sync( IotUsbDeviceHandle_t const pxUsbDevice,
  *   - IOT_USB_DEVICE_READ_FAILED if unable to complete the read operation
  */
 int32_t iot_usb_device_read_async( IotUsbDeviceHandle_t const pxUsbDevice,
-                            uint8_t ucEndpointAddress,
-                            uint8_t * const pvBuffer,
-                            size_t xBytes );
+                                   uint8_t ucEndpointAddress,
+                                   uint8_t * const pvBuffer,
+                                   size_t xBytes );
 
 /**
  * @brief Starts the USB device write operation in non-blocking mode.
@@ -497,9 +501,9 @@ int32_t iot_usb_device_read_async( IotUsbDeviceHandle_t const pxUsbDevice,
  *   - IOT_USB_DEVICE_WRITE_FAILED if unable to complete the write operation
  */
 int32_t iot_usb_device_write_async( IotUsbDeviceHandle_t const pxUsbDevice,
-                            uint8_t ucEndpointAddress,
-                            uint8_t * const pvBuffer,
-                            size_t xBytes );
+                                    uint8_t ucEndpointAddress,
+                                    uint8_t * const pvBuffer,
+                                    size_t xBytes );
 
 /**
  * @brief Used for various USB device control function.
@@ -523,8 +527,8 @@ int32_t iot_usb_device_write_async( IotUsbDeviceHandle_t const pxUsbDevice,
  *   - or other USB Error.
  */
 int32_t iot_usb_device_ioctl( IotUsbDeviceHandle_t const pxUsbDevice,
-                       IotUsbDeviceIoctlRequest_t xUsbDeviceRequest,
-                       void * const pvBuffer );
+                              IotUsbDeviceIoctlRequest_t xUsbDeviceRequest,
+                              void * const pvBuffer );
 
 /**
  * @brief This function is used to cancel the pending transfer for given endpoint.
@@ -540,7 +544,8 @@ int32_t iot_usb_device_ioctl( IotUsbDeviceHandle_t const pxUsbDevice,
  *   - IOT_USB_DEVICE_FUNCTION_NOT_SUPPORTED if cancel transfer opertion not supported
  *   - IOT_USB_DEVICE_NOTHING_TO_CANCEL if nothing to cancel
  */
-int32_t iot_usb_device_endpoint_cancel_transfer( IotUsbDeviceHandle_t const pxUsbDevice, uint8_t ucEndpointAddress );
+int32_t iot_usb_device_endpoint_cancel_transfer( IotUsbDeviceHandle_t const pxUsbDevice,
+                                                 uint8_t ucEndpointAddress );
 
 /**
  * @brief Close the USB device peripheral.

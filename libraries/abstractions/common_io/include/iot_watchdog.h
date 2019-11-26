@@ -46,10 +46,10 @@
 /**
  * @brief Return values used by WatchDog driver
  */
-#define IOT_WATCHDOG_SUCCESS                    ( 0 )    /*!< Watchdog operation completed successfully.*/
-#define IOT_WATCHDOG_INVALID_VALUE              ( 1 )    /*!< At least one parameter is invalid.*/
-#define IOT_WATCHDOG_TIME_NOT_SET               ( 2 )    /*!< Watchdog timeout value not set.*/
-#define IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED     ( 3 )    /*!< Watchdog operation not supported.*/
+#define IOT_WATCHDOG_SUCCESS                   ( 0 )     /*!< Watchdog operation completed successfully.*/
+#define IOT_WATCHDOG_INVALID_VALUE             ( 1 )     /*!< At least one parameter is invalid.*/
+#define IOT_WATCHDOG_TIME_NOT_SET              ( 2 )     /*!< Watchdog timeout value not set.*/
+#define IOT_WATCHDOG_FUNCTION_NOT_SUPPORTED    ( 3 )     /*!< Watchdog operation not supported.*/
 
 /**
  * @brief WatchDog timer status values
@@ -81,7 +81,7 @@ struct                           IotWatchdogDescriptor;
  *          this is initialized in open and returned to caller. Caller must pass this pointer
  *          to the rest of the APIs.
  */
-typedef struct IotWatchdogDescriptor   * IotWatchdogHandle_t;
+typedef struct IotWatchdogDescriptor * IotWatchdogHandle_t;
 
 /**
  * @brief Ioctl request types.
@@ -96,18 +96,18 @@ typedef struct IotWatchdogDescriptor   * IotWatchdogHandle_t;
 typedef enum
 {
     eSetWatchdogBarkTime,     /*!< Set the WatchDog warning time (bark value) as uint32_t in msec.
-                               @warning The maximum value is limited to by the number of bits used for
-                               WatchDog counter in the HW.  ex:  at 24-bit Watchdog counter would have
-                               a maximum of 16,777,215 msec.*/
+                               * @warning The maximum value is limited to by the number of bits used for
+                               * WatchDog counter in the HW.  ex:  at 24-bit Watchdog counter would have
+                               * a maximum of 16,777,215 msec.*/
     eGetWatchdogBarkTime,     /*!< Get the WatchDog warning time (bark value) as uint32_t in msec */
     eSetWatchdogBiteTime,     /*!< Set the WatchDog expire time (bite value) as uint32_t in msec.
-                               @warning The maximum value is limited to by the number of bits used for
-                               WatchDog counter in the HW.  ex:  at 24-bit Watchdog counter would have
-                               a maximum of 16,777,215 msec.*/
+                               * @warning The maximum value is limited to by the number of bits used for
+                               * WatchDog counter in the HW.  ex:  at 24-bit Watchdog counter would have
+                               * a maximum of 16,777,215 msec.*/
     eGetWatchdogBiteTime,     /*!< Get the WatchDog expire time (bite value) as uint32_t in msec */
     eGetWatchdogStatus,       /*!< Returns the WatchDog timer status of type IotWatchdogStatus_t */
     eSetWatchdogBiteBehaviour /*!< Set the WatchDog bite behavior. Takes IotWatchdogBiteConfig_t type */
-                              /*!< @warning  Not all platforms may support interrupt generation. */
+    /*!< @warning  Not all platforms may support interrupt generation. */
 } IotWatchdogIoctlRequest_t;
 
 /**

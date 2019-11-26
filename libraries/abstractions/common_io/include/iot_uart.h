@@ -70,9 +70,9 @@ typedef enum
  */
 typedef enum
 {
-    eUartParityNone,    /*!< UART parity as none. */
-    eUartParityOdd,     /*!< UART parity as odd. */
-    eUartParityEven,    /*!< UART parity as even. */
+    eUartParityNone, /*!< UART parity as none. */
+    eUartParityOdd,  /*!< UART parity as odd. */
+    eUartParityEven, /*!< UART parity as even. */
 } IotUARTParity_t;
 
 /**
@@ -80,8 +80,8 @@ typedef enum
  */
 typedef enum
 {
-    eUartStopBitsOne,   /*!< UART stop bits is 1. */
-    eUartStopBitsTwo,   /*!< UART stop bits is 2. */
+    eUartStopBitsOne, /*!< UART stop bits is 1. */
+    eUartStopBitsTwo, /*!< UART stop bits is 2. */
 } IotUARTStopBits_t;
 
 /**
@@ -128,11 +128,11 @@ typedef enum
  */
 typedef struct
 {
-    uint32_t ulBaudrate;            /**< The baud rate to be set for the UART port. */
-    IotUARTParity_t xParity;        /**< The parity to be set for the UART port, defined in IotUARTParity_t. */
-    IotUARTStopBits_t xStopbits;    /**< The stop bits to be set for the UART port, defined in IotUARTStopBits_t. */
-    uint8_t ucWordlength;           /**< The word length to be set for the UART port. */
-    uint8_t ucFlowControl;          /**< The flow control to be set for the UART port: 0 is disabled and 1 is enabled. */
+    uint32_t ulBaudrate;         /**< The baud rate to be set for the UART port. */
+    IotUARTParity_t xParity;     /**< The parity to be set for the UART port, defined in IotUARTParity_t. */
+    IotUARTStopBits_t xStopbits; /**< The stop bits to be set for the UART port, defined in IotUARTStopBits_t. */
+    uint8_t ucWordlength;        /**< The word length to be set for the UART port. */
+    uint8_t ucFlowControl;       /**< The flow control to be set for the UART port: 0 is disabled and 1 is enabled. */
 } IotUARTConfig_t;
 
 /**

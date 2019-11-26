@@ -428,7 +428,9 @@ int32_t iot_spi_cancel( IotSPIHandle_t const pxSPIPeripheral );
  * - IOT_SPI_INVALID_VALUE, if
  *     - lSPISlave is invalid
  */
-int32_t iot_spi_select_slave( int32_t lSPIInstance, int32_t lSPISlave );
+int32_t iot_spi_select_slave( int32_t lSPIInstance,
+                              int32_t lSPISlave );
+
 /**
  * @}
  */

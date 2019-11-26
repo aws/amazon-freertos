@@ -54,8 +54,8 @@
  */
 typedef enum
 {
-    eGpioDirectionInput,    /*!< Configure GPIO pin direction for input. */
-    eGpioDirectionOutput    /*!< Configure GPIO pin direction for output. */
+    eGpioDirectionInput, /*!< Configure GPIO pin direction for input. */
+    eGpioDirectionOutput /*!< Configure GPIO pin direction for output. */
 } IotGpioDirection_t;
 
 /**
@@ -63,8 +63,8 @@ typedef enum
  */
 typedef enum
 {
-    eGpioOpenDrain,         /*!< Configure GPIO pin mode as open drain. */
-    eGpioPushPull           /*!< Configure GPIO pin mode as push pull. */
+    eGpioOpenDrain, /*!< Configure GPIO pin mode as open drain. */
+    eGpioPushPull   /*!< Configure GPIO pin mode as push pull. */
 } IotGpioOutputMode_t;
 
 /**
@@ -72,9 +72,9 @@ typedef enum
  */
 typedef enum
 {
-    eGpioPullNone,          /*!< Configure GPIO pin with no pull direction. */
-    eGpioPullUp,            /*!< Configure GPIO pin as pull up. */
-    eGpioPullDown           /*!< Configure GPIO pin as pull down. */
+    eGpioPullNone, /*!< Configure GPIO pin with no pull direction. */
+    eGpioPullUp,   /*!< Configure GPIO pin as pull up. */
+    eGpioPullDown  /*!< Configure GPIO pin as pull down. */
 } IotGpioPull_t;
 
 /**
@@ -82,12 +82,12 @@ typedef enum
  */
 typedef enum
 {
-    eGpioInterruptNone,     /*!< Configure GPIO pin to not generate an interrupt. */
-    eGpioInterruptRising,   /*!< Configure GPIO pin to generate an interrupt when signal rises. */
-    eGpioInterruptFalling,  /*!< Configure GPIO pin to generate an interrupt when signal falls. */
-    eGpioInterruptEdge,     /*!< Configure GPIO pin to generate an interrupt when either rising or falling. */
-    eGpioInterruptLow,      /*!< Configure GPIO pin to generate an interrupt when signal is low. */
-    eGpioInterruptHigh,     /*!< Configure GPIO pin to generate an interrupt when signal is high. */
+    eGpioInterruptNone,    /*!< Configure GPIO pin to not generate an interrupt. */
+    eGpioInterruptRising,  /*!< Configure GPIO pin to generate an interrupt when signal rises. */
+    eGpioInterruptFalling, /*!< Configure GPIO pin to generate an interrupt when signal falls. */
+    eGpioInterruptEdge,    /*!< Configure GPIO pin to generate an interrupt when either rising or falling. */
+    eGpioInterruptLow,     /*!< Configure GPIO pin to generate an interrupt when signal is low. */
+    eGpioInterruptHigh,    /*!< Configure GPIO pin to generate an interrupt when signal is high. */
 } IotGpioInterrupt_t;
 
 /**
@@ -95,22 +95,22 @@ typedef enum
  */
 typedef enum
 {
-    eSetGpioFunction,       /*!< Set GPIO function. Takes int32_t as input to set the alternate function.
-                             * The value of the alternate function depends on the HW */
-    eSetGpioDirection,      /*!< Set GPIO Direction. Takes input type IotGpioDirection_t */
-    eSetGpioPull,           /*!< Set GPIO Pull mode. Takes input type IotGpioPull_t */
-    eSetGpioOutputMode,     /*!< Set GPIO output type. Takes input type IotGpioOutputType_t */
-    eSetGpioInterrupt,      /*!< Set GPIO Interrupt type. This configures the GPIO to generate an interrupt based on the configuration.
-                             * Takes input type IotGpioInterrupt_t */
-    eSetGpioSpeed,          /*!< Set GPIO Speed. Takes a int32_t value based on the underlying HW support */
-    eSetGpioDriveStrength,  /*!< Set GPIO Drive Strength. Takes an int32_t value based on the underlying HW support */
-    eGetGpioFunction,       /*!< Get GPIO function setting. Returns an int32_t */
-    eGetGpioDirection,      /*!< Get GPIO Direction setting. Returns IotGpioDirection_t */
-    eGetGpioPull,           /*!< Get GPIO Pull mode setting. Returns IotGpioPull_t */
-    eGetGpioOutputType,     /*!< Get GPIO output type. Returns IotGpioOutputType_t */
-    eGetGpioInterrupt,      /*!< Get GPIO Interrupt config. Returns IotGpioInterrupt_t type */
-    eGetGpioSpeed,          /*!< Get GPIO Speed setting. Returns an int32_t type */
-    eGetGpioDriveStrength   /*!< Get GPIO Drive Strength. Returns int32_t type */
+    eSetGpioFunction,      /*!< Set GPIO function. Takes int32_t as input to set the alternate function.
+                            * The value of the alternate function depends on the HW */
+    eSetGpioDirection,     /*!< Set GPIO Direction. Takes input type IotGpioDirection_t */
+    eSetGpioPull,          /*!< Set GPIO Pull mode. Takes input type IotGpioPull_t */
+    eSetGpioOutputMode,    /*!< Set GPIO output type. Takes input type IotGpioOutputType_t */
+    eSetGpioInterrupt,     /*!< Set GPIO Interrupt type. This configures the GPIO to generate an interrupt based on the configuration.
+                            * Takes input type IotGpioInterrupt_t */
+    eSetGpioSpeed,         /*!< Set GPIO Speed. Takes a int32_t value based on the underlying HW support */
+    eSetGpioDriveStrength, /*!< Set GPIO Drive Strength. Takes an int32_t value based on the underlying HW support */
+    eGetGpioFunction,      /*!< Get GPIO function setting. Returns an int32_t */
+    eGetGpioDirection,     /*!< Get GPIO Direction setting. Returns IotGpioDirection_t */
+    eGetGpioPull,          /*!< Get GPIO Pull mode setting. Returns IotGpioPull_t */
+    eGetGpioOutputType,    /*!< Get GPIO output type. Returns IotGpioOutputType_t */
+    eGetGpioInterrupt,     /*!< Get GPIO Interrupt config. Returns IotGpioInterrupt_t type */
+    eGetGpioSpeed,         /*!< Get GPIO Speed setting. Returns an int32_t type */
+    eGetGpioDriveStrength  /*!< Get GPIO Drive Strength. Returns int32_t type */
 } IotGpioIoctlRequest_t;
 
 /**
