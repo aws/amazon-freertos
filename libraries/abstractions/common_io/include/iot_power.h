@@ -85,7 +85,7 @@ typedef enum
     eIdleClkSrcOffModeMode, /*!< Source clock off in addition to core collapse. Actual
                              * mode implementation may differ based on the underlying SoC support. */
     eIdleVddOffMode         /*!< Vddcore off in addition to clock source and core collapse. Actual
-                            *  mode implementation may differ based on the underlying SoC support. */
+                             *  mode implementation may differ based on the underlying SoC support. */
 } IotPowerIdleMode_t;
 
 /**

@@ -74,7 +74,7 @@ typedef enum
 {
     eUSBDeviceBusResetEvent,        /*!< USB bus reset signal detected. Signal is initiated from USB Host. */
     eUSBDeviceLPMState1Event,       /*!< USB LPM (link power management) state 1 event: for usb 2.0, correspond to L1 sleep, host initialize
-                                    *  LPM extended transaction; for usb 3.0, correspond to U1 standby, both device and host can initialize. */
+                                     *  LPM extended transaction; for usb 3.0, correspond to U1 standby, both device and host can initialize. */
     eUSBDeviceLPMState2Event,       /*!< USB LPM state 2 event: for usb 2.0, correspond to L2 suspend, host nees to support to trigger it after
                                      *   3ms of inactivity; for usb 3.0, correspond to U2 standby, both device and host can initialize. */
     eUSBDeviceLPMState3Event,       /*!< USB LPM state 3 event: for usb 2.0, correspond to L3 off, disconnect or power off will trigger it;
