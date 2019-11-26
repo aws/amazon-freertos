@@ -601,6 +601,10 @@ void HAL_UART_ErrorCallback( UART_HandleTypeDef * huart )
                 {
                     __HAL_UART_CLEAR_OREFLAG( huart );
                 }
+                else if( error == HAL_UART_ERROR_FE )
+                {
+                    __HAL_UART_CLEAR_FEFLAG( huart );
+                }
 
                 break;
             }
