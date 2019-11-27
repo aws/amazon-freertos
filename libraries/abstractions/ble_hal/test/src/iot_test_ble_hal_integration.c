@@ -570,6 +570,8 @@ void prvGetResult( bletestAttSrvB_t xAttribute,
 #if ENABLE_TC_INTEGRATION_CALLBACK_NULL_CHECK
     void prvInitWithNULLCb( void )
     {
+        BTStatus_t xStatus;
+
         /* GAP common setup with NULL Cb */
         IotTestBleHal_BLEManagerInit( &_xBTManager_NULL_Cb );
 
