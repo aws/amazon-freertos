@@ -1999,6 +1999,7 @@ CK_DEFINE_FUNCTION( CK_RV, C_GetAttributeValue )( CK_SESSION_HANDLE xSession,
                         }
                         else if( pxTemplate[ iAttrib ].ulValueLen < ulLength )
                         {
+                            pxTemplate[ iAttrib ].ulValueLen = ulLength;
                             xResult = CKR_BUFFER_TOO_SMALL;
                         }
                         else
@@ -2272,9 +2273,9 @@ CK_DEFINE_FUNCTION( CK_RV, C_FindObjects )( CK_SESSION_HANDLE xSession,
         }
         else
         {
-            /*xIsObjectWithNoNvmStorage(pxSession->pxFindObjectLabel, strlen(pxSession->pxFindObjectLabel), ) */
-            PKCS11_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
-            xResult = CKR_FUNCTION_FAILED;
+            /* If FindObject doesn't see an object, return CKR_OK with an invalid handle and an object count of 0. */
+            PKCS11_WARNING_PRINT( ( "ERROR: Object with label '%s' not found. \r\n", ( char * ) pxSession->pxFindObjectLabel ) );
+            *pxObject = CK_INVALID_HANDLE;
         }
     }
 
