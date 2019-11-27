@@ -74,4 +74,15 @@ const uint8_t i2cTestInstanceNum[ I2C_TEST_SET ] = { 3 };
 /* Not used by tests in AFR. */
 IotI2CHandle_t gIotI2cHandle[ 4 ] = { NULL, NULL, NULL, NULL };
 
+/*------------------------SPI-------------------------------*/
+#define IOT_TEST_COMMON_IO_SPI_SUPPORTED                     1
+
+#define SPI_TEST_SET                                         1
+
+const uint8_t spiTestPort[ SPI_TEST_SET ] = { 1 };
+const uint32_t spiIotMode[ SPI_TEST_SET ] = { eSPIMode0 };
+const uint32_t spiIotSpitBitOrder[ SPI_TEST_SET ] = { eSPIMSBFirst };
+const uint32_t spiIotFrequency[ SPI_TEST_SET ] = { 500000U };
+const uint32_t spiIotDummyValue[ SPI_TEST_SET ] = {0 };
+
 #endif /* ifndef _TEST_IOT_CONFIG_H_ */

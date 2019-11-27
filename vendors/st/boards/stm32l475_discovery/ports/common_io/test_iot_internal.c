@@ -42,3 +42,18 @@ void SET_TEST_IOT_I2C_CONFIG( int testSet )
     uctestIotI2CInstanceIdx = i2cTestInstanceIdx[ testSet ];
     uctestIotI2CInstanceNum = i2cTestInstanceNum[ testSet ];
 }
+
+/* SPI */
+extern uint8_t ultestIotSpiInstance;
+extern IotSPIMode_t xtestIotSPIDefaultConfigMode;
+extern IotSPIBitOrder_t xtestIotSPIDefaultconfigBitOrder;
+extern uint32_t ultestIotSPIFrequency;
+extern uint32_t ultestIotSPIDummyValue;
+void SET_TEST_IOT_SPI_CONFIG(int testSet)
+{
+    ultestIotSpiInstance = spiTestPort[ testSet ] ;
+    xtestIotSPIDefaultConfigMode = spiIotMode[ testSet ];
+    xtestIotSPIDefaultconfigBitOrder = spiIotSpitBitOrder[ testSet ];
+    ultestIotSPIFrequency = spiIotFrequency[ testSet ];
+    ultestIotSPIDummyValue = spiIotDummyValue[ testSet ];
+}
