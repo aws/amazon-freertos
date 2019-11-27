@@ -32,6 +32,9 @@
 /* UART includes */
 #include "stm32l4xx_hal.h"
 
+/* SPI includes */
+#include "iot_spi.h"
+
 /*------------------------UART-------------------------------*/
 
 /* UART is supported. */

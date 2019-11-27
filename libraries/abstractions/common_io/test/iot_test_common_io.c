@@ -63,4 +63,9 @@ TEST_GROUP_RUNNER( Common_IO )
         SET_TEST_IOT_I2C_CONFIG( 0 );
         RUN_TEST_GROUP( TEST_IOT_I2C );
     #endif
+
+    #if ( IOT_TEST_COMMON_IO_SPI_SUPPORTED == 1 )
+        SET_TEST_IOT_SPI_CONFIG( 0 );
+        RUN_TEST_GROUP( TEST_IOT_SPI );
+    #endif
 }

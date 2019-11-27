@@ -49,6 +49,7 @@ extern IotSPIMode_t xtestIotSPIDefaultConfigMode;
 extern IotSPIBitOrder_t xtestIotSPIDefaultconfigBitOrder;
 extern uint32_t ultestIotSPIFrequency;
 extern uint32_t ultestIotSPIDummyValue;
+
 void SET_TEST_IOT_SPI_CONFIG(int testSet)
 {
     ultestIotSpiInstance = spiTestPort[ testSet ] ;
