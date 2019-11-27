@@ -418,8 +418,8 @@ static void _freeRequestIndex( int i )
  * This function is used during reconnection to free any possible requests that
  * might still have been scheduled to the HTTPS Client library to run but have
  * not been sent yet. Reconnection happens during the _readReadyCallback().
- * The response's memory cannot be used until the _responseCompleteCallback() 
- * returns, so during reconnection we need to indicate that all memory except 
+ * The response's memory cannot be used until the _responseCompleteCallback()
+ * returns, so during reconnection we need to indicate that all memory except
  * the current response is to be marked as free.
  *
  * @param[in] exception Request index to not free. This is -1 for no exceptions.
