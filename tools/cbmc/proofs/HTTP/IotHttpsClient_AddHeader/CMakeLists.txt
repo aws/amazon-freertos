@@ -1,5 +1,3 @@
-include(${CMAKE_CURRENT_LIST_DIR}/../settings.cmake)
-
 set(cbmc_proof_name IotHttpsClient_AddHeader)
 
 ################################################################
