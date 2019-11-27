@@ -1040,6 +1040,9 @@ void IotTestBleHal_SetAdvProperty( void )
     pxProperty.xLen = strlen( bletestsDEVICE_NAME );
     pxProperty.pvVal = ( void * ) bletestsDEVICE_NAME;
 
+    /* Clear event queue: Bluedroid trigger eBLEHALEventPropertyCb after pxEnable */
+    IotTestBleHal_ClearEventQueue();
+
     /* Set the name */
     IotTestBleHal_SetGetProperty( &pxProperty, true );
 

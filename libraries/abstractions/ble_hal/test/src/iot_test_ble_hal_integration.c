@@ -318,28 +318,28 @@ TEST_GROUP_RUNNER( Full_BLE_Integration_Test )
 
         /* Check when manufacture data length is 0, but pointer is valid */
         /* Check when service data length is 0, but pointer is valid */
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, ( char * ) pusServiceData, 0, ( char * ) pusManufacturerData );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, ( char * ) pusServiceData, 0, ( char * ) pusManufacturerData );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
         /* Check when manufacture data pointer is NULL, but length is not 0 */
         /* Check when service data pointer is NULL, but length is not 0 */
-        IotTestBleHal_SetAdvData( eBTuuidType128, usServiceDataLen, NULL, usManufacturerLen, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, NULL, usManufacturerLen, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
         /* Check when manufacture data length is not 0, and pointer is valid */
         /* Check when service data length is 0, pointer is NULL */
-        IotTestBleHal_SetAdvData( eBTuuidType128, 0, NULL, usManufacturerLen, ( char * ) pusManufacturerData );
+        IotTestBleHal_SetAdvData( eBTuuidType16, 0, NULL, usManufacturerLen, ( char * ) pusManufacturerData );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );
 
         /* Check when manufacture data length is not 0, and pointer is valid */
         /* Check when manufacture data length is 0, pointer is NULL */
-        IotTestBleHal_SetAdvData( eBTuuidType128, usServiceDataLen, ( char * ) pusServiceData, 0, NULL );
+        IotTestBleHal_SetAdvData( eBTuuidType16, usServiceDataLen, ( char * ) pusServiceData, 0, NULL );
         IotTestBleHal_StartAdvertisement();
         IotTestBleHal_WaitConnection( true );
         IotTestBleHal_WaitConnection( false );

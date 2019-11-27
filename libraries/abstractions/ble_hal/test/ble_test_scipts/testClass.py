@@ -642,8 +642,8 @@ class runTest:
 
         runTest._advertisement_start(
             scan_filter=scan_filter,
-            UUID=runTest.DUT_UUID_128,
-            discoveryEvent_Cb=runTest.discoveryEventCb,
+            UUID=runTest.DUT_UUID_16,
+            discoveryEvent_Cb=runTest.discoveryEventCb_16bit,
             bleAdapter=bleAdapter)
         manufacture_data = runTest.get_manufacture_data(runTest.testDevice)
         service_data = runTest.get_service_data(runTest.testDevice)
