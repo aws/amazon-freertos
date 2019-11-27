@@ -85,5 +85,7 @@ IotI2CHandle_t gIotI2cHandle[ 4 ] = { NULL, NULL, NULL, NULL };
 const uint8_t spiTestPort[ SPI_TEST_SET ] = { 1 };
 const uint32_t spiIotMode[ SPI_TEST_SET ] = { eSPIMode0 };
 const uint32_t spiIotSpitBitOrder[ SPI_TEST_SET ] = { eSPIMSBFirst };
+const uint32_t spiIotFrequency[ SPI_TEST_SET ] = { 500000U };
+const uint32_t spiIotDummyValue[ SPI_TEST_SET ] = {0 };
 
 #endif /* ifndef _TEST_IOT_CONFIG_H_ */
