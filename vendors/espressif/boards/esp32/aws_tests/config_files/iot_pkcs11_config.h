@@ -23,7 +23,6 @@
  * http://www.FreeRTOS.org
  */
 
-
 /**
  * @file aws_pkcs11_config.h
  * @brief PCKS#11 config options.
@@ -45,7 +44,7 @@
  * both of those, the user PIN is assumed to be used herein for interoperability
  * purposes only, and not as a security feature.
  */
-#define configPKCS11_DEFAULT_USER_PIN                      ( ( CK_UTF8CHAR_PTR ) "0000" )
+#define configPKCS11_DEFAULT_USER_PIN                      "00112233445566778899AABBCCDDEEFF00112233445566778899AABBCCDDEEFF"
 
 /**
  * @brief Maximum length (in characters) for a PKCS #11 CKA_LABEL
@@ -67,13 +66,18 @@
  */
 #define pkcs11configPAL_DESTROY_SUPPORTED                  0
 
+/*
+ * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
+ */
+#define pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED          1
+
 /**
  * @brief Set to 1 if OTA image verification via PKCS #11 module is supported.
  *
  * If set to 0, OTA code signing certificate is built in via
  * aws_ota_codesigner_certificate.h.
  */
-#define pkcs11configOTA_SUPPORTED                          1
+#define pkcs11configOTA_SUPPORTED                          0
 
 /**
  * @brief Set to 1 if PAL supports storage for JITP certificate,
@@ -90,28 +94,28 @@
  * Private key for connection to AWS IoT endpoint.  The corresponding
  * public key should be registered with the AWS IoT endpoint.
  */
-#define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       ( "Device Priv TLS Key" )
+#define pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       "Device Priv TLS Key"
 
 /**
  * @brief The PKCS #11 label for device public key.
  *
  * The public key corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
  */
-#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        ( "Device Pub TLS Key" )
+#define pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "Device Pub TLS Key"
 
 /**
  * @brief The PKCS #11 label for the device certificate.
  *
  * Device certificate corresponding to pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS.
  */
-#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS       ( "Device Cert" )
+#define pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS       "Device Cert"
 
 /**
  * @brief The PKCS #11 label for the object to be used for code verification.
  *
  * Used by over-the-air update code to verify an incoming signed image.
  */
-#define pkcs11configLABEL_CODE_VERIFICATION_KEY            ( "Code Verify Key" )
+#define pkcs11configLABEL_CODE_VERIFICATION_KEY            "Code Verify Key"
 
 /**
  * @brief The PKCS #11 label for Just-In-Time-Provisioning.
@@ -120,13 +124,13 @@
  * (pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS) when using the JITR or
  * JITP flow.
  */
-#define pkcs11configLABEL_JITP_CERTIFICATE                 ( "JITP Cert" )
+#define pkcs11configLABEL_JITP_CERTIFICATE                 "JITP Cert"
 
 /**
  * @brief The PKCS #11 label for the AWS Trusted Root Certificate.
  *
  * @see aws_default_root_certificates.h
  */
-#define pkcs11configLABEL_ROOT_CERTIFICATE                 ( "Root Cert" )
+#define pkcs11configLABEL_ROOT_CERTIFICATE                 "Root Cert"
 
 #endif /* _AWS_PKCS11_CONFIG_H_ include guard. */

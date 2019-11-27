@@ -3,14 +3,31 @@
 # -------------------------------------------------------------------------------------------------
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_devkitc")
     include("${CMAKE_CURRENT_LIST_DIR}/esp32_devkitc.cmake")
+    set(ECC608_IN_USE FALSE)
 endif()
 if("${AFR_BOARD_NAME}" STREQUAL "esp32_wrover_kit")
     include("${CMAKE_CURRENT_LIST_DIR}/esp32_wrover_kit.cmake")
+    set(ECC608_IN_USE FALSE)
+endif()
+if("${AFR_BOARD_NAME}" STREQUAL "esp32_plus_ecc608a_devkitc")
+    include("${CMAKE_CURRENT_LIST_DIR}/esp32_plus_ecc608a_devkitc.cmake")
+    set(ECC608_IN_USE TRUE)
+endif()
+if("${AFR_BOARD_NAME}" STREQUAL "esp32_plus_ecc608a_wrover_kit")
+    set(ECC608_IN_USE TRUE)
+    include("${CMAKE_CURRENT_LIST_DIR}/esp32_plus_ecc608a_wrover_kit.cmake")
 endif()
 
 # -------------------------------------------------------------------------------------------------
 # Compiler settings
 # -------------------------------------------------------------------------------------------------
+# Mark the python dependencies as checked so that esp-idf does not check them since this is not
+# needed when we are only generating metadata and not building the project.
+if(AFR_METADATA_MODE)
+    set(PYTHON_DEPS_CHECKED 1)
+endif()
+
+
 
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 # Provides idf_import_components and idf_link_components
@@ -79,6 +96,64 @@ endif()
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
 
+if( ECC608_IN_USE )
+    set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
+    set(ecc608a_dir "${mchp_dir}/secure_elements")
+
+    afr_glob_src(ecc608a_atacert_src RECURSE DIRECTORY ${ecc608a_dir}/lib/atcacert)
+    afr_glob_src(ecc608a_basic_src RECURSE DIRECTORY ${ecc608a_dir}/lib/basic)
+    afr_glob_src(ecc608a_crypto_src RECURSE DIRECTORY ${ecc608a_dir}/lib/crypto)
+    afr_glob_src(ecc608a_host_src RECURSE DIRECTORY ${ecc608a_dir}/lib/host)
+    afr_glob_src(ecc608a_pkcs11_src RECURSE DIRECTORY ${ecc608a_dir}/lib/pkcs11)
+
+    set(
+        ecc608a_hal_src
+            "${ecc608a_dir}/lib/hal/atca_hal.c"
+            "${ecc608a_dir}/lib/hal/hal_freertos.c"
+            "${ecc608a_dir}/lib/hal/hal_esp32_i2c.c"
+            "${ecc608a_dir}/lib/hal/hal_esp32_timer.c"
+            "${ecc608a_dir}/lib/hal/atca_hal.h"
+    )
+
+    afr_glob_src(ecc608a_src DIRECTORY ${ecc608a_dir}/lib)
+    list(REMOVE_ITEM ecc608a_src "${ecc608a_dir}/lib/atca_cfgs.c")
+
+    set(ecc608_include "${ecc608a_dir}/lib")
+    set(ecc608_src_list 
+        "${ecc608a_src}"
+        "${ecc608a_atacert_src}"
+        "${ecc608a_basic_src}"
+        "${ecc608a_crypto_src}"
+        "${ecc608a_hal_src}"
+        "${ecc608a_host_src}"
+    )
+
+    afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
+    set(
+        kernel_inc_dirs
+        "${esp_idf_dir}/components/app_update/include/"
+        "${esp_idf_dir}/components/bootloader_support/include"
+        "${esp_idf_dir}/components/esp32/include"
+        "${esp_idf_dir}/components/esp_event/include"
+        "${esp_idf_dir}/components/efuse/include"
+        "${esp_idf_dir}/components/driver/include"
+        "${esp_idf_dir}/components/heap/include"
+        "${esp_idf_dir}/components/log/include"
+        "${esp_idf_dir}/components/nvs_flash/include"
+        "${esp_idf_dir}/components/pthread/include"
+        "${esp_idf_dir}/components/newlib/include"
+        "${esp_idf_dir}/components/newlib/platform_include"
+        "${esp_idf_dir}/components/soc/esp32/include"
+        "${esp_idf_dir}/components/soc/include"
+        "${esp_idf_dir}/components/spi_flash/include"
+        "${esp_idf_dir}/components/vfs/include"
+        "${esp_idf_dir}/components/esp_ringbuf/include"
+        "${extra_components_dir}/freertos/include"
+        "${extra_components_dir}/mbedtls/port/include"
+        ${ecc608_include}
+        "${board_dir}/application_code"
+    )
+else()
 set(
     kernel_inc_dirs
     "${esp_idf_dir}/components/app_update/include/"
@@ -100,6 +175,9 @@ set(
     "${extra_components_dir}/freertos/include"
     "${extra_components_dir}/mbedtls/port/include"
 )
+endif()
+
+
 
 if(NOT AFR_ESP_LWIP)
     list(APPEND kernel_inc_dirs
@@ -114,6 +192,18 @@ else()
     )
 endif()
 
+if(ECC608_IN_USE)
+    target_include_directories(
+    AFR::kernel::mcu_port
+    INTERFACE
+        ${kernel_inc_dirs}
+        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
+        "${aws_credentials_include}"
+        "${ecc608a_dir}/lib"
+        "${board_dir}/config_files"
+        "$<$<NOT:${AFR_METADATA_MODE}>:${CMAKE_BINARY_DIR}/config>"
+    )
+else()
 target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
@@ -123,7 +213,7 @@ target_include_directories(
         "${board_dir}/config_files"
         "$<$<NOT:${AFR_METADATA_MODE}>:${CMAKE_BINARY_DIR}/config>"
 )
-
+endif()
 # WiFi
 afr_mcu_port(wifi)
 
@@ -146,10 +236,24 @@ target_include_directories(
 )
 endif()
 
+if(ECC608_IN_USE)
+target_sources(
+    AFR::wifi::mcu_port
+    INTERFACE 
+        "${afr_ports_dir}/wifi/iot_wifi.c"
+        "${ecc608a_src}"
+        "${ecc608a_atacert_src}"
+        "${ecc608a_basic_src}"
+        "${ecc608a_crypto_src}"
+        "${ecc608a_hal_src}"
+        "${ecc608a_host_src}"
+)
+else()
 target_sources(
     AFR::wifi::mcu_port
     INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
 )
+endif()
 
 # BLE
 set(BLE_SUPPORTED 1 CACHE INTERNAL "BLE is supported on this platform.")
@@ -202,13 +306,23 @@ target_include_directories(
         "${afr_ports_dir}/ble/nimble"
 )
 
+if(ECC608_IN_USE)
 # PKCS11
+afr_mcu_port(pkcs11_implementation)
+target_sources(
+    AFR::pkcs11_implementation::mcu_port
+    INTERFACE
+        "${ecc608a_pkcs11_src}"
+        "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
+)
+else()
 afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
 target_sources(
     AFR::pkcs11_implementation::mcu_port
     INTERFACE
         "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
 )
+endif()
 
 if(NOT AFR_ESP_LWIP)
 # FreeRTOS Plus TCP
@@ -290,11 +404,20 @@ afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 # Do not add demos or tests if they're turned off.
 if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
+    if(ECC608_IN_USE)
+    add_executable(
+        ${exe_target}
+        "${board_dir}/application_code/main.c"
+        "${board_dir}/application_code/atca_cert_chain.c"
+        ${extra_exe_sources}
+    )
+    else()
     add_executable(
         ${exe_target}
         "${board_dir}/application_code/main.c"
         ${extra_exe_sources}
     )
+    endif()
     target_include_directories(
         ${exe_target}
         PUBLIC

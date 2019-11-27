@@ -1,6 +1,6 @@
 /*
  * Amazon FreeRTOS V1.1.4
- * Copyright (C) 2018 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * Copyright (C) 2017 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,8 @@
 
 /**
  * @file iot_test_pkcs11_config.h
- * @brief Port-specific variables for PKCS11 tests. */
+ * @brief Port-specific variables for PKCS11 tests.
+ */
 
 #ifndef _AWS_TEST_PKCS11_CONFIG_H_
 #define _AWS_TEST_PKCS11_CONFIG_H_
@@ -63,7 +64,7 @@
 /*
  * @brief Set to 1 if RSA private keys are supported by the platform.  0 if not.
  */
-#define pkcs11testRSA_KEY_SUPPORT             ( 1 )
+#define pkcs11testRSA_KEY_SUPPORT             ( 0 )
 
 /*
  * @brief Set to 1 if elliptic curve private keys are supported by the platform.  0 if not.
@@ -73,7 +74,7 @@
 /*
  * @brief Set to 1 if importing device private key via C_CreateObject is supported.  0 if not.
  */
-#define pkcs11testIMPORT_PRIVATE_KEY_SUPPORT       ( pkcs11configIMPORT_PRIVATE_KEYS_SUPPORTED )
+#define pkcs11testIMPORT_PRIVATE_KEY_SUPPORT  ( 1 )
 
 /*
  * @brief Set to 1 if generating a device private-public key pair via C_GenerateKeyPair. 0 if not.
@@ -87,7 +88,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       pkcs11configLABEL_DEVICE_PRIVATE_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PRIVATE_KEY_FOR_TLS       "Test Priv Key"
 
 /**
  * @brief The PKCS #11 label for device public key.
@@ -96,7 +97,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        pkcs11configLABEL_DEVICE_PUBLIC_KEY_FOR_TLS
+#define pkcs11testLABEL_DEVICE_PUBLIC_KEY_FOR_TLS        "Test Pub TLS Key"
 
 /**
  * @brief The PKCS #11 label for the device certificate.
@@ -105,7 +106,7 @@
  * For devices with secure elements or hardware limitations, this may be defined
  * to a different label to preserve AWS IoT credentials for other test suites.
  */
-#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       pkcs11configLABEL_DEVICE_CERTIFICATE_FOR_TLS
+#define pkcs11testLABEL_DEVICE_CERTIFICATE_FOR_TLS       "Test Cert"
 
 /**
  * @brief The PKCS #11 label for the object to be used for code verification.
@@ -141,6 +142,6 @@
 /**
  * @brief The size of the stack used for multithread tests.
  */
-#define pkcs11testMULTI_TASK_STACK_SIZE                  4096
+#define pkcs11testMULTI_TASK_STACK_SIZE                  ( configMINIMAL_STACK_SIZE * 8 ) 
 
 #endif /* _AWS_TEST_PKCS11_CONFIG_H_ */
