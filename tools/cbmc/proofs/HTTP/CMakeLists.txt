@@ -1,5 +1,5 @@
 list(APPEND cbmc_test_labels HTTP)
-list(APPEND cbmc_include_directories ${cbmc_dir}/proofs/HTTP)
+list(APPEND cbmc_compile_includes ${cbmc_dir}/proofs/HTTP)
 
 add_subdirectory(IotHttpsClient_AddHeader)
 add_subdirectory(IotHttpsClient_Connect)

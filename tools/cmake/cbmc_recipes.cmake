@@ -37,27 +37,9 @@ sets the proof name to '${cbmc_proof_name}', but that name is already used by
 another proof. Ensure that you set the variable 'cbmc_proof_name' to a unique
 value for each proof.")
 endif()
+
 set(cbmc_proof_names "${cbmc_proof_name};${cbmc_proof_names}" CACHE INTERNAL "")
-
-
-# ______________________________________________________________________________
-#     Build up variables out of lists that the proof might have set
-# ``````````````````````````````````````````````````````````````````````````````
-
-list(JOIN cbmc_unwindset "," _cbmc_unwindset)
-
-list(APPEND cbmc_flags
-    --object-bits ${cbmc_objectid_bits}
-    --unwind ${cbmc_unwind}
-    --unwindset ${_cbmc_unwindset}
-)
-
-list(JOIN cbmc_flags " " _cbmc_flags)
-
-list(APPEND cbmc_compile_definitions
-    CBMC_OBJECTID_BITS=${cbmc_objectid_bits}
-    CBMC_MAX_OBJECT_SIZE=${cbmc_max_object_size}
-)
+list(APPEND cbmc_test_labels ${cbmc_proof_name})
 
 # ______________________________________________________________________________
 #     Common recipes for building a single proof
@@ -69,31 +51,50 @@ list(APPEND cbmc_compile_definitions
 # and particular functions out of the harness. So we remove the functions from
 # each object file and then link them together.
 
+list(APPEND cbmc_compile_definitions
+    CBMC_OBJECT_BITS=${cbmc_object_bits}
+    CBMC_MAX_OBJECT_SIZE=${cbmc_max_object_size}
+)
+
+add_executable(
+    ${cbmc_proof_name}_0010_harness.goto
+    ${cbmc_harness_source}
+)
+
 set_target_properties(
     ${cbmc_proof_name}_0010_harness.goto
     PROPERTIES
-    INCLUDE_DIRECTORIES "${cbmc_include_directories}"
+    INCLUDE_DIRECTORIES "${cbmc_compile_includes}"
     COMPILE_DEFINITIONS "${cbmc_compile_definitions}"
     COMPILE_OPTIONS     "${cbmc_compile_options}"
+)
+
+add_executable(
+    ${cbmc_proof_name}_0010_project.goto
+    ${cbmc_project_source}
 )
 
 set_target_properties(
     ${cbmc_proof_name}_0010_project.goto
     PROPERTIES
-    INCLUDE_DIRECTORIES "${cbmc_include_directories}"
+    INCLUDE_DIRECTORIES "${cbmc_compile_includes}"
     COMPILE_DEFINITIONS "${cbmc_compile_definitions}"
     COMPILE_OPTIONS     "${cbmc_compile_options}"
 )
 
 # Function removal
 
-list(PREPEND cbmc_harness_remove goto-instrument)
-list(APPEND  cbmc_harness_remove ${cbmc_proof_name}_0010_harness.goto)
-list(APPEND  cbmc_harness_remove ${cbmc_proof_name}_0020_harness_functions_removed.goto)
+set(__cbmc_harness_remove ${cbmc_harness_remove} BOGUS_FUNCTION)
+list(JOIN __cbmc_harness_remove ";--remove-function-body;" _cbmc_harness_remove)
+list(PREPEND _cbmc_harness_remove goto-instrument --remove-function-body)
+list(APPEND  _cbmc_harness_remove ${cbmc_proof_name}_0010_harness.goto)
+list(APPEND  _cbmc_harness_remove ${cbmc_proof_name}_0020_harness_functions_removed.goto)
 
-list(PREPEND cbmc_project_remove goto-instrument)
-list(APPEND  cbmc_project_remove ${cbmc_proof_name}_0010_project.goto)
-list(APPEND  cbmc_project_remove ${cbmc_proof_name}_0020_project_functions_removed.goto)
+set(__cbmc_project_remove ${cbmc_project_remove} BOGUS_FUNCTION)
+list(JOIN __cbmc_project_remove ";--remove-function-body;" _cbmc_project_remove)
+list(PREPEND _cbmc_project_remove goto-instrument --remove-function-body)
+list(APPEND  _cbmc_project_remove ${cbmc_proof_name}_0010_project.goto)
+list(APPEND  _cbmc_project_remove ${cbmc_proof_name}_0020_project_functions_removed.goto)
 
 # TODO: break this up into a sequence of custom commands, for easier debugging
 add_custom_command(
@@ -101,29 +102,29 @@ add_custom_command(
     OUTPUT
         ${cbmc_proof_name}_0020_harness_functions_removed.goto
         ${cbmc_proof_name}_0020_project_functions_removed.goto
-        ${cbmc_proof_name}_0030_library_added.goto
-        ${cbmc_proof_name}_0040_unused_functions_dropped.goto
-        ${cbmc_proof_name}_0050_global_inits_sliced.goto
+        ${cbmc_proof_name}_0030_linked.goto
+        ${cbmc_proof_name}_0040_library_added.goto
+        ${cbmc_proof_name}_0050_unused_functions_dropped.goto
         ${cbmc_proof_name}.goto
     COMMENT "Linking"
-    COMMAND ${cbmc_harness_remove}
-    COMMAND ${cbmc_project_remove}
+    COMMAND ${_cbmc_harness_remove}
+    COMMAND ${_cbmc_project_remove}
     COMMAND
       goto-cc --function harness
           ${cbmc_proof_name}_0020_harness_functions_removed.goto
           ${cbmc_proof_name}_0020_project_functions_removed.goto
-          -o ${cbmc_proof_name}_0030_library_added.goto
+          -o ${cbmc_proof_name}_0030_linked.goto
     COMMAND
       goto-instrument --add-library
-      ${cbmc_proof_name}_0030_library_added.goto
-      ${cbmc_proof_name}_0040_unused_functions_dropped.goto
+      ${cbmc_proof_name}_0030_linked.goto
+      ${cbmc_proof_name}_0040_library_added.goto
     COMMAND
       goto-instrument --drop-unused-functions
-      ${cbmc_proof_name}_0040_unused_functions_dropped.goto
-      ${cbmc_proof_name}_0050_global_inits_sliced.goto
+      ${cbmc_proof_name}_0040_library_added.goto
+      ${cbmc_proof_name}_0050_unused_functions_dropped.goto
     COMMAND
       goto-instrument --slice-global-inits
-      ${cbmc_proof_name}_0050_global_inits_sliced.goto
+      ${cbmc_proof_name}_0050_unused_functions_dropped.goto
       ${cbmc_proof_name}.goto
 )
 
@@ -133,6 +134,17 @@ add_custom_target(${cbmc_proof_name}-proof DEPENDS ${cbmc_proof_name}.goto)
 # ______________________________________________________________________________
 #     Common recipe for running a single proof using CTest.
 # ``````````````````````````````````````````````````````````````````````````````
+
+list(APPEND cbmc_unwindset BOGUS_LOOP.0:1)
+list(JOIN cbmc_unwindset "," _cbmc_unwindset)
+
+list(APPEND cbmc_flags
+    --object-bits ${cbmc_object_bits}
+    --unwind ${cbmc_unwind}
+    --unwindset ${_cbmc_unwindset}
+)
+
+list(JOIN cbmc_flags " " _cbmc_flags)
 
 # Actually check the proof
 # TODO this obviously won't work on windows.
