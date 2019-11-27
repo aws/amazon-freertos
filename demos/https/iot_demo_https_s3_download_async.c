@@ -418,9 +418,9 @@ static void _freeRequestIndex( int i )
  * This function is used during reconnection to free any possible requests that
  * might still have been scheduled to the HTTPS Client library to run but have
  * not been sent yet. Reconnection happens during the _readReadyCallback().
- * The response's memory cannot be used until the _responseCompleteCallback() return,
- * so during reconnection, we need to indicate that all memory except the current
- * response is to be marked as free.
+ * The response's memory cannot be used until the _responseCompleteCallback() 
+ * returns, so during reconnection we need to indicate that all memory except 
+ * the current response is to be marked as free.
  *
  * @param[in] exception Request index to not free. This is -1 for no exceptions.
  */
@@ -542,7 +542,7 @@ static bool _getNextIncompleteRange( uint32_t * currentRange )
     do
     {
         /* Check if the current range in the file is already downloaded or is has already been scheduled. The
-         * bitmaps contains as many bits are there are blocks of byte ranges. The lines below help to index
+         * bitmaps contain as many bits as there are blocks of byte ranges. The lines below help to index
          * into the bitmaps and check if the bit representing that byte range is set. */
         bitMask = BITMASK( *currentRange );
         byteOffset = BYTE_OFFSET( *currentRange );

@@ -235,7 +235,7 @@ static int _httpParserOnBodyCallback( http_parser * pHttpParser,
  * @brief Callback from http-parser to indicate it reached the end of the HTTP response message.
  *
  * The end of the message is signalled in a HTTP response message by another "\r\n" after the final header line, with no
- * entity body; or it is singaled by "\r\n" at the end of the entity body.
+ * entity body; or it is signaled by "\r\n" at the end of the entity body.
  *
  * For a Transfer-Encoding: chunked type of response message, the end of the message is signalled by a terminating
  * chunk header with length zero.
