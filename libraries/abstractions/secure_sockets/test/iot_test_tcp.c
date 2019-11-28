@@ -448,6 +448,8 @@ static BaseType_t prvConnectHelperWithRetry( volatile Socket_t * pxSocket,
         if( SOCKETS_INVALID_SOCKET == *pxSocket )
         {
             xResult = SOCKETS_SOCKET_ERROR;
+            tcptestFAILUREPRINTF( ( "Failed to allocate Socket Descriptor \r\n" ) );
+            break;
         }
 
         /* Set the appropriate socket options for the destination. */
