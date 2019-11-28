@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>aws_demos</name>
-	<comment/>
+	<comment>Created by SDK v2018.2. test1_bsp - ps7_cortexa9_0</comment>
 	<projects>
 		<project>aws_bsp</project>
 	</projects>
