@@ -3024,7 +3024,6 @@
 			<locationURI>AFR_HOME/libraries/3rdparty/jsmn/jsmn.c</locationURI>
 		</link>
 	</linkedResources>
-	<filteredResources/>
 	<variableList>
 		<variable>
 			<name>AFR_HOME</name>
