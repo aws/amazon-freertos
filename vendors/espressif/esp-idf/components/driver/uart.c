@@ -53,7 +53,7 @@ static const char* UART_TAG = "uart";
 #define UART_ENTER_CRITICAL_ISR(mux)    portENTER_CRITICAL_ISR(mux)
 #define UART_EXIT_CRITICAL_ISR(mux)     portEXIT_CRITICAL_ISR(mux)
 #define UART_ENTER_CRITICAL(mux)        portENTER_CRITICAL_SAFE(mux)
-#define UART_EXIT_CRITICAL(mux)         portEXIT_CRITICAL_ISR(mux)
+#define UART_EXIT_CRITICAL(mux)         portEXIT_CRITICAL_SAFE(mux)
 
 // Check actual UART mode set
 #define UART_IS_MODE_SET(uart_number, mode) ((p_uart_obj[uart_number]->uart_mode == mode))
