@@ -88,6 +88,6 @@
  *  Please note that this must be set larger than zero.
  *  
  */
- #define otaconfigMAX_NUM_BLOCKS_REQUEST        	128U
+ #define otaconfigMAX_NUM_BLOCKS_REQUEST        	2U
  
 #endif /* _AWS_OTA_AGENT_CONFIG_H_ */
