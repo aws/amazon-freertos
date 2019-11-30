@@ -66,7 +66,7 @@
  * started. Notification of the operation completion is done via the callback 
  * function. 
  */
-#define FLASH_CFG_DATA_FLASH_BGO   (0)
+#define FLASH_CFG_DATA_FLASH_BGO   (1)
 
 
 /******************************************************************************
@@ -80,7 +80,7 @@
  * INTERRUPT ROUTINES MUST BE IN RAM.  
  * See sections 2.16 Usage Notes in the App Note.
  */
-#define FLASH_CFG_CODE_FLASH_BGO   (0)
+#define FLASH_CFG_CODE_FLASH_BGO   (1)
 
 
 /******************************************************************************

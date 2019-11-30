@@ -16,21 +16,21 @@
 <listEntry value="61234"/>
 </listAttribute>
 <booleanAttribute key="com.renesas.cdt.core.loadImage" value="true"/>
-<stringAttribute key="com.renesas.cdt.core.optionInitCommands" value="monitor set_internal_mem_overwrite 0-581&#10;"/>
+<stringAttribute key="com.renesas.cdt.core.optionInitCommands" value="monitor set_internal_mem_overwrite 0-587&#10;"/>
 <intAttribute key="com.renesas.cdt.core.portNumber" value="61234"/>
 <stringAttribute key="com.renesas.cdt.core.runCommands" value=""/>
 <stringAttribute key="com.renesas.cdt.core.secondGDBExe" value="green_dsp-elf-gdb"/>
 <booleanAttribute key="com.renesas.cdt.core.secondGDBSupport" value="false"/>
 <intAttribute key="com.renesas.cdt.core.secondGdbPortNumber" value="61237"/>
-<stringAttribute key="com.renesas.cdt.core.serverParam" value="-g E2LITE  -t R5F565NE  -uClockSrcHoco= 1 -uAllowClockSourceInternal= 1 -uUseFine= 1 -uFineBaudRate= 1.50 -w 0 -z 0 -uRegisterSetting= 0 -uModePin= 0 -uChangeStartupBank= 0 -uStartupBank= 0 -uDebugMode= 0 -uExecuteProgram= 0 -uIdCode= FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF -uresetOnReload= 1 -n 0 -uWorkRamAddress= 1000 -uProgReWriteIRom= 1 -uProgReWriteDFlash= 1 -uhookWorkRamAddr= 0x3fdd0 -uhookWorkRamSize= 0x230"/>
+<stringAttribute key="com.renesas.cdt.core.serverParam" value="-g E2LITE  -t R5F565NE_DUAL  -uClockSrcHoco= 1 -uAllowClockSourceInternal= 1 -uUseFine= 1 -uFineBaudRate= 1.50 -w 0 -z 0 -uRegisterSetting= 0 -uModePin= 0 -uChangeStartupBank= 0 -uStartupBank= 0 -uDebugMode= 0 -uExecuteProgram= 0 -uIdCode= FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF -uresetOnReload= 1 -n 0 -uWorkRamAddress= 1000 -uProgReWriteIRom= 1 -uProgReWriteDFlash= 1 -uhookWorkRamAddr= 0x3fdd0 -uhookWorkRamSize= 0x230"/>
 <booleanAttribute key="com.renesas.cdt.core.setResume" value="true"/>
 <booleanAttribute key="com.renesas.cdt.core.setStopAt" value="true"/>
 <booleanAttribute key="com.renesas.cdt.core.startServer" value="true"/>
 <stringAttribute key="com.renesas.cdt.core.stopAt" value="main"/>
-<stringAttribute key="com.renesas.cdt.core.targetDevice" value="R5F565NE"/>
+<stringAttribute key="com.renesas.cdt.core.targetDevice" value="R5F565NE_DUAL"/>
 <booleanAttribute key="com.renesas.cdt.core.useRemoteTarget" value="true"/>
 <stringAttribute key="com.renesas.cdt.debug.ioview.dsf.registerSelection" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;selectedRegisterList ioFilePath=&quot;C:\Renesas\e2_studio_v720\DebugComp\RX\Iofiles\RX65N.sfrx&quot;/&gt;&#13;&#10;"/>
-<stringAttribute key="com.renesas.cdt.debug.ioview.dsf.registerSelection0" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;selectedRegisterList ioFilePath=&quot;C:\Renesas\e2_studio\DebugComp\RX\Iofiles\RX65N.sfrx&quot;/&gt;&#13;&#10;"/>
+<stringAttribute key="com.renesas.cdt.debug.ioview.dsf.registerSelection0" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;selectedRegisterList ioFilePath=&quot;C:\Renesas\e2_studio_v710\DebugComp\RX\Iofiles\RX65N.sfrx&quot;/&gt;&#13;&#10;"/>
 <stringAttribute key="com.renesas.cdt.launch.dsf.IO_MAP" value="${support_area_loc}"/>
 <booleanAttribute key="com.renesas.cdt.launch.dsf.USE_DEFAULT_IO_MAP" value="true"/>
 <listAttribute key="com.renesas.cdt.launch.dsf.downloadImages">
@@ -92,7 +92,7 @@
 <stringAttribute key="com.renesas.hardwaredebug.rx.e2lite.ext_flash_registers" value="2.1,0,"/>
 <stringAttribute key="com.renesas.hardwaredebug.rx.e2lite.external_memory" value=""/>
 <stringAttribute key="com.renesas.hardwaredebug.rx.e2lite.fine.baud.rate" value="1.50"/>
-<stringAttribute key="com.renesas.hardwaredebug.rx.e2lite.flash_overwrite_blocks" value="0-581"/>
+<stringAttribute key="com.renesas.hardwaredebug.rx.e2lite.flash_overwrite_blocks" value="0-587"/>
 <stringAttribute key="com.renesas.hardwaredebug.rx.e2lite.hook_Stop_func" value="0x0"/>
 <booleanAttribute key="com.renesas.hardwaredebug.rx.e2lite.hook_enable_Stop" value="false"/>
 <booleanAttribute key="com.renesas.hardwaredebug.rx.e2lite.hook_enable_start" value="false"/>

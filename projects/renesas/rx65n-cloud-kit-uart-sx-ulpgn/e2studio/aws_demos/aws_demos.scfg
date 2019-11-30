@@ -11,7 +11,7 @@
 </toolchain>
 </configuration>
 <platform id="R5F565NEDxFP"/>
-<option id="board" value="カスタムユーザボード"/>
+<option id="board" value="CloudKitRX65N (V.1.00)"/>
 </general>
 <tool id="Summary" version="1.0.0.0">
 <option id="com.renesas.smc.code.type" value="Normal Folder"/>
@@ -110,9 +110,9 @@
 <Item current="120.0 MHz" id="pclkadivider.OutputValue"/>
 <Item current="sckselector.radiobutton.swtpll" id="pclkadivider.Condition"/>
 <Item current="comboBox1-2" error="false" id="pclkadivider.comboBox"/>
-<Item current="false" id="uckdivider.selectBox"/>
+<Item current="true" id="uckdivider.selectBox"/>
 <Item current="240.0 MHz" id="uckdivider.InputValue"/>
-<Item current="" id="uckdivider.OutputValue"/>
+<Item current="48.0 MHz" id="uckdivider.OutputValue"/>
 <Item current="sckselector.radiobutton.swtpll" id="uckdivider.Condition"/>
 <Item current="comboBox1-5" error="false" id="uckdivider.comboBox"/>
 <Item current="true" id="iclkdivider.isSelected"/>
@@ -175,12 +175,12 @@
 <Item current="MHz" id="bck.unitTxt"/>
 <Item current="120.0" id="bck.CurrentValue"/>
 <Item current="false" id="bck.Disabled"/>
-<Item current="false" id="uclk.isSelected"/>
-<Item current="" id="uclk.InputValue"/>
-<Item current="0" id="uclk.OutputValue"/>
-<Item current="-" id="uclk.frequencyTxt"/>
+<Item current="true" id="uclk.isSelected"/>
+<Item current="48.0 MHz" id="uclk.InputValue"/>
+<Item current="48.0 MHz" id="uclk.OutputValue"/>
+<Item current="48.0" id="uclk.frequencyTxt"/>
 <Item current="MHz" id="uclk.unitTxt"/>
-<Item current="true" id="uclk.Disabled"/>
+<Item current="false" id="uclk.Disabled"/>
 <Item current="false" id="cacmclk.isSelected"/>
 <Item current="" id="cacmclk.InputValue"/>
 <Item current="0" id="cacmclk.OutputValue"/>
@@ -220,6 +220,7 @@
 <Item current="MHz" id="cacilsclk.unitTxt"/>
 <Item current="true" id="cacilsclk.Disabled"/>
 <Item current="20" id="cachclk.CurrentValue"/>
+<Item current="48.0" id="uclk.CurrentValue"/>
 </tool>
 <tool id="Pins" version="1.0.1.0">
 <pinItem allocation="" comments="" direction="None" id="XTAL" locked="false" status="0"/>
@@ -252,6 +253,40 @@
 <pinItem allocation="28" comments="" direction="None" id="TXD0" locked="false" status="0"/>
 <pinItem allocation="20" comments="" direction="None" id="RXD1" locked="false" status="0"/>
 <pinItem allocation="22" comments="" direction="None" id="TXD1" locked="false" status="0"/>
+<pinnumItem comment="Silex HSUART2_RXD" id="22"/>
+<pinnumItem comment="SERIAL RXD" id="66"/>
+<pinnumItem comment="SERIAL TXD" id="67"/>
+<pinnumItem comment="Silex HSUART1_CTS" id="25"/>
+<pinnumItem comment="Silex HSUART1_RTS" id="26"/>
+<pinnumItem comment="Silex HSUART1_RXD" id="27"/>
+<pinnumItem comment="Silex HSUART1_TXD" id="28"/>
+<pinnumItem comment="BMI160 INT2" id="71"/>
+<pinnumItem comment="BMI160 INT1" id="72"/>
+<pinnumItem comment="VREFL0" id="94"/>
+<pinnumItem comment="VREFH0" id="96"/>
+<pinnumItem comment="AVCC0" id="97"/>
+<pinnumItem comment="Reset SW" id="10"/>
+<pinnumItem comment="SDA0" id="33"/>
+<pinnumItem comment="AVSS0" id="99"/>
+<pinnumItem comment="SCL0" id="34"/>
+<pinnumItem comment="QSPI SIO1" id="79"/>
+<pinnumItem comment="USB Micro DM" id="36"/>
+<pinnumItem comment="LED2" id="58"/>
+<pinnumItem comment="USB Micro DP" id="37"/>
+<pinnumItem comment="User SW" id="19"/>
+<pinnumItem comment="AVCC1" id="1"/>
+<pinnumItem comment="EMLE" id="2"/>
+<pinnumItem comment="AVSS1" id="3"/>
+<pinnumItem comment="XCIN" id="8"/>
+<pinnumItem comment="QSPI SIO0" id="80"/>
+<pinnumItem comment="XCOUT" id="9"/>
+<pinnumItem comment="QSPI SCLK" id="81"/>
+<pinnumItem comment="QSPI CS#" id="82"/>
+<pinnumItem comment="LED1" id="61"/>
+<pinnumItem comment="QSPI SIO3" id="83"/>
+<pinnumItem comment="QSPI SIO2" id="84"/>
+<pinnumItem comment="Silex HSUART2_TXD" id="20"/>
+<pinnumItem comment="Silex RST" id="86"/>
 </tool>
 <tool id="Interrupt">
 <Item id="BSC_BUSERR" priority="15"/>
@@ -497,7 +532,7 @@
 <gridItem id="BSP_CFG_TRUSTED_MODE_FUNCTION" selectedIndex="0xFFFFFFFF"/>
 <gridItem id="BSP_CFG_FAW_REG_VALUE" selectedIndex="0xFFFFFFFF"/>
 <gridItem id="BSP_CFG_ROMCODE_REG_VALUE" selectedIndex="0xFFFFFFFF"/>
-<gridItem id="BSP_CFG_CODE_FLASH_BANK_MODE" selectedIndex="1"/>
+<gridItem id="BSP_CFG_CODE_FLASH_BANK_MODE" selectedIndex="0"/>
 <gridItem id="BSP_CFG_CODE_FLASH_START_BANK" selectedIndex="0"/>
 <gridItem id="BSP_CFG_USER_LOCKING_ENABLED" selectedIndex="0"/>
 <gridItem id="BSP_CFG_USER_LOCKING_TYPE" selectedIndex="bsp_lock_t"/>
@@ -529,7 +564,7 @@
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>
 </configuration>
-<configuration id="5537a959-d58b-46be-9f57-cb0f5e987486" inuse="true" name="FreeRTOS_Object">
+<configuration id="40251f12-2072-4e70-9c92-055cd8abb839" inuse="true" name="FreeRTOS_Object">
 <allocatable id="OBJECT" name="OBJECT">
 <allocatable id="TASK" name="TASK">
 <option defaultValue="0" id="LinkNum" value=""/>
@@ -559,7 +594,7 @@
 </allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="73ad126a-f520-4788-8d39-aec3e980b851" inuse="true" name="FreeRTOS_Kernel">
+<configuration id="73bc48e9-e4ff-4bcb-8595-e222aea0492f" inuse="true" name="FreeRTOS_Kernel">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="FreeRTOS_kernel" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.kernel" version="1.0.0">
 <gridItem id="configENABLE_BACKWARD_COMPATIBILITY" selectedIndex="1"/>
 <gridItem id="configUSE_PREEMPTION" selectedIndex="1"/>
@@ -666,7 +701,7 @@
 </allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="c1257b92-6b70-4a9c-8ffc-8f896669afae" inuse="true" name="AWS_device_shadow">
+<configuration id="29efdea1-5ee6-434a-a632-b9ee903b926f" inuse="true" name="AWS_device_shadow">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_device_shadow" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.device_shadow" version="1.0.0">
 <gridItem id="shadowConfigJSON_JSMN_TOKENS" selectedIndex="64"/>
 <gridItem id="shadowConfigJSON_CLIENT_TOKEN" selectedIndex="&quot;clientToken&quot;"/>
@@ -677,7 +712,7 @@
 </allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="86ded1cc-fcfd-44bc-b19d-b522465cb3b7" inuse="true" name="AWS_tcp_ip">
+<configuration id="9982c9c2-5e54-4594-adff-5d435c7064aa" inuse="true" name="AWS_tcp_ip">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_tcp_ip" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.tcp_ip" version="1.0.0">
 <gridItem id="ipconfigHAS_DEBUG_PRINTF" selectedIndex="1"/>
 <gridItem id="ipconfigHAS_PRINTF" selectedIndex="0"/>
@@ -734,7 +769,7 @@
 </allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="ccd07ec2-31d9-4c6a-bc9e-75225a8e5a65" inuse="true" name="AWS_mqtt">
+<configuration id="003fe8e3-5355-41ea-955d-73f605368c49" inuse="true" name="AWS_mqtt">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_mqtt" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.mqtt" version="1.0.0">
 <gridItem id="mqttconfigENABLE_METRICS" selectedIndex="0"/>
 <gridItem id="mqttOPERATION_TIMEOUT_MS" selectedIndex="120000"/>
@@ -758,7 +793,7 @@
 </allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="96ba6eb6-4130-4fd9-aee4-34127d4c2aa5" inuse="true" name="AWS_secure_socket">
+<configuration id="19b61dba-83c6-4d74-9830-f271d3167959" inuse="true" name="AWS_secure_socket">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_secure_socket" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.secure_socket" version="1.0.0">
 <gridItem id="socketsconfigBYTE_ORDER" selectedIndex="0"/>
 <gridItem id="socketsconfigDEFAULT_SEND_TIMEOUT" selectedIndex="10000"/>
@@ -769,7 +804,7 @@
 </allocator>
 <source description="Code generator for Real-time OS" display="RTOS Configurator" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.source"/>
 </configuration>
-<configuration id="3b0cfd2d-065e-439e-b274-9cf86e122cba" inuse="true" name="AWS_ggd">
+<configuration id="69a9dc1e-0a46-4dfc-9ec1-5b2b50085efa" inuse="true" name="AWS_ggd">
 <component description="This component is a part of RTOS Configurator feature that allow user to use the GUI to configure kernel setting of AFR" detailDescription="" display="AWS_ggd" id="com.renesas.smc.tools.swcomponent.rtosconfigurator.freertos.amazon.ggd" version="1.0.0">
 <gridItem id="ggdconfigCORE_NETWORK_INTERFACE" selectedIndex="0"/>
 <gridItem id="ggdconfigJSON_MAX_TOKENS" selectedIndex="128"/>
@@ -932,8 +967,8 @@
 <component description="依存モジュール: r_bsp バージョン 5.20&#10;This module allows the user to program, erase, write and blankcheck the Code and/or Data flash." detailDescription="Flash API for RX100, RX200, RX600. and RX700." display="r_flash_rx" id="r_flash_rx4.20" version="4.20">
 <gridItem id="FLASH_CFG_PARAM_CHECKING_ENABLE" selectedIndex="1"/>
 <gridItem id="FLASH_CFG_CODE_FLASH_ENABLE" selectedIndex="1"/>
-<gridItem id="FLASH_CFG_DATA_FLASH_BGO" selectedIndex="0"/>
-<gridItem id="FLASH_CFG_CODE_FLASH_BGO" selectedIndex="0"/>
+<gridItem id="FLASH_CFG_DATA_FLASH_BGO" selectedIndex="1"/>
+<gridItem id="FLASH_CFG_CODE_FLASH_BGO" selectedIndex="1"/>
 <gridItem id="FLASH_CFG_CODE_FLASH_RUN_FROM_ROM" selectedIndex="1"/>
 </component>
 <source description="Components supporting Firmware Integration Technology" display="Firmware Integration Technology" id="com.renesas.smc.tools.swcomponent.fit.source"/>

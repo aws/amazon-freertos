@@ -116,6 +116,15 @@ typedef struct _pkcs_data
 
 #define PKCS11_PAL_DEBUG_PRINT( X )      /* configPRINTF( X ) */
 
+#define DATA_FLASH_UPDATE_STATE_INITIALIZE 0
+#define DATA_FLASH_UPDATE_STATE_ERASE 1
+#define DATA_FLASH_UPDATE_STATE_ERASE_WAIT_COMPLETE 2
+#define DATA_FLASH_UPDATE_STATE_WRITE 3
+#define DATA_FLASH_UPDATE_STATE_WRITE_WAIT_COMPLETE 4
+#define DATA_FLASH_UPDATE_STATE_FINALIZE 5
+#define DATA_FLASH_UPDATE_STATE_FINALIZE_COMPLETED 6
+#define DATA_FLASH_UPDATE_STATE_ERROR 103
+
 typedef struct _pkcs_storage_control_block_sub
 {
     uint8_t local_storage[((FLASH_DF_BLOCK_SIZE * FLASH_NUM_BLOCKS_DF) / 4) - (sizeof(PKCS_DATA) * PKCS_OBJECT_HANDLES_NUM) - PKCS_SHA256_LENGTH]; /* RX65N case: 8KB */
@@ -163,6 +172,18 @@ static void update_dataflash_data_mirror_from_image(void);
 static void check_dataflash_area(uint32_t retry_counter);
 
 extern CK_RV prvMbedTLS_Initialize( void );
+
+void data_flash_update_status_initialize(void);
+static void update_data_flash_callback_function(void *event);
+
+typedef struct _update_data_flash_control_block {
+	uint32_t status;
+}UPDATA_DATA_FLASH_CONTROL_BLOCK;
+
+/******************************************************************************
+ Private global variables
+ ******************************************************************************/
+static UPDATA_DATA_FLASH_CONTROL_BLOCK update_data_flash_control_block;
 
 CK_RV C_Initialize( CK_VOID_PTR pvInitArgs )
 {
@@ -317,10 +338,29 @@ CK_OBJECT_HANDLE PKCS11_PAL_SaveObject( CK_ATTRIBUTE_PTR pxLabel,
         memcpy(pkcs_control_block_data_image.hash_sha256, hash_sha256, sizeof(hash_sha256));
 
         /* update data from ram to storage */
-        update_dataflash_data_from_image();
-        update_dataflash_data_mirror_from_image();
+        data_flash_update_status_initialize();
+        while ( update_data_flash_control_block.status < DATA_FLASH_UPDATE_STATE_FINALIZE_COMPLETED )
+        {
+            update_dataflash_data_from_image();
+            vTaskDelay(1);
+        }
+        if (update_data_flash_control_block.status == DATA_FLASH_UPDATE_STATE_ERROR)
+        {
+            PKCS11_PAL_DEBUG_PRINT(("ERROR: Update data flash data from image\r\n"));
+            while(1);
+        }
+        data_flash_update_status_initialize();
+        while ( update_data_flash_control_block.status < DATA_FLASH_UPDATE_STATE_FINALIZE_COMPLETED )
+        {
+            update_dataflash_data_mirror_from_image();
+            vTaskDelay(1);
+        }
+        if (update_data_flash_control_block.status == DATA_FLASH_UPDATE_STATE_ERROR)
+        {
+            PKCS11_PAL_DEBUG_PRINT(("ERROR: Update data flash data mirror from image\r\n"));
+            while(1);
+        }
     }
-
 
     R_FLASH_Close();
 
@@ -436,94 +476,147 @@ void PKCS11_PAL_GetObjectValueCleanup( uint8_t * pucData,
 
 static void update_dataflash_data_from_image(void)
 {
-    uint32_t required_dataflash_block_num;
+	flash_interrupt_config_t cb_func_info;
+    static uint32_t required_dataflash_block_num;
     flash_err_t flash_error_code = FLASH_SUCCESS;
 
-    required_dataflash_block_num = sizeof(PKCS_CONTROL_BLOCK) / FLASH_DF_BLOCK_SIZE;
-    if(sizeof(PKCS_CONTROL_BLOCK) % FLASH_DF_BLOCK_SIZE)
+    switch(update_data_flash_control_block.status)
     {
-        required_dataflash_block_num++;
-    }
-
-    PKCS11_PAL_DEBUG_PRINT(("erase dataflash(main)...\r\n"));
-    R_BSP_InterruptsDisable();
-    flash_error_code = R_FLASH_Erase((flash_block_address_t)&pkcs_control_block_data, required_dataflash_block_num);
-    R_BSP_InterruptsEnable();
-    if(FLASH_SUCCESS == flash_error_code)
-    {
-        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
-    }
-    else
-    {
-        configPRINTF(("NG\r\n"));
-        configPRINTF(("R_FLASH_Erase() returns error code = %d.\r\n", flash_error_code));
-    }
-
-    PKCS11_PAL_DEBUG_PRINT(("write dataflash(main)...\r\n"));
-    R_BSP_InterruptsDisable();
-    flash_error_code = R_FLASH_Write((flash_block_address_t)&pkcs_control_block_data_image, (flash_block_address_t)&pkcs_control_block_data, FLASH_DF_BLOCK_SIZE * required_dataflash_block_num);
-    R_BSP_InterruptsEnable();
-    if(FLASH_SUCCESS == flash_error_code)
-    {
-        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
-    }
-    else
-    {
-        configPRINTF(("NG\r\n"));
-        configPRINTF(("R_FLASH_Write() returns error code = %d.\r\n", flash_error_code));
-        return;
+        case DATA_FLASH_UPDATE_STATE_INITIALIZE: /* initialize */
+        	cb_func_info.pcallback = update_data_flash_callback_function;
+        	cb_func_info.int_priority = 15;
+        	R_FLASH_Control(FLASH_CMD_SET_BGO_CALLBACK, (void *)&cb_func_info);
+            required_dataflash_block_num = sizeof(PKCS_CONTROL_BLOCK) / FLASH_DF_BLOCK_SIZE;
+            if(sizeof(PKCS_CONTROL_BLOCK) % FLASH_DF_BLOCK_SIZE)
+            {
+                required_dataflash_block_num++;
+            }
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_ERASE;
+            break;
+        case DATA_FLASH_UPDATE_STATE_ERASE: /* erase bank0 (0xFFE00000-0xFFEF0000) */
+            PKCS11_PAL_DEBUG_PRINT(("erase dataflash(main)...\r\n"));
+            R_BSP_InterruptsDisable();
+            flash_error_code = R_FLASH_Erase((flash_block_address_t)&pkcs_control_block_data, required_dataflash_block_num);
+            R_BSP_InterruptsEnable();
+            if(FLASH_SUCCESS == flash_error_code)
+            {
+                 PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
+            }
+            else
+            {
+                PKCS11_PAL_DEBUG_PRINT(("NG\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("R_FLASH_Erase() returns error code = %d.\r\n", flash_error_code));
+            }
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_ERASE_WAIT_COMPLETE;
+            break;
+        case DATA_FLASH_UPDATE_STATE_ERASE_WAIT_COMPLETE:
+            /* this state will be changed by callback routine */
+            break;
+        case DATA_FLASH_UPDATE_STATE_WRITE:
+            PKCS11_PAL_DEBUG_PRINT(("write dataflash(main)...\r\n"));
+            R_BSP_InterruptsDisable();
+            flash_error_code = R_FLASH_Write((flash_block_address_t)&pkcs_control_block_data_image, (flash_block_address_t)&pkcs_control_block_data, FLASH_DF_BLOCK_SIZE * required_dataflash_block_num);
+            R_BSP_InterruptsEnable();
+            if(FLASH_SUCCESS == flash_error_code)
+            {
+                PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
+            }
+            else
+            {
+            	PKCS11_PAL_DEBUG_PRINT(("NG\r\n"));
+            	PKCS11_PAL_DEBUG_PRINT(("R_FLASH_Write() returns error code = %d.\r\n", flash_error_code));
+            	return;
+            }
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_WRITE_WAIT_COMPLETE;
+            break;
+        case DATA_FLASH_UPDATE_STATE_WRITE_WAIT_COMPLETE:
+            /* this state will be changed by callback routine */
+            break;
+        case DATA_FLASH_UPDATE_STATE_FINALIZE: /* finalize */
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_FINALIZE_COMPLETED;
+            break;
+        default:
+            break;
     }
     return;
 }
 
 static void update_dataflash_data_mirror_from_image(void)
 {
-    uint32_t required_dataflash_block_num;
+	flash_interrupt_config_t cb_func_info;
+    static uint32_t required_dataflash_block_num;
     flash_err_t flash_error_code = FLASH_SUCCESS;
 
-    required_dataflash_block_num = sizeof(PKCS_CONTROL_BLOCK) / FLASH_DF_BLOCK_SIZE;
-    if(sizeof(PKCS_CONTROL_BLOCK) % FLASH_DF_BLOCK_SIZE)
+    switch(update_data_flash_control_block.status)
     {
-        required_dataflash_block_num++;
-    }
+    	case DATA_FLASH_UPDATE_STATE_INITIALIZE: /* initialize */
+    		cb_func_info.pcallback = update_data_flash_callback_function;
+    		cb_func_info.int_priority = 15;
+    		R_FLASH_Control(FLASH_CMD_SET_BGO_CALLBACK, (void *)&cb_func_info);
+            required_dataflash_block_num = sizeof(PKCS_CONTROL_BLOCK) / FLASH_DF_BLOCK_SIZE;
+            if(sizeof(PKCS_CONTROL_BLOCK) % FLASH_DF_BLOCK_SIZE)
+            {
+                required_dataflash_block_num++;
+            }
 
-    PKCS11_PAL_DEBUG_PRINT(("erase dataflash(mirror)...\r\n"));
-    R_BSP_InterruptsDisable();
-    flash_error_code = R_FLASH_Erase((flash_block_address_t)&pkcs_control_block_data_mirror, required_dataflash_block_num);
-    R_BSP_InterruptsEnable();
-    if(FLASH_SUCCESS == flash_error_code)
-    {
-        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
-    }
-    else
-    {
-        configPRINTF(("NG\r\n"));
-        configPRINTF(("R_FLASH_Erase() returns error code = %d.\r\n", flash_error_code));
-        return;
-    }
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_ERASE;
+            break;
+        case DATA_FLASH_UPDATE_STATE_ERASE: /* erase bank0 (0xFFE00000-0xFFEF0000) */
+            PKCS11_PAL_DEBUG_PRINT(("erase dataflash(mirror)...\r\n"));
+            R_BSP_InterruptsDisable();
+            flash_error_code = R_FLASH_Erase((flash_block_address_t)&pkcs_control_block_data_mirror, required_dataflash_block_num);
+            R_BSP_InterruptsEnable();
+            if(FLASH_SUCCESS == flash_error_code)
+            {
+                PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
+            }
+            else
+            {
+                PKCS11_PAL_DEBUG_PRINT(("NG\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("R_FLASH_Erase() returns error code = %d.\r\n", flash_error_code));
+                return;
+            }
 
-    PKCS11_PAL_DEBUG_PRINT(("write dataflash(mirror)...\r\n"));
-    R_BSP_InterruptsDisable();
-    flash_error_code = R_FLASH_Write((flash_block_address_t)&pkcs_control_block_data_image, (flash_block_address_t)&pkcs_control_block_data_mirror, FLASH_DF_BLOCK_SIZE * required_dataflash_block_num);
-    R_BSP_InterruptsEnable();
-    if(FLASH_SUCCESS == flash_error_code)
-    {
-        PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
-    }
-    else
-    {
-        configPRINTF(("NG\r\n"));
-        configPRINTF(("R_FLASH_Write() returns error code = %d.\r\n", flash_error_code));
-        return;
-    }
-    if(!memcmp(&pkcs_control_block_data, &pkcs_control_block_data_mirror, sizeof(PKCS_CONTROL_BLOCK)))
-    {
-        configPRINTF(("data flash setting OK.\r\n"));
-    }
-    else
-    {
-        configPRINTF(("data flash setting NG.\r\n"));
-        return;
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_ERASE_WAIT_COMPLETE;
+            break;
+        case DATA_FLASH_UPDATE_STATE_ERASE_WAIT_COMPLETE:
+            /* this state will be changed by callback routine */
+            break;
+        case DATA_FLASH_UPDATE_STATE_WRITE:
+            PKCS11_PAL_DEBUG_PRINT(("write dataflash(mirror)...\r\n"));
+            R_BSP_InterruptsDisable();
+            flash_error_code = R_FLASH_Write((flash_block_address_t)&pkcs_control_block_data_image, (flash_block_address_t)&pkcs_control_block_data_mirror, FLASH_DF_BLOCK_SIZE * required_dataflash_block_num);
+            R_BSP_InterruptsEnable();
+            if(FLASH_SUCCESS == flash_error_code)
+            {
+                PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
+            }
+            else
+            {
+                PKCS11_PAL_DEBUG_PRINT(("NG\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("R_FLASH_Write() returns error code = %d.\r\n", flash_error_code));
+                return;
+            }
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_WRITE_WAIT_COMPLETE;
+            break;
+        case DATA_FLASH_UPDATE_STATE_WRITE_WAIT_COMPLETE:
+            /* this state will be changed by callback routine */
+            break;
+        case DATA_FLASH_UPDATE_STATE_FINALIZE: /* finalize */
+
+            if(!memcmp(&pkcs_control_block_data, &pkcs_control_block_data_mirror, sizeof(PKCS_CONTROL_BLOCK)))
+            {
+                PKCS11_PAL_DEBUG_PRINT(("data flash setting OK.\r\n"));
+            }
+            else
+            {
+                PKCS11_PAL_DEBUG_PRINT(("data flash setting NG.\r\n"));
+                return;
+            }
+            update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_FINALIZE_COMPLETED;
+            break;
+        default:
+    	    break;
     }
     return;
 }
@@ -540,7 +633,7 @@ static void check_dataflash_area(uint32_t retry_counter)
         PKCS11_PAL_DEBUG_PRINT(("recover retry count = %d.\r\n", retry_counter));
         if(retry_counter == MAX_CHECK_DATAFLASH_AREA_RETRY_COUNT)
         {
-            configPRINTF(("retry over the limit.\r\n"));
+            PKCS11_PAL_DEBUG_PRINT(("retry over the limit.\r\n"));
             while(1);
         }
     }
@@ -561,10 +654,20 @@ static void check_dataflash_area(uint32_t retry_counter)
         }
         else
         {
-            configPRINTF(("NG\r\n"));
-            configPRINTF(("recover mirror from main.\r\n"));
+            PKCS11_PAL_DEBUG_PRINT(("NG\r\n"));
+            PKCS11_PAL_DEBUG_PRINT(("recover mirror from main.\r\n"));
             memcpy(&pkcs_control_block_data_image, (void *)&pkcs_control_block_data, sizeof(pkcs_control_block_data));
-            update_dataflash_data_mirror_from_image();
+
+            data_flash_update_status_initialize();
+            while ( update_data_flash_control_block.status < DATA_FLASH_UPDATE_STATE_FINALIZE_COMPLETED )
+            {
+                update_dataflash_data_mirror_from_image();
+            }
+            if (update_data_flash_control_block.status == DATA_FLASH_UPDATE_STATE_ERROR)
+            {
+                PKCS11_PAL_DEBUG_PRINT(("ERROR: Update data flash data mirror from image\r\n"));
+                while(1);
+            }
             check_dataflash_area(retry_counter + 1);
         }
     }
@@ -580,21 +683,68 @@ static void check_dataflash_area(uint32_t retry_counter)
             PKCS11_PAL_DEBUG_PRINT(("OK\r\n"));
             PKCS11_PAL_DEBUG_PRINT(("recover main from mirror.\r\n"));
             memcpy(&pkcs_control_block_data_image, (void *)&pkcs_control_block_data_mirror, sizeof(pkcs_control_block_data_mirror));
-            update_dataflash_data_from_image();
+            data_flash_update_status_initialize();
+            while ( update_data_flash_control_block.status < DATA_FLASH_UPDATE_STATE_FINALIZE_COMPLETED )
+            {
+                update_dataflash_data_from_image();
+            }
+            if (update_data_flash_control_block.status == DATA_FLASH_UPDATE_STATE_ERROR)
+            {
+                PKCS11_PAL_DEBUG_PRINT(("ERROR: Update data flash data from image\r\n"));
+                while(1);
+            }
             check_dataflash_area(retry_counter + 1);
         }
         else
         {
-            configPRINTF(("NG\r\n"));
+            PKCS11_PAL_DEBUG_PRINT(("NG\r\n"));
             while(1)
             {
                 vTaskDelay(10000);
-                configPRINTF(("------------------------------------------------\r\n"));
-                configPRINTF(("Data flash is completely broken.\r\n"));
-                configPRINTF(("Please erase all code flash.\r\n"));
-                configPRINTF(("And, write initial firmware using debugger/rom writer.\r\n"));
-                configPRINTF(("------------------------------------------------\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("------------------------------------------------\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("Data flash is completely broken.\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("Please erase all code flash.\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("And, write initial firmware using debugger/rom writer.\r\n"));
+                PKCS11_PAL_DEBUG_PRINT(("------------------------------------------------\r\n"));
             }
         }
     }
+}
+
+void data_flash_update_status_initialize(void)
+{
+	update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_INITIALIZE;
+}
+
+void update_data_flash_callback_function(void *event)
+{
+	uint32_t event_code;
+	event_code = *((uint32_t*)event);
+
+	switch(event_code)
+	{
+		case FLASH_INT_EVENT_ERASE_COMPLETE:
+			if(DATA_FLASH_UPDATE_STATE_ERASE_WAIT_COMPLETE == update_data_flash_control_block.status)
+			{
+				update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_WRITE;
+			}
+			else
+			{
+				update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_ERROR;
+			}
+			break;
+		case FLASH_INT_EVENT_WRITE_COMPLETE:
+			if(DATA_FLASH_UPDATE_STATE_WRITE_WAIT_COMPLETE == update_data_flash_control_block.status)
+			{
+
+				update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_FINALIZE;
+			}
+			else
+			{
+				update_data_flash_control_block.status = DATA_FLASH_UPDATE_STATE_ERROR;
+			}
+			break;
+		default:
+			break;
+	}
 }
