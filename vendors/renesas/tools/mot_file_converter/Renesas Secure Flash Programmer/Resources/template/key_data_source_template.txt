@@ -1,0 +1,89 @@
+/***********************************************************************************************************************
+ * DISCLAIMER
+ * This software is supplied by Renesas Electronics Corporation and is only intended for use with Renesas products. No
+ * other uses are authorized. This software is owned by Renesas Electronics Corporation and is protected under all
+ * applicable laws, including copyright laws.
+ * THIS SOFTWARE IS PROVIDED "AS IS" AND RENESAS MAKES NO WARRANTIES REGARDING
+ * THIS SOFTWARE, WHETHER EXPRESS, IMPLIED OR STATUTORY, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. ALL SUCH WARRANTIES ARE EXPRESSLY DISCLAIMED. TO THE MAXIMUM
+ * EXTENT PERMITTED NOT PROHIBITED BY LAW, NEITHER RENESAS ELECTRONICS CORPORATION NOR ANY OF ITS AFFILIATED COMPANIES
+ * SHALL BE LIABLE FOR ANY DIRECT, INDIRECT, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES FOR ANY REASON RELATED TO THIS
+ * SOFTWARE, EVEN IF RENESAS OR ITS AFFILIATES HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
+ * Renesas reserves the right, without notice, to make changes to this software and to discontinue the availability of
+ * this software. By using this software, you agree to the additional terms and conditions found by accessing the
+ * following link:
+ * http://www.renesas.com/disclaimer
+ *
+ * Copyright (C) 2018 Renesas Electronics Corporation. All rights reserved.
+ **********************************************************************************************************************/
+/***********************************************************************************************************************
+ * File Name    : {source_name}.c
+ * Device(s)    : RX Family
+ * Description  : sample program of TSIP Key data.
+ **********************************************************************************************************************/
+/***********************************************************************************************************************
+ * History : DD.MM.YYYY Version  Description
+ *         : 28.02.2018 1.04     First Release
+ *         : 30.04.2018 1.05     Add TDES key information
+ *         : 28.09.2018 1.06     Add update key ring information
+ *         : 28.12.2018 1.07     Add comment
+ **********************************************************************************************************************/
+
+/***********************************************************************************************************************
+ Includes   <System Includes> , "Project Includes"
+ **********************************************************************************************************************/
+#include "platform.h"
+#include "{header_name}.h"
+
+/***********************************************************************************************************************
+ Macro definitions
+ **********************************************************************************************************************/
+
+/***********************************************************************************************************************
+ Typedef definitions
+ **********************************************************************************************************************/
+
+/***********************************************************************************************************************
+ Exported global variables (to be accessed by other files)
+ **********************************************************************************************************************/
+#pragma section _FIRMWARE_UPDATE_CONTROL_BLOCK
+const st_key_block_data_t g_key_block_data =
+{
+    /* struct firmware_update_control_data; */
+    {
+        /* uint32_t user_program_max_cnt; */
+        0,
+        /* uint32_t lifecycle_state; */
+        LIFECYCLE_STATE_BLANK,
+        /* uint32_t program_mac0[R_TSIP_AES_BLOCK_BYTE_SIZE / sizeof(uint32_t)]; */
+        {
+            0
+        },
+        /* uint32_t program_mac1[R_TSIP_AES_BLOCK_BYTE_SIZE / sizeof(uint32_t)]; */
+        {
+            0
+        },
+    },
+    /* struct key_data; */
+    {
+        /* uint8_t encrypted_session_key[R_TSIP_AES_CBC_IV_BYTE_SIZE * 2]; */
+{ENCRYPTED_SESSION_KEY_DATA}
+        /* uint8_t iv[R_TSIP_AES_CBC_IV_BYTE_SIZE]; */
+{IV_DATA}
+    },
+    /* uint8_t hash_sha1[R_TSIP_SHA1_HASH_LENGTH_BYTE_SIZE]; */
+{SHA1_HASH_DATA}
+};
+#pragma section
+
+#pragma section _FIRMWARE_UPDATE_CONTROL_BLOCK_MIRROR
+const st_key_block_data_t g_key_block_data_mirror =
+{
+    0
+};
+#pragma section
+
+st_key_block_data_t g_key_block_image =
+{
+    0
+};
