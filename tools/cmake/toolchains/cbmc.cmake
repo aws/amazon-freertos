@@ -17,6 +17,16 @@
 
 set(CBMC 1)
 
+#  0 no output
+#  1 errors
+#  2 warnings
+#  4 results
+#  6 status information
+#  8 statistical information
+#  9 progress information
+# 10 debug info
+set(CBMC_VERBOSITY 4 CACHE STRING "Verbosity of CBMC and related tools")
+
 # ______________________________________________________________________________
 #     Variables that are not intended to be directly changed by proof-writers
 # ``````````````````````````````````````````````````````````````````````````````

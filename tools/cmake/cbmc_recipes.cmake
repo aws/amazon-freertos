@@ -50,6 +50,11 @@ list(APPEND cbmc_test_labels ${cbmc_proof_name})
 # because we sometimes want to remove particular functions out of the project,
 # and particular functions out of the harness. So we remove the functions from
 # each object file and then link them together.
+#
+# After the project and harness have been linked together, we perform a series
+# of transformations on the resulting object file using goto-instrument. The
+# result of each transformation is the input to the next one. We leave behind
+# all intermediate files, with sequence numbers, to aid debugging.
 
 list(APPEND cbmc_compile_definitions
     CBMC_OBJECT_BITS=${cbmc_object_bits}
@@ -83,49 +88,87 @@ set_target_properties(
 )
 
 # Function removal
+#
+# If funs_to_remove is a non-empty list of functions, return a goto-instrument
+# command that strips those functions out of the binary.  If the list is empty,
+# return a command to copy the binary without changing it.
+function(cbmc_remove_functions funs_to_remove binary)
+  list(LENGTH ${funs_to_remove} n_funs_to_remove)
 
-set(__cbmc_harness_remove ${cbmc_harness_remove} BOGUS_FUNCTION)
-list(JOIN __cbmc_harness_remove ";--remove-function-body;" _cbmc_harness_remove)
-list(PREPEND _cbmc_harness_remove goto-instrument --remove-function-body)
-list(APPEND  _cbmc_harness_remove ${cbmc_proof_name}_0010_harness.goto)
-list(APPEND  _cbmc_harness_remove ${cbmc_proof_name}_0020_harness_functions_removed.goto)
+  if(${n_funs_to_remove} GREATER 0)
+    list(JOIN ${funs_to_remove} ";--remove-function-body;" cmd_list)
+    list(PREPEND
+        cmd_list
+        "goto-instrument"
+        "--verbosity" "${CBMC_VERBOSITY}"
+        "--remove-function-body"
+    )
+    list(APPEND
+        cmd_list
+        "${cbmc_proof_name}_0010_${binary}.goto"
+        "${cbmc_proof_name}_0020_${binary}_functions_removed.goto"
+    )
 
-set(__cbmc_project_remove ${cbmc_project_remove} BOGUS_FUNCTION)
-list(JOIN __cbmc_project_remove ";--remove-function-body;" _cbmc_project_remove)
-list(PREPEND _cbmc_project_remove goto-instrument --remove-function-body)
-list(APPEND  _cbmc_project_remove ${cbmc_proof_name}_0010_project.goto)
-list(APPEND  _cbmc_project_remove ${cbmc_proof_name}_0020_project_functions_removed.goto)
+  else()
+    set(cmd_list
+        "cmake;-E;copy;"
+        "${cbmc_proof_name}_0010_${binary}.goto"
+        "${cbmc_proof_name}_0020_${binary}_functions_removed.goto"
+    )
+  endif()
 
-# TODO: break this up into a sequence of custom commands, for easier debugging
+  add_custom_command(
+      COMMENT "Removing ${n_funs_to_remove} functions from ${cbmc_proof_name}"
+      DEPENDS ${cbmc_proof_name}_0010_${binary}.goto
+      OUTPUT  ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
+      COMMAND ${cmd_list}
+  )
+endfunction()
+
+cbmc_remove_functions(cbmc_harness_remove "harness")
+cbmc_remove_functions(cbmc_project_remove "project")
+
 add_custom_command(
-    DEPENDS ${cbmc_proof_name}_0010_harness.goto ${cbmc_proof_name}_0010_project.goto
-    OUTPUT
+    COMMENT "Linking ${cbmc_proof_name}"
+    DEPENDS
         ${cbmc_proof_name}_0020_harness_functions_removed.goto
         ${cbmc_proof_name}_0020_project_functions_removed.goto
+    OUTPUT ${cbmc_proof_name}_0030_linked.goto
+    COMMAND
+        goto-cc --function harness
+        ${cbmc_proof_name}_0020_harness_functions_removed.goto
+        ${cbmc_proof_name}_0020_project_functions_removed.goto
+        -o ${cbmc_proof_name}_0030_linked.goto
+)
+
+add_custom_command(
+    COMMENT "Adding standard library to ${cbmc_proof_name}"
+    DEPENDS ${cbmc_proof_name}_0030_linked.goto
+    OUTPUT ${cbmc_proof_name}_0040_library_added.goto
+    COMMAND
+        goto-instrument --add-library --verbosity ${CBMC_VERBOSITY}
         ${cbmc_proof_name}_0030_linked.goto
         ${cbmc_proof_name}_0040_library_added.goto
+)
+
+add_custom_command(
+    COMMENT "Dropping unused functions from ${cbmc_proof_name}"
+    DEPENDS ${cbmc_proof_name}_0040_library_added.goto
+    OUTPUT ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+    COMMAND
+        goto-instrument --drop-unused-functions --verbosity ${CBMC_VERBOSITY}
+        ${cbmc_proof_name}_0040_library_added.goto
+        ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+)
+
+add_custom_command(
+    COMMENT "Removing unused globals initialization for ${cbmc_proof_name}"
+    DEPENDS ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+    OUTPUT ${cbmc_proof_name}.goto
+    COMMAND
+        goto-instrument --slice-global-inits --verbosity ${CBMC_VERBOSITY}
         ${cbmc_proof_name}_0050_unused_functions_dropped.goto
         ${cbmc_proof_name}.goto
-    COMMENT "Linking"
-    COMMAND ${_cbmc_harness_remove}
-    COMMAND ${_cbmc_project_remove}
-    COMMAND
-      goto-cc --function harness
-          ${cbmc_proof_name}_0020_harness_functions_removed.goto
-          ${cbmc_proof_name}_0020_project_functions_removed.goto
-          -o ${cbmc_proof_name}_0030_linked.goto
-    COMMAND
-      goto-instrument --add-library
-      ${cbmc_proof_name}_0030_linked.goto
-      ${cbmc_proof_name}_0040_library_added.goto
-    COMMAND
-      goto-instrument --drop-unused-functions
-      ${cbmc_proof_name}_0040_library_added.goto
-      ${cbmc_proof_name}_0050_unused_functions_dropped.goto
-    COMMAND
-      goto-instrument --slice-global-inits
-      ${cbmc_proof_name}_0050_unused_functions_dropped.goto
-      ${cbmc_proof_name}.goto
 )
 
 add_custom_target(${cbmc_proof_name}-proof DEPENDS ${cbmc_proof_name}.goto)
