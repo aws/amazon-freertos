@@ -95,7 +95,7 @@ set_target_properties(
 function(cbmc_remove_functions funs_to_remove binary)
   list(LENGTH ${funs_to_remove} n_funs_to_remove)
 
-  if(${n_funs_to_remove} GREATER 0)
+  if(${n_funs_to_remove})
     list(JOIN ${funs_to_remove} ";--remove-function-body;" cmd_list)
     list(PREPEND
         cmd_list
@@ -178,14 +178,16 @@ add_custom_target(${cbmc_proof_name}-proof DEPENDS ${cbmc_proof_name}.goto)
 #     Common recipe for running a single proof using CTest.
 # ``````````````````````````````````````````````````````````````````````````````
 
-list(APPEND cbmc_unwindset BOGUS_LOOP.0:1)
-list(JOIN cbmc_unwindset "," _cbmc_unwindset)
-
 list(APPEND cbmc_flags
     --object-bits ${cbmc_object_bits}
     --unwind ${cbmc_unwind}
-    --unwindset ${_cbmc_unwindset}
 )
+
+list(LENGTH cbmc_unwindset cbmc_unwindset_length)
+if(${cbmc_unwindset_length} GREATER 0)
+    list(JOIN cbmc_unwindset "," _cbmc_unwindset)
+    list(APPEND cbmc_flags --unwindset ${_cbmc_unwindset})
+endif()
 
 list(JOIN cbmc_flags " " _cbmc_flags)
 
