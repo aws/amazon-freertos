@@ -32,10 +32,10 @@ class OtaTestUntrustedCertificate(OtaTestCase):
 
     def __init__(self, positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol):
         # Define invalid/valid signing certificates for later use.
-        self._validSignerArn = self._otaConfig['aws_signer_certificate_arn']
-        self._bogusSignerArn = self._otaConfig['aws_untrusted_signer_certificate_arn']
+        self._validSignerArn = boardConfig['ota_config']['aws_signer_certificate_arn']
+        self._bogusSignerArn = boardConfig['ota_config']['aws_untrusted_signer_certificate_arn']
         # Set a semi-unique 'signing type' name based on the invalid certificate's ARN to avoid conflicts.
-        self._signingProfileName = f'{self._bogusSignerArn[-10:]}{self._otaAwsAgent._boardName[:10]}'
+        self._signingProfileName = f'{self._bogusSignerArn[-10:]}{otaAwsAgent._boardName[:10]}'
 
         # Call base constructor.
         super().__init__(positive, boardConfig, otaProject, otaAwsAgent, flashComm, protocol)
