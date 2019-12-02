@@ -38,6 +38,16 @@ another proof. Ensure that you set the variable 'cbmc_proof_name' to a unique
 value for each proof.")
 endif()
 
+list(LENGTH cbmc_nondet_static_exclude cnse_length)
+if(${cnse_length} AND ${cbmc_nondet_static})
+    message(FATAL_ERROR "\
+The CMakeLists.txt for the CBMC proof in directory
+${CMAKE_CURRENT_SOURCE_DIR}
+sets both `cbmc_nondet_static` to true, and `cbmc_nondet_static_exclude` to a
+nonempty list. You should only do one or the other. Value of
+cbmc_nondet_static_exclude: [${cbmc_nondet_static_exclude}].")
+endif()
+
 set(cbmc_proof_names "${cbmc_proof_name};${cbmc_proof_names}" CACHE INTERNAL "")
 list(APPEND cbmc_test_labels ${cbmc_proof_name})
 
@@ -162,13 +172,55 @@ add_custom_command(
         ${cbmc_proof_name}_0050_unused_functions_dropped.goto
 )
 
+list(LENGTH cbmc_nondet_static_exclude cnse_length)
+if(${cbmc_nondet_static} OR ${cnse_length})
+    if(${cbmc_nondet_static})
+        set(nondet_static_flags --nondet-static)
+    else()
+        list(JOIN
+            cbmc_nondet_static_exclude
+            ";--nondet-static-exclude;" nondet_static_flags)
+        list(PREPEND
+            nondet_static_flags
+            --nondet-static-exclude
+        )
+    endif()
+
+    add_custom_command(
+        COMMENT
+            "Havoccing all except ${cnse_length} statics in ${cbmc_proof_name}"
+        DEPENDS
+            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+        OUTPUT
+            ${cbmc_proof_name}_0060_nondet_static.goto
+        COMMAND
+            goto-instrument ${nondet_static_flags}
+            --verbosity ${CBMC_VERBOSITY}
+            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+            ${cbmc_proof_name}_0060_nondet_static.goto
+    )
+else()
+    add_custom_command(
+        COMMENT
+            "Not havoccing statics in ${cbmc_proof_name}"
+        DEPENDS
+            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+        OUTPUT
+            ${cbmc_proof_name}_0060_nondet_static.goto
+        COMMAND
+            cmake -E copy
+            ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+            ${cbmc_proof_name}_0060_nondet_static.goto
+    )
+endif()
+
 add_custom_command(
     COMMENT "Removing unused globals initialization for ${cbmc_proof_name}"
-    DEPENDS ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+    DEPENDS ${cbmc_proof_name}_0060_nondet_static.goto
     OUTPUT ${cbmc_proof_name}.goto
     COMMAND
         goto-instrument --slice-global-inits --verbosity ${CBMC_VERBOSITY}
-        ${cbmc_proof_name}_0050_unused_functions_dropped.goto
+        ${cbmc_proof_name}_0060_nondet_static.goto
         ${cbmc_proof_name}.goto
 )
 

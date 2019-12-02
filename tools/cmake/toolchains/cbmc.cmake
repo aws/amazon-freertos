@@ -45,11 +45,12 @@ set(cbmc_proofs_dir ${cbmc_dir}/proofs)
 #     proof's CMakeLists.txt
 # ``````````````````````````````````````````````````````````````````````````````
 
-# Argument to cbmc --unwind flag
+# Argument to cbmc --unwind flag. See also cbmc_unwindset below.
 set(cbmc_unwind 1)
 
-# Argument to cbmc --unwindset flag
-set(cbmc_unwindset)
+# Setting this to true for a particular proof builds that proof with the
+# --nondet-static flag. See also cbmc_nondet_static_except below.
+set(cbmc_nondet_static OFF)
 
 # Argument to cbmc --object-bits flag
 set(cbmc_object_bits 8)
@@ -67,6 +68,12 @@ set(cbmc_max_object_size "(SIZE_MAX>>(CBMC_OBJECT_BITS+1))")
 # should get its own label, and each individual proof should also get its own
 # label.
 set(cbmc_test_labels "cbmc")
+
+# Argument to cbmc --unwindset flag
+set(cbmc_unwindset)
+
+# Argument to goto-instrument --nondet-static-except flag.
+set(cbmc_nondet_static_except)
 
 set(cbmc_compile_options)
 set(cbmc_compile_definitions)
