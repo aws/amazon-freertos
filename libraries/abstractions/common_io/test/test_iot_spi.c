@@ -267,7 +267,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
-#ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
 #else
@@ -312,8 +312,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadSyncAssisted )
 
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+#endif
     }
 
     /* Create a string with read bytes and print it to console. */
@@ -408,7 +410,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
-#ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
 #else
@@ -461,8 +463,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_ReadAsyncAssisted )
 
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+#endif
     }
 
     /* Create a string with read bytes and print it to console. */
@@ -552,7 +556,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
-#ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
 #else
@@ -595,8 +599,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteSyncAssisted )
 
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+#endif
     }
 
     TEST_IGNORE_MESSAGE(cMsg);
@@ -685,7 +691,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
-#ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
 #else
@@ -738,8 +744,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_WriteAsyncAssisted )
 
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+#endif
     }
 
     TEST_IGNORE_MESSAGE(cMsg);
@@ -837,7 +845,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
-#ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
 #else
@@ -886,8 +894,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferSyncAssisted )
 
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+#endif
     }
 
     /* Append read bytes to string. */
@@ -989,7 +999,7 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
     /* If unit test and assisted test have different spi slave, make sure select slave function in
      * ll hal is defined and select the slave for assisted slave. */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
-#ifdef ASSISTED_TEST_COMMON_IO_SPI_SLAVE_SELECET_SUPPORTED
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
 #else
@@ -1038,8 +1048,10 @@ TEST( TEST_IOT_SPI, AFQP_IotSPI_TransferAsyncAssisted )
 
     /* restore slave select */
     if( ulAssistedTestIotSpiSlave!=ultestIotSpiSlave ){
+#ifdef IOT_TEST_COMMON_IO_SPI_SLAVE_SELECT_SUPPORTED
         lRetVal = iot_spi_select_slave(ultestIotSpiInstance, ulAssistedTestIotSpiSlave);
         TEST_ASSERT_EQUAL( IOT_SPI_SUCCESS, lRetVal );
+#endif
     }
 
     /* Append read bytes to string. */
