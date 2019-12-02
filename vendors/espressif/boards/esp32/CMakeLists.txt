@@ -27,6 +27,8 @@ if(AFR_METADATA_MODE)
     set(PYTHON_DEPS_CHECKED 1)
 endif()
 
+
+
 set(esp_idf_dir "${AFR_VENDORS_DIR}/espressif/esp-idf")
 # Provides idf_import_components and idf_link_components
 include(${esp_idf_dir}/tools/cmake/idf_functions.cmake)
@@ -94,11 +96,12 @@ endif()
 afr_mcu_port(kernel)
 afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
 
-if( ECC608_IN_USE )
+if(ECC608_IN_USE)
     set(mchp_dir "${AFR_VENDORS_DIR}/microchip")
     set(ecc608a_dir "${mchp_dir}/secure_elements")
 
     afr_glob_src(ecc608a_atacert_src RECURSE DIRECTORY ${ecc608a_dir}/lib/atcacert)
+
     afr_glob_src(ecc608a_basic_src RECURSE DIRECTORY ${ecc608a_dir}/lib/basic)
     afr_glob_src(ecc608a_crypto_src RECURSE DIRECTORY ${ecc608a_dir}/lib/crypto)
     afr_glob_src(ecc608a_host_src RECURSE DIRECTORY ${ecc608a_dir}/lib/host)
@@ -125,33 +128,8 @@ if( ECC608_IN_USE )
         "${ecc608a_hal_src}"
         "${ecc608a_host_src}"
     )
+endif()
 
-    afr_glob_src(driver_src DIRECTORY "${esp_idf_dir}" RECURSE)
-    set(
-        kernel_inc_dirs
-        "${esp_idf_dir}/components/app_update/include/"
-        "${esp_idf_dir}/components/bootloader_support/include"
-        "${esp_idf_dir}/components/esp32/include"
-        "${esp_idf_dir}/components/esp_event/include"
-        "${esp_idf_dir}/components/efuse/include"
-        "${esp_idf_dir}/components/driver/include"
-        "${esp_idf_dir}/components/heap/include"
-        "${esp_idf_dir}/components/log/include"
-        "${esp_idf_dir}/components/nvs_flash/include"
-        "${esp_idf_dir}/components/pthread/include"
-        "${esp_idf_dir}/components/newlib/include"
-        "${esp_idf_dir}/components/newlib/platform_include"
-        "${esp_idf_dir}/components/soc/esp32/include"
-        "${esp_idf_dir}/components/soc/include"
-        "${esp_idf_dir}/components/spi_flash/include"
-        "${esp_idf_dir}/components/vfs/include"
-        "${esp_idf_dir}/components/esp_ringbuf/include"
-        "${extra_components_dir}/freertos/include"
-        "${extra_components_dir}/mbedtls/port/include"
-        ${ecc608_include}
-        "${board_dir}/application_code"
-    )
-else()
 set(
     kernel_inc_dirs
     "${esp_idf_dir}/components/app_update/include/"
@@ -173,9 +151,6 @@ set(
     "${extra_components_dir}/freertos/include"
     "${extra_components_dir}/mbedtls/port/include"
 )
-endif()
-
-
 
 if(NOT AFR_ESP_LWIP)
     list(APPEND kernel_inc_dirs
@@ -191,17 +166,17 @@ else()
 endif()
 
 if(ECC608_IN_USE)
-    target_include_directories(
-    AFR::kernel::mcu_port
-    INTERFACE
-        ${kernel_inc_dirs}
-        "${AFR_KERNEL_DIR}/portable/ThirdParty/GCC/Xtensa_ESP32/include/"
-        "${aws_credentials_include}"
-        "${ecc608a_dir}/lib"
-        "${board_dir}/config_files"
-        "$<$<NOT:${AFR_METADATA_MODE}>:${CMAKE_BINARY_DIR}/config>"
+    list(APPEND kernel_inc_dirs
+    "${afr_ports_dir}/pkcs11/esp32_plus_ecc608_include"
+    "${ecc608a_dir}/lib"
+    "${esp_idf_dir}/components/esp_ringbuf/include"
     )
 else()
+    list(APPEND kernel_inc_dirs
+    "${afr_ports_dir}/pkcs11/esp32_include"
+    )
+endif()
+
 target_include_directories(
     AFR::kernel::mcu_port
     INTERFACE
@@ -211,9 +186,9 @@ target_include_directories(
         "${board_dir}/config_files"
         "$<$<NOT:${AFR_METADATA_MODE}>:${CMAKE_BINARY_DIR}/config>"
 )
-endif()
+
 # WiFi
-afr_mcu_port(wifi)
+afr_mcu_port(wifi)  
 
 if(NOT AFR_ESP_LWIP)
 target_link_libraries(
@@ -235,22 +210,17 @@ target_include_directories(
 endif()
 
 if(ECC608_IN_USE)
-target_sources(
-    AFR::wifi::mcu_port
-    INTERFACE 
-        "${afr_ports_dir}/wifi/iot_wifi.c"
-        "${ecc608a_src}"
-        "${ecc608a_atacert_src}"
-        "${ecc608a_basic_src}"
-        "${ecc608a_crypto_src}"
-        "${ecc608a_hal_src}"
-        "${ecc608a_host_src}"
-)
+    target_sources(
+        AFR::wifi::mcu_port
+        INTERFACE 
+            "${afr_ports_dir}/wifi/iot_wifi.c"
+            "${ecc608_src_list}"
+    )
 else()
-target_sources(
-    AFR::wifi::mcu_port
-    INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
-)
+    target_sources(
+        AFR::wifi::mcu_port
+        INTERFACE "${afr_ports_dir}/wifi/iot_wifi.c"
+    )
 endif()
 
 # BLE
@@ -305,21 +275,22 @@ target_include_directories(
 )
 
 if(ECC608_IN_USE)
-# PKCS11
-afr_mcu_port(pkcs11_implementation)
-target_sources(
-    AFR::pkcs11_implementation::mcu_port
-    INTERFACE
-        "${ecc608a_pkcs11_src}"
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
-)
+    # PKCS11
+    afr_mcu_port(pkcs11_implementation)
+    target_sources(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+            "${ecc608a_pkcs11_src}"
+            "${afr_ports_dir}/pkcs11/atca_cert_chain.c"        
+            "${afr_ports_dir}/pkcs11/iot_pkcs11_secure_element.c"
+    )
 else()
-afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
-target_sources(
-    AFR::pkcs11_implementation::mcu_port
-    INTERFACE
-        "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
-)
+    afr_mcu_port(pkcs11_implementation DEPENDS AFR::pkcs11_mbedtls)
+    target_sources(
+        AFR::pkcs11_implementation::mcu_port
+        INTERFACE
+            "${afr_ports_dir}/pkcs11/iot_pkcs11_pal.c"
+    )
 endif()
 
 if(NOT AFR_ESP_LWIP)
@@ -402,20 +373,11 @@ afr_glob_src(config_files DIRECTORY "${board_dir}/config_files")
 
 # Do not add demos or tests if they're turned off.
 if(AFR_ENABLE_DEMOS OR AFR_ENABLE_TESTS)
-    if(ECC608_IN_USE)
-    add_executable(
-        ${exe_target}
-        "${board_dir}/application_code/main.c"
-        "${board_dir}/application_code/atca_cert_chain.c"
-        ${extra_exe_sources}
-    )
-    else()
     add_executable(
         ${exe_target}
         "${board_dir}/application_code/main.c"
         ${extra_exe_sources}
     )
-    endif()
     target_include_directories(
         ${exe_target}
         PUBLIC
