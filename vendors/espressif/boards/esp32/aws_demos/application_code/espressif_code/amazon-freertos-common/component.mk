@@ -89,6 +89,7 @@ COMPONENT_PRIV_INCLUDEDIRS := $(AMAZON_FREERTOS_ABSTRACTIONS_DIR)/pkcs11 \
 
 lib/greengrass/aws_greengrass_discovery.o: CFLAGS+=-Wno-format
 lib/common/aws_logging_task_dynamic_buffers.o: CFLAGS+=-Wno-format -Wno-uninitialized
+libraries/c_sdk/aws/defender/src/aws_iot_defender_api.o: CFLAGS+=-Wno-unused-but-set-variable
 
 ifdef AMAZON_FREERTOS_ENABLE_UNIT_TEST
 COMPONENT_SRCDIRS += ../.. \

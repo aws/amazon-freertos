@@ -20,6 +20,7 @@ else
 CFLAGS += -DAFR_ESP_LWIP
 endif
 
+CFLAGS+=-Wno-unused-function -Wno-unused-variable
 include $(IDF_PATH)/make/project.mk
 
 else
