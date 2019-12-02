@@ -53,7 +53,7 @@
  * @brief Configuration for this test group.
  */
 #define otatestMAX_LOOP_MEM_LEAK_CHECK    ( 1 )
-#define otatestSHUTDOWN_WAIT              10000
+#define otatestSHUTDOWN_WAIT              pdMS_TO_TICKS( 10000 )
 #define otatestAGENT_INIT_WAIT            10000
 #define otatestGARBAGE_JSON               "{sioudgoijergijoijosdigjoeiwgoiew893752379\"}"
 
@@ -124,13 +124,6 @@ static IotMqttConnection_t xMQTTClientHandle = NULL;
 static OTA_ConnectionContext_t xOTAConnContext = { NULL, NULL, NULL };
 
 /**
- * @brief Application-defined callback for the OTA agent.
- */
-static void vOTACompleteCallback( OTA_JobEvent_t eResult )
-{
-}
-
-/**
  * @brief Initialize OTA agent. Some tests don't use an initialized OTA Agent, so this isn't done in SETUP.
  */
 static OTA_State_t prvOTAAgentInit()
@@ -141,8 +134,8 @@ static OTA_State_t prvOTAAgentInit()
     eOtaStatus = OTA_AgentInit(
         &xOTAConnContext,
         ( const uint8_t * ) clientcredentialIOT_THING_NAME,
-        vOTACompleteCallback,
-        pdMS_TO_TICKS( otatestAGENT_INIT_WAIT ) );
+        NULL,
+        xTicksToWait );
 
     if( eOtaStatus != eOTA_AgentState_Ready )
     {
@@ -224,18 +217,44 @@ TEST_TEAR_DOWN( Full_OTA_AGENT )
 
 TEST_GROUP_RUNNER( Full_OTA_AGENT )
 {
-    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_InvalidParams );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_AbortBeforeInit );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_SetImageState_BadState );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_GetAgentState_InitAndStop );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_Shutdown_BeforeInit );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_AgentInit_BackToBack );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_CheckForUpdate_BeforeInit );
+    RUN_TEST_CASE( Full_OTA_AGENT, OTA_GetStatistics_BeforeInit );
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close );
     RUN_TEST_CASE( Full_OTA_AGENT, prvParseJSONbyModel_Errors );
 }
 
-TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
+TEST( Full_OTA_AGENT, OTA_SetImageState_AbortBeforeInit )
+{
+    /* Attempt to set image state aborted without initializing the OTA Agent. */
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_SetImageState_AbortAfterShutDown )
+{
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
+
+    /* Initialize the Agent. */
+    eOtaStatus = prvOTAAgentInit();
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, eOtaStatus );
+
+    /* Shutdown the OTA agent. */
+    eOtaStatus = OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
+
+    /* Attempt to set image state aborted. */
+    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_SetImageState_BadState )
 {
     /* Initial OTA image state. */
     OTA_ImageState_t xOTAImageState = OTA_GetImageState();
-
-    /* Attempt to set image state aborted without initializing the OTA Agent. */
-    TEST_ASSERT_EQUAL_UINT32( kOTA_Err_Panic, OTA_SetImageState( eOTA_ImageState_Aborted ) );
 
     /* Attempt to set bad image states. */
     TEST_ASSERT_EQUAL_UINT32( kOTA_Err_BadImageState, OTA_SetImageState( eOTA_ImageState_Unknown ) );
@@ -243,6 +262,64 @@ TEST( Full_OTA_AGENT, OTA_SetImageState_InvalidParams )
 
     /* Ensure that the failed SetImageState calls didn't modify the image state. */
     TEST_ASSERT_EQUAL( xOTAImageState, OTA_GetImageState() );
+}
+
+TEST( Full_OTA_AGENT, OTA_GetAgentState_InitAndStop )
+{
+    /* OTA Agent should be in stopped state when not initialized. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_GetAgentState() );
+
+    /* Initialize the Agent. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
+
+    /* Shutdown the OTA agent. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_AgentShutdown( otatestSHUTDOWN_WAIT ) );
+
+    /* Calling shutdown again after the agent stops should do nothing. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_AgentShutdown( otatestSHUTDOWN_WAIT ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_Shutdown_BeforeInit )
+{
+    /* Attempt to stop the agent before initializing. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, OTA_AgentShutdown( otatestSHUTDOWN_WAIT ) );
+}
+
+TEST( Full_OTA_AGENT, OTA_AgentInit_BackToBack )
+{
+    OTA_State_t eOtaStatus = eOTA_AgentState_Init;
+    TickType_t xTicksToWait = pdMS_TO_TICKS( otatestAGENT_INIT_WAIT );
+
+    /* Initialize the Agent. */
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
+
+    /* Call init again should do nothing and only reset statistics. */
+    eOtaStatus = OTA_AgentInit(
+        &xOTAConnContext,
+        ( const uint8_t * ) clientcredentialIOT_THING_NAME,
+        NULL,
+        xTicksToWait );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, eOtaStatus );
+
+    /* Shutdown the OTA agent. */
+    eOtaStatus = OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
+}
+
+TEST( Full_OTA_AGENT, OTA_CheckForUpdate_BeforeInit )
+{
+    /* Attempt to call OTA_CheckForUpdate without initializing the agent. */
+    TEST_ASSERT_EQUAL( kOTA_Err_EventQueueSendFailed, OTA_CheckForUpdate() );
+}
+
+TEST( Full_OTA_AGENT, OTA_GetStatistics_BeforeInit )
+{
+    /* Attempt to get statistics without initializing the agent. */
+    ;
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsDropped() );
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsQueued() );
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsProcessed() );
+    TEST_ASSERT_EQUAL( 0, OTA_GetPacketsReceived() );
 }
 
 TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
@@ -253,7 +330,7 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     bool_t bUpdateJob = false;
 
     eOtaStatus = prvOTAAgentInit();
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_WaitingForJob, eOtaStatus );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, eOtaStatus );
 
     /* Test:
      * 1. That in ideal scenario, the JSON gets correctly processed.
@@ -347,10 +424,8 @@ TEST( Full_OTA_AGENT, prvParseJobDocFromJSONandPrvOTA_Close )
     }
 
     /* Shutdown the OTA agent. */
-    eOtaStatus = OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_Stopped, eOtaStatus );
-
-    /* End test. */
+    eOtaStatus = OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_Stopped, eOtaStatus );
 }
 
 TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
@@ -360,7 +435,7 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     bool_t bUpdateJob = false;
 
     /* Initialize the OTA Agent for the following tests. */
-    TEST_ASSERT_EQUAL_INT( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
+    TEST_ASSERT_EQUAL( eOTA_AgentState_WaitingForJob, prvOTAAgentInit() );
 
     /* Ensure that NULL parameters are rejected. */
     TEST_ASSERT_EQUAL( eDocParseErr_NullModelPointer,
@@ -410,5 +485,5 @@ TEST( Full_OTA_AGENT, prvParseJSONbyModel_Errors )
     }
 
     /* Shut down the OTA Agent. */
-    ( void ) OTA_AgentShutdown( pdMS_TO_TICKS( otatestSHUTDOWN_WAIT ) );
+    ( void ) OTA_AgentShutdown( otatestSHUTDOWN_WAIT );
 }
