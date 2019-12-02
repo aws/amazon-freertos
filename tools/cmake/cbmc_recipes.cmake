@@ -41,6 +41,7 @@ endif()
 set(cbmc_proof_names "${cbmc_proof_name};${cbmc_proof_names}" CACHE INTERNAL "")
 list(APPEND cbmc_test_labels ${cbmc_proof_name})
 
+
 # ______________________________________________________________________________
 #     Common recipes for building a single proof
 # ``````````````````````````````````````````````````````````````````````````````
@@ -93,40 +94,40 @@ set_target_properties(
 # command that strips those functions out of the binary.  If the list is empty,
 # return a command to copy the binary without changing it.
 function(cbmc_remove_functions funs_to_remove binary)
-  list(LENGTH ${funs_to_remove} n_funs_to_remove)
+    list(LENGTH ${funs_to_remove} n_funs_to_remove)
 
-  if(${n_funs_to_remove})
-    list(JOIN ${funs_to_remove} ";--remove-function-body;" cmd_list)
-    list(PREPEND
-        cmd_list
-        "goto-instrument"
-        "--verbosity" "${CBMC_VERBOSITY}"
-        "--remove-function-body"
-    )
-    list(APPEND
-        cmd_list
-        "${cbmc_proof_name}_0010_${binary}.goto"
-        "${cbmc_proof_name}_0020_${binary}_functions_removed.goto"
-    )
+    if(${n_funs_to_remove})
+      list(JOIN ${funs_to_remove} ";--remove-function-body;" cmd_list)
+      list(PREPEND
+          cmd_list
+          goto-instrument
+          --verbosity ${CBMC_VERBOSITY}
+          --remove-function-body
+      )
+      list(APPEND
+          cmd_list
+          ${cbmc_proof_name}_0010_${binary}.goto
+          ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
+      )
 
-  else()
-    set(cmd_list
-        "cmake;-E;copy;"
-        "${cbmc_proof_name}_0010_${binary}.goto"
-        "${cbmc_proof_name}_0020_${binary}_functions_removed.goto"
-    )
-  endif()
+    else()
+      set(cmd_list
+          cmake -E copy
+          ${cbmc_proof_name}_0010_${binary}.goto
+          ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
+      )
+    endif()
 
-  add_custom_command(
-      COMMENT "Removing ${n_funs_to_remove} functions from ${cbmc_proof_name}"
-      DEPENDS ${cbmc_proof_name}_0010_${binary}.goto
-      OUTPUT  ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
-      COMMAND ${cmd_list}
-  )
+    add_custom_command(
+        COMMENT "Removing ${n_funs_to_remove} functions from ${cbmc_proof_name}"
+        DEPENDS ${cbmc_proof_name}_0010_${binary}.goto
+        OUTPUT  ${cbmc_proof_name}_0020_${binary}_functions_removed.goto
+        COMMAND ${cmd_list}
+    )
 endfunction()
 
-cbmc_remove_functions(cbmc_harness_remove "harness")
-cbmc_remove_functions(cbmc_project_remove "project")
+cbmc_remove_functions(cbmc_harness_remove harness)
+cbmc_remove_functions(cbmc_project_remove project)
 
 add_custom_command(
     COMMENT "Linking ${cbmc_proof_name}"
@@ -194,44 +195,44 @@ list(JOIN cbmc_flags " " _cbmc_flags)
 # Actually check the proof
 # TODO this obviously won't work on windows.
 add_test(
-  NAME ${cbmc_proof_name}-cbmc
-  COMMAND
-    /bin/sh -c
-    "cbmc --unwinding-assertions --trace ${_cbmc_flags} ${cbmc_proof_name}.goto > cbmc.txt 2>&1 "
+    NAME ${cbmc_proof_name}-cbmc
+    COMMAND
+        /bin/sh -c
+        "cbmc --trace --unwinding-assertions ${_cbmc_flags} ${cbmc_proof_name}.goto > cbmc.txt 2>&1"
 )
 set_tests_properties(
     ${cbmc_proof_name}-cbmc
     PROPERTIES
-    LABELS "${cbmc_test_labels}"
+    LABELS ${cbmc_test_labels}
     SKIP_RETURN_CODE 10
 )
 
 # Show the properties that were checked
 # TODO this obviously won't work on windows.
 add_test(
-  NAME ${cbmc_proof_name}-property
-  COMMAND
-    /bin/sh -c
-    "cbmc --unwinding-assertions --show-properties ${_cbmc_flags} ${cbmc_proof_name}.goto --xml-ui > property.xml 2>&1"
+    NAME ${cbmc_proof_name}-property
+    COMMAND
+        /bin/sh -c
+        "cbmc --show-properties --unwinding-assertions --xml-ui ${_cbmc_flags} ${cbmc_proof_name}.goto > property.xml 2>&1"
 )
 set_tests_properties(
     ${cbmc_proof_name}-property
     PROPERTIES
-    LABELS "${cbmc_test_labels}"
+    LABELS ${cbmc_test_labels}
 )
 
 # Compute which lines of code were covered by the proof
 # TODO this obviously won't work on windows.
 add_test(
-  NAME ${cbmc_proof_name}-coverage
-  COMMAND
-    /bin/sh -c
-    "cbmc --cover location ${_cbmc_flags} ${cbmc_proof_name}.goto --xml-ui > coverage.xml 2>&1"
+    NAME ${cbmc_proof_name}-coverage
+    COMMAND
+        /bin/sh -c
+        "cbmc --cover location --xml-ui ${_cbmc_flags} ${cbmc_proof_name}.goto > coverage.xml 2>&1"
 )
 set_tests_properties(
     ${cbmc_proof_name}-coverage
     PROPERTIES
-    LABELS "${cbmc_test_labels}"
+    LABELS ${cbmc_test_labels}
 )
 
 # Accumulate the results of the proof runs above and generate a report
@@ -250,13 +251,15 @@ list(JOIN _report_command " " report_command)
 
 # TODO this obviously won't work on windows. But why do we even need a shell here?
 add_test(
-  NAME ${cbmc_proof_name}-report
-  COMMAND
-    /bin/sh -c "${report_command}"
+    NAME ${cbmc_proof_name}-report
+    COMMAND /bin/sh -c ${report_command}
 )
 set_tests_properties(
     ${cbmc_proof_name}-report
     PROPERTIES
-    LABELS "${cbmc_test_labels}"
-    DEPENDS "${cbmc_proof_name}-cbmc;${cbmc_proof_name}-property;${cbmc_proof_name}-coverage"
+    LABELS ${cbmc_test_labels}
+    DEPENDS
+        ${cbmc_proof_name}-cbmc
+        ${cbmc_proof_name}-property
+        ${cbmc_proof_name}-coverage
 )
